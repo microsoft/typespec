@@ -16,9 +16,9 @@ function tokens(text: string) {
     ]);
   } while (!scanner.eof);
 
-  // verify that the input matches the output 
+  // verify that the input matches the output
   const out = result.map(each => each[1]).join('');
-  strictEqual(out, text, "Input text should match parsed token values");
+  strictEqual(out, text, 'Input text should match parsed token values');
 
   return result;
 }
@@ -35,7 +35,7 @@ function verify(tokens: Array<any>, expecting: Array<any>) {
     const expected = expecting[each];
     if (expected) {
       for (const e in expected) {
-        strictEqual(token[e], expected[e], "Must Match");
+        strictEqual(token[e], expected[e], 'Must Match');
       }
     }
   }
@@ -57,7 +57,7 @@ function verify(tokens: Array<any>, expecting: Array<any>) {
       [Kind.Identifier, 'a'],
       [Kind.Whitespace],
       [Kind.Identifier, 'test'],
-    ])
+    ]);
   }
 
   /** verifies that this compiled js file parses tokens that are the same as the input.  */

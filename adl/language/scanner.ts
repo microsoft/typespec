@@ -147,7 +147,7 @@ export class Scanner {
   tabWidth = 2;
 
   /**
-     The current state of the scanner. 
+     The current state of the scanner.
      Will be set to `error` when the scanner is in an error state
   */
   state?: 'error';
@@ -182,7 +182,7 @@ export class Scanner {
   private advance(count?: number): number {
     let codeOrChar: number;
     let newOffset: number;
-    let offsetAdvancedBy: number = 0;
+    let offsetAdvancedBy = 0;
 
     switch (count) {
       case undefined:
@@ -221,6 +221,7 @@ export class Scanner {
         }
         this.#offset += offsetAdvancedBy;
 
+      // eslint-disable-next-line no-fallthrough
       case 0:
         newOffset = this.#offset;
         codeOrChar = this.#text.charCodeAt(newOffset);
@@ -237,7 +238,7 @@ export class Scanner {
     }
   }
 
-  private next(token: Kind, count: number = 1, value?: string) {
+  private next(token: Kind, count = 1, value?: string) {
     const originalOffset = this.#offset;
     const offsetAdvancedBy = this.advance(count);
     this.value = value || this.#text.substr(originalOffset, offsetAdvancedBy);
@@ -252,28 +253,28 @@ export class Scanner {
   }
 
   /** updates the position and marks the location  */
-  private newLine(count: number = 1) {
+  private newLine(count = 1) {
     this.value = this.#text.substr(this.#offset, count);
     this.advance(count);
 
     this.#line++;
     this.#column = 0;
-    this.markPosition(); // make sure the map has the new location 
+    this.markPosition(); // make sure the map has the new location
 
     return this.token = Kind.NewLine;
   }
 
   /**
    * Identifies and returns the next token type in the document
-   * 
+   *
    * @returns the state of the scanner will have the properties `token`, `value`, `offset` pointing to the current token at the end of this call.
-   * 
+   *
    * @notes before this call, `#offset` is pointing to the next character to be evaluated.
-   * 
+   *
    */
   scan(): Kind {
 
-    // this token starts at 
+    // this token starts at
     this.offset = this.#offset;
 
     if (!this.eof) {
@@ -481,9 +482,9 @@ export class Scanner {
 
         default:
           // FYI:
-          // Well-known characters that are currently not processed 
-          //   # \ 
-          // will need to update the scanner if there is a need to recognize them 
+          // Well-known characters that are currently not processed
+          //   # \
+          // will need to update the scanner if there is a need to recognize them
           return isIdentifierStart(this.#ch) ? this.scanIdentifier() : this.next(Kind.Unknown);
       }
 
@@ -525,7 +526,7 @@ export class Scanner {
       // advance the position
       this.#column += this.widthOfCh;
       this.advance();
-    } while (isWhiteSpaceSingleLine(this.#ch))
+    } while (isWhiteSpaceSingleLine(this.#ch));
 
     // and after...
     this.markPosition();
@@ -545,7 +546,7 @@ export class Scanner {
   private scanNumber() {
     const start = this.#offset;
 
-    let main = this.scanDigits();
+    const main = this.scanDigits();
     let decimal: string | undefined;
     let scientific: string | undefined;
 
@@ -557,7 +558,7 @@ export class Scanner {
     if (this.#ch === CharacterCodes.E || this.#ch === CharacterCodes.e) {
       if (isDigit(this.#chNext)) {
         this.advance();
-        scientific = this.scanDigits()
+        scientific = this.scanDigits();
       } else {
         this.error(messages.DigitExpected);
       }
@@ -614,7 +615,7 @@ export class Scanner {
         this.advance(this.#ch === CharacterCodes.carriageReturn && this.#chNext === CharacterCodes.lineFeed ? 2 : 1);
         this.#line++;
         this.#column = 0;
-        this.markPosition(); // make sure the map has the new location 
+        this.markPosition(); // make sure the map has the new location
       } else {
         this.#column += this.widthOfCh;
         this.advance();
@@ -622,7 +623,7 @@ export class Scanner {
 
       if (this.eof) {
         if (expectedClose) {
-          this.error(messages.UnexpectedEndOfFile, expectedClose)
+          this.error(messages.UnexpectedEndOfFile, expectedClose);
         }
         break;
       }
@@ -677,13 +678,13 @@ export class Scanner {
   }
 
   /**
-   * Returns the zero-based line/column from the given offset 
+   * Returns the zero-based line/column from the given offset
    * (binary search thru the token start locations)
    * @param offset the character position in the document
    */
   positionFromOffset(offset: number): Position {
     let position = { line: 0, character: 0, offset: 0 };
-    if (offset < 0 || offset > this.#length) {
+    if (offset < 0 || offset >this.#length) {
       return { line: position.line, character: position.character };
     }
 
@@ -702,7 +703,7 @@ export class Scanner {
         continue;
       }
       last = middle - 1;
-      position = this.#map[last]
+      position = this.#map[last];
     }
     return { line: position.line, character: position.character + (offset - position.offset) };
   }
