@@ -143,7 +143,14 @@ export class Scanner {
   #chNextSz!: number;
   #chNextNextSz!: number;
 
+  /** The assumed tab width. If this is set before scanning, it enables accurate Position tracking. */
   tabWidth = 2;
+
+  /**
+     The current state of the scanner. 
+     Will be set to `error` when the scanner is in an error state
+  */
+  state?: 'error';
 
   // current token information
 
@@ -156,7 +163,10 @@ export class Scanner {
   /** the text of the current token (when appropriate) */
   value!: string;
 
-  state?: 'error';
+  /** returns the Position (line/column) of the current token */
+  get position(): Position {
+    return this.positionFromOffset(this.offset);
+  }
 
   constructor(text: string) {
     this.#text = text;
@@ -228,9 +238,9 @@ export class Scanner {
   }
 
   private next(token: Kind, count: number = 1, value?: string) {
-    const o = this.#offset;
-    const a = this.advance(count);
-    this.value = value || this.#text.substr(o, a);
+    const originalOffset = this.#offset;
+    const offsetAdvancedBy = this.advance(count);
+    this.value = value || this.#text.substr(originalOffset, offsetAdvancedBy);
 
     this.#column += count;
     return this.token = token;
