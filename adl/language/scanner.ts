@@ -1,4 +1,4 @@
-import { CharacterCodes, isBinaryDigit, isDigit, isHexDigit, isIdentifierPart, isIdentifierStart, isLineBreak, isWhiteSpaceSingleLine, widthOf } from './character-codes';
+import { CharacterCodes, isBinaryDigit, isDigit, isHexDigit, isIdentifierPart, isIdentifierStart, isLineBreak, isWhiteSpaceSingleLine, sizeOf } from './character-codes';
 import { format, Message, messages } from './messages';
 
 // All conflict markers consist of the same character repeated seven times.  If it is
@@ -129,7 +129,7 @@ interface TokenLocation extends Position {
 export class Scanner {
   #offset = 0;
   #line = 0;
-  #character = 0;
+  #column = 0;
   #map = new Array<TokenLocation>();
 
   #length: number;
@@ -165,70 +165,65 @@ export class Scanner {
     this.markPosition();
   }
 
-  get notEof() {
-    return this.#offset < this.#length;
-  }
   get eof() {
     return this.#offset >= this.#length;
   }
 
   private advance(count?: number): number {
-    // todo: handle charsize for variable char size
-    let c: number;
-    let o: number;
-    let a: number = 0;
+    let codeOrChar: number;
+    let newOffset: number;
+    let offsetAdvancedBy: number = 0;
 
     switch (count) {
       case undefined:
       case 1:
-        a = this.#chSz;
+        offsetAdvancedBy = this.#chSz;
         this.#offset += this.#chSz;
         this.#ch = this.#chNext; this.#chSz = this.#chNextSz;
         this.#chNext = this.#chNextNext; this.#chNextSz = this.#chNextNextSz;
 
-        o = this.#offset + this.#chSz + this.#chNextSz;
-        c = this.#text.charCodeAt(o);
-        this.#chNextNext = (this.#chNextNextSz = widthOf(c)) === 1 ? c : this.#text.codePointAt(o)!;
-        return a;
+        newOffset = this.#offset + this.#chSz + this.#chNextSz;
+        codeOrChar = this.#text.charCodeAt(newOffset);
+        this.#chNextNext = (this.#chNextNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
+        return offsetAdvancedBy;
 
       case 2:
-        a = this.#chSz + this.#chNextSz;
+        offsetAdvancedBy = this.#chSz + this.#chNextSz;
         this.#offset += this.#chSz + this.#chNextSz;
         this.#ch = this.#chNextNext; this.#chSz = this.#chNextNextSz;
 
-        o = this.#offset + this.#chSz;
-        c = this.#text.charCodeAt(o);
-        this.#chNext = (this.#chNextSz = widthOf(c)) === 1 ? c : this.#text.codePointAt(o)!;
+        newOffset = this.#offset + this.#chSz;
+        codeOrChar = this.#text.charCodeAt(newOffset);
+        this.#chNext = (this.#chNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
 
-        o += this.#chNextSz;
-        c = this.#text.charCodeAt(o);
-        this.#chNextNext = (this.#chNextNextSz = widthOf(c)) === 1 ? c : this.#text.codePointAt(o)!;
-        return a;
+        newOffset += this.#chNextSz;
+        codeOrChar = this.#text.charCodeAt(newOffset);
+        this.#chNextNext = (this.#chNextNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
+        return offsetAdvancedBy;
 
       default:
       case 3:
-        a = this.#chSz + this.#chNextSz + this.#chNextNextSz;
+        offsetAdvancedBy = this.#chSz + this.#chNextSz + this.#chNextNextSz;
         count -= 3;
         while (count) {
           // skip over characters while we work.
-          a += widthOf(this.#text.charCodeAt(this.#offset + a));
+          offsetAdvancedBy += sizeOf(this.#text.charCodeAt(this.#offset + offsetAdvancedBy));
         }
-        this.#offset += a;
+        this.#offset += offsetAdvancedBy;
 
       case 0:
-        o = this.#offset;
-        c = this.#text.charCodeAt(o);
-        this.#ch = (this.#chSz = widthOf(c)) === 1 ? c : this.#text.codePointAt(o)!;
+        newOffset = this.#offset;
+        codeOrChar = this.#text.charCodeAt(newOffset);
+        this.#ch = (this.#chSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
 
-        o += this.#chSz;
-        c = this.#text.charCodeAt(o);
-        this.#chNext = (this.#chNextSz = widthOf(c)) === 1 ? c : this.#text.codePointAt(o)!;
+        newOffset += this.#chSz;
+        codeOrChar = this.#text.charCodeAt(newOffset);
+        this.#chNext = (this.#chNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
 
-        o += this.#chNextSz;
-        c = this.#text.charCodeAt(o);
-        this.#chNextNext = (this.#chNextNextSz = widthOf(c)) === 1 ? c : this.#text.codePointAt(o)!;
-        return a;
-
+        newOffset += this.#chNextSz;
+        codeOrChar = this.#text.charCodeAt(newOffset);
+        this.#chNextNext = (this.#chNextNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
+        return offsetAdvancedBy;
     }
   }
 
@@ -237,13 +232,13 @@ export class Scanner {
     const a = this.advance(count);
     this.value = value || this.#text.substr(o, a);
 
-    this.#character += count;
+    this.#column += count;
     return this.token = token;
   }
 
   /** adds the current position to the token to the offset:position map */
   private markPosition() {
-    this.#map.push({ offset: this.#offset, character: this.#character, line: this.#line });
+    this.#map.push({ offset: this.#offset, character: this.#column, line: this.#line });
   }
 
   /** updates the position and marks the location  */
@@ -252,7 +247,7 @@ export class Scanner {
     this.advance(count);
 
     this.#line++;
-    this.#character = 0;
+    this.#column = 0;
     this.markPosition(); // make sure the map has the new location 
 
     return this.token = Kind.NewLine;
@@ -265,14 +260,13 @@ export class Scanner {
    * 
    * @notes before this call, `#offset` is pointing to the next character to be evaluated.
    * 
-   * The
    */
   scan(): Kind {
 
     // this token starts at 
     this.offset = this.#offset;
 
-    if (this.notEof) {
+    if (!this.eof) {
       switch (this.#ch) {
         case CharacterCodes.carriageReturn:
           return this.newLine(this.#chNext === CharacterCodes.lineFeed ? 2 : 1);
@@ -477,7 +471,7 @@ export class Scanner {
 
         default:
           // FYI:
-          // Well-know characters that are currently not processed 
+          // Well-known characters that are currently not processed 
           //   # \ 
           // will need to update the scanner if there is a need to recognize them 
           return isIdentifierStart(this.#ch) ? this.scanIdentifier() : this.next(Kind.Unknown);
@@ -519,7 +513,7 @@ export class Scanner {
 
     do {
       // advance the position
-      this.#character += this.widthOfCh;
+      this.#column += this.widthOfCh;
       this.advance();
     } while (isWhiteSpaceSingleLine(this.#ch))
 
@@ -568,7 +562,7 @@ export class Scanner {
         main;
 
     // update the position
-    this.#character += (this.#offset - start);
+    this.#column += (this.#offset - start);
     return Kind.NumericLiteral;
   }
 
@@ -598,7 +592,7 @@ export class Scanner {
   }
 
   private get widthOfCh() {
-    return this.#ch === CharacterCodes.tab ? (this.#character % this.tabWidth || this.tabWidth) : 1;
+    return this.#ch === CharacterCodes.tab ? (this.#column % this.tabWidth || this.tabWidth) : 1;
   }
 
   private scanUntil(predicate: (char: number, charNext: number, charNextNext: number) => boolean, expectedClose?: string) {
@@ -609,10 +603,10 @@ export class Scanner {
       if (isLineBreak(this.#ch)) {
         this.advance(this.#ch === CharacterCodes.carriageReturn && this.#chNext === CharacterCodes.lineFeed ? 2 : 1);
         this.#line++;
-        this.#character = 0;
+        this.#column = 0;
         this.markPosition(); // make sure the map has the new location 
       } else {
-        this.#character += this.widthOfCh;
+        this.#column += this.widthOfCh;
         this.advance();
       }
 
@@ -680,7 +674,7 @@ export class Scanner {
   positionFromOffset(offset: number): Position {
     let position = { line: 0, character: 0, offset: 0 };
     if (offset < 0 || offset > this.#length) {
-      return position;
+      return { line: position.line, character: position.character };
     }
 
     let first = 0;    //left endpoint
@@ -691,7 +685,7 @@ export class Scanner {
       middle = Math.floor((first + last) / 2);
       position = this.#map[middle];
       if (position.offset === offset) {
-        return position;
+        return { line: position.line, character: position.character };
       }
       if (position.offset < offset) {
         first = middle + 1;

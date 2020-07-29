@@ -11,7 +11,6 @@
 - '[' ... ']' represents a range of characters
 - YAML Array '-' is a choice of one of the elements.
 
-
 ``` yaml
 
 InputElement: 

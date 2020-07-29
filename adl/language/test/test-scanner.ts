@@ -14,7 +14,7 @@ function tokens(text: string) {
       scanner.state,
       scanner.positionFromOffset(scanner.offset)
     ]);
-  } while (scanner.notEof);
+  } while (!scanner.eof);
 
   // verify that the input matches the output 
   const out = result.map(each => each[1]).join('');
@@ -25,7 +25,7 @@ function tokens(text: string) {
 
 function dump(tokens: Array<any>) {
   //console.log(tokens.map(each => JSON.stringify(each, undefined, 2)).join('\n'));
-  console.log(tokens.map(each => JSON.stringify(each.v)).join('\n'));
+  console.log(tokens.map(each => JSON.stringify(each[1])).join('\n'));
 }
 
 
