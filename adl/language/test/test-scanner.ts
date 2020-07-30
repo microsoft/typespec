@@ -1,7 +1,8 @@
-import { readFile } from '@azure-tools/async-io';
-import { suite, test } from '@testdeck/mocha';
 import { strictEqual } from 'assert';
+import { readFile } from 'fs/promises';
+import { describe, it } from 'mocha';
 import { Kind, Scanner } from '../scanner';
+
 
 function tokens(text: string) {
   const scanner = new Scanner(text);
@@ -41,12 +42,9 @@ function verify(tokens: Array<any>, expecting: Array<any>) {
   }
 }
 
-@suite class TestScanner {
-
-
+describe('scanner', () => {
   /** verifies that we can scan tokens and get back some output. */
-  @test 'smoketest'() {
-
+  it('smoketest', () => {
     const all = tokens('\tthis is  a test');
     verify(all, [
       [Kind.Whitespace],
@@ -58,12 +56,11 @@ function verify(tokens: Array<any>, expecting: Array<any>) {
       [Kind.Whitespace],
       [Kind.Identifier, 'test'],
     ]);
-  }
+  });
 
   /** verifies that this compiled js file parses tokens that are the same as the input.  */
-  @test async 'parseThisFile'() {
-    const text = await readFile(__filename);
+  it('parses this file', async () => {
+    const text = await readFile(__filename, 'utf-8');
     const all = tokens(text);
-  }
-
-}
+  });
+});
