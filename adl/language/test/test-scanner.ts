@@ -56,11 +56,11 @@ describe('scanner', () => {
       [Kind.Whitespace],
       [Kind.Identifier, 'test'],
     ]);
-  })
+  });
 
   /** verifies that this compiled js file parses tokens that are the same as the input.  */
   it('parses this file', async () => {
     const text = await readFile(__filename, 'utf-8');
     const all = tokens(text);
-  })
-})
+  });
+});
