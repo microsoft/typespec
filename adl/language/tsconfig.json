@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "module": "esnext",
     "outDir": "dist",
     "rootDir": ".",
     "types": ["node", "mocha"]

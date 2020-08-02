@@ -39,5 +39,6 @@
     "ts-node": "^8.10.2",
     "typescript": "~3.9.5"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "type": "module"
 }
