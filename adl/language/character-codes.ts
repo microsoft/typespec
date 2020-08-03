@@ -186,8 +186,6 @@ export function isIdentifierPart(ch: number,): boolean {
     ch >= CharacterCodes.a && ch <= CharacterCodes.z ||
     ch >= CharacterCodes._0 && ch <= CharacterCodes._9 ||
     ch === CharacterCodes.$ || ch === CharacterCodes._ ||
-    // "-" and ":" are valid
-    ch === CharacterCodes.minus || ch === CharacterCodes.colon ||
     ch > CharacterCodes.maxAsciiCharacter && isUnicodeIdentifierPart(ch);
 }
 

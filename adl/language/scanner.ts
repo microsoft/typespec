@@ -1,5 +1,5 @@
-import { CharacterCodes, isBinaryDigit, isDigit, isHexDigit, isIdentifierPart, isIdentifierStart, isLineBreak, isWhiteSpaceSingleLine, sizeOf } from './character-codes';
-import { format, Message, messages } from './messages';
+import { CharacterCodes, isBinaryDigit, isDigit, isHexDigit, isIdentifierPart, isIdentifierStart, isLineBreak, isWhiteSpaceSingleLine, sizeOf } from './character-codes.js';
+import { format, Message, messages } from './messages.js';
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
@@ -120,7 +120,18 @@ export enum Kind {
 
   // Identifiers
   Identifier,
+
+  // Keywords
+  ImportKeyword,
+  ModelKeyword,
+  InterfaceKeyword
 }
+
+const keywords = new Map([
+  ['import', Kind.ImportKeyword],
+  ['model', Kind.ModelKeyword],
+  ['interface', Kind.InterfaceKeyword]
+]);
 
 interface TokenLocation extends Position {
   offset: number;
@@ -574,7 +585,7 @@ export class Scanner {
 
     // update the position
     this.#column += (this.#offset - start);
-    return Kind.NumericLiteral;
+    return this.token = Kind.NumericLiteral;
   }
 
   private scanHexNumber() {
@@ -674,7 +685,7 @@ export class Scanner {
 
   scanIdentifier() {
     this.value = this.scanUntil((ch) => !isIdentifierPart(ch));
-    return this.token = Kind.Identifier;
+    return this.token = keywords.get(this.value) ?? Kind.Identifier;
   }
 
   /**
@@ -684,7 +695,7 @@ export class Scanner {
    */
   positionFromOffset(offset: number): Position {
     let position = { line: 0, character: 0, offset: 0 };
-    if (offset < 0 || offset >this.#length) {
+    if (offset < 0 || offset > this.#length) {
       return { line: position.line, character: position.character };
     }
 
