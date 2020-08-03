@@ -1,4 +1,4 @@
-import { Kind, Scanner } from './scanner.js';
+import { Kind, Scanner } from './scanner';
 
 export function parse(code: string) {
   const s = new Scanner(code);
