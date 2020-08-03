@@ -88,11 +88,25 @@ describe('syntax', () => {
     ]);
   });
 
+<<<<<<< HEAD
   describe('intersection expressions', () => {
     parseEach([
       'model A { foo: B & C }'
     ]);
   });
+=======
+  describe('array expressions', () => {
+    parseEach([
+      `model A { foo: B[] }`
+    ])
+  })
+
+  describe('union expressions', () => {
+    parseEach([
+      `model A { foo: B | C }`
+    ])
+  })
+>>>>>>> 970c3687... implement demo
 
   describe('interface statements', () => {
     parseEach([

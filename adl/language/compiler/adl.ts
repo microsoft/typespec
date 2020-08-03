@@ -1,7 +1,7 @@
 
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
-import { ADLScriptNode, ArrayExpressionNode, IdentifierNode, InterfaceParameterNode, InterfacePropertyNode, InterfaceStatementNode, ModelExpressionNode, ModelPropertyNode, ModelStatementNode, Node, NumericLiteralNode, parse, StringLiteralNode, SyntaxKind, TupleExpressionNode } from "../parser.js";
+import { ADLScriptNode, ArrayExpressionNode, IdentifierNode, InterfaceParameterNode, InterfacePropertyNode, InterfaceStatementNode, ModelExpressionNode, ModelPropertyNode, ModelStatementNode, Node, NumericLiteralNode, parse, StringLiteralNode, SyntaxKind, TupleExpressionNode, UnionExpressionNode } from "../parser.js";
 
 interface DecoratorSymbol {
   kind: "decorator",
@@ -85,11 +85,20 @@ export async function compile(rootDir: string) {
         return evaluateStringLiteral(node as any);
       case SyntaxKind.ArrayExpression:
         return evaluateArrayExpression(node as any);
+      case SyntaxKind.UnionExpression:
+        return evaluateUnionExpression(node as any);
     }
 
     throw new Error('cant eval ' + SyntaxKind[node.kind]);
   }
 
+  function evaluateUnionExpression(node: UnionExpressionNode): UnionType {
+    return createType({
+      kind: "Union",
+      node,
+      options: node.options.map(evaluate)
+    });
+  }
   function evaluateArrayExpression(node: ArrayExpressionNode) {
     return createType({
       kind: "Array",
@@ -457,6 +466,11 @@ export interface TupleType extends Type {
   kind: "Tuple",
   node: TupleExpressionNode,
   values: Type[]
+}
+
+export interface UnionType extends Type {
+  kind: "Union",
+  options: Type[]
 }
 
 compile('./samples/petstore').catch(e => console.error(e));
