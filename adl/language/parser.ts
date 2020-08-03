@@ -11,7 +11,7 @@ export function parse(code: string) {
       statements: [],
       pos: 0,
       end: 0
-    }
+    };
 
     while (!s.eof) {
       script.statements.push(parseStatement());
@@ -23,8 +23,12 @@ export function parse(code: string) {
 
   function parseStatement(): Statement {
     let decorators = [];
+
+    // eslint-disable-next-line
     while (true) {
       const tok = token();
+      let node: Statement;
+
       switch (tok) {
         case Kind.ImportKeyword:
           if (decorators.length > 0) {
@@ -35,13 +39,13 @@ export function parse(code: string) {
           decorators.push(parseDecoratorExpression());
           continue;
         case Kind.ModelKeyword:
-          const model = parseModelStatement(decorators);
+          node = parseModelStatement(decorators);
           decorators = [];
-          return model;
+          return node;
         case Kind.InterfaceKeyword:
-          const iface = parseInterfaceStatement(decorators);
+          node = parseInterfaceStatement(decorators);
           decorators = [];
-          return iface;
+          return node;
       }
 
       throw new Error('Unable to parse statement');
@@ -50,33 +54,33 @@ export function parse(code: string) {
   }
 
   function parseInterfaceStatement(
-    decorators: DecoratorExpressionNode[]
+    decorators: Array<DecoratorExpressionNode>
   ): InterfaceStatementNode {
     const pos = tokenPos();
     parseExpected(Kind.InterfaceKeyword);
     const id = parseIdentifier();
     parseExpected(Kind.OpenBrace);
-    const properties: InterfacePropertyNode[] = [];
+    const properties: Array<InterfacePropertyNode> = [];
 
     if (parseOptional(Kind.CloseBrace)) {
-      return finishNode({
-        type: "InterfaceStatement",
+      return <any>finishNode({
+        type: 'InterfaceStatement',
         decorators,
         id,
         properties
-      }, pos) as any; // todo: 😠
+      }, pos); // todo: 😠
     }
 
-    let memberDecorators: DecoratorExpressionNode[] = [];
+    let memberDecorators: Array<DecoratorExpressionNode> = [];
     do {
       if (token() === Kind.At) {
         memberDecorators.push(parseDecoratorExpression());
       }
       properties.push(parseInterfaceProperty(memberDecorators));
       memberDecorators = [];
-    } while (parseOptional(Kind.Comma))
+    } while (parseOptional(Kind.Comma));
 
-    parseExpected(Kind.CloseBrace)
+    parseExpected(Kind.CloseBrace);
 
     return finishNode({
       kind: SyntaxKind.InterfaceStatement,
@@ -86,7 +90,7 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseInterfaceProperty(decorators: DecoratorExpressionNode[]): InterfacePropertyNode {
+  function parseInterfaceProperty(decorators: Array<DecoratorExpressionNode>): InterfacePropertyNode {
     const pos = tokenPos();
     const id = parseIdentifier();
     const parameters = parseParameterList();
@@ -102,13 +106,13 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseParameterList(): InterfaceParameterNode[] {
+  function parseParameterList(): Array<InterfaceParameterNode> {
     parseExpected(Kind.OpenParen);
 
     if (parseOptional(Kind.CloseParen)) {
       return [];
     }
-    const params: InterfaceParameterNode[] = [];
+    const params: Array<InterfaceParameterNode> = [];
     do {
       const pos = tokenPos();
       const id = parseIdentifier();
@@ -122,13 +126,13 @@ export function parse(code: string) {
         value,
         optional
       }, pos));
-    } while (parseOptional(Kind.Comma))
+    } while (parseOptional(Kind.Comma));
     parseExpected(Kind.CloseParen);
     return params;
   }
 
   function parseModelStatement(
-    decorators: DecoratorExpressionNode[]
+    decorators: Array<DecoratorExpressionNode>
   ): ModelStatementNode {
     const pos = tokenPos();
     parseExpected(Kind.ModelKeyword);
@@ -147,33 +151,33 @@ export function parse(code: string) {
     pos: number,
     node: Partial<T>
   ): T {
-    const properties: ModelPropertyNode[] = [];
+    const properties: Array<ModelPropertyNode> = [];
 
     if (parseOptional(Kind.CloseBrace)) {
-      return finishNode({
+      return <any>finishNode({
         ...node,
         properties
-      }, pos) as any; // todo: 😠
+      }, pos); // todo: 😠
     }
 
-    let memberDecorators: DecoratorExpressionNode[] = [];
+    let memberDecorators: Array<DecoratorExpressionNode> = [];
     do {
       if (token() === Kind.At) {
         memberDecorators.push(parseDecoratorExpression());
       }
       properties.push(parseModelProperty(memberDecorators));
       memberDecorators = [];
-    } while (parseOptional(Kind.Comma))
+    } while (parseOptional(Kind.Comma));
 
-    parseExpected(Kind.CloseBrace)
+    parseExpected(Kind.CloseBrace);
 
-    return finishNode({
+    return <any>finishNode({
       ...node,
       properties,
-    }, pos) as any;
+    }, pos); // todo: 😠
   }
 
-  function parseModelProperty(decorators: DecoratorExpressionNode[]): ModelPropertyNode {
+  function parseModelProperty(decorators: Array<DecoratorExpressionNode>): ModelPropertyNode {
     const pos = tokenPos();
     let id: IdentifierNode | StringLiteralNode;
     switch (token()) {
@@ -205,21 +209,24 @@ export function parse(code: string) {
   }
 
   function parseUnionExpression(): Expression {
-    let node = parseArrayExpression();
+    const pos = tokenPos();
+    let node: Expression = parseArrayExpression();
 
     if (token() !== Kind.Bar) {
       return node;
     }
 
-    node = {
+    node = finishNode({
       kind: SyntaxKind.UnionExpression,
       options: [node]
-    }
+    }, pos);
 
     while (parseOptional(Kind.Bar)) {
       const expr = parseArrayExpression();
       node.options.push(expr);
     }
+
+    node.end = tokenPos();
 
     return node;
   }
@@ -239,7 +246,7 @@ export function parse(code: string) {
       elementType: expr
     }, pos);
 
-    return arr as any;
+    return <any>arr;
   }
 
   function parseImportStatement(): ImportStatementNode {
@@ -247,7 +254,7 @@ export function parse(code: string) {
 
     parseExpected(Kind.ImportKeyword);
     const id = parseIdentifier();
-    let as: NamedImportNode[] = [];
+    let as: Array<NamedImportNode> = [];
 
     if (token() === Kind.Identifier && tokenValue() === 'as') {
       parseExpected(Kind.Identifier);
@@ -267,15 +274,15 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseNamedImports(): NamedImportNode[] {
-    const names: NamedImportNode[] = [];
+  function parseNamedImports(): Array<NamedImportNode> {
+    const names: Array<NamedImportNode> = [];
     do {
       const pos = tokenPos();
       names.push(finishNode({
         kind: SyntaxKind.NamedImport,
         id: parseIdentifier()
       }, pos));
-    } while (parseOptional(Kind.Comma))
+    } while (parseOptional(Kind.Comma));
     return names;
   }
 
@@ -289,7 +296,7 @@ export function parse(code: string) {
       throw error(`a ${target.kind} is not a valid decorator`);
     }
 
-    let args: Expression[] = [];
+    let args: Array<Expression> = [];
     if (parseOptional(Kind.OpenParen)) {
       if (!parseOptional(Kind.CloseParen)) {
         args = parseExpressionList();
@@ -304,8 +311,8 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseExpressionList(): Expression[] {
-    const args: Expression[] = [];
+  function parseExpressionList(): Array<Expression> {
+    const args: Array<Expression> = [];
 
     do {
       args.push(parseExpression());
@@ -355,7 +362,7 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseModelExpression(decorators: DecoratorExpressionNode[]): ModelExpressionNode {
+  function parseModelExpression(decorators: Array<DecoratorExpressionNode>): ModelExpressionNode {
     const pos = tokenPos();
     parseExpected(Kind.OpenBrace);
     const node: Partial<ModelExpressionNode> = {
@@ -426,12 +433,12 @@ export function parse(code: string) {
     }
   }
 
-  function finishNode<T>(o: T, pos: number): T & { pos: number, end: number } {
+  function finishNode<T>(o: T, pos: number): T & { pos: number; end: number } {
     return {
       ...o,
       pos,
       end: tokenPos()
-    }
+    };
   }
 
   function error(msg: string) {
@@ -479,9 +486,9 @@ export enum SyntaxKind {
 }
 
 export interface Node {
-  kind: SyntaxKind,
-  pos: number,
-  end: number
+  kind: SyntaxKind;
+  pos: number;
+  end: number;
 }
 
 export interface ADLScriptNode extends Node {
@@ -508,9 +515,9 @@ interface NamedImportNode extends Node {
 }
 
 interface DecoratorExpressionNode extends Node {
-  kind: SyntaxKind.DecoratorExpression,
-  target: IdentifierNode | MemberExpressionNode,
-  arguments: Expression[]
+  kind: SyntaxKind.DecoratorExpression;
+  target: IdentifierNode | MemberExpressionNode;
+  arguments: Array<Expression>;
 }
 
 type Expression =
@@ -523,74 +530,74 @@ type Expression =
   | NumericLiteralNode;
 
 interface MemberExpressionNode extends Node {
-  kind: SyntaxKind.MemberExpression,
-  id: IdentifierNode,
-  base: Expression | IdentifierNode
+  kind: SyntaxKind.MemberExpression;
+  id: IdentifierNode;
+  base: Expression | IdentifierNode;
 }
 
 export interface InterfaceStatementNode extends Node {
-  kind: SyntaxKind.InterfaceStatement,
-  id: IdentifierNode,
-  properties: InterfacePropertyNode[],
-  decorators: DecoratorExpressionNode[]
+  kind: SyntaxKind.InterfaceStatement;
+  id: IdentifierNode;
+  properties: Array<InterfacePropertyNode>;
+  decorators: Array<DecoratorExpressionNode>;
 }
 
 export interface InterfacePropertyNode extends Node {
-  kind: SyntaxKind.InterfaceProperty,
-  id: IdentifierNode,
-  parameters: InterfaceParameterNode[],
-  returnType: Expression,
-  decorators: DecoratorExpressionNode[]
+  kind: SyntaxKind.InterfaceProperty;
+  id: IdentifierNode;
+  parameters: Array<InterfaceParameterNode>;
+  returnType: Expression;
+  decorators: Array<DecoratorExpressionNode>;
 }
 
 export interface InterfaceParameterNode extends Node {
-  kind: SyntaxKind.InterfaceParameter,
-  id: IdentifierNode,
-  value: Expression,
-  optional: boolean
+  kind: SyntaxKind.InterfaceParameter;
+  id: IdentifierNode;
+  value: Expression;
+  optional: boolean;
 }
 
 export interface ModelStatementNode extends Node {
-  kind: SyntaxKind.ModelStatement,
-  id: IdentifierNode,
-  properties: ModelPropertyNode[],
-  decorators: DecoratorExpressionNode[],
+  kind: SyntaxKind.ModelStatement;
+  id: IdentifierNode;
+  properties: Array<ModelPropertyNode>;
+  decorators: Array<DecoratorExpressionNode>;
 }
 
 export interface ModelExpressionNode extends Node {
-  kind: SyntaxKind.ModelExpression,
-  properties: ModelPropertyNode[],
-  decorators: DecoratorExpressionNode[],
+  kind: SyntaxKind.ModelExpression;
+  properties: Array<ModelPropertyNode>;
+  decorators: Array<DecoratorExpressionNode>;
 }
 
 export interface ArrayExpressionNode extends Node {
-  kind: SyntaxKind.ArrayExpression,
-  elementType: Expression
+  kind: SyntaxKind.ArrayExpression;
+  elementType: Expression;
 }
 export interface TupleExpressionNode extends Node {
-  kind: SyntaxKind.TupleExpression,
-  values: Expression[]
+  kind: SyntaxKind.TupleExpression;
+  values: Array<Expression>;
 }
 
 export interface ModelPropertyNode extends Node {
-  kind: SyntaxKind.ModelProperty,
-  id: IdentifierNode | StringLiteralNode,
-  value: Expression,
-  decorators: DecoratorExpressionNode[],
-  optional: boolean
+  kind: SyntaxKind.ModelProperty;
+  id: IdentifierNode | StringLiteralNode;
+  value: Expression;
+  decorators: Array<DecoratorExpressionNode>;
+  optional: boolean;
 }
 
 export interface StringLiteralNode extends Node {
-  kind: SyntaxKind.StringLiteral,
-  value: string
+  kind: SyntaxKind.StringLiteral;
+  value: string;
 }
 
 export interface NumericLiteralNode extends Node {
-  kind: SyntaxKind.NumericLiteral,
-  value: string
+  kind: SyntaxKind.NumericLiteral;
+  value: string;
 }
 
 export interface UnionExpressionNode extends Node {
-  kind: SyntaxKind.UnionExpression,
-  options: Expression[]
+  kind: SyntaxKind.UnionExpression;
+  options: Array<Expression>;
 }

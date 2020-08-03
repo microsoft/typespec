@@ -1,18 +1,19 @@
-import { parse } from '../parser.js';
-const { describe, it } = require('mocha');
+import { describe, it } from 'mocha';
+import { parse } from '../parser';
+
 describe('syntax', () => {
   describe('import statements', () => {
     parseEach([
-      `import x;`,
-      `import x as { one };`,
-      `import x as {};`,
-      `import x as { one, two };`
-    ])
-  })
+      'import x;',
+      'import x as { one };',
+      'import x as {};',
+      'import x as { one, two };'
+    ]);
+  });
 
   describe('model statements', () => {
     parseEach([
-      `model Car { };`,
+      'model Car { };',
 
       `@foo()
        model Car { };`,
@@ -38,45 +39,45 @@ describe('syntax', () => {
          prop2: string
        };`,
 
-      `model Foo { "strKey": number, "😂😂😂": string }`
-    ])
-  })
+      'model Foo { "strKey": number, "😂😂😂": string }'
+    ]);
+  });
 
   describe('model expressions', () => {
     parseEach([
-      `model Car { engine: { type: "v8" } }`
+      'model Car { engine: { type: "v8" } }'
     ]);
-  })
+  });
 
   describe('tuple model expressions', () => {
     parseEach([
-      `interface A { b(param: [number, string]): [1, "hi"] }`
-    ])
-  })
+      'interface A { b(param: [number, string]): [1, "hi"] }'
+    ]);
+  });
 
   describe('array expressions', () => {
     parseEach([
-      `model A { foo: B[] }`
-    ])
-  })
+      'model A { foo: B[] }'
+    ]);
+  });
 
   describe('union expressions', () => {
     parseEach([
-      `model A { foo: B | C }`
-    ])
-  })
+      'model A { foo: B | C }'
+    ]);
+  });
 
   describe('interface statements', () => {
     parseEach([
-      `interface Store { read(): int32 }`,
-      `interface Store { read(): int32, write(v: int32): {}`,
-      `@foo interface Store { @dec read():number, @dec write(n: number): {} }`
+      'interface Store { read(): int32 }',
+      'interface Store { read(): int32, write(v: int32): {}',
+      '@foo interface Store { @dec read():number, @dec write(n: number): {} }'
     ]);
-  })
+  });
 
-})
+});
 
-function parseEach(cases: string[]) {
+function parseEach(cases: Array<string>) {
   for (const code of cases) {
     it('parses `' + shorten(code) + '`', () => {
       dumpAST(parse(code));
