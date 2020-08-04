@@ -1,7 +1,7 @@
 import { Kind, Scanner } from './scanner';
 
 export function parse(code: string) {
-  const s = new Scanner(code);
+  const scaner = new Scanner(code);
   nextToken();
   return parseADLScript();
 
@@ -13,18 +13,18 @@ export function parse(code: string) {
       end: 0
     };
 
-    while (!s.eof) {
+    while (!scaner.eof) {
       script.statements.push(parseStatement());
     }
 
-    script.end = s.offset;
+    script.end = scaner.offset;
     return script;
   }
 
   function parseStatement(): Statement {
     let decorators = [];
 
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const tok = token();
       let node: Statement;
@@ -400,7 +400,7 @@ export function parse(code: string) {
     if (id !== Kind.Identifier) {
       error(`expected an identifier, got ${Kind[id]}`);
     }
-    const sv = s.value;
+    const sv = scaner.value;
 
     nextToken();
 
@@ -413,23 +413,23 @@ export function parse(code: string) {
 
   // utility functions
   function token() {
-    return s.token;
+    return scaner.token;
   }
 
   function tokenValue() {
-    return s.value;
+    return scaner.value;
   }
 
   function tokenPos() {
-    return s.offset;
+    return scaner.offset;
   }
 
   function nextToken() {
-    s.scan();
+    scaner.scan();
 
     // skip whitespace tokens for now
     while (token() === Kind.Whitespace || token() === Kind.NewLine) {
-      s.scan();
+      scaner.scan();
     }
   }
 
@@ -442,7 +442,7 @@ export function parse(code: string) {
   }
 
   function error(msg: string) {
-    throw new Error(`[${s.position.line}, ${s.position.character}] ${msg}`);
+    throw new Error(`[${scaner.position.line}, ${scaner.position.character}] ${msg}`);
   }
 
   function parseExpected(expectedToken: Kind) {

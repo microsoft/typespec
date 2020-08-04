@@ -696,7 +696,7 @@ export class Scanner {
   positionFromOffset(offset: number): Position {
     let position = { line: 0, character: 0, offset: 0 };
 
-    // eslint-disable-next-line
+    // eslint-disable-next-line keyword-spacing
     if (offset < 0 || offset > this.#length) {
       return { line: position.line, character: position.character };
     }
