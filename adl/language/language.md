@@ -122,7 +122,13 @@ EscapeCharacter:
 ``` yaml
 Identifier : IdentifierName but not ReservedWord
 
-ADLScript: 
+ADLScript :
+  StatementList? 
+
+StatementList : 
+  - StatementList? Statement
+
+Statement:
   - ImportStatement+?
   - Declaration+?
 
@@ -133,7 +139,7 @@ ImportStatement:
 
 NamedImports: 
   - Identifier
-  - Identifier `,` NamedImports+
+  - NamedImports `,` Identifier
 
 ScopedIdentifier:
   - Identifier
