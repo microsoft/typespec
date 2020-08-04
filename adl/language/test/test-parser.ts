@@ -39,6 +39,16 @@ describe('syntax', () => {
          prop2: string
        };`,
 
+      `
+      [Foo()]
+      model Car {
+         [Foo.bar(10, "hello")]
+         prop1: number,
+         
+         [Foo.baz(a, b)]
+         prop2: string
+       };`,
+
       'model Foo { "strKey": number, "😂😂😂": string }'
     ]);
   });
