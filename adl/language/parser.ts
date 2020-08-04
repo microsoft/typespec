@@ -63,12 +63,12 @@ export function parse(code: string) {
     const properties: Array<InterfacePropertyNode> = [];
 
     if (parseOptional(Kind.CloseBrace)) {
-      return <any>finishNode({
-        type: 'InterfaceStatement',
+      return finishNode({
+        kind: SyntaxKind.InterfaceStatement,
         decorators,
         id,
         properties
-      }, pos); // todo: 😠
+      }, pos);
     }
 
     let memberDecorators: Array<DecoratorExpressionNode> = [];
@@ -157,7 +157,7 @@ export function parse(code: string) {
       return <any>finishNode({
         ...node,
         properties
-      }, pos); // todo: 😠
+      }, pos);
     }
 
     let memberDecorators: Array<DecoratorExpressionNode> = [];
@@ -174,7 +174,7 @@ export function parse(code: string) {
     return <any>finishNode({
       ...node,
       properties,
-    }, pos); // todo: 😠
+    }, pos);
   }
 
   function parseModelProperty(decorators: Array<DecoratorExpressionNode>): ModelPropertyNode {
