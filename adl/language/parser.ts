@@ -36,6 +36,7 @@ export function parse(code: string) {
           }
           return parseImportStatement();
         case Kind.At:
+        case Kind.OpenBracket:
           decorators.push(parseDecoratorExpression());
           continue;
         case Kind.ModelKeyword:
@@ -73,7 +74,7 @@ export function parse(code: string) {
 
     let memberDecorators: Array<DecoratorExpressionNode> = [];
     do {
-      if (token() === Kind.At) {
+      if (token() === Kind.At || token() === Kind.OpenBracket) {
         memberDecorators.push(parseDecoratorExpression());
       }
       properties.push(parseInterfaceProperty(memberDecorators));
@@ -162,7 +163,7 @@ export function parse(code: string) {
 
     let memberDecorators: Array<DecoratorExpressionNode> = [];
     do {
-      if (token() === Kind.At) {
+      if (token() === Kind.At || token() === Kind.OpenBracket) {
         memberDecorators.push(parseDecoratorExpression());
       }
       properties.push(parseModelProperty(memberDecorators));
@@ -288,7 +289,15 @@ export function parse(code: string) {
 
   function parseDecoratorExpression(): DecoratorExpressionNode {
     const pos = tokenPos();
-    parseExpected(Kind.At);
+    let usesBrackets = false;
+
+    if (token() === Kind.OpenBracket) {
+      usesBrackets = true;
+      parseExpected(Kind.OpenBracket);
+    } else {
+      parseExpected(Kind.At);
+    }
+
     const target = parseMemberExpression();
 
     if (target.kind !== SyntaxKind.Identifier
@@ -302,6 +311,10 @@ export function parse(code: string) {
         args = parseExpressionList();
         parseExpected(Kind.CloseParen);
       }
+    }
+
+    if (usesBrackets) {
+      parseExpected(Kind.CloseBracket);
     }
 
     return finishNode({
