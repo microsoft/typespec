@@ -124,13 +124,15 @@ export enum Kind {
   // Keywords
   ImportKeyword,
   ModelKeyword,
-  InterfaceKeyword
+  InterfaceKeyword,
+  AliasKeyword
 }
 
 const keywords = new Map([
   ['import', Kind.ImportKeyword],
   ['model', Kind.ModelKeyword],
-  ['interface', Kind.InterfaceKeyword]
+  ['interface', Kind.InterfaceKeyword],
+  ['alias', Kind.AliasKeyword]
 ]);
 
 interface TokenLocation extends Position {
