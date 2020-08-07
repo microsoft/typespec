@@ -47,6 +47,11 @@ export function parse(code: string) {
           node = parseInterfaceStatement(decorators);
           decorators = [];
           return node;
+        case Kind.AliasKeyword:
+          if (decorators.length > 0) {
+            error('Cannot decorate an alias statement');
+          }
+          return parseAliasStatement();
       }
 
       throw new Error('Unable to parse statement');
@@ -406,6 +411,22 @@ export function parse(code: string) {
     }, pos);
   }
 
+  function parseAliasStatement(): AliasStatementNode {
+    const pos = tokenPos();
+    parseExpected(Kind.AliasKeyword);
+
+    const id = parseIdentifier();
+    parseExpected(Kind.Colon);
+
+    const target = parseExpression();
+    parseExpected(Kind.Semicolon);
+
+    return finishNode({
+      kind: SyntaxKind.AliasStatement,
+      id,
+      target
+    }, pos);
+  }
 
   // utility functions
   function token() {
@@ -478,7 +499,8 @@ export enum SyntaxKind {
   TupleExpression,
   ArrayExpression,
   StringLiteral,
-  NumericLiteral
+  NumericLiteral,
+  AliasStatement
 }
 
 export interface Node {
@@ -492,7 +514,11 @@ export interface ADLScriptNode extends Node {
   statements: Array<Statement>;
 }
 
-export type Statement = ImportStatementNode | ModelStatementNode | InterfaceStatementNode;
+export type Statement =
+  | ImportStatementNode
+  | ModelStatementNode
+  | InterfaceStatementNode
+  | AliasStatementNode;
 
 export interface ImportStatementNode extends Node {
   kind: SyntaxKind.ImportStatement;
@@ -597,4 +623,10 @@ export interface NumericLiteralNode extends Node {
 export interface UnionExpressionNode extends Node {
   kind: SyntaxKind.UnionExpression;
   options: Array<Expression>;
+}
+
+export interface AliasStatementNode extends Node {
+  kind: SyntaxKind.AliasStatement;
+  id: IdentifierNode;
+  target: Expression;
 }
