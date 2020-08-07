@@ -498,9 +498,10 @@ export class Scanner {
           // will need to update the scanner if there is a need to recognize them
           return isIdentifierStart(this.#ch) ? this.scanIdentifier() : this.next(Kind.Unknown);
       }
-
     }
-    return Kind.EndOfFile;
+
+    this.value = '';
+    return this.token = Kind.EndOfFile;
   }
 
   isConflictMarker() {

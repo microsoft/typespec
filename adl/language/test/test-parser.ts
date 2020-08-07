@@ -86,8 +86,8 @@ describe('syntax', () => {
     parseEach([
       'interface Store {}',
       'interface Store { read(): int32 }',
-      'interface Store { read(): int32, write(v: int32): {}',
-      'interface Store { read(): int32; write(v: int32): {}',
+      'interface Store { read(): int32, write(v: int32): {} }',
+      'interface Store { read(): int32; write(v: int32): {} }',
       '@foo interface Store { @dec read():number, @dec write(n: number): {} }'
     ]);
   });
