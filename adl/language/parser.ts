@@ -139,26 +139,21 @@ export function parse(code: string) {
     parseExpected(Kind.ModelKeyword);
     const id = parseIdentifier();
     parseExpected(Kind.OpenBrace);
-    const node: Partial<ModelStatementNode> = {
+    const properties = parseModelPropertyList();
+
+    return finishNode({
       kind: SyntaxKind.ModelStatement,
       id,
-      decorators
-    };
-
-    return finishModel(pos, node);
+      decorators,
+      properties
+    }, pos);
   }
 
-  function finishModel<T extends ModelStatementNode | ModelExpressionNode>(
-    pos: number,
-    node: Partial<T>
-  ): T {
+  function parseModelPropertyList(): Array<ModelPropertyNode> {
     const properties: Array<ModelPropertyNode> = [];
 
     if (parseOptional(Kind.CloseBrace)) {
-      return <any>finishNode({
-        ...node,
-        properties
-      }, pos);
+      return properties;
     }
 
     let memberDecorators: Array<DecoratorExpressionNode> = [];
@@ -171,11 +166,7 @@ export function parse(code: string) {
     } while (parseOptional(Kind.Comma));
 
     parseExpected(Kind.CloseBrace);
-
-    return <any>finishNode({
-      ...node,
-      properties,
-    }, pos);
+    return properties;
   }
 
   function parseModelProperty(decorators: Array<DecoratorExpressionNode>): ModelPropertyNode {
@@ -242,12 +233,10 @@ export function parse(code: string) {
     parseExpected(Kind.OpenBracket);
     parseExpected(Kind.CloseBracket);
 
-    const arr: ArrayExpressionNode = finishNode({
+    return finishNode({
       kind: SyntaxKind.ArrayExpression,
       elementType: expr
     }, pos);
-
-    return <any>arr;
   }
 
   function parseImportStatement(): ImportStatementNode {
@@ -378,12 +367,12 @@ export function parse(code: string) {
   function parseModelExpression(decorators: Array<DecoratorExpressionNode>): ModelExpressionNode {
     const pos = tokenPos();
     parseExpected(Kind.OpenBrace);
-    const node: Partial<ModelExpressionNode> = {
+    const properties = parseModelPropertyList();
+    return finishNode({
       kind: SyntaxKind.ModelExpression,
-      decorators
-    };
-
-    return finishModel(pos, node);
+      decorators,
+      properties
+    }, pos);
   }
 
   function parseStringLiteral(): StringLiteralNode {
@@ -534,6 +523,7 @@ interface DecoratorExpressionNode extends Node {
 }
 
 type Expression =
+  | ArrayExpressionNode
   | MemberExpressionNode
   | ModelExpressionNode
   | TupleExpressionNode
