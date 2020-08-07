@@ -63,23 +63,18 @@ export function parse(code: string) {
     parseExpected(Kind.OpenBrace);
     const properties: Array<InterfacePropertyNode> = [];
 
-    if (parseOptional(Kind.CloseBrace)) {
-      return finishNode({
-        kind: SyntaxKind.InterfaceStatement,
-        decorators,
-        id,
-        properties
-      }, pos);
-    }
 
     let memberDecorators: Array<DecoratorExpressionNode> = [];
     do {
+      if (token() == Kind.CloseBrace) {
+        break;
+      }
       if (token() === Kind.At || token() === Kind.OpenBracket) {
         memberDecorators.push(parseDecoratorExpression());
       }
       properties.push(parseInterfaceProperty(memberDecorators));
       memberDecorators = [];
-    } while (parseOptional(Kind.Comma));
+    } while (parseOptional(Kind.Comma) || parseOptional(Kind.Semicolon));
 
     parseExpected(Kind.CloseBrace);
 
@@ -152,18 +147,17 @@ export function parse(code: string) {
   function parseModelPropertyList(): Array<ModelPropertyNode> {
     const properties: Array<ModelPropertyNode> = [];
 
-    if (parseOptional(Kind.CloseBrace)) {
-      return properties;
-    }
-
     let memberDecorators: Array<DecoratorExpressionNode> = [];
     do {
+      if (token() == Kind.CloseBrace) {
+        break;
+      }
       if (token() === Kind.At || token() === Kind.OpenBracket) {
         memberDecorators.push(parseDecoratorExpression());
       }
       properties.push(parseModelProperty(memberDecorators));
       memberDecorators = [];
-    } while (parseOptional(Kind.Comma));
+    } while (parseOptional(Kind.Comma) || parseOptional(Kind.Semicolon));
 
     parseExpected(Kind.CloseBrace);
     return properties;

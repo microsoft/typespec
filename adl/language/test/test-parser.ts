@@ -24,6 +24,11 @@ describe('syntax', () => {
        };`,
 
       `model Car {
+         prop1: number;
+         prop2: string;
+       }`,
+
+      `model Car {
           engine: V6
         }
         
@@ -79,8 +84,10 @@ describe('syntax', () => {
 
   describe('interface statements', () => {
     parseEach([
+      'interface Store {}',
       'interface Store { read(): int32 }',
       'interface Store { read(): int32, write(v: int32): {}',
+      'interface Store { read(): int32; write(v: int32): {}',
       '@foo interface Store { @dec read():number, @dec write(n: number): {} }'
     ]);
   });
