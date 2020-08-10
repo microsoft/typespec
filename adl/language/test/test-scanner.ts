@@ -1,7 +1,6 @@
 import { strictEqual } from 'assert';
 import { readFile } from 'fs/promises';
-import { describe, it } from 'mocha';
-import { Kind, Position, Scanner } from '../scanner';
+import { Kind, Position, Scanner } from '../scanner.js';
 
 type TokenEntry = [Kind, string?, 'error'?, Position?];
 

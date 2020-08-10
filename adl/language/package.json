@@ -12,7 +12,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "prepare": "npm run build",
-    "test": "mocha -r ts-node/register 'test/**/*.ts'"
+    "test": "mocha 'dist/test/**/*.js'"
   },
   "repository": {
     "type": "git",

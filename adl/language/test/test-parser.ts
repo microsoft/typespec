@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { parse } from '../parser';
+=======
+import { parse } from '../parser.js';
+>>>>>>> 820729f8... fix tests in esm mode
 
 describe('syntax', () => {
   describe('import statements', () => {
@@ -97,13 +101,13 @@ describe('syntax', () => {
 =======
   describe('array expressions', () => {
     parseEach([
-      `model A { foo: B[] }`
+      `model A { foo: D[] }`
     ])
   })
 
   describe('union expressions', () => {
     parseEach([
-      `model A { foo: B | C }`
+      `model A { foo: B | D }`
     ])
   })
 >>>>>>> 970c3687... implement demo
