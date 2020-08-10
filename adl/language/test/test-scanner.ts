@@ -1,6 +1,8 @@
 import { strictEqual } from 'assert';
 import { readFile } from 'fs/promises';
-import { Kind, Position, Scanner } from '../scanner.js';
+import { fileURLToPath } from 'url';
+import { Kind, Position, Scanner } from '../compiler/scanner.js';
+const __filename = fileURLToPath(import.meta.url);
 
 type TokenEntry = [Kind, string?, 'error'?, Position?];
 
@@ -87,7 +89,7 @@ describe('scanner', () => {
       [Kind.CloseParen]
     ]);
   });
-  /** verifies that this compiled js file parses tokens that are the same as the input.  */
+
   it('parses this file', async () => {
     const text = await readFile(__filename, 'utf-8');
     const all = tokens(text);

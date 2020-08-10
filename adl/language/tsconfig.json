@@ -6,7 +6,7 @@
     "rootDir": ".",
     "types": ["node", "mocha"]
   },
-  "include": ["."],
+  "include": ["./**/*.ts"],
   "exclude": [
     "dist",
     "test/scenarios/**",

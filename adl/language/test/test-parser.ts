@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { parse } from '../parser';
-=======
-import { parse } from '../parser.js';
->>>>>>> 820729f8... fix tests in esm mode
+import { parse } from '../compiler/parser.js';
 
 describe('syntax', () => {
   describe('import statements', () => {
@@ -92,25 +88,24 @@ describe('syntax', () => {
     ]);
   });
 
-<<<<<<< HEAD
   describe('intersection expressions', () => {
     parseEach([
       'model A { foo: B & C }'
     ]);
   });
-=======
+
   describe('array expressions', () => {
     parseEach([
-      `model A { foo: D[] }`
-    ])
-  })
+      'model A { foo: D[] }'
+    ]);
+  });
 
   describe('union expressions', () => {
     parseEach([
-      `model A { foo: B | D }`
-    ])
-  })
->>>>>>> 970c3687... implement demo
+
+      'model A { foo: B | D }'
+    ]);
+  });
 
   describe('interface statements', () => {
     parseEach([
