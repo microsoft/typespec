@@ -1,24 +1,23 @@
-
-import { readdir, readFile } from "fs/promises";
-import { join } from "path";
-import { ADLScriptNode, ArrayExpressionNode, IdentifierNode, InterfaceParameterNode, InterfacePropertyNode, InterfaceStatementNode, ModelExpressionNode, ModelPropertyNode, ModelStatementNode, Node, NumericLiteralNode, parse, StringLiteralNode, SyntaxKind, TupleExpressionNode, UnionExpressionNode } from "../parser.js";
+import { readdir, readFile } from 'fs/promises';
+import { join } from 'path';
+import { ADLScriptNode, ArrayExpressionNode, IdentifierNode, InterfaceParameterNode, InterfacePropertyNode, InterfaceStatementNode, ModelExpressionNode, ModelPropertyNode, ModelStatementNode, Node, NumericLiteralNode, parse, StringLiteralNode, SyntaxKind, TupleExpressionNode, UnionExpressionNode } from './parser.js';
 
 interface DecoratorSymbol {
-  kind: "decorator",
-  path: string,
-  name: string
+  kind: 'decorator';
+  path: string;
+  name: string;
 }
 
 interface TypeSymbol {
-  kind: "type",
-  node: Node
+  kind: 'type';
+  node: Node;
 }
 
 interface Program {
-  globals: SymbolTable,
-  sourceFiles: ADLSourceFile[],
-  typeCache: WeakMap<Node, Type>,
-  literalTypes: Map<string | number, StringLiteralType | NumericLiteralType>,
+  globals: SymbolTable;
+  sourceFiles: Array<ADLSourceFile>;
+  typeCache: WeakMap<Node, Type>;
+  literalTypes: Map<string | number, StringLiteralType | NumericLiteralType>;
   onBuild(cb: (program: Program) => void): void;
 }
 
@@ -27,11 +26,11 @@ type Symbol = DecoratorSymbol | TypeSymbol;
 type SymbolTable = Map<string, Symbol>;
 
 interface ADLSourceFile {
-  ast: ADLScriptNode,
-  path: string,
-  symbols: SymbolTable,
-  models: ModelType[],
-  interfaces: InterfaceType[],
+  ast: ADLScriptNode;
+  path: string;
+  symbols: SymbolTable;
+  models: Array<ModelType>;
+  interfaces: Array<InterfaceType>;
 }
 
 export async function compile(rootDir: string) {
@@ -39,13 +38,13 @@ export async function compile(rootDir: string) {
 
   const program: Program = {
     globals: new Map(),
-    sourceFiles: [] as ADLSourceFile[],
+    sourceFiles: [] as Array<ADLSourceFile>,
     typeCache: new WeakMap(),
     literalTypes: new Map(),
     onBuild(cb) {
       buildCbs.push(cb);
     }
-  }
+  };
 
   await loadStandardLibrary(program);
   await loadDirectory(program, './samples/petstore');
@@ -94,14 +93,14 @@ export async function compile(rootDir: string) {
 
   function evaluateUnionExpression(node: UnionExpressionNode): UnionType {
     return createType({
-      kind: "Union",
+      kind: 'Union',
       node,
       options: node.options.map(evaluate)
     });
   }
   function evaluateArrayExpression(node: ArrayExpressionNode) {
     return createType({
-      kind: "Array",
+      kind: 'Array',
       node,
       elementType: evaluate(node.elementType)
     });
@@ -109,15 +108,15 @@ export async function compile(rootDir: string) {
 
   function evaluateInterface(node: InterfaceStatementNode) {
     const type: InterfaceType = createType({
-      kind: "Interface",
+      kind: 'Interface',
       name: node.id.sv,
       node: node,
       properties: new Map()
-    })
+    });
 
     for (const prop of node.properties) {
       type.properties.set(prop.id.sv, createType({
-        kind: "InterfaceProperty",
+        kind: 'InterfaceProperty',
         name: prop.id.sv,
         node: prop,
         parameters: prop.parameters.flatMap(evaluateInterfaceParam),
@@ -130,19 +129,19 @@ export async function compile(rootDir: string) {
 
   function evaluateInterfaceParam(paramNode: InterfaceParameterNode) {
     const type: InterfaceTypeParameter = createType({
-      kind: "InterfaceParameter",
+      kind: 'InterfaceParameter',
       name: paramNode.id.sv,
       node: paramNode,
       optional: paramNode.optional,
       type: evaluate(paramNode.value)
-    })
+    });
 
     return type;
   }
 
   function evaluateTupleExpression(node: TupleExpressionNode): TupleType {
     return createType({
-      kind: "Tuple",
+      kind: 'Tuple',
       node: node,
       values: node.values.map(v => evaluate(v))
     });
@@ -155,7 +154,7 @@ export async function compile(rootDir: string) {
     }
 
     if (binding.kind === 'decorator') {
-      return {}
+      return {};
     } else {
       return evaluate(binding.node);
     }
@@ -183,8 +182,8 @@ export async function compile(rootDir: string) {
   }
   function evaluateModel(node: ModelExpressionNode | ModelStatementNode) {
     const type: ModelType = createType({
-      name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : "",
-      kind: "Model",
+      name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : '',
+      kind: 'Model',
       node: node,
       properties: new Map()
     });
@@ -192,21 +191,21 @@ export async function compile(rootDir: string) {
     for (const prop of node.properties) {
       if (prop.id.kind === SyntaxKind.Identifier) {
         type.properties.set(prop.id.sv, createType({
-          kind: "ModelProperty",
+          kind: 'ModelProperty',
           name: prop.id.sv,
           node: prop,
           optional: prop.optional,
           type: evaluate(prop.value)
-        }))
+        }));
       } else {
         const name = prop.id.value.slice(1, -1);
         type.properties.set(name, createType({
-          kind: "ModelProperty",
+          kind: 'ModelProperty',
           name,
           node: prop,
           optional: prop.optional,
           type: evaluate(prop.value)
-        }))
+        }));
       }
     }
 
@@ -223,13 +222,13 @@ export async function compile(rootDir: string) {
   >(node: T): T extends StringLiteralNode ? StringLiteralType : NumericLiteralType {
     const value = node.kind === SyntaxKind.NumericLiteral
       ? Number(node.value)
-      : node.value.slice(1, -1)
+      : node.value.slice(1, -1);
 
     if (program.literalTypes.has(value)) {
       return program.literalTypes.get(value) as any;
     }
 
-    let type = { node, value } as any;
+    const type = { node, value } as any;
 
     program.literalTypes.set(value, type);
     return type;
@@ -297,13 +296,12 @@ export async function compile(rootDir: string) {
   }
 
   function toJSON(type: Type): Type | string | number {
-    if ("value" in type) {
+    if ('value' in type) {
       return (type as any).value;
     }
 
     return type;
   }
-
 
 
   function dumpSymbols(program: Program) {
@@ -351,7 +349,7 @@ export async function compile(rootDir: string) {
 
   function bindStatement(file: ADLSourceFile, statement: ModelStatementNode | InterfaceStatementNode) {
     file.symbols.set(statement.id.sv, {
-      kind: "type",
+      kind: 'type',
       node: statement
     });
   }
@@ -362,12 +360,12 @@ export async function compile(rootDir: string) {
 
   async function loadDirectory(program: Program, rootDir: string) {
     const dir = await readdir(rootDir, { withFileTypes: true });
-    for (let entry of dir) {
+    for (const entry of dir) {
       if (entry.isFile()) {
         const path = join(rootDir, entry.name);
-        if (entry.name.endsWith(".js")) {
+        if (entry.name.endsWith('.js')) {
           await loadJsFile(program, path);
-        } else if (entry.name.endsWith(".adl")) {
+        } else if (entry.name.endsWith('.adl')) {
           await loadAdlFile(program, path);
         }
       }
@@ -396,7 +394,7 @@ export async function compile(rootDir: string) {
       // we have to do with them.
       const name = match.match(/function (\w+)/)![1];
       program.globals.set(name, {
-        kind: "decorator",
+        kind: 'decorator',
         path,
         name
       });
@@ -405,72 +403,72 @@ export async function compile(rootDir: string) {
 }
 
 export interface Type {
-  node: Node,
+  node: Node;
 }
 
 export interface ModelType extends Type {
-  kind: "Model",
-  name: string,
-  properties: Map<string, ModelTypeProperty>,
+  kind: 'Model';
+  name: string;
+  properties: Map<string, ModelTypeProperty>;
 }
 
 export interface ModelTypeProperty {
-  kind: "ModelProperty",
-  node: ModelPropertyNode,
-  name: string,
-  type: Type,
-  optional: boolean
+  kind: 'ModelProperty';
+  node: ModelPropertyNode;
+  name: string;
+  type: Type;
+  optional: boolean;
 }
 
 export interface InterfaceTypeProperty {
-  kind: "InterfaceProperty"
-  node: InterfacePropertyNode,
-  name: string,
-  parameters: InterfaceTypeParameter[],
-  returnType: Type
+  kind: 'InterfaceProperty';
+  node: InterfacePropertyNode;
+  name: string;
+  parameters: Array<InterfaceTypeParameter>;
+  returnType: Type;
 }
 
 export interface InterfaceTypeParameter {
-  kind: "InterfaceParameter",
-  node: InterfaceParameterNode,
-  name: string,
-  type: Type,
-  optional: boolean
+  kind: 'InterfaceParameter';
+  node: InterfaceParameterNode;
+  name: string;
+  type: Type;
+  optional: boolean;
 }
 
 export interface InterfaceType extends Type {
-  kind: "Interface",
-  name: string,
-  node: InterfaceStatementNode,
-  properties: Map<string, InterfaceTypeProperty>
+  kind: 'Interface';
+  name: string;
+  node: InterfaceStatementNode;
+  properties: Map<string, InterfaceTypeProperty>;
 }
 
 export interface StringLiteralType extends Type {
-  kind: "StringLiteral",
-  node: StringLiteralNode,
-  value: string
+  kind: 'StringLiteral';
+  node: StringLiteralNode;
+  value: string;
 }
 
 export interface NumericLiteralType extends Type {
-  kind: "NumberLiteral",
-  node: NumericLiteralNode,
-  value: number
+  kind: 'NumberLiteral';
+  node: NumericLiteralNode;
+  value: number;
 }
 export interface ArrayType extends Type {
-  kind: "Array",
-  node: ArrayExpressionNode,
-  elementType: Type
+  kind: 'Array';
+  node: ArrayExpressionNode;
+  elementType: Type;
 }
 
 export interface TupleType extends Type {
-  kind: "Tuple",
-  node: TupleExpressionNode,
-  values: Type[]
+  kind: 'Tuple';
+  node: TupleExpressionNode;
+  values: Array<Type>;
 }
 
 export interface UnionType extends Type {
-  kind: "Union",
-  options: Type[]
+  kind: 'Union';
+  options: Array<Type>;
 }
 
 compile('./samples/petstore').catch(e => console.error(e));

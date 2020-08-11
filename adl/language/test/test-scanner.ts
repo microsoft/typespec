@@ -1,8 +1,8 @@
 import { strictEqual } from 'assert';
 import { readFile } from 'fs/promises';
-import { fileURLToPath } from 'url';
+import { URL } from 'url';
 import { Kind, Position, Scanner } from '../compiler/scanner.js';
-const __filename = fileURLToPath(import.meta.url);
+
 
 type TokenEntry = [Kind, string?, 'error'?, Position?];
 
@@ -91,7 +91,7 @@ describe('scanner', () => {
   });
 
   it('parses this file', async () => {
-    const text = await readFile(__filename, 'utf-8');
+    const text = await readFile(new URL(import.meta.url), 'utf-8');
     const all = tokens(text);
   });
 });
