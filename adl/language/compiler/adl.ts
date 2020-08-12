@@ -21,9 +21,10 @@ interface Program {
   onBuild(cb: (program: Program) => void): void;
 }
 
-type Symbol = DecoratorSymbol | TypeSymbol;
+// trying to avoid masking built-in Symbol
+type Sym = DecoratorSymbol | TypeSymbol;
 
-type SymbolTable = Map<string, Symbol>;
+type SymbolTable = Map<string, Sym>;
 
 interface ADLSourceFile {
   ast: ADLScriptNode;
@@ -38,7 +39,7 @@ export async function compile(rootDir: string) {
 
   const program: Program = {
     globals: new Map(),
-    sourceFiles: [] as Array<ADLSourceFile>,
+    sourceFiles: [],
     typeCache: new WeakMap(),
     literalTypes: new Map(),
     onBuild(cb) {
@@ -70,22 +71,24 @@ export async function compile(rootDir: string) {
     }
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
+        return evaluateModel(<ModelExpressionNode> node);
       case SyntaxKind.ModelStatement:
-        return evaluateModel(node as any);
+        return evaluateModel(<ModelStatementNode> node);
       case SyntaxKind.InterfaceStatement:
-        return evaluateInterface(node as any);
+        return evaluateInterface(<InterfaceStatementNode> node);
       case SyntaxKind.Identifier:
-        return evaluateIdentifier(node as any) as any;
+        // decorator bindings presently return an empty binding
+        return <any> evaluateIdentifier(<IdentifierNode> node);
       case SyntaxKind.NumericLiteral:
-        return evaluateNumericLiteral(node as any);
+        return evaluateNumericLiteral(<NumericLiteralNode> node);
       case SyntaxKind.TupleExpression:
-        return evaluateTupleExpression(node as any);
+        return evaluateTupleExpression(<TupleExpressionNode> node);
       case SyntaxKind.StringLiteral:
-        return evaluateStringLiteral(node as any);
+        return evaluateStringLiteral(<StringLiteralNode> node);
       case SyntaxKind.ArrayExpression:
-        return evaluateArrayExpression(node as any);
+        return evaluateArrayExpression(<ArrayExpressionNode> node);
       case SyntaxKind.UnionExpression:
-        return evaluateUnionExpression(node as any);
+        return evaluateUnionExpression(<UnionExpressionNode> node);
     }
 
     throw new Error('cant eval ' + SyntaxKind[node.kind]);
@@ -217,20 +220,24 @@ export async function compile(rootDir: string) {
     return type;
   }
 
-  function getLiteralType<
-    T extends StringLiteralNode | NumericLiteralNode
-  >(node: T): T extends StringLiteralNode ? StringLiteralType : NumericLiteralType {
+  function getLiteralType(node: StringLiteralNode): StringLiteralType;
+  function getLiteralType(node: NumericLiteralNode): NumericLiteralType;
+  function getLiteralType(node: StringLiteralNode | NumericLiteralNode): StringLiteralType | NumericLiteralType {
     const value = node.kind === SyntaxKind.NumericLiteral
       ? Number(node.value)
       : node.value.slice(1, -1);
 
     if (program.literalTypes.has(value)) {
-      return program.literalTypes.get(value) as any;
+      return program.literalTypes.get(value)!;
     }
 
-    const type = { node, value } as any;
+    const kind = node.kind === SyntaxKind.NumericLiteral
+      ? 'Number'
+      : 'String';
 
-    program.literalTypes.set(value, type);
+    const type: StringLiteralType | NumericLiteralType = <any>{ kind, node, value };
+
+    program.literalTypes.set(value, <any>type);
     return type;
   }
 
@@ -281,7 +288,7 @@ export async function compile(rootDir: string) {
 
   async function importDecorator(id: IdentifierNode) {
     const name = id.sv;
-    const binding: Symbol | undefined = program.globals.get(name);
+    const binding: Sym | undefined = program.globals.get(name);
     if (!binding) {
       throw new Error('Cannot find binding ' + name);
     }
@@ -292,12 +299,17 @@ export async function compile(rootDir: string) {
 
     const modpath = 'file:///' + join(process.cwd(), binding.path);
     const module = await import(modpath);
-    return (module as any)[name];
+    return module[name];
   }
 
+  /**
+   * returns the JSON representation of a type. This is generally
+   * just the raw type objects, but string and number are treated
+   * specially.
+   */
   function toJSON(type: Type): Type | string | number {
     if ('value' in type) {
-      return (type as any).value;
+      return (<any> type).value;
     }
 
     return type;
@@ -444,13 +456,13 @@ export interface InterfaceType extends Type {
 }
 
 export interface StringLiteralType extends Type {
-  kind: 'StringLiteral';
+  kind: 'String';
   node: StringLiteralNode;
   value: string;
 }
 
 export interface NumericLiteralType extends Type {
-  kind: 'NumberLiteral';
+  kind: 'Number';
   node: NumericLiteralNode;
   value: number;
 }
