@@ -206,8 +206,9 @@ ResponseDeclaration: tba # still in discussion
 ResponseGroupDeclaration: tba # still in discussion
 
 ModelDeclaration: 
-  - Annotation+? `partial`? `model` Identifier TemplateDeclaration? AllOf? `;`
-  - Annotation+? `partial`? `model` Identifier TemplateDeclaration? AllOf? `{` PropertyDefinition+? `}`;
+  - Annotation+? `model` Identifier TemplateDeclaration? `;`
+  - Annotation+? `model` Identifier TemplateDeclaration? `{` PropertyDefinition+? `}`;
+  - Annotation+? `model` `=` Type
 
 TemplateDeclaration: `<` Identifier AdditionalTemplateDeclarations? `>`
 AdditionalTemplateDeclarations: `,` Identifier AdditionalTemplateDeclarations+?

@@ -1,4 +1,3 @@
-import { describe, it } from 'mocha';
 import { parse } from '../parser';
 
 describe('syntax', () => {
@@ -55,6 +54,13 @@ describe('syntax', () => {
        };`,
 
       'model Foo { "strKey": number, "😂😂😂": string }'
+    ]);
+  });
+
+  describe('model = statements', () => {
+    parseEach([
+      'model x = y',
+      'model foo = bar | baz'
     ]);
   });
 

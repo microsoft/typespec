@@ -136,17 +136,34 @@ export function parse(code: string) {
     decorators: Array<DecoratorExpressionNode>
   ): ModelStatementNode {
     const pos = tokenPos();
+
     parseExpected(Kind.ModelKeyword);
     const id = parseIdentifier();
-    parseExpected(Kind.OpenBrace);
-    const properties = parseModelPropertyList();
 
-    return finishNode({
-      kind: SyntaxKind.ModelStatement,
-      id,
-      decorators,
-      properties
-    }, pos);
+    if (token() === Kind.OpenBrace) {
+      parseExpected(Kind.OpenBrace);
+      const properties = parseModelPropertyList();
+
+      return finishNode({
+        kind: SyntaxKind.ModelStatement,
+        id,
+        decorators,
+        properties
+      }, pos);
+    } else if (token() === Kind.Equals) {
+      parseExpected(Kind.Equals);
+      const assignment = parseExpression();
+      return finishNode({
+        kind: SyntaxKind.ModelStatement,
+        id,
+        assignment,
+        decorators,
+      }, pos);
+    } else {
+      throw error('Expected equals or open curly after model statement');
+    }
+
+
   }
 
   function parseModelPropertyList(): Array<ModelPropertyNode> {
@@ -583,7 +600,8 @@ export interface InterfaceParameterNode extends Node {
 export interface ModelStatementNode extends Node {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
-  properties: Array<ModelPropertyNode>;
+  properties?: Array<ModelPropertyNode>;
+  assignment?: Expression;
   decorators: Array<DecoratorExpressionNode>;
 }
 
