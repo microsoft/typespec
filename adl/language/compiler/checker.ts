@@ -159,30 +159,32 @@ export function createChecker(program: Program) {
       properties: new Map(),
     });
 
-    for (const prop of node.properties) {
-      if (prop.id.kind === SyntaxKind.Identifier) {
-        type.properties.set(
-          prop.id.sv,
-          createType({
-            kind: 'ModelProperty',
-            name: prop.id.sv,
-            node: prop,
-            optional: prop.optional,
-            type: getTypeForNode(prop.value),
-          })
-        );
-      } else {
-        const name = prop.id.value.slice(1, -1);
-        type.properties.set(
-          name,
-          createType({
-            kind: 'ModelProperty',
+    if (node.properties) {
+      for (const prop of node.properties) {
+        if (prop.id.kind === SyntaxKind.Identifier) {
+          type.properties.set(
+            prop.id.sv,
+            createType({
+              kind: 'ModelProperty',
+              name: prop.id.sv,
+              node: prop,
+              optional: prop.optional,
+              type: getTypeForNode(prop.value),
+            })
+          );
+        } else {
+          const name = prop.id.value.slice(1, -1);
+          type.properties.set(
             name,
-            node: prop,
-            optional: prop.optional,
-            type: getTypeForNode(prop.value),
-          })
-        );
+            createType({
+              kind: 'ModelProperty',
+              name,
+              node: prop,
+              optional: prop.optional,
+              type: getTypeForNode(prop.value),
+            })
+          );
+        }
       }
     }
 
