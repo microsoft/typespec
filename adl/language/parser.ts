@@ -218,7 +218,7 @@ export function parse(code: string) {
 
   function parseUnionExpression(): Expression {
     const pos = tokenPos();
-    let node: Expression = parseArrayExpression();
+    let node: Expression = parseIntersectionExpression();
 
     if (token() !== Kind.Bar) {
       return node;
@@ -230,6 +230,29 @@ export function parse(code: string) {
     }, pos);
 
     while (parseOptional(Kind.Bar)) {
+      const expr = parseArrayExpression();
+      node.options.push(expr);
+    }
+
+    node.end = tokenPos();
+
+    return node;
+  }
+
+  function parseIntersectionExpression(): Expression {
+    const pos = tokenPos();
+    let node: Expression = parseArrayExpression();
+
+    if (token() !== Kind.Ampersand) {
+      return node;
+    }
+
+    node = finishNode({
+      kind: SyntaxKind.IntersectionExpression,
+      options: [node]
+    }, pos);
+
+    while (parseOptional(Kind.Ampersand)) {
       const expr = parseArrayExpression();
       node.options.push(expr);
     }
@@ -513,6 +536,7 @@ export enum SyntaxKind {
   ModelExpression,
   ModelProperty,
   UnionExpression,
+  IntersectionExpression,
   TupleExpression,
   ArrayExpression,
   StringLiteral,
@@ -565,6 +589,7 @@ type Expression =
   | ModelExpressionNode
   | TupleExpressionNode
   | UnionExpressionNode
+  | IntersectionExpressionNode
   | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode;
@@ -640,6 +665,11 @@ export interface NumericLiteralNode extends Node {
 
 export interface UnionExpressionNode extends Node {
   kind: SyntaxKind.UnionExpression;
+  options: Array<Expression>;
+}
+
+export interface IntersectionExpressionNode extends Node {
+  kind: SyntaxKind.IntersectionExpression;
   options: Array<Expression>;
 }
 

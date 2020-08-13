@@ -236,9 +236,14 @@ AdditionalTemplateArguments: `,` Identifier AdditionalTemplateArguments+?
 
 LiteralType: Value
 
+# string & int & boolean
 UnionType: 
+  - IntersectionType 
+  - UnionType `|` IntersectionType
+
+IntersectionType:
   - TypeExpression
-  - TypeExpression Pipe UnionType?
+  - IntersectionType `&` TypeExpression
 
 Annotation: OpenBracket AnnotationStatement CloseBracket
 

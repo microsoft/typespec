@@ -88,6 +88,12 @@ describe('syntax', () => {
     ]);
   });
 
+  describe('intersection expressions', () => {
+    parseEach([
+      'model A { foo: B & C }'
+    ]);
+  });
+
   describe('interface statements', () => {
     parseEach([
       'interface Store {}',

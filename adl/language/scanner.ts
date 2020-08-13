@@ -384,7 +384,7 @@ export class Scanner {
               this.next(Kind.AmpersandAmpersand, 2) :
             this.#chNext === CharacterCodes.equals ?
               this.next(Kind.AmpersandEquals, 2) :
-              this.next(Kind.Exclamation);
+              this.next(Kind.Ampersand);
 
         case CharacterCodes.asterisk:
           return this.#chNext === CharacterCodes.asterisk ?
