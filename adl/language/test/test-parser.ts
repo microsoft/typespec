@@ -1,4 +1,4 @@
-import { parse } from '../parser';
+import { parse } from '../compiler/parser.js';
 
 describe('syntax', () => {
   describe('import statements', () => {
@@ -91,6 +91,19 @@ describe('syntax', () => {
   describe('intersection expressions', () => {
     parseEach([
       'model A { foo: B & C }'
+    ]);
+  });
+
+  describe('array expressions', () => {
+    parseEach([
+      'model A { foo: D[] }'
+    ]);
+  });
+
+  describe('union expressions', () => {
+    parseEach([
+
+      'model A { foo: B | D }'
     ]);
   });
 

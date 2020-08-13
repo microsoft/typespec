@@ -1,4 +1,4 @@
-import { Kind, Scanner } from './scanner';
+import { Kind, Scanner } from './scanner.js';
 
 export function parse(code: string) {
   const scaner = new Scanner(code);
@@ -54,7 +54,7 @@ export function parse(code: string) {
           return parseAliasStatement();
       }
 
-      throw new Error('Unable to parse statement');
+      throw error(`Expected statement, but found ${Kind[tok]}`);
     }
 
   }
@@ -499,7 +499,7 @@ export function parse(code: string) {
   }
 
   function error(msg: string) {
-    throw new Error(`[${scaner.position.line}, ${scaner.position.character}] ${msg}`);
+    throw new Error(`[${scaner.position.line + 1}, ${scaner.position.character + 1}] ${msg}`);
   }
 
   function parseExpected(expectedToken: Kind) {
