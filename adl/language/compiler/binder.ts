@@ -1,4 +1,9 @@
-import { InterfaceStatementNode, ModelStatementNode, Node, SyntaxKind } from './parser';
+import {
+  InterfaceStatementNode,
+  ModelStatementNode,
+  Node,
+  SyntaxKind
+} from './parser';
 import { ADLSourceFile, Program } from './program';
 
 // trying to avoid masking built-in Symbol
@@ -23,7 +28,7 @@ export interface Binder {
 
 export function createBinder() {
   return {
-    bind
+    bind,
   };
 
   function bind(program: Program) {

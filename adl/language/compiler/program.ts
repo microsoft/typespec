@@ -4,22 +4,20 @@ import { createBinder, Sym, SymbolTable } from './binder.js';
 import { createChecker } from './checker.js';
 import {
   ADLScriptNode,
-
   IdentifierNode,
-
-
   InterfaceStatementNode,
-
-
   ModelStatementNode,
   Node,
-
   parse,
-
   SyntaxKind
 } from './parser.js';
-import { InterfaceType, ModelType, NumericLiteralType, StringLiteralType, Type } from './types.js';
-
+import {
+  InterfaceType,
+  ModelType,
+  NumericLiteralType,
+  StringLiteralType,
+  Type
+} from './types.js';
 
 export interface Program {
   globalSymbols: SymbolTable;
@@ -28,7 +26,6 @@ export interface Program {
   literalTypes: Map<string | number, StringLiteralType | NumericLiteralType>;
   onBuild(cb: (program: Program) => void): void;
 }
-
 
 export interface ADLSourceFile {
   ast: ADLScriptNode;
@@ -66,7 +63,6 @@ export async function compile(rootDir: string) {
    * does type checking.
    */
 
-
   async function executeDecorators(program: Program) {
     for (const file of program.sourceFiles) {
       for (const stmt of file.ast.statements) {
@@ -84,7 +80,9 @@ export async function compile(rootDir: string) {
     for (const dec of stmt.decorators) {
       if (dec.target.kind === SyntaxKind.Identifier) {
         const decFn = await importDecorator(dec.target);
-        const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
+        const args = dec.arguments.map((a) =>
+          toJSON(checker.getTypeForNode(a))
+        );
         decFn(program, type, ...args);
       }
     }
@@ -94,7 +92,9 @@ export async function compile(rootDir: string) {
       for (const dec of prop.decorators) {
         if (dec.target.kind === SyntaxKind.Identifier) {
           const decFn = await importDecorator(dec.target);
-          const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
+          const args = dec.arguments.map((a) =>
+            toJSON(checker.getTypeForNode(a))
+          );
           decFn(program, type, ...args);
         }
       }
@@ -106,7 +106,9 @@ export async function compile(rootDir: string) {
       if (dec.target.kind === SyntaxKind.Identifier) {
         const decFn = await importDecorator(dec.target);
         const type = checker.getTypeForNode(stmt);
-        const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
+        const args = dec.arguments.map((a) =>
+          toJSON(checker.getTypeForNode(a))
+        );
         decFn(program, type, ...args);
       }
     }
@@ -200,6 +202,5 @@ export async function compile(rootDir: string) {
     }
   }
 }
-
 
 compile('./samples/petstore').catch((e) => console.error(e));
