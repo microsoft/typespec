@@ -1,4 +1,3 @@
-import { describe, it } from 'mocha';
 import { parse } from '../parser';
 
 describe('syntax', () => {
@@ -58,6 +57,13 @@ describe('syntax', () => {
     ]);
   });
 
+  describe('model = statements', () => {
+    parseEach([
+      'model x = y',
+      'model foo = bar | baz'
+    ]);
+  });
+
   describe('model expressions', () => {
     parseEach([
       'model Car { engine: { type: "v8" } }'
@@ -79,6 +85,12 @@ describe('syntax', () => {
   describe('union expressions', () => {
     parseEach([
       'model A { foo: B | C }'
+    ]);
+  });
+
+  describe('intersection expressions', () => {
+    parseEach([
+      'model A { foo: B & C }'
     ]);
   });
 

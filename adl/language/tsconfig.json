@@ -3,13 +3,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "types": [
-      "node"
-    ]
+    "types": ["node", "mocha"]
   },
-  "include": [
-    "."
-  ],
+  "include": ["."],
   "exclude": [
     "dist",
     "test/scenarios/**",
