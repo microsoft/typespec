@@ -135,6 +135,23 @@ describe('syntax', () => {
       'alias MyAlias : [ string, number ];'
     ]);
   });
+
+  describe('multiple statements', () => {
+    parseEach([`
+      model A { };
+      model B { }
+      model C = A;
+      ;
+      interface I {
+        foo(): number;
+      };
+      interface J {
+
+      }
+
+      
+    `]);
+  });
 });
 
 function parseEach(cases: Array<string>) {

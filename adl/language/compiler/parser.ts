@@ -53,6 +53,14 @@ export function parse(code: string) {
             error('Cannot decorate an alias statement');
           }
           return parseAliasStatement();
+        case Kind.Semicolon:
+          if (decorators.length > 0) {
+            error('Cannot decorat an empty statement');
+          }
+          // no need to put empty statement nodes in the tree for now
+          // since we aren't trying to emit ADL
+          parseExpected(Kind.Semicolon);
+          continue;
       }
 
       throw error(`Expected statement, but found ${Kind[tok]}`);
@@ -161,6 +169,7 @@ export function parse(code: string) {
     } else if (token() === Kind.Equals) {
       parseExpected(Kind.Equals);
       const assignment = parseExpression();
+      parseExpected(Kind.Semicolon);
       return finishNode({
         kind: Types.SyntaxKind.ModelStatement,
         id,
