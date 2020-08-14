@@ -1,13 +1,14 @@
 import { Kind, Scanner } from './scanner.js';
+import * as Types from './types.js';
 
 export function parse(code: string) {
   const scaner = new Scanner(code);
   nextToken();
   return parseADLScript();
 
-  function parseADLScript(): ADLScriptNode {
-    const script: ADLScriptNode = {
-      kind: SyntaxKind.ADLScript,
+  function parseADLScript(): Types.ADLScriptNode {
+    const script: Types.ADLScriptNode = {
+      kind: Types.SyntaxKind.ADLScript,
       statements: [],
       pos: 0,
       end: 0
@@ -21,13 +22,13 @@ export function parse(code: string) {
     return script;
   }
 
-  function parseStatement(): Statement {
+  function parseStatement(): Types.Statement {
     let decorators = [];
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
       const tok = token();
-      let node: Statement;
+      let node: Types.Statement;
 
       switch (tok) {
         case Kind.ImportKeyword:
@@ -60,16 +61,16 @@ export function parse(code: string) {
   }
 
   function parseInterfaceStatement(
-    decorators: Array<DecoratorExpressionNode>
-  ): InterfaceStatementNode {
+    decorators: Array<Types.DecoratorExpressionNode>
+  ): Types.InterfaceStatementNode {
     const pos = tokenPos();
     parseExpected(Kind.InterfaceKeyword);
     const id = parseIdentifier();
     parseExpected(Kind.OpenBrace);
-    const properties: Array<InterfacePropertyNode> = [];
+    const properties: Array<Types.InterfacePropertyNode> = [];
 
 
-    let memberDecorators: Array<DecoratorExpressionNode> = [];
+    let memberDecorators: Array<Types.DecoratorExpressionNode> = [];
     do {
       if (token() == Kind.CloseBrace) {
         break;
@@ -84,14 +85,14 @@ export function parse(code: string) {
     parseExpected(Kind.CloseBrace);
 
     return finishNode({
-      kind: SyntaxKind.InterfaceStatement,
+      kind: Types.SyntaxKind.InterfaceStatement,
       decorators,
       id,
       properties
     }, pos);
   }
 
-  function parseInterfaceProperty(decorators: Array<DecoratorExpressionNode>): InterfacePropertyNode {
+  function parseInterfaceProperty(decorators: Array<Types.DecoratorExpressionNode>): Types.InterfacePropertyNode {
     const pos = tokenPos();
     const id = parseIdentifier();
     const parameters = parseParameterList();
@@ -99,7 +100,7 @@ export function parse(code: string) {
     const returnType = parseExpression();
 
     return finishNode({
-      kind: SyntaxKind.InterfaceProperty,
+      kind: Types.SyntaxKind.InterfaceProperty,
       id,
       parameters,
       returnType,
@@ -107,13 +108,13 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseParameterList(): Array<InterfaceParameterNode> {
+  function parseParameterList(): Array<Types.InterfaceParameterNode> {
     parseExpected(Kind.OpenParen);
 
     if (parseOptional(Kind.CloseParen)) {
       return [];
     }
-    const params: Array<InterfaceParameterNode> = [];
+    const params: Array<Types.InterfaceParameterNode> = [];
     do {
       const pos = tokenPos();
       const id = parseIdentifier();
@@ -122,7 +123,7 @@ export function parse(code: string) {
       const value = parseExpression();
 
       params.push(finishNode({
-        kind: SyntaxKind.InterfaceParameter,
+        kind: Types.SyntaxKind.InterfaceParameter,
         id,
         value,
         optional
@@ -133,20 +134,27 @@ export function parse(code: string) {
   }
 
   function parseModelStatement(
-    decorators: Array<DecoratorExpressionNode>
-  ): ModelStatementNode {
+    decorators: Array<Types.DecoratorExpressionNode>
+  ): Types.ModelStatementNode {
     const pos = tokenPos();
 
     parseExpected(Kind.ModelKeyword);
     const id = parseIdentifier();
+
+    let templateParameters: Array<Types.IdentifierNode> = [];
+    if (parseOptional(Kind.LessThan)) {
+      templateParameters = parseIdentifierList();
+      parseExpected(Kind.GreaterThan);
+    }
 
     if (token() === Kind.OpenBrace) {
       parseExpected(Kind.OpenBrace);
       const properties = parseModelPropertyList();
 
       return finishNode({
-        kind: SyntaxKind.ModelStatement,
+        kind: Types.SyntaxKind.ModelStatement,
         id,
+        templateParameters,
         decorators,
         properties
       }, pos);
@@ -154,22 +162,30 @@ export function parse(code: string) {
       parseExpected(Kind.Equals);
       const assignment = parseExpression();
       return finishNode({
-        kind: SyntaxKind.ModelStatement,
+        kind: Types.SyntaxKind.ModelStatement,
         id,
+        templateParameters,
         assignment,
         decorators,
       }, pos);
     } else {
       throw error('Expected equals or open curly after model statement');
     }
-
-
   }
 
-  function parseModelPropertyList(): Array<ModelPropertyNode> {
-    const properties: Array<ModelPropertyNode> = [];
+  function parseIdentifierList(): Array<Types.IdentifierNode> {
+    const ids = [];
+    do {
+      ids.push(parseIdentifier());
+    } while (parseOptional(Kind.Comma));
 
-    let memberDecorators: Array<DecoratorExpressionNode> = [];
+    return ids;
+  }
+
+  function parseModelPropertyList(): Array<Types.ModelPropertyNode> {
+    const properties: Array<Types.ModelPropertyNode> = [];
+
+    let memberDecorators: Array<Types.DecoratorExpressionNode> = [];
     do {
       if (token() == Kind.CloseBrace) {
         break;
@@ -185,9 +201,9 @@ export function parse(code: string) {
     return properties;
   }
 
-  function parseModelProperty(decorators: Array<DecoratorExpressionNode>): ModelPropertyNode {
+  function parseModelProperty(decorators: Array<Types.DecoratorExpressionNode>): Types.ModelPropertyNode {
     const pos = tokenPos();
-    let id: IdentifierNode | StringLiteralNode;
+    let id: Types.IdentifierNode | Types.StringLiteralNode;
     switch (token()) {
       case Kind.Identifier:
         id = parseIdentifier();
@@ -204,7 +220,7 @@ export function parse(code: string) {
     const value = parseExpression();
 
     return finishNode({
-      kind: SyntaxKind.ModelProperty,
+      kind: Types.SyntaxKind.ModelProperty,
       id,
       decorators,
       value,
@@ -212,20 +228,20 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseExpression(): Expression {
+  function parseExpression(): Types.Expression {
     return parseUnionExpression();
   }
 
-  function parseUnionExpression(): Expression {
+  function parseUnionExpression(): Types.Expression {
     const pos = tokenPos();
-    let node: Expression = parseIntersectionExpression();
+    let node: Types.Expression = parseIntersectionExpression();
 
     if (token() !== Kind.Bar) {
       return node;
     }
 
     node = finishNode({
-      kind: SyntaxKind.UnionExpression,
+      kind: Types.SyntaxKind.UnionExpression,
       options: [node]
     }, pos);
 
@@ -239,16 +255,16 @@ export function parse(code: string) {
     return node;
   }
 
-  function parseIntersectionExpression(): Expression {
+  function parseIntersectionExpression(): Types.Expression {
     const pos = tokenPos();
-    let node: Expression = parseArrayExpression();
+    let node: Types.Expression = parseArrayExpression();
 
     if (token() !== Kind.Ampersand) {
       return node;
     }
 
     node = finishNode({
-      kind: SyntaxKind.IntersectionExpression,
+      kind: Types.SyntaxKind.IntersectionExpression,
       options: [node]
     }, pos);
 
@@ -262,9 +278,9 @@ export function parse(code: string) {
     return node;
   }
 
-  function parseArrayExpression(): Expression {
+  function parseArrayExpression(): Types.Expression {
     const pos = tokenPos();
-    const expr = parseMemberExpression();
+    const expr = parseTemplateApplication();
 
     if (token() !== Kind.OpenBracket) {
       return expr;
@@ -273,17 +289,36 @@ export function parse(code: string) {
     parseExpected(Kind.CloseBracket);
 
     return finishNode({
-      kind: SyntaxKind.ArrayExpression,
+      kind: Types.SyntaxKind.ArrayExpression,
       elementType: expr
     }, pos);
   }
 
-  function parseImportStatement(): ImportStatementNode {
+  function parseTemplateApplication(): Types.Expression {
+    const pos = tokenPos();
+    const expr = parseMemberExpression();
+
+    if (token() !== Kind.LessThan) {
+      return expr;
+    }
+
+    parseExpected(Kind.LessThan);
+    const args = parseExpressionList();
+    parseExpected(Kind.GreaterThan);
+
+    return finishNode({
+      kind: Types.SyntaxKind.TemplateApplication,
+      target: expr,
+      arguments: args,
+    }, pos);
+  }
+
+  function parseImportStatement(): Types.ImportStatementNode {
     const pos = tokenPos();
 
     parseExpected(Kind.ImportKeyword);
     const id = parseIdentifier();
-    let as: Array<NamedImportNode> = [];
+    let as: Array<Types.NamedImportNode> = [];
 
     if (token() === Kind.Identifier && tokenValue() === 'as') {
       parseExpected(Kind.Identifier);
@@ -298,24 +333,24 @@ export function parse(code: string) {
 
     parseExpected(Kind.Semicolon);
     return finishNode({
-      kind: SyntaxKind.ImportStatement,
+      kind: Types.SyntaxKind.ImportStatement,
       as, id
     }, pos);
   }
 
-  function parseNamedImports(): Array<NamedImportNode> {
-    const names: Array<NamedImportNode> = [];
+  function parseNamedImports(): Array<Types.NamedImportNode> {
+    const names: Array<Types.NamedImportNode> = [];
     do {
       const pos = tokenPos();
       names.push(finishNode({
-        kind: SyntaxKind.NamedImport,
+        kind: Types.SyntaxKind.NamedImport,
         id: parseIdentifier()
       }, pos));
     } while (parseOptional(Kind.Comma));
     return names;
   }
 
-  function parseDecoratorExpression(): DecoratorExpressionNode {
+  function parseDecoratorExpression(): Types.DecoratorExpressionNode {
     const pos = tokenPos();
     let usesBrackets = false;
 
@@ -328,12 +363,12 @@ export function parse(code: string) {
 
     const target = parseMemberExpression();
 
-    if (target.kind !== SyntaxKind.Identifier
-      && target.kind !== SyntaxKind.MemberExpression) {
+    if (target.kind !== Types.SyntaxKind.Identifier
+      && target.kind !== Types.SyntaxKind.MemberExpression) {
       throw error(`a ${target.kind} is not a valid decorator`);
     }
 
-    let args: Array<Expression> = [];
+    let args: Array<Types.Expression> = [];
     if (parseOptional(Kind.OpenParen)) {
       if (!parseOptional(Kind.CloseParen)) {
         args = parseExpressionList();
@@ -346,14 +381,14 @@ export function parse(code: string) {
     }
 
     return finishNode({
-      kind: SyntaxKind.DecoratorExpression,
+      kind: Types.SyntaxKind.DecoratorExpression,
       arguments: args,
       target
     }, pos);
   }
 
-  function parseExpressionList(): Array<Expression> {
-    const args: Array<Expression> = [];
+  function parseExpressionList(): Array<Types.Expression> {
+    const args: Array<Types.Expression> = [];
 
     do {
       args.push(parseExpression());
@@ -362,8 +397,8 @@ export function parse(code: string) {
     return args;
   }
 
-  function parseMemberExpression(): Expression {
-    let base: Expression = parsePrimaryExpression();
+  function parseMemberExpression(): Types.Expression {
+    let base: Types.Expression = parsePrimaryExpression();
 
     while (parseOptional(Kind.Dot)) {
       if (token() !== Kind.Identifier) {
@@ -371,7 +406,7 @@ export function parse(code: string) {
       }
       const pos = tokenPos();
       base = finishNode({
-        kind: SyntaxKind.MemberExpression,
+        kind: Types.SyntaxKind.MemberExpression,
         base,
         id: parseIdentifier()
       }, pos);
@@ -380,7 +415,7 @@ export function parse(code: string) {
     return base;
   }
 
-  function parsePrimaryExpression(): Expression {
+  function parsePrimaryExpression(): Types.Expression {
     switch (token()) {
       case Kind.Identifier: return parseIdentifier();
       case Kind.StringLiteral: return parseStringLiteral();
@@ -392,49 +427,49 @@ export function parse(code: string) {
     throw error(`Unexpected token: ${Kind[token()]}`);
   }
 
-  function parseTupleExpression(): TupleExpressionNode {
+  function parseTupleExpression(): Types.TupleExpressionNode {
     const pos = tokenPos();
     parseExpected(Kind.OpenBracket);
     const values = parseExpressionList();
     parseExpected(Kind.CloseBracket);
     return finishNode({
-      kind: SyntaxKind.TupleExpression,
+      kind: Types.SyntaxKind.TupleExpression,
       values
     }, pos);
   }
 
-  function parseModelExpression(decorators: Array<DecoratorExpressionNode>): ModelExpressionNode {
+  function parseModelExpression(decorators: Array<Types.DecoratorExpressionNode>): Types.ModelExpressionNode {
     const pos = tokenPos();
     parseExpected(Kind.OpenBrace);
     const properties = parseModelPropertyList();
     return finishNode({
-      kind: SyntaxKind.ModelExpression,
+      kind: Types.SyntaxKind.ModelExpression,
       decorators,
       properties
     }, pos);
   }
 
-  function parseStringLiteral(): StringLiteralNode {
+  function parseStringLiteral(): Types.StringLiteralNode {
     const pos = tokenPos();
     const value = tokenValue();
     parseExpected(Kind.StringLiteral);
     return finishNode({
-      kind: SyntaxKind.StringLiteral,
+      kind: Types.SyntaxKind.StringLiteral,
       value
     }, pos);
   }
 
-  function parseNumericLiteral(): NumericLiteralNode {
+  function parseNumericLiteral(): Types.NumericLiteralNode {
     const pos = tokenPos();
     const value = tokenValue();
     parseExpected(Kind.NumericLiteral);
     return finishNode({
-      kind: SyntaxKind.NumericLiteral,
+      kind: Types.SyntaxKind.NumericLiteral,
       value
     }, pos);
   }
 
-  function parseIdentifier(): IdentifierNode {
+  function parseIdentifier(): Types.IdentifierNode {
     const id = token();
     const pos = tokenPos();
 
@@ -446,12 +481,12 @@ export function parse(code: string) {
     nextToken();
 
     return finishNode({
-      kind: SyntaxKind.Identifier,
+      kind: Types.SyntaxKind.Identifier,
       sv
     }, pos);
   }
 
-  function parseAliasStatement(): AliasStatementNode {
+  function parseAliasStatement(): Types.AliasStatementNode {
     const pos = tokenPos();
     parseExpected(Kind.AliasKeyword);
 
@@ -462,7 +497,7 @@ export function parse(code: string) {
     parseExpected(Kind.Semicolon);
 
     return finishNode({
-      kind: SyntaxKind.AliasStatement,
+      kind: Types.SyntaxKind.AliasStatement,
       id,
       target
     }, pos);
@@ -520,161 +555,4 @@ export function parse(code: string) {
 
     return false;
   }
-}
-
-export enum SyntaxKind {
-  ADLScript,
-  ImportStatement,
-  Identifier,
-  NamedImport,
-  DecoratorExpression,
-  MemberExpression,
-  InterfaceStatement,
-  InterfaceProperty,
-  InterfaceParameter,
-  ModelStatement,
-  ModelExpression,
-  ModelProperty,
-  UnionExpression,
-  IntersectionExpression,
-  TupleExpression,
-  ArrayExpression,
-  StringLiteral,
-  NumericLiteral,
-  AliasStatement
-}
-
-export interface Node {
-  kind: SyntaxKind;
-  pos: number;
-  end: number;
-}
-
-export interface ADLScriptNode extends Node {
-  kind: SyntaxKind.ADLScript;
-  statements: Array<Statement>;
-}
-
-export type Statement =
-  | ImportStatementNode
-  | ModelStatementNode
-  | InterfaceStatementNode
-  | AliasStatementNode;
-
-export interface ImportStatementNode extends Node {
-  kind: SyntaxKind.ImportStatement;
-  id: IdentifierNode;
-  as: Array<NamedImportNode>;
-}
-
-export interface IdentifierNode extends Node {
-  kind: SyntaxKind.Identifier;
-  sv: string;
-}
-
-interface NamedImportNode extends Node {
-  kind: SyntaxKind.NamedImport;
-  id: IdentifierNode;
-}
-
-interface DecoratorExpressionNode extends Node {
-  kind: SyntaxKind.DecoratorExpression;
-  target: IdentifierNode | MemberExpressionNode;
-  arguments: Array<Expression>;
-}
-
-type Expression =
-  | ArrayExpressionNode
-  | MemberExpressionNode
-  | ModelExpressionNode
-  | TupleExpressionNode
-  | UnionExpressionNode
-  | IntersectionExpressionNode
-  | IdentifierNode
-  | StringLiteralNode
-  | NumericLiteralNode;
-
-interface MemberExpressionNode extends Node {
-  kind: SyntaxKind.MemberExpression;
-  id: IdentifierNode;
-  base: Expression | IdentifierNode;
-}
-
-export interface InterfaceStatementNode extends Node {
-  kind: SyntaxKind.InterfaceStatement;
-  id: IdentifierNode;
-  properties: Array<InterfacePropertyNode>;
-  decorators: Array<DecoratorExpressionNode>;
-}
-
-export interface InterfacePropertyNode extends Node {
-  kind: SyntaxKind.InterfaceProperty;
-  id: IdentifierNode;
-  parameters: Array<InterfaceParameterNode>;
-  returnType: Expression;
-  decorators: Array<DecoratorExpressionNode>;
-}
-
-export interface InterfaceParameterNode extends Node {
-  kind: SyntaxKind.InterfaceParameter;
-  id: IdentifierNode;
-  value: Expression;
-  optional: boolean;
-}
-
-export interface ModelStatementNode extends Node {
-  kind: SyntaxKind.ModelStatement;
-  id: IdentifierNode;
-  properties?: Array<ModelPropertyNode>;
-  assignment?: Expression;
-  decorators: Array<DecoratorExpressionNode>;
-}
-
-export interface ModelExpressionNode extends Node {
-  kind: SyntaxKind.ModelExpression;
-  properties: Array<ModelPropertyNode>;
-  decorators: Array<DecoratorExpressionNode>;
-}
-
-export interface ArrayExpressionNode extends Node {
-  kind: SyntaxKind.ArrayExpression;
-  elementType: Expression;
-}
-export interface TupleExpressionNode extends Node {
-  kind: SyntaxKind.TupleExpression;
-  values: Array<Expression>;
-}
-
-export interface ModelPropertyNode extends Node {
-  kind: SyntaxKind.ModelProperty;
-  id: IdentifierNode | StringLiteralNode;
-  value: Expression;
-  decorators: Array<DecoratorExpressionNode>;
-  optional: boolean;
-}
-
-export interface StringLiteralNode extends Node {
-  kind: SyntaxKind.StringLiteral;
-  value: string;
-}
-
-export interface NumericLiteralNode extends Node {
-  kind: SyntaxKind.NumericLiteral;
-  value: string;
-}
-
-export interface UnionExpressionNode extends Node {
-  kind: SyntaxKind.UnionExpression;
-  options: Array<Expression>;
-}
-
-export interface IntersectionExpressionNode extends Node {
-  kind: SyntaxKind.IntersectionExpression;
-  options: Array<Expression>;
-}
-
-export interface AliasStatementNode extends Node {
-  kind: SyntaxKind.AliasStatement;
-  id: IdentifierNode;
-  target: Expression;
 }

@@ -53,14 +53,17 @@ describe('syntax', () => {
          prop2: string
        };`,
 
-      'model Foo { "strKey": number, "😂😂😂": string }'
+      'model Foo { "strKey": number, "😂😂😂": string }',
+
+      'model Foo<A, B> { }'
     ]);
   });
 
   describe('model = statements', () => {
     parseEach([
       'model x = y',
-      'model foo = bar | baz'
+      'model foo = bar | baz',
+      'model bar<a, b> = a | b'
     ]);
   });
 
@@ -87,6 +90,13 @@ describe('syntax', () => {
       'model A { foo: B | C }'
     ]);
   });
+
+  describe('generic type instantiations', () => {
+    parseEach([
+      'model A = Foo<number, string>'
+    ]);
+  });
+
 
   describe('intersection expressions', () => {
     parseEach([

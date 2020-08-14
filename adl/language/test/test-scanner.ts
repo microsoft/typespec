@@ -3,7 +3,6 @@ import { readFile } from 'fs/promises';
 import { URL } from 'url';
 import { Kind, Position, Scanner } from '../compiler/scanner.js';
 
-
 type TokenEntry = [Kind, string?, 'error'?, Position?];
 
 function tokens(text: string): Array<TokenEntry> {
