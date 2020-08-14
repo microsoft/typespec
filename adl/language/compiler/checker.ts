@@ -1,27 +1,33 @@
-import {
-  ArrayExpressionNode,
-  IdentifierNode,
-  InterfaceParameterNode,
-  InterfaceStatementNode,
-  ModelExpressionNode,
-  ModelStatementNode,
-  Node,
-  NumericLiteralNode,
-  StringLiteralNode,
-  SyntaxKind,
-  TupleExpressionNode,
-  UnionExpressionNode
-} from './parser';
 import { ADLSourceFile, Program } from './program';
 import {
-  InterfaceType,
+  ArrayExpressionNode, IdentifierNode,
+
+
+  InterfaceParameterNode, InterfaceStatementNode, InterfaceType,
   InterfaceTypeParameter,
-  ModelType,
-  NumericLiteralType,
-  StringLiteralType,
-  TupleType,
+
+
+  ModelExpressionNode,
+  ModelStatementNode, ModelType,
+
+
+  Node,
+
+
+  NumericLiteralNode, NumericLiteralType,
+
+
+  StringLiteralNode, StringLiteralType,
+
+
+  SyntaxKind,
+
+
+  TupleExpressionNode, TupleType,
   Type,
-  UnionType
+
+
+  UnionExpressionNode, UnionType
 } from './types';
 
 export function createChecker(program: Program) {
