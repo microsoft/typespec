@@ -61,9 +61,9 @@ describe('syntax', () => {
 
   describe('model = statements', () => {
     parseEach([
-      'model x = y',
-      'model foo = bar | baz',
-      'model bar<a, b> = a | b'
+      'model x = y;',
+      'model foo = bar | baz;',
+      'model bar<a, b> = a | b;'
     ]);
   });
 
@@ -93,8 +93,8 @@ describe('syntax', () => {
 
   describe('template instantiations', () => {
     parseEach([
-      'model A = Foo<number, string>',
-      'model B = Foo<number, string>[]'
+      'model A = Foo<number, string>;',
+      'model B = Foo<number, string>[];'
     ]);
   });
 
@@ -134,6 +134,23 @@ describe('syntax', () => {
       'alias MyAlias : { constantProperty: 4 };',
       'alias MyAlias : [ string, number ];'
     ]);
+  });
+
+  describe('multiple statements', () => {
+    parseEach([`
+      model A { };
+      model B { }
+      model C = A;
+      ;
+      interface I {
+        foo(): number;
+      };
+      interface J {
+
+      }
+
+
+    `]);
   });
 });
 
