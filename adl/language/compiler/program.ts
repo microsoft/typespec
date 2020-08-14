@@ -2,20 +2,18 @@ import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { createBinder, Sym, SymbolTable } from './binder.js';
 import { createChecker } from './checker.js';
+import { parse } from './parser.js';
 import {
   ADLScriptNode,
   IdentifierNode,
   InterfaceStatementNode,
-  ModelStatementNode,
-  Node,
-  parse,
-  SyntaxKind
-} from './parser.js';
-import {
   InterfaceType,
+  ModelStatementNode,
   ModelType,
+  Node,
   NumericLiteralType,
   StringLiteralType,
+  SyntaxKind,
   Type
 } from './types.js';
 

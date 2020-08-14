@@ -1,10 +1,5 @@
-import {
-  InterfaceStatementNode,
-  ModelStatementNode,
-  Node,
-  SyntaxKind
-} from './parser';
 import { ADLSourceFile, Program } from './program';
+import { InterfaceStatementNode, ModelStatementNode, Node, SyntaxKind } from './types';
 
 // trying to avoid masking built-in Symbol
 export type Sym = DecoratorSymbol | TypeSymbol;
