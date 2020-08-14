@@ -91,9 +91,10 @@ describe('syntax', () => {
     ]);
   });
 
-  describe('generic type instantiations', () => {
+  describe('template instantiations', () => {
     parseEach([
-      'model A = Foo<number, string>'
+      'model A = Foo<number, string>',
+      'model B = Foo<number, string>[]'
     ]);
   });
 
