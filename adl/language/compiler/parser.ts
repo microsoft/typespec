@@ -74,11 +74,14 @@ export function parse(code: string) {
     const pos = tokenPos();
     parseExpected(Kind.InterfaceKeyword);
     const id = parseIdentifier();
-    let parameters: Array<Types.InterfaceParameterNode> = [];
+    let parameters: Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode> = [];
 
     if (token() === Kind.OpenParen) {
-      parameters = parseParameterList();
+      parseExpected(Kind.OpenParen);
+      parameters = parseModelPropertyList();
+      parseExpected(Kind.CloseParen);
     }
+
     parseExpected(Kind.OpenBrace);
     const properties: Array<Types.InterfacePropertyNode> = [];
 
@@ -110,7 +113,14 @@ export function parse(code: string) {
   function parseInterfaceProperty(decorators: Array<Types.DecoratorExpressionNode>): Types.InterfacePropertyNode {
     const pos = tokenPos();
     const id = parseIdentifier();
-    const parameters = parseParameterList();
+    parseExpected(Kind.OpenParen);
+    let parameters: Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode>= [];
+
+    if (!parseOptional(Kind.CloseParen)) {
+      parameters = parseModelPropertyList();
+      parseExpected(Kind.CloseParen);
+    }
+
     parseExpected(Kind.Colon);
     const returnType = parseExpression();
 
@@ -121,31 +131,6 @@ export function parse(code: string) {
       returnType,
       decorators
     }, pos);
-  }
-
-  function parseParameterList(): Array<Types.InterfaceParameterNode> {
-    parseExpected(Kind.OpenParen);
-
-    if (parseOptional(Kind.CloseParen)) {
-      return [];
-    }
-    const params: Array<Types.InterfaceParameterNode> = [];
-    do {
-      const pos = tokenPos();
-      const id = parseIdentifier();
-      const optional = parseOptional(Kind.Question);
-      parseExpected(Kind.Colon);
-      const value = parseExpression();
-
-      params.push(finishNode({
-        kind: Types.SyntaxKind.InterfaceParameter,
-        id,
-        value,
-        optional
-      }, pos));
-    } while (parseOptional(Kind.Comma));
-    parseExpected(Kind.CloseParen);
-    return params;
   }
 
   function parseModelStatement(
@@ -165,6 +150,7 @@ export function parse(code: string) {
     if (token() === Kind.OpenBrace) {
       parseExpected(Kind.OpenBrace);
       const properties = parseModelPropertyList();
+      parseExpected(Kind.CloseBrace);
 
       return finishNode({
         kind: Types.SyntaxKind.ModelStatement,
@@ -198,8 +184,8 @@ export function parse(code: string) {
     return ids;
   }
 
-  function parseModelPropertyList(): Array<Types.ModelPropertyNode> {
-    const properties: Array<Types.ModelPropertyNode> = [];
+  function parseModelPropertyList(): Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode> {
+    const properties: Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode> = [];
 
     let memberDecorators: Array<Types.DecoratorExpressionNode> = [];
     do {
@@ -209,12 +195,33 @@ export function parse(code: string) {
       while (token() === Kind.At || token() === Kind.OpenBracket) {
         memberDecorators.push(parseDecoratorExpression());
       }
-      properties.push(parseModelProperty(memberDecorators));
+      if (token() === Kind.Elipsis) {
+        if (memberDecorators.length > 0) {
+          error('Cannot decorate a spread property');
+        }
+        properties.push(parseModelSpreadProperty());
+      } else {
+        properties.push(parseModelProperty(memberDecorators));
+      }
+
       memberDecorators = [];
     } while (parseOptional(Kind.Comma) || parseOptional(Kind.Semicolon));
 
-    parseExpected(Kind.CloseBrace);
+
     return properties;
+  }
+
+  function parseModelSpreadProperty(): Types.ModelSpreadPropertyNode {
+    const pos = tokenPos();
+    parseExpected(Kind.Elipsis);
+
+    // This could be broadened to allow any type expression
+    const target = parseIdentifier();
+
+    return finishNode({
+      kind: Types.SyntaxKind.ModelSpreadProperty,
+      target
+    }, pos);
   }
 
   function parseModelProperty(decorators: Array<Types.DecoratorExpressionNode>): Types.ModelPropertyNode {
@@ -458,6 +465,7 @@ export function parse(code: string) {
     const pos = tokenPos();
     parseExpected(Kind.OpenBrace);
     const properties = parseModelPropertyList();
+    parseExpected(Kind.CloseBrace);
     return finishNode({
       kind: Types.SyntaxKind.ModelExpression,
       decorators,

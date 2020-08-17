@@ -29,7 +29,7 @@ export interface InterfaceTypeProperty {
 
 export interface InterfaceTypeParameter {
   kind: 'InterfaceParameter';
-  node: InterfaceParameterNode;
+  node: ModelPropertyNode | ModelSpreadPropertyNode;
   name: string;
   type: Type;
   optional: boolean;
@@ -87,6 +87,7 @@ export enum SyntaxKind {
   ModelStatement,
   ModelExpression,
   ModelProperty,
+  ModelSpreadProperty,
   UnionExpression,
   IntersectionExpression,
   TupleExpression,
@@ -157,7 +158,7 @@ export interface MemberExpressionNode extends Node {
 export interface InterfaceStatementNode extends Node {
   kind: SyntaxKind.InterfaceStatement;
   id: IdentifierNode;
-  parameters: Array<InterfaceParameterNode>;
+  parameters: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
   properties: Array<InterfacePropertyNode>;
   decorators: Array<DecoratorExpressionNode>;
 }
@@ -165,22 +166,16 @@ export interface InterfaceStatementNode extends Node {
 export interface InterfacePropertyNode extends Node {
   kind: SyntaxKind.InterfaceProperty;
   id: IdentifierNode;
-  parameters: Array<InterfaceParameterNode>;
+  parameters: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
   returnType: Expression;
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface InterfaceParameterNode extends Node {
-  kind: SyntaxKind.InterfaceParameter;
-  id: IdentifierNode;
-  value: Expression;
-  optional: boolean;
-}
 
 export interface ModelStatementNode extends Node {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
-  properties?: Array<ModelPropertyNode>;
+  properties?: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
   assignment?: Expression;
   templateParameters: Array<IdentifierNode>;
   decorators: Array<DecoratorExpressionNode>;
@@ -188,7 +183,7 @@ export interface ModelStatementNode extends Node {
 
 export interface ModelExpressionNode extends Node {
   kind: SyntaxKind.ModelExpression;
-  properties: Array<ModelPropertyNode>;
+  properties: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
   decorators: Array<DecoratorExpressionNode>;
 }
 
@@ -207,6 +202,11 @@ export interface ModelPropertyNode extends Node {
   value: Expression;
   decorators: Array<DecoratorExpressionNode>;
   optional: boolean;
+}
+
+export interface ModelSpreadPropertyNode extends Node {
+  kind: SyntaxKind.ModelSpreadProperty;
+  target: IdentifierNode;
 }
 
 export interface StringLiteralNode extends Node {
