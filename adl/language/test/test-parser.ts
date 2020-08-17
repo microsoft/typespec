@@ -55,7 +55,9 @@ describe('syntax', () => {
 
       'model Foo { "strKey": number, "😂😂😂": string }',
 
-      'model Foo<A, B> { }'
+      'model Foo<A, B> { }',
+
+      'model Car { @foo @bar x: number }'
     ]);
   });
 
@@ -124,7 +126,9 @@ describe('syntax', () => {
       'interface Store { read(): int32 }',
       'interface Store { read(): int32, write(v: int32): {} }',
       'interface Store { read(): int32; write(v: int32): {} }',
-      '@foo interface Store { @dec read():number, @dec write(n: number): {} }'
+      '@foo interface Store { @dec read():number, @dec write(n: number): {} }',
+      '@foo @bar interface Store { @foo @bar read(): number; }',
+      'interface Store(apiKey: string, otherArg: number) { }'
     ]);
   });
 
