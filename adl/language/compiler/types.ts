@@ -157,6 +157,7 @@ export interface MemberExpressionNode extends Node {
 export interface InterfaceStatementNode extends Node {
   kind: SyntaxKind.InterfaceStatement;
   id: IdentifierNode;
+  parameters: Array<InterfaceParameterNode>;
   properties: Array<InterfacePropertyNode>;
   decorators: Array<DecoratorExpressionNode>;
 }

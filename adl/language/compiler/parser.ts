@@ -74,6 +74,11 @@ export function parse(code: string) {
     const pos = tokenPos();
     parseExpected(Kind.InterfaceKeyword);
     const id = parseIdentifier();
+    let parameters: Array<Types.InterfaceParameterNode> = [];
+
+    if (token() === Kind.OpenParen) {
+      parameters = parseParameterList();
+    }
     parseExpected(Kind.OpenBrace);
     const properties: Array<Types.InterfacePropertyNode> = [];
 
@@ -83,7 +88,8 @@ export function parse(code: string) {
       if (token() == Kind.CloseBrace) {
         break;
       }
-      if (token() === Kind.At || token() === Kind.OpenBracket) {
+
+      while (token() === Kind.At || token() === Kind.OpenBracket) {
         memberDecorators.push(parseDecoratorExpression());
       }
       properties.push(parseInterfaceProperty(memberDecorators));
@@ -96,6 +102,7 @@ export function parse(code: string) {
       kind: Types.SyntaxKind.InterfaceStatement,
       decorators,
       id,
+      parameters,
       properties
     }, pos);
   }
@@ -199,7 +206,7 @@ export function parse(code: string) {
       if (token() == Kind.CloseBrace) {
         break;
       }
-      if (token() === Kind.At || token() === Kind.OpenBracket) {
+      while (token() === Kind.At || token() === Kind.OpenBracket) {
         memberDecorators.push(parseDecoratorExpression());
       }
       properties.push(parseModelProperty(memberDecorators));
