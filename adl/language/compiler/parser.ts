@@ -56,7 +56,7 @@ export function parse(code: string) {
           return parseAliasStatement();
         case Kind.Semicolon:
           if (decorators.length > 0) {
-            error('Cannot decorat an empty statement');
+            error('Cannot decorate an empty statement');
           }
           // no need to put empty statement nodes in the tree for now
           // since we aren't trying to emit ADL
