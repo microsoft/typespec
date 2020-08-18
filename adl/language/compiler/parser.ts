@@ -3,7 +3,7 @@ import * as Types from './types.js';
 
 
 export function parse(code: string) {
-  const scaner = new Scanner(code);
+  const scanner = new Scanner(code);
   nextToken();
   return parseADLScript();
 
@@ -15,11 +15,11 @@ export function parse(code: string) {
       end: 0
     };
 
-    while (!scaner.eof) {
+    while (!scanner.eof) {
       script.statements.push(parseStatement());
     }
 
-    script.end = scaner.offset;
+    script.end = scanner.offset;
     return script;
   }
 
@@ -521,7 +521,7 @@ export function parse(code: string) {
     if (id !== Kind.Identifier) {
       error(`expected an identifier, got ${Kind[id]}`);
     }
-    const sv = scaner.value;
+    const sv = scanner.value;
 
     nextToken();
 
@@ -550,23 +550,23 @@ export function parse(code: string) {
 
   // utility functions
   function token() {
-    return scaner.token;
+    return scanner.token;
   }
 
   function tokenValue() {
-    return scaner.value;
+    return scanner.value;
   }
 
   function tokenPos() {
-    return scaner.offset;
+    return scanner.offset;
   }
 
   function nextToken() {
-    scaner.scan();
+    scanner.scan();
 
     // skip whitespace and comment tokens for now
     while (isTrivia(token())) {
-      scaner.scan();
+      scanner.scan();
     }
   }
 
@@ -591,7 +591,7 @@ export function parse(code: string) {
   }
 
   function error(msg: string) {
-    throw new Error(`[${scaner.position.line + 1}, ${scaner.position.character + 1}] ${msg}`);
+    throw new Error(`[${scanner.position.line + 1}, ${scanner.position.character + 1}] ${msg}`);
   }
 
   function parseExpected(expectedToken: Kind) {
