@@ -535,9 +535,21 @@ export function parse(code: string) {
   function nextToken() {
     scaner.scan();
 
-    // skip whitespace tokens for now
-    while (token() === Kind.Whitespace || token() === Kind.NewLine) {
+    // skip whitespace and comment tokens for now
+    while (isTrivia(token())) {
       scaner.scan();
+    }
+  }
+
+  function isTrivia(token: Kind) {
+    switch (token) {
+      case Kind.Whitespace:
+      case Kind.NewLine:
+      case Kind.MultiLineComment:
+      case Kind.SingleLineComment:
+        return true;
+      default:
+        return false;
     }
   }
 

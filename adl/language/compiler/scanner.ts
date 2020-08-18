@@ -393,7 +393,7 @@ export class Scanner {
               this.next(Kind.AsteriskAsterisk, 2) :
             this.#chNext === CharacterCodes.equals ?
               this.next(Kind.AsteriskEquals, 2) :
-              this.next(Kind.AsteriskEquals);
+              this.next(Kind.Asterisk);
 
         case CharacterCodes.plus:
           return this.#chNext === CharacterCodes.plus ?
@@ -420,7 +420,7 @@ export class Scanner {
           return this.#chNext === CharacterCodes.slash ?
             this.scanSingleLineComment() :
             this.#chNext === CharacterCodes.asterisk ?
-              this.scanMulitLineComment() :
+              this.scanMultiLineComment() :
 
               this.#chNext === CharacterCodes.equals ?
                 this.next(Kind.SlashEquals) :
@@ -620,7 +620,7 @@ export class Scanner {
     return this.#ch === CharacterCodes.tab ? (this.#column % this.tabWidth || this.tabWidth) : 1;
   }
 
-  private scanUntil(predicate: (char: number, charNext: number, charNextNext: number) => boolean, expectedClose?: string) {
+  private scanUntil(predicate: (char: number, charNext: number, charNextNext: number) => boolean, expectedClose?: string, consumeClose?: number) {
     const start = this.#offset;
 
     do {
@@ -644,6 +644,10 @@ export class Scanner {
 
     } while (!predicate(this.#ch, this.#chNext, this.#chNextNext));
 
+    if (consumeClose) {
+      this.advance(consumeClose);
+    }
+
     // and after...
     this.markPosition();
 
@@ -655,9 +659,9 @@ export class Scanner {
     return this.token = Kind.SingleLineComment;
   }
 
-  private scanMulitLineComment() {
-    this.value = this.scanUntil((ch, chNext) => ch === CharacterCodes.asterisk && chNext === CharacterCodes.slash, '*/');
-    return Kind.MultiLineComment;
+  private scanMultiLineComment() {
+    this.value = this.scanUntil((ch, chNext) => ch === CharacterCodes.asterisk && chNext === CharacterCodes.slash, '*/', 2);
+    return this.token = Kind.MultiLineComment;
   }
 
   private scanString() {
