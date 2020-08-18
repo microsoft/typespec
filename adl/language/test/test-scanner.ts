@@ -89,6 +89,37 @@ describe('scanner', () => {
     ]);
   });
 
+  it('does not scan greater-than-equals as one operator', () => {
+    const all = tokens('x>=y');
+    verify(all, [
+      [Kind.Identifier],
+      [Kind.GreaterThan],
+      [Kind.Equals],
+      [Kind.Identifier]
+    ]);
+  });
+
+  it('rescans >=', () => {
+    const scanner = new Scanner('x>=y');
+    scanner.scan();
+    strictEqual(scanner.scan(), Kind.GreaterThan);
+    strictEqual(scanner.rescanGreaterThan(), Kind.GreaterThanEquals);
+  });
+
+  it('rescans >>=', () => {
+    const scanner = new Scanner('x>>=');
+    scanner.scan();
+    strictEqual(scanner.scan(), Kind.GreaterThan);
+    strictEqual(scanner.rescanGreaterThan(), Kind.GreaterThanGreaterThanEquals);
+  });
+
+  it('rescans >>', () => {
+    const scanner = new Scanner('x>>y');
+    scanner.scan();
+    strictEqual(scanner.scan(), Kind.GreaterThan);
+    strictEqual(scanner.rescanGreaterThan(), Kind.GreaterThanGreaterThan);
+  });
+
   it('parses this file', async () => {
     const text = await readFile(new URL(import.meta.url), 'utf-8');
     const all = tokens(text);
