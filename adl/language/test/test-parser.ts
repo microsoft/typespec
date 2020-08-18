@@ -1,4 +1,5 @@
 import { parse } from '../compiler/parser.js';
+import { SyntaxKind } from '../compiler/types.js';
 
 describe('syntax', () => {
   describe('import statements', () => {
@@ -156,6 +157,20 @@ describe('syntax', () => {
 
     `]);
   });
+
+  describe('comments', () => {
+    parseEach([`
+      // Comment
+      model A { /* Another comment */
+        /*
+          and
+          another
+        */
+        property /* 👀 */ : /* 👍 */ int32; // one more
+      }
+      `]);
+  });
+
 });
 
 function parseEach(cases: Array<string>) {
@@ -167,7 +182,10 @@ function parseEach(cases: Array<string>) {
 }
 
 function dumpAST(astNode: any) {
-  console.log(JSON.stringify(astNode, null, 4));
+  const replacer = function(this: any, key: string, value: any) {
+    return key == 'kind' ? SyntaxKind[value] : value;
+  };
+  console.log(JSON.stringify(astNode, replacer, 4));
 }
 
 function shorten(code: string) {
