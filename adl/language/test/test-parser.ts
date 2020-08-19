@@ -58,7 +58,9 @@ describe('syntax', () => {
 
       'model Foo<A, B> { }',
 
-      'model Car { @foo @bar x: number }'
+      'model Car { @foo @bar x: number }',
+
+      'model Car { ... A, ... B, c: number, ... D, e: string }'
     ]);
   });
 
@@ -129,7 +131,8 @@ describe('syntax', () => {
       'interface Store { read(): int32; write(v: int32): {} }',
       '@foo interface Store { @dec read():number, @dec write(n: number): {} }',
       '@foo @bar interface Store { @foo @bar read(): number; }',
-      'interface Store(apiKey: string, otherArg: number) { }'
+      'interface Store(apiKey: string, otherArg: number) { }',
+      'interface Store(... apiKeys, x: string) { foo(... A, b: string, ...C, d: number): void }'
     ]);
   });
 
@@ -149,7 +152,7 @@ describe('syntax', () => {
       ;
       interface I {
         foo(): number;
-      };
+      }
       interface J {
 
       }

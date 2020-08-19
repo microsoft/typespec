@@ -1,12 +1,13 @@
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
-import { createBinder, Sym, SymbolTable } from './binder.js';
+import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
 import { createChecker } from './checker.js';
 import { parse } from './parser.js';
 import {
   ADLScriptNode,
-  IdentifierNode,
-  InterfaceStatementNode,
+
+
+  DecoratorExpressionNode, IdentifierNode, InterfaceStatementNode,
   InterfaceType,
   ModelStatementNode,
   ModelType,
@@ -47,10 +48,9 @@ export async function compile(rootDir: string) {
   };
 
   await loadStandardLibrary(program);
-  await loadDirectory(program, './samples/petstore');
+  await loadDirectory(program, rootDir);
   const binder = createBinder();
-  binder.bind(program);
-
+  binder.bindProgram(program);
   const checker = createChecker(program);
   checker.checkProgram(program);
   await executeDecorators(program);
@@ -77,11 +77,7 @@ export async function compile(rootDir: string) {
     const type = checker.getTypeForNode(stmt);
     for (const dec of stmt.decorators) {
       if (dec.target.kind === SyntaxKind.Identifier) {
-        const decFn = await importDecorator(dec.target);
-        const args = dec.arguments.map((a) =>
-          toJSON(checker.getTypeForNode(a))
-        );
-        decFn(program, type, ...args);
+        executeDecorator(dec, program, stmt);
       }
     }
 
@@ -89,41 +85,33 @@ export async function compile(rootDir: string) {
       const type = checker.getTypeForNode(prop);
       for (const dec of prop.decorators) {
         if (dec.target.kind === SyntaxKind.Identifier) {
-          const decFn = await importDecorator(dec.target);
-          const args = dec.arguments.map((a) =>
-            toJSON(checker.getTypeForNode(a))
-          );
-          decFn(program, type, ...args);
+          executeDecorator(dec, program, stmt);
         }
       }
     }
   }
 
-  async function executeModelDecorators(stmt: ModelStatementNode) {
+  function executeModelDecorators(stmt: ModelStatementNode) {
     for (const dec of stmt.decorators) {
       if (dec.target.kind === SyntaxKind.Identifier) {
-        const decFn = await importDecorator(dec.target);
-        const type = checker.getTypeForNode(stmt);
-        const args = dec.arguments.map((a) =>
-          toJSON(checker.getTypeForNode(a))
-        );
-        decFn(program, type, ...args);
+        executeDecorator(dec, program, stmt);
       }
     }
   }
 
-  async function importDecorator(id: IdentifierNode) {
-    const name = id.sv;
-    const binding: Sym | undefined = program.globalSymbols.get(name);
-    if (!binding) {
-      throw new Error('Cannot find binding ' + name);
-    }
+  function executeDecorator(dec: DecoratorExpressionNode, program: Program, targetNode: Node) {
+    const type = checker.getTypeForNode(targetNode);
+    const decName = (<IdentifierNode>dec.target).sv;
+    const args = dec.arguments.map((a) =>
+      toJSON(checker.getTypeForNode(a))
+    );
+    const decBinding = <DecoratorSymbol>program.globalSymbols.get(decName);
+    const decFn = decBinding.value;
+    decFn(program, type, ...args);
+  }
 
-    if (binding.kind !== 'decorator') {
-      throw new Error('Cannot decorate using non-decorator');
-    }
-
-    const modpath = 'file:///' + join(process.cwd(), binding.path);
+  async function importDecorator(path: string, name: string) {
+    const modpath = 'file:///' + join(process.cwd(), path);
     const module = await import(modpath);
     return module[name];
   }
@@ -192,13 +180,20 @@ export async function compile(rootDir: string) {
       // bind JS files early since this is the only work
       // we have to do with them.
       const name = match.match(/function (\w+)/)![1];
-      program.globalSymbols.set(name, {
-        kind: 'decorator',
-        path,
-        name,
-      });
+      const value = await importDecorator(path, name);
+
+      if (name === 'onBuild') {
+        program.onBuild(value);
+      } else {
+        program.globalSymbols.set(name, {
+          kind: 'decorator',
+          path,
+          name,
+          value
+        });
+      }
     }
   }
 }
 
-compile('./samples/petstore').catch((e) => console.error(e));
+compile('./samples/appconfig').catch((e) => console.error(e));

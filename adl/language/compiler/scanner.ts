@@ -458,13 +458,7 @@ export class Scanner {
         case CharacterCodes.greaterThan:
           return this.isConflictMarker() ?
             this.next(Kind.ConflictMarker, mergeConflictMarkerLength) :
-            this.#chNext === CharacterCodes.greaterThan ?
-              this.#chNextNext === CharacterCodes.equals ?
-                this.next(Kind.GreaterThanGreaterThanEquals, 3) :
-                this.next(Kind.GreaterThanGreaterThan, 2) :
-              this.#chNext === CharacterCodes.equals ?
-                this.next(Kind.GreaterThanEquals, 2) :
-                this.next(Kind.GreaterThan);
+            this.next(Kind.GreaterThan);
 
         case CharacterCodes.equals:
           return this.isConflictMarker() ?
@@ -504,6 +498,25 @@ export class Scanner {
 
     this.value = '';
     return this.token = Kind.EndOfFile;
+  }
+  /**
+   * When the current token is greaterThan, this will return any tokens with characters
+   * after the greater than character. This has to be scanned separately because greater
+   * thans appear in positions where longer tokens are incorrect, e.g. `model x<y>=y;`.
+   * The solution is to call rescanGreaterThan from the parser in contexts where longer
+   * tokens starting with `>` are allowed (i.e. when parsing binary expressions).
+   */
+  rescanGreaterThan(): Kind {
+    if (this.token === Kind.GreaterThan) {
+      return this.#ch === CharacterCodes.greaterThan ?
+        this.#chNext === CharacterCodes.equals ?
+          this.next(Kind.GreaterThanGreaterThanEquals, 3) :
+          this.next(Kind.GreaterThanGreaterThan, 2) :
+        this.#ch === CharacterCodes.equals ?
+          this.next(Kind.GreaterThanEquals, 2) :
+          this.next(Kind.GreaterThan);
+    }
+    return this.token;
   }
 
   isConflictMarker() {

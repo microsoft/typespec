@@ -1,8 +1,12 @@
+import { SymbolTable } from './binder';
+
 /**
  * Type System types
  */
 export interface Type {
+  kind: string;
   node: Node;
+  instantiated?: boolean;
 }
 
 export interface ModelType extends Type {
@@ -13,7 +17,7 @@ export interface ModelType extends Type {
 
 export interface ModelTypeProperty {
   kind: 'ModelProperty';
-  node: ModelPropertyNode;
+  node: ModelPropertyNode | ModelSpreadPropertyNode;
   name: string;
   type: Type;
   optional: boolean;
@@ -23,16 +27,8 @@ export interface InterfaceTypeProperty {
   kind: 'InterfaceProperty';
   node: InterfacePropertyNode;
   name: string;
-  parameters: Array<InterfaceTypeParameter>;
+  parameters: ModelType;
   returnType: Type;
-}
-
-export interface InterfaceTypeParameter {
-  kind: 'InterfaceParameter';
-  node: InterfaceParameterNode;
-  name: string;
-  type: Type;
-  optional: boolean;
 }
 
 export interface InterfaceType extends Type {
@@ -83,10 +79,10 @@ export enum SyntaxKind {
   MemberExpression,
   InterfaceStatement,
   InterfaceProperty,
-  InterfaceParameter,
   ModelStatement,
   ModelExpression,
   ModelProperty,
+  ModelSpreadProperty,
   UnionExpression,
   IntersectionExpression,
   TupleExpression,
@@ -94,13 +90,15 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   AliasStatement,
-  TemplateApplication
+  TemplateApplication,
+  TemplateParameterDeclaration
 }
 
 export interface Node {
   kind: SyntaxKind;
   pos: number;
   end: number;
+  parent?: Node;
 }
 
 export interface ADLScriptNode extends Node {
@@ -157,7 +155,7 @@ export interface MemberExpressionNode extends Node {
 export interface InterfaceStatementNode extends Node {
   kind: SyntaxKind.InterfaceStatement;
   id: IdentifierNode;
-  parameters: Array<InterfaceParameterNode>;
+  parameters?: ModelExpressionNode;
   properties: Array<InterfacePropertyNode>;
   decorators: Array<DecoratorExpressionNode>;
 }
@@ -165,30 +163,25 @@ export interface InterfaceStatementNode extends Node {
 export interface InterfacePropertyNode extends Node {
   kind: SyntaxKind.InterfaceProperty;
   id: IdentifierNode;
-  parameters: Array<InterfaceParameterNode>;
+  parameters: ModelExpressionNode;
   returnType: Expression;
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface InterfaceParameterNode extends Node {
-  kind: SyntaxKind.InterfaceParameter;
-  id: IdentifierNode;
-  value: Expression;
-  optional: boolean;
-}
 
 export interface ModelStatementNode extends Node {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
-  properties?: Array<ModelPropertyNode>;
+  properties?: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
   assignment?: Expression;
-  templateParameters: Array<IdentifierNode>;
+  templateParameters: Array<TemplateParameterDeclarationNode>;
+  locals?: SymbolTable;
   decorators: Array<DecoratorExpressionNode>;
 }
 
 export interface ModelExpressionNode extends Node {
   kind: SyntaxKind.ModelExpression;
-  properties: Array<ModelPropertyNode>;
+  properties: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
   decorators: Array<DecoratorExpressionNode>;
 }
 
@@ -207,6 +200,11 @@ export interface ModelPropertyNode extends Node {
   value: Expression;
   decorators: Array<DecoratorExpressionNode>;
   optional: boolean;
+}
+
+export interface ModelSpreadPropertyNode extends Node {
+  kind: SyntaxKind.ModelSpreadProperty;
+  target: IdentifierNode;
 }
 
 export interface StringLiteralNode extends Node {
@@ -239,4 +237,9 @@ export interface TemplateApplicationNode extends Node {
   kind: SyntaxKind.TemplateApplication;
   target: Expression;
   arguments: Array<Expression>;
+}
+
+export interface TemplateParameterDeclarationNode extends Node {
+  kind: SyntaxKind.TemplateParameterDeclaration;
+  sv: string;
 }
