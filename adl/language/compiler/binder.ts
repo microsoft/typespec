@@ -11,6 +11,7 @@ export interface DecoratorSymbol {
   kind: 'decorator';
   path: string;
   name: string;
+  value: (...args: Array<any>) => any;
 }
 
 export interface TypeSymbol {
