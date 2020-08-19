@@ -120,6 +120,37 @@ describe('scanner', () => {
     strictEqual(scanner.rescanGreaterThan(), Kind.GreaterThanGreaterThan);
   });
 
+  function scanString(text: string, expectedValue: string) {
+    const scanner = new Scanner(text);
+    strictEqual(scanner.scan(), Kind.StringLiteral);
+    strictEqual(scanner.token, Kind.StringLiteral);
+    strictEqual(scanner.value, text);
+    strictEqual(scanner.stringValue, expectedValue);
+  }
+
+  it('scans strings single-line strings with escape sequences', () => {
+    scanString('"Hello world\\r\\n\\t"', 'Hello world\r\n\t');
+  });
+
+  it('scans multi-line strings', () => {
+    scanString('`More\r\nthan\none\nline`', 'More\nthan\none\nline');
+  });
+
+  it('scans triple-quoted strings', () => {
+    scanString(
+      `"""   
+      This is a triple-quoted string
+
+  
+      
+      And this is another line
+      """`,
+      // NOTE: sloppy blank line formatting and trailing whitespace after open
+      //       quotes above is deliberately tolerated.
+      'This is a triple-quoted string\n\n\n\nAnd this is another line'
+    );
+  });
+
   it('parses this file', async () => {
     const text = await readFile(new URL(import.meta.url), 'utf-8');
     const all = tokens(text);

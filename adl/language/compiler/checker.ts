@@ -302,7 +302,7 @@ export function createChecker(program: Program) {
     const value =
       node.kind === SyntaxKind.NumericLiteral
         ? Number(node.value)
-        : node.value.slice(1, -1);
+        : node.value;
 
     if (program.literalTypes.has(value)) {
       return program.literalTypes.get(value)!;

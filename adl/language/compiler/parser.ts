@@ -496,7 +496,7 @@ export function parse(code: string) {
 
   function parseStringLiteral(): Types.StringLiteralNode {
     const pos = tokenPos();
-    const value = tokenValue();
+    const value = tokenStringValue();
     parseExpected(Kind.StringLiteral);
     return finishNode({
       kind: Types.SyntaxKind.StringLiteral,
@@ -555,6 +555,10 @@ export function parse(code: string) {
 
   function tokenValue() {
     return scanner.value;
+  }
+
+  function tokenStringValue() {
+    return scanner.stringValue;
   }
 
   function tokenPos() {
