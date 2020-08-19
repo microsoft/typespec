@@ -1,0 +1,13 @@
+{
+  "name": "lib",
+  "version": "1.0.0",
+  "description": "",
+  "main": "decorators.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}

@@ -1,0 +1,10 @@
+model int64 { }
+model int32 { }
+model string { }
+model float64 { }
+model date { }
+model boolean { }
+model Map<K, V> {
+  k: K,
+  v: V
+}
