@@ -75,13 +75,20 @@ export function parse(code: string) {
     const pos = tokenPos();
     parseExpected(Kind.InterfaceKeyword);
     const id = parseIdentifier();
-    let parameters: Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode> = [];
+    let parameters: Types.ModelExpressionNode | undefined;
 
     if (token() === Kind.OpenParen) {
+      const modelPos = tokenPos();
       parseExpected(Kind.OpenParen);
-      parameters = parseModelPropertyList();
+      const modelProps = parseModelPropertyList();
       parseExpected(Kind.CloseParen);
+      parameters = finishNode({
+        kind: Types.SyntaxKind.ModelExpression,
+        properties: modelProps,
+        decorators: []
+      }, modelPos);
     }
+
 
     parseExpected(Kind.OpenBrace);
     const properties: Array<Types.InterfacePropertyNode> = [];
@@ -115,12 +122,18 @@ export function parse(code: string) {
     const pos = tokenPos();
     const id = parseIdentifier();
     parseExpected(Kind.OpenParen);
-    let parameters: Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode>= [];
+    const modelPos = tokenPos();
+    let modelProps: Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode>= [];
 
     if (!parseOptional(Kind.CloseParen)) {
-      parameters = parseModelPropertyList();
+      modelProps = parseModelPropertyList();
       parseExpected(Kind.CloseParen);
     }
+    const parameters: Types.ModelExpressionNode = finishNode({
+      kind: Types.SyntaxKind.ModelExpression,
+      properties: modelProps,
+      decorators: []
+    }, modelPos);
 
     parseExpected(Kind.Colon);
     const returnType = parseExpression();
@@ -621,12 +634,12 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
     case Types.SyntaxKind.InterfaceProperty:
       return visitEach(cb, (<Types.InterfacePropertyNode>node).decorators) ||
         visitNode(cb, (<Types.InterfacePropertyNode>node).id) ||
-        visitEach(cb, (<Types.InterfacePropertyNode>node).parameters) ||
+        visitNode(cb, (<Types.InterfacePropertyNode>node).parameters) ||
         visitNode(cb, (<Types.InterfacePropertyNode>node).returnType);
     case Types.SyntaxKind.InterfaceStatement:
       return visitEach(cb, (<Types.InterfaceStatementNode> node).decorators) ||
         visitNode(cb, (<Types.InterfaceStatementNode>node).id) ||
-        visitEach(cb, (<Types.InterfaceStatementNode>node).parameters) ||
+        visitNode(cb, (<Types.InterfaceStatementNode>node).parameters) ||
         visitEach(cb, (<Types.InterfaceStatementNode>node).properties);
     case Types.SyntaxKind.IntersectionExpression:
       return visitEach(cb, (<Types.IntersectionExpressionNode>node).options);

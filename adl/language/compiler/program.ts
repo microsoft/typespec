@@ -181,12 +181,17 @@ export async function compile(rootDir: string) {
       // we have to do with them.
       const name = match.match(/function (\w+)/)![1];
       const value = await importDecorator(path, name);
-      program.globalSymbols.set(name, {
-        kind: 'decorator',
-        path,
-        name,
-        value
-      });
+
+      if (name === 'onBuild') {
+        program.onBuild(value);
+      } else {
+        program.globalSymbols.set(name, {
+          kind: 'decorator',
+          path,
+          name,
+          value
+        });
+      }
     }
   }
 }

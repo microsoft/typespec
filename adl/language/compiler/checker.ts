@@ -112,6 +112,11 @@ export function createChecker(program: Program) {
     });
   }
 
+  /**
+   * Intersection produces a model type from the properties of its operands.
+   * So this doesn't work if we don't have a known set of properties (e.g.
+   * with unions). The resulting model is anonymous.
+   */
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
     const allModels = optionTypes.every(t => t.kind === 'Model');
@@ -166,7 +171,7 @@ export function createChecker(program: Program) {
       kind: 'InterfaceProperty',
       name: prop.id.sv,
       node: prop,
-      parameters: [], // TODO: FIXME
+      parameters: <ModelType>checkModel(prop.parameters),
       returnType: getTypeForNode(prop.returnType),
     });
   }

@@ -27,16 +27,8 @@ export interface InterfaceTypeProperty {
   kind: 'InterfaceProperty';
   node: InterfacePropertyNode;
   name: string;
-  parameters: Array<InterfaceTypeParameter>;
+  parameters: ModelType;
   returnType: Type;
-}
-
-export interface InterfaceTypeParameter {
-  kind: 'InterfaceParameter';
-  node: ModelPropertyNode | ModelSpreadPropertyNode;
-  name: string;
-  type: Type;
-  optional: boolean;
 }
 
 export interface InterfaceType extends Type {
@@ -163,7 +155,7 @@ export interface MemberExpressionNode extends Node {
 export interface InterfaceStatementNode extends Node {
   kind: SyntaxKind.InterfaceStatement;
   id: IdentifierNode;
-  parameters: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
+  parameters?: ModelExpressionNode;
   properties: Array<InterfacePropertyNode>;
   decorators: Array<DecoratorExpressionNode>;
 }
@@ -171,7 +163,7 @@ export interface InterfaceStatementNode extends Node {
 export interface InterfacePropertyNode extends Node {
   kind: SyntaxKind.InterfaceProperty;
   id: IdentifierNode;
-  parameters: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
+  parameters: ModelExpressionNode;
   returnType: Expression;
   decorators: Array<DecoratorExpressionNode>;
 }
