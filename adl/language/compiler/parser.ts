@@ -1,6 +1,7 @@
 import { Kind, Scanner } from './scanner.js';
 import * as Types from './types.js';
 
+
 export function parse(code: string) {
   const scaner = new Scanner(code);
   nextToken();
@@ -141,9 +142,9 @@ export function parse(code: string) {
     parseExpected(Kind.ModelKeyword);
     const id = parseIdentifier();
 
-    let templateParameters: Array<Types.IdentifierNode> = [];
+    let templateParameters: Array<Types.TemplateParameterDeclarationNode> = [];
     if (parseOptional(Kind.LessThan)) {
-      templateParameters = parseIdentifierList();
+      templateParameters = parseTemplateParameters();
       parseExpected(Kind.GreaterThan);
     }
 
@@ -175,13 +176,20 @@ export function parse(code: string) {
     }
   }
 
-  function parseIdentifierList(): Array<Types.IdentifierNode> {
-    const ids = [];
+  function parseTemplateParameters(): Array<Types.TemplateParameterDeclarationNode> {
+    const params: Array<Types.TemplateParameterDeclarationNode> = [];
     do {
-      ids.push(parseIdentifier());
+      const pos = tokenPos();
+      const id = parseIdentifier();
+      const param = finishNode({
+        kind: Types.SyntaxKind.TemplateParameterDeclaration,
+        sv: id.sv
+      } as const, pos);
+
+      params.push(param);
     } while (parseOptional(Kind.Comma));
 
-    return ids;
+    return params;
   }
 
   function parseModelPropertyList(): Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode> {
@@ -189,7 +197,7 @@ export function parse(code: string) {
 
     let memberDecorators: Array<Types.DecoratorExpressionNode> = [];
     do {
-      if (token() == Kind.CloseBrace) {
+      if (token() === Kind.CloseBrace || token() === Kind.CloseParen) {
         break;
       }
       while (token() === Kind.At || token() === Kind.OpenBracket) {
@@ -235,7 +243,7 @@ export function parse(code: string) {
         id = parseStringLiteral();
         break;
       default:
-        throw error('expected identifier or string literal');
+        throw error(`expected a model property, got ${Kind[token()]}`);
     }
 
     const optional = parseOptional(Kind.Question);
@@ -591,4 +599,87 @@ export function parse(code: string) {
 
     return false;
   }
+}
+
+type NodeCb<T> =  (c: Types.Node) => T;
+
+export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined {
+  switch (node.kind) {
+    case Types.SyntaxKind.ADLScript:
+      return visitEach(cb, (<Types.ADLScriptNode>node).statements);
+    case Types.SyntaxKind.AliasStatement:
+      return visitNode(cb, (<Types.AliasStatementNode>node).id) ||
+        visitNode(cb, (<Types.AliasStatementNode>node).target);
+    case Types.SyntaxKind.ArrayExpression:
+      return visitNode(cb, (<Types.ArrayExpressionNode>node).elementType);
+    case Types.SyntaxKind.DecoratorExpression:
+      return visitNode(cb, (<Types.DecoratorExpressionNode>node).target) ||
+        visitEach(cb, (<Types.DecoratorExpressionNode>node).arguments);
+    case Types.SyntaxKind.ImportStatement:
+      return visitNode(cb, (<Types.ImportStatementNode>node).id) ||
+        visitEach(cb, (<Types.ImportStatementNode>node).as);
+    case Types.SyntaxKind.InterfaceProperty:
+      return visitEach(cb, (<Types.InterfacePropertyNode>node).decorators) ||
+        visitNode(cb, (<Types.InterfacePropertyNode>node).id) ||
+        visitEach(cb, (<Types.InterfacePropertyNode>node).parameters) ||
+        visitNode(cb, (<Types.InterfacePropertyNode>node).returnType);
+    case Types.SyntaxKind.InterfaceStatement:
+      return visitEach(cb, (<Types.InterfaceStatementNode> node).decorators) ||
+        visitNode(cb, (<Types.InterfaceStatementNode>node).id) ||
+        visitEach(cb, (<Types.InterfaceStatementNode>node).parameters) ||
+        visitEach(cb, (<Types.InterfaceStatementNode>node).properties);
+    case Types.SyntaxKind.IntersectionExpression:
+      return visitEach(cb, (<Types.IntersectionExpressionNode>node).options);
+    case Types.SyntaxKind.MemberExpression:
+      return visitNode(cb, (<Types.MemberExpressionNode>node).base) ||
+        visitNode(cb, (<Types.MemberExpressionNode>node).id);
+    case Types.SyntaxKind.ModelExpression:
+      return visitEach(cb, (<Types.ModelExpressionNode>node).decorators) ||
+        visitEach(cb, (<Types.ModelExpressionNode>node).properties);
+    case Types.SyntaxKind.ModelProperty:
+      return visitEach(cb, (<Types.ModelPropertyNode>node).decorators) ||
+        visitNode(cb, (<Types.ModelPropertyNode>node).id) ||
+        visitNode(cb, (<Types.ModelPropertyNode>node).value);
+    case Types.SyntaxKind.ModelSpreadProperty:
+      return visitNode(cb, (<Types.ModelSpreadPropertyNode>node).target);
+    case Types.SyntaxKind.ModelStatement:
+      return visitEach(cb, (<Types.ModelStatementNode>node).decorators) ||
+        visitNode(cb, (<Types.ModelStatementNode>node).id) ||
+        visitEach(cb, (<Types.ModelStatementNode>node).templateParameters) ||
+        visitNode(cb, (<Types.ModelStatementNode>node).assignment) ||
+        visitEach(cb, (<Types.ModelStatementNode>node).properties);
+    case Types.SyntaxKind.NamedImport:
+      return visitNode(cb, (<Types.NamedImportNode>node).id);
+    case Types.SyntaxKind.TemplateApplication:
+      return visitNode(cb, (<Types.TemplateApplicationNode>node).target) ||
+        visitEach(cb, (<Types.TemplateApplicationNode>node).arguments);
+    case Types.SyntaxKind.TupleExpression:
+      return visitEach(cb, (<Types.TupleExpressionNode>node).values);
+    case Types.SyntaxKind.UnionExpression:
+      return visitEach(cb, (<Types.UnionExpressionNode>node).options);
+    // no children for the rest of these.
+    case Types.SyntaxKind.StringLiteral:
+    case Types.SyntaxKind.NumericLiteral:
+    case Types.SyntaxKind.Identifier:
+    default:
+      return;
+  }
+}
+
+function visitNode<T>(cb: NodeCb<T>, node: Types.Node | undefined): T | undefined {
+  return node && cb(node);
+}
+
+function visitEach<T>(cb: NodeCb<T>, nodes: Array<Types.Node> | undefined): T | undefined {
+  if (!nodes) {
+    return;
+  }
+
+  for (const node of nodes) {
+    const result = cb(node);
+    if (result) {
+      return result;
+    }
+  }
+  return;
 }

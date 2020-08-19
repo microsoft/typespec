@@ -47,10 +47,9 @@ export async function compile(rootDir: string) {
   };
 
   await loadStandardLibrary(program);
-  await loadDirectory(program, './samples/petstore');
+  await loadDirectory(program, rootDir);
   const binder = createBinder();
-  binder.bind(program);
-
+  binder.bindProgram(program);
   const checker = createChecker(program);
   checker.checkProgram(program);
   await executeDecorators(program);
@@ -201,4 +200,4 @@ export async function compile(rootDir: string) {
   }
 }
 
-compile('./samples/petstore').catch((e) => console.error(e));
+compile('./samples/appconfig').catch((e) => console.error(e));

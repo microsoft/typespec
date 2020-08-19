@@ -1,5 +1,6 @@
-import { ADLSourceFile, Program } from './program';
-import { InterfaceStatementNode, ModelStatementNode, Node, SyntaxKind } from './types';
+import { visitChildren } from './parser.js';
+import { ADLSourceFile, Program } from './program.js';
+import { InterfaceStatementNode, ModelStatementNode, Node, SyntaxKind, TemplateParameterDeclarationNode } from './types.js';
 
 // trying to avoid masking built-in Symbol
 export type Sym = DecoratorSymbol | TypeSymbol;
@@ -18,17 +19,24 @@ export interface TypeSymbol {
 }
 
 export interface Binder {
-  bind(program: Program): void;
+  bindProgram(program: Program): void;
 }
 
-export function createBinder() {
+export function createBinder(): Binder {
+  let currentFile: ADLSourceFile;
+  let parentNode: Node;
+
+  // Node where locals go.
+  let scope: Node;
+
   return {
-    bind,
+    bindProgram,
   };
 
-  function bind(program: Program) {
+  function bindProgram(program: Program) {
     for (const file of program.sourceFiles) {
-      bindSourceFile(file);
+      currentFile = file;
+      bindSourceFile();
 
       // everything is global
       for (const name of file.symbols.keys()) {
@@ -43,28 +51,76 @@ export function createBinder() {
     }
   }
 
-  function bindSourceFile(file: ADLSourceFile) {
-    const ast = file.ast;
-    for (const statement of ast.statements) {
-      switch (statement.kind) {
-        case SyntaxKind.ImportStatement:
-          // throw new Error("NYI");
-          break;
-        case SyntaxKind.ModelStatement:
-        case SyntaxKind.InterfaceStatement:
-          bindStatement(file, statement);
-          break;
-      }
-    }
+  function bindSourceFile() {
+    bindNode(currentFile.ast);
   }
 
-  function bindStatement(
-    file: ADLSourceFile,
-    statement: ModelStatementNode | InterfaceStatementNode
+  function bindNode(node: Node) {
+    if (!node) return;
+    // set the node's parent since we're going for a walk anyway
+    (<any>node).parent = parentNode;
+
+    switch (node.kind) {
+      case SyntaxKind.ModelStatement:
+        bindModelStatement(<any>node);
+        break;
+      case SyntaxKind.InterfaceStatement:
+        bindInterfaceStatement(<any>node);
+        break;
+      case SyntaxKind.TemplateParameterDeclaration:
+        bindTemplateParameterDeclaration(<any>node);
+    }
+
+
+    const prevParent = parentNode;
+    // set parent node when we walk into children
+    parentNode = node;
+
+    if (hasScope(node)) {
+      const prevScope = scope;
+      scope = node;
+      visitChildren(node, bindNode);
+      scope = prevScope;
+    } else {
+      visitChildren(node, bindNode);
+    }
+
+    // restore parent node
+    parentNode = prevParent;
+  }
+
+  function bindTemplateParameterDeclaration(node: TemplateParameterDeclarationNode) {
+    (<ModelStatementNode>scope).locals!.set(node.sv, {
+      kind: 'type',
+      node: node,
+    });
+  }
+
+  function bindModelStatement(node: ModelStatementNode) {
+    currentFile.symbols.set(node.id.sv, {
+      kind: 'type',
+      node: node,
+    });
+
+    // initialize locals for type parameters.
+    node.locals = new Map();
+  }
+
+  function bindInterfaceStatement(
+    statement: InterfaceStatementNode
   ) {
-    file.symbols.set(statement.id.sv, {
+    currentFile.symbols.set(statement.id.sv, {
       kind: 'type',
       node: statement,
     });
+  }
+}
+
+function hasScope(node: Node) {
+  switch (node.kind) {
+    case SyntaxKind.ModelStatement:
+      return true;
+    default:
+      return false;
   }
 }

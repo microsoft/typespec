@@ -1,8 +1,12 @@
+import { SymbolTable } from './binder';
+
 /**
  * Type System types
  */
 export interface Type {
+  kind: string;
   node: Node;
+  instantiated?: boolean;
 }
 
 export interface ModelType extends Type {
@@ -13,7 +17,7 @@ export interface ModelType extends Type {
 
 export interface ModelTypeProperty {
   kind: 'ModelProperty';
-  node: ModelPropertyNode;
+  node: ModelPropertyNode | ModelSpreadPropertyNode;
   name: string;
   type: Type;
   optional: boolean;
@@ -83,7 +87,6 @@ export enum SyntaxKind {
   MemberExpression,
   InterfaceStatement,
   InterfaceProperty,
-  InterfaceParameter,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -95,13 +98,15 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   AliasStatement,
-  TemplateApplication
+  TemplateApplication,
+  TemplateParameterDeclaration
 }
 
 export interface Node {
   kind: SyntaxKind;
   pos: number;
   end: number;
+  parent?: Node;
 }
 
 export interface ADLScriptNode extends Node {
@@ -177,7 +182,8 @@ export interface ModelStatementNode extends Node {
   id: IdentifierNode;
   properties?: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
   assignment?: Expression;
-  templateParameters: Array<IdentifierNode>;
+  templateParameters: Array<TemplateParameterDeclarationNode>;
+  locals?: SymbolTable;
   decorators: Array<DecoratorExpressionNode>;
 }
 
@@ -239,4 +245,9 @@ export interface TemplateApplicationNode extends Node {
   kind: SyntaxKind.TemplateApplication;
   target: Expression;
   arguments: Array<Expression>;
+}
+
+export interface TemplateParameterDeclarationNode extends Node {
+  kind: SyntaxKind.TemplateParameterDeclaration;
+  sv: string;
 }
