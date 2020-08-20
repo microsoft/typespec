@@ -805,7 +805,11 @@ export class Scanner {
 
   private unescapeString(text: string) {
     let result = '';
-    for (let start = 0, pos = 0; pos < text.length;) {
+    let start = 0;
+    let pos = 0;
+    const end = text.length;
+
+    while (pos < end) {
       let ch = text.charCodeAt(pos);
       if (ch != CharacterCodes.backslash) {
         pos++;
@@ -848,6 +852,7 @@ export class Scanner {
       start = pos;
     }
 
+    result += text.substring(start, pos);
     return result;
   }
 

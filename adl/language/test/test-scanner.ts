@@ -1,6 +1,7 @@
 import { strictEqual } from 'assert';
 import { readFile } from 'fs/promises';
 import { URL } from 'url';
+import { format } from '../compiler/messages.js';
 import { Kind, Position, Scanner } from '../compiler/scanner.js';
 
 type TokenEntry = [Kind, string?, Position?];
@@ -122,6 +123,7 @@ describe('scanner', () => {
 
   function scanString(text: string, expectedValue: string, expectedToken: Kind) {
     const scanner = new Scanner(text);
+    scanner.onError = (msg, params) => { throw new Error(format(msg.text, ...params)); };
     strictEqual(scanner.scan(), expectedToken);
     strictEqual(scanner.token, expectedToken);
     strictEqual(scanner.value, text);
@@ -129,11 +131,17 @@ describe('scanner', () => {
   }
 
   it('scans strings single-line strings with escape sequences', () => {
-    scanString('"Hello world\\r\\n\\t"', 'Hello world\r\n\t', Kind.StringLiteral);
+    scanString(
+      '"Hello world \\r\\n \\t \\\' \\" \\` \\\\ !"',
+      'Hello world \r\n \t \' " ` \\ !',
+      Kind.StringLiteral);
   });
 
   it('scans multi-line strings', () => {
-    scanString('`More\r\nthan\r\none\r\nline`', 'More\nthan\none\nline', Kind.StringLiteral);
+    scanString(
+      '`More\r\nthan\r\none\r\nline`',
+      'More\nthan\none\nline',
+      Kind.StringLiteral);
   });
 
   it('scans triple-quoted strings', () => {
