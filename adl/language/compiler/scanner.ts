@@ -714,7 +714,7 @@ export class Scanner {
     // literals. Matches JavaScript behavior and ensures program behavior does
     // not change due to line-ending conversion.
     if (crlf) {
-      value = value.replace('\r\n', '\n');
+      value = value.replace(/\r\n/g, '\n');
     }
 
     if (tripleQuoted) {

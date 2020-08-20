@@ -132,7 +132,7 @@ describe('scanner', () => {
   });
 
   it('scans multi-line strings', () => {
-    scanString('`More\r\nthan\none\nline`', 'More\nthan\none\nline', Kind.StringLiteral);
+    scanString('`More\r\nthan\r\none\r\nline`', 'More\nthan\none\nline', Kind.StringLiteral);
   });
 
   it('scans triple-quoted strings', () => {
