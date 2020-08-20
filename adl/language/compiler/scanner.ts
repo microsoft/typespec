@@ -49,11 +49,10 @@ export enum Kind {
 
   // Literals
   NumericLiteral,
-
   BigIntLiteral,
   StringLiteral,
+  TripleQuotedStringLiteral,
   RegularExpressionLiteral,
-  NoSubstitutionTemplateLiteral,
 
   // Punctuation
   OpenBrace,
@@ -159,12 +158,6 @@ export class Scanner {
   /** The assumed tab width. If this is set before scanning, it enables accurate Position tracking. */
   tabWidth = 2;
 
-  /**
-     The current state of the scanner.
-     Will be set to `error` when the scanner is in an error state
-  */
-  state?: 'error';
-
   // current token information
 
   /** the character offset within the document */
@@ -175,6 +168,12 @@ export class Scanner {
 
   /** the text of the current token (when appropriate) */
   value!: string;
+
+  /** the string value of current string literal token (unquoted, unescaped) */
+  stringValue!: string;
+
+  /** error handler (default logs to console) */
+  onError = this.defaultOnError;
 
   /** returns the Position (line/column) of the current token */
   get position(): Position {
@@ -519,7 +518,7 @@ export class Scanner {
     return this.token;
   }
 
-  isConflictMarker() {
+  private isConflictMarker() {
     // Conflict markers must be at the start of a line.
     if (this.#offset === 0 || isLineBreak(this.#text.charCodeAt(this.#offset - 1))) {
       if ((this.#offset + mergeConflictMarkerLength) < this.#length) {
@@ -537,12 +536,11 @@ export class Scanner {
 
 
   private error(msg: Message, ...params: Array<string | number>) {
-    console.log(format(msg.text, ...params));
-    this.state = 'error';
+    this.onError(msg, params);
   }
 
-  private clear() {
-    this.state = undefined;
+  private defaultOnError(msg: Message, params: Array<string | number>) {
+    console.log(format(msg.text, ...params));
   }
 
   private scanWhitespace(): Kind {
@@ -678,29 +676,184 @@ export class Scanner {
   }
 
   private scanString() {
-    const startChar = this.#ch;
-    let closed = false;
-    const closing = String.fromCharCode(this.#ch);
-
+    const quote = this.#ch;
+    const tripleQuoted = this.#ch == this.#chNext && this.#ch == this.#chNextNext;
+    const quoteLength = tripleQuoted ? 3 : 1;
+    const closing = tripleQuoted ? String.fromCharCode(this.#ch, this.#ch, this.#ch) : String.fromCharCode(this.#ch);
+    let escaped = false;
+    let crlf = false;
     let isEscaping = false;
 
-    this.value = this.scanUntil((ch, chNext, chNextNext) => {
+    const text = this.scanUntil((ch, chNext, chNextNext) => {
       if (isEscaping) {
         isEscaping = false;
         return false;
       }
 
       if (ch === CharacterCodes.backslash) {
-        isEscaping = true;
+        isEscaping = escaped = true;
         return false;
       }
-      if (closed) {
-        return true;
+
+      if (ch == CharacterCodes.carriageReturn) {
+        if (chNext == CharacterCodes.lineFeed) {
+          crlf = true;
+        }
+        return false;
       }
-      closed = ch === startChar;
-      return false;
-    }, closing);
-    return this.token = Kind.StringLiteral;
+
+      return ch === quote && (!tripleQuoted || (chNext === quote && chNextNext === quote));
+    }, closing, quoteLength);
+
+    // TODO: optimize to single pass over string, easier if we refactor some bookkeeping first.
+
+    // strip quotes
+    let value = text.substring(quoteLength, text.length - quoteLength);
+
+    // Normalize CRLF to LF when interpreting value of multi-line string
+    // literals. Matches JavaScript behavior and ensures program behavior does
+    // not change due to line-ending conversion.
+    if (crlf) {
+      value = value.replace(/\r\n/g, '\n');
+    }
+
+    if (tripleQuoted) {
+      value = this.unindentTripleQuoteString(value);
+    }
+
+    if (escaped) {
+      value = this.unescapeString(value);
+    }
+
+    this.value = text;
+    this.stringValue = value;
+    return this.token = tripleQuoted ? Kind.TripleQuotedStringLiteral : Kind.StringLiteral;
+  }
+
+  private unindentTripleQuoteString(text: string) {
+    let start = 0;
+    let end = text.length;
+
+    // ignore leading whitespace before required initial line break
+    while (start < end && isWhiteSpaceSingleLine(text.charCodeAt(start))) {
+      start++;
+    }
+
+    // remove required initial line break
+    if (isLineBreak(text.charCodeAt(start))) {
+      start++;
+    } else {
+      this.error(messages.NoNewLineAtStartOfTripleQuotedString);
+    }
+
+    // remove whitespace before closing delimiter and record it as
+    // required indentation for all lines.
+    while (end > start && isWhiteSpaceSingleLine(text.charCodeAt(end - 1))) {
+      end--;
+    }
+    const indentation = text.substring(end, text.length);
+
+    // remove required final line break
+    if (isLineBreak(text.charCodeAt(end - 1))) {
+      end--;
+    } else {
+      this.error(messages.NoNewLineAtEndOfTripleQuotedString);
+    }
+
+    // remove required matching indentation from each line
+    return this.removeMatchingIndentation(text, start, end, indentation);
+  }
+
+  private removeMatchingIndentation(text: string, start: number, end: number, indentation: string) {
+    let result = '';
+    let pos = start;
+
+    while (pos < end) {
+      start = this.skipMatchingIndentation(text, pos, end, indentation);
+      while (pos < end && !isLineBreak(text.charCodeAt(pos))) {
+        pos++;
+      }
+      if (pos < end) {
+        pos++; // include line break
+      }
+      result += text.substring(start, pos);
+    }
+
+    return result;
+  }
+
+  private skipMatchingIndentation(text: string, pos: number, end: number, indentation: string) {
+    end = Math.min(end, pos + indentation.length);
+
+    let indentationPos = 0;
+    while (pos < end) {
+      const ch = text.charCodeAt(pos);
+      if (isLineBreak(ch)) {
+        // allow subset of indentation if line has only whitespace
+        break;
+      }
+      if (ch != indentation.charCodeAt(indentationPos)) {
+        this.error(messages.InconsistentTripleQuoteIndentation);
+        break;
+      }
+      indentationPos++;
+      pos++;
+    }
+
+    return pos;
+  }
+
+  private unescapeString(text: string) {
+    let result = '';
+    let start = 0;
+    let pos = 0;
+    const end = text.length;
+
+    while (pos < end) {
+      let ch = text.charCodeAt(pos);
+      if (ch != CharacterCodes.backslash) {
+        pos++;
+        continue;
+      }
+
+      result += text.substring(start, pos);
+      pos++;
+      ch = text.charCodeAt(pos);
+
+      switch (ch) {
+        case CharacterCodes.r:
+          result += '\r';
+          break;
+        case CharacterCodes.n:
+          result += '\n';
+          break;
+        case CharacterCodes.t:
+          result += '\t';
+          break;
+        case CharacterCodes.singleQuote:
+          result += '\'';
+          break;
+        case CharacterCodes.doubleQuote:
+          result += '"';
+          break;
+        case CharacterCodes.backslash:
+          result += '\\';
+          break;
+        case CharacterCodes.backtick:
+          result += '`';
+          break;
+        default:
+          this.error(messages.InvalidEscapeSequence);
+          result += String.fromCharCode(ch);
+          break;
+      }
+
+      pos++;
+      start = pos;
+    }
+
+    result += text.substring(start, pos);
+    return result;
   }
 
   scanIdentifier() {

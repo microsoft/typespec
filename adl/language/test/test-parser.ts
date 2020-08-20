@@ -174,6 +174,49 @@ describe('syntax', () => {
       `]);
   });
 
+  describe('description decorator sugar', () => {
+    parseEach([
+      `
+      """
+      Long description
+      On two lines
+      """
+      @dec()
+      model Model {
+        @dec property1: Type    "short description";
+        property2: Type         'something "else"'
+      }`,
+      `
+      'short description'
+      model Model {
+        '''
+        Long description
+        On two lines
+        '''
+        property: int32 \`short description\`;
+      }`,
+      `
+      "short description"
+      interface I {
+          doSomething(): Type     "short description";
+          doSomethingElse(): Type \`something "else"\`;
+      }`,
+      `
+      \`\`\`
+      Long description
+      On two lines
+      \`\`\`
+      @dec()
+      interface I {
+        """
+        Another long description
+        
+        **NOTE** Markdown goes here
+        """
+        doSomething(): Type;
+      }`
+    ]);
+  });
 });
 
 function parseEach(cases: Array<string>) {
