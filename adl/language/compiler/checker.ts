@@ -1,43 +1,43 @@
 import { ADLSourceFile, Program } from './program.js';
 import {
   ArrayExpressionNode, IdentifierNode,
-
-
   InterfacePropertyNode, InterfaceStatementNode, InterfaceType,
-
-
   InterfaceTypeProperty,
-
-
   IntersectionExpressionNode, ModelExpressionNode,
-  ModelStatementNode, ModelType,
-  Node,
+  ModelPropertyNode, ModelStatementNode, ModelType,
+  ModelTypeProperty, Node,
   NumericLiteralNode, NumericLiteralType,
   StringLiteralNode, StringLiteralType,
   SyntaxKind,
   TemplateApplicationNode,
-
   TemplateParameterDeclarationNode, TupleExpressionNode, TupleType,
   Type,
   UnionExpressionNode, UnionType
 } from './types.js';
 
 export function createChecker(program: Program) {
-
   const templateInstantiation: Map<ModelStatementNode, Array<Type>> = new Map();
+  let seq = 0;
 
   return {
     getTypeForNode,
     checkProgram,
     getLiteralType,
+    getTypeName
   };
 
   function getTypeForNode(node: Node): Type {
+    if (templateInstantiation.size === 0 && program.typeCache.has(node)) {
+      return program.typeCache.get(node)!;
+    }
+
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
         return checkModel(<ModelExpressionNode>node);
       case SyntaxKind.ModelStatement:
         return checkModel(<ModelStatementNode>node);
+      case SyntaxKind.ModelProperty:
+        return checkModelProperty(<ModelPropertyNode>node);
       case SyntaxKind.InterfaceStatement:
         return checkInterface(<InterfaceStatementNode>node);
       case SyntaxKind.InterfaceProperty:
@@ -66,6 +66,37 @@ export function createChecker(program: Program) {
     throw new Error('cant eval ' + SyntaxKind[node.kind]);
   }
 
+  function getTypeName(type: Type): string {
+    switch (type.kind) {
+      case 'Model':
+        return getModelName(<ModelType>type);
+      case 'Union':
+        return (<UnionType>type).options.map(getTypeName).join(' | ');
+    }
+
+    return '(unnamed type)';
+  }
+
+  function getModelName(model: ModelType) {
+    if ((<ModelStatementNode>model.node).assignment) {
+      return model.name;
+    } else if (model.templateArguments) {
+      // template instantiation
+      const args = model.templateArguments.map(getTypeName);
+      return `${model.name}<${args.join(', ')}>`;
+    } else if (model.intersectionMembers) {
+      // intersected model
+      return model.name || model.intersectionMembers.map(getTypeName).join(' & ');
+    } else if ((<ModelStatementNode>model.node).templateParameters?.length > 0) {
+      // template
+      const params = (<ModelStatementNode>model.node).templateParameters.map(t => t.sv);
+      return `${model.name}<${params.join(', ')}>`;
+    } else {
+      // regular old model.
+      return model.name || '(anonymous model)';
+    }
+  }
+
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
     const parentNode = <ModelStatementNode>node.parent!;
 
@@ -89,6 +120,14 @@ export function createChecker(program: Program) {
   }
 
 
+  /**
+   * Builds a model type from a template and its template arguments.
+   * Adds the template node to a set we can check when we bind template
+   * parameters to access type type arguments.
+   *
+   * This will fall over if the same template is ever being instantiated
+   * twice at the same time.
+   */
   function instantiateTemplate(templateNode: ModelStatementNode, args: Array<Type>): ModelType {
     if (templateNode.templateParameters!.length < args.length) {
       throw new Error('Too few template arguments provided.');
@@ -99,9 +138,12 @@ export function createChecker(program: Program) {
     }
 
     templateInstantiation.set(templateNode, args);
-    const type = checkModel(templateNode);
+    // this cast is invalid once we support templatized `model =`.
+    const type = <ModelType>checkModel(templateNode);
+    type.templateArguments = args;
+    type.templateNode = templateNode;
     templateInstantiation.delete(templateNode);
-    return <ModelType> type;
+    return type;
   }
 
   function checkUnionExpression(node: UnionExpressionNode): UnionType {
@@ -129,6 +171,7 @@ export function createChecker(program: Program) {
       node,
       name: '',
       properties: new Map(),
+      intersectionMembers: optionTypes
     });
 
     for (const type of optionTypes) {
@@ -157,6 +200,7 @@ export function createChecker(program: Program) {
       name: node.id.sv,
       node: node,
       properties: new Map(),
+      parameters: node.parameters ? checkModel(node.parameters) : undefined
     });
 
     for (const prop of node.properties) {
@@ -247,30 +291,8 @@ export function createChecker(program: Program) {
 
       for (const prop of node.properties) {
         if ('id' in prop) {
-          if (prop.id.kind === SyntaxKind.Identifier) {
-            type.properties.set(
-              prop.id.sv,
-              createType({
-                kind: 'ModelProperty',
-                name: prop.id.sv,
-                node: prop,
-                optional: prop.optional,
-                type: getTypeForNode(prop.value),
-              })
-            );
-          } else {
-            const name = prop.id.value.slice(1, -1);
-            type.properties.set(
-              name,
-              createType({
-                kind: 'ModelProperty',
-                name,
-                node: prop,
-                optional: prop.optional,
-                type: getTypeForNode(prop.value),
-              })
-            );
-          }
+          const propType = checkModelProperty(prop);
+          type.properties.set(propType.name, propType);
         } else {
           // spread property
           const target = getTypeForNode(prop.target);
@@ -285,11 +307,38 @@ export function createChecker(program: Program) {
       return type;
     } else {
       // model =
-      return getTypeForNode((<ModelStatementNode>node).assignment!);
+      return  getTypeForNode((<ModelStatementNode>node).assignment!);
+    }
+  }
+
+  function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
+    if (prop.id.kind === SyntaxKind.Identifier) {
+      return createType({
+        kind: 'ModelProperty',
+        name: prop.id.sv,
+        node: prop,
+        optional: prop.optional,
+        type: getTypeForNode(prop.value),
+      });
+    } else {
+      const name = prop.id.value.slice(1, -1);
+      return createType({
+        kind: 'ModelProperty',
+        name,
+        node: prop,
+        optional: prop.optional,
+        type: getTypeForNode(prop.value),
+      });
     }
   }
 
   function createType<T extends Type>(type: T): T {
+    if (templateInstantiation.size === 0) {
+      // if we're not instantiating anything, we're safe to use
+      // cached values.
+      program.typeCache.set(type.node, type);
+    }
+    (<any>type).seq = seq++;
     // will eventually want caching logic here
     return type;
   }

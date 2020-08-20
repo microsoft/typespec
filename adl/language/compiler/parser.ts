@@ -780,3 +780,15 @@ function visitEach<T>(cb: NodeCb<T>, nodes: Array<Types.Node> | undefined): T | 
   }
   return;
 }
+
+export function walk<T>(node: Types.Node, cb: NodeCb<T>, seen = new Set()): T | undefined {
+  return visitChildren(node, (childNode) => {
+    if (seen.has(childNode)) return;
+    seen.add(childNode);
+    const value = cb(childNode);
+    if (value) {
+      return value;
+    }
+    return walk(childNode, cb, seen);
+  });
+}

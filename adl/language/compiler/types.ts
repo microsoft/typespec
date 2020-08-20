@@ -6,13 +6,16 @@ import { SymbolTable } from './binder';
 export interface Type {
   kind: string;
   node: Node;
-  instantiated?: boolean;
 }
 
 export interface ModelType extends Type {
   kind: 'Model';
   name: string;
   properties: Map<string, ModelTypeProperty>;
+  templateArguments?: Array<Type>;
+  templateNode?: Node;
+  intersectionMembers?: Array<Type>;
+  assignmentType?: Type;
 }
 
 export interface ModelTypeProperty {
@@ -27,7 +30,7 @@ export interface InterfaceTypeProperty {
   kind: 'InterfaceProperty';
   node: InterfacePropertyNode;
   name: string;
-  parameters: ModelType;
+  parameters?: ModelType;
   returnType: Type;
 }
 
@@ -36,6 +39,7 @@ export interface InterfaceType extends Type {
   name: string;
   node: InterfaceStatementNode;
   properties: Map<string, InterfaceTypeProperty>;
+  parameters?: ModelType;
 }
 
 export interface StringLiteralType extends Type {

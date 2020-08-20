@@ -2,14 +2,14 @@ import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
 import { createChecker } from './checker.js';
-import { parse } from './parser.js';
+import { parse, walk } from './parser.js';
 import {
   ADLScriptNode,
-
-
   DecoratorExpressionNode, IdentifierNode, InterfaceStatementNode,
   InterfaceType,
-  ModelStatementNode,
+
+
+  ModelExpressionNode, ModelStatementNode,
   ModelType,
   Node,
   NumericLiteralType,
@@ -23,6 +23,7 @@ export interface Program {
   sourceFiles: Array<ADLSourceFile>;
   typeCache: WeakMap<Node, Type>;
   literalTypes: Map<string | number, StringLiteralType | NumericLiteralType>;
+  checker?: ReturnType<typeof createChecker>;
   onBuild(cb: (program: Program) => void): void;
 }
 
@@ -51,8 +52,8 @@ export async function compile(rootDir: string) {
   await loadDirectory(program, rootDir);
   const binder = createBinder();
   binder.bindProgram(program);
-  const checker = createChecker(program);
-  checker.checkProgram(program);
+  const checker = program.checker = createChecker(program);
+  program.checker.checkProgram(program);
   await executeDecorators(program);
   buildCbs.forEach((cb: any) => cb(program));
 
@@ -61,51 +62,62 @@ export async function compile(rootDir: string) {
    * does type checking.
    */
 
-  async function executeDecorators(program: Program) {
+  function executeDecorators(program: Program) {
     for (const file of program.sourceFiles) {
-      for (const stmt of file.ast.statements) {
-        if (stmt.kind === SyntaxKind.ModelStatement) {
-          await executeModelDecorators(stmt);
-        } else if (stmt.kind === SyntaxKind.InterfaceStatement) {
-          await executeInterfaceDecorators(stmt);
+      walk(file.ast, (node) => {
+        if (node.kind === SyntaxKind.ModelStatement) {
+          executeModelDecorators(<ModelStatementNode>node);
+        } else if (node.kind === SyntaxKind.InterfaceStatement) {
+          executeInterfaceDecorators(<InterfaceStatementNode>node);
+        } else if (node.kind === SyntaxKind.ModelExpression) {
+          executeModelDecorators(<ModelExpressionNode>node);
         }
-      }
+      });
     }
   }
 
-  async function executeInterfaceDecorators(stmt: InterfaceStatementNode) {
-    const type = checker.getTypeForNode(stmt);
+  function executeInterfaceDecorators(stmt: InterfaceStatementNode) {
     for (const dec of stmt.decorators) {
-      if (dec.target.kind === SyntaxKind.Identifier) {
-        executeDecorator(dec, program, stmt);
-      }
+      executeDecorator(dec, program, stmt);
     }
 
     for (const prop of stmt.properties) {
-      const type = checker.getTypeForNode(prop);
       for (const dec of prop.decorators) {
-        if (dec.target.kind === SyntaxKind.Identifier) {
-          executeDecorator(dec, program, stmt);
-        }
+        executeDecorator(dec, program, stmt);
       }
     }
   }
 
-  function executeModelDecorators(stmt: ModelStatementNode) {
+  function executeModelDecorators(stmt: ModelStatementNode | ModelExpressionNode) {
     for (const dec of stmt.decorators) {
-      if (dec.target.kind === SyntaxKind.Identifier) {
-        executeDecorator(dec, program, stmt);
+      executeDecorator(dec, program, stmt);
+    }
+
+    if (stmt.properties) {
+      for (const prop of stmt.properties) {
+        if ('decorators' in prop) {
+          for (const dec of prop.decorators) {
+            executeDecorator(dec, program, prop);
+          }
+        }
       }
     }
   }
 
   function executeDecorator(dec: DecoratorExpressionNode, program: Program, targetNode: Node) {
+    if (dec.target.kind !== SyntaxKind.Identifier) {
+      throw new Error('Decorator must be identifier');
+    }
+
     const type = checker.getTypeForNode(targetNode);
     const decName = (<IdentifierNode>dec.target).sv;
     const args = dec.arguments.map((a) =>
       toJSON(checker.getTypeForNode(a))
     );
     const decBinding = <DecoratorSymbol>program.globalSymbols.get(decName);
+    if (!decBinding) {
+      throw new Error(`Can't find decorator ${decName}`);
+    }
     const decFn = decBinding.value;
     decFn(program, type, ...args);
   }
@@ -118,8 +130,8 @@ export async function compile(rootDir: string) {
 
   /**
    * returns the JSON representation of a type. This is generally
-   * just the raw type objects, but string and number are treated
-   * specially.
+   * just the raw type objects, but string and number literals are
+   * treated specially.
    */
   function toJSON(type: Type): Type | string | number {
     if ('value' in type) {
@@ -196,4 +208,5 @@ export async function compile(rootDir: string) {
   }
 }
 
-compile('./samples/appconfig').catch((e) => console.error(e));
+const dir = process.argv[2] || 'test';
+compile('./samples/' + dir).catch((e) => console.error(e));

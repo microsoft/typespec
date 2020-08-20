@@ -1,10 +1,15 @@
-model int64 { }
-model int32 { }
-model string { }
-model float64 { }
-model date { }
-model boolean { }
-model Map<K, V> {
+@intrinsic model int64 { }
+@intrinsic model int32 { }
+@intrinsic model safeint { }
+@intrinsic model string { }
+@intrinsic model float64 { }
+@intrinsic model date { }
+@intrinsic model boolean { }
+
+// want to change this to
+// model<K, V> = [K, V][];
+// but templates aren't supported with model = yet.
+@intrinsic model Map<K, V> {
   k: K,
   v: V
 }
