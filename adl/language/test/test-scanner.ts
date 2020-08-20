@@ -10,6 +10,7 @@ function tokens(text: string): Array<TokenEntry> {
   const result: Array<TokenEntry> = [];
   do {
     const token = scanner.scan();
+    strictEqual(token, scanner.token);
     result.push([
       scanner.token,
       scanner.value,
