@@ -1,9 +1,11 @@
+import { format } from './messages.js';
 import { Kind, Scanner } from './scanner.js';
 import * as Types from './types.js';
 
 
 export function parse(code: string) {
   const scanner = new Scanner(code);
+  scanner.onError = (msg, params) => error(format(msg.text, ...params));
   nextToken();
   return parseADLScript();
 

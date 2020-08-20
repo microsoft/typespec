@@ -158,12 +158,6 @@ export class Scanner {
   /** The assumed tab width. If this is set before scanning, it enables accurate Position tracking. */
   tabWidth = 2;
 
-  /**
-     The current state of the scanner.
-     Will be set to `error` when the scanner is in an error state
-  */
-  state?: 'error';
-
   // current token information
 
   /** the character offset within the document */
@@ -177,6 +171,9 @@ export class Scanner {
 
   /** the string value of current string literal token (unquoted, unescaped) */
   stringValue!: string;
+
+  /** error handler (default logs to console) */
+  onError = this.defaultOnError;
 
   /** returns the Position (line/column) of the current token */
   get position(): Position {
@@ -521,7 +518,7 @@ export class Scanner {
     return this.token;
   }
 
-  isConflictMarker() {
+  private isConflictMarker() {
     // Conflict markers must be at the start of a line.
     if (this.#offset === 0 || isLineBreak(this.#text.charCodeAt(this.#offset - 1))) {
       if ((this.#offset + mergeConflictMarkerLength) < this.#length) {
@@ -539,12 +536,11 @@ export class Scanner {
 
 
   private error(msg: Message, ...params: Array<string | number>) {
-    console.log(format(msg.text, ...params));
-    this.state = 'error';
+    this.onError(msg, params);
   }
 
-  private clear() {
-    this.state = undefined;
+  private defaultOnError(msg: Message, params: Array<string | number>) {
+    console.log(format(msg.text, ...params));
   }
 
   private scanWhitespace(): Kind {

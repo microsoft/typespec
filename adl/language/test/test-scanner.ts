@@ -3,7 +3,7 @@ import { readFile } from 'fs/promises';
 import { URL } from 'url';
 import { Kind, Position, Scanner } from '../compiler/scanner.js';
 
-type TokenEntry = [Kind, string?, 'error'?, Position?];
+type TokenEntry = [Kind, string?, Position?];
 
 function tokens(text: string): Array<TokenEntry> {
   const scanner = new Scanner(text);
@@ -13,7 +13,6 @@ function tokens(text: string): Array<TokenEntry> {
     result.push([
       scanner.token,
       scanner.value,
-      scanner.state,
       scanner.positionFromOffset(scanner.offset)
     ]);
   } while (!scanner.eof);
