@@ -120,20 +120,20 @@ describe('scanner', () => {
     strictEqual(scanner.rescanGreaterThan(), Kind.GreaterThanGreaterThan);
   });
 
-  function scanString(text: string, expectedValue: string) {
+  function scanString(text: string, expectedValue: string, expectedToken: Kind) {
     const scanner = new Scanner(text);
-    strictEqual(scanner.scan(), Kind.StringLiteral);
-    strictEqual(scanner.token, Kind.StringLiteral);
+    strictEqual(scanner.scan(), expectedToken);
+    strictEqual(scanner.token, expectedToken);
     strictEqual(scanner.value, text);
     strictEqual(scanner.stringValue, expectedValue);
   }
 
   it('scans strings single-line strings with escape sequences', () => {
-    scanString('"Hello world\\r\\n\\t"', 'Hello world\r\n\t');
+    scanString('"Hello world\\r\\n\\t"', 'Hello world\r\n\t', Kind.StringLiteral);
   });
 
   it('scans multi-line strings', () => {
-    scanString('`More\r\nthan\none\nline`', 'More\nthan\none\nline');
+    scanString('`More\r\nthan\none\nline`', 'More\nthan\none\nline', Kind.StringLiteral);
   });
 
   it('scans triple-quoted strings', () => {
@@ -147,8 +147,8 @@ describe('scanner', () => {
       """`,
       // NOTE: sloppy blank line formatting and trailing whitespace after open
       //       quotes above is deliberately tolerated.
-      'This is a triple-quoted string\n\n\n\nAnd this is another line'
-    );
+      'This is a triple-quoted string\n\n\n\nAnd this is another line',
+      Kind.TripleQuotedStringLiteral);
   });
 
   it('parses this file', async () => {

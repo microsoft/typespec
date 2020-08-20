@@ -49,11 +49,10 @@ export enum Kind {
 
   // Literals
   NumericLiteral,
-
   BigIntLiteral,
   StringLiteral,
+  TripleQuotedStringLiteral,
   RegularExpressionLiteral,
-  NoSubstitutionTemplateLiteral,
 
   // Punctuation
   OpenBrace,
@@ -732,7 +731,7 @@ export class Scanner {
 
     this.value = text;
     this.stringValue = value;
-    return this.token = Kind.StringLiteral;
+    return this.token = tripleQuoted ? Kind.TripleQuotedStringLiteral : Kind.StringLiteral;
   }
 
   private unindentTripleQuoteString(text: string) {
