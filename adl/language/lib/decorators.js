@@ -1,7 +1,7 @@
 const desc = new Map();
 
 export function description(program, target, text) {
-  desc.set(target, text)
+  desc.set(target, text);
 }
 
 export function getDescription(target) {

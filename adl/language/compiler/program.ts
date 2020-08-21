@@ -83,7 +83,7 @@ export async function compile(rootDir: string) {
 
     for (const prop of stmt.properties) {
       for (const dec of prop.decorators) {
-        executeDecorator(dec, program, stmt);
+        executeDecorator(dec, program, prop);
       }
     }
   }
