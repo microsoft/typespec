@@ -44,6 +44,11 @@ describe('syntax', () => {
          prop2: string
        };`,
 
+      `model Car {
+         @foo
+         'prop-1': number;
+       }`,
+
       `
       [Foo()]
       model Car {
@@ -234,8 +239,8 @@ describe('syntax', () => {
          x: int32;
 
          @description "y coordinate"
-         @fieldNum 2
-         y: int32;
+         @fieldNum
+         'y': int32;
        }
        `
     ]);
