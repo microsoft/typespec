@@ -425,8 +425,8 @@ export function parse(code: string) {
         args = parseExpressionList();
         parseExpected(Kind.CloseParen);
       }
-    } else if (token() == Kind.StringLiteral || token() == Kind.TripleQuotedStringLiteral) {
-      args = [parseStringLiteral()];
+    } else if (tokenIsLiteral()) {
+      args = [parsePrimaryExpression()];
     }
 
     if (usesBrackets) {
@@ -492,6 +492,9 @@ export function parse(code: string) {
       case Kind.StringLiteral:
       case Kind.TripleQuotedStringLiteral:
         return parseStringLiteral();
+      case Kind.TrueKeyword:
+      case Kind.FalseKeyword:
+        return parseBooleanLiteral();
       case Kind.NumericLiteral:
         return parseNumericLiteral();
       case Kind.OpenBrace:
@@ -529,7 +532,7 @@ export function parse(code: string) {
   function parseStringLiteral(): Types.StringLiteralNode {
     const pos = tokenPos();
     const value = tokenStringValue();
-    parseOptional(Kind.TripleQuotedStringLiteral) || parseExpected(Kind.StringLiteral);
+    parseExpectedOneOf(Kind.StringLiteral, Kind.TripleQuotedStringLiteral);
     return finishNode({
       kind: Types.SyntaxKind.StringLiteral,
       value
@@ -542,6 +545,16 @@ export function parse(code: string) {
     parseExpected(Kind.NumericLiteral);
     return finishNode({
       kind: Types.SyntaxKind.NumericLiteral,
+      value
+    }, pos);
+  }
+
+  function parseBooleanLiteral(): Types.BooleanLiteralNode {
+    const pos = tokenPos();
+    const token = parseExpectedOneOf(Kind.TrueKeyword, Kind.FalseKeyword);
+    const value = token == Kind.TrueKeyword;
+    return finishNode({
+      kind: Types.SyntaxKind.BooleanLiteral,
       value
     }, pos);
   }
@@ -601,17 +614,30 @@ export function parse(code: string) {
     scanner.scan();
 
     // skip whitespace and comment tokens for now
-    while (isTrivia(token())) {
+    while (tokenIsTrivia()) {
       scanner.scan();
     }
   }
 
-  function isTrivia(token: Kind) {
-    switch (token) {
+  function tokenIsTrivia() {
+    switch (token()) {
       case Kind.Whitespace:
       case Kind.NewLine:
       case Kind.MultiLineComment:
       case Kind.SingleLineComment:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  function tokenIsLiteral() {
+    switch (token()) {
+      case Kind.NumericLiteral:
+      case Kind.StringLiteral:
+      case Kind.TripleQuotedStringLiteral:
+      case Kind.TrueKeyword:
+      case Kind.FalseKeyword:
         return true;
       default:
         return false;
@@ -641,10 +667,23 @@ export function parse(code: string) {
   function parseExpected(expectedToken: Kind) {
     if (token() === expectedToken) {
       nextToken();
-      return true;
     } else {
-      error(`expected ${Kind[expectedToken]}, got ${Kind[token()]}`);
-      return false;
+      throw error(`expected ${Kind[expectedToken]}, got ${Kind[token()]}`);
+    }
+  }
+
+  function parseExpectedOneOf<A extends Kind, B extends Kind>(
+    expectedTokenA: A,
+    expectedTokenB: B
+  ): A | B {
+    if (token() == expectedTokenA) {
+      nextToken();
+      return expectedTokenA;
+    } else if (token() == expectedTokenB) {
+      nextToken();
+      return expectedTokenB;
+    } else {
+      throw error(`expected ${Kind[expectedTokenA]} or ${Kind[expectedTokenA]}, got ${Kind[token()]}`);
     }
   }
 
@@ -717,6 +756,7 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
     // no children for the rest of these.
     case Types.SyntaxKind.StringLiteral:
     case Types.SyntaxKind.NumericLiteral:
+    case Types.SyntaxKind.BooleanLiteral:
     case Types.SyntaxKind.Identifier:
     default:
       return;

@@ -217,9 +217,10 @@ describe('syntax', () => {
       }`,
       `
        """
-       A point in three dimensional space
+       A point in two dimensional space
        """
-       @link "https://example.com/Point"
+       @fun true
+       @profit false
        @example
        '''
        {
@@ -229,8 +230,12 @@ describe('syntax', () => {
        '''
        model Point {
          @description "x coordinate"
+         @fieldNum 1
          x: int32;
-         y: int32     "y coordinate";
+
+         @description "y coordinate"
+         @fieldNum 2
+         y: int32;
        }
        `
     ]);
