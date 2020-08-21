@@ -214,7 +214,25 @@ describe('syntax', () => {
         **NOTE** Markdown goes here
         """
         doSomething(): Type;
-      }`
+      }`,
+      `
+       """
+       A point in three dimensional space
+       """
+       @link "https://example.com/Point"
+       @example
+       '''
+       {
+         "x": 42,
+         "y": 42,
+       }
+       '''
+       model Point {
+         @description "x coordinate"
+         x: int32;
+         y: int32     "y coordinate";
+       }
+       `
     ]);
   });
 });

@@ -425,6 +425,8 @@ export function parse(code: string) {
         args = parseExpressionList();
         parseExpected(Kind.CloseParen);
       }
+    } else if (token() == Kind.StringLiteral || token() == Kind.TripleQuotedStringLiteral) {
+      args = [parseStringLiteral()];
     }
 
     if (usesBrackets) {
