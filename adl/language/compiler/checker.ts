@@ -354,7 +354,17 @@ export function createChecker(program: Program) {
       // model =
       // this will likely have to change, as right now `model =` is really just
       // alias and so disappears. That means you can't easily rename symbols.
-      return getTypeForNode((<ModelStatementNode>node).assignment!);
+      const assignmentType = getTypeForNode((<ModelStatementNode>node).assignment!);
+
+      if (assignmentType.kind === 'Model') {
+        const type: ModelType = createType({
+          ... <ModelType>assignmentType,
+          node: node,
+          name: (<ModelStatementNode>node).id.sv
+        });
+
+        return type;
+      }
     }
   }
 
