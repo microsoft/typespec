@@ -1,6 +1,9 @@
 import { ADLSourceFile, Program } from './program.js';
 import {
-  ArrayExpressionNode, IdentifierNode,
+  ArrayExpressionNode,
+
+
+  ArrayType, IdentifierNode,
   InterfacePropertyNode, InterfaceStatementNode, InterfaceType,
   InterfaceTypeProperty,
   IntersectionExpressionNode, ModelExpressionNode,
@@ -15,9 +18,47 @@ import {
   UnionExpressionNode, UnionType
 } from './types.js';
 
+/**
+ * A map keyed by a set of objects. Used as a type cache where the base type
+ * and any types in the instantiation set are used as keys.
+ *
+ * This is likely non-optimal.
+ */
+export class MultiMap<T> {
+  #currentId = 0;
+  #idMap = new WeakMap<object, number>();
+  #items = new Map<string, T>();
+
+  get(items: Array<object>): T | undefined {
+    return this.#items.get(this.compositeKeyFor(items));
+  }
+
+  set(items: Array<object>, value: any): string {
+    const key = this.compositeKeyFor(items);
+    this.#items.set(key, value);
+    return key;
+  }
+
+  compositeKeyFor(items: Array<object>) {
+    return items.map(i => this.keyFor(i)).join(',');
+  }
+
+  keyFor(item: object) {
+    if (this.#idMap.has(item)) {
+      return this.#idMap.get(item);
+    }
+
+    const id = this.#currentId++;
+    this.#idMap.set(item, id);
+    return id;
+  }
+}
+
 export function createChecker(program: Program) {
-  const templateInstantiation: Map<ModelStatementNode, Array<Type>> = new Map();
-  let seq = 0;
+  let templateInstantiation: Array<Type> = [];
+  let instantiatingTemplate: Node | undefined;
+
+  const seq = 0;
 
   return {
     getTypeForNode,
@@ -27,9 +68,8 @@ export function createChecker(program: Program) {
   };
 
   function getTypeForNode(node: Node): Type {
-    if (templateInstantiation.size === 0 && program.typeCache.has(node)) {
-      return program.typeCache.get(node)!;
-    }
+    const cached = program.typeCache.get([node, ...templateInstantiation.values()]);
+    if (cached) return cached;
 
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
@@ -72,6 +112,8 @@ export function createChecker(program: Program) {
         return getModelName(<ModelType>type);
       case 'Union':
         return (<UnionType>type).options.map(getTypeName).join(' | ');
+      case 'Array':
+        return getTypeName((<ArrayType>type).elementType) + '[]';
     }
 
     return '(unnamed type)';
@@ -80,7 +122,7 @@ export function createChecker(program: Program) {
   function getModelName(model: ModelType) {
     if ((<ModelStatementNode>model.node).assignment) {
       return model.name;
-    } else if (model.templateArguments) {
+    } else if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
       return `${model.name}<${args.join(', ')}>`;
@@ -100,16 +142,15 @@ export function createChecker(program: Program) {
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
     const parentNode = <ModelStatementNode>node.parent!;
 
-    const instanceArgs = templateInstantiation.get(parentNode);
-    if (!instanceArgs) {
-      return createType({
-        kind: 'TemplateParameter',
-        node: node
-      });
-    } else {
+    if (instantiatingTemplate === parentNode) {
       const index = parentNode.templateParameters.findIndex(v => v === node);
-      return instanceArgs[index];
+      return templateInstantiation[index];
     }
+
+    return createType({
+      kind: 'TemplateParameter',
+      node: node
+    });
   }
 
   function checkTemplateApplication(node: TemplateApplicationNode): Type {
@@ -137,12 +178,15 @@ export function createChecker(program: Program) {
       throw new Error('Too many template arguments provided.');
     }
 
-    templateInstantiation.set(templateNode, args);
+    const oldTis = templateInstantiation;
+    const oldTemplate = instantiatingTemplate;
+    templateInstantiation = args;
+    instantiatingTemplate = templateNode;
     // this cast is invalid once we support templatized `model =`.
-    const type = <ModelType>checkModel(templateNode);
-    type.templateArguments = args;
+    const type = <ModelType>getTypeForNode(templateNode);
     type.templateNode = templateNode;
-    templateInstantiation.delete(templateNode);
+    templateInstantiation = oldTis;
+    instantiatingTemplate = oldTemplate;
     return type;
   }
 
@@ -200,7 +244,7 @@ export function createChecker(program: Program) {
       name: node.id.sv,
       node: node,
       properties: new Map(),
-      parameters: node.parameters ? checkModel(node.parameters) : undefined
+      parameters: node.parameters ? <ModelType>getTypeForNode(node.parameters) : undefined
     });
 
     for (const prop of node.properties) {
@@ -215,7 +259,7 @@ export function createChecker(program: Program) {
       kind: 'InterfaceProperty',
       name: prop.id.sv,
       node: prop,
-      parameters: <ModelType>checkModel(prop.parameters),
+      parameters: <ModelType>getTypeForNode(prop.parameters),
       returnType: getTypeForNode(prop.returnType),
     });
   }
@@ -282,32 +326,35 @@ export function createChecker(program: Program) {
   }
   function checkModel(node: ModelExpressionNode | ModelStatementNode) {
     if (node.properties) {
-      const type: ModelType = createType({
-        kind: 'Model',
-        name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : '',
-        node: node,
-        properties: new Map(),
-      });
+      const properties = new Map();
 
       for (const prop of node.properties) {
         if ('id' in prop) {
-          const propType = checkModelProperty(prop);
-          type.properties.set(propType.name, propType);
+          const propType = <ModelTypeProperty>getTypeForNode(prop);
+          properties.set(propType.name, propType);
         } else {
           // spread property
           const target = getTypeForNode(prop.target);
           if (target.kind === 'Model') {
             for (const targetProp of (<ModelType>target).properties.values()) {
-              type.properties.set(targetProp.name, targetProp);
+              properties.set(targetProp.name, targetProp);
             }
           }
         }
       }
 
+      const type: ModelType = createType({
+        kind: 'Model',
+        name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : '',
+        node: node,
+        properties
+      });
       return type;
     } else {
       // model =
-      return  getTypeForNode((<ModelStatementNode>node).assignment!);
+      // this will likely have to change, as right now `model =` is really just
+      // alias and so disappears. That means you can't easily rename symbols.
+      return getTypeForNode((<ModelStatementNode>node).assignment!);
     }
   }
 
@@ -332,16 +379,19 @@ export function createChecker(program: Program) {
     }
   }
 
-  function createType<T extends Type>(type: T): T {
-    if (templateInstantiation.size === 0) {
-      // if we're not instantiating anything, we're safe to use
-      // cached values.
-      program.typeCache.set(type.node, type);
+  // the types here aren't ideal and could probably be refactored.
+  function createType<T extends { kind: string; node: Node }>(typeDef: T): T {
+    (<any>typeDef).seq = program.typeCache.set([typeDef.node, ...templateInstantiation], typeDef);
+    (<any>typeDef).templateArguments = templateInstantiation;
+
+    // only run decorators on fully instantiated types.
+    if (templateInstantiation.every(i => i.kind !== 'TemplateParameter')) {
+      program.executeDecorators(typeDef);
     }
-    (<any>type).seq = seq++;
-    // will eventually want caching logic here
-    return type;
+
+    return typeDef;
   }
+
 
   function getLiteralType(node: StringLiteralNode): StringLiteralType;
   function getLiteralType(node: NumericLiteralNode): NumericLiteralType;

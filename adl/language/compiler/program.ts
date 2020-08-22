@@ -1,17 +1,17 @@
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
-import { createChecker } from './checker.js';
-import { parse, walk } from './parser.js';
+import { createChecker, MultiMap } from './checker.js';
+import { parse } from './parser.js';
 import {
   ADLScriptNode,
-  DecoratorExpressionNode, IdentifierNode, InterfaceStatementNode,
+  DecoratorExpressionNode, IdentifierNode,
   InterfaceType,
 
 
-  ModelExpressionNode, ModelStatementNode,
+  ModelStatementNode,
   ModelType,
-  Node,
+
   NumericLiteralType,
   StringLiteralType,
   SyntaxKind,
@@ -21,10 +21,13 @@ import {
 export interface Program {
   globalSymbols: SymbolTable;
   sourceFiles: Array<ADLSourceFile>;
-  typeCache: WeakMap<Node, Type>;
+  typeCache: MultiMap<Type>;
   literalTypes: Map<string | number, StringLiteralType | NumericLiteralType>;
   checker?: ReturnType<typeof createChecker>;
   onBuild(cb: (program: Program) => void): void;
+  executeInterfaceDecorators(type: InterfaceType): void;
+  executeModelDecorators(type: ModelType): void;
+  executeDecorators(type: Type): void;
 }
 
 export interface ADLSourceFile {
@@ -41,8 +44,11 @@ export async function compile(rootDir: string) {
   const program: Program = {
     globalSymbols: new Map(),
     sourceFiles: [],
-    typeCache: new WeakMap(),
+    typeCache: new MultiMap(),
     literalTypes: new Map(),
+    executeInterfaceDecorators,
+    executeModelDecorators,
+    executeDecorators,
     onBuild(cb) {
       buildCbs.push(cb);
     },
@@ -54,7 +60,6 @@ export async function compile(rootDir: string) {
   binder.bindProgram(program);
   const checker = program.checker = createChecker(program);
   program.checker.checkProgram(program);
-  await executeDecorators(program);
   buildCbs.forEach((cb: any) => cb(program));
 
   /**
@@ -62,54 +67,53 @@ export async function compile(rootDir: string) {
    * does type checking.
    */
 
-  function executeDecorators(program: Program) {
-    for (const file of program.sourceFiles) {
-      walk(file.ast, (node) => {
-        if (node.kind === SyntaxKind.ModelStatement) {
-          executeModelDecorators(<ModelStatementNode>node);
-        } else if (node.kind === SyntaxKind.InterfaceStatement) {
-          executeInterfaceDecorators(<InterfaceStatementNode>node);
-        } else if (node.kind === SyntaxKind.ModelExpression) {
-          executeModelDecorators(<ModelExpressionNode>node);
-        }
-      });
-    }
-  }
+  function executeInterfaceDecorators(type: InterfaceType) {
+    const stmt = type.node;
 
-  function executeInterfaceDecorators(stmt: InterfaceStatementNode) {
     for (const dec of stmt.decorators) {
-      executeDecorator(dec, program, stmt);
+      executeDecorator(dec, program, type);
     }
 
-    for (const prop of stmt.properties) {
-      for (const dec of prop.decorators) {
-        executeDecorator(dec, program, prop);
+    for (const [name, propType] of type.properties) {
+      for (const dec of propType.node.decorators) {
+        executeDecorator(dec, program, propType);
       }
     }
   }
 
-  function executeModelDecorators(stmt: ModelStatementNode | ModelExpressionNode) {
+  function executeModelDecorators(type: ModelType) {
+    const stmt = <ModelStatementNode>(type.templateNode || type.node);
+
     for (const dec of stmt.decorators) {
-      executeDecorator(dec, program, stmt);
+      executeDecorator(dec, program, type);
     }
 
     if (stmt.properties) {
-      for (const prop of stmt.properties) {
-        if ('decorators' in prop) {
-          for (const dec of prop.decorators) {
-            executeDecorator(dec, program, prop);
+      for (const [name, propType] of type.properties) {
+        const propNode = propType.node;
+
+        if ('decorators' in propNode) {
+          for (const dec of propNode.decorators) {
+            executeDecorator(dec, program, propType);
           }
         }
       }
     }
   }
 
-  function executeDecorator(dec: DecoratorExpressionNode, program: Program, targetNode: Node) {
+  function executeDecorators(type: Type) {
+    if ((<any>type.node).decorators) {
+      for (const dec of (<any>type.node).decorators) {
+        executeDecorator(dec, program, type);
+      }
+    }
+  }
+
+  function executeDecorator(dec: DecoratorExpressionNode, program: Program, type: Type) {
     if (dec.target.kind !== SyntaxKind.Identifier) {
       throw new Error('Decorator must be identifier');
     }
 
-    const type = checker.getTypeForNode(targetNode);
     const decName = (<IdentifierNode>dec.target).sv;
     const args = dec.arguments.map((a) =>
       toJSON(checker.getTypeForNode(a))

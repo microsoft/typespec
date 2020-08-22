@@ -10,7 +10,7 @@ export function getDescription(target) {
 
 export function inspectType(program, target, text) {
   if (text) console.log(text);
-  console.dir(target);
+  console.dir(target, { depth: 3 });
 }
 
 export function inspectTypeName(program, target, text) {

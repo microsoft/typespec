@@ -61,3 +61,12 @@ export function body(program, entity) {
 export function isBody(entity) {
   return bodyFields.has(entity);
 }
+
+const statusFields = new Set();
+export function status(program, entity) {
+  statusFields.add(entity);
+}
+
+export function isStatus(entity) {
+  return statusFields.has(entity);
+}

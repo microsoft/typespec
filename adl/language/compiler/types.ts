@@ -6,6 +6,7 @@ import { SymbolTable } from './binder';
 export interface Type {
   kind: string;
   node: Node;
+  instantiationParameters?: Array<Type>;
 }
 
 export interface ModelType extends Type {
