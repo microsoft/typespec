@@ -44,8 +44,10 @@ describe('syntax', () => {
          prop2: string
        };`,
 
+      // parens on this decorator are currently required, otherwise it
+      // parses as if it were `@foo('prop-1') : number`
       `model Car {
-         @foo
+         @foo()
          'prop-1': number;
        }`,
 
@@ -239,8 +241,8 @@ describe('syntax', () => {
          x: int32;
 
          @description "y coordinate"
-         @fieldNum
-         'y': int32;
+         @fieldNum 2
+         y: int32;
        }
        `
     ]);
