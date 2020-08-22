@@ -365,6 +365,8 @@ export function createChecker(program: Program) {
 
         return type;
       }
+
+      return assignmentType;
     }
   }
 
