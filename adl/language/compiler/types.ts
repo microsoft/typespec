@@ -89,6 +89,7 @@ export enum SyntaxKind {
   ArrayExpression,
   StringLiteral,
   NumericLiteral,
+  BooleanLiteral,
   AliasStatement,
   TemplateApplication,
   TemplateParameterDeclaration
@@ -144,7 +145,8 @@ export type Expression =
   | TemplateApplicationNode
   | IdentifierNode
   | StringLiteralNode
-  | NumericLiteralNode;
+  | NumericLiteralNode
+  | BooleanLiteralNode;
 
 export interface MemberExpressionNode extends Node {
   kind: SyntaxKind.MemberExpression;
@@ -215,6 +217,11 @@ export interface StringLiteralNode extends Node {
 export interface NumericLiteralNode extends Node {
   kind: SyntaxKind.NumericLiteral;
   value: string;
+}
+
+export interface BooleanLiteralNode extends Node {
+  kind: SyntaxKind.BooleanLiteral;
+  value: boolean;
 }
 
 export interface UnionExpressionNode extends Node {

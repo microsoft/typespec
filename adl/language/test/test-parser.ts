@@ -44,6 +44,13 @@ describe('syntax', () => {
          prop2: string
        };`,
 
+      // parens on this decorator are currently required, otherwise it
+      // parses as if it were `@foo('prop-1') : number`
+      `model Car {
+         @foo()
+         'prop-1': number;
+       }`,
+
       `
       [Foo()]
       model Car {
@@ -214,7 +221,30 @@ describe('syntax', () => {
         **NOTE** Markdown goes here
         """
         doSomething(): Type;
-      }`
+      }`,
+      `
+       """
+       A point in two dimensional space
+       """
+       @fun true
+       @profit false
+       @example
+       '''
+       {
+         "x": 42,
+         "y": 42,
+       }
+       '''
+       model Point {
+         @description "x coordinate"
+         @fieldNum 1
+         x: int32;
+
+         @description "y coordinate"
+         @fieldNum 2
+         y: int32;
+       }
+       `
     ]);
   });
 });
