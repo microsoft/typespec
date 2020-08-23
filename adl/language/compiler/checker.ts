@@ -392,7 +392,7 @@ export function createChecker(program: Program) {
   }
 
   // the types here aren't ideal and could probably be refactored.
-  function createType<T extends { kind: string; node: Node }>(typeDef: T): T {
+  function createType<T extends Type>(typeDef: T): T {
     (<any>typeDef).seq = program.typeCache.set([typeDef.node, ...templateInstantiation], typeDef);
     (<any>typeDef).templateArguments = templateInstantiation;
 

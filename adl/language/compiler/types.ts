@@ -3,13 +3,25 @@ import { SymbolTable } from './binder';
 /**
  * Type System types
  */
-export interface Type {
+export interface BaseType {
   kind: string;
   node: Node;
   instantiationParameters?: Array<Type>;
 }
 
-export interface ModelType extends Type {
+export type Type =
+  | ModelType
+  | ModelTypeProperty
+  | TemplateParameterType
+  | InterfaceType
+  | InterfaceTypeProperty
+  | StringLiteralType
+  | NumericLiteralType
+  | ArrayType
+  | TupleType
+  | UnionType;
+
+export interface ModelType extends BaseType {
   kind: 'Model';
   name: string;
   properties: Map<string, ModelTypeProperty>;
@@ -35,7 +47,7 @@ export interface InterfaceTypeProperty {
   returnType: Type;
 }
 
-export interface InterfaceType extends Type {
+export interface InterfaceType extends BaseType {
   kind: 'Interface';
   name: string;
   node: InterfaceStatementNode;
@@ -43,32 +55,36 @@ export interface InterfaceType extends Type {
   parameters?: ModelType;
 }
 
-export interface StringLiteralType extends Type {
+export interface StringLiteralType extends BaseType {
   kind: 'String';
   node: StringLiteralNode;
   value: string;
 }
 
-export interface NumericLiteralType extends Type {
+export interface NumericLiteralType extends BaseType {
   kind: 'Number';
   node: NumericLiteralNode;
   value: number;
 }
-export interface ArrayType extends Type {
+export interface ArrayType extends BaseType {
   kind: 'Array';
   node: ArrayExpressionNode;
   elementType: Type;
 }
 
-export interface TupleType extends Type {
+export interface TupleType extends BaseType {
   kind: 'Tuple';
   node: TupleExpressionNode;
   values: Array<Type>;
 }
 
-export interface UnionType extends Type {
+export interface UnionType extends BaseType {
   kind: 'Union';
   options: Array<Type>;
+}
+
+export interface TemplateParameterType extends BaseType {
+  kind: 'TemplateParameter';
 }
 
 
