@@ -157,8 +157,9 @@ export async function compile(rootDir: string) {
    * and interfaces.
    */
 
-  function loadStandardLibrary(program: Program) {
-    return loadDirectory(program, './lib');
+  async function loadStandardLibrary(program: Program) {
+    await loadDirectory(program, './lib');
+    await loadDirectory(program, './dist/lib');
   }
 
   async function loadDirectory(program: Program, rootDir: string) {
