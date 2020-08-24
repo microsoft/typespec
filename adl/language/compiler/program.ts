@@ -1,17 +1,14 @@
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
-import { createChecker } from './checker.js';
+import { createChecker, MultiKeyMap } from './checker.js';
 import { parse } from './parser.js';
 import {
   ADLScriptNode,
-
-
-  DecoratorExpressionNode, IdentifierNode, InterfaceStatementNode,
+  DecoratorExpressionNode, IdentifierNode,
   InterfaceType,
   ModelStatementNode,
   ModelType,
-  Node,
   NumericLiteralType,
   StringLiteralType,
   SyntaxKind,
@@ -21,9 +18,13 @@ import {
 export interface Program {
   globalSymbols: SymbolTable;
   sourceFiles: Array<ADLSourceFile>;
-  typeCache: WeakMap<Node, Type>;
+  typeCache: MultiKeyMap<Type>;
   literalTypes: Map<string | number, StringLiteralType | NumericLiteralType>;
+  checker?: ReturnType<typeof createChecker>;
   onBuild(cb: (program: Program) => void): void;
+  executeInterfaceDecorators(type: InterfaceType): void;
+  executeModelDecorators(type: ModelType): void;
+  executeDecorators(type: Type): void;
 }
 
 export interface ADLSourceFile {
@@ -40,8 +41,11 @@ export async function compile(rootDir: string) {
   const program: Program = {
     globalSymbols: new Map(),
     sourceFiles: [],
-    typeCache: new WeakMap(),
+    typeCache: new MultiKeyMap(),
     literalTypes: new Map(),
+    executeInterfaceDecorators,
+    executeModelDecorators,
+    executeDecorators,
     onBuild(cb) {
       buildCbs.push(cb);
     },
@@ -51,9 +55,8 @@ export async function compile(rootDir: string) {
   await loadDirectory(program, rootDir);
   const binder = createBinder();
   binder.bindProgram(program);
-  const checker = createChecker(program);
-  checker.checkProgram(program);
-  await executeDecorators(program);
+  const checker = program.checker = createChecker(program);
+  program.checker.checkProgram(program);
   buildCbs.forEach((cb: any) => cb(program));
 
   /**
@@ -61,51 +64,61 @@ export async function compile(rootDir: string) {
    * does type checking.
    */
 
-  async function executeDecorators(program: Program) {
-    for (const file of program.sourceFiles) {
-      for (const stmt of file.ast.statements) {
-        if (stmt.kind === SyntaxKind.ModelStatement) {
-          await executeModelDecorators(stmt);
-        } else if (stmt.kind === SyntaxKind.InterfaceStatement) {
-          await executeInterfaceDecorators(stmt);
+  function executeInterfaceDecorators(type: InterfaceType) {
+    const stmt = type.node;
+
+    for (const dec of stmt.decorators) {
+      executeDecorator(dec, program, type);
+    }
+
+    for (const [name, propType] of type.properties) {
+      for (const dec of propType.node.decorators) {
+        executeDecorator(dec, program, propType);
+      }
+    }
+  }
+
+  function executeModelDecorators(type: ModelType) {
+    const stmt = <ModelStatementNode>(type.templateNode || type.node);
+
+    for (const dec of stmt.decorators) {
+      executeDecorator(dec, program, type);
+    }
+
+    if (stmt.properties) {
+      for (const [name, propType] of type.properties) {
+        const propNode = propType.node;
+
+        if ('decorators' in propNode) {
+          for (const dec of propNode.decorators) {
+            executeDecorator(dec, program, propType);
+          }
         }
       }
     }
   }
 
-  async function executeInterfaceDecorators(stmt: InterfaceStatementNode) {
-    const type = checker.getTypeForNode(stmt);
-    for (const dec of stmt.decorators) {
-      if (dec.target.kind === SyntaxKind.Identifier) {
-        executeDecorator(dec, program, stmt);
-      }
-    }
-
-    for (const prop of stmt.properties) {
-      const type = checker.getTypeForNode(prop);
-      for (const dec of prop.decorators) {
-        if (dec.target.kind === SyntaxKind.Identifier) {
-          executeDecorator(dec, program, stmt);
-        }
+  function executeDecorators(type: Type) {
+    if ((<any>type.node).decorators) {
+      for (const dec of (<any>type.node).decorators) {
+        executeDecorator(dec, program, type);
       }
     }
   }
 
-  function executeModelDecorators(stmt: ModelStatementNode) {
-    for (const dec of stmt.decorators) {
-      if (dec.target.kind === SyntaxKind.Identifier) {
-        executeDecorator(dec, program, stmt);
-      }
+  function executeDecorator(dec: DecoratorExpressionNode, program: Program, type: Type) {
+    if (dec.target.kind !== SyntaxKind.Identifier) {
+      throw new Error('Decorator must be identifier');
     }
-  }
 
-  function executeDecorator(dec: DecoratorExpressionNode, program: Program, targetNode: Node) {
-    const type = checker.getTypeForNode(targetNode);
     const decName = (<IdentifierNode>dec.target).sv;
     const args = dec.arguments.map((a) =>
       toJSON(checker.getTypeForNode(a))
     );
     const decBinding = <DecoratorSymbol>program.globalSymbols.get(decName);
+    if (!decBinding) {
+      throw new Error(`Can't find decorator ${decName}`);
+    }
     const decFn = decBinding.value;
     decFn(program, type, ...args);
   }
@@ -118,8 +131,8 @@ export async function compile(rootDir: string) {
 
   /**
    * returns the JSON representation of a type. This is generally
-   * just the raw type objects, but string and number are treated
-   * specially.
+   * just the raw type objects, but string and number literals are
+   * treated specially.
    */
   function toJSON(type: Type): Type | string | number {
     if ('value' in type) {
@@ -141,8 +154,9 @@ export async function compile(rootDir: string) {
    * and interfaces.
    */
 
-  function loadStandardLibrary(program: Program) {
-    return loadDirectory(program, './lib');
+  async function loadStandardLibrary(program: Program) {
+    await loadDirectory(program, './lib');
+    await loadDirectory(program, './dist/lib');
   }
 
   async function loadDirectory(program: Program, rootDir: string) {
@@ -196,4 +210,5 @@ export async function compile(rootDir: string) {
   }
 }
 
-compile('./samples/appconfig').catch((e) => console.error(e));
+const dir = process.argv[2] || 'test';
+compile('./samples/' + dir).catch((e) => console.error(e));
