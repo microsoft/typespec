@@ -1,17 +1,14 @@
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
-import { createChecker, MultiMap } from './checker.js';
+import { createChecker, MultiKeyMap } from './checker.js';
 import { parse } from './parser.js';
 import {
   ADLScriptNode,
   DecoratorExpressionNode, IdentifierNode,
   InterfaceType,
-
-
   ModelStatementNode,
   ModelType,
-
   NumericLiteralType,
   StringLiteralType,
   SyntaxKind,
@@ -21,7 +18,7 @@ import {
 export interface Program {
   globalSymbols: SymbolTable;
   sourceFiles: Array<ADLSourceFile>;
-  typeCache: MultiMap<Type>;
+  typeCache: MultiKeyMap<Type>;
   literalTypes: Map<string | number, StringLiteralType | NumericLiteralType>;
   checker?: ReturnType<typeof createChecker>;
   onBuild(cb: (program: Program) => void): void;
@@ -44,7 +41,7 @@ export async function compile(rootDir: string) {
   const program: Program = {
     globalSymbols: new Map(),
     sourceFiles: [],
-    typeCache: new MultiMap(),
+    typeCache: new MultiKeyMap(),
     literalTypes: new Map(),
     executeInterfaceDecorators,
     executeModelDecorators,

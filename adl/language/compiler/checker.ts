@@ -24,7 +24,7 @@ import {
  *
  * This is likely non-optimal.
  */
-export class MultiMap<T> {
+export class MultiKeyMap<T> {
   #currentId = 0;
   #idMap = new WeakMap<object, number>();
   #items = new Map<string, T>();
