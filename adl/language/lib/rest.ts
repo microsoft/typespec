@@ -23,7 +23,7 @@ export function basePathForResource(resource: Type) {
 const headerFields = new Map<Type, string>();
 export function header(program: Program, entity: Type, headerName: string) {
   if (!headerName && entity.kind === "ModelProperty") {
-    headerName = entity.name;
+    headerName = entity.name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
   }
   headerFields.set(entity, headerName);
 }
