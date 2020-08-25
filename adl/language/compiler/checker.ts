@@ -1,21 +1,35 @@
 import { ADLSourceFile, Program } from './program.js';
 import {
   ArrayExpressionNode,
-
-
-  ArrayType, IdentifierNode,
-  InterfacePropertyNode, InterfaceStatementNode, InterfaceType,
+  ArrayType,
+  BooleanLiteralNode,
+  BooleanLiteralType,
+  IdentifierNode,
+  InterfacePropertyNode,
+  InterfaceStatementNode,
+  InterfaceType,
   InterfaceTypeProperty,
-  IntersectionExpressionNode, ModelExpressionNode,
-  ModelPropertyNode, ModelStatementNode, ModelType,
-  ModelTypeProperty, Node,
-  NumericLiteralNode, NumericLiteralType,
-  StringLiteralNode, StringLiteralType,
+  IntersectionExpressionNode,
+  LiteralNode,
+  LiteralType,
+  ModelExpressionNode,
+  ModelPropertyNode,
+  ModelStatementNode,
+  ModelType,
+  ModelTypeProperty,
+  Node,
+  NumericLiteralNode,
+  NumericLiteralType,
+  StringLiteralNode,
+  StringLiteralType,
   SyntaxKind,
   TemplateApplicationNode,
-  TemplateParameterDeclarationNode, TupleExpressionNode, TupleType,
+  TemplateParameterDeclarationNode,
+  TupleExpressionNode,
+  TupleType,
   Type,
-  UnionExpressionNode, UnionType
+  UnionExpressionNode,
+  UnionType
 } from './types.js';
 
 /**
@@ -87,6 +101,8 @@ export function createChecker(program: Program) {
         return <any>checkIdentifier(<IdentifierNode>node);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(<NumericLiteralNode>node);
+      case SyntaxKind.BooleanLiteral:
+        return checkBooleanLiteral(<BooleanLiteralNode>node);
       case SyntaxKind.TupleExpression:
         return checkTupleExpression(<TupleExpressionNode>node);
       case SyntaxKind.StringLiteral:
@@ -313,6 +329,10 @@ export function createChecker(program: Program) {
     return getLiteralType(num);
   }
 
+  function checkBooleanLiteral(bool: BooleanLiteralNode): BooleanLiteralType {
+    return getLiteralType(bool);
+  }
+
   function checkProgram(program: Program) {
     for (const file of program.sourceFiles) {
       checkSourceFile(file);
@@ -404,30 +424,28 @@ export function createChecker(program: Program) {
     return typeDef;
   }
 
-
   function getLiteralType(node: StringLiteralNode): StringLiteralType;
   function getLiteralType(node: NumericLiteralNode): NumericLiteralType;
-  function getLiteralType(
-    node: StringLiteralNode | NumericLiteralNode
-  ): StringLiteralType | NumericLiteralType {
-    const value =
-      node.kind === SyntaxKind.NumericLiteral
-        ? Number(node.value)
-        : node.value;
-
-    if (program.literalTypes.has(value)) {
-      return program.literalTypes.get(value)!;
+  function getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
+  function getLiteralType(node: LiteralNode): LiteralType {
+    let type = program.literalTypes.get(node.value);
+    if (type) {
+      return type;
     }
 
-    const kind = node.kind === SyntaxKind.NumericLiteral ? 'Number' : 'String';
+    switch (node.kind) {
+      case SyntaxKind.StringLiteral:
+        type = { kind: 'String', node, value: node.value };
+        break;
+      case SyntaxKind.NumericLiteral:
+        type = { kind: 'Number', node, value: node.value };
+        break;
+      case SyntaxKind.BooleanLiteral:
+        type = { kind: 'Boolean', node, value: node.value };
+        break;
+    }
 
-    const type: StringLiteralType | NumericLiteralType = <any>{
-      kind,
-      node,
-      value,
-    };
-
-    program.literalTypes.set(value, <any>type);
+    program.literalTypes.set(node.value, type);
     return type;
   }
 }
