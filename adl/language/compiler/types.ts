@@ -17,6 +17,7 @@ export type Type =
   | InterfaceTypeProperty
   | StringLiteralType
   | NumericLiteralType
+  | BooleanLiteralType
   | ArrayType
   | TupleType
   | UnionType;
@@ -55,6 +56,8 @@ export interface InterfaceType extends BaseType {
   parameters?: ModelType;
 }
 
+export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLiteralType;
+
 export interface StringLiteralType extends BaseType {
   kind: 'String';
   node: StringLiteralNode;
@@ -66,6 +69,13 @@ export interface NumericLiteralType extends BaseType {
   node: NumericLiteralNode;
   value: number;
 }
+
+export interface BooleanLiteralType extends BaseType {
+  kind: 'Boolean';
+  node: BooleanLiteralNode;
+  value: boolean;
+}
+
 export interface ArrayType extends BaseType {
   kind: 'Array';
   node: ArrayExpressionNode;
@@ -230,19 +240,24 @@ export interface ModelSpreadPropertyNode extends Node {
   target: IdentifierNode;
 }
 
+export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
+
 export interface StringLiteralNode extends Node {
   kind: SyntaxKind.StringLiteral;
   value: string;
+  text: string;
 }
 
 export interface NumericLiteralNode extends Node {
   kind: SyntaxKind.NumericLiteral;
-  value: string;
+  value: number;
+  text: string;
 }
 
 export interface BooleanLiteralNode extends Node {
   kind: SyntaxKind.BooleanLiteral;
   value: boolean;
+  text: string;
 }
 
 export interface UnionExpressionNode extends Node {

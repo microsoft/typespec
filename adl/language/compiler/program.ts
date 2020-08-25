@@ -7,10 +7,9 @@ import {
   ADLScriptNode,
   DecoratorExpressionNode, IdentifierNode,
   InterfaceType,
+  LiteralType,
   ModelStatementNode,
   ModelType,
-  NumericLiteralType,
-  StringLiteralType,
   SyntaxKind,
   Type
 } from './types.js';
@@ -19,7 +18,7 @@ export interface Program {
   globalSymbols: SymbolTable;
   sourceFiles: Array<ADLSourceFile>;
   typeCache: MultiKeyMap<Type>;
-  literalTypes: Map<string | number, StringLiteralType | NumericLiteralType>;
+  literalTypes: Map<string | number | boolean, LiteralType>;
   checker?: ReturnType<typeof createChecker>;
   onBuild(cb: (program: Program) => void): void;
   executeInterfaceDecorators(type: InterfaceType): void;
@@ -210,5 +209,5 @@ export async function compile(rootDir: string) {
   }
 }
 
-const dir = process.argv[2] || 'test';
+const dir = process.argv[2] || 'scratch';
 compile('./samples/' + dir).catch((e) => console.error(e));

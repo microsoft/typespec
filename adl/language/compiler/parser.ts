@@ -531,20 +531,25 @@ export function parse(code: string) {
 
   function parseStringLiteral(): Types.StringLiteralNode {
     const pos = tokenPos();
+    const text = tokenValue();
     const value = tokenStringValue();
     parseExpectedOneOf(Kind.StringLiteral, Kind.TripleQuotedStringLiteral);
     return finishNode({
       kind: Types.SyntaxKind.StringLiteral,
+      text,
       value
     }, pos);
   }
 
   function parseNumericLiteral(): Types.NumericLiteralNode {
     const pos = tokenPos();
-    const value = tokenValue();
+    const text = tokenValue();
+    const value = Number(text);
+
     parseExpected(Kind.NumericLiteral);
     return finishNode({
       kind: Types.SyntaxKind.NumericLiteral,
+      text,
       value
     }, pos);
   }
@@ -553,8 +558,10 @@ export function parse(code: string) {
     const pos = tokenPos();
     const token = parseExpectedOneOf(Kind.TrueKeyword, Kind.FalseKeyword);
     const value = token == Kind.TrueKeyword;
+    const text = value ? 'true' : 'false';
     return finishNode({
       kind: Types.SyntaxKind.BooleanLiteral,
+      text,
       value
     }, pos);
   }
