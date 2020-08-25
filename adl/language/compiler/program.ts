@@ -210,5 +210,5 @@ export async function compile(rootDir: string) {
   }
 }
 
-const dir = process.argv[2] || 'test';
+const dir = process.argv[2] || 'scratch';
 compile('./samples/' + dir).catch((e) => console.error(e));
