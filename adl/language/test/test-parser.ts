@@ -61,6 +61,17 @@ describe('syntax', () => {
          prop2: string
        };`,
 
+      `@doc """
+       Documentation
+       """
+       model Car {
+         @doc "first"
+         prop1: number;
+
+         @doc "second"
+         prop2: number;
+       }`,
+
       'model Foo { "strKey": number, "😂😂😂": string }',
 
       'model Foo<A, B> { }',
@@ -179,73 +190,6 @@ describe('syntax', () => {
         property /* 👀 */ : /* 👍 */ int32; // one more
       }
       `]);
-  });
-
-  describe('description decorator sugar', () => {
-    parseEach([
-      `
-      """
-      Long description
-      On two lines
-      """
-      @dec()
-      model Model {
-        @dec property1: Type    "short description";
-        property2: Type         'something "else"'
-      }`,
-      `
-      'short description'
-      model Model {
-        '''
-        Long description
-        On two lines
-        '''
-        property: int32 \`short description\`;
-      }`,
-      `
-      "short description"
-      interface I {
-          doSomething(): Type     "short description";
-          doSomethingElse(): Type \`something "else"\`;
-      }`,
-      `
-      \`\`\`
-      Long description
-      On two lines
-      \`\`\`
-      @dec()
-      interface I {
-        """
-        Another long description
-        
-        **NOTE** Markdown goes here
-        """
-        doSomething(): Type;
-      }`,
-      `
-       """
-       A point in two dimensional space
-       """
-       @fun true
-       @profit false
-       @example
-       '''
-       {
-         "x": 42,
-         "y": 42,
-       }
-       '''
-       model Point {
-         @description "x coordinate"
-         @fieldNum 1
-         x: int32;
-
-         @description "y coordinate"
-         @fieldNum 2
-         y: int32;
-       }
-       `
-    ]);
   });
 });
 

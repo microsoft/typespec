@@ -1,14 +1,14 @@
 import { Program } from "../compiler/program";
 import { Type } from "../compiler/types";
 
-const desc = new Map<Type, string>();
+const docs = new Map<Type, string>();
 
-export function description(program: Program, target: Type, text: string) {
-  desc.set(target, text);
+export function doc(program: Program, target: Type, text: string) {
+  docs.set(target, text);
 }
 
-export function getDescription(target: Type) {
-  return desc.get(target);
+export function getDoc(target: Type) {
+  return docs.get(target);
 }
 
 export function inspectType(program: Program, target: Type, text: string) {

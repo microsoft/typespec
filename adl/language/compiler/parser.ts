@@ -60,13 +60,8 @@ export function parse(code: string) {
     }
   }
 
-  function parseDecoratorList(allowSingleQuotedDescription = true) {
+  function parseDecoratorList() {
     const decorators: Array<Types.DecoratorExpressionNode> = [];
-
-    if (token() == Kind.TripleQuotedStringLiteral ||
-        (allowSingleQuotedDescription && token() == Kind.StringLiteral)) {
-      decorators.push(parseStringAsDescriptionDecorator());
-    }
 
     while (token() === Kind.At || token() === Kind.OpenBracket) {
       decorators.push(parseDecoratorExpression());
@@ -137,10 +132,6 @@ export function parse(code: string) {
 
     parseExpected(Kind.Colon);
     const returnType = parseExpression();
-
-    if (token() == Kind.StringLiteral) {
-      decorators.push(parseStringAsDescriptionDecorator());
-    }
 
     return finishNode({
       kind: Types.SyntaxKind.InterfaceProperty,
@@ -217,9 +208,7 @@ export function parse(code: string) {
         break;
       }
 
-      // single quoted description decorator sugar not allowed before model
-      // properties as it creates an ambiguity with quoted property name.
-      const memberDecorators = parseDecoratorList(false);
+      const memberDecorators = parseDecoratorList();
 
       if (token() === Kind.Elipsis) {
         if (memberDecorators.length > 0) {
@@ -265,10 +254,6 @@ export function parse(code: string) {
     const optional = parseOptional(Kind.Question);
     parseExpected(Kind.Colon);
     const value = parseExpression();
-
-    if (token() == Kind.StringLiteral) {
-      decorators.push(parseStringAsDescriptionDecorator());
-    }
 
     return finishNode({
       kind: Types.SyntaxKind.ModelProperty,
@@ -440,23 +425,6 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseStringAsDescriptionDecorator(): Types.DecoratorExpressionNode {
-    const pos = tokenPos();
-
-    const target: Types.IdentifierNode = synthesizeNode({
-      kind: Types.SyntaxKind.Identifier,
-      sv: 'description'
-    });
-
-    const arg = parseStringLiteral();
-
-    return finishNode({
-      kind: Types.SyntaxKind.DecoratorExpression,
-      arguments: [arg],
-      target
-    }, pos);
-  }
-
   function parseExpressionList(): Array<Types.Expression> {
     const args: Array<Types.Expression> = [];
 
@@ -490,7 +458,6 @@ export function parse(code: string) {
       case Kind.Identifier:
         return parseIdentifier();
       case Kind.StringLiteral:
-      case Kind.TripleQuotedStringLiteral:
         return parseStringLiteral();
       case Kind.TrueKeyword:
       case Kind.FalseKeyword:
@@ -533,7 +500,7 @@ export function parse(code: string) {
     const pos = tokenPos();
     const text = tokenValue();
     const value = tokenStringValue();
-    parseExpectedOneOf(Kind.StringLiteral, Kind.TripleQuotedStringLiteral);
+    parseExpected(Kind.StringLiteral);
     return finishNode({
       kind: Types.SyntaxKind.StringLiteral,
       text,
@@ -642,7 +609,6 @@ export function parse(code: string) {
     switch (token()) {
       case Kind.NumericLiteral:
       case Kind.StringLiteral:
-      case Kind.TripleQuotedStringLiteral:
       case Kind.TrueKeyword:
       case Kind.FalseKeyword:
         return true;
@@ -656,14 +622,6 @@ export function parse(code: string) {
       ...o,
       pos,
       end: tokenPos()
-    };
-  }
-
-  function synthesizeNode<T>(o: T): T & { pos: -1; end: -1 } {
-    return {
-      ...o,
-      pos: -1,
-      end: -1
     };
   }
 
