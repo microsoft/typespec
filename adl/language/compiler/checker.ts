@@ -130,6 +130,10 @@ export function createChecker(program: Program) {
         return (<UnionType>type).options.map(getTypeName).join(' | ');
       case 'Array':
         return getTypeName((<ArrayType>type).elementType) + '[]';
+      case 'String':
+      case 'Number':
+      case 'Boolean':
+        return type.value.toString();
     }
 
     return '(unnamed type)';
