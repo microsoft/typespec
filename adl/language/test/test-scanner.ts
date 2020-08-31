@@ -121,11 +121,11 @@ describe('scanner', () => {
     strictEqual(scanner.rescanGreaterThan(), Kind.GreaterThanGreaterThan);
   });
 
-  function scanString(text: string, expectedValue: string, expectedToken: Kind) {
+  function scanString(text: string, expectedValue: string) {
     const scanner = new Scanner(text);
     scanner.onError = (msg, params) => { throw new Error(format(msg.text, ...params)); };
-    strictEqual(scanner.scan(), expectedToken);
-    strictEqual(scanner.token, expectedToken);
+    strictEqual(scanner.scan(), Kind.StringLiteral);
+    strictEqual(scanner.token, Kind.StringLiteral);
     strictEqual(scanner.value, text);
     strictEqual(scanner.stringValue, expectedValue);
   }
@@ -133,15 +133,13 @@ describe('scanner', () => {
   it('scans strings single-line strings with escape sequences', () => {
     scanString(
       '"Hello world \\r\\n \\t \\\' \\" \\` \\\\ !"',
-      'Hello world \r\n \t \' " ` \\ !',
-      Kind.StringLiteral);
+      'Hello world \r\n \t \' " ` \\ !');
   });
 
   it('scans multi-line strings', () => {
     scanString(
       '`More\r\nthan\r\none\r\nline`',
-      'More\nthan\none\nline',
-      Kind.StringLiteral);
+      'More\nthan\none\nline');
   });
 
   it('scans triple-quoted strings', () => {
@@ -155,8 +153,7 @@ describe('scanner', () => {
       """`,
       // NOTE: sloppy blank line formatting and trailing whitespace after open
       //       quotes above is deliberately tolerated.
-      'This is a triple-quoted string\n\n\n\nAnd this is another line',
-      Kind.TripleQuotedStringLiteral);
+      'This is a triple-quoted string\n\n\n\nAnd this is another line');
   });
 
   it('parses this file', async () => {
