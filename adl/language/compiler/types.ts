@@ -26,9 +26,10 @@ export interface ModelType extends BaseType {
   kind: 'Model';
   name: string;
   properties: Map<string, ModelTypeProperty>;
+  ownProperties: Map<string, ModelTypeProperty>;
+  baseModels: Array<ModelType>;
   templateArguments?: Array<Type>;
   templateNode?: Node;
-  intersectionMembers?: Array<Type>;
   assignmentType?: Type;
 }
 

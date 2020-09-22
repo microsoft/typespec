@@ -146,9 +146,10 @@ export function createChecker(program: Program) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
       return `${model.name}<${args.join(', ')}>`;
-    } else if (model.intersectionMembers) {
-      // intersected model
-      return model.name || model.intersectionMembers.map(getTypeName).join(' & ');
+    } else if (model.ownProperties.size == 0 && model.baseModels.length > 0) {
+      // intersection or spread-only
+      // (NOTE: might have been spelled `{ ...A, ...B }` in source but we use the terser syntax here.)
+      return model.name || model.baseModels.map(getTypeName).join(' & ');
     } else if ((<ModelStatementNode>model.node).templateParameters?.length > 0) {
       // template
       const params = (<ModelStatementNode>model.node).templateParameters.map(t => t.sv);
@@ -218,6 +219,10 @@ export function createChecker(program: Program) {
     });
   }
 
+  function allModelTypes(types: Array<Type>): types is Array<ModelType> {
+    return types.every(t => t.kind === 'Model');
+  }
+
   /**
    * Intersection produces a model type from the properties of its operands.
    * So this doesn't work if we don't have a known set of properties (e.g.
@@ -225,27 +230,17 @@ export function createChecker(program: Program) {
    */
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
-    const allModels = optionTypes.every(t => t.kind === 'Model');
-    if (!allModels) {
+    if (!allModelTypes(optionTypes)) {
       throw new Error('Cannot intersect non-model types (including union types).');
     }
 
-    const intersection = createType({
+    const intersection = createModelType({
       kind: 'Model',
       node,
       name: '',
-      properties: new Map(),
-      intersectionMembers: optionTypes
+      ownProperties: new Map(),
+      baseModels: optionTypes
     });
-
-    for (const type of optionTypes) {
-      for (const [key, prop] of (<ModelType>type).properties) {
-        if (intersection.properties.has(key)) {
-          throw new Error('Cannot intersect two types with duplicate property ' + key);
-        }
-        intersection.properties.set(key, prop);
-      }
-    }
 
     return intersection;
   }
@@ -350,28 +345,31 @@ export function createChecker(program: Program) {
   }
   function checkModel(node: ModelExpressionNode | ModelStatementNode) {
     if (node.properties) {
-      const properties = new Map();
+      const ownProperties = new Map();
+      const baseModels = new Array<ModelType>();
 
       for (const prop of node.properties) {
         if ('id' in prop) {
           const propType = <ModelTypeProperty>getTypeForNode(prop);
-          properties.set(propType.name, propType);
+          ownProperties.set(propType.name, propType);
         } else {
           // spread property
           const target = getTypeForNode(prop.target);
-          if (target.kind === 'Model') {
-            for (const targetProp of (<ModelType>target).properties.values()) {
-              properties.set(targetProp.name, targetProp);
+          if (target.kind != 'TemplateParameter') {
+            if (target.kind !== 'Model') {
+              throw new Error('Cannot spread properties of non-model type.');
             }
+            baseModels.push(target);
           }
         }
       }
 
-      const type: ModelType = createType({
+      const type: ModelType = createModelType({
         kind: 'Model',
         name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : '',
         node: node,
-        properties
+        ownProperties,
+        baseModels: baseModels
       });
       return type;
     } else {
@@ -404,7 +402,7 @@ export function createChecker(program: Program) {
         type: getTypeForNode(prop.value),
       });
     } else {
-      const name = prop.id.value.slice(1, -1);
+      const name = prop.id.value;
       return createType({
         kind: 'ModelProperty',
         name,
@@ -413,6 +411,21 @@ export function createChecker(program: Program) {
         type: getTypeForNode(prop.value),
       });
     }
+  }
+
+  function createModelType(typeDef: Omit<ModelType, 'properties'>): ModelType {
+    const properties = new Map(typeDef.ownProperties);
+
+    for (const source of typeDef.baseModels ?? []) {
+      for (const [name, property] of source.properties) {
+        if (properties.has(name)) {
+          throw new Error(`Cannot intersect/spread duplicate property '${name}'`);
+        }
+        properties.set(name, property);
+      }
+    }
+
+    return createType({...typeDef, properties});
   }
 
   // the types here aren't ideal and could probably be refactored.
