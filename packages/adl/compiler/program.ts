@@ -1,7 +1,8 @@
 import { readdir, readFile } from 'fs/promises';
-import { join } from 'path';
+import { join, resolve as resolvePath } from 'path';
 import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
 import { createChecker, MultiKeyMap } from './checker.js';
+import { CompilerOptions } from './options.js';
 import { parse } from './parser.js';
 import {
   ADLScriptNode,
@@ -15,6 +16,7 @@ import {
 } from './types.js';
 
 export interface Program {
+  compilerOptions: CompilerOptions;
   globalSymbols: SymbolTable;
   sourceFiles: Array<ADLSourceFile>;
   typeCache: MultiKeyMap<Type>;
@@ -34,10 +36,11 @@ export interface ADLSourceFile {
   interfaces: Array<InterfaceType>;
 }
 
-export async function compile(rootDir: string) {
+export async function compile(rootDir: string, options?: CompilerOptions) {
   const buildCbs: any = [];
 
   const program: Program = {
+    compilerOptions: options || {},
     globalSymbols: new Map(),
     sourceFiles: [],
     typeCache: new MultiKeyMap(),
@@ -208,6 +211,3 @@ export async function compile(rootDir: string) {
     }
   }
 }
-
-const dir = process.argv[2] || 'scratch';
-compile('./samples/' + dir).catch((e) => console.error(e));
