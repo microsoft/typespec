@@ -65,3 +65,43 @@ export function isBody(entity: Type) {
   return bodyFields.has(entity);
 }
 
+export type HttpVerb = "get" | "put" | "post" | "patch" | "delete";
+
+const operationVerbs = new Map<Type, HttpVerb>();
+
+function setOperationVerb(entity: Type, verb: HttpVerb) {
+  if (entity.kind === "InterfaceProperty") {
+    if (!operationVerbs.has(entity)) {
+      operationVerbs.set(entity, verb);
+    } else {
+      throw new Error(`HTTP verb already applied to ${entity.name}`);
+    }
+  } else {
+    throw new Error(`Cannot use @${verb} on a ${entity.kind}`);
+  }
+}
+
+export function getOperationVerb(entity: Type): HttpVerb | undefined {
+  return operationVerbs.get(entity);
+}
+
+export function get(program: Program, entity: Type) {
+  setOperationVerb(entity, "get");
+}
+
+export function put(program: Program, entity: Type) {
+  setOperationVerb(entity, "put");
+}
+
+export function post(program: Program, entity: Type) {
+  setOperationVerb(entity, "post");
+}
+
+export function patch(program: Program, entity: Type) {
+  setOperationVerb(entity, "patch");
+}
+
+// TODO: How do we deal with reserved words?
+export function _delete(program: Program, entity: Type) {
+  setOperationVerb(entity, "delete");
+}
