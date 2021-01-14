@@ -101,7 +101,7 @@ export function patch(program: Program, entity: Type) {
   setOperationVerb(entity, "patch");
 }
 
-// TODO: How do we deal with reserved words?
+// BUG #243: How do we deal with reserved words?
 export function _delete(program: Program, entity: Type) {
   setOperationVerb(entity, "delete");
 }
