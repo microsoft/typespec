@@ -35,11 +35,9 @@ const args = yargs(process.argv.slice(2))
   .argv;
 
 if (args._[0] === "compile" && args.path) {
-  try {
-    compile(args.path, {
-      swaggerOutputFile: args["output-file"]
-    });
-  } catch (err) {
-    console.error(`An error occurred while compiling path '${args.path}':\n\n${err}`);
-  }
+  compile(args.path, {
+    swaggerOutputFile: args["output-file"]
+  }).catch((err) => {
+    console.error(`An error occurred while compiling path '${args.path}':\n\n${err.message}`);
+  });
 }
