@@ -382,7 +382,8 @@ export function createChecker(program: Program) {
         const type: ModelType = createType({
           ... <ModelType>assignmentType,
           node: node,
-          name: (<ModelStatementNode>node).id.sv
+          name: (<ModelStatementNode>node).id.sv,
+          assignmentType
         });
 
         return type;
