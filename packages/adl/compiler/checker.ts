@@ -78,7 +78,8 @@ export function createChecker(program: Program) {
     getTypeForNode,
     checkProgram,
     getLiteralType,
-    getTypeName
+    getTypeName,
+    checkInterfaceProperty
   };
 
   function getTypeForNode(node: Node): Type {
