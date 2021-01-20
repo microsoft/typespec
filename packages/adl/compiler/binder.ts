@@ -20,7 +20,7 @@ export interface TypeSymbol {
 }
 
 export interface Binder {
-  bindProgram(program: Program): void;
+  bindSourceFile(program: Program, sourceFile: ADLSourceFile, globalScope: boolean): void;
 }
 
 export function createBinder(): Binder {
@@ -31,29 +31,25 @@ export function createBinder(): Binder {
   let scope: Node;
 
   return {
-    bindProgram,
+    bindSourceFile,
   };
 
-  function bindProgram(program: Program) {
-    for (const file of program.sourceFiles) {
-      currentFile = file;
-      bindSourceFile();
+  function bindSourceFile(program: Program, sourceFile: ADLSourceFile, globalScope: boolean = false) {
+    currentFile = sourceFile;
+    bindNode(sourceFile.ast);
 
-      // everything is global
-      for (const name of file.symbols.keys()) {
+    // everything is global
+    if (globalScope) {
+      for (const name of sourceFile.symbols.keys()) {
         if (program.globalSymbols.has(name)) {
           // todo: collect all the redeclarations of
           // this binding and mark each as errors
           throw new Error('Duplicate binding ' + name);
         }
 
-        program.globalSymbols.set(name, file.symbols.get(name)!);
+        program.globalSymbols.set(name, sourceFile.symbols.get(name)!);
       }
     }
-  }
-
-  function bindSourceFile() {
-    bindNode(currentFile.ast);
   }
 
   function bindNode(node: Node) {
