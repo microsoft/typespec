@@ -22,6 +22,7 @@ export interface Program {
   typeCache: MultiKeyMap<Type>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   checker?: ReturnType<typeof createChecker>;
+  evalAdlScript(adlScript: string, filePath?: string): void;
   onBuild(cb: (program: Program) => void): void;
   executeInterfaceDecorators(type: InterfaceType): void;
   executeModelDecorators(type: ModelType): void;
@@ -45,6 +46,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     sourceFiles: [],
     typeCache: new MultiKeyMap(),
     literalTypes: new Map(),
+    evalAdlScript,
     executeInterfaceDecorators,
     executeModelDecorators,
     executeDecorators,
@@ -53,10 +55,10 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     },
   };
 
+  let virtualFileCount = 0;
+  const binder = createBinder();
   await loadStandardLibrary(program);
   await loadDirectory(program, rootDir);
-  const binder = createBinder();
-  binder.bindProgram(program);
   const checker = program.checker = createChecker(program);
   program.checker.checkProgram(program);
   buildCbs.forEach((cb: any) => cb(program));
@@ -177,14 +179,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
 
   async function loadAdlFile(program: Program, path: string) {
     const contents = await readFile(path, 'utf-8');
-    const ast = parse(contents);
-    program.sourceFiles.push({
-      ast,
-      path,
-      interfaces: [],
-      models: [],
-      symbols: new Map(),
-    });
+    program.evalAdlScript(contents, path);
   }
 
   async function loadJsFile(program: Program, path: string) {
@@ -209,5 +204,23 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
         });
       }
     }
+  }
+
+  // Evaluates an arbitrary line of ADL in the context of a
+  // specified file path.  If no path is specified, use a
+  // virtual file path
+  function evalAdlScript(adlScript: string, filePath?: string): void {
+    filePath = filePath ?? `__virtual_file_${++virtualFileCount}`;
+    const ast = parse(adlScript);
+    const sourceFile = {
+      ast,
+      path: filePath,
+      interfaces: [],
+      models: [],
+      symbols: new Map(),
+    };
+
+    program.sourceFiles.push(sourceFile);
+    binder.bindSourceFile(program, sourceFile, true);
   }
 }
