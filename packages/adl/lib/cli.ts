@@ -39,5 +39,8 @@ if (args._[0] === "compile" && args.path) {
     swaggerOutputFile: args["output-file"]
   }).catch((err) => {
     console.error(`An error occurred while compiling path '${args.path}':\n\n${err.message}`);
+    if (args["debug"]) {
+      console.error(`Stack trace:\n\n${err.stack}`);
+    }
   });
 }
