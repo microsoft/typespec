@@ -44,7 +44,9 @@
     "@types/yargs": "~15.0.12"
   },
   "dependencies": {
-    "yargs": "~16.2.0"
+    "yargs": "~16.2.0",
+    "mkdirp": "~1.0.4",
+    "@types/mkdirp": "~1.0.1"
   },
   "type": "module"
 }

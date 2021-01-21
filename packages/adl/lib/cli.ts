@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 
 import yargs from "yargs";
+import mkdirp from "mkdirp";
+import * as path from "path";
 import { compile } from "../compiler/program.js";
+import { spawnSync } from "child_process";
+import { CompilerOptions } from "../compiler/options.js";
 
 const args = yargs(process.argv.slice(2))
   .help()
@@ -16,9 +20,30 @@ const args = yargs(process.argv.slice(2))
             "The path to folder containing .adl files",
           type: "string"
         })
-        .option("output-file", {
+        .option("output-path", {
           type: "string",
-          describe: "The output file path for the OpenAPI document"
+          describe: "The output path for generated artifacts.  If it does not exist, it will be created."
+        });
+    }
+  )
+  .command(
+    "generate <path>",
+    "Generate client and server code from a directory of ADL files.",
+    cmd => {
+      return cmd
+        .positional("path", {
+          description:
+            "The path to folder containing .adl files",
+          type: "string"
+        })
+        .option("client", {
+          type: "boolean",
+          describe: "The output file path for the generated client"
+        })
+        .option("output-path", {
+          type: "string",
+          default: "./adl-output",
+          describe: "The output file path for the generated client"
         });
     }
   )
@@ -34,13 +59,52 @@ const args = yargs(process.argv.slice(2))
   .demandCommand(1, "You must use one of the supported commands.")
   .argv;
 
-if (args._[0] === "compile" && args.path) {
-  compile(args.path, {
-    swaggerOutputFile: args["output-file"]
-  }).catch((err) => {
+async function compileInput(compilerOptions: CompilerOptions): Promise<void> {
+  try {
+    await compile(args.path!, compilerOptions);
+  } catch (err) {
     console.error(`An error occurred while compiling path '${args.path}':\n\n${err.message}`);
     if (args["debug"]) {
       console.error(`Stack trace:\n\n${err.stack}`);
     }
-  });
+  }
 }
+
+async function getCompilerOptions(): Promise<CompilerOptions> {
+  // Ensure output path
+  await mkdirp(path.resolve(args["output-path"]));
+
+  return {
+    swaggerOutputFile: path.resolve(args["output-path"], "openapi.json")
+  };
+}
+
+async function main() {
+
+  if (args._[0] === "compile") {
+    const options = await getCompilerOptions();
+    await compileInput(options);
+  } else if (args._[0] === "generate") {
+    const options = await getCompilerOptions();
+    await compileInput(options);
+
+    if (args.client) {
+      const clientPath = path.resolve(args["output-path"], "client");
+
+      // Execute AutoRest on the output file
+      // TODO: Parameterize client language selection
+      spawnSync("autorest", [
+        "--version:3.0.6367",
+        "--typescript",
+        `--clear-output-folder=true`,
+        `--output-folder=${clientPath}`,
+        `--title=AdlClient`,
+        `--input-file=${options.swaggerOutputFile}`
+      ], {
+        stdio: 'inherit'
+      });
+    }
+  }
+}
+
+main().then(() => {});
