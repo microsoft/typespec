@@ -83,7 +83,7 @@ export function minLength(program: Program, target: Type, minLength: number) {
       throw new Error("Cannot apply @minLength to a non-string type");
     }
   } else {
-    throw new Error("Cannot apply @format to anything that isn't a Model");
+    throw new Error("Cannot apply @minLength to anything that isn't a Model");
   }
 }
 
@@ -104,10 +104,47 @@ export function maxLength(program: Program, target: Type, maxLength: number) {
       throw new Error("Cannot apply @maxLength to a non-string type");
     }
   } else {
-    throw new Error("Cannot apply @format to anything that isn't a Model");
+    throw new Error("Cannot apply @maxLength to anything that isn't a Model");
   }
 }
 
 export function getMaxLength(target: Type): number | undefined {
   return maxLengthValues.get(target);
+}
+
+// -- @secret decorator ---------------------
+
+const secretTypes = new Map<Type, boolean>();
+
+export function secret(program: Program, target: Type) {
+  if (target.kind === "Model") {
+    // Is it a model type that ultimately derives from 'string'?
+    if (getIntrinsicType(target) === "string") {
+      secretTypes.set(target, true);
+    } else {
+      throw new Error("Cannot apply @secret to a non-string type");
+    }
+  } else {
+    throw new Error("Cannot apply @secret to anything that isn't a Model");
+  }
+}
+
+export function isSecret(target: Type): boolean | undefined {
+  return secretTypes.get(target);
+}
+
+// -- @visibility decorator ---------------------
+
+const visibilitySettings = new Map<Type, string>();
+
+export function visibility(program: Program, target: Type, visibility: string) {
+  if (target.kind === "ModelProperty") {
+    visibilitySettings.set(target, visibility);
+  } else {
+    throw new Error("The @visibility decorator can only be applied to model properties.");
+  }
+}
+
+export function getVisibility(target: Type): string | undefined {
+  return visibilitySettings.get(target);
 }

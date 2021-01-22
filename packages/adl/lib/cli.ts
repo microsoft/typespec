@@ -22,6 +22,7 @@ const args = yargs(process.argv.slice(2))
         })
         .option("output-path", {
           type: "string",
+          default: "./adl-output",
           describe: "The output path for generated artifacts.  If it does not exist, it will be created."
         });
     }
@@ -38,12 +39,12 @@ const args = yargs(process.argv.slice(2))
         })
         .option("client", {
           type: "boolean",
-          describe: "The output file path for the generated client"
+          describe: "Generate a client library for the ADL definition"
         })
         .option("output-path", {
           type: "string",
           default: "./adl-output",
-          describe: "The output file path for the generated client"
+          describe: "The output path for generated artifacts.  If it does not exist, it will be created."
         });
     }
   )
@@ -90,10 +91,16 @@ async function main() {
 
     if (args.client) {
       const clientPath = path.resolve(args["output-path"], "client");
+      const autoRestPath = path.resolve(
+        "node_modules/.bin",
+        process.platform === "win32"
+          ? "autorest.cmd"
+          : "autorest"
+      );
 
       // Execute AutoRest on the output file
       // TODO: Parameterize client language selection
-      spawnSync("autorest", [
+      spawnSync(autoRestPath, [
         "--version:3.0.6367",
         "--typescript",
         `--clear-output-folder=true`,
@@ -101,10 +108,18 @@ async function main() {
         `--title=AdlClient`,
         `--input-file=${options.swaggerOutputFile}`
       ], {
-        stdio: 'inherit'
+          stdio: 'inherit',
+          shell: true
       });
     }
   }
 }
 
-main().then(() => {});
+main()
+  .then(() => {})
+  .catch((err) => {
+    console.error(`An unknown error occurred:\n\n${err.message}`);
+    if (args["debug"]) {
+      console.error(`Stack trace:\n\n${err.stack}`);
+    }
+  });
