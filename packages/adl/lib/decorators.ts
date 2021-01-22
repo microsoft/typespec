@@ -135,23 +135,16 @@ export function isSecret(target: Type): boolean | undefined {
 
 // -- @visibility decorator ---------------------
 
-export type VisibilityLevels = 'read' | 'write';
-const visibilityLevels = ['read', 'write'];
+const visibilitySettings = new Map<Type, string>();
 
-const visibilitySettings = new Map<Type, VisibilityLevels>();
-
-export function visibility(program: Program, target: Type, visibility: VisibilityLevels) {
+export function visibility(program: Program, target: Type, visibility: string) {
   if (target.kind === "ModelProperty") {
-    if (visibilityLevels.indexOf(visibility) < 0) {
-      throw new Error(`Invalid @visibility value: ${visibility}.  Must be one of ${visibilityLevels}.`)
-    }
-
     visibilitySettings.set(target, visibility);
   } else {
     throw new Error("The @visibility decorator can only be applied to model properties.");
   }
 }
 
-export function getVisibility(target: Type): VisibilityLevels | undefined {
+export function getVisibility(target: Type): string | undefined {
   return visibilitySettings.get(target);
 }
