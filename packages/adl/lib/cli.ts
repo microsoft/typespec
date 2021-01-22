@@ -94,7 +94,10 @@ async function main() {
 
       // Execute AutoRest on the output file
       // TODO: Parameterize client language selection
-      spawnSync("autorest", [
+      spawnSync(
+        process.platform === "win32"
+          ? "autorest.cmd"
+          : "autorest", [
         "--version:3.0.6367",
         "--typescript",
         `--clear-output-folder=true`,
@@ -102,7 +105,8 @@ async function main() {
         `--title=AdlClient`,
         `--input-file=${options.swaggerOutputFile}`
       ], {
-        stdio: 'inherit'
+          stdio: 'inherit',
+          shell: true
       });
     }
   }
