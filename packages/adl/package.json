@@ -4,7 +4,7 @@
   "description": "ADL Compiler Preview",
   "main": "dist/main.js",
   "bin": {
-    "adl": "dist/lib/cli.js"
+    "adl": "dist/compiler/cli.js"
   },
   "engines": {
     "node": ">=12.0.0"
