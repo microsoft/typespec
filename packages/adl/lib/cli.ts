@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import url from "url";
 import yargs from "yargs";
 import mkdirp from "mkdirp";
 import * as path from "path";
@@ -91,16 +92,15 @@ async function main() {
 
     if (args.client) {
       const clientPath = path.resolve(args["output-path"], "client");
-      const autoRestPath = path.resolve(
-        "node_modules/.bin",
+      const autoRestBin =
         process.platform === "win32"
           ? "autorest.cmd"
           : "autorest"
-      );
+      const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
 
       // Execute AutoRest on the output file
       // TODO: Parameterize client language selection
-      spawnSync(autoRestPath, [
+      spawnSync(url.fileURLToPath(autoRestPath), [
         "--version:3.0.6367",
         "--typescript",
         `--clear-output-folder=true`,
