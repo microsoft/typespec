@@ -148,3 +148,19 @@ export function visibility(program: Program, target: Type, visibility: string) {
 export function getVisibility(target: Type): string | undefined {
   return visibilitySettings.get(target);
 }
+
+// -- @list decorator ---------------------
+
+const listProperties = new Set<Type>();
+
+export function list(program: Program, target: Type) {
+  if (target.kind === "InterfaceProperty" || target.kind === "ModelProperty") {
+    listProperties.add(target);
+  } else {
+    throw new Error("The @list decorator can only be applied to interface or model properties.");
+  }
+}
+
+export function isList(target: Type): boolean {
+  return listProperties.has(target);
+}
