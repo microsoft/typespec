@@ -282,7 +282,7 @@ export function parse(code: string) {
     }, pos);
 
     while (parseOptional(Kind.Bar)) {
-      const expr = parseArrayExpression();
+      const expr = parseIntersectionExpression();
       node.options.push(expr);
     }
 

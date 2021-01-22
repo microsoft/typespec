@@ -1,5 +1,5 @@
 import { readdir, readFile } from 'fs/promises';
-import { join, resolve as resolvePath } from 'path';
+import { join } from 'path';
 import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
 import { createChecker, MultiKeyMap } from './checker.js';
 import { CompilerOptions } from './options.js';

@@ -110,7 +110,8 @@ describe('syntax', () => {
 
   describe('union expressions', () => {
     parseEach([
-      'model A { foo: B | C }'
+      'model A { foo: B | C }',
+      'model A { foo: B | C & D }'
     ]);
   });
 
