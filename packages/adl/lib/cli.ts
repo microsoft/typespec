@@ -91,13 +91,16 @@ async function main() {
 
     if (args.client) {
       const clientPath = path.resolve(args["output-path"], "client");
+      const autoRestPath = path.resolve(
+        "node_modules/.bin",
+        process.platform === "win32"
+          ? "autorest.cmd"
+          : "autorest"
+      );
 
       // Execute AutoRest on the output file
       // TODO: Parameterize client language selection
-      spawnSync(
-        process.platform === "win32"
-          ? "autorest.cmd"
-          : "autorest", [
+      spawnSync(autoRestPath, [
         "--version:3.0.6367",
         "--typescript",
         `--clear-output-folder=true`,
