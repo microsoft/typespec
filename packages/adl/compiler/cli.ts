@@ -4,9 +4,12 @@ import url from "url";
 import yargs from "yargs";
 import mkdirp from "mkdirp";
 import * as path from "path";
+import { readFileSync } from "fs";
 import { compile } from "../compiler/program.js";
 import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
+
+const adlVersion = getVersion();
 
 const args = yargs(process.argv.slice(2))
   .help()
@@ -58,6 +61,7 @@ const args = yargs(process.argv.slice(2))
     type: "boolean",
     description: "Output verbose log messages."
   })
+  .version(adlVersion)
   .demandCommand(1, "You must use one of the supported commands.")
   .argv;
 
@@ -74,18 +78,32 @@ async function compileInput(compilerOptions: CompilerOptions): Promise<void> {
 
 async function getCompilerOptions(): Promise<CompilerOptions> {
   // Ensure output path
-  await mkdirp(path.resolve(args["output-path"]));
+  const outputPath = path.resolve(args["output-path"]);
+  await mkdirp(outputPath);
 
   return {
+    outputPath,
     swaggerOutputFile: path.resolve(args["output-path"], "openapi.json")
   };
 }
 
+function getVersion(): string {
+  const packageJsonPath = new url.URL(`../../package.json`, import.meta.url);
+  const packageJson = JSON.parse(
+    readFileSync(
+      url.fileURLToPath(packageJsonPath),
+      "utf-8")
+  );
+  return packageJson.version;
+}
+
 async function main() {
+  console.log(`ADL compiler v${adlVersion}\n`);
 
   if (args._[0] === "compile") {
     const options = await getCompilerOptions();
     await compileInput(options);
+    console.log(`Compilation completed successfully, output files are in ${options.outputPath}.`)
   } else if (args._[0] === "generate") {
     const options = await getCompilerOptions();
     await compileInput(options);
@@ -100,7 +118,7 @@ async function main() {
 
       // Execute AutoRest on the output file
       // TODO: Parameterize client language selection
-      spawnSync(url.fileURLToPath(autoRestPath), [
+      const result = spawnSync(url.fileURLToPath(autoRestPath), [
         "--version:3.0.6367",
         "--typescript",
         `--clear-output-folder=true`,
@@ -111,6 +129,12 @@ async function main() {
           stdio: 'inherit',
           shell: true
       });
+
+      if (result.status === 0) {
+        console.log(`Generation completed successfully, output files are in ${options.outputPath}.`)
+      } else {
+        console.error("\nAn error occurred during compilation or client generation.")
+      }
     }
   }
 }
