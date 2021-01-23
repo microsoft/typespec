@@ -134,6 +134,7 @@ async function main() {
         console.log(`Generation completed successfully, output files are in ${options.outputPath}.`)
       } else {
         console.error("\nAn error occurred during compilation or client generation.")
+        process.exit(result.status || 1);
       }
     }
   }
