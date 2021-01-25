@@ -1,13 +1,13 @@
 {
-  "name": "@azure-tools/adl.language",
-  "version": "0.1.0",
-  "description": "ADL langauge",
+  "name": "@azure-tools/adl",
+  "version": "0.1.300",
+  "description": "ADL Compiler Preview",
   "main": "dist/main.js",
   "bin": {
-    "adl": "dist/lib/cli.js"
+    "adl": "dist/compiler/cli.js"
   },
   "engines": {
-    "node": ">=10.12.0"
+    "node": ">=14.0.0"
   },
   "scripts": {
     "eslint-fix": "eslint  . --fix --ext .ts",
