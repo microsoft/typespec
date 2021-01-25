@@ -52,12 +52,12 @@ describe('syntax', () => {
        }`,
 
       `
-      [Foo()]
+      @Foo()
       model Car {
-         [Foo.bar(10, "hello")]
+         @Foo.bar(10, "hello")
          prop1: number,
          
-         [Foo.baz(a, b)]
+         @Foo.baz(a, b)
          prop2: string
        };`,
 

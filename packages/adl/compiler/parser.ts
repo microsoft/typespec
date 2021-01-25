@@ -58,7 +58,7 @@ export function parse(code: string) {
   function parseDecoratorList() {
     const decorators: Array<Types.DecoratorExpressionNode> = [];
 
-    while (token() === Kind.At || token() === Kind.OpenBracket) {
+    while (token() === Kind.At) {
       decorators.push(parseDecoratorExpression());
     }
 
@@ -383,14 +383,7 @@ export function parse(code: string) {
 
   function parseDecoratorExpression(): Types.DecoratorExpressionNode {
     const pos = tokenPos();
-    let usesBrackets = false;
-
-    if (token() === Kind.OpenBracket) {
-      usesBrackets = true;
-      parseExpected(Kind.OpenBracket);
-    } else {
-      parseExpected(Kind.At);
-    }
+    parseExpected(Kind.At);
 
     const target = parseMemberExpression();
 
@@ -407,10 +400,6 @@ export function parse(code: string) {
       }
     } else if (tokenIsLiteral()) {
       args = [parsePrimaryExpression()];
-    }
-
-    if (usesBrackets) {
-      parseExpected(Kind.CloseBracket);
     }
 
     return finishNode({

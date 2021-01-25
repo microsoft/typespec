@@ -252,7 +252,6 @@
   
 &emsp;&emsp;<a name="Decorator"></a>*Decorator* **:**  
 &emsp;&emsp;&emsp;<a name="Decorator-77540820"></a>`` @ ``&emsp;*[MemberExpression](#MemberExpression)*&emsp;*[DecoratorArguments](#DecoratorArguments)*<sub>opt</sub>  
-&emsp;&emsp;&emsp;<a name="Decorator-bc994750"></a>`` [ ``&emsp;*[MemberExpression](#MemberExpression)*&emsp;*[DecoratorArguments](#DecoratorArguments)*<sub>opt</sub>&emsp;`` ] ``  
   
 &emsp;&emsp;<a name="DecoratorArguments"></a>*DecoratorArguments* **:**  
 &emsp;&emsp;&emsp;<a name="DecoratorArguments-92e97e03"></a>*[Literal](#Literal)*  

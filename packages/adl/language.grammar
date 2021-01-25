@@ -266,7 +266,6 @@ DecoratorList :
 
 Decorator :
     `@` MemberExpression DecoratorArguments?
-    `[` MemberExpression DecoratorArguments? `]`
 
 DecoratorArguments :
    Literal
