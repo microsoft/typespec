@@ -22,7 +22,6 @@
 &emsp;&emsp;&emsp;<a name="Keyword-0330acf5"></a>`` import ``  
 &emsp;&emsp;&emsp;<a name="Keyword-fa60d604"></a>`` model ``  
 &emsp;&emsp;&emsp;<a name="Keyword-ef54526d"></a>`` interface ``  
-&emsp;&emsp;&emsp;<a name="Keyword-921cc095"></a>`` alias ``  
   
 &emsp;&emsp;<a name="Identifier"></a>*Identifier* **:**  
 &emsp;&emsp;&emsp;<a name="Identifier-11758399"></a>*[IdentifierName](#IdentifierName)* **but not** *[Keyword](#Keyword)*  
@@ -168,7 +167,6 @@
   
 &emsp;&emsp;<a name="Statement"></a>*Statement* **:**  
 &emsp;&emsp;&emsp;<a name="Statement-648ff91f"></a>*[ImportStatement](#ImportStatement)*  
-&emsp;&emsp;&emsp;<a name="Statement-0d99421b"></a>*[AliasStatement](#AliasStatement)*  
 &emsp;&emsp;&emsp;<a name="Statement-3606dce2"></a>*[ModelStatement](#ModelStatement)*  
 &emsp;&emsp;&emsp;<a name="Statement-a875a11d"></a>*[InterfaceStatement](#InterfaceStatement)*  
   
@@ -179,9 +177,6 @@
 &emsp;&emsp;<a name="NamedImports"></a>*NamedImports* **:**  
 &emsp;&emsp;&emsp;<a name="NamedImports-06b6ace8"></a>*[Identifier](#Identifier)*  
 &emsp;&emsp;&emsp;<a name="NamedImports-02b3b1dc"></a>*[NamedImports](#NamedImports)*&emsp;`` , ``&emsp;*[Identifier](#Identifier)*  
-  
-&emsp;&emsp;<a name="AliasStatement"></a>*AliasStatement* **:**  
-&emsp;&emsp;&emsp;<a name="AliasStatement-d918b509"></a>`` alias ``&emsp;*[Identifier](#Identifier)*&emsp;`` : ``&emsp;*[Expression](#Expression)*&emsp;`` ; ``  
   
 &emsp;&emsp;<a name="ModelStatement"></a>*ModelStatement* **:**  
 &emsp;&emsp;&emsp;<a name="ModelStatement-b7b1d16b"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` model ``&emsp;*[Identifier](#Identifier)*&emsp;`` { ``&emsp;*[ModelBody](#ModelBody)*<sub>opt</sub>&emsp;`` } ``  

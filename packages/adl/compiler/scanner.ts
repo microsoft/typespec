@@ -121,7 +121,6 @@ export enum Kind {
   ImportKeyword,
   ModelKeyword,
   InterfaceKeyword,
-  AliasKeyword,
   TrueKeyword,
   FalseKeyword
 }
@@ -130,7 +129,6 @@ const keywords = new Map([
   ['import', Kind.ImportKeyword],
   ['model', Kind.ModelKeyword],
   ['interface', Kind.InterfaceKeyword],
-  ['alias', Kind.AliasKeyword],
   ['true', Kind.TrueKeyword],
   ['false', Kind.FalseKeyword]
 ]);

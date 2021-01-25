@@ -25,7 +25,6 @@ Keyword :
     `import`
     `model`
     `interface`
-    `alias`
 
 Identifier :
     IdentifierName but not Keyword
@@ -182,7 +181,6 @@ StatementList :
 
 Statement :
     ImportStatement
-    AliasStatement
     ModelStatement
     InterfaceStatement
 
@@ -193,9 +191,6 @@ ImportStatement :
 NamedImports : 
     Identifier
     NamedImports `,` Identifier
-
-AliasStatement :
-    `alias` Identifier `:` Expression `;`
 
 ModelStatement :
     DecoratorList? `model` Identifier `{` ModelBody? `}`

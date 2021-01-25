@@ -155,14 +155,6 @@ describe('syntax', () => {
     ]);
   });
 
-  describe('alias statements', () => {
-    parseEach([
-      'alias MyAlias : SomethingElse;',
-      'alias MyAlias : { constantProperty: 4 };',
-      'alias MyAlias : [ string, number ];'
-    ]);
-  });
-
   describe('multiple statements', () => {
     parseEach([`
       model A { };
