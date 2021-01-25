@@ -41,11 +41,6 @@ export function parse(code: string) {
           return parseModelStatement(decorators);
         case Kind.InterfaceKeyword:
           return parseInterfaceStatement(decorators);
-        case Kind.AliasKeyword:
-          if (decorators.length > 0) {
-            error('Cannot decorate an alias statement');
-          }
-          return parseAliasStatement();
         case Kind.Semicolon:
           if (decorators.length > 0) {
             error('Cannot decorate an empty statement');
@@ -63,7 +58,7 @@ export function parse(code: string) {
   function parseDecoratorList() {
     const decorators: Array<Types.DecoratorExpressionNode> = [];
 
-    while (token() === Kind.At || token() === Kind.OpenBracket) {
+    while (token() === Kind.At) {
       decorators.push(parseDecoratorExpression());
     }
 
@@ -388,14 +383,7 @@ export function parse(code: string) {
 
   function parseDecoratorExpression(): Types.DecoratorExpressionNode {
     const pos = tokenPos();
-    let usesBrackets = false;
-
-    if (token() === Kind.OpenBracket) {
-      usesBrackets = true;
-      parseExpected(Kind.OpenBracket);
-    } else {
-      parseExpected(Kind.At);
-    }
+    parseExpected(Kind.At);
 
     const target = parseMemberExpression();
 
@@ -412,10 +400,6 @@ export function parse(code: string) {
       }
     } else if (tokenIsLiteral()) {
       args = [parsePrimaryExpression()];
-    }
-
-    if (usesBrackets) {
-      parseExpected(Kind.CloseBracket);
     }
 
     return finishNode({
@@ -550,23 +534,6 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseAliasStatement(): Types.AliasStatementNode {
-    const pos = tokenPos();
-    parseExpected(Kind.AliasKeyword);
-
-    const id = parseIdentifier();
-    parseExpected(Kind.Colon);
-
-    const target = parseExpression();
-    parseExpected(Kind.Semicolon);
-
-    return finishNode({
-      kind: Types.SyntaxKind.AliasStatement,
-      id,
-      target
-    }, pos);
-  }
-
   // utility functions
   function token() {
     return scanner.token;
@@ -668,9 +635,6 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
   switch (node.kind) {
     case Types.SyntaxKind.ADLScript:
       return visitEach(cb, (<Types.ADLScriptNode>node).statements);
-    case Types.SyntaxKind.AliasStatement:
-      return visitNode(cb, (<Types.AliasStatementNode>node).id) ||
-        visitNode(cb, (<Types.AliasStatementNode>node).target);
     case Types.SyntaxKind.ArrayExpression:
       return visitNode(cb, (<Types.ArrayExpressionNode>node).elementType);
     case Types.SyntaxKind.DecoratorExpression:

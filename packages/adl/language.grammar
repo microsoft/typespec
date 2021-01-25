@@ -25,7 +25,6 @@ Keyword :
     `import`
     `model`
     `interface`
-    `alias`
 
 Identifier :
     IdentifierName but not Keyword
@@ -56,7 +55,6 @@ NumericLiteral :
 
 DecimalLiteral :
     DecimalIntegerLiteral `.` DecimalDigits? ExponentPart?
-    `.` DecimalDigits ExponentPart?
     DecimalIntegerLiteral ExponentPart?
 
 DecimalIntegerLiteral :
@@ -70,10 +68,7 @@ DecimalDigit :
     one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
 ExponentPart :
-    ExponentIndicator SignedInteger
-
-ExponentIndicator : 
-    one of `e` `E`
+    `e` SignedInteger
 
 SignedInteger :
     DecimalDigits
@@ -82,7 +77,6 @@ SignedInteger :
 
 HexIntegerLiteral :
     `0x` HexDigits
-    `0X` HexDigits
 
 HexDigits :
     HexDigit
@@ -91,36 +85,30 @@ HexDigits :
 HexDigit : 
     one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9` `a` `b` `c` `d` `e` `f` `A` `B` `C` `D` `E` `F`
 
-StringLiteral :
-    `'` SingleStringCharacters? `'`
-    `"` DoubleStringCharacters? `"`
-    ``` BacktickStringCharacters? ```
+BinaryIntegerLiteral :
+    `0b` BinaryDigits
+
+BinaryDigits :
+    BinaryDigit
+    BinaryDigits BinaryDigit
+
+BinaryDigit :
+    one of `0` `1`
 
 // TODO: triple-quoted strings not specified yet, tricky to express.
 
-SingleStringCharacters :
-   SingleStringCharacter SingleStringCharacters?
+StringLiteral :
+    `"` StringCharacters? `"`
 
-SingleStringCharacter :
-    SourceCharacter but not one of `'` or `\`
-    `\` EscapeCharacter
+StringCharacters :
+   StringCharacter StringCharacters?
 
-DoubleStringCharacters :
-   SingleStringCharacter SingleStringCharacters?
-
-DoubleStringCharacter :
+StringCharacter :
     SourceCharacter but not one of `"` or `\`
     `\` EscapeCharacter
 
-BacktickStringCharacters :
-   SingleStringCharacter SingleStringCharacters?
-
-BacktickStringCharacter :
-    SourceCharacter but not one of ``` or `\`
-    `\` EscapeCharacter
-
 EscapeCharacter :
-    one of `'` `"` ``` `r` `n` `t` `\`
+    one of `"` `r` `n` `t` `\`
 
 Punctuator : 
     one of  `|` `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...`
@@ -182,7 +170,6 @@ StatementList :
 
 Statement :
     ImportStatement
-    AliasStatement
     ModelStatement
     InterfaceStatement
 
@@ -193,9 +180,6 @@ ImportStatement :
 NamedImports : 
     Identifier
     NamedImports `,` Identifier
-
-AliasStatement :
-    `alias` Identifier `:` Expression `;`
 
 ModelStatement :
     DecoratorList? `model` Identifier `{` ModelBody? `}`
@@ -282,7 +266,6 @@ DecoratorList :
 
 Decorator :
     `@` MemberExpression DecoratorArguments?
-    `[` MemberExpression DecoratorArguments? `]`
 
 DecoratorArguments :
    Literal

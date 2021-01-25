@@ -122,7 +122,6 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
-  AliasStatement,
   TemplateApplication,
   TemplateParameterDeclaration
 }
@@ -142,8 +141,7 @@ export interface ADLScriptNode extends Node {
 export type Statement =
   | ImportStatementNode
   | ModelStatementNode
-  | InterfaceStatementNode
-  | AliasStatementNode;
+  | InterfaceStatementNode;
 
 export interface ImportStatementNode extends Node {
   kind: SyntaxKind.ImportStatement;
@@ -269,12 +267,6 @@ export interface UnionExpressionNode extends Node {
 export interface IntersectionExpressionNode extends Node {
   kind: SyntaxKind.IntersectionExpression;
   options: Array<Expression>;
-}
-
-export interface AliasStatementNode extends Node {
-  kind: SyntaxKind.AliasStatement;
-  id: IdentifierNode;
-  target: Expression;
 }
 
 export interface TemplateApplicationNode extends Node {

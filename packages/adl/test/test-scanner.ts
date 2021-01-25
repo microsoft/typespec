@@ -121,6 +121,23 @@ describe('scanner', () => {
     strictEqual(scanner.rescanGreaterThan(), Kind.GreaterThanGreaterThan);
   });
 
+  it('scans numeric literals', () => {
+    const all = tokens('42 0xBEEF 0b1010 1.5e4 314.0e-2 1e+1000');
+    verify(all, [
+      [Kind.NumericLiteral, '42'],
+      [Kind.Whitespace],
+      [Kind.NumericLiteral, '0xBEEF'],
+      [Kind.Whitespace],
+      [Kind.NumericLiteral, '0b1010'],
+      [Kind.Whitespace],
+      [Kind.NumericLiteral, '1.5e4'],
+      [Kind.Whitespace],
+      [Kind.NumericLiteral, '314.0e-2'],
+      [Kind.Whitespace],
+      [Kind.NumericLiteral, '1e+1000'],
+    ]);
+  });
+
   function scanString(text: string, expectedValue: string) {
     const scanner = new Scanner(text);
     scanner.onError = (msg, params) => { throw new Error(format(msg.text, ...params)); };
@@ -132,13 +149,13 @@ describe('scanner', () => {
 
   it('scans strings single-line strings with escape sequences', () => {
     scanString(
-      '"Hello world \\r\\n \\t \\\' \\" \\` \\\\ !"',
-      'Hello world \r\n \t \' " ` \\ !');
+      '"Hello world \\r\\n \\t \\" \\\\ !"',
+      'Hello world \r\n \t " \\ !');
   });
 
   it('scans multi-line strings', () => {
     scanString(
-      '`More\r\nthan\r\none\r\nline`',
+      '"More\r\nthan\r\none\r\nline"',
       'More\nthan\none\nline');
   });
 

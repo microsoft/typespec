@@ -48,16 +48,16 @@ describe('syntax', () => {
       // parses as if it were `@foo('prop-1') : number`
       `model Car {
          @foo()
-         'prop-1': number;
+         "prop-1": number;
        }`,
 
       `
-      [Foo()]
+      @Foo()
       model Car {
-         [Foo.bar(10, "hello")]
+         @Foo.bar(10, "hello")
          prop1: number,
          
-         [Foo.baz(a, b)]
+         @Foo.baz(a, b)
          prop2: string
        };`,
 
@@ -152,14 +152,6 @@ describe('syntax', () => {
       '@foo @bar interface Store { @foo @bar read(): number; }',
       'interface Store(apiKey: string, otherArg: number) { }',
       'interface Store(... apiKeys, x: string) { foo(... A, b: string, ...C, d: number): void }'
-    ]);
-  });
-
-  describe('alias statements', () => {
-    parseEach([
-      'alias MyAlias : SomethingElse;',
-      'alias MyAlias : { constantProperty: 4 };',
-      'alias MyAlias : [ string, number ];'
     ]);
   });
 

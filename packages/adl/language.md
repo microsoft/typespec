@@ -22,7 +22,6 @@
 &emsp;&emsp;&emsp;<a name="Keyword-0330acf5"></a>`` import ``  
 &emsp;&emsp;&emsp;<a name="Keyword-fa60d604"></a>`` model ``  
 &emsp;&emsp;&emsp;<a name="Keyword-ef54526d"></a>`` interface ``  
-&emsp;&emsp;&emsp;<a name="Keyword-921cc095"></a>`` alias ``  
   
 &emsp;&emsp;<a name="Identifier"></a>*Identifier* **:**  
 &emsp;&emsp;&emsp;<a name="Identifier-11758399"></a>*[IdentifierName](#IdentifierName)* **but not** *[Keyword](#Keyword)*  
@@ -53,7 +52,6 @@
   
 &emsp;&emsp;<a name="DecimalLiteral"></a>*DecimalLiteral* **:**  
 &emsp;&emsp;&emsp;<a name="DecimalLiteral-fb5198a6"></a>*[DecimalIntegerLiteral](#DecimalIntegerLiteral)*&emsp;`` . ``&emsp;*[DecimalDigits](#DecimalDigits)*<sub>opt</sub>&emsp;*[ExponentPart](#ExponentPart)*<sub>opt</sub>  
-&emsp;&emsp;&emsp;<a name="DecimalLiteral-5cf3aa35"></a>`` . ``&emsp;*[DecimalDigits](#DecimalDigits)*&emsp;*[ExponentPart](#ExponentPart)*<sub>opt</sub>  
 &emsp;&emsp;&emsp;<a name="DecimalLiteral-13dbaf21"></a>*[DecimalIntegerLiteral](#DecimalIntegerLiteral)*&emsp;*[ExponentPart](#ExponentPart)*<sub>opt</sub>  
   
 &emsp;&emsp;<a name="DecimalIntegerLiteral"></a>*DecimalIntegerLiteral* **:**  
@@ -66,9 +64,7 @@
 &emsp;&emsp;<a name="DecimalDigit"></a>*DecimalDigit* **:** **one of** `` 0 ``&emsp;`` 1 ``&emsp;`` 2 ``&emsp;`` 3 ``&emsp;`` 4 ``&emsp;`` 5 ``&emsp;`` 6 ``&emsp;`` 7 ``&emsp;`` 8 ``&emsp;`` 9 ``  
   
 &emsp;&emsp;<a name="ExponentPart"></a>*ExponentPart* **:**  
-&emsp;&emsp;&emsp;<a name="ExponentPart-7f837518"></a>*[ExponentIndicator](#ExponentIndicator)*&emsp;*[SignedInteger](#SignedInteger)*  
-  
-&emsp;&emsp;<a name="ExponentIndicator"></a>*ExponentIndicator* **:** **one of** `` e ``&emsp;`` E ``  
+&emsp;&emsp;&emsp;<a name="ExponentPart-f88eb2da"></a>`` e ``&emsp;*[SignedInteger](#SignedInteger)*  
   
 &emsp;&emsp;<a name="SignedInteger"></a>*SignedInteger* **:**  
 &emsp;&emsp;&emsp;<a name="SignedInteger-6d7b4e5f"></a>*[DecimalDigits](#DecimalDigits)*  
@@ -77,7 +73,6 @@
   
 &emsp;&emsp;<a name="HexIntegerLiteral"></a>*HexIntegerLiteral* **:**  
 &emsp;&emsp;&emsp;<a name="HexIntegerLiteral-cf154180"></a>`` 0x ``&emsp;*[HexDigits](#HexDigits)*  
-&emsp;&emsp;&emsp;<a name="HexIntegerLiteral-9ef756f3"></a>`` 0X ``&emsp;*[HexDigits](#HexDigits)*  
   
 &emsp;&emsp;<a name="HexDigits"></a>*HexDigits* **:**  
 &emsp;&emsp;&emsp;<a name="HexDigits-a0c48a71"></a>*[HexDigit](#HexDigit)*  
@@ -85,33 +80,26 @@
   
 &emsp;&emsp;<a name="HexDigit"></a>*HexDigit* **:** **one of** `` 0 ``&emsp;`` 1 ``&emsp;`` 2 ``&emsp;`` 3 ``&emsp;`` 4 ``&emsp;`` 5 ``&emsp;`` 6 ``&emsp;`` 7 ``&emsp;`` 8 ``&emsp;`` 9 ``&emsp;`` a ``&emsp;`` b ``&emsp;`` c ``&emsp;`` d ``&emsp;`` e ``&emsp;`` f ``&emsp;`` A ``&emsp;`` B ``&emsp;`` C ``&emsp;`` D ``&emsp;`` E ``&emsp;`` F ``  
   
+&emsp;&emsp;<a name="BinaryIntegerLiteral"></a>*BinaryIntegerLiteral* **:**  
+&emsp;&emsp;&emsp;<a name="BinaryIntegerLiteral-600d7817"></a>`` 0b ``&emsp;*[BinaryDigits](#BinaryDigits)*  
+  
+&emsp;&emsp;<a name="BinaryDigits"></a>*BinaryDigits* **:**  
+&emsp;&emsp;&emsp;<a name="BinaryDigits-e5f1ee23"></a>*[BinaryDigit](#BinaryDigit)*  
+&emsp;&emsp;&emsp;<a name="BinaryDigits-82aa7443"></a>*[BinaryDigits](#BinaryDigits)*&emsp;*[BinaryDigit](#BinaryDigit)*  
+  
+&emsp;&emsp;<a name="BinaryDigit"></a>*BinaryDigit* **:** **one of** `` 0 ``&emsp;`` 1 ``  
+  
 &emsp;&emsp;<a name="StringLiteral"></a>*StringLiteral* **:**  
-&emsp;&emsp;&emsp;<a name="StringLiteral-82ecb3d9"></a>`` ' ``&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>&emsp;`` ' ``  
-&emsp;&emsp;&emsp;<a name="StringLiteral-15d8b1f1"></a>`` " ``&emsp;*[DoubleStringCharacters](#DoubleStringCharacters)*<sub>opt</sub>&emsp;`` " ``  
-&emsp;&emsp;&emsp;<a name="StringLiteral-01e5f820"></a>`` ` ``&emsp;*[BacktickStringCharacters](#BacktickStringCharacters)*<sub>opt</sub>&emsp;`` ` ``  
+&emsp;&emsp;&emsp;<a name="StringLiteral-557c08bf"></a>`` " ``&emsp;*[StringCharacters](#StringCharacters)*<sub>opt</sub>&emsp;`` " ``  
   
-&emsp;&emsp;<a name="SingleStringCharacters"></a>*SingleStringCharacters* **:**  
-&emsp;&emsp;&emsp;<a name="SingleStringCharacters-17d28457"></a>*[SingleStringCharacter](#SingleStringCharacter)*&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>  
+&emsp;&emsp;<a name="StringCharacters"></a>*StringCharacters* **:**  
+&emsp;&emsp;&emsp;<a name="StringCharacters-7568b390"></a>*[StringCharacter](#StringCharacter)*&emsp;*[StringCharacters](#StringCharacters)*<sub>opt</sub>  
   
-&emsp;&emsp;<a name="SingleStringCharacter"></a>*SingleStringCharacter* **:**  
-&emsp;&emsp;&emsp;<a name="SingleStringCharacter-20af69b8"></a>*[SourceCharacter](#SourceCharacter)* **but not** **one of** `` ' `` **or** `` \ ``  
-&emsp;&emsp;&emsp;<a name="SingleStringCharacter-3b4c2a4a"></a>`` \ ``&emsp;*[EscapeCharacter](#EscapeCharacter)*  
+&emsp;&emsp;<a name="StringCharacter"></a>*StringCharacter* **:**  
+&emsp;&emsp;&emsp;<a name="StringCharacter-50b66e4c"></a>*[SourceCharacter](#SourceCharacter)* **but not** **one of** `` " `` **or** `` \ ``  
+&emsp;&emsp;&emsp;<a name="StringCharacter-3b4c2a4a"></a>`` \ ``&emsp;*[EscapeCharacter](#EscapeCharacter)*  
   
-&emsp;&emsp;<a name="DoubleStringCharacters"></a>*DoubleStringCharacters* **:**  
-&emsp;&emsp;&emsp;<a name="DoubleStringCharacters-17d28457"></a>*[SingleStringCharacter](#SingleStringCharacter)*&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>  
-  
-&emsp;&emsp;<a name="DoubleStringCharacter"></a>*DoubleStringCharacter* **:**  
-&emsp;&emsp;&emsp;<a name="DoubleStringCharacter-50b66e4c"></a>*[SourceCharacter](#SourceCharacter)* **but not** **one of** `` " `` **or** `` \ ``  
-&emsp;&emsp;&emsp;<a name="DoubleStringCharacter-3b4c2a4a"></a>`` \ ``&emsp;*[EscapeCharacter](#EscapeCharacter)*  
-  
-&emsp;&emsp;<a name="BacktickStringCharacters"></a>*BacktickStringCharacters* **:**  
-&emsp;&emsp;&emsp;<a name="BacktickStringCharacters-17d28457"></a>*[SingleStringCharacter](#SingleStringCharacter)*&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>  
-  
-&emsp;&emsp;<a name="BacktickStringCharacter"></a>*BacktickStringCharacter* **:**  
-&emsp;&emsp;&emsp;<a name="BacktickStringCharacter-4610ad0d"></a>*[SourceCharacter](#SourceCharacter)* **but not** **one of** `` ` `` **or** `` \ ``  
-&emsp;&emsp;&emsp;<a name="BacktickStringCharacter-3b4c2a4a"></a>`` \ ``&emsp;*[EscapeCharacter](#EscapeCharacter)*  
-  
-&emsp;&emsp;<a name="EscapeCharacter"></a>*EscapeCharacter* **:** **one of** `` ' ``&emsp;`` " ``&emsp;`` ` ``&emsp;`` r ``&emsp;`` n ``&emsp;`` t ``&emsp;`` \ ``  
+&emsp;&emsp;<a name="EscapeCharacter"></a>*EscapeCharacter* **:** **one of** `` " ``&emsp;`` r ``&emsp;`` n ``&emsp;`` t ``&emsp;`` \ ``  
   
 &emsp;&emsp;<a name="Punctuator"></a>*Punctuator* **:** **one of** `` | ``&emsp;`` : ``&emsp;`` , ``&emsp;`` ; ``&emsp;`` . ``&emsp;`` < ``&emsp;`` > ``&emsp;`` ( ``&emsp;`` ) ``&emsp;`` { ``&emsp;`` } ``&emsp;`` [ ``&emsp;`` ] ``&emsp;`` @ ``&emsp;`` ... ``  
   
@@ -168,7 +156,6 @@
   
 &emsp;&emsp;<a name="Statement"></a>*Statement* **:**  
 &emsp;&emsp;&emsp;<a name="Statement-648ff91f"></a>*[ImportStatement](#ImportStatement)*  
-&emsp;&emsp;&emsp;<a name="Statement-0d99421b"></a>*[AliasStatement](#AliasStatement)*  
 &emsp;&emsp;&emsp;<a name="Statement-3606dce2"></a>*[ModelStatement](#ModelStatement)*  
 &emsp;&emsp;&emsp;<a name="Statement-a875a11d"></a>*[InterfaceStatement](#InterfaceStatement)*  
   
@@ -179,9 +166,6 @@
 &emsp;&emsp;<a name="NamedImports"></a>*NamedImports* **:**  
 &emsp;&emsp;&emsp;<a name="NamedImports-06b6ace8"></a>*[Identifier](#Identifier)*  
 &emsp;&emsp;&emsp;<a name="NamedImports-02b3b1dc"></a>*[NamedImports](#NamedImports)*&emsp;`` , ``&emsp;*[Identifier](#Identifier)*  
-  
-&emsp;&emsp;<a name="AliasStatement"></a>*AliasStatement* **:**  
-&emsp;&emsp;&emsp;<a name="AliasStatement-d918b509"></a>`` alias ``&emsp;*[Identifier](#Identifier)*&emsp;`` : ``&emsp;*[Expression](#Expression)*&emsp;`` ; ``  
   
 &emsp;&emsp;<a name="ModelStatement"></a>*ModelStatement* **:**  
 &emsp;&emsp;&emsp;<a name="ModelStatement-b7b1d16b"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` model ``&emsp;*[Identifier](#Identifier)*&emsp;`` { ``&emsp;*[ModelBody](#ModelBody)*<sub>opt</sub>&emsp;`` } ``  
@@ -268,7 +252,6 @@
   
 &emsp;&emsp;<a name="Decorator"></a>*Decorator* **:**  
 &emsp;&emsp;&emsp;<a name="Decorator-77540820"></a>`` @ ``&emsp;*[MemberExpression](#MemberExpression)*&emsp;*[DecoratorArguments](#DecoratorArguments)*<sub>opt</sub>  
-&emsp;&emsp;&emsp;<a name="Decorator-bc994750"></a>`` [ ``&emsp;*[MemberExpression](#MemberExpression)*&emsp;*[DecoratorArguments](#DecoratorArguments)*<sub>opt</sub>&emsp;`` ] ``  
   
 &emsp;&emsp;<a name="DecoratorArguments"></a>*DecoratorArguments* **:**  
 &emsp;&emsp;&emsp;<a name="DecoratorArguments-92e97e03"></a>*[Literal](#Literal)*  

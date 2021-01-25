@@ -121,7 +121,6 @@ export enum Kind {
   ImportKeyword,
   ModelKeyword,
   InterfaceKeyword,
-  AliasKeyword,
   TrueKeyword,
   FalseKeyword
 }
@@ -130,7 +129,6 @@ const keywords = new Map([
   ['import', Kind.ImportKeyword],
   ['model', Kind.ModelKeyword],
   ['interface', Kind.InterfaceKeyword],
-  ['alias', Kind.AliasKeyword],
   ['true', Kind.TrueKeyword],
   ['false', Kind.FalseKeyword]
 ]);
@@ -410,11 +408,9 @@ export class Scanner {
               this.next(Kind.Minus);
 
         case CharacterCodes.dot:
-          return isDigit(this.#chNext) ?
-            this.scanNumber() :
-            this.#chNext === CharacterCodes.dot && this.#chNextNext === CharacterCodes.dot ?
-              this.next(Kind.Elipsis, 3) :
-              this.next(Kind.Dot);
+          return this.#chNext === CharacterCodes.dot && this.#chNextNext === CharacterCodes.dot ?
+            this.next(Kind.Elipsis, 3) :
+            this.next(Kind.Dot);
 
         case CharacterCodes.slash:
           return this.#chNext === CharacterCodes.slash ?
@@ -427,9 +423,9 @@ export class Scanner {
                 this.next(Kind.Slash);
 
         case CharacterCodes._0:
-          return this.#chNext === CharacterCodes.x || this.#chNext === CharacterCodes.X ?
+          return this.#chNext === CharacterCodes.x ?
             this.scanHexNumber() :
-            this.#chNext === CharacterCodes.B || this.#chNext === CharacterCodes.B ?
+            this.#chNext === CharacterCodes.b ?
               this.scanBinaryNumber() :
               this.scanNumber();
 
@@ -482,9 +478,7 @@ export class Scanner {
                 this.next(Kind.BarEquals, 2) :
                 this.next(Kind.Bar);
 
-        case CharacterCodes.singleQuote:
         case CharacterCodes.doubleQuote:
-        case CharacterCodes.backtick:
           return this.scanString();
 
         default:
@@ -571,35 +565,29 @@ export class Scanner {
 
   private scanNumber() {
     const start = this.#offset;
-
-    const main = this.scanDigits();
-    let decimal: string | undefined;
-    let scientific: string | undefined;
+    this.scanDigits();
 
     if (this.#ch === CharacterCodes.dot) {
       this.advance();
-      decimal = this.scanDigits();
+      this.scanDigits();
     }
 
-    if (this.#ch === CharacterCodes.E || this.#ch === CharacterCodes.e) {
-      if (isDigit(this.#chNext)) {
+    if (this.#ch === CharacterCodes.e) {
+      if (this.#chNext === CharacterCodes.plus || this.#chNext == CharacterCodes.minus) {
         this.advance();
-        scientific = this.scanDigits();
+      }
+
+      this.advance();
+
+      if (isDigit(this.#ch)) {
+        this.advance();
+        this.scanDigits();
       } else {
         this.error(messages.DigitExpected);
       }
     }
 
-    this.value = scientific ?
-      decimal ?
-        `${main}.${decimal}e${scientific}` :
-        `${main}e${scientific}` :
-      decimal ?
-        `${main}.${decimal}` :
-        main;
-
-    // update the position
-    this.#column += (this.#offset - start);
+    this.value = this.#text.substring(start, this.#offset);
     return this.token = Kind.NumericLiteral;
   }
 
@@ -831,17 +819,11 @@ export class Scanner {
         case CharacterCodes.t:
           result += '\t';
           break;
-        case CharacterCodes.singleQuote:
-          result += '\'';
-          break;
         case CharacterCodes.doubleQuote:
           result += '"';
           break;
         case CharacterCodes.backslash:
           result += '\\';
-          break;
-        case CharacterCodes.backtick:
-          result += '`';
           break;
         default:
           this.error(messages.InvalidEscapeSequence);
