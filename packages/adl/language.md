@@ -52,7 +52,6 @@
   
 &emsp;&emsp;<a name="DecimalLiteral"></a>*DecimalLiteral* **:**  
 &emsp;&emsp;&emsp;<a name="DecimalLiteral-fb5198a6"></a>*[DecimalIntegerLiteral](#DecimalIntegerLiteral)*&emsp;`` . ``&emsp;*[DecimalDigits](#DecimalDigits)*<sub>opt</sub>&emsp;*[ExponentPart](#ExponentPart)*<sub>opt</sub>  
-&emsp;&emsp;&emsp;<a name="DecimalLiteral-5cf3aa35"></a>`` . ``&emsp;*[DecimalDigits](#DecimalDigits)*&emsp;*[ExponentPart](#ExponentPart)*<sub>opt</sub>  
 &emsp;&emsp;&emsp;<a name="DecimalLiteral-13dbaf21"></a>*[DecimalIntegerLiteral](#DecimalIntegerLiteral)*&emsp;*[ExponentPart](#ExponentPart)*<sub>opt</sub>  
   
 &emsp;&emsp;<a name="DecimalIntegerLiteral"></a>*DecimalIntegerLiteral* **:**  
@@ -65,9 +64,7 @@
 &emsp;&emsp;<a name="DecimalDigit"></a>*DecimalDigit* **:** **one of** `` 0 ``&emsp;`` 1 ``&emsp;`` 2 ``&emsp;`` 3 ``&emsp;`` 4 ``&emsp;`` 5 ``&emsp;`` 6 ``&emsp;`` 7 ``&emsp;`` 8 ``&emsp;`` 9 ``  
   
 &emsp;&emsp;<a name="ExponentPart"></a>*ExponentPart* **:**  
-&emsp;&emsp;&emsp;<a name="ExponentPart-7f837518"></a>*[ExponentIndicator](#ExponentIndicator)*&emsp;*[SignedInteger](#SignedInteger)*  
-  
-&emsp;&emsp;<a name="ExponentIndicator"></a>*ExponentIndicator* **:** **one of** `` e ``&emsp;`` E ``  
+&emsp;&emsp;&emsp;<a name="ExponentPart-f88eb2da"></a>`` e ``&emsp;*[SignedInteger](#SignedInteger)*  
   
 &emsp;&emsp;<a name="SignedInteger"></a>*SignedInteger* **:**  
 &emsp;&emsp;&emsp;<a name="SignedInteger-6d7b4e5f"></a>*[DecimalDigits](#DecimalDigits)*  
@@ -76,13 +73,21 @@
   
 &emsp;&emsp;<a name="HexIntegerLiteral"></a>*HexIntegerLiteral* **:**  
 &emsp;&emsp;&emsp;<a name="HexIntegerLiteral-cf154180"></a>`` 0x ``&emsp;*[HexDigits](#HexDigits)*  
-&emsp;&emsp;&emsp;<a name="HexIntegerLiteral-9ef756f3"></a>`` 0X ``&emsp;*[HexDigits](#HexDigits)*  
   
 &emsp;&emsp;<a name="HexDigits"></a>*HexDigits* **:**  
 &emsp;&emsp;&emsp;<a name="HexDigits-a0c48a71"></a>*[HexDigit](#HexDigit)*  
 &emsp;&emsp;&emsp;<a name="HexDigits-c8221899"></a>*[HexDigits](#HexDigits)*&emsp;*[HexDigit](#HexDigit)*  
   
 &emsp;&emsp;<a name="HexDigit"></a>*HexDigit* **:** **one of** `` 0 ``&emsp;`` 1 ``&emsp;`` 2 ``&emsp;`` 3 ``&emsp;`` 4 ``&emsp;`` 5 ``&emsp;`` 6 ``&emsp;`` 7 ``&emsp;`` 8 ``&emsp;`` 9 ``&emsp;`` a ``&emsp;`` b ``&emsp;`` c ``&emsp;`` d ``&emsp;`` e ``&emsp;`` f ``&emsp;`` A ``&emsp;`` B ``&emsp;`` C ``&emsp;`` D ``&emsp;`` E ``&emsp;`` F ``  
+  
+&emsp;&emsp;<a name="BinaryIntegerLiteral"></a>*BinaryIntegerLiteral* **:**  
+&emsp;&emsp;&emsp;<a name="BinaryIntegerLiteral-600d7817"></a>`` 0b ``&emsp;*[BinaryDigits](#BinaryDigits)*  
+  
+&emsp;&emsp;<a name="BinaryDigits"></a>*BinaryDigits* **:**  
+&emsp;&emsp;&emsp;<a name="BinaryDigits-e5f1ee23"></a>*[BinaryDigit](#BinaryDigit)*  
+&emsp;&emsp;&emsp;<a name="BinaryDigits-82aa7443"></a>*[BinaryDigits](#BinaryDigits)*&emsp;*[BinaryDigit](#BinaryDigit)*  
+  
+&emsp;&emsp;<a name="BinaryDigit"></a>*BinaryDigit* **:** **one of** `` 0 ``&emsp;`` 1 ``  
   
 &emsp;&emsp;<a name="StringLiteral"></a>*StringLiteral* **:**  
 &emsp;&emsp;&emsp;<a name="StringLiteral-82ecb3d9"></a>`` ' ``&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>&emsp;`` ' ``  

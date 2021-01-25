@@ -408,11 +408,9 @@ export class Scanner {
               this.next(Kind.Minus);
 
         case CharacterCodes.dot:
-          return isDigit(this.#chNext) ?
-            this.scanNumber() :
-            this.#chNext === CharacterCodes.dot && this.#chNextNext === CharacterCodes.dot ?
-              this.next(Kind.Elipsis, 3) :
-              this.next(Kind.Dot);
+          return this.#chNext === CharacterCodes.dot && this.#chNextNext === CharacterCodes.dot ?
+            this.next(Kind.Elipsis, 3) :
+            this.next(Kind.Dot);
 
         case CharacterCodes.slash:
           return this.#chNext === CharacterCodes.slash ?
@@ -425,9 +423,9 @@ export class Scanner {
                 this.next(Kind.Slash);
 
         case CharacterCodes._0:
-          return this.#chNext === CharacterCodes.x || this.#chNext === CharacterCodes.X ?
+          return this.#chNext === CharacterCodes.x ?
             this.scanHexNumber() :
-            this.#chNext === CharacterCodes.B || this.#chNext === CharacterCodes.B ?
+            this.#chNext === CharacterCodes.b ?
               this.scanBinaryNumber() :
               this.scanNumber();
 
@@ -569,35 +567,29 @@ export class Scanner {
 
   private scanNumber() {
     const start = this.#offset;
-
-    const main = this.scanDigits();
-    let decimal: string | undefined;
-    let scientific: string | undefined;
+    this.scanDigits();
 
     if (this.#ch === CharacterCodes.dot) {
       this.advance();
-      decimal = this.scanDigits();
+      this.scanDigits();
     }
 
-    if (this.#ch === CharacterCodes.E || this.#ch === CharacterCodes.e) {
-      if (isDigit(this.#chNext)) {
+    if (this.#ch === CharacterCodes.e) {
+      if (this.#chNext === CharacterCodes.plus || this.#chNext == CharacterCodes.minus) {
         this.advance();
-        scientific = this.scanDigits();
+      }
+
+      this.advance();
+
+      if (isDigit(this.#ch)) {
+        this.advance();
+        this.scanDigits();
       } else {
         this.error(messages.DigitExpected);
       }
     }
 
-    this.value = scientific ?
-      decimal ?
-        `${main}.${decimal}e${scientific}` :
-        `${main}e${scientific}` :
-      decimal ?
-        `${main}.${decimal}` :
-        main;
-
-    // update the position
-    this.#column += (this.#offset - start);
+    this.value = this.#text.substring(start, this.#offset);
     return this.token = Kind.NumericLiteral;
   }
 
