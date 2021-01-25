@@ -33,6 +33,13 @@
   },
   "homepage": "https://github.com/Azure/adl#readme",
   "readme": "https://github.com/Azure/adl/blob/master/readme.md",
+  "files": [
+    "lib/*.adl",
+    "dist/**",
+    "readme.md",
+    "samples",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "14.0.27",
