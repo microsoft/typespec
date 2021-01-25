@@ -48,7 +48,7 @@ describe('syntax', () => {
       // parses as if it were `@foo('prop-1') : number`
       `model Car {
          @foo()
-         'prop-1': number;
+         "prop-1": number;
        }`,
 
       `

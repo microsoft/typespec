@@ -90,32 +90,16 @@
 &emsp;&emsp;<a name="BinaryDigit"></a>*BinaryDigit* **:** **one of** `` 0 ``&emsp;`` 1 ``  
   
 &emsp;&emsp;<a name="StringLiteral"></a>*StringLiteral* **:**  
-&emsp;&emsp;&emsp;<a name="StringLiteral-82ecb3d9"></a>`` ' ``&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>&emsp;`` ' ``  
-&emsp;&emsp;&emsp;<a name="StringLiteral-15d8b1f1"></a>`` " ``&emsp;*[DoubleStringCharacters](#DoubleStringCharacters)*<sub>opt</sub>&emsp;`` " ``  
-&emsp;&emsp;&emsp;<a name="StringLiteral-01e5f820"></a>`` ` ``&emsp;*[BacktickStringCharacters](#BacktickStringCharacters)*<sub>opt</sub>&emsp;`` ` ``  
+&emsp;&emsp;&emsp;<a name="StringLiteral-557c08bf"></a>`` " ``&emsp;*[StringCharacters](#StringCharacters)*<sub>opt</sub>&emsp;`` " ``  
   
-&emsp;&emsp;<a name="SingleStringCharacters"></a>*SingleStringCharacters* **:**  
-&emsp;&emsp;&emsp;<a name="SingleStringCharacters-17d28457"></a>*[SingleStringCharacter](#SingleStringCharacter)*&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>  
+&emsp;&emsp;<a name="StringCharacters"></a>*StringCharacters* **:**  
+&emsp;&emsp;&emsp;<a name="StringCharacters-7568b390"></a>*[StringCharacter](#StringCharacter)*&emsp;*[StringCharacters](#StringCharacters)*<sub>opt</sub>  
   
-&emsp;&emsp;<a name="SingleStringCharacter"></a>*SingleStringCharacter* **:**  
-&emsp;&emsp;&emsp;<a name="SingleStringCharacter-20af69b8"></a>*[SourceCharacter](#SourceCharacter)* **but not** **one of** `` ' `` **or** `` \ ``  
-&emsp;&emsp;&emsp;<a name="SingleStringCharacter-3b4c2a4a"></a>`` \ ``&emsp;*[EscapeCharacter](#EscapeCharacter)*  
+&emsp;&emsp;<a name="StringCharacter"></a>*StringCharacter* **:**  
+&emsp;&emsp;&emsp;<a name="StringCharacter-50b66e4c"></a>*[SourceCharacter](#SourceCharacter)* **but not** **one of** `` " `` **or** `` \ ``  
+&emsp;&emsp;&emsp;<a name="StringCharacter-3b4c2a4a"></a>`` \ ``&emsp;*[EscapeCharacter](#EscapeCharacter)*  
   
-&emsp;&emsp;<a name="DoubleStringCharacters"></a>*DoubleStringCharacters* **:**  
-&emsp;&emsp;&emsp;<a name="DoubleStringCharacters-17d28457"></a>*[SingleStringCharacter](#SingleStringCharacter)*&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>  
-  
-&emsp;&emsp;<a name="DoubleStringCharacter"></a>*DoubleStringCharacter* **:**  
-&emsp;&emsp;&emsp;<a name="DoubleStringCharacter-50b66e4c"></a>*[SourceCharacter](#SourceCharacter)* **but not** **one of** `` " `` **or** `` \ ``  
-&emsp;&emsp;&emsp;<a name="DoubleStringCharacter-3b4c2a4a"></a>`` \ ``&emsp;*[EscapeCharacter](#EscapeCharacter)*  
-  
-&emsp;&emsp;<a name="BacktickStringCharacters"></a>*BacktickStringCharacters* **:**  
-&emsp;&emsp;&emsp;<a name="BacktickStringCharacters-17d28457"></a>*[SingleStringCharacter](#SingleStringCharacter)*&emsp;*[SingleStringCharacters](#SingleStringCharacters)*<sub>opt</sub>  
-  
-&emsp;&emsp;<a name="BacktickStringCharacter"></a>*BacktickStringCharacter* **:**  
-&emsp;&emsp;&emsp;<a name="BacktickStringCharacter-4610ad0d"></a>*[SourceCharacter](#SourceCharacter)* **but not** **one of** `` ` `` **or** `` \ ``  
-&emsp;&emsp;&emsp;<a name="BacktickStringCharacter-3b4c2a4a"></a>`` \ ``&emsp;*[EscapeCharacter](#EscapeCharacter)*  
-  
-&emsp;&emsp;<a name="EscapeCharacter"></a>*EscapeCharacter* **:** **one of** `` ' ``&emsp;`` " ``&emsp;`` ` ``&emsp;`` r ``&emsp;`` n ``&emsp;`` t ``&emsp;`` \ ``  
+&emsp;&emsp;<a name="EscapeCharacter"></a>*EscapeCharacter* **:** **one of** `` " ``&emsp;`` r ``&emsp;`` n ``&emsp;`` t ``&emsp;`` \ ``  
   
 &emsp;&emsp;<a name="Punctuator"></a>*Punctuator* **:** **one of** `` | ``&emsp;`` : ``&emsp;`` , ``&emsp;`` ; ``&emsp;`` . ``&emsp;`` < ``&emsp;`` > ``&emsp;`` ( ``&emsp;`` ) ``&emsp;`` { ``&emsp;`` } ``&emsp;`` [ ``&emsp;`` ] ``&emsp;`` @ ``&emsp;`` ... ``  
   

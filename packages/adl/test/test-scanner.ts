@@ -149,13 +149,13 @@ describe('scanner', () => {
 
   it('scans strings single-line strings with escape sequences', () => {
     scanString(
-      '"Hello world \\r\\n \\t \\\' \\" \\` \\\\ !"',
-      'Hello world \r\n \t \' " ` \\ !');
+      '"Hello world \\r\\n \\t \\" \\\\ !"',
+      'Hello world \r\n \t " \\ !');
   });
 
   it('scans multi-line strings', () => {
     scanString(
-      '`More\r\nthan\r\none\r\nline`',
+      '"More\r\nthan\r\none\r\nline"',
       'More\nthan\none\nline');
   });
 

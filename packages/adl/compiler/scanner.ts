@@ -478,9 +478,7 @@ export class Scanner {
                 this.next(Kind.BarEquals, 2) :
                 this.next(Kind.Bar);
 
-        case CharacterCodes.singleQuote:
         case CharacterCodes.doubleQuote:
-        case CharacterCodes.backtick:
           return this.scanString();
 
         default:
@@ -821,17 +819,11 @@ export class Scanner {
         case CharacterCodes.t:
           result += '\t';
           break;
-        case CharacterCodes.singleQuote:
-          result += '\'';
-          break;
         case CharacterCodes.doubleQuote:
           result += '"';
           break;
         case CharacterCodes.backslash:
           result += '\\';
-          break;
-        case CharacterCodes.backtick:
-          result += '`';
           break;
         default:
           this.error(messages.InvalidEscapeSequence);
