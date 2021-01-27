@@ -3,6 +3,7 @@
 @intrinsic model int32 { }
 @intrinsic model safeint { }
 @intrinsic model string { }
+@intrinsic model float32 { }
 @intrinsic model float64 { }
 @intrinsic model date { }
 @intrinsic model datetime { }
