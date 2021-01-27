@@ -67,12 +67,17 @@ export function isBody(entity: Type) {
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete";
 
-const operationVerbs = new Map<Type, HttpVerb>();
+interface OperationRoute {
+  verb: HttpVerb;
+  subPath?: string;
+}
 
-function setOperationVerb(entity: Type, verb: HttpVerb) {
+const operationRoutes = new Map<Type, OperationRoute>();
+
+function setOperationRoute(entity: Type, verb: OperationRoute) {
   if (entity.kind === "InterfaceProperty") {
-    if (!operationVerbs.has(entity)) {
-      operationVerbs.set(entity, verb);
+    if (!operationRoutes.has(entity)) {
+      operationRoutes.set(entity, verb);
     } else {
       throw new Error(`HTTP verb already applied to ${entity.name}`);
     }
@@ -81,27 +86,42 @@ function setOperationVerb(entity: Type, verb: HttpVerb) {
   }
 }
 
-export function getOperationVerb(entity: Type): HttpVerb | undefined {
-  return operationVerbs.get(entity);
+export function getOperationRoute(entity: Type): OperationRoute | undefined {
+  return operationRoutes.get(entity);
 }
 
-export function get(program: Program, entity: Type) {
-  setOperationVerb(entity, "get");
+export function get(program: Program, entity: Type, subPath?: string) {
+  setOperationRoute(entity, {
+    verb: "get",
+    subPath
+  });
 }
 
-export function put(program: Program, entity: Type) {
-  setOperationVerb(entity, "put");
+export function put(program: Program, entity: Type, subPath?: string) {
+  setOperationRoute(entity, {
+    verb: "put",
+    subPath
+  });
 }
 
-export function post(program: Program, entity: Type) {
-  setOperationVerb(entity, "post");
+export function post(program: Program, entity: Type, subPath?: string) {
+  setOperationRoute(entity, {
+    verb: "post",
+    subPath
+  });
 }
 
-export function patch(program: Program, entity: Type) {
-  setOperationVerb(entity, "patch");
+export function patch(program: Program, entity: Type, subPath?: string) {
+  setOperationRoute(entity, {
+    verb: "patch",
+    subPath
+  });
 }
 
 // BUG #243: How do we deal with reserved words?
-export function _delete(program: Program, entity: Type) {
-  setOperationVerb(entity, "delete");
+export function _delete(program: Program, entity: Type, subPath?: string) {
+  setOperationRoute(entity, {
+    verb: "delete",
+    subPath
+  });
 }
