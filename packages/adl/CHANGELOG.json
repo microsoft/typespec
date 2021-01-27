@@ -1,0 +1,17 @@
+{
+  "name": "@azure-tools/adl",
+  "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@azure-tools/adl_v0.2.0",
+      "date": "Wed, 27 Jan 2021 21:48:34 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Initial ADL compiler preview release"
+          }
+        ]
+      }
+    }
+  ]
+}
