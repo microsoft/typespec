@@ -4,6 +4,7 @@
 @intrinsic model string { }
 @intrinsic model float64 { }
 @intrinsic model date { }
+@intrinsic model datetime { }
 @intrinsic model boolean { }
 
 // want to change this to
