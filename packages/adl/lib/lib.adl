@@ -1,9 +1,12 @@
+@intrinsic model byte { }
 @intrinsic model int64 { }
 @intrinsic model int32 { }
 @intrinsic model safeint { }
 @intrinsic model string { }
+@intrinsic model float32 { }
 @intrinsic model float64 { }
 @intrinsic model date { }
+@intrinsic model datetime { }
 @intrinsic model boolean { }
 
 // want to change this to
