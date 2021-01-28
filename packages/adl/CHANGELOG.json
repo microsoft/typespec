@@ -2,6 +2,18 @@
   "name": "@azure-tools/adl",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@azure-tools/adl_v0.2.1",
+      "date": "Thu, 28 Jan 2021 21:30:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fixed standard library decorator module resolution"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@azure-tools/adl_v0.2.0",
       "date": "Wed, 27 Jan 2021 21:48:34 GMT",
