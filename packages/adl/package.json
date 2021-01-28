@@ -1,6 +1,6 @@
 {
   "name": "@azure-tools/adl",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "ADL Compiler Preview",
   "main": "dist/main.js",
   "bin": {

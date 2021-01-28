@@ -1,9 +1,12 @@
+import url from "url";
+import path from "path";
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
 import { createChecker, MultiKeyMap } from './checker.js';
 import { CompilerOptions } from './options.js';
 import { parse } from './parser.js';
+import { resolvePath } from './util.js';
 import {
   ADLScriptNode,
   DecoratorExpressionNode, IdentifierNode,
@@ -127,9 +130,14 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     decFn(program, type, ...args);
   }
 
-  async function importDecorator(path: string, name: string) {
-    const modpath = 'file:///' + join(process.cwd(), path);
-    const module = await import(modpath);
+  async function importDecorator(modulePath: string, name: string) {
+    const resolvedPath =
+      path.isAbsolute(modulePath)
+        ? modulePath
+        : path.resolve(process.cwd(), modulePath);
+
+    const moduleUrl = url.pathToFileURL(resolvedPath);
+    const module = await import(moduleUrl.href);
     return module[name];
   }
 
@@ -159,8 +167,8 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
    */
 
   async function loadStandardLibrary(program: Program) {
-    await loadDirectory(program, './lib');
-    await loadDirectory(program, './dist/lib');
+    await loadDirectory(program, resolvePath(import.meta.url, "../lib"));
+    await loadDirectory(program, resolvePath(import.meta.url, "../../lib"));
   }
 
   async function loadDirectory(program: Program, rootDir: string) {
