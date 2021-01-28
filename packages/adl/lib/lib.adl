@@ -1,3 +1,4 @@
+@intrinsic model byte { }
 @intrinsic model int64 { }
 @intrinsic model int32 { }
 @intrinsic model safeint { }
