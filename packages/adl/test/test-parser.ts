@@ -104,7 +104,8 @@ describe('syntax', () => {
 
   describe('array expressions', () => {
     parseEach([
-      'model A { foo: B[] }'
+      'model A { foo: B[] }',
+      'model A { foo: B[][] }',
     ]);
   });
 
@@ -129,16 +130,9 @@ describe('syntax', () => {
     ]);
   });
 
-  describe('array expressions', () => {
+  describe('parenthesized expressions', () => {
     parseEach([
-      'model A { foo: D[] }'
-    ]);
-  });
-
-  describe('union expressions', () => {
-    parseEach([
-
-      'model A { foo: B | D }'
+      'model A = ((B | C) & D)[];'
     ]);
   });
 

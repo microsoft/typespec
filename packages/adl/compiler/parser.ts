@@ -260,12 +260,12 @@ export function parse(code: string) {
   }
 
   function parseExpression(): Types.Expression {
-    return parseUnionExpression();
+    return parseUnionExpressionOrHigher();
   }
 
-  function parseUnionExpression(): Types.Expression {
+  function parseUnionExpressionOrHigher(): Types.Expression {
     const pos = tokenPos();
-    let node: Types.Expression = parseIntersectionExpression();
+    let node: Types.Expression = parseIntersectionExpressionOrHigher();
 
     if (token() !== Kind.Bar) {
       return node;
@@ -277,7 +277,7 @@ export function parse(code: string) {
     }, pos);
 
     while (parseOptional(Kind.Bar)) {
-      const expr = parseIntersectionExpression();
+      const expr = parseIntersectionExpressionOrHigher();
       node.options.push(expr);
     }
 
@@ -286,9 +286,9 @@ export function parse(code: string) {
     return node;
   }
 
-  function parseIntersectionExpression(): Types.Expression {
+  function parseIntersectionExpressionOrHigher(): Types.Expression {
     const pos = tokenPos();
-    let node: Types.Expression = parseArrayExpression();
+    let node: Types.Expression = parseArrayExpressionOrHigher();
 
     if (token() !== Kind.Ampersand) {
       return node;
@@ -300,7 +300,7 @@ export function parse(code: string) {
     }, pos);
 
     while (parseOptional(Kind.Ampersand)) {
-      const expr = parseArrayExpression();
+      const expr = parseArrayExpressionOrHigher();
       node.options.push(expr);
     }
 
@@ -309,25 +309,25 @@ export function parse(code: string) {
     return node;
   }
 
-  function parseArrayExpression(): Types.Expression {
+  function parseArrayExpressionOrHigher(): Types.Expression {
     const pos = tokenPos();
-    const expr = parseTemplateApplication();
+    let expr = parsePrimaryExpression();
 
-    if (token() !== Kind.OpenBracket) {
-      return expr;
+    while (parseOptional(Kind.OpenBracket)) {
+      parseExpected(Kind.CloseBracket);
+
+      expr = finishNode({
+        kind: Types.SyntaxKind.ArrayExpression,
+        elementType: expr
+      }, pos);
     }
-    parseExpected(Kind.OpenBracket);
-    parseExpected(Kind.CloseBracket);
 
-    return finishNode({
-      kind: Types.SyntaxKind.ArrayExpression,
-      elementType: expr
-    }, pos);
+    return expr;
   }
 
-  function parseTemplateApplication(): Types.Expression {
+  function parseReferenceExpression(): Types.Expression {
     const pos = tokenPos();
-    const expr = parseMemberExpression();
+    const expr = parseIdentifierOrMemberExpression();
 
     if (token() !== Kind.LessThan) {
       return expr;
@@ -385,12 +385,7 @@ export function parse(code: string) {
     const pos = tokenPos();
     parseExpected(Kind.At);
 
-    const target = parseMemberExpression();
-
-    if (target.kind !== Types.SyntaxKind.Identifier
-      && target.kind !== Types.SyntaxKind.MemberExpression) {
-      throw error(`a ${target.kind} is not a valid decorator`);
-    }
+    const target = parseIdentifierOrMemberExpression();
 
     let args: Array<Types.Expression> = [];
     if (parseOptional(Kind.OpenParen)) {
@@ -419,13 +414,11 @@ export function parse(code: string) {
     return args;
   }
 
-  function parseMemberExpression(): Types.Expression {
-    let base: Types.Expression = parsePrimaryExpression();
+  function parseIdentifierOrMemberExpression(): Types.IdentifierNode | Types.MemberExpressionNode {
+
+    let base: Types.IdentifierNode | Types.MemberExpressionNode = parseIdentifier();
 
     while (parseOptional(Kind.Dot)) {
-      if (token() !== Kind.Identifier) {
-        error('Member expressions only apply to identifiers');
-      }
       const pos = tokenPos();
       base = finishNode({
         kind: Types.SyntaxKind.MemberExpression,
@@ -440,7 +433,7 @@ export function parse(code: string) {
   function parsePrimaryExpression(): Types.Expression {
     switch (token()) {
       case Kind.Identifier:
-        return parseIdentifier();
+        return parseReferenceExpression();
       case Kind.StringLiteral:
         return parseStringLiteral();
       case Kind.TrueKeyword:
@@ -452,9 +445,19 @@ export function parse(code: string) {
         return parseModelExpression([]);
       case Kind.OpenBracket:
         return parseTupleExpression();
+      case Kind.OpenParen:
+        return parseParenthesizedExpression();
     }
 
     throw error(`Unexpected token: ${Kind[token()]}`);
+  }
+
+  function parseParenthesizedExpression(): Types.Expression {
+    const pos = tokenPos();
+    parseExpected(Kind.OpenParen);
+    const expr = parseExpression();
+    parseExpected(Kind.CloseParen);
+    return finishNode(expr, pos);
   }
 
   function parseTupleExpression(): Types.TupleExpressionNode {

@@ -181,7 +181,7 @@ export type Expression =
 export interface MemberExpressionNode extends Node {
   kind: SyntaxKind.MemberExpression;
   id: IdentifierNode;
-  base: Expression | IdentifierNode;
+  base: MemberExpressionNode | IdentifierNode;
 }
 
 export interface InterfaceStatementNode extends Node {
