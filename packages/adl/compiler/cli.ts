@@ -45,6 +45,11 @@ const args = yargs(process.argv.slice(2))
           type: "boolean",
           describe: "Generate a client library for the ADL definition"
         })
+        .option("language", {
+          type: "string",
+          choices: ["typescript", "csharp", "python"],
+          describe: "The language to use for code generation"
+        })
         .option("output-path", {
           type: "string",
           default: "./adl-output",
@@ -117,10 +122,9 @@ async function main() {
       const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
 
       // Execute AutoRest on the output file
-      // TODO: Parameterize client language selection
       const result = spawnSync(url.fileURLToPath(autoRestPath), [
         "--version:3.0.6367",
-        "--typescript",
+        `--${args.language}`,
         `--clear-output-folder=true`,
         `--output-folder=${clientPath}`,
         `--title=AdlClient`,
