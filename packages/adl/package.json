@@ -56,7 +56,7 @@
     "yargs": "~16.2.0",
     "mkdirp": "~1.0.4",
     "@types/mkdirp": "~1.0.1",
-    "autorest": "~3.0.6322"
+    "autorest": "~3.0.6335"
   },
   "type": "module"
 }
