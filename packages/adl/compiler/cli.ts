@@ -123,7 +123,6 @@ async function main() {
 
       // Execute AutoRest on the output file
       const result = spawnSync(url.fileURLToPath(autoRestPath), [
-        "--version:3.0.6367",
         `--${args.language}`,
         `--clear-output-folder=true`,
         `--output-folder=${clientPath}`,
