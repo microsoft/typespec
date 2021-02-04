@@ -8,6 +8,7 @@
 @intrinsic model date { }
 @intrinsic model datetime { }
 @intrinsic model boolean { }
+@intrinsic model null { }
 
 // want to change this to
 // model<K, V> = [K, V][];
