@@ -16,7 +16,8 @@
     "watch": "tsc -p . --watch",
     "prepare": "npm run build",
     "test": "mocha 'dist/test/**/*.js'",
-    "grammargen": "grammarkdown --newLine LF language.grammar"
+    "grammargen": "grammarkdown --newLine LF language.grammar",
+    "regen-samples": "node scripts/regen-samples.js"
   },
   "repository": {
     "type": "git",
