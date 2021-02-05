@@ -1,4 +1,3 @@
-@doc "Success"
 model Ok<T> {
   @header statusCode: 200;
   ... T;
