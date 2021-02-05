@@ -1,34 +1,37 @@
-model Ok<T> {
+model OkResponse<T> {
   @header statusCode: 200;
   ... T;
 }
 
-model Created<T> {
-  @header statusCode: 201;
-  ... T;
-}
-
-model Accepted {
-  @header statusCode: 202;
-}
-
-model Moved {
-  @header statusCode: 301;
+model LocationHeader {
   @header location: string;
 }
 
-model NotModified {
+model CreatedResponse {
+  @header statusCode: 201;
+}
+
+model AcceptedResponse {
+  @header statusCode: 202;
+}
+
+model MovedResponse {
+  @header statusCode: 301;
+  ... LocationHeader;
+}
+
+model NotModifiedResponse {
   @header statusCode: 304;
 }
 
-model Unauthorized {
+model UnauthorizedResponse {
   @header statusCode: 401;
 }
 
-model NotFound {
+model NotFoundResponse {
   @header statusCode: 404;
 }
 
-model Conflict {
+model ConflictResponse {
   @header statusCode: 409;
 }
