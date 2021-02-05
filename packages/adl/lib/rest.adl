@@ -3,8 +3,9 @@ model Ok<T> {
   ... T;
 }
 
-model Created {
+model Created<T> {
   @header statusCode: 201;
+  ... T;
 }
 
 model Accepted {
