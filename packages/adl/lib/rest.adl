@@ -2,3 +2,32 @@ model Ok<T> {
   @header statusCode: 200;
   ... T;
 }
+
+model Created {
+  @header statusCode: 201;
+}
+
+model Accepted {
+  @header statusCode: 202;
+}
+
+model Moved {
+  @header statusCode: 301;
+  @header location: string;
+}
+
+model NotModified {
+  @header statusCode: 304;
+}
+
+model Unauthorized {
+  @header statusCode: 401;
+}
+
+model NotFound {
+  @header statusCode: 404;
+}
+
+model Conflict {
+  @header statusCode: 409;
+}
