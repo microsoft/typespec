@@ -1,0 +1,37 @@
+model OkResponse<T> {
+  @header statusCode: 200;
+  ... T;
+}
+
+model LocationHeader {
+  @header location: string;
+}
+
+model CreatedResponse {
+  @header statusCode: 201;
+}
+
+model AcceptedResponse {
+  @header statusCode: 202;
+}
+
+model MovedResponse {
+  @header statusCode: 301;
+  ... LocationHeader;
+}
+
+model NotModifiedResponse {
+  @header statusCode: 304;
+}
+
+model UnauthorizedResponse {
+  @header statusCode: 401;
+}
+
+model NotFoundResponse {
+  @header statusCode: 404;
+}
+
+model ConflictResponse {
+  @header statusCode: 409;
+}
