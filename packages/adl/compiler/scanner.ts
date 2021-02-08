@@ -1,5 +1,6 @@
 import { CharacterCodes, isBinaryDigit, isDigit, isHexDigit, isIdentifierPart, isIdentifierStart, isLineBreak, isWhiteSpaceSingleLine } from './character-codes.js';
 import { format, Message, messages } from './messages.js';
+import { SourceFile } from './types.js';
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
@@ -65,7 +66,7 @@ const keywords = new Map([
 
 export interface Scanner {
   /** The source code being scanned. */
-  readonly input: string;
+  readonly source: SourceFile;
 
   /** The offset in UTF-16 code units to the current position at the start of the next token. */
   readonly position: number;
@@ -104,7 +105,12 @@ const enum TokenFlags {
   TripleQuoted = 1 << 2,
 }
 
-export function createScanner(input: string, onError = throwOnError) {
+export function createScanner(source: string | SourceFile, onError = throwOnError): Scanner {
+  if (typeof source === 'string') {
+    source = createSourceFile(source, '<anonymous file>');
+  }
+
+  const input = source.text;
   let position = 0;
   let token = Token.Unknown;
   let tokenPosition = -1;
@@ -115,6 +121,7 @@ export function createScanner(input: string, onError = throwOnError) {
     get position() { return position; },
     get token() { return token; },
     get tokenPosition() { return tokenPosition; },
+    source,
     scan,
     eof,
     getTokenText,
@@ -150,8 +157,7 @@ export function createScanner(input: string, onError = throwOnError) {
           if (lookAhead(1) === CharacterCodes.lineFeed) {
             position++;
           }
-          return next(Token.NewLine);
-
+          // fallthrough
         case CharacterCodes.lineFeed:
         case CharacterCodes.lineSeparator:
         case CharacterCodes.paragraphSeparator:
@@ -239,8 +245,7 @@ export function createScanner(input: string, onError = throwOnError) {
             case CharacterCodes.b:
               return scanBinaryNumber();
           }
-          return scanNumber();
-
+          // fallthrough
         case CharacterCodes._1:
         case CharacterCodes._2:
         case CharacterCodes._3:
@@ -613,3 +618,91 @@ export function createScanner(input: string, onError = throwOnError) {
     return token = keywords.get(getTokenValue()) ?? Token.Identifier;
   }
 }
+
+export function createSourceFile(text: string, path: string): SourceFile {
+  let lineStarts: Array<number> | undefined = undefined;
+
+  return {
+    text,
+    path,
+    getLineStarts,
+    getLineAndCharacterOfPosition,
+  };
+
+  function getLineStarts() {
+    return lineStarts = (lineStarts ?? scanLineStarts());
+  }
+
+  function getLineAndCharacterOfPosition(position: number) {
+    const starts = getLineStarts();
+
+    let line = binarySearch(starts, position);
+
+    // When binarySearch returns < 0 indicating that the value was not found, it
+    // returns the bitwise complement of the index where the value would need to
+    // be inserted to keep the array sorted. So flipping the bits back to this
+    // positive index tells us what the line number would be if we were to
+    // create a new line starting at the given position, and subtracting 1 from
+    // that therefore gives us the line number we're after.
+    if (line < 0) {
+      line = ~line - 1;
+    }
+
+    return {
+      line,
+      character: position - starts[line],
+    };
+  }
+
+  function scanLineStarts() {
+    const starts = [];
+    let start = 0;
+    let pos = 0;
+
+    while (pos < text.length) {
+      const ch = text.charCodeAt(pos);
+      pos++;
+      switch (ch) {
+        case CharacterCodes.carriageReturn:
+          if (text.charCodeAt(pos) === CharacterCodes.lineFeed) {
+            pos++;
+          }
+          // fallthrough
+        case CharacterCodes.lineFeed:
+        case CharacterCodes.lineSeparator:
+        case CharacterCodes.paragraphSeparator:
+          starts.push(start);
+          start = pos;
+          break;
+      }
+    }
+
+    starts.push(start);
+    return starts;
+  }
+
+  /**
+   * Search sorted array of numbers for the given value. If found, return index
+   * in array where value was found. If not found, return a negative number that
+   * is the bitwise complement of the index where value would need to be inserted
+   * to keep the array sorted.
+   */
+  function binarySearch(array: ReadonlyArray<number>, value: number) {
+    let low = 0;
+    let high = array.length - 1;
+    while (low <= high) {
+      const middle = low + ((high - low) >> 1);
+      const v = array[middle];
+      if (v < value) {
+        low = middle + 1;
+      } else if (v > value) {
+        high = middle - 1;
+      } else {
+        return middle;
+      }
+    }
+
+    return ~low;
+  }
+}
+

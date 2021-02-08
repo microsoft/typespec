@@ -588,7 +588,8 @@ export function parse(code: string) {
   }
 
   function error(msg: string) {
-    throw new Error(msg);
+    const pos = scanner.source.getLineAndCharacterOfPosition(scanner.tokenPosition);
+    throw new Error(`[${pos.line + 1}, ${pos.character + 1}] ${msg}`);
   }
 
   function parseExpected(expectedToken: Token) {
