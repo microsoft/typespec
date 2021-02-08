@@ -13,8 +13,8 @@ export type Type =
   | ModelType
   | ModelTypeProperty
   | TemplateParameterType
-  | InterfaceType
-  | InterfaceTypeProperty
+  | Namespace
+  | NamespaceProperty
   | StringLiteralType
   | NumericLiteralType
   | BooleanLiteralType
@@ -41,19 +41,19 @@ export interface ModelTypeProperty {
   optional: boolean;
 }
 
-export interface InterfaceTypeProperty {
-  kind: 'InterfaceProperty';
-  node: InterfacePropertyNode;
+export interface NamespaceProperty {
+  kind: 'NamespaceProperty';
+  node: NamespacePropertyNode;
   name: string;
   parameters?: ModelType;
   returnType: Type;
 }
 
-export interface InterfaceType extends BaseType {
-  kind: 'Interface';
+export interface Namespace extends BaseType {
+  kind: 'Namespace';
   name: string;
-  node: InterfaceStatementNode;
-  properties: Map<string, InterfaceTypeProperty>;
+  node: NamespaceStatementNode;
+  properties: Map<string, NamespaceProperty>;
   parameters?: ModelType;
 }
 
@@ -109,8 +109,8 @@ export enum SyntaxKind {
   NamedImport,
   DecoratorExpression,
   MemberExpression,
-  InterfaceStatement,
-  InterfaceProperty,
+  NamespaceStatement,
+  NamespaceProperty,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -141,7 +141,7 @@ export interface ADLScriptNode extends Node {
 export type Statement =
   | ImportStatementNode
   | ModelStatementNode
-  | InterfaceStatementNode;
+  | NamespaceStatementNode;
 
 export interface ImportStatementNode extends Node {
   kind: SyntaxKind.ImportStatement;
@@ -184,16 +184,16 @@ export interface MemberExpressionNode extends Node {
   base: MemberExpressionNode | IdentifierNode;
 }
 
-export interface InterfaceStatementNode extends Node {
-  kind: SyntaxKind.InterfaceStatement;
+export interface NamespaceStatementNode extends Node {
+  kind: SyntaxKind.NamespaceStatement;
   id: IdentifierNode;
   parameters?: ModelExpressionNode;
-  properties: Array<InterfacePropertyNode>;
+  properties: Array<NamespacePropertyNode>;
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface InterfacePropertyNode extends Node {
-  kind: SyntaxKind.InterfaceProperty;
+export interface NamespacePropertyNode extends Node {
+  kind: SyntaxKind.NamespaceProperty;
   id: IdentifierNode;
   parameters: ModelExpressionNode;
   returnType: Expression;

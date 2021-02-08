@@ -5,10 +5,10 @@ import {
   BooleanLiteralNode,
   BooleanLiteralType,
   IdentifierNode,
-  InterfacePropertyNode,
-  InterfaceStatementNode,
-  InterfaceType,
-  InterfaceTypeProperty,
+  NamespacePropertyNode,
+  NamespaceStatementNode,
+  Namespace,
+  NamespaceProperty,
   IntersectionExpressionNode,
   LiteralNode,
   LiteralType,
@@ -79,7 +79,7 @@ export function createChecker(program: Program) {
     checkProgram,
     getLiteralType,
     getTypeName,
-    checkInterfaceProperty
+    checkNamespaceProperty
   };
 
   function getTypeForNode(node: Node): Type {
@@ -93,10 +93,10 @@ export function createChecker(program: Program) {
         return checkModel(<ModelStatementNode>node);
       case SyntaxKind.ModelProperty:
         return checkModelProperty(<ModelPropertyNode>node);
-      case SyntaxKind.InterfaceStatement:
-        return checkInterface(<InterfaceStatementNode>node);
-      case SyntaxKind.InterfaceProperty:
-        return checkInterfaceProperty(<InterfacePropertyNode>node);
+      case SyntaxKind.NamespaceStatement:
+        return checkNamespace(<NamespaceStatementNode>node);
+      case SyntaxKind.NamespaceProperty:
+        return checkNamespaceProperty(<NamespacePropertyNode>node);
       case SyntaxKind.Identifier:
         // decorator bindings presently return an empty binding
         return <any>checkIdentifier(<IdentifierNode>node);
@@ -254,9 +254,9 @@ export function createChecker(program: Program) {
     });
   }
 
-  function checkInterface(node: InterfaceStatementNode) {
-    const type: InterfaceType = createType({
-      kind: 'Interface',
+  function checkNamespace(node: NamespaceStatementNode) {
+    const type: Namespace = createType({
+      kind: 'Namespace',
       name: node.id.sv,
       node: node,
       properties: new Map(),
@@ -264,15 +264,15 @@ export function createChecker(program: Program) {
     });
 
     for (const prop of node.properties) {
-      type.properties.set(prop.id.sv, checkInterfaceProperty(prop));
+      type.properties.set(prop.id.sv, checkNamespaceProperty(prop));
     }
 
     return type;
   }
 
-  function checkInterfaceProperty(prop: InterfacePropertyNode): InterfaceTypeProperty {
+  function checkNamespaceProperty(prop: NamespacePropertyNode): NamespaceProperty {
     return createType({
-      kind: 'InterfaceProperty',
+      kind: 'NamespaceProperty',
       name: prop.id.sv,
       node: prop,
       parameters: <ModelType>getTypeForNode(prop.parameters),

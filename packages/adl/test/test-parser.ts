@@ -98,7 +98,7 @@ describe('syntax', () => {
 
   describe('tuple model expressions', () => {
     parseEach([
-      'interface A { b(param: [number, string]): [1, "hi"] }'
+      'namespace A { op b(param: [number, string]): [1, "hi"] }'
     ]);
   });
 
@@ -136,16 +136,16 @@ describe('syntax', () => {
     ]);
   });
 
-  describe('interface statements', () => {
+  describe('namespace statements', () => {
     parseEach([
-      'interface Store {}',
-      'interface Store { read(): int32 }',
-      'interface Store { read(): int32, write(v: int32): {} }',
-      'interface Store { read(): int32; write(v: int32): {} }',
-      '@foo interface Store { @dec read():number, @dec write(n: number): {} }',
-      '@foo @bar interface Store { @foo @bar read(): number; }',
-      'interface Store(apiKey: string, otherArg: number) { }',
-      'interface Store(... apiKeys, x: string) { foo(... A, b: string, ...C, d: number): void }'
+      'namespace Store {}',
+      'namespace Store { op read(): int32 }',
+      'namespace Store { op read(): int32, op write(v: int32): {} }',
+      'namespace Store { op read(): int32; op write(v: int32): {} }',
+      '@foo namespace Store { @dec op read():number, @dec op write(n: number): {} }',
+      '@foo @bar namespace Store { @foo @bar op read(): number; }',
+      'namespace Store(apiKey: string, otherArg: number) { }',
+      'namespace Store(... apiKeys, x: string) { op foo(... A, b: string, ...C, d: number): void }'
     ]);
   });
 
@@ -155,10 +155,10 @@ describe('syntax', () => {
       model B { }
       model C = A;
       ;
-      interface I {
-        foo(): number;
+      namespace I {
+        op foo(): number;
       }
-      interface J {
+      namespace J {
 
       }
 

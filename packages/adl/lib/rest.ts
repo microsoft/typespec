@@ -4,7 +4,7 @@ import { Type } from "../compiler/types";
 const basePaths = new Map<Type, string>();
 
 export function resource(program: Program, entity: Type, basePath = '') {
-  if (entity.kind !== 'Interface') return;
+  if (entity.kind !== 'Namespace') return;
   basePaths.set(entity, basePath);
 }
 
@@ -75,7 +75,7 @@ interface OperationRoute {
 const operationRoutes = new Map<Type, OperationRoute>();
 
 function setOperationRoute(entity: Type, verb: OperationRoute) {
-  if (entity.kind === "InterfaceProperty") {
+  if (entity.kind === "NamespaceProperty") {
     if (!operationRoutes.has(entity)) {
       operationRoutes.set(entity, verb);
     } else {

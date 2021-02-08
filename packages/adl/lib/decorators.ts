@@ -154,7 +154,7 @@ export function getVisibility(target: Type): string | undefined {
 const listProperties = new Set<Type>();
 
 export function list(program: Program, target: Type) {
-  if (target.kind === "InterfaceProperty" || target.kind === "ModelProperty") {
+  if (target.kind === "NamespaceProperty" || target.kind === "ModelProperty") {
     listProperties.add(target);
   } else {
     throw new Error("The @list decorator can only be applied to interface or model properties.");

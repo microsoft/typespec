@@ -1,6 +1,6 @@
 import { visitChildren } from './parser.js';
 import { ADLSourceFile, Program } from './program.js';
-import { InterfaceStatementNode, ModelStatementNode, Node, SyntaxKind, TemplateParameterDeclarationNode } from './types.js';
+import { NamespaceStatementNode, ModelStatementNode, Node, SyntaxKind, TemplateParameterDeclarationNode } from './types.js';
 
 // trying to avoid masking built-in Symbol
 export type Sym = DecoratorSymbol | TypeSymbol;
@@ -61,7 +61,7 @@ export function createBinder(): Binder {
       case SyntaxKind.ModelStatement:
         bindModelStatement(<any>node);
         break;
-      case SyntaxKind.InterfaceStatement:
+      case SyntaxKind.NamespaceStatement:
         bindInterfaceStatement(<any>node);
         break;
       case SyntaxKind.TemplateParameterDeclaration:
@@ -104,7 +104,7 @@ export function createBinder(): Binder {
   }
 
   function bindInterfaceStatement(
-    statement: InterfaceStatementNode
+    statement: NamespaceStatementNode
   ) {
     currentFile.symbols.set(statement.id.sv, {
       kind: 'type',
