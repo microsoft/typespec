@@ -49,6 +49,7 @@ export enum Token {
   ImportKeyword,
   ModelKeyword,
   NamespaceKeyword,
+  OpKeyword,
   TrueKeyword,
   FalseKeyword
 }
@@ -57,6 +58,7 @@ const keywords = new Map([
   ['import', Token.ImportKeyword],
   ['model', Token.ModelKeyword],
   ['namespace', Token.NamespaceKeyword],
+  ['op', Token.OpKeyword],
   ['true', Token.TrueKeyword],
   ['false', Token.FalseKeyword]
 ]);

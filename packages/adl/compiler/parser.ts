@@ -109,6 +109,7 @@ export function parse(code: string) {
 
   function parseNamespaceProperty(decorators: Array<Types.DecoratorExpressionNode>): Types.NamespacePropertyNode {
     const pos = tokenPos();
+    parseExpected(Token.OpKeyword);
     const id = parseIdentifier();
     parseExpected(Token.OpenParen);
     const modelPos = tokenPos();

@@ -25,6 +25,7 @@ Keyword :
     `import`
     `model`
     `namespace`
+    `op`
 
 Identifier :
     IdentifierName but not Keyword
@@ -223,7 +224,7 @@ NamespacePropertyList :
     NamespacePropertyList `;` NamespaceProperty
 
 NamespaceProperty :
-    DecoratorList? Identifier `(` ModelPropertyList? `)` `:` Expression
+    DecoratorList? `op` Identifier `(` ModelPropertyList? `)` `:` Expression
 
 Expression :
     UnionExpressionOrHigher

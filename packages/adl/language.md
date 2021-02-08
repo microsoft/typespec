@@ -22,6 +22,7 @@
 &emsp;&emsp;&emsp;<a name="Keyword-0330acf5"></a>`` import ``  
 &emsp;&emsp;&emsp;<a name="Keyword-fa60d604"></a>`` model ``  
 &emsp;&emsp;&emsp;<a name="Keyword-94f12ff9"></a>`` namespace ``  
+&emsp;&emsp;&emsp;<a name="Keyword-c93383ad"></a>`` op ``  
   
 &emsp;&emsp;<a name="Identifier"></a>*Identifier* **:**  
 &emsp;&emsp;&emsp;<a name="Identifier-11758399"></a>*[IdentifierName](#IdentifierName)* **but not** *[Keyword](#Keyword)*  
@@ -209,7 +210,7 @@
 &emsp;&emsp;&emsp;<a name="NamespacePropertyList-89234f4f"></a>*[NamespacePropertyList](#NamespacePropertyList)*&emsp;`` ; ``&emsp;*[NamespaceProperty](#NamespaceProperty)*  
   
 &emsp;&emsp;<a name="NamespaceProperty"></a>*NamespaceProperty* **:**  
-&emsp;&emsp;&emsp;<a name="NamespaceProperty-6e1a4442"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;*[Identifier](#Identifier)*&emsp;`` ( ``&emsp;*[ModelPropertyList](#ModelPropertyList)*<sub>opt</sub>&emsp;`` ) ``&emsp;`` : ``&emsp;*[Expression](#Expression)*  
+&emsp;&emsp;&emsp;<a name="NamespaceProperty-bdb0dff6"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` op ``&emsp;*[Identifier](#Identifier)*&emsp;`` ( ``&emsp;*[ModelPropertyList](#ModelPropertyList)*<sub>opt</sub>&emsp;`` ) ``&emsp;`` : ``&emsp;*[Expression](#Expression)*  
   
 &emsp;&emsp;<a name="Expression"></a>*Expression* **:**  
 &emsp;&emsp;&emsp;<a name="Expression-3936659b"></a>*[UnionExpressionOrHigher](#UnionExpressionOrHigher)*  
