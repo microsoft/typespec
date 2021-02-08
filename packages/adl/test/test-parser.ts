@@ -98,7 +98,7 @@ describe('syntax', () => {
 
   describe('tuple model expressions', () => {
     parseEach([
-      'namespace A { b(param: [number, string]): [1, "hi"] }'
+      'namespace A { op b(param: [number, string]): [1, "hi"] }'
     ]);
   });
 
@@ -139,13 +139,13 @@ describe('syntax', () => {
   describe('namespace statements', () => {
     parseEach([
       'namespace Store {}',
-      'namespace Store { read(): int32 }',
-      'namespace Store { read(): int32, write(v: int32): {} }',
-      'namespace Store { read(): int32; write(v: int32): {} }',
-      '@foo namespace Store { @dec read():number, @dec write(n: number): {} }',
-      '@foo @bar namespace Store { @foo @bar read(): number; }',
+      'namespace Store { op read(): int32 }',
+      'namespace Store { op read(): int32, op write(v: int32): {} }',
+      'namespace Store { op read(): int32; op write(v: int32): {} }',
+      '@foo namespace Store { @dec op read():number, @dec op write(n: number): {} }',
+      '@foo @bar namespace Store { @foo @bar op read(): number; }',
       'namespace Store(apiKey: string, otherArg: number) { }',
-      'namespace Store(... apiKeys, x: string) { foo(... A, b: string, ...C, d: number): void }'
+      'namespace Store(... apiKeys, x: string) { op foo(... A, b: string, ...C, d: number): void }'
     ]);
   });
 
@@ -156,7 +156,7 @@ describe('syntax', () => {
       model C = A;
       ;
       namespace I {
-        foo(): number;
+        op foo(): number;
       }
       namespace J {
 
