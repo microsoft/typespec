@@ -18,7 +18,8 @@ export const messages = {
   InvalidEscapeSequence: { code: 1104, category: MessageCategory.Error, text: 'Invalid escape sequence' },
   NoNewLineAtStartOfTripleQuotedString: { code: 1105, category: MessageCategory.Error, text: 'String content in triple quotes must begin on a new line' },
   NoNewLineAtEndOfTripleQuotedString: { code: 1106, category: MessageCategory.Error, text: 'Closing triple quotes must begin on a new line' },
-  InconsistentTripleQuoteIndentation: { code: 1107, category: MessageCategory.Error, text: 'All lines in triple-quoted string lines must have the same indentation as closing triple quotes' }
+  InconsistentTripleQuoteIndentation: { code: 1107, category: MessageCategory.Error, text: 'All lines in triple-quoted string lines must have the same indentation as closing triple quotes' },
+  UnexpectedToken: { code: 1108, category: MessageCategory.Error, text: 'Unexpected token: \'{0}\'' }
 };
 
 export function format(text: string, ...args: Array<string | number>): string {

@@ -1,11 +1,10 @@
 import { format } from './messages.js';
-import { Kind, Scanner } from './scanner.js';
+import { createScanner, Token } from './scanner.js';
 import * as Types from './types.js';
 
 
 export function parse(code: string) {
-  const scanner = new Scanner(code);
-  scanner.onError = (msg, params) => error(format(msg.text, ...params));
+  const scanner = createScanner(code, (msg, params) => error(format(msg.text, ...params)));
   nextToken();
   return parseADLScript();
 
@@ -17,11 +16,11 @@ export function parse(code: string) {
       end: 0
     };
 
-    while (!scanner.eof) {
+    while (!scanner.eof()) {
       script.statements.push(parseStatement());
     }
 
-    script.end = scanner.offset;
+    script.end = scanner.position;
     return script;
   }
 
@@ -32,33 +31,33 @@ export function parse(code: string) {
       const tok = token();
 
       switch (tok) {
-        case Kind.ImportKeyword:
+        case Token.ImportKeyword:
           if (decorators.length > 0) {
             error('Cannot decorate an import statement');
           }
           return parseImportStatement();
-        case Kind.ModelKeyword:
+        case Token.ModelKeyword:
           return parseModelStatement(decorators);
-        case Kind.InterfaceKeyword:
+        case Token.InterfaceKeyword:
           return parseInterfaceStatement(decorators);
-        case Kind.Semicolon:
+        case Token.Semicolon:
           if (decorators.length > 0) {
             error('Cannot decorate an empty statement');
           }
           // no need to put empty statement nodes in the tree for now
           // since we aren't trying to emit ADL
-          parseExpected(Kind.Semicolon);
+          parseExpected(Token.Semicolon);
           continue;
       }
 
-      throw error(`Expected statement, but found ${Kind[tok]}`);
+      throw error(`Expected statement, but found ${Token[tok]}`);
     }
   }
 
   function parseDecoratorList() {
     const decorators: Array<Types.DecoratorExpressionNode> = [];
 
-    while (token() === Kind.At) {
+    while (token() === Token.At) {
       decorators.push(parseDecoratorExpression());
     }
 
@@ -69,15 +68,15 @@ export function parse(code: string) {
     decorators: Array<Types.DecoratorExpressionNode>
   ): Types.InterfaceStatementNode {
     const pos = tokenPos();
-    parseExpected(Kind.InterfaceKeyword);
+    parseExpected(Token.InterfaceKeyword);
     const id = parseIdentifier();
     let parameters: Types.ModelExpressionNode | undefined;
 
-    if (token() === Kind.OpenParen) {
+    if (token() === Token.OpenParen) {
       const modelPos = tokenPos();
-      parseExpected(Kind.OpenParen);
+      parseExpected(Token.OpenParen);
       const modelProps = parseModelPropertyList();
-      parseExpected(Kind.CloseParen);
+      parseExpected(Token.CloseParen);
       parameters = finishNode({
         kind: Types.SyntaxKind.ModelExpression,
         properties: modelProps,
@@ -86,18 +85,18 @@ export function parse(code: string) {
     }
 
 
-    parseExpected(Kind.OpenBrace);
+    parseExpected(Token.OpenBrace);
     const properties: Array<Types.InterfacePropertyNode> = [];
 
     do {
-      if (token() == Kind.CloseBrace) {
+      if (token() == Token.CloseBrace) {
         break;
       }
       const memberDecorators = parseDecoratorList();
       properties.push(parseInterfaceProperty(memberDecorators));
-    } while (parseOptional(Kind.Comma) || parseOptional(Kind.Semicolon));
+    } while (parseOptional(Token.Comma) || parseOptional(Token.Semicolon));
 
-    parseExpected(Kind.CloseBrace);
+    parseExpected(Token.CloseBrace);
 
     return finishNode({
       kind: Types.SyntaxKind.InterfaceStatement,
@@ -111,13 +110,13 @@ export function parse(code: string) {
   function parseInterfaceProperty(decorators: Array<Types.DecoratorExpressionNode>): Types.InterfacePropertyNode {
     const pos = tokenPos();
     const id = parseIdentifier();
-    parseExpected(Kind.OpenParen);
+    parseExpected(Token.OpenParen);
     const modelPos = tokenPos();
     let modelProps: Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode>= [];
 
-    if (!parseOptional(Kind.CloseParen)) {
+    if (!parseOptional(Token.CloseParen)) {
       modelProps = parseModelPropertyList();
-      parseExpected(Kind.CloseParen);
+      parseExpected(Token.CloseParen);
     }
     const parameters: Types.ModelExpressionNode = finishNode({
       kind: Types.SyntaxKind.ModelExpression,
@@ -125,7 +124,7 @@ export function parse(code: string) {
       decorators: []
     }, modelPos);
 
-    parseExpected(Kind.Colon);
+    parseExpected(Token.Colon);
     const returnType = parseExpression();
 
     return finishNode({
@@ -142,19 +141,19 @@ export function parse(code: string) {
   ): Types.ModelStatementNode {
     const pos = tokenPos();
 
-    parseExpected(Kind.ModelKeyword);
+    parseExpected(Token.ModelKeyword);
     const id = parseIdentifier();
 
     let templateParameters: Array<Types.TemplateParameterDeclarationNode> = [];
-    if (parseOptional(Kind.LessThan)) {
+    if (parseOptional(Token.LessThan)) {
       templateParameters = parseTemplateParameters();
-      parseExpected(Kind.GreaterThan);
+      parseExpected(Token.GreaterThan);
     }
 
-    if (token() === Kind.OpenBrace) {
-      parseExpected(Kind.OpenBrace);
+    if (token() === Token.OpenBrace) {
+      parseExpected(Token.OpenBrace);
       const properties = parseModelPropertyList();
-      parseExpected(Kind.CloseBrace);
+      parseExpected(Token.CloseBrace);
 
       return finishNode({
         kind: Types.SyntaxKind.ModelStatement,
@@ -163,10 +162,10 @@ export function parse(code: string) {
         decorators,
         properties
       }, pos);
-    } else if (token() === Kind.Equals) {
-      parseExpected(Kind.Equals);
+    } else if (token() === Token.Equals) {
+      parseExpected(Token.Equals);
       const assignment = parseExpression();
-      parseExpected(Kind.Semicolon);
+      parseExpected(Token.Semicolon);
       return finishNode({
         kind: Types.SyntaxKind.ModelStatement,
         id,
@@ -190,7 +189,7 @@ export function parse(code: string) {
       } as const, pos);
 
       params.push(param);
-    } while (parseOptional(Kind.Comma));
+    } while (parseOptional(Token.Comma));
 
     return params;
   }
@@ -199,13 +198,13 @@ export function parse(code: string) {
     const properties: Array<Types.ModelPropertyNode | Types.ModelSpreadPropertyNode> = [];
 
     do {
-      if (token() === Kind.CloseBrace || token() === Kind.CloseParen) {
+      if (token() === Token.CloseBrace || token() === Token.CloseParen) {
         break;
       }
 
       const memberDecorators = parseDecoratorList();
 
-      if (token() === Kind.Elipsis) {
+      if (token() === Token.Elipsis) {
         if (memberDecorators.length > 0) {
           error('Cannot decorate a spread property');
         }
@@ -213,7 +212,7 @@ export function parse(code: string) {
       } else {
         properties.push(parseModelProperty(memberDecorators));
       }
-    } while (parseOptional(Kind.Comma) || parseOptional(Kind.Semicolon));
+    } while (parseOptional(Token.Comma) || parseOptional(Token.Semicolon));
 
 
     return properties;
@@ -221,7 +220,7 @@ export function parse(code: string) {
 
   function parseModelSpreadProperty(): Types.ModelSpreadPropertyNode {
     const pos = tokenPos();
-    parseExpected(Kind.Elipsis);
+    parseExpected(Token.Elipsis);
 
     // This could be broadened to allow any type expression
     const target = parseIdentifier();
@@ -236,18 +235,18 @@ export function parse(code: string) {
     const pos = tokenPos();
     let id: Types.IdentifierNode | Types.StringLiteralNode;
     switch (token()) {
-      case Kind.Identifier:
+      case Token.Identifier:
         id = parseIdentifier();
         break;
-      case Kind.StringLiteral:
+      case Token.StringLiteral:
         id = parseStringLiteral();
         break;
       default:
-        throw error(`expected a model property, got ${Kind[token()]}`);
+        throw error(`expected a model property, got ${Token[token()]}`);
     }
 
-    const optional = parseOptional(Kind.Question);
-    parseExpected(Kind.Colon);
+    const optional = parseOptional(Token.Question);
+    parseExpected(Token.Colon);
     const value = parseExpression();
 
     return finishNode({
@@ -267,7 +266,7 @@ export function parse(code: string) {
     const pos = tokenPos();
     let node: Types.Expression = parseIntersectionExpressionOrHigher();
 
-    if (token() !== Kind.Bar) {
+    if (token() !== Token.Bar) {
       return node;
     }
 
@@ -276,7 +275,7 @@ export function parse(code: string) {
       options: [node]
     }, pos);
 
-    while (parseOptional(Kind.Bar)) {
+    while (parseOptional(Token.Bar)) {
       const expr = parseIntersectionExpressionOrHigher();
       node.options.push(expr);
     }
@@ -290,7 +289,7 @@ export function parse(code: string) {
     const pos = tokenPos();
     let node: Types.Expression = parseArrayExpressionOrHigher();
 
-    if (token() !== Kind.Ampersand) {
+    if (token() !== Token.Ampersand) {
       return node;
     }
 
@@ -299,7 +298,7 @@ export function parse(code: string) {
       options: [node]
     }, pos);
 
-    while (parseOptional(Kind.Ampersand)) {
+    while (parseOptional(Token.Ampersand)) {
       const expr = parseArrayExpressionOrHigher();
       node.options.push(expr);
     }
@@ -313,8 +312,8 @@ export function parse(code: string) {
     const pos = tokenPos();
     let expr = parsePrimaryExpression();
 
-    while (parseOptional(Kind.OpenBracket)) {
-      parseExpected(Kind.CloseBracket);
+    while (parseOptional(Token.OpenBracket)) {
+      parseExpected(Token.CloseBracket);
 
       expr = finishNode({
         kind: Types.SyntaxKind.ArrayExpression,
@@ -329,13 +328,13 @@ export function parse(code: string) {
     const pos = tokenPos();
     const expr = parseIdentifierOrMemberExpression();
 
-    if (token() !== Kind.LessThan) {
+    if (token() !== Token.LessThan) {
       return expr;
     }
 
-    parseExpected(Kind.LessThan);
+    parseExpected(Token.LessThan);
     const args = parseExpressionList();
-    parseExpected(Kind.GreaterThan);
+    parseExpected(Token.GreaterThan);
 
     return finishNode({
       kind: Types.SyntaxKind.TemplateApplication,
@@ -347,22 +346,22 @@ export function parse(code: string) {
   function parseImportStatement(): Types.ImportStatementNode {
     const pos = tokenPos();
 
-    parseExpected(Kind.ImportKeyword);
+    parseExpected(Token.ImportKeyword);
     const id = parseIdentifier();
     let as: Array<Types.NamedImportNode> = [];
 
-    if (token() === Kind.Identifier && tokenValue() === 'as') {
-      parseExpected(Kind.Identifier);
-      parseExpected(Kind.OpenBrace);
+    if (token() === Token.Identifier && tokenValue() === 'as') {
+      parseExpected(Token.Identifier);
+      parseExpected(Token.OpenBrace);
 
-      if (token() !== Kind.CloseBrace) {
+      if (token() !== Token.CloseBrace) {
         as = parseNamedImports();
       }
 
-      parseExpected(Kind.CloseBrace);
+      parseExpected(Token.CloseBrace);
     }
 
-    parseExpected(Kind.Semicolon);
+    parseExpected(Token.Semicolon);
     return finishNode({
       kind: Types.SyntaxKind.ImportStatement,
       as, id
@@ -377,21 +376,21 @@ export function parse(code: string) {
         kind: Types.SyntaxKind.NamedImport,
         id: parseIdentifier()
       }, pos));
-    } while (parseOptional(Kind.Comma));
+    } while (parseOptional(Token.Comma));
     return names;
   }
 
   function parseDecoratorExpression(): Types.DecoratorExpressionNode {
     const pos = tokenPos();
-    parseExpected(Kind.At);
+    parseExpected(Token.At);
 
     const target = parseIdentifierOrMemberExpression();
 
     let args: Array<Types.Expression> = [];
-    if (parseOptional(Kind.OpenParen)) {
-      if (!parseOptional(Kind.CloseParen)) {
+    if (parseOptional(Token.OpenParen)) {
+      if (!parseOptional(Token.CloseParen)) {
         args = parseExpressionList();
-        parseExpected(Kind.CloseParen);
+        parseExpected(Token.CloseParen);
       }
     } else if (tokenIsLiteral()) {
       args = [parsePrimaryExpression()];
@@ -409,7 +408,7 @@ export function parse(code: string) {
 
     do {
       args.push(parseExpression());
-    } while (parseOptional(Kind.Comma));
+    } while (parseOptional(Token.Comma));
 
     return args;
   }
@@ -418,7 +417,7 @@ export function parse(code: string) {
 
     let base: Types.IdentifierNode | Types.MemberExpressionNode = parseIdentifier();
 
-    while (parseOptional(Kind.Dot)) {
+    while (parseOptional(Token.Dot)) {
       const pos = tokenPos();
       base = finishNode({
         kind: Types.SyntaxKind.MemberExpression,
@@ -432,39 +431,39 @@ export function parse(code: string) {
 
   function parsePrimaryExpression(): Types.Expression {
     switch (token()) {
-      case Kind.Identifier:
+      case Token.Identifier:
         return parseReferenceExpression();
-      case Kind.StringLiteral:
+      case Token.StringLiteral:
         return parseStringLiteral();
-      case Kind.TrueKeyword:
-      case Kind.FalseKeyword:
+      case Token.TrueKeyword:
+      case Token.FalseKeyword:
         return parseBooleanLiteral();
-      case Kind.NumericLiteral:
+      case Token.NumericLiteral:
         return parseNumericLiteral();
-      case Kind.OpenBrace:
+      case Token.OpenBrace:
         return parseModelExpression([]);
-      case Kind.OpenBracket:
+      case Token.OpenBracket:
         return parseTupleExpression();
-      case Kind.OpenParen:
+      case Token.OpenParen:
         return parseParenthesizedExpression();
     }
 
-    throw error(`Unexpected token: ${Kind[token()]}`);
+    throw error(`Unexpected token: ${Token[token()]}`);
   }
 
   function parseParenthesizedExpression(): Types.Expression {
     const pos = tokenPos();
-    parseExpected(Kind.OpenParen);
+    parseExpected(Token.OpenParen);
     const expr = parseExpression();
-    parseExpected(Kind.CloseParen);
+    parseExpected(Token.CloseParen);
     return finishNode(expr, pos);
   }
 
   function parseTupleExpression(): Types.TupleExpressionNode {
     const pos = tokenPos();
-    parseExpected(Kind.OpenBracket);
+    parseExpected(Token.OpenBracket);
     const values = parseExpressionList();
-    parseExpected(Kind.CloseBracket);
+    parseExpected(Token.CloseBracket);
     return finishNode({
       kind: Types.SyntaxKind.TupleExpression,
       values
@@ -473,9 +472,9 @@ export function parse(code: string) {
 
   function parseModelExpression(decorators: Array<Types.DecoratorExpressionNode>): Types.ModelExpressionNode {
     const pos = tokenPos();
-    parseExpected(Kind.OpenBrace);
+    parseExpected(Token.OpenBrace);
     const properties = parseModelPropertyList();
-    parseExpected(Kind.CloseBrace);
+    parseExpected(Token.CloseBrace);
     return finishNode({
       kind: Types.SyntaxKind.ModelExpression,
       decorators,
@@ -485,12 +484,10 @@ export function parse(code: string) {
 
   function parseStringLiteral(): Types.StringLiteralNode {
     const pos = tokenPos();
-    const text = tokenValue();
-    const value = tokenStringValue();
-    parseExpected(Kind.StringLiteral);
+    const value = tokenValue();
+    parseExpected(Token.StringLiteral);
     return finishNode({
       kind: Types.SyntaxKind.StringLiteral,
-      text,
       value
     }, pos);
   }
@@ -500,7 +497,7 @@ export function parse(code: string) {
     const text = tokenValue();
     const value = Number(text);
 
-    parseExpected(Kind.NumericLiteral);
+    parseExpected(Token.NumericLiteral);
     return finishNode({
       kind: Types.SyntaxKind.NumericLiteral,
       text,
@@ -510,12 +507,10 @@ export function parse(code: string) {
 
   function parseBooleanLiteral(): Types.BooleanLiteralNode {
     const pos = tokenPos();
-    const token = parseExpectedOneOf(Kind.TrueKeyword, Kind.FalseKeyword);
-    const value = token == Kind.TrueKeyword;
-    const text = value ? 'true' : 'false';
+    const token = parseExpectedOneOf(Token.TrueKeyword, Token.FalseKeyword);
+    const value = token == Token.TrueKeyword;
     return finishNode({
       kind: Types.SyntaxKind.BooleanLiteral,
-      text,
       value
     }, pos);
   }
@@ -524,10 +519,10 @@ export function parse(code: string) {
     const id = token();
     const pos = tokenPos();
 
-    if (id !== Kind.Identifier) {
-      error(`expected an identifier, got ${Kind[id]}`);
+    if (id !== Token.Identifier) {
+      error(`expected an identifier, got ${Token[id]}`);
     }
-    const sv = scanner.value;
+    const sv = tokenValue();
 
     nextToken();
 
@@ -543,15 +538,11 @@ export function parse(code: string) {
   }
 
   function tokenValue() {
-    return scanner.value;
-  }
-
-  function tokenStringValue() {
-    return scanner.stringValue;
+    return scanner.getTokenValue();
   }
 
   function tokenPos() {
-    return scanner.offset;
+    return scanner.tokenPosition;
   }
 
   function nextToken() {
@@ -565,10 +556,10 @@ export function parse(code: string) {
 
   function tokenIsTrivia() {
     switch (token()) {
-      case Kind.Whitespace:
-      case Kind.NewLine:
-      case Kind.MultiLineComment:
-      case Kind.SingleLineComment:
+      case Token.Whitespace:
+      case Token.NewLine:
+      case Token.MultiLineComment:
+      case Token.SingleLineComment:
         return true;
       default:
         return false;
@@ -577,10 +568,10 @@ export function parse(code: string) {
 
   function tokenIsLiteral() {
     switch (token()) {
-      case Kind.NumericLiteral:
-      case Kind.StringLiteral:
-      case Kind.TrueKeyword:
-      case Kind.FalseKeyword:
+      case Token.NumericLiteral:
+      case Token.StringLiteral:
+      case Token.TrueKeyword:
+      case Token.FalseKeyword:
         return true;
       default:
         return false;
@@ -596,18 +587,18 @@ export function parse(code: string) {
   }
 
   function error(msg: string) {
-    throw new Error(`[${scanner.position.line + 1}, ${scanner.position.character + 1}] ${msg}`);
+    throw new Error(msg);
   }
 
-  function parseExpected(expectedToken: Kind) {
+  function parseExpected(expectedToken: Token) {
     if (token() === expectedToken) {
       nextToken();
     } else {
-      throw error(`expected ${Kind[expectedToken]}, got ${Kind[token()]}`);
+      throw error(`expected ${Token[expectedToken]}, got ${Token[token()]}`);
     }
   }
 
-  function parseExpectedOneOf<A extends Kind, B extends Kind>(
+  function parseExpectedOneOf<A extends Token, B extends Token>(
     expectedTokenA: A,
     expectedTokenB: B
   ): A | B {
@@ -618,11 +609,11 @@ export function parse(code: string) {
       nextToken();
       return expectedTokenB;
     } else {
-      throw error(`expected ${Kind[expectedTokenA]} or ${Kind[expectedTokenA]}, got ${Kind[token()]}`);
+      throw error(`expected ${Token[expectedTokenA]} or ${Token[expectedTokenA]}, got ${Token[token()]}`);
     }
   }
 
-  function parseOptional(optionalToken: Kind) {
+  function parseOptional(optionalToken: Token) {
     if (token() === optionalToken) {
       nextToken();
       return true;

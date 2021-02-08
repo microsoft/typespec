@@ -189,11 +189,6 @@ export function isIdentifierPart(ch: number,): boolean {
     ch > CharacterCodes.maxAsciiCharacter && isUnicodeIdentifierPart(ch);
 }
 
-/** Characters that are in this range are actually code points that take two characters in utf16 */
-export function sizeOf(ch: number): number {
-  return ch >= 0xD800 && ch <= 0xDBFF ? 2 : 1;
-}
-
 function lookupInUnicodeMap(code: number, map: ReadonlyArray<number>): boolean {
   // Bail out quickly if it couldn't possibly be in the map.
   if (code < map[0]) {

@@ -244,19 +244,16 @@ export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLitera
 export interface StringLiteralNode extends Node {
   kind: SyntaxKind.StringLiteral;
   value: string;
-  text: string;
 }
 
 export interface NumericLiteralNode extends Node {
   kind: SyntaxKind.NumericLiteral;
   value: number;
-  text: string;
 }
 
 export interface BooleanLiteralNode extends Node {
   kind: SyntaxKind.BooleanLiteral;
   value: boolean;
-  text: string;
 }
 
 export interface UnionExpressionNode extends Node {

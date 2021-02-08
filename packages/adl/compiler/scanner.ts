@@ -1,40 +1,11 @@
-import { CharacterCodes, isBinaryDigit, isDigit, isHexDigit, isIdentifierPart, isIdentifierStart, isLineBreak, isWhiteSpaceSingleLine, sizeOf } from './character-codes.js';
+import { CharacterCodes, isBinaryDigit, isDigit, isHexDigit, isIdentifierPart, isIdentifierStart, isLineBreak, isWhiteSpaceSingleLine } from './character-codes.js';
 import { format, Message, messages } from './messages.js';
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
 const mergeConflictMarkerLength = 7;
 
-/**
- * Position in a text document expressed as zero-based line and character offset.
- * The offsets are based on a UTF-16 string representation. So a string of the form
- * `a𐐀b` the character offset of the character `a` is 0, the character offset of `𐐀`
- * is 1 and the character offset of b is 3 since `𐐀` is represented using two code
- * units in UTF-16.
- *
- * Positions are line end character agnostic. So you can not specify a position that
- * denotes `\r|\n` or `\n|` where `|` represents the character offset.
- */
-export interface Position {
-  /**
-   * Line position in a document (zero-based).
-   * If a line number is greater than the number of lines in a document, it defaults back to the number of lines in the document.
-   * If a line number is negative, it defaults to 0.
-   */
-  line: number;
-  /**
-   * Character offset on a line in a document (zero-based). Assuming that the line is
-   * represented as a string, the `character` value represents the gap between the
-   * `character` and `character + 1`.
-   *
-   * If the character value is greater than the line length it defaults back to the
-   * line length.
-   * If a line number is negative, it defaults to 0.
-   */
-  character: number;
-}
-
-export enum Kind {
+export enum Token {
   Unknown,
   EndOfFile,
 
@@ -62,57 +33,14 @@ export enum Kind {
   Elipsis,
   Semicolon,
   Comma,
-  QuestionDot,
   LessThan,
-  LessThanSlash,
   GreaterThan,
-  LessThanEquals,
-  GreaterThanEquals,
-  EqualsEquals,
-  ExclamationEquals,
-  EqualsEqualsEquals,
-  ExclamationEqualsEquals,
-  EqualsArrow,
-  Plus,
-  Minus,
-  Asterisk,
-  AsteriskAsterisk,
-  Slash,
-  Percent,
-  PlusPlus,
-  MinusMinus,
-  LessThanLessThan,
-  GreaterThanGreaterThan,
-  GreaterThanGreaterThanGreaterThan,
+  Equals,
   Ampersand,
   Bar,
-  Caret,
-  Exclamation,
-  Tilde,
-  AmpersandAmpersand,
-  BarBar,
   Question,
   Colon,
   At,
-  QuestionQuestion,
-
-  // Assignments
-  Equals,
-  PlusEquals,
-  MinusEquals,
-  AsteriskEquals,
-  AsteriskAsteriskEquals,
-  SlashEquals,
-  PercentEquals,
-  LessThanLessThanEquals,
-  GreaterThanGreaterThanEquals,
-  GreaterThanGreaterThanGreaterThanEquals,
-  AmpersandEquals,
-  BarEquals,
-  BarBarEquals,
-  AmpersandAmpersandEquals,
-  QuestionQuestionEquals,
-  CaretEquals,
 
   // Identifiers
   Identifier,
@@ -126,175 +54,106 @@ export enum Kind {
 }
 
 const keywords = new Map([
-  ['import', Kind.ImportKeyword],
-  ['model', Kind.ModelKeyword],
-  ['interface', Kind.InterfaceKeyword],
-  ['true', Kind.TrueKeyword],
-  ['false', Kind.FalseKeyword]
+  ['import', Token.ImportKeyword],
+  ['model', Token.ModelKeyword],
+  ['interface', Token.InterfaceKeyword],
+  ['true', Token.TrueKeyword],
+  ['false', Token.FalseKeyword]
 ]);
 
-interface TokenLocation extends Position {
-  offset: number;
-}
+export interface Scanner {
+  /** The source code being scanned. */
+  readonly input: string;
 
-export class Scanner {
-  #offset = 0;
-  #line = 0;
-  #column = 0;
-  #map = new Array<TokenLocation>();
+  /** The offset in UTF-16 code units to the current position at the start of the next token. */
+  readonly position: number;
 
-  #length: number;
-  #text: string;
+  /** The current token */
+  readonly token: Token;
 
-  #ch!: number;
-  #chNext!: number;
-  #chNextNext!: number;
+  /** The offset in UTF-16 code units to the start of the current token. */
+  readonly tokenPosition: number;
 
-  #chSz!: number;
-  #chNextSz!: number;
-  #chNextNextSz!: number;
+  /** Advance one token. */
+  scan(): Token;
 
-  /** The assumed tab width. If this is set before scanning, it enables accurate Position tracking. */
-  tabWidth = 2;
+  /** Determine if the scanner has reached the end of the input. */
+  eof(): boolean;
 
-  // current token information
-
-  /** the character offset within the document */
-  offset!: number;
-
-  /** the token kind */
-  token!: Kind;
-
-  /** the text of the current token (when appropriate) */
-  value!: string;
-
-  /** the string value of current string literal token (unquoted, unescaped) */
-  stringValue!: string;
-
-  /** error handler (default logs to console) */
-  onError = this.defaultOnError;
-
-  /** returns the Position (line/column) of the current token */
-  get position(): Position {
-    return this.positionFromOffset(this.offset);
-  }
-
-  constructor(text: string) {
-    this.#text = text;
-    this.#length = text.length;
-    this.advance(0);
-    this.markPosition();
-  }
-
-  get eof() {
-    return this.#offset >= this.#length;
-  }
-
-  private advance(count?: number): number {
-    let codeOrChar: number;
-    let newOffset: number;
-    let offsetAdvancedBy = 0;
-
-    switch (count) {
-      case undefined:
-      case 1:
-        offsetAdvancedBy = this.#chSz;
-        this.#offset += this.#chSz;
-        this.#ch = this.#chNext; this.#chSz = this.#chNextSz;
-        this.#chNext = this.#chNextNext; this.#chNextSz = this.#chNextNextSz;
-
-        newOffset = this.#offset + this.#chSz + this.#chNextSz;
-        codeOrChar = this.#text.charCodeAt(newOffset);
-        this.#chNextNext = (this.#chNextNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
-        return offsetAdvancedBy;
-
-      case 2:
-        offsetAdvancedBy = this.#chSz + this.#chNextSz;
-        this.#offset += this.#chSz + this.#chNextSz;
-        this.#ch = this.#chNextNext; this.#chSz = this.#chNextNextSz;
-
-        newOffset = this.#offset + this.#chSz;
-        codeOrChar = this.#text.charCodeAt(newOffset);
-        this.#chNext = (this.#chNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
-
-        newOffset += this.#chNextSz;
-        codeOrChar = this.#text.charCodeAt(newOffset);
-        this.#chNextNext = (this.#chNextNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
-        return offsetAdvancedBy;
-
-      default:
-      case 3:
-        offsetAdvancedBy = this.#chSz + this.#chNextSz + this.#chNextNextSz;
-        count -= 3;
-        while (count) {
-          // skip over characters while we work.
-          offsetAdvancedBy += sizeOf(this.#text.charCodeAt(this.#offset + offsetAdvancedBy));
-        }
-        this.#offset += offsetAdvancedBy;
-
-      // eslint-disable-next-line no-fallthrough
-      case 0:
-        newOffset = this.#offset;
-        codeOrChar = this.#text.charCodeAt(newOffset);
-        this.#ch = (this.#chSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
-
-        newOffset += this.#chSz;
-        codeOrChar = this.#text.charCodeAt(newOffset);
-        this.#chNext = (this.#chNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
-
-        newOffset += this.#chNextSz;
-        codeOrChar = this.#text.charCodeAt(newOffset);
-        this.#chNextNext = (this.#chNextNextSz = sizeOf(codeOrChar)) === 1 ? codeOrChar : this.#text.codePointAt(newOffset)!;
-        return offsetAdvancedBy;
-    }
-  }
-
-  private next(token: Kind, count = 1, value?: string) {
-    const originalOffset = this.#offset;
-    const offsetAdvancedBy = this.advance(count);
-    this.value = value || this.#text.substr(originalOffset, offsetAdvancedBy);
-
-    this.#column += count;
-    return this.token = token;
-  }
-
-  /** adds the current position to the token to the offset:position map */
-  private markPosition() {
-    this.#map.push({ offset: this.#offset, character: this.#column, line: this.#line });
-  }
-
-  /** updates the position and marks the location  */
-  private newLine(count = 1) {
-    this.value = this.#text.substr(this.#offset, count);
-    this.advance(count);
-
-    this.#line++;
-    this.#column = 0;
-    this.markPosition(); // make sure the map has the new location
-
-    return this.token = Kind.NewLine;
-  }
+  /** The exact spelling of the current token. */
+  getTokenText(): string;
 
   /**
-   * Identifies and returns the next token type in the document
+   * The value of the current token.
    *
-   * @returns the state of the scanner will have the properties `token`, `value`, `offset` pointing to the current token at the end of this call.
-   *
-   * @notes before this call, `#offset` is pointing to the next character to be evaluated.
-   *
+   * Currently differs from tokenText() only for string literals, which are
+   * unescaped and unquoted to the represented string value.
    */
-  scan(): Kind {
+  getTokenValue(): string;
+}
 
-    // this token starts at
-    this.offset = this.#offset;
+export function throwOnError(msg: Message, params: Array<string | number>) {
+  throw new Error(format(msg.text, ...params));
+}
 
-    if (!this.eof) {
-      switch (this.#ch) {
+const enum TokenFlags {
+  HasCrlf = 1 << 0,
+  Escaped = 1 << 1,
+  TripleQuoted = 1 << 2,
+}
+
+export function createScanner(input: string, onError = throwOnError) {
+  let position = 0;
+  let token = Token.Unknown;
+  let tokenPosition = -1;
+  let tokenValue: string | undefined = undefined;
+  let tokenFlags = 0;
+
+  return {
+    get position() { return position; },
+    get token() { return token; },
+    get tokenPosition() { return tokenPosition; },
+    scan,
+    eof,
+    getTokenText,
+    getTokenValue,
+  };
+
+  function eof() {
+    return position >= input.length;
+  }
+
+  function next(t: Token, count = 1) {
+    position += count;
+    return token = t;
+  }
+
+  function getTokenText() {
+    return input.substring(tokenPosition, position);
+  }
+
+  function lookAhead(offset: number) {
+    return input.charCodeAt(position + offset);
+  }
+
+  function scan(): Token {
+    tokenPosition = position;
+    tokenValue = undefined;
+    tokenFlags = 0;
+
+    if (!eof()) {
+      const ch = input.charCodeAt(position);
+      switch (ch) {
         case CharacterCodes.carriageReturn:
-          return this.newLine(this.#chNext === CharacterCodes.lineFeed ? 2 : 1);
+          if (lookAhead(1) === CharacterCodes.lineFeed) {
+            position++;
+          }
+          return next(Token.NewLine);
 
         case CharacterCodes.lineFeed:
-          return this.newLine();
+        case CharacterCodes.lineSeparator:
+        case CharacterCodes.paragraphSeparator:
+          return next(Token.NewLine);
 
         case CharacterCodes.tab:
         case CharacterCodes.verticalTab:
@@ -318,116 +177,67 @@ export class Scanner {
         case CharacterCodes.mathematicalSpace:
         case CharacterCodes.ideographicSpace:
         case CharacterCodes.byteOrderMark:
-          return this.scanWhitespace();
+          return scanWhitespace();
 
         case CharacterCodes.openParen:
-          return this.next(Kind.OpenParen);
+          return next(Token.OpenParen);
 
         case CharacterCodes.closeParen:
-          return this.next(Kind.CloseParen);
+          return next(Token.CloseParen);
 
         case CharacterCodes.comma:
-          return this.next(Kind.Comma);
+          return next(Token.Comma);
 
         case CharacterCodes.colon:
-          return this.next(Kind.Colon);
+          return next(Token.Colon);
 
         case CharacterCodes.semicolon:
-          return this.next(Kind.Semicolon);
+          return next(Token.Semicolon);
 
         case CharacterCodes.openBracket:
-          return this.next(Kind.OpenBracket);
+          return next(Token.OpenBracket);
 
         case CharacterCodes.closeBracket:
-          return this.next(Kind.CloseBracket);
+          return next(Token.CloseBracket);
 
         case CharacterCodes.openBrace:
-          return this.next(Kind.OpenBrace);
+          return next(Token.OpenBrace);
 
         case CharacterCodes.closeBrace:
-          return this.next(Kind.CloseBrace);
-
-        case CharacterCodes.tilde:
-          return this.next(Kind.Tilde);
+          return next(Token.CloseBrace);
 
         case CharacterCodes.at:
-          return this.next(Kind.At);
-
-        case CharacterCodes.caret:
-          return this.#chNext === CharacterCodes.equals ? this.next(Kind.CaretEquals, 2) : this.next(Kind.Caret);
-
-        case CharacterCodes.percent:
-          return this.#chNext === CharacterCodes.equals ? this.next(Kind.PercentEquals, 2) : this.next(Kind.Percent);
+          return next(Token.At);
 
         case CharacterCodes.question:
-          return this.#chNext === CharacterCodes.dot && !isDigit(this.#chNextNext) ?
-            this.next(Kind.QuestionDot, 2) :
-            this.#chNext === CharacterCodes.question ?
-              this.#chNextNext === CharacterCodes.equals ?
-                this.next(Kind.QuestionQuestionEquals, 3) :
-                this.next(Kind.QuestionQuestion, 2) :
-              this.next(Kind.Question);
-
-        case CharacterCodes.exclamation:
-          return this.#chNext === CharacterCodes.equals ?
-            this.#chNextNext === CharacterCodes.equals ?
-              this.next(Kind.ExclamationEqualsEquals, 3) :
-              this.next(Kind.ExclamationEquals, 2) :
-            this.next(Kind.Exclamation);
+          return next(Token.Question);
 
         case CharacterCodes.ampersand:
-          return this.#chNext === CharacterCodes.ampersand ?
-            this.#chNextNext === CharacterCodes.equals ?
-              this.next(Kind.AmpersandAmpersandEquals, 3) :
-              this.next(Kind.AmpersandAmpersand, 2) :
-            this.#chNext === CharacterCodes.equals ?
-              this.next(Kind.AmpersandEquals, 2) :
-              this.next(Kind.Ampersand);
-
-        case CharacterCodes.asterisk:
-          return this.#chNext === CharacterCodes.asterisk ?
-            this.#chNextNext === CharacterCodes.equals ?
-              this.next(Kind.AsteriskAsteriskEquals, 3) :
-              this.next(Kind.AsteriskAsterisk, 2) :
-            this.#chNext === CharacterCodes.equals ?
-              this.next(Kind.AsteriskEquals, 2) :
-              this.next(Kind.Asterisk);
-
-        case CharacterCodes.plus:
-          return this.#chNext === CharacterCodes.plus ?
-            this.next(Kind.PlusPlus, 2) :
-            this.#chNext === CharacterCodes.equals ?
-              this.next(Kind.PlusEquals, 2) :
-              this.next(Kind.Plus);
-
-        case CharacterCodes.minus:
-          return this.#chNext === CharacterCodes.minus ?
-            this.next(Kind.MinusMinus, 2) :
-            this.#chNext === CharacterCodes.equals ?
-              this.next(Kind.MinusEquals, 2) :
-              this.next(Kind.Minus);
+          return next(Token.Ampersand);
 
         case CharacterCodes.dot:
-          return this.#chNext === CharacterCodes.dot && this.#chNextNext === CharacterCodes.dot ?
-            this.next(Kind.Elipsis, 3) :
-            this.next(Kind.Dot);
+          return lookAhead(1) === CharacterCodes.dot &&
+                 lookAhead(2) === CharacterCodes.dot ?
+            next(Token.Elipsis, 3) :
+            next(Token.Dot);
 
         case CharacterCodes.slash:
-          return this.#chNext === CharacterCodes.slash ?
-            this.scanSingleLineComment() :
-            this.#chNext === CharacterCodes.asterisk ?
-              this.scanMultiLineComment() :
-
-              this.#chNext === CharacterCodes.equals ?
-                this.next(Kind.SlashEquals) :
-                this.next(Kind.Slash);
+          switch (lookAhead(1)) {
+            case CharacterCodes.slash:
+              return scanSingleLineComment();
+            case CharacterCodes.asterisk:
+              return scanMultiLineComment();
+          }
+          return unknownToken();
 
         case CharacterCodes._0:
-          return this.#chNext === CharacterCodes.x ?
-            this.scanHexNumber() :
-            this.#chNext === CharacterCodes.b ?
-              this.scanBinaryNumber() :
-              this.scanNumber();
+          switch (lookAhead(1)) {
+            case CharacterCodes.x:
+              return scanHexNumber();
+            case CharacterCodes.b:
+              return scanBinaryNumber();
+          }
+          return scanNumber();
 
         case CharacterCodes._1:
         case CharacterCodes._2:
@@ -438,288 +248,245 @@ export class Scanner {
         case CharacterCodes._7:
         case CharacterCodes._8:
         case CharacterCodes._9:
-          return this.scanNumber();
+          return scanNumber();
 
         case CharacterCodes.lessThan:
-          return this.isConflictMarker() ?
-            this.next(Kind.ConflictMarker, mergeConflictMarkerLength) :
-            this.#chNext === CharacterCodes.lessThan ?
-              this.#chNextNext === CharacterCodes.equals ?
-                this.next(Kind.LessThanLessThanEquals, 3) :
-                this.next(Kind.LessThanLessThan, 2) :
-              this.#chNext === CharacterCodes.equals ?
-                this.next(Kind.LessThanEquals, 2) :
-                this.next(Kind.LessThan);
+          return isConflictMarker() ?
+            next(Token.ConflictMarker, mergeConflictMarkerLength) :
+            next(Token.LessThan);
 
         case CharacterCodes.greaterThan:
-          return this.isConflictMarker() ?
-            this.next(Kind.ConflictMarker, mergeConflictMarkerLength) :
-            this.next(Kind.GreaterThan);
+          return isConflictMarker() ?
+            next(Token.ConflictMarker, mergeConflictMarkerLength) :
+            next(Token.GreaterThan);
 
         case CharacterCodes.equals:
-          return this.isConflictMarker() ?
-            this.next(Kind.ConflictMarker, mergeConflictMarkerLength) :
-            this.#chNext === CharacterCodes.equals ?
-              this.#chNextNext === CharacterCodes.equals ?
-                this.next(Kind.EqualsEqualsEquals, 3) :
-                this.next(Kind.EqualsEquals, 2) :
-              this.#chNext === CharacterCodes.greaterThan ?
-                this.next(Kind.EqualsArrow, 2) :
-                this.next(Kind.Equals);
+          return isConflictMarker() ?
+            next(Token.ConflictMarker, mergeConflictMarkerLength) :
+            next(Token.Equals);
 
         case CharacterCodes.bar:
-          return this.isConflictMarker() ?
-            this.next(Kind.ConflictMarker, mergeConflictMarkerLength) :
-            this.#chNext === CharacterCodes.bar ?
-              this.#chNextNext === CharacterCodes.equals ?
-                this.next(Kind.BarBarEquals, 3) :
-                this.next(Kind.BarBar, 2) :
-              this.#chNext === CharacterCodes.equals ?
-                this.next(Kind.BarEquals, 2) :
-                this.next(Kind.Bar);
+          return isConflictMarker() ?
+            next(Token.ConflictMarker, mergeConflictMarkerLength) :
+            next(Token.Bar);
 
         case CharacterCodes.doubleQuote:
-          return this.scanString();
+          return scanString();
 
         default:
-          // FYI:
-          // Well-known characters that are currently not processed
-          //   # \
-          // will need to update the scanner if there is a need to recognize them
-          return isIdentifierStart(this.#ch) ? this.scanIdentifier() : this.next(Kind.Unknown);
+          return isIdentifierStart(ch) ? scanIdentifier() : unknownToken();
+
       }
     }
 
-    this.value = '';
-    return this.token = Kind.EndOfFile;
-  }
-  /**
-   * When the current token is greaterThan, this will return any tokens with characters
-   * after the greater than character. This has to be scanned separately because greater
-   * thans appear in positions where longer tokens are incorrect, e.g. `model x<y>=y;`.
-   * The solution is to call rescanGreaterThan from the parser in contexts where longer
-   * tokens starting with `>` are allowed (i.e. when parsing binary expressions).
-   */
-  rescanGreaterThan(): Kind {
-    if (this.token === Kind.GreaterThan) {
-      return this.#ch === CharacterCodes.greaterThan ?
-        this.#chNext === CharacterCodes.equals ?
-          this.next(Kind.GreaterThanGreaterThanEquals, 3) :
-          this.next(Kind.GreaterThanGreaterThan, 2) :
-        this.#ch === CharacterCodes.equals ?
-          this.next(Kind.GreaterThanEquals, 2) :
-          this.next(Kind.GreaterThan);
-    }
-    return this.token;
+    return token = Token.EndOfFile;
   }
 
-  private isConflictMarker() {
+  function unknownToken() {
+    token = next(Token.Unknown);
+    error(messages.UnexpectedToken, getTokenText());
+    return token;
+  }
+
+  function isConflictMarker() {
     // Conflict markers must be at the start of a line.
-    if (this.#offset === 0 || isLineBreak(this.#text.charCodeAt(this.#offset - 1))) {
-      if ((this.#offset + mergeConflictMarkerLength) < this.#length) {
+    const ch = input.charCodeAt(position);
+    if (position === 0 || isLineBreak(input.charCodeAt(position - 1))) {
+      if ((position + mergeConflictMarkerLength) < input.length) {
         for (let i = 0; i < mergeConflictMarkerLength; i++) {
-          if (this.#text.charCodeAt(this.#offset + i) !== this.#ch) {
+          if (lookAhead(i) !== ch) {
             return false;
           }
         }
-        return this.#ch === CharacterCodes.equals || this.#text.charCodeAt(this.#offset + mergeConflictMarkerLength) === CharacterCodes.space;
+        return ch === CharacterCodes.equals || lookAhead(mergeConflictMarkerLength) === CharacterCodes.space;
       }
     }
 
     return false;
   }
 
-
-  private error(msg: Message, ...params: Array<string | number>) {
-    this.onError(msg, params);
+  function error(msg: Message, ...params: Array<string | number>) {
+    onError(msg, params);
   }
 
-  private defaultOnError(msg: Message, params: Array<string | number>) {
-    console.log(format(msg.text, ...params));
+  function scanWhitespace(): Token {
+    do {
+      position++;
+    } while (isWhiteSpaceSingleLine(input.charCodeAt(position)));
+
+    return token = Token.Whitespace;
   }
 
-  private scanWhitespace(): Kind {
-    // since whitespace are not always 1 character wide, we're going to mark the position before the whitespace.
-    this.markPosition();
+  function scanDigits() {
+    while (isDigit(input.charCodeAt(position))) {
+      position++;
+    }
+  }
+
+  function scanNumber() {
+    scanDigits();
+
+    let ch = input.charCodeAt(position);
+
+    if (ch === CharacterCodes.dot) {
+      position++;
+      scanDigits();
+    }
+
+    ch = input.charCodeAt(position);
+    if (ch === CharacterCodes.e) {
+      position++;
+      ch = input.charCodeAt(position);
+      if (ch === CharacterCodes.plus || ch == CharacterCodes.minus) {
+        position++;
+        ch = input.charCodeAt(position);
+      }
+
+      if (isDigit(ch)) {
+        position++;
+        scanDigits();
+      } else {
+        error(messages.DigitExpected);
+      }
+    }
+
+    return token = Token.NumericLiteral;
+  }
+
+  function scanHexNumber() {
+    if (!isHexDigit(lookAhead(2))) {
+      error(messages.HexDigitExpected);
+      return next(Token.NumericLiteral, 2);
+    }
+
+    position += 2;
+    scanUntil(ch => !isHexDigit(ch), 'Hex Digit');
+    return token = Token.NumericLiteral;
+  }
+
+  function scanBinaryNumber() {
+    if (!isBinaryDigit(lookAhead(2))) {
+      error(messages.BinaryDigitExpected);
+      return next(Token.NumericLiteral, 2);
+    }
+
+    position += 2;
+    scanUntil(ch => !isBinaryDigit(ch), 'Binary Digit');
+    return token = Token.NumericLiteral;
+
+  }
+
+  function scanUntil(predicate: (char: number) => boolean, expectedClose?: string, consumeClose?: number) {
+    let ch: number;
 
     do {
-      // advance the position
-      this.#column += this.widthOfCh;
-      this.advance();
-    } while (isWhiteSpaceSingleLine(this.#ch));
+      position++;
 
-    // and after...
-    this.markPosition();
-
-    this.value = this.#text.substring(this.offset, this.#offset);
-    return this.token = Kind.Whitespace;
-  }
-
-  private scanDigits(): string {
-    const start = this.#offset;
-    while (isDigit(this.#ch)) {
-      this.advance();
-    }
-    return this.#text.substring(start, this.#offset);
-  }
-
-  private scanNumber() {
-    const start = this.#offset;
-    this.scanDigits();
-
-    if (this.#ch === CharacterCodes.dot) {
-      this.advance();
-      this.scanDigits();
-    }
-
-    if (this.#ch === CharacterCodes.e) {
-      if (this.#chNext === CharacterCodes.plus || this.#chNext == CharacterCodes.minus) {
-        this.advance();
-      }
-
-      this.advance();
-
-      if (isDigit(this.#ch)) {
-        this.advance();
-        this.scanDigits();
-      } else {
-        this.error(messages.DigitExpected);
-      }
-    }
-
-    this.value = this.#text.substring(start, this.#offset);
-    return this.token = Kind.NumericLiteral;
-  }
-
-  private scanHexNumber() {
-    if (!isHexDigit(this.#chNextNext)) {
-      this.error(messages.HexDigitExpected);
-      return this.next(Kind.NumericLiteral, 2);
-    }
-
-    this.advance(2);
-
-    this.value = `0x${this.scanUntil((ch) => !isHexDigit(ch), 'Hex Digit')}`;
-    return this.token = Kind.NumericLiteral;
-  }
-
-  private scanBinaryNumber() {
-    if (!isBinaryDigit(this.#chNextNext)) {
-      this.error(messages.BinaryDigitExpected);
-      return this.next(Kind.NumericLiteral, 2);
-    }
-
-    this.advance(2);
-
-    this.value = `0b${this.scanUntil((ch) => !isBinaryDigit(ch), 'Binary Digit')}`;
-    return this.token = Kind.NumericLiteral;
-
-  }
-
-  private get widthOfCh() {
-    return this.#ch === CharacterCodes.tab ? (this.#column % this.tabWidth || this.tabWidth) : 1;
-  }
-
-  private scanUntil(predicate: (char: number, charNext: number, charNextNext: number) => boolean, expectedClose?: string, consumeClose?: number) {
-    const start = this.#offset;
-
-    do {
-      // advance the position
-      if (isLineBreak(this.#ch)) {
-        this.advance(this.#ch === CharacterCodes.carriageReturn && this.#chNext === CharacterCodes.lineFeed ? 2 : 1);
-        this.#line++;
-        this.#column = 0;
-        this.markPosition(); // make sure the map has the new location
-      } else {
-        this.#column += this.widthOfCh;
-        this.advance();
-      }
-
-      if (this.eof) {
+      if (eof()) {
         if (expectedClose) {
-          this.error(messages.UnexpectedEndOfFile, expectedClose);
+          error(messages.UnexpectedEndOfFile, expectedClose);
         }
         break;
       }
 
-    } while (!predicate(this.#ch, this.#chNext, this.#chNextNext));
+      ch = input.charCodeAt(position);
+    } while (!predicate(ch));
 
     if (consumeClose) {
-      this.advance(consumeClose);
+      position += consumeClose;
     }
-
-    // and after...
-    this.markPosition();
-
-    return this.#text.substring(start, this.#offset);
   }
 
-  private scanSingleLineComment() {
-    this.value = this.scanUntil(isLineBreak);
-    return this.token = Kind.SingleLineComment;
+  function scanSingleLineComment() {
+    scanUntil(isLineBreak);
+    return token = Token.SingleLineComment;
   }
 
-  private scanMultiLineComment() {
-    this.value = this.scanUntil((ch, chNext) => ch === CharacterCodes.asterisk && chNext === CharacterCodes.slash, '*/', 2);
-    return this.token = Kind.MultiLineComment;
+  function scanMultiLineComment() {
+    scanUntil(ch => ch === CharacterCodes.asterisk && lookAhead(1) === CharacterCodes.slash, '*/', 2);
+    return token = Token.MultiLineComment;
   }
 
-  private scanString() {
-    const quote = this.#ch;
-    const tripleQuoted = this.#ch == this.#chNext && this.#ch == this.#chNextNext;
-    const quoteLength = tripleQuoted ? 3 : 1;
-    const closing = tripleQuoted ? String.fromCharCode(this.#ch, this.#ch, this.#ch) : String.fromCharCode(this.#ch);
-    let escaped = false;
-    let crlf = false;
+  function scanString() {
+    let quoteLength = 1;
+    let closing = '"';
     let isEscaping = false;
 
-    const text = this.scanUntil((ch, chNext, chNextNext) => {
+    const tripleQuoted = lookAhead(1) === CharacterCodes.doubleQuote &&
+                         lookAhead(2) === CharacterCodes.doubleQuote;
+
+    if (tripleQuoted) {
+      tokenFlags |= TokenFlags.TripleQuoted;
+      quoteLength = 3;
+      closing = '"""';
+    }
+
+    position += quoteLength;
+
+    scanUntil(ch => {
       if (isEscaping) {
         isEscaping = false;
         return false;
       }
 
-      if (ch === CharacterCodes.backslash) {
-        isEscaping = escaped = true;
-        return false;
-      }
+      switch (ch) {
+        case CharacterCodes.carriageReturn:
+          if (lookAhead(1) === CharacterCodes.lineFeed) {
+            tokenFlags |= TokenFlags.HasCrlf;
+          }
+          return false;
 
-      if (ch == CharacterCodes.carriageReturn) {
-        if (chNext == CharacterCodes.lineFeed) {
-          crlf = true;
-        }
-        return false;
-      }
+        case CharacterCodes.backslash:
+          isEscaping = true;
+          tokenFlags |= TokenFlags.Escaped;
+          return false;
 
-      return ch === quote && (!tripleQuoted || (chNext === quote && chNextNext === quote));
+        case CharacterCodes.doubleQuote:
+          if (tripleQuoted) {
+            return lookAhead(1) === CharacterCodes.doubleQuote && lookAhead(2) === CharacterCodes.doubleQuote;
+          }
+          return true;
+
+        default:
+          return false;
+      }
     }, closing, quoteLength);
 
-    // TODO: optimize to single pass over string, easier if we refactor some bookkeeping first.
+    return token = Token.StringLiteral;
+  }
+
+  function getTokenValue() {
+    if (tokenValue !== undefined) {
+      return tokenValue;
+    }
+
+    if (token !== Token.StringLiteral) {
+      return tokenValue = getTokenText();
+    }
 
     // strip quotes
-    let value = text.substring(quoteLength, text.length - quoteLength);
+    const quoteLength = (tokenFlags & TokenFlags.TripleQuoted) ? 3 : 1;
+    let value = input.substring(tokenPosition + quoteLength, position - quoteLength);
 
     // Normalize CRLF to LF when interpreting value of multi-line string
     // literals. Matches JavaScript behavior and ensures program behavior does
     // not change due to line-ending conversion.
-    if (crlf) {
+    if (tokenFlags & TokenFlags.HasCrlf) {
       value = value.replace(/\r\n/g, '\n');
     }
 
-    if (tripleQuoted) {
-      value = this.unindentTripleQuoteString(value);
+    if (tokenFlags & TokenFlags.TripleQuoted) {
+      value = unindentTripleQuoteString(value);
     }
 
-    if (escaped) {
-      value = this.unescapeString(value);
+    if (tokenFlags & TokenFlags.Escaped) {
+      value = unescapeString(value);
     }
 
-    this.value = text;
-    this.stringValue = value;
-    return this.token = Kind.StringLiteral;
+    return tokenValue = value;
   }
 
-  private unindentTripleQuoteString(text: string) {
+  function unindentTripleQuoteString(text: string) {
     let start = 0;
     let end = text.length;
 
@@ -732,7 +499,7 @@ export class Scanner {
     if (isLineBreak(text.charCodeAt(start))) {
       start++;
     } else {
-      this.error(messages.NoNewLineAtStartOfTripleQuotedString);
+      error(messages.NoNewLineAtStartOfTripleQuotedString);
     }
 
     // remove whitespace before closing delimiter and record it as
@@ -746,19 +513,19 @@ export class Scanner {
     if (isLineBreak(text.charCodeAt(end - 1))) {
       end--;
     } else {
-      this.error(messages.NoNewLineAtEndOfTripleQuotedString);
+      error(messages.NoNewLineAtEndOfTripleQuotedString);
     }
 
     // remove required matching indentation from each line
-    return this.removeMatchingIndentation(text, start, end, indentation);
+    return removeMatchingIndentation(text, start, end, indentation);
   }
 
-  private removeMatchingIndentation(text: string, start: number, end: number, indentation: string) {
+  function removeMatchingIndentation(text: string, start: number, end: number, indentation: string) {
     let result = '';
     let pos = start;
 
     while (pos < end) {
-      start = this.skipMatchingIndentation(text, pos, end, indentation);
+      start = skipMatchingIndentation(text, pos, end, indentation);
       while (pos < end && !isLineBreak(text.charCodeAt(pos))) {
         pos++;
       }
@@ -771,7 +538,7 @@ export class Scanner {
     return result;
   }
 
-  private skipMatchingIndentation(text: string, pos: number, end: number, indentation: string) {
+  function skipMatchingIndentation(text: string, pos: number, end: number, indentation: string) {
     end = Math.min(end, pos + indentation.length);
 
     let indentationPos = 0;
@@ -782,7 +549,7 @@ export class Scanner {
         break;
       }
       if (ch != indentation.charCodeAt(indentationPos)) {
-        this.error(messages.InconsistentTripleQuoteIndentation);
+        error(messages.InconsistentTripleQuoteIndentation);
         break;
       }
       indentationPos++;
@@ -792,7 +559,7 @@ export class Scanner {
     return pos;
   }
 
-  private unescapeString(text: string) {
+  function unescapeString(text: string) {
     let result = '';
     let start = 0;
     let pos = 0;
@@ -826,7 +593,7 @@ export class Scanner {
           result += '\\';
           break;
         default:
-          this.error(messages.InvalidEscapeSequence);
+          error(messages.InvalidEscapeSequence);
           result += String.fromCharCode(ch);
           break;
       }
@@ -839,41 +606,8 @@ export class Scanner {
     return result;
   }
 
-  scanIdentifier() {
-    this.value = this.scanUntil((ch) => !isIdentifierPart(ch));
-    return this.token = keywords.get(this.value) ?? Kind.Identifier;
-  }
-
-  /**
-   * Returns the zero-based line/column from the given offset
-   * (binary search thru the token start locations)
-   * @param offset the character position in the document
-   */
-  positionFromOffset(offset: number): Position {
-    let position = { line: 0, character: 0, offset: 0 };
-
-    // eslint-disable-next-line keyword-spacing
-    if (offset < 0 || offset > this.#length) {
-      return { line: position.line, character: position.character };
-    }
-
-    let first = 0;    //left endpoint
-    let last = this.#map.length - 1;   //right endpoint
-    let middle = Math.floor((first + last) / 2);
-
-    while (first <= last) {
-      middle = Math.floor((first + last) / 2);
-      position = this.#map[middle];
-      if (position.offset === offset) {
-        return { line: position.line, character: position.character };
-      }
-      if (position.offset < offset) {
-        first = middle + 1;
-        continue;
-      }
-      last = middle - 1;
-      position = this.#map[last];
-    }
-    return { line: position.line, character: position.character + (offset - position.offset) };
+  function scanIdentifier() {
+    scanUntil(ch => !isIdentifierPart(ch));
+    return token = keywords.get(getTokenValue()) ?? Token.Identifier;
   }
 }
