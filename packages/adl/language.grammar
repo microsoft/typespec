@@ -24,7 +24,7 @@ Keyword :
     BooleanLiteral
     `import`
     `model`
-    `interface`
+    `namespace`
 
 Identifier :
     IdentifierName but not Keyword
@@ -171,7 +171,7 @@ StatementList :
 Statement :
     ImportStatement
     ModelStatement
-    InterfaceStatement
+    NamespaceStatement
     `;`
 
 ImportStatement :
@@ -210,19 +210,19 @@ ModelProperty:
 ModelSpreadProperty :
     `...` Identifier
 
-InterfaceStatement : 
-    DecoratorList? `interface` Identifier `{` InterfaceBody? `}`
+NamespaceStatement: 
+    DecoratorList? `namespace` Identifier `{` NamespaceBody? `}`
 
-InterfaceBody :
-    InterfacePropertyList `,`?
-    InterfacePropertyList `;`?
+NamespaceBody :
+    NamespacePropertyList `,`?
+    NamespacePropertyList `;`?
 
-InterfacePropertyList :
-    InterfaceProperty
-    InterfacePropertyList `,` InterfaceProperty
-    InterfacePropertyList `;` InterfaceProperty
+NamespacePropertyList :
+    NamespaceProperty
+    NamespacePropertyList `,` NamespaceProperty
+    NamespacePropertyList `;` NamespaceProperty
 
-InterfaceProperty :
+NamespaceProperty :
     DecoratorList? Identifier `(` ModelPropertyList? `)` `:` Expression
 
 Expression :
