@@ -10,7 +10,7 @@ import { resolvePath } from './util.js';
 import {
   ADLScriptNode,
   DecoratorExpressionNode, IdentifierNode,
-  InterfaceType,
+  Namespace,
   LiteralType,
   ModelStatementNode,
   ModelType,
@@ -27,7 +27,7 @@ export interface Program {
   checker?: ReturnType<typeof createChecker>;
   evalAdlScript(adlScript: string, filePath?: string): void;
   onBuild(cb: (program: Program) => void): void;
-  executeInterfaceDecorators(type: InterfaceType): void;
+  executeInterfaceDecorators(type: Namespace): void;
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
 }
@@ -37,7 +37,7 @@ export interface ADLSourceFile {
   path: string;
   symbols: SymbolTable;
   models: Array<ModelType>;
-  interfaces: Array<InterfaceType>;
+  interfaces: Array<Namespace>;
 }
 
 export async function compile(rootDir: string, options?: CompilerOptions) {
@@ -71,7 +71,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
    * does type checking.
    */
 
-  function executeInterfaceDecorators(type: InterfaceType) {
+  function executeInterfaceDecorators(type: Namespace) {
     const stmt = type.node;
 
     for (const dec of stmt.decorators) {

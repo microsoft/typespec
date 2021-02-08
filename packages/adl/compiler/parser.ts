@@ -38,7 +38,7 @@ export function parse(code: string) {
           return parseImportStatement();
         case Token.ModelKeyword:
           return parseModelStatement(decorators);
-        case Token.InterfaceKeyword:
+        case Token.NamespaceKeyword:
           return parseInterfaceStatement(decorators);
         case Token.Semicolon:
           if (decorators.length > 0) {
@@ -66,9 +66,9 @@ export function parse(code: string) {
 
   function parseInterfaceStatement(
     decorators: Array<Types.DecoratorExpressionNode>
-  ): Types.InterfaceStatementNode {
+  ): Types.NamespaceStatementNode {
     const pos = tokenPos();
-    parseExpected(Token.InterfaceKeyword);
+    parseExpected(Token.NamespaceKeyword);
     const id = parseIdentifier();
     let parameters: Types.ModelExpressionNode | undefined;
 
@@ -86,20 +86,20 @@ export function parse(code: string) {
 
 
     parseExpected(Token.OpenBrace);
-    const properties: Array<Types.InterfacePropertyNode> = [];
+    const properties: Array<Types.NamespacePropertyNode> = [];
 
     do {
       if (token() == Token.CloseBrace) {
         break;
       }
       const memberDecorators = parseDecoratorList();
-      properties.push(parseInterfaceProperty(memberDecorators));
+      properties.push(parseNamespaceProperty(memberDecorators));
     } while (parseOptional(Token.Comma) || parseOptional(Token.Semicolon));
 
     parseExpected(Token.CloseBrace);
 
     return finishNode({
-      kind: Types.SyntaxKind.InterfaceStatement,
+      kind: Types.SyntaxKind.NamespaceStatement,
       decorators,
       id,
       parameters,
@@ -107,7 +107,7 @@ export function parse(code: string) {
     }, pos);
   }
 
-  function parseInterfaceProperty(decorators: Array<Types.DecoratorExpressionNode>): Types.InterfacePropertyNode {
+  function parseNamespaceProperty(decorators: Array<Types.DecoratorExpressionNode>): Types.NamespacePropertyNode {
     const pos = tokenPos();
     const id = parseIdentifier();
     parseExpected(Token.OpenParen);
@@ -128,7 +128,7 @@ export function parse(code: string) {
     const returnType = parseExpression();
 
     return finishNode({
-      kind: Types.SyntaxKind.InterfaceProperty,
+      kind: Types.SyntaxKind.NamespaceProperty,
       id,
       parameters,
       returnType,
@@ -637,16 +637,16 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
     case Types.SyntaxKind.ImportStatement:
       return visitNode(cb, (<Types.ImportStatementNode>node).id) ||
         visitEach(cb, (<Types.ImportStatementNode>node).as);
-    case Types.SyntaxKind.InterfaceProperty:
-      return visitEach(cb, (<Types.InterfacePropertyNode>node).decorators) ||
-        visitNode(cb, (<Types.InterfacePropertyNode>node).id) ||
-        visitNode(cb, (<Types.InterfacePropertyNode>node).parameters) ||
-        visitNode(cb, (<Types.InterfacePropertyNode>node).returnType);
-    case Types.SyntaxKind.InterfaceStatement:
-      return visitEach(cb, (<Types.InterfaceStatementNode> node).decorators) ||
-        visitNode(cb, (<Types.InterfaceStatementNode>node).id) ||
-        visitNode(cb, (<Types.InterfaceStatementNode>node).parameters) ||
-        visitEach(cb, (<Types.InterfaceStatementNode>node).properties);
+    case Types.SyntaxKind.NamespaceProperty:
+      return visitEach(cb, (<Types.NamespacePropertyNode>node).decorators) ||
+        visitNode(cb, (<Types.NamespacePropertyNode>node).id) ||
+        visitNode(cb, (<Types.NamespacePropertyNode>node).parameters) ||
+        visitNode(cb, (<Types.NamespacePropertyNode>node).returnType);
+    case Types.SyntaxKind.NamespaceStatement:
+      return visitEach(cb, (<Types.NamespaceStatementNode> node).decorators) ||
+        visitNode(cb, (<Types.NamespaceStatementNode>node).id) ||
+        visitNode(cb, (<Types.NamespaceStatementNode>node).parameters) ||
+        visitEach(cb, (<Types.NamespaceStatementNode>node).properties);
     case Types.SyntaxKind.IntersectionExpression:
       return visitEach(cb, (<Types.IntersectionExpressionNode>node).options);
     case Types.SyntaxKind.MemberExpression:
