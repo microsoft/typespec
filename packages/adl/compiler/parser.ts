@@ -3,7 +3,7 @@ import { createScanner, Token } from './scanner.js';
 import * as Types from './types.js';
 
 
-export function parse(code: string) {
+export function parse(code: string | Types.SourceFile) {
   const scanner = createScanner(code, (msg, params) => error(format(msg.text, ...params)));
   nextToken();
   return parseADLScript();
@@ -589,7 +589,7 @@ export function parse(code: string) {
 
   function error(msg: string) {
     const pos = scanner.source.getLineAndCharacterOfPosition(scanner.tokenPosition);
-    throw new Error(`[${pos.line + 1}, ${pos.character + 1}] ${msg}`);
+    throw new Error(`${scanner.source.path}:${pos.line + 1}:${pos.character + 1} - error: ${msg}`);
   }
 
   function parseExpected(expectedToken: Token) {
