@@ -10,8 +10,6 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "eslint-fix": "eslint  . --fix --ext .ts",
-    "eslint": "eslint  . --ext .ts",
     "build": "tsc -p . && npm run grammargen",
     "watch": "tsc -p . --watch",
     "prepare": "npm run build",
@@ -44,9 +42,6 @@
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "14.0.27",
-    "@typescript-eslint/eslint-plugin": "2.28.0",
-    "@typescript-eslint/parser": "2.28.0",
-    "eslint": "6.8.0",
     "grammarkdown": "^3.1.1",
     "mocha": "7.1.2",
     "ts-node": "^8.10.2",
