@@ -17,6 +17,7 @@ import {
   SyntaxKind,
   Type
 } from './types.js';
+import { createSourceFile } from "./scanner.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -219,7 +220,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
   // virtual file path
   function evalAdlScript(adlScript: string, filePath?: string): void {
     filePath = filePath ?? `__virtual_file_${++virtualFileCount}`;
-    const ast = parse(adlScript);
+    const ast = parse(createSourceFile(adlScript, filePath));
     const sourceFile = {
       ast,
       path: filePath,
