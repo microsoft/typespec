@@ -41,6 +41,8 @@ export function getIntrinsicType(target: Type | undefined): string | undefined {
       target =
         (target.assignmentType?.kind === "Model" && target.assignmentType)
         || undefined;
+    } else if (target.kind === "ModelProperty") {
+      return getIntrinsicType(target.type);
     } else {
       break;
     }
@@ -75,7 +77,7 @@ export function getFormat(target: Type): string | undefined {
 const minLengthValues = new Map<Type, number>();
 
 export function minLength(program: Program, target: Type, minLength: number) {
-  if (target.kind === "Model") {
+  if (target.kind === "Model" || target.kind === "ModelProperty") {
     // Is it a model type that ultimately derives from 'string'?
     if (getIntrinsicType(target) === "string") {
       minLengthValues.set(target, minLength);
@@ -83,7 +85,7 @@ export function minLength(program: Program, target: Type, minLength: number) {
       throw new Error("Cannot apply @minLength to a non-string type");
     }
   } else {
-    throw new Error("Cannot apply @minLength to anything that isn't a Model");
+    throw new Error("Cannot apply @minLength to anything that isn't a Model or ModelProperty");
   }
 }
 
@@ -96,7 +98,7 @@ export function getMinLength(target: Type): number | undefined {
 const maxLengthValues = new Map<Type, number>();
 
 export function maxLength(program: Program, target: Type, maxLength: number) {
-  if (target.kind === "Model") {
+  if (target.kind === "Model" || target.kind === "ModelProperty") {
     // Is it a model type that ultimately derives from 'string'?
     if (getIntrinsicType(target) === "string") {
       maxLengthValues.set(target, maxLength);
@@ -104,7 +106,7 @@ export function maxLength(program: Program, target: Type, maxLength: number) {
       throw new Error("Cannot apply @maxLength to a non-string type");
     }
   } else {
-    throw new Error("Cannot apply @maxLength to anything that isn't a Model");
+    throw new Error("Cannot apply @maxLength to anything that isn't a Model or ModelProperty");
   }
 }
 
