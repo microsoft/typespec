@@ -119,7 +119,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
       throw new Error('Decorator must be identifier');
     }
 
-    const decName = (<IdentifierNode>dec.target).sv;
+    const decName = dec.target.sv;
     const args = dec.arguments.map((a) =>
       toJSON(checker.getTypeForNode(a))
     );

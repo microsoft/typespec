@@ -630,54 +630,54 @@ type NodeCb<T> =  (c: Types.Node) => T;
 export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined {
   switch (node.kind) {
     case Types.SyntaxKind.ADLScript:
-      return visitEach(cb, (<Types.ADLScriptNode>node).statements);
+      return visitEach(cb, node.statements);
     case Types.SyntaxKind.ArrayExpression:
-      return visitNode(cb, (<Types.ArrayExpressionNode>node).elementType);
+      return visitNode(cb, node.elementType);
     case Types.SyntaxKind.DecoratorExpression:
-      return visitNode(cb, (<Types.DecoratorExpressionNode>node).target) ||
-        visitEach(cb, (<Types.DecoratorExpressionNode>node).arguments);
+      return visitNode(cb, node.target) ||
+        visitEach(cb, node.arguments);
     case Types.SyntaxKind.ImportStatement:
-      return visitNode(cb, (<Types.ImportStatementNode>node).id) ||
-        visitEach(cb, (<Types.ImportStatementNode>node).as);
+      return visitNode(cb, node.id) ||
+        visitEach(cb, node.as);
     case Types.SyntaxKind.NamespaceProperty:
-      return visitEach(cb, (<Types.NamespacePropertyNode>node).decorators) ||
-        visitNode(cb, (<Types.NamespacePropertyNode>node).id) ||
-        visitNode(cb, (<Types.NamespacePropertyNode>node).parameters) ||
-        visitNode(cb, (<Types.NamespacePropertyNode>node).returnType);
+      return visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.parameters) ||
+        visitNode(cb, node.returnType);
     case Types.SyntaxKind.NamespaceStatement:
-      return visitEach(cb, (<Types.NamespaceStatementNode> node).decorators) ||
-        visitNode(cb, (<Types.NamespaceStatementNode>node).id) ||
-        visitNode(cb, (<Types.NamespaceStatementNode>node).parameters) ||
-        visitEach(cb, (<Types.NamespaceStatementNode>node).properties);
+      return visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.parameters) ||
+        visitEach(cb, node.properties);
     case Types.SyntaxKind.IntersectionExpression:
-      return visitEach(cb, (<Types.IntersectionExpressionNode>node).options);
+      return visitEach(cb, node.options);
     case Types.SyntaxKind.MemberExpression:
-      return visitNode(cb, (<Types.MemberExpressionNode>node).base) ||
-        visitNode(cb, (<Types.MemberExpressionNode>node).id);
+      return visitNode(cb, node.base) ||
+        visitNode(cb, node.id);
     case Types.SyntaxKind.ModelExpression:
-      return visitEach(cb, (<Types.ModelExpressionNode>node).decorators) ||
-        visitEach(cb, (<Types.ModelExpressionNode>node).properties);
+      return visitEach(cb, node.decorators) ||
+        visitEach(cb, node.properties);
     case Types.SyntaxKind.ModelProperty:
-      return visitEach(cb, (<Types.ModelPropertyNode>node).decorators) ||
-        visitNode(cb, (<Types.ModelPropertyNode>node).id) ||
-        visitNode(cb, (<Types.ModelPropertyNode>node).value);
+      return visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.value);
     case Types.SyntaxKind.ModelSpreadProperty:
-      return visitNode(cb, (<Types.ModelSpreadPropertyNode>node).target);
+      return visitNode(cb, node.target);
     case Types.SyntaxKind.ModelStatement:
-      return visitEach(cb, (<Types.ModelStatementNode>node).decorators) ||
-        visitNode(cb, (<Types.ModelStatementNode>node).id) ||
-        visitEach(cb, (<Types.ModelStatementNode>node).templateParameters) ||
-        visitNode(cb, (<Types.ModelStatementNode>node).assignment) ||
-        visitEach(cb, (<Types.ModelStatementNode>node).properties);
+      return visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.assignment) ||
+        visitEach(cb, node.properties);
     case Types.SyntaxKind.NamedImport:
-      return visitNode(cb, (<Types.NamedImportNode>node).id);
+      return visitNode(cb, node.id);
     case Types.SyntaxKind.TemplateApplication:
-      return visitNode(cb, (<Types.TemplateApplicationNode>node).target) ||
-        visitEach(cb, (<Types.TemplateApplicationNode>node).arguments);
+      return visitNode(cb, node.target) ||
+        visitEach(cb, node.arguments);
     case Types.SyntaxKind.TupleExpression:
-      return visitEach(cb, (<Types.TupleExpressionNode>node).values);
+      return visitEach(cb, node.values);
     case Types.SyntaxKind.UnionExpression:
-      return visitEach(cb, (<Types.UnionExpressionNode>node).options);
+      return visitEach(cb, node.options);
     // no children for the rest of these.
     case Types.SyntaxKind.StringLiteral:
     case Types.SyntaxKind.NumericLiteral:

@@ -126,14 +126,26 @@ export enum SyntaxKind {
   TemplateParameterDeclaration
 }
 
-export interface Node {
+export interface BaseNode {
   kind: SyntaxKind;
   pos: number;
   end: number;
   parent?: Node;
 }
 
-export interface ADLScriptNode extends Node {
+export type Node = 
+  | ADLScriptNode 
+  | TemplateParameterDeclarationNode
+  | ModelPropertyNode
+  | NamespacePropertyNode
+  | NamedImportNode
+  | ModelPropertyNode
+  | ModelSpreadPropertyNode
+  | DecoratorExpressionNode
+  | Statement 
+  | Expression;
+
+export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
   statements: Array<Statement>;
 }
@@ -143,23 +155,23 @@ export type Statement =
   | ModelStatementNode
   | NamespaceStatementNode;
 
-export interface ImportStatementNode extends Node {
+export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
   id: IdentifierNode;
   as: Array<NamedImportNode>;
 }
 
-export interface IdentifierNode extends Node {
+export interface IdentifierNode extends BaseNode {
   kind: SyntaxKind.Identifier;
   sv: string;
 }
 
-export interface NamedImportNode extends Node {
+export interface NamedImportNode extends BaseNode {
   kind: SyntaxKind.NamedImport;
   id: IdentifierNode;
 }
 
-export interface DecoratorExpressionNode extends Node {
+export interface DecoratorExpressionNode extends BaseNode {
   kind: SyntaxKind.DecoratorExpression;
   target: IdentifierNode | MemberExpressionNode;
   arguments: Array<Expression>;
@@ -178,13 +190,13 @@ export type Expression =
   | NumericLiteralNode
   | BooleanLiteralNode;
 
-export interface MemberExpressionNode extends Node {
+export interface MemberExpressionNode extends BaseNode {
   kind: SyntaxKind.MemberExpression;
   id: IdentifierNode;
   base: MemberExpressionNode | IdentifierNode;
 }
 
-export interface NamespaceStatementNode extends Node {
+export interface NamespaceStatementNode extends BaseNode {
   kind: SyntaxKind.NamespaceStatement;
   id: IdentifierNode;
   parameters?: ModelExpressionNode;
@@ -192,7 +204,7 @@ export interface NamespaceStatementNode extends Node {
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface NamespacePropertyNode extends Node {
+export interface NamespacePropertyNode extends BaseNode {
   kind: SyntaxKind.NamespaceProperty;
   id: IdentifierNode;
   parameters: ModelExpressionNode;
@@ -201,7 +213,7 @@ export interface NamespacePropertyNode extends Node {
 }
 
 
-export interface ModelStatementNode extends Node {
+export interface ModelStatementNode extends BaseNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
   properties?: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
@@ -211,22 +223,22 @@ export interface ModelStatementNode extends Node {
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface ModelExpressionNode extends Node {
+export interface ModelExpressionNode extends BaseNode {
   kind: SyntaxKind.ModelExpression;
   properties: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface ArrayExpressionNode extends Node {
+export interface ArrayExpressionNode extends BaseNode {
   kind: SyntaxKind.ArrayExpression;
   elementType: Expression;
 }
-export interface TupleExpressionNode extends Node {
+export interface TupleExpressionNode extends BaseNode {
   kind: SyntaxKind.TupleExpression;
   values: Array<Expression>;
 }
 
-export interface ModelPropertyNode extends Node {
+export interface ModelPropertyNode extends BaseNode {
   kind: SyntaxKind.ModelProperty;
   id: IdentifierNode | StringLiteralNode;
   value: Expression;
@@ -234,45 +246,45 @@ export interface ModelPropertyNode extends Node {
   optional: boolean;
 }
 
-export interface ModelSpreadPropertyNode extends Node {
+export interface ModelSpreadPropertyNode extends BaseNode {
   kind: SyntaxKind.ModelSpreadProperty;
   target: IdentifierNode;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
 
-export interface StringLiteralNode extends Node {
+export interface StringLiteralNode extends BaseNode {
   kind: SyntaxKind.StringLiteral;
   value: string;
 }
 
-export interface NumericLiteralNode extends Node {
+export interface NumericLiteralNode extends BaseNode {
   kind: SyntaxKind.NumericLiteral;
   value: number;
 }
 
-export interface BooleanLiteralNode extends Node {
+export interface BooleanLiteralNode extends BaseNode {
   kind: SyntaxKind.BooleanLiteral;
   value: boolean;
 }
 
-export interface UnionExpressionNode extends Node {
+export interface UnionExpressionNode extends BaseNode {
   kind: SyntaxKind.UnionExpression;
   options: Array<Expression>;
 }
 
-export interface IntersectionExpressionNode extends Node {
+export interface IntersectionExpressionNode extends BaseNode {
   kind: SyntaxKind.IntersectionExpression;
   options: Array<Expression>;
 }
 
-export interface TemplateApplicationNode extends Node {
+export interface TemplateApplicationNode extends BaseNode {
   kind: SyntaxKind.TemplateApplication;
   target: Expression;
   arguments: Array<Expression>;
 }
 
-export interface TemplateParameterDeclarationNode extends Node {
+export interface TemplateParameterDeclarationNode extends BaseNode {
   kind: SyntaxKind.TemplateParameterDeclaration;
   sv: string;
 }
