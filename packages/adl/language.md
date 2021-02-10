@@ -102,7 +102,7 @@
   
 &emsp;&emsp;<a name="EscapeCharacter"></a>*EscapeCharacter* **:** **one of** `` " ``&emsp;`` r ``&emsp;`` n ``&emsp;`` t ``&emsp;`` \ ``  
   
-&emsp;&emsp;<a name="Punctuator"></a>*Punctuator* **:** **one of** `` | ``&emsp;`` : ``&emsp;`` , ``&emsp;`` ; ``&emsp;`` . ``&emsp;`` < ``&emsp;`` > ``&emsp;`` ( ``&emsp;`` ) ``&emsp;`` { ``&emsp;`` } ``&emsp;`` [ ``&emsp;`` ] ``&emsp;`` @ ``&emsp;`` ... ``  
+&emsp;&emsp;<a name="Punctuator"></a>*Punctuator* **:** **one of** `` | ``&emsp;`` ? ``&emsp;`` = ``&emsp;`` & ``&emsp;`` : ``&emsp;`` , ``&emsp;`` ; ``&emsp;`` . ``&emsp;`` < ``&emsp;`` > ``&emsp;`` ( ``&emsp;`` ) ``&emsp;`` { ``&emsp;`` } ``&emsp;`` [ ``&emsp;`` ] ``&emsp;`` @ ``&emsp;`` ... ``  
   
 &emsp;&emsp;<a name="WhiteSpace"></a>*WhiteSpace* **:**  
 &emsp;&emsp;&emsp;<a name="WhiteSpace-9384a802"></a>&lt;TAB&gt;  
@@ -191,8 +191,8 @@
   
 &emsp;&emsp;<a name="ModelProperty"></a>*ModelProperty* **:**  
 &emsp;&emsp;&emsp;<a name="ModelProperty-18804a23"></a>*[ModelSpreadProperty](#ModelSpreadProperty)*  
-&emsp;&emsp;&emsp;<a name="ModelProperty-87d190a4"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;*[Identifier](#Identifier)*&emsp;`` : ``&emsp;*[Expression](#Expression)*  
-&emsp;&emsp;&emsp;<a name="ModelProperty-d8c842ba"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;*[StringLiteral](#StringLiteral)*&emsp;`` : ``&emsp;*[Expression](#Expression)*  
+&emsp;&emsp;&emsp;<a name="ModelProperty-efb9eb30"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;*[Identifier](#Identifier)*&emsp;`` ? ``<sub>opt</sub>&emsp;`` : ``&emsp;*[Expression](#Expression)*  
+&emsp;&emsp;&emsp;<a name="ModelProperty-54c19581"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;*[StringLiteral](#StringLiteral)*&emsp;`` ? ``<sub>opt</sub>&emsp;`` : ``&emsp;*[Expression](#Expression)*  
   
 &emsp;&emsp;<a name="ModelSpreadProperty"></a>*ModelSpreadProperty* **:**  
 &emsp;&emsp;&emsp;<a name="ModelSpreadProperty-ba1e81db"></a>`` ... ``&emsp;*[Identifier](#Identifier)*  

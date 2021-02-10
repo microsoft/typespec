@@ -112,7 +112,7 @@ EscapeCharacter :
     one of `"` `r` `n` `t` `\`
 
 Punctuator : 
-    one of  `|` `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...`
+    one of  `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...`
 
 WhiteSpace :
     <TAB>
@@ -205,8 +205,8 @@ ModelPropertyList :
 
 ModelProperty:
     ModelSpreadProperty
-    DecoratorList? Identifier `:` Expression
-    DecoratorList? StringLiteral `:` Expression
+    DecoratorList? Identifier `?`? `:` Expression
+    DecoratorList? StringLiteral `?`? `:` Expression
 
 ModelSpreadProperty :
     `...` Identifier
