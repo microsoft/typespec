@@ -1,5 +1,5 @@
 import { Program } from "../compiler/program";
-import { ModelTypeProperty, Namespace, Type } from "../compiler/types";
+import { ModelTypeProperty, NamespaceType, Type } from "../compiler/types";
 
 const docs = new Map<Type, string>();
 
@@ -178,7 +178,7 @@ function mapFilterOut(
 const listProperties = new Set<Type>();
 
 export function list(program: Program, target: Type) {
-  if (target.kind === "NamespaceProperty" || target.kind === "ModelProperty") {
+  if (target.kind === "Operation" || target.kind === "ModelProperty") {
     listProperties.add(target);
   } else {
     throw new Error("The @list decorator can only be applied to interface or model properties.");
@@ -195,7 +195,7 @@ const tagProperties = new Map<Type, string[]>();
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
 export function tag(program: Program, target: Type, tag: string) {
-  if (target.kind === "NamespaceProperty" || target.kind === "Namespace") {
+  if (target.kind === "Operation" || target.kind === "Namespace") {
     const tags = tagProperties.get(target);
     if (tags) {
       tags.push(tag);
@@ -215,7 +215,7 @@ export function getTags(target: Type): string[] {
 // Merge the tags for a operation with the tags that are on the namespace it resides within.
 //
 // TODO: (JC) We'll need to update this for nested namespaces
-export function getAllTags(namespace: Namespace, target: Type): string[] | undefined {
+export function getAllTags(namespace: NamespaceType, target: Type): string[] | undefined {
   const tags = new Set<string>();
 
   for (const t of getTags(namespace)) {

@@ -11,7 +11,7 @@ import {
   ADLScriptNode,
   DecoratorExpressionNode,
   IdentifierNode,
-  Namespace,
+  NamespaceType,
   LiteralType,
   ModelStatementNode,
   ModelType,
@@ -32,7 +32,7 @@ export interface Program {
   checker?: ReturnType<typeof createChecker>;
   evalAdlScript(adlScript: string, filePath?: string): void;
   onBuild(cb: (program: Program) => void): void;
-  executeInterfaceDecorators(type: Namespace): void;
+  executeNamespaceDecorators(type: NamespaceType): void;
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
 }
@@ -41,7 +41,7 @@ export interface ADLSourceFile extends SourceFile {
   ast: ADLScriptNode;
   symbols: SymbolTable;
   models: Array<ModelType>;
-  interfaces: Array<Namespace>;
+  interfaces: Array<NamespaceType>;
 }
 
 export async function compile(rootDir: string, options?: CompilerOptions) {
@@ -54,7 +54,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     typeCache: new MultiKeyMap(),
     literalTypes: new Map(),
     evalAdlScript,
-    executeInterfaceDecorators,
+    executeNamespaceDecorators,
     executeModelDecorators,
     executeDecorators,
     onBuild(cb) {
@@ -79,14 +79,22 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
    * does type checking.
    */
 
-  function executeInterfaceDecorators(type: Namespace) {
+  function executeNamespaceDecorators(type: NamespaceType) {
     const stmt = type.node;
 
     for (const dec of stmt.decorators) {
       executeDecorator(dec, program, type);
     }
 
-    for (const [name, propType] of type.properties) {
+    for (const [_, modelType] of type.models) {
+      executeModelDecorators(modelType);
+    }
+
+    for (const [_, namespaceType] of type.namespaces) {
+      executeNamespaceDecorators(namespaceType);
+    }
+
+    for (const [_, propType] of type.operations) {
       for (const dec of propType.node.decorators) {
         executeDecorator(dec, program, propType);
       }

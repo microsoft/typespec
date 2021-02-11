@@ -1,3 +1,4 @@
+import { SymbolTable } from "./binder.js";
 import { throwDiagnostic } from "./diagnostics.js";
 import { ADLSourceFile, Program } from "./program.js";
 import {
@@ -5,10 +6,10 @@ import {
   BooleanLiteralNode,
   BooleanLiteralType,
   IdentifierNode,
-  NamespacePropertyNode,
+  OperationStatementNode,
   NamespaceStatementNode,
-  Namespace,
-  NamespaceProperty,
+  NamespaceType,
+  OperationType,
   IntersectionExpressionNode,
   LiteralNode,
   LiteralType,
@@ -34,6 +35,8 @@ import {
   DecoratorSymbol,
   TypeSymbol,
   SymbolLinks,
+  MemberExpressionNode,
+  Sym,
 } from "./types.js";
 
 /**
@@ -85,7 +88,7 @@ export function createChecker(program: Program) {
     checkProgram,
     getLiteralType,
     getTypeName,
-    checkNamespaceProperty,
+    checkOperation,
   };
 
   function getTypeForNode(node: Node): Type {
@@ -98,8 +101,8 @@ export function createChecker(program: Program) {
         return checkModelProperty(node);
       case SyntaxKind.NamespaceStatement:
         return checkNamespace(node);
-      case SyntaxKind.NamespaceProperty:
-        return checkNamespaceProperty(node);
+      case SyntaxKind.OperationStatement:
+        return checkOperation(node);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -140,9 +143,16 @@ export function createChecker(program: Program) {
     return "(unnamed type)";
   }
 
+  function getNamespaceString(type: ModelType | NamespaceType | OperationType): string | undefined {
+    return type.namespace
+      ? `${getNamespaceString(type.namespace) || ""}${type.namespace.name}.`
+      : undefined;
+  }
+
   function getModelName(model: ModelType) {
+    let modelName: string | undefined = model.name;
     if ((<ModelStatementNode>model.node).assignment) {
-      return model.name;
+      // Just use the existing modelName
     } else if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
@@ -155,6 +165,8 @@ export function createChecker(program: Program) {
       // regular old model.
       return model.name || "(anonymous model)";
     }
+
+    return (getNamespaceString(model) || "") + modelName;
   }
 
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
@@ -327,16 +339,28 @@ export function createChecker(program: Program) {
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
-    const type: Namespace = createType({
+    const type: NamespaceType = createType({
       kind: "Namespace",
       name: node.id.sv,
+      namespace: getParentNamespaceType(node),
       node: node,
-      properties: new Map(),
-      parameters: node.parameters ? <ModelType>getTypeForNode(node.parameters) : undefined,
+      models: new Map(),
+      operations: new Map(),
+      namespaces: new Map(),
     });
 
-    for (const prop of node.properties) {
-      type.properties.set(prop.id.sv, checkNamespaceProperty(prop));
+    for (const statement of node.statements.map(getTypeForNode)) {
+      switch (statement.kind) {
+        case "Model":
+          type.models.set(statement.name, statement as ModelType);
+          break;
+        case "Operation":
+          type.operations.set(statement.name, statement as OperationType);
+          break;
+        case "Namespace":
+          type.namespaces.set(statement.name, statement as NamespaceType);
+          break;
+      }
     }
 
     const links = getSymbolLinks(node.symbol!);
@@ -345,13 +369,29 @@ export function createChecker(program: Program) {
     return type;
   }
 
-  function checkNamespaceProperty(prop: NamespacePropertyNode): NamespaceProperty {
+  function getParentNamespaceType(
+    node: ModelStatementNode | NamespaceStatementNode | OperationStatementNode
+  ) {
+    switch (node.kind) {
+      case SyntaxKind.ModelStatement:
+      case SyntaxKind.NamespaceStatement:
+      case SyntaxKind.OperationStatement:
+        return node.parent && node.parent.kind === SyntaxKind.NamespaceStatement
+          ? (getTypeForNode(node.parent) as NamespaceType)
+          : undefined;
+      default:
+        return undefined;
+    }
+  }
+
+  function checkOperation(node: OperationStatementNode): OperationType {
     return createType({
-      kind: "NamespaceProperty",
-      name: prop.id.sv,
-      node: prop,
-      parameters: <ModelType>getTypeForNode(prop.parameters),
-      returnType: getTypeForNode(prop.returnType),
+      kind: "Operation",
+      name: node.id.sv,
+      namespace: getParentNamespaceType(node),
+      node: node,
+      parameters: <ModelType>getTypeForNode(node.parameters),
+      returnType: getTypeForNode(node.returnType),
     });
   }
 
@@ -384,13 +424,75 @@ export function createChecker(program: Program) {
     return s.id;
   }
 
-  function resolveIdentifier(node: IdentifierNode): DecoratorSymbol | TypeSymbol {
+  function getMemberExpressionPath(node: MemberExpressionNode): string {
+    // Recursively build the rest of the path, back to front
+    const pathBefore =
+      node.base.kind === SyntaxKind.MemberExpression
+        ? getMemberExpressionPath(node.base)
+        : node.base.sv;
+
+    return pathBefore + "." + node.id.sv;
+  }
+
+  function checkMemberExpression(node: MemberExpressionNode) {
+    const binding = resolveMember(node);
+    if (binding) {
+      if (binding.kind === "decorator") {
+        return {};
+      } else {
+        return getTypeForNode(binding.node);
+      }
+    } else {
+      throwDiagnostic(`Cannot resolve identifier '${getMemberExpressionPath(node)}'`, node);
+    }
+  }
+
+  function resolveMember(node: MemberExpressionNode): any {
+    let result: Sym | undefined = undefined;
+
+    // Navigate down the member expression and then resolve on the way
+    // back up because the 'base' pointers are stored in reverse
+    if (node.base.kind === SyntaxKind.MemberExpression) {
+      result = resolveMember(node.base);
+    } else {
+      // The last 'base' in the chain will be an identifier, so
+      // resolve it first and then resolve all remaining member
+      // expressions with respect to its scope
+      result = resolveIdentifier(node.base);
+    }
+
+    if (result) {
+      // Previous segment was resolved, was it a namespace?
+      if (result.kind === "type") {
+        if (result.node.kind === SyntaxKind.NamespaceStatement) {
+          return resolveIdentifierInScope(node.id, result.node);
+        } else {
+          throwDiagnostic(
+            `Cannot resolve '${node.id.sv}' in non-namespace node ${result.node.kind}`,
+            node
+          );
+        }
+      } else {
+        throwDiagnostic(`Unexpectedly resolved '${node.id.sv}' to a decorator symbol`, node);
+      }
+    } else {
+      // Let checkMemberExpression report on the inability to
+      // resolve the member expression
+      return undefined;
+    }
+  }
+
+  function resolveIdentifierInScope(node: IdentifierNode, scope: { locals?: SymbolTable }) {
+    return (<any>scope).locals.get(node.sv);
+  }
+
+  function resolveIdentifier(node: IdentifierNode) {
     let scope: Node | undefined = node.parent;
     let binding;
 
     while (scope) {
       if ("locals" in scope) {
-        binding = (<any>scope).locals.get(node.sv);
+        binding = resolveIdentifierInScope(node, scope);
         if (binding) break;
       }
       scope = scope.parent;

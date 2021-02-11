@@ -14,8 +14,8 @@ export type Type =
   | ModelType
   | ModelTypeProperty
   | TemplateParameterType
-  | Namespace
-  | NamespaceProperty
+  | NamespaceType
+  | OperationType
   | StringLiteralType
   | NumericLiteralType
   | BooleanLiteralType
@@ -26,6 +26,7 @@ export type Type =
 export interface ModelType extends BaseType {
   kind: "Model";
   name: string;
+  namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
   baseModels: Array<ModelType>;
   templateArguments?: Array<Type>;
@@ -44,20 +45,23 @@ export interface ModelTypeProperty {
   optional: boolean;
 }
 
-export interface NamespaceProperty {
-  kind: "NamespaceProperty";
-  node: NamespacePropertyNode;
+export interface OperationType {
+  kind: "Operation";
+  node: OperationStatementNode;
   name: string;
+  namespace?: NamespaceType;
   parameters?: ModelType;
   returnType: Type;
 }
 
-export interface Namespace extends BaseType {
+export interface NamespaceType extends BaseType {
   kind: "Namespace";
   name: string;
+  namespace?: NamespaceType;
   node: NamespaceStatementNode;
-  properties: Map<string, NamespaceProperty>;
-  parameters?: ModelType;
+  models: Map<string, ModelType>;
+  operations: Map<string, OperationType>;
+  namespaces: Map<string, NamespaceType>;
 }
 
 export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLiteralType;
@@ -139,7 +143,7 @@ export enum SyntaxKind {
   DecoratorExpression,
   MemberExpression,
   NamespaceStatement,
-  NamespaceProperty,
+  OperationStatement,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -164,7 +168,7 @@ export type Node =
   | ADLScriptNode
   | TemplateParameterDeclarationNode
   | ModelPropertyNode
-  | NamespacePropertyNode
+  | OperationStatementNode
   | NamedImportNode
   | ModelPropertyNode
   | ModelSpreadPropertyNode
@@ -179,7 +183,11 @@ export interface ADLScriptNode extends BaseNode {
   file: SourceFile;
 }
 
-export type Statement = ImportStatementNode | ModelStatementNode | NamespaceStatementNode;
+export type Statement =
+  | ImportStatementNode
+  | ModelStatementNode
+  | NamespaceStatementNode
+  | OperationStatementNode;
 
 export interface DeclarationNode {
   symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
@@ -187,7 +195,13 @@ export interface DeclarationNode {
 
 export type Declaration =
   | ModelStatementNode
-  | NamespaceStatementNode;
+  | NamespaceStatementNode
+  | OperationStatementNode
+  | TemplateParameterDeclarationNode;
+
+export type ScopeNode =
+  | NamespaceStatementNode
+  | ModelStatementNode
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
@@ -238,17 +252,19 @@ export interface MemberExpressionNode extends BaseNode {
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.NamespaceStatement;
   id: IdentifierNode;
-  parameters?: ModelExpressionNode;
-  properties: Array<NamespacePropertyNode>;
+  statements: Array<Statement>;
+  locals?: SymbolTable;
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface NamespacePropertyNode extends BaseNode {
-  kind: SyntaxKind.NamespaceProperty;
+export interface OperationStatementNode extends BaseNode {
+  kind: SyntaxKind.OperationStatement;
   id: IdentifierNode;
   parameters: ModelExpressionNode;
   returnType: Expression;
   decorators: Array<DecoratorExpressionNode>;
+
+  symbol: TypeSymbol;
 }
 
 
@@ -326,7 +342,8 @@ export interface TypeReferenceNode extends BaseNode {
 
 export interface TemplateParameterDeclarationNode extends BaseNode {
   kind: SyntaxKind.TemplateParameterDeclaration;
-  sv: string;
+  id: IdentifierNode;
+  symbol: TypeSymbol;
 }
 
 /**

@@ -75,7 +75,7 @@ interface OperationRoute {
 const operationRoutes = new Map<Type, OperationRoute>();
 
 function setOperationRoute(entity: Type, verb: OperationRoute) {
-  if (entity.kind === "NamespaceProperty") {
+  if (entity.kind === "Operation") {
     if (!operationRoutes.has(entity)) {
       operationRoutes.set(entity, verb);
     } else {
