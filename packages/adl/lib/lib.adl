@@ -7,6 +7,7 @@
 @intrinsic model float64 { }
 @intrinsic model date { }
 @intrinsic model datetime { }
+@intrinsic model time { }
 @intrinsic model boolean { }
 @intrinsic model null { }
 
