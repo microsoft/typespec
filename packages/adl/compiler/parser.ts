@@ -151,7 +151,28 @@ export function parse(code: string | Types.SourceFile) {
       parseExpected(Token.GreaterThan);
     }
 
-    if (token() === Token.OpenBrace) {
+    if (token() !== Token.Equals && token() !== Token.OpenBrace && token() !== Token.ExtendsKeyword) {
+      throw error('Expected equals or open curly after model statement');
+    }
+
+    if (parseOptional(Token.Equals)) {
+      const assignment = parseExpression();
+      parseExpected(Token.Semicolon);
+      return finishNode({
+        kind: Types.SyntaxKind.ModelStatement,
+        id,
+        heritage: [],
+        templateParameters,
+        assignment,
+        decorators,
+      }, pos);
+    } else {
+      let heritage: Types.ReferenceExpression[] = [];
+
+      if (parseOptional(Token.ExtendsKeyword)) {
+        heritage = parseReferenceExpressionList();
+      }
+      
       parseExpected(Token.OpenBrace);
       const properties = parseModelPropertyList();
       parseExpected(Token.CloseBrace);
@@ -159,23 +180,11 @@ export function parse(code: string | Types.SourceFile) {
       return finishNode({
         kind: Types.SyntaxKind.ModelStatement,
         id,
+        heritage,
         templateParameters,
         decorators,
         properties
       }, pos);
-    } else if (token() === Token.Equals) {
-      parseExpected(Token.Equals);
-      const assignment = parseExpression();
-      parseExpected(Token.Semicolon);
-      return finishNode({
-        kind: Types.SyntaxKind.ModelStatement,
-        id,
-        templateParameters,
-        assignment,
-        decorators,
-      }, pos);
-    } else {
-      throw error('Expected equals or open curly after model statement');
     }
   }
 
@@ -224,7 +233,7 @@ export function parse(code: string | Types.SourceFile) {
     parseExpected(Token.Elipsis);
 
     // This could be broadened to allow any type expression
-    const target = parseIdentifier();
+    const target = parseReferenceExpression();
 
     return finishNode({
       kind: Types.SyntaxKind.ModelSpreadProperty,
@@ -325,7 +334,7 @@ export function parse(code: string | Types.SourceFile) {
     return expr;
   }
 
-  function parseReferenceExpression(): Types.Expression {
+  function parseReferenceExpression(): Types.ReferenceExpression {
     const pos = tokenPos();
     const expr = parseIdentifierOrMemberExpression();
 
@@ -342,6 +351,15 @@ export function parse(code: string | Types.SourceFile) {
       target: expr,
       arguments: args,
     }, pos);
+  }
+
+  function parseReferenceExpressionList(): Types.ReferenceExpression[] {
+    const refs = [];
+    do {
+      refs.push(parseReferenceExpression());
+    } while (parseOptional(Token.Comma));
+
+    return refs;
   }
 
   function parseImportStatement(): Types.ImportStatementNode {
@@ -600,19 +618,19 @@ export function parse(code: string | Types.SourceFile) {
     }
   }
 
-  function parseExpectedOneOf<A extends Token, B extends Token>(
-    expectedTokenA: A,
-    expectedTokenB: B
-  ): A | B {
-    if (token() == expectedTokenA) {
-      nextToken();
-      return expectedTokenA;
-    } else if (token() == expectedTokenB) {
-      nextToken();
-      return expectedTokenB;
-    } else {
-      throw error(`expected ${Token[expectedTokenA]} or ${Token[expectedTokenA]}, got ${Token[token()]}`);
+  function parseExpectedOneOf<T extends Token[]>(... options: T): T[number] {
+    for (const tok of options) {
+      if (token() === tok) {
+        nextToken();
+        return tok
+      }
     }
+
+    // Intl isn't in standard library as it is stage 3, however it is supported in node >= 12
+    const listfmt = new (Intl as any).ListFormat('en', { style: 'long', type: 'disjunction' });
+    const textOptions = options.map(o => Token[o]);
+  
+    throw error(`expected ${listfmt.format(textOptions)}, got ${Token[token()]}`);
   }
 
   function parseOptional(optionalToken: Token) {

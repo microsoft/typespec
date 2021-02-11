@@ -1,6 +1,7 @@
 import { deepStrictEqual, strictEqual } from 'assert';
 import { readFile } from 'fs/promises';
 import { URL } from 'url';
+import { isMainThread } from 'worker_threads';
 import { format } from '../compiler/messages.js';
 import { createScanner, throwOnError, Token } from '../compiler/scanner.js';
 import { LineAndCharacter } from '../compiler/types.js';
@@ -94,6 +95,20 @@ describe('scanner', () => {
     ]);
   });
 
+  it('scans extends keyword', () => {
+    const all = tokens('model foo extends bar{}');
+    verify(all, [
+      [Token.ModelKeyword],
+      [Token.Whitespace],
+      [Token.Identifier, 'foo'],
+      [Token.Whitespace],
+      [Token.ExtendsKeyword],
+      [Token.Whitespace],
+      [Token.Identifier, 'bar'],
+      [Token.OpenBrace],
+      [Token.CloseBrace]
+    ])
+  });
   it('does not scan greater-than-equals as one operator', () => {
     const all = tokens('x>=y');
     verify(all, [

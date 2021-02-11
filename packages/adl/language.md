@@ -173,6 +173,13 @@
 &emsp;&emsp;&emsp;<a name="ModelStatement-8hqza0pe"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` model ``&emsp;*[Identifier](#Identifier)*&emsp;*[TemplateParameters](#TemplateParameters)*<sub>opt</sub>&emsp;`` { ``&emsp;*[ModelBody](#ModelBody)*<sub>opt</sub>&emsp;`` } ``  
 &emsp;&emsp;&emsp;<a name="ModelStatement-gvibrs-4"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` model ``&emsp;*[Identifier](#Identifier)*&emsp;*[TemplateParameters](#TemplateParameters)*<sub>opt</sub>&emsp;`` = ``&emsp;*[Expression](#Expression)*&emsp;`` ; ``  
   
+&emsp;&emsp;<a name="ModelHeritage"></a>*ModelHeritage* **:**  
+&emsp;&emsp;&emsp;<a name="ModelHeritage-89ed0718"></a>`` extends ``&emsp;*[ReferenceExpressionList](#ReferenceExpressionList)*  
+  
+&emsp;&emsp;<a name="ReferenceExpressionList"></a>*ReferenceExpressionList* **:**  
+&emsp;&emsp;&emsp;<a name="ReferenceExpressionList-98f10901"></a>*[ReferenceExpression](#ReferenceExpression)*  
+&emsp;&emsp;&emsp;<a name="ReferenceExpressionList-458ef435"></a>*[ReferenceExpressionList](#ReferenceExpressionList)*&emsp;`` , ``&emsp;*[ReferenceExpression](#ReferenceExpression)*  
+  
 &emsp;&emsp;<a name="TemplateParameters"></a>*TemplateParameters* **:**  
 &emsp;&emsp;&emsp;<a name="TemplateParameters-m5tcjdl1"></a>`` < ``&emsp;*[IdentifierList](#IdentifierList)*&emsp;`` > ``  
   

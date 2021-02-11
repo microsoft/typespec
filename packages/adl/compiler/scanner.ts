@@ -51,6 +51,7 @@ export enum Token {
   ModelKeyword,
   NamespaceKeyword,
   OpKeyword,
+  ExtendsKeyword,
   TrueKeyword,
   FalseKeyword
 }
@@ -60,8 +61,9 @@ const keywords = new Map([
   ['model', Token.ModelKeyword],
   ['namespace', Token.NamespaceKeyword],
   ['op', Token.OpKeyword],
+  ['extends', Token.ExtendsKeyword],
   ['true', Token.TrueKeyword],
-  ['false', Token.FalseKeyword]
+  ['false', Token.FalseKeyword],
 ]);
 
 export interface Scanner {
