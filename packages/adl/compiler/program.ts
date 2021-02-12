@@ -15,9 +15,12 @@ import {
   ModelStatementNode,
   ModelType,
   SyntaxKind,
-  Type
+  Type,
+  SourceFile,
+
 } from './types.js';
 import { createSourceFile } from "./scanner.js";
+import { getSourceLocationOfNode, getSourceLocationOfType, throwDiagnostic } from "./diagnostics.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -33,9 +36,8 @@ export interface Program {
   executeDecorators(type: Type): void;
 }
 
-export interface ADLSourceFile {
+export interface ADLSourceFile extends SourceFile {
   ast: ADLScriptNode;
-  path: string;
   symbols: SymbolTable;
   models: Array<ModelType>;
   interfaces: Array<Namespace>;
@@ -46,7 +48,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
 
   const program: Program = {
     compilerOptions: options || {},
-    globalSymbols: new Map(),
+    globalSymbols: new SymbolTable(),
     sourceFiles: [],
     typeCache: new MultiKeyMap(),
     literalTypes: new Map(),
@@ -116,7 +118,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
 
   function executeDecorator(dec: DecoratorExpressionNode, program: Program, type: Type) {
     if (dec.target.kind !== SyntaxKind.Identifier) {
-      throw new Error('Decorator must be identifier');
+      throwDiagnostic('Decorator must be identifier', getSourceLocationOfNode(dec));
     }
 
     const decName = dec.target.sv;
@@ -125,7 +127,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     );
     const decBinding = <DecoratorSymbol>program.globalSymbols.get(decName);
     if (!decBinding) {
-      throw new Error(`Can't find decorator ${decName}`);
+      throwDiagnostic(`Can't find decorator ${decName}`, getSourceLocationOfNode(dec));
     }
     const decFn = decBinding.value;
     decFn(program, type, ...args);
@@ -220,13 +222,15 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
   // virtual file path
   function evalAdlScript(adlScript: string, filePath?: string): void {
     filePath = filePath ?? `__virtual_file_${++virtualFileCount}`;
-    const ast = parse(createSourceFile(adlScript, filePath));
+    const unparsedFile = createSourceFile(adlScript, filePath);
+    const ast = parse(unparsedFile);
     const sourceFile = {
+      ...unparsedFile,
       ast,
       path: filePath,
       interfaces: [],
       models: [],
-      symbols: new Map(),
+      symbols: new SymbolTable(),
     };
 
     program.sourceFiles.push(sourceFile);

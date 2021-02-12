@@ -8,6 +8,7 @@ import { readFileSync } from "fs";
 import { compile } from "../compiler/program.js";
 import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
+import { DiagnosticError } from "./diagnostics.js";
 
 const adlVersion = getVersion();
 
@@ -70,14 +71,20 @@ const args = yargs(process.argv.slice(2))
   .demandCommand(1, "You must use one of the supported commands.")
   .argv;
 
-async function compileInput(compilerOptions: CompilerOptions): Promise<void> {
+async function compileInput(compilerOptions: CompilerOptions): Promise<boolean> {
   try {
     await compile(args.path!, compilerOptions);
+    return true;
   } catch (err) {
-    console.error(`An error occurred while compiling path '${args.path}':\n\n${err.message}`);
-    if (args["debug"]) {
-      console.error(`Stack trace:\n\n${err.stack}`);
+    if (err instanceof DiagnosticError) {
+      console.error(err.message);
+      if (args.debug) {
+        console.error(`Stack trace:\n\n${err.stack}`);
+      }
+    } else {
+      throw err; // let non-diagnostic errors go to top-level bug handler.
     }
+    return false;
   }
 }
 
@@ -107,11 +114,15 @@ async function main() {
 
   if (args._[0] === "compile") {
     const options = await getCompilerOptions();
-    await compileInput(options);
+    if (!(await compileInput(options))) {
+      process.exit(1);
+    }
     console.log(`Compilation completed successfully, output files are in ${options.outputPath}.`)
   } else if (args._[0] === "generate") {
     const options = await getCompilerOptions();
-    await compileInput(options);
+    if (!(await compileInput(options))) {
+      process.exit(1);
+    }
 
     if (args.client) {
       const clientPath = path.resolve(args["output-path"], "client");
@@ -146,8 +157,12 @@ async function main() {
 main()
   .then(() => {})
   .catch((err) => {
-    console.error(`An unknown error occurred:\n\n${err.message}`);
-    if (args["debug"]) {
-      console.error(`Stack trace:\n\n${err.stack}`);
-    }
+    // NOTE: An expected error, like one thrown for bad input, shouldn't reach
+    // here, but be handled somewhere else. If we reach here, it should be
+    // considered a bug and therefore we should not suppress the stack trace as
+    // that risks losing it in the case of a bug that does not repro easily.
+    console.error("Internal compiler error!");
+    console.error("File issue at https://github.com/azure/adl\n");
+    console.error(err.stack); // includes message.
+    process.exit(1);
   });

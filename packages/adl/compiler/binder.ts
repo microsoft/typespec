@@ -1,11 +1,29 @@
+import { Suite } from 'mocha';
+import { format } from '../lib/decorators.js';
+import { DiagnosticError, formatDiagnostic, getSourceLocationOfNode, throwDiagnostic } from './diagnostics.js';
 import { visitChildren } from './parser.js';
 import { ADLSourceFile, Program } from './program.js';
-import { NamespaceStatementNode, ModelStatementNode, Node, SyntaxKind, TemplateParameterDeclarationNode } from './types.js';
+import { createSourceFile } from './scanner.js';
+import { NamespaceStatementNode, ModelStatementNode, Node, SyntaxKind, TemplateParameterDeclarationNode, SourceLocation } from './types.js';
 
 // trying to avoid masking built-in Symbol
 export type Sym = DecoratorSymbol | TypeSymbol;
 
-export type SymbolTable = Map<string, Sym>;
+export class SymbolTable extends Map<string, Sym> {
+  duplicates = new Set<Sym>();
+
+   // First set for a given key wins, but record all duplicates for diagnostics.
+   set(key: string, value: Sym) {
+      const existing = this.get(key);
+      if (existing === undefined) {
+        super.set(key, value);
+      } else {
+        this.duplicates.add(existing);
+        this.duplicates.add(value);
+      }
+      return this;
+    }
+}
 
 export interface DecoratorSymbol {
   kind: 'decorator';
@@ -17,6 +35,7 @@ export interface DecoratorSymbol {
 export interface TypeSymbol {
   kind: 'type';
   node: Node;
+  name: string;
 }
 
 export interface Binder {
@@ -40,22 +59,17 @@ export function createBinder(): Binder {
 
     // everything is global
     if (globalScope) {
-      for (const name of sourceFile.symbols.keys()) {
-        if (program.globalSymbols.has(name)) {
-          // todo: collect all the redeclarations of
-          // this binding and mark each as errors
-          throw new Error('Duplicate binding ' + name);
-        }
-
-        program.globalSymbols.set(name, sourceFile.symbols.get(name)!);
+      for (const [name, sym] of sourceFile.symbols) {
+        program.globalSymbols.set(name, sym);
       }
+      reportDuplicateSymbols(program.globalSymbols);
     }
   }
 
   function bindNode(node: Node) {
     if (!node) return;
     // set the node's parent since we're going for a walk anyway
-    (<any>node).parent = parentNode;
+    node.parent = parentNode;
 
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
@@ -90,6 +104,7 @@ export function createBinder(): Binder {
     (<ModelStatementNode>scope).locals!.set(node.sv, {
       kind: 'type',
       node: node,
+      name: node.sv,
     });
   }
 
@@ -97,10 +112,11 @@ export function createBinder(): Binder {
     currentFile.symbols.set(node.id.sv, {
       kind: 'type',
       node: node,
+      name: node.id.sv,
     });
 
     // initialize locals for type parameters.
-    node.locals = new Map();
+    node.locals = new SymbolTable();
   }
 
   function bindInterfaceStatement(
@@ -109,9 +125,58 @@ export function createBinder(): Binder {
     currentFile.symbols.set(statement.id.sv, {
       kind: 'type',
       node: statement,
+      name: statement.id.sv,
     });
   }
+
+  function reportDuplicateSymbols(globalSymbols: SymbolTable) {
+    let reported = new Set<Sym>();
+    let messages = new Array<string>();
+
+    for (const symbol of currentFile.symbols.duplicates) {
+      report(symbol);
+    }
+
+    for (const symbol of globalSymbols.duplicates) {
+      report(symbol);
+    }
+
+    if (messages.length > 0) {
+      // TODO: We're now reporting all duplicates up to the binding of the first file
+      // that introduced one, but still bailing the compilation rather than
+      // recovering and reporting other issues including the possibility of more
+      // duplicates.
+      //
+      // That said, decorators are entered into the global symbol table before
+      // any source file is bound and therefore this will include all duplicate
+      // decorator implementations.
+      throw new DiagnosticError(messages.join('\n'));
+    }
+
+    function report(symbol: Sym) {
+      if (!reported.has(symbol)) {
+        reported.add(symbol);
+        const message = formatDiagnostic('Duplicate name: ' + symbol.name, getSourceLocationOfSymbol(symbol));
+        messages.push(message);
+      }
+    }
+  }
 }
+
+function getSourceLocationOfSymbol(symbol: Sym): SourceLocation {
+  switch (symbol.kind) {
+    case 'decorator':
+      return {
+        // We currently report all decorators at line 1 of defining .js path.
+        file: createSourceFile("", symbol.path),
+        pos: 0,
+        end: 0
+      };
+    case 'type':
+      return getSourceLocationOfNode(symbol.node);
+  }
+}
+
 
 function hasScope(node: Node) {
   switch (node.kind) {

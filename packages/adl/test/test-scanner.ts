@@ -1,8 +1,8 @@
 import { deepStrictEqual, strictEqual } from 'assert';
 import { readFile } from 'fs/promises';
 import { URL } from 'url';
-import { format } from '../compiler/messages.js';
-import { createScanner, throwOnError, Token } from '../compiler/scanner.js';
+import { throwOnError } from '../compiler/diagnostics.js';
+import { createScanner, Token } from '../compiler/scanner.js';
 import { LineAndCharacter } from '../compiler/types.js';
 
 type TokenEntry = [Token, string?, number?, LineAndCharacter?];
@@ -17,7 +17,7 @@ function tokens(text: string, onError = throwOnError): Array<TokenEntry> {
       scanner.token,
       scanner.getTokenText(),
       scanner.tokenPosition,
-      scanner.source.getLineAndCharacterOfPosition(scanner.tokenPosition),
+      scanner.file.getLineAndCharacterOfPosition(scanner.tokenPosition),
     ]);
   } while (!scanner.eof());
 
@@ -136,7 +136,7 @@ describe('scanner', () => {
   });
 
   function scanString(text: string, expectedValue: string) {
-    const scanner = createScanner(text, (msg, params) => { throw new Error(format(msg.text, ...params)); });
+    const scanner = createScanner(text);
     strictEqual(scanner.scan(), Token.StringLiteral);
     strictEqual(scanner.token, Token.StringLiteral);
     strictEqual(scanner.getTokenText(), text);
@@ -205,6 +205,6 @@ describe('scanner', () => {
 
   it('scans this file', async () => {
     const text = await readFile(new URL(import.meta.url), 'utf-8');
-    tokens(text, function(msg, params) { /* ignore errors */});
+    tokens(text, function() { /* ignore errors */});
   });
 });

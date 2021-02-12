@@ -1,6 +1,7 @@
 import { CharacterCodes, isBinaryDigit, isDigit, isHexDigit, isIdentifierPart, isIdentifierStart, isLineBreak, isWhiteSpaceSingleLine } from './character-codes.js';
-import { format, Message, messages } from './messages.js';
-import { SourceFile } from './types.js';
+import { throwOnError } from './diagnostics.js';
+import { messages } from './messages.js';
+import { Message, SourceFile } from './types.js';
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
@@ -68,7 +69,7 @@ const keywords = new Map([
 
 export interface Scanner {
   /** The source code being scanned. */
-  readonly source: SourceFile;
+  readonly file: SourceFile;
 
   /** The offset in UTF-16 code units to the current position at the start of the next token. */
   readonly position: number;
@@ -97,10 +98,6 @@ export interface Scanner {
   getTokenValue(): string;
 }
 
-export function throwOnError(msg: Message, params: Array<string | number>) {
-  throw new Error(format(msg.text, ...params));
-}
-
 const enum TokenFlags {
   HasCrlf = 1 << 0,
   Escaped = 1 << 1,
@@ -108,11 +105,8 @@ const enum TokenFlags {
 }
 
 export function createScanner(source: string | SourceFile, onError = throwOnError): Scanner {
-  if (typeof source === 'string') {
-    source = createSourceFile(source, '<anonymous file>');
-  }
-
-  const input = source.text;
+  const file = typeof source === 'string' ? createSourceFile(source, '<anonymous file>') : source;
+  const input = file.text;
   let position = 0;
   let token = Token.Unknown;
   let tokenPosition = -1;
@@ -123,7 +117,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     get position() { return position; },
     get token() { return token; },
     get tokenPosition() { return tokenPosition; },
-    source,
+    file,
     scan,
     eof,
     getTokenText,
@@ -314,8 +308,8 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     return false;
   }
 
-  function error(msg: Message, ...params: Array<string | number>) {
-    onError(msg, params);
+  function error(msg: Message, ...args: Array<string | number>) {
+    onError(msg, { file, pos: tokenPosition, end: position }, ...args);
   }
 
   function scanWhitespace(): Token {

@@ -1,4 +1,4 @@
-import { SymbolTable } from './binder';
+import { SymbolTable } from "./binder";
 
 /**
  * Type System types
@@ -128,10 +128,8 @@ export enum SyntaxKind {
   TemplateParameterDeclaration
 }
 
-export interface BaseNode {
+export interface BaseNode extends TextRange {
   kind: SyntaxKind;
-  pos: number;
-  end: number;
   parent?: Node;
 }
 
@@ -150,6 +148,7 @@ export type Node =
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
   statements: Array<Statement>;
+  file: SourceFile;
 }
 
 export type Statement =
@@ -345,3 +344,26 @@ export interface SourceFile {
   getLineAndCharacterOfPosition(position: number): LineAndCharacter;
 }
 
+export interface TextRange {
+  /** 
+   * The starting position of the ranger measured in UTF-16 code units from the
+   * start of the full string. Inclusive.
+   */
+  pos: number;
+
+  /** 
+   * The ending position measured in UTF-16 code units from the start of the
+   * full string. Exclusive.
+   */
+  end: number;
+}
+
+export interface SourceLocation extends TextRange {
+  file: SourceFile;
+}
+
+export interface Message {
+  code: number;
+  text: string;
+  category: 'error' | 'warning';
+}

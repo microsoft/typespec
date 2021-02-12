@@ -1,16 +1,17 @@
-import { format } from './messages.js';
+import { DiagnosticError, throwDiagnostic } from './diagnostics.js';
 import { createScanner, Token } from './scanner.js';
 import * as Types from './types.js';
 
 
 export function parse(code: string | Types.SourceFile) {
-  const scanner = createScanner(code, (msg, params) => error(format(msg.text, ...params)));
+  const scanner = createScanner(code);
   nextToken();
   return parseADLScript();
 
   function parseADLScript(): Types.ADLScriptNode {
     const script: Types.ADLScriptNode = {
       kind: Types.SyntaxKind.ADLScript,
+      file: scanner.file,
       statements: [],
       pos: 0,
       end: 0
@@ -597,7 +598,7 @@ export function parse(code: string | Types.SourceFile) {
     }
   }
 
-  function finishNode<T>(o: T, pos: number): T & { pos: number; end: number } {
+  function finishNode<T>(o: T, pos: number): T & Types.TextRange {
     return {
       ...o,
       pos,
@@ -605,9 +606,12 @@ export function parse(code: string | Types.SourceFile) {
     };
   }
 
-  function error(msg: string) {
-    const pos = scanner.source.getLineAndCharacterOfPosition(scanner.tokenPosition);
-    throw new Error(`${scanner.source.path}:${pos.line + 1}:${pos.character + 1} - error: ${msg}`);
+  function error(message: string) {
+    throwDiagnostic(message, { 
+      file: scanner.file,
+      pos: scanner.tokenPosition,
+      end: scanner.position
+    });
   }
 
   function parseExpected(expectedToken: Token) {
