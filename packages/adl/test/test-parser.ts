@@ -1,3 +1,4 @@
+import * as assert from 'assert';
 import { parse } from '../compiler/parser.js';
 import { SyntaxKind } from '../compiler/types.js';
 
@@ -78,7 +79,25 @@ describe('syntax', () => {
 
       'model Car { @foo @bar x: number }',
 
-      'model Car { ... A, ... B, c: number, ... D, e: string }'
+      'model Car { ... A, ... B, c: number, ... D, e: string }',
+
+      'model Car { ... A.B, ... C<D> }'
+    ]);
+  });
+
+  describe('model extends statements', () => {
+    parseEach([
+      'model foo extends bar { }',
+      'model foo extends bar, baz { }',
+      'model foo extends bar.baz { }',
+      'model foo extends bar<T> { }',
+      'model foo<T> extends bar<T> { }',
+      'model foo<T> extends bar.baz<T> { }'
+    ]);
+    parseErrorEach([
+      'model foo extends { }',
+      'model foo extends = { }',
+      'model foo extends bar = { }'
     ]);
   });
 
@@ -180,10 +199,20 @@ describe('syntax', () => {
   });
 });
 
-function parseEach(cases: Array<string>) {
+function parseEach(cases: string[]) {
   for (const code of cases) {
     it('parses `' + shorten(code) + '`', () => {
       dumpAST(parse(code));
+    });
+  }
+}
+
+function parseErrorEach(cases: string[]) {
+  for (const code of cases) {
+    it(`doesn't parse ${shorten(code)}`, () => {
+      assert.throws(() => {
+        parse(code);
+      })
     });
   }
 }

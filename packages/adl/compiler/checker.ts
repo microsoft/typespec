@@ -29,7 +29,8 @@ import {
   TupleType,
   Type,
   UnionExpressionNode,
-  UnionType
+  UnionType,
+  ReferenceExpression
 } from './types.js';
 
 /**
@@ -147,10 +148,6 @@ export function createChecker(program: Program) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
       return `${model.name}<${args.join(', ')}>`;
-    } else if (model.ownProperties.size == 0 && model.baseModels.length > 0) {
-      // intersection or spread-only
-      // (NOTE: might have been spelled `{ ...A, ...B }` in source but we use the terser syntax here.)
-      return model.name || model.baseModels.map(getTypeName).join(' & ');
     } else if ((<ModelStatementNode>model.node).templateParameters?.length > 0) {
       // template
       const params = (<ModelStatementNode>model.node).templateParameters.map(t => t.sv);
@@ -235,12 +232,30 @@ export function createChecker(program: Program) {
       throw new Error('Cannot intersect non-model types (including union types).');
     }
 
-    const intersection = createModelType({
+    const properties = new Map<string, ModelTypeProperty>();
+    for (const option of optionTypes) {
+      const allProps = walkPropertiesInherited(option);
+      for (const prop of allProps) {
+        if (properties.has(prop.name)) {
+          throw new Error(`Intersection contains duplicate property definitions for ${prop.name}`);
+        }
+
+        const newPropType = createType({
+          ... prop,
+          sourceProperty: prop
+        }, true);
+
+        properties.set(prop.name, newPropType);
+      }
+    }
+
+
+    const intersection = createType({
       kind: 'Model',
       node,
       name: '',
-      ownProperties: new Map(),
-      baseModels: optionTypes
+      baseModels: [],
+      properties: properties
     });
 
     return intersection;
@@ -344,34 +359,40 @@ export function createChecker(program: Program) {
       getTypeForNode(statement);
     }
   }
+
   function checkModel(node: ModelExpressionNode | ModelStatementNode) {
     if (node.properties) {
-      const ownProperties = new Map();
-      const baseModels = new Array<ModelType>();
+      const properties = new Map();
+      const baseModels = node.kind === SyntaxKind.ModelExpression
+                          ? []
+                          : checkClassHeritage(node.heritage);
 
       for (const prop of node.properties) {
         if ('id' in prop) {
           const propType = <ModelTypeProperty>getTypeForNode(prop);
-          ownProperties.set(propType.name, propType);
+          properties.set(propType.name, propType);
         } else {
           // spread property
-          const target = getTypeForNode(prop.target);
-          if (target.kind != 'TemplateParameter') {
-            if (target.kind !== 'Model') {
-              throw new Error('Cannot spread properties of non-model type.');
+          const newProperties = checkSpreadProperty(prop.target);
+
+          for (const newProp of newProperties) {
+            if (properties.has(newProp.name)) {
+              throw new Error(`Model already has a property named ${newProp.name}`)
             }
-            baseModels.push(target);
+
+            properties.set(newProp.name, newProp);
           }
         }
       }
 
-      const type: ModelType = createModelType({
+      const type: ModelType = createType({
         kind: 'Model',
         name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : '',
         node: node,
-        ownProperties,
+        properties,
         baseModels: baseModels
       });
+      
       return type;
     } else {
       // model =
@@ -394,6 +415,55 @@ export function createChecker(program: Program) {
     }
   }
 
+  function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
+    return heritage.map(heritageRef => {
+      const heritageType = getTypeForNode(heritageRef);
+
+      if (heritageType.kind !== "Model") {
+        throw new Error("Models must extend other models.")
+      }
+
+      return heritageType;
+    });
+  }
+
+  function checkSpreadProperty(targetNode: ReferenceExpression): ModelTypeProperty[] {
+    const props: ModelTypeProperty[] = [];
+    const targetType = getTypeForNode(targetNode);
+
+
+    if (targetType.kind != 'TemplateParameter') {
+      if (targetType.kind !== 'Model') {
+        throw new Error('Cannot spread properties of non-model type.');
+      }
+
+      // copy each property
+      for (const prop of walkPropertiesInherited(targetType)) {
+        const newProp = createType({
+          ... prop,
+          sourceProperty: prop
+        }, true)
+        props.push(newProp);
+      }
+    }
+
+    return props;
+  }
+
+  function* walkPropertiesInherited(model: ModelType) {
+    const parents = [model];
+    const props: ModelTypeProperty[] = [];
+
+    while (parents.length > 0) {
+      const parent = parents.pop()!;
+      yield* parent.properties.values();
+      parents.push(...parent.baseModels);
+    }
+
+    return props;
+  }
+
+
   function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
     if (prop.id.kind === SyntaxKind.Identifier) {
       return createType({
@@ -414,25 +484,11 @@ export function createChecker(program: Program) {
       });
     }
   }
-
-  function createModelType(typeDef: Omit<ModelType, 'properties'>): ModelType {
-    const properties = new Map(typeDef.ownProperties);
-
-    for (const source of typeDef.baseModels ?? []) {
-      for (const [name, property] of source.properties) {
-        if (properties.has(name)) {
-          throw new Error(`Cannot intersect/spread duplicate property '${name}'`);
-        }
-        properties.set(name, property);
-      }
-    }
-
-    return createType({...typeDef, properties});
-  }
-
   // the types here aren't ideal and could probably be refactored.
-  function createType<T extends Type>(typeDef: T): T {
-    (<any>typeDef).seq = program.typeCache.set([typeDef.node, ...templateInstantiation], typeDef);
+  function createType<T extends Type>(typeDef: T, skipCache = false): T {
+    if (!skipCache) {
+      (<any>typeDef).seq = program.typeCache.set([typeDef.node, ...templateInstantiation], typeDef);
+    }
     (<any>typeDef).templateArguments = templateInstantiation;
 
     // only run decorators on fully instantiated types.

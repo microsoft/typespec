@@ -94,6 +94,20 @@ describe('scanner', () => {
     ]);
   });
 
+  it('scans extends keyword', () => {
+    const all = tokens('model foo extends bar{}');
+    verify(all, [
+      [Token.ModelKeyword],
+      [Token.Whitespace],
+      [Token.Identifier, 'foo'],
+      [Token.Whitespace],
+      [Token.ExtendsKeyword],
+      [Token.Whitespace],
+      [Token.Identifier, 'bar'],
+      [Token.OpenBrace],
+      [Token.CloseBrace]
+    ])
+  });
   it('does not scan greater-than-equals as one operator', () => {
     const all = tokens('x>=y');
     verify(all, [

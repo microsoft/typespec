@@ -26,6 +26,7 @@ Keyword :
     `model`
     `namespace`
     `op`
+    `extends`
 
 Identifier :
     IdentifierName but not Keyword
@@ -187,6 +188,13 @@ ModelStatement :
     DecoratorList? `model` Identifier TemplateParameters? `{` ModelBody? `}`
     DecoratorList? `model` Identifier TemplateParameters? `=` Expression `;`
 
+ModelHeritage :
+    `extends` ReferenceExpressionList
+
+ReferenceExpressionList :
+    ReferenceExpression
+    ReferenceExpressionList `,` ReferenceExpression
+
 TemplateParameters :
     `<` IdentifierList `>`
 
@@ -209,7 +217,7 @@ ModelProperty:
     DecoratorList? StringLiteral `?`? `:` Expression
 
 ModelSpreadProperty :
-    `...` Identifier
+    `...` ReferenceExpression
 
 NamespaceStatement: 
     DecoratorList? `namespace` Identifier `{` NamespaceBody? `}`

@@ -1,5 +1,5 @@
 import { Program } from "../compiler/program";
-import { Type } from "../compiler/types";
+import { ModelTypeProperty, Type } from "../compiler/types";
 
 const docs = new Map<Type, string>();
 
@@ -149,6 +149,34 @@ export function visibility(program: Program, target: Type, visibility: string) {
 
 export function getVisibility(target: Type): string | undefined {
   return visibilitySettings.get(target);
+}
+
+export function withVisibility(
+  program: Program,
+  target: Type,
+  ...visibilities: string[]
+) {
+  if (target.kind !== "Model") {
+    throw new Error("The @withVisibility decorator can only be applied to models.");
+  }
+
+  const filter = (_: any, prop: ModelTypeProperty) => {
+    const vis = getVisibility(prop);
+    return vis ? !visibilities.includes(vis) : false;
+  };
+
+  mapFilterOut(target.properties, filter);
+}
+
+function mapFilterOut(
+  map: Map<string, ModelTypeProperty>,
+  pred: (key: string, prop: ModelTypeProperty) => boolean
+) {
+  for (const [key, prop] of map) {
+    if (pred(key, prop)) {
+      map.delete(key);
+    }
+  }
 }
 
 // -- @list decorator ---------------------

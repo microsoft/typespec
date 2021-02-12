@@ -23,6 +23,7 @@
 &emsp;&emsp;&emsp;<a name="Keyword--mdwbm0b"></a>`` model ``  
 &emsp;&emsp;&emsp;<a name="Keyword-lpev-y-g"></a>`` namespace ``  
 &emsp;&emsp;&emsp;<a name="Keyword-ytodrzn0"></a>`` op ``  
+&emsp;&emsp;&emsp;<a name="Keyword-rmwjtwx9"></a>`` extends ``  
   
 &emsp;&emsp;<a name="Identifier"></a>*Identifier* **:**  
 &emsp;&emsp;&emsp;<a name="Identifier-exwdmcdi"></a>*[IdentifierName](#IdentifierName)* **but not** *[Keyword](#Keyword)*  
@@ -173,6 +174,13 @@
 &emsp;&emsp;&emsp;<a name="ModelStatement-8hqza0pe"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` model ``&emsp;*[Identifier](#Identifier)*&emsp;*[TemplateParameters](#TemplateParameters)*<sub>opt</sub>&emsp;`` { ``&emsp;*[ModelBody](#ModelBody)*<sub>opt</sub>&emsp;`` } ``  
 &emsp;&emsp;&emsp;<a name="ModelStatement-gvibrs-4"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` model ``&emsp;*[Identifier](#Identifier)*&emsp;*[TemplateParameters](#TemplateParameters)*<sub>opt</sub>&emsp;`` = ``&emsp;*[Expression](#Expression)*&emsp;`` ; ``  
   
+&emsp;&emsp;<a name="ModelHeritage"></a>*ModelHeritage* **:**  
+&emsp;&emsp;&emsp;<a name="ModelHeritage-ie0hgn59"></a>`` extends ``&emsp;*[ReferenceExpressionList](#ReferenceExpressionList)*  
+  
+&emsp;&emsp;<a name="ReferenceExpressionList"></a>*ReferenceExpressionList* **:**  
+&emsp;&emsp;&emsp;<a name="ReferenceExpressionList-mpejatd_"></a>*[ReferenceExpression](#ReferenceExpression)*  
+&emsp;&emsp;&emsp;<a name="ReferenceExpressionList-ry70nwgl"></a>*[ReferenceExpressionList](#ReferenceExpressionList)*&emsp;`` , ``&emsp;*[ReferenceExpression](#ReferenceExpression)*  
+  
 &emsp;&emsp;<a name="TemplateParameters"></a>*TemplateParameters* **:**  
 &emsp;&emsp;&emsp;<a name="TemplateParameters-m5tcjdl1"></a>`` < ``&emsp;*[IdentifierList](#IdentifierList)*&emsp;`` > ``  
   
@@ -195,7 +203,7 @@
 &emsp;&emsp;&emsp;<a name="ModelProperty-vmgvgt2o"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;*[StringLiteral](#StringLiteral)*&emsp;`` ? ``<sub>opt</sub>&emsp;`` : ``&emsp;*[Expression](#Expression)*  
   
 &emsp;&emsp;<a name="ModelSpreadProperty"></a>*ModelSpreadProperty* **:**  
-&emsp;&emsp;&emsp;<a name="ModelSpreadProperty-uh6b21ad"></a>`` ... ``&emsp;*[Identifier](#Identifier)*  
+&emsp;&emsp;&emsp;<a name="ModelSpreadProperty-r9kkoml-"></a>`` ... ``&emsp;*[ReferenceExpression](#ReferenceExpression)*  
   
 &emsp;&emsp;<a name="NamespaceStatement"></a>*NamespaceStatement* **:**  
 &emsp;&emsp;&emsp;<a name="NamespaceStatement-lllfloam"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` namespace ``&emsp;*[Identifier](#Identifier)*&emsp;`` { ``&emsp;*[NamespaceBody](#NamespaceBody)*<sub>opt</sub>&emsp;`` } ``  

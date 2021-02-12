@@ -26,7 +26,6 @@ export interface ModelType extends BaseType {
   kind: 'Model';
   name: string;
   properties: Map<string, ModelTypeProperty>;
-  ownProperties: Map<string, ModelTypeProperty>;
   baseModels: Array<ModelType>;
   templateArguments?: Array<Type>;
   templateNode?: Node;
@@ -38,6 +37,9 @@ export interface ModelTypeProperty {
   node: ModelPropertyNode | ModelSpreadPropertyNode;
   name: string;
   type: Type;
+  // when spread or intersection operators make new property types,
+  // this tracks the property we copied from.
+  sourceProperty?: ModelTypeProperty;
   optional: boolean;
 }
 
@@ -190,6 +192,11 @@ export type Expression =
   | NumericLiteralNode
   | BooleanLiteralNode;
 
+export type ReferenceExpression =
+  | TemplateApplicationNode
+  | MemberExpressionNode
+  | IdentifierNode;
+
 export interface MemberExpressionNode extends BaseNode {
   kind: SyntaxKind.MemberExpression;
   id: IdentifierNode;
@@ -217,6 +224,7 @@ export interface ModelStatementNode extends BaseNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
   properties?: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
+  heritage: Array<ReferenceExpression>;
   assignment?: Expression;
   templateParameters: Array<TemplateParameterDeclarationNode>;
   locals?: SymbolTable;
@@ -248,7 +256,7 @@ export interface ModelPropertyNode extends BaseNode {
 
 export interface ModelSpreadPropertyNode extends BaseNode {
   kind: SyntaxKind.ModelSpreadProperty;
-  target: IdentifierNode;
+  target: ReferenceExpression;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
