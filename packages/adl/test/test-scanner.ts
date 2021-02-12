@@ -1,7 +1,6 @@
 import { deepStrictEqual, strictEqual } from 'assert';
 import { readFile } from 'fs/promises';
 import { URL } from 'url';
-import { isMainThread } from 'worker_threads';
 import { format } from '../compiler/messages.js';
 import { createScanner, throwOnError, Token } from '../compiler/scanner.js';
 import { LineAndCharacter } from '../compiler/types.js';
