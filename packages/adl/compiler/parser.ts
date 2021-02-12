@@ -152,7 +152,7 @@ export function parse(code: string | Types.SourceFile) {
     }
 
     if (token() !== Token.Equals && token() !== Token.OpenBrace && token() !== Token.ExtendsKeyword) {
-      throw error('Expected equals or open curly after model statement');
+      throw error('Expected equals, open curly, or extends after model statement');
     }
 
     if (parseOptional(Token.Equals)) {
