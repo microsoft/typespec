@@ -71,14 +71,14 @@ const args = yargs(process.argv.slice(2))
   .argv;
 
 async function compileInput(compilerOptions: CompilerOptions): Promise<void> {
-  //try {
+  try {
     await compile(args.path!, compilerOptions);
-  /*} catch (err) {
+  } catch (err) {
     console.error(`An error occurred while compiling path '${args.path}':\n\n${err.message}`);
     if (args["debug"]) {
       console.error(`Stack trace:\n\n${err.stack}`);
     }
-  }*/
+  }
 }
 
 async function getCompilerOptions(): Promise<CompilerOptions> {

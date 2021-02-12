@@ -1,4 +1,3 @@
-import { options } from 'yargs';
 import { ADLSourceFile, Program } from './program.js';
 import {
   ArrayExpressionNode,
