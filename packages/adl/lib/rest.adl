@@ -1,6 +1,6 @@
 model OkResponse<T> {
   @header statusCode: 200;
-  ... T;
+  @body body: T;
 }
 
 model LocationHeader {
