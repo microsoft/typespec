@@ -2,7 +2,7 @@ import url from "url";
 import path from "path";
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
-import { createBinder, DecoratorSymbol, SymbolTable } from './binder.js';
+import { createBinder, SymbolTable } from './binder.js';
 import { createChecker, MultiKeyMap } from './checker.js';
 import { CompilerOptions } from './options.js';
 import { parse } from './parser.js';
@@ -17,10 +17,11 @@ import {
   SyntaxKind,
   Type,
   SourceFile,
+  DecoratorSymbol,
 
 } from './types.js';
 import { createSourceFile } from "./scanner.js";
-import { getSourceLocationOfNode, getSourceLocationOfType, throwDiagnostic } from "./diagnostics.js";
+import { throwDiagnostic } from "./diagnostics.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -118,7 +119,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
 
   function executeDecorator(dec: DecoratorExpressionNode, program: Program, type: Type) {
     if (dec.target.kind !== SyntaxKind.Identifier) {
-      throwDiagnostic('Decorator must be identifier', getSourceLocationOfNode(dec));
+      throwDiagnostic('Decorator must be identifier', dec);
     }
 
     const decName = dec.target.sv;
@@ -127,7 +128,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     );
     const decBinding = <DecoratorSymbol>program.globalSymbols.get(decName);
     if (!decBinding) {
-      throwDiagnostic(`Can't find decorator ${decName}`, getSourceLocationOfNode(dec));
+      throwDiagnostic(`Can't find decorator ${decName}`, dec);
     }
     const decFn = decBinding.value;
     decFn(program, type, ...args);
@@ -227,7 +228,6 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     const sourceFile = {
       ...unparsedFile,
       ast,
-      path: filePath,
       interfaces: [],
       models: [],
       symbols: new SymbolTable(),

@@ -1,4 +1,4 @@
-import { getSourceLocationOfNode, throwDiagnostic } from './diagnostics.js';
+import { throwDiagnostic } from './diagnostics.js';
 import { ADLSourceFile, Program } from './program.js';
 import {
   ArrayExpressionNode,
@@ -121,7 +121,7 @@ export function createChecker(program: Program) {
         return checkTemplateParameterDeclaration(node);
     }
 
-    throwDiagnostic('Cannot evaluate ' + SyntaxKind[node.kind], getSourceLocationOfNode(node));
+    throwDiagnostic('Cannot evaluate ' + SyntaxKind[node.kind], node);
   }
 
   function getTypeName(type: Type): string {
@@ -190,11 +190,11 @@ export function createChecker(program: Program) {
    */
   function instantiateTemplate(templateNode: ModelStatementNode, args: Array<Type>): ModelType {
     if (templateNode.templateParameters!.length < args.length) {
-      throwDiagnostic('Too few template arguments provided.', getSourceLocationOfNode(templateNode));
+      throwDiagnostic('Too few template arguments provided.', templateNode);
     }
 
     if (templateNode.templateParameters!.length > args.length) {
-      throwDiagnostic('Too many template arguments provided.', getSourceLocationOfNode(templateNode));
+      throwDiagnostic('Too many template arguments provided.', templateNode);
     }
 
     const oldTis = templateInstantiation;
@@ -229,7 +229,7 @@ export function createChecker(program: Program) {
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
     if (!allModelTypes(optionTypes)) {
-      throwDiagnostic('Cannot intersect non-model types (including union types).', getSourceLocationOfNode(node));
+      throwDiagnostic('Cannot intersect non-model types (including union types).', node);
     }
 
     const properties = new Map<string, ModelTypeProperty>();
@@ -237,7 +237,7 @@ export function createChecker(program: Program) {
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
-          throwDiagnostic(`Intersection contains duplicate property definitions for ${prop.name}`, getSourceLocationOfNode(node));
+          throwDiagnostic(`Intersection contains duplicate property definitions for ${prop.name}`, node);
         }
 
         const newPropType = createType({
@@ -330,7 +330,7 @@ export function createChecker(program: Program) {
     }
 
     if (!binding) {
-      throwDiagnostic('Unknown identifier ' + node.sv, getSourceLocationOfNode(node));
+      throwDiagnostic('Unknown identifier ' + node.sv, node);
     }
 
     return binding;
@@ -377,7 +377,7 @@ export function createChecker(program: Program) {
 
           for (const newProp of newProperties) {
             if (properties.has(newProp.name)) {
-              throwDiagnostic(`Model already has a property named ${newProp.name}`, getSourceLocationOfNode(node));
+              throwDiagnostic(`Model already has a property named ${newProp.name}`, node);
             }
 
             properties.set(newProp.name, newProp);
@@ -420,7 +420,7 @@ export function createChecker(program: Program) {
       const heritageType = getTypeForNode(heritageRef);
 
       if (heritageType.kind !== "Model") {
-        throwDiagnostic("Models must extend other models.", getSourceLocationOfNode(heritageRef))
+        throwDiagnostic("Models must extend other models.", heritageRef);
       }
 
       return heritageType;
@@ -434,7 +434,7 @@ export function createChecker(program: Program) {
 
     if (targetType.kind != 'TemplateParameter') {
       if (targetType.kind !== 'Model') {
-        throwDiagnostic('Cannot spread properties of non-model type.', getSourceLocationOfNode(targetNode));
+        throwDiagnostic('Cannot spread properties of non-model type.', targetNode);
       }
 
       // copy each property

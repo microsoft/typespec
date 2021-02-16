@@ -100,6 +100,21 @@ export interface TemplateParameterType extends BaseType {
   kind: 'TemplateParameter';
 }
 
+// trying to avoid masking built-in Symbol
+export type Sym = DecoratorSymbol | TypeSymbol;
+
+export interface DecoratorSymbol {
+  kind: 'decorator';
+  path: string;
+  name: string;
+  value: (...args: Array<any>) => any;
+}
+
+export interface TypeSymbol {
+  kind: 'type';
+  node: Node;
+  name: string;
+}
 
 /**
  * AST types

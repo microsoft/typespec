@@ -1,13 +1,9 @@
-import { Suite } from 'mocha';
-import { format } from '../lib/decorators.js';
-import { DiagnosticError, formatDiagnostic, getSourceLocationOfNode, throwDiagnostic } from './diagnostics.js';
+import { DiagnosticError, formatDiagnostic } from './diagnostics.js';
 import { visitChildren } from './parser.js';
 import { ADLSourceFile, Program } from './program.js';
 import { createSourceFile } from './scanner.js';
-import { NamespaceStatementNode, ModelStatementNode, Node, SyntaxKind, TemplateParameterDeclarationNode, SourceLocation } from './types.js';
+import { NamespaceStatementNode, ModelStatementNode, Node, SyntaxKind, TemplateParameterDeclarationNode, SourceLocation, Sym } from './types.js';
 
-// trying to avoid masking built-in Symbol
-export type Sym = DecoratorSymbol | TypeSymbol;
 
 export class SymbolTable extends Map<string, Sym> {
   duplicates = new Set<Sym>();
@@ -156,27 +152,12 @@ export function createBinder(): Binder {
     function report(symbol: Sym) {
       if (!reported.has(symbol)) {
         reported.add(symbol);
-        const message = formatDiagnostic('Duplicate name: ' + symbol.name, getSourceLocationOfSymbol(symbol));
+        const message = formatDiagnostic('Duplicate name: ' + symbol.name, symbol);
         messages.push(message);
       }
     }
   }
 }
-
-function getSourceLocationOfSymbol(symbol: Sym): SourceLocation {
-  switch (symbol.kind) {
-    case 'decorator':
-      return {
-        // We currently report all decorators at line 1 of defining .js path.
-        file: createSourceFile("", symbol.path),
-        pos: 0,
-        end: 0
-      };
-    case 'type':
-      return getSourceLocationOfNode(symbol.node);
-  }
-}
-
 
 function hasScope(node: Node) {
   switch (node.kind) {

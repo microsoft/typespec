@@ -8,7 +8,7 @@ import { readFileSync } from "fs";
 import { compile } from "../compiler/program.js";
 import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
-import { DiagnosticError } from "./diagnostics.js";
+import { DiagnosticError, dumpError } from "./diagnostics.js";
 
 const adlVersion = getVersion();
 
@@ -162,7 +162,7 @@ main()
     // considered a bug and therefore we should not suppress the stack trace as
     // that risks losing it in the case of a bug that does not repro easily.
     console.error("Internal compiler error!");
-    console.error("File issue at https://github.com/azure/adl\n");
-    console.error(err.stack); // includes message.
+    console.error("File issue at https://github.com/azure/adl");
+    dumpError(err, console.error);
     process.exit(1);
   });
