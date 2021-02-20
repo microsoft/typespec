@@ -1,5 +1,5 @@
 import { Program } from "../compiler/program";
-import { ModelTypeProperty, Type } from "../compiler/types";
+import { ModelTypeProperty, Namespace, Type } from "../compiler/types";
 
 const docs = new Map<Type, string>();
 
@@ -187,4 +187,42 @@ export function list(program: Program, target: Type) {
 
 export function isList(target: Type): boolean {
   return listProperties.has(target);
+}
+
+// -- @tag decorator ---------------------
+const tagProperties = new Map<Type, string[]>();
+
+// Set a tag on an operation or namespace.  There can be multiple tags on either an
+// operation or namespace.
+export function tag(program: Program, target: Type, tag: string) {
+  if (target.kind === "NamespaceProperty" || target.kind === "Namespace") {
+    const tags = tagProperties.get(target);
+    if (tags) {
+      tags.push(tag);
+    } else {
+      tagProperties.set(target, [tag]);
+    }
+  } else {
+    throw new Error("The @tag decorator can only be applied to namespace or operation.");
+  }
+}
+
+// Return the tags set on an operation or namespace
+export function getTags(target: Type): string[] {
+  return tagProperties.get(target) || [];
+}
+
+// Merge the tags for a operation with the tags that are on the namespace it resides within.
+//
+// TODO: (JC) We'll need to update this for nested namespaces
+export function getAllTags(namespace: Namespace, target: Type): string[] | undefined {
+  const tags = new Set<string>();
+
+  for (const t of getTags(namespace)) {
+    tags.add(t);
+  }
+  for (const t of getTags(target)) {
+    tags.add(t);
+  }
+  return tags.size > 0 ? Array.from(tags) : undefined;
 }
