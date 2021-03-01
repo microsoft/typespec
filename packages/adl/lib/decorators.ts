@@ -38,9 +38,7 @@ export function getIntrinsicType(target: Type | undefined): string | undefined {
         return target.name;
       }
 
-      target =
-        (target.assignmentType?.kind === "Model" && target.assignmentType)
-        || undefined;
+      target = (target.assignmentType?.kind === "Model" && target.assignmentType) || undefined;
     } else if (target.kind === "ModelProperty") {
       return getIntrinsicType(target.type);
     } else {
@@ -151,11 +149,7 @@ export function getVisibility(target: Type): string | undefined {
   return visibilitySettings.get(target);
 }
 
-export function withVisibility(
-  program: Program,
-  target: Type,
-  ...visibilities: string[]
-) {
+export function withVisibility(program: Program, target: Type, ...visibilities: string[]) {
   if (target.kind !== "Model") {
     throw new Error("The @withVisibility decorator can only be applied to models.");
   }

@@ -3,9 +3,9 @@ import { Message, Node, SourceLocation, SyntaxKind, Type, Sym } from "./types.js
 
 /**
  * Represents an error in the code input that is fatal and bails the compilation.
- * 
+ *
  * This isn't meant to be kept long term, but we currently do this on all errors.
- */ 
+ */
 export class DiagnosticError extends Error {
   constructor(message: string) {
     super(message);
@@ -26,19 +26,31 @@ export class ChainedError extends Error {
 
 export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 
-export type ErrorHandler = (message: Message | string, target: DiagnosticTarget, ...args: Array<string | number>) => void;
+export type ErrorHandler = (
+  message: Message | string,
+  target: DiagnosticTarget,
+  ...args: Array<string | number>
+) => void;
 
 export const throwOnError: ErrorHandler = throwDiagnostic;
 
-export function throwDiagnostic(message: Message | string,  target: DiagnosticTarget, ...args: Array<string | number>): never {
+export function throwDiagnostic(
+  message: Message | string,
+  target: DiagnosticTarget,
+  ...args: Array<string | number>
+): never {
   throw new DiagnosticError(formatDiagnostic(message, target, ...args));
 }
 
-/** 
+/**
  * Format a diagnostic into <file>:<line> - ADL<code> <category>: <text>.
  * Take extra care to preserve all info in thrown Error if this fails.
  */
-export function formatDiagnostic(message: Message | string, target: DiagnosticTarget, ...args: Array<string | number>) { 
+export function formatDiagnostic(
+  message: Message | string,
+  target: DiagnosticTarget,
+  ...args: Array<string | number>
+) {
   let location: SourceLocation;
   let locationError: Error | undefined;
 
@@ -46,22 +58,24 @@ export function formatDiagnostic(message: Message | string, target: DiagnosticTa
     location = getSourceLocation(target);
   } catch (err) {
     locationError = err;
-    location = { 
+    location = {
       file: createSourceFile("", "<unknown location>"),
       pos: 0,
-      end: 0
-    }
+      end: 0,
+    };
   }
 
-  if (typeof message === 'string') {
+  if (typeof message === "string") {
     // Temporarily allow ad-hoc strings as error messages.
-    message = { code: -1, text: message, category: 'error' }
+    message = { code: -1, text: message, category: "error" };
   }
 
   const [msg, formatError] = format(message.text, ...args);
   const code = message.code < 0 ? "" : ` ADL${message.code}`;
   const pos = location.file.getLineAndCharacterOfPosition(location.pos);
-  const diagnostic = `${location.file.path}:${pos.line + 1}:${pos.character + 1} - ${message.category}${code}: ${msg}`;
+  const diagnostic = `${location.file.path}:${pos.line + 1}:${pos.character + 1} - ${
+    message.category
+  }${code}: ${msg}`;
 
   if (locationError || formatError) {
     throw new ChainedError(diagnostic, locationError, formatError);
@@ -101,8 +115,8 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
   return {
     file: root.file,
     pos: node.pos,
-    end: node.end
-  }
+    end: node.end,
+  };
 }
 
 export function dumpError(error: Error, writeLine: (s?: string) => void) {

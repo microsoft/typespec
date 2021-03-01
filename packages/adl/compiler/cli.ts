@@ -15,66 +15,61 @@ const adlVersion = getVersion();
 const args = yargs(process.argv.slice(2))
   .help()
   .strict()
-  .command(
-    "compile <path>",
-    "Compile a directory of ADL files.",
-    cmd => {
-      return cmd
-        .positional("path", {
-          description:
-            "The path to folder containing .adl files",
-          type: "string"
-        })
-        .option("output-path", {
-          type: "string",
-          default: "./adl-output",
-          describe: "The output path for generated artifacts.  If it does not exist, it will be created."
-        })
-        .option("nostdlib", {
-          type: "boolean",
-          default: false,
-          describe: "Don't load the ADL standard library."
-        });
-    }
-  )
+  .command("compile <path>", "Compile a directory of ADL files.", (cmd) => {
+    return cmd
+      .positional("path", {
+        description: "The path to folder containing .adl files",
+        type: "string",
+      })
+      .option("output-path", {
+        type: "string",
+        default: "./adl-output",
+        describe:
+          "The output path for generated artifacts.  If it does not exist, it will be created.",
+      })
+      .option("nostdlib", {
+        type: "boolean",
+        default: false,
+        describe: "Don't load the ADL standard library.",
+      });
+  })
   .command(
     "generate <path>",
     "Generate client and server code from a directory of ADL files.",
-    cmd => {
+    (cmd) => {
       return cmd
         .positional("path", {
-          description:
-            "The path to folder containing .adl files",
-          type: "string"
+          description: "The path to folder containing .adl files",
+          type: "string",
         })
         .option("client", {
           type: "boolean",
-          describe: "Generate a client library for the ADL definition"
+          describe: "Generate a client library for the ADL definition",
         })
         .option("language", {
           type: "string",
           choices: ["typescript", "csharp", "python"],
-          describe: "The language to use for code generation"
+          describe: "The language to use for code generation",
         })
         .option("output-path", {
           type: "string",
           default: "./adl-output",
-          describe: "The output path for generated artifacts.  If it does not exist, it will be created."
+          describe:
+            "The output path for generated artifacts.  If it does not exist, it will be created.",
         });
     }
   )
   .option("debug", {
     type: "boolean",
-    description: "Output debug log messages."
+    description: "Output debug log messages.",
   })
   .option("verbose", {
     alias: "v",
     type: "boolean",
-    description: "Output verbose log messages."
+    description: "Output verbose log messages.",
   })
   .version(adlVersion)
-  .demandCommand(1, "You must use one of the supported commands.")
-  .argv;
+  .demandCommand(1, "You must use one of the supported commands.").argv;
 
 async function compileInput(compilerOptions: CompilerOptions): Promise<boolean> {
   try {
@@ -101,17 +96,13 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
   return {
     outputPath,
     swaggerOutputFile: path.resolve(args["output-path"], "openapi.json"),
-    nostdlib: args["nostdlib"]
+    nostdlib: args["nostdlib"],
   };
 }
 
 function getVersion(): string {
   const packageJsonPath = new url.URL(`../../package.json`, import.meta.url);
-  const packageJson = JSON.parse(
-    readFileSync(
-      url.fileURLToPath(packageJsonPath),
-      "utf-8")
-  );
+  const packageJson = JSON.parse(readFileSync(url.fileURLToPath(packageJsonPath), "utf-8"));
   return packageJson.version;
 }
 
@@ -123,7 +114,7 @@ async function main() {
     if (!(await compileInput(options))) {
       process.exit(1);
     }
-    console.log(`Compilation completed successfully, output files are in ${options.outputPath}.`)
+    console.log(`Compilation completed successfully, output files are in ${options.outputPath}.`);
   } else if (args._[0] === "generate") {
     const options = await getCompilerOptions();
     if (!(await compileInput(options))) {
@@ -132,28 +123,31 @@ async function main() {
 
     if (args.client) {
       const clientPath = path.resolve(args["output-path"], "client");
-      const autoRestBin =
-        process.platform === "win32"
-          ? "autorest.cmd"
-          : "autorest"
+      const autoRestBin = process.platform === "win32" ? "autorest.cmd" : "autorest";
       const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
 
       // Execute AutoRest on the output file
-      const result = spawnSync(url.fileURLToPath(autoRestPath), [
-        `--${args.language}`,
-        `--clear-output-folder=true`,
-        `--output-folder=${clientPath}`,
-        `--title=AdlClient`,
-        `--input-file=${options.swaggerOutputFile}`
-      ], {
-          stdio: 'inherit',
-          shell: true
-      });
+      const result = spawnSync(
+        url.fileURLToPath(autoRestPath),
+        [
+          `--${args.language}`,
+          `--clear-output-folder=true`,
+          `--output-folder=${clientPath}`,
+          `--title=AdlClient`,
+          `--input-file=${options.swaggerOutputFile}`,
+        ],
+        {
+          stdio: "inherit",
+          shell: true,
+        }
+      );
 
       if (result.status === 0) {
-        console.log(`Generation completed successfully, output files are in ${options.outputPath}.`)
+        console.log(
+          `Generation completed successfully, output files are in ${options.outputPath}.`
+        );
       } else {
-        console.error("\nAn error occurred during compilation or client generation.")
+        console.error("\nAn error occurred during compilation or client generation.");
         process.exit(result.status || 1);
       }
     }

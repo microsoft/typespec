@@ -1,15 +1,16 @@
 import url from "url";
 import path from "path";
-import { readdir, readFile } from 'fs/promises';
-import { join } from 'path';
-import { createBinder, SymbolTable } from './binder.js';
-import { createChecker, MultiKeyMap } from './checker.js';
-import { CompilerOptions } from './options.js';
-import { parse } from './parser.js';
-import { resolvePath } from './util.js';
+import { readdir, readFile } from "fs/promises";
+import { join } from "path";
+import { createBinder, SymbolTable } from "./binder.js";
+import { createChecker, MultiKeyMap } from "./checker.js";
+import { CompilerOptions } from "./options.js";
+import { parse } from "./parser.js";
+import { resolvePath } from "./util.js";
 import {
   ADLScriptNode,
-  DecoratorExpressionNode, IdentifierNode,
+  DecoratorExpressionNode,
+  IdentifierNode,
   Namespace,
   LiteralType,
   ModelStatementNode,
@@ -18,8 +19,7 @@ import {
   Type,
   SourceFile,
   DecoratorSymbol,
-
-} from './types.js';
+} from "./types.js";
 import { createSourceFile } from "./scanner.js";
 import { throwDiagnostic } from "./diagnostics.js";
 
@@ -68,9 +68,9 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
   if (!options?.nostdlib) {
     await loadStandardLibrary(program);
   }
-  
+
   await loadDirectory(program, rootDir);
-  const checker = program.checker = createChecker(program);
+  const checker = (program.checker = createChecker(program));
   program.checker.checkProgram(program);
   buildCbs.forEach((cb: any) => cb(program));
 
@@ -104,7 +104,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
       for (const [name, propType] of type.properties) {
         const propNode = propType.node;
 
-        if ('decorators' in propNode) {
+        if ("decorators" in propNode) {
           for (const dec of propNode.decorators) {
             executeDecorator(dec, program, propType);
           }
@@ -123,13 +123,11 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
 
   function executeDecorator(dec: DecoratorExpressionNode, program: Program, type: Type) {
     if (dec.target.kind !== SyntaxKind.Identifier) {
-      throwDiagnostic('Decorator must be identifier', dec);
+      throwDiagnostic("Decorator must be identifier", dec);
     }
 
     const decName = dec.target.sv;
-    const args = dec.arguments.map((a) =>
-      toJSON(checker.getTypeForNode(a))
-    );
+    const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
     const decBinding = <DecoratorSymbol>program.globalSymbols.get(decName);
     if (!decBinding) {
       throwDiagnostic(`Can't find decorator ${decName}`, dec);
@@ -139,10 +137,9 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
   }
 
   async function importDecorator(modulePath: string, name: string) {
-    const resolvedPath =
-      path.isAbsolute(modulePath)
-        ? modulePath
-        : path.resolve(process.cwd(), modulePath);
+    const resolvedPath = path.isAbsolute(modulePath)
+      ? modulePath
+      : path.resolve(process.cwd(), modulePath);
 
     const moduleUrl = url.pathToFileURL(resolvedPath);
     const module = await import(moduleUrl.href);
@@ -155,7 +152,7 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
    * treated specially.
    */
   function toJSON(type: Type): Type | string | number {
-    if ('value' in type) {
+    if ("value" in type) {
       return (<any>type).value;
     }
 
@@ -184,9 +181,9 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     for (const entry of dir) {
       if (entry.isFile()) {
         const path = join(rootDir, entry.name);
-        if (entry.name.endsWith('.js')) {
+        if (entry.name.endsWith(".js")) {
           await loadJsFile(program, path);
-        } else if (entry.name.endsWith('.adl')) {
+        } else if (entry.name.endsWith(".adl")) {
           await loadAdlFile(program, path);
         }
       }
@@ -194,12 +191,12 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
   }
 
   async function loadAdlFile(program: Program, path: string) {
-    const contents = await readFile(path, 'utf-8');
+    const contents = await readFile(path, "utf-8");
     program.evalAdlScript(contents, path);
   }
 
   async function loadJsFile(program: Program, path: string) {
-    const contents = await readFile(path, 'utf-8');
+    const contents = await readFile(path, "utf-8");
 
     const exports = contents.match(/export function \w+/g);
     if (!exports) return;
@@ -209,14 +206,14 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
       const name = match.match(/function (\w+)/)![1];
       const value = await importDecorator(path, name);
 
-      if (name === 'onBuild') {
+      if (name === "onBuild") {
         program.onBuild(value);
       } else {
         program.globalSymbols.set(name, {
-          kind: 'decorator',
+          kind: "decorator",
           path,
           name,
-          value
+          value,
         });
       }
     }

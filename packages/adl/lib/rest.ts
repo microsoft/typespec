@@ -3,8 +3,8 @@ import { Type } from "../compiler/types";
 
 const basePaths = new Map<Type, string>();
 
-export function resource(program: Program, entity: Type, basePath = '') {
-  if (entity.kind !== 'Namespace') return;
+export function resource(program: Program, entity: Type, basePath = "") {
+  if (entity.kind !== "Namespace") return;
   basePaths.set(entity, basePath);
 }
 
@@ -23,7 +23,7 @@ export function basePathForResource(resource: Type) {
 const headerFields = new Map<Type, string>();
 export function header(program: Program, entity: Type, headerName: string) {
   if (!headerName && entity.kind === "ModelProperty") {
-    headerName = entity.name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    headerName = entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
   }
   headerFields.set(entity, headerName);
 }
@@ -93,28 +93,28 @@ export function getOperationRoute(entity: Type): OperationRoute | undefined {
 export function get(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(entity, {
     verb: "get",
-    subPath
+    subPath,
   });
 }
 
 export function put(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(entity, {
     verb: "put",
-    subPath
+    subPath,
   });
 }
 
 export function post(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(entity, {
     verb: "post",
-    subPath
+    subPath,
   });
 }
 
 export function patch(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(entity, {
     verb: "patch",
-    subPath
+    subPath,
   });
 }
 
@@ -122,6 +122,6 @@ export function patch(program: Program, entity: Type, subPath?: string) {
 export function _delete(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(entity, {
     verb: "delete",
-    subPath
+    subPath,
   });
 }

@@ -23,7 +23,7 @@ export type Type =
   | UnionType;
 
 export interface ModelType extends BaseType {
-  kind: 'Model';
+  kind: "Model";
   name: string;
   properties: Map<string, ModelTypeProperty>;
   baseModels: Array<ModelType>;
@@ -33,7 +33,7 @@ export interface ModelType extends BaseType {
 }
 
 export interface ModelTypeProperty {
-  kind: 'ModelProperty';
+  kind: "ModelProperty";
   node: ModelPropertyNode | ModelSpreadPropertyNode;
   name: string;
   type: Type;
@@ -44,7 +44,7 @@ export interface ModelTypeProperty {
 }
 
 export interface NamespaceProperty {
-  kind: 'NamespaceProperty';
+  kind: "NamespaceProperty";
   node: NamespacePropertyNode;
   name: string;
   parameters?: ModelType;
@@ -52,7 +52,7 @@ export interface NamespaceProperty {
 }
 
 export interface Namespace extends BaseType {
-  kind: 'Namespace';
+  kind: "Namespace";
   name: string;
   node: NamespaceStatementNode;
   properties: Map<string, NamespaceProperty>;
@@ -62,56 +62,56 @@ export interface Namespace extends BaseType {
 export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
 export interface StringLiteralType extends BaseType {
-  kind: 'String';
+  kind: "String";
   node: StringLiteralNode;
   value: string;
 }
 
 export interface NumericLiteralType extends BaseType {
-  kind: 'Number';
+  kind: "Number";
   node: NumericLiteralNode;
   value: number;
 }
 
 export interface BooleanLiteralType extends BaseType {
-  kind: 'Boolean';
+  kind: "Boolean";
   node: BooleanLiteralNode;
   value: boolean;
 }
 
 export interface ArrayType extends BaseType {
-  kind: 'Array';
+  kind: "Array";
   node: ArrayExpressionNode;
   elementType: Type;
 }
 
 export interface TupleType extends BaseType {
-  kind: 'Tuple';
+  kind: "Tuple";
   node: TupleExpressionNode;
   values: Array<Type>;
 }
 
 export interface UnionType extends BaseType {
-  kind: 'Union';
+  kind: "Union";
   options: Array<Type>;
 }
 
 export interface TemplateParameterType extends BaseType {
-  kind: 'TemplateParameter';
+  kind: "TemplateParameter";
 }
 
 // trying to avoid masking built-in Symbol
 export type Sym = DecoratorSymbol | TypeSymbol;
 
 export interface DecoratorSymbol {
-  kind: 'decorator';
+  kind: "decorator";
   path: string;
   name: string;
   value: (...args: Array<any>) => any;
 }
 
 export interface TypeSymbol {
-  kind: 'type';
+  kind: "type";
   node: Node;
   name: string;
 }
@@ -140,7 +140,7 @@ export enum SyntaxKind {
   NumericLiteral,
   BooleanLiteral,
   TemplateApplication,
-  TemplateParameterDeclaration
+  TemplateParameterDeclaration,
 }
 
 export interface BaseNode extends TextRange {
@@ -148,8 +148,8 @@ export interface BaseNode extends TextRange {
   parent?: Node;
 }
 
-export type Node = 
-  | ADLScriptNode 
+export type Node =
+  | ADLScriptNode
   | TemplateParameterDeclarationNode
   | ModelPropertyNode
   | NamespacePropertyNode
@@ -157,7 +157,7 @@ export type Node =
   | ModelPropertyNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
-  | Statement 
+  | Statement
   | Expression;
 
 export interface ADLScriptNode extends BaseNode {
@@ -166,10 +166,7 @@ export interface ADLScriptNode extends BaseNode {
   file: SourceFile;
 }
 
-export type Statement =
-  | ImportStatementNode
-  | ModelStatementNode
-  | NamespaceStatementNode;
+export type Statement = ImportStatementNode | ModelStatementNode | NamespaceStatementNode;
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
@@ -206,10 +203,7 @@ export type Expression =
   | NumericLiteralNode
   | BooleanLiteralNode;
 
-export type ReferenceExpression =
-  | TemplateApplicationNode
-  | MemberExpressionNode
-  | IdentifierNode;
+export type ReferenceExpression = TemplateApplicationNode | MemberExpressionNode | IdentifierNode;
 
 export interface MemberExpressionNode extends BaseNode {
   kind: SyntaxKind.MemberExpression;
@@ -232,7 +226,6 @@ export interface NamespacePropertyNode extends BaseNode {
   returnType: Expression;
   decorators: Array<DecoratorExpressionNode>;
 }
-
 
 export interface ModelStatementNode extends BaseNode {
   kind: SyntaxKind.ModelStatement;
@@ -360,13 +353,13 @@ export interface SourceFile {
 }
 
 export interface TextRange {
-  /** 
+  /**
    * The starting position of the ranger measured in UTF-16 code units from the
    * start of the full string. Inclusive.
    */
   pos: number;
 
-  /** 
+  /**
    * The ending position measured in UTF-16 code units from the start of the
    * full string. Exclusive.
    */
@@ -380,5 +373,5 @@ export interface SourceLocation extends TextRange {
 export interface Message {
   code: number;
   text: string;
-  category: 'error' | 'warning';
+  category: "error" | "warning";
 }

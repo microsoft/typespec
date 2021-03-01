@@ -1,5 +1,5 @@
-import { throwDiagnostic } from './diagnostics.js';
-import { ADLSourceFile, Program } from './program.js';
+import { throwDiagnostic } from "./diagnostics.js";
+import { ADLSourceFile, Program } from "./program.js";
 import {
   ArrayExpressionNode,
   BooleanLiteralNode,
@@ -30,8 +30,8 @@ import {
   Type,
   UnionExpressionNode,
   UnionType,
-  ReferenceExpression
-} from './types.js';
+  ReferenceExpression,
+} from "./types.js";
 
 /**
  * A map keyed by a set of objects. Used as a type cache where the base type
@@ -55,7 +55,7 @@ export class MultiKeyMap<T> {
   }
 
   compositeKeyFor(items: Array<object>) {
-    return items.map(i => this.keyFor(i)).join(',');
+    return items.map((i) => this.keyFor(i)).join(",");
   }
 
   keyFor(item: object) {
@@ -80,7 +80,7 @@ export function createChecker(program: Program) {
     checkProgram,
     getLiteralType,
     getTypeName,
-    checkNamespaceProperty
+    checkNamespaceProperty,
   };
 
   function getTypeForNode(node: Node): Type {
@@ -121,24 +121,24 @@ export function createChecker(program: Program) {
         return checkTemplateParameterDeclaration(node);
     }
 
-    throwDiagnostic('Cannot evaluate ' + SyntaxKind[node.kind], node);
+    throwDiagnostic("Cannot evaluate " + SyntaxKind[node.kind], node);
   }
 
   function getTypeName(type: Type): string {
     switch (type.kind) {
-      case 'Model':
+      case "Model":
         return getModelName(type);
-      case 'Union':
-        return type.options.map(getTypeName).join(' | ');
-      case 'Array':
-        return getTypeName(type.elementType) + '[]';
-      case 'String':
-      case 'Number':
-      case 'Boolean':
+      case "Union":
+        return type.options.map(getTypeName).join(" | ");
+      case "Array":
+        return getTypeName(type.elementType) + "[]";
+      case "String":
+      case "Number":
+      case "Boolean":
         return type.value.toString();
     }
 
-    return '(unnamed type)';
+    return "(unnamed type)";
   }
 
   function getModelName(model: ModelType) {
@@ -147,14 +147,14 @@ export function createChecker(program: Program) {
     } else if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
-      return `${model.name}<${args.join(', ')}>`;
+      return `${model.name}<${args.join(", ")}>`;
     } else if ((<ModelStatementNode>model.node).templateParameters?.length > 0) {
       // template
-      const params = (<ModelStatementNode>model.node).templateParameters.map(t => t.sv);
-      return `${model.name}<${params.join(', ')}>`;
+      const params = (<ModelStatementNode>model.node).templateParameters.map((t) => t.sv);
+      return `${model.name}<${params.join(", ")}>`;
     } else {
       // regular old model.
-      return model.name || '(anonymous model)';
+      return model.name || "(anonymous model)";
     }
   }
 
@@ -162,13 +162,13 @@ export function createChecker(program: Program) {
     const parentNode = <ModelStatementNode>node.parent!;
 
     if (instantiatingTemplate === parentNode) {
-      const index = parentNode.templateParameters.findIndex(v => v === node);
+      const index = parentNode.templateParameters.findIndex((v) => v === node);
       return templateInstantiation[index];
     }
 
     return createType({
-      kind: 'TemplateParameter',
-      node: node
+      kind: "TemplateParameter",
+      node: node,
     });
   }
 
@@ -178,7 +178,6 @@ export function createChecker(program: Program) {
     // todo: check proper target
     return instantiateTemplate(<ModelStatementNode>targetType.node, args);
   }
-
 
   /**
    * Builds a model type from a template and its template arguments.
@@ -190,11 +189,11 @@ export function createChecker(program: Program) {
    */
   function instantiateTemplate(templateNode: ModelStatementNode, args: Array<Type>): ModelType {
     if (templateNode.templateParameters!.length < args.length) {
-      throwDiagnostic('Too few template arguments provided.', templateNode);
+      throwDiagnostic("Too few template arguments provided.", templateNode);
     }
 
     if (templateNode.templateParameters!.length > args.length) {
-      throwDiagnostic('Too many template arguments provided.', templateNode);
+      throwDiagnostic("Too many template arguments provided.", templateNode);
     }
 
     const oldTis = templateInstantiation;
@@ -211,14 +210,14 @@ export function createChecker(program: Program) {
 
   function checkUnionExpression(node: UnionExpressionNode): UnionType {
     return createType({
-      kind: 'Union',
+      kind: "Union",
       node,
       options: node.options.map(getTypeForNode),
     });
   }
 
   function allModelTypes(types: Array<Type>): types is Array<ModelType> {
-    return types.every(t => t.kind === 'Model');
+    return types.every((t) => t.kind === "Model");
   }
 
   /**
@@ -229,7 +228,7 @@ export function createChecker(program: Program) {
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
     if (!allModelTypes(optionTypes)) {
-      throwDiagnostic('Cannot intersect non-model types (including union types).', node);
+      throwDiagnostic("Cannot intersect non-model types (including union types).", node);
     }
 
     const properties = new Map<string, ModelTypeProperty>();
@@ -237,25 +236,30 @@ export function createChecker(program: Program) {
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
-          throwDiagnostic(`Intersection contains duplicate property definitions for ${prop.name}`, node);
+          throwDiagnostic(
+            `Intersection contains duplicate property definitions for ${prop.name}`,
+            node
+          );
         }
 
-        const newPropType = createType({
-          ... prop,
-          sourceProperty: prop
-        }, true);
+        const newPropType = createType(
+          {
+            ...prop,
+            sourceProperty: prop,
+          },
+          true
+        );
 
         properties.set(prop.name, newPropType);
       }
     }
 
-
     const intersection = createType({
-      kind: 'Model',
+      kind: "Model",
       node,
-      name: '',
+      name: "",
       baseModels: [],
-      properties: properties
+      properties: properties,
     });
 
     return intersection;
@@ -263,7 +267,7 @@ export function createChecker(program: Program) {
 
   function checkArrayExpression(node: ArrayExpressionNode) {
     return createType({
-      kind: 'Array',
+      kind: "Array",
       node,
       elementType: getTypeForNode(node.elementType),
     });
@@ -271,11 +275,11 @@ export function createChecker(program: Program) {
 
   function checkNamespace(node: NamespaceStatementNode) {
     const type: Namespace = createType({
-      kind: 'Namespace',
+      kind: "Namespace",
       name: node.id.sv,
       node: node,
       properties: new Map(),
-      parameters: node.parameters ? <ModelType>getTypeForNode(node.parameters) : undefined
+      parameters: node.parameters ? <ModelType>getTypeForNode(node.parameters) : undefined,
     });
 
     for (const prop of node.properties) {
@@ -287,7 +291,7 @@ export function createChecker(program: Program) {
 
   function checkNamespaceProperty(prop: NamespacePropertyNode): NamespaceProperty {
     return createType({
-      kind: 'NamespaceProperty',
+      kind: "NamespaceProperty",
       name: prop.id.sv,
       node: prop,
       parameters: <ModelType>getTypeForNode(prop.parameters),
@@ -295,10 +299,9 @@ export function createChecker(program: Program) {
     });
   }
 
-
   function checkTupleExpression(node: TupleExpressionNode): TupleType {
     return createType({
-      kind: 'Tuple',
+      kind: "Tuple",
       node: node,
       values: node.values.map((v) => getTypeForNode(v)),
     });
@@ -306,7 +309,7 @@ export function createChecker(program: Program) {
 
   function checkIdentifier(node: IdentifierNode) {
     const binding = resolveIdentifier(node);
-    if (binding.kind === 'decorator') {
+    if (binding.kind === "decorator") {
       return {};
     } else {
       return getTypeForNode(binding.node);
@@ -318,7 +321,7 @@ export function createChecker(program: Program) {
     let binding;
 
     while (scope) {
-      if ('locals' in scope) {
+      if ("locals" in scope) {
         binding = (<any>scope).locals.get(node.sv);
         if (binding) break;
       }
@@ -330,7 +333,7 @@ export function createChecker(program: Program) {
     }
 
     if (!binding) {
-      throwDiagnostic('Unknown identifier ' + node.sv, node);
+      throwDiagnostic("Unknown identifier " + node.sv, node);
     }
 
     return binding;
@@ -363,12 +366,11 @@ export function createChecker(program: Program) {
   function checkModel(node: ModelExpressionNode | ModelStatementNode) {
     if (node.properties) {
       const properties = new Map();
-      const baseModels = node.kind === SyntaxKind.ModelExpression
-                          ? []
-                          : checkClassHeritage(node.heritage);
+      const baseModels =
+        node.kind === SyntaxKind.ModelExpression ? [] : checkClassHeritage(node.heritage);
 
       for (const prop of node.properties) {
-        if ('id' in prop) {
+        if ("id" in prop) {
           const propType = <ModelTypeProperty>getTypeForNode(prop);
           properties.set(propType.name, propType);
         } else {
@@ -386,25 +388,24 @@ export function createChecker(program: Program) {
       }
 
       return createType({
-        kind: 'Model',
-        name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : '',
+        kind: "Model",
+        name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : "",
         node: node,
         properties,
-        baseModels: baseModels
+        baseModels: baseModels,
       });
-
     } else {
       // model =
       // this will likely have to change, as right now `model =` is really just
       // alias and so disappears. That means you can't easily rename symbols.
       const assignmentType = getTypeForNode((<ModelStatementNode>node).assignment!);
 
-      if (assignmentType.kind === 'Model') {
+      if (assignmentType.kind === "Model") {
         const type: ModelType = createType({
-          ... <ModelType>assignmentType,
+          ...(<ModelType>assignmentType),
           node: node,
           name: (<ModelStatementNode>node).id.sv,
-          assignmentType
+          assignmentType,
         });
 
         return type;
@@ -415,7 +416,7 @@ export function createChecker(program: Program) {
   }
 
   function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
-    return heritage.flatMap(heritageRef => {
+    return heritage.flatMap((heritageRef) => {
       const heritageType = getTypeForNode(heritageRef);
 
       if (heritageType.kind === "TemplateParameter") {
@@ -435,18 +436,20 @@ export function createChecker(program: Program) {
     const props: ModelTypeProperty[] = [];
     const targetType = getTypeForNode(targetNode);
 
-
-    if (targetType.kind != 'TemplateParameter') {
-      if (targetType.kind !== 'Model') {
-        throwDiagnostic('Cannot spread properties of non-model type.', targetNode);
+    if (targetType.kind != "TemplateParameter") {
+      if (targetType.kind !== "Model") {
+        throwDiagnostic("Cannot spread properties of non-model type.", targetNode);
       }
 
       // copy each property
       for (const prop of walkPropertiesInherited(targetType)) {
-        const newProp = createType({
-          ... prop,
-          sourceProperty: prop
-        }, true)
+        const newProp = createType(
+          {
+            ...prop,
+            sourceProperty: prop,
+          },
+          true
+        );
         props.push(newProp);
       }
     }
@@ -467,11 +470,10 @@ export function createChecker(program: Program) {
     return props;
   }
 
-
   function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
     if (prop.id.kind === SyntaxKind.Identifier) {
       return createType({
-        kind: 'ModelProperty',
+        kind: "ModelProperty",
         name: prop.id.sv,
         node: prop,
         optional: prop.optional,
@@ -480,7 +482,7 @@ export function createChecker(program: Program) {
     } else {
       const name = prop.id.value;
       return createType({
-        kind: 'ModelProperty',
+        kind: "ModelProperty",
         name,
         node: prop,
         optional: prop.optional,
@@ -496,7 +498,7 @@ export function createChecker(program: Program) {
     (<any>typeDef).templateArguments = templateInstantiation;
 
     // only run decorators on fully instantiated types.
-    if (templateInstantiation.every(i => i.kind !== 'TemplateParameter')) {
+    if (templateInstantiation.every((i) => i.kind !== "TemplateParameter")) {
       program.executeDecorators(typeDef);
     }
 
@@ -514,13 +516,13 @@ export function createChecker(program: Program) {
 
     switch (node.kind) {
       case SyntaxKind.StringLiteral:
-        type = { kind: 'String', node, value: node.value };
+        type = { kind: "String", node, value: node.value };
         break;
       case SyntaxKind.NumericLiteral:
-        type = { kind: 'Number', node, value: node.value };
+        type = { kind: "Number", node, value: node.value };
         break;
       case SyntaxKind.BooleanLiteral:
-        type = { kind: 'Boolean', node, value: node.value };
+        type = { kind: "Boolean", node, value: node.value };
         break;
     }
 

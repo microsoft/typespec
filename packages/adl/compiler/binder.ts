@@ -1,35 +1,42 @@
-import { DiagnosticError, formatDiagnostic } from './diagnostics.js';
-import { visitChildren } from './parser.js';
-import { ADLSourceFile, Program } from './program.js';
-import { createSourceFile } from './scanner.js';
-import { NamespaceStatementNode, ModelStatementNode, Node, SyntaxKind, TemplateParameterDeclarationNode, SourceLocation, Sym } from './types.js';
-
+import { DiagnosticError, formatDiagnostic } from "./diagnostics.js";
+import { visitChildren } from "./parser.js";
+import { ADLSourceFile, Program } from "./program.js";
+import { createSourceFile } from "./scanner.js";
+import {
+  NamespaceStatementNode,
+  ModelStatementNode,
+  Node,
+  SyntaxKind,
+  TemplateParameterDeclarationNode,
+  SourceLocation,
+  Sym,
+} from "./types.js";
 
 export class SymbolTable extends Map<string, Sym> {
   duplicates = new Set<Sym>();
 
-   // First set for a given key wins, but record all duplicates for diagnostics.
-   set(key: string, value: Sym) {
-      const existing = this.get(key);
-      if (existing === undefined) {
-        super.set(key, value);
-      } else {
-        this.duplicates.add(existing);
-        this.duplicates.add(value);
-      }
-      return this;
+  // First set for a given key wins, but record all duplicates for diagnostics.
+  set(key: string, value: Sym) {
+    const existing = this.get(key);
+    if (existing === undefined) {
+      super.set(key, value);
+    } else {
+      this.duplicates.add(existing);
+      this.duplicates.add(value);
     }
+    return this;
+  }
 }
 
 export interface DecoratorSymbol {
-  kind: 'decorator';
+  kind: "decorator";
   path: string;
   name: string;
   value: (...args: Array<any>) => any;
 }
 
 export interface TypeSymbol {
-  kind: 'type';
+  kind: "type";
   node: Node;
   name: string;
 }
@@ -49,7 +56,11 @@ export function createBinder(): Binder {
     bindSourceFile,
   };
 
-  function bindSourceFile(program: Program, sourceFile: ADLSourceFile, globalScope: boolean = false) {
+  function bindSourceFile(
+    program: Program,
+    sourceFile: ADLSourceFile,
+    globalScope: boolean = false
+  ) {
     currentFile = sourceFile;
     bindNode(sourceFile.ast);
 
@@ -78,7 +89,6 @@ export function createBinder(): Binder {
         bindTemplateParameterDeclaration(<any>node);
     }
 
-
     const prevParent = parentNode;
     // set parent node when we walk into children
     parentNode = node;
@@ -98,7 +108,7 @@ export function createBinder(): Binder {
 
   function bindTemplateParameterDeclaration(node: TemplateParameterDeclarationNode) {
     (<ModelStatementNode>scope).locals!.set(node.sv, {
-      kind: 'type',
+      kind: "type",
       node: node,
       name: node.sv,
     });
@@ -106,7 +116,7 @@ export function createBinder(): Binder {
 
   function bindModelStatement(node: ModelStatementNode) {
     currentFile.symbols.set(node.id.sv, {
-      kind: 'type',
+      kind: "type",
       node: node,
       name: node.id.sv,
     });
@@ -115,11 +125,9 @@ export function createBinder(): Binder {
     node.locals = new SymbolTable();
   }
 
-  function bindInterfaceStatement(
-    statement: NamespaceStatementNode
-  ) {
+  function bindInterfaceStatement(statement: NamespaceStatementNode) {
     currentFile.symbols.set(statement.id.sv, {
-      kind: 'type',
+      kind: "type",
       node: statement,
       name: statement.id.sv,
     });
@@ -146,13 +154,13 @@ export function createBinder(): Binder {
       // That said, decorators are entered into the global symbol table before
       // any source file is bound and therefore this will include all duplicate
       // decorator implementations.
-      throw new DiagnosticError(messages.join('\n'));
+      throw new DiagnosticError(messages.join("\n"));
     }
 
     function report(symbol: Sym) {
       if (!reported.has(symbol)) {
         reported.add(symbol);
-        const message = formatDiagnostic('Duplicate name: ' + symbol.name, symbol);
+        const message = formatDiagnostic("Duplicate name: " + symbol.name, symbol);
         messages.push(message);
       }
     }

@@ -15,7 +15,9 @@
     "prepare": "npm run build",
     "test": "mocha 'dist/test/**/*.js'",
     "grammargen": "grammarkdown --newLine LF language.grammar",
-    "regen-samples": "node scripts/regen-samples.js"
+    "regen-samples": "node scripts/regen-samples.js",
+    "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.ts\" \"*.{js,json}\"",
+    "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.ts\"  \"*.{js,json}\""
   },
   "repository": {
     "type": "git",
@@ -46,7 +48,8 @@
     "mocha": "7.1.2",
     "ts-node": "^8.10.2",
     "typescript": "~3.9.5",
-    "@types/yargs": "~15.0.12"
+    "@types/yargs": "~15.0.12",
+    "prettier": "~2.2.1"
   },
   "dependencies": {
     "yargs": "~16.2.0",
