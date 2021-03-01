@@ -64,7 +64,11 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
 
   let virtualFileCount = 0;
   const binder = createBinder();
-  await loadStandardLibrary(program);
+
+  if (!options?.nostdlib) {
+    await loadStandardLibrary(program);
+  }
+  
   await loadDirectory(program, rootDir);
   const checker = program.checker = createChecker(program);
   program.checker.checkProgram(program);

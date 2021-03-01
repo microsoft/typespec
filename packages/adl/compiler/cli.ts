@@ -29,6 +29,11 @@ const args = yargs(process.argv.slice(2))
           type: "string",
           default: "./adl-output",
           describe: "The output path for generated artifacts.  If it does not exist, it will be created."
+        })
+        .option("nostdlib", {
+          type: "boolean",
+          default: false,
+          describe: "Don't load the ADL standard library."
         });
     }
   )
@@ -95,7 +100,8 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
 
   return {
     outputPath,
-    swaggerOutputFile: path.resolve(args["output-path"], "openapi.json")
+    swaggerOutputFile: path.resolve(args["output-path"], "openapi.json"),
+    nostdlib: args["nostdlib"]
   };
 }
 
