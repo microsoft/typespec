@@ -689,6 +689,7 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
       return visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.heritage) ||
         visitNode(cb, node.assignment) ||
         visitEach(cb, node.properties);
     case Types.SyntaxKind.NamedImport:

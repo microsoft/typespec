@@ -385,15 +385,14 @@ export function createChecker(program: Program) {
         }
       }
 
-      const type: ModelType = createType({
+      return createType({
         kind: 'Model',
         name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : '',
         node: node,
         properties,
         baseModels: baseModels
       });
-      
-      return type;
+
     } else {
       // model =
       // this will likely have to change, as right now `model =` is really just
@@ -416,8 +415,13 @@ export function createChecker(program: Program) {
   }
 
   function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
-    return heritage.map(heritageRef => {
+    return heritage.flatMap(heritageRef => {
       const heritageType = getTypeForNode(heritageRef);
+
+      if (heritageType.kind === "TemplateParameter") {
+        // don't need to track heritage for template parameters.
+        return [];
+      }
 
       if (heritageType.kind !== "Model") {
         throwDiagnostic("Models must extend other models.", heritageRef);
