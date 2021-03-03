@@ -379,24 +379,20 @@ export function parse(code: string | Types.SourceFile) {
 
   function parseReferenceExpression(): Types.ReferenceExpression {
     const pos = tokenPos();
-    const expr = parseIdentifierOrMemberExpression();
+    const target = parseIdentifierOrMemberExpression();
 
-    if (token() !== Token.LessThan) {
-      return expr;
+    let args: Types.Expression[] = [];
+    if (parseOptional(Token.LessThan)) {
+      args = parseExpressionList();
+      parseExpected(Token.GreaterThan);
     }
 
-    parseExpected(Token.LessThan);
-    const args = parseExpressionList();
-    parseExpected(Token.GreaterThan);
 
-    return finishNode(
-      {
-        kind: Types.SyntaxKind.TemplateApplication,
-        target: expr,
-        arguments: args,
-      },
-      pos
-    );
+    return finishNode({
+      kind: Types.SyntaxKind.TypeReference,
+      target,
+      arguments: args,
+    }, pos);
   }
 
   function parseReferenceExpressionList(): Types.ReferenceExpression[] {
@@ -773,8 +769,9 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
       );
     case Types.SyntaxKind.NamedImport:
       return visitNode(cb, node.id);
-    case Types.SyntaxKind.TemplateApplication:
-      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+    case Types.SyntaxKind.TypeReference:
+      return visitNode(cb, node.target) ||
+        visitEach(cb, node.arguments);
     case Types.SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
     case Types.SyntaxKind.UnionExpression:

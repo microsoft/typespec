@@ -1,4 +1,5 @@
 import { SymbolTable } from "./binder";
+import { MultiKeyMap } from "./checker";
 
 /**
  * Type System types
@@ -114,7 +115,18 @@ export interface TypeSymbol {
   kind: "type";
   node: Node;
   name: string;
+  id?: number;
 }
+
+export interface SymbolLinks {
+  type?: Type;
+
+  // for types which can be instantiated, we split `type` into declaredType and
+  // a map of instantiations.
+  declaredType?: Type;
+  instantiations?: MultiKeyMap<Type>; 
+}
+
 
 /**
  * AST types
@@ -139,8 +151,8 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
-  TemplateApplication,
-  TemplateParameterDeclaration,
+  TypeReference,
+  TemplateParameterDeclaration
 }
 
 export interface BaseNode extends TextRange {
@@ -160,6 +172,7 @@ export type Node =
   | Statement
   | Expression;
 
+
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
   statements: Array<Statement>;
@@ -167,6 +180,14 @@ export interface ADLScriptNode extends BaseNode {
 }
 
 export type Statement = ImportStatementNode | ModelStatementNode | NamespaceStatementNode;
+
+export interface DeclarationNode {
+  symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
+}
+
+export type Declaration =
+  | ModelStatementNode
+  | NamespaceStatementNode;
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
@@ -197,13 +218,16 @@ export type Expression =
   | TupleExpressionNode
   | UnionExpressionNode
   | IntersectionExpressionNode
-  | TemplateApplicationNode
+  | TypeReferenceNode
   | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode;
 
-export type ReferenceExpression = TemplateApplicationNode | MemberExpressionNode | IdentifierNode;
+export type ReferenceExpression =
+  | TypeReferenceNode
+  | MemberExpressionNode
+  | IdentifierNode;
 
 export interface MemberExpressionNode extends BaseNode {
   kind: SyntaxKind.MemberExpression;
@@ -211,7 +235,7 @@ export interface MemberExpressionNode extends BaseNode {
   base: MemberExpressionNode | IdentifierNode;
 }
 
-export interface NamespaceStatementNode extends BaseNode {
+export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.NamespaceStatement;
   id: IdentifierNode;
   parameters?: ModelExpressionNode;
@@ -227,7 +251,8 @@ export interface NamespacePropertyNode extends BaseNode {
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface ModelStatementNode extends BaseNode {
+
+export interface ModelStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
   properties?: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
@@ -293,8 +318,8 @@ export interface IntersectionExpressionNode extends BaseNode {
   options: Array<Expression>;
 }
 
-export interface TemplateApplicationNode extends BaseNode {
-  kind: SyntaxKind.TemplateApplication;
+export interface TypeReferenceNode extends BaseNode {
+  kind: SyntaxKind.TypeReference;
   target: Expression;
   arguments: Array<Expression>;
 }

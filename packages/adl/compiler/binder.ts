@@ -1,7 +1,6 @@
 import { DiagnosticError, formatDiagnostic } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
 import { ADLSourceFile, Program } from "./program.js";
-import { createSourceFile } from "./scanner.js";
 import {
   NamespaceStatementNode,
   ModelStatementNode,
@@ -10,6 +9,7 @@ import {
   TemplateParameterDeclarationNode,
   SourceLocation,
   Sym,
+  Declaration,
 } from "./types.js";
 
 export class SymbolTable extends Map<string, Sym> {
@@ -83,7 +83,7 @@ export function createBinder(): Binder {
         bindModelStatement(<any>node);
         break;
       case SyntaxKind.NamespaceStatement:
-        bindInterfaceStatement(<any>node);
+        bindNamespaceStatement(<any>node);
         break;
       case SyntaxKind.TemplateParameterDeclaration:
         bindTemplateParameterDeclaration(<any>node);
@@ -115,22 +115,13 @@ export function createBinder(): Binder {
   }
 
   function bindModelStatement(node: ModelStatementNode) {
-    currentFile.symbols.set(node.id.sv, {
-      kind: "type",
-      node: node,
-      name: node.id.sv,
-    });
-
+    declareSymbol(currentFile.symbols, node);
     // initialize locals for type parameters.
     node.locals = new SymbolTable();
   }
 
-  function bindInterfaceStatement(statement: NamespaceStatementNode) {
-    currentFile.symbols.set(statement.id.sv, {
-      kind: "type",
-      node: statement,
-      name: statement.id.sv,
-    });
+  function bindNamespaceStatement(statement: NamespaceStatementNode) {
+    declareSymbol(currentFile.symbols, statement);
   }
 
   function reportDuplicateSymbols(globalSymbols: SymbolTable) {
@@ -174,4 +165,18 @@ function hasScope(node: Node) {
     default:
       return false;
   }
+}
+
+function createTypeSymbol(node: Node, name: string): TypeSymbol {
+  return {
+    kind: "type",
+    node,
+    name,
+  };
+}
+
+function declareSymbol(table: SymbolTable, node: Declaration) {
+  const symbol = createTypeSymbol(node, node.id.sv);
+  node.symbol = symbol;
+  table.set(node.id.sv, symbol);
 }
