@@ -373,7 +373,7 @@ export function createChecker(program: Program) {
 
     const symbolLinks = getSymbolLinks(node.namespaceSymbol);
     if (!symbolLinks.type) {
-      throwDiagnostic("Parent namespace isn't typed yet, please file a bug.", node);
+      throw new Error("Parent namespace isn't typed yet, please file a bug.");
     }
     return symbolLinks.type as NamespaceType;
   }
@@ -472,7 +472,7 @@ export function createChecker(program: Program) {
       return resolveIdentifier(node);
     }
 
-    throwDiagnostic("Unknown reference node type", node);
+    throw new Error("Unknown type reference kind");
   }
 
   function checkStringLiteral(str: StringLiteralNode): StringLiteralType {
