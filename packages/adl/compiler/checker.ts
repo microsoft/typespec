@@ -143,30 +143,28 @@ export function createChecker(program: Program) {
     return "(unnamed type)";
   }
 
-  function getNamespaceString(type: ModelType | NamespaceType | OperationType): string | undefined {
-    return type.namespace
-      ? `${getNamespaceString(type.namespace) || ""}${type.namespace.name}.`
-      : undefined;
+  function getNamespaceString(type: NamespaceType | undefined): string {
+    if (!type) return '';
+    const parent = type.namespace;
+
+    return parent ? `${getNamespaceString(parent)}.${type.name}` : type.name;
   }
 
   function getModelName(model: ModelType) {
-    let modelName: string | undefined = model.name;
-    if ((<ModelStatementNode>model.node).assignment) {
-      // Just use the existing modelName
-    } else if (model.templateArguments && model.templateArguments.length > 0) {
+    const nsName = getNamespaceString(model.namespace)
+    const modelName = (nsName ? nsName + '.' : '') + (model.name || "(anonymous model)");
+    if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
-      return `${model.name}<${args.join(", ")}>`;
+      return `${modelName}<${args.join(", ")}>`;
     } else if ((<ModelStatementNode>model.node).templateParameters?.length > 0) {
       // template
       const params = (<ModelStatementNode>model.node).templateParameters.map((t) => t.id.sv);
       return `${model.name}<${params.join(", ")}>`;
     } else {
       // regular old model.
-      return model.name || "(anonymous model)";
+      return modelName;
     }
-
-    return (getNamespaceString(model) || "") + modelName;
   }
 
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
@@ -535,6 +533,7 @@ export function createChecker(program: Program) {
       node: node,
       properties,
       baseModels: baseModels,
+      namespace: getParentNamespaceType(node)
     };
 
     if (
@@ -601,6 +600,7 @@ export function createChecker(program: Program) {
         node: node,
         name: (<ModelStatementNode>node).id.sv,
         assignmentType,
+        namespace: getParentNamespaceType(node)
       });
 
       return type;
