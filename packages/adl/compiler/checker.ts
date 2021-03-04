@@ -144,15 +144,15 @@ export function createChecker(program: Program) {
   }
 
   function getNamespaceString(type: NamespaceType | undefined): string {
-    if (!type) return '';
+    if (!type) return "";
     const parent = type.namespace;
 
     return parent ? `${getNamespaceString(parent)}.${type.name}` : type.name;
   }
 
   function getModelName(model: ModelType) {
-    const nsName = getNamespaceString(model.namespace)
-    const modelName = (nsName ? nsName + '.' : '') + (model.name || "(anonymous model)");
+    const nsName = getNamespaceString(model.namespace);
+    const modelName = (nsName ? nsName + "." : "") + (model.name || "(anonymous model)");
     if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
@@ -455,16 +455,11 @@ export function createChecker(program: Program) {
       if (base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
         const symbol = resolveIdentifierInScope(node.id, base.node);
         if (!symbol) {
-          throwDiagnostic(
-            `Namespace doesn't have member ${node.id.sv}`, node
-          )
+          throwDiagnostic(`Namespace doesn't have member ${node.id.sv}`, node);
         }
         return symbol;
       } else if (base.kind === "decorator") {
-        throwDiagnostic(
-          `Cannot resolve '${node.id.sv}' in decorator`,
-          node
-        );
+        throwDiagnostic(`Cannot resolve '${node.id.sv}' in decorator`, node);
       } else {
         throwDiagnostic(
           `Cannot resolve '${node.id.sv}' in non-namespace node ${base.node.kind}`,
@@ -533,12 +528,12 @@ export function createChecker(program: Program) {
       node: node,
       properties,
       baseModels: baseModels,
-      namespace: getParentNamespaceType(node)
+      namespace: getParentNamespaceType(node),
     };
 
     if (
       (instantiatingThisTemplate &&
-      templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
+        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
       node.templateParameters.length === 0
     ) {
       createType(type);
@@ -600,7 +595,7 @@ export function createChecker(program: Program) {
         node: node,
         name: (<ModelStatementNode>node).id.sv,
         assignmentType,
-        namespace: getParentNamespaceType(node)
+        namespace: getParentNamespaceType(node),
       });
 
       return type;

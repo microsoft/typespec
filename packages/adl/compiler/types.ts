@@ -128,9 +128,8 @@ export interface SymbolLinks {
   // for types which can be instantiated, we split `type` into declaredType and
   // a map of instantiations.
   declaredType?: Type;
-  instantiations?: MultiKeyMap<Type>; 
+  instantiations?: MultiKeyMap<Type>;
 }
-
 
 /**
  * AST types
@@ -156,7 +155,7 @@ export enum SyntaxKind {
   NumericLiteral,
   BooleanLiteral,
   TypeReference,
-  TemplateParameterDeclaration
+  TemplateParameterDeclaration,
 }
 
 export interface BaseNode extends TextRange {
@@ -175,7 +174,6 @@ export type Node =
   | DecoratorExpressionNode
   | Statement
   | Expression;
-
 
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
@@ -200,9 +198,7 @@ export type Declaration =
   | OperationStatementNode
   | TemplateParameterDeclarationNode;
 
-export type ScopeNode =
-  | NamespaceStatementNode
-  | ModelStatementNode
+export type ScopeNode = NamespaceStatementNode | ModelStatementNode;
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
@@ -239,10 +235,7 @@ export type Expression =
   | NumericLiteralNode
   | BooleanLiteralNode;
 
-export type ReferenceExpression =
-  | TypeReferenceNode
-  | MemberExpressionNode
-  | IdentifierNode;
+export type ReferenceExpression = TypeReferenceNode | MemberExpressionNode | IdentifierNode;
 
 export interface MemberExpressionNode extends BaseNode {
   kind: SyntaxKind.MemberExpression;
@@ -265,7 +258,6 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode {
   returnType: Expression;
   decorators: Array<DecoratorExpressionNode>;
 }
-
 
 export interface ModelStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.ModelStatement;

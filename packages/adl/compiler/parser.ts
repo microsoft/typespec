@@ -386,12 +386,14 @@ export function parse(code: string | Types.SourceFile) {
       parseExpected(Token.GreaterThan);
     }
 
-
-    return finishNode({
-      kind: Types.SyntaxKind.TypeReference,
-      target,
-      arguments: args,
-    }, pos);
+    return finishNode(
+      {
+        kind: Types.SyntaxKind.TypeReference,
+        target,
+        arguments: args,
+      },
+      pos
+    );
   }
 
   function parseReferenceExpressionList(): Types.ReferenceExpression[] {
@@ -766,8 +768,7 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
     case Types.SyntaxKind.NamedImport:
       return visitNode(cb, node.id);
     case Types.SyntaxKind.TypeReference:
-      return visitNode(cb, node.target) ||
-        visitEach(cb, node.arguments);
+      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case Types.SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
     case Types.SyntaxKind.UnionExpression:

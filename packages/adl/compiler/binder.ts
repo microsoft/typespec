@@ -155,7 +155,6 @@ export function createBinder(): Binder {
     table.set(node.id.sv, symbol);
   }
 
-
   function reportDuplicateSymbols(symbols: SymbolTable) {
     let reported = new Set<Sym>();
     let messages = new Array<string>();
@@ -216,4 +215,3 @@ function createTypeSymbol(node: Node, name: string): TypeSymbol {
     name,
   };
 }
-
