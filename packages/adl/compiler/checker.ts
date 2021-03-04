@@ -538,8 +538,9 @@ export function createChecker(program: Program) {
     };
 
     if (
-      instantiatingThisTemplate &&
-      templateInstantiation.every((t) => t.kind !== "TemplateParameter")
+      (instantiatingThisTemplate &&
+      templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
+      node.templateParameters.length === 0
     ) {
       createType(type);
     }
@@ -604,9 +605,6 @@ export function createChecker(program: Program) {
 
       return type;
     }
-
-    const links = getSymbolLinks(node.symbol!);
-    links.type = assignmentType;
 
     return assignmentType;
   }
