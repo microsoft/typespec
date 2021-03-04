@@ -202,7 +202,7 @@ function dumpAST(astNode: any) {
   const replacer = function (this: any, key: string, value: any) {
     return key == "kind" ? SyntaxKind[value] : value;
   };
-  console.log(JSON.stringify(astNode, replacer, 4));
+  //console.log(JSON.stringify(astNode, replacer, 4));
 }
 
 function shorten(code: string) {

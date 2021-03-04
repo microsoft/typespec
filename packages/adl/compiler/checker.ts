@@ -159,7 +159,7 @@ export function createChecker(program: Program) {
       return `${model.name}<${args.join(", ")}>`;
     } else if ((<ModelStatementNode>model.node).templateParameters?.length > 0) {
       // template
-      const params = (<ModelStatementNode>model.node).templateParameters.map((t) => t.sv);
+      const params = (<ModelStatementNode>model.node).templateParameters.map((t) => t.id.sv);
       return `${model.name}<${params.join(", ")}>`;
     } else {
       // regular old model.
@@ -184,8 +184,7 @@ export function createChecker(program: Program) {
   }
 
   function checkTypeReference(node: TypeReferenceNode): Type {
-    // todo: support member expressions
-    const sym = resolveTypeReference(node.target as IdentifierNode);
+    const sym = resolveTypeReference(node);
     if (sym.kind === "decorator") {
       throwDiagnostic("Can't put a decorator in a type", node);
     }
@@ -349,6 +348,9 @@ export function createChecker(program: Program) {
       namespaces: new Map(),
     });
 
+    const links = getSymbolLinks(node.symbol!);
+    links.type = type;
+
     for (const statement of node.statements.map(getTypeForNode)) {
       switch (statement.kind) {
         case "Model":
@@ -363,25 +365,19 @@ export function createChecker(program: Program) {
       }
     }
 
-    const links = getSymbolLinks(node.symbol!);
-    links.type = type;
-
     return type;
   }
 
   function getParentNamespaceType(
     node: ModelStatementNode | NamespaceStatementNode | OperationStatementNode
-  ) {
-    switch (node.kind) {
-      case SyntaxKind.ModelStatement:
-      case SyntaxKind.NamespaceStatement:
-      case SyntaxKind.OperationStatement:
-        return node.parent && node.parent.kind === SyntaxKind.NamespaceStatement
-          ? (getTypeForNode(node.parent) as NamespaceType)
-          : undefined;
-      default:
-        return undefined;
+  ): NamespaceType | undefined {
+    if (!node.namespaceSymbol) return undefined;
+
+    const symbolLinks = getSymbolLinks(node.namespaceSymbol);
+    if (!symbolLinks.type) {
+      throwDiagnostic("Parent namespace isn't typed yet, please file a bug.", node);
     }
+    return symbolLinks.type as NamespaceType;
   }
 
   function checkOperation(node: OperationStatementNode): OperationType {
@@ -424,64 +420,6 @@ export function createChecker(program: Program) {
     return s.id;
   }
 
-  function getMemberExpressionPath(node: MemberExpressionNode): string {
-    // Recursively build the rest of the path, back to front
-    const pathBefore =
-      node.base.kind === SyntaxKind.MemberExpression
-        ? getMemberExpressionPath(node.base)
-        : node.base.sv;
-
-    return pathBefore + "." + node.id.sv;
-  }
-
-  function checkMemberExpression(node: MemberExpressionNode) {
-    const binding = resolveMember(node);
-    if (binding) {
-      if (binding.kind === "decorator") {
-        return {};
-      } else {
-        return getTypeForNode(binding.node);
-      }
-    } else {
-      throwDiagnostic(`Cannot resolve identifier '${getMemberExpressionPath(node)}'`, node);
-    }
-  }
-
-  function resolveMember(node: MemberExpressionNode): any {
-    let result: Sym | undefined = undefined;
-
-    // Navigate down the member expression and then resolve on the way
-    // back up because the 'base' pointers are stored in reverse
-    if (node.base.kind === SyntaxKind.MemberExpression) {
-      result = resolveMember(node.base);
-    } else {
-      // The last 'base' in the chain will be an identifier, so
-      // resolve it first and then resolve all remaining member
-      // expressions with respect to its scope
-      result = resolveIdentifier(node.base);
-    }
-
-    if (result) {
-      // Previous segment was resolved, was it a namespace?
-      if (result.kind === "type") {
-        if (result.node.kind === SyntaxKind.NamespaceStatement) {
-          return resolveIdentifierInScope(node.id, result.node);
-        } else {
-          throwDiagnostic(
-            `Cannot resolve '${node.id.sv}' in non-namespace node ${result.node.kind}`,
-            node
-          );
-        }
-      } else {
-        throwDiagnostic(`Unexpectedly resolved '${node.id.sv}' to a decorator symbol`, node);
-      }
-    } else {
-      // Let checkMemberExpression report on the inability to
-      // resolve the member expression
-      return undefined;
-    }
-  }
-
   function resolveIdentifierInScope(node: IdentifierNode, scope: { locals?: SymbolTable }) {
     return (<any>scope).locals.get(node.sv);
   }
@@ -509,9 +447,39 @@ export function createChecker(program: Program) {
     return binding;
   }
 
-  function resolveTypeReference(node: IdentifierNode): DecoratorSymbol | TypeSymbol {
-    // TODO: Support for member expressions
-    return resolveIdentifier(node);
+  function resolveTypeReference(node: ReferenceExpression): DecoratorSymbol | TypeSymbol {
+    if (node.kind === SyntaxKind.TypeReference) {
+      return resolveTypeReference(node.target);
+    }
+
+    if (node.kind === SyntaxKind.MemberExpression) {
+      const base = resolveTypeReference(node.base);
+      if (base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
+        const symbol = resolveIdentifierInScope(node.id, base.node);
+        if (!symbol) {
+          throwDiagnostic(
+            `Namespace doesn't have member ${node.id.sv}`, node
+          )
+        }
+        return symbol;
+      } else if (base.kind === "decorator") {
+        throwDiagnostic(
+          `Cannot resolve '${node.id.sv}' in decorator`,
+          node
+        );
+      } else {
+        throwDiagnostic(
+          `Cannot resolve '${node.id.sv}' in non-namespace node ${base.node.kind}`,
+          node
+        );
+      }
+    }
+
+    if (node.kind === SyntaxKind.Identifier) {
+      return resolveIdentifier(node);
+    }
+
+    throwDiagnostic("Unknown reference node type", node);
   }
 
   function checkStringLiteral(str: StringLiteralNode): StringLiteralType {

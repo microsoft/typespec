@@ -191,6 +191,7 @@ export type Statement =
 
 export interface DeclarationNode {
   symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
+  namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
 }
 
 export type Declaration =
@@ -257,14 +258,12 @@ export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   decorators: Array<DecoratorExpressionNode>;
 }
 
-export interface OperationStatementNode extends BaseNode {
+export interface OperationStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.OperationStatement;
   id: IdentifierNode;
   parameters: ModelExpressionNode;
   returnType: Expression;
   decorators: Array<DecoratorExpressionNode>;
-
-  symbol: TypeSymbol;
 }
 
 
@@ -336,14 +335,14 @@ export interface IntersectionExpressionNode extends BaseNode {
 
 export interface TypeReferenceNode extends BaseNode {
   kind: SyntaxKind.TypeReference;
-  target: Expression;
+  target: ReferenceExpression;
   arguments: Array<Expression>;
 }
 
 export interface TemplateParameterDeclarationNode extends BaseNode {
   kind: SyntaxKind.TemplateParameterDeclaration;
   id: IdentifierNode;
-  symbol: TypeSymbol;
+  symbol?: TypeSymbol;
 }
 
 /**

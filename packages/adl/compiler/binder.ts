@@ -51,6 +51,8 @@ export function createBinder(): Binder {
   let currentFile: ADLSourceFile;
   let parentNode: Node;
 
+  let currentNamespace: NamespaceStatementNode | undefined;
+
   // Node where locals go.
   let scope: ScopeNode;
   return {
@@ -100,9 +102,16 @@ export function createBinder(): Binder {
 
     if (hasScope(node)) {
       const prevScope = scope;
+      const prevNamespace = currentNamespace;
       scope = node;
+      if (node.kind === SyntaxKind.NamespaceStatement) {
+        currentNamespace = node;
+      }
+
       visitChildren(node, bindNode);
+
       scope = prevScope;
+      currentNamespace = prevNamespace;
     } else {
       visitChildren(node, bindNode);
     }
@@ -136,6 +145,16 @@ export function createBinder(): Binder {
   function bindOperationStatement(statement: OperationStatementNode) {
     declareSymbol(getContainingSymbolTable(), statement);
   }
+
+  function declareSymbol(table: SymbolTable, node: Declaration) {
+    const symbol = createTypeSymbol(node, node.id.sv);
+    node.symbol = symbol;
+    if (currentNamespace && node.kind !== SyntaxKind.TemplateParameterDeclaration) {
+      node.namespaceSymbol = currentNamespace.symbol;
+    }
+    table.set(node.id.sv, symbol);
+  }
+
 
   function reportDuplicateSymbols(symbols: SymbolTable) {
     let reported = new Set<Sym>();
@@ -198,8 +217,3 @@ function createTypeSymbol(node: Node, name: string): TypeSymbol {
   };
 }
 
-function declareSymbol(table: SymbolTable, node: Declaration) {
-  const symbol = createTypeSymbol(node, node.id.sv);
-  node.symbol = symbol;
-  table.set(node.id.sv, symbol);
-}
