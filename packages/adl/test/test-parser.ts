@@ -110,7 +110,7 @@ describe("syntax", () => {
   });
 
   describe("tuple model expressions", () => {
-    parseEach(['namespace A { op b(param: [number, string]): [1, "hi"] }']);
+    parseEach(['namespace A { op b(param: [number, string]): [1, "hi"]; }']);
   });
 
   describe("array expressions", () => {
@@ -136,13 +136,12 @@ describe("syntax", () => {
   describe("namespace statements", () => {
     parseEach([
       "namespace Store {}",
-      "namespace Store { op read(): int32 }",
-      "namespace Store { op read(): int32, op write(v: int32): {} }",
-      "namespace Store { op read(): int32; op write(v: int32): {} }",
-      "@foo namespace Store { @dec op read():number, @dec op write(n: number): {} }",
+      "namespace Store { op read(): int32; }",
+      "namespace Store { op read(): int32; op write(v: int32): {}; }",
+      "namespace Store { op read(): int32; op write(v: int32): {}; }",
+      "@foo namespace Store { @dec op read(): number; @dec op write(n: number): {}; }",
       "@foo @bar namespace Store { @foo @bar op read(): number; }",
-      "namespace Store(apiKey: string, otherArg: number) { }",
-      "namespace Store(... apiKeys, x: string) { op foo(... A, b: string, ...C, d: number): void }",
+      "namespace Store { namespace Read { op read(): int32; } namespace Write { op write(v: int32): {}; } }",
     ]);
   });
 
@@ -203,7 +202,7 @@ function dumpAST(astNode: any) {
   const replacer = function (this: any, key: string, value: any) {
     return key == "kind" ? SyntaxKind[value] : value;
   };
-  console.log(JSON.stringify(astNode, replacer, 4));
+  //console.log(JSON.stringify(astNode, replacer, 4));
 }
 
 function shorten(code: string) {

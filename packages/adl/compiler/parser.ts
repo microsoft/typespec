@@ -38,7 +38,9 @@ export function parse(code: string | Types.SourceFile) {
         case Token.ModelKeyword:
           return parseModelStatement(decorators);
         case Token.NamespaceKeyword:
-          return parseInterfaceStatement(decorators);
+          return parseNamespaceStatement(decorators);
+        case Token.OpKeyword:
+          return parseOperationStatement(decorators);
         case Token.Semicolon:
           if (decorators.length > 0) {
             error("Cannot decorate an empty statement");
@@ -63,7 +65,7 @@ export function parse(code: string | Types.SourceFile) {
     return decorators;
   }
 
-  function parseInterfaceStatement(
+  function parseNamespaceStatement(
     decorators: Array<Types.DecoratorExpressionNode>
   ): Types.NamespaceStatementNode {
     const pos = tokenPos();
@@ -87,15 +89,11 @@ export function parse(code: string | Types.SourceFile) {
     }
 
     parseExpected(Token.OpenBrace);
-    const properties: Array<Types.NamespacePropertyNode> = [];
 
-    do {
-      if (token() == Token.CloseBrace) {
-        break;
-      }
-      const memberDecorators = parseDecoratorList();
-      properties.push(parseNamespaceProperty(memberDecorators));
-    } while (parseOptional(Token.Comma) || parseOptional(Token.Semicolon));
+    const statements: Array<Types.Statement> = [];
+    while (token() !== Token.CloseBrace) {
+      statements.push(parseStatement());
+    }
 
     parseExpected(Token.CloseBrace);
 
@@ -105,15 +103,15 @@ export function parse(code: string | Types.SourceFile) {
         decorators,
         id,
         parameters,
-        properties,
+        statements,
       },
       pos
     );
   }
 
-  function parseNamespaceProperty(
+  function parseOperationStatement(
     decorators: Array<Types.DecoratorExpressionNode>
-  ): Types.NamespacePropertyNode {
+  ): Types.OperationStatementNode {
     const pos = tokenPos();
     parseExpected(Token.OpKeyword);
     const id = parseIdentifier();
@@ -137,9 +135,10 @@ export function parse(code: string | Types.SourceFile) {
     parseExpected(Token.Colon);
     const returnType = parseExpression();
 
+    parseExpected(Token.Semicolon);
     return finishNode(
       {
-        kind: Types.SyntaxKind.NamespaceProperty,
+        kind: Types.SyntaxKind.OperationStatement,
         id,
         parameters,
         returnType,
@@ -218,7 +217,7 @@ export function parse(code: string | Types.SourceFile) {
       const param = finishNode(
         {
           kind: Types.SyntaxKind.TemplateParameterDeclaration,
-          sv: id.sv,
+          id: id,
         } as const,
         pos
       );
@@ -379,20 +378,18 @@ export function parse(code: string | Types.SourceFile) {
 
   function parseReferenceExpression(): Types.ReferenceExpression {
     const pos = tokenPos();
-    const expr = parseIdentifierOrMemberExpression();
+    const target = parseIdentifierOrMemberExpression();
 
-    if (token() !== Token.LessThan) {
-      return expr;
+    let args: Types.Expression[] = [];
+    if (parseOptional(Token.LessThan)) {
+      args = parseExpressionList();
+      parseExpected(Token.GreaterThan);
     }
-
-    parseExpected(Token.LessThan);
-    const args = parseExpressionList();
-    parseExpected(Token.GreaterThan);
 
     return finishNode(
       {
-        kind: Types.SyntaxKind.TemplateApplication,
-        target: expr,
+        kind: Types.SyntaxKind.TypeReference,
+        target,
         arguments: args,
       },
       pos
@@ -738,7 +735,7 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case Types.SyntaxKind.ImportStatement:
       return visitNode(cb, node.id) || visitEach(cb, node.as);
-    case Types.SyntaxKind.NamespaceProperty:
+    case Types.SyntaxKind.OperationStatement:
       return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
@@ -747,10 +744,7 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
       );
     case Types.SyntaxKind.NamespaceStatement:
       return (
-        visitEach(cb, node.decorators) ||
-        visitNode(cb, node.id) ||
-        visitNode(cb, node.parameters) ||
-        visitEach(cb, node.properties)
+        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.statements)
       );
     case Types.SyntaxKind.IntersectionExpression:
       return visitEach(cb, node.options);
@@ -773,7 +767,7 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
       );
     case Types.SyntaxKind.NamedImport:
       return visitNode(cb, node.id);
-    case Types.SyntaxKind.TemplateApplication:
+    case Types.SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case Types.SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);

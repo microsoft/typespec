@@ -1,3 +1,4 @@
+import { SymbolTable } from "./binder.js";
 import { throwDiagnostic } from "./diagnostics.js";
 import { ADLSourceFile, Program } from "./program.js";
 import {
@@ -5,10 +6,10 @@ import {
   BooleanLiteralNode,
   BooleanLiteralType,
   IdentifierNode,
-  NamespacePropertyNode,
+  OperationStatementNode,
   NamespaceStatementNode,
-  Namespace,
-  NamespaceProperty,
+  NamespaceType,
+  OperationType,
   IntersectionExpressionNode,
   LiteralNode,
   LiteralType,
@@ -23,7 +24,7 @@ import {
   StringLiteralNode,
   StringLiteralType,
   SyntaxKind,
-  TemplateApplicationNode,
+  TypeReferenceNode,
   TemplateParameterDeclarationNode,
   TupleExpressionNode,
   TupleType,
@@ -31,6 +32,11 @@ import {
   UnionExpressionNode,
   UnionType,
   ReferenceExpression,
+  DecoratorSymbol,
+  TypeSymbol,
+  SymbolLinks,
+  MemberExpressionNode,
+  Sym,
 } from "./types.js";
 
 /**
@@ -72,6 +78,8 @@ export class MultiKeyMap<T> {
 export function createChecker(program: Program) {
   let templateInstantiation: Array<Type> = [];
   let instantiatingTemplate: Node | undefined;
+  let currentSymbolId = 0;
+  const symbolLinks = new Map<number, SymbolLinks>();
 
   const seq = 0;
 
@@ -80,13 +88,10 @@ export function createChecker(program: Program) {
     checkProgram,
     getLiteralType,
     getTypeName,
-    checkNamespaceProperty,
+    checkOperation,
   };
 
   function getTypeForNode(node: Node): Type {
-    const cached = program.typeCache.get([node, ...templateInstantiation.values()]);
-    if (cached) return cached;
-
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
         return checkModel(node);
@@ -96,11 +101,8 @@ export function createChecker(program: Program) {
         return checkModelProperty(node);
       case SyntaxKind.NamespaceStatement:
         return checkNamespace(node);
-      case SyntaxKind.NamespaceProperty:
-        return checkNamespaceProperty(node);
-      case SyntaxKind.Identifier:
-        // decorator bindings presently return an empty binding
-        return <any>checkIdentifier(node);
+      case SyntaxKind.OperationStatement:
+        return checkOperation(node);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -115,8 +117,8 @@ export function createChecker(program: Program) {
         return checkUnionExpression(node);
       case SyntaxKind.IntersectionExpression:
         return checkIntersectionExpression(node);
-      case SyntaxKind.TemplateApplication:
-        return checkTemplateApplication(node);
+      case SyntaxKind.TypeReference:
+        return checkTypeReference(node);
       case SyntaxKind.TemplateParameterDeclaration:
         return checkTemplateParameterDeclaration(node);
     }
@@ -141,20 +143,27 @@ export function createChecker(program: Program) {
     return "(unnamed type)";
   }
 
+  function getNamespaceString(type: NamespaceType | undefined): string {
+    if (!type) return "";
+    const parent = type.namespace;
+
+    return parent ? `${getNamespaceString(parent)}.${type.name}` : type.name;
+  }
+
   function getModelName(model: ModelType) {
-    if ((<ModelStatementNode>model.node).assignment) {
-      return model.name;
-    } else if (model.templateArguments && model.templateArguments.length > 0) {
+    const nsName = getNamespaceString(model.namespace);
+    const modelName = (nsName ? nsName + "." : "") + (model.name || "(anonymous model)");
+    if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
-      return `${model.name}<${args.join(", ")}>`;
+      return `${modelName}<${args.join(", ")}>`;
     } else if ((<ModelStatementNode>model.node).templateParameters?.length > 0) {
       // template
-      const params = (<ModelStatementNode>model.node).templateParameters.map((t) => t.sv);
+      const params = (<ModelStatementNode>model.node).templateParameters.map((t) => t.id.sv);
       return `${model.name}<${params.join(", ")}>`;
     } else {
       // regular old model.
-      return model.name || "(anonymous model)";
+      return modelName;
     }
   }
 
@@ -172,11 +181,65 @@ export function createChecker(program: Program) {
     });
   }
 
-  function checkTemplateApplication(node: TemplateApplicationNode): Type {
+  function checkTypeReference(node: TypeReferenceNode): Type {
+    const sym = resolveTypeReference(node);
+    if (sym.kind === "decorator") {
+      throwDiagnostic("Can't put a decorator in a type", node);
+    }
+
+    const symbolLinks = getSymbolLinks(sym);
     const args = node.arguments.map(getTypeForNode);
-    const targetType = getTypeForNode(node.target);
-    // todo: check proper target
-    return instantiateTemplate(<ModelStatementNode>targetType.node, args);
+
+    if (sym.node.kind === SyntaxKind.ModelStatement && !sym.node.assignment) {
+      // model statement, possibly templated
+      if (sym.node.templateParameters.length === 0) {
+        if (args.length > 0) {
+          throwDiagnostic("Can't pass template arguments to model that is not templated", node);
+        }
+
+        if (symbolLinks.declaredType) {
+          return symbolLinks.declaredType;
+        }
+
+        return checkModelStatement(sym.node);
+      } else {
+        // model is templated, lets instantiate.
+
+        if (!symbolLinks.declaredType) {
+          // we haven't checked the declared type yet, so do so.
+          checkModelStatement(sym.node);
+        }
+        if (sym.node.templateParameters!.length > node.arguments.length) {
+          throwDiagnostic("Too few template arguments provided.", node);
+        }
+
+        if (sym.node.templateParameters!.length < node.arguments.length) {
+          throwDiagnostic("Too many template arguments provided.", node);
+        }
+
+        return instantiateTemplate(sym.node, args);
+      }
+    }
+    // some other kind of reference
+
+    if (args.length > 0) {
+      throwDiagnostic("Can't pass template arguments to non-templated type", node);
+    }
+
+    if (sym.node.kind === SyntaxKind.TemplateParameterDeclaration) {
+      const type = checkTemplateParameterDeclaration(sym.node);
+      // TODO: could cache this probably.
+      return type;
+    }
+    // types for non-templated types
+    if (symbolLinks.type) {
+      return symbolLinks.type;
+    }
+
+    const type = getTypeForNode(sym.node);
+    symbolLinks.type = type;
+
+    return type;
   }
 
   /**
@@ -185,15 +248,14 @@ export function createChecker(program: Program) {
    * parameters to access type type arguments.
    *
    * This will fall over if the same template is ever being instantiated
-   * twice at the same time.
+   * twice at the same time, or if template parameters from more than one template
+   * are ever in scope at once.
    */
   function instantiateTemplate(templateNode: ModelStatementNode, args: Array<Type>): ModelType {
-    if (templateNode.templateParameters!.length < args.length) {
-      throwDiagnostic("Too few template arguments provided.", templateNode);
-    }
-
-    if (templateNode.templateParameters!.length > args.length) {
-      throwDiagnostic("Too many template arguments provided.", templateNode);
+    const symbolLinks = getSymbolLinks(templateNode.symbol!);
+    const cached = symbolLinks.instantiations!.get(args) as ModelType;
+    if (cached) {
+      return cached;
     }
 
     const oldTis = templateInstantiation;
@@ -202,6 +264,9 @@ export function createChecker(program: Program) {
     instantiatingTemplate = templateNode;
     // this cast is invalid once we support templatized `model =`.
     const type = <ModelType>getTypeForNode(templateNode);
+
+    symbolLinks.instantiations!.set(args, type);
+
     type.templateNode = templateNode;
     templateInstantiation = oldTis;
     instantiatingTemplate = oldTemplate;
@@ -242,13 +307,10 @@ export function createChecker(program: Program) {
           );
         }
 
-        const newPropType = createType(
-          {
-            ...prop,
-            sourceProperty: prop,
-          },
-          true
-        );
+        const newPropType = createType({
+          ...prop,
+          sourceProperty: prop,
+        });
 
         properties.set(prop.name, newPropType);
       }
@@ -274,28 +336,56 @@ export function createChecker(program: Program) {
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
-    const type: Namespace = createType({
+    const type: NamespaceType = createType({
       kind: "Namespace",
       name: node.id.sv,
+      namespace: getParentNamespaceType(node),
       node: node,
-      properties: new Map(),
-      parameters: node.parameters ? <ModelType>getTypeForNode(node.parameters) : undefined,
+      models: new Map(),
+      operations: new Map(),
+      namespaces: new Map(),
     });
 
-    for (const prop of node.properties) {
-      type.properties.set(prop.id.sv, checkNamespaceProperty(prop));
+    const links = getSymbolLinks(node.symbol!);
+    links.type = type;
+
+    for (const statement of node.statements.map(getTypeForNode)) {
+      switch (statement.kind) {
+        case "Model":
+          type.models.set(statement.name, statement as ModelType);
+          break;
+        case "Operation":
+          type.operations.set(statement.name, statement as OperationType);
+          break;
+        case "Namespace":
+          type.namespaces.set(statement.name, statement as NamespaceType);
+          break;
+      }
     }
 
     return type;
   }
 
-  function checkNamespaceProperty(prop: NamespacePropertyNode): NamespaceProperty {
+  function getParentNamespaceType(
+    node: ModelStatementNode | NamespaceStatementNode | OperationStatementNode
+  ): NamespaceType | undefined {
+    if (!node.namespaceSymbol) return undefined;
+
+    const symbolLinks = getSymbolLinks(node.namespaceSymbol);
+    if (!symbolLinks.type) {
+      throw new Error("Parent namespace isn't typed yet, please file a bug.");
+    }
+    return symbolLinks.type as NamespaceType;
+  }
+
+  function checkOperation(node: OperationStatementNode): OperationType {
     return createType({
-      kind: "NamespaceProperty",
-      name: prop.id.sv,
-      node: prop,
-      parameters: <ModelType>getTypeForNode(prop.parameters),
-      returnType: getTypeForNode(prop.returnType),
+      kind: "Operation",
+      name: node.id.sv,
+      namespace: getParentNamespaceType(node),
+      node: node,
+      parameters: <ModelType>getTypeForNode(node.parameters),
+      returnType: getTypeForNode(node.returnType),
     });
   }
 
@@ -307,13 +397,29 @@ export function createChecker(program: Program) {
     });
   }
 
-  function checkIdentifier(node: IdentifierNode) {
-    const binding = resolveIdentifier(node);
-    if (binding.kind === "decorator") {
-      return {};
-    } else {
-      return getTypeForNode(binding.node);
+  function getSymbolLinks(s: TypeSymbol): SymbolLinks {
+    const id = getSymbolId(s);
+
+    if (symbolLinks.has(id)) {
+      return symbolLinks.get(id)!;
     }
+
+    const links = {};
+    symbolLinks.set(id, links);
+
+    return links;
+  }
+
+  function getSymbolId(s: TypeSymbol) {
+    if (s.id === undefined) {
+      s.id = currentSymbolId++;
+    }
+
+    return s.id;
+  }
+
+  function resolveIdentifierInScope(node: IdentifierNode, scope: { locals?: SymbolTable }) {
+    return (<any>scope).locals.get(node.sv);
   }
 
   function resolveIdentifier(node: IdentifierNode) {
@@ -322,7 +428,7 @@ export function createChecker(program: Program) {
 
     while (scope) {
       if ("locals" in scope) {
-        binding = (<any>scope).locals.get(node.sv);
+        binding = resolveIdentifierInScope(node, scope);
         if (binding) break;
       }
       scope = scope.parent;
@@ -337,6 +443,36 @@ export function createChecker(program: Program) {
     }
 
     return binding;
+  }
+
+  function resolveTypeReference(node: ReferenceExpression): DecoratorSymbol | TypeSymbol {
+    if (node.kind === SyntaxKind.TypeReference) {
+      return resolveTypeReference(node.target);
+    }
+
+    if (node.kind === SyntaxKind.MemberExpression) {
+      const base = resolveTypeReference(node.base);
+      if (base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
+        const symbol = resolveIdentifierInScope(node.id, base.node);
+        if (!symbol) {
+          throwDiagnostic(`Namespace doesn't have member ${node.id.sv}`, node);
+        }
+        return symbol;
+      } else if (base.kind === "decorator") {
+        throwDiagnostic(`Cannot resolve '${node.id.sv}' in decorator`, node);
+      } else {
+        throwDiagnostic(
+          `Cannot resolve '${node.id.sv}' in non-namespace node ${base.node.kind}`,
+          node
+        );
+      }
+    }
+
+    if (node.kind === SyntaxKind.Identifier) {
+      return resolveIdentifier(node);
+    }
+
+    throw new Error("Unknown type reference kind");
   }
 
   function checkStringLiteral(str: StringLiteralNode): StringLiteralType {
@@ -364,65 +500,113 @@ export function createChecker(program: Program) {
   }
 
   function checkModel(node: ModelExpressionNode | ModelStatementNode) {
-    if (node.properties) {
-      const properties = new Map();
-      const baseModels =
-        node.kind === SyntaxKind.ModelExpression ? [] : checkClassHeritage(node.heritage);
-
-      for (const prop of node.properties) {
-        if ("id" in prop) {
-          const propType = <ModelTypeProperty>getTypeForNode(prop);
-          properties.set(propType.name, propType);
-        } else {
-          // spread property
-          const newProperties = checkSpreadProperty(prop.target);
-
-          for (const newProp of newProperties) {
-            if (properties.has(newProp.name)) {
-              throwDiagnostic(`Model already has a property named ${newProp.name}`, node);
-            }
-
-            properties.set(newProp.name, newProp);
-          }
-        }
+    if (node.kind === SyntaxKind.ModelStatement) {
+      if (node.properties) {
+        return checkModelStatement(node);
+      } else {
+        return checkModelEquals(node);
       }
-
-      return createType({
-        kind: "Model",
-        name: node.kind === SyntaxKind.ModelStatement ? node.id.sv : "",
-        node: node,
-        properties,
-        baseModels: baseModels,
-      });
     } else {
-      // model =
-      // this will likely have to change, as right now `model =` is really just
-      // alias and so disappears. That means you can't easily rename symbols.
-      const assignmentType = getTypeForNode((<ModelStatementNode>node).assignment!);
-
-      if (assignmentType.kind === "Model") {
-        const type: ModelType = createType({
-          ...(<ModelType>assignmentType),
-          node: node,
-          name: (<ModelStatementNode>node).id.sv,
-          assignmentType,
-        });
-
-        return type;
-      }
-
-      return assignmentType;
+      return checkModelExpression(node);
     }
   }
 
-  function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
-    return heritage.flatMap((heritageRef) => {
-      const heritageType = getTypeForNode(heritageRef);
+  function checkModelStatement(node: ModelStatementNode) {
+    const links = getSymbolLinks(node.symbol!);
+    const instantiatingThisTemplate = instantiatingTemplate === node;
 
-      if (heritageType.kind === "TemplateParameter") {
-        // don't need to track heritage for template parameters.
-        return [];
+    if (links.declaredType && !instantiatingThisTemplate) {
+      // we're not instantiating this model and we've already checked it
+      return links.declaredType;
+    }
+
+    const baseModels = checkClassHeritage(node.heritage);
+    const properties = checkModelProperties(node);
+    const type: ModelType = {
+      kind: "Model",
+      name: node.id.sv,
+      node: node,
+      properties,
+      baseModels: baseModels,
+      namespace: getParentNamespaceType(node),
+    };
+
+    if (
+      (instantiatingThisTemplate &&
+        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
+      node.templateParameters.length === 0
+    ) {
+      createType(type);
+    }
+
+    if (!instantiatingThisTemplate) {
+      links.declaredType = type;
+      links.instantiations = new MultiKeyMap();
+    }
+
+    return type;
+  }
+
+  function checkModelExpression(node: ModelExpressionNode) {
+    const properties = checkModelProperties(node);
+    const type: ModelType = createType({
+      kind: "Model",
+      name: "",
+      node: node,
+      properties,
+      baseModels: [],
+    });
+
+    return type;
+  }
+
+  function checkModelProperties(node: ModelExpressionNode | ModelStatementNode) {
+    const properties = new Map();
+    for (const prop of node.properties!) {
+      if ("id" in prop) {
+        const propType = <ModelTypeProperty>getTypeForNode(prop);
+        properties.set(propType.name, propType);
+      } else {
+        // spread property
+        const newProperties = checkSpreadProperty(prop.target);
+
+        for (const newProp of newProperties) {
+          if (properties.has(newProp.name)) {
+            throwDiagnostic(`Model already has a property named ${newProp.name}`, node);
+          }
+
+          properties.set(newProp.name, newProp);
+        }
       }
+    }
+
+    return properties;
+  }
+
+  function checkModelEquals(node: ModelStatementNode) {
+    // model =
+    // this will likely have to change, as right now `model =` is really just
+    // alias and so disappears. That means you can't easily rename symbols.
+    const assignmentType = getTypeForNode((<ModelStatementNode>node).assignment!);
+
+    if (assignmentType.kind === "Model") {
+      const type: ModelType = createType({
+        ...(<ModelType>assignmentType),
+        node: node,
+        name: (<ModelStatementNode>node).id.sv,
+        assignmentType,
+        namespace: getParentNamespaceType(node),
+      });
+
+      return type;
+    }
+
+    return assignmentType;
+  }
+
+  function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
+    return heritage.map((heritageRef) => {
+      const heritageType = getTypeForNode(heritageRef);
 
       if (heritageType.kind !== "Model") {
         throwDiagnostic("Models must extend other models.", heritageRef);
@@ -443,13 +627,10 @@ export function createChecker(program: Program) {
 
       // copy each property
       for (const prop of walkPropertiesInherited(targetType)) {
-        const newProp = createType(
-          {
-            ...prop,
-            sourceProperty: prop,
-          },
-          true
-        );
+        const newProp = createType({
+          ...prop,
+          sourceProperty: prop,
+        });
         props.push(newProp);
       }
     }
@@ -490,18 +671,12 @@ export function createChecker(program: Program) {
       });
     }
   }
+
   // the types here aren't ideal and could probably be refactored.
-  function createType<T extends Type>(typeDef: T, skipCache = false): T {
-    if (!skipCache) {
-      (<any>typeDef).seq = program.typeCache.set([typeDef.node, ...templateInstantiation], typeDef);
-    }
+  function createType<T extends Type>(typeDef: T): T {
     (<any>typeDef).templateArguments = templateInstantiation;
 
-    // only run decorators on fully instantiated types.
-    if (templateInstantiation.every((i) => i.kind !== "TemplateParameter")) {
-      program.executeDecorators(typeDef);
-    }
-
+    program.executeDecorators(typeDef);
     return typeDef;
   }
 
