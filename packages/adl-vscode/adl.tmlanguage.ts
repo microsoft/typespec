@@ -229,7 +229,7 @@ const modelStatement: BeginEndRule = {
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
     token,
-    modelHeritage, // before expression or`extends` will looki like type name
+    modelHeritage, // before expression or `extends` will look like type name
     expression, // enough to match name, type parameters, and body and assignment.
   ],
 };
