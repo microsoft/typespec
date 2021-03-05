@@ -1,30 +1,37 @@
 import { createSourceFile } from "./scanner.js";
 import { Message, Node, SourceLocation, SyntaxKind, Type, Sym } from "./types.js";
 
+export interface Diagnostic extends SourceLocation {
+  readonly message: string;
+  readonly code?: number;
+  readonly severity: "warning" | "error";
+}
+
 /**
  * Represents an error in the code input that is fatal and bails the compilation.
  *
  * This isn't meant to be kept long term, but we currently do this on all errors.
  */
 export class DiagnosticError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor(public readonly diagnostics: readonly Diagnostic[]) {
+    super("Code diagnostics. See diagnostics array.");
   }
 }
 
 /**
  * Represents a failure with multiple errors.
  */
-export class ChainedError extends Error {
-  readonly innerErrors: readonly Error[];
+export class AggregateError extends Error {
+  readonly errors: readonly Error[];
 
-  constructor(message: string, ...innerErrors: (Error | undefined)[]) {
-    super(message);
-    this.innerErrors = innerErrors.filter(isNotUndefined);
+  constructor(...errors: (Error | undefined)[]) {
+    super("Multiple errors. See errors array.");
+    this.errors = errors.filter(isNotUndefined);
   }
 }
 
 export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
+export type WriteLine = (text?: string) => void;
 
 export type ErrorHandler = (
   message: Message | string,
@@ -39,18 +46,14 @@ export function throwDiagnostic(
   target: DiagnosticTarget,
   ...args: Array<string | number>
 ): never {
-  throw new DiagnosticError(formatDiagnostic(message, target, ...args));
+  throw new DiagnosticError([createDiagnostic(message, target, ...args)]);
 }
 
-/**
- * Format a diagnostic into <file>:<line> - ADL<code> <category>: <text>.
- * Take extra care to preserve all info in thrown Error if this fails.
- */
-export function formatDiagnostic(
+export function createDiagnostic(
   message: Message | string,
   target: DiagnosticTarget,
   ...args: Array<string | number>
-) {
+): Diagnostic {
   let location: SourceLocation;
   let locationError: Error | undefined;
 
@@ -67,21 +70,38 @@ export function formatDiagnostic(
 
   if (typeof message === "string") {
     // Temporarily allow ad-hoc strings as error messages.
-    message = { code: -1, text: message, category: "error" };
+    message = { text: message, severity: "error" };
   }
 
-  const [msg, formatError] = format(message.text, ...args);
-  const code = message.code < 0 ? "" : ` ADL${message.code}`;
-  const pos = location.file.getLineAndCharacterOfPosition(location.pos);
-  const diagnostic = `${location.file.path}:${pos.line + 1}:${pos.character + 1} - ${
-    message.category
-  }${code}: ${msg}`;
+  const [formattedMessage, formatError] = format(message.text, ...args);
+  const diagnostic = {
+    code: message.code,
+    severity: message.severity,
+    ...location,
+    message: formattedMessage,
+  };
 
   if (locationError || formatError) {
-    throw new ChainedError(diagnostic, locationError, formatError);
+    throw new AggregateError(new DiagnosticError([diagnostic]), locationError, formatError);
   }
 
   return diagnostic;
+}
+
+export function logDiagnostics(diagnostics: readonly Diagnostic[], writeLine: WriteLine) {
+  for (const diagnostic of diagnostics) {
+    writeLine(formatDiagnostic(diagnostic));
+  }
+}
+
+export function formatDiagnostic(diagnostic: Diagnostic) {
+  const code = diagnostic.code ? ` ADL${diagnostic.code}` : "";
+  const pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.pos);
+  const line = pos.line + 1;
+  const col = pos.character + 1;
+  const severity = diagnostic.severity;
+  const path = diagnostic.file.path;
+  return `${path}:${line}:${col} - ${severity}${code}: ${diagnostic.message}`;
 }
 
 export function getSourceLocation(target: DiagnosticTarget): SourceLocation {
@@ -119,14 +139,17 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
   };
 }
 
-export function dumpError(error: Error, writeLine: (s?: string) => void) {
-  writeLine("");
-  writeLine(error.stack);
-
-  if (error instanceof ChainedError) {
-    for (const inner of error.innerErrors) {
+export function dumpError(error: Error, writeLine: WriteLine) {
+  if (error instanceof DiagnosticError) {
+    logDiagnostics(error.diagnostics, writeLine);
+    writeLine(error.stack);
+  } else if (error instanceof AggregateError) {
+    for (const inner of error.errors) {
       dumpError(inner, writeLine);
     }
+  } else {
+    writeLine("");
+    writeLine(error.stack);
   }
 }
 

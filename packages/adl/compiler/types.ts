@@ -404,7 +404,7 @@ export interface SourceLocation extends TextRange {
 }
 
 export interface Message {
-  code: number;
+  code?: number;
   text: string;
-  category: "error" | "warning";
+  severity: "error" | "warning";
 }

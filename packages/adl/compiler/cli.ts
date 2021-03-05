@@ -8,7 +8,7 @@ import { readFileSync } from "fs";
 import { compile } from "../compiler/program.js";
 import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
-import { DiagnosticError, dumpError } from "./diagnostics.js";
+import { DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
 
 const adlVersion = getVersion();
 
@@ -77,7 +77,7 @@ async function compileInput(compilerOptions: CompilerOptions): Promise<boolean> 
     return true;
   } catch (err) {
     if (err instanceof DiagnosticError) {
-      console.error(err.message);
+      logDiagnostics(err.diagnostics, console.error);
       if (args.debug) {
         console.error(`Stack trace:\n\n${err.stack}`);
       }

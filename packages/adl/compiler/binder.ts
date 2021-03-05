@@ -1,4 +1,4 @@
-import { DiagnosticError, formatDiagnostic } from "./diagnostics.js";
+import { createDiagnostic, Diagnostic, DiagnosticError, formatDiagnostic } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
 import { ADLSourceFile, Program } from "./program.js";
 import {
@@ -157,7 +157,7 @@ export function createBinder(): Binder {
 
   function reportDuplicateSymbols(symbols: SymbolTable) {
     let reported = new Set<Sym>();
-    let messages = new Array<string>();
+    let diagnostics = new Array<Diagnostic>();
 
     for (const symbol of currentFile.symbols.duplicates) {
       report(symbol);
@@ -174,7 +174,7 @@ export function createBinder(): Binder {
       }
     }
 
-    if (messages.length > 0) {
+    if (diagnostics.length > 0) {
       // TODO: We're now reporting all duplicates up to the binding of the first file
       // that introduced one, but still bailing the compilation rather than
       // recovering and reporting other issues including the possibility of more
@@ -183,15 +183,14 @@ export function createBinder(): Binder {
       // That said, decorators are entered into the global symbol table before
       // any source file is bound and therefore this will include all duplicate
       // decorator implementations.
-
-      throw new DiagnosticError(messages.join("\n"));
+      throw new DiagnosticError(diagnostics);
     }
 
     function report(symbol: Sym) {
       if (!reported.has(symbol)) {
         reported.add(symbol);
-        const message = formatDiagnostic("Duplicate name: " + symbol.name, symbol);
-        messages.push(message);
+        const diagnostic = createDiagnostic("Duplicate name: " + symbol.name, symbol);
+        diagnostics.push(diagnostic);
       }
     }
   }
