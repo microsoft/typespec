@@ -1,6 +1,6 @@
-const { spawn } = require('child_process');
-const { readFileSync } = require('fs');
-const { resolve } = require('path');
+const { spawn } = require("child_process");
+const { readFileSync } = require("fs");
+const { resolve } = require("path");
 
 function read(filename) {
   const txt = readFileSync(filename, "utf8")
@@ -16,8 +16,6 @@ const repo = `${__dirname}/../..`;
 
 const rush = read(`${repo}/rush.json`);
 const pjs = {};
-
-
 
 function forEachProject(onEach) {
   // load all the projects
@@ -39,31 +37,42 @@ function npmForEach(cmd) {
     // checks for the script first
     if (project.scripts[cmd]) {
       count++;
-      const proc = spawn("npm", ["--silent", "run", cmd], { cwd: location, shell: true, stdio: "inherit" });
+      const proc = spawn("npm", ["--silent", "run", cmd], {
+        cwd: location,
+        shell: true,
+        stdio: "inherit",
+      });
       procs.push(proc);
       result[name] = {
-        name, location, project, proc,
+        name,
+        location,
+        project,
+        proc,
       };
     }
   });
 
-  procs.forEach(proc => proc.on("close", (code, signal) => {
-    count--;
-    exitCode += code;
+  procs.forEach((proc) =>
+    proc.on("close", (code, signal) => {
+      count--;
+      exitCode += code;
 
-    if (count === 0) {
-      const t2 = process.uptime() * 100;
+      if (count === 0) {
+        const t2 = process.uptime() * 100;
 
-      console.log('---------------------------------------------------------');
-      if (exitCode !== 0) {
-        console.log(`  Done : command '${cmd}' - ${Math.floor(t2 - t1) / 100} s -- Errors ${exitCode} `)
-      } else {
-        console.log(`  Done : command '${cmd}' - ${Math.floor(t2 - t1) / 100} s -- No Errors `)
+        console.log("---------------------------------------------------------");
+        if (exitCode !== 0) {
+          console.log(
+            `  Done : command '${cmd}' - ${Math.floor(t2 - t1) / 100} s -- Errors ${exitCode} `
+          );
+        } else {
+          console.log(`  Done : command '${cmd}' - ${Math.floor(t2 - t1) / 100} s -- No Errors `);
+        }
+        console.log("---------------------------------------------------------");
+        process.exit(exitCode);
       }
-      console.log('---------------------------------------------------------');
-      process.exit(exitCode);
-    }
-  }));
+    })
+  );
 
   return result;
 }

@@ -19,8 +19,8 @@
     "watch": "tsc -p . --watch",
     "tmlanguage-gen": "node dist/adl.tmlanguage.js",
     "package": "npm run build && vsce package",
-    "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.ts\" \"*.{js,json}\"",
-    "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.ts\"  \"*.{js,json}\""
+    "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
+    "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{js,js,json}\""
   },
   "devDependencies": {
     "@types/node": "14.0.27",

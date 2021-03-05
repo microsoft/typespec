@@ -16,8 +16,8 @@
     "test": "mocha 'dist/test/**/*.js'",
     "grammargen": "grammarkdown --newLine LF language.grammar",
     "regen-samples": "node scripts/regen-samples.js",
-    "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.ts\" \"*.{js,json}\"",
-    "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.ts\"  \"*.{js,json}\""
+    "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\" \"../../{eng,common/config}/**/*.{ts,js,json}\"",
+    "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{js,js,json}\" \"../../{eng,common/config}/**/*.{ts,js,json}\""
   },
   "repository": {
     "type": "git",
