@@ -444,10 +444,9 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     if (tripleQuoted) {
       tokenFlags |= TokenFlags.TripleQuoted;
       quoteLength = 3;
+      position += 2;
       closing = '"""';
     }
-
-    position += quoteLength;
 
     scanUntil(
       (ch) => {

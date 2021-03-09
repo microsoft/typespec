@@ -145,6 +145,10 @@ describe("scanner", () => {
     strictEqual(scanner.getTokenValue(), expectedValue);
   }
 
+  it("scans empty strings", () => {
+    scanString('""', "");
+  });
+
   it("scans strings single-line strings with escape sequences", () => {
     scanString('"Hello world \\r\\n \\t \\" \\\\ !"', 'Hello world \r\n \t " \\ !');
   });
