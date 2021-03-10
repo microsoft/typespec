@@ -4,7 +4,7 @@
   "description": "ADL Compiler Preview",
   "main": "dist/main.js",
   "bin": {
-    "adl": "dist/compiler/cli.js"
+    "adl": "cli-shim.js"
   },
   "engines": {
     "node": ">=14.0.0"
@@ -35,6 +35,7 @@
   "homepage": "https://github.com/Azure/adl#readme",
   "readme": "https://github.com/Azure/adl/blob/master/readme.md",
   "files": [
+    "cli-shim.js",
     "lib/*.adl",
     "dist/**",
     "readme.md",

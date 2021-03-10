@@ -11,6 +11,7 @@ import { DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
 import { adlVersion } from "./util.js";
 
 const args = yargs(process.argv.slice(2))
+  .scriptName("adl")
   .help()
   .strict()
   .command("compile <path>", "Compile a directory of ADL files.", (cmd) => {
