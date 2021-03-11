@@ -2,6 +2,97 @@
   "name": "@azure-tools/adl",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@azure-tools/adl_v0.3.0",
+      "date": "Thu, 11 Mar 2021 19:14:29 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add byte primitive type"
+          },
+          {
+            "comment": "Add datetime primitive type"
+          },
+          {
+            "comment": "Enable HTTP verb decorators to specify a subpath from the parent resource path"
+          },
+          {
+            "comment": "Add float32 primitive type"
+          },
+          {
+            "comment": "Replace `interface` syntax with `namespace` and `op` syntax"
+          },
+          {
+            "comment": "Add new decorator @tags"
+          },
+          {
+            "comment": "Add support for nested namespace definitions and scopes"
+          },
+          {
+            "comment": "Add null intrinsic type, allow unions with it for x-nullable support in OpenAPI emitter"
+          },
+          {
+            "comment": "Add response model types for many standard HTTP responses in rest.adl"
+          },
+          {
+            "comment": "Renamed Ok<T> to OkResponse<T>"
+          },
+          {
+            "comment": "Add syntax highlighting"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Implement extends, re-implement spread to copy properties, implement visibility framework, move to explicit bodies in responses, and fix various bugs."
+          },
+          {
+            "comment": "Implement nostdlib option"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix model Foo<T> extends T { }"
+          },
+          {
+            "comment": "Fix resolution of declared parameters in resource sub-paths"
+          },
+          {
+            "comment": "Always output a response description field to ensure valid swagger"
+          },
+          {
+            "comment": "Added new gRPC to ADL examples"
+          },
+          {
+            "comment": "Add back line and column tracking"
+          },
+          {
+            "comment": "Support arrays of arrays and parenthesized expressions"
+          },
+          {
+            "comment": "Remove hardcoded @autorest/core version"
+          },
+          {
+            "comment": "Include source file path in parse error log"
+          },
+          {
+            "comment": "Add body-boolean testserver sample"
+          },
+          {
+            "comment": "Fix bug preventing empty string literals"
+          },
+          {
+            "comment": "Refactor scanner to use less state"
+          },
+          {
+            "comment": "Log source locations with all errors"
+          },
+          {
+            "comment": "Support multiple content types for request bodies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@azure-tools/adl_v0.2.1",
       "date": "Thu, 28 Jan 2021 21:30:01 GMT",
