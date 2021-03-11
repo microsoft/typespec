@@ -1,12 +1,13 @@
 {
   "name": "adl-vscode",
   "displayName": "ADL Language Support for VS Code",
+  "description": "ADL Language Support for VS Code",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/azure/adl"
   },
   "publisher": "Microsoft",
-  "description": "",
   "version": "0.1.1",
   "engines": {
     "vscode": "^1.53.0"
@@ -22,7 +23,7 @@
     "build": "tsc -p . && npm run tmlanguage-gen",
     "watch": "tsc -p . --watch",
     "tmlanguage-gen": "node dist/adl.tmlanguage.js",
-    "package": "npm run build && vsce package",
+    "package": "npm pack ../adl && npm run build && node ../../common/scripts/install-run-rush.js unlink && npm install --no-save azure-tools-adl-0.3.0.tgz && npm install && vsce package && node ../../common/scripts/install-run-rush.js link",
     "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
     "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\""
   },

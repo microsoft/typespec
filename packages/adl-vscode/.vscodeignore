@@ -1,0 +1,16 @@
+# This file determines what goes in the VSIX. We use an opt-in rather than
+# opt-out approach to avoid accidentally shipping unwanted files.
+
+# Exclude everything by default.
+**/*
+
+# Then explicitly include what we want to ship in VSIX
+!dist/**/*.json
+!dist/**/*.js
+!dist/**/*.js.map
+!README.md
+!package.json
+
+# These are handled by magic in vsce such that only production dependencies are
+# included.
+!node_modules
