@@ -4,7 +4,7 @@
   "description": "ADL Compiler Preview",
   "main": "dist/main.js",
   "bin": {
-    "adl": "dist/compiler/cli.js"
+    "adl": "cli-shim.js"
   },
   "engines": {
     "node": ">=14.0.0"
@@ -35,6 +35,7 @@
   "homepage": "https://github.com/Azure/adl#readme",
   "readme": "https://github.com/Azure/adl/blob/master/readme.md",
   "files": [
+    "cli-shim.js",
     "lib/*.adl",
     "dist/**",
     "readme.md",
@@ -44,17 +45,19 @@
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "14.0.27",
+    "@types/yargs": "~15.0.12",
+    "@types/mkdirp": "~1.0.1",
     "grammarkdown": "^3.1.2",
     "mocha": "7.1.2",
     "typescript": "~4.1.5",
-    "@types/yargs": "~15.0.12",
     "prettier": "~2.2.1"
   },
   "dependencies": {
     "yargs": "~16.2.0",
     "mkdirp": "~1.0.4",
-    "@types/mkdirp": "~1.0.1",
-    "autorest": "~3.0.6335"
+    "autorest": "~3.0.6335",
+    "vscode-languageserver": "^7.0.0",
+    "vscode-languageserver-textdocument": "^1.0.1"
   },
   "type": "module"
 }

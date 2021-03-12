@@ -4,15 +4,14 @@ import url from "url";
 import yargs from "yargs";
 import mkdirp from "mkdirp";
 import * as path from "path";
-import { readFileSync } from "fs";
 import { compile } from "../compiler/program.js";
 import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
 import { DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
-
-const adlVersion = getVersion();
+import { adlVersion } from "./util.js";
 
 const args = yargs(process.argv.slice(2))
+  .scriptName("adl")
   .help()
   .strict()
   .command("compile <path>", "Compile a directory of ADL files.", (cmd) => {
@@ -98,12 +97,6 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
     swaggerOutputFile: path.resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
   };
-}
-
-function getVersion(): string {
-  const packageJsonPath = new url.URL(`../../package.json`, import.meta.url);
-  const packageJson = JSON.parse(readFileSync(url.fileURLToPath(packageJsonPath), "utf-8"));
-  return packageJson.version;
 }
 
 async function main() {
