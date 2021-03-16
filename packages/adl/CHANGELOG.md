@@ -1,6 +1,13 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Thu, 11 Mar 2021 19:14:29 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Mar 2021 23:13:42 GMT and should not be manually modified.
+
+## 0.4.0
+Tue, 16 Mar 2021 23:13:42 GMT
+
+### Minor changes
+
+- Introduce language server and add live parse errors to VS Code
 
 ## 0.3.0
 Thu, 11 Mar 2021 19:14:29 GMT

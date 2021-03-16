@@ -8,7 +8,7 @@
     "url": "git+https://github.com/azure/adl"
   },
   "publisher": "Microsoft",
-  "version": "0.1.1",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.53.0"
   },
@@ -23,12 +23,12 @@
     "build": "tsc -p . && npm run tmlanguage-gen",
     "watch": "tsc -p . --watch",
     "tmlanguage-gen": "node dist/adl.tmlanguage.js",
-    "package": "npm pack ../adl && npm run build && node ../../common/scripts/install-run-rush.js unlink && npm install --no-save azure-tools-adl-0.3.0.tgz && npm install && vsce package && node ../../common/scripts/install-run-rush.js link",
+    "package": "npm pack ../adl && npm run build && node ../../common/scripts/install-run-rush.js unlink && npm install --no-save azure-tools-adl-0.4.0.tgz && npm install && vsce package && node ../../common/scripts/install-run-rush.js link",
     "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
     "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\""
   },
   "dependencies": {
-    "@azure-tools/adl": "0.3.0",
+    "@azure-tools/adl": "0.4.0",
     "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {
