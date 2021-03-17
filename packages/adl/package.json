@@ -4,17 +4,19 @@
   "description": "ADL Compiler Preview",
   "main": "dist/main.js",
   "bin": {
-    "adl": "cli-shim.js"
+    "adl": "cmd/adl.js",
+    "adl-server": "cmd/adl-server.js"
   },
   "engines": {
     "node": ">=14.0.0"
   },
   "scripts": {
-    "build": "tsc -p . && npm run grammargen",
-    "watch": "tsc -p . --watch",
+    "build": "npm run compile && npm run generate-grammar",
     "prepare": "npm run build",
+    "compile": "tsc -p .",
+    "watch": "tsc -p . --watch",
     "test": "mocha 'dist/test/**/*.js'",
-    "grammargen": "grammarkdown --newLine LF language.grammar",
+    "generate-grammar": "grammarkdown --newLine LF language.grammar",
     "regen-samples": "node scripts/regen-samples.js",
     "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\" \"../../{eng,common/config}/**/*.{ts,js,json}\"",
     "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\" \"../../{eng,common/config}/**/*.{ts,js,json}\""

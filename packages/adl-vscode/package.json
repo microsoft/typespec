@@ -12,7 +12,7 @@
   "engines": {
     "vscode": "^1.53.0"
   },
-  "main": "./dist/extension.js",
+  "main": "./extension-shim.js",
   "activationEvents": [
     "onLanguage:adl"
   ],
@@ -20,21 +20,26 @@
     "Programming Languages"
   ],
   "scripts": {
-    "build": "tsc -p . && npm run tmlanguage-gen",
+    "build": "npm run compile && npm run generate-tmlanguage && npm run rollup && npm run package-vsix",
+    "prepare": "npm run build",
+    "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "tmlanguage-gen": "node dist/adl.tmlanguage.js",
-    "package": "npm pack ../adl && npm run build && node ../../common/scripts/install-run-rush.js unlink && npm install --no-save azure-tools-adl-0.4.0.tgz && npm install && vsce package && node ../../common/scripts/install-run-rush.js link",
+    "generate-tmlanguage": "node dist-dev/adl.tmlanguage.js",
+    "rollup": "rollup --config --failAfterWarnings 2>&1",
+    "package-vsix": "vsce package --yarn",
     "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
     "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\""
   },
   "dependencies": {
-    "@azure-tools/adl": "0.4.0",
     "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-node-resolve": "^11.2.0",
     "@types/node": "14.0.27",
     "@types/vscode": "^1.53.0",
     "onigasm": "~2.2.5",
+    "rollup": "^2.41.4",
     "typescript": "~4.1.5",
     "vsce": "^1.85.1"
   },
