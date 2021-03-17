@@ -1,9 +1,7 @@
-#!/usr/bin/env node
-
 import url from "url";
 import yargs from "yargs";
 import mkdirp from "mkdirp";
-import * as path from "path";
+import path from "path";
 import { compile } from "../compiler/program.js";
 import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
