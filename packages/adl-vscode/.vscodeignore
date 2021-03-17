@@ -10,3 +10,4 @@
 !dist/**/*.js.map
 !extension-shim.js
 !README.md
+!ThirdPartyNotices.txt

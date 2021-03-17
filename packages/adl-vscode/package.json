@@ -19,12 +19,17 @@
   "categories": [
     "Programming Languages"
   ],
+  "files": [
+    "adl-vscode-*.vsix",
+    "ThirdPartyNotices.txt"
+  ],
   "scripts": {
-    "build": "npm run compile && npm run generate-tmlanguage && npm run rollup && npm run package-vsix",
+    "build": "npm run compile && npm run generate-tmlanguage && npm run rollup && npm run generate-third-party-notices && npm run package-vsix",
     "prepare": "npm run build",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "generate-tmlanguage": "node dist-dev/adl.tmlanguage.js",
+    "generate-third-party-notices": "node scripts/generate-third-party-notices.js",
     "rollup": "rollup --config --failAfterWarnings 2>&1",
     "package-vsix": "vsce package --yarn",
     "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
