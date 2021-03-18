@@ -35,9 +35,10 @@ function npmForEach(cmd) {
   const t1 = process.uptime() * 100;
   forEachProject((name, location, project) => {
     // checks for the script first
-    if (project.scripts[cmd]) {
+    if (project.scripts[cmd] || cmd === "pack") {
       count++;
-      const proc = spawn("npm", ["--silent", "run", cmd], {
+      args = cmd === "pack" ? [cmd] : ["run", cmd];
+      const proc = spawn("npm", args, {
         cwd: location,
         shell: true,
         stdio: "inherit",
