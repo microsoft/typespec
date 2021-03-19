@@ -1,0 +1,27 @@
+{
+  "name": "adl-vscode",
+  "entries": [
+    {
+      "version": "0.4.0",
+      "tag": "adl-vscode_v0.4.0",
+      "date": "Tue, 16 Mar 2021 23:13:42 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Introduce language server and add live parse errors to VS Code"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Initial version of VS Code extension"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@azure-tools/adl\" from `0.3.0` to `0.4.0`"
+          }
+        ]
+      }
+    }
+  ]
+}

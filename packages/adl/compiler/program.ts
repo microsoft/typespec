@@ -20,8 +20,7 @@ import {
   SourceFile,
   DecoratorSymbol,
 } from "./types.js";
-import { createSourceFile } from "./scanner.js";
-import { throwDiagnostic } from "./diagnostics.js";
+import { createSourceFile, throwDiagnostic } from "./diagnostics.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;

@@ -8,9 +8,6 @@
 !dist/**/*.json
 !dist/**/*.js
 !dist/**/*.js.map
+!extension-shim.js
 !README.md
-!package.json
-
-# These are handled by magic in vsce such that only production dependencies are
-# included.
-!node_modules
+!ThirdPartyNotices.txt

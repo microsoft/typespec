@@ -1,5 +1,5 @@
-import { createSourceFile } from "./scanner.js";
-import { Message, Node, SourceLocation, SyntaxKind, Type, Sym } from "./types.js";
+import { CharacterCodes } from "./character-codes.js";
+import { Message, Node, SourceLocation, SyntaxKind, Type, Sym, SourceFile } from "./types.js";
 
 export interface Diagnostic extends SourceLocation {
   readonly message: string;
@@ -102,6 +102,93 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
   const severity = diagnostic.severity;
   const path = diagnostic.file.path;
   return `${path}:${line}:${col} - ${severity}${code}: ${diagnostic.message}`;
+}
+
+export function createSourceFile(text: string, path: string): SourceFile {
+  let lineStarts: Array<number> | undefined = undefined;
+
+  return {
+    text,
+    path,
+    getLineStarts,
+    getLineAndCharacterOfPosition,
+  };
+
+  function getLineStarts() {
+    return (lineStarts = lineStarts ?? scanLineStarts());
+  }
+
+  function getLineAndCharacterOfPosition(position: number) {
+    const starts = getLineStarts();
+
+    let line = binarySearch(starts, position);
+
+    // When binarySearch returns < 0 indicating that the value was not found, it
+    // returns the bitwise complement of the index where the value would need to
+    // be inserted to keep the array sorted. So flipping the bits back to this
+    // positive index tells us what the line number would be if we were to
+    // create a new line starting at the given position, and subtracting 1 from
+    // that therefore gives us the line number we're after.
+    if (line < 0) {
+      line = ~line - 1;
+    }
+
+    return {
+      line,
+      character: position - starts[line],
+    };
+  }
+
+  function scanLineStarts() {
+    const starts = [];
+    let start = 0;
+    let pos = 0;
+
+    while (pos < text.length) {
+      const ch = text.charCodeAt(pos);
+      pos++;
+      switch (ch) {
+        case CharacterCodes.carriageReturn:
+          if (text.charCodeAt(pos) === CharacterCodes.lineFeed) {
+            pos++;
+          }
+        // fallthrough
+        case CharacterCodes.lineFeed:
+        case CharacterCodes.lineSeparator:
+        case CharacterCodes.paragraphSeparator:
+          starts.push(start);
+          start = pos;
+          break;
+      }
+    }
+
+    starts.push(start);
+    return starts;
+  }
+
+  /**
+   * Search sorted array of numbers for the given value. If found, return index
+   * in array where value was found. If not found, return a negative number that
+   * is the bitwise complement of the index where value would need to be inserted
+   * to keep the array sorted.
+   */
+  function binarySearch(array: ReadonlyArray<number>, value: number) {
+    let low = 0;
+    let high = array.length - 1;
+    while (low <= high) {
+      const middle = low + ((high - low) >> 1);
+      const v = array[middle];
+      if (v < value) {
+        low = middle + 1;
+      } else if (v > value) {
+        high = middle - 1;
+      } else {
+        return middle;
+      }
+    }
+
+    return ~low;
+  }
 }
 
 export function getSourceLocation(target: DiagnosticTarget): SourceLocation {

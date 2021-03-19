@@ -2,6 +2,18 @@
   "name": "@azure-tools/adl",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@azure-tools/adl_v0.4.0",
+      "date": "Tue, 16 Mar 2021 23:13:42 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Introduce language server and add live parse errors to VS Code"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@azure-tools/adl_v0.3.0",
       "date": "Thu, 11 Mar 2021 19:14:29 GMT",

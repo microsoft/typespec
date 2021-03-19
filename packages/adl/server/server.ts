@@ -1,6 +1,9 @@
 import { adlVersion } from "../compiler/util.js";
-import { Diagnostic as ADLDiagnostic, DiagnosticError } from "../compiler/diagnostics.js";
-import { createSourceFile } from "../compiler/scanner.js";
+import {
+  createSourceFile,
+  Diagnostic as ADLDiagnostic,
+  DiagnosticError,
+} from "../compiler/diagnostics.js";
 import { parse } from "../compiler/parser.js";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
