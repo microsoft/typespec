@@ -5,9 +5,9 @@
 @intrinsic model string { }
 @intrinsic model float32 { }
 @intrinsic model float64 { }
-@intrinsic model date { }
-@intrinsic model datetime { }
-@intrinsic model time { }
+@intrinsic model plainDate { }
+@intrinsic model plainTime { }
+@intrinsic model zonedDateTime { }
 @intrinsic model boolean { }
 @intrinsic model null { }
 
