@@ -7,6 +7,8 @@ import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
 import { DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
 import { adlVersion } from "./util.js";
+import { mkdtemp, readdir, rmdir } from "fs/promises";
+import os from "os";
 
 const args = yargs(process.argv.slice(2))
   .scriptName("adl")
@@ -56,6 +58,13 @@ const args = yargs(process.argv.slice(2))
         });
     }
   )
+  .command("code", "Manage VS Code Extension.", (cmd) => {
+    return cmd
+      .demandCommand(1, "No command specified.")
+      .command("install", "Install VS Code Extension")
+      .command("uninstall", "Uninstall VS Code Extension")
+      .option("insiders", { type: "boolean", description: "Use VS Code Insiders" });
+  })
   .option("debug", {
     type: "boolean",
     description: "Output debug log messages.",
@@ -119,6 +128,70 @@ async function generateClient(options: CompilerOptions) {
   }
 }
 
+async function installVSCodeExtension() {
+  // download npm package to temporary directory
+  const temp = await mkdtemp(path.join(os.tmpdir(), "adl"));
+  run("npm", ["install", "--silent", "--prefix", temp, "adl-vscode"]);
+
+  // locate .vsix
+  const files = await readdir(path.join(temp, "node_modules/adl-vscode"));
+  let vsix: string | undefined;
+  for (const file of files) {
+    if (file.endsWith(".vsix")) {
+      vsix = path.join(temp, "node_modules/adl-vscode", file);
+      break;
+    }
+  }
+  if (!vsix) {
+    throw new Error("Installed adl-vscode from npm, but didn't find its .vsix file.");
+  }
+
+  // install extension
+  run(args.insiders ? "code-insiders" : "code", ["--install-extension", vsix]);
+
+  // delete temporary directory
+  await rmdir(temp, { recursive: true });
+}
+
+async function uninstallVSCodeExtension() {
+  run(args.insiders ? "code-insiders" : "code", ["--uninstall-extension", "microsoft.adl-vscode"]);
+}
+
+function run(command: string, commandArgs: string[]) {
+  if (args.debug) {
+    console.log(`> ${command} ${commandArgs.join(" ")}`);
+  }
+
+  if (process.platform === "win32") {
+    command += ".cmd";
+  }
+
+  const proc = spawnSync(command, commandArgs, {
+    stdio: "inherit",
+    // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
+    env: { ...process.env, NODE_NO_WARNINGS: "1" },
+  });
+
+  if (proc.error) {
+    if ((proc.error as any).code === "ENOENT") {
+      console.error(`error: Command '${command}' not found.`);
+      if (args.debug) {
+        console.log(proc.error.stack);
+      }
+      process.exit(1);
+    } else {
+      throw proc.error;
+    }
+  }
+
+  if (proc.status !== 0) {
+    console.error(
+      `error: Command '${command} ${commandArgs.join(" ")}' failed with exit code ${proc.status}.`
+    );
+    process.exit(proc.status ?? 1);
+  }
+}
+
 async function main() {
   console.log(`ADL compiler v${adlVersion}\n`);
   const command = args._[0];
@@ -134,6 +207,17 @@ async function main() {
       await compileInput(options);
       if (args.client) {
         await generateClient(options);
+      }
+      break;
+    case "code":
+      const action = args._[1];
+      switch (action) {
+        case "install":
+          await installVSCodeExtension();
+          break;
+        case "uninstall":
+          await uninstallVSCodeExtension();
+          break;
       }
       break;
   }
