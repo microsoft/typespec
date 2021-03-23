@@ -60,28 +60,21 @@ const args = yargs(process.argv.slice(2))
     type: "boolean",
     description: "Output debug log messages.",
   })
-  .option("verbose", {
-    alias: "v",
-    type: "boolean",
-    description: "Output verbose log messages.",
-  })
   .version(adlVersion)
   .demandCommand(1, "You must use one of the supported commands.").argv;
 
-async function compileInput(compilerOptions: CompilerOptions): Promise<boolean> {
+async function compileInput(compilerOptions: CompilerOptions) {
   try {
     await compile(args.path!, compilerOptions);
-    return true;
   } catch (err) {
     if (err instanceof DiagnosticError) {
       logDiagnostics(err.diagnostics, console.error);
       if (args.debug) {
         console.error(`Stack trace:\n\n${err.stack}`);
       }
-    } else {
-      throw err; // let non-diagnostic errors go to top-level bug handler.
+      process.exit(1);
     }
-    return false;
+    throw err; // let non-diagnostic errors go to top-level bug handler.
   }
 }
 
@@ -97,51 +90,52 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
   };
 }
 
+async function generateClient(options: CompilerOptions) {
+  const clientPath = path.resolve(args["output-path"], "client");
+  const autoRestBin = process.platform === "win32" ? "autorest.cmd" : "autorest";
+  const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
+
+  // Execute AutoRest on the output file
+  const result = spawnSync(
+    url.fileURLToPath(autoRestPath),
+    [
+      `--${args.language}`,
+      `--clear-output-folder=true`,
+      `--output-folder=${clientPath}`,
+      `--title=AdlClient`,
+      `--input-file=${options.swaggerOutputFile}`,
+    ],
+    {
+      stdio: "inherit",
+      shell: true,
+    }
+  );
+
+  if (result.status === 0) {
+    console.log(`Generation completed successfully, output files are in ${options.outputPath}.`);
+  } else {
+    console.error("\nAn error occurred during client generation.");
+    process.exit(result.status || 1);
+  }
+}
+
 async function main() {
   console.log(`ADL compiler v${adlVersion}\n`);
+  const command = args._[0];
+  let options: CompilerOptions;
 
-  if (args._[0] === "compile") {
-    const options = await getCompilerOptions();
-    if (!(await compileInput(options))) {
-      process.exit(1);
-    }
-    console.log(`Compilation completed successfully, output files are in ${options.outputPath}.`);
-  } else if (args._[0] === "generate") {
-    const options = await getCompilerOptions();
-    if (!(await compileInput(options))) {
-      process.exit(1);
-    }
-
-    if (args.client) {
-      const clientPath = path.resolve(args["output-path"], "client");
-      const autoRestBin = process.platform === "win32" ? "autorest.cmd" : "autorest";
-      const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
-
-      // Execute AutoRest on the output file
-      const result = spawnSync(
-        url.fileURLToPath(autoRestPath),
-        [
-          `--${args.language}`,
-          `--clear-output-folder=true`,
-          `--output-folder=${clientPath}`,
-          `--title=AdlClient`,
-          `--input-file=${options.swaggerOutputFile}`,
-        ],
-        {
-          stdio: "inherit",
-          shell: true,
-        }
-      );
-
-      if (result.status === 0) {
-        console.log(
-          `Generation completed successfully, output files are in ${options.outputPath}.`
-        );
-      } else {
-        console.error("\nAn error occurred during compilation or client generation.");
-        process.exit(result.status || 1);
+  switch (command) {
+    case "compile":
+      options = await getCompilerOptions();
+      await compileInput(options);
+      break;
+    case "generate":
+      options = await getCompilerOptions();
+      await compileInput(options);
+      if (args.client) {
+        await generateClient(options);
       }
-    }
+      break;
   }
 }
 
