@@ -135,17 +135,17 @@ export function isSecret(target: Type): boolean | undefined {
 
 // -- @visibility decorator ---------------------
 
-const visibilitySettings = new Map<Type, string>();
+const visibilitySettings = new Map<Type, string[]>();
 
-export function visibility(program: Program, target: Type, visibility: string) {
+export function visibility(program: Program, target: Type, ...visibilities: string[]) {
   if (target.kind === "ModelProperty") {
-    visibilitySettings.set(target, visibility);
+    visibilitySettings.set(target, visibilities);
   } else {
     throw new Error("The @visibility decorator can only be applied to model properties.");
   }
 }
 
-export function getVisibility(target: Type): string | undefined {
+export function getVisibility(target: Type): string[] | undefined {
   return visibilitySettings.get(target);
 }
 
@@ -156,7 +156,7 @@ export function withVisibility(program: Program, target: Type, ...visibilities: 
 
   const filter = (_: any, prop: ModelTypeProperty) => {
     const vis = getVisibility(prop);
-    return vis ? !visibilities.includes(vis) : false;
+    return vis !== undefined && visibilities.filter((v) => !vis.includes(v)).length > 0;
   };
 
   mapFilterOut(target.properties, filter);
