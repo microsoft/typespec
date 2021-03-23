@@ -1,6 +1,19 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Tue, 16 Mar 2021 23:13:42 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Mar 2021 01:06:29 GMT and should not be manually modified.
+
+## 0.5.0
+Tue, 23 Mar 2021 01:06:29 GMT
+
+### Minor changes
+
+- Add `time` intrinsic type
+- Rename all date and time intrinsics: zonedDateTime, plainDate, and plainTime
+- Add commands to install/uninstall VS Code extension
+
+### Patches
+
+- Automatically mark named enum types with `x-ms-enum` and `modelAsString: true`
 
 ## 0.4.0
 Tue, 16 Mar 2021 23:13:42 GMT

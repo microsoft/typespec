@@ -2,6 +2,18 @@
   "name": "adl-vscode",
   "entries": [
     {
+      "version": "0.4.1",
+      "tag": "adl-vscode_v0.4.1",
+      "date": "Tue, 23 Mar 2021 01:06:29 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Remove unnecessary npm dependency"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "adl-vscode_v0.4.0",
       "date": "Tue, 16 Mar 2021 23:13:42 GMT",
