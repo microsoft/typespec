@@ -3,8 +3,8 @@
   "version": "0.1.1",
   "author": "Microsoft Corporation",
   "description": "Helper library to generate TextMate syntax highlighting tmlanguage files.",
-  "homepage": "https://github.com/Azure/adl/tree/master/packages/textmate",
-  "readme": "https://github.com/Azure/adl/blob/master/packages/textmate/REAMDE.md",
+  "homepage": "https://github.com/Azure/adl/tree/master/packages/tmlanguage-generator",
+  "readme": "https://github.com/Azure/adl/blob/master/packages/tmlanguage-generator/README.md",
   "keywords": [
     "textmate",
     "tmlanguage"
