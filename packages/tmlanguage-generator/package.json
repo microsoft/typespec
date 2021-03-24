@@ -1,0 +1,40 @@
+{
+  "name": "@azure-tools/tmlanguage-generator",
+  "version": "0.1.1",
+  "author": "Microsoft Corporation",
+  "description": "Helper library to generate TextMate syntax highlighting tmlanguage files.",
+  "homepage": "https://github.com/Azure/adl/tree/master/packages/textmate",
+  "readme": "https://github.com/Azure/adl/blob/master/packages/textmate/REAMDE.md",
+  "keywords": [
+    "textmate",
+    "tmlanguage"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/adl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/adl/issues"
+  },
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "prepare": "npm run build",
+    "watch": "tsc -p . --watch",
+    "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
+    "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\""
+  },
+  "files": [
+    "dist/**"
+  ],
+  "dependencies": {
+    "onigasm": "~2.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "14.0.27"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@azure-tools/tmlanguage-generator",
+  "entries": [
+    {
+      "version": "0.1.1",
+      "tag": "@azure-tools/tmlanguage-generator_v0.1.1",
+      "date": "Wed, 24 Mar 2021 18:40:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Initial release"
+          }
+        ]
+      }
+    }
+  ]
+}

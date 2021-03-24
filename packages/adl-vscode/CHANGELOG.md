@@ -1,6 +1,13 @@
 # Change Log - adl-vscode
 
-This log was last generated on Tue, 23 Mar 2021 01:06:29 GMT and should not be manually modified.
+This log was last generated on Wed, 24 Mar 2021 18:40:21 GMT and should not be manually modified.
+
+## 0.4.2
+Wed, 24 Mar 2021 18:40:21 GMT
+
+### Patches
+
+- Extract textmate generator to helper library
 
 ## 0.4.1
 Tue, 23 Mar 2021 01:06:29 GMT
