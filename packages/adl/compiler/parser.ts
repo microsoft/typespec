@@ -1,9 +1,11 @@
+import { checkServerIdentity } from "tls";
 import { DiagnosticError, throwDiagnostic } from "./diagnostics.js";
 import { createScanner, Token } from "./scanner.js";
 import * as Types from "./types.js";
 
 export function parse(code: string | Types.SourceFile) {
   const scanner = createScanner(code);
+
   nextToken();
   return parseADLScript();
 
@@ -16,15 +18,30 @@ export function parse(code: string | Types.SourceFile) {
       end: 0,
     };
 
+    let seenBlocklessNs = false;
+    let seenDecl = false;
+
     while (!scanner.eof()) {
-      script.statements.push(parseStatement());
+      const item = parseADLScriptItem();
+      if (isBlocklessNamespace(item)) {
+        if (seenBlocklessNs) {
+          throw error("Cannot use multiple blockless namespaces");
+        }
+        if (seenDecl) {
+          throw error("Blockless namespaces can't follow other declarations");
+        }
+        seenBlocklessNs = true;
+      } else {
+        seenDecl = true;
+      }
+      script.statements.push(item);
     }
 
     script.end = scanner.position;
     return script;
   }
 
-  function parseStatement(): Types.Statement {
+  function parseADLScriptItem(): Types.Statement {
     while (true) {
       const decorators = parseDecoratorList();
       const tok = token();
@@ -39,6 +56,37 @@ export function parse(code: string | Types.SourceFile) {
           return parseModelStatement(decorators);
         case Token.NamespaceKeyword:
           return parseNamespaceStatement(decorators);
+        case Token.OpKeyword:
+          return parseOperationStatement(decorators);
+        case Token.Semicolon:
+          if (decorators.length > 0) {
+            error("Cannot decorate an empty statement");
+          }
+          // no need to put empty statement nodes in the tree for now
+          // since we aren't trying to emit ADL
+          parseExpected(Token.Semicolon);
+          continue;
+      }
+
+      throw error(`Expected statement, but found ${Token[tok]}`);
+    }
+  }
+
+  function parseStatement(): Types.Statement {
+    while (true) {
+      const decorators = parseDecoratorList();
+      const tok = token();
+
+      switch (tok) {
+        case Token.ModelKeyword:
+          return parseModelStatement(decorators);
+        case Token.NamespaceKeyword:
+          const ns = parseNamespaceStatement(decorators);
+
+          if (!Array.isArray(ns.statements)) {
+            throw error(`Blockless namespace can only be top-level`);
+          }
+          return ns;
         case Token.OpKeyword:
           return parseOperationStatement(decorators);
         case Token.Semicolon:
@@ -70,43 +118,54 @@ export function parse(code: string | Types.SourceFile) {
   ): Types.NamespaceStatementNode {
     const pos = tokenPos();
     parseExpected(Token.NamespaceKeyword);
-    const id = parseIdentifier();
+    let currentName = parseIdentifierOrMemberExpression();
+    const nsSegments: Types.IdentifierNode[] = [];
+    while (currentName.kind !== Types.SyntaxKind.Identifier) {
+      nsSegments.push(currentName.id);
+      currentName = currentName.base;
+    }
+    nsSegments.push(currentName);
+
     let parameters: Types.ModelExpressionNode | undefined;
 
-    if (token() === Token.OpenParen) {
-      const modelPos = tokenPos();
-      parseExpected(Token.OpenParen);
-      const modelProps = parseModelPropertyList();
-      parseExpected(Token.CloseParen);
-      parameters = finishNode(
-        {
-          kind: Types.SyntaxKind.ModelExpression,
-          properties: modelProps,
-          decorators: [],
-        },
-        modelPos
-      );
+    const nextTok = parseExpectedOneOf(Token.Semicolon, Token.OpenBrace);
+    let statements: Types.Statement[] | undefined;
+
+    if (nextTok === Token.OpenBrace) {
+      statements = [];
+
+      while (token() !== Token.CloseBrace) {
+        statements.push(parseStatement());
+      }
+
+      parseExpected(Token.CloseBrace);
     }
 
-    parseExpected(Token.OpenBrace);
-
-    const statements: Array<Types.Statement> = [];
-    while (token() !== Token.CloseBrace) {
-      statements.push(parseStatement());
-    }
-
-    parseExpected(Token.CloseBrace);
-
-    return finishNode(
+    let outerNs: Types.NamespaceStatementNode = finishNode(
       {
         kind: Types.SyntaxKind.NamespaceStatement,
         decorators,
-        id,
+        name: nsSegments[0],
         parameters,
         statements,
       },
-      pos
+      nsSegments[0].pos
     );
+
+    for (let i = 1; i < nsSegments.length; i++) {
+      outerNs = finishNode(
+        {
+          kind: Types.SyntaxKind.NamespaceStatement,
+          decorators: [],
+          name: nsSegments[i],
+          parameters,
+          statements: outerNs,
+        },
+        nsSegments[i].pos
+      );
+    }
+
+    return outerNs;
   }
 
   function parseOperationStatement(
@@ -743,9 +802,11 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
         visitNode(cb, node.returnType)
       );
     case Types.SyntaxKind.NamespaceStatement:
-      return (
-        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.statements)
-      );
+      return visitEach(cb, node.decorators) ||
+        visitNode(cb, node.name) ||
+        Array.isArray(node.statements)
+        ? visitEach(cb, node.statements as Types.Statement[])
+        : visitNode(cb, node.statements);
     case Types.SyntaxKind.IntersectionExpression:
       return visitEach(cb, node.options);
     case Types.SyntaxKind.MemberExpression:
@@ -811,4 +872,15 @@ export function walk<T>(node: Types.Node, cb: NodeCb<T>, seen = new Set()): T | 
     }
     return walk(childNode, cb, seen);
   });
+}
+
+function isBlocklessNamespace(node: Types.Node) {
+  if (node.kind !== Types.SyntaxKind.NamespaceStatement) {
+    return false;
+  }
+  while (!Array.isArray(node.statements) && node.statements) {
+    node = node.statements;
+  }
+
+  return node.statements === undefined;
 }

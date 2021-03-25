@@ -142,6 +142,18 @@ describe("syntax", () => {
       "@foo namespace Store { @dec op read(): number; @dec op write(n: number): {}; }",
       "@foo @bar namespace Store { @foo @bar op read(): number; }",
       "namespace Store { namespace Read { op read(): int32; } namespace Write { op write(v: int32): {}; } }",
+      "namespace Store.Read { }",
+      "namespace Store;",
+      "namespace Store.Read;",
+      "@foo namespace Store.Read;",
+      "@foo namespace Store.Read { };",
+    ]);
+
+    parseErrorEach([
+      "namespace Foo { namespace Store; }",
+      "namespace Store; namespace Store2;",
+      "model Foo { }; namespace Store;",
+      "namespace Foo { }; namespace Store;",
     ]);
   });
 

@@ -1,12 +1,10 @@
-import url from "url";
-import path from "path";
-import { readdir, readFile } from "fs/promises";
+import { resolve } from "path";
+import { lstat } from "fs/promises";
 import { join } from "path";
 import { createBinder, SymbolTable } from "./binder.js";
 import { createChecker, MultiKeyMap } from "./checker.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
-import { resolvePath } from "./util.js";
 import {
   ADLScriptNode,
   DecoratorExpressionNode,
@@ -19,43 +17,48 @@ import {
   Type,
   SourceFile,
   DecoratorSymbol,
+  CompilerHost,
+  NamespaceStatementNode,
 } from "./types.js";
 import { createSourceFile, throwDiagnostic } from "./diagnostics.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
-  globalSymbols: SymbolTable;
+  globalNamespace: NamespaceStatementNode;
   sourceFiles: Array<ADLSourceFile>;
   typeCache: MultiKeyMap<Type>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   checker?: ReturnType<typeof createChecker>;
   evalAdlScript(adlScript: string, filePath?: string): void;
   onBuild(cb: (program: Program) => void): void;
-  executeNamespaceDecorators(type: NamespaceType): void;
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
+  executeDecorator(node: DecoratorExpressionNode, program: Program, type: Type): void;
 }
 
 export interface ADLSourceFile extends SourceFile {
   ast: ADLScriptNode;
-  symbols: SymbolTable;
   models: Array<ModelType>;
   interfaces: Array<NamespaceType>;
+  namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
 }
 
-export async function compile(rootDir: string, options?: CompilerOptions) {
+export async function createProgram(
+  host: CompilerHost,
+  options: CompilerOptions
+): Promise<Program> {
   const buildCbs: any = [];
 
   const program: Program = {
     compilerOptions: options || {},
-    globalSymbols: new SymbolTable(),
+    globalNamespace: createGlobalNamespace(),
     sourceFiles: [],
     typeCache: new MultiKeyMap(),
     literalTypes: new Map(),
     evalAdlScript,
-    executeNamespaceDecorators,
     executeModelDecorators,
     executeDecorators,
+    executeDecorator,
     onBuild(cb) {
       buildCbs.push(cb);
     },
@@ -68,36 +71,31 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     await loadStandardLibrary(program);
   }
 
-  await loadDirectory(program, rootDir);
+  await loadMain(options);
+
   const checker = (program.checker = createChecker(program));
   program.checker.checkProgram(program);
   buildCbs.forEach((cb: any) => cb(program));
 
-  /**
-   * Evaluation resolves identifiers and type expressions and
-   * does type checking.
-   */
+  return program;
 
-  function executeNamespaceDecorators(type: NamespaceType) {
-    const stmt = type.node;
+  function createGlobalNamespace(): NamespaceStatementNode {
+    const nsId: IdentifierNode = {
+      kind: SyntaxKind.Identifier,
+      pos: 0,
+      end: 0,
+      sv: "__GLOBAL_NS",
+    };
 
-    for (const dec of stmt.decorators) {
-      executeDecorator(dec, program, type);
-    }
-
-    for (const [_, modelType] of type.models) {
-      executeModelDecorators(modelType);
-    }
-
-    for (const [_, namespaceType] of type.namespaces) {
-      executeNamespaceDecorators(namespaceType);
-    }
-
-    for (const [_, propType] of type.operations) {
-      for (const dec of propType.node.decorators) {
-        executeDecorator(dec, program, propType);
-      }
-    }
+    return {
+      kind: SyntaxKind.NamespaceStatement,
+      decorators: [],
+      pos: 0,
+      end: 0,
+      name: nsId,
+      locals: new SymbolTable(),
+      exports: new SymbolTable(),
+    };
   }
 
   function executeModelDecorators(type: ModelType) {
@@ -135,22 +133,12 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
 
     const decName = dec.target.sv;
     const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
-    const decBinding = <DecoratorSymbol>program.globalSymbols.get(decName);
+    const decBinding = <DecoratorSymbol>program.globalNamespace.locals!.get(decName);
     if (!decBinding) {
       throwDiagnostic(`Can't find decorator ${decName}`, dec);
     }
     const decFn = decBinding.value;
     decFn(program, type, ...args);
-  }
-
-  async function importDecorator(modulePath: string, name: string) {
-    const resolvedPath = path.isAbsolute(modulePath)
-      ? modulePath
-      : path.resolve(process.cwd(), modulePath);
-
-    const moduleUrl = url.pathToFileURL(resolvedPath);
-    const module = await import(moduleUrl.href);
-    return module[name];
   }
 
   /**
@@ -166,25 +154,14 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     return type;
   }
 
-  function dumpSymbols(program: Program) {
-    for (const [binding, value] of program.globalSymbols) {
-      console.log(`${binding} =>`);
-      console.dir(value, { depth: 0 });
+  async function loadStandardLibrary(program: Program) {
+    for (const dir of host.getLibDirs()) {
+      await loadDirectory(program, dir);
     }
   }
 
-  /**
-   * Binding creates symbol table entries for declared models
-   * and interfaces.
-   */
-
-  async function loadStandardLibrary(program: Program) {
-    await loadDirectory(program, resolvePath(import.meta.url, "../lib"));
-    await loadDirectory(program, resolvePath(import.meta.url, "../../lib"));
-  }
-
   async function loadDirectory(program: Program, rootDir: string) {
-    const dir = await readdir(rootDir, { withFileTypes: true });
+    const dir = await host.readDir(rootDir);
     for (const entry of dir) {
       if (entry.isFile()) {
         const path = join(rootDir, entry.name);
@@ -198,28 +175,28 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
   }
 
   async function loadAdlFile(program: Program, path: string) {
-    const contents = await readFile(path, "utf-8");
+    const contents = await host.readFile(path);
+    if (!contents) {
+      throw new Error("Couldn't load ADL file " + path);
+    }
     program.evalAdlScript(contents, path);
   }
 
   async function loadJsFile(program: Program, path: string) {
-    const contents = await readFile(path, "utf-8");
+    const exports = await host.getJsImport(path);
 
-    const exports = contents.match(/export function \w+/g);
-    if (!exports) return;
-    for (const match of exports) {
+    for (const match of Object.keys(exports)) {
       // bind JS files early since this is the only work
       // we have to do with them.
-      const name = match.match(/function (\w+)/)![1];
-      const value = await importDecorator(path, name);
+      const value = exports[match];
 
-      if (name === "onBuild") {
+      if (match === "onBuild") {
         program.onBuild(value);
       } else {
-        program.globalSymbols.set(name, {
+        program.globalNamespace.locals!.set(match, {
           kind: "decorator",
           path,
-          name,
+          name: match,
           value,
         });
       }
@@ -233,15 +210,35 @@ export async function compile(rootDir: string, options?: CompilerOptions) {
     filePath = filePath ?? `__virtual_file_${++virtualFileCount}`;
     const unparsedFile = createSourceFile(adlScript, filePath);
     const ast = parse(unparsedFile);
-    const sourceFile = {
+    const sourceFile: ADLSourceFile = {
       ...unparsedFile,
       ast,
       interfaces: [],
       models: [],
-      symbols: new SymbolTable(),
+      namespaces: [],
     };
 
     program.sourceFiles.push(sourceFile);
-    binder.bindSourceFile(program, sourceFile, true);
+    binder.bindSourceFile(program, sourceFile);
   }
+
+  async function loadMain(options: CompilerOptions) {
+    if (!options.mainFile) {
+      throw new Error("Must specify a main file");
+    }
+
+    const mainPath = resolve(host.getCwd(), options.mainFile);
+
+    const mainStat = await lstat(mainPath);
+
+    if (mainStat.isDirectory()) {
+      await loadDirectory(program, mainPath);
+    } else {
+      await loadAdlFile(program, mainPath);
+    }
+  }
+}
+
+export async function compile(rootDir: string, host: CompilerHost, options?: CompilerOptions) {
+  const program = await createProgram(host, { mainFile: rootDir, ...options });
 }

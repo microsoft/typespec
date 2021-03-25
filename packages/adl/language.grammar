@@ -165,28 +165,37 @@ SingleLineCommentChar :
 // Syntactic Grammar
 
 ADLScript :
-    StatementList?
+    ADLScriptItemList?
+
+ADLScriptItemList :
+    ADLScriptItemList? ADLScriptItem
+
+ADLScriptItem :
+    BlocklessNamespaceStatement
+    ImportStatement
+    Statement
+
+BlocklessNamespaceStatement :
+    DecoratorList? `namespace` IdentifierOrMemberExpression `;`
+
+ImportStatement :
+    `import` StringLiteral `;`
 
 StatementList :
     StatementList? Statement
 
 Statement :
-    ImportStatement
     ModelStatement
     NamespaceStatement
     OperationStatement
     `;`
-
-ImportStatement :
-    `import` Identifier `;`
-    `import` Identifier `as` `{` NamedImports? `}` `;`
 
 NamedImports : 
     Identifier
     NamedImports `,` Identifier
 
 ModelStatement :
-    DecoratorList? `model` Identifier TemplateParameters? `{` ModelBody? `}`
+    DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
     DecoratorList? `model` Identifier TemplateParameters? `=` Expression `;`
 
 ModelHeritage :

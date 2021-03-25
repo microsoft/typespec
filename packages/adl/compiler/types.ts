@@ -245,9 +245,10 @@ export interface MemberExpressionNode extends BaseNode {
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.NamespaceStatement;
-  id: IdentifierNode;
-  statements: Array<Statement>;
+  name: IdentifierNode;
+  statements?: Array<Statement> | NamespaceStatementNode;
   locals?: SymbolTable;
+  exports?: SymbolTable;
   decorators: Array<DecoratorExpressionNode>;
 }
 
@@ -407,4 +408,30 @@ export interface Message {
   code?: number;
   text: string;
   severity: "error" | "warning";
+}
+
+interface Dirent {
+  isFile(): boolean;
+  name: string;
+  isDirectory(): boolean;
+}
+
+export interface CompilerHost {
+  // read a utf-8 encoded file
+  readFile(path: string): Promise<string | undefined>;
+
+  // read the contents of a directory
+  readDir(path: string): Promise<Dirent[]>;
+
+  // get the directory ADL is executing from
+  getExecutionRoot(): string;
+
+  // get the directories we should load standard library files from
+  getLibDirs(): string[];
+
+  // get a promise for the ESM module shape of a JS module
+  getJsImport(path: string): Promise<any>;
+
+  // get the current working directory
+  getCwd(): string;
 }

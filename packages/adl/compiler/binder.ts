@@ -12,7 +12,9 @@ import {
   Declaration,
   OperationStatementNode,
   ScopeNode,
+  IdentifierNode,
 } from "./types.js";
+import { reportDuplicateSymbols } from "./util.js";
 
 export class SymbolTable extends Map<string, Sym> {
   duplicates = new Set<Sym>();
@@ -44,14 +46,14 @@ export interface TypeSymbol {
 }
 
 export interface Binder {
-  bindSourceFile(program: Program, sourceFile: ADLSourceFile, globalScope: boolean): void;
+  bindSourceFile(program: Program, sourceFile: ADLSourceFile): void;
 }
 
 export function createBinder(): Binder {
   let currentFile: ADLSourceFile;
   let parentNode: Node;
 
-  let currentNamespace: NamespaceStatementNode | undefined;
+  let currentNamespace: NamespaceStatementNode;
 
   // Node where locals go.
   let scope: ScopeNode;
@@ -59,22 +61,11 @@ export function createBinder(): Binder {
     bindSourceFile,
   };
 
-  function bindSourceFile(
-    program: Program,
-    sourceFile: ADLSourceFile,
-    globalScope: boolean = false
-  ) {
+  function bindSourceFile(program: Program, sourceFile: ADLSourceFile) {
     currentFile = sourceFile;
-    bindNode(sourceFile.ast);
-    reportDuplicateSymbols(currentFile.symbols);
+    currentNamespace = scope = program.globalNamespace;
 
-    // everything is global
-    if (globalScope) {
-      for (const [name, sym] of sourceFile.symbols) {
-        program.globalSymbols.set(name, sym);
-      }
-      reportDuplicateSymbols(program.globalSymbols);
-    }
+    bindNode(sourceFile.ast);
   }
 
   function bindNode(node: Node) {
@@ -110,6 +101,12 @@ export function createBinder(): Binder {
 
       visitChildren(node, bindNode);
 
+      if (node.kind !== SyntaxKind.NamespaceStatement) {
+        // we've finished binding all the children, so make sure
+        // there are no duplicates.
+        reportDuplicateSymbols(node.locals!);
+      }
+
       scope = prevScope;
       currentNamespace = prevNamespace;
     } else {
@@ -121,78 +118,66 @@ export function createBinder(): Binder {
   }
 
   function getContainingSymbolTable() {
-    return scope ? scope.locals! : currentFile.symbols;
+    switch (scope.kind) {
+      case SyntaxKind.NamespaceStatement:
+        return scope.exports!;
+      default:
+        return scope.locals!;
+    }
   }
 
   function bindTemplateParameterDeclaration(node: TemplateParameterDeclarationNode) {
-    declareSymbol(getContainingSymbolTable(), node);
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
   }
 
   function bindModelStatement(node: ModelStatementNode) {
-    declareSymbol(getContainingSymbolTable(), node);
-
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     // Initialize locals for type parameters
     node.locals = new SymbolTable();
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {
-    declareSymbol(getContainingSymbolTable(), statement);
+    // check if there's an existing symbol for this namespace
+    const existingBinding = (scope as NamespaceStatementNode).exports!.get(statement.name.sv);
+    if (existingBinding && existingBinding.kind === "type") {
+      statement.symbol = existingBinding;
+      statement.locals = (existingBinding.node as NamespaceStatementNode).locals;
+      statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
+    } else {
+      declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
 
-    // Initialize locals for namespace members
-    statement.locals = new SymbolTable();
+      // Initialize locals for non-exported symbols
+      statement.locals = new SymbolTable();
+
+      // initialize exports for exported symbols
+      statement.exports = new SymbolTable();
+    }
+
+    currentFile.namespaces.push(statement);
+
+    if (!statement.statements) {
+      scope = currentNamespace = statement;
+    }
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {
-    declareSymbol(getContainingSymbolTable(), statement);
+    declareSymbol(getContainingSymbolTable(), statement, statement.id.sv);
   }
 
-  function declareSymbol(table: SymbolTable, node: Declaration) {
-    const symbol = createTypeSymbol(node, node.id.sv);
+  function declareSymbol(table: SymbolTable, node: Declaration, name: string) {
+    if (!table) throw new Error("Attempted to declare symbol on non-existent table");
+    const symbol = createTypeSymbol(node, name);
     node.symbol = symbol;
-    if (currentNamespace && node.kind !== SyntaxKind.TemplateParameterDeclaration) {
-      node.namespaceSymbol = currentNamespace.symbol;
-    }
-    table.set(node.id.sv, symbol);
-  }
 
-  function reportDuplicateSymbols(symbols: SymbolTable) {
-    let reported = new Set<Sym>();
-    let diagnostics = new Array<Diagnostic>();
-
-    for (const symbol of currentFile.symbols.duplicates) {
-      report(symbol);
-    }
-
-    for (const symbol of symbols.duplicates) {
-      report(symbol);
-    }
-
-    // Check symbols that have their own scopes
-    for (const [_, symbol] of symbols) {
-      if (symbol.kind === "type" && hasScope(symbol.node) && symbol.node.locals) {
-        reportDuplicateSymbols(symbol.node.locals);
+    if (scope.kind === SyntaxKind.NamespaceStatement) {
+      if (node.kind === SyntaxKind.TemplateParameterDeclaration) {
+        throw new Error("Attempted to declare template parameter in namespace");
       }
+
+      node.namespaceSymbol = scope.symbol;
     }
 
-    if (diagnostics.length > 0) {
-      // TODO: We're now reporting all duplicates up to the binding of the first file
-      // that introduced one, but still bailing the compilation rather than
-      // recovering and reporting other issues including the possibility of more
-      // duplicates.
-      //
-      // That said, decorators are entered into the global symbol table before
-      // any source file is bound and therefore this will include all duplicate
-      // decorator implementations.
-      throw new DiagnosticError(diagnostics);
-    }
-
-    function report(symbol: Sym) {
-      if (!reported.has(symbol)) {
-        reported.add(symbol);
-        const diagnostic = createDiagnostic("Duplicate name: " + symbol.name, symbol);
-        diagnostics.push(diagnostic);
-      }
-    }
+    table.set(name, symbol);
   }
 }
 

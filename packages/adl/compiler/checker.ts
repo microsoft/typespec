@@ -38,6 +38,7 @@ import {
   MemberExpressionNode,
   Sym,
 } from "./types.js";
+import { reportDuplicateSymbols } from "./util.js";
 
 /**
  * A map keyed by a set of objects. Used as a type cache where the base type
@@ -81,7 +82,14 @@ export function createChecker(program: Program) {
   let currentSymbolId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
 
-  const seq = 0;
+  // for our first act, issue errors for duplicate symbols
+
+  reportDuplicateSymbols(program.globalNamespace.exports!);
+  for (const file of program.sourceFiles) {
+    for (const ns of file.namespaces) {
+      reportDuplicateSymbols(ns.exports!);
+    }
+  }
 
   return {
     getTypeForNode,
@@ -336,33 +344,48 @@ export function createChecker(program: Program) {
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
-    const type: NamespaceType = createType({
-      kind: "Namespace",
-      name: node.id.sv,
-      namespace: getParentNamespaceType(node),
-      node: node,
-      models: new Map(),
-      operations: new Map(),
-      namespaces: new Map(),
-    });
-
     const links = getSymbolLinks(node.symbol!);
-    links.type = type;
+    if (!links.type) {
+      // haven't seen this namespace before
+      const type: NamespaceType = createType({
+        kind: "Namespace",
+        name: node.name.sv,
+        namespace: getParentNamespaceType(node),
+        node: node,
+        models: new Map(),
+        operations: new Map(),
+        namespaces: new Map(),
+      });
 
-    for (const statement of node.statements.map(getTypeForNode)) {
-      switch (statement.kind) {
-        case "Model":
-          type.models.set(statement.name, statement as ModelType);
-          break;
-        case "Operation":
-          type.operations.set(statement.name, statement as OperationType);
-          break;
-        case "Namespace":
-          type.namespaces.set(statement.name, statement as NamespaceType);
-          break;
+      links.type = type;
+    } else {
+      // seen it before, need to execute the decorators on this node
+      // against the type we've already made.
+      for (const dec of node.decorators) {
+        program.executeDecorator(dec, program, links.type);
       }
     }
 
+    const type = links.type as NamespaceType;
+
+    if (Array.isArray(node.statements)) {
+      for (const statement of node.statements.map(getTypeForNode)) {
+        switch (statement.kind) {
+          case "Model":
+            type.models.set(statement.name, statement as ModelType);
+            break;
+          case "Operation":
+            type.operations.set(statement.name, statement as OperationType);
+            break;
+          case "Namespace":
+            type.namespaces.set(statement.name, statement as NamespaceType);
+            break;
+        }
+      }
+    } else if (node.statements) {
+      const subNs = checkNamespace(node.statements);
+      type.namespaces.set(subNs.name, subNs);
+    }
     return type;
   }
 
@@ -418,8 +441,8 @@ export function createChecker(program: Program) {
     return s.id;
   }
 
-  function resolveIdentifierInScope(node: IdentifierNode, scope: { locals?: SymbolTable }) {
-    return (<any>scope).locals.get(node.sv);
+  function resolveIdentifierInTable(node: IdentifierNode, table: SymbolTable) {
+    return table.get(node.sv);
   }
 
   function resolveIdentifier(node: IdentifierNode) {
@@ -428,14 +451,20 @@ export function createChecker(program: Program) {
 
     while (scope) {
       if ("locals" in scope) {
-        binding = resolveIdentifierInScope(node, scope);
+        binding = resolveIdentifierInTable(node, scope.locals!);
         if (binding) break;
       }
+
+      if ("exports" in scope) {
+        binding = resolveIdentifierInTable(node, scope.exports!);
+        if (binding) break;
+      }
+
       scope = scope.parent;
     }
 
     if (!binding) {
-      binding = program.globalSymbols.get(node.sv);
+      binding = resolveIdentifierInTable(node, program.globalNamespace.exports!);
     }
 
     if (!binding) {
@@ -453,7 +482,7 @@ export function createChecker(program: Program) {
     if (node.kind === SyntaxKind.MemberExpression) {
       const base = resolveTypeReference(node.base);
       if (base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
-        const symbol = resolveIdentifierInScope(node.id, base.node);
+        const symbol = resolveIdentifierInTable(node.id, base.node.exports!);
         if (!symbol) {
           throwDiagnostic(`Namespace doesn't have member ${node.id.sv}`, node);
         }
