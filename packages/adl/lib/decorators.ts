@@ -49,6 +49,24 @@ export function getIntrinsicType(target: Type | undefined): string | undefined {
   return undefined;
 }
 
+const numericTypes = new Set<string>();
+
+export function numeric(program: Program, target: Type) {
+  if (!isIntrinsic(target)) {
+    throw new Error("Cannot apply @numeric decorator to non-intrinsic type.");
+  }
+  if (target.kind === "Model") {
+    numericTypes.add(target.name);
+  } else {
+    throw new Error("Cannot apply @numeric decorator to non-model type.");
+  }
+}
+
+export function isNumericType(target: Type): boolean {
+  const intrinsicType = getIntrinsicType(target);
+  return intrinsicType !== undefined && numericTypes.has(intrinsicType);
+}
+
 // -- @format decorator ---------------------
 
 const formatValues = new Map<Type, string>();
@@ -110,6 +128,48 @@ export function maxLength(program: Program, target: Type, maxLength: number) {
 
 export function getMaxLength(target: Type): number | undefined {
   return maxLengthValues.get(target);
+}
+
+// -- @minValue decorator ---------------------
+
+const minValues = new Map<Type, number>();
+
+export function minValue(program: Program, target: Type, minValue: number) {
+  if (target.kind === "Model" || target.kind === "ModelProperty") {
+    // Is it ultimately a numeric type?
+    if (isNumericType(target)) {
+      minValues.set(target, minValue);
+    } else {
+      throw new Error("Cannot apply @minValue to a non-numeric type");
+    }
+  } else {
+    throw new Error("Cannot apply @minValue to anything that isn't a Model or ModelProperty");
+  }
+}
+
+export function getMinValue(target: Type): number | undefined {
+  return minValues.get(target);
+}
+
+// -- @maxValue decorator ---------------------
+
+const maxValues = new Map<Type, number>();
+
+export function maxValue(program: Program, target: Type, maxValue: number) {
+  if (target.kind === "Model" || target.kind === "ModelProperty") {
+    // Is it ultimately a numeric type?
+    if (isNumericType(target)) {
+      maxValues.set(target, maxValue);
+    } else {
+      throw new Error("Cannot apply @maxValue to a non-numeric type");
+    }
+  } else {
+    throw new Error("Cannot apply @maxValue to anything that isn't a Model or ModelProperty");
+  }
+}
+
+export function getMaxValue(target: Type): number | undefined {
+  return maxValues.get(target);
 }
 
 // -- @secret decorator ---------------------
