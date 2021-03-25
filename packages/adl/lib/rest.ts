@@ -170,3 +170,33 @@ export function serviceVersion(program: Program, entity: Type, version: string) 
 export function getServiceVersion(): string {
   return _serviceVersion ? _serviceVersion.version : "0000-00-00";
 }
+
+const producesTypes = new Map<Type, string[]>();
+
+export function produces(program: Program, entity: Type, ...contentTypes: string[]) {
+  if (entity.kind !== "Namespace") {
+    throw new Error("The @produces decorator can only be applied to namespaces.");
+  }
+
+  const values = getProduces(entity);
+  producesTypes.set(entity, values.concat(contentTypes));
+}
+
+export function getProduces(entity: Type): string[] {
+  return producesTypes.get(entity) || [];
+}
+
+const consumesTypes = new Map<Type, string[]>();
+
+export function consumes(program: Program, entity: Type, ...contentTypes: string[]) {
+  if (entity.kind !== "Namespace") {
+    throw new Error("The @consumes decorator can only be applied to namespaces.");
+  }
+
+  const values = getConsumes(entity);
+  consumesTypes.set(entity, values.concat(contentTypes));
+}
+
+export function getConsumes(entity: Type): string[] {
+  return consumesTypes.get(entity) || [];
+}
