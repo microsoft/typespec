@@ -76,14 +76,23 @@ export class MultiKeyMap<T> {
   }
 }
 
+interface PendingModelInfo {
+  id: IdentifierNode;
+  type: ModelType;
+}
+
 export function createChecker(program: Program) {
   let templateInstantiation: Array<Type> = [];
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
 
-  // for our first act, issue errors for duplicate symbols
+  // This variable holds on to the model type that is currently
+  // being instantiated in checkModelStatement so that it is
+  // possible to have recursive type references in properties.
+  let pendingModelType: PendingModelInfo | undefined = undefined;
 
+  // for our first act, issue errors for duplicate symbols
   reportDuplicateSymbols(program.globalNamespace.exports!);
   for (const file of program.sourceFiles) {
     for (const ns of file.namespaces) {
@@ -207,6 +216,8 @@ export function createChecker(program: Program) {
 
         if (symbolLinks.declaredType) {
           return symbolLinks.declaredType;
+        } else if (pendingModelType && pendingModelType.id.sv === sym.node.id.sv) {
+          return pendingModelType.type;
         }
 
         return checkModelStatement(sym.node);
@@ -550,15 +561,24 @@ export function createChecker(program: Program) {
     }
 
     const baseModels = checkClassHeritage(node.heritage);
-    const properties = checkModelProperties(node);
     const type: ModelType = {
       kind: "Model",
       name: node.id.sv,
       node: node,
-      properties,
+      properties: new Map<string, ModelTypeProperty>(),
       baseModels: baseModels,
       namespace: getParentNamespaceType(node),
     };
+
+    // Hold on to the model type that's being defined so that it
+    // can be referenced
+    pendingModelType = {
+      id: node.id,
+      type,
+    };
+
+    // Evaluate the properties after
+    type.properties = checkModelProperties(node);
 
     if (
       (instantiatingThisTemplate &&
@@ -572,6 +592,9 @@ export function createChecker(program: Program) {
       links.declaredType = type;
       links.instantiations = new MultiKeyMap();
     }
+
+    // The model is fully created now
+    pendingModelType = undefined;
 
     return type;
   }
