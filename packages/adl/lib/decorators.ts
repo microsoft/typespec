@@ -49,6 +49,24 @@ export function getIntrinsicType(target: Type | undefined): string | undefined {
   return undefined;
 }
 
+const numericTypes = new Set<string>();
+
+export function numeric(program: Program, target: Type) {
+  if (!isIntrinsic(target)) {
+    throw new Error("Cannot apply @numeric decorator to non-intrinsic type.");
+  }
+  if (target.kind === "Model") {
+    numericTypes.add(target.name);
+  } else {
+    throw new Error("Cannot apply @numeric decorator to non-model type.");
+  }
+}
+
+export function isNumericType(target: Type): boolean {
+  const intrinsicType = getIntrinsicType(target);
+  return intrinsicType !== undefined && numericTypes.has(intrinsicType);
+}
+
 // -- @format decorator ---------------------
 
 const formatValues = new Map<Type, string>();
@@ -115,13 +133,6 @@ export function getMaxLength(target: Type): number | undefined {
 // -- @minValue decorator ---------------------
 
 const minValues = new Map<Type, number>();
-
-export function isNumericType(target: Type): boolean {
-  const intrinsicType = getIntrinsicType(target);
-  return (
-    intrinsicType !== undefined && ["int32", "int64", "float32", "float64"].includes(intrinsicType)
-  );
-}
 
 export function minValue(program: Program, target: Type, minValue: number) {
   if (target.kind === "Model" || target.kind === "ModelProperty") {
