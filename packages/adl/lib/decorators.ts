@@ -112,6 +112,55 @@ export function getMaxLength(target: Type): number | undefined {
   return maxLengthValues.get(target);
 }
 
+// -- @minValue decorator ---------------------
+
+const minValues = new Map<Type, number>();
+
+export function isNumericType(target: Type): boolean {
+  const intrinsicType = getIntrinsicType(target);
+  return (
+    intrinsicType !== undefined && ["int32", "int64", "float32", "float64"].includes(intrinsicType)
+  );
+}
+
+export function minValue(program: Program, target: Type, minValue: number) {
+  if (target.kind === "Model" || target.kind === "ModelProperty") {
+    // Is it ultimately a numeric type?
+    if (isNumericType(target)) {
+      minValues.set(target, minValue);
+    } else {
+      throw new Error("Cannot apply @minValue to a non-numeric type");
+    }
+  } else {
+    throw new Error("Cannot apply @minValue to anything that isn't a Model or ModelProperty");
+  }
+}
+
+export function getMinValue(target: Type): number | undefined {
+  return minValues.get(target);
+}
+
+// -- @maxValue decorator ---------------------
+
+const maxValues = new Map<Type, number>();
+
+export function maxValue(program: Program, target: Type, maxValue: number) {
+  if (target.kind === "Model" || target.kind === "ModelProperty") {
+    // Is it ultimately a numeric type?
+    if (isNumericType(target)) {
+      maxValues.set(target, maxValue);
+    } else {
+      throw new Error("Cannot apply @maxValue to a non-numeric type");
+    }
+  } else {
+    throw new Error("Cannot apply @maxValue to anything that isn't a Model or ModelProperty");
+  }
+}
+
+export function getMaxValue(target: Type): number | undefined {
+  return maxValues.get(target);
+}
+
 // -- @secret decorator ---------------------
 
 const secretTypes = new Map<Type, boolean>();
