@@ -125,3 +125,48 @@ export function _delete(program: Program, entity: Type, subPath?: string) {
     subPath,
   });
 }
+
+// -- Service-level Metadata
+
+let _serviceTitle: { type: Type; title: string } | undefined = undefined;
+
+export function serviceTitle(program: Program, entity: Type, title: string) {
+  if (_serviceTitle && _serviceTitle.type !== entity) {
+    throw new Error("Service title can only be set once per ADL document.");
+  }
+
+  if (entity.kind !== "Namespace") {
+    throw new Error("The @serviceTitle decorator can only be applied to namespaces.");
+  }
+
+  _serviceTitle = {
+    type: entity,
+    title,
+  };
+}
+
+export function getServiceTitle(): string {
+  return _serviceTitle ? _serviceTitle.title : "(title)";
+}
+
+let _serviceVersion: { type: Type; version: string } | undefined = undefined;
+
+export function serviceVersion(program: Program, entity: Type, version: string) {
+  // TODO: This will need to change once we support multiple service versions
+  if (_serviceVersion && _serviceVersion.type !== entity) {
+    throw new Error("Service version can only be set once per ADL document.");
+  }
+
+  if (entity.kind !== "Namespace") {
+    throw new Error("The @serviceVersion decorator can only be applied to namespaces.");
+  }
+
+  _serviceVersion = {
+    type: entity,
+    version,
+  };
+}
+
+export function getServiceVersion(): string {
+  return _serviceVersion ? _serviceVersion.version : "0000-00-00";
+}
