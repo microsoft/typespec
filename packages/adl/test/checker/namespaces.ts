@@ -142,4 +142,19 @@ describe("blockless namespaces", () => {
     };
     strictEqual(Z.properties.size, 2, "has two properties");
   });
+
+  it("does lookup correctly", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      namespace Repro;
+      model Yo {
+      }
+      model Hey {
+        wat: Yo;
+      }
+      `
+    );
+    await testHost.compile("./");
+  });
 });

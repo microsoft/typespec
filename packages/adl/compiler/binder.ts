@@ -1,6 +1,6 @@
 import { createDiagnostic, Diagnostic, DiagnosticError, formatDiagnostic } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
-import { ADLSourceFile, Program } from "./program.js";
+import { Program } from "./program.js";
 import {
   NamespaceStatementNode,
   ModelStatementNode,
@@ -13,6 +13,7 @@ import {
   OperationStatementNode,
   ScopeNode,
   IdentifierNode,
+  ADLScriptNode,
 } from "./types.js";
 import { reportDuplicateSymbols } from "./util.js";
 
@@ -46,11 +47,11 @@ export interface TypeSymbol {
 }
 
 export interface Binder {
-  bindSourceFile(program: Program, sourceFile: ADLSourceFile): void;
+  bindSourceFile(program: Program, sourceFile: ADLScriptNode): void;
 }
 
 export function createBinder(): Binder {
-  let currentFile: ADLSourceFile;
+  let currentFile: ADLScriptNode;
   let parentNode: Node;
 
   let currentNamespace: NamespaceStatementNode;
@@ -61,11 +62,13 @@ export function createBinder(): Binder {
     bindSourceFile,
   };
 
-  function bindSourceFile(program: Program, sourceFile: ADLSourceFile) {
+  function bindSourceFile(program: Program, sourceFile: ADLScriptNode) {
     currentFile = sourceFile;
     currentNamespace = scope = program.globalNamespace;
+    currentFile.locals = new SymbolTable();
+    currentFile.exports = program.globalNamespace.exports!;
 
-    bindNode(sourceFile.ast);
+    bindNode(sourceFile);
   }
 
   function bindNode(node: Node) {
@@ -157,6 +160,8 @@ export function createBinder(): Binder {
 
     if (!statement.statements) {
       scope = currentNamespace = statement;
+      currentFile.locals = statement.locals!;
+      currentFile.exports = statement.exports!;
     }
   }
 

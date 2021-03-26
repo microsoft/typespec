@@ -1,6 +1,6 @@
 import { SymbolTable } from "./binder.js";
 import { throwDiagnostic } from "./diagnostics.js";
-import { ADLSourceFile, Program } from "./program.js";
+import { Program } from "./program.js";
 import {
   ArrayExpressionNode,
   BooleanLiteralNode,
@@ -37,6 +37,7 @@ import {
   SymbolLinks,
   MemberExpressionNode,
   Sym,
+  ADLScriptNode,
 } from "./types.js";
 import { reportDuplicateSymbols } from "./util.js";
 
@@ -459,6 +460,7 @@ export function createChecker(program: Program) {
   function resolveIdentifier(node: IdentifierNode) {
     let scope: Node | undefined = node.parent;
     let binding;
+    let containerSourceFile: ADLScriptNode;
 
     while (scope) {
       if ("locals" in scope) {
@@ -533,8 +535,8 @@ export function createChecker(program: Program) {
     }
   }
 
-  function checkSourceFile(file: ADLSourceFile) {
-    for (const statement of file.ast.statements) {
+  function checkSourceFile(file: ADLScriptNode) {
+    for (const statement of file.statements) {
       getTypeForNode(statement);
     }
   }

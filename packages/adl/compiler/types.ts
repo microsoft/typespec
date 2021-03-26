@@ -178,7 +178,12 @@ export type Node =
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
   statements: Array<Statement>;
+  models: Array<ModelType>;
   file: SourceFile;
+  interfaces: Array<NamespaceType>;
+  locals?: SymbolTable;
+  exports?: SymbolTable;
+  namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
 }
 
 export type Statement =

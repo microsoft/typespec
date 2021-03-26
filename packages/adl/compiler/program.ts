@@ -25,7 +25,7 @@ import { createSourceFile, throwDiagnostic } from "./diagnostics.js";
 export interface Program {
   compilerOptions: CompilerOptions;
   globalNamespace: NamespaceStatementNode;
-  sourceFiles: Array<ADLSourceFile>;
+  sourceFiles: Array<ADLScriptNode>;
   typeCache: MultiKeyMap<Type>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   checker?: ReturnType<typeof createChecker>;
@@ -34,13 +34,6 @@ export interface Program {
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
   executeDecorator(node: DecoratorExpressionNode, program: Program, type: Type): void;
-}
-
-export interface ADLSourceFile extends SourceFile {
-  ast: ADLScriptNode;
-  models: Array<ModelType>;
-  interfaces: Array<NamespaceType>;
-  namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
 }
 
 export async function createProgram(
@@ -209,14 +202,7 @@ export async function createProgram(
   function evalAdlScript(adlScript: string, filePath?: string): void {
     filePath = filePath ?? `__virtual_file_${++virtualFileCount}`;
     const unparsedFile = createSourceFile(adlScript, filePath);
-    const ast = parse(unparsedFile);
-    const sourceFile: ADLSourceFile = {
-      ...unparsedFile,
-      ast,
-      interfaces: [],
-      models: [],
-      namespaces: [],
-    };
+    const sourceFile = parse(unparsedFile);
 
     program.sourceFiles.push(sourceFile);
     binder.bindSourceFile(program, sourceFile);

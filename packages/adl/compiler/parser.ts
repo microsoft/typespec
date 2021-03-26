@@ -12,10 +12,13 @@ export function parse(code: string | Types.SourceFile) {
   function parseADLScript(): Types.ADLScriptNode {
     const script: Types.ADLScriptNode = {
       kind: Types.SyntaxKind.ADLScript,
-      file: scanner.file,
       statements: [],
       pos: 0,
       end: 0,
+      file: scanner.file,
+      interfaces: [],
+      models: [],
+      namespaces: [],
     };
 
     let seenBlocklessNs = false;
