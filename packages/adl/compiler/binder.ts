@@ -165,8 +165,10 @@ export function createBinder(): Binder {
 
     currentFile.namespaces.push(statement);
 
-    if (!statement.statements) {
+    if (statement.statements === undefined) {
       currentFile.exports = statement.exports!;
+      scope = currentNamespace = statement;
+    } else if (!Array.isArray(statement.statements)) {
       scope = currentNamespace = statement;
     }
   }
@@ -201,7 +203,7 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.ModelStatement:
       return true;
     case SyntaxKind.NamespaceStatement:
-      return true;
+      return Array.isArray(node.statements);
     case SyntaxKind.ADLScript:
       return true;
     default:

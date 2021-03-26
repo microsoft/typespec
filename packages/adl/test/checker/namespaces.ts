@@ -57,7 +57,7 @@ describe("namespaces with blocks", () => {
     strictEqual(Z.properties.size, 2, "has two properties");
   });
 
-  it.only("merges like namespaces across files", async () => {
+  it("merges like namespaces across files", async () => {
     testHost.addAdlFile(
       "a.adl",
       `
@@ -168,7 +168,12 @@ describe("blockless namespaces", () => {
       }
       `
     );
-    await testHost.compile("./");
+    try {
+      await testHost.compile("./");
+    } catch (e) {
+      console.log(e.diagnostics);
+      throw e;
+    }
   });
 
   it("binds correctly", async () => {
@@ -219,5 +224,33 @@ describe("blockless namespaces", () => {
 
     ok(M.namespace);
     strictEqual(M.namespace, N);
+  });
+
+  it("works with nested blockless and blockfull namespaces", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      @test
+      namespace N.M;
+
+      @test
+      namespace O {
+        model A { }
+      }
+      `
+    );
+    testHost.addAdlFile(
+      "b.adl",
+      `
+      model X { a: N.M.O.A }
+      `
+    );
+    const { M, O } = (await testHost.compile("/")) as {
+      M: NamespaceType;
+      O: NamespaceType;
+    };
+
+    ok(M.namespace);
+    strictEqual(O.namespace, M);
   });
 });
