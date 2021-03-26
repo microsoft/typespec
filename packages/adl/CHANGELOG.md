@@ -1,6 +1,29 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Tue, 23 Mar 2021 01:06:29 GMT and should not be manually modified.
+This log was last generated on Fri, 26 Mar 2021 17:06:33 GMT and should not be manually modified.
+
+## 0.6.0
+Fri, 26 Mar 2021 17:06:33 GMT
+
+### Minor changes
+
+- Implement namespace merging, blockless namespaces, and dotted namespaces
+
+### Patches
+
+- Emit `readOnly: true` for model properties marked with `@visibility("read")`
+- The `visibility` decorator now accepts multiple values; the Swagger emitter will write these out as an `x-ms-mutability` field.
+- Adding sample generated controller for _____ service
+- Add back post operation
+- Add standard ARM operation and error model types
+- Fix id lookup bug
+- Initial check-in of adl spec and generated swagger for _____
+- Update _____ spec with user comments.
+- Fixing formatting to match repo prettier config
+- Add `@minValue` and `@maxValue` decorators for specifying the value range of numeric types
+- Allow the use of recursive type references in model definitions
+- Enable metadata and extensions to be applied to $ref'd schemas
+- Add missing metadata for ARM library types
 
 ## 0.5.0
 Tue, 23 Mar 2021 01:06:29 GMT

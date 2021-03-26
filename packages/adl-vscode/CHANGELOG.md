@@ -1,6 +1,13 @@
 # Change Log - adl-vscode
 
-This log was last generated on Wed, 24 Mar 2021 18:40:21 GMT and should not be manually modified.
+This log was last generated on Fri, 26 Mar 2021 17:06:33 GMT and should not be manually modified.
+
+## 0.4.3
+Fri, 26 Mar 2021 17:06:33 GMT
+
+### Patches
+
+- Fix commenting and indenting behaviors
 
 ## 0.4.2
 Wed, 24 Mar 2021 18:40:21 GMT

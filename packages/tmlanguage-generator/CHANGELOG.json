@@ -2,6 +2,21 @@
   "name": "@azure-tools/tmlanguage-generator",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@azure-tools/tmlanguage-generator_v0.1.2",
+      "date": "Fri, 26 Mar 2021 17:06:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix package name in package.json and changelog"
+          },
+          {
+            "comment": "Fix hard coding of adl and wasm file resolution"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@azure-tools/tmlanguage-generator_v0.1.1",
       "date": "Wed, 24 Mar 2021 18:40:21 GMT",
