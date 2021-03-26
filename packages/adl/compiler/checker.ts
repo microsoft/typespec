@@ -124,6 +124,7 @@ export function createChecker(program: Program) {
     checkProgram,
     getLiteralType,
     getTypeName,
+    getNamespaceString,
     checkOperation,
   };
 
