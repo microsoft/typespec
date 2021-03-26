@@ -478,31 +478,36 @@ export function createChecker(program: Program) {
   function resolveIdentifier(node: IdentifierNode) {
     let scope: Node | undefined = node.parent;
     let binding;
-    let containerSourceFile: ADLScriptNode;
 
-    while (scope) {
+    while (scope && scope.kind !== SyntaxKind.ADLScript) {
       if ("exports" in scope) {
         binding = resolveIdentifierInTable(node, scope.exports!);
-        if (binding) break;
+        if (binding) return binding;
       }
 
       if ("locals" in scope) {
         binding = resolveIdentifierInTable(node, scope.locals!);
-        if (binding) break;
+        if (binding) return binding;
       }
 
       scope = scope.parent;
     }
 
-    if (!binding) {
-      binding = resolveIdentifierInTable(node, program.globalNamespace.exports!);
+    if (!binding && scope && scope.kind === SyntaxKind.ADLScript) {
+      // check any blockless namespace decls and global scope
+      for (const ns of scope.inScopeNamespaces) {
+        binding = resolveIdentifierInTable(node, ns.exports!);
+        if (binding) return binding;
+      }
+      
+      // check "global scope" usings
+      binding = resolveIdentifierInTable(node, scope.locals);
+      if (binding) return binding;
     }
 
-    if (!binding) {
-      throwDiagnostic("Unknown identifier " + node.sv, node);
-    }
+    
+    throwDiagnostic("Unknown identifier " + node.sv, node);
 
-    return binding;
   }
 
   function resolveTypeReference(node: ReferenceExpression): DecoratorSymbol | TypeSymbol {

@@ -191,9 +191,9 @@ export interface ADLScriptNode extends BaseNode {
   models: Array<ModelType>;
   file: SourceFile;
   interfaces: Array<NamespaceType>;
-  locals?: SymbolTable;
-  exports?: SymbolTable;
+  inScopeNamespaces: NamespaceStatementNode[]; // namespaces that declarations in this file belong to
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
+  locals: SymbolTable;
   usings: UsingStatementNode[];
 }
 

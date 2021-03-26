@@ -114,6 +114,42 @@ describe("namespaces with blocks", () => {
     };
     strictEqual(Z.properties.size, 2, "has two properties");
   });
+
+  it("can see things in outer scope same file", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      model A { }
+      namespace N { model B extends A { } }
+      `
+    );
+    await testHost.compile("./");
+  });
+
+  it("can see things in outer scope cross file", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      model A { }
+      `
+    );
+    testHost.addAdlFile(
+      "b.adl",
+      `
+      model B extends A { }
+      `
+    );
+    testHost.addAdlFile(
+      "c.adl",
+      `
+      model C { }
+      namespace foo {
+        op foo(a: A, b: B): C;
+      }
+      `
+    );
+    await testHost.compile("./");
+  })
 });
 
 describe("blockless namespaces", () => {
@@ -164,6 +200,36 @@ describe("blockless namespaces", () => {
       model Yo {
       }
       model Hey {
+        wat: Yo;
+      }
+      `
+    );
+    try {
+      await testHost.compile("./");
+    } catch (e) {
+      console.log(e.diagnostics);
+      throw e;
+    }
+  });
+
+  it("does lookup correctly with nested namespaces", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      namespace Repro;
+      model Yo {
+      }
+      model Hey {
+        wat: Yo;
+      }
+      `
+    );
+    testHost.addAdlFile(
+      "b.adl",
+      `
+      namespace Repro.Uhoh;
+      model SayYo {
+        yo: Hey;
         wat: Yo;
       }
       `
@@ -251,6 +317,7 @@ describe("blockless namespaces", () => {
     };
 
     ok(M.namespace);
+    ok(O.namespace);
     strictEqual(O.namespace, M);
   });
 });
