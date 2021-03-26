@@ -1,6 +1,6 @@
 import { loadWASM, OnigRegExp } from "onigasm";
 import { readFile } from "fs/promises";
-import { resolve } from "path";
+import { dirname, resolve } from "path";
 
 export const schema =
   "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json";
@@ -65,8 +65,9 @@ export interface Grammar<Scope extends string = string> extends RulePatterns<Sco
 let initialized = false;
 async function initialize() {
   if (!initialized) {
-    const path = resolve(__dirname, "../node_modules/onigasm/lib/onigasm.wasm");
-    const wasm = await readFile(path);
+    const onigasmPath = require.resolve("onigasm");
+    const wasmPath = resolve(dirname(onigasmPath), "onigasm.wasm");
+    const wasm = await readFile(wasmPath);
     await loadWASM(wasm.buffer);
     initialized = true;
   }
@@ -112,7 +113,7 @@ function processGrammar(grammar: Grammar): any {
         case "scope":
           // tmlanguage uses "name" confusingly for scope. We avoid "name" which
           // can be confused with the repository key.
-          output.name = value === meta ? `meta.${node.key}.adl` : value;
+          output.name = value === meta ? `meta.${node.key}.${grammar.name.toLowerCase()}` : value;
           break;
         case "begin":
         case "end":
