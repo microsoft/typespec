@@ -39,29 +39,36 @@ describe("namespaces with blocks", () => {
     testHost.addAdlFile(
       "a.adl",
       `
-      namespace N { model X { x: string } }
-      namespace N { model Y { y: string } }
+      @test
+      namespace N { @test model X { x: string } }
+      namespace N { @test model Y { y: string } }
       namespace N { @test model Z { ... X, ... Y } }
       `
     );
-    const { Z } = (await testHost.compile("./")) as {
+    const { N, X, Y, Z } = (await testHost.compile("./")) as {
+      N: NamespaceType;
+      X: ModelType;
+      Y: ModelType;
       Z: ModelType;
     };
-
+    strictEqual(X.namespace, N);
+    strictEqual(Y.namespace, N);
+    strictEqual(Z.namespace, N);
     strictEqual(Z.properties.size, 2, "has two properties");
   });
 
-  it("merges like namespaces across files", async () => {
+  it.only("merges like namespaces across files", async () => {
     testHost.addAdlFile(
       "a.adl",
       `
-      namespace N { model X { x: string } }
+      @test
+      namespace N { @test model X { x: string } }
       `
     );
     testHost.addAdlFile(
       "b.adl",
       `
-      namespace N { model Y { y: int32 } }
+      namespace N { @test model Y { y: int32 } }
       `
     );
     testHost.addAdlFile(
@@ -70,9 +77,15 @@ describe("namespaces with blocks", () => {
       namespace N { @test model Z { ... X, ... Y } }
       `
     );
-    const { Z } = (await testHost.compile("./")) as {
+    const { N, X, Y, Z } = (await testHost.compile("./")) as {
+      N: NamespaceType;
+      X: ModelType;
+      Y: ModelType;
       Z: ModelType;
     };
+    strictEqual(X.namespace, N, "X namespace");
+    strictEqual(Y.namespace, N, "Y namespace");
+    strictEqual(Z.namespace, N, "Z namespace");
     strictEqual(Z.properties.size, 2, "has two properties");
   });
 
@@ -178,5 +191,33 @@ describe("blockless namespaces", () => {
       console.log(e.diagnostics);
       throw e;
     }
+  });
+
+  it("works with blockful namespaces", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      @test
+      namespace N;
+
+      @test
+      namespace M {
+        model A { }
+      }
+      `
+    );
+    testHost.addAdlFile(
+      "b.adl",
+      `
+      model X { a: N.M.A }
+      `
+    );
+    const { N, M } = (await testHost.compile("/")) as {
+      N: NamespaceType;
+      M: NamespaceType;
+    };
+
+    ok(M.namespace);
+    strictEqual(M.namespace, N);
   });
 });
