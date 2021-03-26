@@ -2,6 +2,23 @@
   "name": "adl-vscode",
   "entries": [
     {
+      "version": "0.4.3",
+      "tag": "adl-vscode_v0.4.3",
+      "date": "Fri, 26 Mar 2021 17:06:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix commenting and indenting behaviors"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@azure-tools/tmlanguage-generator\" from `0.1.1` to `0.1.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.2",
       "tag": "adl-vscode_v0.4.2",
       "date": "Wed, 24 Mar 2021 18:40:21 GMT",
