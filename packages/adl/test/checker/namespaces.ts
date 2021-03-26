@@ -157,4 +157,26 @@ describe("blockless namespaces", () => {
     );
     await testHost.compile("./");
   });
+
+  it("binds correctly", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      namespace N.M;
+      model A { }
+      `
+    );
+    testHost.addAdlFile(
+      "b.adl",
+      `
+      model X { a: N.M.A }
+      `
+    );
+    try {
+      await testHost.compile("/");
+    } catch (e) {
+      console.log(e.diagnostics);
+      throw e;
+    }
+  });
 });

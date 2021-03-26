@@ -157,6 +157,10 @@ describe("syntax", () => {
     ]);
   });
 
+  describe("using statements", () => {
+    parseEach(["using A;", "using A.B;", "namespace Foo { using A; }"]);
+  });
+
   describe("multiple statements", () => {
     parseEach([
       `

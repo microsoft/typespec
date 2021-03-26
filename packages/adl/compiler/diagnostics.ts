@@ -61,11 +61,7 @@ export function createDiagnostic(
     location = getSourceLocation(target);
   } catch (err) {
     locationError = err;
-    location = {
-      file: createSourceFile("", "<unknown location>"),
-      pos: 0,
-      end: 0,
-    };
+    location = createDummySourceLocation();
   }
 
   if (typeof message === "string") {
@@ -197,15 +193,22 @@ export function getSourceLocation(target: DiagnosticTarget): SourceLocation {
   }
 
   if (target.kind === "decorator") {
-    return {
-      // We currently report all decorators at line 1 of defining .js path.
-      file: createSourceFile("", target.path),
-      pos: 0,
-      end: 0,
-    };
+    return createDummySourceLocation(target.path);
   }
 
-  return getSourceLocationOfNode("node" in target ? target.node : target);
+  const node = "node" in target ? target.node! : target;
+  if (node.kind === "Intrinsic") {
+    return createDummySourceLocation();
+  }
+  return getSourceLocationOfNode(node);
+}
+
+function createDummySourceLocation(loc = "<unknown location>") {
+  return {
+    file: createSourceFile("", loc),
+    pos: 0,
+    end: 0,
+  };
 }
 
 function getSourceLocationOfNode(node: Node): SourceLocation {

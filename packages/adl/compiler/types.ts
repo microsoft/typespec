@@ -6,7 +6,7 @@ import { MultiKeyMap } from "./checker";
  */
 export interface BaseType {
   kind: string;
-  node: Node;
+  node?: Node;
   instantiationParameters?: Array<Type>;
 }
 
@@ -21,11 +21,18 @@ export type Type =
   | BooleanLiteralType
   | ArrayType
   | TupleType
-  | UnionType;
+  | UnionType
+  | IntrinsicType;
+
+export interface IntrinsicType extends BaseType {
+  kind: "Intrinsic";
+  name: string;
+}
 
 export interface ModelType extends BaseType {
   kind: "Model";
   name: string;
+  node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
   baseModels: Array<ModelType>;
@@ -98,11 +105,13 @@ export interface TupleType extends BaseType {
 
 export interface UnionType extends BaseType {
   kind: "Union";
+  node: UnionExpressionNode;
   options: Array<Type>;
 }
 
 export interface TemplateParameterType extends BaseType {
   kind: "TemplateParameter";
+  node: TemplateParameterDeclarationNode;
 }
 
 // trying to avoid masking built-in Symbol
@@ -142,6 +151,7 @@ export enum SyntaxKind {
   DecoratorExpression,
   MemberExpression,
   NamespaceStatement,
+  UsingStatement,
   OperationStatement,
   ModelStatement,
   ModelExpression,
@@ -184,12 +194,14 @@ export interface ADLScriptNode extends BaseNode {
   locals?: SymbolTable;
   exports?: SymbolTable;
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
+  usings: UsingStatementNode[];
 }
 
 export type Statement =
   | ImportStatementNode
   | ModelStatementNode
   | NamespaceStatementNode
+  | UsingStatementNode
   | OperationStatementNode;
 
 export interface DeclarationNode {
@@ -203,7 +215,7 @@ export type Declaration =
   | OperationStatementNode
   | TemplateParameterDeclarationNode;
 
-export type ScopeNode = NamespaceStatementNode | ModelStatementNode;
+export type ScopeNode = NamespaceStatementNode | ModelStatementNode | ADLScriptNode;
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
@@ -255,6 +267,11 @@ export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   locals?: SymbolTable;
   exports?: SymbolTable;
   decorators: Array<DecoratorExpressionNode>;
+}
+
+export interface UsingStatementNode extends BaseNode {
+  kind: SyntaxKind.UsingStatement;
+  name: IdentifierNode | MemberExpressionNode;
 }
 
 export interface OperationStatementNode extends BaseNode, DeclarationNode {

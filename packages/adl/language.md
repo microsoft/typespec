@@ -24,6 +24,7 @@
 &emsp;&emsp;&emsp;<a name="Keyword-lpev-y-g"></a>`` namespace ``  
 &emsp;&emsp;&emsp;<a name="Keyword-ytodrzn0"></a>`` op ``  
 &emsp;&emsp;&emsp;<a name="Keyword-rmwjtwx9"></a>`` extends ``  
+&emsp;&emsp;&emsp;<a name="Keyword-8d2nu2lj"></a>`` using ``  
   
 &emsp;&emsp;<a name="Identifier"></a>*Identifier* **:**  
 &emsp;&emsp;&emsp;<a name="Identifier-exwdmcdi"></a>*[IdentifierName](#IdentifierName)* **but not** *[Keyword](#Keyword)*  
@@ -174,11 +175,11 @@
 &emsp;&emsp;&emsp;<a name="Statement-ngbc4m7o"></a>*[ModelStatement](#ModelStatement)*  
 &emsp;&emsp;&emsp;<a name="Statement-_ljtj5og"></a>*[NamespaceStatement](#NamespaceStatement)*  
 &emsp;&emsp;&emsp;<a name="Statement-qlyu8ssa"></a>*[OperationStatement](#OperationStatement)*  
+&emsp;&emsp;&emsp;<a name="Statement-rmuscggd"></a>*[UsingStatement](#UsingStatement)*  
 &emsp;&emsp;&emsp;<a name="Statement-sg2sawim"></a>`` ; ``  
   
-&emsp;&emsp;<a name="NamedImports"></a>*NamedImports* **:**  
-&emsp;&emsp;&emsp;<a name="NamedImports-bras6mo_"></a>*[Identifier](#Identifier)*  
-&emsp;&emsp;&emsp;<a name="NamedImports-arox3l8x"></a>*[NamedImports](#NamedImports)*&emsp;`` , ``&emsp;*[Identifier](#Identifier)*  
+&emsp;&emsp;<a name="UsingStatement"></a>*UsingStatement* **:**  
+&emsp;&emsp;&emsp;<a name="UsingStatement-nfxtjnnc"></a>`` using ``&emsp;*[IdentifierOrMemberExpression](#IdentifierOrMemberExpression)*&emsp;`` ; ``  
   
 &emsp;&emsp;<a name="ModelStatement"></a>*ModelStatement* **:**  
 &emsp;&emsp;&emsp;<a name="ModelStatement-w3a1y-ib"></a>*[DecoratorList](#DecoratorList)*<sub>opt</sub>&emsp;`` model ``&emsp;*[Identifier](#Identifier)*&emsp;*[TemplateParameters](#TemplateParameters)*<sub>opt</sub>&emsp;*[ModelHeritage](#ModelHeritage)*<sub>opt</sub>&emsp;`` { ``&emsp;*[ModelBody](#ModelBody)*<sub>opt</sub>&emsp;`` } ``  

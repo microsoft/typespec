@@ -14,6 +14,7 @@ import {
   ScopeNode,
   IdentifierNode,
   ADLScriptNode,
+  UsingStatementNode,
 } from "./types.js";
 import { reportDuplicateSymbols } from "./util.js";
 
@@ -54,7 +55,7 @@ export function createBinder(): Binder {
   let currentFile: ADLScriptNode;
   let parentNode: Node;
 
-  let currentNamespace: NamespaceStatementNode;
+  let currentNamespace: NamespaceStatementNode | ADLScriptNode;
 
   // Node where locals go.
   let scope: ScopeNode;
@@ -64,7 +65,7 @@ export function createBinder(): Binder {
 
   function bindSourceFile(program: Program, sourceFile: ADLScriptNode) {
     currentFile = sourceFile;
-    currentNamespace = scope = program.globalNamespace;
+    currentNamespace = scope = currentFile;
     currentFile.locals = new SymbolTable();
     currentFile.exports = program.globalNamespace.exports!;
 
@@ -88,6 +89,10 @@ export function createBinder(): Binder {
         break;
       case SyntaxKind.TemplateParameterDeclaration:
         bindTemplateParameterDeclaration(node);
+        break;
+      case SyntaxKind.UsingStatement:
+        bindUsingStatement(node);
+        break;
     }
 
     const prevParent = parentNode;
@@ -123,6 +128,7 @@ export function createBinder(): Binder {
   function getContainingSymbolTable() {
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
+      case SyntaxKind.ADLScript:
         return scope.exports!;
       default:
         return scope.locals!;
@@ -144,7 +150,8 @@ export function createBinder(): Binder {
     const existingBinding = (scope as NamespaceStatementNode).exports!.get(statement.name.sv);
     if (existingBinding && existingBinding.kind === "type") {
       statement.symbol = existingBinding;
-      statement.locals = (existingBinding.node as NamespaceStatementNode).locals;
+      // locals are never shared.
+      statement.locals = new SymbolTable();
       statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
     } else {
       declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
@@ -159,10 +166,12 @@ export function createBinder(): Binder {
     currentFile.namespaces.push(statement);
 
     if (!statement.statements) {
-      scope = currentNamespace = statement;
-      currentFile.locals = statement.locals!;
       currentFile.exports = statement.exports!;
     }
+  }
+
+  function bindUsingStatement(statement: UsingStatementNode) {
+    currentFile.usings.push(statement);
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {
@@ -191,6 +200,8 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.ModelStatement:
       return true;
     case SyntaxKind.NamespaceStatement:
+      return true;
+    case SyntaxKind.ADLScript:
       return true;
     default:
       return false;

@@ -1,5 +1,4 @@
-import { checkServerIdentity } from "tls";
-import { DiagnosticError, throwDiagnostic } from "./diagnostics.js";
+import { throwDiagnostic } from "./diagnostics.js";
 import { createScanner, Token } from "./scanner.js";
 import * as Types from "./types.js";
 
@@ -19,6 +18,7 @@ export function parse(code: string | Types.SourceFile) {
       interfaces: [],
       models: [],
       namespaces: [],
+      usings: [],
     };
 
     let seenBlocklessNs = false;
@@ -61,6 +61,11 @@ export function parse(code: string | Types.SourceFile) {
           return parseNamespaceStatement(decorators);
         case Token.OpKeyword:
           return parseOperationStatement(decorators);
+        case Token.UsingKeyword:
+          if (decorators.length > 0) {
+            error("Cannot decorate using statements");
+          }
+          return parseUsingStatement();
         case Token.Semicolon:
           if (decorators.length > 0) {
             error("Cannot decorate an empty statement");
@@ -92,6 +97,11 @@ export function parse(code: string | Types.SourceFile) {
           return ns;
         case Token.OpKeyword:
           return parseOperationStatement(decorators);
+        case Token.UsingKeyword:
+          if (decorators.length > 0) {
+            error("Cannot decorate using statements");
+          }
+          return parseUsingStatement();
         case Token.Semicolon:
           if (decorators.length > 0) {
             error("Cannot decorate an empty statement");
@@ -169,6 +179,21 @@ export function parse(code: string | Types.SourceFile) {
     }
 
     return outerNs;
+  }
+
+  function parseUsingStatement(): Types.UsingStatementNode {
+    const pos = tokenPos();
+    parseExpected(Token.UsingKeyword);
+    const name = parseIdentifierOrMemberExpression();
+    parseExpected(Token.Semicolon);
+
+    return finishNode(
+      {
+        kind: Types.SyntaxKind.UsingStatement,
+        name,
+      },
+      pos
+    );
   }
 
   function parseOperationStatement(
@@ -810,6 +835,8 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
         Array.isArray(node.statements)
         ? visitEach(cb, node.statements as Types.Statement[])
         : visitNode(cb, node.statements);
+    case Types.SyntaxKind.UsingStatement:
+      return visitNode(cb, node.name);
     case Types.SyntaxKind.IntersectionExpression:
       return visitEach(cb, node.options);
     case Types.SyntaxKind.MemberExpression:
@@ -842,7 +869,13 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
     case Types.SyntaxKind.NumericLiteral:
     case Types.SyntaxKind.BooleanLiteral:
     case Types.SyntaxKind.Identifier:
+    case Types.SyntaxKind.TemplateParameterDeclaration:
+      return;
     default:
+      // Dummy const to ensure we handle all node types.
+      // If you get an error here, add a case for the new node type
+      // you added..
+      const assertNever: never = node;
       return;
   }
 }

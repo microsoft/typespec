@@ -38,6 +38,7 @@ import {
   MemberExpressionNode,
   Sym,
   ADLScriptNode,
+  IntrinsicType,
 } from "./types.js";
 import { reportDuplicateSymbols } from "./util.js";
 
@@ -87,16 +88,33 @@ export function createChecker(program: Program) {
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
+  const errorType: IntrinsicType = { kind: "Intrinsic", name: "ErrorType" };
 
   // This variable holds on to the model type that is currently
   // being instantiated in checkModelStatement so that it is
   // possible to have recursive type references in properties.
   let pendingModelType: PendingModelInfo | undefined = undefined;
 
-  // for our first act, issue errors for duplicate symbols
+  for (const file of program.sourceFiles) {
+    for (const using of file.usings) {
+      const parentNs = using.parent! as NamespaceStatementNode | ADLScriptNode;
+      const sym = resolveTypeReference(using.name);
+      if (sym.kind === "decorator") throwDiagnostic("Can't use a decorator", using);
+      if (sym.node.kind !== SyntaxKind.NamespaceStatement) {
+        throwDiagnostic("Using must refer to a namespace", using);
+      }
+
+      for (const [name, binding] of sym.node.exports!) {
+        parentNs.locals!.set(name, binding);
+      }
+    }
+  }
+
   reportDuplicateSymbols(program.globalNamespace.exports!);
   for (const file of program.sourceFiles) {
+    reportDuplicateSymbols(file.locals!);
     for (const ns of file.namespaces) {
+      reportDuplicateSymbols(ns.locals!);
       reportDuplicateSymbols(ns.exports!);
     }
   }
@@ -141,7 +159,7 @@ export function createChecker(program: Program) {
         return checkTemplateParameterDeclaration(node);
     }
 
-    throwDiagnostic("Cannot evaluate " + SyntaxKind[node.kind], node);
+    return errorType;
   }
 
   function getTypeName(type: Type): string {
@@ -463,13 +481,13 @@ export function createChecker(program: Program) {
     let containerSourceFile: ADLScriptNode;
 
     while (scope) {
-      if ("locals" in scope) {
-        binding = resolveIdentifierInTable(node, scope.locals!);
+      if ("exports" in scope) {
+        binding = resolveIdentifierInTable(node, scope.exports!);
         if (binding) break;
       }
 
-      if ("exports" in scope) {
-        binding = resolveIdentifierInTable(node, scope.exports!);
+      if ("locals" in scope) {
+        binding = resolveIdentifierInTable(node, scope.locals!);
         if (binding) break;
       }
 

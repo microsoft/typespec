@@ -27,6 +27,7 @@ Keyword :
     `namespace`
     `op`
     `extends`
+    `using`
 
 Identifier :
     IdentifierName but not Keyword
@@ -188,11 +189,11 @@ Statement :
     ModelStatement
     NamespaceStatement
     OperationStatement
+    UsingStatement
     `;`
 
-NamedImports : 
-    Identifier
-    NamedImports `,` Identifier
+UsingStatement :
+    `using` IdentifierOrMemberExpression `;`
 
 ModelStatement :
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
