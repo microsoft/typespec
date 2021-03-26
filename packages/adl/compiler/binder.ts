@@ -167,6 +167,7 @@ export function createBinder(): Binder {
 
     if (!statement.statements) {
       currentFile.exports = statement.exports!;
+      scope = currentNamespace = statement;
     }
   }
 
