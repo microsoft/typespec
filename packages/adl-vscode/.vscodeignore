@@ -5,7 +5,7 @@
 **/*
 
 # Then explicitly include what we want to ship in VSIX
-!dist/**/*.json
+!dist/**/*.tmLanguage
 !dist/**/*.js
 !dist/**/*.js.map
 !extension-shim.js

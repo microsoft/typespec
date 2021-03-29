@@ -320,9 +320,8 @@ const grammar: Grammar = {
 };
 
 async function main() {
-  const filePath = "./dist/adl.tmlanguage.json";
-  const json = await tm.emitJSON(grammar);
-  await fs.writeFile(filePath, json);
+  const plist = await tm.emitPList(grammar);
+  await fs.writeFile("./dist/adl.tmLanguage", plist);
 }
 
 main().catch((err) => {
