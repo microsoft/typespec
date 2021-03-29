@@ -21,7 +21,7 @@ export function parse(code: string | Types.SourceFile) {
       namespaces: [],
       usings: [],
       locals: new SymbolTable(),
-      inScopeNamespaces: []
+      inScopeNamespaces: [],
     };
 
     let seenBlocklessNs = false;

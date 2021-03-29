@@ -149,7 +149,7 @@ describe("namespaces with blocks", () => {
       `
     );
     await testHost.compile("./");
-  })
+  });
 });
 
 describe("blockless namespaces", () => {

@@ -111,7 +111,7 @@ export function createBinder(): Binder {
       visitChildren(node, bindNode);
 
       if (node.kind !== SyntaxKind.NamespaceStatement) {
-        reportDuplicateSymbols(node.locals!)
+        reportDuplicateSymbols(node.locals!);
       }
 
       scope = prevScope;

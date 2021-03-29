@@ -500,15 +500,13 @@ export function createChecker(program: Program) {
         binding = resolveIdentifierInTable(node, ns.exports!);
         if (binding) return binding;
       }
-      
+
       // check "global scope" usings
       binding = resolveIdentifierInTable(node, scope.locals);
       if (binding) return binding;
     }
 
-    
     throwDiagnostic("Unknown identifier " + node.sv, node);
-
   }
 
   function resolveTypeReference(node: ReferenceExpression): DecoratorSymbol | TypeSymbol {
