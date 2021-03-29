@@ -62,6 +62,19 @@
         "configuration": "./language-configuration.json"
       }
     ],
+    "configuration": [
+      {
+        "title": "ADL Language Server Path",
+        "properties": {
+          "adl.adl-server.path": {
+            "type": "string",
+            "default": "",
+            "description": "Path to `adl-server` command that runs the ADL language server.\n\nIf not specified, then `adl-server` found on PATH is used.\n\nExample (User): /usr/local/bin/adl-server\nExample (Workspace): ${workspaceRoot}/node_modules/.bin/adl-server",
+            "scope": "machine-overridable"
+          }
+        }
+      }
+    ],
     "grammars": [
       {
         "language": "adl",
