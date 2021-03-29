@@ -1,5 +1,5 @@
 import { Program } from "../compiler/program";
-import { Type } from "../compiler/types";
+import { NamespaceType, Type } from "../compiler/types";
 
 const basePaths = new Map<Type, string>();
 
@@ -128,7 +128,7 @@ export function _delete(program: Program, entity: Type, subPath?: string) {
 
 // -- Service-level Metadata
 
-let _serviceTitle: { type: Type; title: string } | undefined = undefined;
+let _serviceTitle: { type: NamespaceType; title: string } | undefined = undefined;
 
 export function serviceTitle(program: Program, entity: Type, title: string) {
   if (_serviceTitle && _serviceTitle.type !== entity) {
@@ -149,7 +149,7 @@ export function getServiceTitle(): string {
   return _serviceTitle ? _serviceTitle.title : "(title)";
 }
 
-let _serviceVersion: { type: Type; version: string } | undefined = undefined;
+let _serviceVersion: { type: NamespaceType; version: string } | undefined = undefined;
 
 export function serviceVersion(program: Program, entity: Type, version: string) {
   // TODO: This will need to change once we support multiple service versions
@@ -169,6 +169,14 @@ export function serviceVersion(program: Program, entity: Type, version: string) 
 
 export function getServiceVersion(): string {
   return _serviceVersion ? _serviceVersion.version : "0000-00-00";
+}
+
+export function detectServiceNamespace(program: Program): string | undefined {
+  return (
+    (_serviceTitle && program.checker!.getNamespaceString(_serviceTitle.type)) ||
+    (_serviceVersion && program.checker!.getNamespaceString(_serviceVersion.type)) ||
+    undefined
+  );
 }
 
 const producesTypes = new Map<Type, string[]>();
