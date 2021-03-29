@@ -1,6 +1,6 @@
 import { createDiagnostic, Diagnostic, DiagnosticError, formatDiagnostic } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
-import { Program } from "./program.js";
+import { createProgram, Program } from "./program.js";
 import {
   NamespaceStatementNode,
   ModelStatementNode,
@@ -54,8 +54,9 @@ export interface Binder {
 export function createBinder(): Binder {
   let currentFile: ADLScriptNode;
   let parentNode: Node;
-
-  let currentNamespace: NamespaceStatementNode | ADLScriptNode;
+  let globalNamespace: NamespaceStatementNode;
+  let fileNamespace: NamespaceStatementNode;
+  let currentNamespace: NamespaceStatementNode;
 
   // Node where locals go.
   let scope: ScopeNode;
@@ -64,12 +65,12 @@ export function createBinder(): Binder {
   };
 
   function bindSourceFile(program: Program, sourceFile: ADLScriptNode) {
+    globalNamespace = program.globalNamespace;
+    fileNamespace = globalNamespace;
     currentFile = sourceFile;
-    currentNamespace = scope = currentFile;
-    currentFile.locals = new SymbolTable();
-    currentFile.exports = program.globalNamespace.exports!;
-
+    currentNamespace = scope = globalNamespace;
     bindNode(sourceFile);
+    currentFile.inScopeNamespaces.push(globalNamespace);
   }
 
   function bindNode(node: Node) {
@@ -110,8 +111,6 @@ export function createBinder(): Binder {
       visitChildren(node, bindNode);
 
       if (node.kind !== SyntaxKind.NamespaceStatement) {
-        // we've finished binding all the children, so make sure
-        // there are no duplicates.
         reportDuplicateSymbols(node.locals!);
       }
 
@@ -128,8 +127,9 @@ export function createBinder(): Binder {
   function getContainingSymbolTable() {
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
-      case SyntaxKind.ADLScript:
         return scope.exports!;
+      case SyntaxKind.ADLScript:
+        return fileNamespace.exports!;
       default:
         return scope.locals!;
     }
@@ -147,7 +147,7 @@ export function createBinder(): Binder {
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {
     // check if there's an existing symbol for this namespace
-    const existingBinding = (scope as NamespaceStatementNode).exports!.get(statement.name.sv);
+    const existingBinding = currentNamespace.exports!.get(statement.name.sv);
     if (existingBinding && existingBinding.kind === "type") {
       statement.symbol = existingBinding;
       // locals are never shared.
@@ -165,8 +165,14 @@ export function createBinder(): Binder {
 
     currentFile.namespaces.push(statement);
 
-    if (!statement.statements) {
-      currentFile.exports = statement.exports!;
+    if (statement.statements === undefined) {
+      scope = currentNamespace = statement;
+      fileNamespace = statement;
+      let current: ADLScriptNode | NamespaceStatementNode = statement;
+      while (current.kind !== SyntaxKind.ADLScript) {
+        currentFile.inScopeNamespaces.push(current);
+        current = current.parent as ADLScriptNode | NamespaceStatementNode;
+      }
     }
   }
 
@@ -189,6 +195,11 @@ export function createBinder(): Binder {
       }
 
       node.namespaceSymbol = scope.symbol;
+    } else if (scope.kind === SyntaxKind.ADLScript) {
+      if (node.kind === SyntaxKind.TemplateParameterDeclaration) {
+        throw new Error("Attempted to declare template parameter in global scope");
+      }
+      node.namespaceSymbol = fileNamespace.symbol;
     }
 
     table.set(name, symbol);
@@ -200,7 +211,7 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.ModelStatement:
       return true;
     case SyntaxKind.NamespaceStatement:
-      return true;
+      return node.statements !== undefined;
     case SyntaxKind.ADLScript:
       return true;
     default:

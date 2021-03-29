@@ -1,5 +1,5 @@
 import { Program } from "../compiler/program";
-import { Type } from "../compiler/types";
+import { NamespaceType, Type } from "../compiler/types";
 
 const basePaths = new Map<Type, string>();
 
@@ -124,4 +124,87 @@ export function _delete(program: Program, entity: Type, subPath?: string) {
     verb: "delete",
     subPath,
   });
+}
+
+// -- Service-level Metadata
+
+let _serviceTitle: { type: NamespaceType; title: string } | undefined = undefined;
+
+export function serviceTitle(program: Program, entity: Type, title: string) {
+  if (_serviceTitle && _serviceTitle.type !== entity) {
+    throw new Error("Service title can only be set once per ADL document.");
+  }
+
+  if (entity.kind !== "Namespace") {
+    throw new Error("The @serviceTitle decorator can only be applied to namespaces.");
+  }
+
+  _serviceTitle = {
+    type: entity,
+    title,
+  };
+}
+
+export function getServiceTitle(): string {
+  return _serviceTitle ? _serviceTitle.title : "(title)";
+}
+
+let _serviceVersion: { type: NamespaceType; version: string } | undefined = undefined;
+
+export function serviceVersion(program: Program, entity: Type, version: string) {
+  // TODO: This will need to change once we support multiple service versions
+  if (_serviceVersion && _serviceVersion.type !== entity) {
+    throw new Error("Service version can only be set once per ADL document.");
+  }
+
+  if (entity.kind !== "Namespace") {
+    throw new Error("The @serviceVersion decorator can only be applied to namespaces.");
+  }
+
+  _serviceVersion = {
+    type: entity,
+    version,
+  };
+}
+
+export function getServiceVersion(): string {
+  return _serviceVersion ? _serviceVersion.version : "0000-00-00";
+}
+
+export function detectServiceNamespace(program: Program): string | undefined {
+  return (
+    (_serviceTitle && program.checker!.getNamespaceString(_serviceTitle.type)) ||
+    (_serviceVersion && program.checker!.getNamespaceString(_serviceVersion.type)) ||
+    undefined
+  );
+}
+
+const producesTypes = new Map<Type, string[]>();
+
+export function produces(program: Program, entity: Type, ...contentTypes: string[]) {
+  if (entity.kind !== "Namespace") {
+    throw new Error("The @produces decorator can only be applied to namespaces.");
+  }
+
+  const values = getProduces(entity);
+  producesTypes.set(entity, values.concat(contentTypes));
+}
+
+export function getProduces(entity: Type): string[] {
+  return producesTypes.get(entity) || [];
+}
+
+const consumesTypes = new Map<Type, string[]>();
+
+export function consumes(program: Program, entity: Type, ...contentTypes: string[]) {
+  if (entity.kind !== "Namespace") {
+    throw new Error("The @consumes decorator can only be applied to namespaces.");
+  }
+
+  const values = getConsumes(entity);
+  consumesTypes.set(entity, values.concat(contentTypes));
+}
+
+export function getConsumes(entity: Type): string[] {
+  return consumesTypes.get(entity) || [];
 }

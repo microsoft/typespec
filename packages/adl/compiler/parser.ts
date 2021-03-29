@@ -1,3 +1,4 @@
+import { SymbolTable } from "./binder.js";
 import { throwDiagnostic } from "./diagnostics.js";
 import { createScanner, Token } from "./scanner.js";
 import * as Types from "./types.js";
@@ -19,6 +20,8 @@ export function parse(code: string | Types.SourceFile) {
       models: [],
       namespaces: [],
       usings: [],
+      locals: new SymbolTable(),
+      inScopeNamespaces: [],
     };
 
     let seenBlocklessNs = false;
