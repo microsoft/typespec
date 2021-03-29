@@ -1,0 +1,11 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+
+[*.cs]
+csharp_new_line_before_open_brace = none

@@ -1,0 +1,26 @@
+<Project>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <DebugType>Embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
+    <StartArguments>/rootsuffix Exp</StartArguments>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="LICENSE" />
+    <Content Include="adl.pkgdef" />
+    <Content Include="../adl-vscode/dist/adl.tmLanguage" Link="TextMate/adl.tmLanguage" />
+    <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.10.23" />
+  </ItemGroup>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != '' and '$(MSBuildRuntimeType)' != 'Core'" />
+  <Target Name="WarnAboutDotnetBuildAndVsix" Condition="'$(MSBuildRuntimeType)' == 'Core'" AfterTargets="AfterBuild">
+    <Message Importance="High" Text="VSIX packaging skipped: not supported by `dotnet build`, use Visual Studio `msbuild` to package VSIX." />
+  </Target>
+</Project>
