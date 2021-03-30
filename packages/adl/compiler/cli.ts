@@ -7,7 +7,7 @@ import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
 import { DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
 import { adlVersion } from "./util.js";
-import { readFile, mkdtemp, readdir, rmdir } from "fs/promises";
+import { stat, readFile, mkdtemp, readdir, rmdir } from "fs/promises";
 import os from "os";
 import { CompilerHost } from "./types.js";
 
@@ -82,6 +82,9 @@ const NodeHost: CompilerHost = {
   getLibDirs() {
     const rootDir = this.getExecutionRoot();
     return [join(rootDir, "lib"), join(rootDir, "dist/lib")];
+  },
+  stat(path: string) {
+    return stat(path);
   },
 };
 

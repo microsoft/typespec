@@ -219,8 +219,7 @@ export type ScopeNode = NamespaceStatementNode | ModelStatementNode | ADLScriptN
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
-  id: IdentifierNode;
-  as: Array<NamedImportNode>;
+  path: string;
 }
 
 export interface IdentifierNode extends BaseNode {
@@ -456,4 +455,7 @@ export interface CompilerHost {
 
   // get the current working directory
   getCwd(): string;
+
+  // get info about a path (presently just isDirectory())
+  stat(path: string): Promise<{ isDirectory(): boolean }>;
 }

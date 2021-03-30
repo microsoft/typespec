@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { dirname, extname, isAbsolute, resolve } from "path";
 import { lstat } from "fs/promises";
 import { join } from "path";
 import { createBinder, SymbolTable } from "./binder.js";
@@ -15,7 +15,6 @@ import {
   ModelType,
   SyntaxKind,
   Type,
-  SourceFile,
   DecoratorSymbol,
   CompilerHost,
   NamespaceStatementNode,
@@ -42,6 +41,7 @@ export async function createProgram(
 ): Promise<Program> {
   const buildCbs: any = [];
 
+  const seenSourceFiles = new Set<string>();
   const program: Program = {
     compilerOptions: options || {},
     globalNamespace: createGlobalNamespace(),
@@ -149,33 +149,39 @@ export async function createProgram(
 
   async function loadStandardLibrary(program: Program) {
     for (const dir of host.getLibDirs()) {
-      await loadDirectory(program, dir);
+      await loadDirectory(dir);
     }
   }
 
-  async function loadDirectory(program: Program, rootDir: string) {
+  async function loadDirectory(rootDir: string) {
     const dir = await host.readDir(rootDir);
     for (const entry of dir) {
       if (entry.isFile()) {
         const path = join(rootDir, entry.name);
         if (entry.name.endsWith(".js")) {
-          await loadJsFile(program, path);
+          await loadJsFile(path);
         } else if (entry.name.endsWith(".adl")) {
-          await loadAdlFile(program, path);
+          await loadAdlFile(path);
         }
       }
     }
   }
 
-  async function loadAdlFile(program: Program, path: string) {
+  async function loadAdlFile(path: string) {
+    if (seenSourceFiles.has(path)) {
+      return;
+    }
+    seenSourceFiles.add(path);
+
     const contents = await host.readFile(path);
     if (!contents) {
       throw new Error("Couldn't load ADL file " + path);
     }
-    program.evalAdlScript(contents, path);
+
+    await evalAdlScript(contents, path);
   }
 
-  async function loadJsFile(program: Program, path: string) {
+  async function loadJsFile(path: string) {
     const exports = await host.getJsImport(path);
 
     for (const match of Object.keys(exports)) {
@@ -199,13 +205,45 @@ export async function createProgram(
   // Evaluates an arbitrary line of ADL in the context of a
   // specified file path.  If no path is specified, use a
   // virtual file path
-  function evalAdlScript(adlScript: string, filePath?: string): void {
+  async function evalAdlScript(adlScript: string, filePath?: string): Promise<void> {
     filePath = filePath ?? `__virtual_file_${++virtualFileCount}`;
     const unparsedFile = createSourceFile(adlScript, filePath);
     const sourceFile = parse(unparsedFile);
-
     program.sourceFiles.push(sourceFile);
     binder.bindSourceFile(program, sourceFile);
+    await evalImports(sourceFile);
+  }
+
+  async function evalImports(file: ADLScriptNode) {
+    // collect imports
+    for (const stmt of file.statements) {
+      if (stmt.kind !== SyntaxKind.ImportStatement) break;
+      const path = stmt.path;
+      const ext = extname(path);
+
+      let target: string;
+      if (path.startsWith("./") || path.startsWith("../")) {
+        target = resolve(dirname(file.file.path), path);
+      } else if (isAbsolute(path)) {
+        target = path;
+      } else {
+        throwDiagnostic("Import paths must begin with ./ or ../ or be absolute", stmt);
+      }
+
+      if (ext === "") {
+        // look for a main.adl
+        await loadAdlFile(join(target, "main.adl"));
+      } else if (ext === ".js") {
+        await loadJsFile(target);
+      } else if (ext === ".adl") {
+        await loadAdlFile(target);
+      } else {
+        throwDiagnostic(
+          "Import paths must reference either a directory, a .adl file, or .js file",
+          stmt
+        );
+      }
+    }
   }
 
   async function loadMain(options: CompilerOptions) {
@@ -215,12 +253,12 @@ export async function createProgram(
 
     const mainPath = resolve(host.getCwd(), options.mainFile);
 
-    const mainStat = await lstat(mainPath);
+    const mainStat = await host.stat(mainPath);
 
     if (mainStat.isDirectory()) {
-      await loadDirectory(program, mainPath);
+      await loadDirectory(mainPath);
     } else {
-      await loadAdlFile(program, mainPath);
+      await loadAdlFile(mainPath);
     }
   }
 }

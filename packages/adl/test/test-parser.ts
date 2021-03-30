@@ -4,11 +4,12 @@ import { SyntaxKind } from "../compiler/types.js";
 
 describe("syntax", () => {
   describe("import statements", () => {
-    parseEach([
-      "import x;",
-      "import x as { one };",
-      "import x as {};",
-      "import x as { one, two };",
+    parseEach(['import "x";']);
+
+    parseErrorEach([
+      'namespace Foo { import "x"; }',
+      'namespace Foo { } import "x";',
+      'model Foo { } import "x";',
     ]);
   });
 

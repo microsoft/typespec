@@ -37,6 +37,10 @@ export function parse(code: string | Types.SourceFile) {
           throw error("Blockless namespaces can't follow other declarations");
         }
         seenBlocklessNs = true;
+      } else if (item.kind === Types.SyntaxKind.ImportStatement) {
+        if (seenDecl || seenBlocklessNs) {
+          throw error("Imports must come prior to namespaces or other declarations");
+        }
       } else {
         seenDecl = true;
       }
@@ -499,46 +503,16 @@ export function parse(code: string | Types.SourceFile) {
     const pos = tokenPos();
 
     parseExpected(Token.ImportKeyword);
-    const id = parseIdentifier();
-    let as: Array<Types.NamedImportNode> = [];
-
-    if (token() === Token.Identifier && tokenValue() === "as") {
-      parseExpected(Token.Identifier);
-      parseExpected(Token.OpenBrace);
-
-      if (token() !== Token.CloseBrace) {
-        as = parseNamedImports();
-      }
-
-      parseExpected(Token.CloseBrace);
-    }
-
+    const pathLiteral = parseStringLiteral();
+    const path = pathLiteral.value;
     parseExpected(Token.Semicolon);
     return finishNode(
       {
         kind: Types.SyntaxKind.ImportStatement,
-        as,
-        id,
+        path,
       },
       pos
     );
-  }
-
-  function parseNamedImports(): Array<Types.NamedImportNode> {
-    const names: Array<Types.NamedImportNode> = [];
-    do {
-      const pos = tokenPos();
-      names.push(
-        finishNode(
-          {
-            kind: Types.SyntaxKind.NamedImport,
-            id: parseIdentifier(),
-          },
-          pos
-        )
-      );
-    } while (parseOptional(Token.Comma));
-    return names;
   }
 
   function parseDecoratorExpression(): Types.DecoratorExpressionNode {
@@ -824,7 +798,7 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
     case Types.SyntaxKind.DecoratorExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case Types.SyntaxKind.ImportStatement:
-      return visitNode(cb, node.id) || visitEach(cb, node.as);
+      return;
     case Types.SyntaxKind.OperationStatement:
       return (
         visitEach(cb, node.decorators) ||

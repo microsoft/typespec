@@ -57,6 +57,24 @@ export async function createTestHost(): Promise<TestHost> {
     getCwd() {
       return "/";
     },
+
+    async stat(path: string) {
+      for (const fsPath of Object.keys(virtualFs)) {
+        if (fsPath.startsWith(path) && fsPath !== path) {
+          return {
+            isDirectory() {
+              return true;
+            },
+          };
+        }
+      }
+
+      return {
+        isDirectory() {
+          return false;
+        },
+      };
+    },
   };
 
   // load standard library into the vfs
