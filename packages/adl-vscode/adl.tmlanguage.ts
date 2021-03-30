@@ -27,7 +27,7 @@ const identifierContinue = "[_$[:alnum:]]";
 const beforeIdentifier = `(?=${identifierStart})`;
 const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
-const statementKeyword = `\\b(?:namespace|model|op)\\b`;
+const statementKeyword = `\\b(?:namespace|model|op|using|import)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
 const hexNumber = "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)";
 const binaryNumber = "\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)";
@@ -128,6 +128,14 @@ const identifierExpression: MatchRule = {
   key: "type-name",
   scope: "entity.name.type.adl",
   match: identifier,
+};
+
+const typeArguments: BeginEndRule = {
+  key: "type-arguments",
+  scope: meta,
+  begin: "<",
+  end: ">",
+  patterns: [expression],
 };
 
 const typeAnnotation: BeginEndRule = {
@@ -250,20 +258,58 @@ const operationStatement: BeginEndRule = {
   },
   end: universalEnd,
   patterns: [
+    token,
     operationName,
     operationParameters,
     typeAnnotation, // return type
   ],
 };
 
+const importStatement: BeginEndRule = {
+  key: "import-statement",
+  scope: meta,
+  begin: "\\b(import)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.adl" },
+  },
+  end: universalEnd,
+  patterns: [token],
+};
+
+const usingStatement: BeginEndRule = {
+  key: "using-statement",
+  scope: meta,
+  begin: "\\b(using)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.adl" },
+  },
+  end: universalEnd,
+  patterns: [token, identifierExpression],
+};
+
 // NOTE: We don't actually classify all the different expression types and their
 // punctuation yet. For now, at least, we only deal with the ones that would
-// break coloring due to breaking out of context inappropriately with parens or
-// braces that weren't handled with appropriate precedence. The other
-// expressions color acceptably as unclassified punctuation around those we do
-// handle here.
-expression.patterns = [token, parenthesizedExpression, modelExpression, identifierExpression];
-statement.patterns = [token, decorator, modelStatement, namespaceStatement, operationStatement];
+// break coloring due to breaking out of context inappropriately with parens/
+// braces/angle brackets that weren't handled with appropriate precedence. The
+// other expressions color acceptably as unclassified punctuation around those
+// we do handle here.
+expression.patterns = [
+  token,
+  parenthesizedExpression,
+  typeArguments,
+  modelExpression,
+  identifierExpression,
+];
+
+statement.patterns = [
+  token,
+  decorator,
+  modelStatement,
+  namespaceStatement,
+  operationStatement,
+  importStatement,
+  usingStatement,
+];
 
 const grammar: Grammar = {
   $schema: tm.schema,
