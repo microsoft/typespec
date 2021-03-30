@@ -1,2 +1,4 @@
 // Runs the npm run command on each project that has it.
-require("./for-each").npm(process.argv[2]);
+import { npmForEach } from "./helpers.js";
+
+npmForEach(process.argv[2]);

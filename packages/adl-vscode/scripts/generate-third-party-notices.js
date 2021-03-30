@@ -1,6 +1,6 @@
-const { join, dirname, basename, resolve } = require("path");
-const { promises } = require("fs");
-const { readFile, writeFile, readdir, stat } = promises;
+import { join, dirname, basename, resolve } from "path";
+import { readFile, writeFile, readdir, stat } from "fs/promises";
+
 const skipDirs = new Set(["node_modules", "dist-dev"]);
 main().catch((e) => console.error(e.stack));
 
@@ -23,20 +23,20 @@ granted herein, whether by implication, estoppel or otherwise.
 
   let i = 1;
   for (const packageRoot of packageRoots) {
-    const package = packages.get(packageRoot);
-    const url = getUrl(package);
-    text += `\n${i++}. ${package.name} version ${package.version} (${url})`;
+    const pkg = packages.get(packageRoot);
+    const url = getUrl(pkg);
+    text += `\n${i++}. ${pkg.name} version ${pkg.version} (${url})`;
   }
 
   for (const packageRoot of packageRoots) {
-    const package = packages.get(packageRoot);
+    const pkg = packages.get(packageRoot);
     const license = await getLicense(packageRoot);
     text += `\n\n
-%% ${package.name} NOTICES AND INFORMATION BEGIN HERE
+%% ${pkg.name} NOTICES AND INFORMATION BEGIN HERE
 =====================================================
 ${license}
 =====================================================");
-END OF ${package.name} NOTICES AND INFORMATION`;
+END OF ${pkg.name} NOTICES AND INFORMATION`;
   }
 
   await writeFile("ThirdPartyNotices.txt", text);
@@ -53,14 +53,14 @@ async function findThirdPartyPackages() {
     for (const source of sources) {
       const sourcePath = join(dirname(map), source);
       const packageRoot = await getPackageRoot(sourcePath);
-      const package = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
+      const pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
 
-      if (package.name === rootName || /microsoft/i.test(JSON.stringify(package.author))) {
+      if (pkg.name === rootName || /microsoft/i.test(JSON.stringify(pkg.author))) {
         continue;
       }
 
       if (!packages.has(packageRoot)) {
-        packages.set(packageRoot, package);
+        packages.set(packageRoot, pkg);
       }
     }
   }
@@ -101,13 +101,13 @@ async function getPackageRoot(filename) {
   }
 }
 
-function getUrl(package) {
-  let url = package.repository;
+function getUrl(pkg) {
+  let url = pkg.repository;
   if (typeof url !== "string") {
-    url = package.repository?.url;
+    url = pkg.repository?.url;
   }
   if (!url) {
-    throw new Error(`Cannot find URL for ${package}`);
+    throw new Error(`Cannot find URL for ${pkg}`);
   }
   url = url.replace(/^git\+/, "");
   url = url.replace(/\.git$/, "");
