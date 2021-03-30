@@ -2,7 +2,7 @@
   "name": "@azure-tools/tmlanguage-generator",
   "version": "0.1.2",
   "author": "Microsoft Corporation",
-  "description": "Helper library to generate TextMate syntax highlighting tmlanguage files.",
+  "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
   "homepage": "https://github.com/Azure/adl/tree/master/packages/tmlanguage-generator",
   "readme": "https://github.com/Azure/adl/blob/master/packages/tmlanguage-generator/README.md",
   "keywords": [
@@ -32,9 +32,11 @@
     "dist/**"
   ],
   "dependencies": {
-    "onigasm": "~2.2.5"
+    "onigasm": "^2.2.5",
+    "plist": "^3.0.2"
   },
   "devDependencies": {
-    "@types/node": "14.0.27"
+    "@types/node": "14.0.27",
+    "@types/plist": "^3.0.2"
   }
 }

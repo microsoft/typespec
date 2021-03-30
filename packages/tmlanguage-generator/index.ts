@@ -1,6 +1,7 @@
 import { loadWASM, OnigRegExp } from "onigasm";
 import { readFile } from "fs/promises";
 import { dirname, resolve } from "path";
+import plist from "plist";
 
 export const schema =
   "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json";
@@ -79,15 +80,26 @@ async function initialize() {
 export async function emitJSON(grammar: Grammar): Promise<string> {
   await initialize();
   const indent = 2;
-  const processed = processGrammar(grammar);
+  const processed = await processGrammar(grammar);
   return JSON.stringify(processed, undefined, indent);
 }
 
 /**
- * Convert the grammar from our more convenient representation to the
- * tmlanguage.json schema. Perform some validation in the process.
+ * Emit the given grammar to PList XML
  */
-function processGrammar(grammar: Grammar): any {
+export async function emitPList(grammar: Grammar): Promise<string> {
+  await initialize();
+  const processed = await processGrammar(grammar);
+  return plist.build(processed);
+}
+
+/**
+ * Convert the grammar from our more convenient representation to the
+ * tmlanguage schema. Perform some validation in the process.
+ */
+async function processGrammar(grammar: Grammar): Promise<any> {
+  await initialize();
+
   // key is rule.key, value is [unprocessed rule, processed rule]. unprocessed
   // rule is used for its identity to check for duplicates and deal with cycles.
   const repository = new Map<string, [Rule, any]>();

@@ -1,0 +1,5 @@
+[$RootKey$\TextMate\Repositories]
+"ADL"="$PackageFolder$\TextMate"
+
+[$RootKey$\ShellFileAssociations\.adl]
+"DefaultIconMoniker"="KnownMonikers.ClassFile"
