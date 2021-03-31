@@ -1,6 +1,15 @@
 # Change Log - adl-vscode
 
-This log was last generated on Fri, 26 Mar 2021 17:06:33 GMT and should not be manually modified.
+This log was last generated on Wed, 31 Mar 2021 22:00:43 GMT and should not be manually modified.
+
+## 0.4.4
+Wed, 31 Mar 2021 22:00:43 GMT
+
+### Patches
+
+- Add syntax highlighting for import and using statements
+- Add VS Code configuration option for adl-server path
+- Use PList for textmate grammar
 
 ## 0.4.3
 Fri, 26 Mar 2021 17:06:33 GMT

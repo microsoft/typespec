@@ -1,0 +1,22 @@
+{
+  "name": "@azure-tools/adl-vs",
+  "entries": [
+    {
+      "version": "0.1.1",
+      "tag": "@azure-tools/adl-vs_v0.1.1",
+      "date": "Wed, 31 Mar 2021 22:00:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Initial release"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"adl-vscode\" from `0.4.3` to `0.4.4`"
+          }
+        ]
+      }
+    }
+  ]
+}

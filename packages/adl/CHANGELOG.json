@@ -2,6 +2,32 @@
   "name": "@azure-tools/adl",
   "entries": [
     {
+      "version": "0.7.0",
+      "tag": "@azure-tools/adl_v0.7.0",
+      "date": "Wed, 31 Mar 2021 22:00:43 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Implement usings statements"
+          },
+          {
+            "comment": "Implement imports"
+          },
+          {
+            "comment": "Improved OpenAPI output for ARM services, including pluralized operation groups and operation tags"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Add service-level metadata decorators: @serviceTitle, @serviceVersion, @produces, @consumes, and @armNamespace"
+          },
+          {
+            "comment": "Add support for OpenAPI operation overloads using x-ms-paths"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.0",
       "tag": "@azure-tools/adl_v0.6.0",
       "date": "Fri, 26 Mar 2021 17:06:33 GMT",
