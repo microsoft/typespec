@@ -1,6 +1,13 @@
 # Change Log - @azure-tools/tmlanguage-generator
 
-This log was last generated on Fri, 26 Mar 2021 17:06:33 GMT and should not be manually modified.
+This log was last generated on Wed, 31 Mar 2021 22:00:43 GMT and should not be manually modified.
+
+## 0.1.3
+Wed, 31 Mar 2021 22:00:43 GMT
+
+### Patches
+
+- Add PList emit support
 
 ## 0.1.2
 Fri, 26 Mar 2021 17:06:33 GMT

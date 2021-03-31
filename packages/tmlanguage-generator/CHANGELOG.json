@@ -2,6 +2,18 @@
   "name": "@azure-tools/tmlanguage-generator",
   "entries": [
     {
+      "version": "0.1.3",
+      "tag": "@azure-tools/tmlanguage-generator_v0.1.3",
+      "date": "Wed, 31 Mar 2021 22:00:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add PList emit support"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.2",
       "tag": "@azure-tools/tmlanguage-generator_v0.1.2",
       "date": "Fri, 26 Mar 2021 17:06:33 GMT",
