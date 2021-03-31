@@ -1,0 +1,22 @@
+{
+  "name": "@azure-tools/adl-vs",
+  "author": "Microsoft Corporation",
+  "version": "0.1.0",
+  "displayName": "ADL Language Support for Visual Studio",
+  "description": "ADL Language Support for Visual Studio",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azure/adl"
+  },
+  "files": [
+    "bin/Release/Microsoft.Adl.VisualStudio.vsix"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "adl-vscode": "0.4.3"
+  }
+}

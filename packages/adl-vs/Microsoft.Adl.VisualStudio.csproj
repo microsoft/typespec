@@ -7,11 +7,12 @@
     <StartAction>Program</StartAction>
     <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="LICENSE" />
     <Content Include="adl.pkgdef" />
-    <Content Include="../adl-vscode/dist/adl.tmLanguage" Link="TextMate/adl.tmLanguage" />
+    <Content Include="node_modules/adl-vscode/dist/adl.tmLanguage" Link="TextMate/adl.tmLanguage" />
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
     <Reference Include="System.ComponentModel.Composition" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
