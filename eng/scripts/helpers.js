@@ -65,4 +65,6 @@ export function run(command, args, options) {
   } else if (proc.status !== 0) {
     throw new Error(`Command failed with exit code ${proc.status}`);
   }
+
+  return proc;
 }
