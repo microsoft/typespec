@@ -66,6 +66,12 @@ const args = yargs(process.argv.slice(2))
       .command("uninstall", "Uninstall VS Code Extension")
       .option("insiders", { type: "boolean", description: "Use VS Code Insiders" });
   })
+  .command("vs", "Manage Visual Studio Extension.", (cmd) => {
+    return cmd
+      .demandCommand(1, "No command specified")
+      .command("install", "Install Visual Studio Extension.")
+      .command("uninstall", "Uninstall VS Extension");
+  })
   .option("debug", {
     type: "boolean",
     description: "Output debug log messages.",
@@ -144,41 +150,78 @@ async function generateClient(options: CompilerOptions) {
   }
 }
 
-async function installVSCodeExtension() {
+async function installVsix(pkg: string, vsixSubPath: string, install: (vsixPath: string) => void) {
   // download npm package to temporary directory
   const temp = await mkdtemp(path.join(os.tmpdir(), "adl"));
-  run("npm", ["install", "--silent", "--prefix", temp, "adl-vscode"]);
+  run("npm", ["install", "--silent", "--prefix", temp, pkg]);
 
   // locate .vsix
-  const files = await readdir(path.join(temp, "node_modules/adl-vscode"));
+  const dir = path.join(temp, "node_modules", pkg, vsixSubPath);
+  const files = await readdir(dir);
   let vsix: string | undefined;
   for (const file of files) {
     if (file.endsWith(".vsix")) {
-      vsix = path.join(temp, "node_modules/adl-vscode", file);
+      vsix = path.join(dir, file);
       break;
     }
   }
   if (!vsix) {
-    throw new Error("Installed adl-vscode from npm, but didn't find its .vsix file.");
+    throw new Error(`Installed ${pkg} from npm, but didn't find its .vsix file.`);
   }
 
   // install extension
-  run(args.insiders ? "code-insiders" : "code", ["--install-extension", vsix]);
+  install(vsix);
 
   // delete temporary directory
   await rmdir(temp, { recursive: true });
+}
+
+async function installVSCodeExtension() {
+  await installVsix("adl-vscode", "", (vsix) => {
+    run(args.insiders ? "code-insiders" : "code", ["--install-extension", vsix]);
+  });
 }
 
 async function uninstallVSCodeExtension() {
   run(args.insiders ? "code-insiders" : "code", ["--uninstall-extension", "microsoft.adl-vscode"]);
 }
 
+function getVsixInstallerPath(): string {
+  if (process.platform !== "win32") {
+    console.error("error: Visual Studio extension is not supported on non-Windows");
+    process.exit(1);
+  }
+
+  return join(
+    process.env["ProgramFiles(x86)"] ?? "",
+    "Microsoft Visual Studio/Installer/resources/app/ServiceHub/Services/Microsoft.VisualStudio.Setup.Service",
+    "VSIXInstaller.exe"
+  );
+}
+
+async function installVSExtension() {
+  const vsixInstaller = getVsixInstallerPath();
+  await installVsix("@azure-tools/adl-vs", "bin/Release", (vsix) => {
+    run(vsixInstaller, [vsix]);
+  });
+}
+
+async function uninstallVSExtension() {
+  const vsixInstaller = getVsixInstallerPath();
+  run(vsixInstaller, ["/uninstall:88b9492f-c019-492c-8aeb-f325a7e4cf23"]);
+}
+
+// NOTE: We could also use { shell: true } to let windows find the .cmd, but that breaks
+// ENOENT checking and handles spaces poorly in some cases.
+const isCmdOnWindows = ["code", "code-insiders", "npm"];
+
 function run(command: string, commandArgs: string[]) {
   if (args.debug) {
     console.log(`> ${command} ${commandArgs.join(" ")}`);
   }
 
-  if (process.platform === "win32") {
+  const baseCommandName = path.basename(command);
+  if (process.platform === "win32" && isCmdOnWindows.includes(command)) {
     command += ".cmd";
   }
 
@@ -190,7 +233,7 @@ function run(command: string, commandArgs: string[]) {
 
   if (proc.error) {
     if ((proc.error as any).code === "ENOENT") {
-      console.error(`error: Command '${command}' not found.`);
+      console.error(`error: Command '${baseCommandName}' not found.`);
       if (args.debug) {
         console.log(proc.error.stack);
       }
@@ -202,7 +245,9 @@ function run(command: string, commandArgs: string[]) {
 
   if (proc.status !== 0) {
     console.error(
-      `error: Command '${command} ${commandArgs.join(" ")}' failed with exit code ${proc.status}.`
+      `error: Command '${baseCommandName} ${commandArgs.join(" ")}' failed with exit code ${
+        proc.status
+      }.`
     );
     process.exit(proc.status ?? 1);
   }
@@ -212,6 +257,7 @@ async function main() {
   console.log(`ADL compiler v${adlVersion}\n`);
   const command = args._[0];
   let options: CompilerOptions;
+  let action: string | number;
 
   switch (command) {
     case "compile":
@@ -226,7 +272,7 @@ async function main() {
       }
       break;
     case "code":
-      const action = args._[1];
+      action = args._[1];
       switch (action) {
         case "install":
           await installVSCodeExtension();
@@ -236,6 +282,16 @@ async function main() {
           break;
       }
       break;
+    case "vs":
+      action = args._[1];
+      switch (action) {
+        case "install":
+          await installVSExtension();
+          break;
+        case "uninstall":
+          await uninstallVSExtension();
+          break;
+      }
   }
 }
 
