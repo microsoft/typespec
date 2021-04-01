@@ -8,6 +8,7 @@
     <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DeployExtension Condition="'$(Configuration)' != 'Debug'">false</DeployExtension>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="LICENSE" />
