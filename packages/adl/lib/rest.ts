@@ -128,10 +128,26 @@ export function _delete(program: Program, entity: Type, subPath?: string) {
 
 // -- Service-level Metadata
 
-let _serviceTitle: { type: NamespaceType; title: string } | undefined = undefined;
+const serviceDetails: {
+  namespace?: NamespaceType;
+  title?: string;
+  version?: string;
+} = {};
+
+export function _setServiceNamespace(namespace: NamespaceType): void {
+  if (serviceDetails.namespace && serviceDetails.namespace !== namespace) {
+    throw new Error("Cannot set service namespace more than once in an ADL project.");
+  }
+
+  serviceDetails.namespace = namespace;
+}
+
+export function _checkIfServiceNamespace(namespace: NamespaceType): boolean {
+  return serviceDetails.namespace === namespace;
+}
 
 export function serviceTitle(program: Program, entity: Type, title: string) {
-  if (_serviceTitle && _serviceTitle.type !== entity) {
+  if (serviceDetails.title) {
     throw new Error("Service title can only be set once per ADL document.");
   }
 
@@ -139,21 +155,17 @@ export function serviceTitle(program: Program, entity: Type, title: string) {
     throw new Error("The @serviceTitle decorator can only be applied to namespaces.");
   }
 
-  _serviceTitle = {
-    type: entity,
-    title,
-  };
+  _setServiceNamespace(entity);
+  serviceDetails.title = title;
 }
 
 export function getServiceTitle(): string {
-  return _serviceTitle ? _serviceTitle.title : "(title)";
+  return serviceDetails.title || "(title)";
 }
-
-let _serviceVersion: { type: NamespaceType; version: string } | undefined = undefined;
 
 export function serviceVersion(program: Program, entity: Type, version: string) {
   // TODO: This will need to change once we support multiple service versions
-  if (_serviceVersion && _serviceVersion.type !== entity) {
+  if (serviceDetails.version) {
     throw new Error("Service version can only be set once per ADL document.");
   }
 
@@ -161,20 +173,17 @@ export function serviceVersion(program: Program, entity: Type, version: string) 
     throw new Error("The @serviceVersion decorator can only be applied to namespaces.");
   }
 
-  _serviceVersion = {
-    type: entity,
-    version,
-  };
+  _setServiceNamespace(entity);
+  serviceDetails.version = version;
 }
 
 export function getServiceVersion(): string {
-  return _serviceVersion ? _serviceVersion.version : "0000-00-00";
+  return serviceDetails.version || "0000-00-00";
 }
 
-export function detectServiceNamespace(program: Program): string | undefined {
+export function getServiceNamespaceString(program: Program): string | undefined {
   return (
-    (_serviceTitle && program.checker!.getNamespaceString(_serviceTitle.type)) ||
-    (_serviceVersion && program.checker!.getNamespaceString(_serviceVersion.type)) ||
+    (serviceDetails.namespace && program.checker!.getNamespaceString(serviceDetails.namespace)) ||
     undefined
   );
 }
