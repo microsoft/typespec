@@ -2,8 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist-dev",
-    "rootDir": "."
+    "rootDir": "src"
   },
-  "include": ["./**/*.ts"],
-  "exclude": ["dist", "test/scenarios/**", "resources", "node_modules", "**/*.d.ts", "**/*.adl.ts"]
+  "include": ["src/**/*.ts"]
 }
