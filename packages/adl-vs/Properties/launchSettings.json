@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Microsoft.Adl.VisualStudio": {
+      "commandName": "Executable",
+      "executablePath": "devenv.exe",
+      "commandLineArgs": "/rootSuffix Exp",
+      "environmentVariables": {
+        "ADL_SERVER_NODE_OPTIONS": "--nolazy --inspect=4242",
+        "ADL_DEVELOPMENT_MODE": "true"
+      }
+    }
+  }
+}
