@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/Azure/adl/issues"
   },
-  "main": "dist/index.js",
+  "main": "dist/tmlanguage-generator.js",
   "engines": {
     "node": ">=14.0.0"
   },

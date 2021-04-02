@@ -4,17 +4,18 @@
     <TargetFramework>net472</TargetFramework>
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>true</EmbedAllSources>
-    <StartAction>Program</StartAction>
-    <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
-    <StartArguments>/rootsuffix Exp</StartArguments>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DeployExtension Condition="'$(Configuration)' != 'Debug'">false</DeployExtension>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="LICENSE" />
     <Content Include="adl.pkgdef" />
     <Content Include="node_modules/adl-vscode/dist/adl.tmLanguage" Link="TextMate/adl.tmLanguage" />
+    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Condition="'$(Configuration)' == 'Debug'"/>
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="*;Properties\*" Exclude="@(Content);*.sln" />
     <Reference Include="System.ComponentModel.Composition" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" ExcludeAssets="runtime" />
@@ -24,5 +25,8 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != '' and '$(MSBuildRuntimeType)' != 'Core'" />
   <Target Name="WarnAboutDotnetBuildAndVsix" Condition="'$(MSBuildRuntimeType)' == 'Core'" AfterTargets="AfterBuild">
     <Message Importance="High" Text="VSIX packaging skipped: not supported by `dotnet build`, use Visual Studio `msbuild` to package VSIX." />
+  </Target>
+  <Target Name="WriteDebugSourceDirectory" Condition="'$(Configuration)' == 'Debug'" BeforeTargets="BeforeBuild">
+    <WriteLinesToFile File="$(IntermediateOutputPath)DebugSourceDirectory.txt" Lines="$(MSBuildThisFileDirectory)" WriteOnlyWhenDifferent="true" Overwrite="true" />
   </Target>
 </Project>
