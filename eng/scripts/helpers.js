@@ -68,3 +68,24 @@ export function run(command, args, options) {
 
   return proc;
 }
+
+export function prettier(...args) {
+  let prettier = resolve(repoRoot, "packages/adl/node_modules/.bin/prettier");
+  if (process.platform == "win32") {
+    prettier += ".cmd";
+  }
+  run(
+    prettier,
+    [
+      ...args,
+      "--config",
+      ".prettierrc.json",
+      "--ignore-path",
+      ".prettierignore",
+      "**/*.{ts,js,json}",
+    ],
+    {
+      cwd: repoRoot,
+    }
+  );
+}

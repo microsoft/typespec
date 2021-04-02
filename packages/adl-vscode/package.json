@@ -31,9 +31,7 @@
     "generate-tmlanguage": "node dist-dev/tmlanguage.js",
     "generate-third-party-notices": "node scripts/generate-third-party-notices.js",
     "rollup": "rollup --config --failAfterWarnings 2>&1",
-    "package-vsix": "vsce package --yarn",
-    "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
-    "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\""
+    "package-vsix": "vsce package --yarn"
   },
   "dependencies": {},
   "devDependencies": {
