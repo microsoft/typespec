@@ -12,8 +12,7 @@
     "bin/Release/Microsoft.Adl.VisualStudio.vsix"
   ],
   "scripts": {
-    "build": "node scripts/build.js",
-    "prepare": "npm run build"
+    "build": "node scripts/build.js"
   },
   "dependencies": {},
   "devDependencies": {

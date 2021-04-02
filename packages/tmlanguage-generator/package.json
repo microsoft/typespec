@@ -23,7 +23,6 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "prepare": "npm run build",
     "watch": "tsc -p . --watch",
     "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
     "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\""

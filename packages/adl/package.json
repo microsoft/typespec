@@ -12,7 +12,6 @@
   },
   "scripts": {
     "build": "npm run compile && npm run generate-grammar",
-    "prepare": "npm run build",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "dogfood": "node scripts/dogfood.js",
