@@ -72,7 +72,7 @@ export function isNumericType(target: Type): boolean {
 const formatValues = new Map<Type, string>();
 
 export function format(program: Program, target: Type, format: string) {
-  if (target.kind === "Model") {
+  if (target.kind === "Model" || target.kind === "ModelProperty") {
     // Is it a model type that ultimately derives from 'string'?
     if (getIntrinsicType(target) === "string") {
       formatValues.set(target, format);
@@ -80,7 +80,7 @@ export function format(program: Program, target: Type, format: string) {
       throw new Error("Cannot apply @format to a non-string type");
     }
   } else {
-    throw new Error("Cannot apply @format to anything that isn't a Model");
+    throw new Error("Cannot apply @format to anything that isn't a Model or ModelProperty");
   }
 }
 

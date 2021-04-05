@@ -30,6 +30,7 @@ export interface Program {
   checker?: ReturnType<typeof createChecker>;
   evalAdlScript(adlScript: string, filePath?: string): void;
   onBuild(cb: (program: Program) => void): void;
+  getOption(key: string): string | undefined;
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
   executeDecorator(node: DecoratorExpressionNode, program: Program, type: Type): void;
@@ -52,6 +53,7 @@ export async function createProgram(
     executeModelDecorators,
     executeDecorators,
     executeDecorator,
+    getOption,
     onBuild(cb) {
       buildCbs.push(cb);
     },
@@ -260,6 +262,10 @@ export async function createProgram(
     } else {
       await loadAdlFile(mainPath);
     }
+  }
+
+  function getOption(key: string): string | undefined {
+    return (options.miscOptions || {})[key];
   }
 }
 

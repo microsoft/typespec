@@ -1,4 +1,5 @@
 export interface CompilerOptions {
+  miscOptions?: any;
   mainFile?: string;
   outputPath?: string;
   swaggerOutputFile?: string;
