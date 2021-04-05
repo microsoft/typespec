@@ -14,7 +14,7 @@ import { CompilerHost } from "./types.js";
 const args = yargs(process.argv.slice(2))
   .scriptName("adl")
   .help()
-  .strict()
+  // .strict() -- TODO: Turn this back on if we add library-level option registration
   .command("compile <path>", "Compile a directory of ADL files.", (cmd) => {
     return cmd
       .positional("path", {
@@ -116,6 +116,7 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
 
   return {
     outputPath,
+    rawParameters: args,
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
   };
