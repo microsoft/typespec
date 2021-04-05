@@ -15,6 +15,7 @@ const args = yargs(process.argv.slice(2))
   .scriptName("adl")
   .help()
   // .strict() -- TODO: Turn this back on if we add library-level option registration
+  .strictCommands()
   .command("compile <path>", "Compile a directory of ADL files.", (cmd) => {
     return cmd
       .positional("path", {
