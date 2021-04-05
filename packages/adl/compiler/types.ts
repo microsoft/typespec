@@ -456,6 +456,9 @@ export interface CompilerHost {
   // get the current working directory
   getCwd(): string;
 
-  // get info about a path (presently just isDirectory())
-  stat(path: string): Promise<{ isDirectory(): boolean }>;
+  // get info about a path
+  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
+
+  // get the real path of a possibly symlinked path
+  realpath(path: string): Promise<string>;
 }

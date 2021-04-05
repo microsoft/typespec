@@ -6,10 +6,9 @@ import { compile } from "../compiler/program.js";
 import { spawnSync } from "child_process";
 import { CompilerOptions } from "../compiler/options.js";
 import { DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
-import { adlVersion } from "./util.js";
-import { stat, readFile, mkdtemp, readdir, rmdir } from "fs/promises";
+import { adlVersion, NodeHost } from "./util.js";
+import { mkdtemp, readdir, rmdir } from "fs/promises";
 import os from "os";
-import { CompilerHost } from "./types.js";
 
 const args = yargs(process.argv.slice(2))
   .scriptName("adl")
@@ -90,21 +89,6 @@ const args = yargs(process.argv.slice(2))
   })
   .version(adlVersion)
   .demandCommand(1, "You must use one of the supported commands.").argv;
-
-const NodeHost: CompilerHost = {
-  readFile: (path: string) => readFile(path, "utf-8"),
-  readDir: (path: string) => readdir(path, { withFileTypes: true }),
-  getCwd: () => process.cwd(),
-  getExecutionRoot: () => resolve(fileURLToPath(import.meta.url), "../../../"),
-  getJsImport: (path: string) => import(pathToFileURL(path).href),
-  getLibDirs() {
-    const rootDir = this.getExecutionRoot();
-    return [join(rootDir, "lib"), join(rootDir, "dist/lib")];
-  },
-  stat(path: string) {
-    return stat(path);
-  },
-};
 
 async function compileInput(compilerOptions: CompilerOptions) {
   try {

@@ -1,0 +1,49 @@
+{
+  "name": "@adl/rest",
+  "version": "0.1.0",
+  "description": "ADL REST protocol binding",
+  "main": "dist/rest.js",
+  "adlMain": "lib/rest.adl",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "build": "npm run compile",
+    "compile": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "echo \"no tests\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/adl.git"
+  },
+  "keywords": [
+    "adl",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure/adl/issues"
+  },
+  "homepage": "https://github.com/Azure/adl#readme",
+  "readme": "https://github.com/Azure/adl/blob/master/readme.md",
+  "files": [
+    "lib/*.adl",
+    "dist/**",
+    "readme.md",
+    "samples",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/mocha": "^7.0.2",
+    "@types/node": "14.0.27",
+    "mocha": "7.1.2",
+    "typescript": "~4.1.5",
+    "prettier": "~2.2.1"
+  },
+  "dependencies": {
+    "@azure-tools/adl": "~0.7.0"
+  },
+  "type": "module"
+}

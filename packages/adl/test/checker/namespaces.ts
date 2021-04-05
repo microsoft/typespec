@@ -320,4 +320,23 @@ describe("blockless namespaces", () => {
     ok(O.namespace);
     strictEqual(O.namespace, M);
   });
+
+  it("works when namespaces aren't evaluated first", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      import "./b.adl";
+      model M = N.X;
+      `
+    );
+    testHost.addAdlFile(
+      "b.adl",
+      `
+      namespace N;
+      model X {}
+      `
+    );
+
+    await testHost.compile("/a.adl");
+  });
 });

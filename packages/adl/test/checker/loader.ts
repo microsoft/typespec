@@ -9,7 +9,7 @@ describe("loader", () => {
     testHost = await createTestHost();
   });
 
-  it.only("loads ADL and JS files", async () => {
+  it("loads ADL and JS files", async () => {
     testHost.addJsFile("blue.js", { blue() {} });
     testHost.addAdlFile(
       "a.adl",

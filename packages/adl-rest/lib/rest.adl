@@ -1,3 +1,5 @@
+import "../dist/rest.js";
+
 model OkResponse<T> {
   @header statusCode: 200;
   @body body: T;

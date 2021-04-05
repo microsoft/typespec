@@ -110,15 +110,6 @@ export function createChecker(program: Program) {
     }
   }
 
-  reportDuplicateSymbols(program.globalNamespace.exports!);
-  for (const file of program.sourceFiles) {
-    reportDuplicateSymbols(file.locals!);
-    for (const ns of file.namespaces) {
-      reportDuplicateSymbols(ns.locals!);
-      reportDuplicateSymbols(ns.exports!);
-    }
-  }
-
   return {
     getTypeForNode,
     checkProgram,
@@ -376,27 +367,6 @@ export function createChecker(program: Program) {
 
   function checkNamespace(node: NamespaceStatementNode) {
     const links = getSymbolLinks(node.symbol!);
-    if (!links.type) {
-      // haven't seen this namespace before
-      const type: NamespaceType = createType({
-        kind: "Namespace",
-        name: node.name.sv,
-        namespace: getParentNamespaceType(node),
-        node: node,
-        models: new Map(),
-        operations: new Map(),
-        namespaces: new Map(),
-      });
-
-      links.type = type;
-    } else {
-      // seen it before, need to execute the decorators on this node
-      // against the type we've already made.
-      for (const dec of node.decorators) {
-        program.executeDecorator(dec, program, links.type);
-      }
-    }
-
     const type = links.type as NamespaceType;
 
     if (Array.isArray(node.statements)) {
@@ -418,6 +388,36 @@ export function createChecker(program: Program) {
       type.namespaces.set(subNs.name, subNs);
     }
     return type;
+  }
+
+  function initializeTypeForNamespace(node: NamespaceStatementNode) {
+    if (!node.symbol) {
+      throw new Error("Namespace is unbound, please file a bug.");
+    }
+
+    const symbolLinks = getSymbolLinks(node.symbol);
+    if (!symbolLinks.type) {
+      // haven't seen this namespace before
+      const type: NamespaceType = createType({
+        kind: "Namespace",
+        name: node.name.sv,
+        namespace: getParentNamespaceType(node),
+        node: node,
+        models: new Map(),
+        operations: new Map(),
+        namespaces: new Map(),
+      });
+
+      symbolLinks.type = type;
+    } else {
+      // seen it before, need to execute the decorators on this node
+      // against the type we've already made.
+      for (const dec of node.decorators) {
+        program.executeDecorator(dec, program, symbolLinks.type);
+      }
+    }
+
+    return symbolLinks.type;
   }
 
   function getParentNamespaceType(
@@ -552,6 +552,16 @@ export function createChecker(program: Program) {
   }
 
   function checkProgram(program: Program) {
+    reportDuplicateSymbols(program.globalNamespace.exports!);
+    for (const file of program.sourceFiles) {
+      reportDuplicateSymbols(file.locals!);
+      for (const ns of file.namespaces) {
+        reportDuplicateSymbols(ns.locals!);
+        reportDuplicateSymbols(ns.exports!);
+
+        initializeTypeForNamespace(ns);
+      }
+    }
     for (const file of program.sourceFiles) {
       checkSourceFile(file);
     }

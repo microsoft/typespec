@@ -1,0 +1,6 @@
+import "MyLib";
+import "CustomAdlMain";
+
+@myLibDec
+model A = MyLib.Model;
+model B = CustomAdlMain.Model;

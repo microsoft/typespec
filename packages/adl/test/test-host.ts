@@ -65,6 +65,9 @@ export async function createTestHost(): Promise<TestHost> {
             isDirectory() {
               return true;
             },
+            isFile() {
+              return false;
+            },
           };
         }
       }
@@ -73,7 +76,15 @@ export async function createTestHost(): Promise<TestHost> {
         isDirectory() {
           return false;
         },
+        isFile() {
+          return true;
+        },
       };
+    },
+
+    // symlinks not supported in test-host
+    async realpath(path) {
+      return path;
     },
   };
 

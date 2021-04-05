@@ -1,5 +1,4 @@
 import { dirname, extname, isAbsolute, resolve } from "path";
-import { lstat } from "fs/promises";
 import { join } from "path";
 import { createBinder, SymbolTable } from "./binder.js";
 import { createChecker, MultiKeyMap } from "./checker.js";
@@ -9,7 +8,6 @@ import {
   ADLScriptNode,
   DecoratorExpressionNode,
   IdentifierNode,
-  NamespaceType,
   LiteralType,
   ModelStatementNode,
   ModelType,
@@ -20,6 +18,7 @@ import {
   NamespaceStatementNode,
 } from "./types.js";
 import { createSourceFile, throwDiagnostic } from "./diagnostics.js";
+import resolveModule from "resolve";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -221,16 +220,27 @@ export async function createProgram(
     for (const stmt of file.statements) {
       if (stmt.kind !== SyntaxKind.ImportStatement) break;
       const path = stmt.path;
-      const ext = extname(path);
+      const basedir = dirname(file.file.path);
 
       let target: string;
       if (path.startsWith("./") || path.startsWith("../")) {
-        target = resolve(dirname(file.file.path), path);
+        target = resolve(basedir, path);
       } else if (isAbsolute(path)) {
         target = path;
       } else {
-        throwDiagnostic("Import paths must begin with ./ or ../ or be absolute", stmt);
+        try {
+          // attempt to resolve a node module with this name
+          target = await resolveModuleSpecifier(path, basedir);
+        } catch (e) {
+          if (e.code === "MODULE_NOT_FOUND") {
+            throwDiagnostic(`Couldn't find library "${path}"`, stmt);
+          } else {
+            throw e;
+          }
+        }
       }
+
+      const ext = extname(target);
 
       if (ext === "") {
         // look for a main.adl
@@ -246,6 +256,77 @@ export async function createProgram(
         );
       }
     }
+  }
+
+  /**
+   * resolves a module specifier like "myLib" to an absolute path where we can find the main of
+   * that module, e.g. "/adl/node_modules/myLib/main.adl".
+   */
+  function resolveModuleSpecifier(specifier: string, basedir: string): Promise<string> {
+    return new Promise((resolveP, rejectP) => {
+      resolveModule(
+        specifier,
+        {
+          // default node semantics are preserveSymlinks: false
+          // this ensures that we resolve our monorepo referecnes to an actual location
+          // on disk.
+          preserveSymlinks: false,
+          basedir,
+          readFile(path, cb) {
+            host
+              .readFile(path)
+              .then((c) => cb(null, c))
+              .catch((e) => cb(e));
+          },
+          isDirectory(path, cb) {
+            host
+              .stat(path)
+              .then((s) => cb(null, s.isDirectory()))
+              .catch((e) => {
+                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+                  cb(null, false);
+                } else {
+                  cb(e);
+                }
+              });
+          },
+          isFile(path, cb) {
+            host
+              .stat(path)
+              .then((s) => cb(null, s.isFile()))
+              .catch((e) => {
+                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+                  cb(null, false);
+                } else {
+                  cb(e);
+                }
+              });
+          },
+          realpath(path, cb) {
+            host
+              .realpath(path)
+              .then((p) => cb(null, p))
+              .catch((e) => cb(e));
+          },
+          packageFilter(pkg) {
+            // this lets us follow node resolve semantics more-or-less exactly
+            // but using adlMain instead of main.
+            pkg.main = pkg.adlMain;
+            return pkg;
+          },
+        },
+        (err, resolved) => {
+          if (err) {
+            rejectP(err);
+          } else if (!resolved) {
+            // I don't know when this happens
+            rejectP(new Error("Couldn't resolve module"));
+          } else {
+            resolveP(resolved);
+          }
+        }
+      );
+    });
   }
 
   async function loadMain(options: CompilerOptions) {

@@ -1,8 +1,10 @@
 import fs from "fs";
-import url from "url";
+import url, { fileURLToPath, pathToFileURL } from "url";
 import { SymbolTable } from "./binder.js";
 import { createDiagnostic, Diagnostic, DiagnosticError } from "./diagnostics.js";
-import { Sym } from "./types";
+import { CompilerHost, Sym } from "./types";
+import { stat, readFile, mkdtemp, readdir, rmdir, realpath } from "fs/promises";
+import { join, resolve } from "path";
 
 export const adlVersion = getVersion();
 
@@ -45,3 +47,21 @@ export function reportDuplicateSymbols(symbols: SymbolTable) {
     }
   }
 }
+
+export const NodeHost: CompilerHost = {
+  readFile: (path: string) => readFile(path, "utf-8"),
+  readDir: (path: string) => readdir(path, { withFileTypes: true }),
+  getCwd: () => process.cwd(),
+  getExecutionRoot: () => resolve(fileURLToPath(import.meta.url), "../../../"),
+  getJsImport: (path: string) => import(pathToFileURL(path).href),
+  getLibDirs() {
+    const rootDir = this.getExecutionRoot();
+    return [join(rootDir, "lib"), join(rootDir, "dist/lib")];
+  },
+  stat(path: string) {
+    return stat(path);
+  },
+  realpath(path) {
+    return realpath(path);
+  },
+};
