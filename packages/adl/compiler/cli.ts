@@ -14,8 +14,7 @@ import { CompilerHost } from "./types.js";
 const args = yargs(process.argv.slice(2))
   .scriptName("adl")
   .help()
-  // .strict() -- TODO: Turn this back on if we add library-level option registration
-  .strictCommands()
+  .strict()
   .command("compile <path>", "Compile a directory of ADL files.", (cmd) => {
     return cmd
       .positional("path", {
@@ -27,6 +26,12 @@ const args = yargs(process.argv.slice(2))
         default: "./adl-output",
         describe:
           "The output path for generated artifacts.  If it does not exist, it will be created.",
+      })
+      .option("option", {
+        type: "array",
+        string: true,
+        describe:
+          "Key/value pairs that can be passed to ADL components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
       })
       .option("nostdlib", {
         type: "boolean",
@@ -57,6 +62,12 @@ const args = yargs(process.argv.slice(2))
           default: "./adl-output",
           describe:
             "The output path for generated artifacts.  If it does not exist, it will be created.",
+        })
+        .option("option", {
+          type: "array",
+          string: true,
+          describe:
+            "Key/value pairs that can be passed to ADL components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
         });
     }
   )
@@ -115,9 +126,19 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
   const outputPath = resolve(args["output-path"]);
   await mkdirp(outputPath);
 
+  const miscOptions: any = {};
+  for (const option of args.option || []) {
+    const optionParts = option.split("=");
+    if (optionParts.length != 2) {
+      throw new Error(
+        `The --option parameter value "${option}" must be in the format: some-option=value`
+      );
+    }
+    miscOptions[optionParts[0]] = optionParts[1];
+  }
+
   return {
-    outputPath,
-    rawParameters: args,
+    miscOptions,
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
   };
