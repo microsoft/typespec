@@ -293,5 +293,4 @@ Decorator :
     `@` IdentifierOrMemberExpression DecoratorArguments?
 
 DecoratorArguments :
-   Literal
    `(` ExpressionList? `)`

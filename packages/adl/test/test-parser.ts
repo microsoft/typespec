@@ -63,14 +63,14 @@ describe("syntax", () => {
          prop2: string
        };`,
 
-      `@doc """
+      `@doc("""
        Documentation
-       """
+       """)
        model Car {
-         @doc "first"
+         @doc("first")
          prop1: number;
 
-         @doc "second"
+         @doc("second")
          prop2: number;
        }`,
 

@@ -527,8 +527,6 @@ export function parse(code: string | Types.SourceFile) {
         args = parseExpressionList();
         parseExpected(Token.CloseParen);
       }
-    } else if (tokenIsLiteral()) {
-      args = [parsePrimaryExpression()];
     }
 
     return finishNode(

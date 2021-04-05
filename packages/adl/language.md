@@ -279,6 +279,5 @@
 &emsp;&emsp;&emsp;<a name="Decorator-p1dbtqtg"></a>`` @ ``&emsp;*[IdentifierOrMemberExpression](#IdentifierOrMemberExpression)*&emsp;*[DecoratorArguments](#DecoratorArguments)*<sub>opt</sub>  
   
 &emsp;&emsp;<a name="DecoratorArguments"></a>*DecoratorArguments* **:**  
-&emsp;&emsp;&emsp;<a name="DecoratorArguments-kul-a19e"></a>*[Literal](#Literal)*  
 &emsp;&emsp;&emsp;<a name="DecoratorArguments-gq6jlu5e"></a>`` ( ``&emsp;*[ExpressionList](#ExpressionList)*<sub>opt</sub>&emsp;`` ) ``  
   
