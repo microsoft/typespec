@@ -362,7 +362,7 @@ model WriteDog {
 
 ### Libraries
 
-ADL libraries are bundles of useful ADL declarations and decorators into reusable packages. ADL libraries are actually npm packages under the covers. Official `adl` libraries can be found under the `@adl` npm scope.
+ADL libraries are bundles of useful ADL declarations and decorators into reusable packages. ADL libraries are actually npm packages under the covers. Official `adl` libraries can be found with the `@@azure-tools/adl-` npm package name prefix.
 
 #### Using libraries
 
@@ -370,14 +370,14 @@ The first step in using a library is to install it via `npm`. You can get `npm` 
 
 If you haven't already intiialized your ADL project's package.json file, now would be a good time to do so. The package.json file lets you track the dependencies your project depends on, and is a best practice to check in along with any ADL files you create. Run `npm init` create your package.json file.
 
-Then, in your ADL project directory, type `npm install libraryName` to install a library. For example, to install the official ADL REST API bindings and OpenAPI generator, you would type `npm install @adl/rest @adl/openapi`.
+Then, in your ADL project directory, type `npm install libraryName` to install a library. For example, to install the official ADL REST API bindings and OpenAPI generator, you would type `npm install @azure-tools/adl-rest @azure-tools/adl-openapi`.
 
 Lastly, you need to import the libraries into your ADL program. By convention, all external dependencies are imported in your `main.adl` file, but can be in any ADL file imported into your program. Importing the two libraries we installed above would look like this:
 
 ```
 // in main.adl
-import "@adl/rest";
-import "@adl/openapi";
+import "@azure-tools/adl-rest";
+import "@azure-tools/adl-openapi";
 ```
 
 #### Creating libraries
@@ -388,11 +388,11 @@ The package.json file for an ADL library requires one additional field: `adlMain
 
 ### REST APIs
 
-With the language building blocks we've covered so far we're ready to author our first REST API. ADL has an official REST API "binding" called `@adl/rest`. It's a set of ADL declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
+With the language building blocks we've covered so far we're ready to author our first REST API. ADL has an official REST API "binding" called `@azure-tools/adl-rest`. It's a set of ADL declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
 
-ADL also has an official OpenAPI emitter called `@adl/openapi` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
+ADL also has an official OpenAPI emitter called `@azure-tools/adl-openapi` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
 
-The following examples assume you have imported both `@adl/openapi` and `@adl/rest` somewhere in your ADL program (though importing them in `main.adl` is the standard convention).
+The following examples assume you have imported both `@azure-tools/adl-openapi` and `@azure-tools/adl-rest` somewhere in your ADL program (though importing them in `main.adl` is the standard convention).
 
 #### Service definition and metadata
 

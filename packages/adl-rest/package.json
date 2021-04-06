@@ -1,5 +1,5 @@
 {
-  "name": "@adl/rest",
+  "name": "@azure-tools/adl-rest",
   "version": "0.1.0",
   "description": "ADL REST protocol binding",
   "main": "dist/rest.js",
