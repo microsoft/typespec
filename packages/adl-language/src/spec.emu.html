@@ -7,7 +7,306 @@ copyright: false
 <p>This document will eventually have a full specification for ADL. For now, it just has the grammar below.</p>
 </emu-intro>
 
-<emu-clause id="grammar">
-<h1>Grammar</h1>
-<emu-import href="../temp/grammar.emu.html" />
+<emu-clause id="lexical-grammar">
+<h1>Lexical Grammar</h1>
+<emu-grammar type="definition">
+<![CDATA[
+SourceCharacter :
+    > any Unicode code point
+
+InputElement :
+    Token
+    Trivia
+
+Token:
+    Keyword
+    Identifier
+    NumericLiteral
+    StringLiteral
+    Punctuator
+
+Trivia :
+    Comment
+    WhiteSpace
+    LineTerminator
+
+Keyword :
+    BooleanLiteral
+    `import`
+    `model`
+    `namespace`
+    `op`
+    `extends`
+    `using`
+
+Identifier :
+    IdentifierName but not Keyword
+
+IdentifierName :
+    IdentifierStart
+    IdentifierName IdentifierContinue
+
+IdentifierStart :
+    > any Unicode code point with the Unicode property "ID_Start" or "Other_ID_Start"
+    `$`
+    `_`
+
+IdentifierContinue :
+    > any Unicode code point with the Unicode property "ID_Continue" or "Other_ID_Continue", or "Other_ID_Start"
+    `$`
+    `_`
+    <ZWNJ>
+    <ZWJ>
+
+BooleanLiteral :
+    `true`
+    `false`
+
+NumericLiteral :
+    DecimalLiteral
+    HexIntegerLiteral
+
+DecimalLiteral :
+    DecimalIntegerLiteral `.` DecimalDigits? ExponentPart?
+    DecimalIntegerLiteral ExponentPart?
+
+DecimalIntegerLiteral :
+    DecimalDigits
+
+DecimalDigits :
+    DecimalDigit
+    DecimalDigits DecimalDigit
+
+DecimalDigit :
+    one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+
+ExponentPart :
+    `e` SignedInteger
+
+SignedInteger :
+    DecimalDigits
+    `+` DecimalDigits
+    `-` DecimalDigits
+
+HexIntegerLiteral :
+    `0x` HexDigits
+
+HexDigits :
+    HexDigit
+    HexDigits HexDigit
+
+HexDigit : 
+    one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9` `a` `b` `c` `d` `e` `f` `A` `B` `C` `D` `E` `F`
+
+BinaryIntegerLiteral :
+    `0b` BinaryDigits
+
+BinaryDigits :
+    BinaryDigit
+    BinaryDigits BinaryDigit
+
+BinaryDigit :
+    one of `0` `1`
+
+// TODO: triple-quoted strings not specified yet, tricky to express.
+
+StringLiteral :
+    `"` StringCharacters? `"`
+
+StringCharacters :
+    StringCharacter StringCharacters?
+
+StringCharacter :
+    SourceCharacter but not one of `"` or `\`
+    `\` EscapeCharacter
+
+EscapeCharacter :
+    one of `"` `r` `n` `t` `\`
+
+Punctuator : 
+    one of  `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...`
+
+WhiteSpace :
+    <TAB>
+    <VT>
+    <FF>
+    <SP>
+    <NBSP>
+    <ZWNBSP>
+    <USP>
+
+LineTerminator :
+    <LF>
+    <CR>
+    <LS>
+    <PS>
+
+Comment :
+    MultiLineComment
+    SingleLineComment
+
+MultiLineComment :
+    `/*` MultiLineCommentChars? `*/`
+
+MultiLineCommentChars :
+    MultiLineNotAsteriskChar MultiLineCommentChars?
+    `*` PostAsteriskCommentChars?
+
+PostAsteriskCommentChars :
+    MultiLineNotForwardSlashOrAsteriskChar MultiLineCommentChars?
+    `*` PostAsteriskCommentChars?
+
+MultiLineNotAsteriskChar :
+    SourceCharacter but not `*`
+
+MultiLineNotForwardSlashOrAsteriskChar :
+    SourceCharacter but not one of `/` or `*`
+
+SingleLineComment :
+    `//` SingleLineCommentChars?
+
+SingleLineCommentChars :
+    SingleLineCommentChar SingleLineCommentChars?
+
+SingleLineCommentChar :
+    SourceCharacter but not LineTerminator
+]]>
+</emu-grammar>
+</emu-clause>
+
+<emu-clause id="syntactic-grammar">
+<h1>Syntactic Grammar</h1>
+<emu-grammar type="definition">
+<![CDATA[
+    ADLScript :
+    ADLScriptItemList?
+
+ADLScriptItemList :
+    ADLScriptItemList? ADLScriptItem
+
+ADLScriptItem :
+    BlocklessNamespaceStatement
+    ImportStatement
+    Statement
+
+BlocklessNamespaceStatement :
+    DecoratorList? `namespace` IdentifierOrMemberExpression `;`
+
+ImportStatement :
+    `import` StringLiteral `;`
+
+StatementList :
+    StatementList? Statement
+
+Statement :
+    ModelStatement
+    NamespaceStatement
+    OperationStatement
+    UsingStatement
+    `;`
+
+UsingStatement :
+    `using` IdentifierOrMemberExpression `;`
+
+ModelStatement :
+    DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
+    DecoratorList? `model` Identifier TemplateParameters? `=` Expression `;`
+
+ModelHeritage :
+    `extends` ReferenceExpressionList
+
+ReferenceExpressionList :
+    ReferenceExpression
+    ReferenceExpressionList `,` ReferenceExpression
+
+TemplateParameters :
+    `<` IdentifierList `>`
+
+IdentifierList :
+    Identifier
+    IdentifierList `,` Identifier
+
+ModelBody :
+    ModelPropertyList `,`?
+    ModelPropertyList `;`?
+
+ModelPropertyList :
+    ModelProperty
+    ModelPropertyList `,` ModelProperty
+    ModelPropertyList `;` ModelProperty
+
+ModelProperty:
+    ModelSpreadProperty
+    DecoratorList? Identifier `?`? `:` Expression
+    DecoratorList? StringLiteral `?`? `:` Expression
+
+ModelSpreadProperty :
+    `...` ReferenceExpression
+
+NamespaceStatement: 
+    DecoratorList? `namespace` IdentifierOrMemberExpression `{` StatementList? `}`
+
+OperationStatement :
+    DecoratorList? `op` Identifier `(` ModelPropertyList? `)` `:` Expression `;`
+
+Expression :
+    UnionExpressionOrHigher
+
+UnionExpressionOrHigher :
+    IntersectionExpressionOrHigher
+    UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
+
+IntersectionExpressionOrHigher :
+    ArrayExpressionOrHigher
+    IntersectionExpressionOrHigher `&` ArrayExpressionOrHigher
+
+ArrayExpressionOrHigher :
+    PrimaryExpression
+    ArrayExpressionOrHigher `[` `]`
+
+PrimaryExpression :
+    Literal
+    ReferenceExpression
+    ParenthesizedExpression
+    ModelExpression
+    TupleExpression
+
+Literal :
+    StringLiteral
+    BooleanLiteral
+    NumericLiteral
+
+ReferenceExpression :
+    IdentifierOrMemberExpression TemplateArguments?
+
+IdentifierOrMemberExpression :
+    Identifier
+    IdentifierOrMemberExpression `.` Identifier
+
+TemplateArguments :
+    `<` ExpressionList `>`
+
+ParenthesizedExpression : 
+    `(` Expression `)`
+
+ModelExpression :
+    `{` ModelBody? `}`
+
+TupleExpression :
+    `[` ExpressionList `]`
+
+ExpressionList :
+    Expression
+    ExpressionList `,` Expression
+
+DecoratorList :
+    DecoratorList? Decorator
+
+Decorator :
+    `@` IdentifierOrMemberExpression DecoratorArguments?
+
+DecoratorArguments :
+    `(` ExpressionList? `)`
+]]>
+</emu-grammar>
 </emu-clause>
