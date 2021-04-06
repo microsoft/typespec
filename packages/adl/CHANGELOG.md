@@ -1,6 +1,24 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Wed, 31 Mar 2021 22:00:43 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Apr 2021 01:23:07 GMT and should not be manually modified.
+
+## 0.8.0
+Tue, 06 Apr 2021 01:23:07 GMT
+
+### Minor changes
+
+- Implement npm libraries
+- Implement library import with npm, abstract out rest, openapi, rpaas
+
+### Patches
+
+- Add commands to install and uninstall Visual Studio extension
+- Enable security and securityDefinitions metadata to be applied to emitted OpenAPI documents; add default ARM security details
+- Add api-version parameter to all ARM operations
+- Add operations endpoint for ARM services
+- Enable creation of $refs to ARM common model and parameter definitions
+- Add common ARM parameter definitions for resource operations
+- remove parenless decorators
 
 ## 0.7.0
 Wed, 31 Mar 2021 22:00:43 GMT

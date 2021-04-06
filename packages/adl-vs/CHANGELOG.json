@@ -2,6 +2,18 @@
   "name": "@azure-tools/adl-vs",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@azure-tools/adl-vs_v0.1.2",
+      "date": "Tue, 06 Apr 2021 01:23:07 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Improve debugging of VS extension itself"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@azure-tools/adl-vs_v0.1.1",
       "date": "Wed, 31 Mar 2021 22:00:43 GMT",
