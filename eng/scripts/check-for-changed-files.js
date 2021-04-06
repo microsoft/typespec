@@ -16,7 +16,7 @@ if (proc.stderr) {
 if (proc.stdout || proc.stderr) {
   console.error(
     `ERROR: Files above were changed during PR validation, but not included in the PR.
-Include any automated changes such as sample output, grammar.md, and ThirdPartyNotices.txt in your PR.`
+Include any automated changes such as sample output, spec.html, and ThirdPartyNotices.txt in your PR.`
   );
   process.exit(1);
 }

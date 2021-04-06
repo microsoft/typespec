@@ -23,9 +23,7 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
-    "check-format": "prettier --list-different --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\"",
-    "format": "prettier --write --config ../../.prettierrc.json --ignore-path ../../.prettierignore \"**/*.{ts,js,json}\""
+    "watch": "tsc -p . --watch"
   },
   "files": [
     "dist/**"

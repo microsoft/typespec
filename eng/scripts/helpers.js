@@ -1,4 +1,4 @@
-import { spawnSync } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import { readFileSync } from "fs";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -14,6 +14,8 @@ function read(filename) {
 }
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+export const prettier = resolve(repoRoot, "packages/adl/node_modules/.bin/prettier");
+export const tsc = resolve(repoRoot, "packages/adl/node_modules/.bin/tsc");
 
 const rush = read(`${repoRoot}/rush.json`);
 
@@ -27,12 +29,12 @@ export function forEachProject(onEach) {
   }
 }
 
-export function npmForEach(cmd) {
+export function npmForEach(cmd, options) {
   forEachProject((name, location, project) => {
     // checks for the script first
     if (project.scripts[cmd] || cmd === "pack") {
       const args = cmd === "pack" ? [cmd] : ["run", cmd];
-      run("npm", args, { cwd: location });
+      run("npm", args, { cwd: location, ...options });
     }
   });
 }
@@ -40,7 +42,7 @@ export function npmForEach(cmd) {
 // We could use { shell: true } to let Windows find .cmd, but that causes other issues.
 // It breaks ENOENT checking for command-not-found and also handles command/args with spaces
 // poorly.
-const isCmdOnWindows = ["rush", "npm", "code", "code-insiders"];
+const isCmdOnWindows = ["rush", "npm", "code", "code-insiders", tsc, prettier];
 
 export function run(command, args, options) {
   console.log();
@@ -48,6 +50,7 @@ export function run(command, args, options) {
 
   options = {
     stdio: "inherit",
+    sync: true,
     ...options,
   };
 
@@ -55,25 +58,21 @@ export function run(command, args, options) {
     command += ".cmd";
   }
 
-  const proc = spawnSync(command, args, options);
+  const proc = (options.sync ? spawnSync : spawn)(command, args, options);
   if (proc.error) {
     if (options.ignoreCommandNotFound && proc.error.code === "ENOENT") {
       console.log("Skipped: Command not found.");
     } else {
       throw proc.error;
     }
-  } else if (proc.status !== 0) {
+  } else if (proc.status !== undefined && proc.status !== 0) {
     throw new Error(`Command failed with exit code ${proc.status}`);
   }
 
   return proc;
 }
 
-export function prettier(...args) {
-  let prettier = resolve(repoRoot, "packages/adl/node_modules/.bin/prettier");
-  if (process.platform == "win32") {
-    prettier += ".cmd";
-  }
+export function runPrettier(...args) {
   run(
     prettier,
     [
@@ -82,10 +81,27 @@ export function prettier(...args) {
       ".prettierrc.json",
       "--ignore-path",
       ".prettierignore",
-      "**/*.{ts,js,json}",
+      "**/*.{ts,js,cjs,mjs,json}",
     ],
     {
       cwd: repoRoot,
     }
   );
+}
+
+export function clearScreen() {
+  process.stdout.write("\x1bc");
+}
+
+export function watchHandler(cb) {
+  clearScreen();
+  console.log("@@BEGIN");
+  try {
+    cb();
+  } catch (err) {
+    console.log(err.stack);
+    console.log("@@END");
+    process.exit(1);
+  }
+  console.log("@@END");
 }

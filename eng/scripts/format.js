@@ -1,2 +1,2 @@
-import { prettier } from "./helpers.js";
-prettier("--write");
+import { runPrettier } from "./helpers.js";
+runPrettier("--write");

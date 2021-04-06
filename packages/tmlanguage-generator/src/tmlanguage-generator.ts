@@ -178,7 +178,8 @@ async function processGrammar(grammar: Grammar): Promise<any> {
         const buffer = Buffer.from(array);
         err = new Error(buffer.toString("utf-8"));
       }
-      console.error(`Error: Bad regex: ${JSON.stringify({ [prop]: regexp })} in:`);
+      //prettier-ignore
+      console.error(`unknown_location(1,1): error TM0001: Bad regex encountered while generating .tmLanguage: ${JSON.stringify({[prop]: regexp})}`);
       console.error(node);
       throw err;
     }

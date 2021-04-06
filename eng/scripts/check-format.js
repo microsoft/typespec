@@ -1,2 +1,2 @@
-import { prettier } from "./helpers.js";
-prettier("--list-different");
+import { runPrettier } from "./helpers.js";
+runPrettier("--list-different");
