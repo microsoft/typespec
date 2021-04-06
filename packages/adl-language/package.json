@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "ecmarkup src/spec.emu.html ../../docs/spec.html",
-    "watch": "watch \"node scripts/watch-spec-handler.js\" ./src"
+    "watch": "node scripts/watch-spec.js"
   },
   "dependencies": {},
   "devDependencies": {
