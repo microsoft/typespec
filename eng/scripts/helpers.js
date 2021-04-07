@@ -51,6 +51,7 @@ export function run(command, args, options) {
   options = {
     stdio: "inherit",
     sync: true,
+    throwOnNonZeroExit: true,
     ...options,
   };
 
@@ -65,7 +66,7 @@ export function run(command, args, options) {
     } else {
       throw proc.error;
     }
-  } else if (proc.status !== undefined && proc.status !== 0) {
+  } else if (options.throwOnNonZeroExit && proc.status !== undefined && proc.status !== 0) {
     throw new Error(`Command failed with exit code ${proc.status}`);
   }
 
@@ -93,15 +94,34 @@ export function clearScreen() {
   process.stdout.write("\x1bc");
 }
 
-export function watchHandler(cb) {
-  clearScreen();
-  console.log("@@BEGIN");
-  try {
-    cb();
-  } catch (err) {
-    console.log(err.stack);
-    console.log("@@END");
-    process.exit(1);
+export function runWatch(watch, dir, command, args, options) {
+  dir = resolve(dir);
+  handler();
+
+  watch.createMonitor(dir, (monitor) => {
+    monitor.on("created", handler);
+    monitor.on("changed", handler);
+    monitor.on("removed", handler);
+  });
+
+  function handler(file) {
+    if (file && options.filter && !options.filter(file)) {
+      return;
+    }
+
+    clearScreen();
+    logWithTime(`File changes detected in ${dir}. Running build.`);
+    const proc = run(command, args, { throwOnNonZeroExit: false, ...options });
+    console.log();
+    if (proc.status === 0) {
+      logWithTime("Build succeeded. Waiting for file changes...");
+    } else {
+      logWithTime(`Build failed with exit code ${proc.status}. Waiting for file changes...`);
+    }
   }
-  console.log("@@END");
+}
+
+export function logWithTime(msg) {
+  const time = new Date().toLocaleTimeString();
+  console.log(`[${time}] ${msg}`);
 }

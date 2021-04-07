@@ -27,7 +27,7 @@
     "build": "npm run compile && npm run rollup && npm run generate-tmlanguage && npm run generate-third-party-notices && npm run package-vsix",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "watch-tmlanguage": "watch \"node scripts/watch-tmlanguage-handler.js\" dist-dev --filter scripts/watch-tmlanguage-filter.cjs",
+    "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
     "dogfood": "node scripts/dogfood.js",
     "generate-tmlanguage": "node dist-dev/tmlanguage.js",
     "generate-third-party-notices": "node scripts/generate-third-party-notices.js",
