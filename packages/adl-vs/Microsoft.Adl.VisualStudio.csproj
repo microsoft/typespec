@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
@@ -8,14 +8,19 @@
     <DeployExtension Condition="'$(Configuration)' != 'Debug'">false</DeployExtension>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <LangVersion>Latest</LangVersion>
+    <Nullable>Enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>5</WarningLevel>
+    <Features>strict</Features>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="LICENSE" />
-    <Content Include="adl.pkgdef" />
+    <Content Include="LICENSE" Visible="False"/>
+    <Content Include="*.pkgdef" />
     <Content Include="node_modules/adl-vscode/dist/adl.tmLanguage" Link="TextMate/adl.tmLanguage" />
-    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Condition="'$(Configuration)' == 'Debug'"/>
+    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Condition="'$(Configuration)' == 'Debug'" Visible="False" />
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="*;Properties\*" Exclude="@(Content);*.sln" />
+    <None Include="*.vsixmanifest" />
+    <None Include="Properties\*.json" />
     <Reference Include="System.ComponentModel.Composition" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" ExcludeAssets="runtime" />
