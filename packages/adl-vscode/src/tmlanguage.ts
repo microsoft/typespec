@@ -3,6 +3,7 @@
 
 import * as tm from "@azure-tools/tmlanguage-generator";
 import fs from "fs/promises";
+import { resolve } from "path";
 
 type IncludeRule = tm.IncludeRule<ADLScope>;
 type BeginEndRule = tm.BeginEndRule<ADLScope>;
@@ -319,12 +320,9 @@ const grammar: Grammar = {
   patterns: [statement],
 };
 
-async function main() {
-  const plist = await tm.emitPList(grammar);
+export async function main() {
+  const plist = await tm.emitPList(grammar, {
+    errorSourceFilePath: resolve("./src/tmlanguage.ts"),
+  });
   await fs.writeFile("./dist/adl.tmLanguage", plist);
 }
-
-main().catch((err) => {
-  console.log(err.stack);
-  process.exit(1);
-});

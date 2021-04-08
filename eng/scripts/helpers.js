@@ -94,29 +94,52 @@ export function clearScreen() {
   process.stdout.write("\x1bc");
 }
 
-export function runWatch(watch, dir, command, args, options) {
+export function runWatch(watch, dir, build, options) {
+  let lastStartTime;
   dir = resolve(dir);
-  handler();
 
-  watch.createMonitor(dir, (monitor) => {
+  // build once up-front.
+  runBuild();
+
+  watch.createMonitor(dir, { interval: 0.2, ...options }, (monitor) => {
+    let handler = function (file) {
+      if (lastStartTime && monitor?.files[file]?.mtime < lastStartTime) {
+        // File was changed before last build started so we can ignore it. This
+        // avoids running the build unnecessarily when a series of input files
+        // change at the same time.
+        return;
+      }
+      runBuild(file);
+    };
+
     monitor.on("created", handler);
     monitor.on("changed", handler);
     monitor.on("removed", handler);
   });
 
-  function handler(file) {
-    if (file && options.filter && !options.filter(file)) {
-      return;
+  function runBuild(file) {
+    runBuildAsync(file).catch((err) => {
+      console.error(err.stack);
+      process.exit(1);
+    });
+  }
+
+  async function runBuildAsync(file) {
+    lastStartTime = Date.now();
+    clearScreen();
+
+    if (file) {
+      logWithTime(`File change detected: ${file}. Running build.`);
+    } else {
+      logWithTime("Starting build in watch mode.");
     }
 
-    clearScreen();
-    logWithTime(`File changes detected in ${dir}. Running build.`);
-    const proc = run(command, args, { throwOnNonZeroExit: false, ...options });
-    console.log();
-    if (proc.status === 0) {
-      logWithTime("Build succeeded. Waiting for file changes...");
-    } else {
-      logWithTime(`Build failed with exit code ${proc.status}. Waiting for file changes...`);
+    try {
+      await build();
+      logWithTime("Build succeeded. Waiting for file changes.");
+    } catch (err) {
+      console.error(err.stack);
+      logWithTime(`Build failed. Waiting for file changes.`);
     }
   }
 }

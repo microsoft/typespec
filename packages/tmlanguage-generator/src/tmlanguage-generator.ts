@@ -74,22 +74,26 @@ async function initialize() {
   }
 }
 
+export interface EmitOptions {
+  errorSourceFilePath?: string;
+}
+
 /**
  * Emit the given grammar to JSON.
  */
-export async function emitJSON(grammar: Grammar): Promise<string> {
+export async function emitJSON(grammar: Grammar, options: EmitOptions = {}): Promise<string> {
   await initialize();
   const indent = 2;
-  const processed = await processGrammar(grammar);
+  const processed = await processGrammar(grammar, options);
   return JSON.stringify(processed, undefined, indent);
 }
 
 /**
  * Emit the given grammar to PList XML
  */
-export async function emitPList(grammar: Grammar): Promise<string> {
+export async function emitPList(grammar: Grammar, options: EmitOptions = {}): Promise<string> {
   await initialize();
-  const processed = await processGrammar(grammar);
+  const processed = await processGrammar(grammar, options);
   return plist.build(processed);
 }
 
@@ -97,22 +101,22 @@ export async function emitPList(grammar: Grammar): Promise<string> {
  * Convert the grammar from our more convenient representation to the
  * tmlanguage schema. Perform some validation in the process.
  */
-async function processGrammar(grammar: Grammar): Promise<any> {
+async function processGrammar(grammar: Grammar, options: EmitOptions): Promise<any> {
   await initialize();
 
   // key is rule.key, value is [unprocessed rule, processed rule]. unprocessed
   // rule is used for its identity to check for duplicates and deal with cycles.
   const repository = new Map<string, [Rule, any]>();
-  const output = processNode(grammar);
+  const output = processNode(grammar, options);
   output.repository = processRepository();
   return output;
 
-  function processNode(node: any): any {
+  function processNode(node: any, options: EmitOptions): any {
     if (typeof node !== "object") {
       return node;
     }
     if (Array.isArray(node)) {
-      return node.map(processNode);
+      return node.map((n) => processNode(n, options));
     }
     const output: any = {};
     for (const key in node) {
@@ -130,28 +134,28 @@ async function processGrammar(grammar: Grammar): Promise<any> {
         case "begin":
         case "end":
         case "match":
-          validateRegexp(value, node, key);
+          validateRegexp(value, node, key, options);
           output[key] = value;
           break;
         case "patterns":
-          output[key] = processPatterns(value);
+          output[key] = processPatterns(value, options);
           break;
         default:
-          output[key] = processNode(value);
+          output[key] = processNode(value, options);
           break;
       }
     }
     return output;
   }
 
-  function processPatterns(rules: Rule[]) {
+  function processPatterns(rules: Rule[], options: EmitOptions) {
     for (const rule of rules) {
       if (!repository.has(rule.key)) {
         // put placeholder first to prevent cycles
         const entry: [Rule, any] = [rule, undefined];
         repository.set(rule.key, entry);
         // fill placeholder with processed node.
-        entry[1] = processNode(rule);
+        entry[1] = processNode(rule, options);
       } else if (repository.get(rule.key)![0] !== rule) {
         throw new Error("Duplicate key: " + rule.key);
       }
@@ -168,18 +172,19 @@ async function processGrammar(grammar: Grammar): Promise<any> {
     return output;
   }
 
-  function validateRegexp(regexp: string, node: any, prop: string) {
+  function validateRegexp(regexp: string, node: any, prop: string, options: EmitOptions) {
     try {
       new OnigRegExp(regexp).testSync("");
     } catch (err) {
-      if (/^[0-9,]+/.test(err.message)) {
+      if (/^[0-9,]+$/.test(err.message)) {
         // Work around for https://github.com/NeekSandhu/onigasm/issues/26
         const array = new Uint8Array(err.message.split(",").map((s: string) => Number(s)));
         const buffer = Buffer.from(array);
         err = new Error(buffer.toString("utf-8"));
       }
+      const sourceFile = options.errorSourceFilePath ?? "unknown_file";
       //prettier-ignore
-      console.error(`unknown_location(1,1): error TM0001: Bad regex encountered while generating .tmLanguage: ${JSON.stringify({[prop]: regexp})}`);
+      console.error(`${sourceFile}(1,1): error TM0001: Bad regex: ${JSON.stringify({[prop]: regexp})}: ${err.message}`);
       console.error(node);
       throw err;
     }
