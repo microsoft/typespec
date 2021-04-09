@@ -157,13 +157,13 @@ async function generateClient(options: CompilerOptions) {
   }
 }
 
-async function installVsix(pkg: string, vsixSubPath: string, install: (vsixPath: string) => void) {
+async function installVsix(pkg: string, install: (vsixPath: string) => void) {
   // download npm package to temporary directory
   const temp = await mkdtemp(path.join(os.tmpdir(), "adl"));
   run("npm", ["install", "--silent", "--prefix", temp, pkg]);
 
   // locate .vsix
-  const dir = path.join(temp, "node_modules", pkg, vsixSubPath);
+  const dir = path.join(temp, "node_modules", pkg);
   const files = await readdir(dir);
   let vsix: string | undefined;
   for (const file of files) {
@@ -184,7 +184,7 @@ async function installVsix(pkg: string, vsixSubPath: string, install: (vsixPath:
 }
 
 async function installVSCodeExtension() {
-  await installVsix("adl-vscode", "", (vsix) => {
+  await installVsix("adl-vscode", (vsix) => {
     run(args.insiders ? "code-insiders" : "code", ["--install-extension", vsix]);
   });
 }
@@ -208,7 +208,7 @@ function getVsixInstallerPath(): string {
 
 async function installVSExtension() {
   const vsixInstaller = getVsixInstallerPath();
-  await installVsix("@azure-tools/adl-vs", "bin/Release", (vsix) => {
+  await installVsix("@azure-tools/adl-vs", (vsix) => {
     run(vsixInstaller, [vsix]);
   });
 }

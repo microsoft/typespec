@@ -9,7 +9,7 @@
     "url": "git+https://github.com/azure/adl"
   },
   "files": [
-    "bin/Release/Microsoft.Adl.VisualStudio.vsix"
+    "Microsoft.Adl.VisualStudio.vsix"
   ],
   "scripts": {
     "build": "node scripts/build.js"

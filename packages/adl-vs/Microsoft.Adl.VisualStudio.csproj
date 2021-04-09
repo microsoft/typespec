@@ -5,13 +5,16 @@
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>true</EmbedAllSources>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <DeployExtension Condition="'$(Configuration)' != 'Debug'">false</DeployExtension>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <LangVersion>Latest</LangVersion>
     <Nullable>Enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>5</WarningLevel>
     <Features>strict</Features>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DeployExtension>false</DeployExtension>
+    <TargetVsixContainer>$(AssemblyName).vsix</TargetVsixContainer>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="LICENSE" Visible="False"/>
