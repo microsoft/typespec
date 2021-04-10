@@ -1,5 +1,4 @@
-﻿<Project>
-  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <DebugType>Embedded</DebugType>
@@ -11,16 +10,20 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>5</WarningLevel>
     <Features>strict</Features>
+    <!-- Official build will pass in the real version from package.json, see scripts/build.js -->
+    <Version>42.42.42</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DeployExtension>false</DeployExtension>
     <TargetVsixContainer>$(AssemblyName).vsix</TargetVsixContainer>
   </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Visible="False" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="LICENSE" Visible="False"/>
     <Content Include="*.pkgdef" />
     <Content Include="node_modules/adl-vscode/dist/adl.tmLanguage" Link="TextMate/adl.tmLanguage" />
-    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Condition="'$(Configuration)' == 'Debug'" Visible="False" />
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
     <None Include="*.vsixmanifest" />
     <None Include="Properties\*.json" />
@@ -29,12 +32,4 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.10.23" />
   </ItemGroup>
-  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
-  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != '' and '$(MSBuildRuntimeType)' != 'Core'" />
-  <Target Name="WarnAboutDotnetBuildAndVsix" Condition="'$(MSBuildRuntimeType)' == 'Core'" AfterTargets="AfterBuild">
-    <Message Importance="High" Text="VSIX packaging skipped: not supported by `dotnet build`, use Visual Studio `msbuild` to package VSIX." />
-  </Target>
-  <Target Name="WriteDebugSourceDirectory" Condition="'$(Configuration)' == 'Debug'" BeforeTargets="BeforeBuild">
-    <WriteLinesToFile File="$(IntermediateOutputPath)DebugSourceDirectory.txt" Lines="$(MSBuildThisFileDirectory)" WriteOnlyWhenDifferent="true" Overwrite="true" />
-  </Target>
 </Project>

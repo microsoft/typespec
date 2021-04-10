@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="88b9492f-c019-492c-8aeb-f325a7e4cf23" Version="1.0" Language="en-US" Publisher="Microsoft" />
+    <Identity Id="88b9492f-c019-492c-8aeb-f325a7e4cf23" Version="|%CurrentProject%;GetVersionForVsixManifest|" Language="en-US" Publisher="Microsoft" />
     <DisplayName>ADL Language Support</DisplayName>
     <Description>ADL Language Support for Visual Studio</Description>
     <MoreInfo>https://github.com/azure/adl</MoreInfo>
@@ -15,8 +15,8 @@
   </Dependencies>
   <Assets>
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="File" Path="adl.pkgdef" />
-    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" Path="|Microsoft.Adl.VisualStudio;PkgdefProjectOutputGroup|" />
-    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" Path="|Microsoft.Adl.VisualStudio|" />
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" Path="|%CurrentProject%|" />
   </Assets>
   <Prerequisites>
     <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.0,)" DisplayName="Visual Studio core editor" />
