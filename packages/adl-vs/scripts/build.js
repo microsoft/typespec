@@ -1,5 +1,6 @@
 import { run } from "../../../eng/scripts/helpers.js";
 import { join } from "path";
+import { readFileSync } from "fs";
 
 if (process.platform !== "win32") {
   console.log("Skipping adl-vs build: not on Windows.");
@@ -24,5 +25,6 @@ if (ignoreCommandNotFound && proc.error?.code === "ENOENT") {
   process.exit(0);
 }
 
+const version = JSON.parse(readFileSync("package.json")).version;
 const msbuild = join(proc.stdout.trim(), "MSBuild/Current/Bin/MSBuild.exe");
-run(msbuild, ["/p:Configuration=Release", "/nologo"]);
+run(msbuild, ["/p:Configuration=Release", `/p:Version=${version}`]);
