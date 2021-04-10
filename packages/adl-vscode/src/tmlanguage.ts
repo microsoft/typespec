@@ -126,7 +126,7 @@ const decorator: BeginEndRule = {
 };
 
 const identifierExpression: MatchRule = {
-  key: "type-name",
+  key: "identifier-expression",
   scope: "entity.name.type.adl",
   match: identifier,
 };
@@ -136,6 +136,14 @@ const typeArguments: BeginEndRule = {
   scope: meta,
   begin: "<",
   end: ">",
+  patterns: [expression],
+};
+
+const tupleExpression: BeginEndRule = {
+  key: "tuple-expression",
+  scope: meta,
+  begin: "\\[",
+  end: "\\]",
   patterns: [expression],
 };
 
@@ -291,13 +299,14 @@ const usingStatement: BeginEndRule = {
 // NOTE: We don't actually classify all the different expression types and their
 // punctuation yet. For now, at least, we only deal with the ones that would
 // break coloring due to breaking out of context inappropriately with parens/
-// braces/angle brackets that weren't handled with appropriate precedence. The
-// other expressions color acceptably as unclassified punctuation around those
-// we do handle here.
+// braces/brackets that weren't handled with appropriate precedence. The other
+// expressions color acceptably as unclassified punctuation around those we do
+// handle here.
 expression.patterns = [
   token,
   parenthesizedExpression,
   typeArguments,
+  tupleExpression,
   modelExpression,
   identifierExpression,
 ];
