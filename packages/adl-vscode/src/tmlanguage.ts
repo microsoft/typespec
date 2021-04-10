@@ -126,7 +126,7 @@ const decorator: BeginEndRule = {
 };
 
 const identifierExpression: MatchRule = {
-  key: "type-name",
+  key: "identifier-expression",
   scope: "entity.name.type.adl",
   match: identifier,
 };
