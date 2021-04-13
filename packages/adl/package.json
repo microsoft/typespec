@@ -2,15 +2,35 @@
   "name": "@azure-tools/adl",
   "version": "0.8.0",
   "description": "ADL Compiler Preview",
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "homepage": "https://github.com/Azure/adl",
+  "readme": "https://github.com/Azure/adl/blob/master/README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/adl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/adl/issues"
+  },
+  "keywords": [
+    "adl",
+    "cli"
+  ],
+  "type": "module",
   "main": "dist/compiler/index.js",
-  "types": "./dist/compiler/index.d.ts",
+  "types": "dist/compiler/index.d.ts",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "bin": {
     "adl": "cmd/adl.js",
     "adl-server": "cmd/adl-server.js"
   },
-  "engines": {
-    "node": ">=14.0.0"
-  },
+  "files": [
+    "lib/*.adl",
+    "dist/**"
+  ],
   "scripts": {
     "build": "npm run compile",
     "compile": "tsc -p .",
@@ -19,47 +39,23 @@
     "test": "mocha 'dist/test/**/*.js'",
     "regen-samples": "node scripts/regen-samples.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Azure/adl.git"
-  },
-  "keywords": [
-    "adl",
-    "cli"
-  ],
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Azure/adl/issues"
-  },
-  "homepage": "https://github.com/Azure/adl#readme",
-  "readme": "https://github.com/Azure/adl/blob/master/readme.md",
-  "files": [
-    "cli-shim.js",
-    "lib/*.adl",
-    "dist/**",
-    "readme.md",
-    "samples",
-    "LICENSE"
-  ],
-  "devDependencies": {
-    "@types/mocha": "^7.0.2",
-    "@types/node": "14.0.27",
-    "@types/yargs": "~15.0.12",
-    "@types/mkdirp": "~1.0.1",
-    "grammarkdown": "^3.1.2",
-    "mocha": "7.1.2",
-    "typescript": "~4.1.5",
-    "prettier": "~2.2.1",
-    "@types/resolve": "~1.20.0"
-  },
   "dependencies": {
-    "yargs": "~16.2.0",
-    "mkdirp": "~1.0.4",
     "autorest": "~3.0.6335",
-    "vscode-languageserver": "^7.0.0",
-    "vscode-languageserver-textdocument": "^1.0.1",
-    "resolve": "~1.20.0"
+    "mkdirp": "~1.0.4",
+    "resolve": "~1.20.0",
+    "vscode-languageserver": "~7.0.0",
+    "vscode-languageserver-textdocument": "~1.0.1",
+    "yargs": "~16.2.0"
   },
-  "type": "module"
+  "devDependencies": {
+    "@types/mkdirp": "~1.0.1",
+    "@types/mocha": "~7.0.2",
+    "@types/node": "~14.0.27",
+    "@types/resolve": "~1.20.0",
+    "@types/yargs": "~15.0.12",
+    "grammarkdown": "~3.1.2",
+    "mocha": "~7.1.2",
+    "prettier": "~2.2.1",
+    "typescript": "~4.1.5"
+  }
 }

@@ -1,11 +1,10 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "module": "esnext",
     "outDir": "dist",
     "rootDir": ".",
     "types": ["node", "mocha"]
   },
   "include": ["./**/*.ts"],
-  "exclude": ["dist", "node_modules", "**/*.d.ts"]
+  "exclude": ["dist", "node_modules", "temp"]
 }

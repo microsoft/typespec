@@ -1,53 +1,38 @@
 {
   "name": "adl-vscode",
-  "displayName": "ADL Language Support for VS Code",
+  "version": "0.4.4",
+  "author": "Microsoft Corporation",
   "description": "ADL Language Support for VS Code",
+  "homepage": "https://github.com/Azure/adl",
+  "readme": "https://github.com/Azure/adl/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/azure/adl"
+    "url": "git+https://github.com/azure/adl.git"
   },
+  "bugs": {
+    "url": "https://github.com/Azure/adl/issues"
+  },
+  "keywords": [
+    "adl"
+  ],
   "publisher": "Microsoft",
-  "version": "0.4.4",
+  "displayName": "ADL Language Support for VS Code",
+  "categories": [
+    "Programming Languages"
+  ],
+  "type": "commonjs",
+  "main": "./extension-shim.js",
   "engines": {
     "vscode": "^1.53.0"
   },
-  "main": "./extension-shim.js",
   "activationEvents": [
     "onLanguage:adl"
-  ],
-  "categories": [
-    "Programming Languages"
   ],
   "files": [
     "adl-vscode-*.vsix",
     "ThirdPartyNotices.txt"
   ],
-  "scripts": {
-    "build": "npm run compile && npm run rollup && npm run generate-tmlanguage && npm run generate-third-party-notices && npm run package-vsix",
-    "compile": "tsc -p .",
-    "watch": "tsc -p . --watch",
-    "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
-    "dogfood": "node scripts/dogfood.js",
-    "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
-    "generate-third-party-notices": "node scripts/generate-third-party-notices.js",
-    "rollup": "rollup --config --failAfterWarnings 2>&1",
-    "package-vsix": "vsce package --yarn"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@azure-tools/tmlanguage-generator": "0.1.3",
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.0",
-    "@types/node": "14.0.27",
-    "@types/vscode": "^1.53.0",
-    "clear": "^0.1.0",
-    "rollup": "^2.41.4",
-    "typescript": "~4.1.5",
-    "vsce": "^1.85.1",
-    "vscode-languageclient": "^7.0.0",
-    "watch": "^1.0.2"
-  },
   "contributes": {
     "languages": [
       {
@@ -82,5 +67,29 @@
         "path": "./dist/adl.tmLanguage"
       }
     ]
+  },
+  "scripts": {
+    "build": "npm run compile && npm run rollup && npm run generate-tmlanguage && npm run generate-third-party-notices && npm run package-vsix",
+    "compile": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
+    "dogfood": "node scripts/dogfood.js",
+    "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
+    "generate-third-party-notices": "node scripts/generate-third-party-notices.js",
+    "rollup": "rollup --config --failAfterWarnings 2>&1",
+    "package-vsix": "vsce package --yarn"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@azure-tools/tmlanguage-generator": "0.1.3",
+    "@rollup/plugin-commonjs": "~17.1.0",
+    "@rollup/plugin-node-resolve": "~11.2.0",
+    "@types/node": "~14.0.27",
+    "@types/vscode": "~1.53.0",
+    "rollup": "~2.41.4",
+    "typescript": "~4.1.5",
+    "vsce": "~1.85.1",
+    "vscode-languageclient": "~7.0.0",
+    "watch": "~1.0.2"
   }
 }

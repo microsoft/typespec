@@ -2,11 +2,23 @@
   "name": "@azure-tools/adl-vs",
   "author": "Microsoft Corporation",
   "version": "0.1.2",
-  "displayName": "ADL Language Support for Visual Studio",
   "description": "ADL Language Support for Visual Studio",
+  "homepage": "https://github.com/Azure/adl",
+  "readme": "https://github.com/Azure/adl/blob/master/README.md",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/azure/adl"
+    "url": "git+https://github.com/Azure/adl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/adl/issues"
+  },
+  "keywords": [
+    "adl"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=14.0.0"
   },
   "files": [
     "Microsoft.Adl.VisualStudio.vsix"

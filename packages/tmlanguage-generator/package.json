@@ -5,10 +5,6 @@
   "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
   "homepage": "https://github.com/Azure/adl/tree/master/packages/tmlanguage-generator",
   "readme": "https://github.com/Azure/adl/blob/master/packages/tmlanguage-generator/README.md",
-  "keywords": [
-    "textmate",
-    "tmlanguage"
-  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -17,6 +13,10 @@
   "bugs": {
     "url": "https://github.com/Azure/adl/issues"
   },
+  "keywords": [
+    "textmate",
+    "tmlanguage"
+  ],
   "main": "dist/tmlanguage-generator.js",
   "engines": {
     "node": ">=14.0.0"
@@ -29,11 +29,11 @@
     "dist/**"
   ],
   "dependencies": {
-    "onigasm": "^2.2.5",
-    "plist": "^3.0.2"
+    "onigasm": "~2.2.5",
+    "plist": "~3.0.2"
   },
   "devDependencies": {
-    "@types/node": "14.0.27",
-    "@types/plist": "^3.0.2"
+    "@types/node": "~14.0.27",
+    "@types/plist": "~3.0.2"
   }
 }
