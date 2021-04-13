@@ -62,12 +62,14 @@ export function run(command, args, options) {
   const proc = (options.sync ? spawnSync : spawn)(command, args, options);
   if (proc.error) {
     if (options.ignoreCommandNotFound && proc.error.code === "ENOENT") {
-      console.log("Skipped: Command not found.");
+      console.log(`Skipped: Command \`${command}\` not found.`);
     } else {
       throw proc.error;
     }
   } else if (options.throwOnNonZeroExit && proc.status !== undefined && proc.status !== 0) {
-    throw new Error(`Command failed with exit code ${proc.status}`);
+    throw new Error(
+      `Command \`${command} ${args.join(" ")}\` failed with exit code ${proc.status}`
+    );
   }
 
   return proc;
