@@ -16,7 +16,6 @@ describe("syntax", () => {
   describe("model statements", () => {
     parseEach([
       "model Car { };",
-
       `@foo()
        model Car { };`,
 
@@ -119,7 +118,7 @@ describe("syntax", () => {
   });
 
   describe("union expressions", () => {
-    parseEach(["model A { foo: B | C }", "model A { foo: B | C & D }"]);
+    parseEach(["model A { foo: B | C }", "model A { foo: B | C & D }", "model A { foo: | B | C }"]);
   });
 
   describe("template instantiations", () => {
@@ -127,7 +126,7 @@ describe("syntax", () => {
   });
 
   describe("intersection expressions", () => {
-    parseEach(["model A { foo: B & C }"]);
+    parseEach(["model A { foo: B & C }", "model A { foo: & B & C }"]);
   });
 
   describe("parenthesized expressions", () => {
@@ -195,12 +194,20 @@ describe("syntax", () => {
       `,
     ]);
   });
+
+  describe("empty statements", () => {
+    parseEach([`;;;;`, `namespace Foo { model Car { }; };`, `model Car { };;;;`]);
+  });
 });
 
 function parseEach(cases: string[]) {
   for (const code of cases) {
     it("parses `" + shorten(code) + "`", () => {
-      dumpAST(parse(code));
+      try {
+        dumpAST(parse(code));
+      } catch (e) {
+        throw e.diagnostics;
+      }
     });
   }
 }

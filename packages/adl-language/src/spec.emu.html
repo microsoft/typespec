@@ -254,11 +254,11 @@ Expression :
 
 UnionExpressionOrHigher :
     IntersectionExpressionOrHigher
-    UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
+    `|`? UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
 
 IntersectionExpressionOrHigher :
     ArrayExpressionOrHigher
-    IntersectionExpressionOrHigher `&` ArrayExpressionOrHigher
+    `&`? IntersectionExpressionOrHigher `&` ArrayExpressionOrHigher
 
 ArrayExpressionOrHigher :
     PrimaryExpression

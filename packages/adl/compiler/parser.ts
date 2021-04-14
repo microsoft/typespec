@@ -24,11 +24,53 @@ export function parse(code: string | Types.SourceFile) {
       inScopeNamespaces: [],
     };
 
+    script.statements = parseADLScriptList();
+    script.end = scanner.position;
+    return script;
+  }
+
+  function parseADLScriptList(): Types.Statement[] {
+    const stmts: Types.Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
-
     while (!scanner.eof()) {
-      const item = parseADLScriptItem();
+      const decorators = parseDecoratorList();
+      const tok = token();
+      let item: Types.Statement;
+      switch (tok) {
+        case Token.ImportKeyword:
+          if (decorators.length > 0) {
+            error("Cannot decorate an import statement");
+          }
+          item = parseImportStatement();
+          break;
+        case Token.ModelKeyword:
+          item = parseModelStatement(decorators);
+          break;
+        case Token.NamespaceKeyword:
+          item = parseNamespaceStatement(decorators);
+          break;
+        case Token.OpKeyword:
+          item = parseOperationStatement(decorators);
+          break;
+        case Token.UsingKeyword:
+          if (decorators.length > 0) {
+            error("Cannot decorate using statements");
+          }
+          item = parseUsingStatement();
+          break;
+        case Token.Semicolon:
+          if (decorators.length > 0) {
+            error("Cannot decorate an empty statement");
+          }
+          // no need to put empty statement nodes in the tree for now
+          // since we aren't trying to emit ADL
+          parseExpected(Token.Semicolon);
+          continue;
+        default:
+          throw error(`Expected statement, but found ${Token[tok]}`);
+      }
+
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
           throw error("Cannot use multiple blockless namespaces");
@@ -44,71 +86,41 @@ export function parse(code: string | Types.SourceFile) {
       } else {
         seenDecl = true;
       }
-      script.statements.push(item);
+
+      stmts.push(item);
     }
 
-    script.end = scanner.position;
-    return script;
+    return stmts;
   }
 
-  function parseADLScriptItem(): Types.Statement {
-    while (true) {
-      const decorators = parseDecoratorList();
-      const tok = token();
+  function parseStatementList(): Types.Statement[] {
+    const stmts: Types.Statement[] = [];
 
-      switch (tok) {
-        case Token.ImportKeyword:
-          if (decorators.length > 0) {
-            error("Cannot decorate an import statement");
-          }
-          return parseImportStatement();
-        case Token.ModelKeyword:
-          return parseModelStatement(decorators);
-        case Token.NamespaceKeyword:
-          return parseNamespaceStatement(decorators);
-        case Token.OpKeyword:
-          return parseOperationStatement(decorators);
-        case Token.UsingKeyword:
-          if (decorators.length > 0) {
-            error("Cannot decorate using statements");
-          }
-          return parseUsingStatement();
-        case Token.Semicolon:
-          if (decorators.length > 0) {
-            error("Cannot decorate an empty statement");
-          }
-          // no need to put empty statement nodes in the tree for now
-          // since we aren't trying to emit ADL
-          parseExpected(Token.Semicolon);
-          continue;
-      }
-
-      throw error(`Expected statement, but found ${Token[tok]}`);
-    }
-  }
-
-  function parseStatement(): Types.Statement {
-    while (true) {
+    while (token() !== Token.CloseBrace) {
       const decorators = parseDecoratorList();
       const tok = token();
 
       switch (tok) {
         case Token.ModelKeyword:
-          return parseModelStatement(decorators);
+          stmts.push(parseModelStatement(decorators));
+          break;
         case Token.NamespaceKeyword:
           const ns = parseNamespaceStatement(decorators);
 
           if (!Array.isArray(ns.statements)) {
             throw error(`Blockless namespace can only be top-level`);
           }
-          return ns;
+          stmts.push(ns);
+          break;
         case Token.OpKeyword:
-          return parseOperationStatement(decorators);
+          stmts.push(parseOperationStatement(decorators));
+          break;
         case Token.UsingKeyword:
           if (decorators.length > 0) {
             error("Cannot decorate using statements");
           }
-          return parseUsingStatement();
+          stmts.push(parseUsingStatement());
+          break;
         case Token.Semicolon:
           if (decorators.length > 0) {
             error("Cannot decorate an empty statement");
@@ -117,10 +129,12 @@ export function parse(code: string | Types.SourceFile) {
           // since we aren't trying to emit ADL
           parseExpected(Token.Semicolon);
           continue;
+        default:
+          throw error(`Expected statement, but found ${Token[tok]}`);
       }
-
-      throw error(`Expected statement, but found ${Token[tok]}`);
     }
+
+    return stmts;
   }
 
   function parseDecoratorList() {
@@ -152,11 +166,7 @@ export function parse(code: string | Types.SourceFile) {
     let statements: Types.Statement[] | undefined;
 
     if (nextTok === Token.OpenBrace) {
-      statements = [];
-
-      while (token() !== Token.CloseBrace) {
-        statements.push(parseStatement());
-      }
+      statements = parseStatementList();
 
       parseExpected(Token.CloseBrace);
     }
@@ -401,6 +411,7 @@ export function parse(code: string | Types.SourceFile) {
 
   function parseUnionExpressionOrHigher(): Types.Expression {
     const pos = tokenPos();
+    parseOptional(Token.Bar);
     let node: Types.Expression = parseIntersectionExpressionOrHigher();
 
     if (token() !== Token.Bar) {
@@ -427,6 +438,7 @@ export function parse(code: string | Types.SourceFile) {
 
   function parseIntersectionExpressionOrHigher(): Types.Expression {
     const pos = tokenPos();
+    parseOptional(Token.Ampersand);
     let node: Types.Expression = parseArrayExpressionOrHigher();
 
     if (token() !== Token.Ampersand) {
