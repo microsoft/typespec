@@ -1,3 +1,5 @@
+import resolve from "resolve";
+import { fileURLToPath, URL } from "url";
 import { createProgram } from "../../compiler/program.js";
 import { NodeHost } from "../../compiler/util.js";
 
@@ -8,8 +10,11 @@ describe("libraries", () => {
     describe(lib, () => {
       it("compiles without error", async () => {
         try {
+          const mainFile = fileURLToPath(
+            new URL(`../../../test/libraries/${lib}/main.adl`, import.meta.url)
+          );
           await createProgram(NodeHost, {
-            mainFile: "test/libraries/" + lib + "/main.adl",
+            mainFile,
             noEmit: true,
           });
         } catch (e) {

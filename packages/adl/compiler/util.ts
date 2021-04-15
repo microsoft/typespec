@@ -1,22 +1,17 @@
 import fs from "fs";
-import url, { fileURLToPath, pathToFileURL } from "url";
+import { fileURLToPath, pathToFileURL, URL } from "url";
 import { SymbolTable } from "./binder.js";
 import { createDiagnostic, Diagnostic, DiagnosticError } from "./diagnostics.js";
 import { CompilerHost, Sym } from "./types";
-import { stat, readFile, mkdtemp, readdir, rmdir, realpath, writeFile } from "fs/promises";
+import { stat, readFile, readdir, realpath, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 
 export const adlVersion = getVersion();
 
 function getVersion(): string {
-  const packageJsonPath = resolvePath(import.meta.url, "../../package.json");
+  const packageJsonPath = fileURLToPath(new URL("../../package.json", import.meta.url));
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
   return packageJson.version;
-}
-
-export function resolvePath(basePath: string, ...parts: string[]): string {
-  const resolvedPath = new url.URL(parts.join(""), basePath);
-  return url.fileURLToPath(resolvedPath);
 }
 
 export function reportDuplicateSymbols(symbols: SymbolTable) {
