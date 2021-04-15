@@ -1,6 +1,7 @@
 import * as assert from "assert";
 import { parse } from "../compiler/parser.js";
 import { SyntaxKind } from "../compiler/types.js";
+import { logVerboseTestOutput } from "./test-helpers.js";
 
 describe("syntax", () => {
   describe("import statements", () => {
@@ -223,10 +224,13 @@ function parseErrorEach(cases: string[]) {
 }
 
 function dumpAST(astNode: any) {
-  const replacer = function (this: any, key: string, value: any) {
-    return key == "kind" ? SyntaxKind[value] : value;
-  };
-  //console.log(JSON.stringify(astNode, replacer, 4));
+  logVerboseTestOutput((log) => {
+    const replacer = function (this: any, key: string, value: any) {
+      return key == "kind" ? SyntaxKind[value] : value;
+    };
+    const json = JSON.stringify(astNode, replacer, 4);
+    log(json);
+  });
 }
 
 function shorten(code: string) {
