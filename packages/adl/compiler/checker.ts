@@ -367,7 +367,10 @@ export function createChecker(program: Program) {
 
   function checkNamespace(node: NamespaceStatementNode) {
     const links = getSymbolLinks(node.symbol!);
-    const type = links.type as NamespaceType;
+    let type = links.type as NamespaceType;
+    if (!type) {
+      type = initializeTypeForNamespace(node);
+    }
 
     if (Array.isArray(node.statements)) {
       for (const statement of node.statements.map(getTypeForNode)) {
@@ -417,7 +420,7 @@ export function createChecker(program: Program) {
       }
     }
 
-    return symbolLinks.type;
+    return symbolLinks.type as NamespaceType;
   }
 
   function getParentNamespaceType(
