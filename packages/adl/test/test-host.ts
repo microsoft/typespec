@@ -9,6 +9,10 @@ export interface TestHost {
   addJsFile(path: string, contents: any): void;
   compile(main: string): Promise<Record<string, Type>>;
   testTypes: Record<string, Type>;
+  /**
+   * Virtual filesystem used in the tests.
+   */
+  fs: { [name: string]: string };
 }
 
 export async function createTestHost(): Promise<TestHost> {
@@ -16,7 +20,6 @@ export async function createTestHost(): Promise<TestHost> {
 
   const virtualFs: { [name: string]: string } = {};
   const jsImports: { [path: string]: Promise<any> } = {};
-
   const compilerHost: CompilerHost = {
     async readFile(path: string) {
       return virtualFs[path];
@@ -40,6 +43,10 @@ export async function createTestHost(): Promise<TestHost> {
       }
 
       return contents;
+    },
+
+    async writeFile(path: string, content: string) {
+      virtualFs[path] = content;
     },
 
     getLibDirs() {
@@ -129,6 +136,7 @@ export async function createTestHost(): Promise<TestHost> {
     addJsFile,
     compile,
     testTypes,
+    fs: virtualFs,
   };
 
   function addAdlFile(path: string, contents: string) {

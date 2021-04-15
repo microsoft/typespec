@@ -444,6 +444,13 @@ export interface CompilerHost {
   // read the contents of a directory
   readDir(path: string): Promise<Dirent[]>;
 
+  /**
+   * Write the file.
+   * @param path Path to the file.
+   * @param content Content of the file.
+   */
+  writeFile(path: string, content: string): Promise<void>;
+
   // get the directory ADL is executing from
   getExecutionRoot(): string;
 

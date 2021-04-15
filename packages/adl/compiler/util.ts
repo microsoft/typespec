@@ -3,7 +3,7 @@ import url, { fileURLToPath, pathToFileURL } from "url";
 import { SymbolTable } from "./binder.js";
 import { createDiagnostic, Diagnostic, DiagnosticError } from "./diagnostics.js";
 import { CompilerHost, Sym } from "./types";
-import { stat, readFile, mkdtemp, readdir, rmdir, realpath } from "fs/promises";
+import { stat, readFile, mkdtemp, readdir, rmdir, realpath, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 
 export const adlVersion = getVersion();
@@ -51,6 +51,7 @@ export function reportDuplicateSymbols(symbols: SymbolTable) {
 export const NodeHost: CompilerHost = {
   readFile: (path: string) => readFile(path, "utf-8"),
   readDir: (path: string) => readdir(path, { withFileTypes: true }),
+  writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
   getCwd: () => process.cwd(),
   getExecutionRoot: () => resolve(fileURLToPath(import.meta.url), "../../../"),
   getJsImport: (path: string) => import(pathToFileURL(path).href),

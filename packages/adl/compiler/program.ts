@@ -26,9 +26,10 @@ export interface Program {
   sourceFiles: Array<ADLScriptNode>;
   typeCache: MultiKeyMap<Type>;
   literalTypes: Map<string | number | boolean, LiteralType>;
+  host: CompilerHost;
   checker?: ReturnType<typeof createChecker>;
   evalAdlScript(adlScript: string, filePath?: string): void;
-  onBuild(cb: (program: Program) => void): void;
+  onBuild(cb: (program: Program) => void): Promise<void> | void;
   getOption(key: string): string | undefined;
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
@@ -48,6 +49,7 @@ export async function createProgram(
     sourceFiles: [],
     typeCache: new MultiKeyMap(),
     literalTypes: new Map(),
+    host,
     evalAdlScript,
     executeModelDecorators,
     executeDecorators,
@@ -69,7 +71,10 @@ export async function createProgram(
 
   const checker = (program.checker = createChecker(program));
   program.checker.checkProgram(program);
-  buildCbs.forEach((cb: any) => cb(program));
+
+  for (const cb of buildCbs) {
+    await cb(program);
+  }
 
   return program;
 
