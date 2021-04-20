@@ -9,7 +9,34 @@ import {
   Token,
   TokenDisplay,
 } from "./scanner.js";
-import * as Types from "./types.js";
+import {
+  ADLScriptNode,
+  BooleanLiteralNode,
+  DecoratorExpressionNode,
+  Diagnostic,
+  Expression,
+  IdentifierNode,
+  ImportStatementNode,
+  MemberExpressionNode,
+  Message,
+  ModelExpressionNode,
+  ModelPropertyNode,
+  ModelSpreadPropertyNode,
+  ModelStatementNode,
+  NamespaceStatementNode,
+  Node,
+  NumericLiteralNode,
+  OperationStatementNode,
+  ReferenceExpression,
+  SourceFile,
+  Statement,
+  StringLiteralNode,
+  SyntaxKind,
+  TemplateParameterDeclarationNode,
+  TextRange,
+  TupleExpressionNode,
+  UsingStatementNode,
+} from "./types.js";
 
 /**
  * Callback to parse each element in a delimited list
@@ -20,7 +47,7 @@ import * as Types from "./types.js";
  * @param decorators The decorators that were applied to the list element and
  *                   parsed before entering the callback.
  */
-type ParseListItem<T> = (pos: number, decorators: Types.DecoratorExpressionNode[]) => T;
+type ParseListItem<T> = (pos: number, decorators: DecoratorExpressionNode[]) => T;
 
 /**
  * In order to share sensitive error recovery code, all parsing of delimited
@@ -108,19 +135,19 @@ namespace ListKind {
   };
 }
 
-export function parse(code: string | Types.SourceFile) {
+export function parse(code: string | SourceFile) {
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
-  const parseDiagnostics: Types.Diagnostic[] = [];
+  const parseDiagnostics: Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
 
   nextToken();
   return parseADLScript();
 
-  function parseADLScript(): Types.ADLScriptNode {
-    const script: Types.ADLScriptNode = {
-      kind: Types.SyntaxKind.ADLScript,
+  function parseADLScript(): ADLScriptNode {
+    const script: ADLScriptNode = {
+      kind: SyntaxKind.ADLScript,
       statements: [],
       pos: 0,
       end: 0,
@@ -139,14 +166,14 @@ export function parse(code: string | Types.SourceFile) {
     return script;
   }
 
-  function parseADLScriptItemList(): Types.Statement[] {
-    const stmts: Types.Statement[] = [];
+  function parseADLScriptItemList(): Statement[] {
+    const stmts: Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
     while (!scanner.eof()) {
       const decorators = parseDecoratorList();
       const tok = token();
-      let item: Types.Statement;
+      let item: Statement;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -184,7 +211,7 @@ export function parse(code: string | Types.SourceFile) {
           error("Blockless namespaces can't follow other declarations.");
         }
         seenBlocklessNs = true;
-      } else if (item.kind === Types.SyntaxKind.ImportStatement) {
+      } else if (item.kind === SyntaxKind.ImportStatement) {
         if (seenDecl || seenBlocklessNs) {
           error("Imports must come prior to namespaces or other declarations.");
         }
@@ -198,8 +225,8 @@ export function parse(code: string | Types.SourceFile) {
     return stmts;
   }
 
-  function parseStatementList(): Types.Statement[] {
-    const stmts: Types.Statement[] = [];
+  function parseStatementList(): Statement[] {
+    const stmts: Statement[] = [];
 
     while (token() !== Token.CloseBrace) {
       const decorators = parseDecoratorList();
@@ -248,7 +275,7 @@ export function parse(code: string | Types.SourceFile) {
   }
 
   function parseDecoratorList() {
-    const decorators: Types.DecoratorExpressionNode[] = [];
+    const decorators: DecoratorExpressionNode[] = [];
 
     while (token() === Token.At) {
       decorators.push(parseDecoratorExpression());
@@ -257,31 +284,29 @@ export function parse(code: string | Types.SourceFile) {
     return decorators;
   }
 
-  function parseNamespaceStatement(
-    decorators: Types.DecoratorExpressionNode[]
-  ): Types.NamespaceStatementNode {
+  function parseNamespaceStatement(decorators: DecoratorExpressionNode[]): NamespaceStatementNode {
     parseExpected(Token.NamespaceKeyword);
     let currentName = parseIdentifierOrMemberExpression();
-    const nsSegments: Types.IdentifierNode[] = [];
-    while (currentName.kind !== Types.SyntaxKind.Identifier) {
+    const nsSegments: IdentifierNode[] = [];
+    while (currentName.kind !== SyntaxKind.Identifier) {
       nsSegments.push(currentName.id);
       currentName = currentName.base;
     }
     nsSegments.push(currentName);
 
-    let parameters: Types.ModelExpressionNode | undefined;
+    let parameters: ModelExpressionNode | undefined;
 
     const nextTok = parseExpectedOneOf(Token.Semicolon, Token.OpenBrace);
 
-    let statements: Types.Statement[] | undefined;
+    let statements: Statement[] | undefined;
     if (nextTok === Token.OpenBrace) {
       statements = parseStatementList();
       parseExpected(Token.CloseBrace);
     }
 
-    let outerNs: Types.NamespaceStatementNode = finishNode(
+    let outerNs: NamespaceStatementNode = finishNode(
       {
-        kind: Types.SyntaxKind.NamespaceStatement,
+        kind: SyntaxKind.NamespaceStatement,
         decorators,
         name: nsSegments[0],
         parameters,
@@ -293,7 +318,7 @@ export function parse(code: string | Types.SourceFile) {
     for (let i = 1; i < nsSegments.length; i++) {
       outerNs = finishNode(
         {
-          kind: Types.SyntaxKind.NamespaceStatement,
+          kind: SyntaxKind.NamespaceStatement,
           decorators: [],
           name: nsSegments[i],
           parameters,
@@ -306,7 +331,7 @@ export function parse(code: string | Types.SourceFile) {
     return outerNs;
   }
 
-  function parseUsingStatement(): Types.UsingStatementNode {
+  function parseUsingStatement(): UsingStatementNode {
     const pos = tokenPos();
     parseExpected(Token.UsingKeyword);
     const name = parseIdentifierOrMemberExpression();
@@ -314,16 +339,14 @@ export function parse(code: string | Types.SourceFile) {
 
     return finishNode(
       {
-        kind: Types.SyntaxKind.UsingStatement,
+        kind: SyntaxKind.UsingStatement,
         name,
       },
       pos
     );
   }
 
-  function parseOperationStatement(
-    decorators: Types.DecoratorExpressionNode[]
-  ): Types.OperationStatementNode {
+  function parseOperationStatement(decorators: DecoratorExpressionNode[]): OperationStatementNode {
     const pos = tokenPos();
     parseExpected(Token.OpKeyword);
 
@@ -336,7 +359,7 @@ export function parse(code: string | Types.SourceFile) {
 
     return finishNode(
       {
-        kind: Types.SyntaxKind.OperationStatement,
+        kind: SyntaxKind.OperationStatement,
         id,
         parameters,
         returnType,
@@ -346,12 +369,12 @@ export function parse(code: string | Types.SourceFile) {
     );
   }
 
-  function parseOperationParameters(): Types.ModelExpressionNode {
+  function parseOperationParameters(): ModelExpressionNode {
     const pos = tokenPos();
     const properties = parseList(ListKind.OperationParameters, parseModelPropertyOrSpread);
-    const parameters: Types.ModelExpressionNode = finishNode(
+    const parameters: ModelExpressionNode = finishNode(
       {
-        kind: Types.SyntaxKind.ModelExpression,
+        kind: SyntaxKind.ModelExpression,
         properties,
       },
       pos
@@ -359,9 +382,7 @@ export function parse(code: string | Types.SourceFile) {
     return parameters;
   }
 
-  function parseModelStatement(
-    decorators: Types.DecoratorExpressionNode[]
-  ): Types.ModelStatementNode {
+  function parseModelStatement(decorators: DecoratorExpressionNode[]): ModelStatementNode {
     const pos = tokenPos();
 
     parseExpected(Token.ModelKeyword);
@@ -379,7 +400,7 @@ export function parse(code: string | Types.SourceFile) {
 
       return finishNode(
         {
-          kind: Types.SyntaxKind.ModelStatement,
+          kind: SyntaxKind.ModelStatement,
           id,
           heritage: [],
           templateParameters,
@@ -389,12 +410,12 @@ export function parse(code: string | Types.SourceFile) {
         pos
       );
     } else {
-      const heritage: Types.ReferenceExpression[] = parseOptionalModelHeritage();
+      const heritage: ReferenceExpression[] = parseOptionalModelHeritage();
       const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
 
       return finishNode(
         {
-          kind: Types.SyntaxKind.ModelStatement,
+          kind: SyntaxKind.ModelStatement,
           id,
           heritage,
           templateParameters,
@@ -407,7 +428,7 @@ export function parse(code: string | Types.SourceFile) {
   }
 
   function parseOptionalModelHeritage() {
-    let heritage: Types.ReferenceExpression[] = [];
+    let heritage: ReferenceExpression[] = [];
     if (parseOptional(Token.ExtendsKeyword)) {
       heritage = parseList(ListKind.Heritage, parseReferenceExpression);
     }
@@ -416,20 +437,20 @@ export function parse(code: string | Types.SourceFile) {
 
   function parseTemplateParameter(
     pos: number,
-    decorators: Types.DecoratorExpressionNode[]
-  ): Types.TemplateParameterDeclarationNode {
+    decorators: DecoratorExpressionNode[]
+  ): TemplateParameterDeclarationNode {
     reportInvalidDecorators(decorators, "template parameter");
     const id = parseIdentifier();
     return finishNode(
       {
-        kind: Types.SyntaxKind.TemplateParameterDeclaration,
+        kind: SyntaxKind.TemplateParameterDeclaration,
         id,
       },
       pos
     );
   }
 
-  function parseModelPropertyOrSpread(pos: number, decorators: Types.DecoratorExpressionNode[]) {
+  function parseModelPropertyOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
     return token() === Token.Elipsis
       ? parseModelSpreadProperty(pos, decorators)
       : parseModelProperty(pos, decorators);
@@ -437,8 +458,8 @@ export function parse(code: string | Types.SourceFile) {
 
   function parseModelSpreadProperty(
     pos: number,
-    decorators: Types.DecoratorExpressionNode[]
-  ): Types.ModelSpreadPropertyNode {
+    decorators: DecoratorExpressionNode[]
+  ): ModelSpreadPropertyNode {
     parseExpected(Token.Elipsis);
 
     reportInvalidDecorators(decorators, "spread property");
@@ -448,7 +469,7 @@ export function parse(code: string | Types.SourceFile) {
 
     return finishNode(
       {
-        kind: Types.SyntaxKind.ModelSpreadProperty,
+        kind: SyntaxKind.ModelSpreadProperty,
         target,
       },
       pos
@@ -457,8 +478,8 @@ export function parse(code: string | Types.SourceFile) {
 
   function parseModelProperty(
     pos: number,
-    decorators: Types.DecoratorExpressionNode[]
-  ): Types.ModelPropertyNode | Types.ModelSpreadPropertyNode {
+    decorators: DecoratorExpressionNode[]
+  ): ModelPropertyNode | ModelSpreadPropertyNode {
     let id =
       token() === Token.StringLiteral
         ? parseStringLiteral()
@@ -470,7 +491,7 @@ export function parse(code: string | Types.SourceFile) {
 
     return finishNode(
       {
-        kind: Types.SyntaxKind.ModelProperty,
+        kind: SyntaxKind.ModelProperty,
         id,
         decorators,
         value,
@@ -480,14 +501,14 @@ export function parse(code: string | Types.SourceFile) {
     );
   }
 
-  function parseExpression(): Types.Expression {
+  function parseExpression(): Expression {
     return parseUnionExpressionOrHigher();
   }
 
-  function parseUnionExpressionOrHigher(): Types.Expression {
+  function parseUnionExpressionOrHigher(): Expression {
     const pos = tokenPos();
     parseOptional(Token.Bar);
-    let node: Types.Expression = parseIntersectionExpressionOrHigher();
+    let node: Expression = parseIntersectionExpressionOrHigher();
 
     if (token() !== Token.Bar) {
       return node;
@@ -495,7 +516,7 @@ export function parse(code: string | Types.SourceFile) {
 
     node = finishNode(
       {
-        kind: Types.SyntaxKind.UnionExpression,
+        kind: SyntaxKind.UnionExpression,
         options: [node],
       },
       pos
@@ -511,10 +532,10 @@ export function parse(code: string | Types.SourceFile) {
     return node;
   }
 
-  function parseIntersectionExpressionOrHigher(): Types.Expression {
+  function parseIntersectionExpressionOrHigher(): Expression {
     const pos = tokenPos();
     parseOptional(Token.Ampersand);
-    let node: Types.Expression = parseArrayExpressionOrHigher();
+    let node: Expression = parseArrayExpressionOrHigher();
 
     if (token() !== Token.Ampersand) {
       return node;
@@ -522,7 +543,7 @@ export function parse(code: string | Types.SourceFile) {
 
     node = finishNode(
       {
-        kind: Types.SyntaxKind.IntersectionExpression,
+        kind: SyntaxKind.IntersectionExpression,
         options: [node],
       },
       pos
@@ -538,7 +559,7 @@ export function parse(code: string | Types.SourceFile) {
     return node;
   }
 
-  function parseArrayExpressionOrHigher(): Types.Expression {
+  function parseArrayExpressionOrHigher(): Expression {
     const pos = tokenPos();
     let expr = parsePrimaryExpression();
 
@@ -547,7 +568,7 @@ export function parse(code: string | Types.SourceFile) {
 
       expr = finishNode(
         {
-          kind: Types.SyntaxKind.ArrayExpression,
+          kind: SyntaxKind.ArrayExpression,
           elementType: expr,
         },
         pos
@@ -557,14 +578,14 @@ export function parse(code: string | Types.SourceFile) {
     return expr;
   }
 
-  function parseReferenceExpression(): Types.ReferenceExpression {
+  function parseReferenceExpression(): ReferenceExpression {
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression();
     const args = parseOptionalList(ListKind.TemplateArguments, parseExpression);
 
     return finishNode(
       {
-        kind: Types.SyntaxKind.TypeReference,
+        kind: SyntaxKind.TypeReference,
         target,
         arguments: args,
       },
@@ -572,7 +593,7 @@ export function parse(code: string | Types.SourceFile) {
     );
   }
 
-  function parseImportStatement(): Types.ImportStatementNode {
+  function parseImportStatement(): ImportStatementNode {
     const pos = tokenPos();
 
     parseExpected(Token.ImportKeyword);
@@ -581,14 +602,14 @@ export function parse(code: string | Types.SourceFile) {
     parseExpected(Token.Semicolon);
     return finishNode(
       {
-        kind: Types.SyntaxKind.ImportStatement,
+        kind: SyntaxKind.ImportStatement,
         path,
       },
       pos
     );
   }
 
-  function parseDecoratorExpression(): Types.DecoratorExpressionNode {
+  function parseDecoratorExpression(): DecoratorExpressionNode {
     const pos = tokenPos();
     parseExpected(Token.At);
 
@@ -596,7 +617,7 @@ export function parse(code: string | Types.SourceFile) {
     const args = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
     return finishNode(
       {
-        kind: Types.SyntaxKind.DecoratorExpression,
+        kind: SyntaxKind.DecoratorExpression,
         arguments: args,
         target,
       },
@@ -604,14 +625,14 @@ export function parse(code: string | Types.SourceFile) {
     );
   }
 
-  function parseIdentifierOrMemberExpression(): Types.IdentifierNode | Types.MemberExpressionNode {
-    let base: Types.IdentifierNode | Types.MemberExpressionNode = parseIdentifier();
+  function parseIdentifierOrMemberExpression(): IdentifierNode | MemberExpressionNode {
+    let base: IdentifierNode | MemberExpressionNode = parseIdentifier();
 
     while (parseOptional(Token.Dot)) {
       const pos = tokenPos();
       base = finishNode(
         {
-          kind: Types.SyntaxKind.MemberExpression,
+          kind: SyntaxKind.MemberExpression,
           base,
           id: parseIdentifier(),
         },
@@ -622,7 +643,7 @@ export function parse(code: string | Types.SourceFile) {
     return base;
   }
 
-  function parsePrimaryExpression(): Types.Expression {
+  function parsePrimaryExpression(): Expression {
     while (true) {
       switch (token()) {
         case Token.Identifier:
@@ -650,7 +671,7 @@ export function parse(code: string | Types.SourceFile) {
     }
   }
 
-  function parseParenthesizedExpression(): Types.Expression {
+  function parseParenthesizedExpression(): Expression {
     const pos = tokenPos();
     parseExpected(Token.OpenParen);
     const expr = parseExpression();
@@ -658,44 +679,44 @@ export function parse(code: string | Types.SourceFile) {
     return finishNode(expr, pos);
   }
 
-  function parseTupleExpression(): Types.TupleExpressionNode {
+  function parseTupleExpression(): TupleExpressionNode {
     const pos = tokenPos();
     const values = parseList(ListKind.Tuple, parseExpression);
     return finishNode(
       {
-        kind: Types.SyntaxKind.TupleExpression,
+        kind: SyntaxKind.TupleExpression,
         values,
       },
       pos
     );
   }
 
-  function parseModelExpression(): Types.ModelExpressionNode {
+  function parseModelExpression(): ModelExpressionNode {
     const pos = tokenPos();
     const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
     return finishNode(
       {
-        kind: Types.SyntaxKind.ModelExpression,
+        kind: SyntaxKind.ModelExpression,
         properties,
       },
       pos
     );
   }
 
-  function parseStringLiteral(): Types.StringLiteralNode {
+  function parseStringLiteral(): StringLiteralNode {
     const pos = tokenPos();
     const value = tokenValue();
     parseExpected(Token.StringLiteral);
     return finishNode(
       {
-        kind: Types.SyntaxKind.StringLiteral,
+        kind: SyntaxKind.StringLiteral,
         value,
       },
       pos
     );
   }
 
-  function parseNumericLiteral(): Types.NumericLiteralNode {
+  function parseNumericLiteral(): NumericLiteralNode {
     const pos = tokenPos();
     const text = tokenValue();
     const value = Number(text);
@@ -703,7 +724,7 @@ export function parse(code: string | Types.SourceFile) {
     parseExpected(Token.NumericLiteral);
     return finishNode(
       {
-        kind: Types.SyntaxKind.NumericLiteral,
+        kind: SyntaxKind.NumericLiteral,
         text,
         value,
       },
@@ -711,20 +732,20 @@ export function parse(code: string | Types.SourceFile) {
     );
   }
 
-  function parseBooleanLiteral(): Types.BooleanLiteralNode {
+  function parseBooleanLiteral(): BooleanLiteralNode {
     const pos = tokenPos();
     const token = parseExpectedOneOf(Token.TrueKeyword, Token.FalseKeyword);
     const value = token == Token.TrueKeyword;
     return finishNode(
       {
-        kind: Types.SyntaxKind.BooleanLiteral,
+        kind: SyntaxKind.BooleanLiteral,
         value,
       },
       pos
     );
   }
 
-  function parseIdentifier(message?: string): Types.IdentifierNode {
+  function parseIdentifier(message?: string): IdentifierNode {
     if (isKeyword(token())) {
       error("Keyword cannot be used as identifier.");
     } else if (token() !== Token.Identifier) {
@@ -740,7 +761,7 @@ export function parse(code: string | Types.SourceFile) {
 
     return finishNode(
       {
-        kind: Types.SyntaxKind.Identifier,
+        kind: SyntaxKind.Identifier,
         sv,
       },
       pos
@@ -771,18 +792,18 @@ export function parse(code: string | Types.SourceFile) {
     } while (isTrivia(token()));
   }
 
-  function createMissingIdentifier(): Types.IdentifierNode {
+  function createMissingIdentifier(): IdentifierNode {
     missingIdentifierCounter++;
     return finishNode(
       {
-        kind: Types.SyntaxKind.Identifier,
+        kind: SyntaxKind.Identifier,
         sv: "<missing identifier>" + missingIdentifierCounter,
       },
       tokenPos()
     );
   }
 
-  function finishNode<T>(o: T, pos: number): T & Types.TextRange {
+  function finishNode<T>(o: T, pos: number): T & TextRange {
     return {
       ...o,
       pos,
@@ -904,7 +925,7 @@ export function parse(code: string | Types.SourceFile) {
     return false;
   }
 
-  function recoverFromInvalidStatement(decorators: Types.DecoratorExpressionNode[]) {
+  function recoverFromInvalidStatement(decorators: DecoratorExpressionNode[]) {
     // Error recovery: avoid an avalanche of errors when we get cornered into
     // parsing statements where none exist. Skip until we find a statement
     // keyword or decorator and only report one error for a contiguous range of
@@ -923,7 +944,7 @@ export function parse(code: string | Types.SourceFile) {
     error("Statement expected.", { pos, end: previousTokenEnd });
   }
 
-  function error(message: string, target?: Types.TextRange & { realPos?: number }) {
+  function error(message: string, target?: TextRange & { realPos?: number }) {
     const location = {
       file: scanner.file,
       pos: target?.pos ?? tokenPos(),
@@ -944,7 +965,7 @@ export function parse(code: string | Types.SourceFile) {
   }
 
   function reportDiagnostic(
-    message: Types.Message | string,
+    message: Message | string,
     target: DiagnosticTarget,
     args?: (string | number)[]
   ) {
@@ -961,7 +982,7 @@ export function parse(code: string | Types.SourceFile) {
     compilerAssert(condition, message, location);
   }
 
-  function reportInvalidDecorators(decorators: Types.DecoratorExpressionNode[], nodeName: string) {
+  function reportInvalidDecorators(decorators: DecoratorExpressionNode[], nodeName: string) {
     for (const decorator of decorators) {
       error(`Cannot decorate ${nodeName}.`, decorator);
     }
@@ -1028,44 +1049,44 @@ export function parse(code: string | Types.SourceFile) {
   }
 }
 
-type NodeCb<T> = (c: Types.Node) => T;
+type NodeCb<T> = (c: Node) => T;
 
-export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined {
+export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
   switch (node.kind) {
-    case Types.SyntaxKind.ADLScript:
+    case SyntaxKind.ADLScript:
       return visitEach(cb, node.statements);
-    case Types.SyntaxKind.ArrayExpression:
+    case SyntaxKind.ArrayExpression:
       return visitNode(cb, node.elementType);
-    case Types.SyntaxKind.DecoratorExpression:
+    case SyntaxKind.DecoratorExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
-    case Types.SyntaxKind.ImportStatement:
+    case SyntaxKind.ImportStatement:
       return;
-    case Types.SyntaxKind.OperationStatement:
+    case SyntaxKind.OperationStatement:
       return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitNode(cb, node.parameters) ||
         visitNode(cb, node.returnType)
       );
-    case Types.SyntaxKind.NamespaceStatement:
+    case SyntaxKind.NamespaceStatement:
       return visitEach(cb, node.decorators) ||
         visitNode(cb, node.name) ||
         Array.isArray(node.statements)
-        ? visitEach(cb, node.statements as Types.Statement[])
+        ? visitEach(cb, node.statements as Statement[])
         : visitNode(cb, node.statements);
-    case Types.SyntaxKind.UsingStatement:
+    case SyntaxKind.UsingStatement:
       return visitNode(cb, node.name);
-    case Types.SyntaxKind.IntersectionExpression:
+    case SyntaxKind.IntersectionExpression:
       return visitEach(cb, node.options);
-    case Types.SyntaxKind.MemberExpression:
+    case SyntaxKind.MemberExpression:
       return visitNode(cb, node.base) || visitNode(cb, node.id);
-    case Types.SyntaxKind.ModelExpression:
+    case SyntaxKind.ModelExpression:
       return visitEach(cb, node.properties);
-    case Types.SyntaxKind.ModelProperty:
+    case SyntaxKind.ModelProperty:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
-    case Types.SyntaxKind.ModelSpreadProperty:
+    case SyntaxKind.ModelSpreadProperty:
       return visitNode(cb, node.target);
-    case Types.SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelStatement:
       return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
@@ -1074,20 +1095,20 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
         visitNode(cb, node.assignment) ||
         visitEach(cb, node.properties)
       );
-    case Types.SyntaxKind.NamedImport:
+    case SyntaxKind.NamedImport:
       return visitNode(cb, node.id);
-    case Types.SyntaxKind.TypeReference:
+    case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
-    case Types.SyntaxKind.TupleExpression:
+    case SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
-    case Types.SyntaxKind.UnionExpression:
+    case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
     // no children for the rest of these.
-    case Types.SyntaxKind.StringLiteral:
-    case Types.SyntaxKind.NumericLiteral:
-    case Types.SyntaxKind.BooleanLiteral:
-    case Types.SyntaxKind.Identifier:
-    case Types.SyntaxKind.TemplateParameterDeclaration:
+    case SyntaxKind.StringLiteral:
+    case SyntaxKind.NumericLiteral:
+    case SyntaxKind.BooleanLiteral:
+    case SyntaxKind.Identifier:
+    case SyntaxKind.TemplateParameterDeclaration:
       return;
     default:
       // Dummy const to ensure we handle all node types.
@@ -1098,11 +1119,11 @@ export function visitChildren<T>(node: Types.Node, cb: NodeCb<T>): T | undefined
   }
 }
 
-function visitNode<T>(cb: NodeCb<T>, node: Types.Node | undefined): T | undefined {
+function visitNode<T>(cb: NodeCb<T>, node: Node | undefined): T | undefined {
   return node && cb(node);
 }
 
-function visitEach<T>(cb: NodeCb<T>, nodes: Types.Node[] | undefined): T | undefined {
+function visitEach<T>(cb: NodeCb<T>, nodes: Node[] | undefined): T | undefined {
   if (!nodes) {
     return;
   }
@@ -1116,7 +1137,7 @@ function visitEach<T>(cb: NodeCb<T>, nodes: Types.Node[] | undefined): T | undef
   return;
 }
 
-export function walk<T>(node: Types.Node, cb: NodeCb<T>, seen = new Set()): T | undefined {
+export function walk<T>(node: Node, cb: NodeCb<T>, seen = new Set()): T | undefined {
   return visitChildren(node, (childNode) => {
     if (seen.has(childNode)) return;
     seen.add(childNode);
@@ -1128,8 +1149,8 @@ export function walk<T>(node: Types.Node, cb: NodeCb<T>, seen = new Set()): T | 
   });
 }
 
-function isBlocklessNamespace(node: Types.Node) {
-  if (node.kind !== Types.SyntaxKind.NamespaceStatement) {
+function isBlocklessNamespace(node: Node) {
+  if (node.kind !== SyntaxKind.NamespaceStatement) {
     return false;
   }
   while (!Array.isArray(node.statements) && node.statements) {
