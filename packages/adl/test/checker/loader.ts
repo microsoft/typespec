@@ -1,5 +1,3 @@
-import { strictEqual, ok } from "assert";
-import { ModelType, NamespaceType, Type } from "../../compiler/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
 describe("loader", () => {

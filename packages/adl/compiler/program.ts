@@ -1,24 +1,23 @@
-import { dirname, extname, isAbsolute, resolve } from "path";
-import { join } from "path";
+import { dirname, extname, isAbsolute, join, resolve } from "path";
+import resolveModule from "resolve";
 import { createBinder, SymbolTable } from "./binder.js";
 import { createChecker, MultiKeyMap } from "./checker.js";
+import { createSourceFile, DiagnosticError, throwDiagnostic } from "./diagnostics.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
 import {
   ADLScriptNode,
+  CompilerHost,
   DecoratorExpressionNode,
+  DecoratorSymbol,
   IdentifierNode,
   LiteralType,
   ModelStatementNode,
   ModelType,
+  NamespaceStatementNode,
   SyntaxKind,
   Type,
-  DecoratorSymbol,
-  CompilerHost,
-  NamespaceStatementNode,
 } from "./types.js";
-import { createSourceFile, DiagnosticError, throwDiagnostic } from "./diagnostics.js";
-import resolveModule from "resolve";
 
 export interface Program {
   compilerOptions: CompilerOptions;

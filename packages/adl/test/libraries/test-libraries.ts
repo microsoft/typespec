@@ -1,4 +1,3 @@
-import resolve from "resolve";
 import { fileURLToPath, URL } from "url";
 import { createProgram } from "../../compiler/program.js";
 import { NodeHost } from "../../compiler/util.js";

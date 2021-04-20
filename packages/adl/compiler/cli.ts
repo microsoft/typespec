@@ -1,14 +1,14 @@
-import url, { fileURLToPath, pathToFileURL } from "url";
-import yargs from "yargs";
-import mkdirp from "mkdirp";
-import path, { join, resolve } from "path";
-import { compile } from "../compiler/program.js";
 import { spawnSync } from "child_process";
+import { mkdtemp, readdir, rmdir } from "fs/promises";
+import mkdirp from "mkdirp";
+import os from "os";
+import path, { join, resolve } from "path";
+import url from "url";
+import yargs from "yargs";
 import { CompilerOptions } from "../compiler/options.js";
+import { compile } from "../compiler/program.js";
 import { DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
 import { adlVersion, NodeHost } from "./util.js";
-import { mkdtemp, readdir, rmdir } from "fs/promises";
-import os from "os";
 
 const args = yargs(process.argv.slice(2))
   .scriptName("adl")

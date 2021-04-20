@@ -1,6 +1,3 @@
-import { adlVersion } from "../compiler/util.js";
-import { createSourceFile } from "../compiler/diagnostics.js";
-import { parse } from "../compiler/parser.js";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   Connection,
@@ -15,6 +12,9 @@ import {
   TextDocuments,
   TextDocumentSyncKind,
 } from "vscode-languageserver/node.js";
+import { createSourceFile } from "../compiler/diagnostics.js";
+import { parse } from "../compiler/parser.js";
+import { adlVersion } from "../compiler/util.js";
 
 let connection: Connection;
 let documents: TextDocuments<TextDocument>;

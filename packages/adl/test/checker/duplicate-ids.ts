@@ -1,5 +1,4 @@
-import { strictEqual, ok, rejects } from "assert";
-import { ModelType, NamespaceType, Type } from "../../compiler/types.js";
+import { rejects } from "assert";
 import { createTestHost, TestHost } from "../test-host.js";
 
 describe("duplicate declarations", () => {

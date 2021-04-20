@@ -1,4 +1,4 @@
-import { NamespaceType, Type, Program } from "@azure-tools/adl";
+import { NamespaceType, Program, Type } from "@azure-tools/adl";
 
 const basePaths = new Map<Type, string>();
 

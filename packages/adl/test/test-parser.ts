@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import { logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js";
 import { parse } from "../compiler/parser.js";
-import { ADLScriptNode, Node, SyntaxKind } from "../compiler/types.js";
+import { ADLScriptNode, SyntaxKind } from "../compiler/types.js";
 
 describe("syntax", () => {
   describe("import statements", () => {

@@ -1,5 +1,5 @@
-import { loadWASM, OnigRegExp } from "onigasm";
 import { readFile } from "fs/promises";
+import { loadWASM, OnigRegExp } from "onigasm";
 import { dirname, resolve } from "path";
 import plist from "plist";
 

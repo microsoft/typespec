@@ -1,5 +1,5 @@
 import { SymbolTable } from "./binder.js";
-import { createDiagnostic, compilerAssert, DiagnosticTarget } from "./diagnostics.js";
+import { compilerAssert, createDiagnostic, DiagnosticTarget } from "./diagnostics.js";
 import {
   createScanner,
   isKeyword,

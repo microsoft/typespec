@@ -1,5 +1,5 @@
 import { ExtensionContext, workspace } from "vscode";
-import { LanguageClient, LanguageClientOptions, Executable } from "vscode-languageclient/node.js";
+import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
 
 let client: LanguageClient | undefined;
 

@@ -1,6 +1,6 @@
 import { readdir, readFile } from "fs/promises";
 import { basename, isAbsolute, join, normalize, relative, resolve, sep } from "path";
-import { fileURLToPath, pathToFileURL, URL } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { createProgram } from "../compiler/program.js";
 import { CompilerHost, Type } from "../compiler/types";
 

@@ -1,19 +1,16 @@
-import { createDiagnostic, DiagnosticError, formatDiagnostic } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
-import { createProgram, Program } from "./program.js";
+import { Program } from "./program.js";
 import {
-  NamespaceStatementNode,
-  ModelStatementNode,
-  Node,
-  SyntaxKind,
-  TemplateParameterDeclarationNode,
-  SourceLocation,
-  Sym,
+  ADLScriptNode,
   Declaration,
+  ModelStatementNode,
+  NamespaceStatementNode,
+  Node,
   OperationStatementNode,
   ScopeNode,
-  IdentifierNode,
-  ADLScriptNode,
+  Sym,
+  SyntaxKind,
+  TemplateParameterDeclarationNode,
   UsingStatementNode,
 } from "./types.js";
 import { reportDuplicateSymbols } from "./util.js";

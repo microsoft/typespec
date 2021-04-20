@@ -1,14 +1,14 @@
-import assert, { AssertionError } from "assert";
+import { AssertionError } from "assert";
 import { CharacterCodes } from "./character-codes.js";
 import {
+  Diagnostic,
   Message,
   Node,
+  SourceFile,
   SourceLocation,
+  Sym,
   SyntaxKind,
   Type,
-  Sym,
-  SourceFile,
-  Diagnostic,
 } from "./types.js";
 
 /**

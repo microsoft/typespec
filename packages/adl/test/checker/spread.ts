@@ -1,4 +1,4 @@
-import { strictEqual, ok } from "assert";
+import { ok, strictEqual } from "assert";
 import { ModelType, Type } from "../../compiler/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
