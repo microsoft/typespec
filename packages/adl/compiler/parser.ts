@@ -110,7 +110,7 @@ namespace ListKind {
 
 export function parse(code: string | Types.SourceFile) {
   let previousTokenEnd = -1;
-  let realPositionOfLastError = 1;
+  let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
   const parseDiagnostics: Types.Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
