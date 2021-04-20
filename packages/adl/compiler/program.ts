@@ -22,7 +22,7 @@ import {
 export interface Program {
   compilerOptions: CompilerOptions;
   globalNamespace: NamespaceStatementNode;
-  sourceFiles: Array<ADLScriptNode>;
+  sourceFiles: ADLScriptNode[];
   typeCache: MultiKeyMap<Type>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
@@ -97,7 +97,7 @@ export async function createProgram(
   }
 
   function executeModelDecorators(type: ModelType) {
-    const stmt = <ModelStatementNode>(type.templateNode || type.node);
+    const stmt = (type.templateNode || type.node) as ModelStatementNode;
 
     for (const dec of stmt.decorators) {
       executeDecorator(dec, program, type);
@@ -131,7 +131,7 @@ export async function createProgram(
 
     const decName = dec.target.sv;
     const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
-    const decBinding = <DecoratorSymbol>program.globalNamespace.locals!.get(decName);
+    const decBinding = program.globalNamespace.locals!.get(decName) as DecoratorSymbol;
     if (!decBinding) {
       throwDiagnostic(`Can't find decorator ${decName}`, dec);
     }

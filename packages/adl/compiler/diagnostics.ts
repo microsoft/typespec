@@ -44,7 +44,7 @@ export type WriteLine = (text?: string) => void;
 export type ErrorHandler = (
   message: Message | string,
   target: DiagnosticTarget,
-  args?: Array<string | number>
+  args?: (string | number)[]
 ) => void;
 
 export const throwOnError: ErrorHandler = throwDiagnostic;
@@ -52,7 +52,7 @@ export const throwOnError: ErrorHandler = throwDiagnostic;
 export function throwDiagnostic(
   message: Message | string,
   target: DiagnosticTarget,
-  args?: Array<string | number>
+  args?: (string | number)[]
 ): never {
   throw new DiagnosticError([createDiagnostic(message, target, args)]);
 }
@@ -60,7 +60,7 @@ export function throwDiagnostic(
 export function createDiagnostic(
   message: Message | string,
   target: DiagnosticTarget,
-  args?: Array<string | number>
+  args?: (string | number)[]
 ): Diagnostic {
   let location: SourceLocation;
   let locationError: Error | undefined;
@@ -109,7 +109,7 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
 }
 
 export function createSourceFile(text: string, path: string): SourceFile {
-  let lineStarts: Array<number> | undefined = undefined;
+  let lineStarts: number[] | undefined = undefined;
 
   return {
     text,
@@ -176,7 +176,7 @@ export function createSourceFile(text: string, path: string): SourceFile {
    * is the bitwise complement of the index where value would need to be inserted
    * to keep the array sorted.
    */
-  function binarySearch(array: ReadonlyArray<number>, value: number) {
+  function binarySearch(array: readonly number[], value: number) {
     let low = 0;
     let high = array.length - 1;
     while (low <= high) {
@@ -318,7 +318,7 @@ export function compilerAssert(
   }
 }
 
-function format(text: string, args?: Array<string | number>): [string, Error?] {
+function format(text: string, args?: (string | number)[]): [string, Error?] {
   let error: Error | undefined;
   const message = text.replace(/{(\d+)}/g, (_match, indexString: string) => {
     const index = Number(indexString);

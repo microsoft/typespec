@@ -8,7 +8,7 @@ import { Message as MessageImpl } from "./messages.js";
 export interface BaseType {
   kind: string;
   node?: Node;
-  instantiationParameters?: Array<Type>;
+  instantiationParameters?: Type[];
 }
 
 export type Type =
@@ -36,8 +36,8 @@ export interface ModelType extends BaseType {
   node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
-  baseModels: Array<ModelType>;
-  templateArguments?: Array<Type>;
+  baseModels: ModelType[];
+  templateArguments?: Type[];
   templateNode?: Node;
   assignmentType?: Type;
 }
@@ -101,13 +101,13 @@ export interface ArrayType extends BaseType {
 export interface TupleType extends BaseType {
   kind: "Tuple";
   node: TupleExpressionNode;
-  values: Array<Type>;
+  values: Type[];
 }
 
 export interface UnionType extends BaseType {
   kind: "Union";
   node: UnionExpressionNode;
-  options: Array<Type>;
+  options: Type[];
 }
 
 export interface TemplateParameterType extends BaseType {
@@ -122,7 +122,7 @@ export interface DecoratorSymbol {
   kind: "decorator";
   path: string;
   name: string;
-  value: (...args: Array<any>) => any;
+  value: (...args: any[]) => any;
 }
 
 export interface TypeSymbol {
@@ -188,10 +188,10 @@ export type Node =
 
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
-  statements: Array<Statement>;
-  models: Array<ModelType>;
+  statements: Statement[];
+  models: ModelType[];
   file: SourceFile;
-  interfaces: Array<NamespaceType>;
+  interfaces: NamespaceType[];
   inScopeNamespaces: NamespaceStatementNode[]; // namespaces that declarations in this file belong to
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
   locals: SymbolTable;
@@ -237,7 +237,7 @@ export interface NamedImportNode extends BaseNode {
 export interface DecoratorExpressionNode extends BaseNode {
   kind: SyntaxKind.DecoratorExpression;
   target: IdentifierNode | MemberExpressionNode;
-  arguments: Array<Expression>;
+  arguments: Expression[];
 }
 
 export type Expression =
@@ -264,10 +264,10 @@ export interface MemberExpressionNode extends BaseNode {
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.NamespaceStatement;
   name: IdentifierNode;
-  statements?: Array<Statement> | NamespaceStatementNode;
+  statements?: Statement[] | NamespaceStatementNode;
   locals?: SymbolTable;
   exports?: SymbolTable;
-  decorators: Array<DecoratorExpressionNode>;
+  decorators: DecoratorExpressionNode[];
 }
 
 export interface UsingStatementNode extends BaseNode {
@@ -280,23 +280,23 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode {
   id: IdentifierNode;
   parameters: ModelExpressionNode;
   returnType: Expression;
-  decorators: Array<DecoratorExpressionNode>;
+  decorators: DecoratorExpressionNode[];
 }
 
 export interface ModelStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
-  properties?: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
-  heritage: Array<ReferenceExpression>;
+  properties?: (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  heritage: ReferenceExpression[];
   assignment?: Expression;
-  templateParameters: Array<TemplateParameterDeclarationNode>;
+  templateParameters: TemplateParameterDeclarationNode[];
   locals?: SymbolTable;
-  decorators: Array<DecoratorExpressionNode>;
+  decorators: DecoratorExpressionNode[];
 }
 
 export interface ModelExpressionNode extends BaseNode {
   kind: SyntaxKind.ModelExpression;
-  properties: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
+  properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
 }
 
 export interface ArrayExpressionNode extends BaseNode {
@@ -305,14 +305,14 @@ export interface ArrayExpressionNode extends BaseNode {
 }
 export interface TupleExpressionNode extends BaseNode {
   kind: SyntaxKind.TupleExpression;
-  values: Array<Expression>;
+  values: Expression[];
 }
 
 export interface ModelPropertyNode extends BaseNode {
   kind: SyntaxKind.ModelProperty;
   id: IdentifierNode | StringLiteralNode;
   value: Expression;
-  decorators: Array<DecoratorExpressionNode>;
+  decorators: DecoratorExpressionNode[];
   optional: boolean;
 }
 
@@ -340,18 +340,18 @@ export interface BooleanLiteralNode extends BaseNode {
 
 export interface UnionExpressionNode extends BaseNode {
   kind: SyntaxKind.UnionExpression;
-  options: Array<Expression>;
+  options: Expression[];
 }
 
 export interface IntersectionExpressionNode extends BaseNode {
   kind: SyntaxKind.IntersectionExpression;
-  options: Array<Expression>;
+  options: Expression[];
 }
 
 export interface TypeReferenceNode extends BaseNode {
   kind: SyntaxKind.TypeReference;
   target: ReferenceExpression;
-  arguments: Array<Expression>;
+  arguments: Expression[];
 }
 
 export interface TemplateParameterDeclarationNode extends BaseNode {
@@ -399,7 +399,7 @@ export interface SourceFile {
    * per line, in order of lines, and each entry represents the offset in UTF-16
    * code units from the start of the document to the beginning of the line.
    */
-  getLineStarts(): ReadonlyArray<number>;
+  getLineStarts(): readonly number[];
 
   /**
    * Converts a one-dimensional position in the document (measured in UTF-16

@@ -51,17 +51,17 @@ export class MultiKeyMap<T> {
   #idMap = new WeakMap<object, number>();
   #items = new Map<string, T>();
 
-  get(items: Array<object>): T | undefined {
+  get(items: object[]): T | undefined {
     return this.#items.get(this.compositeKeyFor(items));
   }
 
-  set(items: Array<object>, value: any): string {
+  set(items: object[], value: any): string {
     const key = this.compositeKeyFor(items);
     this.#items.set(key, value);
     return key;
   }
 
-  compositeKeyFor(items: Array<object>) {
+  compositeKeyFor(items: object[]) {
     return items.map((i) => this.keyFor(i)).join(",");
   }
 
@@ -82,7 +82,7 @@ interface PendingModelInfo {
 }
 
 export function createChecker(program: Program) {
-  let templateInstantiation: Array<Type> = [];
+  let templateInstantiation: Type[] = [];
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
@@ -194,7 +194,7 @@ export function createChecker(program: Program) {
   }
 
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
-    const parentNode = <ModelStatementNode>node.parent!;
+    const parentNode = node.parent! as ModelStatementNode;
 
     if (instantiatingTemplate === parentNode) {
       const index = parentNode.templateParameters.findIndex((v) => v === node);
@@ -279,7 +279,7 @@ export function createChecker(program: Program) {
    * twice at the same time, or if template parameters from more than one template
    * are ever in scope at once.
    */
-  function instantiateTemplate(templateNode: ModelStatementNode, args: Array<Type>): ModelType {
+  function instantiateTemplate(templateNode: ModelStatementNode, args: Type[]): ModelType {
     const symbolLinks = getSymbolLinks(templateNode.symbol!);
     const cached = symbolLinks.instantiations!.get(args) as ModelType;
     if (cached) {
@@ -291,7 +291,7 @@ export function createChecker(program: Program) {
     templateInstantiation = args;
     instantiatingTemplate = templateNode;
     // this cast is invalid once we support templatized `model =`.
-    const type = <ModelType>getTypeForNode(templateNode);
+    const type = getTypeForNode(templateNode) as ModelType;
 
     symbolLinks.instantiations!.set(args, type);
 
@@ -309,7 +309,7 @@ export function createChecker(program: Program) {
     });
   }
 
-  function allModelTypes(types: Array<Type>): types is Array<ModelType> {
+  function allModelTypes(types: Type[]): types is ModelType[] {
     return types.every((t) => t.kind === "Model");
   }
 
@@ -439,7 +439,7 @@ export function createChecker(program: Program) {
       name: node.id.sv,
       namespace: getParentNamespaceType(node),
       node: node,
-      parameters: <ModelType>getTypeForNode(node.parameters),
+      parameters: getTypeForNode(node.parameters) as ModelType,
       returnType: getTypeForNode(node.returnType),
     });
   }
@@ -651,7 +651,7 @@ export function createChecker(program: Program) {
     const properties = new Map();
     for (const prop of node.properties!) {
       if ("id" in prop) {
-        const propType = <ModelTypeProperty>getTypeForNode(prop);
+        const propType = getTypeForNode(prop) as ModelTypeProperty;
         properties.set(propType.name, propType);
       } else {
         // spread property

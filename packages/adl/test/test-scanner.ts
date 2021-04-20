@@ -15,9 +15,9 @@ import { LineAndCharacter } from "../compiler/types.js";
 
 type TokenEntry = [Token, string?, number?, LineAndCharacter?];
 
-function tokens(text: string, onError = throwOnError): Array<TokenEntry> {
+function tokens(text: string, onError = throwOnError): TokenEntry[] {
   const scanner = createScanner(text, onError);
-  const result: Array<TokenEntry> = [];
+  const result: TokenEntry[] = [];
   do {
     const token = scanner.scan();
     assert.strictEqual(token, scanner.token);
@@ -36,7 +36,7 @@ function tokens(text: string, onError = throwOnError): Array<TokenEntry> {
   return result;
 }
 
-function verify(tokens: Array<TokenEntry>, expecting: Array<TokenEntry>) {
+function verify(tokens: TokenEntry[], expecting: TokenEntry[]) {
   for (const [
     index,
     [expectedToken, expectedText, expectedPosition, expectedLineAndCharacter],

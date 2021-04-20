@@ -409,7 +409,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     return false;
   }
 
-  function error(msg: Message, args?: Array<string | number>) {
+  function error(msg: Message, args?: (string | number)[]) {
     onError(msg, { file, pos: tokenPosition, end: position }, args);
   }
 

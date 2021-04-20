@@ -1102,7 +1102,7 @@ function visitNode<T>(cb: NodeCb<T>, node: Types.Node | undefined): T | undefine
   return node && cb(node);
 }
 
-function visitEach<T>(cb: NodeCb<T>, nodes: Array<Types.Node> | undefined): T | undefined {
+function visitEach<T>(cb: NodeCb<T>, nodes: Types.Node[] | undefined): T | undefined {
   if (!nodes) {
     return;
   }

@@ -16,7 +16,7 @@ function getVersion(): string {
 
 export function reportDuplicateSymbols(symbols: SymbolTable) {
   let reported = new Set<Sym>();
-  let diagnostics = new Array<Diagnostic>();
+  let diagnostics: Diagnostic[] = [];
 
   for (const symbol of symbols.duplicates) {
     report(symbol);

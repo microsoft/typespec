@@ -202,7 +202,7 @@ export function isIdentifierPart(ch: number): boolean {
   );
 }
 
-function lookupInUnicodeMap(code: number, map: ReadonlyArray<number>): boolean {
+function lookupInUnicodeMap(code: number, map: readonly number[]): boolean {
   // Bail out quickly if it couldn't possibly be in the map.
   if (code < map[0]) {
     return false;
