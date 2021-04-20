@@ -37,7 +37,8 @@
     "watch": "tsc -p . --watch",
     "dogfood": "node scripts/dogfood.js",
     "test": "mocha --require source-map-support/register 'dist/test/**/*.js'",
-    "regen-samples": "node scripts/regen-samples.js"
+    "regen-samples": "node scripts/regen-samples.js",
+    "fuzz": "node dist/test/fuzz.js"
   },
   "dependencies": {
     "autorest": "~3.0.6335",
