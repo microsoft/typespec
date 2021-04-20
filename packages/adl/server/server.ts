@@ -1,9 +1,5 @@
 import { adlVersion } from "../compiler/util.js";
-import {
-  createSourceFile,
-  Diagnostic as ADLDiagnostic,
-  DiagnosticError,
-} from "../compiler/diagnostics.js";
+import { createSourceFile } from "../compiler/diagnostics.js";
 import { parse } from "../compiler/parser.js";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
@@ -47,7 +43,8 @@ function initialize(params: InitializeParams): InitializeResult {
 
 function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   const document = change.document;
-  const parseDiagnostics = getParseDiagnostics(document);
+  const sourceFile = createSourceFile(document.getText(), document.uri);
+  const { parseDiagnostics } = parse(sourceFile);
   const diagnostics: Diagnostic[] = [];
 
   for (const each of parseDiagnostics) {
@@ -60,19 +57,6 @@ function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   }
 
   connection.sendDiagnostics({ uri: document.uri, diagnostics });
-}
-
-function getParseDiagnostics(document: TextDocument): readonly ADLDiagnostic[] {
-  try {
-    const sourceFile = createSourceFile(document.getText(), document.uri);
-    parse(sourceFile);
-  } catch (err) {
-    if (err instanceof DiagnosticError) {
-      return err.diagnostics;
-    }
-  }
-
-  return [];
 }
 
 function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {

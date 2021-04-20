@@ -17,7 +17,7 @@ import {
   CompilerHost,
   NamespaceStatementNode,
 } from "./types.js";
-import { createSourceFile, throwDiagnostic } from "./diagnostics.js";
+import { createSourceFile, DiagnosticError, throwDiagnostic } from "./diagnostics.js";
 import resolveModule from "resolve";
 
 export interface Program {
@@ -215,6 +215,12 @@ export async function createProgram(
     filePath = filePath ?? `__virtual_file_${++virtualFileCount}`;
     const unparsedFile = createSourceFile(adlScript, filePath);
     const sourceFile = parse(unparsedFile);
+
+    // We don't attempt to evaluate yet when there are parse errors.
+    if (sourceFile.parseDiagnostics.length > 0) {
+      throw new DiagnosticError(sourceFile.parseDiagnostics);
+    }
+
     program.sourceFiles.push(sourceFile);
     binder.bindSourceFile(program, sourceFile);
     await evalImports(sourceFile);

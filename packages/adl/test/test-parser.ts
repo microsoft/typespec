@@ -1,16 +1,16 @@
 import * as assert from "assert";
+import { logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js";
 import { parse } from "../compiler/parser.js";
-import { SyntaxKind } from "../compiler/types.js";
-import { logVerboseTestOutput } from "./test-helpers.js";
+import { ADLScriptNode, Node, SyntaxKind } from "../compiler/types.js";
 
 describe("syntax", () => {
   describe("import statements", () => {
     parseEach(['import "x";']);
 
     parseErrorEach([
-      'namespace Foo { import "x"; }',
-      'namespace Foo { } import "x";',
-      'model Foo { } import "x";',
+      ['namespace Foo { import "x"; }', [/Imports must be top-level/]],
+      ['namespace Foo { } import "x";', [/Imports must come prior/]],
+      ['model Foo { } import "x";', [/Imports must come prior/]],
     ]);
   });
 
@@ -46,8 +46,6 @@ describe("syntax", () => {
          prop2: string
        };`,
 
-      // parens on this decorator are currently required, otherwise it
-      // parses as if it were `@foo('prop-1') : number`
       `model Car {
          @foo()
          "prop-1": number;
@@ -96,9 +94,9 @@ describe("syntax", () => {
       "model foo<T> extends bar.baz<T> { }",
     ]);
     parseErrorEach([
-      "model foo extends { }",
-      "model foo extends = { }",
-      "model foo extends bar = { }",
+      ["model foo extends { }", [/Identifier expected/]],
+      ["model foo extends = { }", [/Identifier expected/]],
+      ["model foo extends bar = { }", [/'{' expected/]],
     ]);
   });
 
@@ -151,10 +149,10 @@ describe("syntax", () => {
     ]);
 
     parseErrorEach([
-      "namespace Foo { namespace Store; }",
-      "namespace Store; namespace Store2;",
-      "model Foo { }; namespace Store;",
-      "namespace Foo { }; namespace Store;",
+      ["namespace Foo { namespace Store; }", [/Blockless namespace can only be top-level/]],
+      ["namespace Store; namespace Store2;", [/Cannot use multiple blockless namespaces/]],
+      ["model Foo { }; namespace Store;", [/Blockless namespaces can't follow other/]],
+      ["namespace Foo { }; namespace Store;", [/Blockless namespaces can't follow other/]],
     ]);
   });
 
@@ -199,38 +197,105 @@ describe("syntax", () => {
   describe("empty statements", () => {
     parseEach([`;;;;`, `namespace Foo { model Car { }; };`, `model Car { };;;;`]);
   });
+
+  describe("recovery", () => {
+    parseErrorEach([
+      [`model M { ]`, [/Property expected/]],
+      [
+        `
+        @dec1 @dec2 import "foo";
+        banana
+        model Foo
+        `,
+        [
+          /Cannot decorate import/,
+          /Cannot decorate import/,
+          /Statement expected/,
+          /Expected '{', '=', or 'extends'/,
+        ],
+      ],
+    ]);
+  });
 });
 
 function parseEach(cases: string[]) {
   for (const code of cases) {
     it("parses `" + shorten(code) + "`", () => {
-      try {
-        dumpAST(parse(code));
-      } catch (e) {
-        throw e.diagnostics;
+      logVerboseTestOutput("=== Source ===");
+      logVerboseTestOutput(code);
+
+      logVerboseTestOutput("\n=== Parse Result ===");
+      const astNode = parse(code);
+      dumpAST(astNode);
+
+      logVerboseTestOutput("\n=== Diagnostics ===");
+      if (astNode.parseDiagnostics.length > 0) {
+        const errors: string[] = [];
+        logDiagnostics(astNode.parseDiagnostics, (e) => errors.push(e!));
+        assert.fail("Unexpected parse errors in test.\n" + errors.join("\n"));
       }
     });
   }
 }
 
-function parseErrorEach(cases: string[]) {
-  for (const code of cases) {
+function parseErrorEach(cases: [string, RegExp[]][]) {
+  for (const [code, matches] of cases) {
     it(`doesn't parse ${shorten(code)}`, () => {
-      assert.throws(() => {
-        parse(code);
-      });
+      logVerboseTestOutput("=== Source ===");
+      logVerboseTestOutput(code);
+
+      const astNode = parse(code);
+      logVerboseTestOutput("\n=== Parse Result ===");
+      dumpAST(astNode);
+
+      logVerboseTestOutput("\n=== Diagnostics ===");
+      logVerboseTestOutput((log) => logDiagnostics(astNode.parseDiagnostics, log));
+      assert.notStrictEqual(astNode.parseDiagnostics.length, 0);
+      let i = 0;
+      for (const match of matches) {
+        assert.match(astNode.parseDiagnostics[i++].message, match);
+      }
     });
   }
 }
 
-function dumpAST(astNode: any) {
+function dumpAST(astNode: ADLScriptNode) {
   logVerboseTestOutput((log) => {
-    const replacer = function (this: any, key: string, value: any) {
-      return key == "kind" ? SyntaxKind[value] : value;
-    };
-    const json = JSON.stringify(astNode, replacer, 4);
+    const json = JSON.stringify(astNode, replacer, 2);
     log(json);
   });
+
+  function replacer(key: string, value: any) {
+    if (key === "kind") {
+      // swap numeric kind for readable name
+      return SyntaxKind[value];
+    }
+
+    if (key === "pos" || key === "end") {
+      // include line and column numbers
+      const pos = astNode.file.getLineAndCharacterOfPosition(value);
+      const line = pos.line + 1;
+      const col = pos.character + 1;
+      return `${value} (line ${line}, column ${col})`;
+    }
+
+    if (key === "parseDiagnostics" || key === "file") {
+      // these will be logged separately in more readable form
+      return undefined;
+    }
+
+    if (key === "locals" && value.size === 0) {
+      // this will be an empty symbol table after parsing, hide it
+      return undefined;
+    }
+
+    if (Array.isArray(value) && value.length === 0) {
+      // hide empty arrays too
+      return undefined;
+    }
+
+    return value;
+  }
 }
 
 function shorten(code: string) {

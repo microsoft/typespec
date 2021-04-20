@@ -1,8 +1,16 @@
-import { deepStrictEqual, strictEqual } from "assert";
+import assert from "assert";
 import { readFile } from "fs/promises";
 import { URL } from "url";
 import { throwOnError } from "../compiler/diagnostics.js";
-import { createScanner, Token } from "../compiler/scanner.js";
+import {
+  createScanner,
+  isKeyword,
+  isPunctuation,
+  isStatementKeyword,
+  Keywords,
+  Token,
+  TokenDisplay,
+} from "../compiler/scanner.js";
 import { LineAndCharacter } from "../compiler/types.js";
 
 type TokenEntry = [Token, string?, number?, LineAndCharacter?];
@@ -12,7 +20,7 @@ function tokens(text: string, onError = throwOnError): Array<TokenEntry> {
   const result: Array<TokenEntry> = [];
   do {
     const token = scanner.scan();
-    strictEqual(token, scanner.token);
+    assert.strictEqual(token, scanner.token);
     result.push([
       scanner.token,
       scanner.getTokenText(),
@@ -23,7 +31,7 @@ function tokens(text: string, onError = throwOnError): Array<TokenEntry> {
 
   // verify that the input matches the output
   const out = result.map((each) => each[1]).join("");
-  strictEqual(out, text, "Input text should match parsed token values");
+  assert.strictEqual(out, text, "Input text should match parsed token values");
 
   return result;
 }
@@ -34,18 +42,18 @@ function verify(tokens: Array<TokenEntry>, expecting: Array<TokenEntry>) {
     [expectedToken, expectedText, expectedPosition, expectedLineAndCharacter],
   ] of expecting.entries()) {
     const [token, text, position, lineAndCharacter] = tokens[index];
-    strictEqual(Token[token], Token[expectedToken], `Token ${index} must match`);
+    assert.strictEqual(Token[token], Token[expectedToken], `Token ${index} must match`);
 
     if (expectedText) {
-      strictEqual(text, expectedText, `Token ${index} test must match`);
+      assert.strictEqual(text, expectedText, `Token ${index} test must match`);
     }
 
     if (expectedPosition) {
-      strictEqual(position, expectedPosition, `Token ${index} position must match`);
+      assert.strictEqual(position, expectedPosition, `Token ${index} position must match`);
     }
 
     if (expectedLineAndCharacter) {
-      deepStrictEqual(
+      assert.deepStrictEqual(
         lineAndCharacter,
         expectedLineAndCharacter,
         `Token ${index} line and character must match`
@@ -139,10 +147,10 @@ describe("scanner", () => {
 
   function scanString(text: string, expectedValue: string) {
     const scanner = createScanner(text);
-    strictEqual(scanner.scan(), Token.StringLiteral);
-    strictEqual(scanner.token, Token.StringLiteral);
-    strictEqual(scanner.getTokenText(), text);
-    strictEqual(scanner.getTokenValue(), expectedValue);
+    assert.strictEqual(scanner.scan(), Token.StringLiteral);
+    assert.strictEqual(scanner.token, Token.StringLiteral);
+    assert.strictEqual(scanner.getTokenText(), text);
+    assert.strictEqual(scanner.getTokenValue(), expectedValue);
   }
 
   it("scans empty strings", () => {
@@ -204,6 +212,54 @@ describe("scanner", () => {
       [Token.Whitespace, " ", 37, { line: 5, character: 6 }],
       [Token.Identifier, "x", 38, { line: 5, character: 7 }],
     ]);
+  });
+
+  // It's easy to forget to update TokenDisplay or Min/Max ranges...
+  it("provides friendly token display and classification", () => {
+    const tokenCount = Object.values(Token).filter((v) => typeof v === "number").length;
+    const tokenDisplayCount = TokenDisplay.length;
+    assert.strictEqual(
+      tokenCount,
+      tokenDisplayCount,
+      `Token enum has ${tokenCount} elements but TokenDisplay array has ${tokenDisplayCount}.`
+    );
+
+    // check that keywords have appropriate display
+    const nonStatementKeywords = [Token.ExtendsKeyword, Token.TrueKeyword, Token.FalseKeyword];
+    for (const [name, token] of Keywords.entries()) {
+      assert.strictEqual(TokenDisplay[token], `'${name}'`);
+      assert(isKeyword(token), `${name} should be classified as a keyword`);
+      if (!nonStatementKeywords.includes(token)) {
+        assert(isStatementKeyword(token), `${name} should be classified as statement keyword`);
+      }
+    }
+
+    // check single character punctuation
+    for (let i = 33; i <= 126; i++) {
+      const str = String.fromCharCode(i);
+      const token = createScanner(str, () => ({})).scan();
+      if (
+        token !== Token.StringLiteral &&
+        token !== Token.Identifier &&
+        token !== Token.Unknown &&
+        token !== Token.NumericLiteral
+      ) {
+        assert.strictEqual(TokenDisplay[token], `'${str}'`);
+        assert(isPunctuation(token), `'${str}' should be classified as punctuation`);
+      }
+    }
+
+    // check the rest
+    assert.strictEqual(TokenDisplay[Token.Elipsis], "'...'");
+    assert.strictEqual(TokenDisplay[Token.None], "<none>");
+    assert.strictEqual(TokenDisplay[Token.Unknown], "<unknown>");
+    assert.strictEqual(TokenDisplay[Token.EndOfFile], "<end of file>");
+    assert.strictEqual(TokenDisplay[Token.SingleLineComment], "<single-line comment>");
+    assert.strictEqual(TokenDisplay[Token.MultiLineComment], "<multi-line comment>");
+    assert.strictEqual(TokenDisplay[Token.NewLine], "<newline>");
+    assert.strictEqual(TokenDisplay[Token.Whitespace], "<whitespace>");
+    assert.strictEqual(TokenDisplay[Token.ConflictMarker], "<conflict marker>");
+    assert.strictEqual(TokenDisplay[Token.Identifier], "<identifier>");
   });
 
   it("scans this file", async () => {

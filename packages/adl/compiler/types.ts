@@ -1,5 +1,6 @@
 import { SymbolTable } from "./binder";
 import { MultiKeyMap } from "./checker";
+import { Message as MessageImpl } from "./messages.js";
 
 /**
  * Type System types
@@ -195,6 +196,7 @@ export interface ADLScriptNode extends BaseNode {
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
   locals: SymbolTable;
   usings: UsingStatementNode[];
+  parseDiagnostics: Diagnostic[];
 }
 
 export type Statement =
@@ -295,7 +297,6 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode {
 export interface ModelExpressionNode extends BaseNode {
   kind: SyntaxKind.ModelExpression;
   properties: Array<ModelPropertyNode | ModelSpreadPropertyNode>;
-  decorators: Array<DecoratorExpressionNode>;
 }
 
 export interface ArrayExpressionNode extends BaseNode {
@@ -431,7 +432,21 @@ export interface Message {
   severity: "error" | "warning";
 }
 
-interface Dirent {
+export const Message = MessageImpl;
+
+// Static assert: this won't compile if one of the entries in messages.ts is
+// invalid. Having the properties typed as const there instead of Message makes
+// it easier to see the message text by hovering inthe IDE and also happens to
+// be less typing.
+const assertMessageType: { [K in keyof typeof Message]: Message } = Message;
+
+export interface Diagnostic extends SourceLocation {
+  message: string;
+  code?: number;
+  severity: "warning" | "error";
+}
+
+export interface Dirent {
   isFile(): boolean;
   name: string;
   isDirectory(): boolean;

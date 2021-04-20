@@ -287,7 +287,7 @@ Many ADL constructs can be decorated, including namespaces, operations and their
 
 Decorators are defined using JavaScript functions that are exported from a standard ECMAScript module. When you import a JavaScript file, ADL will look for any exported functions, and make them available as decorators inside the ADL syntax. When a decoratorated declaration is evaluated by ADL, it will invoke the decorator function, passing along a reference to the current compilation, an object representing the type it is attached to, and any arguments the user provided to the decorator.
 
-Decorators are attached by adding the decorator before the element you want to decorate, prefixing the name of the decorator with `@`. Arguments can be provided by using parentheses in a manner similar to many programming languages, e.g. `@dec(1, "hi", { a: string })`. The parentheses can be omitted when only one parameter is provided.
+Decorators are attached by adding the decorator before the element you want to decorate, prefixing the name of the decorator with `@`. Arguments can be provided by using parentheses in a manner similar to many programming languages, e.g. `@dec(1, "hi", { a: string })`. The parentheses can be omitted when no arguments are provided.
 
 The following shows an example of declaring and then using a decorator:
 

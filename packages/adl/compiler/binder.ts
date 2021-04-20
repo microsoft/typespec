@@ -1,4 +1,4 @@
-import { createDiagnostic, Diagnostic, DiagnosticError, formatDiagnostic } from "./diagnostics.js";
+import { createDiagnostic, DiagnosticError, formatDiagnostic } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
 import { createProgram, Program } from "./program.js";
 import {

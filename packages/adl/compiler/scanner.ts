@@ -9,7 +9,6 @@ import {
   isWhiteSpaceSingleLine,
 } from "./character-codes.js";
 import { createSourceFile, throwOnError } from "./diagnostics.js";
-import { messages } from "./messages.js";
 import { Message, SourceFile } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
@@ -17,57 +16,110 @@ import { Message, SourceFile } from "./types.js";
 const mergeConflictMarkerLength = 7;
 
 export enum Token {
-  Unknown,
-  EndOfFile,
+  None = 0,
+  Unknown = 1,
+  EndOfFile = 2,
 
-  SingleLineComment,
-  MultiLineComment,
-  NewLine,
-  Whitespace,
+  // Trivia
+  SingleLineComment = 3,
+  MultiLineComment = 4,
+  NewLine = 5,
+  Whitespace = 6,
 
   // We detect and provide better error recovery when we encounter a git merge marker.  This
   // allows us to edit files with git-conflict markers in them in a much more pleasant manner.
-  ConflictMarker,
+  ConflictMarker = 7,
 
   // Literals
-  NumericLiteral,
-  StringLiteral,
+  NumericLiteral = 8,
+  StringLiteral = 9,
 
   // Punctuation
-  OpenBrace,
-  CloseBrace,
-  OpenParen,
-  CloseParen,
-  OpenBracket,
-  CloseBracket,
-  Dot,
-  Elipsis,
-  Semicolon,
-  Comma,
-  LessThan,
-  GreaterThan,
-  Equals,
-  Ampersand,
-  Bar,
-  Question,
-  Colon,
-  At,
+  OpenBrace = 10,
+  CloseBrace = 11,
+  OpenParen = 12,
+  CloseParen = 13,
+  OpenBracket = 14,
+  CloseBracket = 15,
+  Dot = 16,
+  Elipsis = 17,
+  Semicolon = 18,
+  Comma = 19,
+  LessThan = 20,
+  GreaterThan = 21,
+  Equals = 22,
+  Ampersand = 23,
+  Bar = 24,
+  Question = 25,
+  Colon = 26,
+  At = 27,
 
   // Identifiers
-  Identifier,
+  Identifier = 28,
 
-  // Keywords
-  ImportKeyword,
-  ModelKeyword,
-  NamespaceKeyword,
-  UsingKeyword,
-  OpKeyword,
-  ExtendsKeyword,
-  TrueKeyword,
-  FalseKeyword,
+  // Statement Keywords
+  ImportKeyword = 29,
+  ModelKeyword = 30,
+  NamespaceKeyword = 31,
+  UsingKeyword = 32,
+  OpKeyword = 33,
+
+  // Other keywords
+  ExtendsKeyword = 34,
+  TrueKeyword = 35,
+  FalseKeyword = 36,
 }
 
-const keywords = new Map([
+const MinKeyword = Token.ImportKeyword;
+const MaxKeyword = Token.FalseKeyword;
+
+const MinPunctuation = Token.OpenBrace;
+const MaxPunctuation = Token.At;
+
+const MinStatementKeyword = Token.ImportKeyword;
+const MaxStatementKeyword = Token.OpKeyword;
+
+export const TokenDisplay: readonly string[] = [
+  "<none>",
+  "<unknown>",
+  "<end of file>",
+  "<single-line comment>",
+  "<multi-line comment>",
+  "<newline>",
+  "<whitespace>",
+  "<conflict marker>",
+  "<numeric literal>",
+  "<string literal>",
+  "'{'",
+  "'}'",
+  "'('",
+  "')'",
+  "'['",
+  "']'",
+  "'.'",
+  "'...'",
+  "';'",
+  "','",
+  "'<'",
+  "'>'",
+  "'='",
+  "'&'",
+  "'|'",
+  "'?'",
+  "':'",
+  "'@'",
+  "<identifier>",
+  "'import'",
+  "'model'",
+  "'namespace'",
+  "'using'",
+  "'op'",
+  "'extends'",
+  "'true'",
+  "'false'",
+];
+
+export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["import", Token.ImportKeyword],
   ["model", Token.ModelKeyword],
   ["namespace", Token.NamespaceKeyword],
@@ -110,9 +162,40 @@ export interface Scanner {
 }
 
 const enum TokenFlags {
+  None = 0,
   HasCrlf = 1 << 0,
   Escaped = 1 << 1,
   TripleQuoted = 1 << 2,
+}
+
+export function isLiteral(token: Token) {
+  return (
+    token === Token.NumericLiteral ||
+    token === Token.StringLiteral ||
+    token === Token.TrueKeyword ||
+    token === Token.FalseKeyword
+  );
+}
+
+export function isTrivia(token: Token) {
+  return (
+    token === Token.Whitespace ||
+    token === Token.NewLine ||
+    token === Token.SingleLineComment ||
+    token === Token.MultiLineComment
+  );
+}
+
+export function isKeyword(token: Token) {
+  return token >= MinKeyword && token <= MaxKeyword;
+}
+
+export function isPunctuation(token: Token) {
+  return token >= MinPunctuation && token <= MaxPunctuation;
+}
+
+export function isStatementKeyword(token: Token) {
+  return token >= MinStatementKeyword && token <= MaxStatementKeyword;
 }
 
 export function createScanner(source: string | SourceFile, onError = throwOnError): Scanner {
@@ -122,7 +205,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
   let token = Token.Unknown;
   let tokenPosition = -1;
   let tokenValue: string | undefined = undefined;
-  let tokenFlags = 0;
+  let tokenFlags = TokenFlags.None;
 
   return {
     get position() {
@@ -161,7 +244,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
   function scan(): Token {
     tokenPosition = position;
     tokenValue = undefined;
-    tokenFlags = 0;
+    tokenFlags = TokenFlags.None;
 
     if (!eof()) {
       const ch = input.charCodeAt(position);
@@ -248,7 +331,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
             case CharacterCodes.asterisk:
               return scanMultiLineComment();
           }
-          return unknownToken();
+          return invalidToken();
 
         case CharacterCodes._0:
           switch (lookAhead(1)) {
@@ -293,16 +376,16 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
           return scanString();
 
         default:
-          return isIdentifierStart(ch) ? scanIdentifier() : unknownToken();
+          return isIdentifierStart(ch) ? scanIdentifier() : invalidToken();
       }
     }
 
     return (token = Token.EndOfFile);
   }
 
-  function unknownToken() {
+  function invalidToken() {
     token = next(Token.Unknown);
-    error(messages.UnexpectedToken, getTokenText());
+    error(Message.InvalidToken, [getTokenText()]);
     return token;
   }
 
@@ -326,8 +409,8 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     return false;
   }
 
-  function error(msg: Message, ...args: Array<string | number>) {
-    onError(msg, { file, pos: tokenPosition, end: position }, ...args);
+  function error(msg: Message, args?: Array<string | number>) {
+    onError(msg, { file, pos: tokenPosition, end: position }, args);
   }
 
   function scanWhitespace(): Token {
@@ -367,7 +450,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
         position++;
         scanDigits();
       } else {
-        error(messages.DigitExpected);
+        error(Message.DigitExpected);
       }
     }
 
@@ -376,7 +459,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
 
   function scanHexNumber() {
     if (!isHexDigit(lookAhead(2))) {
-      error(messages.HexDigitExpected);
+      error(Message.HexDigitExpected);
       return next(Token.NumericLiteral, 2);
     }
 
@@ -387,7 +470,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
 
   function scanBinaryNumber() {
     if (!isBinaryDigit(lookAhead(2))) {
-      error(messages.BinaryDigitExpected);
+      error(Message.BinaryDigitExpected);
       return next(Token.NumericLiteral, 2);
     }
 
@@ -408,7 +491,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
 
       if (eof()) {
         if (expectedClose) {
-          error(messages.UnexpectedEndOfFile, expectedClose);
+          error(Message.UnexpectedEndOfFile, [expectedClose]);
         }
         break;
       }
@@ -533,7 +616,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     if (isLineBreak(text.charCodeAt(start))) {
       start++;
     } else {
-      error(messages.NoNewLineAtStartOfTripleQuotedString);
+      error(Message.NoNewLineAtStartOfTripleQuotedString);
     }
 
     // remove whitespace before closing delimiter and record it as
@@ -547,7 +630,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     if (isLineBreak(text.charCodeAt(end - 1))) {
       end--;
     } else {
-      error(messages.NoNewLineAtEndOfTripleQuotedString);
+      error(Message.NoNewLineAtEndOfTripleQuotedString);
     }
 
     // remove required matching indentation from each line
@@ -588,7 +671,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
         break;
       }
       if (ch != indentation.charCodeAt(indentationPos)) {
-        error(messages.InconsistentTripleQuoteIndentation);
+        error(Message.InconsistentTripleQuoteIndentation);
         break;
       }
       indentationPos++;
@@ -632,7 +715,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
           result += "\\";
           break;
         default:
-          error(messages.InvalidEscapeSequence);
+          error(Message.InvalidEscapeSequence);
           result += String.fromCharCode(ch);
           break;
       }
@@ -647,6 +730,6 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
 
   function scanIdentifier() {
     scanUntil((ch) => !isIdentifierPart(ch));
-    return (token = keywords.get(getTokenValue()) ?? Token.Identifier);
+    return (token = Keywords.get(getTokenValue()) ?? Token.Identifier);
   }
 }

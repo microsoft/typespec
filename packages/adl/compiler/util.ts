@@ -1,8 +1,8 @@
 import fs from "fs";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import { SymbolTable } from "./binder.js";
-import { createDiagnostic, Diagnostic, DiagnosticError } from "./diagnostics.js";
-import { CompilerHost, Sym } from "./types";
+import { createDiagnostic, DiagnosticError, WriteLine } from "./diagnostics.js";
+import { CompilerHost, Diagnostic, Sym } from "./types";
 import { stat, readFile, readdir, realpath, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 
