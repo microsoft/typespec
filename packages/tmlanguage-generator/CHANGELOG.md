@@ -1,6 +1,14 @@
 # Change Log - @azure-tools/tmlanguage-generator
 
-This log was last generated on Wed, 31 Mar 2021 22:00:43 GMT and should not be manually modified.
+This log was last generated on Tue, 20 Apr 2021 15:23:29 GMT and should not be manually modified.
+
+## 0.1.4
+Tue, 20 Apr 2021 15:23:29 GMT
+
+### Patches
+
+- Provide option to give source file path for error messages
+- Format errors to match VS Code problem matching
 
 ## 0.1.3
 Wed, 31 Mar 2021 22:00:43 GMT
