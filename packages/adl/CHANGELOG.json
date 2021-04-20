@@ -2,6 +2,26 @@
   "name": "@azure-tools/adl",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "@azure-tools/adl_v0.9.0",
+      "date": "Tue, 20 Apr 2021 15:23:29 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix issue where dynamic namespaces were not evaluated"
+          },
+          {
+            "comment": "Virtualize writting to filesytem to enable programtic usage of adl"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Fix parse errors from trailing commas; implement optional prefix | and &"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "@azure-tools/adl_v0.8.0",
       "date": "Tue, 06 Apr 2021 01:23:07 GMT",

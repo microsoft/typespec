@@ -1,6 +1,13 @@
 # Change Log - adl-vscode
 
-This log was last generated on Wed, 31 Mar 2021 22:00:43 GMT and should not be manually modified.
+This log was last generated on Tue, 20 Apr 2021 15:23:29 GMT and should not be manually modified.
+
+## 0.4.5
+Tue, 20 Apr 2021 15:23:29 GMT
+
+### Patches
+
+- Fix syntax highlighting for tuple expressions
 
 ## 0.4.4
 Wed, 31 Mar 2021 22:00:43 GMT

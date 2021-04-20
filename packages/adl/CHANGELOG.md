@@ -1,6 +1,18 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Tue, 06 Apr 2021 01:23:07 GMT and should not be manually modified.
+This log was last generated on Tue, 20 Apr 2021 15:23:29 GMT and should not be manually modified.
+
+## 0.9.0
+Tue, 20 Apr 2021 15:23:29 GMT
+
+### Minor changes
+
+- Fix parse errors from trailing commas; implement optional prefix | and &
+
+### Patches
+
+- Fix issue where dynamic namespaces were not evaluated
+- Virtualize writting to filesytem to enable programtic usage of adl
 
 ## 0.8.0
 Tue, 06 Apr 2021 01:23:07 GMT
