@@ -29,7 +29,8 @@
   },
   "files": [
     "lib/*.adl",
-    "dist/**"
+    "dist/**",
+    "!dist/test/**"
   ],
   "scripts": {
     "build": "npm run compile",

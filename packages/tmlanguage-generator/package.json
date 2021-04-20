@@ -26,7 +26,8 @@
     "watch": "tsc -p . --watch"
   },
   "files": [
-    "dist/**"
+    "dist/**",
+    "!dist/test/**"
   ],
   "dependencies": {
     "onigasm": "~2.2.5",

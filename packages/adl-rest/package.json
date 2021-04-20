@@ -28,7 +28,8 @@
   },
   "files": [
     "lib/*.adl",
-    "dist/**"
+    "dist/**",
+    "!dist/test/**"
   ],
   "dependencies": {
     "@azure-tools/adl": "0.9.0"
