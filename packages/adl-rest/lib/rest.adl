@@ -17,6 +17,10 @@ model AcceptedResponse {
   @header statusCode: 202;
 }
 
+model NoContentResponse {
+  @header statusCode: 204;
+}
+
 model MovedResponse {
   @header statusCode: 301;
   ... LocationHeader;
