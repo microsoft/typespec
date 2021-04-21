@@ -48,20 +48,28 @@ import {
  */
 type ParseListItem<T> = (pos: number, decorators: DecoratorExpressionNode[]) => T;
 
+type OpenToken = Token.OpenBrace | Token.OpenParen | Token.OpenBracket | Token.LessThan;
+type CloseToken = Token.CloseBrace | Token.CloseParen | Token.CloseBracket | Token.GreaterThan;
+type DelimiterToken = Token.Comma | Token.Semicolon;
+
 /**
  * In order to share sensitive error recovery code, all parsing of delimited
  * lists is done using a shared driver routine parameterized by these options.
  */
 interface ListKind {
-  readonly optional: boolean;
   readonly allowEmpty: boolean;
-  readonly open: Token;
-  readonly close: Token;
-  readonly delimiter: Token;
-  readonly toleratedDelimiter: Token;
+  readonly open: OpenToken | Token.None;
+  readonly close: CloseToken | Token.None;
+  readonly delimiter: DelimiterToken;
+  readonly toleratedDelimiter: DelimiterToken;
   readonly toleratedDelimiterIsValid: boolean;
   readonly trailingDelimiterIsValid: boolean;
   readonly invalidDecoratorTarget?: string;
+}
+
+interface SurroundedListKind extends ListKind {
+  readonly open: OpenToken;
+  readonly close: CloseToken;
 }
 
 /**
@@ -70,68 +78,64 @@ interface ListKind {
 namespace ListKind {
   const PropertiesBase = {
     allowEmpty: true,
-    optional: false,
     toleratedDelimiterIsValid: true,
     trailingDelimiterIsValid: true,
-  };
+  } as const;
 
-  export const OperationParameters: ListKind = {
+  export const OperationParameters = {
     ...PropertiesBase,
     open: Token.OpenParen,
     close: Token.CloseParen,
     delimiter: Token.Comma,
     toleratedDelimiter: Token.Semicolon,
-  };
+  } as const;
 
-  export const DecoratorArguments: ListKind = {
+  export const DecoratorArguments = {
     ...OperationParameters,
-    optional: true,
     invalidDecoratorTarget: "expression",
-  };
+  } as const;
 
-  export const ModelProperties: ListKind = {
+  export const ModelProperties = {
     ...PropertiesBase,
     open: Token.OpenBrace,
     close: Token.CloseBrace,
     delimiter: Token.Semicolon,
     toleratedDelimiter: Token.Comma,
-  };
+  } as const;
 
   const ExpresionsBase = {
     allowEmpty: true,
-    optional: false,
     delimiter: Token.Comma,
     toleratedDelimiter: Token.Semicolon,
     toleratedDelimiterIsValid: false,
     trailingDelimiterIsValid: false,
     invalidDecoratorTarget: "expression",
-  };
+  } as const;
 
-  export const TemplateParameters: ListKind = {
+  export const TemplateParameters = {
     ...ExpresionsBase,
-    optional: true,
     allowEmpty: false,
     open: Token.LessThan,
     close: Token.GreaterThan,
-  };
+  } as const;
 
-  export const TemplateArguments: ListKind = {
+  export const TemplateArguments = {
     ...TemplateParameters,
-  };
+  } as const;
 
-  export const Heritage: ListKind = {
+  export const Heritage = {
     ...ExpresionsBase,
     allowEmpty: false,
     open: Token.None,
     close: Token.None,
-  };
+  } as const;
 
-  export const Tuple: ListKind = {
+  export const Tuple = {
     ...ExpresionsBase,
     allowEmpty: false,
     open: Token.OpenBracket,
     close: Token.CloseBracket,
-  };
+  } as const;
 }
 
 export function parse(code: string | SourceFile) {
@@ -900,11 +904,10 @@ export function parse(code: string | SourceFile) {
   }
 
   /**
-   * Parse a delimited list with surround open and close punctuation if the open
-   * token is present. Otherwise, return an empty list.
+   * Parse a delimited list with surrounding open and close punctuation if the
+   * open token is present. Otherwise, return an empty list.
    */
-  function parseOptionalList<T>(kind: ListKind, parseItem: ParseListItem<T>): T[] {
-    assert(kind.open !== Token.None, "A list cannot be optional without open punctuation.");
+  function parseOptionalList<T>(kind: SurroundedListKind, parseItem: ParseListItem<T>): T[] {
     return token() == kind.open ? parseList(kind, parseItem) : [];
   }
 
