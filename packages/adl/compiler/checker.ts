@@ -55,10 +55,9 @@ class MultiKeyMap<K extends object[], V> {
     return this.#items.get(this.compositeKeyFor(items));
   }
 
-  set(items: K, value: V): string {
+  set(items: K, value: V): void {
     const key = this.compositeKeyFor(items);
     this.#items.set(key, value);
-    return key;
   }
 
   private compositeKeyFor(items: K) {
@@ -190,9 +189,9 @@ export function createChecker(program: Program) {
       // template instantiation
       const args = model.templateArguments.map(getTypeName);
       return `${modelName}<${args.join(", ")}>`;
-    } else if ((<ModelStatementNode>model.node).templateParameters?.length > 0) {
+    } else if ((model.node as ModelStatementNode).templateParameters?.length > 0) {
       // template
-      const params = (<ModelStatementNode>model.node).templateParameters.map((t) => t.id.sv);
+      const params = (model.node as ModelStatementNode).templateParameters.map((t) => t.id.sv);
       return `${model.name}<${params.join(", ")}>`;
     } else {
       // regular old model.
@@ -381,13 +380,13 @@ export function createChecker(program: Program) {
       for (const statement of node.statements.map(getTypeForNode)) {
         switch (statement.kind) {
           case "Model":
-            type.models.set(statement.name, statement as ModelType);
+            type.models.set(statement.name, statement);
             break;
           case "Operation":
-            type.operations.set(statement.name, statement as OperationType);
+            type.operations.set(statement.name, statement);
             break;
           case "Namespace":
-            type.namespaces.set(statement.name, statement as NamespaceType);
+            type.namespaces.set(statement.name, statement);
             break;
         }
       }
@@ -681,13 +680,13 @@ export function createChecker(program: Program) {
     // model =
     // this will likely have to change, as right now `model =` is really just
     // alias and so disappears. That means you can't easily rename symbols.
-    const assignmentType = getTypeForNode((<ModelStatementNode>node).assignment!);
+    const assignmentType = getTypeForNode(node.assignment!);
 
     if (assignmentType.kind === "Model") {
       const type: ModelType = createType({
-        ...(<ModelType>assignmentType),
+        ...assignmentType,
         node: node,
-        name: (<ModelStatementNode>node).id.sv,
+        name: node.id.sv,
         assignmentType,
         namespace: getParentNamespaceType(node),
       });
@@ -768,7 +767,7 @@ export function createChecker(program: Program) {
 
   // the types here aren't ideal and could probably be refactored.
   function createType<T extends Type>(typeDef: T): T {
-    (<any>typeDef).templateArguments = templateInstantiation;
+    (typeDef as any).templateArguments = templateInstantiation;
 
     program.executeDecorators(typeDef);
     return typeDef;

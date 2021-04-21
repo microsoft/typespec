@@ -115,8 +115,8 @@ export async function createProgram(
   }
 
   function executeDecorators(type: Type) {
-    if ((<any>type.node).decorators) {
-      for (const dec of (<any>type.node).decorators) {
+    if (type.node && "decorators" in type.node) {
+      for (const dec of type.node.decorators) {
         executeDecorator(dec, program, type);
       }
     }
@@ -139,12 +139,11 @@ export async function createProgram(
 
   /**
    * returns the JSON representation of a type. This is generally
-   * just the raw type objects, but string and number literals are
-   * treated specially.
+   * just the raw type objects, but literals are treated specially.
    */
-  function toJSON(type: Type): Type | string | number {
+  function toJSON(type: Type): Type | string | number | boolean {
     if ("value" in type) {
-      return (<any>type).value;
+      return type.value;
     }
 
     return type;

@@ -146,7 +146,7 @@ export interface SymbolTable extends Map<string, Sym> {
  */
 export interface TypeInstantiationMap {
   get(args: Type[]): Type | undefined;
-  set(args: Type[], type: Type): string;
+  set(args: Type[], type: Type): void;
 }
 
 /**
