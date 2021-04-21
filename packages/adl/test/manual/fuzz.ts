@@ -1,5 +1,5 @@
-import { logVerboseTestOutput } from "../compiler/diagnostics.js";
-import { parse } from "../compiler/parser.js";
+import { logVerboseTestOutput } from "../../compiler/diagnostics.js";
+import { parse } from "../../compiler/parser.js";
 
 interface FuzzedFile extends FuzzedScope {
   name: string;
