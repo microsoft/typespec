@@ -1,4 +1,3 @@
-import { SymbolTable } from "./binder.js";
 import { throwDiagnostic } from "./diagnostics.js";
 import { Program } from "./program.js";
 import {
@@ -28,11 +27,13 @@ import {
   StringLiteralNode,
   StringLiteralType,
   SymbolLinks,
+  SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
   TupleExpressionNode,
   TupleType,
   Type,
+  TypeInstantiationMap,
   TypeReferenceNode,
   TypeSymbol,
   UnionExpressionNode,
@@ -41,31 +42,30 @@ import {
 import { reportDuplicateSymbols } from "./util.js";
 
 /**
- * A map keyed by a set of objects. Used as a type cache where the base type
- * and any types in the instantiation set are used as keys.
+ * A map keyed by a set of objects.
  *
  * This is likely non-optimal.
  */
-export class MultiKeyMap<T> {
+class MultiKeyMap<K extends object[], V> {
   #currentId = 0;
   #idMap = new WeakMap<object, number>();
-  #items = new Map<string, T>();
+  #items = new Map<string, V>();
 
-  get(items: object[]): T | undefined {
+  get(items: K): V | undefined {
     return this.#items.get(this.compositeKeyFor(items));
   }
 
-  set(items: object[], value: any): string {
+  set(items: K, value: V): string {
     const key = this.compositeKeyFor(items);
     this.#items.set(key, value);
     return key;
   }
 
-  compositeKeyFor(items: object[]) {
+  private compositeKeyFor(items: K) {
     return items.map((i) => this.keyFor(i)).join(",");
   }
 
-  keyFor(item: object) {
+  private keyFor(item: object) {
     if (this.#idMap.has(item)) {
       return this.#idMap.get(item);
     }
@@ -75,6 +75,13 @@ export class MultiKeyMap<T> {
     return id;
   }
 }
+
+/**
+ * Maps type arguments to type instantiation.
+ */
+const TypeInstantiationMap = class
+  extends MultiKeyMap<Type[], Type>
+  implements TypeInstantiationMap {};
 
 interface PendingModelInfo {
   id: IdentifierNode;
@@ -625,7 +632,7 @@ export function createChecker(program: Program) {
 
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
-      links.instantiations = new MultiKeyMap();
+      links.instantiations = new TypeInstantiationMap();
     }
 
     // The model is fully created now

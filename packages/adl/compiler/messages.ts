@@ -1,3 +1,9 @@
+export interface Message {
+  code?: number;
+  text: string;
+  severity: "error" | "warning";
+}
+
 export const Message = {
   DigitExpected: {
     code: 1100,
@@ -54,3 +60,9 @@ export const Message = {
     text: "Invalid token: '{0}'",
   } as const,
 };
+
+// Static assert: this won't compile if one of the entries above is invalid.
+// Having the properties typed as const there instead of Message makes it easier
+// to see the message text by hovering in the IDE and also happens to be fewer
+// keystrokes.
+const assertMessageType: { [K in keyof typeof Message]: Message } = Message;

@@ -2,9 +2,8 @@ import fs from "fs";
 import { readdir, readFile, realpath, stat, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
-import { SymbolTable } from "./binder.js";
 import { createDiagnostic, DiagnosticError } from "./diagnostics.js";
-import { CompilerHost, Diagnostic, Sym } from "./types";
+import { CompilerHost, Diagnostic, Sym, SymbolTable } from "./types.js";
 
 export const adlVersion = getVersion();
 

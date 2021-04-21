@@ -1,5 +1,5 @@
-import { SymbolTable } from "./binder.js";
-import { compilerAssert, createDiagnostic, DiagnosticTarget } from "./diagnostics.js";
+import { createSymbolTable } from "./binder.js";
+import { compilerAssert, createDiagnostic, DiagnosticTarget, Message } from "./diagnostics.js";
 import {
   createScanner,
   isKeyword,
@@ -18,7 +18,6 @@ import {
   IdentifierNode,
   ImportStatementNode,
   MemberExpressionNode,
-  Message,
   ModelExpressionNode,
   ModelPropertyNode,
   ModelSpreadPropertyNode,
@@ -156,7 +155,7 @@ export function parse(code: string | SourceFile) {
       models: [],
       namespaces: [],
       usings: [],
-      locals: new SymbolTable(),
+      locals: createSymbolTable(),
       inScopeNamespaces: [],
       parseDiagnostics,
     };

@@ -1,7 +1,7 @@
 import { dirname, extname, isAbsolute, join, resolve } from "path";
 import resolveModule from "resolve";
-import { createBinder, SymbolTable } from "./binder.js";
-import { createChecker, MultiKeyMap } from "./checker.js";
+import { createBinder, createSymbolTable } from "./binder.js";
+import { createChecker } from "./checker.js";
 import { createSourceFile, DiagnosticError, throwDiagnostic } from "./diagnostics.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
@@ -23,7 +23,6 @@ export interface Program {
   compilerOptions: CompilerOptions;
   globalNamespace: NamespaceStatementNode;
   sourceFiles: ADLScriptNode[];
-  typeCache: MultiKeyMap<Type>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   checker?: ReturnType<typeof createChecker>;
@@ -46,7 +45,6 @@ export async function createProgram(
     compilerOptions: options || {},
     globalNamespace: createGlobalNamespace(),
     sourceFiles: [],
-    typeCache: new MultiKeyMap(),
     literalTypes: new Map(),
     host,
     evalAdlScript,
@@ -91,8 +89,8 @@ export async function createProgram(
       pos: 0,
       end: 0,
       name: nsId,
-      locals: new SymbolTable(),
-      exports: new SymbolTable(),
+      locals: createSymbolTable(),
+      exports: createSymbolTable(),
     };
   }
 

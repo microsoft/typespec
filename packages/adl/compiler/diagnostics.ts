@@ -1,15 +1,9 @@
 import { AssertionError } from "assert";
 import { CharacterCodes } from "./character-codes.js";
-import {
-  Diagnostic,
-  Message,
-  Node,
-  SourceFile,
-  SourceLocation,
-  Sym,
-  SyntaxKind,
-  Type,
-} from "./types.js";
+import { Message } from "./messages.js";
+import { Diagnostic, Node, SourceFile, SourceLocation, Sym, SyntaxKind, Type } from "./types.js";
+
+export { Message } from "./messages.js";
 
 /**
  * Represents an error in the code input that is fatal and bails the compilation.

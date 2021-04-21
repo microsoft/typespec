@@ -9,13 +9,14 @@ import {
   OperationStatementNode,
   ScopeNode,
   Sym,
+  SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
   UsingStatementNode,
 } from "./types.js";
 import { reportDuplicateSymbols } from "./util.js";
 
-export class SymbolTable extends Map<string, Sym> {
+const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   duplicates = new Set<Sym>();
 
   // First set for a given key wins, but record all duplicates for diagnostics.
@@ -29,7 +30,7 @@ export class SymbolTable extends Map<string, Sym> {
     }
     return this;
   }
-}
+};
 
 export interface DecoratorSymbol {
   kind: "decorator";
@@ -46,6 +47,10 @@ export interface TypeSymbol {
 
 export interface Binder {
   bindSourceFile(program: Program, sourceFile: ADLScriptNode): void;
+}
+
+export function createSymbolTable(): SymbolTable {
+  return new SymbolTable();
 }
 
 export function createBinder(): Binder {

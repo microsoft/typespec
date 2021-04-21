@@ -8,8 +8,8 @@ import {
   isLineBreak,
   isWhiteSpaceSingleLine,
 } from "./character-codes.js";
-import { createSourceFile, throwOnError } from "./diagnostics.js";
-import { Message, SourceFile } from "./types.js";
+import { createSourceFile, Message, throwOnError } from "./diagnostics.js";
+import { SourceFile } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.

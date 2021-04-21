@@ -1,7 +1,3 @@
-import { SymbolTable } from "./binder";
-import { MultiKeyMap } from "./checker";
-import { Message as MessageImpl } from "./messages.js";
-
 /**
  * Type System types
  */
@@ -138,7 +134,19 @@ export interface SymbolLinks {
   // for types which can be instantiated, we split `type` into declaredType and
   // a map of instantiations.
   declaredType?: Type;
-  instantiations?: MultiKeyMap<Type>;
+  instantiations?: TypeInstantiationMap;
+}
+
+export interface SymbolTable extends Map<string, Sym> {
+  readonly duplicates: ReadonlySet<Sym>;
+}
+
+/**
+ * Maps type arguments to instantiated type.
+ */
+export interface TypeInstantiationMap {
+  get(args: Type[]): Type | undefined;
+  set(args: Type[], type: Type): string;
 }
 
 /**
@@ -425,20 +433,6 @@ export interface TextRange {
 export interface SourceLocation extends TextRange {
   file: SourceFile;
 }
-
-export interface Message {
-  code?: number;
-  text: string;
-  severity: "error" | "warning";
-}
-
-export const Message = MessageImpl;
-
-// Static assert: this won't compile if one of the entries in messages.ts is
-// invalid. Having the properties typed as const there instead of Message makes
-// it easier to see the message text by hovering inthe IDE and also happens to
-// be less typing.
-const assertMessageType: { [K in keyof typeof Message]: Message } = Message;
 
 export interface Diagnostic extends SourceLocation {
   message: string;
