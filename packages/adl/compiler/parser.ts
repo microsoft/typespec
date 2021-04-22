@@ -1012,7 +1012,7 @@ export function parse(code: string | SourceFile) {
     return false;
   }
 
-  function parseExpectedOneOf<T extends Token[]>(...options: T): T[number] | undefined {
+  function parseExpectedOneOf<T extends Token[]>(...options: T): T[number] | Token.None {
     for (const tok of options) {
       if (token() === tok) {
         nextToken();
@@ -1020,7 +1020,7 @@ export function parse(code: string | SourceFile) {
       }
     }
     errorTokenIsNotOneOf(options);
-    return undefined;
+    return Token.None;
   }
 
   function errorTokenIsNotOneOf(options: Token[]) {

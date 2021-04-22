@@ -1,11 +1,14 @@
 import {
   CharacterCodes,
+  isAsciiIdentifierContinue,
+  isAsciiIdentifierStart,
   isBinaryDigit,
   isDigit,
   isHexDigit,
-  isIdentifierPart,
-  isIdentifierStart,
+  isIdentifierContinue,
   isLineBreak,
+  isNonAsciiIdentifierContinue,
+  isNonAsciiIdentifierStart,
   isWhiteSpaceSingleLine,
 } from "./character-codes.js";
 import { createSourceFile, Message, throwOnError } from "./diagnostics.js";
@@ -17,7 +20,7 @@ const mergeConflictMarkerLength = 7;
 
 export enum Token {
   None = 0,
-  Unknown = 1,
+  Invalid = 1,
   EndOfFile = 2,
 
   // Trivia
@@ -81,7 +84,7 @@ const MaxStatementKeyword = Token.OpKeyword;
 
 export const TokenDisplay: readonly string[] = [
   "<none>",
-  "<unknown>",
+  "<invalid>",
   "<end of file>",
   "<single-line comment>",
   "<multi-line comment>",
@@ -129,6 +132,8 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
 ]);
+
+export const maxKeywordLength = 9;
 
 export interface Scanner {
   /** The source code being scanned. */
@@ -202,7 +207,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
   const file = typeof source === "string" ? createSourceFile(source, "<anonymous file>") : source;
   const input = file.text;
   let position = 0;
-  let token = Token.Unknown;
+  let token = Token.Invalid;
   let tokenPosition = -1;
   let tokenValue: string | undefined = undefined;
   let tokenFlags = TokenFlags.None;
@@ -231,6 +236,10 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
   function next(t: Token, count = 1) {
     position += count;
     return (token = t);
+  }
+
+  function utf16CodeUnits(codePoint: number) {
+    return codePoint >= 0x10000 ? 2 : 1;
   }
 
   function getTokenText() {
@@ -331,7 +340,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
             case CharacterCodes.asterisk:
               return scanMultiLineComment();
           }
-          return invalidToken();
+          return scanInvalidCharacter();
 
         case CharacterCodes._0:
           switch (lookAhead(1)) {
@@ -376,16 +385,17 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
           return scanString();
 
         default:
-          return isIdentifierStart(ch) ? scanIdentifier() : invalidToken();
+          return scanIdentifierOrKeyword();
       }
     }
 
     return (token = Token.EndOfFile);
   }
 
-  function invalidToken() {
-    token = next(Token.Unknown);
-    error(Message.InvalidToken, [getTokenText()]);
+  function scanInvalidCharacter() {
+    const codePoint = input.codePointAt(position)!;
+    token = next(Token.Invalid, utf16CodeUnits(codePoint));
+    error(Message.InvalidCharacter);
     return token;
   }
 
@@ -728,8 +738,57 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     return result;
   }
 
-  function scanIdentifier() {
-    scanUntil((ch) => !isIdentifierPart(ch));
-    return (token = Keywords.get(getTokenValue()) ?? Token.Identifier);
+  function scanIdentifierOrKeyword() {
+    let ch = input.charCodeAt(position);
+
+    if (!isAsciiIdentifierStart(ch)) {
+      return scanNonAsciiIdentifier();
+    }
+
+    do {
+      position++;
+      if (eof()) {
+        break;
+      }
+      ch = input.charCodeAt(position);
+    } while (isAsciiIdentifierContinue(ch));
+
+    if (!eof() && ch > CharacterCodes.maxAsciiCharacter) {
+      const codePoint = input.codePointAt(position)!;
+      if (isNonAsciiIdentifierContinue(codePoint)) {
+        return scanNonAsciiIdentifierContinue(codePoint);
+      }
+    }
+
+    if (position - tokenPosition <= maxKeywordLength) {
+      const value = getTokenValue();
+      const keyword = Keywords.get(value);
+      if (keyword) {
+        return (token = keyword);
+      }
+    }
+
+    return (token = Token.Identifier);
+  }
+
+  function scanNonAsciiIdentifier() {
+    let codePoint = input.codePointAt(position)!;
+    return isNonAsciiIdentifierStart(codePoint)
+      ? scanNonAsciiIdentifierContinue(codePoint)
+      : scanInvalidCharacter();
+  }
+
+  function scanNonAsciiIdentifierContinue(startCodePoint: number) {
+    let codePoint = startCodePoint;
+
+    do {
+      position += utf16CodeUnits(codePoint);
+      if (eof()) {
+        break;
+      }
+      codePoint = input.codePointAt(position)!;
+    } while (isIdentifierContinue(codePoint));
+
+    return (token = Token.Identifier);
   }
 }

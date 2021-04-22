@@ -54,10 +54,10 @@ export const Message = {
       "All lines in triple-quoted string lines must have the same indentation as closing triple quotes",
   } as const,
 
-  InvalidToken: {
+  InvalidCharacter: {
     code: 1108,
     severity: "error",
-    text: "Invalid token: '{0}'",
+    text: "Invalid character.",
   } as const,
 };
 

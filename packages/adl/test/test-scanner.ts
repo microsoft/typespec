@@ -8,6 +8,7 @@ import {
   isPunctuation,
   isStatementKeyword,
   Keywords,
+  maxKeywordLength,
   Token,
   TokenDisplay,
 } from "../compiler/scanner.js";
@@ -226,13 +227,17 @@ describe("scanner", () => {
 
     // check that keywords have appropriate display
     const nonStatementKeywords = [Token.ExtendsKeyword, Token.TrueKeyword, Token.FalseKeyword];
+    let maxKeywordLengthFound = -1;
     for (const [name, token] of Keywords.entries()) {
+      maxKeywordLengthFound = Math.max(maxKeywordLengthFound, name.length);
       assert.strictEqual(TokenDisplay[token], `'${name}'`);
       assert(isKeyword(token), `${name} should be classified as a keyword`);
       if (!nonStatementKeywords.includes(token)) {
         assert(isStatementKeyword(token), `${name} should be classified as statement keyword`);
       }
     }
+
+    assert.strictEqual(maxKeywordLengthFound, maxKeywordLength);
 
     // check single character punctuation
     for (let i = 33; i <= 126; i++) {
@@ -241,7 +246,7 @@ describe("scanner", () => {
       if (
         token !== Token.StringLiteral &&
         token !== Token.Identifier &&
-        token !== Token.Unknown &&
+        token !== Token.Invalid &&
         token !== Token.NumericLiteral
       ) {
         assert.strictEqual(TokenDisplay[token], `'${str}'`);
@@ -252,7 +257,7 @@ describe("scanner", () => {
     // check the rest
     assert.strictEqual(TokenDisplay[Token.Elipsis], "'...'");
     assert.strictEqual(TokenDisplay[Token.None], "<none>");
-    assert.strictEqual(TokenDisplay[Token.Unknown], "<unknown>");
+    assert.strictEqual(TokenDisplay[Token.Invalid], "<invalid>");
     assert.strictEqual(TokenDisplay[Token.EndOfFile], "<end of file>");
     assert.strictEqual(TokenDisplay[Token.SingleLineComment], "<single-line comment>");
     assert.strictEqual(TokenDisplay[Token.MultiLineComment], "<multi-line comment>");
