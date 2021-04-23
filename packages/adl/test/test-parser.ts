@@ -1,6 +1,6 @@
-import * as assert from "assert";
+import assert from "assert";
 import { logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js";
-import { parse } from "../compiler/parser.js";
+import { hasParseError, NodeFlags, parse } from "../compiler/parser.js";
 import { ADLScriptNode, SyntaxKind } from "../compiler/types.js";
 
 describe("syntax", () => {
@@ -214,6 +214,8 @@ describe("syntax", () => {
           /Expected '{', '=', or 'extends'/,
         ],
       ],
+      ["model M {}; This is not a valid statement", [/Statement expected/]],
+      ["model M {}; @dec ;", [/Cannot decorate empty statement/]],
     ]);
   });
 
@@ -235,9 +237,17 @@ function parseEach(cases: string[]) {
 
       logVerboseTestOutput("\n=== Diagnostics ===");
       if (astNode.parseDiagnostics.length > 0) {
-        const errors: string[] = [];
-        logDiagnostics(astNode.parseDiagnostics, (e) => errors.push(e!));
-        assert.fail("Unexpected parse errors in test.\n" + errors.join("\n"));
+        const diagnostics: string[] = [];
+        logDiagnostics(astNode.parseDiagnostics, (e) => diagnostics.push(e!));
+
+        assert.strictEqual(
+          hasParseError(astNode),
+          astNode.parseDiagnostics.some((e) => e.severity === "error"),
+          "root node claims to have no parse errors, but these were reported:\n" +
+            diagnostics.join("\n")
+        );
+
+        assert.fail("Unexpected parse errors in test:\n" + diagnostics.join("\n"));
       }
     });
   }
@@ -260,12 +270,17 @@ function parseErrorEach(cases: [string, RegExp[]][]) {
       for (const match of matches) {
         assert.match(astNode.parseDiagnostics[i++].message, match);
       }
+      assert(
+        hasParseError(astNode),
+        "node claims to have no parse errors, but above were reported."
+      );
     });
   }
 }
 
 function dumpAST(astNode: ADLScriptNode) {
   logVerboseTestOutput((log) => {
+    const hasErrors = hasParseError(astNode); // force flags to initialize
     const json = JSON.stringify(astNode, replacer, 2);
     log(json);
   });
@@ -299,7 +314,44 @@ function dumpAST(astNode: ADLScriptNode) {
       return undefined;
     }
 
+    if (key === "flags") {
+      return [
+        value & NodeFlags.DescendantErrorsExamined ? "DescendantErrorsExamined" : "",
+        value & NodeFlags.ThisNodeHasError ? "ThisNodeHasError" : "",
+        value & NodeFlags.DescendantHasError ? "DescendantHasError" : "",
+      ].join(",");
+    }
+
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      // Show the text of the given node
+      if ("pos" in value && "end" in value) {
+        value.source = shorten(astNode.file.text.substring(value.pos, value.end));
+      }
+
+      // sort properties by type so that the short ones can be read without
+      // scrolling past the long ones and getting disoriented.
+      const sorted: any = {};
+      for (const prop of sortKeysByType(value)) {
+        sorted[prop] = value[prop];
+      }
+      return sorted;
+    }
+
     return value;
+  }
+
+  function sortKeysByType(o: any) {
+    const score = {
+      undefined: 0,
+      string: 1,
+      boolean: 2,
+      number: 3,
+      bigint: 4,
+      symbol: 5,
+      function: 6,
+      object: 7,
+    };
+    return Object.keys(o).sort((x, y) => score[typeof o[x]] - score[typeof o[y]]);
   }
 }
 

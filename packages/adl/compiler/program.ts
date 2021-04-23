@@ -226,7 +226,7 @@ export async function createProgram(
     // collect imports
     for (const stmt of file.statements) {
       if (stmt.kind !== SyntaxKind.ImportStatement) break;
-      const path = stmt.path;
+      const path = stmt.path.value;
       const basedir = dirname(file.file.path);
 
       let target: string;

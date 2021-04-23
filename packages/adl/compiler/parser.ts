@@ -14,9 +14,11 @@ import {
   BooleanLiteralNode,
   DecoratorExpressionNode,
   Diagnostic,
+  EmptyStatementNode,
   Expression,
   IdentifierNode,
   ImportStatementNode,
+  InvalidStatementNode,
   MemberExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
@@ -70,6 +72,28 @@ interface ListKind {
 interface SurroundedListKind extends ListKind {
   readonly open: OpenToken;
   readonly close: CloseToken;
+}
+
+/** @internal */
+export const enum NodeFlags {
+  None = 0,
+  /**
+   * If this is set, the DescendantHasError bit can be trusted. If this not set,
+   * children need to be visited still to see if DescendantHasError should be
+   * set.
+   */
+  DescendantErrorsExamined = 1 << 0,
+
+  /**
+   * Indicates that a parse error was associated with this specific node.
+   */
+  ThisNodeHasError = 1 << 1,
+
+  /**
+   * Indicates that a child of this node (or one of its children,
+   * transitively) has a parse error.
+   */
+  DescendantHasError = 1 << 2,
 }
 
 /**
@@ -139,6 +163,7 @@ namespace ListKind {
 }
 
 export function parse(code: string | SourceFile) {
+  let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
@@ -149,11 +174,10 @@ export function parse(code: string | SourceFile) {
   return parseADLScript();
 
   function parseADLScript(): ADLScriptNode {
-    const script: ADLScriptNode = {
+    const statements = parseADLScriptItemList();
+    return {
       kind: SyntaxKind.ADLScript,
-      statements: [],
-      pos: 0,
-      end: 0,
+      statements,
       file: scanner.file,
       interfaces: [],
       models: [],
@@ -162,11 +186,8 @@ export function parse(code: string | SourceFile) {
       locals: createSymbolTable(),
       inScopeNamespaces: [],
       parseDiagnostics,
+      ...finishNode({}, 0),
     };
-
-    script.statements = parseADLScriptItemList();
-    script.end = scanner.position;
-    return script;
   }
 
   function parseADLScriptItemList(): Statement[] {
@@ -197,13 +218,12 @@ export function parse(code: string | SourceFile) {
           break;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
-          // no need to put empty statement nodes in the tree for now
-          // since we aren't trying to emit ADL
-          parseExpected(Token.Semicolon);
-          continue;
+          item = parseEmptyStatement();
+          break;
         default:
-          recoverFromInvalidStatement(decorators);
-          continue;
+          reportInvalidDecorators(decorators, "invalid statement");
+          item = parseInvalidStatement();
+          break;
       }
 
       if (isBlocklessNamespace(item)) {
@@ -264,13 +284,12 @@ export function parse(code: string | SourceFile) {
           return stmts;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
-          // no need to put empty statement nodes in the tree for now
-          // since we aren't trying to emit ADL
-          parseExpected(Token.Semicolon);
-          continue;
+          stmts.push(parseEmptyStatement());
+          break;
         default:
-          recoverFromInvalidStatement(decorators);
-          continue;
+          reportInvalidDecorators(decorators, "invalid statement");
+          stmts.push(parseInvalidStatement());
+          break;
       }
     }
 
@@ -600,8 +619,8 @@ export function parse(code: string | SourceFile) {
     const pos = tokenPos();
 
     parseExpected(Token.ImportKeyword);
-    const pathLiteral = parseStringLiteral();
-    const path = pathLiteral.value;
+    const path = parseStringLiteral();
+
     parseExpected(Token.Semicolon);
     return finishNode(
       {
@@ -806,11 +825,15 @@ export function parse(code: string | SourceFile) {
     );
   }
 
-  function finishNode<T>(o: T, pos: number): T & TextRange {
+  function finishNode<T>(o: T, pos: number): T & TextRange & { flags: NodeFlags } {
+    const flags = parseErrorInNextFinishedNode ? NodeFlags.ThisNodeHasError : NodeFlags.None;
+    parseErrorInNextFinishedNode = false;
+
     return {
       ...o,
       pos,
       end: previousTokenEnd,
+      flags,
     };
   }
 
@@ -927,12 +950,17 @@ export function parse(code: string | SourceFile) {
     return false;
   }
 
-  function recoverFromInvalidStatement(decorators: DecoratorExpressionNode[]) {
+  function parseEmptyStatement(): EmptyStatementNode {
+    const pos = tokenPos();
+    parseExpected(Token.Semicolon);
+    return finishNode({ kind: SyntaxKind.EmptyStatement }, pos);
+  }
+
+  function parseInvalidStatement(): InvalidStatementNode {
     // Error recovery: avoid an avalanche of errors when we get cornered into
     // parsing statements where none exist. Skip until we find a statement
     // keyword or decorator and only report one error for a contiguous range of
     // neither.
-    reportInvalidDecorators(decorators, "invalid statement");
     const pos = tokenPos();
     do {
       nextToken();
@@ -944,6 +972,7 @@ export function parse(code: string | SourceFile) {
     );
 
     error("Statement expected.", { pos, end: previousTokenEnd });
+    return finishNode({ kind: SyntaxKind.InvalidStatement }, pos);
   }
 
   function error(message: string, target?: TextRange & { realPos?: number }) {
@@ -963,6 +992,7 @@ export function parse(code: string | SourceFile) {
     }
 
     realPositionOfLastError = realPos;
+    parseErrorInNextFinishedNode = true;
     reportDiagnostic(message, location);
   }
 
@@ -1059,7 +1089,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.DecoratorExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.ImportStatement:
-      return;
+      return visitNode(cb, node.path);
     case SyntaxKind.OperationStatement:
       return (
         visitEach(cb, node.decorators) ||
@@ -1108,6 +1138,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.BooleanLiteral:
     case SyntaxKind.Identifier:
     case SyntaxKind.TemplateParameterDeclaration:
+    case SyntaxKind.InvalidStatement:
+    case SyntaxKind.EmptyStatement:
       return;
     default:
       // Dummy const to ensure we handle all node types.
@@ -1136,16 +1168,44 @@ function visitEach<T>(cb: NodeCb<T>, nodes: Node[] | undefined): T | undefined {
   return;
 }
 
-export function walk<T>(node: Node, cb: NodeCb<T>, seen = new Set()): T | undefined {
-  return visitChildren(node, (childNode) => {
-    if (seen.has(childNode)) return;
-    seen.add(childNode);
-    const value = cb(childNode);
-    if (value) {
-      return value;
+export function hasParseError(node: Node) {
+  if (getFlag(node, NodeFlags.ThisNodeHasError)) {
+    return true;
+  }
+
+  checkForDescendantErrors(node);
+  return getFlag(node, NodeFlags.DescendantHasError);
+}
+
+function checkForDescendantErrors(node: Node) {
+  if (getFlag(node, NodeFlags.DescendantErrorsExamined)) {
+    return;
+  }
+
+  visitChildren(node, (child) => {
+    if (getFlag(child, NodeFlags.ThisNodeHasError)) {
+      setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
+      return true;
     }
-    return walk(childNode, cb, seen);
+
+    checkForDescendantErrors(child);
+
+    if (getFlag(child, NodeFlags.DescendantHasError)) {
+      setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
+      return true;
+    }
+
+    setFlag(child, NodeFlags.DescendantErrorsExamined);
+    return false;
   });
+}
+
+function getFlag(node: Node, flag: NodeFlags) {
+  return ((node as any).flags & flag) !== 0;
+}
+
+function setFlag(node: Node, flag: NodeFlags) {
+  (node as any).flags |= flag;
 }
 
 function isBlocklessNamespace(node: Node) {

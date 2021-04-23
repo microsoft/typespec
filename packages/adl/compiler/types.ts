@@ -175,6 +175,8 @@ export enum SyntaxKind {
   BooleanLiteral,
   TypeReference,
   TemplateParameterDeclaration,
+  EmptyStatement,
+  InvalidStatement,
 }
 
 export interface BaseNode extends TextRange {
@@ -212,7 +214,9 @@ export type Statement =
   | ModelStatementNode
   | NamespaceStatementNode
   | UsingStatementNode
-  | OperationStatementNode;
+  | OperationStatementNode
+  | EmptyStatementNode
+  | InvalidStatementNode;
 
 export interface DeclarationNode {
   symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
@@ -229,7 +233,7 @@ export type ScopeNode = NamespaceStatementNode | ModelStatementNode | ADLScriptN
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
-  path: string;
+  path: StringLiteralNode;
 }
 
 export interface IdentifierNode extends BaseNode {
@@ -300,6 +304,14 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode {
   templateParameters: TemplateParameterDeclarationNode[];
   locals?: SymbolTable;
   decorators: DecoratorExpressionNode[];
+}
+
+export interface InvalidStatementNode extends BaseNode {
+  kind: SyntaxKind.InvalidStatement;
+}
+
+export interface EmptyStatementNode extends BaseNode {
+  kind: SyntaxKind.EmptyStatement;
 }
 
 export interface ModelExpressionNode extends BaseNode {
