@@ -221,9 +221,7 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
     root = root.parent;
   }
 
-  if (root.kind !== SyntaxKind.ADLScript) {
-    throw new Error("Cannot obtain source file of unbound node.");
-  }
+  compilerAssert(root.kind === SyntaxKind.ADLScript, "Cannot obtain source file of unbound node.");
 
   return {
     file: root.file,
@@ -277,7 +275,7 @@ export function dumpError(error: Error, writeLine: WriteLine) {
  *               what got the compiler off track.
  */
 export function compilerAssert(
-  condition: boolean,
+  condition: any,
   message: string,
   target?: DiagnosticTarget
 ): asserts condition {

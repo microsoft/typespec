@@ -7,7 +7,7 @@ import url from "url";
 import yargs from "yargs";
 import { CompilerOptions } from "../compiler/options.js";
 import { compile } from "../compiler/program.js";
-import { DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
+import { compilerAssert, DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
 import { adlVersion, NodeHost } from "./util.js";
 
 const args = yargs(process.argv.slice(2))
@@ -172,9 +172,8 @@ async function installVsix(pkg: string, install: (vsixPath: string) => void) {
       break;
     }
   }
-  if (!vsix) {
-    throw new Error(`Installed ${pkg} from npm, but didn't find its .vsix file.`);
-  }
+
+  compilerAssert(vsix, `Installed ${pkg} from npm, but didn't find its .vsix file.`);
 
   // install extension
   install(vsix);

@@ -1,3 +1,4 @@
+import { compilerAssert } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -187,20 +188,25 @@ export function createBinder(): Binder {
   }
 
   function declareSymbol(table: SymbolTable, node: Declaration, name: string) {
-    if (!table) throw new Error("Attempted to declare symbol on non-existent table");
+    compilerAssert(table, "Attempted to declare symbol on non-existent table");
     const symbol = createTypeSymbol(node, name);
     node.symbol = symbol;
 
     if (scope.kind === SyntaxKind.NamespaceStatement) {
-      if (node.kind === SyntaxKind.TemplateParameterDeclaration) {
-        throw new Error("Attempted to declare template parameter in namespace");
-      }
+      compilerAssert(
+        node.kind !== SyntaxKind.TemplateParameterDeclaration,
+        "Attempted to declare template parameter in namespace",
+        node
+      );
 
       node.namespaceSymbol = scope.symbol;
     } else if (scope.kind === SyntaxKind.ADLScript) {
-      if (node.kind === SyntaxKind.TemplateParameterDeclaration) {
-        throw new Error("Attempted to declare template parameter in global scope");
-      }
+      compilerAssert(
+        node.kind !== SyntaxKind.TemplateParameterDeclaration,
+        "Attempted to declare template parameter in global scope",
+        node
+      );
+
       node.namespaceSymbol = fileNamespace.symbol;
     }
 

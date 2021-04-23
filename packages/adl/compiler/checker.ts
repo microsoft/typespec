@@ -1,4 +1,4 @@
-import { throwDiagnostic } from "./diagnostics.js";
+import { compilerAssert, throwDiagnostic } from "./diagnostics.js";
 import { Program } from "./program.js";
 import {
   ADLScriptNode,
@@ -398,9 +398,7 @@ export function createChecker(program: Program) {
   }
 
   function initializeTypeForNamespace(node: NamespaceStatementNode) {
-    if (!node.symbol) {
-      throw new Error("Namespace is unbound, please file a bug.");
-    }
+    compilerAssert(node.symbol, "Namespace is unbound.", node);
 
     const symbolLinks = getSymbolLinks(node.symbol);
     if (!symbolLinks.type) {
@@ -433,9 +431,7 @@ export function createChecker(program: Program) {
     if (!node.namespaceSymbol) return undefined;
 
     const symbolLinks = getSymbolLinks(node.namespaceSymbol);
-    if (!symbolLinks.type) {
-      throw new Error("Parent namespace isn't typed yet, please file a bug.");
-    }
+    compilerAssert(symbolLinks.type, "Parent namespace isn't typed yet.", node);
     return symbolLinks.type as NamespaceType;
   }
 
@@ -543,7 +539,7 @@ export function createChecker(program: Program) {
       return resolveIdentifier(node);
     }
 
-    throw new Error("Unknown type reference kind");
+    compilerAssert(false, "Unknown type reference kind", node);
   }
 
   function checkStringLiteral(str: StringLiteralNode): StringLiteralType {
