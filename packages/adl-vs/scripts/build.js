@@ -1,4 +1,4 @@
-import { run } from "../../../eng/scripts/helpers.js";
+import { repoRoot, run } from "../../../eng/scripts/helpers.js";
 import { join } from "path";
 import { readFileSync } from "fs";
 
@@ -36,7 +36,7 @@ let proc = run(vswhere, vswhereArgs, {
 
 if (proc.status != 0 || proc.error || !proc.stdout) {
   const message = `Visual Studio ${vsMinimumVersion} or later not found`;
-  if (process.env.ADL_REQUIRE_VS_BUILD) {
+  if (process.env.ADL_VS_CI_BUILD) {
     // In official build on Windows, it's an error if VS is not found.
     console.error(`error: ${message}`);
     process.exit(1);
@@ -51,8 +51,25 @@ if (proc.status != 0 || proc.error || !proc.stdout) {
   }
 }
 
-const version = JSON.parse(readFileSync("package.json")).version;
+const dir = join(repoRoot, "packages/adl-vs");
+const version = JSON.parse(readFileSync(join(dir, "package.json"))).version;
 const msbuild = join(proc.stdout.trim(), "MSBuild/Current/Bin/MSBuild.exe");
-const msbuildArgs = ["/p:Configuration=Release", `/p:Version=${version}`];
+const msbuildArgs = [
+  "/m",
+  "/v:m",
+  "/noAutoRsp",
+  "/p:Configuration=Release",
+  `/p:Version=${version}`,
+];
+
+if (process.argv[2] === "--restore") {
+  // In official builds, restore is run in a separate invocation for better build telemetry.
+  msbuildArgs.push("/target:restore");
+} else if (!process.env.ADL_VS_CI_BUILD) {
+  // In developer builds, restore on every build
+  msbuildArgs.push("/restore");
+}
+
+msbuildArgs.push(join(dir, "Microsoft.Adl.VisualStudio.csproj"));
 proc = run(msbuild, msbuildArgs, { throwOnNonZeroExit: false });
 process.exit(proc.status ?? 1);
