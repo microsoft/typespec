@@ -44,6 +44,13 @@ export function npmForEach(cmd, options) {
 // poorly.
 const isCmdOnWindows = ["rush", "npm", "code", "code-insiders", tsc, prettier];
 
+export class CommandFailedError extends Error {
+  constructor(msg, proc) {
+    super(msg);
+    this.proc = proc;
+  }
+}
+
 export function run(command, args, options) {
   console.log();
   console.log(`> ${command} ${args.join(" ")}`);
@@ -67,8 +74,9 @@ export function run(command, args, options) {
       throw proc.error;
     }
   } else if (options.throwOnNonZeroExit && proc.status !== undefined && proc.status !== 0) {
-    throw new Error(
-      `Command \`${command} ${args.join(" ")}\` failed with exit code ${proc.status}`
+    throw new CommandFailedError(
+      `Command \`${command} ${args.join(" ")}\` failed with exit code ${proc.status}`,
+      proc
     );
   }
 
@@ -84,7 +92,7 @@ export function runPrettier(...args) {
       ".prettierrc.json",
       "--ignore-path",
       ".prettierignore",
-      "**/*.{ts,js,cjs,mjs,json}",
+      "**/*.{ts,js,cjs,mjs,json,yml,yaml}",
     ],
     {
       cwd: repoRoot,
