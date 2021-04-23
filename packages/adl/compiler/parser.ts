@@ -1001,34 +1001,31 @@ export function parse(code: string | SourceFile) {
     return false;
   }
 
-  function expectTokenIsOneOf(...options: Token[]): boolean {
-    for (const tok of options) {
-      if (token() === tok) {
-        return true;
-      }
+  function expectTokenIsOneOf(option1: Token, option2: Token, option3 = Token.None) {
+    const tok = token();
+    if (tok !== option1 && tok !== option2 && tok !== option3) {
+      errorTokenIsNotOneOf(option1, option2, option3);
+      return Token.None;
     }
-
-    errorTokenIsNotOneOf(options);
-    return false;
+    return tok;
   }
 
-  function parseExpectedOneOf<T extends Token[]>(...options: T): T[number] | Token.None {
-    for (const tok of options) {
-      if (token() === tok) {
-        nextToken();
-        return tok;
-      }
+  function parseExpectedOneOf(option1: Token, option2: Token, option3 = Token.None) {
+    const tok = expectTokenIsOneOf(option1, option2, option3);
+    if (tok !== Token.None) {
+      nextToken();
     }
-    errorTokenIsNotOneOf(options);
-    return Token.None;
+    return tok;
   }
 
-  function errorTokenIsNotOneOf(options: Token[]) {
-    // Intl isn't in standard library as it is stage 3, however it is supported in node >= 12
-    const location = getAdjustedDefaultLocation(options[0]);
-    const listfmt = new (Intl as any).ListFormat("en", { style: "long", type: "disjunction" });
-    const textOptions = options.map((o) => `${TokenDisplay[o]}`);
-    error(`Expected ${listfmt.format(textOptions)}.`, location);
+  function errorTokenIsNotOneOf(option1: Token, option2: Token, option3 = Token.None) {
+    const location = getAdjustedDefaultLocation(option1);
+    const msg =
+      option3 === Token.None
+        ? `Expected ${TokenDisplay[option1]} or ${TokenDisplay[option2]}.`
+        : `Expected ${TokenDisplay[option1]}, ${TokenDisplay[option2]}, or ${TokenDisplay[option3]}.`;
+
+    error(msg, location);
   }
 
   function parseOptional(optionalToken: Token) {
