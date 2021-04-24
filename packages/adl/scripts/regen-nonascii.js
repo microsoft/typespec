@@ -77,5 +77,5 @@ ${formatPairs(continueMap)}
 ];
 `;
 
-const file = resolve(fileURLToPath(import.meta.url), "../../compiler/non-ascii-maps.ts");
+const file = resolve(fileURLToPath(import.meta.url), "../../compiler/nonascii.ts");
 writeFileSync(file, src);

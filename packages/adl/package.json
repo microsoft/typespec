@@ -39,7 +39,7 @@
     "dogfood": "node scripts/dogfood.js",
     "test": "mocha --timeout 5000 --require source-map-support/register --ignore 'dist/test/manual/**/*.js' 'dist/test/**/*.js'",
     "regen-samples": "node scripts/regen-samples.js",
-    "regen-nonascii-maps": "node scripts/regen-nonascii-maps.js",
+    "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js"
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-import { nonAsciiIdentifierContinueMap, nonAsciiIdentifierStartMap } from "./non-ascii-maps.js";
+import { nonAsciiIdentifierContinueMap, nonAsciiIdentifierStartMap } from "./nonascii.js";
 
 export const enum CharacterCodes {
   nullCharacter = 0,
