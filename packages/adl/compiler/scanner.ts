@@ -1,5 +1,5 @@
 import {
-  CharacterCodes,
+  CharCode,
   isAsciiIdentifierContinue,
   isAsciiIdentifierStart,
   isBinaryDigit,
@@ -10,7 +10,7 @@ import {
   isNonAsciiIdentifierContinue,
   isNonAsciiIdentifierStart,
   isWhiteSpaceSingleLine,
-} from "./character-codes.js";
+} from "./charcode.js";
 import { createSourceFile, Message, throwOnError } from "./diagnostics.js";
 import { SourceFile } from "./types.js";
 
@@ -258,130 +258,130 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     if (!eof()) {
       const ch = input.charCodeAt(position);
       switch (ch) {
-        case CharacterCodes.carriageReturn:
-          if (lookAhead(1) === CharacterCodes.lineFeed) {
+        case CharCode.CarriageReturn:
+          if (lookAhead(1) === CharCode.LineFeed) {
             position++;
           }
         // fallthrough
-        case CharacterCodes.lineFeed:
-        case CharacterCodes.lineSeparator:
-        case CharacterCodes.paragraphSeparator:
+        case CharCode.LineFeed:
+        case CharCode.LineSeparator:
+        case CharCode.ParagraphSeparator:
           return next(Token.NewLine);
 
-        case CharacterCodes.tab:
-        case CharacterCodes.verticalTab:
-        case CharacterCodes.formFeed:
-        case CharacterCodes.space:
-        case CharacterCodes.nonBreakingSpace:
-        case CharacterCodes.ogham:
-        case CharacterCodes.enQuad:
-        case CharacterCodes.emQuad:
-        case CharacterCodes.enSpace:
-        case CharacterCodes.emSpace:
-        case CharacterCodes.threePerEmSpace:
-        case CharacterCodes.fourPerEmSpace:
-        case CharacterCodes.sixPerEmSpace:
-        case CharacterCodes.figureSpace:
-        case CharacterCodes.punctuationSpace:
-        case CharacterCodes.thinSpace:
-        case CharacterCodes.hairSpace:
-        case CharacterCodes.zeroWidthSpace:
-        case CharacterCodes.narrowNoBreakSpace:
-        case CharacterCodes.mathematicalSpace:
-        case CharacterCodes.ideographicSpace:
-        case CharacterCodes.byteOrderMark:
+        case CharCode.Tab:
+        case CharCode.VerticalTab:
+        case CharCode.FormFeed:
+        case CharCode.Space:
+        case CharCode.NonBreakingSpace:
+        case CharCode.Ogham:
+        case CharCode.EnQuad:
+        case CharCode.EmQuad:
+        case CharCode.EnSpace:
+        case CharCode.EmSpace:
+        case CharCode.ThreePerEmSpace:
+        case CharCode.FourPerEmSpace:
+        case CharCode.SixPerEmSpace:
+        case CharCode.FigureSpace:
+        case CharCode.PunctuationSpace:
+        case CharCode.ThinSpace:
+        case CharCode.HairSpace:
+        case CharCode.ZeroWidthSpace:
+        case CharCode.NarrowNoBreakSpace:
+        case CharCode.MathematicalSpace:
+        case CharCode.IdeographicSpace:
+        case CharCode.ByteOrderMark:
           return scanWhitespace();
 
-        case CharacterCodes.openParen:
+        case CharCode.OpenParen:
           return next(Token.OpenParen);
 
-        case CharacterCodes.closeParen:
+        case CharCode.CloseParen:
           return next(Token.CloseParen);
 
-        case CharacterCodes.comma:
+        case CharCode.Comma:
           return next(Token.Comma);
 
-        case CharacterCodes.colon:
+        case CharCode.Colon:
           return next(Token.Colon);
 
-        case CharacterCodes.semicolon:
+        case CharCode.Semicolon:
           return next(Token.Semicolon);
 
-        case CharacterCodes.openBracket:
+        case CharCode.OpenBracket:
           return next(Token.OpenBracket);
 
-        case CharacterCodes.closeBracket:
+        case CharCode.CloseBracket:
           return next(Token.CloseBracket);
 
-        case CharacterCodes.openBrace:
+        case CharCode.OpenBrace:
           return next(Token.OpenBrace);
 
-        case CharacterCodes.closeBrace:
+        case CharCode.CloseBrace:
           return next(Token.CloseBrace);
 
-        case CharacterCodes.at:
+        case CharCode.At:
           return next(Token.At);
 
-        case CharacterCodes.question:
+        case CharCode.Question:
           return next(Token.Question);
 
-        case CharacterCodes.ampersand:
+        case CharCode.Ampersand:
           return next(Token.Ampersand);
 
-        case CharacterCodes.dot:
-          return lookAhead(1) === CharacterCodes.dot && lookAhead(2) === CharacterCodes.dot
+        case CharCode.Dot:
+          return lookAhead(1) === CharCode.Dot && lookAhead(2) === CharCode.Dot
             ? next(Token.Elipsis, 3)
             : next(Token.Dot);
 
-        case CharacterCodes.slash:
+        case CharCode.Slash:
           switch (lookAhead(1)) {
-            case CharacterCodes.slash:
+            case CharCode.Slash:
               return scanSingleLineComment();
-            case CharacterCodes.asterisk:
+            case CharCode.Asterisk:
               return scanMultiLineComment();
           }
           return scanInvalidCharacter();
 
-        case CharacterCodes._0:
+        case CharCode._0:
           switch (lookAhead(1)) {
-            case CharacterCodes.x:
+            case CharCode.x:
               return scanHexNumber();
-            case CharacterCodes.b:
+            case CharCode.b:
               return scanBinaryNumber();
           }
         // fallthrough
-        case CharacterCodes._1:
-        case CharacterCodes._2:
-        case CharacterCodes._3:
-        case CharacterCodes._4:
-        case CharacterCodes._5:
-        case CharacterCodes._6:
-        case CharacterCodes._7:
-        case CharacterCodes._8:
-        case CharacterCodes._9:
+        case CharCode._1:
+        case CharCode._2:
+        case CharCode._3:
+        case CharCode._4:
+        case CharCode._5:
+        case CharCode._6:
+        case CharCode._7:
+        case CharCode._8:
+        case CharCode._9:
           return scanNumber();
 
-        case CharacterCodes.lessThan:
+        case CharCode.LessThan:
           return isConflictMarker()
             ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.LessThan);
 
-        case CharacterCodes.greaterThan:
+        case CharCode.GreaterThan:
           return isConflictMarker()
             ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.GreaterThan);
 
-        case CharacterCodes.equals:
+        case CharCode.Equals:
           return isConflictMarker()
             ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.Equals);
 
-        case CharacterCodes.bar:
+        case CharCode.Bar:
           return isConflictMarker()
             ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.Bar);
 
-        case CharacterCodes.doubleQuote:
+        case CharCode.DoubleQuote:
           return scanString();
 
         default:
@@ -409,10 +409,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
             return false;
           }
         }
-        return (
-          ch === CharacterCodes.equals ||
-          lookAhead(mergeConflictMarkerLength) === CharacterCodes.space
-        );
+        return ch === CharCode.Equals || lookAhead(mergeConflictMarkerLength) === CharCode.Space;
       }
     }
 
@@ -442,16 +439,16 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
 
     let ch = input.charCodeAt(position);
 
-    if (ch === CharacterCodes.dot) {
+    if (ch === CharCode.Dot) {
       position++;
       scanDigits();
     }
 
     ch = input.charCodeAt(position);
-    if (ch === CharacterCodes.e) {
+    if (ch === CharCode.e) {
       position++;
       ch = input.charCodeAt(position);
-      if (ch === CharacterCodes.plus || ch == CharacterCodes.minus) {
+      if (ch === CharCode.Plus || ch == CharCode.Minus) {
         position++;
         ch = input.charCodeAt(position);
       }
@@ -520,11 +517,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
   }
 
   function scanMultiLineComment() {
-    scanUntil(
-      (ch) => ch === CharacterCodes.asterisk && lookAhead(1) === CharacterCodes.slash,
-      "*/",
-      2
-    );
+    scanUntil((ch) => ch === CharCode.Asterisk && lookAhead(1) === CharCode.Slash, "*/", 2);
     return (token = Token.MultiLineComment);
   }
 
@@ -534,7 +527,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     let isEscaping = false;
 
     const tripleQuoted =
-      lookAhead(1) === CharacterCodes.doubleQuote && lookAhead(2) === CharacterCodes.doubleQuote;
+      lookAhead(1) === CharCode.DoubleQuote && lookAhead(2) === CharCode.DoubleQuote;
 
     if (tripleQuoted) {
       tokenFlags |= TokenFlags.TripleQuoted;
@@ -551,23 +544,20 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
         }
 
         switch (ch) {
-          case CharacterCodes.carriageReturn:
-            if (lookAhead(1) === CharacterCodes.lineFeed) {
+          case CharCode.CarriageReturn:
+            if (lookAhead(1) === CharCode.LineFeed) {
               tokenFlags |= TokenFlags.HasCrlf;
             }
             return false;
 
-          case CharacterCodes.backslash:
+          case CharCode.Backslash:
             isEscaping = true;
             tokenFlags |= TokenFlags.Escaped;
             return false;
 
-          case CharacterCodes.doubleQuote:
+          case CharCode.DoubleQuote:
             if (tripleQuoted) {
-              return (
-                lookAhead(1) === CharacterCodes.doubleQuote &&
-                lookAhead(2) === CharacterCodes.doubleQuote
-              );
+              return lookAhead(1) === CharCode.DoubleQuote && lookAhead(2) === CharCode.DoubleQuote;
             }
             return true;
 
@@ -699,7 +689,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
 
     while (pos < end) {
       let ch = text.charCodeAt(pos);
-      if (ch != CharacterCodes.backslash) {
+      if (ch != CharCode.Backslash) {
         pos++;
         continue;
       }
@@ -709,19 +699,19 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
       ch = text.charCodeAt(pos);
 
       switch (ch) {
-        case CharacterCodes.r:
+        case CharCode.r:
           result += "\r";
           break;
-        case CharacterCodes.n:
+        case CharCode.n:
           result += "\n";
           break;
-        case CharacterCodes.t:
+        case CharCode.t:
           result += "\t";
           break;
-        case CharacterCodes.doubleQuote:
+        case CharCode.DoubleQuote:
           result += '"';
           break;
-        case CharacterCodes.backslash:
+        case CharCode.Backslash:
           result += "\\";
           break;
         default:
@@ -753,7 +743,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
       ch = input.charCodeAt(position);
     } while (isAsciiIdentifierContinue(ch));
 
-    if (!eof() && ch > CharacterCodes.maxAsciiCharacter) {
+    if (!eof() && ch > CharCode.MaxAscii) {
       const codePoint = input.codePointAt(position)!;
       if (isNonAsciiIdentifierContinue(codePoint)) {
         return scanNonAsciiIdentifierContinue(codePoint);

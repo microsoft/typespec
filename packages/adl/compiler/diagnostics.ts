@@ -1,5 +1,5 @@
 import { AssertionError } from "assert";
-import { CharacterCodes } from "./character-codes.js";
+import { CharCode } from "./charcode.js";
 import { Message } from "./messages.js";
 import { Diagnostic, Node, SourceFile, SourceLocation, Sym, SyntaxKind, Type } from "./types.js";
 
@@ -146,14 +146,14 @@ export function createSourceFile(text: string, path: string): SourceFile {
       const ch = text.charCodeAt(pos);
       pos++;
       switch (ch) {
-        case CharacterCodes.carriageReturn:
-          if (text.charCodeAt(pos) === CharacterCodes.lineFeed) {
+        case CharCode.CarriageReturn:
+          if (text.charCodeAt(pos) === CharCode.LineFeed) {
             pos++;
           }
         // fallthrough
-        case CharacterCodes.lineFeed:
-        case CharacterCodes.lineSeparator:
-        case CharacterCodes.paragraphSeparator:
+        case CharCode.LineFeed:
+        case CharCode.LineSeparator:
+        case CharCode.ParagraphSeparator:
           starts.push(start);
           start = pos;
           break;

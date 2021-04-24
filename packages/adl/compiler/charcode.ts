@@ -1,38 +1,45 @@
 import { nonAsciiIdentifierContinueMap, nonAsciiIdentifierStartMap } from "./nonascii.js";
 
-export const enum CharacterCodes {
-  nullCharacter = 0,
-  maxAsciiCharacter = 0x7f,
+export const enum CharCode {
+  Null = 0x00,
+  MaxAscii = 0x7f,
 
-  lineFeed = 0x0a,
-  carriageReturn = 0x0d,
-  lineSeparator = 0x2028,
-  paragraphSeparator = 0x2029,
-  nextLine = 0x0085,
+  // ASCII line breaks
+  LineFeed = 0x0a,
+  CarriageReturn = 0x0d,
 
-  // Unicode 3.0 space characters
-  space = 0x0020,
-  nonBreakingSpace = 0x00a0,
-  enQuad = 0x2000,
-  emQuad = 0x2001,
-  enSpace = 0x2002,
-  emSpace = 0x2003,
-  threePerEmSpace = 0x2004,
-  fourPerEmSpace = 0x2005,
-  sixPerEmSpace = 0x2006,
-  figureSpace = 0x2007,
-  punctuationSpace = 0x2008,
-  thinSpace = 0x2009,
-  hairSpace = 0x200a,
-  zeroWidthSpace = 0x200b,
-  narrowNoBreakSpace = 0x202f,
-  ideographicSpace = 0x3000,
-  mathematicalSpace = 0x205f,
-  ogham = 0x1680,
+  // Non-ASCII line breaks
+  LineSeparator = 0x2028,
+  ParagraphSeparator = 0x2029,
 
-  _ = 0x5f,
-  $ = 0x24,
+  // ASCII whitespace
+  Space = 0x20,
+  FormFeed = 0x0c,
+  Tab = 0x09,
+  VerticalTab = 0x0b,
 
+  // Non-ASCII whitespace
+  ByteOrderMark = 0xfeff, // currently allowed anywhere
+  NextLine = 0x0085, // not considered a line break, mirroring ECMA-262
+  NonBreakingSpace = 0x00a0,
+  EnQuad = 0x2000,
+  EmQuad = 0x2001,
+  EnSpace = 0x2002,
+  EmSpace = 0x2003,
+  ThreePerEmSpace = 0x2004,
+  FourPerEmSpace = 0x2005,
+  SixPerEmSpace = 0x2006,
+  FigureSpace = 0x2007,
+  PunctuationSpace = 0x2008,
+  ThinSpace = 0x2009,
+  HairSpace = 0x200a,
+  ZeroWidthSpace = 0x200b,
+  NarrowNoBreakSpace = 0x202f,
+  IdeographicSpace = 0x3000,
+  MathematicalSpace = 0x205f,
+  Ogham = 0x1680,
+
+  // ASCII Digits
   _0 = 0x30,
   _1 = 0x31,
   _2 = 0x32,
@@ -44,6 +51,7 @@ export const enum CharacterCodes {
   _8 = 0x38,
   _9 = 0x39,
 
+  // ASCII lowercase letters
   a = 0x61,
   b = 0x62,
   c = 0x63,
@@ -71,6 +79,7 @@ export const enum CharacterCodes {
   y = 0x79,
   z = 0x7a,
 
+  // ASCII uppercase letters
   A = 0x41,
   B = 0x42,
   C = 0x43,
@@ -98,42 +107,41 @@ export const enum CharacterCodes {
   Y = 0x59,
   Z = 0x5a,
 
-  ampersand = 0x26,
-  asterisk = 0x2a,
-  at = 0x40,
-  backslash = 0x5c,
-  backtick = 0x60,
-  bar = 0x7c,
-  caret = 0x5e,
-  closeBrace = 0x7d,
-  closeBracket = 0x5d,
-  closeParen = 0x29,
-  colon = 0x3a,
-  comma = 0x2c,
-  dot = 0x2e,
-  doubleQuote = 0x22,
-  equals = 0x3d,
-  exclamation = 0x21,
-  greaterThan = 0x3e,
-  hash = 0x23,
-  lessThan = 0x3c,
-  minus = 0x2d,
-  openBrace = 0x7b,
-  openBracket = 0x5b,
-  openParen = 0x28,
-  percent = 0x25,
-  plus = 0x2b,
-  question = 0x3f,
-  semicolon = 0x3b,
-  singleQuote = 0x27,
-  slash = 0x2f,
-  tilde = 0x7e,
+  // Non-letter, non-digit ASCII characters that are valid in identifiers
+  _ = 0x5f,
+  $ = 0x24,
 
-  backspace = 0x08,
-  formFeed = 0x0c,
-  byteOrderMark = 0xfeff,
-  tab = 0x09,
-  verticalTab = 0x0b,
+  // ASCII punctuation
+  Ampersand = 0x26,
+  Asterisk = 0x2a,
+  At = 0x40,
+  Backslash = 0x5c,
+  Backtick = 0x60,
+  Bar = 0x7c,
+  Caret = 0x5e,
+  CloseBrace = 0x7d,
+  CloseBracket = 0x5d,
+  CloseParen = 0x29,
+  Colon = 0x3a,
+  Comma = 0x2c,
+  Dot = 0x2e,
+  DoubleQuote = 0x22,
+  Equals = 0x3d,
+  Exclamation = 0x21,
+  GreaterThan = 0x3e,
+  Hash = 0x23,
+  LessThan = 0x3c,
+  Minus = 0x2d,
+  OpenBrace = 0x7b,
+  OpenBracket = 0x5b,
+  OpenParen = 0x28,
+  Percent = 0x25,
+  Plus = 0x2b,
+  Question = 0x3f,
+  Semicolon = 0x3b,
+  SingleQuote = 0x27,
+  Slash = 0x2f,
+  Tilde = 0x7e,
 }
 
 /** Does not include line breaks. For that, see isWhiteSpaceLike. */
@@ -141,18 +149,18 @@ export function isWhiteSpaceSingleLine(ch: number): boolean {
   // Note: nextLine is in the Zs space, and should be considered to be a whitespace.
   // It is explicitly not a line-break as it isn't in the exact set specified by EcmaScript.
   return (
-    ch === CharacterCodes.space ||
-    ch === CharacterCodes.tab ||
-    ch === CharacterCodes.verticalTab ||
-    ch === CharacterCodes.formFeed ||
-    ch === CharacterCodes.nonBreakingSpace ||
-    ch === CharacterCodes.nextLine ||
-    ch === CharacterCodes.ogham ||
-    (ch >= CharacterCodes.enQuad && ch <= CharacterCodes.zeroWidthSpace) ||
-    ch === CharacterCodes.narrowNoBreakSpace ||
-    ch === CharacterCodes.mathematicalSpace ||
-    ch === CharacterCodes.ideographicSpace ||
-    ch === CharacterCodes.byteOrderMark
+    ch === CharCode.Space ||
+    ch === CharCode.Tab ||
+    ch === CharCode.VerticalTab ||
+    ch === CharCode.FormFeed ||
+    ch === CharCode.NonBreakingSpace ||
+    ch === CharCode.NextLine ||
+    ch === CharCode.Ogham ||
+    (ch >= CharCode.EnQuad && ch <= CharCode.ZeroWidthSpace) ||
+    ch === CharCode.NarrowNoBreakSpace ||
+    ch === CharCode.MathematicalSpace ||
+    ch === CharCode.IdeographicSpace ||
+    ch === CharCode.ByteOrderMark
   );
 }
 
@@ -160,52 +168,50 @@ export function isLineBreak(ch: number): boolean {
   // Other new line or line
   // breaking characters are treated as white space but not as line terminators.
   return (
-    ch === CharacterCodes.lineFeed ||
-    ch === CharacterCodes.carriageReturn ||
-    ch === CharacterCodes.lineSeparator ||
-    ch === CharacterCodes.paragraphSeparator
+    ch === CharCode.LineFeed ||
+    ch === CharCode.CarriageReturn ||
+    ch === CharCode.LineSeparator ||
+    ch === CharCode.ParagraphSeparator
   );
 }
 
 export function isDigit(ch: number): boolean {
-  return ch >= CharacterCodes._0 && ch <= CharacterCodes._9;
+  return ch >= CharCode._0 && ch <= CharCode._9;
 }
 
 export function isHexDigit(ch: number): boolean {
   return (
-    isDigit(ch) ||
-    (ch >= CharacterCodes.A && ch <= CharacterCodes.F) ||
-    (ch >= CharacterCodes.a && ch <= CharacterCodes.f)
+    isDigit(ch) || (ch >= CharCode.A && ch <= CharCode.F) || (ch >= CharCode.a && ch <= CharCode.f)
   );
 }
 
 export function isBinaryDigit(ch: number): boolean {
-  return ch === CharacterCodes._0 || ch === CharacterCodes._1;
+  return ch === CharCode._0 || ch === CharCode._1;
 }
 
 export function isAsciiIdentifierStart(ch: number): boolean {
   return (
-    (ch >= CharacterCodes.A && ch <= CharacterCodes.Z) ||
-    (ch >= CharacterCodes.a && ch <= CharacterCodes.z) ||
-    ch === CharacterCodes.$ ||
-    ch === CharacterCodes._
+    (ch >= CharCode.A && ch <= CharCode.Z) ||
+    (ch >= CharCode.a && ch <= CharCode.z) ||
+    ch === CharCode.$ ||
+    ch === CharCode._
   );
 }
 
 export function isAsciiIdentifierContinue(ch: number): boolean {
   return (
-    (ch >= CharacterCodes.A && ch <= CharacterCodes.Z) ||
-    (ch >= CharacterCodes.a && ch <= CharacterCodes.z) ||
-    (ch >= CharacterCodes._0 && ch <= CharacterCodes._9) ||
-    ch === CharacterCodes.$ ||
-    ch === CharacterCodes._
+    (ch >= CharCode.A && ch <= CharCode.Z) ||
+    (ch >= CharCode.a && ch <= CharCode.z) ||
+    (ch >= CharCode._0 && ch <= CharCode._9) ||
+    ch === CharCode.$ ||
+    ch === CharCode._
   );
 }
 
 export function isIdentifierContinue(codePoint: number) {
   return (
     isAsciiIdentifierStart(codePoint) ||
-    (codePoint > CharacterCodes.maxAsciiCharacter && isNonAsciiIdentifierContinue(codePoint))
+    (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierContinue(codePoint))
   );
 }
 
