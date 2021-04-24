@@ -1,6 +1,6 @@
 import watch from "watch";
 import ecmarkup from "ecmarkup";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { runWatch } from "../../../eng/scripts/helpers.js";
 import { resolve } from "path";
 
@@ -10,10 +10,24 @@ async function build() {
   const fetch = (path) => readFile(path, "utf-8");
 
   try {
-    await ecmarkup.build(infile, fetch, { outfile });
+    const spec = await ecmarkup.build(infile, fetch, {
+      outfile,
+      warn,
+    });
+    for (const [file, contents] of spec.generatedFiles) {
+      await writeFile(file, contents);
+    }
   } catch (err) {
     console.log(`${infile}(1,1): error EMU0001: Error generating spec: ${err.message}`);
     throw err;
+  }
+
+  function warn(warning) {
+    const file = warning.file ?? infile;
+    const line = warning.line ?? 1;
+    const col = warning.column ?? 1;
+    const id = "EMU0002" + (warning.ruleId ? `: ${warning.ruleId}` : "");
+    console.log(`${file}(${line},${col}): warning ${id}: ${warning.message}`);
   }
 }
 
