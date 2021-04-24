@@ -757,7 +757,7 @@ export function parse(code: string | SourceFile) {
   function parseBooleanLiteral(): BooleanLiteralNode {
     const pos = tokenPos();
     const token = parseExpectedOneOf(Token.TrueKeyword, Token.FalseKeyword);
-    const value = token == Token.TrueKeyword;
+    const value = token === Token.TrueKeyword;
     return finishNode(
       {
         kind: SyntaxKind.BooleanLiteral,
@@ -931,7 +931,7 @@ export function parse(code: string | SourceFile) {
    * open token is present. Otherwise, return an empty list.
    */
   function parseOptionalList<T>(kind: SurroundedListKind, parseItem: ParseListItem<T>): T[] {
-    return token() == kind.open ? parseList(kind, parseItem) : [];
+    return token() === kind.open ? parseList(kind, parseItem) : [];
   }
 
   function parseOptionalDelimiter(kind: ListKind) {
