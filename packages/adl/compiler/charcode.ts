@@ -223,6 +223,13 @@ export function isAsciiIdentifierContinue(ch: number): boolean {
   );
 }
 
+export function isIdentifierStart(codePoint: number) {
+  return (
+    isAsciiIdentifierStart(codePoint) ||
+    (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierStart(codePoint))
+  );
+}
+
 export function isIdentifierContinue(codePoint: number) {
   return (
     isAsciiIdentifierContinue(codePoint) ||

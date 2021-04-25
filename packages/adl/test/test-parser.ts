@@ -250,7 +250,13 @@ describe("syntax", () => {
   });
 
   describe("non-ascii identifiers", () => {
-    parseEach(["model Incompréhensible {}", "model 𐌰𐌲 {}", "model Banana𐌰𐌲42Banana {}"]);
+    parseEach([
+      "model Incompréhensible {}",
+      "model 𐌰𐌲 {}",
+      "model Banana𐌰𐌲42Banana {}",
+      "model deaf\u{200c}ly {}", // ZWNJ
+      "model क्‍ष {}", // ZWJ
+    ]);
     parseErrorEach([["model 😢 {}", [/Invalid character/]]]);
   });
 });

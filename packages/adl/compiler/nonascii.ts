@@ -4,15 +4,19 @@
 //
 // Based on:
 //  - http://www.unicode.org/reports/tr31/
-//  - https://www.ecma-international.org/ecma-262/6.0/#sec-names-and-keywords
+//  - https://www.ecma-international.org/ecma-262/11.0/#sec-names-and-keywords
 //
 // ADL's identifier naming rules are currently the same as JavaScript's.
+//
 
 /**
  * @internal
  *
  * Map of non-ascii characters that are valid at the start of an identifier.
  * Each pair of numbers represents an inclusive range of code points.
+ *
+ * Corresponds to code points outside the ASCII range with property ID_Start or
+ * Other_ID_Start.
  */
 // prettier-ignore
 export const nonAsciiIdentifierStartMap: readonly number[] = [
@@ -641,8 +645,12 @@ export const nonAsciiIdentifierStartMap: readonly number[] = [
 /**
  * @internal
  *
- * Map of non-ascii chacters that are valid after the first character in and identifier.
- * Each pair of numbers represents an inclusive range of code points.
+ * Map of non-ascii chacters that are valid after the first character in and
+ * identifier. Each pair of numbers represents an inclusive range of code
+ * points.
+ *
+ * Corresponds to code points outside the ASCII range with property ID_Continue,
+ * Other_ID_Start, or Other_ID_Continue, plus ZWNJ and ZWJ.
  */
 //prettier-ignore
 export const nonAsciiIdentifierContinueMap: readonly number[] = [
@@ -943,6 +951,7 @@ export const nonAsciiIdentifierContinueMap: readonly number[] = [
   0x1fe0, 0x1fec,
   0x1ff2, 0x1ff4,
   0x1ff6, 0x1ffc,
+  0x200c, 0x200d,
   0x203f, 0x2040,
   0x2054, 0x2054,
   0x2071, 0x2071,

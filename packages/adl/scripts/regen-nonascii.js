@@ -9,8 +9,11 @@ import { fileURLToPath } from "url";
 const MIN_NONASCII_CODEPOINT = 0x80;
 const MAX_UNICODE_CODEPOINT = 0x10ffff;
 
-const isStartRegex = /[\p{ID_Start}\u{2118}\u{212E}\u{309B}\u{309C}]/u;
-const isContinueRegex = /[\p{ID_Continue}\u{00B7}\u{0387}\u{19DA}\u{1369}\u{136A}\u{136B}\u{136C}\u{136D}\u{136E}\u{136F}\u{1370}\u{1371}]/u;
+// Includes Other_ID_Start
+const isStartRegex = /[\p{ID_Start}]/u;
+
+// Includes Other_ID_Start and Other_ID_Continue
+const isContinueRegex = /[\p{ID_Continue}\u{200c}\u{200d}]/u;
 
 function isStart(c) {
   return isStartRegex.test(c);
@@ -50,15 +53,19 @@ const src = `//
 //
 // Based on:
 //  - http://www.unicode.org/reports/tr31/
-//  - https://www.ecma-international.org/ecma-262/6.0/#sec-names-and-keywords
+//  - https://www.ecma-international.org/ecma-262/11.0/#sec-names-and-keywords
 //
 // ADL's identifier naming rules are currently the same as JavaScript's.
+//
 
 /**
  * @internal
  *
  * Map of non-ascii characters that are valid at the start of an identifier.
  * Each pair of numbers represents an inclusive range of code points.
+ *
+ * Corresponds to code points outside the ASCII range with property ID_Start or
+ * Other_ID_Start.
  */
 // prettier-ignore
 export const nonAsciiIdentifierStartMap: readonly number[] = [
@@ -68,8 +75,12 @@ ${formatPairs(startMap)}
 /**
  * @internal
  *
- * Map of non-ascii chacters that are valid after the first character in and identifier.
- * Each pair of numbers represents an inclusive range of code points.
+ * Map of non-ascii chacters that are valid after the first character in and
+ * identifier. Each pair of numbers represents an inclusive range of code
+ * points.
+ *
+ * Corresponds to code points outside the ASCII range with property ID_Continue,
+ * Other_ID_Start, or Other_ID_Continue, plus ZWNJ and ZWJ.
  */
 //prettier-ignore
 export const nonAsciiIdentifierContinueMap: readonly number[] = [
