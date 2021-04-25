@@ -52,7 +52,7 @@ function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
     const end = document.positionAt(each.end);
     const range = Range.create(start, end);
     const severity = convertSeverity(each.severity);
-    const diagnostic = Diagnostic.create(range, each.message, severity, "ADL");
+    const diagnostic = Diagnostic.create(range, each.message, severity, each.code, "ADL");
     diagnostics.push(diagnostic);
   }
 
