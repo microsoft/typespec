@@ -8,50 +8,50 @@ export const Message = {
   DigitExpected: {
     code: 1100,
     severity: "error",
-    text: "Digit expected (0-9)",
+    text: "Digit expected.",
   } as const,
 
   HexDigitExpected: {
     code: 1101,
     severity: "error",
-    text: "Hex Digit expected (0-F)",
+    text: "Hexadecimal digit expected.",
   } as const,
 
   BinaryDigitExpected: {
     code: 1102,
     severity: "error",
-    text: "Binary Digit expected (0,1)",
+    text: "Binary digit expected.",
   } as const,
 
-  UnexpectedEndOfFile: {
+  Unterminated: {
     code: 1103,
     severity: "error",
-    text: "Unexpected end of file while searching for '{0}'",
+    text: "Unterminated {0}.",
   } as const,
 
   InvalidEscapeSequence: {
     code: 1104,
     severity: "error",
-    text: "Invalid escape sequence",
+    text: "Invalid escape sequence.",
   } as const,
 
   NoNewLineAtStartOfTripleQuotedString: {
     code: 1105,
     severity: "error",
-    text: "String content in triple quotes must begin on a new line",
+    text: "String content in triple quotes must begin on a new line.",
   } as const,
 
   NoNewLineAtEndOfTripleQuotedString: {
     code: 1106,
     severity: "error",
-    text: "Closing triple quotes must begin on a new line",
+    text: "Closing triple quotes must begin on a new line.",
   } as const,
 
   InconsistentTripleQuoteIndentation: {
     code: 1107,
     severity: "error",
     text:
-      "All lines in triple-quoted string lines must have the same indentation as closing triple quotes",
+      "All lines in triple-quoted string lines must have the same indentation as closing triple quotes.",
   } as const,
 
   InvalidCharacter: {

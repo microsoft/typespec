@@ -1,5 +1,5 @@
 import { AssertionError } from "assert";
-import { CharCode } from "./charcode.js";
+import { CharCode, isNonAsciiLineBreak } from "./charcode.js";
 import { Message } from "./messages.js";
 import { Diagnostic, Node, SourceFile, SourceLocation, Sym, SyntaxKind, Type } from "./types.js";
 
@@ -113,7 +113,7 @@ export function createSourceFile(text: string, path: string): SourceFile {
   };
 
   function getLineStarts() {
-    return (lineStarts = lineStarts ?? scanLineStarts());
+    return (lineStarts = lineStarts ?? scanLineStarts(text));
   }
 
   function getLineAndCharacterOfPosition(position: number) {
@@ -135,57 +135,6 @@ export function createSourceFile(text: string, path: string): SourceFile {
       line,
       character: position - starts[line],
     };
-  }
-
-  function scanLineStarts() {
-    const starts = [];
-    let start = 0;
-    let pos = 0;
-
-    while (pos < text.length) {
-      const ch = text.charCodeAt(pos);
-      pos++;
-      switch (ch) {
-        case CharCode.CarriageReturn:
-          if (text.charCodeAt(pos) === CharCode.LineFeed) {
-            pos++;
-          }
-        // fallthrough
-        case CharCode.LineFeed:
-        case CharCode.LineSeparator:
-        case CharCode.ParagraphSeparator:
-          starts.push(start);
-          start = pos;
-          break;
-      }
-    }
-
-    starts.push(start);
-    return starts;
-  }
-
-  /**
-   * Search sorted array of numbers for the given value. If found, return index
-   * in array where value was found. If not found, return a negative number that
-   * is the bitwise complement of the index where value would need to be inserted
-   * to keep the array sorted.
-   */
-  function binarySearch(array: readonly number[], value: number) {
-    let low = 0;
-    let high = array.length - 1;
-    while (low <= high) {
-      const middle = low + ((high - low) >> 1);
-      const v = array[middle];
-      if (v < value) {
-        low = middle + 1;
-      } else if (v > value) {
-        high = middle - 1;
-      } else {
-        return middle;
-      }
-    }
-
-    return ~low;
   }
 }
 
@@ -327,4 +276,59 @@ function format(text: string, args?: (string | number)[]): [string, Error?] {
 
 function isNotUndefined<T>(value: T | undefined): value is T {
   return value !== undefined;
+}
+
+function scanLineStarts(text: string): number[] {
+  const starts = [];
+  let start = 0;
+  let pos = 0;
+
+  while (pos < text.length) {
+    const ch = text.charCodeAt(pos);
+    pos++;
+    switch (ch) {
+      case CharCode.CarriageReturn:
+        if (text.charCodeAt(pos) === CharCode.LineFeed) {
+          pos++;
+        }
+      // fallthrough
+      case CharCode.LineFeed:
+        starts.push(start);
+        start = pos;
+        break;
+      default:
+        if (ch > CharCode.MaxAscii && isNonAsciiLineBreak(ch)) {
+          starts.push(start);
+          start = pos;
+          break;
+        }
+    }
+  }
+
+  starts.push(start);
+  return starts;
+}
+
+/**
+ * Search sorted array of numbers for the given value. If found, return index
+ * in array where value was found. If not found, return a negative number that
+ * is the bitwise complement of the index where value would need to be inserted
+ * to keep the array sorted.
+ */
+function binarySearch(array: readonly number[], value: number) {
+  let low = 0;
+  let high = array.length - 1;
+  while (low <= high) {
+    const middle = low + ((high - low) >> 1);
+    const v = array[middle];
+    if (v < value) {
+      low = middle + 1;
+    } else if (v > value) {
+      high = middle - 1;
+    } else {
+      return middle;
+    }
+  }
+
+  return ~low;
 }

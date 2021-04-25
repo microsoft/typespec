@@ -7,14 +7,22 @@ import {
   isKeyword,
   isPunctuation,
   isStatementKeyword,
+  KeywordLimit,
   Keywords,
-  maxKeywordLength,
   Token,
   TokenDisplay,
 } from "../compiler/scanner.js";
-import { LineAndCharacter } from "../compiler/types.js";
 
-type TokenEntry = [Token, string?, number?, LineAndCharacter?];
+type TokenEntry = [
+  Token,
+  string?,
+  {
+    pos?: number;
+    line?: number;
+    character?: number;
+    value?: string;
+  }?
+];
 
 function tokens(text: string, onError = throwOnError): TokenEntry[] {
   const scanner = createScanner(text, onError);
@@ -25,8 +33,11 @@ function tokens(text: string, onError = throwOnError): TokenEntry[] {
     result.push([
       scanner.token,
       scanner.getTokenText(),
-      scanner.tokenPosition,
-      scanner.file.getLineAndCharacterOfPosition(scanner.tokenPosition),
+      {
+        pos: scanner.tokenPosition,
+        value: scanner.getTokenValue(),
+        ...scanner.file.getLineAndCharacterOfPosition(scanner.tokenPosition),
+      },
     ]);
   } while (!scanner.eof());
 
@@ -38,26 +49,43 @@ function tokens(text: string, onError = throwOnError): TokenEntry[] {
 }
 
 function verify(tokens: TokenEntry[], expecting: TokenEntry[]) {
-  for (const [
-    index,
-    [expectedToken, expectedText, expectedPosition, expectedLineAndCharacter],
-  ] of expecting.entries()) {
-    const [token, text, position, lineAndCharacter] = tokens[index];
+  for (const [index, [expectedToken, expectedText, expectedAdditional]] of expecting.entries()) {
+    const [token, text, additional] = tokens[index];
     assert.strictEqual(Token[token], Token[expectedToken], `Token ${index} must match`);
 
     if (expectedText) {
       assert.strictEqual(text, expectedText, `Token ${index} test must match`);
     }
 
-    if (expectedPosition) {
-      assert.strictEqual(position, expectedPosition, `Token ${index} position must match`);
+    if (expectedAdditional?.pos) {
+      assert.strictEqual(
+        additional!.pos,
+        expectedAdditional.pos,
+        `Token ${index} position must match`
+      );
     }
 
-    if (expectedLineAndCharacter) {
-      assert.deepStrictEqual(
-        lineAndCharacter,
-        expectedLineAndCharacter,
-        `Token ${index} line and character must match`
+    if (expectedAdditional?.line) {
+      assert.strictEqual(
+        additional!.line,
+        expectedAdditional.line,
+        `Token ${index} line must match`
+      );
+    }
+
+    if (expectedAdditional?.character) {
+      assert.strictEqual(
+        additional!.character,
+        expectedAdditional?.character,
+        `Token ${index} character must match`
+      );
+    }
+
+    if (expectedAdditional?.value) {
+      assert.strictEqual(
+        additional!.value,
+        expectedAdditional.value,
+        `Token ${index} value must match`
       );
     }
   }
@@ -66,16 +94,16 @@ function verify(tokens: TokenEntry[], expecting: TokenEntry[]) {
 describe("scanner", () => {
   /** verifies that we can scan tokens and get back some output. */
   it("smoketest", () => {
-    const all = tokens("\tthis is  a test");
+    const all = tokens('\tthis is "a" test');
     verify(all, [
       [Token.Whitespace],
-      [Token.Identifier, "this"],
+      [Token.Identifier, "this", { value: "this" }],
       [Token.Whitespace],
-      [Token.Identifier, "is"],
+      [Token.Identifier, "is", { value: "is" }],
       [Token.Whitespace],
-      [Token.Identifier, "a"],
+      [Token.StringLiteral, '"a"', { value: "a" }],
       [Token.Whitespace],
-      [Token.Identifier, "test"],
+      [Token.Identifier, "test", { value: "test" }],
     ]);
   });
 
@@ -130,7 +158,7 @@ describe("scanner", () => {
   });
 
   it("scans numeric literals", () => {
-    const all = tokens("42 0xBEEF 0b1010 1.5e4 314.0e-2 1e+1000");
+    const all = tokens("42 0xBEEF 0b1010 1.5e4 314.0e-2 1e+1000 3. 2.e3");
     verify(all, [
       [Token.NumericLiteral, "42"],
       [Token.Whitespace],
@@ -143,6 +171,11 @@ describe("scanner", () => {
       [Token.NumericLiteral, "314.0e-2"],
       [Token.Whitespace],
       [Token.NumericLiteral, "1e+1000"],
+      [Token.Whitespace],
+      // https://github.com/Azure/adl/issues/488 - we may want to disallow these
+      [Token.NumericLiteral, "3."],
+      [Token.Whitespace],
+      [Token.NumericLiteral, "2.e3"],
     ]);
   });
 
@@ -184,34 +217,34 @@ describe("scanner", () => {
   it("provides token position", () => {
     const all = tokens("a x\raa x\r\naaa x\naaaa x\u{2028}aaaaa x\u{2029}aaaaaa x");
     verify(all, [
-      [Token.Identifier, "a", 0, { line: 0, character: 0 }],
-      [Token.Whitespace, " ", 1, { line: 0, character: 1 }],
-      [Token.Identifier, "x", 2, { line: 0, character: 2 }],
-      [Token.NewLine, "\r", 3, { line: 0, character: 3 }],
+      [Token.Identifier, "a", { pos: 0, line: 0, character: 0 }],
+      [Token.Whitespace, " ", { pos: 1, line: 0, character: 1 }],
+      [Token.Identifier, "x", { pos: 2, line: 0, character: 2 }],
+      [Token.NewLine, "\r", { pos: 3, line: 0, character: 3 }],
 
-      [Token.Identifier, "aa", 4, { line: 1, character: 0 }],
-      [Token.Whitespace, " ", 6, { line: 1, character: 2 }],
-      [Token.Identifier, "x", 7, { line: 1, character: 3 }],
-      [Token.NewLine, "\r\n", 8, { line: 1, character: 4 }],
+      [Token.Identifier, "aa", { pos: 4, line: 1, character: 0 }],
+      [Token.Whitespace, " ", { pos: 6, line: 1, character: 2 }],
+      [Token.Identifier, "x", { pos: 7, line: 1, character: 3 }],
+      [Token.NewLine, "\r\n", { pos: 8, line: 1, character: 4 }],
 
-      [Token.Identifier, "aaa", 10, { line: 2, character: 0 }],
-      [Token.Whitespace, " ", 13, { line: 2, character: 3 }],
-      [Token.Identifier, "x", 14, { line: 2, character: 4 }],
-      [Token.NewLine, "\n", 15, { line: 2, character: 5 }],
+      [Token.Identifier, "aaa", { pos: 10, line: 2, character: 0 }],
+      [Token.Whitespace, " ", { pos: 13, line: 2, character: 3 }],
+      [Token.Identifier, "x", { pos: 14, line: 2, character: 4 }],
+      [Token.NewLine, "\n", { pos: 15, line: 2, character: 5 }],
 
-      [Token.Identifier, "aaaa", 16, { line: 3, character: 0 }],
-      [Token.Whitespace, " ", 20, { line: 3, character: 4 }],
-      [Token.Identifier, "x", 21, { line: 3, character: 5 }],
-      [Token.NewLine, "\u{2028}", 22, { line: 3, character: 6 }],
+      [Token.Identifier, "aaaa", { pos: 16, line: 3, character: 0 }],
+      [Token.Whitespace, " ", { pos: 20, line: 3, character: 4 }],
+      [Token.Identifier, "x", { pos: 21, line: 3, character: 5 }],
+      [Token.NewLine, "\u{2028}", { pos: 22, line: 3, character: 6 }],
 
-      [Token.Identifier, "aaaaa", 23, { line: 4, character: 0 }],
-      [Token.Whitespace, " ", 28, { line: 4, character: 5 }],
-      [Token.Identifier, "x", 29, { line: 4, character: 6 }],
-      [Token.NewLine, "\u{2029}", 30, { line: 4, character: 7 }],
+      [Token.Identifier, "aaaaa", { pos: 23, line: 4, character: 0 }],
+      [Token.Whitespace, " ", { pos: 28, line: 4, character: 5 }],
+      [Token.Identifier, "x", { pos: 29, line: 4, character: 6 }],
+      [Token.NewLine, "\u{2029}", { pos: 30, line: 4, character: 7 }],
 
-      [Token.Identifier, "aaaaaa", 31, { line: 5, character: 0 }],
-      [Token.Whitespace, " ", 37, { line: 5, character: 6 }],
-      [Token.Identifier, "x", 38, { line: 5, character: 7 }],
+      [Token.Identifier, "aaaaaa", { pos: 31, line: 5, character: 0 }],
+      [Token.Whitespace, " ", { pos: 37, line: 5, character: 6 }],
+      [Token.Identifier, "x", { pos: 38, line: 5, character: 7 }],
     ]);
   });
 
@@ -225,11 +258,19 @@ describe("scanner", () => {
       `Token enum has ${tokenCount} elements but TokenDisplay array has ${tokenDisplayCount}.`
     );
 
-    // check that keywords have appropriate display
+    // check that keywords have appropriate display and limits
     const nonStatementKeywords = [Token.ExtendsKeyword, Token.TrueKeyword, Token.FalseKeyword];
-    let maxKeywordLengthFound = -1;
+    let minKeywordLengthFound = Number.MAX_SAFE_INTEGER;
+    let maxKeywordLengthFound = Number.MIN_SAFE_INTEGER;
+    let minKeywordStartCharFound = Number.MAX_SAFE_INTEGER;
+    let maxKeywordStartCharFound = Number.MIN_SAFE_INTEGER;
+
     for (const [name, token] of Keywords.entries()) {
+      minKeywordLengthFound = Math.min(minKeywordLengthFound, name.length);
       maxKeywordLengthFound = Math.max(maxKeywordLengthFound, name.length);
+      minKeywordStartCharFound = Math.min(minKeywordStartCharFound, name.charCodeAt(0));
+      maxKeywordStartCharFound = Math.max(maxKeywordStartCharFound, name.charCodeAt(0));
+
       assert.strictEqual(TokenDisplay[token], `'${name}'`);
       assert(isKeyword(token), `${name} should be classified as a keyword`);
       if (!nonStatementKeywords.includes(token)) {
@@ -237,7 +278,10 @@ describe("scanner", () => {
       }
     }
 
-    assert.strictEqual(maxKeywordLengthFound, maxKeywordLength);
+    assert.strictEqual(minKeywordLengthFound, KeywordLimit.MinLength);
+    assert.strictEqual(maxKeywordLengthFound, KeywordLimit.MaxLength);
+    assert.strictEqual(minKeywordStartCharFound, KeywordLimit.MinStartChar);
+    assert.strictEqual(maxKeywordStartCharFound, KeywordLimit.MaxStartChar);
 
     // check single character punctuation
     for (let i = 33; i <= 126; i++) {

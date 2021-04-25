@@ -12,13 +12,13 @@ export const enum CharCode {
   LineSeparator = 0x2028,
   ParagraphSeparator = 0x2029,
 
-  // ASCII whitespace
+  // ASCII whitespace excluding line breaks
   Space = 0x20,
   FormFeed = 0x0c,
   Tab = 0x09,
   VerticalTab = 0x0b,
 
-  // Non-ASCII whitespace
+  // Non-ASCII whitespace excluding line breaks
   ByteOrderMark = 0xfeff, // currently allowed anywhere
   NextLine = 0x0085, // not considered a line break, mirroring ECMA-262
   NonBreakingSpace = 0x00a0,
@@ -144,15 +144,24 @@ export const enum CharCode {
   Tilde = 0x7e,
 }
 
-/** Does not include line breaks. For that, see isWhiteSpaceLike. */
-export function isWhiteSpaceSingleLine(ch: number): boolean {
-  // Note: nextLine is in the Zs space, and should be considered to be a whitespace.
-  // It is explicitly not a line-break as it isn't in the exact set specified by EcmaScript.
+export function isAsciiLineBreak(ch: number) {
+  return ch === CharCode.LineFeed || ch == CharCode.CarriageReturn;
+}
+
+export function isAsciiWhiteSpaceSingleLine(ch: number): boolean {
   return (
     ch === CharCode.Space ||
     ch === CharCode.Tab ||
     ch === CharCode.VerticalTab ||
-    ch === CharCode.FormFeed ||
+    ch === CharCode.FormFeed
+  );
+}
+
+export function isNonAsciiWhiteSpaceSingleLine(ch: number) {
+  // Note: nextLine is in the Zs space, and should be considered to be a
+  // whitespace. It is explicitly not a line-break as it isn't in the exact set
+  // inherited by ADL from JavaScript.
+  return (
     ch === CharCode.NonBreakingSpace ||
     ch === CharCode.NextLine ||
     ch === CharCode.Ogham ||
@@ -164,15 +173,21 @@ export function isWhiteSpaceSingleLine(ch: number): boolean {
   );
 }
 
-export function isLineBreak(ch: number): boolean {
-  // Other new line or line
-  // breaking characters are treated as white space but not as line terminators.
+export function isNonAsciiLineBreak(ch: number) {
+  // Other new line or line breaking characters are treated as white space but
+  // not as line terminators.
+  return ch === CharCode.ParagraphSeparator || ch === CharCode.LineSeparator;
+}
+
+export function isWhiteSpaceSingleLine(ch: number) {
   return (
-    ch === CharCode.LineFeed ||
-    ch === CharCode.CarriageReturn ||
-    ch === CharCode.LineSeparator ||
-    ch === CharCode.ParagraphSeparator
+    isAsciiWhiteSpaceSingleLine(ch) ||
+    (ch > CharCode.MaxAscii && isNonAsciiWhiteSpaceSingleLine(ch))
   );
+}
+
+export function isLineBreak(ch: number): boolean {
+  return isAsciiLineBreak(ch) || (ch > CharCode.MaxAscii && isNonAsciiLineBreak(ch));
 }
 
 export function isDigit(ch: number): boolean {
@@ -210,7 +225,7 @@ export function isAsciiIdentifierContinue(ch: number): boolean {
 
 export function isIdentifierContinue(codePoint: number) {
   return (
-    isAsciiIdentifierStart(codePoint) ||
+    isAsciiIdentifierContinue(codePoint) ||
     (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierContinue(codePoint))
   );
 }

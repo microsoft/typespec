@@ -280,7 +280,7 @@ export function parse(code: string | SourceFile) {
           stmts.push(parseUsingStatement());
           break;
         case Token.EndOfFile:
-          error("End of file reached without '}'.");
+          parseExpected(Token.CloseBrace);
           return stmts;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
@@ -990,9 +990,8 @@ export function parse(code: string | SourceFile) {
     if (realPositionOfLastError === realPos) {
       return;
     }
-
     realPositionOfLastError = realPos;
-    parseErrorInNextFinishedNode = true;
+
     reportDiagnostic(message, location);
   }
 
@@ -1001,6 +1000,9 @@ export function parse(code: string | SourceFile) {
     target: DiagnosticTarget,
     args?: (string | number)[]
   ) {
+    if (typeof message === "string" || message.severity === "error") {
+      parseErrorInNextFinishedNode = true;
+    }
     const diagnostic = createDiagnostic(message, target, args);
     parseDiagnostics.push(diagnostic);
   }

@@ -219,8 +219,38 @@ describe("syntax", () => {
     ]);
   });
 
+  describe("unterminated tokens", () => {
+    parseErrorEach([
+      ['model X = "banana', [/Unterminated string literal/]],
+      ['model X = "banana\\', [/Unterminated string literal/]],
+      ['model X = """\nbanana', [/Unterminated string literal/]],
+      ['model X = """\nbanana\\', [/Unterminated string literal/]],
+      ["/* Yada yada yada", [/Unterminated comment/]],
+      ["123.0e", [/Digit expected/]],
+      ["123.e", [/Digit expected/]],
+      ["123e", [/Digit expected/]],
+      ["0b", [/Binary digit expected/]],
+      ["0x", [/Hexadecimal digit expected/]],
+    ]);
+  });
+
+  describe("terminated tokens at EOF with missing semicolon", () => {
+    parseErrorEach([
+      ["model X = 0x10101", [/';' expected/]],
+      ["model X = 0xBEEF", [/';' expected/]],
+      ["model X = 123", [/';' expected/]],
+      ["model X = 123.", [/';' expected/]],
+      ["model X = 123e45", [/';' expected/]],
+      ["model X = 123.45", [/';' expected/]],
+      ["model X = 123.45e2", [/';' expected/]],
+      ["model X = Banana", [/';' expected/]],
+      ['model X = "Banana"', [/';' expected/]],
+      ['model X = """\nBanana\n"""', [/';' expected/]],
+    ]);
+  });
+
   describe("non-ascii identifiers", () => {
-    parseEach(["model Incompréhensible {}", "model 𐌰𐌲 {}", "model Banana𐌰𐌲Banana {}"]);
+    parseEach(["model Incompréhensible {}", "model 𐌰𐌲 {}", "model Banana𐌰𐌲42Banana {}"]);
     parseErrorEach([["model 😢 {}", [/Invalid character/]]]);
   });
 });
