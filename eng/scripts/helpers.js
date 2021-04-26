@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "child_process";
-import { readFileSync } from "fs";
+import { statSync, readFileSync } from "fs";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 
@@ -108,24 +108,51 @@ export function runWatch(watch, dir, build, options) {
   let lastStartTime;
   dir = resolve(dir);
 
-  // build once up-front.
-  runBuild();
+  // We might need to wait for another watcher to create the directory.
+  try {
+    statSync(dir);
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      waitForDirectoryCreation();
+      return;
+    }
+    throw err;
+  }
 
-  watch.createMonitor(dir, { interval: 0.2, ...options }, (monitor) => {
-    let handler = function (file) {
-      if (lastStartTime && monitor?.files[file]?.mtime < lastStartTime) {
-        // File was changed before last build started so we can ignore it. This
-        // avoids running the build unnecessarily when a series of input files
-        // change at the same time.
-        return;
-      }
-      runBuild(file);
-    };
+  start();
 
-    monitor.on("created", handler);
-    monitor.on("changed", handler);
-    monitor.on("removed", handler);
-  });
+  function waitForDirectoryCreation() {
+    logWithTime(`${dir} doesn't exist yet: waiting for it to be created.`);
+    watch.createMonitor(dirname(dir), "created", (monitor) => {
+      monitor.on("created", (file) => {
+        if (file === dir) {
+          logWithTime(`${dir} created.`);
+          start();
+        }
+      });
+    });
+  }
+
+  function start() {
+    // build once up-front.
+    runBuild();
+
+    watch.createMonitor(dir, { interval: 0.2, ...options }, (monitor) => {
+      let handler = function (file) {
+        if (lastStartTime && monitor?.files[file]?.mtime < lastStartTime) {
+          // File was changed before last build started so we can ignore it. This
+          // avoids running the build unnecessarily when a series of input files
+          // change at the same time.
+          return;
+        }
+        runBuild(file);
+      };
+
+      monitor.on("created", handler);
+      monitor.on("changed", handler);
+      monitor.on("removed", handler);
+    });
+  }
 
   function runBuild(file) {
     runBuildAsync(file).catch((err) => {

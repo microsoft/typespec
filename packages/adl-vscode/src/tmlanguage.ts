@@ -3,6 +3,7 @@
 
 import * as tm from "@azure-tools/tmlanguage-generator";
 import fs from "fs/promises";
+import mkdirp from "mkdirp";
 import { resolve } from "path";
 
 type IncludeRule = tm.IncludeRule<ADLScope>;
@@ -333,5 +334,6 @@ export async function main() {
   const plist = await tm.emitPList(grammar, {
     errorSourceFilePath: resolve("./src/tmlanguage.ts"),
   });
+  await mkdirp("./dist");
   await fs.writeFile("./dist/adl.tmLanguage", plist);
 }
