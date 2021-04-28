@@ -1,4 +1,4 @@
-import { spawnSync } from "child_process";
+import { spawnSync, SpawnSyncOptionsWithBufferEncoding } from "child_process";
 import { mkdtemp, readdir, rmdir } from "fs/promises";
 import mkdirp from "mkdirp";
 import os from "os";
@@ -42,32 +42,38 @@ const args = yargs(process.argv.slice(2))
     "generate <path>",
     "Generate client and server code from a directory of ADL files.",
     (cmd) => {
-      return cmd
-        .positional("path", {
-          description: "The path to folder containing .adl files",
-          type: "string",
-        })
-        .option("client", {
-          type: "boolean",
-          describe: "Generate a client library for the ADL definition",
-        })
-        .option("language", {
-          type: "string",
-          choices: ["typescript", "csharp", "python"],
-          describe: "The language to use for code generation",
-        })
-        .option("output-path", {
-          type: "string",
-          default: "./adl-output",
-          describe:
-            "The output path for generated artifacts.  If it does not exist, it will be created.",
-        })
-        .option("option", {
-          type: "array",
-          string: true,
-          describe:
-            "Key/value pairs that can be passed to ADL components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
-        });
+      return (
+        cmd
+          .positional("path", {
+            description: "The path to folder containing .adl files",
+            type: "string",
+          })
+          .option("client", {
+            type: "boolean",
+            describe: "Generate a client library for the ADL definition",
+          })
+          .option("language", {
+            type: "string",
+            choices: ["typescript", "csharp", "python"],
+            describe: "The language to use for code generation",
+          })
+          .option("output-path", {
+            type: "string",
+            default: "./adl-output",
+            describe:
+              "The output path for generated artifacts.  If it does not exist, it will be created.",
+          })
+          .option("option", {
+            type: "array",
+            string: true,
+            describe:
+              "Key/value pairs that can be passed to ADL components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
+          })
+          // we can't generate anything but a client yet
+          .demandOption("client")
+          // and language is required to do so
+          .demandOption("language")
+      );
     }
   )
   .command("code", "Manage VS Code Extension.", (cmd) => {
@@ -90,9 +96,14 @@ const args = yargs(process.argv.slice(2))
   .version(adlVersion)
   .demandCommand(1, "You must use one of the supported commands.").argv;
 
-async function compileInput(compilerOptions: CompilerOptions) {
+async function compileInput(compilerOptions: CompilerOptions, printSuccess = true) {
   try {
     await compile(args.path!, NodeHost, compilerOptions);
+    if (printSuccess) {
+      console.log(
+        `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
+      );
+    }
   } catch (err) {
     if (err instanceof DiagnosticError) {
       logDiagnostics(err.diagnostics, console.error);
@@ -123,6 +134,7 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
 
   return {
     miscOptions,
+    outputPath,
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
   };
@@ -134,7 +146,8 @@ async function generateClient(options: CompilerOptions) {
   const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
 
   // Execute AutoRest on the output file
-  const result = spawnSync(
+  console.log(); //newline between compilation output and generation output
+  const result = run(
     url.fileURLToPath(autoRestPath),
     [
       `--${args.language}`,
@@ -144,15 +157,14 @@ async function generateClient(options: CompilerOptions) {
       `--input-file=${options.swaggerOutputFile}`,
     ],
     {
-      stdio: "inherit",
       shell: true,
     }
   );
 
   if (result.status === 0) {
-    console.log(`Generation completed successfully, output files are in ${options.outputPath}.`);
+    console.log(`\nGeneration completed successfully, output files are in ${clientPath}.`);
   } else {
-    console.error("\nAn error occurred during client generation.");
+    console.error("\nClient generation failed.");
     process.exit(result.status || 1);
   }
 }
@@ -182,14 +194,21 @@ async function installVsix(pkg: string, install: (vsixPath: string) => void) {
   await rmdir(temp, { recursive: true });
 }
 
+async function runCode(codeArgs: string[]) {
+  await run(args.insiders ? "code-insiders" : "code", codeArgs, {
+    // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
+    env: { ...process.env, NODE_NO_WARNINGS: "1" },
+  });
+}
+
 async function installVSCodeExtension() {
   await installVsix("adl-vscode", (vsix) => {
-    run(args.insiders ? "code-insiders" : "code", ["--install-extension", vsix]);
+    runCode(["--install-extension", vsix]);
   });
 }
 
 async function uninstallVSCodeExtension() {
-  run(args.insiders ? "code-insiders" : "code", ["--uninstall-extension", "microsoft.adl-vscode"]);
+  await runCode(["--uninstall-extension", "microsoft.adl-vscode"]);
 }
 
 function getVsixInstallerPath(): string {
@@ -221,9 +240,9 @@ async function uninstallVSExtension() {
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
 
-function run(command: string, commandArgs: string[]) {
+function run(command: string, commandArgs: string[], options?: SpawnSyncOptionsWithBufferEncoding) {
   if (args.debug) {
-    console.log(`> ${command} ${commandArgs.join(" ")}`);
+    console.log(`> ${command} ${commandArgs.join(" ")}\n`);
   }
 
   const baseCommandName = path.basename(command);
@@ -233,8 +252,7 @@ function run(command: string, commandArgs: string[]) {
 
   const proc = spawnSync(command, commandArgs, {
     stdio: "inherit",
-    // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
-    env: { ...process.env, NODE_NO_WARNINGS: "1" },
+    ...(options ?? {}),
   });
 
   if (proc.error) {
@@ -255,8 +273,10 @@ function run(command: string, commandArgs: string[]) {
         proc.status
       }.`
     );
-    process.exit(proc.status ?? 1);
+    process.exit(proc.status || 1);
   }
+
+  return proc;
 }
 
 async function main() {
@@ -272,7 +292,7 @@ async function main() {
       break;
     case "generate":
       options = await getCompilerOptions();
-      await compileInput(options);
+      await compileInput(options, false);
       if (args.client) {
         await generateClient(options);
       }
