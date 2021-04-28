@@ -332,6 +332,10 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
           }
           return scanInvalidCharacter();
 
+        case CharCode.Plus:
+        case CharCode.Minus:
+          return isDigit(lookAhead(1)) ? scanSignedNumber() : scanInvalidCharacter();
+
         case CharCode._0:
           switch (lookAhead(1)) {
             case CharCode.x:
@@ -447,17 +451,24 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     return (token = Token.Whitespace);
   }
 
+  function scanSignedNumber() {
+    position++; // consume '+/-'
+    return scanNumber();
+  }
+
   function scanNumber() {
     scanKnownDigits();
-    if (!eof()) {
-      switch (input.charCodeAt(position)) {
-        case CharCode.Dot:
-          scanFractionAndExponent();
-          break;
-        case CharCode.e:
-          scanExponent();
-          break;
+    if (!eof() && input.charCodeAt(position) === CharCode.Dot) {
+      position++;
+      scanRequiredDigits();
+    }
+    if (!eof() && input.charCodeAt(position) === CharCode.e) {
+      position++;
+      const ch = input.charCodeAt(position);
+      if (ch === CharCode.Plus || ch === CharCode.Minus) {
+        position++;
       }
+      scanRequiredDigits();
     }
     return (token = Token.NumericLiteral);
   }
@@ -468,39 +479,12 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     } while (!eof() && isDigit(input.charCodeAt(position)));
   }
 
-  function scanOptionalDigits() {
-    if (!eof() && isDigit(input.charCodeAt(position))) {
-      scanKnownDigits();
-    }
-  }
-
   function scanRequiredDigits() {
     if (eof() || !isDigit(input.charCodeAt(position))) {
       error(Message.DigitExpected);
       return;
     }
     scanKnownDigits();
-  }
-
-  function scanFractionAndExponent() {
-    position++; // consume '.'
-    scanOptionalDigits();
-    if (!eof() && input.charCodeAt(position) === CharCode.e) {
-      scanExponent();
-    }
-  }
-
-  function scanExponent() {
-    position++; // consume 'e'
-    if (eof()) {
-      error(Message.DigitExpected);
-      return;
-    }
-    const ch = input.charCodeAt(position);
-    if (ch === CharCode.Plus || ch === CharCode.Minus) {
-      position++;
-    }
-    scanRequiredDigits();
   }
 
   function scanHexNumber() {

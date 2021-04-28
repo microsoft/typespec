@@ -65,13 +65,16 @@ BooleanLiteral :
 NumericLiteral :
     DecimalLiteral
     HexIntegerLiteral
+    BinaryIntegerLiteral
 
 DecimalLiteral :
-    DecimalIntegerLiteral `.` DecimalDigits? ExponentPart?
+    DecimalIntegerLiteral `.` DecimalDigits ExponentPart?
     DecimalIntegerLiteral ExponentPart?
 
 DecimalIntegerLiteral :
     DecimalDigits
+    `+` DecimalDigits
+    `-` DecimalDigits
 
 DecimalDigits :
     DecimalDigit
@@ -81,9 +84,9 @@ DecimalDigit :
     one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
 ExponentPart :
-    `e` SignedInteger
+    `e` DecimalIntegerLiteral
 
-SignedInteger :
+DecimalIntegerInteger :
     DecimalDigits
     `+` DecimalDigits
     `-` DecimalDigits

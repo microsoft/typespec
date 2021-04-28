@@ -226,11 +226,6 @@ describe("syntax", () => {
       ['model X = """\nbanana', [/Unterminated string literal/]],
       ['model X = """\nbanana\\', [/Unterminated string literal/]],
       ["/* Yada yada yada", [/Unterminated comment/]],
-      ["123.0e", [/Digit expected/]],
-      ["123.e", [/Digit expected/]],
-      ["123e", [/Digit expected/]],
-      ["0b", [/Binary digit expected/]],
-      ["0x", [/Hexadecimal digit expected/]],
     ]);
   });
 
@@ -239,7 +234,6 @@ describe("syntax", () => {
       ["model X = 0x10101", [/';' expected/]],
       ["model X = 0xBEEF", [/';' expected/]],
       ["model X = 123", [/';' expected/]],
-      ["model X = 123.", [/';' expected/]],
       ["model X = 123e45", [/';' expected/]],
       ["model X = 123.45", [/';' expected/]],
       ["model X = 123.45e2", [/';' expected/]],
@@ -247,6 +241,65 @@ describe("syntax", () => {
       ['model X = "Banana"', [/';' expected/]],
       ['model X = """\nBanana\n"""', [/';' expected/]],
     ]);
+  });
+
+  describe("numeric literals", () => {
+    const good: [string, number][] = [
+      // Some questions remain here: https://github.com/Azure/adl/issues/506
+      ["-0", -0],
+      ["1e9999", Infinity],
+      ["1e-9999", 0],
+      ["-1e-9999", -0],
+      ["-1e9999", -Infinity],
+
+      // NOTE: No octal in ADL
+      ["077", 77],
+      ["+077", 77],
+      ["-077", -77],
+
+      ["0xABCD", 0xabcd],
+      ["0xabcd", 0xabcd],
+      ["0x1010", 0x1010],
+      ["0b1010", 0b1010],
+      ["0", 0],
+      ["+0", 0],
+      ["0.0", 0.0],
+      ["+0.0", 0],
+      ["-0.0", -0.0],
+      ["123", 123],
+      ["+123", 123],
+      ["-123", -123],
+      ["123.123", 123.123],
+      ["+123.123", 123.123],
+      ["-123.123", -123.123],
+      ["789e42", 789e42],
+      ["+789e42", 789e42],
+      ["-789e42", -789e42],
+      ["654.321e9", 654.321e9],
+      ["+654.321e9", 654.321e9],
+      ["-654.321e9", -654.321e9],
+    ];
+
+    const bad: [string, RegExp][] = [
+      ["123.", /Digit expected/],
+      ["123.0e", /Digit expected/],
+      ["123e", /Digit expected/],
+      ["0b", /Binary digit expected/],
+      ["0b2", /Binary digit expected/],
+      ["0x", /Hexadecimal digit expected/],
+      ["0xG", /Hexadecimal digit expected/],
+    ];
+
+    parseEach(good.map((c) => [`model M = ${c[0]};`, (node) => isNumericLiteral(node, c[1])]));
+    parseErrorEach(bad.map((c) => [`model M = ${c[0]};`, [c[1]]]));
+
+    function isNumericLiteral(node: ADLScriptNode, value: number) {
+      const statement = node.statements[0];
+      assert(statement.kind === SyntaxKind.ModelStatement, "model statement expected");
+      const assignment = statement.assignment;
+      assert(assignment?.kind === SyntaxKind.NumericLiteral, "numeric literal expected");
+      assert.strictEqual(assignment.value, value);
+    }
   });
 
   describe("non-ascii identifiers", () => {
@@ -261,14 +314,19 @@ describe("syntax", () => {
   });
 });
 
-function parseEach(cases: string[]) {
-  for (const code of cases) {
+function parseEach(cases: (string | [string, (node: ADLScriptNode) => void])[]) {
+  for (const each of cases) {
+    const code = typeof each === "string" ? each : each[0];
+    const callback = typeof each === "string" ? undefined : each[1];
     it("parses `" + shorten(code) + "`", () => {
       logVerboseTestOutput("=== Source ===");
       logVerboseTestOutput(code);
 
       logVerboseTestOutput("\n=== Parse Result ===");
       const astNode = parse(code);
+      if (callback) {
+        callback(astNode);
+      }
       dumpAST(astNode);
 
       logVerboseTestOutput("\n=== Diagnostics ===");

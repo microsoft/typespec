@@ -159,7 +159,7 @@ describe("scanner", () => {
   });
 
   it("scans numeric literals", () => {
-    const all = tokens("42 0xBEEF 0b1010 1.5e4 314.0e-2 1e+1000 3. 2.e3");
+    const all = tokens("42 0xBEEF 0b1010 1.5e4 314.0e-2 1e+1000");
     verify(all, [
       [Token.NumericLiteral, "42"],
       [Token.Whitespace],
@@ -172,11 +172,6 @@ describe("scanner", () => {
       [Token.NumericLiteral, "314.0e-2"],
       [Token.Whitespace],
       [Token.NumericLiteral, "1e+1000"],
-      [Token.Whitespace],
-      // https://github.com/Azure/adl/issues/488 - we may want to disallow these
-      [Token.NumericLiteral, "3."],
-      [Token.Whitespace],
-      [Token.NumericLiteral, "2.e3"],
     ]);
   });
 
