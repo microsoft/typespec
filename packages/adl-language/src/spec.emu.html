@@ -111,15 +111,23 @@ BinaryDigits :
 BinaryDigit :
     one of `0` `1`
 
-// TODO: triple-quoted strings not specified yet, tricky to express.
-
+// NOTE: This does not specify the extra rules about '"""'s going
+//       on their own lines and having consistent indentation.
 StringLiteral :
     `"` StringCharacters? `"`
+    `"""` TripleQuotedStringCharacters? `"""`
 
 StringCharacters :
     StringCharacter StringCharacters?
 
 StringCharacter :
+    SourceCharacter but not one of `"` or `\` or LineTerminator
+    `\` EscapeCharacter
+
+TripleQuotedStringCharacters
+    TripleQuotedStringCharacter TripleQuotedStringCharacters?
+
+TripleQuotedStringCharacter :
     SourceCharacter but not one of `"` or `\`
     `\` EscapeCharacter
 

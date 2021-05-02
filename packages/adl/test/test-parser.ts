@@ -226,7 +226,17 @@ describe("syntax", () => {
   describe("unterminated tokens", () => {
     parseErrorEach([["/* Yada yada yada", [/Unterminated multi-line comment/]]]);
 
-    const strings = ['"banana', '"banana\\', '"""\nbanana', '"""\nbanana\\'];
+    const strings = [
+      '"banana',
+      '"banana\\',
+      '"banana\r"',
+      '"banana\n"',
+      '"banana\r\n"',
+      '"banana\u{2028}"',
+      '"banana\u{2029}"',
+      '"""\nbanana',
+      '"""\nbanana\\',
+    ];
     parseErrorEach(
       Array.from(strings.entries()).map((e) => [
         `alias ${String.fromCharCode(CharCode.A + e[0])} = ${e[1]}`,

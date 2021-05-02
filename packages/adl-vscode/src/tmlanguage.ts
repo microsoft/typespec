@@ -21,6 +21,7 @@ type ADLScope =
   | "entity.name.function.adl"
   | "keyword.other.adl"
   | "string.quoted.double.adl"
+  | "string.quoted.triple.adl"
   | "variable.name.adl";
 
 const meta: typeof tm.meta = tm.meta;
@@ -72,13 +73,19 @@ const escapeChar: MatchRule = {
   match: "\\\\.",
 };
 
-// TODO: Triple-quoted """X""" currently matches as three string literals
-// ("" "X" "") but should be its own thing.
 const stringLiteral: BeginEndRule = {
   key: "string-literal",
   scope: "string.quoted.double.adl",
   begin: '"',
-  end: '"',
+  end: '"|$',
+  patterns: [escapeChar],
+};
+
+const tripleQuotedStringLiteral: BeginEndRule = {
+  key: "triple-quoted-string-literal",
+  scope: "string.quoted.triple.adl",
+  begin: '"""',
+  end: '"""',
   patterns: [escapeChar],
 };
 
@@ -104,7 +111,16 @@ const blockComment: BeginEndRule = {
 // Tokens that match standing alone in any context: literals and comments
 const token: IncludeRule = {
   key: "token",
-  patterns: [lineComment, blockComment, stringLiteral, booleanLiteral, numericLiteral],
+  patterns: [
+    lineComment,
+    blockComment,
+    // `"""` must come before `"` or first two quotes of `"""` will match as
+    // empty string
+    tripleQuotedStringLiteral,
+    stringLiteral,
+    booleanLiteral,
+    numericLiteral,
+  ],
 };
 
 const parenthesizedExpression: BeginEndRule = {
@@ -181,7 +197,15 @@ const modelExpression: BeginEndRule = {
   scope: meta,
   begin: "\\{",
   end: "\\}",
-  patterns: [token, decorator, modelProperty, modelSpreadProperty],
+  patterns: [
+    // modelProperty must come before token or quoted property name will be
+    // considered an arbitrarily positioned string literal and not match as part
+    // of modelProperty begin.
+    modelProperty,
+    token,
+    decorator,
+    modelSpreadProperty,
+  ],
 };
 
 const modelHeritage: BeginEndRule = {

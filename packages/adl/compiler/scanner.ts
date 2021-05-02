@@ -205,10 +205,9 @@ export interface Scanner {
 
 const enum TokenFlags {
   None = 0,
-  HasCrlf = 1 << 0,
-  Escaped = 1 << 1,
-  TripleQuoted = 1 << 2,
-  Unterminated = 1 << 3,
+  Escaped = 1 << 0,
+  TripleQuoted = 1 << 1,
+  Unterminated = 1 << 2,
 }
 
 export function isLiteral(token: Token) {
@@ -582,12 +581,6 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
     loop: for (; !eof(); position++) {
       const ch = input.charCodeAt(position);
       switch (ch) {
-        case CharCode.CarriageReturn:
-          if (lookAhead(1) === CharCode.LineFeed) {
-            tokenFlags |= TokenFlags.HasCrlf;
-            position++;
-          }
-          break;
         case CharCode.Backslash:
           tokenFlags |= TokenFlags.Escaped;
           position++;
@@ -598,6 +591,14 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
         case CharCode.DoubleQuote:
           position++;
           return (token = Token.StringLiteral);
+        case CharCode.CarriageReturn:
+        case CharCode.LineFeed:
+          break loop;
+        default:
+          if (ch > CharCode.MaxAscii && isNonAsciiLineBreak(ch)) {
+            break loop;
+          }
+          continue;
       }
     }
 
@@ -635,11 +636,7 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
       return unescapeString(start, end);
     }
 
-    let value = input.substring(start, end);
-    if (tokenFlags & TokenFlags.HasCrlf) {
-      value = value.replace(/\r\n/g, "\n");
-    }
-    return value;
+    return input.substring(start, end);
   }
 
   function unindentAndUnescapeTripleQuotedString(start: number, end: number) {

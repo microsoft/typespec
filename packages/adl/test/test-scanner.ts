@@ -206,8 +206,11 @@ describe("scanner", () => {
     scanString('"Hello world \\r\\n \\t \\" \\\\ !"', 'Hello world \r\n \t " \\ !');
   });
 
-  it("scans multi-line strings", () => {
-    scanString('"More\r\nthan\r\none\r\nline"', "More\nthan\none\nline");
+  it("does not allow multi-line, non-triple-quoted strings", () => {
+    scanString('"More\r\nthan\r\none\r\nline"', "More", /Unterminated string/);
+    scanString('"More\nthan\none\nline"', "More", /Unterminated string/);
+    scanString('"Fancy\u{2028}line separator"', "Fancy", /Unterminated string/);
+    scanString('"Fancy\u{2029}paragraph separator', "Fancy", /Unterminated string/);
   });
 
   it("scans triple-quoted strings", () => {
