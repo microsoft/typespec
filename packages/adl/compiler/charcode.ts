@@ -144,11 +144,15 @@ export const enum CharCode {
   Tilde = 0x7e,
 }
 
+export function utf16CodeUnits(codePoint: number) {
+  return codePoint >= 0x10000 ? 2 : 1;
+}
+
 export function isAsciiLineBreak(ch: number) {
   return ch === CharCode.LineFeed || ch == CharCode.CarriageReturn;
 }
 
-export function isAsciiWhiteSpaceSingleLine(ch: number): boolean {
+export function isAsciiWhiteSpaceSingleLine(ch: number) {
   return (
     ch === CharCode.Space ||
     ch === CharCode.Tab ||
@@ -186,25 +190,29 @@ export function isWhiteSpaceSingleLine(ch: number) {
   );
 }
 
-export function isLineBreak(ch: number): boolean {
+export function isLineBreak(ch: number) {
   return isAsciiLineBreak(ch) || (ch > CharCode.MaxAscii && isNonAsciiLineBreak(ch));
 }
 
-export function isDigit(ch: number): boolean {
+export function isDigit(ch: number) {
   return ch >= CharCode._0 && ch <= CharCode._9;
 }
 
-export function isHexDigit(ch: number): boolean {
+export function isHexDigit(ch: number) {
   return (
     isDigit(ch) || (ch >= CharCode.A && ch <= CharCode.F) || (ch >= CharCode.a && ch <= CharCode.f)
   );
 }
 
-export function isBinaryDigit(ch: number): boolean {
+export function isBinaryDigit(ch: number) {
   return ch === CharCode._0 || ch === CharCode._1;
 }
 
-export function isAsciiIdentifierStart(ch: number): boolean {
+export function isLowercaseAsciiLetter(ch: number) {
+  return ch >= CharCode.a && ch <= CharCode.z;
+}
+
+export function isAsciiIdentifierStart(ch: number) {
   return (
     (ch >= CharCode.A && ch <= CharCode.Z) ||
     (ch >= CharCode.a && ch <= CharCode.z) ||
@@ -213,7 +221,7 @@ export function isAsciiIdentifierStart(ch: number): boolean {
   );
 }
 
-export function isAsciiIdentifierContinue(ch: number): boolean {
+export function isAsciiIdentifierContinue(ch: number) {
   return (
     (ch >= CharCode.A && ch <= CharCode.Z) ||
     (ch >= CharCode.a && ch <= CharCode.z) ||
@@ -245,7 +253,7 @@ export function isNonAsciiIdentifierContinue(codePoint: number) {
   return lookupInNonAsciiMap(codePoint, nonAsciiIdentifierContinueMap);
 }
 
-function lookupInNonAsciiMap(codePoint: number, map: readonly number[]): boolean {
+function lookupInNonAsciiMap(codePoint: number, map: readonly number[]) {
   // Bail out quickly if it couldn't possibly be in the map.
   if (codePoint < map[0]) {
     return false;

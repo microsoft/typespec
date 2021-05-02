@@ -2,7 +2,7 @@ import assert from "assert";
 import { readFile } from "fs/promises";
 import { URL } from "url";
 import { isIdentifierContinue, isIdentifierStart } from "../compiler/charcode.js";
-import { throwOnError } from "../compiler/diagnostics.js";
+import { createDiagnostic, formatDiagnostic, throwOnError } from "../compiler/diagnostics.js";
 import {
   createScanner,
   isKeyword,
@@ -180,11 +180,21 @@ describe("scanner", () => {
     ]);
   });
 
-  function scanString(text: string, expectedValue: string) {
-    const scanner = createScanner(text);
+  function scanString(text: string, expectedValue: string, expectedDiagnostic?: RegExp) {
+    const scanner = createScanner(text, (message, target, args) => {
+      const diagnostic = createDiagnostic(message, target, args);
+      if (expectedDiagnostic) {
+        assert.match(diagnostic.message, expectedDiagnostic);
+      } else {
+        assert.fail("No diagnostic expected, but got " + formatDiagnostic(diagnostic));
+      }
+    });
+
     assert.strictEqual(scanner.scan(), Token.StringLiteral);
     assert.strictEqual(scanner.token, Token.StringLiteral);
-    assert.strictEqual(scanner.getTokenText(), text);
+    if (!expectedDiagnostic) {
+      assert.strictEqual(scanner.getTokenText(), text);
+    }
     assert.strictEqual(scanner.getTokenValue(), expectedValue);
   }
 
@@ -202,17 +212,22 @@ describe("scanner", () => {
 
   it("scans triple-quoted strings", () => {
     scanString(
+      // NOTE: sloppy blank line formatting and trailing whitespace after open
+      //       quotes above is deliberate here and deliberately tolerated by
+      //       the scanner.
       `"""   
       This is a triple-quoted string
 
   
-      
-      And this is another line
+      "You do not need to escape lone quotes"
+      You can use escape sequences: \\r \\n \\t \\\\ \\"
       """`,
-      // NOTE: sloppy blank line formatting and trailing whitespace after open
-      //       quotes above is deliberately tolerated.
-      "This is a triple-quoted string\n\n\n\nAnd this is another line"
+      'This is a triple-quoted string\n\n\n"You do not need to escape lone quotes"\nYou can use escape sequences: \r \n \t \\ "'
     );
+  });
+
+  it("normalizes CRLF to LF in multi-line string", () => {
+    scanString('"""\r\nThis\r\nis\r\na\r\ntest\r\n"""', "This\nis\na\ntest");
   });
 
   it("provides token position", () => {
@@ -263,14 +278,15 @@ describe("scanner", () => {
     const nonStatementKeywords = [Token.ExtendsKeyword, Token.TrueKeyword, Token.FalseKeyword];
     let minKeywordLengthFound = Number.MAX_SAFE_INTEGER;
     let maxKeywordLengthFound = Number.MIN_SAFE_INTEGER;
-    let minKeywordStartCharFound = Number.MAX_SAFE_INTEGER;
-    let maxKeywordStartCharFound = Number.MIN_SAFE_INTEGER;
 
-    for (const [name, token] of Keywords.entries()) {
+    for (const [name, token] of Keywords) {
+      assert.match(
+        name,
+        /^[a-z]+$/,
+        "We need to change the keyword lookup algorithm in the scanner if we ever add a keyword that is not all lowercase ascii letters."
+      );
       minKeywordLengthFound = Math.min(minKeywordLengthFound, name.length);
       maxKeywordLengthFound = Math.max(maxKeywordLengthFound, name.length);
-      minKeywordStartCharFound = Math.min(minKeywordStartCharFound, name.charCodeAt(0));
-      maxKeywordStartCharFound = Math.max(maxKeywordStartCharFound, name.charCodeAt(0));
 
       assert.strictEqual(TokenDisplay[token], `'${name}'`);
       assert(isKeyword(token), `${name} should be classified as a keyword`);
@@ -289,15 +305,10 @@ describe("scanner", () => {
       KeywordLimit.MaxLength,
       `max keyword length is incorrect, set KeywordLimit.MaxLength to ${maxKeywordLengthFound}`
     );
-    assert.strictEqual(
-      minKeywordStartCharFound,
-      KeywordLimit.MinStartChar,
-      `min keyword start char is incorrect, set KeywordLimit.MinStartChar to ${minKeywordStartCharFound}`
-    );
-    assert.strictEqual(
-      maxKeywordStartCharFound,
-      KeywordLimit.MaxStartChar,
-      `max keyword start char is incorrect, set KeywordLimit.MaxStartChar to ${maxKeywordStartCharFound}`
+
+    assert(
+      maxKeywordLengthFound < 11,
+      "We need to change the keyword lookup algorithm in the scanner if we ever add a keyword with 11 characters or more."
     );
 
     // check single character punctuation
@@ -317,15 +328,15 @@ describe("scanner", () => {
 
     // check the rest
     assert.strictEqual(TokenDisplay[Token.Elipsis], "'...'");
-    assert.strictEqual(TokenDisplay[Token.None], "<none>");
-    assert.strictEqual(TokenDisplay[Token.Invalid], "<invalid>");
-    assert.strictEqual(TokenDisplay[Token.EndOfFile], "<end of file>");
-    assert.strictEqual(TokenDisplay[Token.SingleLineComment], "<single-line comment>");
-    assert.strictEqual(TokenDisplay[Token.MultiLineComment], "<multi-line comment>");
-    assert.strictEqual(TokenDisplay[Token.NewLine], "<newline>");
-    assert.strictEqual(TokenDisplay[Token.Whitespace], "<whitespace>");
-    assert.strictEqual(TokenDisplay[Token.ConflictMarker], "<conflict marker>");
-    assert.strictEqual(TokenDisplay[Token.Identifier], "<identifier>");
+    assert.strictEqual(TokenDisplay[Token.None], "none");
+    assert.strictEqual(TokenDisplay[Token.Invalid], "invalid");
+    assert.strictEqual(TokenDisplay[Token.EndOfFile], "end of file");
+    assert.strictEqual(TokenDisplay[Token.SingleLineComment], "single-line comment");
+    assert.strictEqual(TokenDisplay[Token.MultiLineComment], "multi-line comment");
+    assert.strictEqual(TokenDisplay[Token.NewLine], "newline");
+    assert.strictEqual(TokenDisplay[Token.Whitespace], "whitespace");
+    assert.strictEqual(TokenDisplay[Token.ConflictMarker], "conflict marker");
+    assert.strictEqual(TokenDisplay[Token.Identifier], "identifier");
   });
 
   // Search for Other_ID_Start in https://www.unicode.org/Public/UCD/latest/ucd/PropList.txt
