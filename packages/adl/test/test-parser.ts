@@ -1,4 +1,5 @@
 import assert from "assert";
+import { CharCode } from "../compiler/charcode.js";
 import { logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js";
 import { hasParseError, NodeFlags, parse } from "../compiler/parser.js";
 import { ADLScriptNode, SyntaxKind } from "../compiler/types.js";
@@ -223,16 +224,35 @@ describe("syntax", () => {
   });
 
   describe("unterminated tokens", () => {
-    parseErrorEach([
-      ['alias X = "banana', [/Unterminated string literal/]],
-      ['alias X = "banana\\', [/Unterminated string literal/]],
-      ['alias X = """\nbanana', [/Unterminated string literal/]],
-      ['alias X = """\nbanana\\', [/Unterminated string literal/]],
-      ["/* Yada yada yada", [/Unterminated comment/]],
-    ]);
+    parseErrorEach([["/* Yada yada yada", [/Unterminated multi-line comment/]]]);
+
+    const strings = [
+      '"banana',
+      '"banana\\',
+      '"banana\r"',
+      '"banana\n"',
+      '"banana\r\n"',
+      '"banana\u{2028}"',
+      '"banana\u{2029}"',
+      '"""\nbanana',
+      '"""\nbanana\\',
+    ];
+    parseErrorEach(
+      Array.from(strings.entries()).map((e) => [
+        `alias ${String.fromCharCode(CharCode.A + e[0])} = ${e[1]}`,
+        [/Unterminated string literal/],
+        (node) => {
+          const statement = node.statements[0];
+          assert(statement.kind === SyntaxKind.AliasStatement, "alias statement expected");
+          const value = statement.value;
+          assert(value.kind === SyntaxKind.StringLiteral, "string literal expected");
+          assert.strictEqual(value.value, "banana");
+        },
+      ])
+    );
   });
 
-  describe("terminated tokens at EOF with missing semicolon", () => {
+  describe("terminated tokens at EOF", () => {
     parseErrorEach([
       ["alias X = 0x10101", [/';' expected/]],
       ["alias X = 0xBEEF", [/';' expected/]],
@@ -305,16 +325,68 @@ describe("syntax", () => {
     }
   });
 
-  describe("non-ascii identifiers", () => {
-    parseEach([
-      "model Incompréhensible {}",
-      "model 𐌰𐌲 {}",
-      "model Banana𐌰𐌲42Banana {}",
-      "model deaf\u{200c}ly {}", // ZWNJ
-      "model क्‍ष {}", // ZWJ
-    ]);
-    parseErrorEach([["model 😢 {}", [/Invalid character/]]]);
+  describe("identifiers", () => {
+    const good = [
+      "short",
+      "short42",
+      "lowercaseandlong",
+      "lowercaseandlong42",
+      "camelCase",
+      "camelCase42",
+      "PascalCase",
+      "PascalCase42",
+      "has_underscore",
+      "has_$dollar",
+      "_startsWithUnderscore",
+      "$startsWithDollar",
+      "Incompréhensible",
+      "incompréhensible",
+      "IncomprÉhensible",
+      "incomprÉhensible",
+      // leading astral character
+      "𐌰𐌲",
+      // continuing astral character
+      "Banana𐌰𐌲42Banana",
+      "banana𐌰𐌲42banana",
+      // ZWNJ
+      "deaf\u{200c}ly",
+      // ZWJ
+      "क्‍ष",
+    ];
+
+    const bad: [string, RegExp][] = [
+      ["😢", /Invalid character/],
+      ["42", /Identifier expected/],
+      ["true", /Keyword cannot be used as identifier/],
+    ];
+
+    parseEach(
+      good.map((s) => [
+        `model ${s} {}`,
+        (node) => {
+          const statement = node.statements[0];
+          assert(statement.kind === SyntaxKind.ModelStatement, "Model statement expected.");
+          assert.strictEqual(statement.id.sv, s);
+        },
+      ])
+    );
+
+    parseErrorEach(bad.map((e) => [`model ${e[0]} {}`, [e[1]]]));
   });
+});
+
+// smaller repro of previous regen-samples baseline failures
+describe("sample regressions", () => {
+  parseEach([
+    [
+      `/* \\n <-- before string! */ @format("\\\\w") model M {}`,
+      (node) => {
+        assert(node.statements[0].kind === SyntaxKind.ModelStatement);
+        assert(node.statements[0].decorators[0].arguments[0].kind === SyntaxKind.StringLiteral);
+        assert.strictEqual(node.statements[0].decorators[0].arguments[0].value, "\\w");
+      },
+    ],
+  ]);
 
   describe("enum statements", () => {
     parseEach([
@@ -344,7 +416,9 @@ describe("syntax", () => {
   });
 });
 
-function parseEach(cases: (string | [string, (node: ADLScriptNode) => void])[]) {
+type Callback = (node: ADLScriptNode) => void;
+
+function parseEach(cases: (string | [string, Callback])[]) {
   for (const each of cases) {
     const code = typeof each === "string" ? each : each[0];
     const callback = typeof each === "string" ? undefined : each[1];
@@ -377,13 +451,16 @@ function parseEach(cases: (string | [string, (node: ADLScriptNode) => void])[]) 
   }
 }
 
-function parseErrorEach(cases: [string, RegExp[]][]) {
-  for (const [code, matches] of cases) {
+function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhitespace = false) {
+  for (const [code, matches, callback] of cases) {
     it(`doesn't parse ${shorten(code)}`, () => {
       logVerboseTestOutput("=== Source ===");
       logVerboseTestOutput(code);
 
       const astNode = parse(code);
+      if (callback) {
+        callback(astNode);
+      }
       logVerboseTestOutput("\n=== Parse Result ===");
       dumpAST(astNode);
 
@@ -404,7 +481,7 @@ function parseErrorEach(cases: [string, RegExp[]][]) {
 
 function dumpAST(astNode: ADLScriptNode) {
   logVerboseTestOutput((log) => {
-    const hasErrors = hasParseError(astNode); // force flags to initialize
+    hasParseError(astNode); // force flags to initialize
     const json = JSON.stringify(astNode, replacer, 2);
     log(json);
   });
