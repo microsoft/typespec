@@ -58,6 +58,7 @@ export enum Token {
   Question = 25,
   Colon = 26,
   At = 27,
+  // Update MaxPunctuation if anything is added right above here
 
   // Identifiers
   Identifier = 28,
@@ -68,11 +69,15 @@ export enum Token {
   NamespaceKeyword = 31,
   UsingKeyword = 32,
   OpKeyword = 33,
+  EnumKeyword = 34,
+  AliasKeyword = 35,
+  // Update MaxStatementKeyword if anything is added right above here
 
   // Other keywords
-  ExtendsKeyword = 34,
-  TrueKeyword = 35,
-  FalseKeyword = 36,
+  ExtendsKeyword = 36,
+  TrueKeyword = 37,
+  FalseKeyword = 38,
+  // Update MaxKeyword if anything is added right above here
 }
 
 const MinKeyword = Token.ImportKeyword;
@@ -82,7 +87,7 @@ const MinPunctuation = Token.OpenBrace;
 const MaxPunctuation = Token.At;
 
 const MinStatementKeyword = Token.ImportKeyword;
-const MaxStatementKeyword = Token.OpKeyword;
+const MaxStatementKeyword = Token.AliasKeyword;
 
 /** @internal */
 export const TokenDisplay: readonly string[] = [
@@ -120,6 +125,8 @@ export const TokenDisplay: readonly string[] = [
   "'namespace'",
   "'using'",
   "'op'",
+  "'enum'",
+  "'alias'",
   "'extends'",
   "'true'",
   "'false'",
@@ -133,6 +140,8 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["using", Token.UsingKeyword],
   ["op", Token.OpKeyword],
   ["extends", Token.ExtendsKeyword],
+  ["enum", Token.EnumKeyword],
+  ["alias", Token.AliasKeyword],
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
 ]);
@@ -141,7 +150,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
 export const enum KeywordLimit {
   MinLength = 2,
   MaxLength = 9,
-  MinStartChar = CharCode.e,
+  MinStartChar = CharCode.a,
   MaxStartChar = CharCode.u,
 }
 

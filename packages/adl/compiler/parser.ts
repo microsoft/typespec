@@ -11,10 +11,13 @@ import {
 } from "./scanner.js";
 import {
   ADLScriptNode,
+  AliasStatementNode,
   BooleanLiteralNode,
   DecoratorExpressionNode,
   Diagnostic,
   EmptyStatementNode,
+  EnumMemberNode,
+  EnumStatementNode,
   Expression,
   IdentifierNode,
   ImportStatementNode,
@@ -127,6 +130,10 @@ namespace ListKind {
     toleratedDelimiter: Token.Comma,
   } as const;
 
+  export const EnumMembers = {
+    ...ModelProperties,
+  } as const;
+
   const ExpresionsBase = {
     allowEmpty: true,
     delimiter: Token.Comma,
@@ -169,7 +176,6 @@ export function parse(code: string | SourceFile) {
   let missingIdentifierCounter = 0;
   const parseDiagnostics: Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
-
   nextToken();
   return parseADLScript();
 
@@ -211,6 +217,13 @@ export function parse(code: string | SourceFile) {
           break;
         case Token.OpKeyword:
           item = parseOperationStatement(decorators);
+          break;
+        case Token.EnumKeyword:
+          item = parseEnumStatement(decorators);
+          break;
+        case Token.AliasKeyword:
+          reportInvalidDecorators(decorators, "alias statement");
+          item = parseAliasStatement();
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
@@ -274,6 +287,13 @@ export function parse(code: string | SourceFile) {
           break;
         case Token.OpKeyword:
           stmts.push(parseOperationStatement(decorators));
+          break;
+        case Token.EnumKeyword:
+          stmts.push(parseEnumStatement(decorators));
+          break;
+        case Token.AliasKeyword:
+          reportInvalidDecorators(decorators, "alias statement");
+          stmts.push(parseAliasStatement());
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
@@ -402,33 +422,18 @@ export function parse(code: string | SourceFile) {
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword);
 
-    if (parseOptional(Token.Equals)) {
-      const assignment = parseExpression();
-      parseExpected(Token.Semicolon);
+    const heritage: ReferenceExpression[] = parseOptionalModelHeritage();
+    const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
 
-      return {
-        kind: SyntaxKind.ModelStatement,
-        id,
-        heritage: [],
-        templateParameters,
-        assignment,
-        decorators,
-        ...finishNode(pos),
-      };
-    } else {
-      const heritage: ReferenceExpression[] = parseOptionalModelHeritage();
-      const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
-
-      return {
-        kind: SyntaxKind.ModelStatement,
-        id,
-        heritage,
-        templateParameters,
-        decorators,
-        properties,
-        ...finishNode(pos),
-      };
-    }
+    return {
+      kind: SyntaxKind.ModelStatement,
+      id,
+      heritage,
+      templateParameters,
+      decorators,
+      properties,
+      ...finishNode(pos),
+    };
   }
 
   function parseOptionalModelHeritage() {
@@ -480,7 +485,7 @@ export function parse(code: string | SourceFile) {
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode | ModelSpreadPropertyNode {
-    let id =
+    const id =
       token() === Token.StringLiteral
         ? parseStringLiteral()
         : parseIdentifier("Property expected.");
@@ -495,6 +500,68 @@ export function parse(code: string | SourceFile) {
       decorators,
       value,
       optional,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumStatement(decorators: DecoratorExpressionNode[]): EnumStatementNode {
+    const pos = tokenPos();
+    parseExpected(Token.EnumKeyword);
+    const id = parseIdentifier();
+    const members = parseList(ListKind.EnumMembers, parseEnumMember);
+    return {
+      kind: SyntaxKind.EnumStatement,
+      id,
+      decorators,
+      members,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
+    const id =
+      token() === Token.StringLiteral
+        ? parseStringLiteral()
+        : parseIdentifier("Enum member expected.");
+
+    let value: StringLiteralNode | NumericLiteralNode | undefined;
+    if (parseOptional(Token.Colon)) {
+      const expr = parseExpression();
+
+      if (expr.kind === SyntaxKind.StringLiteral || expr.kind === SyntaxKind.NumericLiteral) {
+        value = expr;
+      } else if (getFlag(expr, NodeFlags.ThisNodeHasError)) {
+        parseErrorInNextFinishedNode = true;
+      } else {
+        error("Expected numeric or string literal", expr);
+      }
+    }
+
+    return {
+      kind: SyntaxKind.EnumMember,
+      id,
+      value,
+      decorators,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseAliasStatement(): AliasStatementNode {
+    const pos = tokenPos();
+    parseExpected(Token.AliasKeyword);
+    const id = parseIdentifier();
+    const templateParameters = parseOptionalList(
+      ListKind.TemplateParameters,
+      parseTemplateParameter
+    );
+    parseExpected(Token.Equals);
+    const value = parseExpression();
+    parseExpected(Token.Semicolon);
+    return {
+      kind: SyntaxKind.AliasStatement,
+      id,
+      templateParameters,
+      value,
       ...finishNode(pos),
     };
   }
@@ -541,7 +608,7 @@ export function parse(code: string | SourceFile) {
     }
 
     return {
-      kind: SyntaxKind.UnionExpression,
+      kind: SyntaxKind.IntersectionExpression,
       options,
       ...finishNode(pos),
     };
@@ -1063,8 +1130,19 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
         visitEach(cb, node.heritage) ||
-        visitNode(cb, node.assignment) ||
         visitEach(cb, node.properties)
+      );
+    case SyntaxKind.EnumStatement:
+      return (
+        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.members)
+      );
+    case SyntaxKind.EnumMember:
+      return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.AliasStatement:
+      return (
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.value)
       );
     case SyntaxKind.NamedImport:
       return visitNode(cb, node.id);

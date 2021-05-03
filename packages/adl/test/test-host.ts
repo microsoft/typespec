@@ -1,14 +1,19 @@
 import { readdir, readFile } from "fs/promises";
 import { basename, isAbsolute, join, normalize, relative, resolve, sep } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
+import { CompilerOptions } from "../compiler/options";
+import { Program } from "../compiler/program";
 import { createProgram } from "../compiler/program.js";
 import { CompilerHost, Type } from "../compiler/types";
 
 export interface TestHost {
   addAdlFile(path: string, contents: string): void;
   addJsFile(path: string, contents: any): void;
-  compile(main: string): Promise<Record<string, Type>>;
+  addRealAdlFile(path: string, realPath: string): Promise<void>;
+  addRealJsFile(path: string, realPath: string): Promise<void>;
+  compile(main: string, options?: CompilerOptions): Promise<Record<string, Type>>;
   testTypes: Record<string, Type>;
+  program: Program;
   /**
    * Virtual filesystem used in the tests.
    */
@@ -17,7 +22,7 @@ export interface TestHost {
 
 export async function createTestHost(): Promise<TestHost> {
   const testTypes: Record<string, Type> = {};
-
+  let program: Program = undefined as any; // in practice it will always be initialized
   const virtualFs: { [name: string]: string } = {};
   const jsImports: { [path: string]: Promise<any> } = {};
   const compilerHost: CompilerHost = {
@@ -66,6 +71,17 @@ export async function createTestHost(): Promise<TestHost> {
     },
 
     async stat(path: string) {
+      if (virtualFs.hasOwnProperty(path)) {
+        return {
+          isDirectory() {
+            return false;
+          },
+          isFile() {
+            return true;
+          },
+        };
+      }
+
       for (const fsPath of Object.keys(virtualFs)) {
         if (fsPath.startsWith(path) && fsPath !== path) {
           return {
@@ -79,14 +95,7 @@ export async function createTestHost(): Promise<TestHost> {
         }
       }
 
-      return {
-        isDirectory() {
-          return false;
-        },
-        isFile() {
-          return true;
-        },
-      };
+      throw { code: "ENOENT" };
     },
 
     // symlinks not supported in test-host
@@ -120,7 +129,7 @@ export async function createTestHost(): Promise<TestHost> {
   addJsFile("/.adl/test-lib/test.js", {
     test(_: any, target: Type, name?: string) {
       if (!name) {
-        if (target.kind === "Model" || target.kind === "Namespace") {
+        if (target.kind === "Model" || target.kind === "Namespace" || target.kind === "Enum") {
           name = target.name;
         } else {
           throw new Error("Need to specify a name for test type");
@@ -134,8 +143,13 @@ export async function createTestHost(): Promise<TestHost> {
   return {
     addAdlFile,
     addJsFile,
+    addRealAdlFile,
+    addRealJsFile,
     compile,
     testTypes,
+    get program() {
+      return program;
+    },
     fs: virtualFs,
   };
 
@@ -150,15 +164,35 @@ export async function createTestHost(): Promise<TestHost> {
     jsImports[key] = new Promise((r) => r(contents));
   }
 
-  async function compile(main: string) {
+  async function addRealAdlFile(path: string, existingPath: string) {
+    virtualFs[resolve(compilerHost.getCwd(), path)] = await readFile(existingPath, "utf8");
+  }
+
+  async function addRealJsFile(path: string, existingPath: string) {
+    const key = resolve(compilerHost.getCwd(), path);
+    const exports = await import(pathToFileURL(existingPath).href);
+
+    virtualFs[key] = "";
+    jsImports[key] = exports;
+  }
+
+  async function compile(main: string, options: CompilerOptions = {}) {
+    // default is noEmit
+    if (!options.hasOwnProperty("noEmit")) {
+      options.noEmit = true;
+    }
+
     try {
-      const program = await createProgram(compilerHost, {
+      program = await createProgram(compilerHost, {
         mainFile: main,
-        noEmit: true,
+        ...options,
       });
 
       return testTypes;
     } catch (e) {
+      if (e.diagnostics) {
+        throw e.diagnostics;
+      }
       throw e;
     }
   }

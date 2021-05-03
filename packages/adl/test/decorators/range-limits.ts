@@ -21,9 +21,9 @@ describe("range limiting decorators", () => {
 
     const { A, B } = (await testHost.compile("./")) as { A: ModelType; B: ModelType };
 
-    strictEqual(getMinValue(A.properties.get("foo")!), 15);
-    strictEqual(getMaxValue(A.properties.get("boo")!), 55);
-    strictEqual(getMaxValue(B.properties.get("bar")!), 20);
-    strictEqual(getMinValue(B.properties.get("car")!), 23);
+    strictEqual(getMinValue(testHost.program, A.properties.get("foo")!), 15);
+    strictEqual(getMaxValue(testHost.program, A.properties.get("boo")!), 55);
+    strictEqual(getMaxValue(testHost.program, B.properties.get("bar")!), 20);
+    strictEqual(getMinValue(testHost.program, B.properties.get("car")!), 23);
   });
 });

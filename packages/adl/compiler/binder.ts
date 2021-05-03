@@ -3,7 +3,9 @@ import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   ADLScriptNode,
+  AliasStatementNode,
   Declaration,
+  EnumStatementNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -85,6 +87,12 @@ export function createBinder(): Binder {
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
         break;
+      case SyntaxKind.AliasStatement:
+        bindAliasStatement(node);
+        break;
+      case SyntaxKind.EnumStatement:
+        bindEnumStatement(node);
+        break;
       case SyntaxKind.NamespaceStatement:
         bindNamespaceStatement(node);
         break;
@@ -146,6 +154,16 @@ export function createBinder(): Binder {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     // Initialize locals for type parameters
     node.locals = new SymbolTable();
+  }
+
+  function bindAliasStatement(node: AliasStatementNode) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    // Initialize locals for type parameters
+    node.locals = new SymbolTable();
+  }
+
+  function bindEnumStatement(node: EnumStatementNode) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {
@@ -217,6 +235,7 @@ export function createBinder(): Binder {
 function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.AliasStatement:
       return true;
     case SyntaxKind.NamespaceStatement:
       return node.statements !== undefined;

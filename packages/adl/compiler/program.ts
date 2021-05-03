@@ -32,6 +32,8 @@ export interface Program {
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
   executeDecorator(node: DecoratorExpressionNode, program: Program, type: Type): void;
+  stateSet(key: Symbol): Set<any>;
+  stateMap(key: Symbol): Map<any, any>;
 }
 
 export async function createProgram(
@@ -39,6 +41,8 @@ export async function createProgram(
   options: CompilerOptions
 ): Promise<Program> {
   const buildCbs: any = [];
+  const stateMaps = new Map<Symbol, Map<any, any>>();
+  const stateSets = new Map<Symbol, Set<any>>();
 
   const seenSourceFiles = new Set<string>();
   const program: Program = {
@@ -52,6 +56,8 @@ export async function createProgram(
     executeDecorators,
     executeDecorator,
     getOption,
+    stateMap,
+    stateSet,
     onBuild(cb) {
       buildCbs.push(cb);
     },
@@ -142,7 +148,7 @@ export async function createProgram(
    * just the raw type objects, but literals are treated specially.
    */
   function toJSON(type: Type): Type | string | number | boolean {
-    if ("value" in type) {
+    if (type.kind === "Number" || type.kind === "String" || type.kind === "Boolean") {
       return type.value;
     }
 
@@ -354,6 +360,26 @@ export async function createProgram(
 
   function getOption(key: string): string | undefined {
     return (options.miscOptions || {})[key];
+  }
+
+  function stateMap(key: Symbol): Map<any, any> {
+    let m = stateMaps.get(key);
+    if (!m) {
+      m = new Map();
+      stateMaps.set(key, m);
+    }
+
+    return m;
+  }
+
+  function stateSet(key: Symbol): Set<any> {
+    let s = stateSets.get(key);
+    if (!s) {
+      s = new Set();
+      stateSets.set(key, s);
+    }
+
+    return s;
   }
 }
 

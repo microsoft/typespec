@@ -2,10 +2,15 @@ import { compilerAssert, throwDiagnostic } from "./diagnostics.js";
 import { Program } from "./program.js";
 import {
   ADLScriptNode,
+  AliasStatementNode,
   ArrayExpressionNode,
   BooleanLiteralNode,
   BooleanLiteralType,
   DecoratorSymbol,
+  EnumMemberNode,
+  EnumMemberType,
+  EnumStatementNode,
+  EnumType,
   IdentifierNode,
   IntersectionExpressionNode,
   IntrinsicType,
@@ -131,6 +136,10 @@ export function createChecker(program: Program) {
         return checkModel(node);
       case SyntaxKind.ModelProperty:
         return checkModelProperty(node);
+      case SyntaxKind.AliasStatement:
+        return checkAlias(node);
+      case SyntaxKind.EnumStatement:
+        return checkEnum(node);
       case SyntaxKind.NamespaceStatement:
         return checkNamespace(node);
       case SyntaxKind.OperationStatement:
@@ -162,6 +171,8 @@ export function createChecker(program: Program) {
     switch (type.kind) {
       case "Model":
         return getModelName(type);
+      case "Enum":
+        return getEnumName(type);
       case "Union":
         return type.options.map(getTypeName).join(" | ");
       case "Array":
@@ -180,6 +191,11 @@ export function createChecker(program: Program) {
     const parent = type.namespace;
 
     return parent ? `${getNamespaceString(parent)}.${type.name}` : type.name;
+  }
+
+  function getEnumName(e: EnumType): string {
+    const nsName = getNamespaceString(e.namespace);
+    return nsName ? `${nsName}.${e.name}` : e.name;
   }
 
   function getModelName(model: ModelType) {
@@ -222,7 +238,10 @@ export function createChecker(program: Program) {
     const symbolLinks = getSymbolLinks(sym);
     const args = node.arguments.map(getTypeForNode);
 
-    if (sym.node.kind === SyntaxKind.ModelStatement && !sym.node.assignment) {
+    if (
+      sym.node.kind === SyntaxKind.ModelStatement ||
+      sym.node.kind === SyntaxKind.AliasStatement
+    ) {
       // model statement, possibly templated
       if (sym.node.templateParameters.length === 0) {
         if (args.length > 0) {
@@ -235,14 +254,19 @@ export function createChecker(program: Program) {
           return pendingModelType.type;
         }
 
-        return checkModelStatement(sym.node);
+        return sym.node.kind === SyntaxKind.ModelStatement
+          ? checkModelStatement(sym.node)
+          : checkAlias(sym.node);
       } else {
-        // model is templated, lets instantiate.
+        // declaration is templated, lets instantiate.
 
         if (!symbolLinks.declaredType) {
           // we haven't checked the declared type yet, so do so.
-          checkModelStatement(sym.node);
+          sym.node.kind === SyntaxKind.ModelStatement
+            ? checkModelStatement(sym.node)
+            : checkAlias(sym.node);
         }
+
         if (sym.node.templateParameters!.length > node.arguments.length) {
           throwDiagnostic("Too few template arguments provided.", node);
         }
@@ -285,7 +309,10 @@ export function createChecker(program: Program) {
    * twice at the same time, or if template parameters from more than one template
    * are ever in scope at once.
    */
-  function instantiateTemplate(templateNode: ModelStatementNode, args: Type[]): ModelType {
+  function instantiateTemplate(
+    templateNode: ModelStatementNode | AliasStatementNode,
+    args: Type[]
+  ): Type {
     const symbolLinks = getSymbolLinks(templateNode.symbol!);
     const cached = symbolLinks.instantiations!.get(args) as ModelType;
     if (cached) {
@@ -296,22 +323,31 @@ export function createChecker(program: Program) {
     const oldTemplate = instantiatingTemplate;
     templateInstantiation = args;
     instantiatingTemplate = templateNode;
-    // this cast is invalid once we support templatized `model =`.
-    const type = getTypeForNode(templateNode) as ModelType;
+
+    const type = getTypeForNode(templateNode);
 
     symbolLinks.instantiations!.set(args, type);
-
-    type.templateNode = templateNode;
+    if (type.kind === "Model") {
+      type.templateNode = templateNode;
+    }
     templateInstantiation = oldTis;
     instantiatingTemplate = oldTemplate;
     return type;
   }
 
   function checkUnionExpression(node: UnionExpressionNode): UnionType {
+    const options = node.options.flatMap((o) => {
+      const type = getTypeForNode(o);
+      if (type.kind === "Union") {
+        return type.options;
+      }
+      return type;
+    });
+
     return createType({
       kind: "Union",
       node,
-      options: node.options.map(getTypeForNode),
+      options,
     });
   }
 
@@ -426,7 +462,7 @@ export function createChecker(program: Program) {
   }
 
   function getParentNamespaceType(
-    node: ModelStatementNode | NamespaceStatementNode | OperationStatementNode
+    node: ModelStatementNode | NamespaceStatementNode | OperationStatementNode | EnumStatementNode
   ): NamespaceType | undefined {
     if (!node.namespaceSymbol) return undefined;
 
@@ -578,11 +614,7 @@ export function createChecker(program: Program) {
 
   function checkModel(node: ModelExpressionNode | ModelStatementNode) {
     if (node.kind === SyntaxKind.ModelStatement) {
-      if (node.properties) {
-        return checkModelStatement(node);
-      } else {
-        return checkModelEquals(node);
-      }
+      return checkModelStatement(node);
     } else {
       return checkModelExpression(node);
     }
@@ -672,27 +704,6 @@ export function createChecker(program: Program) {
     return properties;
   }
 
-  function checkModelEquals(node: ModelStatementNode) {
-    // model =
-    // this will likely have to change, as right now `model =` is really just
-    // alias and so disappears. That means you can't easily rename symbols.
-    const assignmentType = getTypeForNode(node.assignment!);
-
-    if (assignmentType.kind === "Model") {
-      const type: ModelType = createType({
-        ...assignmentType,
-        node: node,
-        name: node.id.sv,
-        assignmentType,
-        namespace: getParentNamespaceType(node),
-      });
-
-      return type;
-    }
-
-    return assignmentType;
-  }
-
   function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
     return heritage.map((heritageRef) => {
       const heritageType = getTypeForNode(heritageRef);
@@ -761,6 +772,57 @@ export function createChecker(program: Program) {
     }
   }
 
+  function checkAlias(node: AliasStatementNode): Type {
+    const links = getSymbolLinks(node.symbol!);
+    const instantiatingThisTemplate = instantiatingTemplate === node;
+
+    if (links.declaredType && !instantiatingThisTemplate) {
+      return links.declaredType;
+    }
+
+    const type = getTypeForNode(node.value);
+    if (!instantiatingThisTemplate) {
+      links.declaredType = type;
+      links.instantiations = new TypeInstantiationMap();
+    }
+
+    return type;
+  }
+
+  function checkEnum(node: EnumStatementNode): Type {
+    const links = getSymbolLinks(node.symbol!);
+
+    if (!links.type) {
+      const enumType: EnumType = {
+        kind: "Enum",
+        name: node.id.sv,
+        node,
+        members: [],
+        namespace: getParentNamespaceType(node),
+      };
+
+      node.members.map((m) => enumType.members.push(checkEnumMember(enumType, m)));
+
+      createType(enumType);
+
+      links.type = enumType;
+    }
+
+    return links.type;
+  }
+
+  function checkEnumMember(parentEnum: EnumType, node: EnumMemberNode): EnumMemberType {
+    const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
+    const value = node.value ? node.value.value : undefined;
+    return createType({
+      kind: "EnumMember",
+      enum: parentEnum,
+      name,
+      node,
+      value,
+    });
+  }
+
   // the types here aren't ideal and could probably be refactored.
   function createType<T extends Type>(typeDef: T): T {
     (typeDef as any).templateArguments = templateInstantiation;
@@ -772,6 +834,7 @@ export function createChecker(program: Program) {
   function getLiteralType(node: StringLiteralNode): StringLiteralType;
   function getLiteralType(node: NumericLiteralNode): NumericLiteralType;
   function getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
+  function getLiteralType(node: LiteralNode): LiteralType;
   function getLiteralType(node: LiteralNode): LiteralType {
     let type = program.literalTypes.get(node.value);
     if (type) {

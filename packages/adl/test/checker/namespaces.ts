@@ -326,7 +326,7 @@ describe("blockless namespaces", () => {
       "a.adl",
       `
       import "./b.adl";
-      model M = N.X;
+      model M {x: N.X }
       `
     );
     testHost.addAdlFile(

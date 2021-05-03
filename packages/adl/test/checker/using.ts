@@ -167,7 +167,7 @@ describe("using statements", () => {
       }
       
       namespace M {
-        model X = A;
+        model X { a: A };
       }
       `
     );

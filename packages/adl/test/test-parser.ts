@@ -101,7 +101,11 @@ describe("syntax", () => {
   });
 
   describe("model = statements", () => {
-    parseEach(["model x = y;", "model foo = bar | baz;", "model bar<a, b> = a | b;"]);
+    parseErrorEach([
+      ["model x = y;", [/'{' expected/]],
+      ["model foo = bar | baz;", [/'{' expected/]],
+      ["model bar<a, b> = a | b;", [/'{' expected/]],
+    ]);
   });
 
   describe("model expressions", () => {
@@ -121,7 +125,7 @@ describe("syntax", () => {
   });
 
   describe("template instantiations", () => {
-    parseEach(["model A = Foo<number, string>;", "model B = Foo<number, string>[];"]);
+    parseEach(["model A { x: Foo<number, string>; }", "model B { x: Foo<number, string>[]; }"]);
   });
 
   describe("intersection expressions", () => {
@@ -129,7 +133,7 @@ describe("syntax", () => {
   });
 
   describe("parenthesized expressions", () => {
-    parseEach(["model A = ((B | C) & D)[];"]);
+    parseEach(["model A { x: ((B | C) & D)[]; }"]);
   });
 
   describe("namespace statements", () => {
@@ -165,7 +169,6 @@ describe("syntax", () => {
       `
       model A { };
       model B { }
-      model C = A;
       ;
       namespace I {
         op foo(): number;
@@ -221,25 +224,25 @@ describe("syntax", () => {
 
   describe("unterminated tokens", () => {
     parseErrorEach([
-      ['model X = "banana', [/Unterminated string literal/]],
-      ['model X = "banana\\', [/Unterminated string literal/]],
-      ['model X = """\nbanana', [/Unterminated string literal/]],
-      ['model X = """\nbanana\\', [/Unterminated string literal/]],
+      ['alias X = "banana', [/Unterminated string literal/]],
+      ['alias X = "banana\\', [/Unterminated string literal/]],
+      ['alias X = """\nbanana', [/Unterminated string literal/]],
+      ['alias X = """\nbanana\\', [/Unterminated string literal/]],
       ["/* Yada yada yada", [/Unterminated comment/]],
     ]);
   });
 
   describe("terminated tokens at EOF with missing semicolon", () => {
     parseErrorEach([
-      ["model X = 0x10101", [/';' expected/]],
-      ["model X = 0xBEEF", [/';' expected/]],
-      ["model X = 123", [/';' expected/]],
-      ["model X = 123e45", [/';' expected/]],
-      ["model X = 123.45", [/';' expected/]],
-      ["model X = 123.45e2", [/';' expected/]],
-      ["model X = Banana", [/';' expected/]],
-      ['model X = "Banana"', [/';' expected/]],
-      ['model X = """\nBanana\n"""', [/';' expected/]],
+      ["alias X = 0x10101", [/';' expected/]],
+      ["alias X = 0xBEEF", [/';' expected/]],
+      ["alias X = 123", [/';' expected/]],
+      ["alias X = 123e45", [/';' expected/]],
+      ["alias X = 123.45", [/';' expected/]],
+      ["alias X = 123.45e2", [/';' expected/]],
+      ["alias X = Banana", [/';' expected/]],
+      ['alias X = "Banana"', [/';' expected/]],
+      ['alias X = """\nBanana\n"""', [/';' expected/]],
     ]);
   });
 
@@ -290,13 +293,13 @@ describe("syntax", () => {
       ["0xG", /Hexadecimal digit expected/],
     ];
 
-    parseEach(good.map((c) => [`model M = ${c[0]};`, (node) => isNumericLiteral(node, c[1])]));
-    parseErrorEach(bad.map((c) => [`model M = ${c[0]};`, [c[1]]]));
+    parseEach(good.map((c) => [`alias M = ${c[0]};`, (node) => isNumericLiteral(node, c[1])]));
+    parseErrorEach(bad.map((c) => [`alias M = ${c[0]};`, [c[1]]]));
 
     function isNumericLiteral(node: ADLScriptNode, value: number) {
       const statement = node.statements[0];
-      assert(statement.kind === SyntaxKind.ModelStatement, "model statement expected");
-      const assignment = statement.assignment;
+      assert(statement.kind === SyntaxKind.AliasStatement, "alias statement expected");
+      const assignment = statement.value;
       assert(assignment?.kind === SyntaxKind.NumericLiteral, "numeric literal expected");
       assert.strictEqual(assignment.value, value);
     }
@@ -311,6 +314,33 @@ describe("syntax", () => {
       "model क्‍ष {}", // ZWJ
     ]);
     parseErrorEach([["model 😢 {}", [/Invalid character/]]]);
+  });
+
+  describe("enum statements", () => {
+    parseEach([
+      "enum Foo { }",
+      "enum Foo { a, b }",
+      'enum Foo { a: "hi", c: 10 }',
+      "@foo enum Foo { @bar a, @baz b: 10 }",
+    ]);
+
+    parseErrorEach([
+      ["enum Foo { a: number }", [/Expected numeric or string literal/]],
+      ["enum Foo { a: ; b: ; }", [/Expression expected/, /Expression expected/]],
+      ["enum Foo { ;+", [/Enum member expected/]],
+      ["enum { }", [/Identifier expected/]],
+    ]);
+  });
+
+  describe("alias statements", () => {
+    parseEach(["alias X = 1;", "alias X = A | B;", "alias MaybeUndefined<T> = T | undefined;"]);
+    parseErrorEach([
+      ["@foo alias Bar = 1;", [/Cannot decorate alias statement/]],
+      ["alias Foo =", [/Expression expected/]],
+      ["alias Foo<> =", [/Identifier expected/, /Expression expected/]],
+      ["alias Foo<T> = X |", [/Expression expected/]],
+      ["alias =", [/Identifier expected/]],
+    ]);
   });
 });
 
@@ -359,7 +389,7 @@ function parseErrorEach(cases: [string, RegExp[]][]) {
 
       logVerboseTestOutput("\n=== Diagnostics ===");
       logVerboseTestOutput((log) => logDiagnostics(astNode.parseDiagnostics, log));
-      assert.notStrictEqual(astNode.parseDiagnostics.length, 0);
+      assert.notStrictEqual(astNode.parseDiagnostics.length, 0, "parse diagnostics length");
       let i = 0;
       for (const match of matches) {
         assert.match(astNode.parseDiagnostics[i++].message, match);

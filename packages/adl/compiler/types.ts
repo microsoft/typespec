@@ -10,6 +10,8 @@ export interface BaseType {
 export type Type =
   | ModelType
   | ModelTypeProperty
+  | EnumType
+  | EnumMemberType
   | TemplateParameterType
   | NamespaceType
   | OperationType
@@ -35,7 +37,6 @@ export interface ModelType extends BaseType {
   baseModels: ModelType[];
   templateArguments?: Type[];
   templateNode?: Node;
-  assignmentType?: Type;
 }
 
 export interface ModelTypeProperty {
@@ -47,6 +48,22 @@ export interface ModelTypeProperty {
   // this tracks the property we copied from.
   sourceProperty?: ModelTypeProperty;
   optional: boolean;
+}
+
+export interface EnumType extends BaseType {
+  kind: "Enum";
+  name: string;
+  node: EnumStatementNode;
+  namespace?: NamespaceType;
+  members: EnumMemberType[];
+}
+
+export interface EnumMemberType extends BaseType {
+  kind: "EnumMember";
+  name: string;
+  enum: EnumType;
+  node: EnumMemberNode;
+  value?: string | number;
 }
 
 export interface OperationType {
@@ -166,6 +183,9 @@ export enum SyntaxKind {
   ModelExpression,
   ModelProperty,
   ModelSpreadProperty,
+  EnumStatement,
+  EnumMember,
+  AliasStatement,
   UnionExpression,
   IntersectionExpression,
   TupleExpression,
@@ -190,7 +210,7 @@ export type Node =
   | ModelPropertyNode
   | OperationStatementNode
   | NamedImportNode
-  | ModelPropertyNode
+  | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | Statement
@@ -214,6 +234,8 @@ export type Statement =
   | ModelStatementNode
   | NamespaceStatementNode
   | UsingStatementNode
+  | EnumStatementNode
+  | AliasStatementNode
   | OperationStatementNode
   | EmptyStatementNode
   | InvalidStatementNode;
@@ -227,9 +249,15 @@ export type Declaration =
   | ModelStatementNode
   | NamespaceStatementNode
   | OperationStatementNode
-  | TemplateParameterDeclarationNode;
+  | TemplateParameterDeclarationNode
+  | EnumStatementNode
+  | AliasStatementNode;
 
-export type ScopeNode = NamespaceStatementNode | ModelStatementNode | ADLScriptNode;
+export type ScopeNode =
+  | NamespaceStatementNode
+  | ModelStatementNode
+  | AliasStatementNode
+  | ADLScriptNode;
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
@@ -300,10 +328,31 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode {
   id: IdentifierNode;
   properties?: (ModelPropertyNode | ModelSpreadPropertyNode)[];
   heritage: ReferenceExpression[];
-  assignment?: Expression;
   templateParameters: TemplateParameterDeclarationNode[];
   locals?: SymbolTable;
   decorators: DecoratorExpressionNode[];
+}
+
+export interface EnumStatementNode extends BaseNode, DeclarationNode {
+  kind: SyntaxKind.EnumStatement;
+  id: IdentifierNode;
+  members: EnumMemberNode[];
+  decorators: DecoratorExpressionNode[];
+}
+
+export interface EnumMemberNode extends BaseNode {
+  kind: SyntaxKind.EnumMember;
+  id: IdentifierNode | StringLiteralNode;
+  value?: StringLiteralNode | NumericLiteralNode;
+  decorators: DecoratorExpressionNode[];
+}
+
+export interface AliasStatementNode extends BaseNode, DeclarationNode {
+  kind: SyntaxKind.AliasStatement;
+  id: IdentifierNode;
+  value: Expression;
+  templateParameters: TemplateParameterDeclarationNode[];
+  locals?: SymbolTable;
 }
 
 export interface InvalidStatementNode extends BaseNode {

@@ -29,7 +29,7 @@ const identifierContinue = "[_$[:alnum:]]";
 const beforeIdentifier = `(?=${identifierStart})`;
 const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
-const statementKeyword = `\\b(?:namespace|model|op|using|import)\\b`;
+const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
 const hexNumber = "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)";
 const binaryNumber = "\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)";
@@ -210,6 +210,28 @@ const modelStatement: BeginEndRule = {
   ],
 };
 
+const enumStatement: BeginEndRule = {
+  key: "enum-statement",
+  scope: meta,
+  begin: "\\b(enum)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.adl" },
+  },
+  end: `(?<=\\})|${universalEnd}`,
+  patterns: [token, expression],
+};
+
+const aliasStatement: BeginEndRule = {
+  key: "alias-statement",
+  scope: meta,
+  begin: "\\b(alias)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.adl" },
+  },
+  end: universalEnd,
+  patterns: [token, expression],
+};
+
 const namespaceName: BeginEndRule = {
   key: "namespace-name",
   scope: meta,
@@ -316,6 +338,8 @@ statement.patterns = [
   token,
   decorator,
   modelStatement,
+  enumStatement,
+  aliasStatement,
   namespaceStatement,
   operationStatement,
   importStatement,

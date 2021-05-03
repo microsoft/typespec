@@ -123,6 +123,11 @@ describe("scanner", () => {
     ]);
   });
 
+  it("scans intersections", () => {
+    const all = tokens("A&B");
+    verify(all, [[Token.Identifier, "A"], [Token.Ampersand], [Token.Identifier, "B"]]);
+  });
+
   it("scans decorator expressions", () => {
     const all = tokens('@foo(1,"hello",foo)');
 
@@ -274,10 +279,26 @@ describe("scanner", () => {
       }
     }
 
-    assert.strictEqual(minKeywordLengthFound, KeywordLimit.MinLength);
-    assert.strictEqual(maxKeywordLengthFound, KeywordLimit.MaxLength);
-    assert.strictEqual(minKeywordStartCharFound, KeywordLimit.MinStartChar);
-    assert.strictEqual(maxKeywordStartCharFound, KeywordLimit.MaxStartChar);
+    assert.strictEqual(
+      minKeywordLengthFound,
+      KeywordLimit.MinLength,
+      `min keyword length is incorrect, set KeywordLimit.MinLength to ${minKeywordLengthFound}`
+    );
+    assert.strictEqual(
+      maxKeywordLengthFound,
+      KeywordLimit.MaxLength,
+      `max keyword length is incorrect, set KeywordLimit.MaxLength to ${maxKeywordLengthFound}`
+    );
+    assert.strictEqual(
+      minKeywordStartCharFound,
+      KeywordLimit.MinStartChar,
+      `min keyword start char is incorrect, set KeywordLimit.MinStartChar to ${minKeywordStartCharFound}`
+    );
+    assert.strictEqual(
+      maxKeywordStartCharFound,
+      KeywordLimit.MaxStartChar,
+      `max keyword start char is incorrect, set KeywordLimit.MaxStartChar to ${maxKeywordStartCharFound}`
+    );
 
     // check single character punctuation
     for (let i = 33; i <= 126; i++) {
