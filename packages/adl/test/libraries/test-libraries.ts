@@ -4,7 +4,7 @@ import { NodeHost } from "../../compiler/util.js";
 
 const libs = ["simple"];
 
-describe("libraries", () => {
+describe("adl: libraries", () => {
   for (const lib of libs) {
     describe(lib, () => {
       it("compiles without error", async () => {

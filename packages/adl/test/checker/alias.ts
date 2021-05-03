@@ -2,7 +2,7 @@ import { ok, strictEqual } from "assert";
 import { ModelType, UnionType } from "../../compiler/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("aliases", () => {
+describe("adl: aliases", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

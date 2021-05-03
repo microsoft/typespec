@@ -4,7 +4,7 @@ import { logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js
 import { hasParseError, NodeFlags, parse } from "../compiler/parser.js";
 import { ADLScriptNode, SyntaxKind } from "../compiler/types.js";
 
-describe("syntax", () => {
+describe("adl: syntax", () => {
   describe("import statements", () => {
     parseEach(['import "x";']);
 
@@ -373,20 +373,20 @@ describe("syntax", () => {
 
     parseErrorEach(bad.map((e) => [`model ${e[0]} {}`, [e[1]]]));
   });
-});
 
-// smaller repro of previous regen-samples baseline failures
-describe("sample regressions", () => {
-  parseEach([
-    [
-      `/* \\n <-- before string! */ @format("\\\\w") model M {}`,
-      (node) => {
-        assert(node.statements[0].kind === SyntaxKind.ModelStatement);
-        assert(node.statements[0].decorators[0].arguments[0].kind === SyntaxKind.StringLiteral);
-        assert.strictEqual(node.statements[0].decorators[0].arguments[0].value, "\\w");
-      },
-    ],
-  ]);
+  // smaller repro of previous regen-samples baseline failures
+  describe("sample regressions", () => {
+    parseEach([
+      [
+        `/* \\n <-- before string! */ @format("\\\\w") model M {}`,
+        (node) => {
+          assert(node.statements[0].kind === SyntaxKind.ModelStatement);
+          assert(node.statements[0].decorators[0].arguments[0].kind === SyntaxKind.StringLiteral);
+          assert.strictEqual(node.statements[0].decorators[0].arguments[0].value, "\\w");
+        },
+      ],
+    ]);
+  });
 
   describe("enum statements", () => {
     parseEach([

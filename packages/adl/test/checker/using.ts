@@ -2,7 +2,7 @@ import { rejects, strictEqual } from "assert";
 import { ModelType } from "../../compiler/types";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("using statements", () => {
+describe("adl: using statements", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

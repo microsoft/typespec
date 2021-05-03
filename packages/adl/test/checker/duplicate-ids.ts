@@ -1,7 +1,7 @@
 import { rejects } from "assert";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("duplicate declarations", () => {
+describe("adl: duplicate declarations", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

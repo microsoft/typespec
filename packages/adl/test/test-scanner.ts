@@ -92,7 +92,7 @@ function verify(tokens: TokenEntry[], expecting: TokenEntry[]) {
   }
 }
 
-describe("scanner", () => {
+describe("adl: scanner", () => {
   /** verifies that we can scan tokens and get back some output. */
   it("smoketest", () => {
     const all = tokens('\tthis is "a" test');

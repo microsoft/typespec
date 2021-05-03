@@ -2,7 +2,7 @@ import { ok, strictEqual } from "assert";
 import { ModelType, NamespaceType, Type } from "../../compiler/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("namespaces with blocks", () => {
+describe("adl: namespaces with blocks", () => {
   const blues = new WeakSet();
   function blue(_: any, target: Type) {
     blues.add(target);
@@ -152,7 +152,7 @@ describe("namespaces with blocks", () => {
   });
 });
 
-describe("blockless namespaces", () => {
+describe("adl: blockless namespaces", () => {
   const blues = new WeakSet();
   function blue(_: any, target: Type) {
     blues.add(target);

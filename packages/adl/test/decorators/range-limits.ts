@@ -3,7 +3,7 @@ import { ModelType } from "../../compiler/types.js";
 import { getMaxValue, getMinValue } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("range limiting decorators", () => {
+describe("adl: range limiting decorators", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
