@@ -43,6 +43,11 @@ const weights = {
 main();
 
 function main() {
+  if (process.argv[2] !== "run") {
+    throw new Error(
+      "Correct usage is `node fuzz.js run`. Is there a missing/incorrect mocha exclude pattern causing this to load?"
+    );
+  }
   const iterations = 10000;
   console.log("Running parser fuzz test with 1000 iterations...");
   fuzzTest(iterations);

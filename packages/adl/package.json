@@ -40,7 +40,7 @@
     "test": "mocha --timeout 5000 --require source-map-support/register --ignore 'dist/test/manual/**/*.js' 'dist/test/**/*.js'",
     "regen-samples": "node scripts/regen-samples.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
-    "fuzz": "node dist/test/manual/fuzz.js"
+    "fuzz": "node dist/test/manual/fuzz.js run"
   },
   "dependencies": {
     "autorest": "~3.0.6335",
