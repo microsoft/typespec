@@ -40,13 +40,8 @@ if (proc.status != 0 || proc.error || !proc.stdout) {
     // In official build on Windows, it's an error if VS is not found.
     console.error(`error: ${message}`);
     process.exit(1);
-  } else if (proc.error?.code === "ENOENT") {
-    // If developer has no version of VS installed, skip build without warning.
-    console.log(`Skipping adl-vs build: ${message}.`);
-    process.exit(0);
   } else {
-    // If developer has VS but it's not recent enough, skip build with warning.
-    console.error(`warning: ${message}. Skipping adl-vs build.`);
+    console.log(`Skipping adl-vs build: ${message}.`);
     process.exit(0);
   }
 }
