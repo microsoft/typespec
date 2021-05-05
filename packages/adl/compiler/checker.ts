@@ -413,19 +413,7 @@ export function createChecker(program: Program) {
     }
 
     if (Array.isArray(node.statements)) {
-      for (const statement of node.statements.map(getTypeForNode)) {
-        switch (statement.kind) {
-          case "Model":
-            type.models.set(statement.name, statement);
-            break;
-          case "Operation":
-            type.operations.set(statement.name, statement);
-            break;
-          case "Namespace":
-            type.namespaces.set(statement.name, statement);
-            break;
-        }
-      }
+      node.statements.forEach(getTypeForNode);
     } else if (node.statements) {
       const subNs = checkNamespace(node.statements);
       type.namespaces.set(subNs.name, subNs);
@@ -439,16 +427,18 @@ export function createChecker(program: Program) {
     const symbolLinks = getSymbolLinks(node.symbol);
     if (!symbolLinks.type) {
       // haven't seen this namespace before
+      const namespace = getParentNamespaceType(node);
+      const name = node.name.sv;
       const type: NamespaceType = createType({
         kind: "Namespace",
-        name: node.name.sv,
-        namespace: getParentNamespaceType(node),
-        node: node,
+        name,
+        namespace,
+        node,
         models: new Map(),
         operations: new Map(),
         namespaces: new Map(),
       });
-
+      namespace?.namespaces.set(name, type);
       symbolLinks.type = type;
     } else {
       // seen it before, need to execute the decorators on this node
@@ -472,14 +462,18 @@ export function createChecker(program: Program) {
   }
 
   function checkOperation(node: OperationStatementNode): OperationType {
-    return createType({
+    const namespace = getParentNamespaceType(node);
+    const name = node.id.sv;
+    const type = createType({
       kind: "Operation",
-      name: node.id.sv,
-      namespace: getParentNamespaceType(node),
-      node: node,
+      name,
+      namespace,
+      node,
       parameters: getTypeForNode(node.parameters) as ModelType,
       returnType: getTypeForNode(node.returnType),
     });
+    namespace?.operations.set(name, type);
+    return type;
   }
 
   function checkTupleExpression(node: TupleExpressionNode): TupleType {
@@ -660,6 +654,7 @@ export function createChecker(program: Program) {
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
       links.instantiations = new TypeInstantiationMap();
+      type.namespace?.models.set(type.name, type);
     }
 
     // The model is fully created now

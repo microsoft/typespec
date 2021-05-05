@@ -150,6 +150,27 @@ describe("adl: namespaces with blocks", () => {
     );
     await testHost.compile("./");
   });
+
+  it("accumulates declarations inside of it", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      @test namespace Foo {
+        namespace Bar { };
+        op Baz(): {};
+        model Qux { };
+      }
+      `
+    );
+
+    const { Foo } = (await testHost.compile("/a.adl")) as {
+      Foo: NamespaceType;
+    };
+
+    strictEqual(Foo.operations.size, 1);
+    strictEqual(Foo.models.size, 1);
+    strictEqual(Foo.namespaces.size, 1);
+  });
 });
 
 describe("adl: blockless namespaces", () => {
@@ -338,5 +359,25 @@ describe("adl: blockless namespaces", () => {
     );
 
     await testHost.compile("/a.adl");
+  });
+
+  it("accumulates declarations inside of it", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      @test namespace Foo;
+      namespace Bar { };
+      op Baz(): {};
+      model Qux { };
+      `
+    );
+
+    const { Foo } = (await testHost.compile("/a.adl")) as {
+      Foo: NamespaceType;
+    };
+
+    strictEqual(Foo.operations.size, 1);
+    strictEqual(Foo.models.size, 1);
+    strictEqual(Foo.namespaces.size, 1);
   });
 });
