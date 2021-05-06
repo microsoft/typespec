@@ -1,6 +1,26 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Tue, 20 Apr 2021 15:23:29 GMT and should not be manually modified.
+This log was last generated on Thu, 06 May 2021 14:56:02 GMT and should not be manually modified.
+
+## 0.10.0
+Thu, 06 May 2021 14:56:02 GMT
+
+### Minor changes
+
+- Implement alias and enum, remove model =
+- Implement basic parser error recovery
+- Add API to check if a node or any descendants have parse errors
+
+### Patches
+
+- Small parsing speed improvement when expecting one of N tokens.
+- Fix blockless namespaces not accumulating decls
+- Allow leading +/- in numeric literals and require fractional digits
+- Fix bugs with non-ascii identifiers
+- Improve CLI experience for generate command
+- Replace several internal compiler errors with diagnostics
+- Do not allow multi-line non-triple-quoted string literals
+- Fix parsing edge cases and optimize parsing slightly
 
 ## 0.9.0
 Tue, 20 Apr 2021 15:23:29 GMT

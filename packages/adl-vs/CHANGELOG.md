@@ -1,6 +1,11 @@
 # Change Log - @azure-tools/adl-vs
 
-This log was last generated on Tue, 20 Apr 2021 15:23:29 GMT and should not be manually modified.
+This log was last generated on Thu, 06 May 2021 14:56:02 GMT and should not be manually modified.
+
+## 0.1.4
+Thu, 06 May 2021 14:56:02 GMT
+
+_Version update only_
 
 ## 0.1.3
 Tue, 20 Apr 2021 15:23:29 GMT
