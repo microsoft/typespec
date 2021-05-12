@@ -1,5 +1,10 @@
 import { ExtensionContext, workspace } from "vscode";
-import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
+import {
+  Executable,
+  ExecutableOptions,
+  LanguageClient,
+  LanguageClientOptions,
+} from "vscode-languageclient/node.js";
 
 let client: LanguageClient | undefined;
 
@@ -50,7 +55,14 @@ function resolveADLServer(context: ExtensionContext): Executable {
     command += ".cmd";
   }
 
-  return { command, args, options: { env: { NODE_OPTIONS: nodeOptions } } };
+  let options: ExecutableOptions | undefined;
+  if (nodeOptions) {
+    options = {
+      env: { ...process.env, NODE_OPTIONS: nodeOptions },
+    };
+  }
+
+  return { command, args, options };
 }
 
 export async function deactivate() {
