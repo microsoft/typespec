@@ -8,6 +8,7 @@ import yargs from "yargs";
 import { CompilerOptions } from "../compiler/options.js";
 import { compile } from "../compiler/program.js";
 import { compilerAssert, DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
+import { formatADLFiles } from "./formatter.js";
 import { adlVersion, NodeHost } from "./util.js";
 
 const args = yargs(process.argv.slice(2))
@@ -88,6 +89,13 @@ const args = yargs(process.argv.slice(2))
       .demandCommand(1, "No command specified")
       .command("install", "Install Visual Studio Extension.")
       .command("uninstall", "Uninstall VS Extension");
+  })
+  .command("format <include...>", "Format given list of adl files.", (cmd) => {
+    return cmd.positional("include", {
+      description: "Wildcard pattern of the list of files.",
+      type: "string",
+      array: true,
+    });
   })
   .option("debug", {
     type: "boolean",
@@ -318,6 +326,9 @@ async function main() {
           await uninstallVSExtension();
           break;
       }
+    case "format":
+      await formatADLFiles(args["include"]!);
+      break;
   }
 }
 

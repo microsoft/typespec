@@ -116,7 +116,7 @@ function getUrl(pkg) {
 }
 
 async function getLicense(packageRoot) {
-  for (const licenseName of ["LICENSE", "LICENSE.txt", "LICENSE.md"]) {
+  for (const licenseName of ["LICENSE", "LICENSE.txt", "LICENSE.md", "LICENSE-MIT"]) {
     const licensePath = join(packageRoot, licenseName);
     try {
       let text = (await readFile(licensePath)).toString("utf-8");

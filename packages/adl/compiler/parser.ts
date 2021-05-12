@@ -2,6 +2,7 @@ import { createSymbolTable } from "./binder.js";
 import { compilerAssert, createDiagnostic, DiagnosticTarget, Message } from "./diagnostics.js";
 import {
   createScanner,
+  isComment,
   isKeyword,
   isPunctuation,
   isStatementKeyword,
@@ -13,6 +14,7 @@ import {
   ADLScriptNode,
   AliasStatementNode,
   BooleanLiteralNode,
+  Comment,
   DecoratorExpressionNode,
   Diagnostic,
   EmptyStatementNode,
@@ -169,13 +171,22 @@ namespace ListKind {
   } as const;
 }
 
-export function parse(code: string | SourceFile) {
+export interface ParseOptions {
+  /**
+   * Include comments in resulting output.
+   */
+  comments?: boolean;
+}
+
+export function parse(code: string | SourceFile, options: ParseOptions = {}): ADLScriptNode {
   let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
   const parseDiagnostics: Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
+  const comments: Comment[] = [];
+
   nextToken();
   return parseADLScript();
 
@@ -192,6 +203,7 @@ export function parse(code: string | SourceFile) {
       locals: createSymbolTable(),
       inScopeNamespaces: [],
       parseDiagnostics,
+      comments,
       ...finishNode(0),
     };
   }
@@ -813,15 +825,33 @@ export function parse(code: string | SourceFile) {
     return scanner.tokenPosition;
   }
 
+  function tokenEndPos() {
+    return scanner.position;
+  }
+
   function nextToken() {
     // keep track of the previous token end separately from the current scanner
     // position as these will differ when the previous token had trailing
     // trivia, and we don't want to squiggle the trivia.
     previousTokenEnd = scanner.position;
 
-    do {
+    for (;;) {
       scanner.scan();
-    } while (isTrivia(token()));
+      if (isTrivia(token())) {
+        if (options.comments && isComment(token())) {
+          comments.push({
+            kind:
+              token() === Token.SingleLineComment
+                ? SyntaxKind.LineComment
+                : SyntaxKind.BlockComment,
+            pos: tokenPos(),
+            end: tokenEndPos(),
+          });
+        }
+      } else {
+        break;
+      }
+    }
   }
 
   function createMissingIdentifier(): IdentifierNode {

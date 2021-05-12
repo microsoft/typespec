@@ -197,6 +197,8 @@ export enum SyntaxKind {
   TemplateParameterDeclaration,
   EmptyStatement,
   InvalidStatement,
+  LineComment,
+  BlockComment,
 }
 
 export interface BaseNode extends TextRange {
@@ -216,6 +218,15 @@ export type Node =
   | Statement
   | Expression;
 
+export type Comment = LineComment | BlockComment;
+
+export interface LineComment extends TextRange {
+  kind: SyntaxKind.LineComment;
+}
+export interface BlockComment extends TextRange {
+  kind: SyntaxKind.BlockComment;
+}
+
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
   statements: Statement[];
@@ -226,6 +237,7 @@ export interface ADLScriptNode extends BaseNode {
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
   locals: SymbolTable;
   usings: UsingStatementNode[];
+  comments: Comment[];
   parseDiagnostics: Diagnostic[];
 }
 

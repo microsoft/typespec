@@ -228,6 +228,10 @@ export function isTrivia(token: Token) {
   );
 }
 
+export function isComment(token: Token) {
+  return token === Token.SingleLineComment || token === Token.MultiLineComment;
+}
+
 export function isKeyword(token: Token) {
   return token >= MinKeyword && token <= MaxKeyword;
 }
