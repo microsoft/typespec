@@ -104,13 +104,22 @@ export function printAliasStatement(
   options: ADLPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
   const id = path.call(print, "id");
-  const template =
-    node.templateParameters.length === 0
-      ? ""
-      : concat(["<", join(", ", path.map(print, "templateParameters")), ">"]);
+  const template = printTemplateParameters(path, options, print, "templateParameters");
   return concat(["alias ", id, template, " = ", path.call(print, "value"), ";"]);
+}
+
+function printTemplateParameters<T extends Node>(
+  path: FastPath<T>,
+  options: ADLPrettierOptions,
+  print: PrettierChildPrint,
+  propertyName: keyof T
+) {
+  const value = path.getValue()[propertyName];
+  if ((value as any).length === 0) {
+    return "";
+  }
+  return concat(["<", join(", ", path.map(print, propertyName)), ">"]);
 }
 
 export function canAttachComment(node: Node): boolean {
@@ -369,10 +378,12 @@ export function printModelStatement(
   const heritage =
     node.heritage.length > 0 ? concat(["extends ", path.map(print, "heritage")[0], " "]) : "";
 
+  const generic = printTemplateParameters(path, options, print, "templateParameters");
   return concat([
     printDecorators(path, options, print, { tryInline: false }),
     "model ",
     id,
+    generic,
     " ",
     heritage,
     printModelPropertiesBlock(path, options, print),
@@ -592,9 +603,7 @@ export function printTypeReference(
   options: ADLPrettierOptions,
   print: PrettierChildPrint
 ): prettier.doc.builders.Doc {
-  const node = path.getValue();
   const type = path.call(print, "target");
-  const template =
-    node.arguments.length === 0 ? "" : concat(["<", join(", ", path.map(print, "arguments")), ">"]);
+  const template = printTemplateParameters(path, options, print, "arguments");
   return concat([type, template]);
 }

@@ -60,4 +60,8 @@ describe("Format scenarios", () => {
   it("alias", async () => {
     await testScenario("alias.adl");
   });
+
+  it("model", async () => {
+    await testScenario("model.adl");
+  });
 });

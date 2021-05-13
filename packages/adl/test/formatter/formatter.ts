@@ -124,6 +124,18 @@ model Bar extends Base<string> {}
 `,
       });
     });
+
+    it("format model with generic", () => {
+      assertFormat({
+        code: `
+model   Foo < T   >{
+}
+`,
+        expected: `
+model Foo<T> {}
+`,
+      });
+    });
   });
 
   describe("comments", () => {
