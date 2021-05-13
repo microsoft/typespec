@@ -5,4 +5,5 @@ export interface CompilerOptions {
   swaggerOutputFile?: string;
   nostdlib?: boolean;
   noEmit?: boolean;
+  serviceCodePath?: string;
 }
