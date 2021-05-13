@@ -2,6 +2,7 @@ import { readFile, writeFile } from "fs/promises";
 import glob from "glob";
 import prettier from "prettier";
 import * as adlPrettierPlugin from "../formatter/index.js";
+import { PrettierParserError } from "../formatter/parser.js";
 
 export async function formatADL(code: string): Promise<string> {
   const output = prettier.format(code, {
@@ -15,10 +16,19 @@ export async function formatADL(code: string): Promise<string> {
  * Format all the adl files.
  * @param patterns List of wildcard pattern searching for adl files.
  */
-export async function formatADLFiles(patterns: string[]) {
+export async function formatADLFiles(patterns: string[], { debug }: { debug?: boolean }) {
   const files = await findFiles(patterns);
   for (const file of files) {
-    await formatADLFile(file);
+    try {
+      await formatADLFile(file);
+    } catch (e) {
+      if (e instanceof PrettierParserError) {
+        const details = debug ? e.message : "";
+        console.error(`File '${file}' failed to fromat. ${details}`);
+      } else {
+        throw e;
+      }
+    }
   }
 }
 

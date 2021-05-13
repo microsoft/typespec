@@ -327,7 +327,7 @@ async function main() {
           break;
       }
     case "format":
-      await formatADLFiles(args["include"]!);
+      await formatADLFiles(args["include"]!, { debug: args.debug });
       break;
   }
 }

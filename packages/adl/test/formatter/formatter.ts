@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { strictEqual, throws } from "assert";
 import prettier from "prettier";
 import * as plugin from "../../formatter/index.js";
 
@@ -16,6 +16,12 @@ function assertFormat({ code, expected }: { code: string; expected: string }) {
 }
 
 describe("adl: prettier formatter", () => {
+  it("throws error if there is a parsing issue", () => {
+    const code = `namespace this is invalid`;
+
+    throws(() => format(code));
+  });
+
   it("format imports", () => {
     assertFormat({
       code: `
@@ -191,11 +197,11 @@ alias Bar = "one" | "two";
     it("format generic alias", () => {
       assertFormat({
         code: `
-alias     Foo<   A,     B>   = A     |    B
+alias     Foo<   A,     B>   = A     |    B;
 alias     Bar<   
     A,     B>   = 
     A     |   
- B
+ B;
 `,
         expected: `
 alias Foo<A, B> = A | B;
@@ -317,12 +323,19 @@ enum Bar {
       assertFormat({
         code: `
 namespace     Foo;
-
-namespace Foo     .   Bar;
 `,
         expected: `
 namespace Foo;
+`,
+      });
+    });
 
+    it("format global nested namespace", () => {
+      assertFormat({
+        code: `
+namespace Foo     .   Bar;
+`,
+        expected: `
 namespace Foo.Bar;
 `,
       });
@@ -371,8 +384,7 @@ namespace Foo.Bar {
       assertFormat({
         code: `
 namespace     Foo { 
-  
-namespace Foo     .   Bar { 
+namespace   Bar { 
 op some(): string;
 }
 }
@@ -381,7 +393,7 @@ op some(): string;
 `,
         expected: `
 namespace Foo {
-  namespace Foo.Bar {
+  namespace Bar {
     op some(): string;
   }
 }
