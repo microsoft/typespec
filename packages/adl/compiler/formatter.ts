@@ -3,8 +3,6 @@ import glob from "glob";
 import prettier from "prettier";
 import * as adlPrettierPlugin from "../formatter/index.js";
 
-export class ADLPrettierPluginNotFound extends Error {}
-
 export async function formatADL(code: string): Promise<string> {
   const output = prettier.format(code, {
     parser: "adl",
