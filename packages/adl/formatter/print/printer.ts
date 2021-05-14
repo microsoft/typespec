@@ -14,9 +14,12 @@ import {
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
+  NumericLiteralNode,
   OperationStatementNode,
   Statement,
+  StringLiteralNode,
   SyntaxKind,
+  TextRange,
   TypeReferenceNode,
   UnionExpressionNode,
 } from "../../compiler/types.js";
@@ -77,9 +80,9 @@ export function printADL(
     case SyntaxKind.Identifier:
       return node.sv;
     case SyntaxKind.StringLiteral:
-      return `"${node.value}"`;
+      return printStringLiteral(path as FastPath<StringLiteralNode>, options);
     case SyntaxKind.NumericLiteral:
-      return `${node.value}`;
+      return printNumberLiteral(path as FastPath<NumericLiteralNode>, options);
     case SyntaxKind.ModelExpression:
       return printModelExpression(path as FastPath<ModelExpressionNode>, options, print);
     case SyntaxKind.ModelProperty:
@@ -95,7 +98,7 @@ export function printADL(
     case SyntaxKind.TypeReference:
       return printTypeReference(path as FastPath<TypeReferenceNode>, options, print);
     default:
-      return options.originalText.slice(node.pos, node.end);
+      return getRawText(node, options);
   }
 }
 
@@ -606,4 +609,29 @@ export function printTypeReference(
   const type = path.call(print, "target");
   const template = printTemplateParameters(path, options, print, "arguments");
   return concat([type, template]);
+}
+
+export function printStringLiteral(
+  path: prettier.FastPath<StringLiteralNode>,
+  options: ADLPrettierOptions
+): prettier.doc.builders.Doc {
+  const node = path.getValue();
+  return getRawText(node, options);
+}
+
+export function printNumberLiteral(
+  path: prettier.FastPath<NumericLiteralNode>,
+  options: ADLPrettierOptions
+): prettier.doc.builders.Doc {
+  const node = path.getValue();
+  return getRawText(node, options);
+}
+
+/**
+ * @param node Node that has postition information.
+ * @param options Prettier options
+ * @returns Raw text in the file for the given node.
+ */
+function getRawText(node: TextRange, options: ADLPrettierOptions) {
+  return options.originalText.slice(node.pos, node.end);
 }

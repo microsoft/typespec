@@ -401,4 +401,108 @@ namespace Foo {
       });
     });
   });
+
+  describe("string literals", () => {
+    it("format single line string literal", () => {
+      assertFormat({
+        code: `
+@doc(   "this is a doc.  "
+ )
+model Foo {}
+`,
+        expected: `
+@doc("this is a doc.  ")
+model Foo {}
+`,
+      });
+    });
+
+    it("format single line with newline characters", () => {
+      assertFormat({
+        code: `
+@doc(   "foo\\nbar"
+ )
+model Foo {}
+`,
+        expected: `
+@doc("foo\\nbar")
+model Foo {}
+`,
+      });
+    });
+
+    it("format multi line string literal", () => {
+      assertFormat({
+        code: `
+@doc(   """
+  
+this is a doc.  
+ that 
+ span
+ multiple lines.
+"""
+ )
+model Foo {}
+`,
+        expected: `
+@doc("""
+  
+this is a doc.  
+ that 
+ span
+ multiple lines.
+""")
+model Foo {}
+`,
+      });
+    });
+  });
+
+  describe("number literals", () => {
+    it("format integer", () => {
+      assertFormat({
+        code: `
+alias MyNum =     123   ;
+`,
+        expected: `
+alias MyNum = 123;
+`,
+      });
+    });
+
+    it("format float", () => {
+      assertFormat({
+        code: `
+alias MyFloat1 =     1.234   ;
+alias MyFloat2 =     0.123   ;
+`,
+        expected: `
+alias MyFloat1 = 1.234;
+alias MyFloat2 = 0.123;
+`,
+      });
+    });
+
+    it("format e notation numbers", () => {
+      assertFormat({
+        code: `
+alias MyBigNumber =     1.0e8  ;
+`,
+        expected: `
+alias MyBigNumber = 1.0e8;
+`,
+      });
+    });
+
+    it("format big numbers", () => {
+      assertFormat({
+        code: `
+alias MyBigNumber =     1.0e999999999   ;
+`,
+        expected: `
+alias MyBigNumber = 1.0e999999999;
+`,
+      });
+    });
+  });
 });
