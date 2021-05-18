@@ -326,6 +326,7 @@ async function main() {
           await uninstallVSExtension();
           break;
       }
+      break;
     case "format":
       await formatADLFiles(args["include"]!, { debug: args.debug });
       break;
