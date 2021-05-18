@@ -1,4 +1,4 @@
-import { spawnSync, SpawnSyncOptionsWithBufferEncoding } from "child_process";
+import { spawnSync, SpawnSyncOptions } from "child_process";
 import { mkdtemp, readdir, rmdir } from "fs/promises";
 import mkdirp from "mkdirp";
 import os from "os";
@@ -181,7 +181,20 @@ async function generateClient(options: CompilerOptions) {
 async function installVsix(pkg: string, install: (vsixPath: string) => void) {
   // download npm package to temporary directory
   const temp = await mkdtemp(path.join(os.tmpdir(), "adl"));
-  run("npm", ["install", "--silent", "--prefix", temp, pkg]);
+  const npmArgs = ["install"];
+
+  // hide npm output unless --debug was passed to adl
+  if (!args.debug) {
+    npmArgs.push("--silent");
+  }
+
+  // NOTE: Using cwd=temp with `--prefix .` instead of `--prefix ${temp}` to
+  // workaround https://github.com/npm/cli/issues/3256. It's still important
+  // to pass --prefix even though we're using cwd as otherwise, npm might
+  // find a package.json file in a parent directory and install to that
+  // directory.
+  npmArgs.push("--prefix", ".", pkg);
+  run("npm", npmArgs, { cwd: temp });
 
   // locate .vsix
   const dir = path.join(temp, "node_modules", pkg);
@@ -206,7 +219,7 @@ async function installVsix(pkg: string, install: (vsixPath: string) => void) {
 async function runCode(codeArgs: string[]) {
   await run(args.insiders ? "code-insiders" : "code", codeArgs, {
     // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
-    env: { ...process.env, NODE_NO_WARNINGS: "1" },
+    extraEnv: { NODE_NO_WARNINGS: "1" },
   });
 }
 
@@ -249,9 +262,23 @@ async function uninstallVSExtension() {
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
 
-function run(command: string, commandArgs: string[], options?: SpawnSyncOptionsWithBufferEncoding) {
+interface RunOptions extends SpawnSyncOptions {
+  extraEnv?: NodeJS.ProcessEnv;
+}
+
+function run(command: string, commandArgs: string[], options?: RunOptions) {
   if (args.debug) {
+    if (options) {
+      console.log(options);
+    }
     console.log(`> ${command} ${commandArgs.join(" ")}\n`);
+  }
+
+  if (options?.extraEnv) {
+    options.env = {
+      ...(options?.env ?? process.env),
+      ...options.extraEnv,
+    };
   }
 
   const baseCommandName = path.basename(command);
