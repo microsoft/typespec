@@ -59,6 +59,12 @@ export const Message = {
     severity: "error",
     text: "Invalid character.",
   } as const,
+
+  FileNotFound: {
+    code: 1109,
+    text: `File {0} is not found.`,
+    severity: "error",
+  } as const,
 };
 
 // Static assert: this won't compile if one of the entries above is invalid.

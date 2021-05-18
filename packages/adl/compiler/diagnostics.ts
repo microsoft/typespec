@@ -32,6 +32,7 @@ export class AggregateError extends Error {
   }
 }
 
+export const NoTarget = Symbol("NoTarget");
 export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 export type WriteLine = (text?: string) => void;
 
@@ -45,7 +46,7 @@ export const throwOnError: ErrorHandler = throwDiagnostic;
 
 export function throwDiagnostic(
   message: Message | string,
-  target: DiagnosticTarget,
+  target: DiagnosticTarget | typeof NoTarget,
   args?: (string | number)[]
 ): never {
   throw new DiagnosticError([createDiagnostic(message, target, args)]);
@@ -53,17 +54,18 @@ export function throwDiagnostic(
 
 export function createDiagnostic(
   message: Message | string,
-  target: DiagnosticTarget,
+  target: DiagnosticTarget | typeof NoTarget,
   args?: (string | number)[]
 ): Diagnostic {
-  let location: SourceLocation;
+  let location: Partial<SourceLocation> = {};
   let locationError: Error | undefined;
-
-  try {
-    location = getSourceLocation(target);
-  } catch (err) {
-    locationError = err;
-    location = createDummySourceLocation();
+  if (target !== NoTarget) {
+    try {
+      location = getSourceLocation(target);
+    } catch (err) {
+      locationError = err;
+      location = createDummySourceLocation();
+    }
   }
 
   if (typeof message === "string") {
@@ -94,12 +96,17 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], writeLine: Wr
 
 export function formatDiagnostic(diagnostic: Diagnostic) {
   const code = diagnostic.code ? ` ADL${diagnostic.code}` : "";
-  const pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.pos);
-  const line = pos.line + 1;
-  const col = pos.character + 1;
   const severity = diagnostic.severity;
-  const path = diagnostic.file.path;
-  return `${path}:${line}:${col} - ${severity}${code}: ${diagnostic.message}`;
+  const content = `${severity}${code}: ${diagnostic.message}`;
+  if (diagnostic.file) {
+    const pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.pos ?? 0);
+    const line = pos.line + 1;
+    const col = pos.character + 1;
+    const path = diagnostic.file.path;
+    return `${path}:${line}:${col} - ${content}`;
+  } else {
+    return content;
+  }
 }
 
 export function createSourceFile(text: string, path: string): SourceFile {

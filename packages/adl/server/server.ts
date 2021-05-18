@@ -50,8 +50,8 @@ function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   const diagnostics: Diagnostic[] = [];
 
   for (const each of parseDiagnostics) {
-    const start = document.positionAt(each.pos);
-    const end = document.positionAt(each.end);
+    const start = document.positionAt(each.pos ?? 0);
+    const end = document.positionAt(each.end ?? 0);
     const range = Range.create(start, end);
     const severity = convertSeverity(each.severity);
     const diagnostic = Diagnostic.create(range, each.message, severity, each.code, "ADL");

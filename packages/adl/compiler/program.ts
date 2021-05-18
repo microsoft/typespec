@@ -2,7 +2,8 @@ import { dirname, extname, isAbsolute, join, resolve } from "path";
 import resolveModule from "resolve";
 import { createBinder, createSymbolTable } from "./binder.js";
 import { createChecker } from "./checker.js";
-import { createSourceFile, DiagnosticError, throwDiagnostic } from "./diagnostics.js";
+import { createSourceFile, DiagnosticError, NoTarget, throwDiagnostic } from "./diagnostics.js";
+import { Message } from "./messages.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
 import {
@@ -349,12 +350,22 @@ export async function createProgram(
 
     const mainPath = resolve(host.getCwd(), options.mainFile);
 
-    const mainStat = await host.stat(mainPath);
-
+    const mainStat = await getMainPathStats(mainPath);
     if (mainStat.isDirectory()) {
       await loadDirectory(mainPath);
     } else {
       await loadAdlFile(mainPath);
+    }
+  }
+
+  async function getMainPathStats(mainPath: string) {
+    try {
+      return await host.stat(mainPath);
+    } catch (e) {
+      if (e.code === "ENOENT") {
+        throwDiagnostic(Message.FileNotFound, NoTarget, [mainPath]);
+      }
+      throw e;
     }
   }
 

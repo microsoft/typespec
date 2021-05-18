@@ -507,7 +507,7 @@ export interface SourceLocation extends TextRange {
   file: SourceFile;
 }
 
-export interface Diagnostic extends SourceLocation {
+export interface Diagnostic extends Partial<SourceLocation> {
   message: string;
   code?: number;
   severity: "warning" | "error";

@@ -20,8 +20,8 @@ export class PrettierParserError extends Error {
   public constructor(public readonly error: Diagnostic) {
     super(error.message);
     this.loc = {
-      start: error.pos,
-      end: error.end,
+      start: error.pos ?? 0,
+      end: error.end ?? 0,
     };
   }
 }
