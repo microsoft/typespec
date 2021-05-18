@@ -97,6 +97,7 @@ const args = yargs(process.argv.slice(2))
       array: true,
     });
   })
+  .command("info", "Show information about current ADL compiler.")
   .option("debug", {
     type: "boolean",
     description: "Output debug log messages.",
@@ -294,6 +295,9 @@ async function main() {
   let action: string | number;
 
   switch (command) {
+    case "info":
+      console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
+      break;
     case "compile":
       options = await getCompilerOptions();
       await compileInput(options);

@@ -1,3 +1,4 @@
+import { fileURLToPath } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   Connection,
@@ -21,7 +22,8 @@ let documents: TextDocuments<TextDocument>;
 main();
 
 function main() {
-  log(`** ADL Language Server v${adlVersion} **`);
+  log(`ADL language server v${adlVersion}\n`);
+  log(`Module: ${fileURLToPath(import.meta.url)}`);
   log(`Command Line: ${JSON.stringify(process.argv)}`);
 
   connection = createConnection(ProposedFeatures.all);

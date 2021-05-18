@@ -24,9 +24,9 @@ function resolveADLServer(context: ExtensionContext): Executable {
   const nodeOptions = process.env.ADL_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
 
-  // In development mode (F5 launch from source), resolve to locally built adl-server.js.
+  // In development mode (F5 launch from source), resolve to locally built server.js.
   if (process.env.ADL_DEVELOPMENT_MODE) {
-    const script = context.asAbsolutePath("../adl/cmd/adl-server.js");
+    const script = context.asAbsolutePath("../adl/dist/server/server.js");
     // we use CLI instead of NODE_OPTIONS environment variable in this case
     // because --nolazy is not supported by NODE_OPTIONS.
     const options = nodeOptions?.split(" ") ?? [];
