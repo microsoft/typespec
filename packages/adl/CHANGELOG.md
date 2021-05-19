@@ -1,6 +1,23 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Thu, 06 May 2021 14:56:02 GMT and should not be manually modified.
+This log was last generated on Tue, 18 May 2021 23:43:31 GMT and should not be manually modified.
+
+## 0.11.0
+Tue, 18 May 2021 23:43:31 GMT
+
+### Minor changes
+
+- **Added** format command to automatically format adl files
+
+### Patches
+
+- **Fix** Throw diagnostic when main ADL file doesn't exists
+- Fix TypeError after `adl vs` command
+- **Fix** formatter handling string and number literal should keep as it is.
+- **Fix** Formatter not rendering template parameters of models.
+- **Fix** Don't format a file with parsing errors
+- Work around npm 7+ Mac OS bug in `adl code install`
+- Prefer local install of adl package when running global `adl`
 
 ## 0.10.0
 Thu, 06 May 2021 14:56:02 GMT

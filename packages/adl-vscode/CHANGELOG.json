@@ -2,6 +2,18 @@
   "name": "adl-vscode",
   "entries": [
     {
+      "version": "0.5.1",
+      "tag": "adl-vscode_v0.5.1",
+      "date": "Tue, 18 May 2021 23:43:31 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix issue launching adl-server on Mac OS"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.0",
       "tag": "adl-vscode_v0.5.0",
       "date": "Thu, 06 May 2021 14:56:02 GMT",

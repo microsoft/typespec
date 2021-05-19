@@ -1,0 +1,17 @@
+{
+  "name": "@azure-tools/prettier-plugin-adl",
+  "entries": [
+    {
+      "version": "0.1.1",
+      "tag": "@azure-tools/prettier-plugin-adl_v0.1.1",
+      "date": "Tue, 18 May 2021 23:43:31 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@azure-tools/adl\" from `0.10.0` to `0.11.0`"
+          }
+        ]
+      }
+    }
+  ]
+}

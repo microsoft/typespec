@@ -2,6 +2,18 @@
   "name": "@azure-tools/adl-vs",
   "entries": [
     {
+      "version": "0.1.5",
+      "tag": "@azure-tools/adl-vs_v0.1.5",
+      "date": "Tue, 18 May 2021 23:43:31 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"adl-vscode\" from `0.5.0` to `0.5.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.4",
       "tag": "@azure-tools/adl-vs_v0.1.4",
       "date": "Thu, 06 May 2021 14:56:02 GMT",
