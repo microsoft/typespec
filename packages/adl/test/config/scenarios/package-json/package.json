@@ -1,0 +1,10 @@
+{
+  "adl": {
+    "plugins": [
+      "foo"
+    ],
+    "emitters": {
+      "foo:openapi": true
+    }
+  }
+}

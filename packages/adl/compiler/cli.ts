@@ -7,6 +7,7 @@ import url from "url";
 import yargs from "yargs";
 import { CompilerOptions } from "../compiler/options.js";
 import { compile } from "../compiler/program.js";
+import { loadADLConfigInDir } from "../config/index.js";
 import { compilerAssert, DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
 import { formatADLFiles } from "./formatter.js";
 import { adlVersion, NodeHost } from "./util.js";
@@ -258,6 +259,32 @@ async function uninstallVSExtension() {
   run(vsixInstaller, ["/uninstall:88b9492f-c019-492c-8aeb-f325a7e4cf23"]);
 }
 
+/**
+ * Print the resolved adl configuration.
+ */
+async function printInfo() {
+  const cwd = process.cwd();
+  console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
+
+  try {
+    const config = await loadADLConfigInDir(cwd);
+    const jsyaml = await import("js-yaml");
+    console.log(`User Config: ${config.filename ?? "No config file found"}`);
+    console.log("-----------");
+    console.log(jsyaml.dump(config));
+    console.log("-----------");
+  } catch (err) {
+    if (err instanceof DiagnosticError) {
+      logDiagnostics(err.diagnostics, console.error);
+      if (args.debug) {
+        console.error(`Stack trace:\n\n${err.stack}`);
+      }
+      process.exit(1);
+    }
+    throw err; // let non-diagnostic errors go to top-level bug handler.
+  }
+}
+
 // NOTE: We could also use { shell: true } to let windows find the .cmd, but that breaks
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
@@ -323,7 +350,7 @@ async function main() {
 
   switch (command) {
     case "info":
-      console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
+      printInfo();
       break;
     case "compile":
       options = await getCompilerOptions();

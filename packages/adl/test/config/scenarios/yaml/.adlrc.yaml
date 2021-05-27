@@ -1,0 +1,6 @@
+plugins:
+  - foo
+
+# This has comments
+emitters:
+  foo:openapi: true
