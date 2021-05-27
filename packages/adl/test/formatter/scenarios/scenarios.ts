@@ -52,7 +52,7 @@ async function testScenario(name: string) {
   }
 }
 
-describe("Format scenarios", () => {
+describe("adl: prettier formatter scenarios", () => {
   it("misc", async () => {
     await testScenario("misc.adl");
   });

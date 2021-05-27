@@ -1,6 +1,6 @@
 import { spawn, spawnSync } from "child_process";
 import { statSync, readFileSync } from "fs";
-import { dirname, resolve } from "path";
+import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
 function read(filename) {
@@ -31,7 +31,11 @@ export function forEachProject(onEach) {
 
 export function npmForEach(cmd, options) {
   forEachProject((name, location, project) => {
-    // checks for the script first
+    if (cmd === "test-official" && !project.scripts[cmd] && project.scripts["test"]) {
+      const pj = join(location, "package.json");
+      throw new Error(`${pj} has a 'test' script, but no 'test-official' script for CI.`);
+    }
+
     if (project.scripts[cmd] || cmd === "pack") {
       const args = cmd === "pack" ? [cmd] : ["run", cmd];
       run("npm", args, { cwd: location, ...options });
