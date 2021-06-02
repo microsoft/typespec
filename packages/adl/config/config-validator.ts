@@ -16,10 +16,6 @@ export class ConfigValidator {
    * @returns
    */
   public validateConfig(config: ADLRawConfig, file?: SourceFile) {
-    this.validateSchema(config, file);
-  }
-
-  private validateSchema(config: ADLRawConfig, file?: SourceFile) {
     const validate = this.ajv.compile(ADLConfigJsonSchema);
     const valid = validate(config);
 

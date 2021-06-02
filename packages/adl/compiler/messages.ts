@@ -65,12 +65,6 @@ export const Message = {
     text: `File {0} is not found.`,
     severity: "error",
   } as const,
-
-  InvalidConfigFormat: {
-    code: 1110,
-    text: `File {0} does not have a known configuration format.`,
-    severity: "error",
-  } as const,
 };
 
 // Static assert: this won't compile if one of the entries above is invalid.

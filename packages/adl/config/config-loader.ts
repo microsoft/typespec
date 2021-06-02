@@ -1,19 +1,19 @@
-import { access, readFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import { basename, extname, join } from "path";
-import { createSourceFile, Message, NoTarget, throwDiagnostic } from "../compiler/diagnostics.js";
+import { createSourceFile, throwDiagnostic } from "../compiler/diagnostics.js";
+import { deepClone, deepFreeze } from "../compiler/util.js";
 import { ConfigValidator } from "./config-validator.js";
-import { ADLConfig, ADLRawConfig, ConfigFile } from "./types.js";
+import { ADLConfig } from "./types.js";
 
 const configFilenames = [".adlrc.yaml", ".adlrc.yml", ".adlrc.json", "package.json"];
-
-const defaultConfig: ADLConfig = {
+const defaultConfig: ADLConfig = deepFreeze({
   plugins: [],
   emitters: {},
   lint: {
     extends: [],
     rules: {},
   },
-};
+});
 
 /**
  * Load ADL Configuration if present.
@@ -22,11 +22,16 @@ const defaultConfig: ADLConfig = {
 export async function loadADLConfigInDir(directoryPath: string): Promise<ADLConfig> {
   for (const filename of configFilenames) {
     const filePath = join(directoryPath, filename);
-    if (await fileExists(filePath)) {
-      return loadADLConfigFile(filePath);
+    try {
+      return await loadADLConfigFile(filePath);
+    } catch (e) {
+      if (e.code === "ENOENT") {
+        continue;
+      }
+      throw e;
     }
   }
-  return defaultConfig;
+  return deepClone(defaultConfig);
 }
 
 /**
@@ -45,99 +50,58 @@ export async function loadADLConfigFile(filePath: string): Promise<ADLConfig> {
       return loadYAMLConfigFile(filePath);
 
     default:
-      throwDiagnostic(Message.InvalidConfigFormat, NoTarget, [filePath]);
+      // This is not a diagnostic because the compiler only tries the
+      // well-known config file names.
+      throw new RangeError("Config file must have .yaml, .yml, or .json extension.");
   }
 }
 
 export async function loadPackageJSONConfigFile(filePath: string): Promise<ADLConfig> {
-  const rawConfig = await loadJSON<any>(filePath);
-  if (rawConfig.data.adl) {
-    return normalizeConfig({ file: rawConfig.file, data: rawConfig.data.adl });
-  } else {
-    return defaultConfig;
-  }
+  return await loadConfigFile(filePath, (content) => JSON.parse(content).adl ?? {});
 }
 
 export async function loadJSONConfigFile(filePath: string): Promise<ADLConfig> {
-  const rawConfig = await loadJSON<ADLRawConfig>(filePath);
-  return normalizeConfig(rawConfig);
+  return await loadConfigFile(filePath, JSON.parse);
 }
 
-/**
- * Loads a YAML configuration from a file.
- * @param filePath Path to the file.
- */
 export async function loadYAMLConfigFile(filePath: string): Promise<ADLConfig> {
-  const rawConfig = await loadYaml(filePath);
-  return normalizeConfig(rawConfig);
-}
-
-/**
- * Load YAML and throw @see DiagnosticError if there is an issue.
- * @param filePath Yaml file path.
- * @returns Parsed object.
- */
-async function loadYaml(filePath: string): Promise<ConfigFile<ADLRawConfig>> {
   // Lazy load.
   const jsyaml = await import("js-yaml");
-
-  const content = (await readFile(filePath)).toString();
-  const file = createSourceFile(content, filePath);
-  try {
-    return {
-      file,
-      data: jsyaml.load(content) as ADLRawConfig,
-    };
-  } catch (e) {
-    throwDiagnostic(e.message, { file, pos: 0, end: 0 });
-  }
-}
-
-/**
- * Load JSON and throw @see DiagnosticError if there is an issue.
- * @param filePath JSON file path.
- * @returns Parsed object.
- */
-async function loadJSON<T>(filePath: string): Promise<ConfigFile<T>> {
-  const content = (await readFile(filePath)).toString();
-  const file = createSourceFile(content, filePath);
-
-  try {
-    return {
-      file,
-      data: JSON.parse(content),
-    };
-  } catch (e) {
-    throwDiagnostic(e.message, { file, pos: 0, end: 0 });
-  }
+  return await loadConfigFile(filePath, jsyaml.load);
 }
 
 const configValidator = new ConfigValidator();
-export function normalizeConfig(config: ConfigFile<ADLRawConfig>): ADLConfig {
-  configValidator.validateConfig(config.data, config.file);
-  return {
-    filename: config.file.path,
-    ...defaultConfig,
-    ...config.data,
-    lint: {
-      ...defaultConfig.lint,
-      ...(config.data.lint ?? {}),
-    },
-  };
+
+async function loadConfigFile(
+  filePath: string,
+  loadData: (content: string) => any
+): Promise<ADLConfig> {
+  const content = await readFile(filePath, "utf-8");
+  const file = createSourceFile(content, filePath);
+
+  let config: any;
+  try {
+    config = loadData(content);
+  } catch (e) {
+    throwDiagnostic(e.message, { file, pos: 0, end: 0 });
+  }
+
+  configValidator.validateConfig(config, file);
+  mergeDefaults(config, defaultConfig);
+  config.filename = filePath;
+  return config;
 }
 
 /**
- * Validate the given config is valid.
+ * Recursively add properties from defaults that are not present in target.
  */
-export function validateConfig(config: ADLRawConfig) {
-  return {} as any;
-}
-
-async function fileExists(path: string) {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
+function mergeDefaults(target: any, defaults: any) {
+  for (const prop in defaults) {
+    const value = target[prop];
+    if (value === undefined) {
+      target[prop] = deepClone(defaults[prop]);
+    } else if (typeof value === "object" && typeof defaults[prop] === "object") {
+      mergeDefaults(value, defaults[prop]);
+    }
   }
 }

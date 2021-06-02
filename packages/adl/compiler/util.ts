@@ -42,6 +42,34 @@ export function reportDuplicateSymbols(symbols: SymbolTable) {
   }
 }
 
+export function deepFreeze<T>(value: T): T {
+  if (Array.isArray(value)) {
+    value.map(deepFreeze);
+  } else if (typeof value === "object") {
+    for (const prop in value) {
+      deepFreeze(value[prop]);
+    }
+  }
+
+  return Object.freeze(value);
+}
+
+export function deepClone<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map(deepClone) as any;
+  }
+
+  if (typeof value === "object") {
+    const obj: any = {};
+    for (const prop in value) {
+      obj[prop] = deepClone(value[prop]);
+    }
+    return obj;
+  }
+
+  return value;
+}
+
 export const NodeHost: CompilerHost = {
   readFile: (path: string) => readFile(path, "utf-8"),
   readDir: (path: string) => readdir(path, { withFileTypes: true }),

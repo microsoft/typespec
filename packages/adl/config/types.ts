@@ -1,5 +1,3 @@
-import { SourceFile } from "../compiler";
-
 /**
  * Represent the normalized user configuration.
  */
@@ -28,9 +26,4 @@ export interface ADLRawConfig {
   plugins?: string[];
   lint?: Partial<ADLLintConfig>;
   emitters?: Record<string, boolean>;
-}
-
-export interface ConfigFile<T> {
-  file: SourceFile;
-  data: T;
 }
