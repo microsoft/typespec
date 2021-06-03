@@ -2,7 +2,7 @@ import assert from "assert";
 import { readFile } from "fs/promises";
 import { URL } from "url";
 import { isIdentifierContinue, isIdentifierStart } from "../compiler/charcode.js";
-import { createDiagnostic, formatDiagnostic, throwOnError } from "../compiler/diagnostics.js";
+import { DiagnosticHandler, formatDiagnostic } from "../compiler/diagnostics.js";
 import {
   createScanner,
   isKeyword,
@@ -25,8 +25,13 @@ type TokenEntry = [
   }?
 ];
 
-function tokens(text: string, onError = throwOnError): TokenEntry[] {
-  const scanner = createScanner(text, onError);
+function tokens(text: string, diagnosticHandler?: DiagnosticHandler): TokenEntry[] {
+  if (!diagnosticHandler) {
+    diagnosticHandler = (diagnostic) =>
+      assert.fail("Unexpected diagnostic: " + formatDiagnostic(diagnostic));
+  }
+
+  const scanner = createScanner(text, diagnosticHandler);
   const result: TokenEntry[] = [];
   do {
     const token = scanner.scan();
@@ -181,8 +186,7 @@ describe("adl: scanner", () => {
   });
 
   function scanString(text: string, expectedValue: string, expectedDiagnostic?: RegExp) {
-    const scanner = createScanner(text, (message, target, args) => {
-      const diagnostic = createDiagnostic(message, target, args);
+    const scanner = createScanner(text, (diagnostic) => {
       if (expectedDiagnostic) {
         assert.match(diagnostic.message, expectedDiagnostic);
       } else {

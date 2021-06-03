@@ -1,3 +1,5 @@
+import { Diagnostic } from "../compiler";
+
 /**
  * Represent the normalized user configuration.
  */
@@ -6,6 +8,11 @@ export interface ADLConfig {
    * Path to the config file used to create this configuration.
    */
   filename?: string;
+
+  /**
+   * Diagnostics reported while loading the configuration
+   */
+  diagnostics: Diagnostic[];
 
   plugins: string[];
   lint: ADLLintConfig;

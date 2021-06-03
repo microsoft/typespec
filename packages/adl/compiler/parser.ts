@@ -1,5 +1,5 @@
 import { createSymbolTable } from "./binder.js";
-import { compilerAssert, createDiagnostic, DiagnosticTarget, Message } from "./diagnostics.js";
+import { compilerAssert, createDiagnostic } from "./diagnostics.js";
 import {
   createScanner,
   isComment,
@@ -1028,19 +1028,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): AD
       return;
     }
     realPositionOfLastError = realPos;
-
-    reportDiagnostic(message, location);
+    const diagnostic = createDiagnostic(message, location);
+    reportDiagnostic(diagnostic);
   }
 
-  function reportDiagnostic(
-    message: Message | string,
-    target: DiagnosticTarget,
-    args?: (string | number)[]
-  ) {
-    if (typeof message === "string" || message.severity === "error") {
+  function reportDiagnostic(diagnostic: Diagnostic) {
+    if (diagnostic.severity === "error") {
       parseErrorInNextFinishedNode = true;
     }
-    const diagnostic = createDiagnostic(message, target, args);
     parseDiagnostics.push(diagnostic);
   }
 

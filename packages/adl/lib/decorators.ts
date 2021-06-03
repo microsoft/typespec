@@ -1,4 +1,3 @@
-import { throwDiagnostic } from "../compiler/diagnostics.js";
 import { Program } from "../compiler/program.js";
 import { ModelTypeProperty, NamespaceType, Type } from "../compiler/types.js";
 
@@ -26,7 +25,10 @@ export function intrinsic(program: Program, target: Type) {
   program.stateSet(intrinsicsKey).add(target);
 }
 
-export function isIntrinsic(program: Program, target: Type) {
+export function isIntrinsic(program: Program, target: Type | undefined) {
+  if (!target) {
+    return false;
+  }
   return program.stateSet(intrinsicsKey).has(target);
 }
 
@@ -56,13 +58,14 @@ export function getIntrinsicType(program: Program, target: Type | undefined): st
 const numericTypesKey = Symbol();
 export function numeric(program: Program, target: Type) {
   if (!isIntrinsic(program, target)) {
-    throwDiagnostic("Cannot apply @numeric decorator to non-intrinsic type.", target);
+    program.reportDiagnostic("Cannot apply @numeric decorator to non-intrinsic type.", target);
+    return;
   }
-  if (target.kind === "Model") {
-    program.stateSet(numericTypesKey).add(target.name);
-  } else {
-    throwDiagnostic("Cannot apply @numeric decorator to non-model type.", target);
+  if (target.kind !== "Model") {
+    program.reportDiagnostic("Cannot apply @numeric decorator to non-model type.", target);
+    return;
   }
+  program.stateSet(numericTypesKey).add(target.name);
 }
 
 export function isNumericType(program: Program, target: Type): boolean {
@@ -75,16 +78,20 @@ export function isNumericType(program: Program, target: Type): boolean {
 const formatValuesKey = Symbol();
 
 export function format(program: Program, target: Type, format: string) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it a model type that ultimately derives from 'string'?
-    if (getIntrinsicType(program, target) === "string") {
-      program.stateMap(formatValuesKey).set(target, format);
-    } else {
-      throwDiagnostic("Cannot apply @format to a non-string type", target);
-    }
-  } else {
-    throwDiagnostic("Cannot apply @format to anything that isn't a Model or ModelProperty", target);
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
+      "Cannot apply @format to anything that isn't a Model or ModelProperty",
+      target
+    );
+    return;
   }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic("Cannot apply @format to a non-string type", target);
+    return;
+  }
+
+  program.stateMap(formatValuesKey).set(target, format);
 }
 
 export function getFormat(program: Program, target: Type): string | undefined {
@@ -96,19 +103,20 @@ export function getFormat(program: Program, target: Type): string | undefined {
 const minLengthValuesKey = Symbol();
 
 export function minLength(program: Program, target: Type, minLength: number) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it a model type that ultimately derives from 'string'?
-    if (getIntrinsicType(program, target) === "string") {
-      program.stateMap(minLengthValuesKey).set(target, minLength);
-    } else {
-      throwDiagnostic("Cannot apply @minLength to a non-string type", target);
-    }
-  } else {
-    throwDiagnostic(
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
       "Cannot apply @minLength to anything that isn't a Model or ModelProperty",
       target
     );
+    return;
   }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic("Cannot apply @minLength to a non-string type", target);
+    return;
+  }
+
+  program.stateMap(minLengthValuesKey).set(target, minLength);
 }
 
 export function getMinLength(program: Program, target: Type): number | undefined {
@@ -120,19 +128,19 @@ export function getMinLength(program: Program, target: Type): number | undefined
 const maxLengthValuesKey = Symbol();
 
 export function maxLength(program: Program, target: Type, maxLength: number) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it a model type that ultimately derives from 'string'?
-    if (getIntrinsicType(program, target) === "string") {
-      program.stateMap(maxLengthValuesKey).set(target, maxLength);
-    } else {
-      throwDiagnostic("Cannot apply @maxLength to a non-string type", target);
-    }
-  } else {
-    throwDiagnostic(
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
       "Cannot apply @maxLength to anything that isn't a Model or ModelProperty",
       target
     );
+    return;
   }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic("Cannot apply @maxLength to a non-string type", target);
+    return;
+  }
+  program.stateMap(maxLengthValuesKey).set(target, maxLength);
 }
 
 export function getMaxLength(program: Program, target: Type): number | undefined {
@@ -144,19 +152,17 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 const minValuesKey = Symbol();
 
 export function minValue(program: Program, target: Type, minValue: number) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it ultimately a numeric type?
-    if (isNumericType(program, target)) {
-      program.stateMap(minValuesKey).set(target, minValue);
-    } else {
-      throwDiagnostic("Cannot apply @minValue to a non-numeric type", target);
-    }
-  } else {
-    throwDiagnostic(
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
       "Cannot apply @minValue to anything that isn't a Model or ModelProperty",
       target
     );
   }
+  if (!isNumericType(program, target)) {
+    program.reportDiagnostic("Cannot apply @minValue to a non-numeric type", target);
+    return;
+  }
+  program.stateMap(minValuesKey).set(target, minValue);
 }
 
 export function getMinValue(program: Program, target: Type): number | undefined {
@@ -168,19 +174,18 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 const maxValuesKey = Symbol();
 
 export function maxValue(program: Program, target: Type, maxValue: number) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it ultimately a numeric type?
-    if (isNumericType(program, target)) {
-      program.stateMap(maxValuesKey).set(target, maxValue);
-    } else {
-      throwDiagnostic("Cannot apply @maxValue to a non-numeric type", target);
-    }
-  } else {
-    throwDiagnostic(
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
       "Cannot apply @maxValue to anything that isn't a Model or ModelProperty",
       target
     );
+    return;
   }
+  if (!isNumericType(program, target)) {
+    program.reportDiagnostic("Cannot apply @maxValue to a non-numeric type", target);
+    return;
+  }
+  program.stateMap(maxValuesKey).set(target, maxValue);
 }
 
 export function getMaxValue(program: Program, target: Type): number | undefined {
@@ -192,16 +197,16 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 const secretTypesKey = Symbol();
 
 export function secret(program: Program, target: Type) {
-  if (target.kind === "Model") {
-    // Is it a model type that ultimately derives from 'string'?
-    if (getIntrinsicType(program, target) === "string") {
-      program.stateMap(secretTypesKey).set(target, true);
-    } else {
-      throwDiagnostic("Cannot apply @secret to a non-string type", target);
-    }
-  } else {
-    throwDiagnostic("Cannot apply @secret to anything that isn't a Model", target);
+  if (target.kind !== "Model") {
+    program.reportDiagnostic("Cannot apply @secret to anything that isn't a Model", target);
+    return;
   }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic("Cannot apply @secret to a non-string type", target);
+    return;
+  }
+  program.stateMap(secretTypesKey).set(target, true);
 }
 
 export function isSecret(program: Program, target: Type): boolean | undefined {
@@ -213,11 +218,14 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 const visibilitySettingsKey = Symbol();
 
 export function visibility(program: Program, target: Type, ...visibilities: string[]) {
-  if (target.kind === "ModelProperty") {
-    program.stateMap(visibilitySettingsKey).set(target, visibilities);
-  } else {
-    throwDiagnostic("The @visibility decorator can only be applied to model properties.", target);
+  if (target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
+      "The @visibility decorator can only be applied to model properties.",
+      target
+    );
+    return;
   }
+  program.stateMap(visibilitySettingsKey).set(target, visibilities);
 }
 
 export function getVisibility(program: Program, target: Type): string[] | undefined {
@@ -226,7 +234,11 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
 
 export function withVisibility(program: Program, target: Type, ...visibilities: string[]) {
   if (target.kind !== "Model") {
-    throwDiagnostic("The @withVisibility decorator can only be applied to models.", target);
+    program.reportDiagnostic(
+      "The @withVisibility decorator can only be applied to models.",
+      target
+    );
+    return;
   }
 
   const filter = (_: any, prop: ModelTypeProperty) => {
@@ -253,14 +265,14 @@ function mapFilterOut(
 const listPropertiesKey = Symbol();
 
 export function list(program: Program, target: Type) {
-  if (target.kind === "Operation" || target.kind === "ModelProperty") {
-    program.stateSet(listPropertiesKey).add(target);
-  } else {
-    throwDiagnostic(
-      "The @list decorator can only be applied to interface or model properties.",
+  if (target.kind !== "Operation" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
+      "The @list decorator can only be applied to operations or model properties.",
       target
     );
+    return;
   }
+  program.stateSet(listPropertiesKey).add(target);
 }
 
 export function isList(program: Program, target: Type): boolean {
@@ -273,15 +285,18 @@ const tagPropertiesKey = Symbol();
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
 export function tag(program: Program, target: Type, tag: string) {
-  if (target.kind === "Operation" || target.kind === "Namespace") {
-    const tags = program.stateMap(tagPropertiesKey).get(target);
-    if (tags) {
-      tags.push(tag);
-    } else {
-      program.stateMap(tagPropertiesKey).set(target, [tag]);
-    }
+  if (target.kind !== "Operation" && target.kind !== "Namespace") {
+    program.reportDiagnostic(
+      "The @tag decorator can only be applied to namespaces or operations.",
+      target
+    );
+    return;
+  }
+  const tags = program.stateMap(tagPropertiesKey).get(target);
+  if (tags) {
+    tags.push(tag);
   } else {
-    throwDiagnostic("The @tag decorator can only be applied to namespace or operation.", target);
+    program.stateMap(tagPropertiesKey).set(target, [tag]);
   }
 }
 

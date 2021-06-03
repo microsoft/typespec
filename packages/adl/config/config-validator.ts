@@ -1,5 +1,5 @@
 import Ajv, { ErrorObject } from "ajv";
-import { DiagnosticError } from "../compiler/diagnostics.js";
+import { compilerAssert } from "../compiler/diagnostics.js";
 import { Diagnostic, SourceFile } from "../compiler/types.js";
 import { ADLConfigJsonSchema } from "./config-schema.js";
 import { ADLRawConfig } from "./types.js";
@@ -13,19 +13,16 @@ export class ConfigValidator {
    * Validate the config is valid
    * @param config Configuration
    * @param file @optional file for errors tracing.
-   * @returns
+   * @returns Validation
    */
-  public validateConfig(config: ADLRawConfig, file?: SourceFile) {
+  public validateConfig(config: ADLRawConfig, file?: SourceFile): Diagnostic[] {
     const validate = this.ajv.compile(ADLConfigJsonSchema);
     const valid = validate(config);
-
-    if (!valid && validate.errors) {
-      throw new DiagnosticError(
-        validate.errors.map((error) => {
-          return ajvErrorToDiagnostic(error, file);
-        })
-      );
-    }
+    compilerAssert(
+      !valid || !validate.errors,
+      "There should be errors reported if the config file is not valid."
+    );
+    return validate.errors?.map((e) => ajvErrorToDiagnostic(e, file)) ?? [];
   }
 }
 

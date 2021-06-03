@@ -15,7 +15,7 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { createSourceFile, Message, throwOnError } from "./diagnostics.js";
+import { createDiagnostic, createSourceFile, DiagnosticHandler, Message } from "./diagnostics.js";
 import { SourceFile } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
@@ -244,7 +244,10 @@ export function isStatementKeyword(token: Token) {
   return token >= MinStatementKeyword && token <= MaxStatementKeyword;
 }
 
-export function createScanner(source: string | SourceFile, onError = throwOnError): Scanner {
+export function createScanner(
+  source: string | SourceFile,
+  diagnosticHandler: DiagnosticHandler
+): Scanner {
   const file = typeof source === "string" ? createSourceFile(source, "<anonymous file>") : source;
   const input = file.text;
   let position = 0;
@@ -479,7 +482,8 @@ export function createScanner(source: string | SourceFile, onError = throwOnErro
   }
 
   function error(msg: Message, args?: (string | number)[]) {
-    onError(msg, { file, pos: tokenPosition, end: position }, args);
+    const diagnostic = createDiagnostic(msg, { file, pos: tokenPosition, end: position }, args);
+    diagnosticHandler(diagnostic);
   }
 
   function scanWhitespace(): Token {

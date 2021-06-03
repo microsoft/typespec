@@ -1,10 +1,10 @@
 import { readdir, readFile } from "fs/promises";
 import { basename, isAbsolute, join, normalize, relative, resolve, sep } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
-import { CompilerOptions } from "../compiler/options";
-import { Program } from "../compiler/program";
-import { createProgram } from "../compiler/program.js";
-import { CompilerHost, Type } from "../compiler/types";
+import { formatDiagnostic, logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js";
+import { CompilerOptions } from "../compiler/options.js";
+import { createProgram, Program } from "../compiler/program.js";
+import { CompilerHost, Diagnostic, Type } from "../compiler/types.js";
 
 export interface TestHost {
   addAdlFile(path: string, contents: string): void;
@@ -12,6 +12,11 @@ export interface TestHost {
   addRealAdlFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
   compile(main: string, options?: CompilerOptions): Promise<Record<string, Type>>;
+  diagnose(main: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
+  compileAndDiagnose(
+    main: string,
+    options?: CompilerOptions
+  ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
   testTypes: Record<string, Type>;
   program: Program;
   /**
@@ -146,6 +151,8 @@ export async function createTestHost(): Promise<TestHost> {
     addRealAdlFile,
     addRealJsFile,
     compile,
+    diagnose,
+    compileAndDiagnose,
     testTypes,
     get program() {
       return program;
@@ -177,24 +184,34 @@ export async function createTestHost(): Promise<TestHost> {
   }
 
   async function compile(main: string, options: CompilerOptions = {}) {
+    const [testTypes, diagnostics] = await compileAndDiagnose(main, options);
+    if (diagnostics.length > 0) {
+      let message = "Unexpected diagnostics:\n" + diagnostics.map(formatDiagnostic).join("\n");
+      throw new Error(message);
+    }
+    return testTypes;
+  }
+
+  async function diagnose(main: string, options: CompilerOptions = {}) {
+    const [, diagnostics] = await compileAndDiagnose(main, options);
+    return diagnostics;
+  }
+
+  async function compileAndDiagnose(
+    main: string,
+    options: CompilerOptions = {}
+  ): Promise<[Record<string, Type>, readonly Diagnostic[]]> {
     // default is noEmit
     if (!options.hasOwnProperty("noEmit")) {
       options.noEmit = true;
     }
 
-    try {
-      program = await createProgram(compilerHost, {
-        mainFile: main,
-        ...options,
-      });
-
-      return testTypes;
-    } catch (e) {
-      if (e.diagnostics) {
-        throw e.diagnostics;
-      }
-      throw e;
-    }
+    program = await createProgram(compilerHost, {
+      mainFile: main,
+      ...options,
+    });
+    logVerboseTestOutput((log) => logDiagnostics(program.diagnostics, log));
+    return [testTypes, program.diagnostics];
   }
 
   function isContainedIn(a: string, b: string) {

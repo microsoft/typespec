@@ -17,7 +17,6 @@ import {
   TemplateParameterDeclarationNode,
   UsingStatementNode,
 } from "./types.js";
-import { reportDuplicateSymbols } from "./util.js";
 
 const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   duplicates = new Set<Sym>();
@@ -56,7 +55,7 @@ export function createSymbolTable(): SymbolTable {
   return new SymbolTable();
 }
 
-export function createBinder(): Binder {
+export function createBinder(reportDuplicateSymbols: (symbolTable: SymbolTable) => void): Binder {
   let currentFile: ADLScriptNode;
   let parentNode: Node;
   let globalNamespace: NamespaceStatementNode;

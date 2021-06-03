@@ -1,7 +1,6 @@
-import { deepStrictEqual, throws } from "assert";
+import { deepStrictEqual } from "assert";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
-import { DiagnosticError } from "../../compiler/diagnostics.js";
 import { ConfigValidator } from "../../config/config-validator.js";
 import { loadADLConfigInDir } from "../../config/index.js";
 
@@ -20,6 +19,7 @@ describe("adl: config file loading", () => {
       const config = await loadTestConfig(folderName);
       deepStrictEqual(config, {
         plugins: ["foo"],
+        diagnostics: [],
         emitters: {
           "foo:openapi": true,
         },
@@ -48,6 +48,7 @@ describe("adl: config file loading", () => {
       const config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         plugins: [],
+        diagnostics: [],
         emitters: {},
         lint: {
           extends: [],
@@ -62,17 +63,16 @@ describe("adl: config file loading", () => {
     });
 
     it("deep clones defaults when not found", async () => {
-      // load and mutate
       let config = await loadTestConfig("empty");
       config.plugins.push("x");
       config.emitters["x"] = true;
       config.lint.extends.push("x");
       config.lint.rules["x"] = "off";
 
-      // reload and make sure mutation is not observed
       config = await loadTestConfig("empty");
       deepStrictEqual(config, {
         plugins: [],
+        diagnostics: [],
         emitters: {},
         lint: {
           extends: [],
@@ -82,17 +82,16 @@ describe("adl: config file loading", () => {
     });
 
     it("deep clones defaults when found", async () => {
-      // load and mutate
       let config = await loadTestConfig("yaml");
       config.plugins.push("x");
       config.emitters["x"] = true;
       config.lint.extends.push("x");
       config.lint.rules["x"] = "off";
 
-      // reload and make sure mutation is not observed
       config = await loadTestConfig("yaml");
       deepStrictEqual(config, {
         plugins: ["foo"],
+        diagnostics: [],
         emitters: {
           "foo:openapi": true,
         },
@@ -110,32 +109,26 @@ describe("adl: config file loading", () => {
     const validator = new ConfigValidator();
 
     it("does not allow additional properties", () => {
-      throws(
-        () => validator.validateConfig({ someCustomProp: true } as any),
-        new DiagnosticError([
-          {
-            severity: "error",
-            message:
-              "Schema violation: must NOT have additional properties (/)\n  additionalProperty: someCustomProp",
-          },
-        ])
-      );
+      deepStrictEqual(validator.validateConfig({ someCustomProp: true } as any), [
+        {
+          severity: "error",
+          message:
+            "Schema violation: must NOT have additional properties (/)\n  additionalProperty: someCustomProp",
+        },
+      ]);
     });
 
-    it("fail if passing the wrong type", () => {
-      throws(
-        () => validator.validateConfig({ emitters: true } as any),
-        new DiagnosticError([
-          {
-            severity: "error",
-            message: "Schema violation: must be object (/emitters)",
-          },
-        ])
-      );
+    it("fails if passing the wrong type", () => {
+      deepStrictEqual(validator.validateConfig({ emitters: true } as any), [
+        {
+          severity: "error",
+          message: "Schema violation: must be object (/emitters)",
+        },
+      ]);
     });
 
-    it("succeeed if config is valid", () => {
-      validator.validateConfig({ lint: { rules: { foo: "on" } } });
+    it("succeeeds if config is valid", () => {
+      deepStrictEqual(validator.validateConfig({ lint: { rules: { foo: "on" } } }), []);
     });
   });
 });

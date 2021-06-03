@@ -1,4 +1,4 @@
-import { NamespaceType, Program, throwDiagnostic, Type } from "@azure-tools/adl";
+import { NamespaceType, Program, Type } from "@azure-tools/adl";
 
 const basePathsKey = Symbol();
 export function resource(program: Program, entity: Type, basePath = "") {
@@ -77,10 +77,10 @@ function setOperationRoute(program: Program, entity: Type, verb: OperationRoute)
     if (!program.stateMap(operationRoutesKey).has(entity)) {
       program.stateMap(operationRoutesKey).set(entity, verb);
     } else {
-      throwDiagnostic(`HTTP verb already applied to ${entity.name}`, entity);
+      program.reportDiagnostic(`HTTP verb already applied to ${entity.name}`, entity);
     }
   } else {
-    throwDiagnostic(`Cannot use @${verb} on a ${entity.kind}`, entity);
+    program.reportDiagnostic(`Cannot use @${verb} on a ${entity.kind}`, entity);
   }
 }
 
@@ -145,7 +145,10 @@ function getServiceDetails(program: Program) {
 export function _setServiceNamespace(program: Program, namespace: NamespaceType): void {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.namespace && serviceDetails.namespace !== namespace) {
-    throwDiagnostic("Cannot set service namespace more than once in an ADL project.", namespace);
+    program.reportDiagnostic(
+      "Cannot set service namespace more than once in an ADL project.",
+      namespace
+    );
   }
 
   serviceDetails.namespace = namespace;
@@ -159,11 +162,15 @@ export function _checkIfServiceNamespace(program: Program, namespace: NamespaceT
 export function serviceTitle(program: Program, entity: Type, title: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.title) {
-    throwDiagnostic("Service title can only be set once per ADL document.", entity);
+    program.reportDiagnostic("Service title can only be set once per ADL document.", entity);
   }
 
   if (entity.kind !== "Namespace") {
-    throwDiagnostic("The @serviceTitle decorator can only be applied to namespaces.", entity);
+    program.reportDiagnostic(
+      "The @serviceTitle decorator can only be applied to namespaces.",
+      entity
+    );
+    return;
   }
 
   _setServiceNamespace(program, entity);
@@ -179,11 +186,15 @@ export function serviceVersion(program: Program, entity: Type, version: string) 
   const serviceDetails = getServiceDetails(program);
   // TODO: This will need to change once we support multiple service versions
   if (serviceDetails.version) {
-    throwDiagnostic("Service version can only be set once per ADL document.", entity);
+    program.reportDiagnostic("Service version can only be set once per ADL document.", entity);
   }
 
   if (entity.kind !== "Namespace") {
-    throwDiagnostic("The @serviceVersion decorator can only be applied to namespaces.", entity);
+    program.reportDiagnostic(
+      "The @serviceVersion decorator can only be applied to namespaces.",
+      entity
+    );
+    return;
   }
 
   _setServiceNamespace(program, entity);
@@ -207,7 +218,7 @@ const producesTypesKey = Symbol();
 
 export function produces(program: Program, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {
-    throwDiagnostic("The @produces decorator can only be applied to namespaces.", entity);
+    program.reportDiagnostic("The @produces decorator can only be applied to namespaces.", entity);
   }
 
   const values = getProduces(program, entity);
@@ -222,7 +233,7 @@ const consumesTypesKey = Symbol();
 
 export function consumes(program: Program, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {
-    throwDiagnostic("The @consumes decorator can only be applied to namespaces.", entity);
+    program.reportDiagnostic("The @consumes decorator can only be applied to namespaces.", entity);
   }
 
   const values = getConsumes(program, entity);

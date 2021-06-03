@@ -1,6 +1,6 @@
 import assert from "assert";
 import { CharCode } from "../compiler/charcode.js";
-import { logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js";
+import { formatDiagnostic, logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js";
 import { hasParseError, NodeFlags, parse } from "../compiler/parser.js";
 import { ADLScriptNode, SyntaxKind } from "../compiler/types.js";
 
@@ -435,17 +435,15 @@ function parseEach(cases: (string | [string, Callback])[]) {
 
       logVerboseTestOutput("\n=== Diagnostics ===");
       if (astNode.parseDiagnostics.length > 0) {
-        const diagnostics: string[] = [];
-        logDiagnostics(astNode.parseDiagnostics, (e) => diagnostics.push(e!));
+        const diagnostics = astNode.parseDiagnostics.map(formatDiagnostic).join("\n");
 
         assert.strictEqual(
           hasParseError(astNode),
           astNode.parseDiagnostics.some((e) => e.severity === "error"),
-          "root node claims to have no parse errors, but these were reported:\n" +
-            diagnostics.join("\n")
+          "root node claims to have no parse errors, but these were reported:\n" + diagnostics
         );
 
-        assert.fail("Unexpected parse errors in test:\n" + diagnostics.join("\n"));
+        assert.fail("Unexpected parse errors in test:\n" + diagnostics);
       }
     });
   }

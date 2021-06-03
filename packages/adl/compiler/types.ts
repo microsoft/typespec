@@ -28,6 +28,10 @@ export interface IntrinsicType extends BaseType {
   name: string;
 }
 
+export interface ErrorType extends IntrinsicType {
+  name: "ErrorType";
+}
+
 export interface ModelType extends BaseType {
   kind: "Model";
   name: string;

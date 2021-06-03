@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises";
 import { basename, extname, join } from "path";
-import { createSourceFile, throwDiagnostic } from "../compiler/diagnostics.js";
+import { createDiagnostic, createSourceFile } from "../compiler/diagnostics.js";
+import { Diagnostic } from "../compiler/types.js";
 import { deepClone, deepFreeze } from "../compiler/util.js";
 import { ConfigValidator } from "./config-validator.js";
 import { ADLConfig } from "./types.js";
@@ -8,6 +9,7 @@ import { ADLConfig } from "./types.js";
 const configFilenames = [".adlrc.yaml", ".adlrc.yml", ".adlrc.json", "package.json"];
 const defaultConfig: ADLConfig = deepFreeze({
   plugins: [],
+  diagnostics: [],
   emitters: {},
   lint: {
     extends: [],
@@ -79,17 +81,32 @@ async function loadConfigFile(
   const content = await readFile(filePath, "utf-8");
   const file = createSourceFile(content, filePath);
 
-  let config: any;
+  let loadDiagnostics: Diagnostic[];
+  let data: any;
   try {
-    config = loadData(content);
+    data = loadData(content);
+    loadDiagnostics = [];
   } catch (e) {
-    throwDiagnostic(e.message, { file, pos: 0, end: 0 });
+    loadDiagnostics = [createDiagnostic(e.message, { file, pos: 0, end: 0 })];
   }
 
-  configValidator.validateConfig(config, file);
-  mergeDefaults(config, defaultConfig);
-  config.filename = filePath;
-  return config;
+  const validationDiagnostics = configValidator.validateConfig(data);
+  const diagnostics = [...loadDiagnostics, ...validationDiagnostics];
+
+  if (diagnostics.some((d) => d.severity === "error")) {
+    // NOTE: Don't trust the data if there are validation errors, and use
+    // default config. Otherwise, we may return an object that does not
+    // conform to ADLConfig's typing.
+    data = defaultConfig;
+  } else {
+    mergeDefaults(data, defaultConfig);
+  }
+
+  return {
+    ...data,
+    filename: filePath,
+    diagnostics,
+  };
 }
 
 /**

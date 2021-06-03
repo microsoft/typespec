@@ -8,7 +8,7 @@ import yargs from "yargs";
 import { CompilerOptions } from "../compiler/options.js";
 import { compile } from "../compiler/program.js";
 import { loadADLConfigInDir } from "../config/index.js";
-import { compilerAssert, DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
+import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { formatADLFiles } from "./formatter.js";
 import { adlVersion, NodeHost } from "./util.js";
 
@@ -107,22 +107,15 @@ const args = yargs(process.argv.slice(2))
   .demandCommand(1, "You must use one of the supported commands.").argv;
 
 async function compileInput(compilerOptions: CompilerOptions, printSuccess = true) {
-  try {
-    await compile(args.path!, NodeHost, compilerOptions);
-    if (printSuccess) {
-      console.log(
-        `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
-      );
-    }
-  } catch (err) {
-    if (err instanceof DiagnosticError) {
-      logDiagnostics(err.diagnostics, console.error);
-      if (args.debug) {
-        console.error(`Stack trace:\n\n${err.stack}`);
-      }
-      process.exit(1);
-    }
-    throw err; // let non-diagnostic errors go to top-level bug handler.
+  const program = await compile(args.path!, NodeHost, compilerOptions);
+  logDiagnostics(program.diagnostics, console.error);
+  if (program.hasError()) {
+    process.exit(1);
+  }
+  if (printSuccess) {
+    console.log(
+      `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
+    );
   }
 }
 
@@ -266,22 +259,15 @@ async function printInfo() {
   const cwd = process.cwd();
   console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
 
-  try {
-    const config = await loadADLConfigInDir(cwd);
-    const jsyaml = await import("js-yaml");
-    console.log(`User Config: ${config.filename ?? "No config file found"}`);
-    console.log("-----------");
-    console.log(jsyaml.dump(config));
-    console.log("-----------");
-  } catch (err) {
-    if (err instanceof DiagnosticError) {
-      logDiagnostics(err.diagnostics, console.error);
-      if (args.debug) {
-        console.error(`Stack trace:\n\n${err.stack}`);
-      }
-      process.exit(1);
-    }
-    throw err; // let non-diagnostic errors go to top-level bug handler.
+  const config = await loadADLConfigInDir(cwd);
+  const jsyaml = await import("js-yaml");
+  console.log(`User Config: ${config.filename ?? "No config file found"}`);
+  console.log("-----------");
+  console.log(jsyaml.dump(config));
+  console.log("-----------");
+  logDiagnostics(config.diagnostics, console.error);
+  if (config.diagnostics.some((d) => d.severity === "error")) {
+    process.exit(1);
   }
 }
 

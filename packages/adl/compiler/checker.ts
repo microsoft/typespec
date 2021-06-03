@@ -1,4 +1,5 @@
-import { compilerAssert, throwDiagnostic } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
+import { hasParseError } from "./parser.js";
 import { Program } from "./program.js";
 import {
   ADLScriptNode,
@@ -11,9 +12,9 @@ import {
   EnumMemberType,
   EnumStatementNode,
   EnumType,
+  ErrorType,
   IdentifierNode,
   IntersectionExpressionNode,
-  IntrinsicType,
   LiteralNode,
   LiteralType,
   ModelExpressionNode,
@@ -44,7 +45,6 @@ import {
   UnionExpressionNode,
   UnionType,
 } from "./types.js";
-import { reportDuplicateSymbols } from "./util.js";
 
 /**
  * A map keyed by a set of objects.
@@ -97,7 +97,7 @@ export function createChecker(program: Program) {
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
-  const errorType: IntrinsicType = { kind: "Intrinsic", name: "ErrorType" };
+  const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
 
   // This variable holds on to the model type that is currently
   // being instantiated in checkModelStatement so that it is
@@ -108,9 +108,17 @@ export function createChecker(program: Program) {
     for (const using of file.usings) {
       const parentNs = using.parent! as NamespaceStatementNode | ADLScriptNode;
       const sym = resolveTypeReference(using.name);
-      if (sym.kind === "decorator") throwDiagnostic("Can't use a decorator", using);
+      if (!sym) {
+        continue;
+      }
+      if (sym.kind === "decorator") {
+        program.reportDiagnostic("Can't use a decorator", using);
+        continue;
+      }
+
       if (sym.node.kind !== SyntaxKind.NamespaceStatement) {
-        throwDiagnostic("Using must refer to a namespace", using);
+        program.reportDiagnostic("Using must refer to a namespace", using);
+        continue;
       }
 
       for (const [name, binding] of sym.node.exports!) {
@@ -231,12 +239,17 @@ export function createChecker(program: Program) {
 
   function checkTypeReference(node: TypeReferenceNode): Type {
     const sym = resolveTypeReference(node);
+    if (!sym) {
+      return errorType;
+    }
+
     if (sym.kind === "decorator") {
-      throwDiagnostic("Can't put a decorator in a type", node);
+      program.reportDiagnostic("Can't put a decorator in a type", node);
+      return errorType;
     }
 
     const symbolLinks = getSymbolLinks(sym);
-    const args = node.arguments.map(getTypeForNode);
+    let args = node.arguments.map(getTypeForNode);
 
     if (
       sym.node.kind === SyntaxKind.ModelStatement ||
@@ -245,7 +258,10 @@ export function createChecker(program: Program) {
       // model statement, possibly templated
       if (sym.node.templateParameters.length === 0) {
         if (args.length > 0) {
-          throwDiagnostic("Can't pass template arguments to model that is not templated", node);
+          program.reportDiagnostic(
+            "Can't pass template arguments to model that is not templated",
+            node
+          );
         }
 
         if (symbolLinks.declaredType) {
@@ -267,21 +283,21 @@ export function createChecker(program: Program) {
             : checkAlias(sym.node);
         }
 
-        if (sym.node.templateParameters!.length > node.arguments.length) {
-          throwDiagnostic("Too few template arguments provided.", node);
+        const templateParameters = sym.node.templateParameters;
+        if (args.length < templateParameters.length) {
+          program.reportDiagnostic("Too few template arguments provided.", node);
+          args = [...args, ...new Array(templateParameters.length - args.length).fill(errorType)];
+        } else if (args.length > templateParameters.length) {
+          program.reportDiagnostic("Too many template arguments provided.", node);
+          args = args.slice(0, templateParameters.length);
         }
-
-        if (sym.node.templateParameters!.length < node.arguments.length) {
-          throwDiagnostic("Too many template arguments provided.", node);
-        }
-
         return instantiateTemplate(sym.node, args);
       }
     }
     // some other kind of reference
 
     if (args.length > 0) {
-      throwDiagnostic("Can't pass template arguments to non-templated type", node);
+      program.reportDiagnostic("Can't pass template arguments to non-templated type", node);
     }
 
     if (sym.node.kind === SyntaxKind.TemplateParameterDeclaration) {
@@ -363,7 +379,8 @@ export function createChecker(program: Program) {
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
     if (!allModelTypes(optionTypes)) {
-      throwDiagnostic("Cannot intersect non-model types (including union types).", node);
+      program.reportDiagnostic("Cannot intersect non-model types (including union types).", node);
+      return errorType;
     }
 
     const properties = new Map<string, ModelTypeProperty>();
@@ -371,10 +388,11 @@ export function createChecker(program: Program) {
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
-          throwDiagnostic(
+          program.reportDiagnostic(
             `Intersection contains duplicate property definitions for ${prop.name}`,
             node
           );
+          continue;
         }
 
         const newPropType = createType({
@@ -510,6 +528,12 @@ export function createChecker(program: Program) {
   }
 
   function resolveIdentifier(node: IdentifierNode) {
+    if (hasParseError(node)) {
+      // Don't report synthetic identifiers used for parser error recovery.
+      // The parse error is the root cause and will already have been logged.
+      return undefined;
+    }
+
     let scope: Node | undefined = node.parent;
     let binding;
 
@@ -539,29 +563,38 @@ export function createChecker(program: Program) {
       if (binding) return binding;
     }
 
-    throwDiagnostic("Unknown identifier " + node.sv, node);
+    program.reportDiagnostic("Unknown identifier " + node.sv, node);
+    return undefined;
   }
 
-  function resolveTypeReference(node: ReferenceExpression): DecoratorSymbol | TypeSymbol {
+  function resolveTypeReference(
+    node: ReferenceExpression
+  ): DecoratorSymbol | TypeSymbol | undefined {
     if (node.kind === SyntaxKind.TypeReference) {
       return resolveTypeReference(node.target);
     }
 
     if (node.kind === SyntaxKind.MemberExpression) {
       const base = resolveTypeReference(node.base);
+      if (!base) {
+        return undefined;
+      }
       if (base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
         const symbol = resolveIdentifierInTable(node.id, base.node.exports!);
         if (!symbol) {
-          throwDiagnostic(`Namespace doesn't have member ${node.id.sv}`, node);
+          program.reportDiagnostic(`Namespace doesn't have member ${node.id.sv}`, node);
+          return undefined;
         }
         return symbol;
       } else if (base.kind === "decorator") {
-        throwDiagnostic(`Cannot resolve '${node.id.sv}' in decorator`, node);
+        program.reportDiagnostic(`Cannot resolve '${node.id.sv}' in decorator`, node);
+        return undefined;
       } else {
-        throwDiagnostic(
+        program.reportDiagnostic(
           `Cannot resolve '${node.id.sv}' in non-namespace node ${base.node.kind}`,
           node
         );
+        return undefined;
       }
     }
 
@@ -585,12 +618,12 @@ export function createChecker(program: Program) {
   }
 
   function checkProgram(program: Program) {
-    reportDuplicateSymbols(program.globalNamespace.exports!);
+    program.reportDuplicateSymbols(program.globalNamespace.exports!);
     for (const file of program.sourceFiles) {
-      reportDuplicateSymbols(file.locals!);
+      program.reportDuplicateSymbols(file.locals!);
       for (const ns of file.namespaces) {
-        reportDuplicateSymbols(ns.locals!);
-        reportDuplicateSymbols(ns.exports!);
+        program.reportDuplicateSymbols(ns.locals!);
+        program.reportDuplicateSymbols(ns.exports!);
 
         initializeTypeForNamespace(ns);
       }
@@ -688,7 +721,8 @@ export function createChecker(program: Program) {
 
         for (const newProp of newProperties) {
           if (properties.has(newProp.name)) {
-            throwDiagnostic(`Model already has a property named ${newProp.name}`, node);
+            program.reportDiagnostic(`Model already has a property named ${newProp.name}`, node);
+            continue;
           }
 
           properties.set(newProp.name, newProp);
@@ -700,15 +734,20 @@ export function createChecker(program: Program) {
   }
 
   function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
-    return heritage.map((heritageRef) => {
+    let baseModels = [];
+    for (let heritageRef of heritage) {
       const heritageType = getTypeForNode(heritageRef);
-
-      if (heritageType.kind !== "Model") {
-        throwDiagnostic("Models must extend other models.", heritageRef);
+      if (isErrorType(heritageType)) {
+        compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
+        continue;
       }
-
-      return heritageType;
-    });
+      if (heritageType.kind !== "Model") {
+        program.reportDiagnostic("Models must extend other models.", heritageRef);
+        continue;
+      }
+      baseModels.push(heritageType);
+    }
+    return baseModels;
   }
 
   function checkSpreadProperty(targetNode: ReferenceExpression): ModelTypeProperty[] {
@@ -717,7 +756,8 @@ export function createChecker(program: Program) {
 
     if (targetType.kind != "TemplateParameter") {
       if (targetType.kind !== "Model") {
-        throwDiagnostic("Cannot spread properties of non-model type.", targetNode);
+        program.reportDiagnostic("Cannot spread properties of non-model type.", targetNode);
+        return props;
       }
 
       // copy each property
@@ -851,4 +891,8 @@ export function createChecker(program: Program) {
     program.literalTypes.set(node.value, type);
     return type;
   }
+}
+
+function isErrorType(type: Type): type is ErrorType {
+  return type.kind === "Intrinsic" && type.name === "ErrorType";
 }

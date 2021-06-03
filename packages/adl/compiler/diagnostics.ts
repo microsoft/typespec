@@ -6,19 +6,6 @@ import { Diagnostic, Node, SourceFile, SourceLocation, Sym, SyntaxKind, Type } f
 export { Message } from "./messages.js";
 
 /**
- * Represents an error in the code input that is fatal and bails the compilation.
- *
- * This isn't meant to be kept long term, but we currently do this on all errors.
- */
-export class DiagnosticError extends Error {
-  constructor(public readonly diagnostics: readonly Diagnostic[]) {
-    super("Code diagnostics. See diagnostics array.");
-    // Tests don't have our catch-all handler so log the diagnostic now.
-    logVerboseTestOutput((log) => logDiagnostics(diagnostics, log));
-  }
-}
-
-/**
  * Represents a failure with multiple errors.
  */
 export class AggregateError extends Error {
@@ -35,22 +22,7 @@ export class AggregateError extends Error {
 export const NoTarget = Symbol("NoTarget");
 export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 export type WriteLine = (text?: string) => void;
-
-export type ErrorHandler = (
-  message: Message | string,
-  target: DiagnosticTarget,
-  args?: (string | number)[]
-) => void;
-
-export const throwOnError: ErrorHandler = throwDiagnostic;
-
-export function throwDiagnostic(
-  message: Message | string,
-  target: DiagnosticTarget | typeof NoTarget,
-  args?: (string | number)[]
-): never {
-  throw new DiagnosticError([createDiagnostic(message, target, args)]);
-}
+export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
 export function createDiagnostic(
   message: Message | string,
@@ -82,7 +54,10 @@ export function createDiagnostic(
   };
 
   if (locationError || formatError) {
-    throw new AggregateError(new DiagnosticError([diagnostic]), locationError, formatError);
+    const diagnosticError = new Error(
+      "Error(s) occurred trying to report diagnostic: " + diagnostic.message
+    );
+    throw new AggregateError(diagnosticError, locationError, formatError);
   }
 
   return diagnostic;
@@ -206,10 +181,7 @@ export function logVerboseTestOutput(messageOrCallback: string | ((log: WriteLin
 }
 
 export function dumpError(error: Error, writeLine: WriteLine) {
-  if (error instanceof DiagnosticError) {
-    logDiagnostics(error.diagnostics, writeLine);
-    writeLine(error.stack);
-  } else if (error instanceof AggregateError) {
+  if (error instanceof AggregateError) {
     for (const inner of error.errors) {
       dumpError(inner, writeLine);
     }
