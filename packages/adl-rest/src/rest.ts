@@ -43,6 +43,10 @@ export function getQueryParamName(entity: Type) {
   return queryFields.get(entity);
 }
 
+export function isQueryParam(entity: Type) {
+  return queryFields.has(entity);
+}
+
 const pathFields = new Map<Type, string>();
 export function path(program: Program, entity: Type, paramName: string) {
   if (!paramName && entity.kind === "ModelProperty") {
@@ -53,6 +57,10 @@ export function path(program: Program, entity: Type, paramName: string) {
 
 export function getPathParamName(entity: Type) {
   return pathFields.get(entity);
+}
+
+export function isPathParam(entity: Type) {
+  return pathFields.has(entity);
 }
 
 const bodyFields = new Set<Type>();
