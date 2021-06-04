@@ -11,7 +11,7 @@ describe("adl: enums", () => {
 
   it("can be valueless", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test enum E {
         A, B, C
@@ -31,7 +31,7 @@ describe("adl: enums", () => {
 
   it("can have values", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test enum E {
         @test("A") A: "a";
@@ -56,7 +56,7 @@ describe("adl: enums", () => {
 
   it("can be a model property", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace Foo;
       enum E { A, B, C }

@@ -10,7 +10,7 @@ describe("adl: loader", () => {
   it("loads ADL and JS files", async () => {
     testHost.addJsFile("blue.js", { blue() {} });
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       import "./b.adl";
       import "./blue.js";
@@ -39,6 +39,6 @@ describe("adl: loader", () => {
       `
     );
 
-    await testHost.compile("a.adl");
+    await testHost.compile("main.adl");
   });
 });

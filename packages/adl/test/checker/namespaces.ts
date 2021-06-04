@@ -17,8 +17,9 @@ describe("adl: namespaces with blocks", () => {
 
   it("can be decorated", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
+      import "./blue.js";
       @blue @test namespace Z.Q;
       @blue @test namespace N { }
       @blue @test namespace X.Y { }
@@ -37,7 +38,7 @@ describe("adl: namespaces with blocks", () => {
 
   it("merges like namespaces", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test
       namespace N { @test model X { x: string } }
@@ -58,6 +59,14 @@ describe("adl: namespaces with blocks", () => {
   });
 
   it("merges like namespaces across files", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      import "./c.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -91,6 +100,14 @@ describe("adl: namespaces with blocks", () => {
 
   it("merges sub-namespaces across files", async () => {
     testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      import "./c.adl";
+      `
+    );
+    testHost.addAdlFile(
       "a.adl",
       `
       namespace N { namespace M { model X { x: string } } }
@@ -117,7 +134,7 @@ describe("adl: namespaces with blocks", () => {
 
   it("can see things in outer scope same file", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       model A { }
       namespace N { model B extends A { } }
@@ -127,6 +144,14 @@ describe("adl: namespaces with blocks", () => {
   });
 
   it("can see things in outer scope cross file", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      import "./c.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -153,7 +178,7 @@ describe("adl: namespaces with blocks", () => {
 
   it("accumulates declarations inside of it", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test namespace Foo {
         namespace Bar { };
@@ -163,7 +188,7 @@ describe("adl: namespaces with blocks", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("/a.adl")) as {
+    const { Foo } = (await testHost.compile("./")) as {
       Foo: NamespaceType;
     };
 
@@ -187,6 +212,14 @@ describe("adl: blockless namespaces", () => {
   });
 
   it("merges properly with other namespaces", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      import "./c.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -215,7 +248,7 @@ describe("adl: blockless namespaces", () => {
 
   it("does lookup correctly", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace Repro;
       model Yo {
@@ -235,7 +268,7 @@ describe("adl: blockless namespaces", () => {
 
   it("does lookup correctly with nested namespaces", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace Repro;
       model Yo {
@@ -265,7 +298,7 @@ describe("adl: blockless namespaces", () => {
 
   it("binds correctly", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace N.M;
       model A { }
@@ -287,7 +320,7 @@ describe("adl: blockless namespaces", () => {
 
   it("works with blockful namespaces", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test
       namespace N;
@@ -314,6 +347,13 @@ describe("adl: blockless namespaces", () => {
   });
 
   it("works with nested blockless and blockfull namespaces", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `

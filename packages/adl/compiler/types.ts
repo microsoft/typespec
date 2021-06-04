@@ -525,7 +525,7 @@ export interface Dirent {
 
 export interface CompilerHost {
   // read a utf-8 encoded file
-  readFile(path: string): Promise<string | undefined>;
+  readFile(path: string): Promise<string>;
 
   // read the contents of a directory
   readDir(path: string): Promise<Dirent[]>;

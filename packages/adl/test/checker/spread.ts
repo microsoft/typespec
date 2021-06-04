@@ -17,8 +17,9 @@ describe("adl: spread", () => {
 
   it("clones decorated properties", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
+      import "./blue.js";
       model A { @blue foo: string }
       model B { @blue bar: string }
       @test model C { ... A, ... B }

@@ -1,4 +1,4 @@
-import { dirname, extname, isAbsolute, join, resolve } from "path";
+import { dirname, extname, isAbsolute, resolve } from "path";
 import resolveModule from "resolve";
 import { createBinder, createSymbolTable } from "./binder.js";
 import { createChecker } from "./checker.js";
@@ -22,6 +22,7 @@ import {
   SyntaxKind,
   Type,
 } from "./types.js";
+import { doIO, loadFile } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -52,7 +53,8 @@ export interface Program {
 
 export async function createProgram(
   host: CompilerHost,
-  options: CompilerOptions
+  mainFile: string,
+  options: CompilerOptions = {}
 ): Promise<Program> {
   const buildCbs: any = [];
   const stateMaps = new Map<Symbol, Map<any, any>>();
@@ -63,7 +65,7 @@ export async function createProgram(
   let error = false;
 
   const program: Program = {
-    compilerOptions: options || {},
+    compilerOptions: options,
     globalNamespace: createGlobalNamespace(),
     sourceFiles: [],
     literalTypes: new Map(),
@@ -94,7 +96,7 @@ export async function createProgram(
     await loadStandardLibrary(program);
   }
 
-  await loadMain(options);
+  await loadMain(mainFile, options);
 
   const checker = (program.checker = createChecker(program));
   program.checker.checkProgram(program);
@@ -187,36 +189,40 @@ export async function createProgram(
     }
   }
 
-  async function loadDirectory(rootDir: string) {
-    const dir = await host.readDir(rootDir);
-    for (const entry of dir) {
-      if (entry.isFile()) {
-        const path = join(rootDir, entry.name);
-        if (entry.name.endsWith(".js")) {
-          await loadJsFile(path);
-        } else if (entry.name.endsWith(".adl")) {
-          await loadAdlFile(path);
-        }
-      }
-    }
+  async function loadDirectory(dir: string, diagnosticTarget?: DiagnosticTarget) {
+    const pkgJsonPath = resolve(dir, "package.json");
+    let [pkg] = await loadFile(host.readFile, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
+      allowFileNotFound: true,
+      diagnosticTarget,
+    });
+    const mainFile = resolve(dir, pkg?.adlMain ?? "main.adl");
+    await loadAdlFile(mainFile, diagnosticTarget);
   }
 
-  async function loadAdlFile(path: string) {
+  async function loadAdlFile(path: string, diagnosticTarget?: DiagnosticTarget) {
     if (seenSourceFiles.has(path)) {
       return;
     }
     seenSourceFiles.add(path);
 
-    const contents = await host.readFile(path);
-    if (!contents) {
-      throw new Error("Couldn't load ADL file " + path);
-    }
+    const contents = await doIO(host.readFile, path, program.reportDiagnostic, {
+      diagnosticTarget,
+    });
 
-    await evalAdlScript(contents, path);
+    if (contents) {
+      await evalAdlScript(contents, path);
+    }
   }
 
-  async function loadJsFile(path: string) {
-    const exports = await host.getJsImport(path);
+  async function loadJsFile(path: string, diagnosticTarget: DiagnosticTarget) {
+    const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
+      diagnosticTarget,
+      jsDiagnosticTarget: { file: createSourceFile("", path), pos: 0, end: 0 },
+    });
+
+    if (!exports) {
+      return;
+    }
 
     for (const match of Object.keys(exports)) {
       // bind JS files early since this is the only work
@@ -279,12 +285,11 @@ export async function createProgram(
       const ext = extname(target);
 
       if (ext === "") {
-        // look for a main.adl
-        await loadAdlFile(join(target, "main.adl"));
-      } else if (ext === ".js") {
-        await loadJsFile(target);
+        await loadDirectory(target, stmt);
+      } else if (ext === ".js" || ext === ".mjs") {
+        await loadJsFile(target, stmt);
       } else if (ext === ".adl") {
-        await loadAdlFile(target);
+        await loadAdlFile(target, stmt);
       } else {
         program.reportDiagnostic(
           "Import paths must reference either a directory, a .adl file, or .js file",
@@ -342,7 +347,13 @@ export async function createProgram(
             host
               .realpath(path)
               .then((p) => cb(null, p))
-              .catch((e) => cb(e));
+              .catch((e) => {
+                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+                  cb(null, path);
+                } else {
+                  cb(e);
+                }
+              });
           },
           packageFilter(pkg) {
             // this lets us follow node resolve semantics more-or-less exactly
@@ -355,8 +366,7 @@ export async function createProgram(
           if (err) {
             rejectP(err);
           } else if (!resolved) {
-            // I don't know when this happens
-            rejectP(new Error("Couldn't resolve module"));
+            rejectP(new Error("BUG: Module resolution succeeded but didn't return a value."));
           } else {
             resolveP(resolved);
           }
@@ -365,14 +375,9 @@ export async function createProgram(
     });
   }
 
-  async function loadMain(options: CompilerOptions) {
-    if (!options.mainFile) {
-      throw new Error("Must specify a main file");
-    }
-
-    const mainPath = resolve(host.getCwd(), options.mainFile);
-
-    const mainStat = await getMainPathStats(mainPath);
+  async function loadMain(mainFile: string, options: CompilerOptions) {
+    const mainPath = resolve(host.getCwd(), mainFile);
+    const mainStat = await doIO(host.stat, mainPath, program.reportDiagnostic);
     if (!mainStat) {
       return;
     }
@@ -380,18 +385,6 @@ export async function createProgram(
       await loadDirectory(mainPath);
     } else {
       await loadAdlFile(mainPath);
-    }
-  }
-
-  async function getMainPathStats(mainPath: string) {
-    try {
-      return await host.stat(mainPath);
-    } catch (e) {
-      if (e.code === "ENOENT") {
-        program.reportDiagnostic(Message.FileNotFound, NoTarget, [mainPath]);
-        return undefined;
-      }
-      throw e;
     }
   }
 
@@ -458,9 +451,9 @@ export async function createProgram(
 }
 
 export async function compile(
-  rootDir: string,
+  mainFile: string,
   host: CompilerHost,
   options?: CompilerOptions
 ): Promise<Program> {
-  return await createProgram(host, { mainFile: rootDir, ...options });
+  return await createProgram(host, mainFile, options);
 }

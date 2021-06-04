@@ -11,7 +11,7 @@ describe("adl: aliases", () => {
 
   it("can alias a union expression", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       alias Foo = int32 | string;
       alias Bar = "hi" | 10;
@@ -37,7 +37,7 @@ describe("adl: aliases", () => {
 
   it("can alias a deep union expression", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       alias Foo = int32 | string;
       alias Bar = "hi" | 10;
@@ -65,7 +65,7 @@ describe("adl: aliases", () => {
 
   it("can alias a union expression with parameters", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       alias Foo<T> = int32 | T;
       
@@ -88,7 +88,7 @@ describe("adl: aliases", () => {
 
   it("can alias a deep union expression with parameters", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       alias Foo<T> = int32 | T;
       alias Bar<T, U> = Foo<T> | Foo<U>;
@@ -114,7 +114,7 @@ describe("adl: aliases", () => {
 
   it("can alias an intersection expression", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       alias Foo = {a: string} & {b: string};
       alias Bar = {c: string} & {d: string};
@@ -140,7 +140,7 @@ describe("adl: aliases", () => {
 
   it("can be used like any model", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test model Test { a: string };
 

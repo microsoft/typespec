@@ -16,10 +16,10 @@ const args = yargs(process.argv.slice(2))
   .scriptName("adl")
   .help()
   .strict()
-  .command("compile <path>", "Compile a directory of ADL files.", (cmd) => {
+  .command("compile <path>", "Compile ADL source.", (cmd) => {
     return cmd
       .positional("path", {
-        description: "The path to folder containing .adl files",
+        description: "The path to the main.adl file or directory containing main.adl.",
         type: "string",
       })
       .option("output-path", {
@@ -40,44 +40,40 @@ const args = yargs(process.argv.slice(2))
         describe: "Don't load the ADL standard library.",
       });
   })
-  .command(
-    "generate <path>",
-    "Generate client and server code from a directory of ADL files.",
-    (cmd) => {
-      return (
-        cmd
-          .positional("path", {
-            description: "The path to folder containing .adl files",
-            type: "string",
-          })
-          .option("client", {
-            type: "boolean",
-            describe: "Generate a client library for the ADL definition",
-          })
-          .option("language", {
-            type: "string",
-            choices: ["typescript", "csharp", "python"],
-            describe: "The language to use for code generation",
-          })
-          .option("output-path", {
-            type: "string",
-            default: "./adl-output",
-            describe:
-              "The output path for generated artifacts.  If it does not exist, it will be created.",
-          })
-          .option("option", {
-            type: "array",
-            string: true,
-            describe:
-              "Key/value pairs that can be passed to ADL components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
-          })
-          // we can't generate anything but a client yet
-          .demandOption("client")
-          // and language is required to do so
-          .demandOption("language")
-      );
-    }
-  )
+  .command("generate <path>", "Generate client code from ADL source.", (cmd) => {
+    return (
+      cmd
+        .positional("path", {
+          description: "The path to folder containing .adl files",
+          type: "string",
+        })
+        .option("client", {
+          type: "boolean",
+          describe: "Generate a client library for the ADL definition",
+        })
+        .option("language", {
+          type: "string",
+          choices: ["typescript", "csharp", "python"],
+          describe: "The language to use for code generation",
+        })
+        .option("output-path", {
+          type: "string",
+          default: "./adl-output",
+          describe:
+            "The output path for generated artifacts.  If it does not exist, it will be created.",
+        })
+        .option("option", {
+          type: "array",
+          string: true,
+          describe:
+            "Key/value pairs that can be passed to ADL components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
+        })
+        // we can't generate anything but a client yet
+        .demandOption("client")
+        // and language is required to do so
+        .demandOption("language")
+    );
+  })
   .command("code", "Manage VS Code Extension.", (cmd) => {
     return cmd
       .demandCommand(1, "No command specified.")
@@ -261,9 +257,12 @@ async function printInfo() {
 
   const config = await loadADLConfigInDir(cwd);
   const jsyaml = await import("js-yaml");
+  const excluded = ["diagnostics", "filename"];
+  const replacer = (key: string, value: any) => (excluded.includes(key) ? undefined : value);
+
   console.log(`User Config: ${config.filename ?? "No config file found"}`);
   console.log("-----------");
-  console.log(jsyaml.dump(config));
+  console.log(jsyaml.dump(config, { replacer }));
   console.log("-----------");
   logDiagnostics(config.diagnostics, console.error);
   if (config.diagnostics.some((d) => d.severity === "error")) {
@@ -377,15 +376,20 @@ async function main() {
   }
 }
 
-main()
-  .then(() => {})
-  .catch((err) => {
-    // NOTE: An expected error, like one thrown for bad input, shouldn't reach
-    // here, but be handled somewhere else. If we reach here, it should be
-    // considered a bug and therefore we should not suppress the stack trace as
-    // that risks losing it in the case of a bug that does not repro easily.
-    console.error("Internal compiler error!");
-    console.error("File issue at https://github.com/azure/adl");
-    dumpError(err, console.error);
-    process.exit(1);
-  });
+function internalCompilerError(error: Error) {
+  // NOTE: An expected error, like one thrown for bad input, shouldn't reach
+  // here, but be handled somewhere else. If we reach here, it should be
+  // considered a bug and therefore we should not suppress the stack trace as
+  // that risks losing it in the case of a bug that does not repro easily.
+  console.error("Internal compiler error!");
+  console.error("File issue at https://github.com/azure/adl");
+  dumpError(error, console.error);
+  process.exit(1);
+}
+
+process.on("unhandledRejection", (error: Error) => {
+  console.error("Unhandled promise rejection!");
+  internalCompilerError(error);
+});
+
+main().catch(internalCompilerError);

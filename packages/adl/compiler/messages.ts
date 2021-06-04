@@ -62,7 +62,7 @@ export const Message = {
 
   FileNotFound: {
     code: 1109,
-    text: `File {0} is not found.`,
+    text: `File {0} not found.`,
     severity: "error",
   } as const,
 };

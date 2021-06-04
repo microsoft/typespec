@@ -12,10 +12,7 @@ describe("adl: libraries", () => {
           const mainFile = fileURLToPath(
             new URL(`../../../test/libraries/${lib}/main.adl`, import.meta.url)
           );
-          await createProgram(NodeHost, {
-            mainFile,
-            noEmit: true,
-          });
+          await createProgram(NodeHost, mainFile, { noEmit: true });
         } catch (e) {
           console.error(e.diagnostics);
           throw e;

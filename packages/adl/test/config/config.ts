@@ -1,8 +1,10 @@
 import { deepStrictEqual } from "assert";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
+import { createSourceFile } from "../../compiler/diagnostics.js";
+import { Diagnostic } from "../../compiler/types.js";
 import { ConfigValidator } from "../../config/config-validator.js";
-import { loadADLConfigInDir } from "../../config/index.js";
+import { ADLRawConfig, loadADLConfigInDir } from "../../config/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -107,10 +109,18 @@ describe("adl: config file loading", () => {
 
   describe("validation", () => {
     const validator = new ConfigValidator();
+    const file = createSourceFile("<content>", "<path>");
+
+    function validate(data: ADLRawConfig) {
+      const diagnostics: Diagnostic[] = [];
+      validator.validateConfig(data, file, (d) => diagnostics.push(d));
+      return diagnostics;
+    }
 
     it("does not allow additional properties", () => {
-      deepStrictEqual(validator.validateConfig({ someCustomProp: true } as any), [
+      deepStrictEqual(validate({ someCustomProp: true } as any), [
         {
+          file,
           severity: "error",
           message:
             "Schema violation: must NOT have additional properties (/)\n  additionalProperty: someCustomProp",
@@ -119,16 +129,17 @@ describe("adl: config file loading", () => {
     });
 
     it("fails if passing the wrong type", () => {
-      deepStrictEqual(validator.validateConfig({ emitters: true } as any), [
+      deepStrictEqual(validate({ emitters: true } as any), [
         {
+          file,
           severity: "error",
           message: "Schema violation: must be object (/emitters)",
         },
       ]);
     });
 
-    it("succeeeds if config is valid", () => {
-      deepStrictEqual(validator.validateConfig({ lint: { rules: { foo: "on" } } }), []);
+    it("succeeds if config is valid", () => {
+      deepStrictEqual(validate({ lint: { rules: { foo: "on" } } }), []);
     });
   });
 });

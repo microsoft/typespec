@@ -11,7 +11,7 @@ describe("adl: duplicate declarations", () => {
 
   it("reports duplicate template parameters", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       model A<T, T> { }
     `
@@ -23,7 +23,7 @@ describe("adl: duplicate declarations", () => {
 
   it("reports duplicate model declarations in global scope", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       model A { }
       model A { }
@@ -36,7 +36,7 @@ describe("adl: duplicate declarations", () => {
 
   it("reports duplicate model declarations in a single namespace", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace Foo;
       model A { }
@@ -50,7 +50,7 @@ describe("adl: duplicate declarations", () => {
 
   it("reports duplicate model declarations across multiple namespaces", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace N {
         model A { };
@@ -67,6 +67,13 @@ describe("adl: duplicate declarations", () => {
   });
 
   it("reports duplicate model declarations across multiple files and namespaces", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `

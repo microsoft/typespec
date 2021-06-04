@@ -12,7 +12,7 @@ describe("adl: range limiting decorators", () => {
 
   it("applies @minimum and @maximum decorators", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test model A { @minValue(15) foo: int32; @maxValue(55) boo: float32; }
       @test model B { @maxValue(20) bar: int64; @minValue(23) car: float64; }

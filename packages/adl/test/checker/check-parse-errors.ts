@@ -10,7 +10,7 @@ describe("adl: semantic checks on source with parse errors", () => {
 
   it("reports semantic errors in addition to parse errors", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `model M extends Q {
         a: B;
         a: C;

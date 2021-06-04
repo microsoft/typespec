@@ -1,8 +1,8 @@
 import { readFile } from "fs/promises";
 import { basename, extname, join } from "path";
-import { createDiagnostic, createSourceFile } from "../compiler/diagnostics.js";
+import { Message } from "../compiler/diagnostics.js";
 import { Diagnostic } from "../compiler/types.js";
-import { deepClone, deepFreeze } from "../compiler/util.js";
+import { deepClone, deepFreeze, loadFile } from "../compiler/util.js";
 import { ConfigValidator } from "./config-validator.js";
 import { ADLConfig } from "./types.js";
 
@@ -24,14 +24,14 @@ const defaultConfig: ADLConfig = deepFreeze({
 export async function loadADLConfigInDir(directoryPath: string): Promise<ADLConfig> {
   for (const filename of configFilenames) {
     const filePath = join(directoryPath, filename);
-    try {
-      return await loadADLConfigFile(filePath);
-    } catch (e) {
-      if (e.code === "ENOENT") {
-        continue;
-      }
-      throw e;
+    const config = await loadADLConfigFile(filePath);
+    if (
+      config.diagnostics.length === 1 &&
+      config.diagnostics[0].code === Message.FileNotFound.code
+    ) {
+      continue;
     }
+    return config;
   }
   return deepClone(defaultConfig);
 }
@@ -78,35 +78,32 @@ async function loadConfigFile(
   filePath: string,
   loadData: (content: string) => any
 ): Promise<ADLConfig> {
-  const content = await readFile(filePath, "utf-8");
-  const file = createSourceFile(content, filePath);
+  const diagnostics: Diagnostic[] = [];
+  const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
 
-  let loadDiagnostics: Diagnostic[];
-  let data: any;
-  try {
-    data = loadData(content);
-    loadDiagnostics = [];
-  } catch (e) {
-    loadDiagnostics = [createDiagnostic(e.message, { file, pos: 0, end: 0 })];
+  let [data, file] = await loadFile(
+    (path) => readFile(path, "utf-8"),
+    filePath,
+    loadData,
+    reportDiagnostic
+  );
+
+  if (data) {
+    configValidator.validateConfig(data, file, reportDiagnostic);
   }
 
-  const validationDiagnostics = configValidator.validateConfig(data);
-  const diagnostics = [...loadDiagnostics, ...validationDiagnostics];
-
-  if (diagnostics.some((d) => d.severity === "error")) {
-    // NOTE: Don't trust the data if there are validation errors, and use
-    // default config. Otherwise, we may return an object that does not
-    // conform to ADLConfig's typing.
-    data = defaultConfig;
+  if (!data || diagnostics.length > 0) {
+    // NOTE: Don't trust the data if there are errors and use default
+    // config. Otherwise, we may return an object that does not conform to
+    // ADLConfig's typing.
+    data = deepClone(defaultConfig);
   } else {
     mergeDefaults(data, defaultConfig);
   }
 
-  return {
-    ...data,
-    filename: filePath,
-    diagnostics,
-  };
+  data.filename = filePath;
+  data.diagnostics = diagnostics;
+  return data;
 }
 
 /**

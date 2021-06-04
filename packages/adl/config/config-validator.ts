@@ -1,5 +1,5 @@
 import Ajv, { ErrorObject } from "ajv";
-import { compilerAssert } from "../compiler/diagnostics.js";
+import { compilerAssert, DiagnosticHandler } from "../compiler/diagnostics.js";
 import { Diagnostic, SourceFile } from "../compiler/types.js";
 import { ADLConfigJsonSchema } from "./config-schema.js";
 import { ADLRawConfig } from "./types.js";
@@ -15,20 +15,28 @@ export class ConfigValidator {
    * @param file @optional file for errors tracing.
    * @returns Validation
    */
-  public validateConfig(config: ADLRawConfig, file?: SourceFile): Diagnostic[] {
+  public validateConfig(
+    config: ADLRawConfig,
+    file: SourceFile,
+    reportDiagnostic: DiagnosticHandler
+  ): void {
     const validate = this.ajv.compile(ADLConfigJsonSchema);
     const valid = validate(config);
     compilerAssert(
       !valid || !validate.errors,
       "There should be errors reported if the config file is not valid."
     );
-    return validate.errors?.map((e) => ajvErrorToDiagnostic(e, file)) ?? [];
+
+    for (const error of validate.errors ?? []) {
+      const diagnostic = ajvErrorToDiagnostic(error, file);
+      reportDiagnostic(diagnostic);
+    }
   }
 }
 
 const IGNORED_AJV_PARAMS = new Set(["type", "errors"]);
 
-function ajvErrorToDiagnostic(error: ErrorObject, file?: SourceFile): Diagnostic {
+function ajvErrorToDiagnostic(error: ErrorObject, file: SourceFile): Diagnostic {
   const messageLines = [`Schema violation: ${error.message} (${error.instancePath || "/"})`];
   for (const [name, value] of Object.entries(error.params).filter(
     ([name]) => !IGNORED_AJV_PARAMS.has(name)
@@ -37,9 +45,6 @@ function ajvErrorToDiagnostic(error: ErrorObject, file?: SourceFile): Diagnostic
     messageLines.push(`  ${name}: ${formattedValue}`);
   }
 
-  return {
-    severity: "error",
-    message: messageLines.join("\n"),
-    ...(file && { file }),
-  };
+  const message = messageLines.join("\n");
+  return { message, severity: "error", file };
 }
