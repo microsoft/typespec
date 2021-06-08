@@ -1,6 +1,27 @@
-import { NamespaceType, Program, throwDiagnostic, Type } from "@azure-tools/adl";
+import { NamespaceType, OperationType, Program, throwDiagnostic, Type } from "@azure-tools/adl";
 
 const basePaths = new Map<Type, string>();
+
+export interface HttpOperationType extends OperationType {
+    basePath: string,
+    route: OperationRoute
+}
+
+export function getHttpOperation(operation: OperationType) : HttpOperationType | undefined {
+  if (!isResource(operation)) {
+    return undefined;
+  }
+   return {
+     basePath: basePathForResource(operation)!,
+     route: getOperationRoute(operation)!,
+     kind: operation.kind,
+     name: operation.name,
+     node: operation.node,
+     returnType: operation.returnType,
+     namespace: operation.namespace,
+     parameters: operation.parameters
+   };
+}
 
 export function resource(program: Program, entity: Type, basePath = "") {
   if (entity.kind !== "Namespace") return;
