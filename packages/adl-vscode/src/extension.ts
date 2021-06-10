@@ -11,7 +11,10 @@ let client: LanguageClient | undefined;
 export function activate(context: ExtensionContext) {
   const exe = resolveADLServer(context);
   const options: LanguageClientOptions = {
-    documentSelector: [{ scheme: "file", language: "adl" }],
+    documentSelector: [
+      { scheme: "file", language: "adl" },
+      { scheme: "untitled", language: "adl" },
+    ],
   };
 
   const name = "ADL";
