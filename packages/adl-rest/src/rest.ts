@@ -3,24 +3,24 @@ import { NamespaceType, OperationType, Program, throwDiagnostic, Type } from "@a
 const basePaths = new Map<Type, string>();
 
 export interface HttpOperationType extends OperationType {
-    basePath: string,
-    route: OperationRoute
+  basePath: string,
+  route: OperationRoute
 }
 
-export function getHttpOperation(operation: OperationType) : HttpOperationType | undefined {
+export function getHttpOperation(operation: OperationType): HttpOperationType | undefined {
   if (!isResource(operation)) {
     return undefined;
   }
-   return {
-     basePath: basePathForResource(operation)!,
-     route: getOperationRoute(operation)!,
-     kind: operation.kind,
-     name: operation.name,
-     node: operation.node,
-     returnType: operation.returnType,
-     namespace: operation.namespace,
-     parameters: operation.parameters
-   };
+  return {
+    basePath: basePathForResource(operation)!,
+    route: getOperationRoute(operation)!,
+    kind: operation.kind,
+    name: operation.name,
+    node: operation.node,
+    returnType: operation.returnType,
+    namespace: operation.namespace,
+    parameters: operation.parameters
+  };
 }
 
 export function resource(program: Program, entity: Type, basePath = "") {
@@ -160,6 +160,7 @@ const serviceDetails: {
   namespace?: NamespaceType;
   title?: string;
   version?: string;
+  host?: string;
 } = {};
 
 export function _setServiceNamespace(namespace: NamespaceType): void {
@@ -189,6 +190,23 @@ export function serviceTitle(program: Program, entity: Type, title: string) {
 
 export function getServiceTitle(): string {
   return serviceDetails.title || "(title)";
+}
+
+export function serviceHost(program: Program, entity: Type, host: string) {
+  if (serviceDetails.host) {
+    throwDiagnostic("Service host can only be set once per ADL document.", entity);
+  }
+
+  if (entity.kind !== "Namespace") {
+    throwDiagnostic("The @serviceHost decorator can only be applied to namespaces.", entity);
+  }
+
+  _setServiceNamespace(entity);
+  serviceDetails.host = host;
+}
+
+export function getServiceHost(): string {
+  return serviceDetails.host || "management.azure.com";
 }
 
 export function serviceVersion(program: Program, entity: Type, version: string) {
