@@ -75,7 +75,7 @@ export interface OperationType {
   node: OperationStatementNode;
   name: string;
   namespace?: NamespaceType;
-  parameters?: ModelType;
+  parameters: ModelType;
   returnType: Type;
 }
 
@@ -342,7 +342,7 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode {
 export interface ModelStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
-  properties?: (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
   heritage: ReferenceExpression[];
   templateParameters: TemplateParameterDeclarationNode[];
   locals?: SymbolTable;

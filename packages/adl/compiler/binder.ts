@@ -49,15 +49,25 @@ export interface TypeSymbol {
 
 export interface Binder {
   bindSourceFile(program: Program, sourceFile: ADLScriptNode): void;
+  bindNode(node: Node): void;
 }
 
 export function createSymbolTable(): SymbolTable {
   return new SymbolTable();
 }
 
-export function createBinder(reportDuplicateSymbols: (symbolTable: SymbolTable) => void): Binder {
+export interface BinderOptions {
+  // Configures the initial parent node to use when calling bindNode.  This is
+  // useful for binding ADL fragments outside the context of a full script node.
+  initialParentNode?: Node;
+}
+
+export function createBinder(
+  reportDuplicateSymbols: (symbolTable: SymbolTable) => void,
+  options: BinderOptions = {}
+): Binder {
   let currentFile: ADLScriptNode;
-  let parentNode: Node;
+  let parentNode: Node | undefined = options?.initialParentNode;
   let globalNamespace: NamespaceStatementNode;
   let fileNamespace: NamespaceStatementNode;
   let currentNamespace: NamespaceStatementNode;
@@ -66,6 +76,7 @@ export function createBinder(reportDuplicateSymbols: (symbolTable: SymbolTable) 
   let scope: ScopeNode;
   return {
     bindSourceFile,
+    bindNode,
   };
 
   function bindSourceFile(program: Program, sourceFile: ADLScriptNode) {

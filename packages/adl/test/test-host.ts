@@ -154,7 +154,12 @@ export async function createTestHost(): Promise<TestHost> {
   addJsFile("/.adl/test-lib/test.js", {
     test(_: any, target: Type, name?: string) {
       if (!name) {
-        if (target.kind === "Model" || target.kind === "Namespace" || target.kind === "Enum") {
+        if (
+          target.kind === "Model" ||
+          target.kind === "Namespace" ||
+          target.kind === "Enum" ||
+          target.kind === "Operation"
+        ) {
           name = target.name;
         } else {
           throw new Error("Need to specify a name for test type");

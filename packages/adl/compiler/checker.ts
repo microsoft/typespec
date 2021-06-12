@@ -49,6 +49,8 @@ import {
 export interface Checker {
   getTypeForNode(node: Node): Type;
   checkProgram(program: Program): void;
+  checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty;
+  checkUnionExpression(node: UnionExpressionNode): UnionType;
   getGlobalNamespaceType(): NamespaceType;
 
   getLiteralType(node: StringLiteralNode): StringLiteralType;
@@ -153,6 +155,8 @@ export function createChecker(program: Program): Checker {
   return {
     getTypeForNode,
     checkProgram,
+    checkModelProperty,
+    checkUnionExpression,
     getLiteralType,
     getTypeName,
     getNamespaceString,
