@@ -8,7 +8,7 @@ export interface HttpOperationType extends OperationType {
 }
 
 export function getHttpOperation(operation: OperationType): HttpOperationType | undefined {
-  if (!isResource(operation)) {
+  if (!operation.namespace || !isResource(operation.namespace!)) {
     return undefined;
   }
   return {
