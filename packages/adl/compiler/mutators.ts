@@ -22,9 +22,19 @@ function addProperty(
   propertyName: string,
   propertyTypeName: string,
   insertIndex?: number
-): ModelTypeProperty {
+): ModelTypeProperty | undefined {
   // Parse a temporary model type to extract its property
   const fakeNode = parse(`model Fake { ${propertyName}: ${propertyTypeName}}`);
+  if (fakeNode.parseDiagnostics.length > 0) {
+    program.reportDiagnostic(
+      `Could not add property/parameter "${propertyName}" of type "${propertyTypeName}"`,
+      model
+    );
+    program.reportDiagnostics(fakeNode.parseDiagnostics);
+
+    return undefined;
+  }
+
   const firstStatement = fakeNode.statements[0] as ModelStatementNode;
   const graftProperty = firstStatement.properties![0] as ModelPropertyNode;
 
@@ -88,8 +98,13 @@ export function addModelProperty(
     propertyName,
     propertyTypeName
   );
-  model.properties.set(propertyName, newProperty);
-  return newProperty;
+
+  if (newProperty) {
+    model.properties.set(propertyName, newProperty);
+    return newProperty;
+  }
+
+  return undefined;
 }
 
 export interface NewParameterOptions {
@@ -130,7 +145,7 @@ export function addOperationResponseType(
   program: Program,
   operation: OperationType,
   responseTypeName: string
-) {
+): any {
   if (operation.node.kind !== SyntaxKind.OperationStatement) {
     program.reportDiagnostic(
       "Cannot add a response to anything except an operation statement.",
@@ -142,6 +157,16 @@ export function addOperationResponseType(
 
   // Parse a temporary operation to extract its response type
   const opNode = parse(`op Fake(): string | ${responseTypeName};`);
+  if (opNode.parseDiagnostics.length > 0) {
+    program.reportDiagnostic(
+      `Could not add response type "${responseTypeName}" to operation ${operation.name}"`,
+      operation
+    );
+    program.reportDiagnostics(opNode.parseDiagnostics);
+
+    return undefined;
+  }
+
   const graftUnion = (opNode.statements[0] as OperationStatementNode)
     .returnType as UnionExpressionNode;
 
