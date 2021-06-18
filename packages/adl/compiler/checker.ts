@@ -46,6 +46,20 @@ import {
   UnionType,
 } from "./types.js";
 
+export interface Checker {
+  getTypeForNode(node: Node): Type;
+  checkProgram(program: Program): void;
+  getGlobalNamespaceType(): NamespaceType;
+
+  getLiteralType(node: StringLiteralNode): StringLiteralType;
+  getLiteralType(node: NumericLiteralNode): NumericLiteralType;
+  getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
+  getLiteralType(node: LiteralNode): LiteralType;
+
+  getTypeName(type: Type): string;
+  getNamespaceString(type: NamespaceType | undefined): string;
+}
+
 /**
  * A map keyed by a set of objects.
  *
@@ -92,11 +106,20 @@ interface PendingModelInfo {
   type: ModelType;
 }
 
-export function createChecker(program: Program) {
+export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
+  const root = createType({
+    kind: "Namespace",
+    name: "",
+    node: program.globalNamespace,
+    models: new Map(),
+    operations: new Map(),
+    namespaces: new Map(),
+  });
+
   const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
 
   // This variable holds on to the model type that is currently
@@ -133,7 +156,7 @@ export function createChecker(program: Program) {
     getLiteralType,
     getTypeName,
     getNamespaceString,
-    checkOperation,
+    getGlobalNamespaceType,
   };
 
   function getTypeForNode(node: Node): Type {
@@ -197,8 +220,7 @@ export function createChecker(program: Program) {
   function getNamespaceString(type: NamespaceType | undefined): string {
     if (!type) return "";
     const parent = type.namespace;
-
-    return parent ? `${getNamespaceString(parent)}.${type.name}` : type.name;
+    return parent && parent.name !== "" ? `${getNamespaceString(parent)}.${type.name}` : type.name;
   }
 
   function getEnumName(e: EnumType): string {
@@ -472,7 +494,8 @@ export function createChecker(program: Program) {
   function getParentNamespaceType(
     node: ModelStatementNode | NamespaceStatementNode | OperationStatementNode | EnumStatementNode
   ): NamespaceType | undefined {
-    if (!node.namespaceSymbol) return undefined;
+    if (node === root.node) return undefined;
+    if (!node.namespaceSymbol) return root;
 
     const symbolLinks = getSymbolLinks(node.namespaceSymbol);
     compilerAssert(symbolLinks.type, "Parent namespace isn't typed yet.", node);
@@ -492,6 +515,10 @@ export function createChecker(program: Program) {
     });
     namespace?.operations.set(name, type);
     return type;
+  }
+
+  function getGlobalNamespaceType() {
+    return root;
   }
 
   function checkTupleExpression(node: TupleExpressionNode): TupleType {

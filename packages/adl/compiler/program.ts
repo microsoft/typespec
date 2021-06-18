@@ -1,7 +1,7 @@
 import { dirname, extname, isAbsolute, resolve } from "path";
 import resolveModule from "resolve";
 import { createBinder, createSymbolTable } from "./binder.js";
-import { createChecker } from "./checker.js";
+import { Checker, createChecker } from "./checker.js";
 import { createDiagnostic, createSourceFile, DiagnosticTarget, NoTarget } from "./diagnostics.js";
 import { Message } from "./messages.js";
 import { CompilerOptions } from "./options.js";
@@ -30,7 +30,7 @@ export interface Program {
   sourceFiles: ADLScriptNode[];
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
-  checker?: ReturnType<typeof createChecker>;
+  checker?: Checker;
   readonly diagnostics: readonly Diagnostic[];
   evalAdlScript(adlScript: string, filePath?: string): void;
   onBuild(cb: (program: Program) => void): Promise<void> | void;

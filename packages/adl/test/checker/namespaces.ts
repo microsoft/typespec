@@ -421,3 +421,32 @@ describe("adl: blockless namespaces", () => {
     strictEqual(Foo.namespaces.size, 1);
   });
 });
+
+describe("adl: namespace type name", () => {
+  let testHost: TestHost;
+
+  beforeEach(async () => {
+    testHost = await createTestHost();
+  });
+
+  it("prefix with the namespace of the entity", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      namespace Foo;
+      
+      @test()
+      model Model1 {}
+
+      namespace Other.Bar {
+         @test()
+        model Model2 {}
+      }
+      `
+    );
+
+    const { Model1, Model2 } = await testHost.compile("/a.adl");
+    strictEqual(testHost.program.checker?.getTypeName(Model1), "Foo.Model1");
+    strictEqual(testHost.program.checker?.getTypeName(Model2), "Foo.Other.Bar.Model2");
+  });
+});
