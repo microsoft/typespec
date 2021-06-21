@@ -45,7 +45,7 @@ function addProperty(
   graftProperty.end = modelNode.end;
 
   // Create a binder to wire up the grafted property
-  const binder = createBinder((dupe) => {}, {
+  const binder = createBinder(program, {
     initialParentNode: parentNode,
   });
   binder.bindNode(graftProperty);
@@ -176,7 +176,7 @@ export function addOperationResponseType(
   operation.node.returnType = graftUnion;
 
   // Create a binder to wire up the grafted property
-  const binder = createBinder((dupe) => {}, {
+  const binder = createBinder(program, {
     initialParentNode: operation.node,
   });
   binder.bindNode(graftUnion);

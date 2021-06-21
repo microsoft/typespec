@@ -48,7 +48,7 @@ export interface TypeSymbol {
 }
 
 export interface Binder {
-  bindSourceFile(program: Program, sourceFile: ADLScriptNode): void;
+  bindSourceFile(sourceFile: ADLScriptNode): void;
   bindNode(node: Node): void;
 }
 
@@ -62,10 +62,7 @@ export interface BinderOptions {
   initialParentNode?: Node;
 }
 
-export function createBinder(
-  reportDuplicateSymbols: (symbolTable: SymbolTable) => void,
-  options: BinderOptions = {}
-): Binder {
+export function createBinder(program: Program, options: BinderOptions = {}): Binder {
   let currentFile: ADLScriptNode;
   let parentNode: Node | undefined = options?.initialParentNode;
   let globalNamespace: NamespaceStatementNode;
@@ -79,7 +76,7 @@ export function createBinder(
     bindNode,
   };
 
-  function bindSourceFile(program: Program, sourceFile: ADLScriptNode) {
+  function bindSourceFile(sourceFile: ADLScriptNode) {
     globalNamespace = program.globalNamespace;
     fileNamespace = globalNamespace;
     currentFile = sourceFile;
@@ -132,7 +129,7 @@ export function createBinder(
       visitChildren(node, bindNode);
 
       if (node.kind !== SyntaxKind.NamespaceStatement) {
-        reportDuplicateSymbols(node.locals!);
+        program.reportDuplicateSymbols(node.locals!);
       }
 
       scope = prevScope;
