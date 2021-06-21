@@ -90,7 +90,7 @@ export async function createProgram(
   };
 
   let virtualFileCount = 0;
-  const binder = createBinder(program.reportDuplicateSymbols);
+  const binder = createBinder(program);
 
   if (!options?.nostdlib) {
     await loadStandardLibrary(program);
@@ -252,7 +252,7 @@ export async function createProgram(
 
     program.reportDiagnostics(sourceFile.parseDiagnostics);
     program.sourceFiles.push(sourceFile);
-    binder.bindSourceFile(program, sourceFile);
+    binder.bindSourceFile(sourceFile);
     await evalImports(sourceFile);
   }
 
