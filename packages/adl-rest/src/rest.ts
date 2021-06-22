@@ -1,4 +1,4 @@
-import { NamespaceType, OperationType, Program, throwDiagnostic, Type } from "@azure-tools/adl";
+import { NamespaceType, OperationType, Program, Type } from "@azure-tools/adl";
 
 const basePathsKey = Symbol();
 export interface HttpOperationType extends OperationType {
@@ -6,13 +6,13 @@ export interface HttpOperationType extends OperationType {
   route: OperationRoute
 }
 
-export function getHttpOperation(operation: OperationType): HttpOperationType | undefined {
-  if (!operation.namespace || !isResource(operation.namespace!)) {
+export function getHttpOperation(program: Program, operation: OperationType): HttpOperationType | undefined {
+  if (!operation.namespace || !isResource(program, operation.namespace!)) {
     return undefined;
   }
   return {
-    basePath: basePathForResource(operation)!,
-    route: getOperationRoute(operation)!,
+    basePath: basePathForResource(program, operation)!,
+    route: getOperationRoute(program, operation)!,
     kind: operation.kind,
     name: operation.name,
     node: operation.node,
@@ -51,6 +51,7 @@ export function getHeaderFieldName(program: Program, entity: Type) {
   return program.stateMap(headerFieldsKey).get(entity);
 }
 
+
 const queryFieldsKey = Symbol();
 export function query(program: Program, entity: Type, queryKey: string) {
   if (!queryKey && entity.kind === "ModelProperty") {
@@ -63,12 +64,11 @@ export function getQueryParamName(program: Program, entity: Type) {
   return program.stateMap(queryFieldsKey).get(entity);
 }
 
-const pathFieldsKey = Symbol();
-export function isQueryParam(entity: Type) {
-  return queryFields.has(entity);
+export function isQueryParam(program: Program, entity: Type) {
+  return program.stateMap(queryFieldsKey).has(entity);
 }
 
-const pathFields = new Map<Type, string>();
+const pathFieldsKey = Symbol();
 export function path(program: Program, entity: Type, paramName: string) {
   if (!paramName && entity.kind === "ModelProperty") {
     paramName = entity.name;
@@ -80,12 +80,12 @@ export function getPathParamName(program: Program, entity: Type) {
   return program.stateMap(pathFieldsKey).get(entity);
 }
 
-const bodyFieldsKey = Symbol();
-export function isPathParam(entity: Type) {
-  return pathFields.has(entity);
+
+export function isPathParam(program: Program, entity: Type) {
+  return program.stateMap(pathFieldsKey).has(entity);
 }
 
-const bodyFields = new Set<Type>();
+const bodyFieldsKey = Symbol();
 export function body(program: Program, entity: Type) {
   program.stateSet(bodyFieldsKey).add(entity);
 }
@@ -162,7 +162,8 @@ interface ServiceDetails {
   title?: string;
   version?: string;
   host?: string;
-} = {};
+};
+
 const programServiceDetails = new WeakMap<Program, ServiceDetails>();
 function getServiceDetails(program: Program) {
   let serviceDetails = programServiceDetails.get(program);
@@ -215,19 +216,23 @@ export function getServiceTitle(program: Program): string {
 }
 
 export function serviceHost(program: Program, entity: Type, host: string) {
+  const serviceDetails = getServiceDetails(program);
   if (serviceDetails.host) {
-    throwDiagnostic("Service host can only be set once per ADL document.", entity);
+    program.reportDiagnostic("Service host can only be set once per ADL document.", entity);
+    return;
   }
 
   if (entity.kind !== "Namespace") {
-    throwDiagnostic("The @serviceHost decorator can only be applied to namespaces.", entity);
+    program.reportDiagnostic("The @serviceHost decorator can only be applied to namespaces.", entity);
+    return;
   }
 
-  _setServiceNamespace(entity);
+  _setServiceNamespace(program, entity);
   serviceDetails.host = host;
 }
 
-export function getServiceHost(): string {
+export function getServiceHost(program: Program): string {
+  const serviceDetails = getServiceDetails(program);
   return serviceDetails.host || "management.azure.com";
 }
 
