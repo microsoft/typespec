@@ -1,12 +1,20 @@
 import { ExtensionContext, workspace } from "vscode";
-import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
+import {
+  Executable,
+  ExecutableOptions,
+  LanguageClient,
+  LanguageClientOptions,
+} from "vscode-languageclient/node.js";
 
 let client: LanguageClient | undefined;
 
 export function activate(context: ExtensionContext) {
   const exe = resolveADLServer(context);
   const options: LanguageClientOptions = {
-    documentSelector: [{ scheme: "file", language: "adl" }],
+    documentSelector: [
+      { scheme: "file", language: "adl" },
+      { scheme: "untitled", language: "adl" },
+    ],
   };
 
   const name = "ADL";
@@ -19,9 +27,9 @@ function resolveADLServer(context: ExtensionContext): Executable {
   const nodeOptions = process.env.ADL_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
 
-  // In development mode (F5 launch from source), resolve to locally built adl-server.js.
+  // In development mode (F5 launch from source), resolve to locally built server.js.
   if (process.env.ADL_DEVELOPMENT_MODE) {
-    const script = context.asAbsolutePath("../adl/cmd/adl-server.js");
+    const script = context.asAbsolutePath("../adl/dist/server/server.js");
     // we use CLI instead of NODE_OPTIONS environment variable in this case
     // because --nolazy is not supported by NODE_OPTIONS.
     const options = nodeOptions?.split(" ") ?? [];
@@ -50,7 +58,14 @@ function resolveADLServer(context: ExtensionContext): Executable {
     command += ".cmd";
   }
 
-  return { command, args, options: { env: { NODE_OPTIONS: nodeOptions } } };
+  let options: ExecutableOptions | undefined;
+  if (nodeOptions) {
+    options = {
+      env: { ...process.env, NODE_OPTIONS: nodeOptions },
+    };
+  }
+
+  return { command, args, options };
 }
 
 export async function deactivate() {

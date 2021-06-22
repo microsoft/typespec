@@ -1,15 +1,13 @@
-import { throwDiagnostic } from "../compiler/diagnostics.js";
 import { Program } from "../compiler/program.js";
 import { ModelTypeProperty, NamespaceType, Type } from "../compiler/types.js";
 
-const docs = new Map<Type, string>();
-
+const docsKey = Symbol();
 export function doc(program: Program, target: Type, text: string) {
-  docs.set(target, text);
+  program.stateMap(docsKey).set(target, text);
 }
 
-export function getDoc(target: Type) {
-  return docs.get(target);
+export function getDoc(program: Program, target: Type): string {
+  return program.stateMap(docsKey).get(target);
 }
 
 export function inspectType(program: Program, target: Type, text: string) {
@@ -22,26 +20,33 @@ export function inspectTypeName(program: Program, target: Type, text: string) {
   console.log(program.checker!.getTypeName(target));
 }
 
-const intrinsics = new Set<Type>();
+const intrinsicsKey = Symbol();
 export function intrinsic(program: Program, target: Type) {
-  intrinsics.add(target);
+  program.stateSet(intrinsicsKey).add(target);
 }
 
-export function isIntrinsic(target: Type) {
-  return intrinsics.has(target);
+export function isIntrinsic(program: Program, target: Type | undefined) {
+  if (!target) {
+    return false;
+  }
+  return program.stateSet(intrinsicsKey).has(target);
 }
 
 // Walks the assignmentType chain to find the core intrinsic type, if any
-export function getIntrinsicType(target: Type | undefined): string | undefined {
+export function getIntrinsicType(program: Program, target: Type | undefined): string | undefined {
   while (target) {
     if (target.kind === "Model") {
-      if (isIntrinsic(target)) {
+      if (isIntrinsic(program, target)) {
         return target.name;
       }
 
-      target = (target.assignmentType?.kind === "Model" && target.assignmentType) || undefined;
+      if (target.baseModels.length === 1) {
+        target = target.baseModels[0];
+      } else {
+        target = undefined;
+      }
     } else if (target.kind === "ModelProperty") {
-      return getIntrinsicType(target.type);
+      return getIntrinsicType(program, target.type);
     } else {
       break;
     }
@@ -50,185 +55,194 @@ export function getIntrinsicType(target: Type | undefined): string | undefined {
   return undefined;
 }
 
-const numericTypes = new Set<string>();
-
+const numericTypesKey = Symbol();
 export function numeric(program: Program, target: Type) {
-  if (!isIntrinsic(target)) {
-    throwDiagnostic("Cannot apply @numeric decorator to non-intrinsic type.", target);
+  if (!isIntrinsic(program, target)) {
+    program.reportDiagnostic("Cannot apply @numeric decorator to non-intrinsic type.", target);
+    return;
   }
-  if (target.kind === "Model") {
-    numericTypes.add(target.name);
-  } else {
-    throwDiagnostic("Cannot apply @numeric decorator to non-model type.", target);
+  if (target.kind !== "Model") {
+    program.reportDiagnostic("Cannot apply @numeric decorator to non-model type.", target);
+    return;
   }
+  program.stateSet(numericTypesKey).add(target.name);
 }
 
-export function isNumericType(target: Type): boolean {
-  const intrinsicType = getIntrinsicType(target);
-  return intrinsicType !== undefined && numericTypes.has(intrinsicType);
+export function isNumericType(program: Program, target: Type): boolean {
+  const intrinsicType = getIntrinsicType(program, target);
+  return intrinsicType !== undefined && program.stateSet(numericTypesKey).has(intrinsicType);
 }
 
 // -- @format decorator ---------------------
 
-const formatValues = new Map<Type, string>();
+const formatValuesKey = Symbol();
 
 export function format(program: Program, target: Type, format: string) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it a model type that ultimately derives from 'string'?
-    if (getIntrinsicType(target) === "string") {
-      formatValues.set(target, format);
-    } else {
-      throwDiagnostic("Cannot apply @format to a non-string type", target);
-    }
-  } else {
-    throwDiagnostic("Cannot apply @format to anything that isn't a Model or ModelProperty", target);
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
+      "Cannot apply @format to anything that isn't a Model or ModelProperty",
+      target
+    );
+    return;
   }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic("Cannot apply @format to a non-string type", target);
+    return;
+  }
+
+  program.stateMap(formatValuesKey).set(target, format);
 }
 
-export function getFormat(target: Type): string | undefined {
-  return formatValues.get(target);
+export function getFormat(program: Program, target: Type): string | undefined {
+  return program.stateMap(formatValuesKey).get(target);
 }
 
 // -- @minLength decorator ---------------------
 
-const minLengthValues = new Map<Type, number>();
+const minLengthValuesKey = Symbol();
 
 export function minLength(program: Program, target: Type, minLength: number) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it a model type that ultimately derives from 'string'?
-    if (getIntrinsicType(target) === "string") {
-      minLengthValues.set(target, minLength);
-    } else {
-      throwDiagnostic("Cannot apply @minLength to a non-string type", target);
-    }
-  } else {
-    throwDiagnostic(
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
       "Cannot apply @minLength to anything that isn't a Model or ModelProperty",
       target
     );
+    return;
   }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic("Cannot apply @minLength to a non-string type", target);
+    return;
+  }
+
+  program.stateMap(minLengthValuesKey).set(target, minLength);
 }
 
-export function getMinLength(target: Type): number | undefined {
-  return minLengthValues.get(target);
+export function getMinLength(program: Program, target: Type): number | undefined {
+  return program.stateMap(minLengthValuesKey).get(target);
 }
 
 // -- @maxLength decorator ---------------------
 
-const maxLengthValues = new Map<Type, number>();
+const maxLengthValuesKey = Symbol();
 
 export function maxLength(program: Program, target: Type, maxLength: number) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it a model type that ultimately derives from 'string'?
-    if (getIntrinsicType(target) === "string") {
-      maxLengthValues.set(target, maxLength);
-    } else {
-      throwDiagnostic("Cannot apply @maxLength to a non-string type", target);
-    }
-  } else {
-    throwDiagnostic(
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
       "Cannot apply @maxLength to anything that isn't a Model or ModelProperty",
       target
     );
+    return;
   }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic("Cannot apply @maxLength to a non-string type", target);
+    return;
+  }
+  program.stateMap(maxLengthValuesKey).set(target, maxLength);
 }
 
-export function getMaxLength(target: Type): number | undefined {
-  return maxLengthValues.get(target);
+export function getMaxLength(program: Program, target: Type): number | undefined {
+  return program.stateMap(maxLengthValuesKey).get(target);
 }
 
 // -- @minValue decorator ---------------------
 
-const minValues = new Map<Type, number>();
+const minValuesKey = Symbol();
 
 export function minValue(program: Program, target: Type, minValue: number) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it ultimately a numeric type?
-    if (isNumericType(target)) {
-      minValues.set(target, minValue);
-    } else {
-      throwDiagnostic("Cannot apply @minValue to a non-numeric type", target);
-    }
-  } else {
-    throwDiagnostic(
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
       "Cannot apply @minValue to anything that isn't a Model or ModelProperty",
       target
     );
   }
+  if (!isNumericType(program, target)) {
+    program.reportDiagnostic("Cannot apply @minValue to a non-numeric type", target);
+    return;
+  }
+  program.stateMap(minValuesKey).set(target, minValue);
 }
 
-export function getMinValue(target: Type): number | undefined {
-  return minValues.get(target);
+export function getMinValue(program: Program, target: Type): number | undefined {
+  return program.stateMap(minValuesKey).get(target);
 }
 
 // -- @maxValue decorator ---------------------
 
-const maxValues = new Map<Type, number>();
+const maxValuesKey = Symbol();
 
 export function maxValue(program: Program, target: Type, maxValue: number) {
-  if (target.kind === "Model" || target.kind === "ModelProperty") {
-    // Is it ultimately a numeric type?
-    if (isNumericType(target)) {
-      maxValues.set(target, maxValue);
-    } else {
-      throwDiagnostic("Cannot apply @maxValue to a non-numeric type", target);
-    }
-  } else {
-    throwDiagnostic(
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
       "Cannot apply @maxValue to anything that isn't a Model or ModelProperty",
       target
     );
+    return;
   }
+  if (!isNumericType(program, target)) {
+    program.reportDiagnostic("Cannot apply @maxValue to a non-numeric type", target);
+    return;
+  }
+  program.stateMap(maxValuesKey).set(target, maxValue);
 }
 
-export function getMaxValue(target: Type): number | undefined {
-  return maxValues.get(target);
+export function getMaxValue(program: Program, target: Type): number | undefined {
+  return program.stateMap(maxValuesKey).get(target);
 }
 
 // -- @secret decorator ---------------------
 
-const secretTypes = new Map<Type, boolean>();
+const secretTypesKey = Symbol();
 
 export function secret(program: Program, target: Type) {
-  if (target.kind === "Model") {
-    // Is it a model type that ultimately derives from 'string'?
-    if (getIntrinsicType(target) === "string") {
-      secretTypes.set(target, true);
-    } else {
-      throwDiagnostic("Cannot apply @secret to a non-string type", target);
-    }
-  } else {
-    throwDiagnostic("Cannot apply @secret to anything that isn't a Model", target);
+  if (target.kind !== "Model") {
+    program.reportDiagnostic("Cannot apply @secret to anything that isn't a Model", target);
+    return;
   }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic("Cannot apply @secret to a non-string type", target);
+    return;
+  }
+  program.stateMap(secretTypesKey).set(target, true);
 }
 
-export function isSecret(target: Type): boolean | undefined {
-  return secretTypes.get(target);
+export function isSecret(program: Program, target: Type): boolean | undefined {
+  return program.stateMap(secretTypesKey).get(target);
 }
 
 // -- @visibility decorator ---------------------
 
-const visibilitySettings = new Map<Type, string[]>();
+const visibilitySettingsKey = Symbol();
 
 export function visibility(program: Program, target: Type, ...visibilities: string[]) {
-  if (target.kind === "ModelProperty") {
-    visibilitySettings.set(target, visibilities);
-  } else {
-    throwDiagnostic("The @visibility decorator can only be applied to model properties.", target);
+  if (target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
+      "The @visibility decorator can only be applied to model properties.",
+      target
+    );
+    return;
   }
+  program.stateMap(visibilitySettingsKey).set(target, visibilities);
 }
 
-export function getVisibility(target: Type): string[] | undefined {
-  return visibilitySettings.get(target);
+export function getVisibility(program: Program, target: Type): string[] | undefined {
+  return program.stateMap(visibilitySettingsKey).get(target);
 }
 
 export function withVisibility(program: Program, target: Type, ...visibilities: string[]) {
   if (target.kind !== "Model") {
-    throwDiagnostic("The @withVisibility decorator can only be applied to models.", target);
+    program.reportDiagnostic(
+      "The @withVisibility decorator can only be applied to models.",
+      target
+    );
+    return;
   }
 
   const filter = (_: any, prop: ModelTypeProperty) => {
-    const vis = getVisibility(prop);
+    const vis = getVisibility(program, prop);
     return vis !== undefined && visibilities.filter((v) => !vis.includes(v)).length > 0;
   };
 
@@ -248,56 +262,63 @@ function mapFilterOut(
 
 // -- @list decorator ---------------------
 
-const listProperties = new Set<Type>();
+const listPropertiesKey = Symbol();
 
 export function list(program: Program, target: Type) {
-  if (target.kind === "Operation" || target.kind === "ModelProperty") {
-    listProperties.add(target);
-  } else {
-    throwDiagnostic(
-      "The @list decorator can only be applied to interface or model properties.",
+  if (target.kind !== "Operation" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
+      "The @list decorator can only be applied to operations or model properties.",
       target
     );
+    return;
   }
+  program.stateSet(listPropertiesKey).add(target);
 }
 
-export function isList(target: Type): boolean {
-  return listProperties.has(target);
+export function isList(program: Program, target: Type): boolean {
+  return program.stateSet(listPropertiesKey).has(target);
 }
 
 // -- @tag decorator ---------------------
-const tagProperties = new Map<Type, string[]>();
+const tagPropertiesKey = Symbol();
 
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
 export function tag(program: Program, target: Type, tag: string) {
-  if (target.kind === "Operation" || target.kind === "Namespace") {
-    const tags = tagProperties.get(target);
-    if (tags) {
-      tags.push(tag);
-    } else {
-      tagProperties.set(target, [tag]);
-    }
+  if (target.kind !== "Operation" && target.kind !== "Namespace") {
+    program.reportDiagnostic(
+      "The @tag decorator can only be applied to namespaces or operations.",
+      target
+    );
+    return;
+  }
+  const tags = program.stateMap(tagPropertiesKey).get(target);
+  if (tags) {
+    tags.push(tag);
   } else {
-    throwDiagnostic("The @tag decorator can only be applied to namespace or operation.", target);
+    program.stateMap(tagPropertiesKey).set(target, [tag]);
   }
 }
 
 // Return the tags set on an operation or namespace
-export function getTags(target: Type): string[] {
-  return tagProperties.get(target) || [];
+export function getTags(program: Program, target: Type): string[] {
+  return program.stateMap(tagPropertiesKey).get(target) || [];
 }
 
 // Merge the tags for a operation with the tags that are on the namespace it resides within.
 //
 // TODO: (JC) We'll need to update this for nested namespaces
-export function getAllTags(namespace: NamespaceType, target: Type): string[] | undefined {
+export function getAllTags(
+  program: Program,
+  namespace: NamespaceType,
+  target: Type
+): string[] | undefined {
   const tags = new Set<string>();
 
-  for (const t of getTags(namespace)) {
+  for (const t of getTags(program, namespace)) {
     tags.add(t);
   }
-  for (const t of getTags(target)) {
+  for (const t of getTags(program, target)) {
     tags.add(t);
   }
   return tags.size > 0 ? Array.from(tags) : undefined;

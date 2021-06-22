@@ -1,6 +1,6 @@
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("loader", () => {
+describe("adl: loader", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -10,7 +10,7 @@ describe("loader", () => {
   it("loads ADL and JS files", async () => {
     testHost.addJsFile("blue.js", { blue() {} });
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       import "./b.adl";
       import "./blue.js";
@@ -39,6 +39,6 @@ describe("loader", () => {
       `
     );
 
-    await testHost.compile("a.adl");
+    await testHost.compile("main.adl");
   });
 });

@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-await import("../dist/server/server.js");
+import { runScript } from "../dist/cmd/runner.js";
+await runScript("dist/server/server.js");

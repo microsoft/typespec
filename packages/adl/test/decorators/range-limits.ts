@@ -3,7 +3,7 @@ import { ModelType } from "../../compiler/types.js";
 import { getMaxValue, getMinValue } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("range limiting decorators", () => {
+describe("adl: range limiting decorators", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe("range limiting decorators", () => {
 
   it("applies @minimum and @maximum decorators", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test model A { @minValue(15) foo: int32; @maxValue(55) boo: float32; }
       @test model B { @maxValue(20) bar: int64; @minValue(23) car: float64; }
@@ -21,9 +21,9 @@ describe("range limiting decorators", () => {
 
     const { A, B } = (await testHost.compile("./")) as { A: ModelType; B: ModelType };
 
-    strictEqual(getMinValue(A.properties.get("foo")!), 15);
-    strictEqual(getMaxValue(A.properties.get("boo")!), 55);
-    strictEqual(getMaxValue(B.properties.get("bar")!), 20);
-    strictEqual(getMinValue(B.properties.get("car")!), 23);
+    strictEqual(getMinValue(testHost.program, A.properties.get("foo")!), 15);
+    strictEqual(getMaxValue(testHost.program, A.properties.get("boo")!), 55);
+    strictEqual(getMaxValue(testHost.program, B.properties.get("bar")!), 20);
+    strictEqual(getMinValue(testHost.program, B.properties.get("car")!), 23);
   });
 });

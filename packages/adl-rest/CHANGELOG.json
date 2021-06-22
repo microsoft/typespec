@@ -2,6 +2,43 @@
   "name": "@azure-tools/adl-rest",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@azure-tools/adl-rest_v0.2.1",
+      "date": "Tue, 18 May 2021 23:43:31 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@azure-tools/adl\" from `0.10.0` to `0.11.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.0",
+      "tag": "@azure-tools/adl-rest_v0.2.0",
+      "date": "Thu, 06 May 2021 14:56:01 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Implement alias and enum, remove model ="
+          }
+        ],
+        "patch": [
+          {
+            "comment": "**Added** New type NoContentResponse"
+          },
+          {
+            "comment": "Replace several internal compiler errors with diagnostics"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@azure-tools/adl\" from `0.9.0` to `0.10.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.2",
       "tag": "@azure-tools/adl-rest_v0.1.2",
       "date": "Tue, 20 Apr 2021 15:23:29 GMT",

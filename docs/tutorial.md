@@ -96,6 +96,34 @@ model Pet {
 model Dog extends Pet, Animal { }
 ```
 
+### Enums
+
+Enums define a type which can hold one of a set of constant values.
+
+```
+enum Color {
+  Red,
+  Blue,
+  Green,
+}
+```
+
+In this case, we haven't specified how the constants will be represented, allowing for different choices in different scenarios. For example, the OpenAPI emitter will choose string values "Red", "Green", "Blue". Another protocol might prefer to assign incrementing numeric values 0, 1, 2.
+
+We can also specify explicit string or numeric values:
+```
+enum Color {
+  Red: "red",
+  Blue: "blue"
+  Green: "green",
+}
+
+enum Priority {
+  High: 100,
+  Low: 0,
+}
+```
+
 #### Templates
 
 It is often useful to let the users of a model fill in certain details. Model templates enable this pattern. Similar to generics found in other languages, model templates declare template parameters that users provide when referencing the model.
@@ -111,13 +139,15 @@ model DogPage {
 }
 ```
 
-#### Model Aliases
+#### Type Aliases
 
-Sometimes it's convenient to alias a model template instantiation or model produced via type operators (covered later) as a convenient name. Model aliases allow this:
+Sometimes it's convenient to alias a model template instantiation or type produced via type operators (covered later) as a convenient name. Aliases allow this:
 
 ```
-model DogPage = Page<Dog>;
+alias DogPage = Page<Dog>;
 ```
+
+Unlike `model`, `alias` does not create a new entity, and as such will not change generated code in any way. An  alias merely describes a source code shorthand to avoid repeating the right-hand side in multiple places. 
 
 ### Type Literals
 
@@ -153,7 +183,7 @@ ADL supports a few type operators that make it easy to compose new models from o
 Unions describe a type that must be exactly one of the union's constituents. Create a union with the `|` operator.
 
 ```
-model GoodBreeds = 'Beagle' | 'German Shepherd' | 'Golden Retriever';
+alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
 ```
 
 #### Intersection
@@ -161,7 +191,7 @@ model GoodBreeds = 'Beagle' | 'German Shepherd' | 'Golden Retriever';
 Intersections describe a type that must include all of the intersection's constituents. Create an intersection with the `&` operator.
 
 ```
-model Dog = Animal & Pet;
+alias Dog = Animal & Pet;
 ```
 
 #### Array
@@ -169,7 +199,7 @@ model Dog = Animal & Pet;
 Arrays describe lists of things. Create an Array type with the `[]` operator.
 
 ```
-model Pack = Dog[];
+alias Pack = Dog[];
 ```
 
 ### Operations
@@ -228,7 +258,7 @@ namespace A.B;
 namespace C.D {}
 namespace C.D.E { model M { }}
 
-model M = A.B.C.D.E.M;
+alias M = A.B.C.D.E.M;
 ```
 
 It can be convenient to add references to a namespace's declarations to your local namespace, especially when namespaces can become deeply nested. The `using` statement lets us do this:
@@ -253,11 +283,11 @@ namespace Test {
 
 namespace Test2 {
   using Test;
-  model B = A; // ok
+  alias B = A; // ok
 }
 
-model C = Test2.A; // not ok
-model C = Test2.B; // ok
+alias C = Test2.A; // not ok
+alias C = Test2.B; // ok
 ```
 
 ### Imports

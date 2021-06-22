@@ -2,5 +2,5 @@ import "MyLib";
 import "CustomAdlMain";
 
 @myLibDec
-model A = MyLib.Model;
-model B = CustomAdlMain.Model;
+model A { x: MyLib.Model };
+model B { x: CustomAdlMain.Model };

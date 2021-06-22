@@ -1,6 +1,6 @@
 import { spawn, spawnSync } from "child_process";
-import { readFileSync } from "fs";
-import { dirname, resolve } from "path";
+import { statSync, readFileSync } from "fs";
+import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
 function read(filename) {
@@ -31,7 +31,11 @@ export function forEachProject(onEach) {
 
 export function npmForEach(cmd, options) {
   forEachProject((name, location, project) => {
-    // checks for the script first
+    if (cmd === "test-official" && !project.scripts[cmd] && project.scripts["test"]) {
+      const pj = join(location, "package.json");
+      throw new Error(`${pj} has a 'test' script, but no 'test-official' script for CI.`);
+    }
+
     if (project.scripts[cmd] || cmd === "pack") {
       const args = cmd === "pack" ? [cmd] : ["run", cmd];
       run("npm", args, { cwd: location, ...options });
@@ -105,41 +109,75 @@ export function clearScreen() {
 }
 
 export function runWatch(watch, dir, build, options) {
-  let lastStartTime;
+  let lastBuildTime;
   dir = resolve(dir);
 
-  // build once up-front.
-  runBuild();
+  // We need to wait for directory to be created before watching it. This deals
+  // with races between watchers where one watcher must create a directory
+  // before another can watch it.
+  //
+  // For example, we can't watch for tmlanguage.js changes if the source watcher
+  // hasn't even created the directory in which tmlanguage.js will be written.
+  try {
+    statSync(dir);
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      waitForDirectoryCreation();
+      return;
+    }
+    throw err;
+  }
 
-  watch.createMonitor(dir, { interval: 0.2, ...options }, (monitor) => {
-    let handler = function (file) {
-      if (lastStartTime && monitor?.files[file]?.mtime < lastStartTime) {
-        // File was changed before last build started so we can ignore it. This
-        // avoids running the build unnecessarily when a series of input files
-        // change at the same time.
-        return;
-      }
-      runBuild(file);
-    };
+  // Directory already exists: we can start watching right away.
+  start();
 
-    monitor.on("created", handler);
-    monitor.on("changed", handler);
-    monitor.on("removed", handler);
-  });
+  function waitForDirectoryCreation() {
+    let dirCreated = false;
+    let parentDir = dirname(dir);
+    logWithTime(`Waiting for ${dir} to be created.`);
 
-  function runBuild(file) {
-    runBuildAsync(file).catch((err) => {
+    watch.createMonitor(parentDir, "created", (monitor) => {
+      monitor.on("created", (file) => {
+        if (!dirCreated && file === dir) {
+          dirCreated = true; // defend against duplicate events.
+          monitor.stop();
+          start();
+        }
+      });
+    });
+  }
+
+  function start() {
+    // build once up-front
+    runBuild();
+
+    // then build again on any change
+    watch.createMonitor(dir, { interval: 0.2, ...options }, (monitor) => {
+      monitor.on("created", (file) => runBuild(`${file} created`));
+      monitor.on("removed", (file) => runBuild(`${file} removed`));
+      monitor.on("changed", (file) => runBuild(`${file} changed`, monitor.files[file]?.mtime));
+    });
+  }
+
+  function runBuild(changeDescription, changeTime) {
+    runBuildAsync(changeDescription, changeTime).catch((err) => {
       console.error(err.stack);
       process.exit(1);
     });
   }
 
-  async function runBuildAsync(file) {
-    lastStartTime = Date.now();
-    clearScreen();
+  async function runBuildAsync(changeDescription, changeTime) {
+    if (changeTime && lastBuildTime && changeTime < lastBuildTime) {
+      // Don't rebuild if a change happened before the last build kicked off.
+      // Defends against duplicate events and building more than once when a
+      // bunch of files are changed at the same time.
+      return;
+    }
 
-    if (file) {
-      logWithTime(`File change detected: ${file}. Running build.`);
+    lastBuildTime = new Date();
+    if (changeDescription) {
+      clearScreen();
+      logWithTime(`File change detected: ${changeDescription}. Running build.`);
     } else {
       logWithTime("Starting build in watch mode.");
     }

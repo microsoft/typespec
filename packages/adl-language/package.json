@@ -16,7 +16,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "ecmarkup src/spec.emu.html ../../docs/spec.html",
+    "build": "ecmarkup --strict src/spec.emu.html ../../docs/spec.html",
     "watch": "node scripts/watch-spec.js"
   },
   "dependencies": {},

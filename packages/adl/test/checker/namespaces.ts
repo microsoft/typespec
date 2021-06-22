@@ -2,7 +2,7 @@ import { ok, strictEqual } from "assert";
 import { ModelType, NamespaceType, Type } from "../../compiler/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("namespaces with blocks", () => {
+describe("adl: namespaces with blocks", () => {
   const blues = new WeakSet();
   function blue(_: any, target: Type) {
     blues.add(target);
@@ -17,8 +17,9 @@ describe("namespaces with blocks", () => {
 
   it("can be decorated", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
+      import "./blue.js";
       @blue @test namespace Z.Q;
       @blue @test namespace N { }
       @blue @test namespace X.Y { }
@@ -37,7 +38,7 @@ describe("namespaces with blocks", () => {
 
   it("merges like namespaces", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test
       namespace N { @test model X { x: string } }
@@ -58,6 +59,14 @@ describe("namespaces with blocks", () => {
   });
 
   it("merges like namespaces across files", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      import "./c.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -91,6 +100,14 @@ describe("namespaces with blocks", () => {
 
   it("merges sub-namespaces across files", async () => {
     testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      import "./c.adl";
+      `
+    );
+    testHost.addAdlFile(
       "a.adl",
       `
       namespace N { namespace M { model X { x: string } } }
@@ -117,7 +134,7 @@ describe("namespaces with blocks", () => {
 
   it("can see things in outer scope same file", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       model A { }
       namespace N { model B extends A { } }
@@ -127,6 +144,14 @@ describe("namespaces with blocks", () => {
   });
 
   it("can see things in outer scope cross file", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      import "./c.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -150,9 +175,30 @@ describe("namespaces with blocks", () => {
     );
     await testHost.compile("./");
   });
+
+  it("accumulates declarations inside of it", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      @test namespace Foo {
+        namespace Bar { };
+        op Baz(): {};
+        model Qux { };
+      }
+      `
+    );
+
+    const { Foo } = (await testHost.compile("./")) as {
+      Foo: NamespaceType;
+    };
+
+    strictEqual(Foo.operations.size, 1);
+    strictEqual(Foo.models.size, 1);
+    strictEqual(Foo.namespaces.size, 1);
+  });
 });
 
-describe("blockless namespaces", () => {
+describe("adl: blockless namespaces", () => {
   const blues = new WeakSet();
   function blue(_: any, target: Type) {
     blues.add(target);
@@ -166,6 +212,14 @@ describe("blockless namespaces", () => {
   });
 
   it("merges properly with other namespaces", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      import "./c.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -194,7 +248,7 @@ describe("blockless namespaces", () => {
 
   it("does lookup correctly", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace Repro;
       model Yo {
@@ -214,7 +268,7 @@ describe("blockless namespaces", () => {
 
   it("does lookup correctly with nested namespaces", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace Repro;
       model Yo {
@@ -244,7 +298,7 @@ describe("blockless namespaces", () => {
 
   it("binds correctly", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace N.M;
       model A { }
@@ -266,7 +320,7 @@ describe("blockless namespaces", () => {
 
   it("works with blockful namespaces", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       @test
       namespace N;
@@ -293,6 +347,13 @@ describe("blockless namespaces", () => {
   });
 
   it("works with nested blockless and blockfull namespaces", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -326,7 +387,7 @@ describe("blockless namespaces", () => {
       "a.adl",
       `
       import "./b.adl";
-      model M = N.X;
+      model M {x: N.X }
       `
     );
     testHost.addAdlFile(
@@ -338,5 +399,54 @@ describe("blockless namespaces", () => {
     );
 
     await testHost.compile("/a.adl");
+  });
+
+  it("accumulates declarations inside of it", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      @test namespace Foo;
+      namespace Bar { };
+      op Baz(): {};
+      model Qux { };
+      `
+    );
+
+    const { Foo } = (await testHost.compile("/a.adl")) as {
+      Foo: NamespaceType;
+    };
+
+    strictEqual(Foo.operations.size, 1);
+    strictEqual(Foo.models.size, 1);
+    strictEqual(Foo.namespaces.size, 1);
+  });
+});
+
+describe("adl: namespace type name", () => {
+  let testHost: TestHost;
+
+  beforeEach(async () => {
+    testHost = await createTestHost();
+  });
+
+  it("prefix with the namespace of the entity", async () => {
+    testHost.addAdlFile(
+      "a.adl",
+      `
+      namespace Foo;
+      
+      @test()
+      model Model1 {}
+
+      namespace Other.Bar {
+         @test()
+        model Model2 {}
+      }
+      `
+    );
+
+    const { Model1, Model2 } = await testHost.compile("/a.adl");
+    strictEqual(testHost.program.checker?.getTypeName(Model1), "Foo.Model1");
+    strictEqual(testHost.program.checker?.getTypeName(Model2), "Foo.Other.Bar.Model2");
   });
 });

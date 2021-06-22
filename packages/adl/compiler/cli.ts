@@ -1,4 +1,4 @@
-import { spawnSync } from "child_process";
+import { spawnSync, SpawnSyncOptions } from "child_process";
 import { mkdtemp, readdir, rmdir } from "fs/promises";
 import mkdirp from "mkdirp";
 import os from "os";
@@ -7,17 +7,19 @@ import url from "url";
 import yargs from "yargs";
 import { CompilerOptions } from "../compiler/options.js";
 import { compile } from "../compiler/program.js";
-import { compilerAssert, DiagnosticError, dumpError, logDiagnostics } from "./diagnostics.js";
+import { loadADLConfigInDir } from "../config/index.js";
+import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
+import { formatADLFiles } from "./formatter.js";
 import { adlVersion, NodeHost } from "./util.js";
 
 const args = yargs(process.argv.slice(2))
   .scriptName("adl")
   .help()
   .strict()
-  .command("compile <path>", "Compile a directory of ADL files.", (cmd) => {
+  .command("compile <path>", "Compile ADL source.", (cmd) => {
     return cmd
       .positional("path", {
-        description: "The path to folder containing .adl files",
+        description: "The path to the main.adl file or directory containing main.adl.",
         type: "string",
       })
       .option("output-path", {
@@ -38,11 +40,9 @@ const args = yargs(process.argv.slice(2))
         describe: "Don't load the ADL standard library.",
       });
   })
-  .command(
-    "generate <path>",
-    "Generate client and server code from a directory of ADL files.",
-    (cmd) => {
-      return cmd
+  .command("generate <path>", "Generate client code from ADL source.", (cmd) => {
+    return (
+      cmd
         .positional("path", {
           description: "The path to folder containing .adl files",
           type: "string",
@@ -67,9 +67,13 @@ const args = yargs(process.argv.slice(2))
           string: true,
           describe:
             "Key/value pairs that can be passed to ADL components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
-        });
-    }
-  )
+        })
+        // we can't generate anything but a client yet
+        .demandOption("client")
+        // and language is required to do so
+        .demandOption("language")
+    );
+  })
   .command("code", "Manage VS Code Extension.", (cmd) => {
     return cmd
       .demandCommand(1, "No command specified.")
@@ -83,6 +87,14 @@ const args = yargs(process.argv.slice(2))
       .command("install", "Install Visual Studio Extension.")
       .command("uninstall", "Uninstall VS Extension");
   })
+  .command("format <include...>", "Format given list of adl files.", (cmd) => {
+    return cmd.positional("include", {
+      description: "Wildcard pattern of the list of files.",
+      type: "string",
+      array: true,
+    });
+  })
+  .command("info", "Show information about current ADL compiler.")
   .option("debug", {
     type: "boolean",
     description: "Output debug log messages.",
@@ -90,18 +102,16 @@ const args = yargs(process.argv.slice(2))
   .version(adlVersion)
   .demandCommand(1, "You must use one of the supported commands.").argv;
 
-async function compileInput(compilerOptions: CompilerOptions) {
-  try {
-    await compile(args.path!, NodeHost, compilerOptions);
-  } catch (err) {
-    if (err instanceof DiagnosticError) {
-      logDiagnostics(err.diagnostics, console.error);
-      if (args.debug) {
-        console.error(`Stack trace:\n\n${err.stack}`);
-      }
-      process.exit(1);
-    }
-    throw err; // let non-diagnostic errors go to top-level bug handler.
+async function compileInput(compilerOptions: CompilerOptions, printSuccess = true) {
+  const program = await compile(args.path!, NodeHost, compilerOptions);
+  logDiagnostics(program.diagnostics, console.error);
+  if (program.hasError()) {
+    process.exit(1);
+  }
+  if (printSuccess) {
+    console.log(
+      `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
+    );
   }
 }
 
@@ -123,6 +133,7 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
 
   return {
     miscOptions,
+    outputPath,
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
   };
@@ -134,7 +145,8 @@ async function generateClient(options: CompilerOptions) {
   const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
 
   // Execute AutoRest on the output file
-  const result = spawnSync(
+  console.log(); //newline between compilation output and generation output
+  const result = run(
     url.fileURLToPath(autoRestPath),
     [
       `--${args.language}`,
@@ -144,15 +156,14 @@ async function generateClient(options: CompilerOptions) {
       `--input-file=${options.swaggerOutputFile}`,
     ],
     {
-      stdio: "inherit",
       shell: true,
     }
   );
 
   if (result.status === 0) {
-    console.log(`Generation completed successfully, output files are in ${options.outputPath}.`);
+    console.log(`\nGeneration completed successfully, output files are in ${clientPath}.`);
   } else {
-    console.error("\nAn error occurred during client generation.");
+    console.error("\nClient generation failed.");
     process.exit(result.status || 1);
   }
 }
@@ -160,7 +171,20 @@ async function generateClient(options: CompilerOptions) {
 async function installVsix(pkg: string, install: (vsixPath: string) => void) {
   // download npm package to temporary directory
   const temp = await mkdtemp(path.join(os.tmpdir(), "adl"));
-  run("npm", ["install", "--silent", "--prefix", temp, pkg]);
+  const npmArgs = ["install"];
+
+  // hide npm output unless --debug was passed to adl
+  if (!args.debug) {
+    npmArgs.push("--silent");
+  }
+
+  // NOTE: Using cwd=temp with `--prefix .` instead of `--prefix ${temp}` to
+  // workaround https://github.com/npm/cli/issues/3256. It's still important
+  // to pass --prefix even though we're using cwd as otherwise, npm might
+  // find a package.json file in a parent directory and install to that
+  // directory.
+  npmArgs.push("--prefix", ".", pkg);
+  run("npm", npmArgs, { cwd: temp });
 
   // locate .vsix
   const dir = path.join(temp, "node_modules", pkg);
@@ -182,14 +206,21 @@ async function installVsix(pkg: string, install: (vsixPath: string) => void) {
   await rmdir(temp, { recursive: true });
 }
 
+async function runCode(codeArgs: string[]) {
+  await run(args.insiders ? "code-insiders" : "code", codeArgs, {
+    // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
+    extraEnv: { NODE_NO_WARNINGS: "1" },
+  });
+}
+
 async function installVSCodeExtension() {
   await installVsix("adl-vscode", (vsix) => {
-    run(args.insiders ? "code-insiders" : "code", ["--install-extension", vsix]);
+    runCode(["--install-extension", vsix]);
   });
 }
 
 async function uninstallVSCodeExtension() {
-  run(args.insiders ? "code-insiders" : "code", ["--uninstall-extension", "microsoft.adl-vscode"]);
+  await runCode(["--uninstall-extension", "microsoft.adl-vscode"]);
 }
 
 function getVsixInstallerPath(): string {
@@ -217,13 +248,49 @@ async function uninstallVSExtension() {
   run(vsixInstaller, ["/uninstall:88b9492f-c019-492c-8aeb-f325a7e4cf23"]);
 }
 
+/**
+ * Print the resolved adl configuration.
+ */
+async function printInfo() {
+  const cwd = process.cwd();
+  console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
+
+  const config = await loadADLConfigInDir(cwd);
+  const jsyaml = await import("js-yaml");
+  const excluded = ["diagnostics", "filename"];
+  const replacer = (key: string, value: any) => (excluded.includes(key) ? undefined : value);
+
+  console.log(`User Config: ${config.filename ?? "No config file found"}`);
+  console.log("-----------");
+  console.log(jsyaml.dump(config, { replacer }));
+  console.log("-----------");
+  logDiagnostics(config.diagnostics, console.error);
+  if (config.diagnostics.some((d) => d.severity === "error")) {
+    process.exit(1);
+  }
+}
+
 // NOTE: We could also use { shell: true } to let windows find the .cmd, but that breaks
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
 
-function run(command: string, commandArgs: string[]) {
+interface RunOptions extends SpawnSyncOptions {
+  extraEnv?: NodeJS.ProcessEnv;
+}
+
+function run(command: string, commandArgs: string[], options?: RunOptions) {
   if (args.debug) {
-    console.log(`> ${command} ${commandArgs.join(" ")}`);
+    if (options) {
+      console.log(options);
+    }
+    console.log(`> ${command} ${commandArgs.join(" ")}\n`);
+  }
+
+  if (options?.extraEnv) {
+    options.env = {
+      ...(options?.env ?? process.env),
+      ...options.extraEnv,
+    };
   }
 
   const baseCommandName = path.basename(command);
@@ -233,8 +300,7 @@ function run(command: string, commandArgs: string[]) {
 
   const proc = spawnSync(command, commandArgs, {
     stdio: "inherit",
-    // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
-    env: { ...process.env, NODE_NO_WARNINGS: "1" },
+    ...(options ?? {}),
   });
 
   if (proc.error) {
@@ -255,8 +321,10 @@ function run(command: string, commandArgs: string[]) {
         proc.status
       }.`
     );
-    process.exit(proc.status ?? 1);
+    process.exit(proc.status || 1);
   }
+
+  return proc;
 }
 
 async function main() {
@@ -266,13 +334,16 @@ async function main() {
   let action: string | number;
 
   switch (command) {
+    case "info":
+      printInfo();
+      break;
     case "compile":
       options = await getCompilerOptions();
       await compileInput(options);
       break;
     case "generate":
       options = await getCompilerOptions();
-      await compileInput(options);
+      await compileInput(options, false);
       if (args.client) {
         await generateClient(options);
       }
@@ -298,18 +369,27 @@ async function main() {
           await uninstallVSExtension();
           break;
       }
+      break;
+    case "format":
+      await formatADLFiles(args["include"]!, { debug: args.debug });
+      break;
   }
 }
 
-main()
-  .then(() => {})
-  .catch((err) => {
-    // NOTE: An expected error, like one thrown for bad input, shouldn't reach
-    // here, but be handled somewhere else. If we reach here, it should be
-    // considered a bug and therefore we should not suppress the stack trace as
-    // that risks losing it in the case of a bug that does not repro easily.
-    console.error("Internal compiler error!");
-    console.error("File issue at https://github.com/azure/adl");
-    dumpError(err, console.error);
-    process.exit(1);
-  });
+function internalCompilerError(error: Error) {
+  // NOTE: An expected error, like one thrown for bad input, shouldn't reach
+  // here, but be handled somewhere else. If we reach here, it should be
+  // considered a bug and therefore we should not suppress the stack trace as
+  // that risks losing it in the case of a bug that does not repro easily.
+  console.error("Internal compiler error!");
+  console.error("File issue at https://github.com/azure/adl");
+  dumpError(error, console.error);
+  process.exit(1);
+}
+
+process.on("unhandledRejection", (error: Error) => {
+  console.error("Unhandled promise rejection!");
+  internalCompilerError(error);
+});
+
+main().catch(internalCompilerError);

@@ -3,6 +3,7 @@
 
 import * as tm from "@azure-tools/tmlanguage-generator";
 import fs from "fs/promises";
+import mkdirp from "mkdirp";
 import { resolve } from "path";
 
 type IncludeRule = tm.IncludeRule<ADLScope>;
@@ -20,6 +21,7 @@ type ADLScope =
   | "entity.name.function.adl"
   | "keyword.other.adl"
   | "string.quoted.double.adl"
+  | "string.quoted.triple.adl"
   | "variable.name.adl";
 
 const meta: typeof tm.meta = tm.meta;
@@ -28,7 +30,7 @@ const identifierContinue = "[_$[:alnum:]]";
 const beforeIdentifier = `(?=${identifierStart})`;
 const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
-const statementKeyword = `\\b(?:namespace|model|op|using|import)\\b`;
+const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
 const hexNumber = "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)";
 const binaryNumber = "\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)";
@@ -71,13 +73,19 @@ const escapeChar: MatchRule = {
   match: "\\\\.",
 };
 
-// TODO: Triple-quoted """X""" currently matches as three string literals
-// ("" "X" "") but should be its own thing.
 const stringLiteral: BeginEndRule = {
   key: "string-literal",
   scope: "string.quoted.double.adl",
   begin: '"',
-  end: '"',
+  end: '"|$',
+  patterns: [escapeChar],
+};
+
+const tripleQuotedStringLiteral: BeginEndRule = {
+  key: "triple-quoted-string-literal",
+  scope: "string.quoted.triple.adl",
+  begin: '"""',
+  end: '"""',
   patterns: [escapeChar],
 };
 
@@ -103,7 +111,16 @@ const blockComment: BeginEndRule = {
 // Tokens that match standing alone in any context: literals and comments
 const token: IncludeRule = {
   key: "token",
-  patterns: [lineComment, blockComment, stringLiteral, booleanLiteral, numericLiteral],
+  patterns: [
+    lineComment,
+    blockComment,
+    // `"""` must come before `"` or first two quotes of `"""` will match as
+    // empty string
+    tripleQuotedStringLiteral,
+    stringLiteral,
+    booleanLiteral,
+    numericLiteral,
+  ],
 };
 
 const parenthesizedExpression: BeginEndRule = {
@@ -180,7 +197,15 @@ const modelExpression: BeginEndRule = {
   scope: meta,
   begin: "\\{",
   end: "\\}",
-  patterns: [token, decorator, modelProperty, modelSpreadProperty],
+  patterns: [
+    // modelProperty must come before token or quoted property name will be
+    // considered an arbitrarily positioned string literal and not match as part
+    // of modelProperty begin.
+    modelProperty,
+    token,
+    decorator,
+    modelSpreadProperty,
+  ],
 };
 
 const modelHeritage: BeginEndRule = {
@@ -207,6 +232,28 @@ const modelStatement: BeginEndRule = {
     modelHeritage, // before expression or `extends` will look like type name
     expression, // enough to match name, type parameters, and body and assignment.
   ],
+};
+
+const enumStatement: BeginEndRule = {
+  key: "enum-statement",
+  scope: meta,
+  begin: "\\b(enum)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.adl" },
+  },
+  end: `(?<=\\})|${universalEnd}`,
+  patterns: [token, expression],
+};
+
+const aliasStatement: BeginEndRule = {
+  key: "alias-statement",
+  scope: meta,
+  begin: "\\b(alias)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.adl" },
+  },
+  end: universalEnd,
+  patterns: [token, expression],
 };
 
 const namespaceName: BeginEndRule = {
@@ -315,6 +362,8 @@ statement.patterns = [
   token,
   decorator,
   modelStatement,
+  enumStatement,
+  aliasStatement,
   namespaceStatement,
   operationStatement,
   importStatement,
@@ -333,5 +382,6 @@ export async function main() {
   const plist = await tm.emitPList(grammar, {
     errorSourceFilePath: resolve("./src/tmlanguage.ts"),
   });
+  await mkdirp("./dist");
   await fs.writeFile("./dist/adl.tmLanguage", plist);
 }

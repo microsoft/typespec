@@ -1,39 +1,42 @@
-import { rejects } from "assert";
+import { match, strictEqual } from "assert";
+import { Diagnostic } from "../../compiler/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("duplicate declarations", () => {
+describe("adl: duplicate declarations", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
     testHost = await createTestHost();
   });
 
-  it("throws for duplicate template parameters", async () => {
+  it("reports duplicate template parameters", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       model A<T, T> { }
     `
     );
 
-    await rejects(testHost.compile("/"));
+    const diagnostics = await testHost.diagnose("/");
+    assertDuplicates(diagnostics);
   });
 
-  it("throws for duplicate model declarations in global scope", async () => {
+  it("reports duplicate model declarations in global scope", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       model A { }
       model A { }
     `
     );
 
-    await rejects(testHost.compile("/"));
+    const diagnostics = await testHost.diagnose("/");
+    assertDuplicates(diagnostics);
   });
 
-  it("throws for duplicate model declarations in a single namespace", async () => {
+  it("reports duplicate model declarations in a single namespace", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace Foo;
       model A { }
@@ -41,12 +44,13 @@ describe("duplicate declarations", () => {
     `
     );
 
-    await rejects(testHost.compile("/"));
+    const diagnostics = await testHost.diagnose("/");
+    assertDuplicates(diagnostics);
   });
 
-  it("throws for duplicate model declarations in across multiple namespaces", async () => {
+  it("reports duplicate model declarations across multiple namespaces", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
       namespace N {
         model A { };
@@ -58,10 +62,18 @@ describe("duplicate declarations", () => {
     `
     );
 
-    await rejects(testHost.compile("/"));
+    const diagnostics = await testHost.diagnose("/");
+    assertDuplicates(diagnostics);
   });
 
-  it("throws for duplicate model declarations in across multiple files and namespaces", async () => {
+  it("reports duplicate model declarations across multiple files and namespaces", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -79,6 +91,14 @@ describe("duplicate declarations", () => {
     `
     );
 
-    await rejects(testHost.compile("/"));
+    const diagnostics = await testHost.diagnose("/");
+    assertDuplicates(diagnostics);
   });
 });
+
+function assertDuplicates(diagnostics: readonly Diagnostic[]) {
+  strictEqual(diagnostics.length, 2);
+  for (const diagnostic of diagnostics) {
+    match(diagnostic.message, /Duplicate name/);
+  }
+}

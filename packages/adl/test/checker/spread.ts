@@ -2,7 +2,7 @@ import { ok, strictEqual } from "assert";
 import { ModelType, Type } from "../../compiler/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("spread", () => {
+describe("adl: spread", () => {
   const blues = new WeakSet();
   function blue(_: any, target: Type) {
     blues.add(target);
@@ -17,8 +17,9 @@ describe("spread", () => {
 
   it("clones decorated properties", async () => {
     testHost.addAdlFile(
-      "a.adl",
+      "main.adl",
       `
+      import "./blue.js";
       model A { @blue foo: string }
       model B { @blue bar: string }
       @test model C { ... A, ... B }

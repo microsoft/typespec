@@ -1,8 +1,9 @@
-import { dirname, extname, isAbsolute, join, resolve } from "path";
+import { dirname, extname, isAbsolute, resolve } from "path";
 import resolveModule from "resolve";
 import { createBinder, createSymbolTable } from "./binder.js";
-import { createChecker } from "./checker.js";
-import { createSourceFile, DiagnosticError, throwDiagnostic } from "./diagnostics.js";
+import { Checker, createChecker } from "./checker.js";
+import { createDiagnostic, createSourceFile, DiagnosticTarget, NoTarget } from "./diagnostics.js";
+import { Message } from "./messages.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
 import {
@@ -10,14 +11,18 @@ import {
   CompilerHost,
   DecoratorExpressionNode,
   DecoratorSymbol,
+  Diagnostic,
   IdentifierNode,
   LiteralType,
   ModelStatementNode,
   ModelType,
   NamespaceStatementNode,
+  Sym,
+  SymbolTable,
   SyntaxKind,
   Type,
 } from "./types.js";
+import { doIO, loadFile } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -25,46 +30,73 @@ export interface Program {
   sourceFiles: ADLScriptNode[];
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
-  checker?: ReturnType<typeof createChecker>;
+  checker?: Checker;
+  readonly diagnostics: readonly Diagnostic[];
   evalAdlScript(adlScript: string, filePath?: string): void;
   onBuild(cb: (program: Program) => void): Promise<void> | void;
   getOption(key: string): string | undefined;
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
   executeDecorator(node: DecoratorExpressionNode, program: Program, type: Type): void;
+  stateSet(key: Symbol): Set<any>;
+  stateMap(key: Symbol): Map<any, any>;
+  hasError(): boolean;
+  reportDiagnostic(
+    message: Message | string,
+    target: DiagnosticTarget | typeof NoTarget,
+    args?: (string | number)[]
+  ): void;
+  reportDiagnostic(diagnostic: Diagnostic): void;
+  reportDiagnostics(diagnostics: Diagnostic[]): void;
+  reportDuplicateSymbols(symbols: SymbolTable): void;
 }
 
 export async function createProgram(
   host: CompilerHost,
-  options: CompilerOptions
+  mainFile: string,
+  options: CompilerOptions = {}
 ): Promise<Program> {
   const buildCbs: any = [];
-
+  const stateMaps = new Map<Symbol, Map<any, any>>();
+  const stateSets = new Map<Symbol, Set<any>>();
+  const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
+  const duplicateSymbols = new Set<Sym>();
+  let error = false;
+
   const program: Program = {
-    compilerOptions: options || {},
+    compilerOptions: options,
     globalNamespace: createGlobalNamespace(),
     sourceFiles: [],
     literalTypes: new Map(),
     host,
+    diagnostics,
     evalAdlScript,
     executeModelDecorators,
     executeDecorators,
     executeDecorator,
     getOption,
+    stateMap,
+    stateSet,
+    reportDiagnostic,
+    reportDiagnostics,
+    reportDuplicateSymbols,
+    hasError() {
+      return error;
+    },
     onBuild(cb) {
       buildCbs.push(cb);
     },
   };
 
   let virtualFileCount = 0;
-  const binder = createBinder();
+  const binder = createBinder(program);
 
   if (!options?.nostdlib) {
     await loadStandardLibrary(program);
   }
 
-  await loadMain(options);
+  await loadMain(mainFile, options);
 
   const checker = (program.checker = createChecker(program));
   program.checker.checkProgram(program);
@@ -124,14 +156,16 @@ export async function createProgram(
 
   function executeDecorator(dec: DecoratorExpressionNode, program: Program, type: Type) {
     if (dec.target.kind !== SyntaxKind.Identifier) {
-      throwDiagnostic("Decorator must be identifier", dec);
+      program.reportDiagnostic("Decorator must be identifier", dec);
+      return;
     }
 
     const decName = dec.target.sv;
     const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
     const decBinding = program.globalNamespace.locals!.get(decName) as DecoratorSymbol;
     if (!decBinding) {
-      throwDiagnostic(`Can't find decorator ${decName}`, dec);
+      program.reportDiagnostic(`Can't find decorator ${decName}`, dec);
+      return;
     }
     const decFn = decBinding.value;
     decFn(program, type, ...args);
@@ -142,7 +176,7 @@ export async function createProgram(
    * just the raw type objects, but literals are treated specially.
    */
   function toJSON(type: Type): Type | string | number | boolean {
-    if ("value" in type) {
+    if (type.kind === "Number" || type.kind === "String" || type.kind === "Boolean") {
       return type.value;
     }
 
@@ -155,36 +189,40 @@ export async function createProgram(
     }
   }
 
-  async function loadDirectory(rootDir: string) {
-    const dir = await host.readDir(rootDir);
-    for (const entry of dir) {
-      if (entry.isFile()) {
-        const path = join(rootDir, entry.name);
-        if (entry.name.endsWith(".js")) {
-          await loadJsFile(path);
-        } else if (entry.name.endsWith(".adl")) {
-          await loadAdlFile(path);
-        }
-      }
-    }
+  async function loadDirectory(dir: string, diagnosticTarget?: DiagnosticTarget) {
+    const pkgJsonPath = resolve(dir, "package.json");
+    let [pkg] = await loadFile(host.readFile, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
+      allowFileNotFound: true,
+      diagnosticTarget,
+    });
+    const mainFile = resolve(dir, pkg?.adlMain ?? "main.adl");
+    await loadAdlFile(mainFile, diagnosticTarget);
   }
 
-  async function loadAdlFile(path: string) {
+  async function loadAdlFile(path: string, diagnosticTarget?: DiagnosticTarget) {
     if (seenSourceFiles.has(path)) {
       return;
     }
     seenSourceFiles.add(path);
 
-    const contents = await host.readFile(path);
-    if (!contents) {
-      throw new Error("Couldn't load ADL file " + path);
-    }
+    const contents = await doIO(host.readFile, path, program.reportDiagnostic, {
+      diagnosticTarget,
+    });
 
-    await evalAdlScript(contents, path);
+    if (contents) {
+      await evalAdlScript(contents, path);
+    }
   }
 
-  async function loadJsFile(path: string) {
-    const exports = await host.getJsImport(path);
+  async function loadJsFile(path: string, diagnosticTarget: DiagnosticTarget) {
+    const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
+      diagnosticTarget,
+      jsDiagnosticTarget: { file: createSourceFile("", path), pos: 0, end: 0 },
+    });
+
+    if (!exports) {
+      return;
+    }
 
     for (const match of Object.keys(exports)) {
       // bind JS files early since this is the only work
@@ -212,13 +250,9 @@ export async function createProgram(
     const unparsedFile = createSourceFile(adlScript, filePath);
     const sourceFile = parse(unparsedFile);
 
-    // We don't attempt to evaluate yet when there are parse errors.
-    if (sourceFile.parseDiagnostics.length > 0) {
-      throw new DiagnosticError(sourceFile.parseDiagnostics);
-    }
-
+    program.reportDiagnostics(sourceFile.parseDiagnostics);
     program.sourceFiles.push(sourceFile);
-    binder.bindSourceFile(program, sourceFile);
+    binder.bindSourceFile(sourceFile);
     await evalImports(sourceFile);
   }
 
@@ -240,7 +274,8 @@ export async function createProgram(
           target = await resolveModuleSpecifier(path, basedir);
         } catch (e) {
           if (e.code === "MODULE_NOT_FOUND") {
-            throwDiagnostic(`Couldn't find library "${path}"`, stmt);
+            program.reportDiagnostic(`Couldn't find library "${path}"`, stmt);
+            continue;
           } else {
             throw e;
           }
@@ -250,14 +285,13 @@ export async function createProgram(
       const ext = extname(target);
 
       if (ext === "") {
-        // look for a main.adl
-        await loadAdlFile(join(target, "main.adl"));
-      } else if (ext === ".js") {
-        await loadJsFile(target);
+        await loadDirectory(target, stmt);
+      } else if (ext === ".js" || ext === ".mjs") {
+        await loadJsFile(target, stmt);
       } else if (ext === ".adl") {
-        await loadAdlFile(target);
+        await loadAdlFile(target, stmt);
       } else {
-        throwDiagnostic(
+        program.reportDiagnostic(
           "Import paths must reference either a directory, a .adl file, or .js file",
           stmt
         );
@@ -313,7 +347,13 @@ export async function createProgram(
             host
               .realpath(path)
               .then((p) => cb(null, p))
-              .catch((e) => cb(e));
+              .catch((e) => {
+                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+                  cb(null, path);
+                } else {
+                  cb(e);
+                }
+              });
           },
           packageFilter(pkg) {
             // this lets us follow node resolve semantics more-or-less exactly
@@ -326,8 +366,7 @@ export async function createProgram(
           if (err) {
             rejectP(err);
           } else if (!resolved) {
-            // I don't know when this happens
-            rejectP(new Error("Couldn't resolve module"));
+            rejectP(new Error("BUG: Module resolution succeeded but didn't return a value."));
           } else {
             resolveP(resolved);
           }
@@ -336,15 +375,12 @@ export async function createProgram(
     });
   }
 
-  async function loadMain(options: CompilerOptions) {
-    if (!options.mainFile) {
-      throw new Error("Must specify a main file");
+  async function loadMain(mainFile: string, options: CompilerOptions) {
+    const mainPath = resolve(host.getCwd(), mainFile);
+    const mainStat = await doIO(host.stat, mainPath, program.reportDiagnostic);
+    if (!mainStat) {
+      return;
     }
-
-    const mainPath = resolve(host.getCwd(), options.mainFile);
-
-    const mainStat = await host.stat(mainPath);
-
     if (mainStat.isDirectory()) {
       await loadDirectory(mainPath);
     } else {
@@ -355,8 +391,69 @@ export async function createProgram(
   function getOption(key: string): string | undefined {
     return (options.miscOptions || {})[key];
   }
+
+  function stateMap(key: Symbol): Map<any, any> {
+    let m = stateMaps.get(key);
+    if (!m) {
+      m = new Map();
+      stateMaps.set(key, m);
+    }
+
+    return m;
+  }
+
+  function stateSet(key: Symbol): Set<any> {
+    let s = stateSets.get(key);
+    if (!s) {
+      s = new Set();
+      stateSets.set(key, s);
+    }
+
+    return s;
+  }
+
+  function reportDiagnostic(diagnostic: Diagnostic): void;
+
+  function reportDiagnostic(
+    message: Message | string,
+    target: DiagnosticTarget | typeof NoTarget,
+    args?: (string | number)[]
+  ): void;
+
+  function reportDiagnostic(
+    diagnostic: Message | string | Diagnostic,
+    target?: DiagnosticTarget | typeof NoTarget,
+    args?: (string | number)[]
+  ): void {
+    if (typeof diagnostic === "string" || "text" in diagnostic) {
+      diagnostic = createDiagnostic(diagnostic, target!, args);
+    }
+    if (diagnostic.severity === "error") {
+      error = true;
+    }
+    diagnostics.push(diagnostic);
+  }
+
+  function reportDiagnostics(newDiagnostics: Diagnostic[]) {
+    for (const diagnostic of newDiagnostics) {
+      reportDiagnostic(diagnostic);
+    }
+  }
+
+  function reportDuplicateSymbols(symbols: SymbolTable) {
+    for (const symbol of symbols.duplicates) {
+      if (!duplicateSymbols.has(symbol)) {
+        duplicateSymbols.add(symbol);
+        reportDiagnostic("Duplicate name: " + symbol.name, symbol);
+      }
+    }
+  }
 }
 
-export async function compile(rootDir: string, host: CompilerHost, options?: CompilerOptions) {
-  const program = await createProgram(host, { mainFile: rootDir, ...options });
+export async function compile(
+  mainFile: string,
+  host: CompilerHost,
+  options?: CompilerOptions
+): Promise<Program> {
+  return await createProgram(host, mainFile, options);
 }

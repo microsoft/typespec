@@ -1,22 +1,9 @@
 import { AssertionError } from "assert";
-import { CharacterCodes } from "./character-codes.js";
+import { CharCode, isNonAsciiLineBreak } from "./charcode.js";
 import { Message } from "./messages.js";
 import { Diagnostic, Node, SourceFile, SourceLocation, Sym, SyntaxKind, Type } from "./types.js";
 
 export { Message } from "./messages.js";
-
-/**
- * Represents an error in the code input that is fatal and bails the compilation.
- *
- * This isn't meant to be kept long term, but we currently do this on all errors.
- */
-export class DiagnosticError extends Error {
-  constructor(public readonly diagnostics: readonly Diagnostic[]) {
-    super("Code diagnostics. See diagnostics array.");
-    // Tests don't have our catch-all handler so log the diagnostic now.
-    logVerboseTestOutput((log) => logDiagnostics(diagnostics, log));
-  }
-}
 
 /**
  * Represents a failure with multiple errors.
@@ -32,38 +19,25 @@ export class AggregateError extends Error {
   }
 }
 
+export const NoTarget = Symbol("NoTarget");
 export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 export type WriteLine = (text?: string) => void;
-
-export type ErrorHandler = (
-  message: Message | string,
-  target: DiagnosticTarget,
-  args?: (string | number)[]
-) => void;
-
-export const throwOnError: ErrorHandler = throwDiagnostic;
-
-export function throwDiagnostic(
-  message: Message | string,
-  target: DiagnosticTarget,
-  args?: (string | number)[]
-): never {
-  throw new DiagnosticError([createDiagnostic(message, target, args)]);
-}
+export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
 export function createDiagnostic(
   message: Message | string,
-  target: DiagnosticTarget,
+  target: DiagnosticTarget | typeof NoTarget,
   args?: (string | number)[]
 ): Diagnostic {
-  let location: SourceLocation;
+  let location: Partial<SourceLocation> = {};
   let locationError: Error | undefined;
-
-  try {
-    location = getSourceLocation(target);
-  } catch (err) {
-    locationError = err;
-    location = createDummySourceLocation();
+  if (target !== NoTarget) {
+    try {
+      location = getSourceLocation(target);
+    } catch (err) {
+      locationError = err;
+      location = createDummySourceLocation();
+    }
   }
 
   if (typeof message === "string") {
@@ -80,7 +54,10 @@ export function createDiagnostic(
   };
 
   if (locationError || formatError) {
-    throw new AggregateError(new DiagnosticError([diagnostic]), locationError, formatError);
+    const diagnosticError = new Error(
+      "Error(s) occurred trying to report diagnostic: " + diagnostic.message
+    );
+    throw new AggregateError(diagnosticError, locationError, formatError);
   }
 
   return diagnostic;
@@ -94,12 +71,17 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], writeLine: Wr
 
 export function formatDiagnostic(diagnostic: Diagnostic) {
   const code = diagnostic.code ? ` ADL${diagnostic.code}` : "";
-  const pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.pos);
-  const line = pos.line + 1;
-  const col = pos.character + 1;
   const severity = diagnostic.severity;
-  const path = diagnostic.file.path;
-  return `${path}:${line}:${col} - ${severity}${code}: ${diagnostic.message}`;
+  const content = `${severity}${code}: ${diagnostic.message}`;
+  if (diagnostic.file) {
+    const pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.pos ?? 0);
+    const line = pos.line + 1;
+    const col = pos.character + 1;
+    const path = diagnostic.file.path;
+    return `${path}:${line}:${col} - ${content}`;
+  } else {
+    return content;
+  }
 }
 
 export function createSourceFile(text: string, path: string): SourceFile {
@@ -113,7 +95,7 @@ export function createSourceFile(text: string, path: string): SourceFile {
   };
 
   function getLineStarts() {
-    return (lineStarts = lineStarts ?? scanLineStarts());
+    return (lineStarts = lineStarts ?? scanLineStarts(text));
   }
 
   function getLineAndCharacterOfPosition(position: number) {
@@ -135,57 +117,6 @@ export function createSourceFile(text: string, path: string): SourceFile {
       line,
       character: position - starts[line],
     };
-  }
-
-  function scanLineStarts() {
-    const starts = [];
-    let start = 0;
-    let pos = 0;
-
-    while (pos < text.length) {
-      const ch = text.charCodeAt(pos);
-      pos++;
-      switch (ch) {
-        case CharacterCodes.carriageReturn:
-          if (text.charCodeAt(pos) === CharacterCodes.lineFeed) {
-            pos++;
-          }
-        // fallthrough
-        case CharacterCodes.lineFeed:
-        case CharacterCodes.lineSeparator:
-        case CharacterCodes.paragraphSeparator:
-          starts.push(start);
-          start = pos;
-          break;
-      }
-    }
-
-    starts.push(start);
-    return starts;
-  }
-
-  /**
-   * Search sorted array of numbers for the given value. If found, return index
-   * in array where value was found. If not found, return a negative number that
-   * is the bitwise complement of the index where value would need to be inserted
-   * to keep the array sorted.
-   */
-  function binarySearch(array: readonly number[], value: number) {
-    let low = 0;
-    let high = array.length - 1;
-    while (low <= high) {
-      const middle = low + ((high - low) >> 1);
-      const v = array[middle];
-      if (v < value) {
-        low = middle + 1;
-      } else if (v > value) {
-        high = middle - 1;
-      } else {
-        return middle;
-      }
-    }
-
-    return ~low;
   }
 }
 
@@ -250,10 +181,7 @@ export function logVerboseTestOutput(messageOrCallback: string | ((log: WriteLin
 }
 
 export function dumpError(error: Error, writeLine: WriteLine) {
-  if (error instanceof DiagnosticError) {
-    logDiagnostics(error.diagnostics, writeLine);
-    writeLine(error.stack);
-  } else if (error instanceof AggregateError) {
+  if (error instanceof AggregateError) {
     for (const inner of error.errors) {
       dumpError(inner, writeLine);
     }
@@ -327,4 +255,59 @@ function format(text: string, args?: (string | number)[]): [string, Error?] {
 
 function isNotUndefined<T>(value: T | undefined): value is T {
   return value !== undefined;
+}
+
+function scanLineStarts(text: string): number[] {
+  const starts = [];
+  let start = 0;
+  let pos = 0;
+
+  while (pos < text.length) {
+    const ch = text.charCodeAt(pos);
+    pos++;
+    switch (ch) {
+      case CharCode.CarriageReturn:
+        if (text.charCodeAt(pos) === CharCode.LineFeed) {
+          pos++;
+        }
+      // fallthrough
+      case CharCode.LineFeed:
+        starts.push(start);
+        start = pos;
+        break;
+      default:
+        if (ch > CharCode.MaxAscii && isNonAsciiLineBreak(ch)) {
+          starts.push(start);
+          start = pos;
+          break;
+        }
+    }
+  }
+
+  starts.push(start);
+  return starts;
+}
+
+/**
+ * Search sorted array of numbers for the given value. If found, return index
+ * in array where value was found. If not found, return a negative number that
+ * is the bitwise complement of the index where value would need to be inserted
+ * to keep the array sorted.
+ */
+function binarySearch(array: readonly number[], value: number) {
+  let low = 0;
+  let high = array.length - 1;
+  while (low <= high) {
+    const middle = low + ((high - low) >> 1);
+    const v = array[middle];
+    if (v < value) {
+      low = middle + 1;
+    } else if (v > value) {
+      high = middle - 1;
+    } else {
+      return middle;
+    }
+  }
+
+  return ~low;
 }

@@ -2,7 +2,7 @@ import { rejects, strictEqual } from "assert";
 import { ModelType } from "../../compiler/types";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("using statements", () => {
+describe("adl: using statements", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -10,6 +10,13 @@ describe("using statements", () => {
   });
 
   it("works in global scope", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -33,6 +40,13 @@ describe("using statements", () => {
   });
 
   it("works in namespaces", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -58,6 +72,13 @@ describe("using statements", () => {
 
   it("works with dotted namespaces", async () => {
     testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
+    testHost.addAdlFile(
       "a.adl",
       `
       namespace N.M;
@@ -81,6 +102,13 @@ describe("using statements", () => {
 
   it("throws errors for duplicate imported usings", async () => {
     testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
+    testHost.addAdlFile(
       "a.adl",
       `
       namespace N.M;
@@ -101,6 +129,13 @@ describe("using statements", () => {
   });
 
   it("throws errors for different usings with the same bindings", async () => {
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
     testHost.addAdlFile(
       "a.adl",
       `
@@ -127,6 +162,13 @@ describe("using statements", () => {
 
   it("resolves 'local' decls over usings", async () => {
     testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
+    testHost.addAdlFile(
       "a.adl",
       `
       namespace N;
@@ -152,6 +194,13 @@ describe("using statements", () => {
 
   it("usings are local to a file", async () => {
     testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./a.adl";
+      import "./b.adl";
+      `
+    );
+    testHost.addAdlFile(
       "a.adl",
       `
       namespace N;
@@ -167,7 +216,7 @@ describe("using statements", () => {
       }
       
       namespace M {
-        model X = A;
+        model X { a: A };
       }
       `
     );

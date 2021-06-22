@@ -1,0 +1,11 @@
+model   Empty   {
+}
+
+model   WithProps {
+    foo: string;
+      bar: string
+}
+
+model     GenericExtension<T>     extends   Parent<T> {
+
+}

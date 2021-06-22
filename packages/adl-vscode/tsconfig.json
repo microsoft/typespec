@@ -1,5 +1,6 @@
 {
   "extends": "../tsconfig.json",
+  "references": [{ "path": "../tmlanguage-generator/tsconfig.json" }],
   "compilerOptions": {
     "outDir": "dist-dev",
     "rootDir": "src",

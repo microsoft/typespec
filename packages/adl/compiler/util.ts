@@ -2,8 +2,15 @@ import fs from "fs";
 import { readdir, readFile, realpath, stat, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
-import { createDiagnostic, DiagnosticError } from "./diagnostics.js";
-import { CompilerHost, Diagnostic, Sym, SymbolTable } from "./types.js";
+import {
+  createDiagnostic,
+  createSourceFile,
+  DiagnosticHandler,
+  DiagnosticTarget,
+  Message,
+  NoTarget,
+} from "./diagnostics.js";
+import { CompilerHost, SourceFile } from "./types.js";
 
 export const adlVersion = getVersion();
 
@@ -13,33 +20,99 @@ function getVersion(): string {
   return packageJson.version;
 }
 
-export function reportDuplicateSymbols(symbols: SymbolTable) {
-  let reported = new Set<Sym>();
-  let diagnostics: Diagnostic[] = [];
-
-  for (const symbol of symbols.duplicates) {
-    report(symbol);
-  }
-
-  if (diagnostics.length > 0) {
-    // TODO: We're now reporting all duplicates up to the binding of the first file
-    // that introduced one, but still bailing the compilation rather than
-    // recovering and reporting other issues including the possibility of more
-    // duplicates.
-    //
-    // That said, decorators are entered into the global symbol table before
-    // any source file is bound and therefore this will include all duplicate
-    // decorator implementations.
-    throw new DiagnosticError(diagnostics);
-  }
-
-  function report(symbol: Sym) {
-    if (!reported.has(symbol)) {
-      reported.add(symbol);
-      const diagnostic = createDiagnostic("Duplicate name: " + symbol.name, symbol);
-      diagnostics.push(diagnostic);
+export function deepFreeze<T>(value: T): T {
+  if (Array.isArray(value)) {
+    value.map(deepFreeze);
+  } else if (typeof value === "object") {
+    for (const prop in value) {
+      deepFreeze(value[prop]);
     }
   }
+
+  return Object.freeze(value);
+}
+
+export function deepClone<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map(deepClone) as any;
+  }
+
+  if (typeof value === "object") {
+    const obj: any = {};
+    for (const prop in value) {
+      obj[prop] = deepClone(value[prop]);
+    }
+    return obj;
+  }
+
+  return value;
+}
+
+export interface FileHandlingOptions {
+  allowFileNotFound?: boolean;
+  diagnosticTarget?: DiagnosticTarget;
+  jsDiagnosticTarget?: DiagnosticTarget;
+}
+
+export async function doIO<T>(
+  action: (path: string) => Promise<T>,
+  path: string,
+  reportDiagnostic: DiagnosticHandler,
+  options?: FileHandlingOptions
+): Promise<T | undefined> {
+  let result;
+  try {
+    result = await action(path);
+  } catch (e) {
+    let diagnostic;
+    let target = options?.diagnosticTarget ?? NoTarget;
+
+    // blame the JS file, not the ADL import statement for JS syntax errors.
+    if (e instanceof SyntaxError && options?.jsDiagnosticTarget) {
+      target = options.jsDiagnosticTarget;
+    }
+
+    switch (e.code) {
+      case "ENOENT":
+        if (options?.allowFileNotFound) {
+          return undefined;
+        }
+        diagnostic = createDiagnostic(Message.FileNotFound, target, [path]);
+        break;
+      default:
+        diagnostic = createDiagnostic(e.message, target);
+        break;
+    }
+
+    reportDiagnostic(diagnostic);
+    return undefined;
+  }
+
+  return result;
+}
+
+export async function loadFile<T>(
+  read: (path: string) => Promise<string>,
+  path: string,
+  load: (contents: string) => T,
+  reportDiagnostic: DiagnosticHandler,
+  options?: FileHandlingOptions
+): Promise<[T | undefined, SourceFile]> {
+  const contents = await doIO(read, path, reportDiagnostic, options);
+  if (!contents) {
+    return [undefined, createSourceFile("", path)];
+  }
+
+  const file = createSourceFile(contents, path);
+  let data: T;
+  try {
+    data = load(contents);
+  } catch (e) {
+    reportDiagnostic({ message: e.message, severity: "error", file });
+    return [undefined, file];
+  }
+
+  return [data, file];
 }
 
 export const NodeHost: CompilerHost = {
@@ -51,7 +124,7 @@ export const NodeHost: CompilerHost = {
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {
     const rootDir = this.getExecutionRoot();
-    return [join(rootDir, "lib"), join(rootDir, "dist/lib")];
+    return [join(rootDir, "lib")];
   },
   stat(path: string) {
     return stat(path);

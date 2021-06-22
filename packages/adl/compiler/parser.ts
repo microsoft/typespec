@@ -1,7 +1,8 @@
 import { createSymbolTable } from "./binder.js";
-import { compilerAssert, createDiagnostic, DiagnosticTarget, Message } from "./diagnostics.js";
+import { compilerAssert, createDiagnostic } from "./diagnostics.js";
 import {
   createScanner,
+  isComment,
   isKeyword,
   isPunctuation,
   isStatementKeyword,
@@ -11,10 +12,14 @@ import {
 } from "./scanner.js";
 import {
   ADLScriptNode,
+  AliasStatementNode,
   BooleanLiteralNode,
+  Comment,
   DecoratorExpressionNode,
   Diagnostic,
   EmptyStatementNode,
+  EnumMemberNode,
+  EnumStatementNode,
   Expression,
   IdentifierNode,
   ImportStatementNode,
@@ -127,6 +132,10 @@ namespace ListKind {
     toleratedDelimiter: Token.Comma,
   } as const;
 
+  export const EnumMembers = {
+    ...ModelProperties,
+  } as const;
+
   const ExpresionsBase = {
     allowEmpty: true,
     delimiter: Token.Comma,
@@ -162,13 +171,21 @@ namespace ListKind {
   } as const;
 }
 
-export function parse(code: string | SourceFile) {
+export interface ParseOptions {
+  /**
+   * Include comments in resulting output.
+   */
+  comments?: boolean;
+}
+
+export function parse(code: string | SourceFile, options: ParseOptions = {}): ADLScriptNode {
   let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
   const parseDiagnostics: Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
+  const comments: Comment[] = [];
 
   nextToken();
   return parseADLScript();
@@ -186,7 +203,8 @@ export function parse(code: string | SourceFile) {
       locals: createSymbolTable(),
       inScopeNamespaces: [],
       parseDiagnostics,
-      ...finishNode({}, 0),
+      comments,
+      ...finishNode(0),
     };
   }
 
@@ -211,6 +229,13 @@ export function parse(code: string | SourceFile) {
           break;
         case Token.OpKeyword:
           item = parseOperationStatement(decorators);
+          break;
+        case Token.EnumKeyword:
+          item = parseEnumStatement(decorators);
+          break;
+        case Token.AliasKeyword:
+          reportInvalidDecorators(decorators, "alias statement");
+          item = parseAliasStatement();
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
@@ -275,12 +300,19 @@ export function parse(code: string | SourceFile) {
         case Token.OpKeyword:
           stmts.push(parseOperationStatement(decorators));
           break;
+        case Token.EnumKeyword:
+          stmts.push(parseEnumStatement(decorators));
+          break;
+        case Token.AliasKeyword:
+          reportInvalidDecorators(decorators, "alias statement");
+          stmts.push(parseAliasStatement());
+          break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
           stmts.push(parseUsingStatement());
           break;
         case Token.EndOfFile:
-          error("End of file reached without '}'.");
+          parseExpected(Token.CloseBrace);
           return stmts;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
@@ -316,8 +348,6 @@ export function parse(code: string | SourceFile) {
     }
     nsSegments.push(currentName);
 
-    let parameters: ModelExpressionNode | undefined;
-
     const nextTok = parseExpectedOneOf(Token.Semicolon, Token.OpenBrace);
 
     let statements: Statement[] | undefined;
@@ -326,28 +356,22 @@ export function parse(code: string | SourceFile) {
       parseExpected(Token.CloseBrace);
     }
 
-    let outerNs: NamespaceStatementNode = finishNode(
-      {
-        kind: SyntaxKind.NamespaceStatement,
-        decorators,
-        name: nsSegments[0],
-        parameters,
-        statements,
-      },
-      nsSegments[0].pos
-    );
+    let outerNs: NamespaceStatementNode = {
+      kind: SyntaxKind.NamespaceStatement,
+      decorators,
+      name: nsSegments[0],
+      statements,
+      ...finishNode(nsSegments[0].pos),
+    };
 
     for (let i = 1; i < nsSegments.length; i++) {
-      outerNs = finishNode(
-        {
-          kind: SyntaxKind.NamespaceStatement,
-          decorators: [],
-          name: nsSegments[i],
-          parameters,
-          statements: outerNs,
-        },
-        nsSegments[i].pos
-      );
+      outerNs = {
+        kind: SyntaxKind.NamespaceStatement,
+        decorators: [],
+        name: nsSegments[i],
+        statements: outerNs,
+        ...finishNode(nsSegments[i].pos),
+      };
     }
 
     return outerNs;
@@ -359,13 +383,11 @@ export function parse(code: string | SourceFile) {
     const name = parseIdentifierOrMemberExpression();
     parseExpected(Token.Semicolon);
 
-    return finishNode(
-      {
-        kind: SyntaxKind.UsingStatement,
-        name,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.UsingStatement,
+      name,
+      ...finishNode(pos),
+    };
   }
 
   function parseOperationStatement(decorators: DecoratorExpressionNode[]): OperationStatementNode {
@@ -379,28 +401,24 @@ export function parse(code: string | SourceFile) {
     const returnType = parseExpression();
     parseExpected(Token.Semicolon);
 
-    return finishNode(
-      {
-        kind: SyntaxKind.OperationStatement,
-        id,
-        parameters,
-        returnType,
-        decorators,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.OperationStatement,
+      id,
+      parameters,
+      returnType,
+      decorators,
+      ...finishNode(pos),
+    };
   }
 
   function parseOperationParameters(): ModelExpressionNode {
     const pos = tokenPos();
     const properties = parseList(ListKind.OperationParameters, parseModelPropertyOrSpread);
-    const parameters: ModelExpressionNode = finishNode(
-      {
-        kind: SyntaxKind.ModelExpression,
-        properties,
-      },
-      pos
-    );
+    const parameters: ModelExpressionNode = {
+      kind: SyntaxKind.ModelExpression,
+      properties,
+      ...finishNode(pos),
+    };
     return parameters;
   }
 
@@ -416,37 +434,18 @@ export function parse(code: string | SourceFile) {
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword);
 
-    if (parseOptional(Token.Equals)) {
-      const assignment = parseExpression();
-      parseExpected(Token.Semicolon);
+    const heritage: ReferenceExpression[] = parseOptionalModelHeritage();
+    const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
 
-      return finishNode(
-        {
-          kind: SyntaxKind.ModelStatement,
-          id,
-          heritage: [],
-          templateParameters,
-          assignment,
-          decorators,
-        },
-        pos
-      );
-    } else {
-      const heritage: ReferenceExpression[] = parseOptionalModelHeritage();
-      const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
-
-      return finishNode(
-        {
-          kind: SyntaxKind.ModelStatement,
-          id,
-          heritage,
-          templateParameters,
-          decorators,
-          properties,
-        },
-        pos
-      );
-    }
+    return {
+      kind: SyntaxKind.ModelStatement,
+      id,
+      heritage,
+      templateParameters,
+      decorators,
+      properties,
+      ...finishNode(pos),
+    };
   }
 
   function parseOptionalModelHeritage() {
@@ -463,13 +462,11 @@ export function parse(code: string | SourceFile) {
   ): TemplateParameterDeclarationNode {
     reportInvalidDecorators(decorators, "template parameter");
     const id = parseIdentifier();
-    return finishNode(
-      {
-        kind: SyntaxKind.TemplateParameterDeclaration,
-        id,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.TemplateParameterDeclaration,
+      id,
+      ...finishNode(pos),
+    };
   }
 
   function parseModelPropertyOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
@@ -489,20 +486,18 @@ export function parse(code: string | SourceFile) {
     // This could be broadened to allow any type expression
     const target = parseReferenceExpression();
 
-    return finishNode(
-      {
-        kind: SyntaxKind.ModelSpreadProperty,
-        target,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.ModelSpreadProperty,
+      target,
+      ...finishNode(pos),
+    };
   }
 
   function parseModelProperty(
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode | ModelSpreadPropertyNode {
-    let id =
+    const id =
       token() === Token.StringLiteral
         ? parseStringLiteral()
         : parseIdentifier("Property expected.");
@@ -511,16 +506,76 @@ export function parse(code: string | SourceFile) {
     parseExpected(Token.Colon);
     const value = parseExpression();
 
-    return finishNode(
-      {
-        kind: SyntaxKind.ModelProperty,
-        id,
-        decorators,
-        value,
-        optional,
-      },
-      pos
+    return {
+      kind: SyntaxKind.ModelProperty,
+      id,
+      decorators,
+      value,
+      optional,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumStatement(decorators: DecoratorExpressionNode[]): EnumStatementNode {
+    const pos = tokenPos();
+    parseExpected(Token.EnumKeyword);
+    const id = parseIdentifier();
+    const members = parseList(ListKind.EnumMembers, parseEnumMember);
+    return {
+      kind: SyntaxKind.EnumStatement,
+      id,
+      decorators,
+      members,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
+    const id =
+      token() === Token.StringLiteral
+        ? parseStringLiteral()
+        : parseIdentifier("Enum member expected.");
+
+    let value: StringLiteralNode | NumericLiteralNode | undefined;
+    if (parseOptional(Token.Colon)) {
+      const expr = parseExpression();
+
+      if (expr.kind === SyntaxKind.StringLiteral || expr.kind === SyntaxKind.NumericLiteral) {
+        value = expr;
+      } else if (getFlag(expr, NodeFlags.ThisNodeHasError)) {
+        parseErrorInNextFinishedNode = true;
+      } else {
+        error("Expected numeric or string literal", expr);
+      }
+    }
+
+    return {
+      kind: SyntaxKind.EnumMember,
+      id,
+      value,
+      decorators,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseAliasStatement(): AliasStatementNode {
+    const pos = tokenPos();
+    parseExpected(Token.AliasKeyword);
+    const id = parseIdentifier();
+    const templateParameters = parseOptionalList(
+      ListKind.TemplateParameters,
+      parseTemplateParameter
     );
+    parseExpected(Token.Equals);
+    const value = parseExpression();
+    parseExpected(Token.Semicolon);
+    return {
+      kind: SyntaxKind.AliasStatement,
+      id,
+      templateParameters,
+      value,
+      ...finishNode(pos),
+    };
   }
 
   function parseExpression(): Expression {
@@ -536,22 +591,17 @@ export function parse(code: string | SourceFile) {
       return node;
     }
 
-    node = finishNode(
-      {
-        kind: SyntaxKind.UnionExpression,
-        options: [node],
-      },
-      pos
-    );
-
+    const options = [node];
     while (parseOptional(Token.Bar)) {
       const expr = parseIntersectionExpressionOrHigher();
-      node.options.push(expr);
+      options.push(expr);
     }
 
-    node.end = tokenPos();
-
-    return node;
+    return {
+      kind: SyntaxKind.UnionExpression,
+      options,
+      ...finishNode(pos),
+    };
   }
 
   function parseIntersectionExpressionOrHigher(): Expression {
@@ -563,22 +613,17 @@ export function parse(code: string | SourceFile) {
       return node;
     }
 
-    node = finishNode(
-      {
-        kind: SyntaxKind.IntersectionExpression,
-        options: [node],
-      },
-      pos
-    );
-
+    const options = [node];
     while (parseOptional(Token.Ampersand)) {
       const expr = parseArrayExpressionOrHigher();
-      node.options.push(expr);
+      options.push(expr);
     }
 
-    node.end = tokenPos();
-
-    return node;
+    return {
+      kind: SyntaxKind.IntersectionExpression,
+      options,
+      ...finishNode(pos),
+    };
   }
 
   function parseArrayExpressionOrHigher(): Expression {
@@ -588,13 +633,11 @@ export function parse(code: string | SourceFile) {
     while (parseOptional(Token.OpenBracket)) {
       parseExpected(Token.CloseBracket);
 
-      expr = finishNode(
-        {
-          kind: SyntaxKind.ArrayExpression,
-          elementType: expr,
-        },
-        pos
-      );
+      expr = {
+        kind: SyntaxKind.ArrayExpression,
+        elementType: expr,
+        ...finishNode(pos),
+      };
     }
 
     return expr;
@@ -605,14 +648,12 @@ export function parse(code: string | SourceFile) {
     const target = parseIdentifierOrMemberExpression();
     const args = parseOptionalList(ListKind.TemplateArguments, parseExpression);
 
-    return finishNode(
-      {
-        kind: SyntaxKind.TypeReference,
-        target,
-        arguments: args,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.TypeReference,
+      target,
+      arguments: args,
+      ...finishNode(pos),
+    };
   }
 
   function parseImportStatement(): ImportStatementNode {
@@ -622,13 +663,11 @@ export function parse(code: string | SourceFile) {
     const path = parseStringLiteral();
 
     parseExpected(Token.Semicolon);
-    return finishNode(
-      {
-        kind: SyntaxKind.ImportStatement,
-        path,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.ImportStatement,
+      path,
+      ...finishNode(pos),
+    };
   }
 
   function parseDecoratorExpression(): DecoratorExpressionNode {
@@ -637,14 +676,12 @@ export function parse(code: string | SourceFile) {
 
     const target = parseIdentifierOrMemberExpression();
     const args = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
-    return finishNode(
-      {
-        kind: SyntaxKind.DecoratorExpression,
-        arguments: args,
-        target,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.DecoratorExpression,
+      arguments: args,
+      target,
+      ...finishNode(pos),
+    };
   }
 
   function parseIdentifierOrMemberExpression(): IdentifierNode | MemberExpressionNode {
@@ -652,14 +689,12 @@ export function parse(code: string | SourceFile) {
 
     while (parseOptional(Token.Dot)) {
       const pos = tokenPos();
-      base = finishNode(
-        {
-          kind: SyntaxKind.MemberExpression,
-          base,
-          id: parseIdentifier(),
-        },
-        pos
-      );
+      base = {
+        kind: SyntaxKind.MemberExpression,
+        base,
+        id: parseIdentifier(),
+        ...finishNode(pos),
+      };
     }
 
     return base;
@@ -698,44 +733,38 @@ export function parse(code: string | SourceFile) {
     parseExpected(Token.OpenParen);
     const expr = parseExpression();
     parseExpected(Token.CloseParen);
-    return finishNode(expr, pos);
+    return { ...expr, ...finishNode(pos) };
   }
 
   function parseTupleExpression(): TupleExpressionNode {
     const pos = tokenPos();
     const values = parseList(ListKind.Tuple, parseExpression);
-    return finishNode(
-      {
-        kind: SyntaxKind.TupleExpression,
-        values,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.TupleExpression,
+      values,
+      ...finishNode(pos),
+    };
   }
 
   function parseModelExpression(): ModelExpressionNode {
     const pos = tokenPos();
     const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
-    return finishNode(
-      {
-        kind: SyntaxKind.ModelExpression,
-        properties,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.ModelExpression,
+      properties,
+      ...finishNode(pos),
+    };
   }
 
   function parseStringLiteral(): StringLiteralNode {
     const pos = tokenPos();
     const value = tokenValue();
     parseExpected(Token.StringLiteral);
-    return finishNode(
-      {
-        kind: SyntaxKind.StringLiteral,
-        value,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.StringLiteral,
+      value,
+      ...finishNode(pos),
+    };
   }
 
   function parseNumericLiteral(): NumericLiteralNode {
@@ -744,27 +773,22 @@ export function parse(code: string | SourceFile) {
     const value = Number(text);
 
     parseExpected(Token.NumericLiteral);
-    return finishNode(
-      {
-        kind: SyntaxKind.NumericLiteral,
-        text,
-        value,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.NumericLiteral,
+      value,
+      ...finishNode(pos),
+    };
   }
 
   function parseBooleanLiteral(): BooleanLiteralNode {
     const pos = tokenPos();
     const token = parseExpectedOneOf(Token.TrueKeyword, Token.FalseKeyword);
-    const value = token == Token.TrueKeyword;
-    return finishNode(
-      {
-        kind: SyntaxKind.BooleanLiteral,
-        value,
-      },
-      pos
-    );
+    const value = token === Token.TrueKeyword;
+    return {
+      kind: SyntaxKind.BooleanLiteral,
+      value,
+      ...finishNode(pos),
+    };
   }
 
   function parseIdentifier(message?: string): IdentifierNode {
@@ -781,13 +805,11 @@ export function parse(code: string | SourceFile) {
     const sv = tokenValue();
     nextToken();
 
-    return finishNode(
-      {
-        kind: SyntaxKind.Identifier,
-        sv,
-      },
-      pos
-    );
+    return {
+      kind: SyntaxKind.Identifier,
+      sv,
+      ...finishNode(pos),
+    };
   }
 
   // utility functions
@@ -803,34 +825,49 @@ export function parse(code: string | SourceFile) {
     return scanner.tokenPosition;
   }
 
+  function tokenEndPos() {
+    return scanner.position;
+  }
+
   function nextToken() {
     // keep track of the previous token end separately from the current scanner
     // position as these will differ when the previous token had trailing
     // trivia, and we don't want to squiggle the trivia.
     previousTokenEnd = scanner.position;
 
-    do {
+    for (;;) {
       scanner.scan();
-    } while (isTrivia(token()));
+      if (isTrivia(token())) {
+        if (options.comments && isComment(token())) {
+          comments.push({
+            kind:
+              token() === Token.SingleLineComment
+                ? SyntaxKind.LineComment
+                : SyntaxKind.BlockComment,
+            pos: tokenPos(),
+            end: tokenEndPos(),
+          });
+        }
+      } else {
+        break;
+      }
+    }
   }
 
   function createMissingIdentifier(): IdentifierNode {
     missingIdentifierCounter++;
-    return finishNode(
-      {
-        kind: SyntaxKind.Identifier,
-        sv: "<missing identifier>" + missingIdentifierCounter,
-      },
-      tokenPos()
-    );
+    return {
+      kind: SyntaxKind.Identifier,
+      sv: "<missing identifier>" + missingIdentifierCounter,
+      ...finishNode(tokenPos()),
+    };
   }
 
-  function finishNode<T>(o: T, pos: number): T & TextRange & { flags: NodeFlags } {
+  function finishNode(pos: number): TextRange & { flags: NodeFlags } {
     const flags = parseErrorInNextFinishedNode ? NodeFlags.ThisNodeHasError : NodeFlags.None;
     parseErrorInNextFinishedNode = false;
 
     return {
-      ...o,
       pos,
       end: previousTokenEnd,
       flags,
@@ -931,7 +968,7 @@ export function parse(code: string | SourceFile) {
    * open token is present. Otherwise, return an empty list.
    */
   function parseOptionalList<T>(kind: SurroundedListKind, parseItem: ParseListItem<T>): T[] {
-    return token() == kind.open ? parseList(kind, parseItem) : [];
+    return token() === kind.open ? parseList(kind, parseItem) : [];
   }
 
   function parseOptionalDelimiter(kind: ListKind) {
@@ -953,7 +990,7 @@ export function parse(code: string | SourceFile) {
   function parseEmptyStatement(): EmptyStatementNode {
     const pos = tokenPos();
     parseExpected(Token.Semicolon);
-    return finishNode({ kind: SyntaxKind.EmptyStatement }, pos);
+    return { kind: SyntaxKind.EmptyStatement, ...finishNode(pos) };
   }
 
   function parseInvalidStatement(): InvalidStatementNode {
@@ -972,7 +1009,7 @@ export function parse(code: string | SourceFile) {
     );
 
     error("Statement expected.", { pos, end: previousTokenEnd });
-    return finishNode({ kind: SyntaxKind.InvalidStatement }, pos);
+    return { kind: SyntaxKind.InvalidStatement, ...finishNode(pos) };
   }
 
   function error(message: string, target?: TextRange & { realPos?: number }) {
@@ -990,18 +1027,15 @@ export function parse(code: string | SourceFile) {
     if (realPositionOfLastError === realPos) {
       return;
     }
-
     realPositionOfLastError = realPos;
-    parseErrorInNextFinishedNode = true;
-    reportDiagnostic(message, location);
+    const diagnostic = createDiagnostic(message, location);
+    reportDiagnostic(diagnostic);
   }
 
-  function reportDiagnostic(
-    message: Message | string,
-    target: DiagnosticTarget,
-    args?: (string | number)[]
-  ) {
-    const diagnostic = createDiagnostic(message, target, args);
+  function reportDiagnostic(diagnostic: Diagnostic) {
+    if (diagnostic.severity === "error") {
+      parseErrorInNextFinishedNode = true;
+    }
     parseDiagnostics.push(diagnostic);
   }
 
@@ -1121,8 +1155,19 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
         visitEach(cb, node.heritage) ||
-        visitNode(cb, node.assignment) ||
         visitEach(cb, node.properties)
+      );
+    case SyntaxKind.EnumStatement:
+      return (
+        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.members)
+      );
+    case SyntaxKind.EnumMember:
+      return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.AliasStatement:
+      return (
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.value)
       );
     case SyntaxKind.NamedImport:
       return visitNode(cb, node.id);

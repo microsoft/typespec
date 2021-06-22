@@ -1,3 +1,4 @@
+import { fileURLToPath } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   Connection,
@@ -21,7 +22,8 @@ let documents: TextDocuments<TextDocument>;
 main();
 
 function main() {
-  log(`** ADL Language Server v${adlVersion} **`);
+  log(`ADL language server v${adlVersion}\n`);
+  log(`Module: ${fileURLToPath(import.meta.url)}`);
   log(`Command Line: ${JSON.stringify(process.argv)}`);
 
   connection = createConnection(ProposedFeatures.all);
@@ -48,11 +50,11 @@ function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   const diagnostics: Diagnostic[] = [];
 
   for (const each of parseDiagnostics) {
-    const start = document.positionAt(each.pos);
-    const end = document.positionAt(each.end);
+    const start = document.positionAt(each.pos ?? 0);
+    const end = document.positionAt(each.end ?? 0);
     const range = Range.create(start, end);
     const severity = convertSeverity(each.severity);
-    const diagnostic = Diagnostic.create(range, each.message, severity, "ADL");
+    const diagnostic = Diagnostic.create(range, each.message, severity, each.code, "ADL");
     diagnostics.push(diagnostic);
   }
 

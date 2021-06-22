@@ -3,7 +3,9 @@ import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   ADLScriptNode,
+  AliasStatementNode,
   Declaration,
+  EnumStatementNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -15,7 +17,6 @@ import {
   TemplateParameterDeclarationNode,
   UsingStatementNode,
 } from "./types.js";
-import { reportDuplicateSymbols } from "./util.js";
 
 const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   duplicates = new Set<Sym>();
@@ -47,16 +48,23 @@ export interface TypeSymbol {
 }
 
 export interface Binder {
-  bindSourceFile(program: Program, sourceFile: ADLScriptNode): void;
+  bindSourceFile(sourceFile: ADLScriptNode): void;
+  bindNode(node: Node): void;
 }
 
 export function createSymbolTable(): SymbolTable {
   return new SymbolTable();
 }
 
-export function createBinder(): Binder {
+export interface BinderOptions {
+  // Configures the initial parent node to use when calling bindNode.  This is
+  // useful for binding ADL fragments outside the context of a full script node.
+  initialParentNode?: Node;
+}
+
+export function createBinder(program: Program, options: BinderOptions = {}): Binder {
   let currentFile: ADLScriptNode;
-  let parentNode: Node;
+  let parentNode: Node | undefined = options?.initialParentNode;
   let globalNamespace: NamespaceStatementNode;
   let fileNamespace: NamespaceStatementNode;
   let currentNamespace: NamespaceStatementNode;
@@ -65,9 +73,10 @@ export function createBinder(): Binder {
   let scope: ScopeNode;
   return {
     bindSourceFile,
+    bindNode,
   };
 
-  function bindSourceFile(program: Program, sourceFile: ADLScriptNode) {
+  function bindSourceFile(sourceFile: ADLScriptNode) {
     globalNamespace = program.globalNamespace;
     fileNamespace = globalNamespace;
     currentFile = sourceFile;
@@ -84,6 +93,12 @@ export function createBinder(): Binder {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
+        break;
+      case SyntaxKind.AliasStatement:
+        bindAliasStatement(node);
+        break;
+      case SyntaxKind.EnumStatement:
+        bindEnumStatement(node);
         break;
       case SyntaxKind.NamespaceStatement:
         bindNamespaceStatement(node);
@@ -114,7 +129,7 @@ export function createBinder(): Binder {
       visitChildren(node, bindNode);
 
       if (node.kind !== SyntaxKind.NamespaceStatement) {
-        reportDuplicateSymbols(node.locals!);
+        program.reportDuplicateSymbols(node.locals!);
       }
 
       scope = prevScope;
@@ -146,6 +161,16 @@ export function createBinder(): Binder {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     // Initialize locals for type parameters
     node.locals = new SymbolTable();
+  }
+
+  function bindAliasStatement(node: AliasStatementNode) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    // Initialize locals for type parameters
+    node.locals = new SymbolTable();
+  }
+
+  function bindEnumStatement(node: EnumStatementNode) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {
@@ -217,6 +242,7 @@ export function createBinder(): Binder {
 function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.AliasStatement:
       return true;
     case SyntaxKind.NamespaceStatement:
       return node.statements !== undefined;

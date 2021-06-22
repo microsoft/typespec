@@ -1,6 +1,24 @@
 # Change Log - adl-vscode
 
-This log was last generated on Tue, 20 Apr 2021 15:23:29 GMT and should not be manually modified.
+This log was last generated on Tue, 18 May 2021 23:43:31 GMT and should not be manually modified.
+
+## 0.5.1
+Tue, 18 May 2021 23:43:31 GMT
+
+### Patches
+
+- Fix issue launching adl-server on Mac OS
+
+## 0.5.0
+Thu, 06 May 2021 14:56:02 GMT
+
+### Minor changes
+
+- Implement alias and enum, remove model =
+
+### Patches
+
+- Update syntax highlighting for string literal change
 
 ## 0.4.5
 Tue, 20 Apr 2021 15:23:29 GMT

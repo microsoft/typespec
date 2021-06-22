@@ -10,6 +10,8 @@ export interface BaseType {
 export type Type =
   | ModelType
   | ModelTypeProperty
+  | EnumType
+  | EnumMemberType
   | TemplateParameterType
   | NamespaceType
   | OperationType
@@ -26,6 +28,10 @@ export interface IntrinsicType extends BaseType {
   name: string;
 }
 
+export interface ErrorType extends IntrinsicType {
+  name: "ErrorType";
+}
+
 export interface ModelType extends BaseType {
   kind: "Model";
   name: string;
@@ -35,7 +41,6 @@ export interface ModelType extends BaseType {
   baseModels: ModelType[];
   templateArguments?: Type[];
   templateNode?: Node;
-  assignmentType?: Type;
 }
 
 export interface ModelTypeProperty {
@@ -49,12 +54,28 @@ export interface ModelTypeProperty {
   optional: boolean;
 }
 
+export interface EnumType extends BaseType {
+  kind: "Enum";
+  name: string;
+  node: EnumStatementNode;
+  namespace?: NamespaceType;
+  members: EnumMemberType[];
+}
+
+export interface EnumMemberType extends BaseType {
+  kind: "EnumMember";
+  name: string;
+  enum: EnumType;
+  node: EnumMemberNode;
+  value?: string | number;
+}
+
 export interface OperationType {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
   namespace?: NamespaceType;
-  parameters?: ModelType;
+  parameters: ModelType;
   returnType: Type;
 }
 
@@ -166,6 +187,9 @@ export enum SyntaxKind {
   ModelExpression,
   ModelProperty,
   ModelSpreadProperty,
+  EnumStatement,
+  EnumMember,
+  AliasStatement,
   UnionExpression,
   IntersectionExpression,
   TupleExpression,
@@ -177,6 +201,8 @@ export enum SyntaxKind {
   TemplateParameterDeclaration,
   EmptyStatement,
   InvalidStatement,
+  LineComment,
+  BlockComment,
 }
 
 export interface BaseNode extends TextRange {
@@ -190,11 +216,20 @@ export type Node =
   | ModelPropertyNode
   | OperationStatementNode
   | NamedImportNode
-  | ModelPropertyNode
+  | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | Statement
   | Expression;
+
+export type Comment = LineComment | BlockComment;
+
+export interface LineComment extends TextRange {
+  kind: SyntaxKind.LineComment;
+}
+export interface BlockComment extends TextRange {
+  kind: SyntaxKind.BlockComment;
+}
 
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
@@ -206,6 +241,7 @@ export interface ADLScriptNode extends BaseNode {
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
   locals: SymbolTable;
   usings: UsingStatementNode[];
+  comments: Comment[];
   parseDiagnostics: Diagnostic[];
 }
 
@@ -214,6 +250,8 @@ export type Statement =
   | ModelStatementNode
   | NamespaceStatementNode
   | UsingStatementNode
+  | EnumStatementNode
+  | AliasStatementNode
   | OperationStatementNode
   | EmptyStatementNode
   | InvalidStatementNode;
@@ -227,9 +265,15 @@ export type Declaration =
   | ModelStatementNode
   | NamespaceStatementNode
   | OperationStatementNode
-  | TemplateParameterDeclarationNode;
+  | TemplateParameterDeclarationNode
+  | EnumStatementNode
+  | AliasStatementNode;
 
-export type ScopeNode = NamespaceStatementNode | ModelStatementNode | ADLScriptNode;
+export type ScopeNode =
+  | NamespaceStatementNode
+  | ModelStatementNode
+  | AliasStatementNode
+  | ADLScriptNode;
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
@@ -298,12 +342,33 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode {
 export interface ModelStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
-  properties?: (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
   heritage: ReferenceExpression[];
-  assignment?: Expression;
   templateParameters: TemplateParameterDeclarationNode[];
   locals?: SymbolTable;
   decorators: DecoratorExpressionNode[];
+}
+
+export interface EnumStatementNode extends BaseNode, DeclarationNode {
+  kind: SyntaxKind.EnumStatement;
+  id: IdentifierNode;
+  members: EnumMemberNode[];
+  decorators: DecoratorExpressionNode[];
+}
+
+export interface EnumMemberNode extends BaseNode {
+  kind: SyntaxKind.EnumMember;
+  id: IdentifierNode | StringLiteralNode;
+  value?: StringLiteralNode | NumericLiteralNode;
+  decorators: DecoratorExpressionNode[];
+}
+
+export interface AliasStatementNode extends BaseNode, DeclarationNode {
+  kind: SyntaxKind.AliasStatement;
+  id: IdentifierNode;
+  value: Expression;
+  templateParameters: TemplateParameterDeclarationNode[];
+  locals?: SymbolTable;
 }
 
 export interface InvalidStatementNode extends BaseNode {
@@ -446,7 +511,7 @@ export interface SourceLocation extends TextRange {
   file: SourceFile;
 }
 
-export interface Diagnostic extends SourceLocation {
+export interface Diagnostic extends Partial<SourceLocation> {
   message: string;
   code?: number;
   severity: "warning" | "error";
@@ -460,7 +525,7 @@ export interface Dirent {
 
 export interface CompilerHost {
   // read a utf-8 encoded file
-  readFile(path: string): Promise<string | undefined>;
+  readFile(path: string): Promise<string>;
 
   // read the contents of a directory
   readDir(path: string): Promise<Dirent[]>;

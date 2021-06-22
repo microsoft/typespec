@@ -65,13 +65,16 @@ BooleanLiteral :
 NumericLiteral :
     DecimalLiteral
     HexIntegerLiteral
+    BinaryIntegerLiteral
 
 DecimalLiteral :
-    DecimalIntegerLiteral `.` DecimalDigits? ExponentPart?
+    DecimalIntegerLiteral `.` DecimalDigits ExponentPart?
     DecimalIntegerLiteral ExponentPart?
 
 DecimalIntegerLiteral :
     DecimalDigits
+    `+` DecimalDigits
+    `-` DecimalDigits
 
 DecimalDigits :
     DecimalDigit
@@ -81,9 +84,9 @@ DecimalDigit :
     one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
 ExponentPart :
-    `e` SignedInteger
+    `e` DecimalIntegerLiteral
 
-SignedInteger :
+DecimalIntegerInteger :
     DecimalDigits
     `+` DecimalDigits
     `-` DecimalDigits
@@ -108,15 +111,23 @@ BinaryDigits :
 BinaryDigit :
     one of `0` `1`
 
-// TODO: triple-quoted strings not specified yet, tricky to express.
-
+// NOTE: This does not specify the extra rules about '"""'s going
+//       on their own lines and having consistent indentation.
 StringLiteral :
     `"` StringCharacters? `"`
+    `"""` TripleQuotedStringCharacters? `"""`
 
 StringCharacters :
     StringCharacter StringCharacters?
 
 StringCharacter :
+    SourceCharacter but not one of `"` or `\` or LineTerminator
+    `\` EscapeCharacter
+
+TripleQuotedStringCharacters
+    TripleQuotedStringCharacter TripleQuotedStringCharacters?
+
+TripleQuotedStringCharacter :
     SourceCharacter but not one of `"` or `\`
     `\` EscapeCharacter
 
@@ -203,6 +214,8 @@ Statement :
     NamespaceStatement
     OperationStatement
     UsingStatement
+    EnumStatement
+    AliasStatement
     `;`
 
 UsingStatement :
@@ -210,21 +223,9 @@ UsingStatement :
 
 ModelStatement :
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
-    DecoratorList? `model` Identifier TemplateParameters? `=` Expression `;`
 
 ModelHeritage :
     `extends` ReferenceExpressionList
-
-ReferenceExpressionList :
-    ReferenceExpression
-    ReferenceExpressionList `,` ReferenceExpression
-
-TemplateParameters :
-    `<` IdentifierList `>`
-
-IdentifierList :
-    Identifier
-    IdentifierList `,` Identifier
 
 ModelBody :
     ModelPropertyList `,`?
@@ -242,6 +243,40 @@ ModelProperty:
 
 ModelSpreadProperty :
     `...` ReferenceExpression
+
+EnumStatement :
+    DecoratorList? `enum` Identifier `{` EnumBody? `}`
+
+EnumBody :
+    EnumMemberList `,`?
+    EnumMemberList `;`?
+
+EnumMemberList :
+    EnumMember
+    EnumMemberList `,` EnumMember
+    EnumMemberList `;` EnumMember
+
+EnumMember :
+    DecoratorList? Identifier EnumMemberValue?
+    DecoratorList? StringLiteral EnumMemberValue?
+
+EnumMemberValue :
+    `:` StringLiteral
+    `:` NumericLiteral
+
+AliasStatement :
+    `alias` Identifier TemplateParameters? `=` Expression;
+
+ReferenceExpressionList :
+    ReferenceExpression
+    ReferenceExpressionList `,` ReferenceExpression
+
+TemplateParameters :
+    `<` IdentifierList `>`
+
+IdentifierList :
+    Identifier
+    IdentifierList `,` Identifier
 
 NamespaceStatement: 
     DecoratorList? `namespace` IdentifierOrMemberExpression `{` StatementList? `}`
