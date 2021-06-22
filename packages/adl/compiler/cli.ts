@@ -1,8 +1,8 @@
-import { spawnSync, SpawnSyncOptions } from "child_process";
+import { spawnSync, SpawnSyncOptionsWithStringEncoding } from "child_process";
 import { mkdtemp, readdir, rmdir } from "fs/promises";
 import mkdirp from "mkdirp";
 import os from "os";
-import path, { join, resolve } from "path";
+import { basename, join, resolve } from "path";
 import url from "url";
 import yargs from "yargs";
 import { CompilerOptions } from "../compiler/options.js";
@@ -140,7 +140,7 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
 }
 
 async function generateClient(options: CompilerOptions) {
-  const clientPath = path.resolve(args["output-path"], "client");
+  const clientPath = resolve(args["output-path"], "client");
   const autoRestBin = process.platform === "win32" ? "autorest.cmd" : "autorest";
   const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
 
@@ -168,9 +168,9 @@ async function generateClient(options: CompilerOptions) {
   }
 }
 
-async function installVsix(pkg: string, install: (vsixPath: string) => void) {
+async function installVsix(pkg: string, install: (vsixPaths: string[]) => void) {
   // download npm package to temporary directory
-  const temp = await mkdtemp(path.join(os.tmpdir(), "adl"));
+  const temp = await mkdtemp(join(os.tmpdir(), "adl"));
   const npmArgs = ["install"];
 
   // hide npm output unless --debug was passed to adl
@@ -183,24 +183,32 @@ async function installVsix(pkg: string, install: (vsixPath: string) => void) {
   // to pass --prefix even though we're using cwd as otherwise, npm might
   // find a package.json file in a parent directory and install to that
   // directory.
-  npmArgs.push("--prefix", ".", pkg);
+  npmArgs.push("--prefix", ".");
+
+  // To debug with a locally built package rather than pulling from npm,
+  // specify the full path to the packed .tgz using ADL_DEBUG_VSIX_TGZ
+  // environment variable.
+  npmArgs.push(process.env.ADL_DEBUG_VSIX_TGZ ?? pkg);
+
   run("npm", npmArgs, { cwd: temp });
 
   // locate .vsix
-  const dir = path.join(temp, "node_modules", pkg);
+  const dir = join(temp, "node_modules", pkg);
   const files = await readdir(dir);
-  let vsix: string | undefined;
+  let vsixPaths: string[] = [];
   for (const file of files) {
     if (file.endsWith(".vsix")) {
-      vsix = path.join(dir, file);
-      break;
+      vsixPaths.push(join(dir, file));
     }
   }
 
-  compilerAssert(vsix, `Installed ${pkg} from npm, but didn't find its .vsix file.`);
+  compilerAssert(
+    vsixPaths.length > 0,
+    `Installed ${pkg} from npm, but didn't find any .vsix files in it.`
+  );
 
   // install extension
-  install(vsix);
+  install(vsixPaths);
 
   // delete temporary directory
   await rmdir(temp, { recursive: true });
@@ -214,8 +222,8 @@ async function runCode(codeArgs: string[]) {
 }
 
 async function installVSCodeExtension() {
-  await installVsix("adl-vscode", (vsix) => {
-    runCode(["--install-extension", vsix]);
+  await installVsix("adl-vscode", (vsixPaths) => {
+    runCode(["--install-extension", vsixPaths[0]]);
   });
 }
 
@@ -224,28 +232,94 @@ async function uninstallVSCodeExtension() {
 }
 
 function getVsixInstallerPath(): string {
+  return getVSInstallerPath(
+    "resources/app/ServiceHub/Services/Microsoft.VisualStudio.Setup.Service/VSIXInstaller.exe"
+  );
+}
+
+function getVSWherePath(): string {
+  return getVSInstallerPath("vswhere.exe");
+}
+
+function getVSInstallerPath(relativePath: string) {
   if (process.platform !== "win32") {
-    console.error("error: Visual Studio extension is not supported on non-Windows");
+    console.error("error: Visual Studio extension is not supported on non-Windows.");
     process.exit(1);
   }
 
   return join(
     process.env["ProgramFiles(x86)"] ?? "",
-    "Microsoft Visual Studio/Installer/resources/app/ServiceHub/Services/Microsoft.VisualStudio.Setup.Service",
-    "VSIXInstaller.exe"
+    "Microsoft Visual Studio/Installer",
+    relativePath
   );
 }
 
+function isVSInstalled(versionRange: string) {
+  const vswhere = getVSWherePath();
+  const proc = run(vswhere, ["-property", "instanceid", "-prerelease", "-version", versionRange], {
+    stdio: [null, "pipe", "inherit"],
+    allowNotFound: true,
+  });
+  return proc.status === 0 && proc.stdout;
+}
+
+const VSIX_ALREADY_INSTALLED = 1001;
+const VSIX_NOT_INSTALLED = 1002;
+const VSIX_USER_CANCELED = 2005;
+
 async function installVSExtension() {
   const vsixInstaller = getVsixInstallerPath();
-  await installVsix("@azure-tools/adl-vs", (vsix) => {
-    run(vsixInstaller, [vsix]);
+  const versionMap = new Map([
+    [
+      "Microsoft.Adl.VS2019.vsix",
+      {
+        friendlyVersion: "2019",
+        versionRange: "[16.0, 17.0)",
+        installed: false,
+      },
+    ],
+    [
+      "Microsoft.Adl.VS2022.vsix",
+      {
+        friendlyVersion: "2022",
+        versionRange: "[17.0, 18.0)",
+        installed: false,
+      },
+    ],
+  ]);
+
+  let vsFound = false;
+  for (const entry of versionMap.values()) {
+    if (isVSInstalled(entry.versionRange)) {
+      vsFound = entry.installed = true;
+    }
+  }
+
+  if (!vsFound) {
+    console.error("error: No compatible version of Visual Studio found.");
+    process.exit(1);
+  }
+
+  await installVsix("@azure-tools/adl-vs", (vsixPaths) => {
+    for (const vsix of vsixPaths) {
+      const vsixFilename = basename(vsix);
+      const entry = versionMap.get(vsixFilename);
+      compilerAssert(entry, "Unexpected vsix filename:" + vsix);
+      if (entry.installed) {
+        console.log(`Installing extension for Visual Studio ${entry?.friendlyVersion}...`);
+        run(vsixInstaller, [vsix], {
+          allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
+        });
+      }
+    }
   });
 }
 
 async function uninstallVSExtension() {
   const vsixInstaller = getVsixInstallerPath();
-  run(vsixInstaller, ["/uninstall:88b9492f-c019-492c-8aeb-f325a7e4cf23"]);
+  run(vsixInstaller, ["/uninstall:88b9492f-c019-492c-8aeb-f325a7e4cf23"], {
+    allowedExitCodes: [VSIX_NOT_INSTALLED, VSIX_USER_CANCELED],
+  });
 }
 
 /**
@@ -274,8 +348,10 @@ async function printInfo() {
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
 
-interface RunOptions extends SpawnSyncOptions {
+interface RunOptions extends Partial<SpawnSyncOptionsWithStringEncoding> {
   extraEnv?: NodeJS.ProcessEnv;
+  allowNotFound?: boolean;
+  allowedExitCodes?: number[];
 }
 
 function run(command: string, commandArgs: string[], options?: RunOptions) {
@@ -293,18 +369,24 @@ function run(command: string, commandArgs: string[], options?: RunOptions) {
     };
   }
 
-  const baseCommandName = path.basename(command);
+  const baseCommandName = basename(command);
   if (process.platform === "win32" && isCmdOnWindows.includes(command)) {
     command += ".cmd";
   }
 
-  const proc = spawnSync(command, commandArgs, {
+  const finalOptions: SpawnSyncOptionsWithStringEncoding = {
+    encoding: "utf-8",
     stdio: "inherit",
     ...(options ?? {}),
-  });
+  };
+
+  const proc = spawnSync(command, commandArgs, finalOptions);
+  if (args.debug) {
+    console.log(proc);
+  }
 
   if (proc.error) {
-    if ((proc.error as any).code === "ENOENT") {
+    if ((proc.error as any).code === "ENOENT" && !options?.allowNotFound) {
       console.error(`error: Command '${baseCommandName}' not found.`);
       if (args.debug) {
         console.log(proc.error.stack);
@@ -315,7 +397,7 @@ function run(command: string, commandArgs: string[], options?: RunOptions) {
     }
   }
 
-  if (proc.status !== 0) {
+  if (proc.status !== 0 && !options?.allowedExitCodes?.includes(proc.status ?? 0)) {
     console.error(
       `error: Command '${baseCommandName} ${commandArgs.join(" ")}' failed with exit code ${
         proc.status

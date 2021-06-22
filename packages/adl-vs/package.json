@@ -21,7 +21,8 @@
     "node": ">=14.0.0"
   },
   "files": [
-    "Microsoft.Adl.VisualStudio.vsix"
+    "Microsoft.Adl.VS2019.vsix",
+    "Microsoft.Adl.VS2022.vsix"
   ],
   "scripts": {
     "build": "node scripts/build.js"

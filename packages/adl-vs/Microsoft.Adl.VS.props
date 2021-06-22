@@ -1,10 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project>
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>true</EmbedAllSources>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <LangVersion>Latest</LangVersion>
     <Nullable>Enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -12,24 +11,22 @@
     <Features>strict</Features>
     <!-- Official build will pass in the real version from package.json, see scripts/build.js -->
     <Version>42.42.42</Version>
+    <!-- Deployment enabled dynamically in targets if building in visual studio -->
+    <DeployExtension>false</DeployExtension>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DeployExtension>false</DeployExtension>
-    <TargetVsixContainer>$(AssemblyName).vsix</TargetVsixContainer>
+    <TargetVsixContainer>$(MSBuildThisFileDirectory)$(AssemblyName).vsix</TargetVsixContainer>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Visible="False" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LICENSE" Visible="False"/>
-    <Content Include="*.pkgdef" />
-    <Content Include="node_modules/adl-vscode/dist/adl.tmLanguage" Link="TextMate/adl.tmLanguage" />
+    <Compile Include="$(MSBuildThisFileDirectory)src/**/*.cs" LinkBase="src" />
+    <Content Include="$(MSBuildThisFileDirectory)LICENSE" />
+    <Content Include="$(MSBuildThisFileDirectory)*.pkgdef" />
+    <Content Include="$(MSBuildThisFileDirectory)node_modules/adl-vscode/dist/adl.tmLanguage" Link="TextMate/adl.tmLanguage" />
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="*.vsixmanifest" />
-    <None Include="Properties\*.json" />
     <Reference Include="System.ComponentModel.Composition" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.10.23" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
   </ItemGroup>
 </Project>

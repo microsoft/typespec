@@ -51,7 +51,7 @@ namespace Microsoft.Adl.VisualStudio {
       _outputWindow = window;
     }
 
-    public async Task<Connection> ActivateAsync(CancellationToken token) {
+    public async Task<Connection?> ActivateAsync(CancellationToken token) {
       await Task.Yield();
 
       var options = Environment.GetEnvironmentVariable("ADL_SERVER_NODE_OPTIONS");
