@@ -55,6 +55,11 @@ export function getIntrinsicType(program: Program, target: Type | undefined): st
   return undefined;
 }
 
+export function isStringType(program: Program, target: Type): boolean {
+  const intrinsicType = getIntrinsicType(program, target);
+  return intrinsicType !== undefined && intrinsicType === "string";
+}
+
 const numericTypesKey = Symbol();
 export function numeric(program: Program, target: Type) {
   if (!isIntrinsic(program, target)) {
