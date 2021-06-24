@@ -60,6 +60,10 @@ export function isStringType(program: Program, target: Type): boolean {
   return intrinsicType !== undefined && intrinsicType === "string";
 }
 
+export function isErrorType(type: Type): boolean {
+  return type.kind === "Intrinsic" && type.name === "ErrorType";
+}
+
 const numericTypesKey = Symbol();
 export function numeric(program: Program, target: Type) {
   if (!isIntrinsic(program, target)) {
