@@ -1,6 +1,23 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Tue, 18 May 2021 23:43:31 GMT and should not be manually modified.
+This log was last generated on Thu, 24 Jun 2021 03:57:43 GMT and should not be manually modified.
+
+## 0.12.0
+Thu, 24 Jun 2021 03:57:43 GMT
+
+### Minor changes
+
+- Require main.adl or adlMain in package.json
+- Add mutator library which enables the programmatic addition of model properties, operation parameters, and operation return types
+- Add semantic error recovery
+
+### Patches
+
+- **Added** ADL Configuration file loading
+- Added typechecker type navigation
+- Add isStringType helper function
+- Fix some edge cases in config file loading
+- Add support for Visual Studio 2022
 
 ## 0.11.0
 Tue, 18 May 2021 23:43:31 GMT

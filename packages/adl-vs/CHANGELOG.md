@@ -1,6 +1,13 @@
 # Change Log - @azure-tools/adl-vs
 
-This log was last generated on Tue, 18 May 2021 23:43:31 GMT and should not be manually modified.
+This log was last generated on Thu, 24 Jun 2021 03:57:43 GMT and should not be manually modified.
+
+## 0.1.6
+Thu, 24 Jun 2021 03:57:43 GMT
+
+### Patches
+
+- Add support for Visual Studio 2022
 
 ## 0.1.5
 Tue, 18 May 2021 23:43:31 GMT

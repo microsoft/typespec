@@ -2,6 +2,18 @@
   "name": "adl-vscode",
   "entries": [
     {
+      "version": "0.5.2",
+      "tag": "adl-vscode_v0.5.2",
+      "date": "Thu, 24 Jun 2021 03:57:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Handle untitled source files in VS Code"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.1",
       "tag": "adl-vscode_v0.5.1",
       "date": "Tue, 18 May 2021 23:43:31 GMT",
