@@ -1,6 +1,6 @@
 {
   "name": "@azure-tools/prettier-plugin-adl",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "prettier": "~2.2.1"
   },
   "devDependencies": {
-    "@azure-tools/adl": "0.11.0",
+    "@azure-tools/adl": "0.12.0",
     "@rollup/plugin-commonjs": "~17.1.0",
     "@rollup/plugin-json": "~4.1.0",
     "@rollup/plugin-node-resolve": "~11.2.0",
