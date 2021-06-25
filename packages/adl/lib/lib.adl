@@ -18,3 +18,8 @@
   k: K,
   v: V
 }
+
+@withOptionalProperties
+model OptionalProperties<T> {
+  ... T;
+}

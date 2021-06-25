@@ -269,6 +269,21 @@ function mapFilterOut(
   }
 }
 
+// -- @withOptionalProperties decorator ---------------------
+
+export function withOptionalProperties(program: Program, target: Type) {
+  if (target.kind !== "Model") {
+    program.reportDiagnostic(
+      "The @withOptionalProperties decorator can only be applied to models.",
+      target
+    );
+    return;
+  }
+
+  // Make all properties of the target type optional
+  target.properties.forEach((p) => (p.optional = true));
+}
+
 // -- @list decorator ---------------------
 
 const listPropertiesKey = Symbol();
