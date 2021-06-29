@@ -70,7 +70,7 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], writeLine: Wr
 }
 
 export function formatDiagnostic(diagnostic: Diagnostic) {
-  const code = diagnostic.code ? ` ADL${diagnostic.code}` : "";
+  const code = diagnostic.code ? ` ${diagnostic.code}` : "";
   const severity = diagnostic.severity;
   const content = `${severity}${code}: ${diagnostic.message}`;
   if (diagnostic.file) {
