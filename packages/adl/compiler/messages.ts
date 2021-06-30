@@ -1,67 +1,67 @@
 export interface Message {
-  code?: number;
+  code?: string;
   text: string;
   severity: "error" | "warning";
 }
 
 export const Message = {
   DigitExpected: {
-    code: 1100,
+    code: "digit-expected",
     severity: "error",
     text: "Digit expected.",
   } as const,
 
   HexDigitExpected: {
-    code: 1101,
+    code: "hex-digit-expected",
     severity: "error",
     text: "Hexadecimal digit expected.",
   } as const,
 
   BinaryDigitExpected: {
-    code: 1102,
+    code: "binary-digit-expected",
     severity: "error",
     text: "Binary digit expected.",
   } as const,
 
   Unterminated: {
-    code: 1103,
+    code: "unterminated",
     severity: "error",
     text: "Unterminated {0}.",
   } as const,
 
   InvalidEscapeSequence: {
-    code: 1104,
+    code: "invalid-escape-sequence",
     severity: "error",
     text: "Invalid escape sequence.",
   } as const,
 
   NoNewLineAtStartOfTripleQuotedString: {
-    code: 1105,
+    code: "no-new-line-start-triple-quote",
     severity: "error",
     text: "String content in triple quotes must begin on a new line.",
   } as const,
 
   NoNewLineAtEndOfTripleQuotedString: {
-    code: 1106,
+    code: "no-new-line-end-triple-quote",
     severity: "error",
     text: "Closing triple quotes must begin on a new line.",
   } as const,
 
   InconsistentTripleQuoteIndentation: {
-    code: 1107,
+    code: "triple-quote-indent",
     severity: "error",
     text:
       "All lines in triple-quoted string lines must have the same indentation as closing triple quotes.",
   } as const,
 
   InvalidCharacter: {
-    code: 1108,
+    code: "invalid-character",
     severity: "error",
     text: "Invalid character.",
   } as const,
 
   FileNotFound: {
-    code: 1109,
+    code: "file-not-found",
     text: `File {0} not found.`,
     severity: "error",
   } as const,

@@ -2,6 +2,41 @@
   "name": "@azure-tools/adl",
   "entries": [
     {
+      "version": "0.12.0",
+      "tag": "@azure-tools/adl_v0.12.0",
+      "date": "Thu, 24 Jun 2021 03:57:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Added** ADL Configuration file loading"
+          },
+          {
+            "comment": "Added typechecker type navigation"
+          },
+          {
+            "comment": "Add isStringType helper function"
+          },
+          {
+            "comment": "Fix some edge cases in config file loading"
+          },
+          {
+            "comment": "Add support for Visual Studio 2022"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Require main.adl or adlMain in package.json"
+          },
+          {
+            "comment": "Add mutator library which enables the programmatic addition of model properties, operation parameters, and operation return types"
+          },
+          {
+            "comment": "Add semantic error recovery"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.0",
       "tag": "@azure-tools/adl_v0.11.0",
       "date": "Tue, 18 May 2021 23:43:31 GMT",

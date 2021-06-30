@@ -1,6 +1,6 @@
 {
   "name": "adl-vscode",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": "Microsoft Corporation",
   "description": "ADL Language Support for VS Code",
   "homepage": "https://github.com/Azure/adl",

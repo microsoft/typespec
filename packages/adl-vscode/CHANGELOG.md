@@ -1,6 +1,13 @@
 # Change Log - adl-vscode
 
-This log was last generated on Tue, 18 May 2021 23:43:31 GMT and should not be manually modified.
+This log was last generated on Thu, 24 Jun 2021 03:57:43 GMT and should not be manually modified.
+
+## 0.5.2
+Thu, 24 Jun 2021 03:57:43 GMT
+
+### Patches
+
+- Handle untitled source files in VS Code
 
 ## 0.5.1
 Tue, 18 May 2021 23:43:31 GMT

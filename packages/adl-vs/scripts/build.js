@@ -65,6 +65,6 @@ if (process.argv[2] === "--restore") {
   msbuildArgs.push("/restore");
 }
 
-msbuildArgs.push(join(dir, "Microsoft.Adl.VisualStudio.csproj"));
+msbuildArgs.push(join(dir, "Microsoft.Adl.VS.sln"));
 proc = run(msbuild, msbuildArgs, { throwOnNonZeroExit: false });
 process.exit(proc.status ?? 1);

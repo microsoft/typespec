@@ -10,12 +10,11 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
 
 using Task = System.Threading.Tasks.Task;
-using IAsyncServiceProvider = Microsoft.VisualStudio.Shell.IAsyncServiceProvider;
+
 
 namespace Microsoft.Adl.VisualStudio {
   [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
@@ -37,21 +36,14 @@ namespace Microsoft.Adl.VisualStudio {
   [Export(typeof(ILanguageClient))]
   [ContentType("adl")]
   public sealed class LanguageClient : ILanguageClient {
-    public string Name => "ADL Language Support";
+    public string Name => "ADL";
     public IEnumerable<string>? ConfigurationSections => null;
     public object? InitializationOptions => null;
     public IEnumerable<string>? FilesToWatch => null;
     public event AsyncEventHandler<EventArgs>? StartAsync;
     public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
 
-    private readonly IOutputWindow _outputWindow;
-
-    [ImportingConstructor]
-    public LanguageClient(IOutputWindow window) {
-      _outputWindow = window;
-    }
-
-    public async Task<Connection> ActivateAsync(CancellationToken token) {
+    public async Task<Connection?> ActivateAsync(CancellationToken token) {
       await Task.Yield();
 
       var options = Environment.GetEnvironmentVariable("ADL_SERVER_NODE_OPTIONS");
@@ -80,7 +72,7 @@ namespace Microsoft.Adl.VisualStudio {
 
       var process = Process.Start(info);
       process.BeginErrorReadLine();
-      process.ErrorDataReceived += (_, e) => LogMessage(e.Data);
+      process.ErrorDataReceived += (_, e) => LogStderrMessage(e.Data);
 
       return new Connection(
         process.StandardOutput.BaseStream,
@@ -95,6 +87,7 @@ namespace Microsoft.Adl.VisualStudio {
     }
 
     public Task OnServerInitializeFailedAsync(Exception e) {
+      Debug.Fail("Failed to initialize adl-server:\r\n\r\n" + e);
       return Task.CompletedTask;
     }
 
@@ -102,13 +95,19 @@ namespace Microsoft.Adl.VisualStudio {
       return Task.CompletedTask;
     }
 
-    private void LogMessage(string? message) {
+    private void LogStderrMessage(string? message) {
       if (message is null || message.Length == 0) {
         return;
       }
 
-      Debug.WriteLine("ADL Server: " + message);
-      _outputWindow.LogMessage(message);
+      // Normally logging from language server should come through LSP. If something
+      // gets here via stderr (besides the messages from node about the debugger),
+      // there's probably a bug.
+      Debugger.Log(0, null, "adl-server (stderr): " + message);
+      Debug.Assert(
+        message.IndexOf("debugger", StringComparison.OrdinalIgnoreCase) >= 0 || 
+        message.IndexOf("https://nodejs.org/en/docs/inspector", StringComparison.Ordinal) >= 0,
+        "Unexpected output on stderr from adl-server: " + message);
     }
 
 #if DEBUG
@@ -129,127 +128,5 @@ namespace Microsoft.Adl.VisualStudio {
       return Path.GetFullPath(Path.Combine(srcDir, "../adl/cmd/adl-server.js"));
     }
 #endif
-  }
-
-  public interface IOutputWindow {
-    void LogMessage(string message);
-  }
-
-  [Export(typeof(IOutputWindow))]
-  internal sealed class OutputWindow : IOutputWindow {
-    private static readonly Guid _guid = new("{2C6CA609-4EC9-4AEE-B163-AFF26503CAA4}");
-    private readonly IAsyncServiceProvider _serviceProvider;
-    private readonly JoinableTaskContext _context;
-    private readonly AsyncLazy<IVsOutputWindowPane?> _pane;
-
-    [ImportingConstructor]
-    public OutputWindow(
-      [Import(typeof(SAsyncServiceProvider))]
-      IAsyncServiceProvider serviceProvider,
-      JoinableTaskContext context
-    ) {
-      _serviceProvider = serviceProvider;
-      _context = context;
-      _pane = new AsyncLazy<IVsOutputWindowPane?>(CreateOutputWindowAsync, context.Factory);
-    }
-
-    public void LogMessage(string message) {
-      message += Environment.NewLine;
-
-      // If the volume of log messages ever gets high, we'd need to batch them
-      // to avoid creating too much pending async work by doing this threading
-      // dance for every message.
-      Task.Run(async () => {
-        await _context.Factory.SwitchToMainThreadAsync();
-
-        var pane = await _pane.GetValueAsync();
-        if (pane is null) {
-          return;
-        }
-
-        if (pane is IVsOutputWindowPaneNoPump paneNoPump) {
-          paneNoPump.OutputStringNoPump(message);
-        } else {
-          var hr = pane.OutputStringThreadSafe(message);
-          if (Failed(hr)) {
-            return;
-          }
-        }
-      }).Forget();
-    }
-
-    private async Task<IVsOutputWindowPane?> CreateOutputWindowAsync() {
-      await _context.Factory.SwitchToMainThreadAsync();
-
-      var window = await _serviceProvider.GetServiceAsync<SVsOutputWindow, IVsOutputWindow>();
-      if (window is null) {
-        return null;
-      }
-
-      // Creating an output window pane activates it, and we don't want to do
-      // that, so we have to take steps to restore the active pane here.
-      var activePane = GetActivePane(window);
-
-      var pane = CreateOutputWindowPane(window);
-      if (pane is null) {
-        return null;
-      }
-
-      if (activePane != Guid.Empty) {
-        ActivatePane(window, activePane);
-      }
-
-      return pane;
-    }
-
-    private static void ActivatePane(IVsOutputWindow window, Guid guid) {
-      ThreadHelper.ThrowIfNotOnUIThread();
-
-      var hr = window.GetPane(ref guid, out var pane);
-      if (Failed(hr)) {
-        return;
-      }
-
-      hr = pane.Activate();
-      if (Failed(hr)) {
-        return;
-      }
-    }
-
-    private static Guid GetActivePane(IVsOutputWindow window) {
-      ThreadHelper.ThrowIfNotOnUIThread();
-
-      if (window is not IVsOutputWindow2 window2) {
-        return Guid.Empty;
-      }
-
-      var hr = window2.GetActivePaneGUID(out var guid);
-      if (Failed(hr)) {
-        return Guid.Empty;
-      }
-
-      return guid;
-    }
-
-    private static IVsOutputWindowPane? CreateOutputWindowPane(IVsOutputWindow window) {
-      ThreadHelper.ThrowIfNotOnUIThread();
-
-      var guid = _guid;
-      var hr = window.CreatePane(ref guid, "ADL", 1, 0);
-      if (Failed(hr)) {
-        return null;
-      }
-
-      hr = window.GetPane(ref guid, out var pane);
-      if (Failed(hr)) {
-        return null;
-      }
-
-      return pane;
-    }
-
-    private static bool Failed(int hr) {
-      return hr < 0;
-    }
   }
 }

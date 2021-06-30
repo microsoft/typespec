@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "Microsoft.Adl.VisualStudio": {
+    "Visual Studio Extension": {
       "commandName": "Executable",
       "executablePath": "$(DevEnvDir)devenv.exe",
-      "commandLineArgs": "/rootSuffix Exp ../../../adl-samples/petstore",
+      "commandLineArgs": "/rootSuffix Exp ../../../../adl-samples/petstore",
       "environmentVariables": {
         "ADL_SERVER_NODE_OPTIONS": "--nolazy --inspect=4242",
         "ADL_DEVELOPMENT_MODE": "true"

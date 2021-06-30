@@ -1,0 +1,15 @@
+<Project>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+  <Import Project="../Microsoft.Adl.VS.props" />
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);VS2022</DefineConstants>
+    <VisualStudioMinVersionInclusive>17.0</VisualStudioMinVersionInclusive>
+    <VisualStudioMaxVersionExclusive>18.0</VisualStudioMaxVersionExclusive>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.0-previews-1-31410-273" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.0.1619-preview1" PrivateAssets="All" />
+  </ItemGroup>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+  <Import Project="../Microsoft.Adl.VS.targets" />
+</Project>
