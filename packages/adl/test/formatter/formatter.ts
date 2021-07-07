@@ -505,4 +505,32 @@ alias MyBigNumber = 1.0e999999999;
       });
     });
   });
+
+  describe("recoverable error can be fixed", () => {
+    it("adds missing ;", () => {
+      assertFormat({
+        code: `
+alias Foo = string
+model Bar {}
+`,
+        expected: `
+alias Foo = string;
+model Bar {}
+`,
+      });
+    });
+
+    it("adds missing } at the end of the file", () => {
+      assertFormat({
+        code: `
+namespace Bar {
+`,
+        expected: `
+namespace Bar {
+
+}
+`,
+      });
+    });
+  });
 });

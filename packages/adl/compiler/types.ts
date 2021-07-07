@@ -243,6 +243,7 @@ export interface ADLScriptNode extends BaseNode {
   usings: UsingStatementNode[];
   comments: Comment[];
   parseDiagnostics: Diagnostic[];
+  printable: boolean; // If this ast tree can safely be printed/formatted.
 }
 
 export type Statement =
