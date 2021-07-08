@@ -197,8 +197,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): AD
       kind: SyntaxKind.ADLScript,
       statements,
       file: scanner.file,
-      interfaces: [],
-      models: [],
       namespaces: [],
       usings: [],
       locals: createSymbolTable(),

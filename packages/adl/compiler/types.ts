@@ -234,9 +234,7 @@ export interface BlockComment extends TextRange {
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
   statements: Statement[];
-  models: ModelType[];
   file: SourceFile;
-  interfaces: NamespaceType[];
   inScopeNamespaces: NamespaceStatementNode[]; // namespaces that declarations in this file belong to
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
   locals: SymbolTable;
