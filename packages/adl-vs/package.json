@@ -1,7 +1,7 @@
 {
   "name": "@azure-tools/adl-vs",
   "author": "Microsoft Corporation",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "ADL Language Support for Visual Studio",
   "homepage": "https://github.com/Azure/adl",
   "readme": "https://github.com/Azure/adl/blob/master/README.md",
@@ -29,6 +29,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "adl-vscode": "0.5.2"
+    "adl-vscode": "0.6.0"
   }
 }

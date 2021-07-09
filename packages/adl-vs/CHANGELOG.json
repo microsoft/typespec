@@ -2,6 +2,28 @@
   "name": "@azure-tools/adl-vs",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@azure-tools/adl-vs_v0.2.0",
+      "date": "Fri, 09 Jul 2021 20:21:06 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Use LSP to log messages from client to server"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Add semantic analysis to language server"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"adl-vscode\" from `0.5.2` to `0.6.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.6",
       "tag": "@azure-tools/adl-vs_v0.1.6",
       "date": "Thu, 24 Jun 2021 03:57:43 GMT",

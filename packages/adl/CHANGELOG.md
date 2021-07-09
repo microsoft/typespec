@@ -1,6 +1,20 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Thu, 24 Jun 2021 03:57:43 GMT and should not be manually modified.
+This log was last generated on Fri, 09 Jul 2021 20:21:06 GMT and should not be manually modified.
+
+## 0.13.0
+Fri, 09 Jul 2021 20:21:06 GMT
+
+### Minor changes
+
+- Add OptionalProperties<T> and withOptionalProperties decorator for creating model variations with all properties set to optional
+- Add semantic analysis to language server
+
+### Patches
+
+- **Update** Diagnostics code to be a string
+- Formatter can recover from parsing error that don't affect the validity of the tree
+- Use LSP to log messages from client to server
 
 ## 0.12.0
 Thu, 24 Jun 2021 03:57:43 GMT

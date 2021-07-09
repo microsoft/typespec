@@ -1,6 +1,6 @@
 {
   "name": "@azure-tools/adl-rest",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Microsoft Corporation",
   "description": "ADL REST protocol binding",
   "homepage": "https://github.com/Azure/adl",
@@ -32,7 +32,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@azure-tools/adl": "0.12.0"
+    "@azure-tools/adl": "0.13.0"
   },
   "devDependencies": {
     "@types/node": "~14.0.27",

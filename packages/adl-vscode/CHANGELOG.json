@@ -2,6 +2,18 @@
   "name": "adl-vscode",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "adl-vscode_v0.6.0",
+      "date": "Fri, 09 Jul 2021 20:21:06 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add semantic analysis to language server"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.2",
       "tag": "adl-vscode_v0.5.2",
       "date": "Thu, 24 Jun 2021 03:57:43 GMT",
