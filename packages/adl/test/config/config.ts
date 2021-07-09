@@ -3,6 +3,7 @@ import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { createSourceFile } from "../../compiler/diagnostics.js";
 import { Diagnostic } from "../../compiler/types.js";
+import { NodeHost } from "../../compiler/util.js";
 import { ConfigValidator } from "../../config/config-validator.js";
 import { ADLRawConfig, loadADLConfigInDir } from "../../config/index.js";
 
@@ -13,7 +14,7 @@ describe("adl: config file loading", () => {
     const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (folderName: string) => {
       const folderPath = join(scenarioRoot, folderName);
-      const { filename, ...config } = await loadADLConfigInDir(folderPath);
+      const { filename, ...config } = await loadADLConfigInDir(NodeHost, folderPath);
       return config;
     };
 

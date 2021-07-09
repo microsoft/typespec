@@ -1,7 +1,12 @@
 import { readdir, readFile } from "fs/promises";
-import { basename, extname, isAbsolute, relative, resolve, sep } from "path";
+import { extname, resolve } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
-import { formatDiagnostic, logDiagnostics, logVerboseTestOutput } from "../compiler/diagnostics.js";
+import {
+  createSourceFile,
+  formatDiagnostic,
+  logDiagnostics,
+  logVerboseTestOutput,
+} from "../compiler/diagnostics.js";
 import { CompilerOptions } from "../compiler/options.js";
 import { createProgram, Program } from "../compiler/program.js";
 import { CompilerHost, Diagnostic, Type } from "../compiler/types.js";
@@ -42,27 +47,7 @@ export async function createTestHost(): Promise<TestHost> {
       if (contents === undefined) {
         throw new TestHostError(`File ${path} not found.`, "ENOENT");
       }
-      return contents;
-    },
-
-    async readDir(path: string) {
-      const contents = [];
-
-      for (const fsPath of virtualFs.keys()) {
-        if (isContainedIn(path, fsPath)) {
-          contents.push({
-            isFile() {
-              return true;
-            },
-            isDirectory() {
-              return false;
-            },
-            name: basename(fsPath),
-          });
-        }
-      }
-
-      return contents;
+      return createSourceFile(contents, path);
     },
 
     async writeFile(path: string, content: string) {
@@ -85,8 +70,8 @@ export async function createTestHost(): Promise<TestHost> {
       return module;
     },
 
-    getCwd() {
-      return "/";
+    resolveAbsolutePath(path: string) {
+      return resolve("/", path);
     },
 
     async stat(path: string) {
@@ -186,21 +171,21 @@ export async function createTestHost(): Promise<TestHost> {
   };
 
   function addAdlFile(path: string, contents: string) {
-    virtualFs.set(resolve(compilerHost.getCwd(), path), contents);
+    virtualFs.set(compilerHost.resolveAbsolutePath(path), contents);
   }
 
   function addJsFile(path: string, contents: any) {
-    const key = resolve(compilerHost.getCwd(), path);
+    const key = compilerHost.resolveAbsolutePath(path);
     virtualFs.set(key, ""); // don't need contents
     jsImports.set(key, new Promise((r) => r(contents)));
   }
 
   async function addRealAdlFile(path: string, existingPath: string) {
-    virtualFs.set(resolve(compilerHost.getCwd(), path), await readFile(existingPath, "utf8"));
+    virtualFs.set(compilerHost.resolveAbsolutePath(path), await readFile(existingPath, "utf8"));
   }
 
   async function addRealJsFile(path: string, existingPath: string) {
-    const key = resolve(compilerHost.getCwd(), path);
+    const key = compilerHost.resolveAbsolutePath(path);
     const exports = await import(pathToFileURL(existingPath).href);
 
     virtualFs.set(key, "");
@@ -233,14 +218,5 @@ export async function createTestHost(): Promise<TestHost> {
     program = await createProgram(compilerHost, mainFile, options);
     logVerboseTestOutput((log) => logDiagnostics(program.diagnostics, log));
     return [testTypes, program.diagnostics];
-  }
-
-  function isContainedIn(a: string, b: string) {
-    const rel = relative(a, b);
-    // if paths are equal, rel will be empty string
-    // if rel starts with "..", then b isn't inside a
-    // if paths are completely unreated, rel will be an absolute path
-    // if the rel path contains multiple segments, it's in a subdirectory
-    return (rel === "" || !rel.startsWith("..") || !isAbsolute(rel)) && rel.split(sep).length === 1;
   }
 }

@@ -39,7 +39,7 @@ namespace Microsoft.Adl.VisualStudio {
     public string Name => "ADL";
     public IEnumerable<string>? ConfigurationSections => null;
     public object? InitializationOptions => null;
-    public IEnumerable<string>? FilesToWatch => null;
+    public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.adl", "**/package.json" };
     public event AsyncEventHandler<EventArgs>? StartAsync;
     public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
 

@@ -11,6 +11,12 @@ let client: LanguageClient | undefined;
 export function activate(context: ExtensionContext) {
   const exe = resolveADLServer(context);
   const options: LanguageClientOptions = {
+    synchronize: {
+      fileEvents: [
+        workspace.createFileSystemWatcher("**/*.adl"),
+        workspace.createFileSystemWatcher("**/package.json"),
+      ],
+    },
     documentSelector: [
       { scheme: "file", language: "adl" },
       { scheme: "untitled", language: "adl" },

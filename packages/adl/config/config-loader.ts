@@ -1,7 +1,6 @@
-import { readFile } from "fs/promises";
 import { basename, extname, join } from "path";
 import { Message } from "../compiler/diagnostics.js";
-import { Diagnostic } from "../compiler/types.js";
+import { CompilerHost, Diagnostic } from "../compiler/types.js";
 import { deepClone, deepFreeze, loadFile } from "../compiler/util.js";
 import { ConfigValidator } from "./config-validator.js";
 import { ADLConfig } from "./types.js";
@@ -21,10 +20,13 @@ const defaultConfig: ADLConfig = deepFreeze({
  * Load ADL Configuration if present.
  * @param directoryPath Current working directory where the config should be.
  */
-export async function loadADLConfigInDir(directoryPath: string): Promise<ADLConfig> {
+export async function loadADLConfigInDir(
+  host: CompilerHost,
+  directoryPath: string
+): Promise<ADLConfig> {
   for (const filename of configFilenames) {
     const filePath = join(directoryPath, filename);
-    const config = await loadADLConfigFile(filePath);
+    const config = await loadADLConfigFile(host, filePath);
     if (
       config.diagnostics.length === 1 &&
       config.diagnostics[0].code === Message.FileNotFound.code
@@ -39,17 +41,17 @@ export async function loadADLConfigInDir(directoryPath: string): Promise<ADLConf
 /**
  * Load given file as an adl configuration
  */
-export async function loadADLConfigFile(filePath: string): Promise<ADLConfig> {
+export async function loadADLConfigFile(host: CompilerHost, filePath: string): Promise<ADLConfig> {
   switch (extname(filePath)) {
     case ".json":
       if (basename(filePath) === "package.json") {
-        return loadPackageJSONConfigFile(filePath);
+        return loadPackageJSONConfigFile(host, filePath);
       }
-      return loadJSONConfigFile(filePath);
+      return loadJSONConfigFile(host, filePath);
 
     case ".yaml":
     case ".yml":
-      return loadYAMLConfigFile(filePath);
+      return loadYAMLConfigFile(host, filePath);
 
     default:
       // This is not a diagnostic because the compiler only tries the
@@ -58,35 +60,34 @@ export async function loadADLConfigFile(filePath: string): Promise<ADLConfig> {
   }
 }
 
-export async function loadPackageJSONConfigFile(filePath: string): Promise<ADLConfig> {
-  return await loadConfigFile(filePath, (content) => JSON.parse(content).adl ?? {});
+export async function loadPackageJSONConfigFile(
+  host: CompilerHost,
+  filePath: string
+): Promise<ADLConfig> {
+  return await loadConfigFile(host, filePath, (content) => JSON.parse(content).adl ?? {});
 }
 
-export async function loadJSONConfigFile(filePath: string): Promise<ADLConfig> {
-  return await loadConfigFile(filePath, JSON.parse);
+export async function loadJSONConfigFile(host: CompilerHost, filePath: string): Promise<ADLConfig> {
+  return await loadConfigFile(host, filePath, JSON.parse);
 }
 
-export async function loadYAMLConfigFile(filePath: string): Promise<ADLConfig> {
+export async function loadYAMLConfigFile(host: CompilerHost, filePath: string): Promise<ADLConfig> {
   // Lazy load.
   const jsyaml = await import("js-yaml");
-  return await loadConfigFile(filePath, jsyaml.load);
+  return await loadConfigFile(host, filePath, jsyaml.load);
 }
 
 const configValidator = new ConfigValidator();
 
 async function loadConfigFile(
+  host: CompilerHost,
   filePath: string,
   loadData: (content: string) => any
 ): Promise<ADLConfig> {
   const diagnostics: Diagnostic[] = [];
   const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
 
-  let [data, file] = await loadFile(
-    (path) => readFile(path, "utf-8"),
-    filePath,
-    loadData,
-    reportDiagnostic
-  );
+  let [data, file] = await loadFile(host, filePath, loadData, reportDiagnostic);
 
   if (data) {
     configValidator.validateConfig(data, file, reportDiagnostic);
