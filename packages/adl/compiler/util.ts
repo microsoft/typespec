@@ -1,5 +1,5 @@
 import fs from "fs";
-import { readdir, readFile, realpath, stat, writeFile } from "fs/promises";
+import { readFile, realpath, stat, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import {
@@ -92,21 +92,19 @@ export async function doIO<T>(
 }
 
 export async function loadFile<T>(
-  read: (path: string) => Promise<string>,
+  host: CompilerHost,
   path: string,
   load: (contents: string) => T,
   reportDiagnostic: DiagnosticHandler,
   options?: FileHandlingOptions
 ): Promise<[T | undefined, SourceFile]> {
-  const contents = await doIO(read, path, reportDiagnostic, options);
-  if (!contents) {
+  const file = await doIO(host.readFile, path, reportDiagnostic, options);
+  if (!file) {
     return [undefined, createSourceFile("", path)];
   }
-
-  const file = createSourceFile(contents, path);
   let data: T;
   try {
-    data = load(contents);
+    data = load(file.text);
   } catch (e) {
     reportDiagnostic({ message: e.message, severity: "error", file });
     return [undefined, file];
@@ -116,10 +114,9 @@ export async function loadFile<T>(
 }
 
 export const NodeHost: CompilerHost = {
-  readFile: (path: string) => readFile(path, "utf-8"),
-  readDir: (path: string) => readdir(path, { withFileTypes: true }),
+  readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
-  getCwd: () => process.cwd(),
+  resolveAbsolutePath: (path: string) => resolve(path),
   getExecutionRoot: () => resolve(fileURLToPath(import.meta.url), "../../../"),
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {

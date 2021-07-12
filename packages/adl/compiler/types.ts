@@ -234,15 +234,14 @@ export interface BlockComment extends TextRange {
 export interface ADLScriptNode extends BaseNode {
   kind: SyntaxKind.ADLScript;
   statements: Statement[];
-  models: ModelType[];
   file: SourceFile;
-  interfaces: NamespaceType[];
   inScopeNamespaces: NamespaceStatementNode[]; // namespaces that declarations in this file belong to
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
   locals: SymbolTable;
   usings: UsingStatementNode[];
   comments: Comment[];
   parseDiagnostics: Diagnostic[];
+  printable: boolean; // If this ast tree can safely be printed/formatted.
 }
 
 export type Statement =
@@ -525,10 +524,7 @@ export interface Dirent {
 
 export interface CompilerHost {
   // read a utf-8 encoded file
-  readFile(path: string): Promise<string>;
-
-  // read the contents of a directory
-  readDir(path: string): Promise<Dirent[]>;
+  readFile(path: string): Promise<SourceFile>;
 
   /**
    * Write the file.
@@ -546,8 +542,10 @@ export interface CompilerHost {
   // get a promise for the ESM module shape of a JS module
   getJsImport(path: string): Promise<any>;
 
-  // get the current working directory
-  getCwd(): string;
+  // If path is already absolute, normalize it, otherwise resolve an
+  // absolute path to the given path based on current working directory and
+  // normalize it.
+  resolveAbsolutePath(path: string): string;
 
   // get info about a path
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;

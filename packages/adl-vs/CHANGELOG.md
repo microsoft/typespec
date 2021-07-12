@@ -1,6 +1,17 @@
 # Change Log - @azure-tools/adl-vs
 
-This log was last generated on Thu, 24 Jun 2021 03:57:43 GMT and should not be manually modified.
+This log was last generated on Fri, 09 Jul 2021 20:21:06 GMT and should not be manually modified.
+
+## 0.2.0
+Fri, 09 Jul 2021 20:21:06 GMT
+
+### Minor changes
+
+- Add semantic analysis to language server
+
+### Patches
+
+- Use LSP to log messages from client to server
 
 ## 0.1.6
 Thu, 24 Jun 2021 03:57:43 GMT

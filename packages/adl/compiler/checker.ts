@@ -129,7 +129,7 @@ export function createChecker(program: Program): Checker {
   // possible to have recursive type references in properties.
   let pendingModelType: PendingModelInfo | undefined = undefined;
 
-  for (const file of program.sourceFiles) {
+  for (const file of program.sourceFiles.values()) {
     for (const using of file.usings) {
       const parentNs = using.parent! as NamespaceStatementNode | ADLScriptNode;
       const sym = resolveTypeReference(using.name);
@@ -488,7 +488,7 @@ export function createChecker(program: Program): Checker {
       // seen it before, need to execute the decorators on this node
       // against the type we've already made.
       for (const dec of node.decorators) {
-        program.executeDecorator(dec, program, symbolLinks.type);
+        program.executeDecorator(dec, symbolLinks.type);
       }
     }
 
@@ -650,7 +650,7 @@ export function createChecker(program: Program): Checker {
 
   function checkProgram(program: Program) {
     program.reportDuplicateSymbols(program.globalNamespace.exports!);
-    for (const file of program.sourceFiles) {
+    for (const file of program.sourceFiles.values()) {
       program.reportDuplicateSymbols(file.locals!);
       for (const ns of file.namespaces) {
         program.reportDuplicateSymbols(ns.locals!);
@@ -659,7 +659,7 @@ export function createChecker(program: Program): Checker {
         initializeTypeForNamespace(ns);
       }
     }
-    for (const file of program.sourceFiles) {
+    for (const file of program.sourceFiles.values()) {
       checkSourceFile(file);
     }
   }

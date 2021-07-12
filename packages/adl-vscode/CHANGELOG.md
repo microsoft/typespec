@@ -1,6 +1,13 @@
 # Change Log - adl-vscode
 
-This log was last generated on Thu, 24 Jun 2021 03:57:43 GMT and should not be manually modified.
+This log was last generated on Fri, 09 Jul 2021 20:21:06 GMT and should not be manually modified.
+
+## 0.6.0
+Fri, 09 Jul 2021 20:21:06 GMT
+
+### Minor changes
+
+- Add semantic analysis to language server
 
 ## 0.5.2
 Thu, 24 Jun 2021 03:57:43 GMT

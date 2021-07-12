@@ -17,6 +17,7 @@ import {
   ModelStatementNode,
   ModelType,
   NamespaceStatementNode,
+  SourceFile,
   Sym,
   SymbolTable,
   SyntaxKind,
@@ -27,7 +28,8 @@ import { doIO, loadFile } from "./util.js";
 export interface Program {
   compilerOptions: CompilerOptions;
   globalNamespace: NamespaceStatementNode;
-  sourceFiles: ADLScriptNode[];
+  /** All source files in the program, keyed by their file path. */
+  sourceFiles: Map<string, ADLScriptNode>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   checker?: Checker;
@@ -37,7 +39,7 @@ export interface Program {
   getOption(key: string): string | undefined;
   executeModelDecorators(type: ModelType): void;
   executeDecorators(type: Type): void;
-  executeDecorator(node: DecoratorExpressionNode, program: Program, type: Type): void;
+  executeDecorator(node: DecoratorExpressionNode, type: Type): void;
   stateSet(key: Symbol): Set<any>;
   stateMap(key: Symbol): Map<any, any>;
   hasError(): boolean;
@@ -62,12 +64,13 @@ export async function createProgram(
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
+  const unboundDecorators = new Set<DecoratorExpressionNode>();
   let error = false;
 
   const program: Program = {
     compilerOptions: options,
     globalNamespace: createGlobalNamespace(),
-    sourceFiles: [],
+    sourceFiles: new Map(),
     literalTypes: new Map(),
     host,
     diagnostics,
@@ -130,7 +133,7 @@ export async function createProgram(
     const stmt = (type.templateNode || type.node) as ModelStatementNode;
 
     for (const dec of stmt.decorators) {
-      executeDecorator(dec, program, type);
+      executeDecorator(dec, type);
     }
 
     if (stmt.properties) {
@@ -139,7 +142,7 @@ export async function createProgram(
 
         if ("decorators" in propNode) {
           for (const dec of propNode.decorators) {
-            executeDecorator(dec, program, propType);
+            executeDecorator(dec, propType);
           }
         }
       }
@@ -149,12 +152,12 @@ export async function createProgram(
   function executeDecorators(type: Type) {
     if (type.node && "decorators" in type.node) {
       for (const dec of type.node.decorators) {
-        executeDecorator(dec, program, type);
+        executeDecorator(dec, type);
       }
     }
   }
 
-  function executeDecorator(dec: DecoratorExpressionNode, program: Program, type: Type) {
+  function executeDecorator(dec: DecoratorExpressionNode, type: Type) {
     if (dec.target.kind !== SyntaxKind.Identifier) {
       program.reportDiagnostic("Decorator must be identifier", dec);
       return;
@@ -164,7 +167,14 @@ export async function createProgram(
     const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
     const decBinding = program.globalNamespace.locals!.get(decName) as DecoratorSymbol;
     if (!decBinding) {
-      program.reportDiagnostic(`Can't find decorator ${decName}`, dec);
+      // NOTE: Avoid duplicate diagnostics when property with unbound decorator is spread.
+      if (!unboundDecorators.has(dec)) {
+        program.reportDiagnostic(`Can't find decorator ${decName}`, dec);
+        unboundDecorators.add(dec);
+      }
+      return;
+    }
+    if (program.compilerOptions.designTimeBuild) {
       return;
     }
     const decFn = decBinding.value;
@@ -191,7 +201,7 @@ export async function createProgram(
 
   async function loadDirectory(dir: string, diagnosticTarget?: DiagnosticTarget) {
     const pkgJsonPath = resolve(dir, "package.json");
-    let [pkg] = await loadFile(host.readFile, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
+    let [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
       diagnosticTarget,
     });
@@ -205,12 +215,12 @@ export async function createProgram(
     }
     seenSourceFiles.add(path);
 
-    const contents = await doIO(host.readFile, path, program.reportDiagnostic, {
+    const file = await doIO(host.readFile, path, program.reportDiagnostic, {
       diagnosticTarget,
     });
 
-    if (contents) {
-      await evalAdlScript(contents, path);
+    if (file) {
+      await evalAdlScript(file);
     }
   }
 
@@ -230,7 +240,9 @@ export async function createProgram(
       const value = exports[match];
 
       if (match === "onBuild") {
-        program.onBuild(value);
+        if (!program.compilerOptions.designTimeBuild) {
+          program.onBuild(value);
+        }
       } else {
         program.globalNamespace.locals!.set(match, {
           kind: "decorator",
@@ -245,13 +257,18 @@ export async function createProgram(
   // Evaluates an arbitrary line of ADL in the context of a
   // specified file path.  If no path is specified, use a
   // virtual file path
-  async function evalAdlScript(adlScript: string, filePath?: string): Promise<void> {
-    filePath = filePath ?? `__virtual_file_${++virtualFileCount}`;
-    const unparsedFile = createSourceFile(adlScript, filePath);
-    const sourceFile = parse(unparsedFile);
-
+  async function evalAdlScript(adlScript: string | SourceFile): Promise<void> {
+    if (typeof adlScript === "string") {
+      adlScript = createSourceFile(adlScript, `__virtual_file_${++virtualFileCount}`);
+    }
+    // This is not a diagnostic because the compiler should never reuse the same path.
+    // It's the caller's responsibility to use unique paths.
+    if (program.sourceFiles.has(adlScript.path)) {
+      throw new RangeError("Duplicate script path: " + adlScript);
+    }
+    const sourceFile = parse(adlScript);
     program.reportDiagnostics(sourceFile.parseDiagnostics);
-    program.sourceFiles.push(sourceFile);
+    program.sourceFiles.set(adlScript.path, sourceFile);
     binder.bindSourceFile(sourceFile);
     await evalImports(sourceFile);
   }
@@ -316,7 +333,7 @@ export async function createProgram(
           readFile(path, cb) {
             host
               .readFile(path)
-              .then((c) => cb(null, c))
+              .then((c) => cb(null, c.text))
               .catch((e) => cb(e));
           },
           isDirectory(path, cb) {
@@ -376,7 +393,7 @@ export async function createProgram(
   }
 
   async function loadMain(mainFile: string, options: CompilerOptions) {
-    const mainPath = resolve(host.getCwd(), mainFile);
+    const mainPath = host.resolveAbsolutePath(mainFile);
     const mainStat = await doIO(host.stat, mainPath, program.reportDiagnostic);
     if (!mainStat) {
       return;

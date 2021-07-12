@@ -183,6 +183,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): AD
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
+  let treePrintable = true;
   const parseDiagnostics: Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
   const comments: Comment[] = [];
@@ -196,14 +197,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): AD
       kind: SyntaxKind.ADLScript,
       statements,
       file: scanner.file,
-      interfaces: [],
-      models: [],
       namespaces: [],
       usings: [],
       locals: createSymbolTable(),
       inScopeNamespaces: [],
       parseDiagnostics,
       comments,
+      printable: treePrintable,
       ...finishNode(0),
     };
   }
@@ -1012,7 +1012,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): AD
     return { kind: SyntaxKind.InvalidStatement, ...finishNode(pos) };
   }
 
-  function error(message: string, target?: TextRange & { realPos?: number }) {
+  /**
+   *
+   * @param message Error message
+   * @param target Location of the error.
+   * @param printable True if this error didn't affect the parsing and the tree can be safely printed(formatted)
+   */
+  function error(message: string, target?: TextRange & { realPos?: number }, printable?: boolean) {
     const location = {
       file: scanner.file,
       pos: target?.pos ?? tokenPos(),
@@ -1028,6 +1034,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): AD
       return;
     }
     realPositionOfLastError = realPos;
+    if (!printable) {
+      treePrintable = false;
+    }
     const diagnostic = createDiagnostic(message, location);
     reportDiagnostic(diagnostic);
   }
@@ -1061,7 +1070,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): AD
     }
 
     const location = getAdjustedDefaultLocation(expectedToken);
-    error(`${TokenDisplay[expectedToken]} expected.`, location);
+    error(`${TokenDisplay[expectedToken]} expected.`, location, isPunctuation(expectedToken));
     return false;
   }
 

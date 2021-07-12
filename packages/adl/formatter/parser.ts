@@ -9,7 +9,7 @@ export function parse(
 ): ADLScriptNode {
   const result = adlParse(text, { comments: true });
   const errors = result.parseDiagnostics.filter((x) => x.severity === "error");
-  if (errors.length > 0) {
+  if (errors.length > 0 && !result.printable) {
     throw new PrettierParserError(errors[0]);
   }
   return result;

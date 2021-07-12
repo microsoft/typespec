@@ -60,6 +60,10 @@ export function isStringType(program: Program, target: Type): boolean {
   return intrinsicType !== undefined && intrinsicType === "string";
 }
 
+export function isErrorType(type: Type): boolean {
+  return type.kind === "Intrinsic" && type.name === "ErrorType";
+}
+
 const numericTypesKey = Symbol();
 export function numeric(program: Program, target: Type) {
   if (!isIntrinsic(program, target)) {
@@ -263,6 +267,21 @@ function mapFilterOut(
       map.delete(key);
     }
   }
+}
+
+// -- @withOptionalProperties decorator ---------------------
+
+export function withOptionalProperties(program: Program, target: Type) {
+  if (target.kind !== "Model") {
+    program.reportDiagnostic(
+      "The @withOptionalProperties decorator can only be applied to models.",
+      target
+    );
+    return;
+  }
+
+  // Make all properties of the target type optional
+  target.properties.forEach((p) => (p.optional = true));
 }
 
 // -- @list decorator ---------------------

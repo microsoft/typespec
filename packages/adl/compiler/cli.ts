@@ -329,7 +329,7 @@ async function printInfo() {
   const cwd = process.cwd();
   console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
 
-  const config = await loadADLConfigInDir(cwd);
+  const config = await loadADLConfigInDir(NodeHost, cwd);
   const jsyaml = await import("js-yaml");
   const excluded = ["diagnostics", "filename"];
   const replacer = (key: string, value: any) => (excluded.includes(key) ? undefined : value);

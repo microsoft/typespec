@@ -15,6 +15,7 @@ import {
   SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
+  TypeSymbol,
   UsingStatementNode,
 } from "./types.js";
 
@@ -33,19 +34,6 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
     return this;
   }
 };
-
-export interface DecoratorSymbol {
-  kind: "decorator";
-  path: string;
-  name: string;
-  value: (...args: any[]) => any;
-}
-
-export interface TypeSymbol {
-  kind: "type";
-  node: Node;
-  name: string;
-}
 
 export interface Binder {
   bindSourceFile(sourceFile: ADLScriptNode): void;
