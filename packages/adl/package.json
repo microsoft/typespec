@@ -44,7 +44,7 @@
     "fuzz": "node dist/test/manual/fuzz.js run"
   },
   "dependencies": {
-    "autorest": "~3.0.6335",
+    "autorest": "~3.3.2",
     "ajv": "~8.4.0",
     "glob": "~7.1.6",
     "js-yaml": "~4.1.0",
