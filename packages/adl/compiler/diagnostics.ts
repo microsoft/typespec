@@ -1,5 +1,5 @@
 import { AssertionError } from "assert";
-import { CharCode, isNonAsciiLineBreak } from "./charcode.js";
+import { CharCode } from "./charcode.js";
 import { Message } from "./messages.js";
 import { Diagnostic, Node, SourceFile, SourceLocation, Sym, SyntaxKind, Type } from "./types.js";
 
@@ -275,12 +275,6 @@ function scanLineStarts(text: string): number[] {
         starts.push(start);
         start = pos;
         break;
-      default:
-        if (ch > CharCode.MaxAscii && isNonAsciiLineBreak(ch)) {
-          starts.push(start);
-          start = pos;
-          break;
-        }
     }
   }
 

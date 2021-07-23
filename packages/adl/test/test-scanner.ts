@@ -213,8 +213,6 @@ describe("adl: scanner", () => {
   it("does not allow multi-line, non-triple-quoted strings", () => {
     scanString('"More\r\nthan\r\none\r\nline"', "More", /Unterminated string/);
     scanString('"More\nthan\none\nline"', "More", /Unterminated string/);
-    scanString('"Fancy\u{2028}line separator"', "Fancy", /Unterminated string/);
-    scanString('"Fancy\u{2029}paragraph separator', "Fancy", /Unterminated string/);
   });
 
   it("scans triple-quoted strings", () => {
@@ -258,16 +256,16 @@ describe("adl: scanner", () => {
       [Token.Identifier, "aaaa", { pos: 16, line: 3, character: 0 }],
       [Token.Whitespace, " ", { pos: 20, line: 3, character: 4 }],
       [Token.Identifier, "x", { pos: 21, line: 3, character: 5 }],
-      [Token.NewLine, "\u{2028}", { pos: 22, line: 3, character: 6 }],
+      [Token.Whitespace, "\u{2028}", { pos: 22, line: 3, character: 6 }],
 
-      [Token.Identifier, "aaaaa", { pos: 23, line: 4, character: 0 }],
-      [Token.Whitespace, " ", { pos: 28, line: 4, character: 5 }],
-      [Token.Identifier, "x", { pos: 29, line: 4, character: 6 }],
-      [Token.NewLine, "\u{2029}", { pos: 30, line: 4, character: 7 }],
+      [Token.Identifier, "aaaaa", { pos: 23, line: 3, character: 7 }],
+      [Token.Whitespace, " ", { pos: 28, line: 3, character: 12 }],
+      [Token.Identifier, "x", { pos: 29, line: 3, character: 13 }],
+      [Token.Whitespace, "\u{2029}", { pos: 30, line: 3, character: 14 }],
 
-      [Token.Identifier, "aaaaaa", { pos: 31, line: 5, character: 0 }],
-      [Token.Whitespace, " ", { pos: 37, line: 5, character: 6 }],
-      [Token.Identifier, "x", { pos: 38, line: 5, character: 7 }],
+      [Token.Identifier, "aaaaaa", { pos: 31, line: 3, character: 15 }],
+      [Token.Whitespace, " ", { pos: 37, line: 3, character: 21 }],
+      [Token.Identifier, "x", { pos: 38, line: 3, character: 22 }],
     ]);
   });
 

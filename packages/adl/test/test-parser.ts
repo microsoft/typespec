@@ -223,6 +223,11 @@ describe("adl: syntax", () => {
     ]);
   });
 
+  describe("BOM", () => {
+    parseEach(["\u{FEFF}/*<--BOM*/ model M {}"]);
+    parseErrorEach([["model\u{FEFF}/*<--BOM*/ M {}", [/Statement expected/]]]);
+  });
+
   describe("unterminated tokens", () => {
     parseErrorEach([["/* Yada yada yada", [/Unterminated multi-line comment/]]]);
 
@@ -232,8 +237,6 @@ describe("adl: syntax", () => {
       '"banana\r"',
       '"banana\n"',
       '"banana\r\n"',
-      '"banana\u{2028}"',
-      '"banana\u{2029}"',
       '"""\nbanana',
       '"""\nbanana\\',
     ];
@@ -343,6 +346,8 @@ describe("adl: syntax", () => {
       "incompréhensible",
       "IncomprÉhensible",
       "incomprÉhensible",
+      // normalization
+      ["e\u{0301}toile", "étoile"],
       // leading astral character
       "𐌰𐌲",
       // continuing astral character
@@ -352,23 +357,37 @@ describe("adl: syntax", () => {
       "deaf\u{200c}ly",
       // ZWJ
       "क्‍ष",
+      // Leading emoji
+      "😁Yay",
+      // Continuing emoji
+      "Hi✋There",
     ];
 
     const bad: [string, RegExp][] = [
-      ["😢", /Invalid character/],
+      ["\u{D800}", /Invalid character/], // unpaired surrogate
+      ["\u{E000}", /Invalid character/], // private use
+      ["\u{FDD0}", /Invalid character/], // non-character
+      ["\u{244B}", /Invalid character/], // unassigned
+      ["\u{009F}", /Invalid character/], // control
+      ["#", /Invalid character/], // reserved ascii punctuation
       ["42", /Identifier expected/],
       ["true", /Keyword cannot be used as identifier/],
     ];
 
     parseEach(
-      good.map((s) => [
-        `model ${s} {}`,
-        (node) => {
-          const statement = node.statements[0];
-          assert(statement.kind === SyntaxKind.ModelStatement, "Model statement expected.");
-          assert.strictEqual(statement.id.sv, s);
-        },
-      ])
+      good.map((entry) => {
+        const input = typeof entry === "string" ? entry : entry[0];
+        const expected = typeof entry === "string" ? entry : entry[1];
+
+        return [
+          `model ${input} {}`,
+          (node) => {
+            const statement = node.statements[0];
+            assert(statement.kind === SyntaxKind.ModelStatement, "Model statement expected.");
+            assert.strictEqual(statement.id.sv, expected);
+          },
+        ];
+      })
     );
 
     parseErrorEach(bad.map((e) => [`model ${e[0]} {}`, [e[1]]]));
@@ -464,7 +483,7 @@ function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhite
 
       logVerboseTestOutput("\n=== Diagnostics ===");
       logVerboseTestOutput((log) => logDiagnostics(astNode.parseDiagnostics, log));
-      assert.notStrictEqual(astNode.parseDiagnostics.length, 0, "parse diagnostics length");
+      assert.notStrictEqual(astNode.parseDiagnostics.length, 0, "no diagnostics reported");
       let i = 0;
       for (const match of matches) {
         assert.match(astNode.parseDiagnostics[i++].message, match);

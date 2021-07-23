@@ -8,9 +8,7 @@ import {
   isIdentifierContinue,
   isLineBreak,
   isLowercaseAsciiLetter,
-  isNonAsciiIdentifierContinue,
-  isNonAsciiIdentifierStart,
-  isNonAsciiLineBreak,
+  isNonAsciiIdentifierCharacter,
   isNonAsciiWhiteSpaceSingleLine,
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
@@ -197,8 +195,9 @@ export interface Scanner {
   /**
    * The value of the current token.
    *
-   * Currently differs from tokenText() only for string literals, which are
-   * unescaped and unquoted to the represented string value.
+   * String literals are escaped and unquoted, identifiers are normalized,
+   * and all other tokens return their exact spelling sames as
+   * getTokenText().
    */
   getTokenValue(): string;
 }
@@ -208,6 +207,7 @@ const enum TokenFlags {
   Escaped = 1 << 0,
   TripleQuoted = 1 << 1,
   Unterminated = 1 << 2,
+  NonAscii = 1 << 3,
 }
 
 export function isLiteral(token: Token) {
@@ -255,6 +255,11 @@ export function createScanner(
   let tokenPosition = -1;
   let tokenFlags = TokenFlags.None;
 
+  // Skip BOM
+  if (input.charCodeAt(position) === CharCode.ByteOrderMark) {
+    position++;
+  }
+
   return {
     get position() {
       return position;
@@ -281,7 +286,14 @@ export function createScanner(
   }
 
   function getTokenValue() {
-    return token === Token.StringLiteral ? getStringTokenValue() : getTokenText();
+    switch (token) {
+      case Token.StringLiteral:
+        return getStringTokenValue();
+      case Token.Identifier:
+        return getIdentifierTokenValue();
+      default:
+        return getTokenText();
+    }
   }
 
   function lookAhead(offset: number) {
@@ -439,18 +451,15 @@ export function createScanner(
   }
 
   function scanNonAsciiToken() {
+    tokenFlags |= TokenFlags.NonAscii;
     const ch = input.charCodeAt(position);
-
-    if (isNonAsciiLineBreak(ch)) {
-      return next(Token.NewLine);
-    }
 
     if (isNonAsciiWhiteSpaceSingleLine(ch)) {
       return scanWhitespace();
     }
 
     let cp = input.codePointAt(position)!;
-    if (isNonAsciiIdentifierStart(cp)) {
+    if (isNonAsciiIdentifierCharacter(cp)) {
       return scanNonAsciiIdentifier(cp);
     }
 
@@ -602,11 +611,6 @@ export function createScanner(
         case CharCode.CarriageReturn:
         case CharCode.LineFeed:
           break loop;
-        default:
-          if (ch > CharCode.MaxAscii && isNonAsciiLineBreak(ch)) {
-            break loop;
-          }
-          continue;
       }
     }
 
@@ -645,6 +649,11 @@ export function createScanner(
     }
 
     return input.substring(start, end);
+  }
+
+  function getIdentifierTokenValue() {
+    const text = getTokenText();
+    return tokenFlags & TokenFlags.NonAscii ? text.normalize("NFC") : text;
   }
 
   function unindentAndUnescapeTripleQuotedString(start: number, end: number) {
@@ -830,7 +839,7 @@ export function createScanner(
 
       if (ch > CharCode.MaxAscii) {
         const cp = input.codePointAt(position)!;
-        if (isNonAsciiIdentifierContinue(cp)) {
+        if (isNonAsciiIdentifierCharacter(cp)) {
           return scanNonAsciiIdentifier(cp);
         }
       }
@@ -860,7 +869,7 @@ export function createScanner(
 
     if (ch > CharCode.MaxAscii) {
       let cp = input.codePointAt(position)!;
-      if (isNonAsciiIdentifierContinue(cp)) {
+      if (isNonAsciiIdentifierCharacter(cp)) {
         return scanNonAsciiIdentifier(cp);
       }
     }
@@ -869,6 +878,7 @@ export function createScanner(
   }
 
   function scanNonAsciiIdentifier(startCodePoint: number) {
+    tokenFlags |= TokenFlags.NonAscii;
     let cp = startCodePoint;
     do {
       position += utf16CodeUnits(cp);
