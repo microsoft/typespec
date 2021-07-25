@@ -2,11 +2,14 @@ import { NamespaceType, OperationType, Program, Type } from "@azure-tools/adl";
 
 const basePathsKey = Symbol();
 export interface HttpOperationType extends OperationType {
-  basePath: string,
-  route: OperationRoute
+  basePath: string;
+  route: OperationRoute;
 }
 
-export function getHttpOperation(program: Program, operation: OperationType): HttpOperationType | undefined {
+export function getHttpOperation(
+  program: Program,
+  operation: OperationType
+): HttpOperationType | undefined {
   if (!operation.namespace || !isResource(program, operation.namespace!)) {
     return undefined;
   }
@@ -18,7 +21,7 @@ export function getHttpOperation(program: Program, operation: OperationType): Ht
     node: operation.node,
     returnType: operation.returnType,
     namespace: operation.namespace,
-    parameters: operation.parameters
+    parameters: operation.parameters,
   };
 }
 
@@ -51,7 +54,6 @@ export function getHeaderFieldName(program: Program, entity: Type) {
   return program.stateMap(headerFieldsKey).get(entity);
 }
 
-
 const queryFieldsKey = Symbol();
 export function query(program: Program, entity: Type, queryKey: string) {
   if (!queryKey && entity.kind === "ModelProperty") {
@@ -79,7 +81,6 @@ export function path(program: Program, entity: Type, paramName: string) {
 export function getPathParamName(program: Program, entity: Type) {
   return program.stateMap(pathFieldsKey).get(entity);
 }
-
 
 export function isPathParam(program: Program, entity: Type) {
   return program.stateMap(pathFieldsKey).has(entity);
@@ -162,7 +163,7 @@ interface ServiceDetails {
   title?: string;
   version?: string;
   host?: string;
-};
+}
 
 const programServiceDetails = new WeakMap<Program, ServiceDetails>();
 function getServiceDetails(program: Program) {
@@ -223,7 +224,10 @@ export function serviceHost(program: Program, entity: Type, host: string) {
   }
 
   if (entity.kind !== "Namespace") {
-    program.reportDiagnostic("The @serviceHost decorator can only be applied to namespaces.", entity);
+    program.reportDiagnostic(
+      "The @serviceHost decorator can only be applied to namespaces.",
+      entity
+    );
     return;
   }
 
