@@ -9,19 +9,15 @@ import { parse } from "./parser.js";
 import {
   ADLScriptNode,
   CompilerHost,
-  DecoratorExpressionNode,
-  DecoratorSymbol,
   Diagnostic,
   IdentifierNode,
+  JsSourceFile,
   LiteralType,
-  ModelStatementNode,
-  ModelType,
   NamespaceStatementNode,
   SourceFile,
   Sym,
   SymbolTable,
   SyntaxKind,
-  Type,
 } from "./types.js";
 import { doIO, loadFile } from "./util.js";
 
@@ -30,6 +26,7 @@ export interface Program {
   globalNamespace: NamespaceStatementNode;
   /** All source files in the program, keyed by their file path. */
   sourceFiles: Map<string, ADLScriptNode>;
+  jsSourceFiles: Map<string, JsSourceFile>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   checker?: Checker;
@@ -37,9 +34,6 @@ export interface Program {
   evalAdlScript(adlScript: string, filePath?: string): void;
   onBuild(cb: (program: Program) => void): Promise<void> | void;
   getOption(key: string): string | undefined;
-  executeModelDecorators(type: ModelType): void;
-  executeDecorators(type: Type): void;
-  executeDecorator(node: DecoratorExpressionNode, type: Type): void;
   stateSet(key: Symbol): Set<any>;
   stateMap(key: Symbol): Map<any, any>;
   hasError(): boolean;
@@ -64,20 +58,17 @@ export async function createProgram(
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
-  const unboundDecorators = new Set<DecoratorExpressionNode>();
   let error = false;
 
   const program: Program = {
     compilerOptions: options,
     globalNamespace: createGlobalNamespace(),
     sourceFiles: new Map(),
+    jsSourceFiles: new Map(),
     literalTypes: new Map(),
     host,
     diagnostics,
     evalAdlScript,
-    executeModelDecorators,
-    executeDecorators,
-    executeDecorator,
     getOption,
     stateMap,
     stateSet,
@@ -129,70 +120,6 @@ export async function createProgram(
     };
   }
 
-  function executeModelDecorators(type: ModelType) {
-    const stmt = (type.templateNode || type.node) as ModelStatementNode;
-
-    for (const dec of stmt.decorators) {
-      executeDecorator(dec, type);
-    }
-
-    if (stmt.properties) {
-      for (const [name, propType] of type.properties) {
-        const propNode = propType.node;
-
-        if ("decorators" in propNode) {
-          for (const dec of propNode.decorators) {
-            executeDecorator(dec, propType);
-          }
-        }
-      }
-    }
-  }
-
-  function executeDecorators(type: Type) {
-    if (type.node && "decorators" in type.node) {
-      for (const dec of type.node.decorators) {
-        executeDecorator(dec, type);
-      }
-    }
-  }
-
-  function executeDecorator(dec: DecoratorExpressionNode, type: Type) {
-    if (dec.target.kind !== SyntaxKind.Identifier) {
-      program.reportDiagnostic("Decorator must be identifier", dec);
-      return;
-    }
-
-    const decName = dec.target.sv;
-    const args = dec.arguments.map((a) => toJSON(checker.getTypeForNode(a)));
-    const decBinding = program.globalNamespace.locals!.get(decName) as DecoratorSymbol;
-    if (!decBinding) {
-      // NOTE: Avoid duplicate diagnostics when property with unbound decorator is spread.
-      if (!unboundDecorators.has(dec)) {
-        program.reportDiagnostic(`Can't find decorator ${decName}`, dec);
-        unboundDecorators.add(dec);
-      }
-      return;
-    }
-    if (program.compilerOptions.designTimeBuild) {
-      return;
-    }
-    const decFn = decBinding.value;
-    decFn(program, type, ...args);
-  }
-
-  /**
-   * returns the JSON representation of a type. This is generally
-   * just the raw type objects, but literals are treated specially.
-   */
-  function toJSON(type: Type): Type | string | number | boolean {
-    if (type.kind === "Number" || type.kind === "String" || type.kind === "Boolean") {
-      return type.value;
-    }
-
-    return type;
-  }
-
   async function loadStandardLibrary(program: Program) {
     for (const dir of host.getLibDirs()) {
       await loadDirectory(dir);
@@ -225,33 +152,27 @@ export async function createProgram(
   }
 
   async function loadJsFile(path: string, diagnosticTarget: DiagnosticTarget) {
+    if (program.jsSourceFiles.has(path)) return;
+
+    const file = createSourceFile("", path);
     const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
       diagnosticTarget,
-      jsDiagnosticTarget: { file: createSourceFile("", path), pos: 0, end: 0 },
+      jsDiagnosticTarget: { file, pos: 0, end: 0 },
     });
 
     if (!exports) {
       return;
     }
 
-    for (const match of Object.keys(exports)) {
-      // bind JS files early since this is the only work
-      // we have to do with them.
-      const value = exports[match];
+    const sourceFile: JsSourceFile = {
+      exports,
+      file,
+      namespaces: [],
+    };
 
-      if (match === "onBuild") {
-        if (!program.compilerOptions.designTimeBuild) {
-          program.onBuild(value);
-        }
-      } else {
-        program.globalNamespace.locals!.set(match, {
-          kind: "decorator",
-          path,
-          name: match,
-          value,
-        });
-      }
-    }
+    program.jsSourceFiles.set(path, sourceFile);
+
+    binder.bindJsSourceFile(sourceFile);
   }
 
   // Evaluates an arbitrary line of ADL in the context of a
