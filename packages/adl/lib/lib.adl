@@ -23,3 +23,8 @@
 model OptionalProperties<T> {
   ... T;
 }
+
+@withUpdatableProperties
+model UpdatableProperties<T> {
+  ... T;
+}

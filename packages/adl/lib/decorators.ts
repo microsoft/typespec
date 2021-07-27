@@ -284,6 +284,24 @@ export function withOptionalProperties(program: Program, target: Type) {
   target.properties.forEach((p) => (p.optional = true));
 }
 
+// -- @withUpdatableProperties decorator ----------------------
+
+export function withUpdatableProperties(program: Program, target: Type) {
+  if (target.kind !== "Model") {
+    program.reportDiagnostic(
+      "The @withOptionalProperties decorator can only be applied to models.",
+      target
+    );
+    return;
+  }
+
+  // remove all read-only properties from the target type
+  mapFilterOut(target.properties, (key, value) => {
+    const vis = getVisibility(program, value);
+    return vis !== undefined && vis.length > 0 && !vis.includes("update");
+  });
+}
+
 // -- @list decorator ---------------------
 
 const listPropertiesKey = Symbol();
