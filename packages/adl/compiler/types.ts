@@ -1,10 +1,28 @@
+import { Program } from "./program";
+
 /**
  * Type System types
  */
+
+export type DecoratorArgument = Type | number | string | boolean;
+
+export interface DecoratorApplication {
+  decorator: DecoratorFunction;
+  args: DecoratorArgument[];
+}
+export interface DecoratorFunction {
+  (program: Program, target: Type, ...customArgs: any[]): void;
+  namespace?: string;
+}
+
 export interface BaseType {
   kind: string;
   node?: Node;
   instantiationParameters?: Type[];
+}
+
+export interface DecoratedType {
+  decorators: DecoratorApplication[];
 }
 
 export type Type =
@@ -32,7 +50,7 @@ export interface ErrorType extends IntrinsicType {
   name: "ErrorType";
 }
 
-export interface ModelType extends BaseType {
+export interface ModelType extends BaseType, DecoratedType {
   kind: "Model";
   name: string;
   node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode;
@@ -43,7 +61,7 @@ export interface ModelType extends BaseType {
   templateNode?: Node;
 }
 
-export interface ModelTypeProperty {
+export interface ModelTypeProperty extends DecoratedType {
   kind: "ModelProperty";
   node: ModelPropertyNode | ModelSpreadPropertyNode;
   name: string;
@@ -54,7 +72,7 @@ export interface ModelTypeProperty {
   optional: boolean;
 }
 
-export interface EnumType extends BaseType {
+export interface EnumType extends BaseType, DecoratedType {
   kind: "Enum";
   name: string;
   node: EnumStatementNode;
@@ -62,7 +80,7 @@ export interface EnumType extends BaseType {
   members: EnumMemberType[];
 }
 
-export interface EnumMemberType extends BaseType {
+export interface EnumMemberType extends BaseType, DecoratedType {
   kind: "EnumMember";
   name: string;
   enum: EnumType;
@@ -70,7 +88,7 @@ export interface EnumMemberType extends BaseType {
   value?: string | number;
 }
 
-export interface OperationType {
+export interface OperationType extends DecoratedType {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
@@ -79,7 +97,7 @@ export interface OperationType {
   returnType: Type;
 }
 
-export interface NamespaceType extends BaseType {
+export interface NamespaceType extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
   namespace?: NamespaceType;
@@ -237,7 +255,7 @@ export interface ADLScriptNode extends BaseNode {
   file: SourceFile;
   inScopeNamespaces: NamespaceStatementNode[]; // namespaces that declarations in this file belong to
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
-  locals: SymbolTable;
+  locals: SymbolTable; // holds global scope "usings"
   usings: UsingStatementNode[];
   comments: Comment[];
   parseDiagnostics: Diagnostic[];
@@ -463,6 +481,17 @@ export interface LineAndCharacter {
    * given document.
    */
   character: number;
+}
+
+export interface JsSourceFile {
+  /* A source file with empty contents to represent the file on disk. */
+  file: SourceFile;
+
+  /* The exports object as comes from `import()` */
+  exports: any;
+
+  /* Any namespaces declared by decorators. */
+  namespaces: NamespaceStatementNode[];
 }
 
 export interface SourceFile {

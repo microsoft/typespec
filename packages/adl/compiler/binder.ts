@@ -5,7 +5,9 @@ import {
   ADLScriptNode,
   AliasStatementNode,
   Declaration,
+  DecoratorSymbol,
   EnumStatementNode,
+  JsSourceFile,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -37,6 +39,7 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
 
 export interface Binder {
   bindSourceFile(sourceFile: ADLScriptNode): void;
+  bindJsSourceFile(sourceFile: JsSourceFile): void;
   bindNode(node: Node): void;
 }
 
@@ -59,10 +62,80 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
   // Node where locals go.
   let scope: ScopeNode;
+
   return {
     bindSourceFile,
     bindNode,
+    bindJsSourceFile,
   };
+
+  function bindJsSourceFile(sourceFile: JsSourceFile) {
+    const rootNs = sourceFile.exports["namespace"];
+    const namespaces = new Set<NamespaceStatementNode>();
+    for (const [key, member] of Object.entries(sourceFile.exports)) {
+      if (typeof member === "function") {
+        // lots of 'any' casts here because control flow narrowing `member` to Function
+        // isn't particularly useful it turns out.
+
+        if (key === "onBuild") {
+          program.onBuild(member as any);
+          continue;
+        }
+
+        const memberNs: string = (member as any).namespace;
+        const nsParts = [];
+        if (rootNs) {
+          nsParts.push(...rootNs.split("."));
+        }
+
+        if (memberNs) {
+          nsParts.push(...memberNs.split("."));
+        }
+
+        let currentNamespace = program.globalNamespace;
+        for (const part of nsParts) {
+          const existingBinding = currentNamespace.exports!.get(part);
+          if (
+            existingBinding &&
+            existingBinding.kind === "type" &&
+            namespaces.has(existingBinding.node as NamespaceStatementNode)
+          ) {
+            // since the namespace was "declared" as part of this source file,
+            // we can simply re-use it.
+            currentNamespace = existingBinding.node as NamespaceStatementNode;
+          } else {
+            // need to synthesize a namespace declaration node
+            // consider creating a "synthetic" node flag if necessary
+            const nsNode: NamespaceStatementNode = {
+              kind: SyntaxKind.NamespaceStatement,
+              decorators: [],
+              name: { kind: SyntaxKind.Identifier, sv: key, pos: 0, end: 0 },
+              pos: 0,
+              end: 0,
+              locals: createSymbolTable(),
+              exports: createSymbolTable(),
+            };
+
+            if (existingBinding && existingBinding.kind === "type") {
+              nsNode.symbol = existingBinding;
+
+              // todo: don't merge exports
+              nsNode.exports = (existingBinding.node as NamespaceStatementNode).exports;
+            } else {
+              declareSymbol(currentNamespace.exports!, nsNode, part);
+            }
+
+            namespaces.add(nsNode);
+            currentNamespace = nsNode;
+          }
+        }
+        const sym = createDecoratorSymbol(key, sourceFile.file.path, member);
+        currentNamespace.exports!.set(sym.name, sym);
+      }
+    }
+
+    sourceFile.namespaces = Array.from(namespaces);
+  }
 
   function bindSourceFile(sourceFile: ADLScriptNode) {
     globalNamespace = program.globalNamespace;
@@ -116,7 +189,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
       visitChildren(node, bindNode);
 
-      if (node.kind !== SyntaxKind.NamespaceStatement) {
+      if (node.kind !== SyntaxKind.NamespaceStatement && node.locals) {
         program.reportDuplicateSymbols(node.locals!);
       }
 
@@ -168,6 +241,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       statement.symbol = existingBinding;
       // locals are never shared.
       statement.locals = new SymbolTable();
+
+      // todo: don't merge exports
       statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
     } else {
       declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
@@ -246,5 +321,14 @@ function createTypeSymbol(node: Node, name: string): TypeSymbol {
     kind: "type",
     node,
     name,
+  };
+}
+
+function createDecoratorSymbol(name: string, path: string, value: any): DecoratorSymbol {
+  return {
+    kind: "decorator",
+    name: `@` + name,
+    path,
+    value,
   };
 }

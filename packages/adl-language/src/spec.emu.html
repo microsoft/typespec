@@ -11,6 +11,8 @@ copyright: false
 <h1>Lexical Grammar</h1>
 <emu-grammar type="definition">
 <![CDATA[
+// TODO: Incorporate remarks in comments below into the eventual specification text.
+
 SourceCharacter :
     > any Unicode code point
 
@@ -28,7 +30,6 @@ Token :
 Trivia :
     Comment
     WhiteSpace
-    LineTerminator
 
 Keyword :
     BooleanLiteral
@@ -47,16 +48,30 @@ IdentifierName :
     IdentifierName IdentifierContinue
 
 IdentifierStart :
-    > any Unicode code point with the Unicode property "ID_Start" or "Other_ID_Start"
-    `$`
-    `_`
+    IdentifierContinue but not DecimalDigit
 
+///
+// This is a profile of UAX31.R2 Immutable Identifiers:
+// http://www.unicode.org/reports/tr31/#R2 
+//
+// The profile adds Pattern_Syntax code points outside the ASCII range, and
+// removes unassigned code points. Unassigned code points are removed to
+// ensure identifier normalization remains stable across versions of
+// Unicode. Non-ASCII Pattern_Syntax characters are added as reserving
+// ASCII characters for future punctuation in the language is sufficient and
+// users may wish to use some of the Non-ASCII Pattern_Syntax characters in
+// identifiers.
+///
 IdentifierContinue :
-    > any Unicode code point with the Unicode property "ID_Continue" or "Other_ID_Continue", or "Other_ID_Start"
+    AsciiLetter
+    DecimalDigit
     `$`
     `_`
-    <ZWNJ>
-    <ZWJ>
+    > any assigned Unicode code point greater than U+007F that does not have any of the following property values: General_Category=Surrogate, Control or Private_Use, Noncharacter_Code_Point=True, or Pattern_White_Space=True
+
+AsciiLetter : one of
+    `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M` `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
+    `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m` `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
 
 BooleanLiteral :
     `true`
@@ -80,8 +95,8 @@ DecimalDigits :
     DecimalDigit
     DecimalDigits DecimalDigit
 
-DecimalDigit :
-    one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+DecimalDigit : one of
+    `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
 ExponentPart :
     `e` DecimalIntegerLiteral
@@ -98,8 +113,10 @@ HexDigits :
     HexDigit
     HexDigits HexDigit
 
-HexDigit : 
-    one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9` `a` `b` `c` `d` `e` `f` `A` `B` `C` `D` `E` `F`
+HexDigit : one of
+    `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+    `A` `B` `C` `D` `E` `F`
+    `a` `b` `c` `d` `e` `f` 
 
 BinaryIntegerLiteral :
     `0b` BinaryDigits
@@ -108,11 +125,9 @@ BinaryDigits :
     BinaryDigit
     BinaryDigits BinaryDigit
 
-BinaryDigit :
-    one of `0` `1`
+BinaryDigit : one of
+    `0` `1`
 
-// NOTE: This does not specify the extra rules about '"""'s going
-//       on their own lines and having consistent indentation.
 StringLiteral :
     `"` StringCharacters? `"`
     `"""` TripleQuotedStringCharacters? `"""`
@@ -123,32 +138,66 @@ StringCharacters :
 StringCharacter :
     SourceCharacter but not one of `"` or `\` or LineTerminator
     `\` EscapeCharacter
-
-TripleQuotedStringCharacters
+    
+///
+// BUG: This does not specify the extra rules about `"""`s going
+// on their own lines and having consistent indentation.
+//
+// BUG: This does not allow `"` inside of `"""`s as it should.
+///
+TripleQuotedStringCharacters :
     TripleQuotedStringCharacter TripleQuotedStringCharacters?
 
 TripleQuotedStringCharacter :
     SourceCharacter but not one of `"` or `\`
     `\` EscapeCharacter
 
-EscapeCharacter :
-    one of `"` `r` `n` `t` `\`
+EscapeCharacter : one of
+    `"` `r` `n` `t` `\`
 
-Punctuator : 
-    one of  `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...`
+Punctuator : one of 
+    `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...`
 
+///
+// Note that whitespace could also be specified equivalently as "Any Unicode
+// code point with property value Pattern_White_Space=True"
+//
+// However, see http://www.unicode.org/reports/tr31/#Stability
+//
+// "The [...] Pattern_White_Space characters are immutable and will not
+// change over successive versions of Unicode". This is therefore a fixed set
+// of characters, which are simply listed below to serve as a more direct
+// reference:
+//
+//    - U+0009  TAB   HORIZONTAL TAB
+//    - U+000A  LF    LINE FEED
+//    - U+000B  VT    VERTICAL TAB
+//    - U+000C  FF    FORM FEED
+//    - U+000D  CR    CARRIAGE RETURN
+//    - U+0020  SP    SPACE
+//    - U+0085  NEL   NEXT LINE
+//    - U+200E  LRM   LEFT-TO-RIGHT MARK
+//    - U+200F  RLM   RIGHT-TO-LEFT MARK
+//    - U+2028  LS    LINE SEPARATOR
+//    - U+2029  PS    PARAGRAPH SEPARATOR
+//
+// It is deliberately left unspecified which whitespace sequences are
+// considered newlines as no language semnatics are impacted by that choice.
+// Only line and column numbers associated with diagnostics are impacted. In
+// practice, only CR ("MAC"), LF ("UNIX"), and CRLF ("DOS") line endings are
+// currently recognized by our implementation. Additional line endings may be 
+// recognized in the future.
+///
 WhiteSpace :
     <TAB>
+    <LF>
     <VT>
     <FF>
-    <SP>
-    <NBSP>
-    <ZWNBSP>
-    <USP>
-
-LineTerminator :
-    <LF>
     <CR>
+    <SP>
+    <NEL>
+    <LRM>
+    <RLM>
     <LS>
     <PS>
 

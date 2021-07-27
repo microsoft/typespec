@@ -450,3 +450,73 @@ describe("adl: namespace type name", () => {
     strictEqual(testHost.program.checker?.getTypeName(Model2), "Foo.Other.Bar.Model2");
   });
 });
+
+describe("adl: decorators in namespaces", () => {
+  let testHost: TestHost;
+
+  beforeEach(async () => {
+    testHost = await createTestHost();
+  });
+
+  it("puts decorators in namespaces using an exported string", async () => {
+    let fooCalled = false;
+    let barCalled = false;
+
+    const dec = {
+      namespace: "A.B",
+      foo() {
+        fooCalled = true;
+      },
+      bar() {
+        barCalled = true;
+      },
+    };
+
+    (dec.bar as any).namespace = "C";
+
+    testHost.addJsFile("dec.js", dec);
+
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./dec.js";
+
+      @A.B.foo @A.B.C.bar model M { };
+      `
+    );
+
+    await testHost.compile("main.adl");
+    ok(fooCalled);
+    ok(barCalled);
+  });
+
+  it("puts decorators in a namespace using the .namespace property", async () => {
+    let fooCalled = false;
+    let barCalled = false;
+    const dec = {
+      foo() {
+        fooCalled = true;
+      },
+      bar() {
+        barCalled = true;
+      },
+    };
+
+    (dec.foo as any).namespace = "A";
+    (dec.bar as any).namespace = "A.B";
+    testHost.addJsFile("dec.js", dec);
+
+    testHost.addAdlFile(
+      "main.adl",
+      `
+      import "./dec.js";
+
+      @A.foo @A.B.bar model M { };
+      `
+    );
+
+    await testHost.compile("main.adl");
+    ok(fooCalled);
+    ok(barCalled);
+  });
+});

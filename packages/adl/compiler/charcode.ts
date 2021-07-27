@@ -1,43 +1,26 @@
-import { nonAsciiIdentifierContinueMap, nonAsciiIdentifierStartMap } from "./nonascii.js";
+import { nonAsciiIdentifierMap } from "./nonascii.js";
 
 export const enum CharCode {
   Null = 0x00,
   MaxAscii = 0x7f,
+  ByteOrderMark = 0xfeff,
 
-  // ASCII line breaks
+  // Line breaks
   LineFeed = 0x0a,
   CarriageReturn = 0x0d,
 
-  // Non-ASCII line breaks
-  LineSeparator = 0x2028,
-  ParagraphSeparator = 0x2029,
-
   // ASCII whitespace excluding line breaks
   Space = 0x20,
-  FormFeed = 0x0c,
   Tab = 0x09,
   VerticalTab = 0x0b,
+  FormFeed = 0x0c,
 
   // Non-ASCII whitespace excluding line breaks
-  ByteOrderMark = 0xfeff, // currently allowed anywhere
-  NextLine = 0x0085, // not considered a line break, mirroring ECMA-262
-  NonBreakingSpace = 0x00a0,
-  EnQuad = 0x2000,
-  EmQuad = 0x2001,
-  EnSpace = 0x2002,
-  EmSpace = 0x2003,
-  ThreePerEmSpace = 0x2004,
-  FourPerEmSpace = 0x2005,
-  SixPerEmSpace = 0x2006,
-  FigureSpace = 0x2007,
-  PunctuationSpace = 0x2008,
-  ThinSpace = 0x2009,
-  HairSpace = 0x200a,
-  ZeroWidthSpace = 0x200b,
-  NarrowNoBreakSpace = 0x202f,
-  IdeographicSpace = 0x3000,
-  MathematicalSpace = 0x205f,
-  Ogham = 0x1680,
+  NextLine = 0x0085, // not considered a line break
+  LeftToRightMark = 0x200e,
+  RightToLeftMark = 0x200f,
+  LineSeparator = 0x2028,
+  ParagraphSeparator = 0x2029,
 
   // ASCII Digits
   _0 = 0x30,
@@ -148,7 +131,7 @@ export function utf16CodeUnits(codePoint: number) {
   return codePoint >= 0x10000 ? 2 : 1;
 }
 
-export function isAsciiLineBreak(ch: number) {
+export function isLineBreak(ch: number) {
   return ch === CharCode.LineFeed || ch == CharCode.CarriageReturn;
 }
 
@@ -162,25 +145,13 @@ export function isAsciiWhiteSpaceSingleLine(ch: number) {
 }
 
 export function isNonAsciiWhiteSpaceSingleLine(ch: number) {
-  // Note: nextLine is in the Zs space, and should be considered to be a
-  // whitespace. It is explicitly not a line-break as it isn't in the exact set
-  // inherited by ADL from JavaScript.
   return (
-    ch === CharCode.NonBreakingSpace ||
-    ch === CharCode.NextLine ||
-    ch === CharCode.Ogham ||
-    (ch >= CharCode.EnQuad && ch <= CharCode.ZeroWidthSpace) ||
-    ch === CharCode.NarrowNoBreakSpace ||
-    ch === CharCode.MathematicalSpace ||
-    ch === CharCode.IdeographicSpace ||
-    ch === CharCode.ByteOrderMark
+    ch === CharCode.NextLine || // not considered a line break
+    ch === CharCode.LeftToRightMark ||
+    ch === CharCode.RightToLeftMark ||
+    ch === CharCode.LineSeparator ||
+    ch === CharCode.ParagraphSeparator
   );
-}
-
-export function isNonAsciiLineBreak(ch: number) {
-  // Other new line or line breaking characters are treated as white space but
-  // not as line terminators.
-  return ch === CharCode.ParagraphSeparator || ch === CharCode.LineSeparator;
 }
 
 export function isWhiteSpaceSingleLine(ch: number) {
@@ -188,10 +159,6 @@ export function isWhiteSpaceSingleLine(ch: number) {
     isAsciiWhiteSpaceSingleLine(ch) ||
     (ch > CharCode.MaxAscii && isNonAsciiWhiteSpaceSingleLine(ch))
   );
-}
-
-export function isLineBreak(ch: number) {
-  return isAsciiLineBreak(ch) || (ch > CharCode.MaxAscii && isNonAsciiLineBreak(ch));
 }
 
 export function isDigit(ch: number) {
@@ -234,31 +201,22 @@ export function isAsciiIdentifierContinue(ch: number) {
 export function isIdentifierStart(codePoint: number) {
   return (
     isAsciiIdentifierStart(codePoint) ||
-    (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierStart(codePoint))
+    (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierCharacter(codePoint))
   );
 }
 
 export function isIdentifierContinue(codePoint: number) {
   return (
     isAsciiIdentifierContinue(codePoint) ||
-    (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierContinue(codePoint))
+    (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierCharacter(codePoint))
   );
 }
 
-export function isNonAsciiIdentifierStart(codePoint: number) {
-  return lookupInNonAsciiMap(codePoint, nonAsciiIdentifierStartMap);
-}
-
-export function isNonAsciiIdentifierContinue(codePoint: number) {
-  return lookupInNonAsciiMap(codePoint, nonAsciiIdentifierContinueMap);
+export function isNonAsciiIdentifierCharacter(codePoint: number) {
+  return lookupInNonAsciiMap(codePoint, nonAsciiIdentifierMap);
 }
 
 function lookupInNonAsciiMap(codePoint: number, map: readonly number[]) {
-  // Bail out quickly if it couldn't possibly be in the map.
-  if (codePoint < map[0]) {
-    return false;
-  }
-
   // Perform binary search in one of the Unicode range maps
   let lo = 0;
   let hi: number = map.length;

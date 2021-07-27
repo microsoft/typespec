@@ -7,6 +7,8 @@ import {
   ArrayExpressionNode,
   BooleanLiteralNode,
   BooleanLiteralType,
+  DecoratorApplication,
+  DecoratorExpressionNode,
   DecoratorSymbol,
   EnumMemberNode,
   EnumMemberType,
@@ -120,6 +122,7 @@ export function createChecker(program: Program): Checker {
     models: new Map(),
     operations: new Map(),
     namespaces: new Map(),
+    decorators: [],
   });
 
   const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
@@ -436,6 +439,7 @@ export function createChecker(program: Program): Checker {
       name: "",
       baseModels: [],
       properties: properties,
+      decorators: [], // could probably include both sets of decorators here...
     });
 
     return intersection;
@@ -473,6 +477,8 @@ export function createChecker(program: Program): Checker {
       // haven't seen this namespace before
       const namespace = getParentNamespaceType(node);
       const name = node.name.sv;
+      const decorators = checkDecorators(node);
+
       const type: NamespaceType = createType({
         kind: "Namespace",
         name,
@@ -481,14 +487,24 @@ export function createChecker(program: Program): Checker {
         models: new Map(),
         operations: new Map(),
         namespaces: new Map(),
+        decorators,
       });
       namespace?.namespaces.set(name, type);
       symbolLinks.type = type;
     } else {
+      compilerAssert(
+        symbolLinks.type.kind === "Namespace",
+        "Got non-namespace type when resolving namespace"
+      );
       // seen it before, need to execute the decorators on this node
       // against the type we've already made.
-      for (const dec of node.decorators) {
-        program.executeDecorator(dec, symbolLinks.type);
+      symbolLinks.type.kind;
+      const newDecorators = checkDecorators(node);
+      symbolLinks.type.decorators.push(...newDecorators);
+
+      for (const dec of newDecorators) {
+        symbolLinks.type.decorators.push(dec);
+        applyDecoratorToType(dec, symbolLinks.type);
       }
     }
 
@@ -509,6 +525,7 @@ export function createChecker(program: Program): Checker {
   function checkOperation(node: OperationStatementNode): OperationType {
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
+    const decorators = checkDecorators(node);
     const type = createType({
       kind: "Operation",
       name,
@@ -516,6 +533,7 @@ export function createChecker(program: Program): Checker {
       node,
       parameters: getTypeForNode(node.parameters) as ModelType,
       returnType: getTypeForNode(node.returnType),
+      decorators,
     });
     namespace?.operations.set(name, type);
     return type;
@@ -554,11 +572,19 @@ export function createChecker(program: Program): Checker {
     return s.id;
   }
 
-  function resolveIdentifierInTable(node: IdentifierNode, table: SymbolTable) {
-    return table.get(node.sv);
+  function resolveIdentifierInTable(
+    node: IdentifierNode,
+    table: SymbolTable,
+    resolveDecorator = false
+  ) {
+    if (resolveDecorator) {
+      return table.get("@" + node.sv);
+    } else {
+      return table.get(node.sv);
+    }
   }
 
-  function resolveIdentifier(node: IdentifierNode) {
+  function resolveIdentifier(node: IdentifierNode, resolveDecorator = false) {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
       // The parse error is the root cause and will already have been logged.
@@ -570,12 +596,12 @@ export function createChecker(program: Program): Checker {
 
     while (scope && scope.kind !== SyntaxKind.ADLScript) {
       if ("exports" in scope) {
-        binding = resolveIdentifierInTable(node, scope.exports!);
+        binding = resolveIdentifierInTable(node, scope.exports!, resolveDecorator);
         if (binding) return binding;
       }
 
       if ("locals" in scope) {
-        binding = resolveIdentifierInTable(node, scope.locals!);
+        binding = resolveIdentifierInTable(node, scope.locals!, resolveDecorator);
         if (binding) return binding;
       }
 
@@ -585,12 +611,12 @@ export function createChecker(program: Program): Checker {
     if (!binding && scope && scope.kind === SyntaxKind.ADLScript) {
       // check any blockless namespace decls and global scope
       for (const ns of scope.inScopeNamespaces) {
-        binding = resolveIdentifierInTable(node, ns.exports!);
+        binding = resolveIdentifierInTable(node, ns.exports!, resolveDecorator);
         if (binding) return binding;
       }
 
       // check "global scope" usings
-      binding = resolveIdentifierInTable(node, scope.locals);
+      binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
       if (binding) return binding;
     }
 
@@ -599,10 +625,11 @@ export function createChecker(program: Program): Checker {
   }
 
   function resolveTypeReference(
-    node: ReferenceExpression
+    node: ReferenceExpression,
+    resolveDecorator = false
   ): DecoratorSymbol | TypeSymbol | undefined {
     if (node.kind === SyntaxKind.TypeReference) {
-      return resolveTypeReference(node.target);
+      return resolveTypeReference(node.target, resolveDecorator);
     }
 
     if (node.kind === SyntaxKind.MemberExpression) {
@@ -611,7 +638,7 @@ export function createChecker(program: Program): Checker {
         return undefined;
       }
       if (base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
-        const symbol = resolveIdentifierInTable(node.id, base.node.exports!);
+        const symbol = resolveIdentifierInTable(node.id, base.node.exports!, resolveDecorator);
         if (!symbol) {
           program.reportDiagnostic(`Namespace doesn't have member ${node.id.sv}`, node);
           return undefined;
@@ -622,7 +649,7 @@ export function createChecker(program: Program): Checker {
         return undefined;
       } else {
         program.reportDiagnostic(
-          `Cannot resolve '${node.id.sv}' in non-namespace node ${base.node.kind}`,
+          `Cannot resolve '${node.id.sv}' in non-namespace node ${SyntaxKind[base.node.kind]}`,
           node
         );
         return undefined;
@@ -630,7 +657,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.Identifier) {
-      return resolveIdentifier(node);
+      return resolveIdentifier(node, resolveDecorator);
     }
 
     compilerAssert(false, "Unknown type reference kind", node);
@@ -688,6 +715,8 @@ export function createChecker(program: Program): Checker {
     }
 
     const baseModels = checkClassHeritage(node.heritage);
+    const decorators = checkDecorators(node);
+
     const type: ModelType = {
       kind: "Model",
       name: node.id.sv,
@@ -695,6 +724,7 @@ export function createChecker(program: Program): Checker {
       properties: new Map<string, ModelTypeProperty>(),
       baseModels: baseModels,
       namespace: getParentNamespaceType(node),
+      decorators,
     };
 
     // Hold on to the model type that's being defined so that it
@@ -735,6 +765,7 @@ export function createChecker(program: Program): Checker {
       node: node,
       properties,
       baseModels: [],
+      decorators: [],
     });
 
     return type;
@@ -818,6 +849,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
+    const decorators = checkDecorators(prop);
     if (prop.id.kind === SyntaxKind.Identifier) {
       return createType({
         kind: "ModelProperty",
@@ -825,6 +857,7 @@ export function createChecker(program: Program): Checker {
         node: prop,
         optional: prop.optional,
         type: getTypeForNode(prop.value),
+        decorators,
       });
     } else {
       const name = prop.id.value;
@@ -834,8 +867,39 @@ export function createChecker(program: Program): Checker {
         node: prop,
         optional: prop.optional,
         type: getTypeForNode(prop.value),
+        decorators,
       });
     }
+  }
+
+  function checkDecorators(node: { decorators: DecoratorExpressionNode[] }) {
+    const decorators: DecoratorApplication[] = [];
+    for (const decNode of node.decorators) {
+      const sym = resolveTypeReference(decNode.target, true);
+      if (!sym) {
+        program.reportDiagnostic("Unknown decorator", decNode);
+        continue;
+      }
+      if (sym.kind !== "decorator") {
+        program.reportDiagnostic(`${sym.name} is not a decorator`, decNode);
+        continue;
+      }
+
+      const args = decNode.arguments.map(getTypeForNode).map((type) => {
+        if (type.kind === "Number" || type.kind === "String" || type.kind === "Boolean") {
+          return type.value;
+        }
+
+        return type;
+      });
+
+      decorators.push({
+        decorator: sym.value,
+        args,
+      });
+    }
+
+    return decorators;
   }
 
   function checkAlias(node: AliasStatementNode): Type {
@@ -859,12 +923,14 @@ export function createChecker(program: Program): Checker {
     const links = getSymbolLinks(node.symbol!);
 
     if (!links.type) {
+      const decorators = checkDecorators(node);
       const enumType: EnumType = {
         kind: "Enum",
         name: node.id.sv,
         node,
         members: [],
         namespace: getParentNamespaceType(node),
+        decorators,
       };
 
       node.members.map((m) => enumType.members.push(checkEnumMember(enumType, m)));
@@ -880,12 +946,15 @@ export function createChecker(program: Program): Checker {
   function checkEnumMember(parentEnum: EnumType, node: EnumMemberNode): EnumMemberType {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const value = node.value ? node.value.value : undefined;
+    const decorators = checkDecorators(node);
+
     return createType({
       kind: "EnumMember",
       enum: parentEnum,
       name,
       node,
       value,
+      decorators,
     });
   }
 
@@ -893,8 +962,25 @@ export function createChecker(program: Program): Checker {
   function createType<T extends Type>(typeDef: T): T {
     (typeDef as any).templateArguments = templateInstantiation;
 
-    program.executeDecorators(typeDef);
+    if ("decorators" in typeDef) {
+      for (const decApp of typeDef.decorators) {
+        applyDecoratorToType(decApp, typeDef);
+      }
+    }
+
     return typeDef;
+  }
+
+  function applyDecoratorToType(decApp: DecoratorApplication, target: Type) {
+    compilerAssert(
+      "decorators" in target,
+      "Cannot apply decorator to non-decoratable type",
+      target
+    );
+
+    // peel `fn` off to avoid setting `this`.
+    const fn = decApp.decorator;
+    fn(program, target, ...decApp.args);
   }
 
   function getLiteralType(node: StringLiteralNode): StringLiteralType;
