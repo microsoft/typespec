@@ -22,6 +22,7 @@ export function getHttpOperation(
     returnType: operation.returnType,
     namespace: operation.namespace,
     parameters: operation.parameters,
+    decorators: operation.decorators,
   };
 }
 
