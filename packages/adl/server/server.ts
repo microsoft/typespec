@@ -237,12 +237,14 @@ function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
   sendDiagnostics(change.document, []);
 }
 
-function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
+function convertSeverity(severity: "warning" | "error" | "info"): DiagnosticSeverity {
   switch (severity) {
     case "warning":
       return DiagnosticSeverity.Warning;
     case "error":
       return DiagnosticSeverity.Error;
+    case "info":
+      return DiagnosticSeverity.Information;
   }
 }
 

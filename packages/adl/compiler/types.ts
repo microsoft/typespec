@@ -542,7 +542,7 @@ export interface SourceLocation extends TextRange {
 export interface Diagnostic extends Partial<SourceLocation> {
   message: string;
   code?: string;
-  severity: "warning" | "error";
+  severity: "warning" | "error" | "info";
 }
 
 export interface Dirent {

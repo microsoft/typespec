@@ -1,6 +1,31 @@
-import { NamespaceType, Program, Type } from "@azure-tools/adl";
+import { NamespaceType, OperationType, Program, Type } from "@azure-tools/adl";
 
 const basePathsKey = Symbol();
+export interface HttpOperationType extends OperationType {
+  basePath: string;
+  route: OperationRoute;
+}
+
+export function getHttpOperation(
+  program: Program,
+  operation: OperationType
+): HttpOperationType | undefined {
+  if (!operation.namespace || !isResource(program, operation.namespace!)) {
+    return undefined;
+  }
+  return {
+    basePath: basePathForResource(program, operation)!,
+    route: getOperationRoute(program, operation)!,
+    kind: operation.kind,
+    name: operation.name,
+    node: operation.node,
+    returnType: operation.returnType,
+    namespace: operation.namespace,
+    parameters: operation.parameters,
+    decorators: operation.decorators,
+  };
+}
+
 export function resource(program: Program, entity: Type, basePath = "") {
   if (entity.kind !== "Namespace") return;
   program.stateMap(basePathsKey).set(entity, basePath);
@@ -42,6 +67,10 @@ export function getQueryParamName(program: Program, entity: Type) {
   return program.stateMap(queryFieldsKey).get(entity);
 }
 
+export function isQueryParam(program: Program, entity: Type) {
+  return program.stateMap(queryFieldsKey).has(entity);
+}
+
 const pathFieldsKey = Symbol();
 export function path(program: Program, entity: Type, paramName: string) {
   if (!paramName && entity.kind === "ModelProperty") {
@@ -52,6 +81,10 @@ export function path(program: Program, entity: Type, paramName: string) {
 
 export function getPathParamName(program: Program, entity: Type) {
   return program.stateMap(pathFieldsKey).get(entity);
+}
+
+export function isPathParam(program: Program, entity: Type) {
+  return program.stateMap(pathFieldsKey).has(entity);
 }
 
 const bodyFieldsKey = Symbol();
@@ -130,7 +163,9 @@ interface ServiceDetails {
   namespace?: NamespaceType;
   title?: string;
   version?: string;
+  host?: string;
 }
+
 const programServiceDetails = new WeakMap<Program, ServiceDetails>();
 function getServiceDetails(program: Program) {
   let serviceDetails = programServiceDetails.get(program);
@@ -180,6 +215,30 @@ export function serviceTitle(program: Program, entity: Type, title: string) {
 export function getServiceTitle(program: Program): string {
   const serviceDetails = getServiceDetails(program);
   return serviceDetails.title || "(title)";
+}
+
+export function serviceHost(program: Program, entity: Type, host: string) {
+  const serviceDetails = getServiceDetails(program);
+  if (serviceDetails.host) {
+    program.reportDiagnostic("Service host can only be set once per ADL document.", entity);
+    return;
+  }
+
+  if (entity.kind !== "Namespace") {
+    program.reportDiagnostic(
+      "The @serviceHost decorator can only be applied to namespaces.",
+      entity
+    );
+    return;
+  }
+
+  _setServiceNamespace(program, entity);
+  serviceDetails.host = host;
+}
+
+export function getServiceHost(program: Program): string {
+  const serviceDetails = getServiceDetails(program);
+  return serviceDetails.host || "management.azure.com";
 }
 
 export function serviceVersion(program: Program, entity: Type, version: string) {
