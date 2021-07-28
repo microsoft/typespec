@@ -1,7 +1,7 @@
 export interface Message {
   code?: string;
   text: string;
-  severity: "error" | "warning";
+  severity: "error" | "warning" | "info";
 }
 
 export const Message = {
