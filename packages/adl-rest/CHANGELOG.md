@@ -1,6 +1,13 @@
 # Change Log - @azure-tools/adl-rest
 
-This log was last generated on Fri, 09 Jul 2021 20:21:06 GMT and should not be manually modified.
+This log was last generated on Wed, 28 Jul 2021 19:40:06 GMT and should not be manually modified.
+
+## 0.3.2
+Wed, 28 Jul 2021 19:40:06 GMT
+
+### Patches
+
+- Add additional api to support code generation and host property
 
 ## 0.3.1
 Fri, 09 Jul 2021 20:21:06 GMT

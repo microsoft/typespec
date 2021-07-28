@@ -2,6 +2,29 @@
   "name": "@azure-tools/adl",
   "entries": [
     {
+      "version": "0.14.0",
+      "tag": "@azure-tools/adl_v0.14.0",
+      "date": "Wed, 28 Jul 2021 19:40:06 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add service code generator module"
+          },
+          {
+            "comment": "Allow more non-ascii characters in identifiers and normalize identifiers"
+          },
+          {
+            "comment": "Use newer version of autorest from `adl generate`"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Decorators can be put into namespaces using a .namespace property or a namespace export"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.0",
       "tag": "@azure-tools/adl_v0.13.0",
       "date": "Fri, 09 Jul 2021 20:21:06 GMT",
