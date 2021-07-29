@@ -1,6 +1,19 @@
 # Change Log - @azure-tools/adl
 
-This log was last generated on Fri, 09 Jul 2021 20:21:06 GMT and should not be manually modified.
+This log was last generated on Wed, 28 Jul 2021 19:40:06 GMT and should not be manually modified.
+
+## 0.14.0
+Wed, 28 Jul 2021 19:40:06 GMT
+
+### Minor changes
+
+- Decorators can be put into namespaces using a .namespace property or a namespace export
+
+### Patches
+
+- Add service code generator module
+- Allow more non-ascii characters in identifiers and normalize identifiers
+- Use newer version of autorest from `adl generate`
 
 ## 0.13.0
 Fri, 09 Jul 2021 20:21:06 GMT

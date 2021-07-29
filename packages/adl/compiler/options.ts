@@ -4,7 +4,7 @@ export interface CompilerOptions {
   swaggerOutputFile?: string;
   nostdlib?: boolean;
   noEmit?: boolean;
-
+  serviceCodePath?: string;
   /**
    * When true, indicates that a compilation is being performed for live
    * analysis in the language server.

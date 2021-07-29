@@ -10,8 +10,8 @@ granted herein, whether by implication, estoppel or otherwise.
 
 1. function-bind version 1.1.1 (https://github.com/Raynos/function-bind)
 2. has version 1.0.3 (https://github.com/tarruda/has)
-3. is-core-module version 2.2.0 (https://github.com/inspect-js/is-core-module)
-4. path-parse version 1.0.6 (https://github.com/jbgutierrez/path-parse)
+3. is-core-module version 2.5.0 (https://github.com/inspect-js/is-core-module)
+4. path-parse version 1.0.7 (https://github.com/jbgutierrez/path-parse)
 5. resolve version 1.20.0 (https://github.com/browserify/resolve)
 
 
