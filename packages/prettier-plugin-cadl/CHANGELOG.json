@@ -1,6 +1,23 @@
 {
-  "name": "@azure-tools/prettier-plugin-adl",
+  "name": "@azure-tools/prettier-plugin-cadl",
   "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@azure-tools/prettier-plugin-cadl_v0.2.0",
+      "date": "Mon, 02 Aug 2021 18:17:00 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Rename ADL to Cadl"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@azure-tools/cadl\" from `0.14.0` to `0.15.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.1.4",
       "tag": "@azure-tools/prettier-plugin-adl_v0.1.4",

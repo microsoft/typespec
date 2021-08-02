@@ -1,6 +1,23 @@
 {
-  "name": "@azure-tools/adl-rest",
+  "name": "@azure-tools/cadl-rest",
   "entries": [
+    {
+      "version": "0.4.0",
+      "tag": "@azure-tools/cadl-rest_v0.4.0",
+      "date": "Mon, 02 Aug 2021 18:17:00 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Rename ADL to Cadl"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@azure-tools/cadl\" from `0.14.0` to `0.15.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.3.2",
       "tag": "@azure-tools/adl-rest_v0.3.2",

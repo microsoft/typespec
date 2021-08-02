@@ -1,6 +1,18 @@
 {
-  "name": "@azure-tools/adl",
+  "name": "@azure-tools/cadl",
   "entries": [
+    {
+      "version": "0.15.0",
+      "tag": "@azure-tools/cadl_v0.15.0",
+      "date": "Mon, 02 Aug 2021 18:17:00 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Rename ADL to Cadl"
+          }
+        ]
+      }
+    },
     {
       "version": "0.14.0",
       "tag": "@azure-tools/adl_v0.14.0",

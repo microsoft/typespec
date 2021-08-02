@@ -1,6 +1,13 @@
-# Change Log - @azure-tools/adl-vs
+# Change Log - @azure-tools/cadl-vs
 
-This log was last generated on Fri, 09 Jul 2021 20:21:06 GMT and should not be manually modified.
+This log was last generated on Mon, 02 Aug 2021 18:17:00 GMT and should not be manually modified.
+
+## 0.3.0
+Mon, 02 Aug 2021 18:17:00 GMT
+
+### Minor changes
+
+- Rename ADL to Cadl
 
 ## 0.2.0
 Fri, 09 Jul 2021 20:21:06 GMT
