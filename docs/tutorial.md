@@ -1,10 +1,10 @@
-# Introduction to API Definition Language (ADL)
+# Introduction to API Definition Language (Cadl)
 
-ADL is a language for describing cloud service APIs and generating other API description languages, client and service code, documentation, and other assets. ADL provides highly extensible core language primitives that can describe API shapes common among REST, GraphQL, gRPC, and other protocols.
+Cadl is a language for describing cloud service APIs and generating other API description languages, client and service code, documentation, and other assets. Cadl provides highly extensible core language primitives that can describe API shapes common among REST, GraphQL, gRPC, and other protocols.
 
-ADL is an object oriented dynamic language whose evaluation results in an object model describing service APIs. Unlike typical programming languages, ADL consists primarily of declarations, however these declarations can be decorated to provide highly dynamic behavior.
+Cadl is an object oriented dynamic language whose evaluation results in an object model describing service APIs. Unlike typical programming languages, Cadl consists primarily of declarations, however these declarations can be decorated to provide highly dynamic behavior.
 
-ADL's primary benefits include:
+Cadl's primary benefits include:
 
 * Protocol agnostic: it can describe and generate code for APIs across multiple protocols and serialization languages
 * Modular: developers can group common API shapes and conventions together and reuse them
@@ -13,7 +13,7 @@ ADL's primary benefits include:
  
 ## Language Tour
 
-ADL consists of the following language features:
+Cadl consists of the following language features:
 
 * Models: data shapes or schemas
 * Type Literals: strings and numbers with specific values
@@ -22,13 +22,13 @@ ADL consists of the following language features:
 * Namespaces & Usings: groups models and operations together into hierarchical groups with friendly names
 * Imports: links declarations across multiple files and libraries together into a single program
 * Decorators: bits of TypeScript code that add metadata or sometimes mutate declarations
-* Libraries: encapsulate ADL definitions into reusable components
+* Libraries: encapsulate Cadl definitions into reusable components
 
-In addition, ADL comes with a standard library for describing REST APIs and generating OpenAPI. Other protocol bindings are a work in progress!
+In addition, Cadl comes with a standard library for describing REST APIs and generating OpenAPI. Other protocol bindings are a work in progress!
 
 ### Models
 
-ADL models are used to describe data shapes or schemas. Models have any number of members and can extend and be composed with other models. Members are required by default, but can made optional by appending a "?" to the member name. The following defines a data shape with two members:
+Cadl models are used to describe data shapes or schemas. Models have any number of members and can extend and be composed with other models. Members are required by default, but can made optional by appending a "?" to the member name. The following defines a data shape with two members:
 
 ```
 model Dog {
@@ -39,7 +39,7 @@ model Dog {
 
 #### Built-in Models
 
-ADL comes with built-in models for common data types:
+Cadl comes with built-in models for common data types:
 
 * `string`: sequence of characters
 * `int32`: 32-bit integer
@@ -151,7 +151,7 @@ Unlike `model`, `alias` does not create a new entity, and as such will not chang
 
 ### Type Literals
 
-API authors often need to describe API shapes in terms of specific literal values. For example, this operation returns this specific integer status code, or this model member can be one of a few specific string values. It is also often useful to pass specific literal values to decorators. ADL supports string, number, and boolean literal values to support these cases:
+API authors often need to describe API shapes in terms of specific literal values. For example, this operation returns this specific integer status code, or this model member can be one of a few specific string values. It is also often useful to pass specific literal values to decorators. Cadl supports string, number, and boolean literal values to support these cases:
 
 ```
 model BestDog {
@@ -176,7 +176,7 @@ model Dog {
 
 ### Type Operators
 
-ADL supports a few type operators that make it easy to compose new models from other models.
+Cadl supports a few type operators that make it easy to compose new models from other models.
 
 #### Union
 
@@ -229,7 +229,7 @@ op getDog(name: string): Dog | DogNotFound;
 
 ### Namespaces & Usings
 
-Namespaces let you group related types together into namespaces. This helps organize your types making them easier to find and prevents name conflicts. Namespaces are merged across files, so you can reference any type anywhere in your ADL program via its namespace. You can create namespace blocks like the following:
+Namespaces let you group related types together into namespaces. This helps organize your types making them easier to find and prevents name conflicts. Namespaces are merged across files, so you can reference any type anywhere in your Cadl program via its namespace. You can create namespace blocks like the following:
 
 ```
 namespace Models {
@@ -239,15 +239,15 @@ namespace Models {
 operation getDog(): Models.Dog;
 ```
 
-You can also put an entire ADL file into a namespace by using the blockless namespace syntax:
+You can also put an entire Cadl file into a namespace by using the blockless namespace syntax:
 
 ```
-// models.adl
+// models.cadl
 namespace Models;
 model Dog { };
 
-// main.adl
-import "./models.adl";
+// main.cadl
+import "./models.cadl";
 operation getDog(): Models.Dog;
 ```
 
@@ -264,12 +264,12 @@ alias M = A.B.C.D.E.M;
 It can be convenient to add references to a namespace's declarations to your local namespace, especially when namespaces can become deeply nested. The `using` statement lets us do this:
 
 ```
-// models.adl
+// models.cadl
 namespace Service.Models;
 model Dog { };
 
-// main.adl
-import "./models.adl";
+// main.cadl
+import "./models.cadl";
 using ServiceModels;
 operation getDog(): Dog; // here we can use Dog directly.
 ```
@@ -292,30 +292,30 @@ alias C = Test2.B; // ok
 
 ### Imports
 
-Imports add files or libraries to your ADL program. When you compile an ADL file, you provide a path to your root ADL file, by convention called "main.adl". From there, any files you import are added to your program. If you import a directory, ADL will look for a `main.adl` file inside that directory.
+Imports add files or libraries to your Cadl program. When you compile an Cadl file, you provide a path to your root Cadl file, by convention called "main.cadl". From there, any files you import are added to your program. If you import a directory, Cadl will look for a `main.cadl` file inside that directory.
 
-The path you import must either begin with "./" or "../" or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either ".adl" or ".js". The following demonstrates how to use imports to assemble an ADL program from multiple files:
+The path you import must either begin with "./" or "../" or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either ".cadl" or ".js". The following demonstrates how to use imports to assemble an Cadl program from multiple files:
 
 ```
-// main.adl
+// main.cadl
 import "./models";
 op getDog(): Dog;
 
-// models/main.adl
-import "./dog.adl"
+// models/main.cadl
+import "./dog.cadl"
 
-// models/dog.adl
+// models/dog.cadl
 namespace Models;
 model Dog { }
 ```
 
 ### Decorators
 
-Decorators enable a developer to attach metadata to types in an ADL program. They can also be used to calculate types based on their inputs. Decorators are the backbone of ADL's extensibility and give it the flexibility to describe many different kinds of APIs and associated metadata like documentation, constraints, samples, and the like.
+Decorators enable a developer to attach metadata to types in an Cadl program. They can also be used to calculate types based on their inputs. Decorators are the backbone of Cadl's extensibility and give it the flexibility to describe many different kinds of APIs and associated metadata like documentation, constraints, samples, and the like.
 
-Many ADL constructs can be decorated, including namespaces, operations and their parameters, and models and their members.
+Many Cadl constructs can be decorated, including namespaces, operations and their parameters, and models and their members.
 
-Decorators are defined using JavaScript functions that are exported from a standard ECMAScript module. When you import a JavaScript file, ADL will look for any exported functions, and make them available as decorators inside the ADL syntax. When a decoratorated declaration is evaluated by ADL, it will invoke the decorator function, passing along a reference to the current compilation, an object representing the type it is attached to, and any arguments the user provided to the decorator.
+Decorators are defined using JavaScript functions that are exported from a standard ECMAScript module. When you import a JavaScript file, Cadl will look for any exported functions, and make them available as decorators inside the Cadl syntax. When a decoratorated declaration is evaluated by Cadl, it will invoke the decorator function, passing along a reference to the current compilation, an object representing the type it is attached to, and any arguments the user provided to the decorator.
 
 Decorators are attached by adding the decorator before the element you want to decorate, prefixing the name of the decorator with `@`. Arguments can be provided by using parentheses in a manner similar to many programming languages, e.g. `@dec(1, "hi", { a: string })`. The parentheses can be omitted when no arguments are provided.
 
@@ -329,7 +329,7 @@ export function logType(compilation, targetType, name) {
 ```
 
 ```
-// main.adl
+// main.cadl
 import "./model.js"
 
 @logType("Dog type")
@@ -339,7 +339,7 @@ model Dog {
 };
 ```
 
-After running this ADL program, the following will be printed to the console:
+After running this Cadl program, the following will be printed to the console:
 
 ```
 Name type: ModelProperty
@@ -348,7 +348,7 @@ Dog type: Model
 
 #### Built-in decorators
 
-ADL comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
+Cadl comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
 
 * @doc - attach a documentation string. Works great with multi-line string literals.
 * @tag - attach a simple tag to a declaration
@@ -392,41 +392,41 @@ model WriteDog {
 
 ### Libraries
 
-ADL libraries are bundles of useful ADL declarations and decorators into reusable packages. ADL libraries are actually npm packages under the covers. Official `adl` libraries can be found with the `@@azure-tools/adl-` npm package name prefix.
+Cadl libraries are bundles of useful Cadl declarations and decorators into reusable packages. Cadl libraries are actually npm packages under the covers. Official Cadl libraries can be found with the `@azure-tools/cadl-` npm package name prefix.
 
 #### Using libraries
 
 The first step in using a library is to install it via `npm`. You can get `npm` and `node` from the [Node.js website](https://nodejs.org).
 
-If you haven't already intiialized your ADL project's package.json file, now would be a good time to do so. The package.json file lets you track the dependencies your project depends on, and is a best practice to check in along with any ADL files you create. Run `npm init` create your package.json file.
+If you haven't already intiialized your Cadl project's package.json file, now would be a good time to do so. The package.json file lets you track the dependencies your project depends on, and is a best practice to check in along with any Cadl files you create. Run `npm init` create your package.json file.
 
-Then, in your ADL project directory, type `npm install libraryName` to install a library. For example, to install the official ADL REST API bindings and OpenAPI generator, you would type `npm install @azure-tools/adl-rest @azure-tools/adl-openapi`.
+Then, in your Cadl project directory, type `npm install libraryName` to install a library. For example, to install the official Cadl REST API bindings and OpenAPI generator, you would type `npm install @azure-tools/cadl-rest @azure-tools/cadl-openapi`.
 
-Lastly, you need to import the libraries into your ADL program. By convention, all external dependencies are imported in your `main.adl` file, but can be in any ADL file imported into your program. Importing the two libraries we installed above would look like this:
+Lastly, you need to import the libraries into your Cadl program. By convention, all external dependencies are imported in your `main.cadl` file, but can be in any Cadl file imported into your program. Importing the two libraries we installed above would look like this:
 
 ```
-// in main.adl
-import "@azure-tools/adl-rest";
-import "@azure-tools/adl-openapi";
+// in main.cadl
+import "@azure-tools/cadl-rest";
+import "@azure-tools/cadl-openapi";
 ```
 
 #### Creating libraries
 
-Creating an ADL library is essentially the same as creating any NPM library. [Consult the official documentation for more info](https://docs.npmjs.com/creating-node-js-modules). `main` should refer to a JS file that exports all your library's decorators and helper utilities.
+Creating an Cadl library is essentially the same as creating any NPM library. [Consult the official documentation for more info](https://docs.npmjs.com/creating-node-js-modules). `main` should refer to a JS file that exports all your library's decorators and helper utilities.
 
-The package.json file for an ADL library requires one additional field: `adlMain`, which refers to the root file of your ADL program similar to how `main` refers to the root of a JS program. If you don't have any ADL declarations, `adlMain` can be identical to `main`.
+The package.json file for an Cadl library requires one additional field: `cadlMain`, which refers to the root file of your Cadl program similar to how `main` refers to the root of a JS program. If you don't have any Cadl declarations, `cadlMain` can be identical to `main`.
 
 ### REST APIs
 
-With the language building blocks we've covered so far we're ready to author our first REST API. ADL has an official REST API "binding" called `@azure-tools/adl-rest`. It's a set of ADL declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
+With the language building blocks we've covered so far we're ready to author our first REST API. Cadl has an official REST API "binding" called `@azure-tools/cadl-rest`. It's a set of Cadl declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
 
-ADL also has an official OpenAPI emitter called `@azure-tools/adl-openapi` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
+Cadl also has an official OpenAPI emitter called `@azure-tools/cadl-openapi` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
 
-The following examples assume you have imported both `@azure-tools/adl-openapi` and `@azure-tools/adl-rest` somewhere in your ADL program (though importing them in `main.adl` is the standard convention).
+The following examples assume you have imported both `@azure-tools/cadl-openapi` and `@azure-tools/cadl-rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention).
 
 #### Service definition and metadata
 
-A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. ADL offers the following decorators for providing this metadata, and all are optional.
+A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. Cadl offers the following decorators for providing this metadata, and all are optional.
 
 * @serviceTitle - the title of the service
 * @serviceVersion - the version of the service. Can be any string, but later version should lexigraphically sort after earlier versions
@@ -478,7 +478,7 @@ namespace Pets {
 }
 ```
 
-Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following ADL. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
+Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following Cadl. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
 
 ```
 @resource("/pets/{petId}/toys")
@@ -533,7 +533,7 @@ namespace Pets {
 
 #### Built-in request shapes
 
-Since status codes are so common for REST APIs, ADL comes with some built-in types for common status codes so you don't need to declare status codes so frequently. Lets update our sample one last time to use these built-in response types:
+Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently. Lets update our sample one last time to use these built-in response types:
 
 ```
 @resource("/pets")
@@ -546,4 +546,4 @@ namespace Pets {
 
 ## Next steps
 
-Check out the [samples directory](https://github.com/Azure/adl/tree/master/packages/adl-samples/) for more detailed real world examples of ADL in action!
+Check out the [samples directory](https://github.com/Azure/adl/tree/master/packages/cadl-samples/) for more detailed real world examples of Cadl in action!

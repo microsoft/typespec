@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "types": ["node", "mocha"]
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["dist", "node_modules", "temp", "cadl-output"]
+}

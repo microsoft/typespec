@@ -1,0 +1,34 @@
+{
+  "name": "@azure-tools/cadl-vs",
+  "author": "Microsoft Corporation",
+  "version": "0.2.0",
+  "description": "Cadl Language Support for Visual Studio",
+  "homepage": "https://github.com/Azure/adl",
+  "readme": "https://github.com/Azure/adl/blob/master/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/adl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/adl/issues"
+  },
+  "keywords": [
+    "cadl"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "Microsoft.Cadl.VS2019.vsix",
+    "Microsoft.Cadl.VS2022.vsix"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "cadl-vscode": "0.6.0"
+  }
+}

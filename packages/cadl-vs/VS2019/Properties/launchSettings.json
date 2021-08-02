@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Visual Studio Extension": {
+      "commandName": "Executable",
+      "executablePath": "$(DevEnvDir)devenv.exe",
+      "commandLineArgs": "/rootSuffix Exp ../../../../cadl-samples/petstore",
+      "environmentVariables": {
+        "CADL_SERVER_NODE_OPTIONS": "--nolazy --inspect=4242",
+        "CADL_DEVELOPMENT_MODE": "true"
+      }
+    }
+  }
+}

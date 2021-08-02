@@ -1,6 +1,0 @@
-import "MyLib";
-import "CustomAdlMain";
-
-@myLibDec
-model A { x: MyLib.Model };
-model B { x: CustomAdlMain.Model };

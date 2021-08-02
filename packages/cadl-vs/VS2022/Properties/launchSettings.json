@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "N/A": {
+      "commandName": "Executable",
+      "executablePath": "cmd.exe",
+      "commandLineArgs": "/c echo Use Microsoft.Cadl.VS2019 project to launch, even when using VS 2022."
+    }
+  }
+}
