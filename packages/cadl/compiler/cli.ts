@@ -12,98 +12,156 @@ import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { formatCadlFiles } from "./formatter.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
-const args = yargs(process.argv.slice(2))
-  .scriptName("cadl")
-  .help()
-  .strict()
-  .command("compile <path>", "Compile Cadl source.", (cmd) => {
-    return cmd
-      .positional("path", {
-        description: "The path to the main.cadl file or directory containing main.cadl.",
-        type: "string",
-      })
-      .option("output-path", {
-        type: "string",
-        default: "./cadl-output",
-        describe:
-          "The output path for generated artifacts.  If it does not exist, it will be created.",
-      })
-      .option("option", {
-        type: "array",
-        string: true,
-        describe:
-          "Key/value pairs that can be passed to Cadl components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
-      })
-      .option("nostdlib", {
-        type: "boolean",
-        default: false,
-        describe: "Don't load the Cadl standard library.",
-      });
-  })
-  .command("generate <path>", "Generate client code from Cadl source.", (cmd) => {
-    return (
-      cmd
-        .positional("path", {
-          description: "The path to folder containing .cadl files",
-          type: "string",
-        })
-        .option("client", {
-          type: "boolean",
-          describe: "Generate a client library for the Cadl definition",
-        })
-        .option("language", {
-          type: "string",
-          choices: ["typescript", "csharp", "python"],
-          describe: "The language to use for code generation",
-        })
-        .option("output-path", {
-          type: "string",
-          default: "./cadl-output",
-          describe:
-            "The output path for generated artifacts.  If it does not exist, it will be created.",
-        })
-        .option("option", {
-          type: "array",
-          string: true,
-          describe:
-            "Key/value pairs that can be passed to Cadl components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
-        })
-        // we can't generate anything but a client yet
-        .demandOption("client")
-        // and language is required to do so
-        .demandOption("language")
-    );
-  })
-  .command("code", "Manage VS Code Extension.", (cmd) => {
-    return cmd
-      .demandCommand(1, "No command specified.")
-      .command("install", "Install VS Code Extension")
-      .command("uninstall", "Uninstall VS Code Extension")
-      .option("insiders", { type: "boolean", description: "Use VS Code Insiders" });
-  })
-  .command("vs", "Manage Visual Studio Extension.", (cmd) => {
-    return cmd
-      .demandCommand(1, "No command specified")
-      .command("install", "Install Visual Studio Extension.")
-      .command("uninstall", "Uninstall VS Extension");
-  })
-  .command("format <include...>", "Format given list of Cadl files.", (cmd) => {
-    return cmd.positional("include", {
-      description: "Wildcard pattern of the list of files.",
-      type: "string",
-      array: true,
-    });
-  })
-  .command("info", "Show information about current Cadl compiler.")
-  .option("debug", {
-    type: "boolean",
-    description: "Output debug log messages.",
-  })
-  .version(cadlVersion)
-  .demandCommand(1, "You must use one of the supported commands.").argv;
+async function main() {
+  console.log(`Cadl compiler v${cadlVersion}\n`);
 
-async function compileInput(compilerOptions: CompilerOptions, printSuccess = true) {
-  const program = await compile(args.path!, NodeHost, compilerOptions);
+  await yargs(process.argv.slice(2))
+    .scriptName("cadl")
+    .help()
+    .strict()
+    .option("debug", {
+      type: "boolean",
+      description: "Output debug log messages.",
+      default: false,
+    })
+    .command(
+      "compile <path>",
+      "Compile Cadl source.",
+      (cmd) => {
+        return cmd
+          .positional("path", {
+            description: "The path to the main.cadl file or directory containing main.cadl.",
+            type: "string",
+            demandOption: true,
+          })
+          .option("output-path", {
+            type: "string",
+            default: "./cadl-output",
+            describe:
+              "The output path for generated artifacts.  If it does not exist, it will be created.",
+          })
+          .option("option", {
+            type: "array",
+            string: true,
+            describe:
+              "Key/value pairs that can be passed to Cadl components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
+          })
+          .option("nostdlib", {
+            type: "boolean",
+            default: false,
+            describe: "Don't load the Cadl standard library.",
+          });
+      },
+      async (args) => {
+        const options = await getCompilerOptions(args);
+        await compileInput(args.path, options);
+      }
+    )
+    .command(
+      "generate <path>",
+      "Generate client code from Cadl source.",
+      (cmd) => {
+        return (
+          cmd
+            .positional("path", {
+              description: "The path to folder containing .cadl files",
+              type: "string",
+              demandOption: true,
+            })
+            .option("client", {
+              type: "boolean",
+              describe: "Generate a client library for the Cadl definition",
+            })
+            .option("language", {
+              type: "string",
+              choices: ["typescript", "csharp", "python"],
+              describe: "The language to use for code generation",
+            })
+            .option("output-path", {
+              type: "string",
+              default: "./cadl-output",
+              describe:
+                "The output path for generated artifacts.  If it does not exist, it will be created.",
+            })
+            .option("option", {
+              type: "array",
+              string: true,
+              describe:
+                "Key/value pairs that can be passed to Cadl components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
+            })
+            // we can't generate anything but a client yet
+            .demandOption("client")
+            // and language is required to do so
+            .demandOption("language")
+        );
+      },
+      async (args) => {
+        const options = await getCompilerOptions(args);
+        await compileInput(args.path, options, false);
+        if (args.client) {
+          await generateClient(args["output-path"], args.language, options);
+        }
+      }
+    )
+    .command("code", "Manage VS Code Extension.", (cmd) => {
+      return cmd
+        .demandCommand(1, "No command specified.")
+        .option("insiders", {
+          type: "boolean",
+          description: "Use VS Code Insiders",
+          default: false,
+        })
+        .command(
+          "install",
+          "Install VS Code Extension",
+          () => {},
+          (args) => installVSCodeExtension(args.insiders, args.debug)
+        )
+        .command(
+          "uninstall",
+          "Uninstall VS Code Extension",
+          () => {},
+          (args) => uninstallVSCodeExtension(args.insiders, args.debug)
+        );
+    })
+    .command("vs", "Manage Visual Studio Extension.", (cmd) => {
+      return cmd
+        .demandCommand(1, "No command specified")
+        .command(
+          "install",
+          "Install Visual Studio Extension.",
+          () => {},
+          (args) => installVSExtension(args.debug)
+        )
+        .command("uninstall", "Uninstall VS Extension", undefined, () => uninstallVSExtension());
+    })
+    .command(
+      "format <include...>",
+      "Format given list of Cadl files.",
+      (cmd) => {
+        return cmd.positional("include", {
+          description: "Wildcard pattern of the list of files.",
+          type: "string",
+          array: true,
+          demandOption: true,
+        });
+      },
+      async (args) => {
+        await formatCadlFiles(args["include"], { debug: args.debug });
+      }
+    )
+    .command(
+      "info",
+      "Show information about current Cadl compiler.",
+      () => {},
+      () => printInfo()
+    )
+    .version(cadlVersion)
+    .demandCommand(1, "You must use one of the supported commands.").argv;
+}
+
+async function compileInput(path: string, compilerOptions: CompilerOptions, printSuccess = true) {
+  const program = await compile(path, NodeHost, compilerOptions);
   logDiagnostics(program.diagnostics, console.error);
   if (program.hasError()) {
     process.exit(1);
@@ -115,7 +173,11 @@ async function compileInput(compilerOptions: CompilerOptions, printSuccess = tru
   }
 }
 
-async function getCompilerOptions(): Promise<CompilerOptions> {
+async function getCompilerOptions(args: {
+  "output-path": string;
+  nostdlib?: boolean;
+  option?: string[];
+}): Promise<CompilerOptions> {
   // Ensure output path
   const outputPath = resolve(args["output-path"]);
   await mkdirp(outputPath);
@@ -139,8 +201,8 @@ async function getCompilerOptions(): Promise<CompilerOptions> {
   };
 }
 
-async function generateClient(options: CompilerOptions) {
-  const clientPath = resolve(args["output-path"], "client");
+async function generateClient(outputPath: string, language: string, options: CompilerOptions) {
+  const clientPath = resolve(outputPath, "client");
   const autoRestBin = process.platform === "win32" ? "autorest.cmd" : "autorest";
   const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
 
@@ -149,7 +211,7 @@ async function generateClient(options: CompilerOptions) {
   const result = run(
     url.fileURLToPath(autoRestPath),
     [
-      `--${args.language}`,
+      `--${language}`,
       `--clear-output-folder=true`,
       `--output-folder=${clientPath}`,
       `--title=CadlClient`,
@@ -168,13 +230,13 @@ async function generateClient(options: CompilerOptions) {
   }
 }
 
-async function installVsix(pkg: string, install: (vsixPaths: string[]) => void) {
+async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, debug: boolean) {
   // download npm package to temporary directory
   const temp = await mkdtemp(join(os.tmpdir(), "cadl"));
   const npmArgs = ["install"];
 
   // hide npm output unless --debug was passed to cadl
-  if (!args.debug) {
+  if (!debug) {
     npmArgs.push("--silent");
   }
 
@@ -190,7 +252,7 @@ async function installVsix(pkg: string, install: (vsixPaths: string[]) => void) 
   // environment variable.
   npmArgs.push(process.env.CADL_DEBUG_VSIX_TGZ ?? pkg);
 
-  run("npm", npmArgs, { cwd: temp });
+  run("npm", npmArgs, { cwd: temp, debug });
 
   // locate .vsix
   const dir = join(temp, "node_modules", pkg);
@@ -214,21 +276,26 @@ async function installVsix(pkg: string, install: (vsixPaths: string[]) => void) 
   await rmdir(temp, { recursive: true });
 }
 
-async function runCode(codeArgs: string[]) {
-  await run(args.insiders ? "code-insiders" : "code", codeArgs, {
+async function runCode(codeArgs: string[], insiders: boolean, debug: boolean) {
+  await run(insiders ? "code-insiders" : "code", codeArgs, {
     // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
     extraEnv: { NODE_NO_WARNINGS: "1" },
+    debug,
   });
 }
 
-async function installVSCodeExtension() {
-  await installVsix("cadl-vscode", (vsixPaths) => {
-    runCode(["--install-extension", vsixPaths[0]]);
-  });
+async function installVSCodeExtension(insiders: boolean, debug: boolean) {
+  await installVsix(
+    "cadl-vscode",
+    (vsixPaths) => {
+      runCode(["--install-extension", vsixPaths[0]], insiders, debug);
+    },
+    debug
+  );
 }
 
-async function uninstallVSCodeExtension() {
-  await runCode(["--uninstall-extension", "microsoft.cadl-vscode"]);
+async function uninstallVSCodeExtension(insiders: boolean, debug: boolean) {
+  await runCode(["--uninstall-extension", "microsoft.cadl-vscode"], insiders, debug);
 }
 
 function getVsixInstallerPath(): string {
@@ -267,7 +334,7 @@ const VSIX_ALREADY_INSTALLED = 1001;
 const VSIX_NOT_INSTALLED = 1002;
 const VSIX_USER_CANCELED = 2005;
 
-async function installVSExtension() {
+async function installVSExtension(debug: boolean) {
   const vsixInstaller = getVsixInstallerPath();
   const versionMap = new Map([
     [
@@ -300,19 +367,23 @@ async function installVSExtension() {
     process.exit(1);
   }
 
-  await installVsix("@azure-tools/cadl-vs", (vsixPaths) => {
-    for (const vsix of vsixPaths) {
-      const vsixFilename = basename(vsix);
-      const entry = versionMap.get(vsixFilename);
-      compilerAssert(entry, "Unexpected vsix filename:" + vsix);
-      if (entry.installed) {
-        console.log(`Installing extension for Visual Studio ${entry?.friendlyVersion}...`);
-        run(vsixInstaller, [vsix], {
-          allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
-        });
+  await installVsix(
+    "@azure-tools/cadl-vs",
+    (vsixPaths) => {
+      for (const vsix of vsixPaths) {
+        const vsixFilename = basename(vsix);
+        const entry = versionMap.get(vsixFilename);
+        compilerAssert(entry, "Unexpected vsix filename:" + vsix);
+        if (entry.installed) {
+          console.log(`Installing extension for Visual Studio ${entry?.friendlyVersion}...`);
+          run(vsixInstaller, [vsix], {
+            allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
+          });
+        }
       }
-    }
-  });
+    },
+    debug
+  );
 }
 
 async function uninstallVSExtension() {
@@ -349,13 +420,14 @@ async function printInfo() {
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
 
 interface RunOptions extends Partial<SpawnSyncOptionsWithStringEncoding> {
+  debug?: boolean;
   extraEnv?: NodeJS.ProcessEnv;
   allowNotFound?: boolean;
   allowedExitCodes?: number[];
 }
 
 function run(command: string, commandArgs: string[], options?: RunOptions) {
-  if (args.debug) {
+  if (options?.debug) {
     if (options) {
       console.log(options);
     }
@@ -381,14 +453,14 @@ function run(command: string, commandArgs: string[], options?: RunOptions) {
   };
 
   const proc = spawnSync(command, commandArgs, finalOptions);
-  if (args.debug) {
+  if (options?.debug) {
     console.log(proc);
   }
 
   if (proc.error) {
     if ((proc.error as any).code === "ENOENT" && !options?.allowNotFound) {
       console.error(`error: Command '${baseCommandName}' not found.`);
-      if (args.debug) {
+      if (options?.debug) {
         console.log(proc.error.stack);
       }
       process.exit(1);
@@ -407,55 +479,6 @@ function run(command: string, commandArgs: string[], options?: RunOptions) {
   }
 
   return proc;
-}
-
-async function main() {
-  console.log(`Cadl compiler v${cadlVersion}\n`);
-  const command = args._[0];
-  let options: CompilerOptions;
-  let action: string | number;
-
-  switch (command) {
-    case "info":
-      printInfo();
-      break;
-    case "compile":
-      options = await getCompilerOptions();
-      await compileInput(options);
-      break;
-    case "generate":
-      options = await getCompilerOptions();
-      await compileInput(options, false);
-      if (args.client) {
-        await generateClient(options);
-      }
-      break;
-    case "code":
-      action = args._[1];
-      switch (action) {
-        case "install":
-          await installVSCodeExtension();
-          break;
-        case "uninstall":
-          await uninstallVSCodeExtension();
-          break;
-      }
-      break;
-    case "vs":
-      action = args._[1];
-      switch (action) {
-        case "install":
-          await installVSExtension();
-          break;
-        case "uninstall":
-          await uninstallVSExtension();
-          break;
-      }
-      break;
-    case "format":
-      await formatCadlFiles(args["include"]!, { debug: args.debug });
-      break;
-  }
 }
 
 function internalCompilerError(error: Error) {
