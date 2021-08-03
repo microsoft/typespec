@@ -27,6 +27,33 @@ describe("cadl: models", () => {
     };
   });
 
+  it("doesn't allow duplicate properties", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      model A { x: int32; x: int32; }
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    strictEqual(diagnostics.length, 1);
+    match(diagnostics[0].message, /Model already has a property/);
+  });
+
+  describe("with extends", () => {
+    it("doesn't allow duplicate properties", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A { x: int32 }
+        model B extends A { x: int32 };
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      strictEqual(diagnostics.length, 1);
+      match(diagnostics[0].message, /Model has an inherited property/);
+    });
+  });
+
   describe("with is", () => {
     let testHost: TestHost;
     let blues = new WeakSet();

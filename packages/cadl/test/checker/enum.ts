@@ -1,4 +1,4 @@
-import { ok, strictEqual } from "assert";
+import { match, ok, strictEqual } from "assert";
 import { EnumMemberType, EnumType, ModelType } from "../../compiler/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
@@ -72,5 +72,17 @@ describe("cadl: enums", () => {
 
     ok(Foo);
     strictEqual(Foo.properties.get("prop")!.type.kind, "Enum");
+  });
+
+  it("can't have duplicate variants", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      enum A { A, A }
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    strictEqual(diagnostics.length, 1);
+    match(diagnostics[0].message, /Enum already has a member/);
   });
 });

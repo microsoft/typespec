@@ -759,8 +759,12 @@ export function createChecker(program: Program): Checker {
       type,
     };
 
+    const inheritedPropNames = new Set(
+      Array.from(walkPropertiesInherited(type)).map((v) => v.name)
+    );
+
     // Evaluate the properties after
-    checkModelProperties(node, properties);
+    checkModelProperties(node, properties, inheritedPropNames);
 
     if (
       (instantiatingThisTemplate &&
@@ -799,30 +803,43 @@ export function createChecker(program: Program): Checker {
 
   function checkModelProperties(
     node: ModelExpressionNode | ModelStatementNode,
-    properties: Map<string, ModelTypeProperty>
+    properties: Map<string, ModelTypeProperty>,
+    inheritedPropertyNames?: Set<string>
   ) {
     for (const prop of node.properties!) {
       if ("id" in prop) {
-        const propType = getTypeForNode(prop) as ModelTypeProperty;
-        if (properties.has(propType.name)) {
-          program.reportDiagnostic(`Model already has a property named ${propType.name}`, node);
-          continue;
-        }
-        properties.set(propType.name, propType);
+        const newProp = getTypeForNode(prop) as ModelTypeProperty;
+        defineProperty(properties, newProp, inheritedPropertyNames);
       } else {
         // spread property
         const newProperties = checkSpreadProperty(prop.target);
 
         for (const newProp of newProperties) {
-          if (properties.has(newProp.name)) {
-            program.reportDiagnostic(`Model already has a property named ${newProp.name}`, node);
-            continue;
-          }
-
-          properties.set(newProp.name, newProp);
+          defineProperty(properties, newProp, inheritedPropertyNames);
         }
       }
     }
+  }
+
+  function defineProperty(
+    properties: Map<string, ModelTypeProperty>,
+    newProp: ModelTypeProperty,
+    inheritedPropertyNames?: Set<string>
+  ) {
+    if (properties.has(newProp.name)) {
+      program.reportDiagnostic(`Model already has a property named ${newProp.name}`, newProp);
+      return;
+    }
+
+    if (inheritedPropertyNames?.has(newProp.name)) {
+      program.reportDiagnostic(
+        `Model has an inherited property named ${newProp.name} which cannot be overridden`,
+        newProp
+      );
+      return;
+    }
+
+    properties.set(newProp.name, newProp);
   }
 
   function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
@@ -975,7 +992,15 @@ export function createChecker(program: Program): Checker {
         decorators,
       };
 
-      node.members.map((m) => enumType.members.push(checkEnumMember(enumType, m)));
+      const memberNames = new Set<string>();
+
+      for (const member of node.members) {
+        const memberType = checkEnumMember(enumType, member, memberNames);
+        if (memberType) {
+          memberNames.add(memberType.name);
+          enumType.members.push(memberType);
+        }
+      }
 
       createType(enumType);
 
@@ -985,11 +1010,18 @@ export function createChecker(program: Program): Checker {
     return links.type;
   }
 
-  function checkEnumMember(parentEnum: EnumType, node: EnumMemberNode): EnumMemberType {
+  function checkEnumMember(
+    parentEnum: EnumType,
+    node: EnumMemberNode,
+    existingMemberNames: Set<string>
+  ): EnumMemberType | undefined {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const value = node.value ? node.value.value : undefined;
     const decorators = checkDecorators(node);
-
+    if (existingMemberNames.has(name)) {
+      program.reportDiagnostic(`Enum already has a member named ${name}`, node);
+      return;
+    }
     return createType({
       kind: "EnumMember",
       enum: parentEnum,
