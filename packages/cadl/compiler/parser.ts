@@ -432,15 +432,17 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       parseTemplateParameter
     );
 
-    expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword);
+    expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
-    const heritage: ReferenceExpression[] = parseOptionalModelHeritage();
+    const optionalExtends: ReferenceExpression[] = parseOptionalModelExtends();
+    const optionalIs = optionalExtends.length === 0 ? parseOptionalModelIs() : undefined;
     const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
 
     return {
       kind: SyntaxKind.ModelStatement,
       id,
-      heritage,
+      extends: optionalExtends,
+      is: optionalIs,
       templateParameters,
       decorators,
       properties,
@@ -448,12 +450,19 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseOptionalModelHeritage() {
+  function parseOptionalModelExtends() {
     let heritage: ReferenceExpression[] = [];
     if (parseOptional(Token.ExtendsKeyword)) {
       heritage = parseList(ListKind.Heritage, parseReferenceExpression);
     }
     return heritage;
+  }
+
+  function parseOptionalModelIs() {
+    if (parseOptional(Token.IsKeyword)) {
+      return parseReferenceExpression();
+    }
+    return;
   }
 
   function parseTemplateParameter(
@@ -1074,30 +1083,31 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return false;
   }
 
-  function expectTokenIsOneOf(option1: Token, option2: Token, option3 = Token.None) {
+  function expectTokenIsOneOf(...args: [option1: Token, ...rest: Token[]]) {
     const tok = token();
-    if (tok !== option1 && tok !== option2 && tok !== option3) {
-      errorTokenIsNotOneOf(option1, option2, option3);
-      return Token.None;
+    if (!args.some((expectedToken) => tok === expectedToken)) {
+      errorTokenIsNotOneOf(...args);
     }
     return tok;
   }
 
-  function parseExpectedOneOf(option1: Token, option2: Token, option3 = Token.None) {
-    const tok = expectTokenIsOneOf(option1, option2, option3);
+  function parseExpectedOneOf(...args: [option1: Token, ...rest: Token[]]) {
+    const tok = expectTokenIsOneOf(...args);
     if (tok !== Token.None) {
       nextToken();
     }
     return tok;
   }
 
-  function errorTokenIsNotOneOf(option1: Token, option2: Token, option3 = Token.None) {
-    const location = getAdjustedDefaultLocation(option1);
-    const msg =
-      option3 === Token.None
-        ? `Expected ${TokenDisplay[option1]} or ${TokenDisplay[option2]}.`
-        : `Expected ${TokenDisplay[option1]}, ${TokenDisplay[option2]}, or ${TokenDisplay[option3]}.`;
-
+  function errorTokenIsNotOneOf(...args: [option1: Token, ...rest: Token[]]) {
+    const location = getAdjustedDefaultLocation(args[0]);
+    const displayList = args.map((t, i) => {
+      if (i === args.length - 1) {
+        return `or ${TokenDisplay[t]}`;
+      }
+      return TokenDisplay[t];
+    });
+    const msg = `Expected ${displayList.join(", ")}.`;
     error(msg, location);
   }
 
@@ -1163,7 +1173,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
-        visitEach(cb, node.heritage) ||
+        visitEach(cb, node.extends) ||
+        visitNode(cb, node.is) ||
         visitEach(cb, node.properties)
       );
     case SyntaxKind.EnumStatement:

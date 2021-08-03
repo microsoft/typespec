@@ -18,10 +18,11 @@ describe("cadl: semantic checks on source with parse errors", () => {
     );
 
     const diagnostics = await testHost.diagnose("/");
-    strictEqual(diagnostics.length, 4);
+    strictEqual(diagnostics.length, 5);
     match(diagnostics[0].message, /Property expected/);
     match(diagnostics[1].message, /Unknown identifier Q/);
     match(diagnostics[2].message, /Unknown identifier B/);
     match(diagnostics[3].message, /Unknown identifier C/);
+    match(diagnostics[4].message, /Model already has a property named a/);
   });
 });

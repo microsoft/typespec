@@ -82,6 +82,14 @@ describe("cadl: syntax", () => {
       "model Car { ... A, ... B, c: number, ... D, e: string }",
 
       "model Car { ... A.B, ... C<D> }",
+
+      "model Car is Vehicle { }",
+    ]);
+
+    parseErrorEach([
+      ["model Car is { }", [/Identifier expected/]],
+      ["model Car is Foo extends Bar { }", [/'{' expected/]],
+      ["model Car extends Bar is Foo { }", [/'{' expected/]],
     ]);
   });
 
@@ -215,7 +223,7 @@ describe("cadl: syntax", () => {
           /Cannot decorate import/,
           /Cannot decorate import/,
           /Statement expected/,
-          /Expected '{', '=', or 'extends'/,
+          /Expected '{', '=', 'extends', or 'is'/,
         ],
       ],
       ["model M {}; This is not a valid statement", [/Statement expected/]],
@@ -459,7 +467,9 @@ function parseEach(cases: (string | [string, Callback])[]) {
         assert.strictEqual(
           hasParseError(astNode),
           astNode.parseDiagnostics.some((e) => e.severity === "error"),
-          "root node claims to have no parse errors, but these were reported:\n" + diagnostics
+          "root node claims to have no parse errors, but these were reported:\n" +
+            diagnostics +
+            "\n(If you've added new AST nodes or properties, make sure you implemented the new visitors)"
         );
 
         assert.fail("Unexpected parse errors in test:\n" + diagnostics);

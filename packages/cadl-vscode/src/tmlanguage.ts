@@ -219,6 +219,17 @@ const modelHeritage: BeginEndRule = {
   patterns: [expression],
 };
 
+const isBase: BeginEndRule = {
+  key: "model-is",
+  scope: meta,
+  begin: "\\b(is)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: universalEnd,
+  patterns: [expression],
+};
+
 const modelStatement: BeginEndRule = {
   key: "model-statement",
   scope: meta,
@@ -229,6 +240,7 @@ const modelStatement: BeginEndRule = {
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
     token,
+    isBase,
     modelHeritage, // before expression or `extends` will look like type name
     expression, // enough to match name, type parameters, and body and assignment.
   ],

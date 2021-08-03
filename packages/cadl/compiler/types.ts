@@ -360,7 +360,8 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
   properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
-  heritage: ReferenceExpression[];
+  extends: ReferenceExpression[];
+  is?: ReferenceExpression;
   templateParameters: TemplateParameterDeclarationNode[];
   locals?: SymbolTable;
   decorators: DecoratorExpressionNode[];

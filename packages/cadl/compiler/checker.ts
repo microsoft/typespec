@@ -714,14 +714,39 @@ export function createChecker(program: Program): Checker {
       return links.declaredType;
     }
 
-    const baseModels = checkClassHeritage(node.heritage);
-    const decorators = checkDecorators(node);
+    const isBase = checkModelIs(node.is);
+
+    const decorators: DecoratorApplication[] = [];
+    if (isBase) {
+      // copy decorators
+      decorators.push(...isBase.decorators);
+    }
+    decorators.push(...checkDecorators(node));
+
+    const properties = new Map<string, ModelTypeProperty>();
+    if (isBase) {
+      for (const prop of isBase.properties.values()) {
+        properties.set(
+          prop.name,
+          createType({
+            ...prop,
+          })
+        );
+      }
+    }
+
+    let baseModels;
+    if (isBase) {
+      baseModels = isBase.baseModels;
+    } else {
+      baseModels = checkClassHeritage(node.extends);
+    }
 
     const type: ModelType = {
       kind: "Model",
       name: node.id.sv,
       node: node,
-      properties: new Map<string, ModelTypeProperty>(),
+      properties,
       baseModels: baseModels,
       namespace: getParentNamespaceType(node),
       decorators,
@@ -735,7 +760,7 @@ export function createChecker(program: Program): Checker {
     };
 
     // Evaluate the properties after
-    type.properties = checkModelProperties(node);
+    checkModelProperties(node, properties);
 
     if (
       (instantiatingThisTemplate &&
@@ -758,7 +783,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkModelExpression(node: ModelExpressionNode) {
-    const properties = checkModelProperties(node);
+    const properties = new Map();
+    checkModelProperties(node, properties);
     const type: ModelType = createType({
       kind: "Model",
       name: "",
@@ -771,11 +797,17 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function checkModelProperties(node: ModelExpressionNode | ModelStatementNode) {
-    const properties = new Map();
+  function checkModelProperties(
+    node: ModelExpressionNode | ModelStatementNode,
+    properties: Map<string, ModelTypeProperty>
+  ) {
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const propType = getTypeForNode(prop) as ModelTypeProperty;
+        if (properties.has(propType.name)) {
+          program.reportDiagnostic(`Model already has a property named ${propType.name}`, node);
+          continue;
+        }
         properties.set(propType.name, propType);
       } else {
         // spread property
@@ -791,8 +823,6 @@ export function createChecker(program: Program): Checker {
         }
       }
     }
-
-    return properties;
   }
 
   function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
@@ -810,6 +840,18 @@ export function createChecker(program: Program): Checker {
       baseModels.push(heritageType);
     }
     return baseModels;
+  }
+
+  function checkModelIs(isExpr: ReferenceExpression | undefined): ModelType | undefined {
+    if (!isExpr) return undefined;
+    const isType = getTypeForNode(isExpr);
+
+    if (isType.kind !== "Model") {
+      program.reportDiagnostic("Model `is` must specify another model.", isExpr);
+      return;
+    }
+
+    return isType;
   }
 
   function checkSpreadProperty(targetNode: ReferenceExpression): ModelTypeProperty[] {

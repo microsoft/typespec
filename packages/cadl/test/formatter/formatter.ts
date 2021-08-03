@@ -131,6 +131,24 @@ model Bar extends Base<string> {}
       });
     });
 
+    it("format model with is", () => {
+      assertFormat({
+        code: `
+model   Foo is Base {
+}
+
+model   Bar is Base< 
+  string    > {
+}
+`,
+        expected: `
+model Foo is Base {}
+
+model Bar is Base<string> {}
+`,
+      });
+    });
+
     it("format model with generic", () => {
       assertFormat({
         code: `

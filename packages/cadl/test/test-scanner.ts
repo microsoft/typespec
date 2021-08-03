@@ -100,12 +100,12 @@ function verify(tokens: TokenEntry[], expecting: TokenEntry[]) {
 describe("cadl: scanner", () => {
   /** verifies that we can scan tokens and get back some output. */
   it("smoketest", () => {
-    const all = tokens('\tthis is "a" test');
+    const all = tokens('\tthis was "a" test');
     verify(all, [
       [Token.Whitespace],
       [Token.Identifier, "this", { value: "this" }],
       [Token.Whitespace],
-      [Token.Identifier, "is", { value: "is" }],
+      [Token.Identifier, "was", { value: "was" }],
       [Token.Whitespace],
       [Token.StringLiteral, '"a"', { value: "a" }],
       [Token.Whitespace],
