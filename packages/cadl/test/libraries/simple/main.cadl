@@ -1,0 +1,6 @@
+import "MyLib";
+import "CustomCadlMain";
+
+@myLibDec
+model A { x: MyLib.Model };
+model B { x: CustomCadlMain.Model };

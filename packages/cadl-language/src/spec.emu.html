@@ -1,0 +1,397 @@
+<pre class="metadata">
+copyright: false
+</pre>
+
+<emu-intro id="intro">
+<h1>Introduction</h1>
+<p>This document will eventually have a full specification for Cadl. For now, it just has the grammar below.</p>
+</emu-intro>
+
+<emu-clause id="lexical-grammar">
+<h1>Lexical Grammar</h1>
+<emu-grammar type="definition">
+<![CDATA[
+// TODO: Incorporate remarks in comments below into the eventual specification text.
+
+SourceCharacter :
+    > any Unicode code point
+
+InputElement :
+    Token
+    Trivia
+
+Token :
+    Keyword
+    Identifier
+    NumericLiteral
+    StringLiteral
+    Punctuator
+
+Trivia :
+    Comment
+    WhiteSpace
+
+Keyword :
+    BooleanLiteral
+    `import`
+    `model`
+    `namespace`
+    `op`
+    `extends`
+    `using`
+
+Identifier :
+    IdentifierName but not Keyword
+
+IdentifierName :
+    IdentifierStart
+    IdentifierName IdentifierContinue
+
+IdentifierStart :
+    IdentifierContinue but not DecimalDigit
+
+///
+// This is a profile of UAX31.R2 Immutable Identifiers:
+// http://www.unicode.org/reports/tr31/#R2 
+//
+// The profile adds Pattern_Syntax code points outside the ASCII range, and
+// removes unassigned code points. Unassigned code points are removed to
+// ensure identifier normalization remains stable across versions of
+// Unicode. Non-ASCII Pattern_Syntax characters are added as reserving
+// ASCII characters for future punctuation in the language is sufficient and
+// users may wish to use some of the Non-ASCII Pattern_Syntax characters in
+// identifiers.
+///
+IdentifierContinue :
+    AsciiLetter
+    DecimalDigit
+    `$`
+    `_`
+    > any assigned Unicode code point greater than U+007F that does not have any of the following property values: General_Category=Surrogate, Control or Private_Use, Noncharacter_Code_Point=True, or Pattern_White_Space=True
+
+AsciiLetter : one of
+    `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M` `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
+    `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m` `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
+
+BooleanLiteral :
+    `true`
+    `false`
+
+NumericLiteral :
+    DecimalLiteral
+    HexIntegerLiteral
+    BinaryIntegerLiteral
+
+DecimalLiteral :
+    DecimalIntegerLiteral `.` DecimalDigits ExponentPart?
+    DecimalIntegerLiteral ExponentPart?
+
+DecimalIntegerLiteral :
+    DecimalDigits
+    `+` DecimalDigits
+    `-` DecimalDigits
+
+DecimalDigits :
+    DecimalDigit
+    DecimalDigits DecimalDigit
+
+DecimalDigit : one of
+    `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+
+ExponentPart :
+    `e` DecimalIntegerLiteral
+
+DecimalIntegerInteger :
+    DecimalDigits
+    `+` DecimalDigits
+    `-` DecimalDigits
+
+HexIntegerLiteral :
+    `0x` HexDigits
+
+HexDigits :
+    HexDigit
+    HexDigits HexDigit
+
+HexDigit : one of
+    `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+    `A` `B` `C` `D` `E` `F`
+    `a` `b` `c` `d` `e` `f` 
+
+BinaryIntegerLiteral :
+    `0b` BinaryDigits
+
+BinaryDigits :
+    BinaryDigit
+    BinaryDigits BinaryDigit
+
+BinaryDigit : one of
+    `0` `1`
+
+StringLiteral :
+    `"` StringCharacters? `"`
+    `"""` TripleQuotedStringCharacters? `"""`
+
+StringCharacters :
+    StringCharacter StringCharacters?
+
+StringCharacter :
+    SourceCharacter but not one of `"` or `\` or LineTerminator
+    `\` EscapeCharacter
+    
+///
+// BUG: This does not specify the extra rules about `"""`s going
+// on their own lines and having consistent indentation.
+//
+// BUG: This does not allow `"` inside of `"""`s as it should.
+///
+TripleQuotedStringCharacters :
+    TripleQuotedStringCharacter TripleQuotedStringCharacters?
+
+TripleQuotedStringCharacter :
+    SourceCharacter but not one of `"` or `\`
+    `\` EscapeCharacter
+
+EscapeCharacter : one of
+    `"` `r` `n` `t` `\`
+
+Punctuator : one of 
+    `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...`
+
+///
+// Note that whitespace could also be specified equivalently as "Any Unicode
+// code point with property value Pattern_White_Space=True"
+//
+// However, see http://www.unicode.org/reports/tr31/#Stability
+//
+// "The [...] Pattern_White_Space characters are immutable and will not
+// change over successive versions of Unicode". This is therefore a fixed set
+// of characters, which are simply listed below to serve as a more direct
+// reference:
+//
+//    - U+0009  TAB   HORIZONTAL TAB
+//    - U+000A  LF    LINE FEED
+//    - U+000B  VT    VERTICAL TAB
+//    - U+000C  FF    FORM FEED
+//    - U+000D  CR    CARRIAGE RETURN
+//    - U+0020  SP    SPACE
+//    - U+0085  NEL   NEXT LINE
+//    - U+200E  LRM   LEFT-TO-RIGHT MARK
+//    - U+200F  RLM   RIGHT-TO-LEFT MARK
+//    - U+2028  LS    LINE SEPARATOR
+//    - U+2029  PS    PARAGRAPH SEPARATOR
+//
+// It is deliberately left unspecified which whitespace sequences are
+// considered newlines as no language semnatics are impacted by that choice.
+// Only line and column numbers associated with diagnostics are impacted. In
+// practice, only CR ("MAC"), LF ("UNIX"), and CRLF ("DOS") line endings are
+// currently recognized by our implementation. Additional line endings may be 
+// recognized in the future.
+///
+WhiteSpace :
+    <TAB>
+    <LF>
+    <VT>
+    <FF>
+    <CR>
+    <SP>
+    <NEL>
+    <LRM>
+    <RLM>
+    <LS>
+    <PS>
+
+Comment :
+    MultiLineComment
+    SingleLineComment
+
+MultiLineComment :
+    `/*` MultiLineCommentChars? `*/`
+
+MultiLineCommentChars :
+    MultiLineNotAsteriskChar MultiLineCommentChars?
+    `*` PostAsteriskCommentChars?
+
+PostAsteriskCommentChars :
+    MultiLineNotForwardSlashOrAsteriskChar MultiLineCommentChars?
+    `*` PostAsteriskCommentChars?
+
+MultiLineNotAsteriskChar :
+    SourceCharacter but not `*`
+
+MultiLineNotForwardSlashOrAsteriskChar :
+    SourceCharacter but not one of `/` or `*`
+
+SingleLineComment :
+    `//` SingleLineCommentChars?
+
+SingleLineCommentChars :
+    SingleLineCommentChar SingleLineCommentChars?
+
+SingleLineCommentChar :
+    SourceCharacter but not LineTerminator
+]]>
+</emu-grammar>
+</emu-clause>
+
+<emu-clause id="syntactic-grammar">
+<h1>Syntactic Grammar</h1>
+<emu-grammar type="definition">
+<![CDATA[
+CadlScript :
+    CadlScriptItemList?
+
+CadlScriptItemList :
+    CadlScriptItemList? CadlScriptItem
+
+CadlScriptItem :
+    BlocklessNamespaceStatement
+    ImportStatement
+    Statement
+
+BlocklessNamespaceStatement :
+    DecoratorList? `namespace` IdentifierOrMemberExpression `;`
+
+ImportStatement :
+    `import` StringLiteral `;`
+
+StatementList :
+    StatementList? Statement
+
+Statement :
+    ModelStatement
+    NamespaceStatement
+    OperationStatement
+    UsingStatement
+    EnumStatement
+    AliasStatement
+    `;`
+
+UsingStatement :
+    `using` IdentifierOrMemberExpression `;`
+
+ModelStatement :
+    DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
+
+ModelHeritage :
+    `extends` ReferenceExpressionList
+    `is` ReferenceExpression
+
+ModelBody :
+    ModelPropertyList `,`?
+    ModelPropertyList `;`?
+
+ModelPropertyList :
+    ModelProperty
+    ModelPropertyList `,` ModelProperty
+    ModelPropertyList `;` ModelProperty
+
+ModelProperty:
+    ModelSpreadProperty
+    DecoratorList? Identifier `?`? `:` Expression
+    DecoratorList? StringLiteral `?`? `:` Expression
+
+ModelSpreadProperty :
+    `...` ReferenceExpression
+
+EnumStatement :
+    DecoratorList? `enum` Identifier `{` EnumBody? `}`
+
+EnumBody :
+    EnumMemberList `,`?
+    EnumMemberList `;`?
+
+EnumMemberList :
+    EnumMember
+    EnumMemberList `,` EnumMember
+    EnumMemberList `;` EnumMember
+
+EnumMember :
+    DecoratorList? Identifier EnumMemberValue?
+    DecoratorList? StringLiteral EnumMemberValue?
+
+EnumMemberValue :
+    `:` StringLiteral
+    `:` NumericLiteral
+
+AliasStatement :
+    `alias` Identifier TemplateParameters? `=` Expression;
+
+ReferenceExpressionList :
+    ReferenceExpression
+    ReferenceExpressionList `,` ReferenceExpression
+
+TemplateParameters :
+    `<` IdentifierList `>`
+
+IdentifierList :
+    Identifier
+    IdentifierList `,` Identifier
+
+NamespaceStatement: 
+    DecoratorList? `namespace` IdentifierOrMemberExpression `{` StatementList? `}`
+
+OperationStatement :
+    DecoratorList? `op` Identifier `(` ModelPropertyList? `)` `:` Expression `;`
+
+Expression :
+    UnionExpressionOrHigher
+
+UnionExpressionOrHigher :
+    IntersectionExpressionOrHigher
+    `|`? UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
+
+IntersectionExpressionOrHigher :
+    ArrayExpressionOrHigher
+    `&`? IntersectionExpressionOrHigher `&` ArrayExpressionOrHigher
+
+ArrayExpressionOrHigher :
+    PrimaryExpression
+    ArrayExpressionOrHigher `[` `]`
+
+PrimaryExpression :
+    Literal
+    ReferenceExpression
+    ParenthesizedExpression
+    ModelExpression
+    TupleExpression
+
+Literal :
+    StringLiteral
+    BooleanLiteral
+    NumericLiteral
+
+ReferenceExpression :
+    IdentifierOrMemberExpression TemplateArguments?
+
+IdentifierOrMemberExpression :
+    Identifier
+    IdentifierOrMemberExpression `.` Identifier
+
+TemplateArguments :
+    `<` ExpressionList `>`
+
+ParenthesizedExpression : 
+    `(` Expression `)`
+
+ModelExpression :
+    `{` ModelBody? `}`
+
+TupleExpression :
+    `[` ExpressionList `]`
+
+ExpressionList :
+    Expression
+    ExpressionList `,` Expression
+
+DecoratorList :
+    DecoratorList? Decorator
+
+Decorator :
+    `@` IdentifierOrMemberExpression DecoratorArguments?
+
+DecoratorArguments :
+    `(` ExpressionList? `)`
+]]>
+</emu-grammar>
+</emu-clause>

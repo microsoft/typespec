@@ -1,2 +1,0 @@
-import "../dist/lib/decorators.js";
-import "./lib.adl";

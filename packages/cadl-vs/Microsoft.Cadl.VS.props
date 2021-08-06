@@ -1,0 +1,32 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <DebugType>Embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <LangVersion>Latest</LangVersion>
+    <Nullable>Enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>5</WarningLevel>
+    <Features>strict</Features>
+    <!-- Official build will pass in the real version from package.json, see scripts/build.js -->
+    <Version>42.42.42</Version>
+    <!-- Deployment enabled dynamically in targets if building in visual studio -->
+    <DeployExtension>false</DeployExtension>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TargetVsixContainer>$(MSBuildThisFileDirectory)$(AssemblyName).vsix</TargetVsixContainer>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Visible="False" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)src/**/*.cs" LinkBase="src" />
+    <Content Include="$(MSBuildThisFileDirectory)LICENSE" />
+    <Content Include="$(MSBuildThisFileDirectory)*.pkgdef" />
+    <Content Include="$(MSBuildThisFileDirectory)node_modules/cadl-vscode/dist/cadl.tmLanguage" Link="TextMate/cadl.tmLanguage" />
+    <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
+  </ItemGroup>
+</Project>

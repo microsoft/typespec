@@ -1,0 +1,97 @@
+{
+  "name": "cadl-vscode",
+  "version": "0.7.0",
+  "author": "Microsoft Corporation",
+  "description": "Cadl Language Support for VS Code",
+  "homepage": "https://github.com/Azure/adl",
+  "readme": "https://github.com/Azure/adl/blob/master/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azure/adl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/adl/issues"
+  },
+  "keywords": [
+    "cadl"
+  ],
+  "publisher": "Microsoft",
+  "displayName": "Cadl Language Support for VS Code",
+  "categories": [
+    "Programming Languages"
+  ],
+  "type": "commonjs",
+  "main": "./extension-shim.js",
+  "engines": {
+    "vscode": "^1.53.0"
+  },
+  "activationEvents": [
+    "onLanguage:cadl"
+  ],
+  "files": [
+    "cadl-vscode-*.vsix",
+    "ThirdPartyNotices.txt"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "cadl",
+        "aliases": [
+          "Cadl",
+          "CADL"
+        ],
+        "extensions": [
+          ".cadl"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "Cadl Language Server Path",
+        "properties": {
+          "cadl.cadl-server.path": {
+            "type": "string",
+            "default": "",
+            "description": "Path to `cadl-server` command that runs the Cadl language server.\n\nIf not specified, then `cadl-server` found on PATH is used.\n\nExample (User): /usr/local/bin/cadl-server\nExample (Workspace): ${workspaceRoot}/node_modules/.bin/cadl-server",
+            "scope": "machine-overridable"
+          }
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "cadl",
+        "scopeName": "source.cadl",
+        "path": "./dist/cadl.tmLanguage"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "npm run compile && npm run rollup && npm run generate-tmlanguage && npm run generate-third-party-notices && npm run package-vsix",
+    "compile": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
+    "dogfood": "node scripts/dogfood.js",
+    "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
+    "generate-third-party-notices": "node ../../eng/scripts/generate-third-party-notices",
+    "rollup": "rollup --config --failAfterWarnings 2>&1",
+    "package-vsix": "vsce package --yarn"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@azure-tools/tmlanguage-generator": "0.1.4",
+    "@rollup/plugin-commonjs": "~17.1.0",
+    "@rollup/plugin-node-resolve": "~11.2.0",
+    "@types/mkdirp": "~1.0.1",
+    "@types/node": "~14.0.27",
+    "@types/vscode": "~1.53.0",
+    "mkdirp": "~1.0.4",
+    "rollup": "~2.41.4",
+    "typescript": "~4.3.2",
+    "vsce": "~1.85.1",
+    "vscode-languageclient": "~7.0.0",
+    "watch": "~1.0.2"
+  }
+}
