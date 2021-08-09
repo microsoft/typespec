@@ -1,12 +1,13 @@
 import { spawnSync, SpawnSyncOptionsWithStringEncoding } from "child_process";
 import { mkdtemp, readdir, rmdir } from "fs/promises";
 import mkdirp from "mkdirp";
+import watch from "node-watch";
 import os from "os";
-import { basename, join, resolve } from "path";
+import { basename, extname, join, resolve } from "path";
 import url from "url";
 import yargs from "yargs";
 import { CompilerOptions } from "../compiler/options.js";
-import { compile } from "../compiler/program.js";
+import { compile, Program } from "../compiler/program.js";
 import { loadCadlConfigInDir } from "../config/index.js";
 import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { formatCadlFiles } from "./formatter.js";
@@ -50,6 +51,11 @@ async function main() {
             type: "boolean",
             default: false,
             describe: "Don't load the Cadl standard library.",
+          })
+          .option("watch", {
+            type: "boolean",
+            default: false,
+            describe: "Watch project files for changes and recompile.",
           });
       },
       async (args) => {
@@ -160,16 +166,79 @@ async function main() {
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
 
-async function compileInput(path: string, compilerOptions: CompilerOptions, printSuccess = true) {
-  const program = await compile(path, NodeHost, compilerOptions);
-  logDiagnostics(program.diagnostics, console.error);
-  if (program.hasError()) {
-    process.exit(1);
-  }
-  if (printSuccess) {
-    console.log(
-      `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
-    );
+function compileInput(
+  path: string,
+  compilerOptions: CompilerOptions,
+  printSuccess = true
+): Promise<Program> {
+  let compileRequested: boolean = false;
+  let currentCompilePromise: Promise<Program> | undefined = undefined;
+
+  let log = (message?: any, ...optionalParams: any[]) => {
+    let prefix = compilerOptions.watchForChanges ? `[${new Date().toLocaleTimeString()}] ` : "";
+    console.log(`${prefix}${message}`, ...optionalParams);
+  };
+
+  let runCompile = () => {
+    // Don't run the compiler if it's already running
+    if (!currentCompilePromise) {
+      // Clear the console before compiling in watch mode
+      if (compilerOptions.watchForChanges) {
+        console.clear();
+      }
+
+      currentCompilePromise = compile(path, NodeHost, compilerOptions).then(onCompileFinished);
+    } else {
+      compileRequested = true;
+    }
+
+    return currentCompilePromise;
+  };
+
+  let onCompileFinished = (program: Program) => {
+    if (program.diagnostics.length > 0) {
+      log("Diagnostics were reported during compilation:\n");
+      logDiagnostics(program.diagnostics, console.error);
+    } else {
+      if (printSuccess) {
+        log(
+          `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
+        );
+      }
+    }
+
+    console.log(); // Insert a newline
+    currentCompilePromise = undefined;
+    if (compilerOptions.watchForChanges && compileRequested) {
+      compileRequested = false;
+      runCompile();
+    }
+
+    return program;
+  };
+
+  if (compilerOptions.watchForChanges) {
+    runCompile();
+    return new Promise((resolve, reject) => {
+      const watcher = watch(
+        path,
+        {
+          recursive: true,
+          filter: (f) => [".js", ".cadl"].indexOf(extname(f)) > -1 && !/node_modules/.test(f),
+        },
+        (e, name) => {
+          runCompile();
+        }
+      );
+
+      // Handle Ctrl+C for termination
+      process.on("SIGINT", () => {
+        watcher.close();
+        console.info("Terminating watcher...\n");
+      });
+    });
+  } else {
+    return runCompile();
   }
 }
 
@@ -177,6 +246,7 @@ async function getCompilerOptions(args: {
   "output-path": string;
   nostdlib?: boolean;
   option?: string[];
+  watch?: boolean;
 }): Promise<CompilerOptions> {
   // Ensure output path
   const outputPath = resolve(args["output-path"]);
@@ -198,6 +268,7 @@ async function getCompilerOptions(args: {
     outputPath,
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
+    watchForChanges: args["watch"],
   };
 }
 
