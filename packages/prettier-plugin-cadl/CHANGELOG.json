@@ -2,6 +2,18 @@
   "name": "@azure-tools/prettier-plugin-cadl",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@azure-tools/prettier-plugin-cadl_v0.2.1",
+      "date": "Mon, 09 Aug 2021 21:14:12 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@azure-tools/cadl\" from `0.15.0` to `0.16.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@azure-tools/prettier-plugin-cadl_v0.2.0",
       "date": "Mon, 02 Aug 2021 18:17:00 GMT",
