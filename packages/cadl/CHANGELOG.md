@@ -1,6 +1,19 @@
 # Change Log - @azure-tools/cadl
 
-This log was last generated on Mon, 02 Aug 2021 18:17:00 GMT and should not be manually modified.
+This log was last generated on Mon, 09 Aug 2021 21:14:12 GMT and should not be manually modified.
+
+## 0.16.0
+Mon, 09 Aug 2021 21:14:12 GMT
+
+### Minor changes
+
+- Add `compile --watch` option to watch files for changes and recompile
+- Implement model is
+
+### Patches
+
+- **Update** to yargs 17 and update args parsing to use handlers logic to have full type safety
+- Report errors for duplicate model and enum members
 
 ## 0.15.0
 Mon, 02 Aug 2021 18:17:00 GMT
