@@ -1,6 +1,6 @@
 {
   "name": "@azure-tools/prettier-plugin-cadl",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "prettier": "~2.2.1"
   },
   "devDependencies": {
-    "@azure-tools/cadl": "0.15.0",
+    "@azure-tools/cadl": "0.16.0",
     "@rollup/plugin-commonjs": "~17.1.0",
     "@rollup/plugin-json": "~4.1.0",
     "@rollup/plugin-node-resolve": "~11.2.0",

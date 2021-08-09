@@ -2,6 +2,29 @@
   "name": "@azure-tools/cadl",
   "entries": [
     {
+      "version": "0.16.0",
+      "tag": "@azure-tools/cadl_v0.16.0",
+      "date": "Mon, 09 Aug 2021 21:14:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Update** to yargs 17 and update args parsing to use handlers logic to have full type safety"
+          },
+          {
+            "comment": "Report errors for duplicate model and enum members"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Add `compile --watch` option to watch files for changes and recompile"
+          },
+          {
+            "comment": "Implement model is"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.0",
       "tag": "@azure-tools/cadl_v0.15.0",
       "date": "Mon, 02 Aug 2021 18:17:00 GMT",

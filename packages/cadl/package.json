@@ -1,6 +1,6 @@
 {
   "name": "@azure-tools/cadl",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Cadl Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -53,7 +53,8 @@
     "resolve": "~1.20.0",
     "vscode-languageserver-textdocument": "~1.0.1",
     "vscode-languageserver": "~7.0.0",
-    "yargs": "~17.0.1"
+    "yargs": "~17.0.1",
+    "node-watch": "~0.7.1"
   },
   "devDependencies": {
     "@types/glob": "~7.1.3",
