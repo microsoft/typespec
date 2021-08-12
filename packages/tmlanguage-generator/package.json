@@ -1,6 +1,6 @@
 {
-  "name": "@azure-tools/tmlanguage-generator",
-  "version": "0.1.4",
+  "name": "tmlanguage-generator",
+  "version": "0.2.0",
   "author": "Microsoft Corporation",
   "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
   "homepage": "https://github.com/Azure/adl/tree/master/packages/tmlanguage-generator",

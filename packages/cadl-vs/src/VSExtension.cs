@@ -125,7 +125,7 @@ namespace Microsoft.Cadl.VisualStudio {
       // the source tree.
       var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
       var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
-      return Path.GetFullPath(Path.Combine(srcDir, "../cadl/cmd/cadl-server.js"));
+      return Path.GetFullPath(Path.Combine(srcDir, "../compiler/cmd/cadl-server.js"));
     }
 #endif
   }

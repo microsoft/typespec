@@ -400,14 +400,14 @@ The first step in using a library is to install it via `npm`. You can get `npm` 
 
 If you haven't already intiialized your Cadl project's package.json file, now would be a good time to do so. The package.json file lets you track the dependencies your project depends on, and is a best practice to check in along with any Cadl files you create. Run `npm init` create your package.json file.
 
-Then, in your Cadl project directory, type `npm install libraryName` to install a library. For example, to install the official Cadl REST API bindings and OpenAPI generator, you would type `npm install @azure-tools/cadl-rest @azure-tools/cadl-openapi`.
+Then, in your Cadl project directory, type `npm install libraryName` to install a library. For example, to install the official Cadl REST API bindings and OpenAPI generator, you would type `npm install @cadl-lang/rest @azure-tools/cadl-autorest`.
 
 Lastly, you need to import the libraries into your Cadl program. By convention, all external dependencies are imported in your `main.cadl` file, but can be in any Cadl file imported into your program. Importing the two libraries we installed above would look like this:
 
 ```
 // in main.cadl
-import "@azure-tools/cadl-rest";
-import "@azure-tools/cadl-openapi";
+import "@cadl-lang/rest";
+import "@azure-tools/cadl-autorest";
 ```
 
 #### Creating libraries
@@ -418,11 +418,11 @@ The package.json file for an Cadl library requires one additional field: `cadlMa
 
 ### REST APIs
 
-With the language building blocks we've covered so far we're ready to author our first REST API. Cadl has an official REST API "binding" called `@azure-tools/cadl-rest`. It's a set of Cadl declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
+With the language building blocks we've covered so far we're ready to author our first REST API. Cadl has an official REST API "binding" called `@cadl-lang/rest`. It's a set of Cadl declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
 
-Cadl also has an official OpenAPI emitter called `@azure-tools/cadl-openapi` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
+Cadl also has an official OpenAPI emitter called `@azure-tools/cadl-autorest` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
 
-The following examples assume you have imported both `@azure-tools/cadl-openapi` and `@azure-tools/cadl-rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention).
+The following examples assume you have imported both `@azure-tools/cadl-autorest` and `@cadl-lang/rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention).
 
 #### Service definition and metadata
 

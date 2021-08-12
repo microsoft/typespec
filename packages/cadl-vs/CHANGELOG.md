@@ -1,6 +1,13 @@
-# Change Log - @azure-tools/cadl-vs
+# Change Log - cadl-vs
 
-This log was last generated on Mon, 02 Aug 2021 18:17:00 GMT and should not be manually modified.
+This log was last generated on Tue, 10 Aug 2021 20:23:04 GMT and should not be manually modified.
+
+## 0.4.0
+Tue, 10 Aug 2021 20:23:04 GMT
+
+### Minor changes
+
+- Rename package to cadl-vs
 
 ## 0.3.0
 Mon, 02 Aug 2021 18:17:00 GMT
