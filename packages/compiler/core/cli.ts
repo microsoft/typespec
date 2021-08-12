@@ -139,7 +139,12 @@ async function main() {
           () => {},
           (args) => installVSExtension(args.debug)
         )
-        .command("uninstall", "Uninstall VS Extension", undefined, () => uninstallVSExtension());
+        .command(
+          "uninstall",
+          "Uninstall VS Extension",
+          () => {},
+          () => uninstallVSExtension()
+        );
     })
     .command(
       "format <include...>",
