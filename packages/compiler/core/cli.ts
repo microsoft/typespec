@@ -63,52 +63,6 @@ async function main() {
         await compileInput(args.path, options);
       }
     )
-    .command(
-      "generate <path>",
-      "Generate client code from Cadl source.",
-      (cmd) => {
-        return (
-          cmd
-            .positional("path", {
-              description: "The path to folder containing .cadl files",
-              type: "string",
-              demandOption: true,
-            })
-            .option("client", {
-              type: "boolean",
-              describe: "Generate a client library for the Cadl definition",
-            })
-            .option("language", {
-              type: "string",
-              choices: ["typescript", "csharp", "python"],
-              describe: "The language to use for code generation",
-            })
-            .option("output-path", {
-              type: "string",
-              default: "./cadl-output",
-              describe:
-                "The output path for generated artifacts.  If it does not exist, it will be created.",
-            })
-            .option("option", {
-              type: "array",
-              string: true,
-              describe:
-                "Key/value pairs that can be passed to Cadl components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
-            })
-            // we can't generate anything but a client yet
-            .demandOption("client")
-            // and language is required to do so
-            .demandOption("language")
-        );
-      },
-      async (args) => {
-        const options = await getCompilerOptions(args);
-        await compileInput(args.path, options, false);
-        if (args.client) {
-          await generateClient(args["output-path"], args.language, options);
-        }
-      }
-    )
     .command("code", "Manage VS Code Extension.", (cmd) => {
       return cmd
         .demandCommand(1, "No command specified.")
@@ -275,35 +229,6 @@ async function getCompilerOptions(args: {
     nostdlib: args["nostdlib"],
     watchForChanges: args["watch"],
   };
-}
-
-async function generateClient(outputPath: string, language: string, options: CompilerOptions) {
-  const clientPath = resolve(outputPath, "client");
-  const autoRestBin = process.platform === "win32" ? "autorest.cmd" : "autorest";
-  const autoRestPath = new url.URL(`../../node_modules/.bin/${autoRestBin}`, import.meta.url);
-
-  // Execute AutoRest on the output file
-  console.log(); //newline between compilation output and generation output
-  const result = run(
-    url.fileURLToPath(autoRestPath),
-    [
-      `--${language}`,
-      `--clear-output-folder=true`,
-      `--output-folder=${clientPath}`,
-      `--title=CadlClient`,
-      `--input-file=${options.swaggerOutputFile}`,
-    ],
-    {
-      shell: true,
-    }
-  );
-
-  if (result.status === 0) {
-    console.log(`\nGeneration completed successfully, output files are in ${clientPath}.`);
-  } else {
-    console.error("\nClient generation failed.");
-    process.exit(result.status || 1);
-  }
 }
 
 async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, debug: boolean) {
