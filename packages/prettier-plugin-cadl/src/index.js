@@ -1,2 +1,2 @@
-const { CadlPrettierPlugin } = require("@azure-tools/cadl");
+const { CadlPrettierPlugin } = require("@cadl-lang/compiler");
 module.exports = CadlPrettierPlugin;

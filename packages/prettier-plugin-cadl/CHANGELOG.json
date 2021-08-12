@@ -1,6 +1,23 @@
 {
-  "name": "@azure-tools/prettier-plugin-cadl",
+  "name": "@cadl-lang/prettier-plugin-cadl",
   "entries": [
+    {
+      "version": "0.3.0",
+      "tag": "@cadl-lang/prettier-plugin-cadl_v0.3.0",
+      "date": "Tue, 10 Aug 2021 20:23:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Rename package to @cadl-lang/prettier-plugin-cadl"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.16.0` to `0.17.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.2.1",
       "tag": "@azure-tools/prettier-plugin-cadl_v0.2.1",

@@ -1,6 +1,13 @@
-# Change Log - @azure-tools/tmlanguage-generator
+# Change Log - tmlanguage-generator
 
-This log was last generated on Tue, 20 Apr 2021 15:23:29 GMT and should not be manually modified.
+This log was last generated on Tue, 10 Aug 2021 20:23:04 GMT and should not be manually modified.
+
+## 0.2.0
+Tue, 10 Aug 2021 20:23:04 GMT
+
+### Minor changes
+
+- Rename package to tmlanguage-generator
 
 ## 0.1.4
 Tue, 20 Apr 2021 15:23:29 GMT

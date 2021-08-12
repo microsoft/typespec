@@ -1,6 +1,23 @@
 {
-  "name": "@azure-tools/cadl-vs",
+  "name": "cadl-vs",
   "entries": [
+    {
+      "version": "0.4.0",
+      "tag": "cadl-vs_v0.4.0",
+      "date": "Tue, 10 Aug 2021 20:23:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Rename package to cadl-vs"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `0.7.0` to `0.8.0`"
+          }
+        ]
+      }
+    },
     {
       "version": "0.3.0",
       "tag": "@azure-tools/cadl-vs_v0.3.0",

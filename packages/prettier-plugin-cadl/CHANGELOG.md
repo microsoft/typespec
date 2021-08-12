@@ -1,6 +1,13 @@
-# Change Log - @azure-tools/prettier-plugin-cadl
+# Change Log - @cadl-lang/prettier-plugin-cadl
 
-This log was last generated on Mon, 09 Aug 2021 21:14:12 GMT and should not be manually modified.
+This log was last generated on Tue, 10 Aug 2021 20:23:04 GMT and should not be manually modified.
+
+## 0.3.0
+Tue, 10 Aug 2021 20:23:04 GMT
+
+### Minor changes
+
+- Rename package to @cadl-lang/prettier-plugin-cadl
 
 ## 0.2.1
 Mon, 09 Aug 2021 21:14:12 GMT

@@ -8,7 +8,7 @@
 ## Getting Started
 
 ```bash
-npm install --save-dev prettier @azure-tools/prettier-plugin-cadl
+npm install --save-dev prettier @cadl-lang/prettier-plugin-cadl
 ```
 
 You can now call prettier

@@ -1,6 +1,18 @@
 {
-  "name": "@azure-tools/tmlanguage-generator",
+  "name": "tmlanguage-generator",
   "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "tmlanguage-generator_v0.2.0",
+      "date": "Tue, 10 Aug 2021 20:23:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Rename package to tmlanguage-generator"
+          }
+        ]
+      }
+    },
     {
       "version": "0.1.4",
       "tag": "@azure-tools/tmlanguage-generator_v0.1.4",
