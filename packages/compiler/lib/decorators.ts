@@ -286,10 +286,10 @@ export function withOptionalProperties(program: Program, target: Type) {
 
 // -- @withUpdatableProperties decorator ----------------------
 
-export function withUpdatableProperties(program: Program, target: Type) {
+export function withUpdateableProperties(program: Program, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
-      "The @withOptionalProperties decorator can only be applied to models.",
+      "The @withUpdateableProperties decorator can only be applied to models.",
       target
     );
     return;
