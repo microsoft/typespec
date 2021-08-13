@@ -55,6 +55,10 @@ export function getHeaderFieldName(program: Program, entity: Type) {
   return program.stateMap(headerFieldsKey).get(entity);
 }
 
+export function isHeader(program: Program, entity: Type) {
+  return program.stateMap(headerFieldsKey).has(entity);
+}
+
 const queryFieldsKey = Symbol();
 export function query(program: Program, entity: Type, queryKey: string) {
   if (!queryKey && entity.kind === "ModelProperty") {
