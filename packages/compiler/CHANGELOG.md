@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Tue, 10 Aug 2021 20:23:04 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Aug 2021 19:10:21 GMT and should not be manually modified.
+
+## 0.18.0
+Fri, 13 Aug 2021 19:10:21 GMT
+
+### Minor changes
+
+- Remove `cadl generate` command
+
+### Patches
+
+- Add support for discovering updatabale properties using visibility
+- Fix error in `cadl vs uninstall` command
 
 ## 0.17.0
 Tue, 10 Aug 2021 20:23:04 GMT

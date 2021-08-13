@@ -2,6 +2,26 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.18.0",
+      "tag": "@cadl-lang/compiler_v0.18.0",
+      "date": "Fri, 13 Aug 2021 19:10:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add support for discovering updatabale properties using visibility"
+          },
+          {
+            "comment": "Fix error in `cadl vs uninstall` command"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Remove `cadl generate` command"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.0",
       "tag": "@cadl-lang/compiler_v0.17.0",
       "date": "Tue, 10 Aug 2021 20:23:04 GMT",
