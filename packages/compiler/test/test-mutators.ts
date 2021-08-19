@@ -15,12 +15,12 @@ describe("cadl: mutators", () => {
     testHost = await createTestHost();
   });
 
-  function addBarProperty(program: Program, model: ModelType) {
+  function $addBarProperty(program: Program, model: ModelType) {
     addModelProperty(program, model, "bar", "string");
   }
 
   it("addModelProperty adds a property to a model type", async () => {
-    testHost.addJsFile("a.js", { addBarProperty });
+    testHost.addJsFile("a.js", { $addBarProperty });
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -39,14 +39,14 @@ describe("cadl: mutators", () => {
     strictEqual((A.properties.get("bar")!.type as ModelType).name, "string");
   });
 
-  function addParameters(program: Program, operation: OperationType) {
+  function $addParameters(program: Program, operation: OperationType) {
     addOperationParameter(program, operation, "omega", "string");
     addOperationParameter(program, operation, "alpha", "int64", { insertIndex: 0 });
     addOperationParameter(program, operation, "beta", "B.Excellent", { insertIndex: 1 });
   }
 
   it("addOperationParameter inserts operation parameters", async () => {
-    testHost.addJsFile("a.js", { addParameters });
+    testHost.addJsFile("a.js", { $addParameters });
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -87,13 +87,13 @@ describe("cadl: mutators", () => {
     strictEqual((params[3][1].type as ModelType).name, "string");
   });
 
-  function addResponseTypes(program: Program, operation: OperationType) {
+  function $addResponseTypes(program: Program, operation: OperationType) {
     addOperationResponseType(program, operation, "int64");
     addOperationResponseType(program, operation, "A.Response");
   }
 
   it("addModelProperty adds a property to a model type", async () => {
-    testHost.addJsFile("a.js", { addResponseTypes });
+    testHost.addJsFile("a.js", { $addResponseTypes });
     testHost.addCadlFile(
       "main.cadl",
       `

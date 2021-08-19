@@ -4,7 +4,7 @@ import { createTestHost, TestHost } from "../test-host.js";
 
 describe("cadl: spread", () => {
   const blues = new WeakSet();
-  function blue(_: any, target: Type) {
+  function $blue(_: any, target: Type) {
     blues.add(target);
   }
 
@@ -12,7 +12,7 @@ describe("cadl: spread", () => {
 
   beforeEach(async () => {
     testHost = await createTestHost();
-    testHost.addJsFile("blue.js", { blue });
+    testHost.addJsFile("blue.js", { $blue });
   });
 
   it("clones decorated properties", async () => {

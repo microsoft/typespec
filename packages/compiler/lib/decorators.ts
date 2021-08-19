@@ -2,7 +2,7 @@ import { Program } from "../core/program.js";
 import { ModelTypeProperty, NamespaceType, Type } from "../core/types.js";
 
 const docsKey = Symbol();
-export function doc(program: Program, target: Type, text: string) {
+export function $doc(program: Program, target: Type, text: string) {
   program.stateMap(docsKey).set(target, text);
 }
 
@@ -21,7 +21,7 @@ export function inspectTypeName(program: Program, target: Type, text: string) {
 }
 
 const intrinsicsKey = Symbol();
-export function intrinsic(program: Program, target: Type) {
+export function $intrinsic(program: Program, target: Type) {
   program.stateSet(intrinsicsKey).add(target);
 }
 
@@ -65,7 +65,7 @@ export function isErrorType(type: Type): boolean {
 }
 
 const numericTypesKey = Symbol();
-export function numeric(program: Program, target: Type) {
+export function $numeric(program: Program, target: Type) {
   if (!isIntrinsic(program, target)) {
     program.reportDiagnostic("Cannot apply @numeric decorator to non-intrinsic type.", target);
     return;
@@ -86,7 +86,7 @@ export function isNumericType(program: Program, target: Type): boolean {
 
 const formatValuesKey = Symbol();
 
-export function format(program: Program, target: Type, format: string) {
+export function $format(program: Program, target: Type, format: string) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       "Cannot apply @format to anything that isn't a Model or ModelProperty",
@@ -111,7 +111,7 @@ export function getFormat(program: Program, target: Type): string | undefined {
 
 const minLengthValuesKey = Symbol();
 
-export function minLength(program: Program, target: Type, minLength: number) {
+export function $minLength(program: Program, target: Type, minLength: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       "Cannot apply @minLength to anything that isn't a Model or ModelProperty",
@@ -136,7 +136,7 @@ export function getMinLength(program: Program, target: Type): number | undefined
 
 const maxLengthValuesKey = Symbol();
 
-export function maxLength(program: Program, target: Type, maxLength: number) {
+export function $maxLength(program: Program, target: Type, maxLength: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       "Cannot apply @maxLength to anything that isn't a Model or ModelProperty",
@@ -160,7 +160,7 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 
 const minValuesKey = Symbol();
 
-export function minValue(program: Program, target: Type, minValue: number) {
+export function $minValue(program: Program, target: Type, minValue: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       "Cannot apply @minValue to anything that isn't a Model or ModelProperty",
@@ -182,7 +182,7 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 
 const maxValuesKey = Symbol();
 
-export function maxValue(program: Program, target: Type, maxValue: number) {
+export function $maxValue(program: Program, target: Type, maxValue: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       "Cannot apply @maxValue to anything that isn't a Model or ModelProperty",
@@ -205,7 +205,7 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 
 const secretTypesKey = Symbol();
 
-export function secret(program: Program, target: Type) {
+export function $secret(program: Program, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic("Cannot apply @secret to anything that isn't a Model", target);
     return;
@@ -226,7 +226,7 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 
 const visibilitySettingsKey = Symbol();
 
-export function visibility(program: Program, target: Type, ...visibilities: string[]) {
+export function $visibility(program: Program, target: Type, ...visibilities: string[]) {
   if (target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       "The @visibility decorator can only be applied to model properties.",
@@ -241,7 +241,7 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
   return program.stateMap(visibilitySettingsKey).get(target);
 }
 
-export function withVisibility(program: Program, target: Type, ...visibilities: string[]) {
+export function $withVisibility(program: Program, target: Type, ...visibilities: string[]) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       "The @withVisibility decorator can only be applied to models.",
@@ -271,7 +271,7 @@ function mapFilterOut(
 
 // -- @withOptionalProperties decorator ---------------------
 
-export function withOptionalProperties(program: Program, target: Type) {
+export function $withOptionalProperties(program: Program, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       "The @withOptionalProperties decorator can only be applied to models.",
@@ -286,7 +286,7 @@ export function withOptionalProperties(program: Program, target: Type) {
 
 // -- @withUpdatableProperties decorator ----------------------
 
-export function withUpdateableProperties(program: Program, target: Type) {
+export function $withUpdateableProperties(program: Program, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       "The @withUpdateableProperties decorator can only be applied to models.",
@@ -306,7 +306,7 @@ export function withUpdateableProperties(program: Program, target: Type) {
 
 const listPropertiesKey = Symbol();
 
-export function list(program: Program, target: Type) {
+export function $list(program: Program, target: Type) {
   if (target.kind !== "Operation" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       "The @list decorator can only be applied to operations or model properties.",
@@ -326,7 +326,7 @@ const tagPropertiesKey = Symbol();
 
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
-export function tag(program: Program, target: Type, tag: string) {
+export function $tag(program: Program, target: Type, tag: string) {
   if (target.kind !== "Operation" && target.kind !== "Namespace") {
     program.reportDiagnostic(
       "The @tag decorator can only be applied to namespaces or operations.",

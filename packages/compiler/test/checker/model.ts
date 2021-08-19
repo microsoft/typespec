@@ -61,10 +61,10 @@ describe("cadl: models", () => {
     beforeEach(async () => {
       testHost = await createTestHost();
       testHost.addJsFile("dec.js", {
-        blue(p: any, t: Type) {
+        $blue(p: any, t: Type) {
           blues.add(t);
         },
-        red(p: any, t: Type) {
+        $red(p: any, t: Type) {
           reds.add(t);
         },
       });

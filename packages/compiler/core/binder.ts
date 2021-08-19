@@ -21,6 +21,10 @@ import {
   UsingStatementNode,
 } from "./types.js";
 
+// Use a regular expression to define the prefix for Cadl-exposed functions
+// defined in JavaScript modules
+const DecoratorFunctionPattern = /^\$/;
+
 const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   duplicates = new Set<Sym>();
 
@@ -69,15 +73,24 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     bindJsSourceFile,
   };
 
+  function isFunctionName(name: string): boolean {
+    return DecoratorFunctionPattern.test(name);
+  }
+
+  function getFunctionName(name: string): string {
+    return name.replace(DecoratorFunctionPattern, "");
+  }
+
   function bindJsSourceFile(sourceFile: JsSourceFile) {
     const rootNs = sourceFile.exports["namespace"];
     const namespaces = new Set<NamespaceStatementNode>();
     for (const [key, member] of Object.entries(sourceFile.exports)) {
-      if (typeof member === "function") {
+      if (typeof member === "function" && isFunctionName(key)) {
         // lots of 'any' casts here because control flow narrowing `member` to Function
         // isn't particularly useful it turns out.
 
-        if (key === "onBuild") {
+        const name = getFunctionName(key);
+        if (name === "onBuild") {
           program.onBuild(member as any);
           continue;
         }
@@ -109,7 +122,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
             const nsNode: NamespaceStatementNode = {
               kind: SyntaxKind.NamespaceStatement,
               decorators: [],
-              name: { kind: SyntaxKind.Identifier, sv: key, pos: 0, end: 0 },
+              name: { kind: SyntaxKind.Identifier, sv: name, pos: 0, end: 0 },
               pos: 0,
               end: 0,
               locals: createSymbolTable(),
@@ -129,7 +142,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
             currentNamespace = nsNode;
           }
         }
-        const sym = createDecoratorSymbol(key, sourceFile.file.path, member);
+        const sym = createDecoratorSymbol(name, sourceFile.file.path, member);
         currentNamespace.exports!.set(sym.name, sym);
       }
     }
