@@ -11,7 +11,7 @@ describe("cadl: decorators", () => {
   it("can have the same name as types", async () => {
     let called = false;
     testHost.addJsFile("test.js", {
-      foo() {
+      $foo() {
         called = true;
       },
     });
@@ -32,7 +32,7 @@ describe("cadl: decorators", () => {
 
   it("doesn't conflict with type bindings at global scope", async () => {
     testHost.addJsFile("test.js", {
-      foo(_: any, __: any, t: any) {
+      $foo(_: any, __: any, t: any) {
         console.log(t);
       },
     });

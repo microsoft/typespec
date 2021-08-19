@@ -8,7 +8,7 @@ describe("cadl: loader", () => {
   });
 
   it("loads Cadl and JS files", async () => {
-    testHost.addJsFile("blue.js", { blue() {} });
+    testHost.addJsFile("blue.js", { $blue() {} });
     testHost.addCadlFile(
       "main.cadl",
       `

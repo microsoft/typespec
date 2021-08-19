@@ -137,7 +137,7 @@ export async function createTestHost(): Promise<TestHost> {
   // add test decorators
   addCadlFile("/.cadl/test-lib/main.cadl", 'import "./test.js";');
   addJsFile("/.cadl/test-lib/test.js", {
-    test(_: any, target: Type, name?: string) {
+    $test(_: any, target: Type, name?: string) {
       if (!name) {
         if (
           target.kind === "Model" ||

@@ -26,7 +26,7 @@ export function getHttpOperation(
   };
 }
 
-export function resource(program: Program, entity: Type, basePath = "") {
+export function $resource(program: Program, entity: Type, basePath = "") {
   if (entity.kind !== "Namespace") return;
   program.stateMap(basePathsKey).set(entity, basePath);
 }
@@ -44,7 +44,7 @@ export function basePathForResource(program: Program, resource: Type) {
 }
 
 const headerFieldsKey = Symbol();
-export function header(program: Program, entity: Type, headerName: string) {
+export function $header(program: Program, entity: Type, headerName: string) {
   if (!headerName && entity.kind === "ModelProperty") {
     headerName = entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
   }
@@ -60,7 +60,7 @@ export function isHeader(program: Program, entity: Type) {
 }
 
 const queryFieldsKey = Symbol();
-export function query(program: Program, entity: Type, queryKey: string) {
+export function $query(program: Program, entity: Type, queryKey: string) {
   if (!queryKey && entity.kind === "ModelProperty") {
     queryKey = entity.name;
   }
@@ -76,7 +76,7 @@ export function isQueryParam(program: Program, entity: Type) {
 }
 
 const pathFieldsKey = Symbol();
-export function path(program: Program, entity: Type, paramName: string) {
+export function $path(program: Program, entity: Type, paramName: string) {
   if (!paramName && entity.kind === "ModelProperty") {
     paramName = entity.name;
   }
@@ -92,7 +92,7 @@ export function isPathParam(program: Program, entity: Type) {
 }
 
 const bodyFieldsKey = Symbol();
-export function body(program: Program, entity: Type) {
+export function $body(program: Program, entity: Type) {
   program.stateSet(bodyFieldsKey).add(entity);
 }
 
@@ -125,36 +125,35 @@ export function getOperationRoute(program: Program, entity: Type): OperationRout
   return program.stateMap(operationRoutesKey).get(entity);
 }
 
-export function get(program: Program, entity: Type, subPath?: string) {
+export function $get(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(program, entity, {
     verb: "get",
     subPath,
   });
 }
 
-export function put(program: Program, entity: Type, subPath?: string) {
+export function $put(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(program, entity, {
     verb: "put",
     subPath,
   });
 }
 
-export function post(program: Program, entity: Type, subPath?: string) {
+export function $post(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(program, entity, {
     verb: "post",
     subPath,
   });
 }
 
-export function patch(program: Program, entity: Type, subPath?: string) {
+export function $patch(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(program, entity, {
     verb: "patch",
     subPath,
   });
 }
 
-// BUG #243: How do we deal with reserved words?
-export function _delete(program: Program, entity: Type, subPath?: string) {
+export function $delete(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(program, entity, {
     verb: "delete",
     subPath,
@@ -181,7 +180,7 @@ function getServiceDetails(program: Program) {
   return serviceDetails;
 }
 
-export function _setServiceNamespace(program: Program, namespace: NamespaceType): void {
+export function setServiceNamespace(program: Program, namespace: NamespaceType): void {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.namespace && serviceDetails.namespace !== namespace) {
     program.reportDiagnostic(
@@ -193,12 +192,12 @@ export function _setServiceNamespace(program: Program, namespace: NamespaceType)
   serviceDetails.namespace = namespace;
 }
 
-export function _checkIfServiceNamespace(program: Program, namespace: NamespaceType): boolean {
+export function checkIfServiceNamespace(program: Program, namespace: NamespaceType): boolean {
   const serviceDetails = getServiceDetails(program);
   return serviceDetails.namespace === namespace;
 }
 
-export function serviceTitle(program: Program, entity: Type, title: string) {
+export function $serviceTitle(program: Program, entity: Type, title: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.title) {
     program.reportDiagnostic("Service title can only be set once per Cadl document.", entity);
@@ -212,7 +211,7 @@ export function serviceTitle(program: Program, entity: Type, title: string) {
     return;
   }
 
-  _setServiceNamespace(program, entity);
+  setServiceNamespace(program, entity);
   serviceDetails.title = title;
 }
 
@@ -221,7 +220,7 @@ export function getServiceTitle(program: Program): string {
   return serviceDetails.title || "(title)";
 }
 
-export function serviceHost(program: Program, entity: Type, host: string) {
+export function $serviceHost(program: Program, entity: Type, host: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.host) {
     program.reportDiagnostic("Service host can only be set once per Cadl document.", entity);
@@ -236,7 +235,7 @@ export function serviceHost(program: Program, entity: Type, host: string) {
     return;
   }
 
-  _setServiceNamespace(program, entity);
+  setServiceNamespace(program, entity);
   serviceDetails.host = host;
 }
 
@@ -245,7 +244,7 @@ export function getServiceHost(program: Program): string {
   return serviceDetails.host || "management.azure.com";
 }
 
-export function serviceVersion(program: Program, entity: Type, version: string) {
+export function $serviceVersion(program: Program, entity: Type, version: string) {
   const serviceDetails = getServiceDetails(program);
   // TODO: This will need to change once we support multiple service versions
   if (serviceDetails.version) {
@@ -260,7 +259,7 @@ export function serviceVersion(program: Program, entity: Type, version: string) 
     return;
   }
 
-  _setServiceNamespace(program, entity);
+  setServiceNamespace(program, entity);
   serviceDetails.version = version;
 }
 
@@ -279,7 +278,7 @@ export function getServiceNamespaceString(program: Program): string | undefined 
 
 const producesTypesKey = Symbol();
 
-export function produces(program: Program, entity: Type, ...contentTypes: string[]) {
+export function $produces(program: Program, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {
     program.reportDiagnostic("The @produces decorator can only be applied to namespaces.", entity);
   }
@@ -294,7 +293,7 @@ export function getProduces(program: Program, entity: Type): string[] {
 
 const consumesTypesKey = Symbol();
 
-export function consumes(program: Program, entity: Type, ...contentTypes: string[]) {
+export function $consumes(program: Program, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {
     program.reportDiagnostic("The @consumes decorator can only be applied to namespaces.", entity);
   }

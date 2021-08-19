@@ -4,7 +4,7 @@ import { createTestHost, TestHost } from "../test-host.js";
 
 describe("cadl: namespaces with blocks", () => {
   const blues = new WeakSet();
-  function blue(_: any, target: Type) {
+  function $blue(_: any, target: Type) {
     blues.add(target);
   }
 
@@ -12,7 +12,7 @@ describe("cadl: namespaces with blocks", () => {
 
   beforeEach(async () => {
     testHost = await createTestHost();
-    testHost.addJsFile("blue.js", { blue });
+    testHost.addJsFile("blue.js", { $blue });
   });
 
   it("can be decorated", async () => {
@@ -200,7 +200,7 @@ describe("cadl: namespaces with blocks", () => {
 
 describe("cadl: blockless namespaces", () => {
   const blues = new WeakSet();
-  function blue(_: any, target: Type) {
+  function $blue(_: any, target: Type) {
     blues.add(target);
   }
 
@@ -208,7 +208,7 @@ describe("cadl: blockless namespaces", () => {
 
   beforeEach(async () => {
     testHost = await createTestHost();
-    testHost.addJsFile("blue.js", { blue });
+    testHost.addJsFile("blue.js", { $blue });
   });
 
   it("merges properly with other namespaces", async () => {
@@ -464,15 +464,15 @@ describe("cadl: decorators in namespaces", () => {
 
     const dec = {
       namespace: "A.B",
-      foo() {
+      $foo() {
         fooCalled = true;
       },
-      bar() {
+      $bar() {
         barCalled = true;
       },
     };
 
-    (dec.bar as any).namespace = "C";
+    (dec.$bar as any).namespace = "C";
 
     testHost.addJsFile("dec.js", dec);
 
@@ -494,16 +494,16 @@ describe("cadl: decorators in namespaces", () => {
     let fooCalled = false;
     let barCalled = false;
     const dec = {
-      foo() {
+      $foo() {
         fooCalled = true;
       },
-      bar() {
+      $bar() {
         barCalled = true;
       },
     };
 
-    (dec.foo as any).namespace = "A";
-    (dec.bar as any).namespace = "A.B";
+    (dec.$foo as any).namespace = "A";
+    (dec.$bar as any).namespace = "A.B";
     testHost.addJsFile("dec.js", dec);
 
     testHost.addCadlFile(
