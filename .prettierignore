@@ -1,0 +1,10 @@
+**/dist/
+**/dist-dev/
+**/test/output/
+**/bin/
+**/obj/
+**/.vs/
+common/temp/
+common/scripts/
+common/changes/
+common/config/rush/pnpm-lock.yaml

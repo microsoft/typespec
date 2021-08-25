@@ -1,0 +1,9 @@
+{
+  "references": [
+    { "path": "packages/compiler/tsconfig.json" },
+    { "path": "packages/rest/tsconfig.json" },
+    { "path": "packages/cadl-vscode/tsconfig.json" },
+    { "path": "packages/tmlanguage-generator/tsconfig.json" }
+  ],
+  "files": []
+}

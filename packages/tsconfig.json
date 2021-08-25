@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "strict": true,
+    "declaration": true,
+    "stripInternal": true,
+    "noEmitHelpers": false,
+    "target": "es2019",
+    "types": ["node"],
+    "lib": ["es2019"],
+    "experimentalDecorators": true,
+    "newLine": "LF"
+  }
+}

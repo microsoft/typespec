@@ -1,0 +1,103 @@
+/**
+ * This is the main configuration file for Rush.
+ * For full documentation, please see https://rushjs.io
+ */
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
+  "rushVersion": "5.54.0",
+  "pnpmVersion": "5.18.10",
+  /**
+   * Options that are only used when the PNPM package manager is selected
+   */
+  "pnpmOptions": {},
+  "nodeSupportedVersionRange": ">=14.0.0 <15.0.0",
+  "suppressNodeLtsWarning": true,
+  "projectFolderMinDepth": 1,
+  "projectFolderMaxDepth": 5,
+  "gitPolicy": {},
+  "repository": {
+    "defaultBranch": "main",
+    "url": "https://github.com/Azure/adl"
+  },
+  /**
+   * Event hooks are customized script actions that Rush executes when specific events occur
+   */
+  "eventHooks": {
+    /**
+     * The list of shell commands to run before the Rush installation starts
+     */
+    "preRushInstall": [
+      // "common/scripts/pre-rush-install.js"
+    ],
+    /**
+     * The list of shell commands to run after the Rush installation finishes
+     */
+    "postRushInstall": [],
+    /**
+     * The list of shell commands to run before the Rush build command starts
+     */
+    "preRushBuild": [],
+    /**
+     * The list of shell commands to run after the Rush build command finishes
+     */
+    "postRushBuild": []
+  },
+  "variants": [],
+  "telemetryEnabled": false,
+  "projects": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "projectFolder": "packages/compiler",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      // TMLanguage generator not in an @scope because it is neither cadl nor azure-specific.
+      // Eventually, it should be split off into its own repo
+      "packageName": "tmlanguage-generator",
+      "projectFolder": "packages/tmlanguage-generator",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      // VS Code package can't be in an @scope as it breaks VSIX package
+      // Eventually, this package should probably be deprecated in favor of publishing to VS marketplace
+      "packageName": "cadl-vscode",
+      "projectFolder": "packages/cadl-vscode",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      // VS package not in @scope purely for symmetry with VSCode package
+      // Eventually this package will also be deprecated in favor or VS marketplace
+      "packageName": "cadl-vs",
+      "projectFolder": "packages/cadl-vs",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/prettier-plugin-cadl",
+      "projectFolder": "packages/prettier-plugin-cadl",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/spec",
+      "projectFolder": "packages/spec",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/rest",
+      "projectFolder": "packages/rest",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "projectFolder": "packages/openapi3",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "watch",
+      "dependsOn": ["watch-tmlanguage", "watch-spec", "watch-source"],
+      "dependsOrder": "parallel",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "watch-source",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/packages/compiler/node_modules/typescript/lib/tsc.js",
+        "--build",
+        "--watch"
+      ],
+      "isBackground": true,
+      "problemMatcher": "$tsc-watch",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "watch-tmlanguage",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/cadl-vscode/scripts/watch-tmlanguage.js"],
+      "problemMatcher": {
+        "base": "$msCompile",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*File change detected.*$",
+          "endsPattern": "^.*Waiting for file changes.*$"
+        }
+      },
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/packages/cadl-vscode"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "watch-spec",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/spec/scripts/watch-spec.js"],
+      "problemMatcher": {
+        "base": "$msCompile",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*File change detected.*$",
+          "endsPattern": "^.*Waiting for file changes.*$"
+        }
+      },
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/packages/spec"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/cadl"
+      },
+      "command": "npm test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    }
+  ]
+}

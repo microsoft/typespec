@@ -1,0 +1,29 @@
+# Continuous Integration
+
+trigger:
+  - main
+pr: none
+
+pool:
+  vmImage: windows-2019
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 14.x
+    displayName: Install Node.js
+
+  - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+    displayName: Enable official Visual Studio extension build
+
+  - script: node common/scripts/install-run-rush.js install
+    displayName: Install JavaScript Dependencies
+
+  - script: node packages/cadl-vs/scripts/build.js --restore
+    displayName: Restore .NET Dependencies
+
+  - script: node common/scripts/install-run-rush.js rebuild --verbose
+    displayName: Build
+
+  - script: node common/scripts/install-run-rush.js test-official
+    displayName: Test

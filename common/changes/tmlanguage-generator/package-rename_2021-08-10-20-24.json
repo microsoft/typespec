@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "packageName": "tmlanguage-generator",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "tmlanguage-generator",
+  "email": "nicholg@microsoft.com"
+}

@@ -1,0 +1,93 @@
+{
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "search.exclude": {
+    "**/dist/**": true,
+    "**/dist-dev/**": true,
+    "**/CHANGELOG.json": true,
+    "**/CHANGELOG.md": true,
+    "docs/spec.html": true,
+    "common/config/rush/pnpm-lock.yaml": true
+  },
+  "files.exclude": {
+    "**/node_modules/**": true,
+    "**/common/temp/**": true,
+    "**/obj/**": true,
+    "**/bin/**": true,
+    "**/.git": true,
+    "**/.DS_Store": true
+  },
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[cadl]": {
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2
+  },
+  "[csharp]": {
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2
+  },
+  "[xml]": {
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2
+  },
+  "files.associations": {
+    "rush.json": "jsonc",
+    "common-versions.json": "jsonc",
+    "command-line.json": "jsonc",
+    "version-policies.json": "jsonc"
+  },
+  "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
+  "git.ignoreLimitWarning": true,
+  "mochaExplorer.files": ["./packages/*/dist/test/**/*.js", "./packages/*/test/**/*.js"],
+  "mochaExplorer.ignore": "./packages/*/dist/test/manual/**/*.js",
+  "mochaExplorer.mochaPath": "./packages/compiler/node_modules/mocha",
+  "mochaExplorer.timeout": 500000,
+  "mochaExplorer.require": "source-map-support/register",
+  "mochaExplorer.debuggerConfig": "Tests",
+  "mochaExplorer.env": {
+    "CADL_VERBOSE_TEST_OUTPUT": "true",
+    "NODE_OPTIONS": "--stack-trace-limit=50"
+  },
+  "testExplorer.errorDecoration": false
+}

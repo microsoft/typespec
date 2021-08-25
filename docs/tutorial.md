@@ -544,6 +544,3 @@ namespace Pets {
 }
 ```
 
-## Next steps
-
-Check out the [samples directory](https://github.com/Azure/adl/tree/master/packages/cadl-samples/) for more detailed real world examples of Cadl in action!

@@ -1,0 +1,26 @@
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 14.x
+    displayName: Install Node.js
+
+  - script: node common/scripts/install-run-rush.js install
+    displayName: Install JavaScript Dependencies
+
+  - script: node packages/cadl-vs/scripts/build.js --restore
+    displayName: Restore .NET Dependencies
+
+  - script: node common/scripts/install-run-rush.js check
+    displayName: Check For Dependency Version Mismatches
+
+  - script: node common/scripts/install-run-rush.js rebuild --verbose
+    displayName: Build
+
+  - script: node common/scripts/install-run-rush.js test-official
+    displayName: Test
+
+  - script: node common/scripts/install-run-rush.js check-format
+    displayName: Check Formatting
+
+  - script: node eng/scripts/check-for-changed-files.js
+    displayName: Check Git Status For Changed Files
