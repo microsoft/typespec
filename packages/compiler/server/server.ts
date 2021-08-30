@@ -4,25 +4,42 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   Connection,
   createConnection,
+  DefinitionParams,
   Diagnostic as VSDiagnostic,
   DiagnosticSeverity,
   DidChangeWatchedFilesParams,
   InitializedParams,
   InitializeParams,
   InitializeResult,
+  Location,
   ProposedFeatures,
   Range,
   ServerCapabilities,
   TextDocumentChangeEvent,
+  TextDocumentIdentifier,
   TextDocuments,
   TextDocumentSyncKind,
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import { compilerAssert, createSourceFile, formatDiagnostic } from "../core/diagnostics.js";
+import {
+  compilerAssert,
+  createSourceFile,
+  formatDiagnostic,
+  getSourceLocation,
+} from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
-import { createProgram } from "../core/program.js";
-import { CompilerHost, Diagnostic as CadlDiagnostic, SourceFile } from "../core/types.js";
+import { visitChildren } from "../core/parser.js";
+import { createProgram, Program } from "../core/program.js";
+import {
+  CadlScriptNode,
+  CompilerHost,
+  Diagnostic as CadlDiagnostic,
+  Node,
+  SourceFile,
+  SourceLocation,
+  SyntaxKind,
+} from "../core/types.js";
 import { cadlVersion, doIO, loadFile, NodeHost } from "../core/util.js";
 
 interface ServerSourceFile extends SourceFile {
@@ -54,6 +71,7 @@ const serverHost: CompilerHost = {
   ...NodeHost,
   resolveAbsolutePath,
   readFile,
+  stat,
 };
 
 const serverOptions: CompilerOptions = {
@@ -100,6 +118,7 @@ function main() {
   connection.onInitialized(initialized);
   connection.onDidChangeWatchedFiles(watchedFilesChanged);
   documents.onDidChangeContent(checkChange);
+  connection.onDefinition(gotoDefinition);
   documents.onDidClose(documentClosed);
   documents.listen(connection);
   connection.listen();
@@ -108,6 +127,7 @@ function main() {
 function initialize(params: InitializeParams): InitializeResult {
   const capabilities: ServerCapabilities = {
     textDocumentSync: TextDocumentSyncKind.Incremental,
+    definitionProvider: true,
   };
 
   if (params.capabilities.workspace?.workspaceFolders) {
@@ -173,16 +193,18 @@ function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
   }
 }
 
-async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
-  const path = getPath(change.document);
+async function compile(
+  document: TextDocument | TextDocumentIdentifier
+): Promise<Program | undefined> {
+  const path = getPath(document);
   const mainFile = await getMainFileForDocument(path);
-  if (!upToDate(change.document)) {
-    return;
+  if (!upToDate(document)) {
+    return undefined;
   }
 
   let program = await createProgram(serverHost, mainFile, serverOptions);
-  if (!upToDate(change.document)) {
-    return;
+  if (!upToDate(document)) {
+    return undefined;
   }
 
   if (mainFile !== path && !program.sourceFiles.has(path)) {
@@ -191,7 +213,16 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
     program = await createProgram(serverHost, path, serverOptions);
   }
 
-  if (!upToDate(change.document)) {
+  if (!upToDate(document)) {
+    return undefined;
+  }
+
+  return program;
+}
+
+async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
+  const program = await compile(change.document);
+  if (!program) {
     return;
   }
 
@@ -232,9 +263,74 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   }
 }
 
+async function gotoDefinition(params: DefinitionParams): Promise<Location | undefined> {
+  const path = getPath(params.textDocument);
+  const mainFile = await getMainFileForDocument(path);
+  const program = await createProgram(serverHost, mainFile, serverOptions);
+
+  const document = documents.get(params.textDocument.uri);
+  if (!document) {
+    return undefined;
+  }
+
+  const file = program.sourceFiles.get(path);
+  if (!file) {
+    return undefined;
+  }
+
+  const referringNode = getTypeReferenceNodeAtPosition(file, document.offsetAt(params.position));
+  if (!referringNode) {
+    return undefined;
+  }
+
+  const definingNode = program.checker?.getTypeForNode(referringNode)?.node;
+  if (!definingNode) {
+    return undefined;
+  }
+
+  const definingLocation = getSourceLocation(definingNode);
+  return convertSourceLocation(definingLocation);
+}
+
 function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
   // clear diagnostics on file close
   sendDiagnostics(change.document, []);
+}
+
+function getTypeReferenceNodeAtPosition(file: CadlScriptNode, position: number) {
+  return visit(file);
+
+  function visit(node: Node): Node | undefined {
+    if (node.pos <= position && position < node.end) {
+      // We only need to recursively visit children of nodes that satisfied
+      // the condition above and therefore contain the given position. If a
+      // node does not contain a position, then neither do its children.
+      const child = visitChildren(node, visit);
+
+      // A child match here is better than a self-match below as we want the
+      // deepest (most specific) node. In other words, the search is depth
+      // first. For example, consider `A<B<C>>`: If the cursor is on `B`,
+      // then prefer B<C> over A<B<C>>.
+      if (child) {
+        return child;
+      }
+
+      if (node.kind === SyntaxKind.TypeReference) {
+        return node;
+      }
+    }
+
+    return undefined;
+  }
+}
+
+function convertSourceLocation(location: SourceLocation): Location {
+  const start = location.file.getLineAndCharacterOfPosition(location.pos);
+  const end = location.file.getLineAndCharacterOfPosition(location.end);
+  return {
+    uri: getURL(location.file.path),
+    range: Range.create(start, end),
+  };
 }
 
 function convertSeverity(severity: "warning" | "error" | "info"): DiagnosticSeverity {
@@ -290,7 +386,10 @@ function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {
  * A document can become out-of-date if a change comes in during an async
  * operation.
  */
-function upToDate(document: TextDocument) {
+function upToDate(document: TextDocument | TextDocumentIdentifier) {
+  if (!("version" in document)) {
+    return true;
+  }
   return document.version === documents.get(document.uri)?.version;
 }
 
@@ -363,8 +462,8 @@ function inWorkspace(path: string) {
   return workspaceFolders.some((f) => path.startsWith(f.path));
 }
 
-function getPath(document: TextDocument) {
-  if (document.uri.startsWith("untitled:")) {
+function getPath(document: TextDocument | TextDocumentIdentifier) {
+  if (isUntitled(document.uri)) {
     return document.uri;
   }
   const path = fileURLToPath(document.uri);
@@ -372,16 +471,27 @@ function getPath(document: TextDocument) {
   return path;
 }
 
+function getURL(path: string) {
+  if (isUntitled(path)) {
+    return path;
+  }
+  return pathToURLMap.get(path) ?? pathToFileURL(path).href;
+}
+
+function isUntitled(pathOrUrl: string) {
+  return pathOrUrl.startsWith("untitled:");
+}
+
 function getDocument(path: string) {
-  const url = pathToURLMap.get(path);
-  return url ? documents.get(url) : undefined;
+  const url = getURL(path);
+  return url ? documents.get(path) : undefined;
 }
 
 function resolveAbsolutePath(path: string): string {
-  compilerAssert(
-    path.startsWith("untitled:") || isAbsolute(path),
-    "Cannot use relative path in language server"
-  );
+  if (isUntitled(path)) {
+    return path;
+  }
+  compilerAssert(isAbsolute(path), "Cannot use relative path in language server");
   return normalize(path);
 }
 
@@ -413,4 +523,20 @@ async function readFile(path: string): Promise<ServerSourceFile> {
     fileSystemCache.set(path, { type: "error", error });
     throw error;
   }
+}
+
+async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
+  // if we have an open document for the path or a cache entry, then we know
+  // it's a file and not a directory and needn't hit the disk.
+  if (getDocument(path) || fileSystemCache.has(path)) {
+    return {
+      isFile() {
+        return true;
+      },
+      isDirectory() {
+        return false;
+      },
+    };
+  }
+  return await NodeHost.stat(path);
 }
