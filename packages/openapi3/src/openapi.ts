@@ -1039,13 +1039,24 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return { type: "boolean", enum: [cadlType.value] };
       case "Model":
         switch (cadlType.name) {
-          case "byte":
+          case "bytes":
             return { type: "string", format: "byte" };
+          case "int8":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int8" });
+          case "int16":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int16" });
           case "int32":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
           case "int64":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
-
+          case "uint8":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });
+          case "uint16":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint16" });
+          case "uint32":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint32" });
+          case "uint64":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint64" });
           case "float64":
             return applyIntrinsicDecorators(cadlType, { type: "number", format: "double" });
           case "float32":
