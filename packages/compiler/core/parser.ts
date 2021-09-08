@@ -213,6 +213,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     let seenBlocklessNs = false;
     let seenDecl = false;
     while (!scanner.eof()) {
+      const pos = tokenPos();
       const decorators = parseDecoratorList();
       const tok = token();
       let item: Statement;
@@ -222,16 +223,16 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseImportStatement();
           break;
         case Token.ModelKeyword:
-          item = parseModelStatement(decorators);
+          item = parseModelStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
-          item = parseNamespaceStatement(decorators);
+          item = parseNamespaceStatement(pos, decorators);
           break;
         case Token.OpKeyword:
-          item = parseOperationStatement(decorators);
+          item = parseOperationStatement(pos, decorators);
           break;
         case Token.EnumKeyword:
-          item = parseEnumStatement(decorators);
+          item = parseEnumStatement(pos, decorators);
           break;
         case Token.AliasKeyword:
           reportInvalidDecorators(decorators, "alias statement");
@@ -277,6 +278,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const stmts: Statement[] = [];
 
     while (token() !== Token.CloseBrace) {
+      const pos = tokenPos();
       const decorators = parseDecoratorList();
       const tok = token();
 
@@ -287,10 +289,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           stmts.push(parseImportStatement());
           break;
         case Token.ModelKeyword:
-          stmts.push(parseModelStatement(decorators));
+          stmts.push(parseModelStatement(pos, decorators));
           break;
         case Token.NamespaceKeyword:
-          const ns = parseNamespaceStatement(decorators);
+          const ns = parseNamespaceStatement(pos, decorators);
 
           if (!Array.isArray(ns.statements)) {
             error("Blockless namespace can only be top-level.");
@@ -298,10 +300,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           stmts.push(ns);
           break;
         case Token.OpKeyword:
-          stmts.push(parseOperationStatement(decorators));
+          stmts.push(parseOperationStatement(pos, decorators));
           break;
         case Token.EnumKeyword:
-          stmts.push(parseEnumStatement(decorators));
+          stmts.push(parseEnumStatement(pos, decorators));
           break;
         case Token.AliasKeyword:
           reportInvalidDecorators(decorators, "alias statement");
@@ -338,7 +340,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return decorators;
   }
 
-  function parseNamespaceStatement(decorators: DecoratorExpressionNode[]): NamespaceStatementNode {
+  function parseNamespaceStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): NamespaceStatementNode {
     parseExpected(Token.NamespaceKeyword);
     let currentName = parseIdentifierOrMemberExpression();
     const nsSegments: IdentifierNode[] = [];
@@ -361,7 +366,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       decorators,
       name: nsSegments[0],
       statements,
-      ...finishNode(nsSegments[0].pos),
+      ...finishNode(pos),
     };
 
     for (let i = 1; i < nsSegments.length; i++) {
@@ -370,7 +375,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         decorators: [],
         name: nsSegments[i],
         statements: outerNs,
-        ...finishNode(nsSegments[i].pos),
+        ...finishNode(pos),
       };
     }
 
@@ -390,8 +395,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseOperationStatement(decorators: DecoratorExpressionNode[]): OperationStatementNode {
-    const pos = tokenPos();
+  function parseOperationStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): OperationStatementNode {
     parseExpected(Token.OpKeyword);
 
     const id = parseIdentifier();
@@ -422,9 +429,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return parameters;
   }
 
-  function parseModelStatement(decorators: DecoratorExpressionNode[]): ModelStatementNode {
-    const pos = tokenPos();
-
+  function parseModelStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ModelStatementNode {
     parseExpected(Token.ModelKeyword);
     const id = parseIdentifier();
     const templateParameters = parseOptionalList(
@@ -525,8 +533,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseEnumStatement(decorators: DecoratorExpressionNode[]): EnumStatementNode {
-    const pos = tokenPos();
+  function parseEnumStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
     const members = parseList(ListKind.EnumMembers, parseEnumMember);
@@ -694,10 +704,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseIdentifierOrMemberExpression(): IdentifierNode | MemberExpressionNode {
+    const pos = tokenPos();
     let base: IdentifierNode | MemberExpressionNode = parseIdentifier();
-
     while (parseOptional(Token.Dot)) {
-      const pos = tokenPos();
       base = {
         kind: SyntaxKind.MemberExpression,
         base,

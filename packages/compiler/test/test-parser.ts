@@ -1,8 +1,8 @@
 import assert from "assert";
 import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
-import { hasParseError, NodeFlags, parse } from "../core/parser.js";
-import { CadlScriptNode, SyntaxKind } from "../core/types.js";
+import { hasParseError, NodeFlags, parse, visitChildren } from "../core/parser.js";
+import { CadlScriptNode, Node, SourceFile, SyntaxKind } from "../core/types.js";
 
 describe("cadl: syntax", () => {
   describe("import statements", () => {
@@ -150,7 +150,7 @@ describe("cadl: syntax", () => {
       "namespace Store {}",
       "namespace Store { op read(): int32; }",
       "namespace Store { op read(): int32; op write(v: int32): {}; }",
-      "namespace Store { op read(): int32; op write(v: int32): {}; }",
+      "namespace Store.Read { op read(): int32; }",
       "@foo namespace Store { @dec op read(): number; @dec op write(n: number): {}; }",
       "@foo @bar namespace Store { @foo @bar op read(): number; }",
       "namespace Store { namespace Read { op read(): int32; } namespace Write { op write(v: int32): {}; } }",
@@ -474,8 +474,23 @@ function parseEach(cases: (string | [string, Callback])[]) {
 
         assert.fail("Unexpected parse errors in test:\n" + diagnostics);
       }
+
+      checkPositioning(astNode, astNode.file);
     });
   }
+}
+
+function checkPositioning(node: Node, file: SourceFile) {
+  visitChildren(node, (child) => {
+    if (child.pos < node.pos || child.end > node.end) {
+      logVerboseTestOutput("Parent: ");
+      dumpAST(node, file);
+      logVerboseTestOutput("Child: ");
+      dumpAST(child, file);
+      assert.fail("child node positioned outside parent node");
+    }
+    checkPositioning(child, file);
+  });
 }
 
 function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhitespace = false) {
@@ -506,7 +521,10 @@ function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhite
   }
 }
 
-function dumpAST(astNode: CadlScriptNode) {
+function dumpAST(astNode: Node, file?: SourceFile) {
+  if (!file && astNode.kind === SyntaxKind.CadlScript) {
+    file = astNode.file;
+  }
   logVerboseTestOutput((log) => {
     hasParseError(astNode); // force flags to initialize
     const json = JSON.stringify(astNode, replacer, 2);
@@ -519,9 +537,9 @@ function dumpAST(astNode: CadlScriptNode) {
       return SyntaxKind[value];
     }
 
-    if (key === "pos" || key === "end") {
+    if (file && (key === "pos" || key === "end")) {
       // include line and column numbers
-      const pos = astNode.file.getLineAndCharacterOfPosition(value);
+      const pos = file.getLineAndCharacterOfPosition(value);
       const line = pos.line + 1;
       const col = pos.character + 1;
       return `${value} (line ${line}, column ${col})`;
@@ -552,8 +570,8 @@ function dumpAST(astNode: CadlScriptNode) {
 
     if (value && typeof value === "object" && !Array.isArray(value)) {
       // Show the text of the given node
-      if ("pos" in value && "end" in value) {
-        value.source = shorten(astNode.file.text.substring(value.pos, value.end));
+      if (file && "pos" in value && "end" in value) {
+        value.source = shorten(file.text.substring(value.pos, value.end));
       }
 
       // sort properties by type so that the short ones can be read without
