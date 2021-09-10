@@ -484,7 +484,7 @@ function isUntitled(pathOrUrl: string) {
 
 function getDocument(path: string) {
   const url = getURL(path);
-  return url ? documents.get(path) : undefined;
+  return url ? documents.get(url) : undefined;
 }
 
 function resolveAbsolutePath(path: string): string {
