@@ -158,7 +158,7 @@ describe("cadl: aliases", () => {
       C: ModelType;
     };
 
-    strictEqual(A.baseModels[0], Test);
+    strictEqual(A.baseModel, Test);
     ok(B.properties.has("a"));
     strictEqual(C.properties.get("c")!.type, Test);
   });

@@ -274,7 +274,7 @@ ModelStatement :
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
 ModelHeritage :
-    `extends` ReferenceExpressionList
+    `extends` ReferenceExpression
     `is` ReferenceExpression
 
 ModelBody :
@@ -316,10 +316,6 @@ EnumMemberValue :
 
 AliasStatement :
     `alias` Identifier TemplateParameters? `=` Expression;
-
-ReferenceExpressionList :
-    ReferenceExpression
-    ReferenceExpressionList `,` ReferenceExpression
 
 TemplateParameters :
     `<` IdentifierList `>`

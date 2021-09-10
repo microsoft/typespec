@@ -56,7 +56,7 @@ export interface ModelType extends BaseType, DecoratedType {
   node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
-  baseModels: ModelType[];
+  baseModel?: ModelType;
   templateArguments?: Type[];
   templateNode?: Node;
 }
@@ -360,7 +360,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
   properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
-  extends: ReferenceExpression[];
+  extends?: ReferenceExpression;
   is?: ReferenceExpression;
   templateParameters: TemplateParameterDeclarationNode[];
   locals?: SymbolTable;

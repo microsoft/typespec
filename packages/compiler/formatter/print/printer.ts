@@ -378,8 +378,7 @@ export function printModelStatement(
 ) {
   const node = path.getValue();
   const id = path.call(print, "id");
-  const heritage =
-    node.extends.length > 0 ? concat(["extends ", path.map(print, "extends")[0], " "]) : "";
+  const heritage = node.extends ? concat(["extends ", path.call(print, "extends"), " "]) : "";
   const isBase = node.is ? concat(["is ", path.call(print, "is"), " "]) : "";
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return concat([

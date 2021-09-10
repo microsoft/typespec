@@ -40,11 +40,7 @@ export function getIntrinsicType(program: Program, target: Type | undefined): st
         return target.name;
       }
 
-      if (target.baseModels.length === 1) {
-        target = target.baseModels[0];
-      } else {
-        target = undefined;
-      }
+      target = target.baseModel;
     } else if (target.kind === "ModelProperty") {
       return getIntrinsicType(program, target.type);
     } else {

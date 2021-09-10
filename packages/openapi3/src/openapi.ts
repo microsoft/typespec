@@ -386,7 +386,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function emitResponseObject(responseModel: Type, statusCode: string = "200") {
     if (
       responseModel.kind === "Model" &&
-      responseModel.baseModels.length === 0 &&
+      !responseModel.baseModel &&
       responseModel.properties.size === 0
     ) {
       currentEndpoint.responses[204] = {
@@ -477,7 +477,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       };
     }
 
-    if (type.kind === "Model" && type.baseModels.length === 0) {
+    if (type.kind === "Model" && !type.baseModel) {
       // If this is a model that isn't derived from anything, there's a chance
       // it's a base Cadl "primitive" that corresponds directly to an OpenAPI
       // primitive. In such cases, we don't want to emit a ref and instead just
@@ -907,25 +907,20 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     // defined like this is just meant to rename the underlying instance of a
     // templated type.
     if (
-      model.baseModels.length === 1 &&
-      model.baseModels[0].templateArguments &&
-      model.baseModels[0].templateArguments.length > 0 &&
+      model.baseModel &&
+      model.baseModel.templateArguments &&
+      model.baseModel.templateArguments.length > 0 &&
       Object.keys(modelSchema.properties).length === 0
     ) {
       // Take the base model schema but carry across the documentation property
       // that we set before
-      const baseSchema = getSchemaForType(model.baseModels[0]);
+      const baseSchema = getSchemaForType(model.baseModel);
       modelSchema = {
         ...baseSchema,
         description: modelSchema.description,
       };
-    } else if (model.baseModels.length > 0) {
-      for (let base of model.baseModels) {
-        if (!modelSchema.allOf) {
-          modelSchema.allOf = [];
-        }
-        modelSchema.allOf.push(getSchemaOrRef(base));
-      }
+    } else if (model.baseModel) {
+      modelSchema.allOf = [getSchemaOrRef(model.baseModel)];
     }
 
     // Attach any OpenAPI extensions
@@ -1082,9 +1077,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     // The base model doesn't correspond to a primitive OA type, but it could
     // derive from one. Let's check.
-    // TODO: multiple inheritance is not supported here.
-    if (cadlType.kind === "Model" && cadlType.baseModels.length > 0) {
-      const baseSchema = mapCadlTypeToOpenAPI(cadlType.baseModels[0]);
+    if (cadlType.kind === "Model" && cadlType.baseModel) {
+      const baseSchema = mapCadlTypeToOpenAPI(cadlType.baseModel);
       if (baseSchema) {
         return applyIntrinsicDecorators(cadlType, baseSchema);
       }

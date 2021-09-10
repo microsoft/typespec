@@ -96,7 +96,6 @@ describe("cadl: syntax", () => {
   describe("model extends statements", () => {
     parseEach([
       "model foo extends bar { }",
-      "model foo extends bar, baz { }",
       "model foo extends bar.baz { }",
       "model foo extends bar<T> { }",
       "model foo<T> extends bar<T> { }",
@@ -104,6 +103,7 @@ describe("cadl: syntax", () => {
     ]);
     parseErrorEach([
       ["model foo extends { }", [/Identifier expected/]],
+      ["model foo extends bar, baz { }", [/\'{' expected/]],
       ["model foo extends = { }", [/Identifier expected/]],
       ["model foo extends bar = { }", [/'{' expected/]],
     ]);

@@ -437,7 +437,6 @@ export function createChecker(program: Program): Checker {
       kind: "Model",
       node,
       name: "",
-      baseModels: [],
       properties: properties,
       decorators: [], // could probably include both sets of decorators here...
     });
@@ -737,8 +736,8 @@ export function createChecker(program: Program): Checker {
 
     let baseModels;
     if (isBase) {
-      baseModels = isBase.baseModels;
-    } else {
+      baseModels = isBase.baseModel;
+    } else if (node.extends) {
       baseModels = checkClassHeritage(node.extends);
     }
 
@@ -747,7 +746,7 @@ export function createChecker(program: Program): Checker {
       name: node.id.sv,
       node: node,
       properties,
-      baseModels: baseModels,
+      baseModel: baseModels,
       namespace: getParentNamespaceType(node),
       decorators,
     };
@@ -794,7 +793,6 @@ export function createChecker(program: Program): Checker {
       name: "",
       node: node,
       properties,
-      baseModels: [],
       decorators: [],
     });
 
@@ -842,21 +840,19 @@ export function createChecker(program: Program): Checker {
     properties.set(newProp.name, newProp);
   }
 
-  function checkClassHeritage(heritage: ReferenceExpression[]): ModelType[] {
-    let baseModels = [];
-    for (let heritageRef of heritage) {
-      const heritageType = getTypeForNode(heritageRef);
-      if (isErrorType(heritageType)) {
-        compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
-        continue;
-      }
-      if (heritageType.kind !== "Model") {
-        program.reportDiagnostic("Models must extend other models.", heritageRef);
-        continue;
-      }
-      baseModels.push(heritageType);
+  function checkClassHeritage(heritageRef: ReferenceExpression): ModelType | undefined {
+    const heritageType = getTypeForNode(heritageRef);
+    if (isErrorType(heritageType)) {
+      compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
+      return undefined;
     }
-    return baseModels;
+
+    if (heritageType.kind !== "Model") {
+      program.reportDiagnostic("Models must extend other models.", heritageRef);
+      return undefined;
+    }
+
+    return heritageType;
   }
 
   function checkModelIs(isExpr: ReferenceExpression | undefined): ModelType | undefined {
@@ -895,16 +891,12 @@ export function createChecker(program: Program): Checker {
   }
 
   function* walkPropertiesInherited(model: ModelType) {
-    const parents = [model];
-    const props: ModelTypeProperty[] = [];
+    let current: ModelType | undefined = model;
 
-    while (parents.length > 0) {
-      const parent = parents.pop()!;
-      yield* parent.properties.values();
-      parents.push(...parent.baseModels);
+    while (current) {
+      yield* current.properties.values();
+      current = current.baseModel;
     }
-
-    return props;
   }
 
   function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {

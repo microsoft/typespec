@@ -10,12 +10,23 @@ describe("cadl: models", () => {
   });
 
   it("allow template parameters passed into decorators", async () => {
+    let t1, t2;
+
+    testHost.addJsFile("dec.js", {
+      $dec(p: any, t: any, _t1: ModelType, _t2: ModelType) {
+        t1 = _t1;
+        t2 = _t2;
+      },
+    });
+
     testHost.addCadlFile(
       "main.cadl",
       `
+      import "./dec.js";
       model B { }
       model C { }
-      model A extends B, C {
+      @dec(T1, T2)
+      model A<T1,T2> {
 
       }
       `
@@ -25,6 +36,9 @@ describe("cadl: models", () => {
       B: ModelType;
       C: ModelType;
     };
+
+    strictEqual(t1, B);
+    strictEqual(t2, C);
   });
 
   it("doesn't allow duplicate properties", async () => {
@@ -108,7 +122,7 @@ describe("cadl: models", () => {
         `
       );
       const { A, C } = (await testHost.compile("main.cadl")) as { A: ModelType; C: ModelType };
-      strictEqual(C.baseModels[0], A);
+      strictEqual(C.baseModel, A);
     });
 
     it("doesn't allow duplicate properties", async () => {

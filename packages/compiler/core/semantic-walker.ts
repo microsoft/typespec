@@ -76,8 +76,8 @@ function navigateModelType(
   for (const property of model.properties.values()) {
     navigateModelTypeProperty(property, eventEmitter, visited);
   }
-  for (const baseModel of model.baseModels) {
-    navigateModelType(baseModel, eventEmitter, visited);
+  if (model.baseModel) {
+    navigateModelType(model.baseModel, eventEmitter, visited);
   }
 }
 

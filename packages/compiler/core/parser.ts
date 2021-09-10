@@ -442,8 +442,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
-    const optionalExtends: ReferenceExpression[] = parseOptionalModelExtends();
-    const optionalIs = optionalExtends.length === 0 ? parseOptionalModelIs() : undefined;
+    const optionalExtends: ReferenceExpression | undefined = parseOptionalModelExtends();
+    const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
     const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
 
     return {
@@ -459,11 +459,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseOptionalModelExtends() {
-    let heritage: ReferenceExpression[] = [];
     if (parseOptional(Token.ExtendsKeyword)) {
-      heritage = parseList(ListKind.Heritage, parseReferenceExpression);
+      return parseReferenceExpression();
     }
-    return heritage;
+    return undefined;
   }
 
   function parseOptionalModelIs() {
@@ -1182,7 +1181,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
-        visitEach(cb, node.extends) ||
+        visitNode(cb, node.extends) ||
         visitNode(cb, node.is) ||
         visitEach(cb, node.properties)
       );

@@ -16,7 +16,7 @@ describe("cadl: loader", () => {
       import "./blue.js";
 
       @blue
-      model A extends B, C { }
+      model A extends B { x: C }
       `
     );
     testHost.addCadlFile(
