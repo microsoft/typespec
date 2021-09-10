@@ -1,10 +1,10 @@
 import { deepStrictEqual } from "assert";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
-import { ConfigValidator } from "../../config/config-validator.js";
+import { CadlConfigJsonSchema } from "../../config/config-schema.js";
+import { SchemaValidator } from "../../config/config-validator.js";
 import { CadlRawConfig, loadCadlConfigInDir } from "../../config/index.js";
 import { createSourceFile } from "../../core/diagnostics.js";
-import { Diagnostic } from "../../core/types.js";
 import { NodeHost } from "../../core/util.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -109,13 +109,11 @@ describe("cadl: config file loading", () => {
   });
 
   describe("validation", () => {
-    const validator = new ConfigValidator();
+    const validator = new SchemaValidator(CadlConfigJsonSchema);
     const file = createSourceFile("<content>", "<path>");
 
     function validate(data: CadlRawConfig) {
-      const diagnostics: Diagnostic[] = [];
-      validator.validateConfig(data, file, (d) => diagnostics.push(d));
-      return diagnostics;
+      return validator.validate(data, file);
     }
 
     it("does not allow additional properties", () => {

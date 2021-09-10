@@ -1,5 +1,6 @@
 import fs from "fs";
 import { readFile, realpath, stat, writeFile } from "fs/promises";
+import fetch from "node-fetch";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import {
@@ -114,6 +115,12 @@ export async function loadFile<T>(
 }
 
 export const NodeHost: CompilerHost = {
+  readUrl: async (url: string) => {
+    const response = await fetch(url);
+    const text = await response.text();
+
+    return createSourceFile(text, url);
+  },
   readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
   resolveAbsolutePath: (path: string) => resolve(path),
@@ -130,3 +137,19 @@ export const NodeHost: CompilerHost = {
     return realpath(path);
   },
 };
+
+export async function readUrlOrPath(host: CompilerHost, pathOrUrl: string): Promise<SourceFile> {
+  if (isUrl(pathOrUrl)) {
+    return host.readUrl(pathOrUrl);
+  }
+  return host.readFile(pathOrUrl);
+}
+
+function isUrl(url: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}

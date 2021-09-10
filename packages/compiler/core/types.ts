@@ -553,6 +553,9 @@ export interface Dirent {
 }
 
 export interface CompilerHost {
+  // read a file at the given url.
+  readUrl(url: string): Promise<SourceFile>;
+
   // read a utf-8 encoded file
   readFile(path: string): Promise<SourceFile>;
 

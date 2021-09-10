@@ -42,6 +42,13 @@ export async function createTestHost(): Promise<TestHost> {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
   const compilerHost: CompilerHost = {
+    async readUrl(url: string) {
+      const contents = virtualFs.get(url);
+      if (contents === undefined) {
+        throw new TestHostError(`File ${url} not found.`, "ENOENT");
+      }
+      return createSourceFile(contents, url);
+    },
     async readFile(path: string) {
       const contents = virtualFs.get(path);
       if (contents === undefined) {

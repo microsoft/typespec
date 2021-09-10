@@ -1,6 +1,6 @@
 import Ajv, { ErrorObject, JSONSchemaType } from "ajv";
-import { compilerAssert } from "../core/diagnostics.js";
-import { Diagnostic, SourceFile } from "../core/types.js";
+import { compilerAssert } from "./diagnostics.js";
+import { Diagnostic, SourceFile } from "./types.js";
 
 export class SchemaValidator<T> {
   private ajv = new Ajv({

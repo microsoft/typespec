@@ -11,6 +11,7 @@ import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { formatCadlFiles } from "./formatter.js";
+import { initCadlProject } from "./init.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
 async function main() {
@@ -114,6 +115,16 @@ async function main() {
       async (args) => {
         await formatCadlFiles(args["include"], { debug: args.debug });
       }
+    )
+    .command(
+      "init [templatesUrl]",
+      "Create a new Cadl project.",
+      (cmd) =>
+        cmd.positional("templatesUrl", {
+          description: "Url of the initialization template",
+          type: "string",
+        }),
+      (args) => initCadlProject(NodeHost, process.cwd(), args.templatesUrl)
     )
     .command(
       "info",

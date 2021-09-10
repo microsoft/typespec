@@ -2,7 +2,8 @@ import { basename, extname, join } from "path";
 import { Message } from "../core/diagnostics.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
 import { deepClone, deepFreeze, loadFile } from "../core/util.js";
-import { ConfigValidator } from "./config-validator.js";
+import { CadlConfigJsonSchema } from "./config-schema.js";
+import { SchemaValidator } from "./config-validator.js";
 import { CadlConfig } from "./types.js";
 
 const configFilenames = [".cadlrc.yaml", ".cadlrc.yml", ".cadlrc.json", "package.json"];
@@ -86,20 +87,20 @@ export async function loadYAMLConfigFile(
   return await loadConfigFile(host, filePath, jsyaml.load);
 }
 
-const configValidator = new ConfigValidator();
+const configValidator = new SchemaValidator(CadlConfigJsonSchema);
 
 async function loadConfigFile(
   host: CompilerHost,
   filePath: string,
   loadData: (content: string) => any
 ): Promise<CadlConfig> {
-  const diagnostics: Diagnostic[] = [];
+  let diagnostics: Diagnostic[] = [];
   const reportDiagnostic = (d: Diagnostic) => diagnostics.push(d);
 
   let [data, file] = await loadFile(host, filePath, loadData, reportDiagnostic);
 
   if (data) {
-    configValidator.validateConfig(data, file, reportDiagnostic);
+    diagnostics = diagnostics.concat(configValidator.validate(data, file));
   }
 
   if (!data || diagnostics.length > 0) {
