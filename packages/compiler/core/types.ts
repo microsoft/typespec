@@ -177,7 +177,7 @@ export interface SymbolLinks {
 }
 
 export interface SymbolTable extends Map<string, Sym> {
-  readonly duplicates: ReadonlySet<Sym>;
+  readonly duplicates: Set<Sym>;
 }
 
 /**
@@ -249,13 +249,12 @@ export interface BlockComment extends TextRange {
   kind: SyntaxKind.BlockComment;
 }
 
-export interface CadlScriptNode extends BaseNode {
+export interface CadlScriptNode extends ContainerNode, BaseNode {
   kind: SyntaxKind.CadlScript;
   statements: Statement[];
   file: SourceFile;
   inScopeNamespaces: NamespaceStatementNode[]; // namespaces that declarations in this file belong to
   namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
-  locals: SymbolTable; // holds global scope "usings"
   usings: UsingStatementNode[];
   comments: Comment[];
   parseDiagnostics: Diagnostic[];
@@ -334,12 +333,15 @@ export interface MemberExpressionNode extends BaseNode {
   base: MemberExpressionNode | IdentifierNode;
 }
 
-export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
+export interface ContainerNode {
+  locals?: SymbolTable;
+  exports?: SymbolTable;
+}
+
+export interface NamespaceStatementNode extends BaseNode, DeclarationNode, ContainerNode {
   kind: SyntaxKind.NamespaceStatement;
   name: IdentifierNode;
   statements?: Statement[] | NamespaceStatementNode;
-  locals?: SymbolTable;
-  exports?: SymbolTable;
   decorators: DecoratorExpressionNode[];
 }
 
@@ -489,7 +491,10 @@ export interface JsSourceFile {
   file: SourceFile;
 
   /* The exports object as comes from `import()` */
-  exports: any;
+  esmExports: any;
+
+  /* Exported "global scope" bindings */
+  exports?: SymbolTable;
 
   /* Any namespaces declared by decorators. */
   namespaces: NamespaceStatementNode[];

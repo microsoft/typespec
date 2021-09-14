@@ -953,10 +953,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function getTypeNameForSchemaProperties(type: Type) {
     // Try to shorten the type name to exclude the top-level service namespace
-    const typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
+    let typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
 
-    if (isRefSafeName(typeName) && serviceNamespace) {
-      return typeName.replace(RegExp(serviceNamespace + "\\.", "g"), "");
+    if (isRefSafeName(typeName)) {
+      if (serviceNamespace) {
+        typeName = typeName.replace(RegExp(serviceNamespace + "\\.", "g"), "");
+      }
+      // exclude the Cadl namespace in type names
+      typeName = typeName.replace(/($|_)(Cadl\.)/g, "$1");
     }
 
     return typeName;

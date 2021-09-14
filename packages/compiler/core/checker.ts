@@ -1,3 +1,4 @@
+import { createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { hasParseError } from "./parser.js";
 import { Program } from "./program.js";
@@ -17,6 +18,7 @@ import {
   ErrorType,
   IdentifierNode,
   IntersectionExpressionNode,
+  JsSourceFile,
   LiteralNode,
   LiteralType,
   ModelExpressionNode,
@@ -34,6 +36,7 @@ import {
   ReferenceExpression,
   StringLiteralNode,
   StringLiteralType,
+  Sym,
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
@@ -50,11 +53,16 @@ import {
 
 export interface Checker {
   getTypeForNode(node: Node): Type;
-  checkProgram(program: Program): void;
+  mergeJsSourceFile(file: JsSourceFile): void;
+  mergeCadlSourceFile(file: CadlScriptNode): void;
+  checkProgram(): void;
+  checkSourceFile(file: CadlScriptNode): void;
   checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty;
   checkUnionExpression(node: UnionExpressionNode): UnionType;
   getGlobalNamespaceType(): NamespaceType;
-
+  getGlobalNamespaceNode(): NamespaceStatementNode;
+  getMergedSymbol(sym: Sym | undefined): Sym | undefined;
+  getMergedNamespace(node: NamespaceStatementNode): NamespaceStatementNode;
   getLiteralType(node: StringLiteralNode): StringLiteralType;
   getLiteralType(node: NumericLiteralNode): NumericLiteralType;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
@@ -115,24 +123,63 @@ export function createChecker(program: Program): Checker {
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
-  const root = createType({
-    kind: "Namespace",
-    name: "",
-    node: program.globalNamespace,
-    models: new Map(),
-    operations: new Map(),
-    namespaces: new Map(),
-    decorators: [],
-  });
-
+  const mergedSymbols = new Map<Sym, Sym>();
+  const globalNamespaceNode = createGlobalNamespaceNode();
+  const globalNamespaceType = createGlobalNamespaceType();
+  let cadlNamespaceNode: NamespaceStatementNode | undefined;
   const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
 
   // This variable holds on to the model type that is currently
   // being instantiated in checkModelStatement so that it is
   // possible to have recursive type references in properties.
   let pendingModelType: PendingModelInfo | undefined = undefined;
-
+  for (const file of program.jsSourceFiles.values()) {
+    mergeJsSourceFile(file);
+  }
   for (const file of program.sourceFiles.values()) {
+    mergeCadlSourceFile(file);
+  }
+
+  const cadlNamespaceBinding = globalNamespaceNode.exports?.get("Cadl");
+  if (cadlNamespaceBinding) {
+    // the cadl namespace binding will be absent if we've passed
+    // the no-std-lib option.
+    compilerAssert(cadlNamespaceBinding.kind === "type", "expected Cadl to be a type binding");
+    compilerAssert(
+      cadlNamespaceBinding.node.kind === SyntaxKind.NamespaceStatement,
+      "expected Cadl to be a namespace"
+    );
+    cadlNamespaceNode = cadlNamespaceBinding.node;
+    for (const file of program.sourceFiles.values()) {
+      for (const [name, binding] of cadlNamespaceNode.exports!) {
+        file.locals!.set(name, binding);
+      }
+    }
+  }
+
+  return {
+    getTypeForNode,
+    checkProgram,
+    checkSourceFile,
+    checkModelProperty,
+    checkUnionExpression,
+    getLiteralType,
+    getTypeName,
+    getNamespaceString,
+    getGlobalNamespaceType,
+    getGlobalNamespaceNode,
+    mergeJsSourceFile,
+    mergeCadlSourceFile,
+    getMergedSymbol,
+    getMergedNamespace,
+  };
+
+  function mergeJsSourceFile(file: JsSourceFile) {
+    mergeSymbolTable(file.exports!, globalNamespaceNode.exports!);
+  }
+
+  function mergeCadlSourceFile(file: CadlScriptNode) {
+    mergeSymbolTable(file.exports!, globalNamespaceNode.exports!);
     for (const using of file.usings) {
       const parentNs = using.parent! as NamespaceStatementNode | CadlScriptNode;
       const sym = resolveTypeReference(using.name);
@@ -153,19 +200,13 @@ export function createChecker(program: Program): Checker {
         parentNs.locals!.set(name, binding);
       }
     }
+
+    if (cadlNamespaceNode) {
+      for (const [name, binding] of cadlNamespaceNode.exports!) {
+        file.locals!.set(name, binding);
+      }
+    }
   }
-
-  return {
-    getTypeForNode,
-    checkProgram,
-    checkModelProperty,
-    checkUnionExpression,
-    getLiteralType,
-    getTypeName,
-    getNamespaceString,
-    getGlobalNamespaceType,
-  };
-
   function getTypeForNode(node: Node): Type {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
@@ -453,7 +494,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
-    const links = getSymbolLinks(node.symbol!);
+    const links = getSymbolLinks(getMergedSymbol(node.symbol!) as TypeSymbol);
     let type = links.type as NamespaceType;
     if (!type) {
       type = initializeTypeForNamespace(node);
@@ -471,7 +512,7 @@ export function createChecker(program: Program): Checker {
   function initializeTypeForNamespace(node: NamespaceStatementNode) {
     compilerAssert(node.symbol, "Namespace is unbound.", node);
 
-    const symbolLinks = getSymbolLinks(node.symbol);
+    const symbolLinks = getSymbolLinks(getMergedSymbol(node.symbol) as TypeSymbol);
     if (!symbolLinks.type) {
       // haven't seen this namespace before
       const namespace = getParentNamespaceType(node);
@@ -513,10 +554,10 @@ export function createChecker(program: Program): Checker {
   function getParentNamespaceType(
     node: ModelStatementNode | NamespaceStatementNode | OperationStatementNode | EnumStatementNode
   ): NamespaceType | undefined {
-    if (node === root.node) return undefined;
-    if (!node.namespaceSymbol) return root;
+    if (node === globalNamespaceType.node) return undefined;
+    if (!node.namespaceSymbol) return globalNamespaceType;
 
-    const symbolLinks = getSymbolLinks(node.namespaceSymbol);
+    const symbolLinks = getSymbolLinks(getMergedSymbol(node.namespaceSymbol) as TypeSymbol);
     compilerAssert(symbolLinks.type, "Parent namespace isn't typed yet.", node);
     return symbolLinks.type as NamespaceType;
   }
@@ -539,7 +580,11 @@ export function createChecker(program: Program): Checker {
   }
 
   function getGlobalNamespaceType() {
-    return root;
+    return globalNamespaceType;
+  }
+
+  function getGlobalNamespaceNode() {
+    return globalNamespaceNode;
   }
 
   function checkTupleExpression(node: TupleExpressionNode): TupleType {
@@ -576,11 +621,14 @@ export function createChecker(program: Program): Checker {
     table: SymbolTable,
     resolveDecorator = false
   ) {
+    let sym;
     if (resolveDecorator) {
-      return table.get("@" + node.sv);
+      sym = table.get("@" + node.sv);
     } else {
-      return table.get(node.sv);
+      sym = table.get(node.sv);
     }
+
+    return getMergedSymbol(sym);
   }
 
   function resolveIdentifier(node: IdentifierNode, resolveDecorator = false) {
@@ -595,7 +643,12 @@ export function createChecker(program: Program): Checker {
 
     while (scope && scope.kind !== SyntaxKind.CadlScript) {
       if ("exports" in scope) {
-        binding = resolveIdentifierInTable(node, scope.exports!, resolveDecorator);
+        const mergedSymbol = getMergedSymbol(scope.symbol) as TypeSymbol;
+        binding = resolveIdentifierInTable(
+          node,
+          (mergedSymbol.node as any).exports!,
+          resolveDecorator
+        );
         if (binding) return binding;
       }
 
@@ -608,14 +661,23 @@ export function createChecker(program: Program): Checker {
     }
 
     if (!binding && scope && scope.kind === SyntaxKind.CadlScript) {
-      // check any blockless namespace decls and global scope
+      // check any blockless namespace decls
       for (const ns of scope.inScopeNamespaces) {
-        binding = resolveIdentifierInTable(node, ns.exports!, resolveDecorator);
+        const mergedSymbol = getMergedSymbol(ns.symbol) as TypeSymbol;
+        binding = resolveIdentifierInTable(
+          node,
+          (mergedSymbol.node as any).exports!,
+          resolveDecorator
+        );
         if (binding) return binding;
       }
 
+      // check "global scope" declarations
+      binding = resolveIdentifierInTable(node, globalNamespaceNode.exports!, resolveDecorator);
+      if (binding) return binding;
+
       // check "global scope" usings
-      binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+      binding = resolveIdentifierInTable(node, scope.locals!, resolveDecorator);
       if (binding) return binding;
     }
 
@@ -674,8 +736,8 @@ export function createChecker(program: Program): Checker {
     return getLiteralType(bool);
   }
 
-  function checkProgram(program: Program) {
-    program.reportDuplicateSymbols(program.globalNamespace.exports!);
+  function checkProgram() {
+    program.reportDuplicateSymbols(globalNamespaceNode.exports!);
     for (const file of program.sourceFiles.values()) {
       program.reportDuplicateSymbols(file.locals!);
       for (const ns of file.namespaces) {
@@ -685,6 +747,7 @@ export function createChecker(program: Program): Checker {
         initializeTypeForNamespace(ns);
       }
     }
+
     for (const file of program.sourceFiles.values()) {
       checkSourceFile(file);
     }
@@ -1073,6 +1136,102 @@ export function createChecker(program: Program): Checker {
 
     program.literalTypes.set(node.value, type);
     return type;
+  }
+
+  function mergeSymbolTable(source: SymbolTable, target: SymbolTable) {
+    for (const dupe of source.duplicates) {
+      target.duplicates.add(dupe);
+    }
+    for (const [key, sourceBinding] of source) {
+      if (
+        sourceBinding.kind === "type" &&
+        sourceBinding.node.kind === SyntaxKind.NamespaceStatement
+      ) {
+        // we are merging a namespace symbol. See if is an existing namespace symbol
+        // to merge with.
+        let existingBinding = target.get(key);
+
+        if (!existingBinding) {
+          existingBinding = {
+            kind: "type",
+            node: sourceBinding.node,
+            name: sourceBinding.name,
+            id: sourceBinding.id,
+          };
+          target.set(key, existingBinding);
+          mergedSymbols.set(sourceBinding, existingBinding);
+        } else if (
+          existingBinding.kind === "type" &&
+          existingBinding.node.kind === SyntaxKind.NamespaceStatement
+        ) {
+          mergedSymbols.set(sourceBinding, existingBinding);
+          // merge the namespaces
+          mergeSymbolTable(sourceBinding.node.exports!, existingBinding.node.exports!);
+        } else {
+          target.set(key, sourceBinding);
+        }
+      } else {
+        target.set(key, sourceBinding);
+      }
+    }
+  }
+
+  function getMergedSymbol(sym: Sym | undefined): Sym | undefined {
+    if (!sym) return sym;
+    return mergedSymbols.get(sym) || sym;
+  }
+
+  function getMergedNamespace(node: NamespaceStatementNode): NamespaceStatementNode {
+    const sym = getMergedSymbol(node.symbol) as TypeSymbol;
+    return sym.node as NamespaceStatementNode;
+  }
+
+  function createGlobalNamespaceNode(): NamespaceStatementNode {
+    const nsId: IdentifierNode = {
+      kind: SyntaxKind.Identifier,
+      pos: 0,
+      end: 0,
+      sv: "__GLOBAL_NS",
+    };
+
+    return {
+      kind: SyntaxKind.NamespaceStatement,
+      decorators: [],
+      pos: 0,
+      end: 0,
+      name: nsId,
+      locals: createSymbolTable(),
+      exports: createSymbolTable(),
+    };
+  }
+
+  function createGlobalNamespaceType() {
+    return createType({
+      kind: "Namespace",
+      name: "",
+      node: globalNamespaceNode,
+      models: new Map(),
+      operations: new Map(),
+      namespaces: new Map(),
+      decorators: [],
+    });
+  }
+
+  /**
+   * useful utility function to debug the scopes produced by the binder,
+   * the result of symbol merging, and identifier resolution.
+   */
+  function dumpScope(scope = globalNamespaceNode, indent = 0) {
+    for (const [name, sym] of scope.exports!) {
+      console.log(
+        `${Array(indent * 2 + 1).join(" ")}${name} => ${
+          sym.kind === "type" ? SyntaxKind[sym.node.kind] : "[fn]"
+        }`
+      );
+      if (sym.kind === "type" && sym.node.kind == SyntaxKind.NamespaceStatement) {
+        dumpScope(sym.node, indent + 1);
+      }
+    }
   }
 }
 

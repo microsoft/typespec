@@ -4,9 +4,11 @@ import { Program } from "./program.js";
 import {
   AliasStatementNode,
   CadlScriptNode,
+  ContainerNode,
   Declaration,
   DecoratorSymbol,
   EnumStatementNode,
+  IdentifierNode,
   JsSourceFile,
   ModelStatementNode,
   NamespaceStatementNode,
@@ -60,9 +62,8 @@ export interface BinderOptions {
 export function createBinder(program: Program, options: BinderOptions = {}): Binder {
   let currentFile: CadlScriptNode;
   let parentNode: Node | undefined = options?.initialParentNode;
-  let globalNamespace: NamespaceStatementNode;
-  let fileNamespace: NamespaceStatementNode;
-  let currentNamespace: NamespaceStatementNode;
+  let fileNamespace: NamespaceStatementNode | CadlScriptNode;
+  let currentNamespace: ContainerNode;
 
   // Node where locals go.
   let scope: ScopeNode;
@@ -82,9 +83,10 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   }
 
   function bindJsSourceFile(sourceFile: JsSourceFile) {
-    const rootNs = sourceFile.exports["namespace"];
+    sourceFile.exports = createSymbolTable();
+    const rootNs = sourceFile.esmExports["namespace"];
     const namespaces = new Set<NamespaceStatementNode>();
-    for (const [key, member] of Object.entries(sourceFile.exports)) {
+    for (const [key, member] of Object.entries(sourceFile.esmExports)) {
       if (typeof member === "function" && isFunctionName(key)) {
         // lots of 'any' casts here because control flow narrowing `member` to Function
         // isn't particularly useful it turns out.
@@ -105,7 +107,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           nsParts.push(...memberNs.split("."));
         }
 
-        let currentNamespace = program.globalNamespace;
+        let currentNamespace: JsSourceFile | NamespaceStatementNode = sourceFile;
         for (const part of nsParts) {
           const existingBinding = currentNamespace.exports!.get(part);
           if (
@@ -119,20 +121,10 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           } else {
             // need to synthesize a namespace declaration node
             // consider creating a "synthetic" node flag if necessary
-            const nsNode: NamespaceStatementNode = {
-              kind: SyntaxKind.NamespaceStatement,
-              decorators: [],
-              name: { kind: SyntaxKind.Identifier, sv: name, pos: 0, end: 0 },
-              pos: 0,
-              end: 0,
-              locals: createSymbolTable(),
-              exports: createSymbolTable(),
-            };
+            const nsNode = createSyntheticNamespace(name);
 
             if (existingBinding && existingBinding.kind === "type") {
               nsNode.symbol = existingBinding;
-
-              // todo: don't merge exports
               nsNode.exports = (existingBinding.node as NamespaceStatementNode).exports;
             } else {
               declareSymbol(currentNamespace.exports!, nsNode, part);
@@ -151,12 +143,10 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   }
 
   function bindSourceFile(sourceFile: CadlScriptNode) {
-    globalNamespace = program.globalNamespace;
-    fileNamespace = globalNamespace;
-    currentFile = sourceFile;
-    currentNamespace = scope = globalNamespace;
+    sourceFile.exports = createSymbolTable();
+    fileNamespace = currentFile = sourceFile;
+    currentNamespace = scope = fileNamespace;
     bindNode(sourceFile);
-    currentFile.inScopeNamespaces.push(globalNamespace);
   }
 
   function bindNode(node: Node) {
@@ -308,7 +298,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         node
       );
 
-      node.namespaceSymbol = fileNamespace.symbol;
+      if (fileNamespace.kind !== SyntaxKind.CadlScript) {
+        node.namespaceSymbol = fileNamespace.symbol;
+      }
     }
 
     table.set(name, symbol);
@@ -343,5 +335,24 @@ function createDecoratorSymbol(name: string, path: string, value: any): Decorato
     name: `@` + name,
     path,
     value,
+  };
+}
+
+function createSyntheticNamespace(name: string): NamespaceStatementNode {
+  const nsId: IdentifierNode = {
+    kind: SyntaxKind.Identifier,
+    pos: 0,
+    end: 0,
+    sv: name,
+  };
+
+  return {
+    kind: SyntaxKind.NamespaceStatement,
+    decorators: [],
+    pos: 0,
+    end: 0,
+    name: nsId,
+    locals: createSymbolTable(),
+    exports: createSymbolTable(),
   };
 }

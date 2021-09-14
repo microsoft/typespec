@@ -1,6 +1,8 @@
 import { Program } from "../core/program.js";
 import { ModelTypeProperty, NamespaceType, Type } from "../core/types.js";
 
+export const namespace = "Cadl";
+
 const docsKey = Symbol();
 export function $doc(program: Program, target: Type, text: string) {
   program.stateMap(docsKey).set(target, text);

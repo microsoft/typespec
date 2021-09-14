@@ -1,4 +1,6 @@
+import { notStrictEqual } from "assert";
 import { assert } from "console";
+import { ModelType } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
 describe("cadl: global namespace", () => {
@@ -33,7 +35,7 @@ describe("cadl: global namespace", () => {
       );
     });
 
-    it("adds top-level oeprations", async () => {
+    it("adds top-level operations", async () => {
       testHost.addCadlFile("main.cadl", `op myOperation(): string;`);
 
       await testHost.compile("./");
@@ -86,7 +88,7 @@ describe("cadl: global namespace", () => {
       );
     });
 
-    it("adds top-level oeprations", async () => {
+    it("adds top-level operations", async () => {
       testHost.addCadlFile("a.cadl", `op myOperation(): string;`);
 
       await testHost.compile("./");
@@ -97,5 +99,12 @@ describe("cadl: global namespace", () => {
         "operation myOperation was added to global namespace type"
       );
     });
+  });
+
+  it("can override cadl library things", async () => {
+    testHost.addCadlFile("./main.cadl", `@test model int32 { x: Cadl.int32 }`);
+
+    const { int32 } = (await testHost.compile("./")) as { int32: ModelType };
+    notStrictEqual(int32, int32.properties.get("x")!.type);
   });
 });

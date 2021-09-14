@@ -32,9 +32,7 @@ describe("cadl: decorators", () => {
 
   it("doesn't conflict with type bindings at global scope", async () => {
     testHost.addJsFile("test.js", {
-      $foo(_: any, __: any, t: any) {
-        console.log(t);
-      },
+      $foo(_: any, __: any, t: any) {},
     });
 
     testHost.addCadlFile(

@@ -1,3 +1,4 @@
+namespace Cadl;
 @intrinsic model bytes { }
 @intrinsic @numeric model int64 { }
 @intrinsic @numeric model int32 { }

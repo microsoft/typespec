@@ -1,6 +1,6 @@
 import { dirname, extname, isAbsolute, resolve } from "path";
 import resolveModule from "resolve";
-import { createBinder, createSymbolTable } from "./binder.js";
+import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createDiagnostic, createSourceFile, DiagnosticTarget, NoTarget } from "./diagnostics.js";
 import { Message } from "./messages.js";
@@ -10,10 +10,8 @@ import {
   CadlScriptNode,
   CompilerHost,
   Diagnostic,
-  IdentifierNode,
   JsSourceFile,
   LiteralType,
-  NamespaceStatementNode,
   SourceFile,
   Sym,
   SymbolTable,
@@ -23,7 +21,6 @@ import { doIO, loadFile } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
-  globalNamespace: NamespaceStatementNode;
   /** All source files in the program, keyed by their file path. */
   sourceFiles: Map<string, CadlScriptNode>;
   jsSourceFiles: Map<string, JsSourceFile>;
@@ -31,7 +28,8 @@ export interface Program {
   host: CompilerHost;
   checker?: Checker;
   readonly diagnostics: readonly Diagnostic[];
-  evalCadlScript(cadlScript: string, filePath?: string): void;
+  loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
+  evalCadlScript(cadlScript: string): void;
   onBuild(cb: (program: Program) => void): Promise<void> | void;
   getOption(key: string): string | undefined;
   stateSet(key: Symbol): Set<any>;
@@ -62,12 +60,12 @@ export async function createProgram(
 
   const program: Program = {
     compilerOptions: options,
-    globalNamespace: createGlobalNamespace(),
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
     literalTypes: new Map(),
     host,
     diagnostics,
+    loadCadlScript,
     evalCadlScript,
     getOption,
     stateMap,
@@ -93,32 +91,13 @@ export async function createProgram(
   await loadMain(mainFile, options);
 
   const checker = (program.checker = createChecker(program));
-  program.checker.checkProgram(program);
+  program.checker.checkProgram();
 
   for (const cb of buildCbs) {
     await cb(program);
   }
 
   return program;
-
-  function createGlobalNamespace(): NamespaceStatementNode {
-    const nsId: IdentifierNode = {
-      kind: SyntaxKind.Identifier,
-      pos: 0,
-      end: 0,
-      sv: "__GLOBAL_NS",
-    };
-
-    return {
-      kind: SyntaxKind.NamespaceStatement,
-      decorators: [],
-      pos: 0,
-      end: 0,
-      name: nsId,
-      locals: createSymbolTable(),
-      exports: createSymbolTable(),
-    };
-  }
 
   async function loadStandardLibrary(program: Program) {
     for (const dir of host.getLibDirs()) {
@@ -147,7 +126,7 @@ export async function createProgram(
     });
 
     if (file) {
-      await evalCadlScript(file);
+      await loadCadlScript(file);
     }
   }
 
@@ -165,7 +144,7 @@ export async function createProgram(
     }
 
     const sourceFile: JsSourceFile = {
-      exports,
+      esmExports: exports,
       file,
       namespaces: [],
     };
@@ -175,13 +154,7 @@ export async function createProgram(
     binder.bindJsSourceFile(sourceFile);
   }
 
-  // Evaluates an arbitrary line of Cadl in the context of a
-  // specified file path.  If no path is specified, use a
-  // virtual file path
-  async function evalCadlScript(cadlScript: string | SourceFile): Promise<void> {
-    if (typeof cadlScript === "string") {
-      cadlScript = createSourceFile(cadlScript, `__virtual_file_${++virtualFileCount}`);
-    }
+  async function loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode> {
     // This is not a diagnostic because the compiler should never reuse the same path.
     // It's the caller's responsibility to use unique paths.
     if (program.sourceFiles.has(cadlScript.path)) {
@@ -191,10 +164,45 @@ export async function createProgram(
     program.reportDiagnostics(sourceFile.parseDiagnostics);
     program.sourceFiles.set(cadlScript.path, sourceFile);
     binder.bindSourceFile(sourceFile);
-    await evalImports(sourceFile);
+    await loadImports(sourceFile);
+    return sourceFile;
   }
 
-  async function evalImports(file: CadlScriptNode) {
+  function loadCadlScriptSync(cadlScript: SourceFile): CadlScriptNode {
+    // This is not a diagnostic because the compiler should never reuse the same path.
+    // It's the caller's responsibility to use unique paths.
+    if (program.sourceFiles.has(cadlScript.path)) {
+      throw new RangeError("Duplicate script path: " + cadlScript);
+    }
+    const sourceFile = parse(cadlScript);
+    program.reportDiagnostics(sourceFile.parseDiagnostics);
+    program.sourceFiles.set(cadlScript.path, sourceFile);
+    for (const stmt of sourceFile.statements) {
+      if (stmt.kind !== SyntaxKind.ImportStatement) break;
+      program.reportDiagnostic(`Dynamically generated Cadl cannot have imports`, stmt);
+    }
+    binder.bindSourceFile(sourceFile);
+
+    return sourceFile;
+  }
+
+  // Evaluates an arbitrary line of Cadl in the context of a
+  // specified file path.  If no path is specified, use a
+  // virtual file path
+  function evalCadlScript(script: string): void {
+    const sourceFile = createSourceFile(script, `__virtual_file_${++virtualFileCount}`);
+    const cadlScript = loadCadlScriptSync(sourceFile);
+    checker.mergeCadlSourceFile(cadlScript);
+    reportDuplicateSymbols(cadlScript.locals!);
+    for (const ns of cadlScript.namespaces) {
+      const mergedNs = checker.getMergedNamespace(ns);
+      reportDuplicateSymbols(mergedNs.locals!);
+      reportDuplicateSymbols(mergedNs.exports!);
+    }
+    reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports!);
+  }
+
+  async function loadImports(file: CadlScriptNode) {
     // collect imports
     for (const stmt of file.statements) {
       if (stmt.kind !== SyntaxKind.ImportStatement) break;

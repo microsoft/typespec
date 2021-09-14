@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { Program } from "../../core/program.js";
 import { ModelType, NamespaceType, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
@@ -246,6 +247,47 @@ describe("cadl: blockless namespaces", () => {
     strictEqual(Z.properties.size, 2, "has two properties");
   });
 
+  it("merges properly with other namespaces using eval", async () => {
+    testHost.addJsFile("test.js", {
+      $eval(p: Program) {
+        p.evalCadlScript(`namespace N; @test model Z { ... X, ... Y }`);
+      },
+    });
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./a.cadl";
+      import "./b.cadl";
+      import "./c.cadl";
+      `
+    );
+    testHost.addCadlFile(
+      "a.cadl",
+      `
+      namespace N;
+      model X { x: int32 }
+      `
+    );
+    testHost.addCadlFile(
+      "b.cadl",
+      `
+      namespace N;
+      model Y { y: int32 }
+      `
+    );
+    testHost.addCadlFile(
+      "c.cadl",
+      `
+      import "./test.js";
+      @eval model test { }
+      `
+    );
+    const { Z } = (await testHost.compile("./")) as {
+      Z: ModelType;
+    };
+    strictEqual(Z.properties.size, 2, "has two properties");
+  });
+
   it("does lookup correctly", async () => {
     testHost.addCadlFile(
       "main.cadl",
@@ -480,7 +522,6 @@ describe("cadl: decorators in namespaces", () => {
       "main.cadl",
       `
       import "./dec.js";
-
       @A.B.foo @A.B.C.bar model M { };
       `
     );
