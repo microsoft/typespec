@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/prettier-plugin-cadl",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "prettier": "~2.2.1"
   },
   "devDependencies": {
-    "@cadl-lang/compiler": "0.19.0",
+    "@cadl-lang/compiler": "0.20.0",
     "@rollup/plugin-commonjs": "~17.1.0",
     "@rollup/plugin-json": "~4.1.0",
     "@rollup/plugin-node-resolve": "~11.2.0",

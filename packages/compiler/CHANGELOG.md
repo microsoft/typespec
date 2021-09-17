@@ -1,6 +1,27 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Sat, 21 Aug 2021 00:04:02 GMT and should not be manually modified.
+This log was last generated on Fri, 17 Sep 2021 00:49:37 GMT and should not be manually modified.
+
+## 0.20.0
+Fri, 17 Sep 2021 00:49:37 GMT
+
+### Minor changes
+
+- Added `cadl init` command to scaffold new cadl project
+- Added semantic walker
+- Add IDE go-to definition support
+- Implement cadl namespace, don't merge namespaces until checking
+- Remove support for multiple inheritance
+- Definition for `bytes` and new number types
+
+### Patches
+
+- Fix issues with specs
+- Update samples
+- Ensure syntax nodes report correct and consistent source positions
+- Fix bug that broke analyzing untitled documents in IDE
+- Fix bug preventing using latest changes to document in IDE
+- Update sample generation
 
 ## 0.19.0
 Sat, 21 Aug 2021 00:04:02 GMT
