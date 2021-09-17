@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/prettier-plugin-cadl
 
-This log was last generated on Sat, 21 Aug 2021 00:04:03 GMT and should not be manually modified.
+This log was last generated on Fri, 17 Sep 2021 00:49:37 GMT and should not be manually modified.
+
+## 0.4.0
+Fri, 17 Sep 2021 00:49:37 GMT
+
+### Minor changes
+
+- Remove support for multiple inheritance
 
 ## 0.3.2
 Sat, 21 Aug 2021 00:04:02 GMT

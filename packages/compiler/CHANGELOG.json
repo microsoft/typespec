@@ -2,6 +2,53 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.20.0",
+      "tag": "@cadl-lang/compiler_v0.20.0",
+      "date": "Fri, 17 Sep 2021 00:49:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix issues with specs"
+          },
+          {
+            "comment": "Update samples"
+          },
+          {
+            "comment": "Ensure syntax nodes report correct and consistent source positions"
+          },
+          {
+            "comment": "Fix bug that broke analyzing untitled documents in IDE"
+          },
+          {
+            "comment": "Fix bug preventing using latest changes to document in IDE"
+          },
+          {
+            "comment": "Update sample generation"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Added `cadl init` command to scaffold new cadl project"
+          },
+          {
+            "comment": "Added semantic walker"
+          },
+          {
+            "comment": "Add IDE go-to definition support"
+          },
+          {
+            "comment": "Implement cadl namespace, don't merge namespaces until checking"
+          },
+          {
+            "comment": "Remove support for multiple inheritance"
+          },
+          {
+            "comment": "Definition for `bytes` and new number types"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.0",
       "tag": "@cadl-lang/compiler_v0.19.0",
       "date": "Sat, 21 Aug 2021 00:04:02 GMT",

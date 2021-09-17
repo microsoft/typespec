@@ -1,0 +1,42 @@
+{
+  "name": "@cadl-lang/openapi3",
+  "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@cadl-lang/openapi3_v0.2.0",
+      "date": "Fri, 17 Sep 2021 00:49:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add emitter for OpenAPI 3.0"
+          },
+          {
+            "comment": "Remove support for multiple inheritance"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Adding changelog for openapi3 package"
+          },
+          {
+            "comment": "Updates for cadl namespace addition"
+          },
+          {
+            "comment": "This is a test"
+          },
+          {
+            "comment": "Support for emitting `bytes` and new number types"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.19.0` to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.0` to `0.6.1`"
+          }
+        ]
+      }
+    }
+  ]
+}

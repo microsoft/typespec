@@ -2,6 +2,18 @@
   "name": "@cadl-lang/rest",
   "entries": [
     {
+      "version": "0.6.1",
+      "tag": "@cadl-lang/rest_v0.6.1",
+      "date": "Fri, 17 Sep 2021 00:49:37 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.19.0` to `0.20.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.0",
       "tag": "@cadl-lang/rest_v0.6.0",
       "date": "Sat, 21 Aug 2021 00:04:02 GMT",
