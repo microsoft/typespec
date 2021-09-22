@@ -93,7 +93,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
         const name = getFunctionName(key);
         if (name === "onBuild") {
-          program.onBuild(member as any);
+          if (!program.compilerOptions.designTimeBuild) {
+            program.onBuild(member as any);
+          }
           continue;
         }
 

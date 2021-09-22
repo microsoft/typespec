@@ -1107,9 +1107,11 @@ export function createChecker(program: Program): Checker {
       target
     );
 
-    // peel `fn` off to avoid setting `this`.
-    const fn = decApp.decorator;
-    fn(program, target, ...decApp.args);
+    if (!program.compilerOptions.designTimeBuild) {
+      // peel `fn` off to avoid setting `this`.
+      const fn = decApp.decorator;
+      fn(program, target, ...decApp.args);
+    }
   }
 
   function getLiteralType(node: StringLiteralNode): StringLiteralType;
