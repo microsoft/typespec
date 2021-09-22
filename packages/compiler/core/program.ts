@@ -193,6 +193,7 @@ export async function createProgram(
     const sourceFile = createSourceFile(script, `__virtual_file_${++virtualFileCount}`);
     const cadlScript = loadCadlScriptSync(sourceFile);
     checker.mergeCadlSourceFile(cadlScript);
+    checker.setUsingsForFile(cadlScript);
     reportDuplicateSymbols(cadlScript.locals!);
     for (const ns of cadlScript.namespaces) {
       const mergedNs = checker.getMergedNamespace(ns);

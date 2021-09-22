@@ -273,4 +273,28 @@ describe("cadl: using statements", () => {
 
     await testHost.compile("./");
   });
+
+  it("works when the using'd namespace is merged after the current namespace", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./other.cadl";
+      namespace Main;
+      using Other;
+      model Thing {
+        other: OtherModel;
+      }
+    `
+    );
+    testHost.addCadlFile(
+      "other.cadl",
+      `
+      namespace Other;
+
+      model OtherModel {
+      }
+    `
+    );
+    await testHost.compile("./");
+  });
 });

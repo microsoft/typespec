@@ -55,6 +55,7 @@ export interface Checker {
   getTypeForNode(node: Node): Type;
   mergeJsSourceFile(file: JsSourceFile): void;
   mergeCadlSourceFile(file: CadlScriptNode): void;
+  setUsingsForFile(file: CadlScriptNode): void;
   checkProgram(): void;
   checkSourceFile(file: CadlScriptNode): void;
   checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty;
@@ -140,6 +141,10 @@ export function createChecker(program: Program): Checker {
     mergeCadlSourceFile(file);
   }
 
+  for (const file of program.sourceFiles.values()) {
+    setUsingsForFile(file);
+  }
+
   const cadlNamespaceBinding = globalNamespaceNode.exports?.get("Cadl");
   if (cadlNamespaceBinding) {
     // the cadl namespace binding will be absent if we've passed
@@ -170,6 +175,7 @@ export function createChecker(program: Program): Checker {
     getGlobalNamespaceNode,
     mergeJsSourceFile,
     mergeCadlSourceFile,
+    setUsingsForFile,
     getMergedSymbol,
     getMergedNamespace,
   };
@@ -180,8 +186,12 @@ export function createChecker(program: Program): Checker {
 
   function mergeCadlSourceFile(file: CadlScriptNode) {
     mergeSymbolTable(file.exports!, globalNamespaceNode.exports!);
+  }
+
+  function setUsingsForFile(file: CadlScriptNode) {
     for (const using of file.usings) {
       const parentNs = using.parent! as NamespaceStatementNode | CadlScriptNode;
+
       const sym = resolveTypeReference(using.name);
       if (!sym) {
         continue;
@@ -1224,6 +1234,17 @@ export function createChecker(program: Program): Checker {
    * the result of symbol merging, and identifier resolution.
    */
   function dumpScope(scope = globalNamespaceNode, indent = 0) {
+    if (scope.locals) {
+      console.log(`${Array(indent * 2).join(" ")}-locals:`);
+      for (const [name, sym] of scope.locals) {
+        console.log(
+          `${Array(indent * 2 + 1).join(" ")}${name} => ${
+            sym.kind === "type" ? SyntaxKind[sym.node.kind] : "[fn]"
+          }`
+        );
+      }
+    }
+    console.log(`${Array(indent * 2).join(" ")}-exports:`);
     for (const [name, sym] of scope.exports!) {
       console.log(
         `${Array(indent * 2 + 1).join(" ")}${name} => ${
