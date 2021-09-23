@@ -144,6 +144,7 @@ export async function createProgram(
     }
 
     const sourceFile: JsSourceFile = {
+      kind: "JsSourceFile",
       esmExports: exports,
       file,
       namespaces: [],

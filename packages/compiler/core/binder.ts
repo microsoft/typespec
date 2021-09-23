@@ -64,9 +64,10 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   let parentNode: Node | undefined = options?.initialParentNode;
   let fileNamespace: NamespaceStatementNode | CadlScriptNode;
   let currentNamespace: ContainerNode;
+  let isJsFile = false;
 
   // Node where locals go.
-  let scope: ScopeNode;
+  let scope: ScopeNode | JsSourceFile;
 
   return {
     bindSourceFile,
@@ -84,6 +85,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
   function bindJsSourceFile(sourceFile: JsSourceFile) {
     sourceFile.exports = createSymbolTable();
+    isJsFile = true;
     const rootNs = sourceFile.esmExports["namespace"];
     const namespaces = new Set<NamespaceStatementNode>();
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
@@ -109,9 +111,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           nsParts.push(...memberNs.split("."));
         }
 
-        let currentNamespace: JsSourceFile | NamespaceStatementNode = sourceFile;
+        scope = sourceFile;
         for (const part of nsParts) {
-          const existingBinding = currentNamespace.exports!.get(part);
+          const existingBinding = scope.exports!.get(part);
           if (
             existingBinding &&
             existingBinding.kind === "type" &&
@@ -119,7 +121,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           ) {
             // since the namespace was "declared" as part of this source file,
             // we can simply re-use it.
-            currentNamespace = existingBinding.node as NamespaceStatementNode;
+            scope = existingBinding.node as NamespaceStatementNode;
           } else {
             // need to synthesize a namespace declaration node
             // consider creating a "synthetic" node flag if necessary
@@ -129,15 +131,15 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
               nsNode.symbol = existingBinding;
               nsNode.exports = (existingBinding.node as NamespaceStatementNode).exports;
             } else {
-              declareSymbol(currentNamespace.exports!, nsNode, part);
+              declareSymbol(scope.exports!, nsNode, part);
             }
 
             namespaces.add(nsNode);
-            currentNamespace = nsNode;
+            scope = nsNode;
           }
         }
         const sym = createDecoratorSymbol(name, sourceFile.file.path, member);
-        currentNamespace.exports!.set(sym.name, sym);
+        scope.exports!.set(sym.name, sym);
       }
     }
 
@@ -145,6 +147,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   }
 
   function bindSourceFile(sourceFile: CadlScriptNode) {
+    isJsFile = false;
     sourceFile.exports = createSymbolTable();
     fileNamespace = currentFile = sourceFile;
     currentNamespace = scope = fileNamespace;
@@ -214,6 +217,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         return scope.exports!;
       case SyntaxKind.CadlScript:
         return fileNamespace.exports!;
+      case "JsSourceFile":
+        return scope.exports!;
       default:
         return scope.locals!;
     }

@@ -197,6 +197,22 @@ describe("cadl: namespaces with blocks", () => {
     strictEqual(Foo.models.size, 1);
     strictEqual(Foo.namespaces.size, 1);
   });
+
+  it("can be decorated, passing a model in a later namespace", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @doc(Azure.Foo)
+      namespace Baz { };
+      namespace Azure {
+        model Foo { }
+      }
+
+      `
+    );
+
+    await testHost.compile("./");
+  });
 });
 
 describe("cadl: blockless namespaces", () => {

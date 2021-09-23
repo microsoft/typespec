@@ -217,6 +217,7 @@ export function createChecker(program: Program): Checker {
       }
     }
   }
+
   function getTypeForNode(node: Node): Type {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
@@ -567,8 +568,16 @@ export function createChecker(program: Program): Checker {
     if (node === globalNamespaceType.node) return undefined;
     if (!node.namespaceSymbol) return globalNamespaceType;
 
-    const symbolLinks = getSymbolLinks(getMergedSymbol(node.namespaceSymbol) as TypeSymbol);
-    compilerAssert(symbolLinks.type, "Parent namespace isn't typed yet.", node);
+    const mergedSymbol = getMergedSymbol(node.namespaceSymbol) as TypeSymbol;
+    const symbolLinks = getSymbolLinks(mergedSymbol);
+    if (!symbolLinks.type) {
+      // in general namespaces should be typed before anything calls this function.
+      // However, one case where this is not true is when a decorator on a namespace
+      // refers to a model in another namespace. In this case, we need to evaluate
+      // the namespace here.
+      symbolLinks.type = initializeTypeForNamespace(mergedSymbol.node as NamespaceStatementNode);
+    }
+
     return symbolLinks.type as NamespaceType;
   }
 

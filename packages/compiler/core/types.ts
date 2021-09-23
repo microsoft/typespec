@@ -487,6 +487,8 @@ export interface LineAndCharacter {
 }
 
 export interface JsSourceFile {
+  kind: "JsSourceFile";
+
   /* A source file with empty contents to represent the file on disk. */
   file: SourceFile;
 
