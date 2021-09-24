@@ -1,5 +1,6 @@
-import { dirname, extname, isAbsolute, resolve } from "path";
+import { dirname, extname, isAbsolute, join, resolve } from "path";
 import resolveModule from "resolve";
+import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createDiagnostic, createSourceFile, DiagnosticTarget, NoTarget } from "./diagnostics.js";
@@ -21,6 +22,7 @@ import { doIO, loadFile } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
+  mainFile?: CadlScriptNode;
   /** All source files in the program, keyed by their file path. */
   sourceFiles: Map<string, CadlScriptNode>;
   jsSourceFiles: Map<string, JsSourceFile>;
@@ -251,7 +253,11 @@ export async function createProgram(
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
    * that module, e.g. "/cadl/node_modules/myLib/main.cadl".
    */
-  function resolveModuleSpecifier(specifier: string, basedir: string): Promise<string> {
+  function resolveModuleSpecifier(
+    specifier: string,
+    basedir: string,
+    useCadlMain = true
+  ): Promise<string> {
     return new Promise((resolveP, rejectP) => {
       resolveModule(
         specifier,
@@ -304,9 +310,11 @@ export async function createProgram(
               });
           },
           packageFilter(pkg) {
-            // this lets us follow node resolve semantics more-or-less exactly
-            // but using cadlMain instead of main.
-            pkg.main = pkg.cadlMain;
+            if (useCadlMain) {
+              // this lets us follow node resolve semantics more-or-less exactly
+              // but using cadlMain instead of main.
+              pkg.main = pkg.cadlMain;
+            }
             return pkg;
           },
         },
@@ -329,11 +337,55 @@ export async function createProgram(
     if (!mainStat) {
       return;
     }
+
+    if (!(await checkForCompilerVersionMismatch(mainPath, mainStat.isDirectory()))) {
+      return;
+    }
+
     if (mainStat.isDirectory()) {
       await loadDirectory(mainPath);
     } else {
       await loadCadlFile(mainPath);
     }
+  }
+
+  // It's important that we use the compiler version that resolves locally
+  // from the input Cadl source location. Otherwise, there will be undefined
+  // runtime behavior when decorators and onBuild handlers expect a
+  // different version of cadl than the current one. Abort the compilation
+  // with an error if the Cadl entry point resolves to a different local
+  // compiler.
+  async function checkForCompilerVersionMismatch(
+    mainPath: string,
+    mainPathIsDirectory: boolean
+  ): Promise<boolean> {
+    const basedir = mainPathIsDirectory ? mainPath : dirname(mainPath);
+    let actual: string;
+    try {
+      actual = await resolveModuleSpecifier("@cadl-lang/compiler", basedir, false);
+    } catch (err) {
+      if (err.code === "MODULE_NOT_FOUND") {
+        return true; // no local cadl, ok to use any compiler
+      }
+      throw err;
+    }
+
+    // NOTE: realpath here ensures consistent path normalization with resolveModuleSpecifier below.
+    const expected = await host.realpath(join(fileURLToPath(import.meta.url), "../index.js"));
+    if (actual !== expected) {
+      // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
+      // to the shim executable node_modules/.bin/cadl-server
+      const betterCadlServerPath = resolve(actual, "../../../../../.bin/cadl-server");
+      program.reportDiagnostic(
+        `Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${basedir}. ` +
+          `If this error occurs on the command line, try running \`cadl\` with a working directory of ${basedir}. ` +
+          `If this error occurs in the IDE, try configuring the \`cadl-server\` path to ${betterCadlServerPath}.`,
+        NoTarget
+      );
+      return false;
+    }
+
+    return true;
   }
 
   function getOption(key: string): string | undefined {

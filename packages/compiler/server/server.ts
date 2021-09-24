@@ -76,7 +76,6 @@ const serverHost: CompilerHost = {
 
 const serverOptions: CompilerOptions = {
   noEmit: true,
-  designTimeBuild: true,
 };
 
 // Remember original URL when we convert it to a local path so that we can
@@ -229,10 +228,11 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   // Group diagnostics by file.
   //
   // Initialize diagnostics for all source files in program to empty array
-  // aw we must send an empty array when a file has no diagnostics or else
+  // as we must send an empty array when a file has no diagnostics or else
   // stale diagnostics from a previous run will stick around in the IDE.
   //
   const diagnosticMap: Map<TextDocument, VSDiagnostic[]> = new Map();
+  diagnosticMap.set(change.document, []);
   for (const each of program.sourceFiles.values()) {
     const document = (each.file as ServerSourceFile)?.document;
     if (document) {
@@ -241,10 +241,32 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   }
 
   for (const each of program.diagnostics) {
-    const document = (each?.file as ServerSourceFile)?.document;
+    let document: TextDocument | undefined;
+
+    // https://github.com/Azure/adl/issues/802
+    //
+    // We should remove this once we stop using info diagnostics for verbose
+    // tracing. In the meantime, we will not show info diagnostics in the
+    // IDE.
+    if (each.severity === "info") {
+      continue;
+    }
+
+    if (each.file) {
+      document = (each.file as ServerSourceFile).document;
+    } else {
+      // https://github.com/Microsoft/language-server-protocol/issues/256
+      //
+      // LSP does not currently allow sending a diagnostic with no location so
+      // we report diagnostics with no location on the document that changed to
+      // trigger.
+      document = change.document;
+    }
+
     if (!document || !upToDate(document)) {
       continue;
     }
+
     const start = document.positionAt(each.pos ?? 0);
     const end = document.positionAt(each.end ?? 0);
     const range = Range.create(start, end);

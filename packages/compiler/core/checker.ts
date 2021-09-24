@@ -1126,11 +1126,9 @@ export function createChecker(program: Program): Checker {
       target
     );
 
-    if (!program.compilerOptions.designTimeBuild) {
-      // peel `fn` off to avoid setting `this`.
-      const fn = decApp.decorator;
-      fn(program, target, ...decApp.args);
-    }
+    // peel `fn` off to avoid setting `this`.
+    const fn = decApp.decorator;
+    fn(program, target, ...decApp.args);
   }
 
   function getLiteralType(node: StringLiteralNode): StringLiteralType;
