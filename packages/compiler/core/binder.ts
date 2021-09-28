@@ -125,7 +125,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           } else {
             // need to synthesize a namespace declaration node
             // consider creating a "synthetic" node flag if necessary
-            const nsNode = createSyntheticNamespace(name);
+            const nsNode = createSyntheticNamespace(part);
 
             if (existingBinding && existingBinding.kind === "type") {
               nsNode.symbol = existingBinding;
