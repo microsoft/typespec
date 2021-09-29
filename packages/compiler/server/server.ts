@@ -76,6 +76,7 @@ const serverHost: CompilerHost = {
 
 const serverOptions: CompilerOptions = {
   noEmit: true,
+  designTimeBuild: true,
 };
 
 // Remember original URL when we convert it to a local path so that we can

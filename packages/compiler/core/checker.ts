@@ -68,7 +68,6 @@ export interface Checker {
   getLiteralType(node: NumericLiteralNode): NumericLiteralType;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
   getLiteralType(node: LiteralNode): LiteralType;
-
   getTypeName(type: Type): string;
   getNamespaceString(type: NamespaceType | undefined): string;
 }
@@ -1127,8 +1126,18 @@ export function createChecker(program: Program): Checker {
     );
 
     // peel `fn` off to avoid setting `this`.
-    const fn = decApp.decorator;
-    fn(program, target, ...decApp.args);
+
+    try {
+      const fn = decApp.decorator;
+      fn(program, target, ...decApp.args);
+    } catch (err) {
+      // do not fail the language server for exceptions in decorators
+      if (program.compilerOptions.designTimeBuild) {
+        program.reportDiagnostic(`${decApp.decorator.name} failed with errors. ${err}`, target);
+      } else {
+        throw err;
+      }
+    }
   }
 
   function getLiteralType(node: StringLiteralNode): StringLiteralType;

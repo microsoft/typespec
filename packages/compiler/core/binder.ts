@@ -1,4 +1,4 @@
-import { compilerAssert } from "./diagnostics.js";
+import { compilerAssert, NoTarget } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -95,8 +95,18 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
         const name = getFunctionName(key);
         if (name === "onBuild") {
-          program.onBuild(member as any);
-          continue;
+          try {
+            program.onBuild(member as any);
+            continue;
+          } catch (err) {
+            if (program.compilerOptions.designTimeBuild) {
+              // do not exit the language server
+              program.reportDiagnostic(`onBuild failed with errors. ${err}`, NoTarget);
+              continue;
+            } else {
+              throw err;
+            }
+          }
         }
 
         const memberNs: string = (member as any).namespace;
