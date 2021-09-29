@@ -9,8 +9,6 @@ export interface CompilerOptions {
   /**
    * When true, indicates that a compilation is being performed for live
    * analysis in the language server.
-   *
-   * This currently disables execution of decorators and onBuild handlers.
    */
   designTimeBuild?: boolean;
 }
