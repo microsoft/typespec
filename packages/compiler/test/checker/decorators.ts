@@ -48,4 +48,32 @@ describe("cadl: decorators", () => {
 
     await testHost.diagnose("test.cadl");
   });
+
+  it("evaluates in outside-in order", async () => {
+    let result = false;
+    let blueThing: any;
+
+    testHost.addJsFile("test.js", {
+      $blue(_: any, t: any) {
+        blueThing = t;
+      },
+      $isBlue(_: any, t: any) {
+        result = blueThing === t;
+      },
+    });
+
+    testHost.addCadlFile(
+      "test.cadl",
+      `
+      import "./test.js";
+
+      @isBlue
+      @blue
+      model Foo { };
+      `
+    );
+
+    await testHost.diagnose("test.cadl");
+    ok(result, "expected Foo to be blue in isBlue decorator");
+  });
 });

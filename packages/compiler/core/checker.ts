@@ -1025,7 +1025,7 @@ export function createChecker(program: Program): Checker {
         return type;
       });
 
-      decorators.push({
+      decorators.unshift({
         decorator: sym.value,
         args,
       });

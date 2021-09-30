@@ -1,16 +1,16 @@
 namespace Cadl;
 @intrinsic model bytes { }
-@intrinsic @numeric model int64 { }
-@intrinsic @numeric model int32 { }
-@intrinsic @numeric model int16 { }
-@intrinsic @numeric model int8 { }
-@intrinsic @numeric model uint64 { }
-@intrinsic @numeric model uint32 { }
-@intrinsic @numeric model uint16 { }
-@intrinsic @numeric model uint8 { }
-@intrinsic @numeric model safeint { }
-@intrinsic @numeric model float32 { }
-@intrinsic @numeric model float64 { }
+@numeric @intrinsic model int64 { }
+@numeric @intrinsic model int32 { }
+@numeric @intrinsic model int16 { }
+@numeric @intrinsic model int8 { }
+@numeric @intrinsic model uint64 { }
+@numeric @intrinsic model uint32 { }
+@numeric @intrinsic model uint16 { }
+@numeric @intrinsic model uint8 { }
+@numeric @intrinsic model safeint { }
+@numeric @intrinsic model float32 { }
+@numeric @intrinsic model float64 { }
 @intrinsic model string { }
 @intrinsic model plainDate { }
 @intrinsic model plainTime { }
