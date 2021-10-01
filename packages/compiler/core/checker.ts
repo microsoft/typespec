@@ -70,6 +70,7 @@ export interface Checker {
   getLiteralType(node: LiteralNode): LiteralType;
   getTypeName(type: Type): string;
   getNamespaceString(type: NamespaceType | undefined): string;
+  cloneType<T extends Type>(type: T): T;
 }
 
 /**
@@ -177,6 +178,7 @@ export function createChecker(program: Program): Checker {
     setUsingsForFile,
     getMergedSymbol,
     getMergedNamespace,
+    cloneType,
   };
 
   function mergeJsSourceFile(file: JsSourceFile) {
@@ -960,10 +962,7 @@ export function createChecker(program: Program): Checker {
 
       // copy each property
       for (const prop of walkPropertiesInherited(targetType)) {
-        const newProp = createType({
-          ...prop,
-          sourceProperty: prop,
-        });
+        const newProp = cloneType(prop, { sourceProperty: prop });
         props.push(newProp);
       }
     }
@@ -1242,6 +1241,13 @@ export function createChecker(program: Program): Checker {
       operations: new Map(),
       namespaces: new Map(),
       decorators: [],
+    });
+  }
+
+  function cloneType<T extends Type>(type: T, additionalProps: { [P in keyof T]?: T[P] } = {}): T {
+    return createType({
+      ...type,
+      ...additionalProps,
     });
   }
 

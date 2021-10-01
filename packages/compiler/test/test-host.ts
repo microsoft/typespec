@@ -150,7 +150,9 @@ export async function createTestHost(): Promise<TestHost> {
           target.kind === "Model" ||
           target.kind === "Namespace" ||
           target.kind === "Enum" ||
-          target.kind === "Operation"
+          target.kind === "Operation" ||
+          target.kind === "ModelProperty" ||
+          target.kind === "EnumMember"
         ) {
           name = target.name;
         } else {
