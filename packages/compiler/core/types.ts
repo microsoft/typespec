@@ -1,3 +1,4 @@
+import { NoTarget } from "./diagnostics";
 import { Program } from "./program";
 
 /**
@@ -634,3 +635,61 @@ export type SemanticNodeListener = {
   tuple?: (context: TupleType) => void;
   templateParameter?: (context: TemplateParameterType) => void;
 };
+
+export type DiagnosticReport<
+  T extends { [code: string]: DiagnosticMessages },
+  C extends keyof T,
+  M extends keyof T[C] = "default"
+> = {
+  code: C;
+  messageId?: M;
+  target: Type | Node | typeof NoTarget;
+} & DiagnosticFormat<T, C, M>;
+
+export type DiagnosticFormat<
+  T extends { [code: string]: DiagnosticMessages },
+  C extends keyof T,
+  M extends keyof T[C] = "default"
+> = T[C][M] extends CallableMessage<infer A> ? { format: Record<A[number], string> } : {};
+
+export interface DiagnosticDefinition<M extends DiagnosticMessages> {
+  readonly severity: "warning" | "error";
+  readonly messages: M;
+}
+
+export interface DiagnosticMessages {
+  readonly [messageId: string]: string | CallableMessage<string[]>;
+}
+
+export interface CallableMessage<T extends string[]> {
+  keys: T;
+  (dict: Record<T[number], string>): string;
+}
+
+export type DiagnosticMap<T extends { [code: string]: DiagnosticMessages }> = {
+  readonly [code in keyof T]: DiagnosticDefinition<T[code]>;
+};
+
+/**
+ * Definition of a cadle library
+ */
+export interface CadlLibraryDef<T extends { [code: string]: DiagnosticMessages }> {
+  /**
+   * Name of the library. Must match the package.json name.
+   */
+  readonly name: string;
+
+  /**
+   * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
+   */
+  readonly diagnostics: DiagnosticMap<T>;
+}
+
+export interface CadlLibrary<T extends { [code: string]: DiagnosticMessages }> {
+  readonly name: string;
+  readonly diagnostics: DiagnosticMap<T>;
+  reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
+    program: Program,
+    diag: DiagnosticReport<T, C, M>
+  ): void;
+}

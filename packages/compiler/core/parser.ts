@@ -1,5 +1,5 @@
 import { createSymbolTable } from "./binder.js";
-import { compilerAssert, createDiagnostic } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticLegacy } from "./diagnostics.js";
 import {
   createScanner,
   isComment,
@@ -1123,7 +1123,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     if (!printable) {
       treePrintable = false;
     }
-    const diagnostic = createDiagnostic(message, location);
+    const diagnostic = createDiagnosticLegacy(message, location);
     reportDiagnostic(diagnostic);
   }
 

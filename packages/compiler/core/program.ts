@@ -3,7 +3,12 @@ import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { createDiagnostic, createSourceFile, DiagnosticTarget, NoTarget } from "./diagnostics.js";
+import {
+  createDiagnosticLegacy,
+  createSourceFile,
+  DiagnosticTarget,
+  NoTarget,
+} from "./diagnostics.js";
 import { Message } from "./messages.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
@@ -426,7 +431,7 @@ export async function createProgram(
     args?: (string | number)[]
   ): void {
     if (typeof diagnostic === "string" || "text" in diagnostic) {
-      diagnostic = createDiagnostic(diagnostic, target!, args);
+      diagnostic = createDiagnosticLegacy(diagnostic, target!, args);
     }
     if (diagnostic.severity === "error") {
       error = true;

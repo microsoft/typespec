@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import {
-  createDiagnostic,
+  createDiagnosticLegacy,
   createSourceFile,
   DiagnosticHandler,
   DiagnosticTarget,
@@ -78,10 +78,10 @@ export async function doIO<T>(
         if (options?.allowFileNotFound) {
           return undefined;
         }
-        diagnostic = createDiagnostic(Message.FileNotFound, target, [path]);
+        diagnostic = createDiagnosticLegacy(Message.FileNotFound, target, [path]);
         break;
       default:
-        diagnostic = createDiagnostic(e.message, target);
+        diagnostic = createDiagnosticLegacy(e.message, target);
         break;
     }
 

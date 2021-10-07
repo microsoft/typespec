@@ -24,7 +24,7 @@ export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
-export function createDiagnostic(
+export function createDiagnosticLegacy(
   message: Message | string,
   target: DiagnosticTarget | typeof NoTarget,
   args?: (string | number)[]
@@ -34,7 +34,7 @@ export function createDiagnostic(
   if (target !== NoTarget) {
     try {
       location = getSourceLocation(target);
-    } catch (err) {
+    } catch (err: any) {
       locationError = err;
       location = createDummySourceLocation();
     }
@@ -58,6 +58,47 @@ export function createDiagnostic(
       "Error(s) occurred trying to report diagnostic: " + diagnostic.message
     );
     throw new AggregateError(diagnosticError, locationError, formatError);
+  }
+
+  return diagnostic;
+}
+
+export interface DiagnosticParams {
+  code: string;
+  severity: "error" | "warning";
+  message: string;
+  target: DiagnosticTarget | typeof NoTarget;
+}
+
+/**
+ * Helper to create a @see Diagnostic from a @see DiagnosticTarget
+ * @param options
+ * @returns
+ */
+export function createDiagnostic(options: DiagnosticParams): Diagnostic {
+  let location: Partial<SourceLocation> = {};
+  let locationError: Error | undefined;
+  if (options.target !== NoTarget) {
+    try {
+      location = getSourceLocation(options.target);
+    } catch (err: any) {
+      locationError = err;
+      location = createDummySourceLocation();
+    }
+  }
+
+  const diagnostic = {
+    code: options.code,
+    severity: options.severity,
+    message: options.message,
+    ...location,
+  };
+
+  if (locationError) {
+    const diagnosticError = new Error(
+      "Error(s) occurred trying to report diagnostic: " + diagnostic.message
+    );
+    throw new AggregateError(diagnosticError, locationError);
   }
 
   return diagnostic;

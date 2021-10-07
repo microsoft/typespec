@@ -1,4 +1,87 @@
-import { NamespaceType, OperationType, Program, Type } from "@cadl-lang/compiler";
+import {
+  createCadlLibrary,
+  NamespaceType,
+  OperationType,
+  paramMessage,
+  Program,
+  Type,
+} from "@cadl-lang/compiler";
+
+const libDefinition = {
+  name: "@cadl-lang/rest",
+  diagnostics: {
+    "service-title-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @serviceTitle decorator can only be applied to namespaces.",
+      },
+    },
+    "service-title-duplicate": {
+      severity: "error",
+      messages: {
+        default: "Service title can only be set once per Cadl document.",
+      },
+    },
+    "service-host-duplicate": {
+      severity: "error",
+      messages: {
+        default: "Service host can only be set once per Cadl document.",
+      },
+    },
+    "service-host-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @serviceHost decorator can only be applied to namespaces.",
+      },
+    },
+    "service-version-duplicate": {
+      severity: "error",
+      messages: {
+        default: "Service version can only be set once per Cadl document.",
+      },
+    },
+    "service-version-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @serviceVersion decorator can only be applied to namespaces.",
+      },
+    },
+    "produces-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @produces decorator can only be applied to namespaces.",
+      },
+    },
+    "consumes-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @consumes decorator can only be applied to namespaces.",
+      },
+    },
+    "service-namespace-duplicate": {
+      severity: "error",
+      messages: {
+        default: "Cannot set service namespace more than once in an Cadl project.",
+      },
+    },
+    "http-verb-duplicate": {
+      severity: "error",
+      messages: {
+        default: paramMessage`HTTP verb already applied to ${"entityName"}`,
+      },
+    },
+    "http-verb-wrong-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Cannot use @${"verb"} on a ${"entityKind"}`,
+      },
+    },
+  },
+} as const;
+
+export const restLib = createCadlLibrary(libDefinition);
+
+const { reportDiagnostic } = restLib;
 
 const basePathsKey = Symbol();
 export interface HttpOperationType extends OperationType {
@@ -114,10 +197,18 @@ function setOperationRoute(program: Program, entity: Type, verb: OperationRoute)
     if (!program.stateMap(operationRoutesKey).has(entity)) {
       program.stateMap(operationRoutesKey).set(entity, verb);
     } else {
-      program.reportDiagnostic(`HTTP verb already applied to ${entity.name}`, entity);
+      reportDiagnostic(program, {
+        code: "http-verb-duplicate",
+        format: { entityName: entity.name },
+        target: entity,
+      });
     }
   } else {
-    program.reportDiagnostic(`Cannot use @${verb} on a ${entity.kind}`, entity);
+    reportDiagnostic(program, {
+      code: "http-verb-wrong-type",
+      format: { verb: verb.verb, entityKind: entity.kind },
+      target: entity,
+    });
   }
 }
 
@@ -183,10 +274,7 @@ function getServiceDetails(program: Program) {
 export function setServiceNamespace(program: Program, namespace: NamespaceType): void {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.namespace && serviceDetails.namespace !== namespace) {
-    program.reportDiagnostic(
-      "Cannot set service namespace more than once in an Cadl project.",
-      namespace
-    );
+    reportDiagnostic(program, { code: "service-namespace-duplicate", target: namespace });
   }
 
   serviceDetails.namespace = namespace;
@@ -200,14 +288,14 @@ export function checkIfServiceNamespace(program: Program, namespace: NamespaceTy
 export function $serviceTitle(program: Program, entity: Type, title: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.title) {
-    program.reportDiagnostic("Service title can only be set once per Cadl document.", entity);
+    reportDiagnostic(program, { code: "service-title-duplicate", target: entity });
   }
 
   if (entity.kind !== "Namespace") {
-    program.reportDiagnostic(
-      "The @serviceTitle decorator can only be applied to namespaces.",
-      entity
-    );
+    reportDiagnostic(program, {
+      code: "service-title-namespace-only",
+      target: entity,
+    });
     return;
   }
 
@@ -222,16 +310,12 @@ export function getServiceTitle(program: Program): string {
 
 export function $serviceHost(program: Program, entity: Type, host: string) {
   const serviceDetails = getServiceDetails(program);
-  if (serviceDetails.host) {
-    program.reportDiagnostic("Service host can only be set once per Cadl document.", entity);
-    return;
+  if (serviceDetails.version) {
+    reportDiagnostic(program, { code: "service-version-duplicate", target: entity });
   }
 
   if (entity.kind !== "Namespace") {
-    program.reportDiagnostic(
-      "The @serviceHost decorator can only be applied to namespaces.",
-      entity
-    );
+    reportDiagnostic(program, { code: "service-version-namespace-only", target: entity });
     return;
   }
 
@@ -248,14 +332,11 @@ export function $serviceVersion(program: Program, entity: Type, version: string)
   const serviceDetails = getServiceDetails(program);
   // TODO: This will need to change once we support multiple service versions
   if (serviceDetails.version) {
-    program.reportDiagnostic("Service version can only be set once per Cadl document.", entity);
+    reportDiagnostic(program, { code: "service-version-duplicate", target: entity });
   }
 
   if (entity.kind !== "Namespace") {
-    program.reportDiagnostic(
-      "The @serviceVersion decorator can only be applied to namespaces.",
-      entity
-    );
+    reportDiagnostic(program, { code: "service-version-namespace-only", target: entity });
     return;
   }
 
@@ -280,7 +361,7 @@ const producesTypesKey = Symbol();
 
 export function $produces(program: Program, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {
-    program.reportDiagnostic("The @produces decorator can only be applied to namespaces.", entity);
+    reportDiagnostic(program, { code: "produces-namespace-only", target: entity });
   }
 
   const values = getProduces(program, entity);
@@ -295,7 +376,7 @@ const consumesTypesKey = Symbol();
 
 export function $consumes(program: Program, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {
-    program.reportDiagnostic("The @consumes decorator can only be applied to namespaces.", entity);
+    reportDiagnostic(program, { code: "consumes-namespace-only", target: entity });
   }
 
   const values = getConsumes(program, entity);

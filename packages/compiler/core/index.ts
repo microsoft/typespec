@@ -1,5 +1,6 @@
 export * from "../lib/decorators.js";
 export * from "./diagnostics.js";
+export * from "./library.js";
 export * from "./mutators.js";
 export * from "./parser.js";
 export * from "./program.js";

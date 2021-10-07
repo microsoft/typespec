@@ -13,7 +13,12 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { createDiagnostic, createSourceFile, DiagnosticHandler, Message } from "./diagnostics.js";
+import {
+  createDiagnosticLegacy,
+  createSourceFile,
+  DiagnosticHandler,
+  Message,
+} from "./diagnostics.js";
 import { SourceFile } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
@@ -497,7 +502,11 @@ export function createScanner(
   }
 
   function error(msg: Message, args?: (string | number)[]) {
-    const diagnostic = createDiagnostic(msg, { file, pos: tokenPosition, end: position }, args);
+    const diagnostic = createDiagnosticLegacy(
+      msg,
+      { file, pos: tokenPosition, end: position },
+      args
+    );
     diagnosticHandler(diagnostic);
   }
 
