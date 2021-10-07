@@ -12,7 +12,7 @@ function format(code: string): string {
 
 function assertFormat({ code, expected }: { code: string; expected: string }) {
   const result = format(code);
-  strictEqual(result, expected.trim());
+  strictEqual(result.trim(), expected.trim());
 }
 
 describe("cadl: prettier formatter", () => {
@@ -545,6 +545,62 @@ namespace Bar {
 `,
         expected: `
 namespace Bar {
+
+}
+`,
+      });
+    });
+  });
+
+  describe("directives", () => {
+    it("keeps directive before a model", () => {
+      assertFormat({
+        code: `
+  #suppress "some-error"    "because"
+  
+model Bar {}
+`,
+        expected: `
+#suppress "some-error" "because"
+model Bar {}
+`,
+      });
+    });
+
+    it("keeps directive before a model property", () => {
+      assertFormat({
+        code: `
+        
+        model Bar {
+          
+          #suppress   "some-error"   "because"
+  id: string;
+}
+`,
+        expected: `
+model Bar {
+  #suppress "some-error" "because"
+  id: string;
+}
+`,
+      });
+    });
+
+    it("keeps directive before a decorators", () => {
+      assertFormat({
+        code: `
+  #suppress   "some-error"     "because"
+    @decorate("args")
+   @decorate()
+
+
+namespace MyNamespace {}
+`,
+        expected: `
+#suppress "some-error" "because"
+@decorate("args")
+@decorate
+namespace MyNamespace {
 
 }
 `,

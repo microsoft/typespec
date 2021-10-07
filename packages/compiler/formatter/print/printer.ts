@@ -1,10 +1,11 @@
-import prettier, { Doc, FastPath, Printer } from "prettier";
+import prettier, { AstPath, Doc, Printer } from "prettier";
 import {
   AliasStatementNode,
   BlockComment,
   CadlScriptNode,
   Comment,
   DecoratorExpressionNode,
+  DirectiveExpressionNode,
   EnumMemberNode,
   EnumStatementNode,
   IntersectionExpressionNode,
@@ -49,16 +50,31 @@ export const cadlPrinter: Printer<Node> = {
 
 export function printCadl(
   // Path to the AST node to print
-  path: FastPath<Node>,
+  path: AstPath<Node>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const directives = printDirectives(path, options, print);
+  const node = printNode(path, options, print);
+  return concat([directives, node]);
+}
+
+export function printNode(
+  // Path to the AST node to print
+  path: AstPath<Node>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
   const node: Node = path.getValue();
+  printDirectives(path, options, print);
 
   switch (node.kind) {
     // Root
     case SyntaxKind.CadlScript:
-      return printStatementSequence(path as FastPath<CadlScriptNode>, options, print, "statements");
+      return concat([
+        printStatementSequence(path as AstPath<CadlScriptNode>, options, print, "statements"),
+        line,
+      ]);
 
     // Statements
     case SyntaxKind.ImportStatement:
@@ -66,44 +82,46 @@ export function printCadl(
     case SyntaxKind.UsingStatement:
       return concat([`using "`, path.call(print, "name"), `";`]);
     case SyntaxKind.OperationStatement:
-      return printOperationStatement(path as FastPath<OperationStatementNode>, options, print);
+      return printOperationStatement(path as AstPath<OperationStatementNode>, options, print);
     case SyntaxKind.NamespaceStatement:
-      return printNamespaceStatement(path as FastPath<NamespaceStatementNode>, options, print);
+      return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
     case SyntaxKind.ModelStatement:
-      return printModelStatement(path as FastPath<ModelStatementNode>, options, print);
+      return printModelStatement(path as AstPath<ModelStatementNode>, options, print);
     case SyntaxKind.AliasStatement:
-      return printAliasStatement(path as FastPath<AliasStatementNode>, options, print);
+      return printAliasStatement(path as AstPath<AliasStatementNode>, options, print);
     case SyntaxKind.EnumStatement:
-      return printEnumStatement(path as FastPath<EnumStatementNode>, options, print);
+      return printEnumStatement(path as AstPath<EnumStatementNode>, options, print);
 
     // Others.
     case SyntaxKind.Identifier:
       return node.sv;
     case SyntaxKind.StringLiteral:
-      return printStringLiteral(path as FastPath<StringLiteralNode>, options);
+      return printStringLiteral(path as AstPath<StringLiteralNode>, options);
     case SyntaxKind.NumericLiteral:
-      return printNumberLiteral(path as FastPath<NumericLiteralNode>, options);
+      return printNumberLiteral(path as AstPath<NumericLiteralNode>, options);
     case SyntaxKind.ModelExpression:
-      return printModelExpression(path as FastPath<ModelExpressionNode>, options, print);
+      return printModelExpression(path as AstPath<ModelExpressionNode>, options, print);
     case SyntaxKind.ModelProperty:
-      return printModelProperty(path as FastPath<ModelPropertyNode>, options, print);
+      return printModelProperty(path as AstPath<ModelPropertyNode>, options, print);
     case SyntaxKind.DecoratorExpression:
-      return printDecorator(path as FastPath<DecoratorExpressionNode>, options, print);
+      return printDecorator(path as AstPath<DecoratorExpressionNode>, options, print);
+    case SyntaxKind.DirectiveExpression:
+      return printDirective(path as AstPath<DirectiveExpressionNode>, options, print);
     case SyntaxKind.UnionExpression:
-      return printUnion(path as FastPath<UnionExpressionNode>, options, print);
+      return printUnion(path as AstPath<UnionExpressionNode>, options, print);
     case SyntaxKind.IntersectionExpression:
-      return printIntersection(path as FastPath<IntersectionExpressionNode>, options, print);
+      return printIntersection(path as AstPath<IntersectionExpressionNode>, options, print);
     case SyntaxKind.EnumMember:
-      return printEnumMember(path as FastPath<EnumMemberNode>, options, print);
+      return printEnumMember(path as AstPath<EnumMemberNode>, options, print);
     case SyntaxKind.TypeReference:
-      return printTypeReference(path as FastPath<TypeReferenceNode>, options, print);
+      return printTypeReference(path as AstPath<TypeReferenceNode>, options, print);
     default:
       return getRawText(node, options);
   }
 }
 
 export function printAliasStatement(
-  path: FastPath<AliasStatementNode>,
+  path: AstPath<AliasStatementNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -113,7 +131,7 @@ export function printAliasStatement(
 }
 
 function printTemplateParameters<T extends Node>(
-  path: FastPath<T>,
+  path: AstPath<T>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint,
   propertyName: keyof T
@@ -131,14 +149,14 @@ export function canAttachComment(node: Node): boolean {
 }
 
 export function printComment(
-  commentPath: FastPath<Node | Comment>,
+  commentPath: AstPath<Node | Comment>,
   options: CadlPrettierOptions
 ): Doc {
   const comment = commentPath.getValue();
 
   switch (comment.kind) {
     case SyntaxKind.BlockComment:
-      return printBlockComment(commentPath as FastPath<BlockComment>, options);
+      return printBlockComment(commentPath as AstPath<BlockComment>, options);
     case SyntaxKind.LineComment:
       return `${options.originalText.slice(comment.pos, comment.end).trimRight()}`;
     default:
@@ -146,7 +164,7 @@ export function printComment(
   }
 }
 
-function printBlockComment(commentPath: FastPath<BlockComment>, options: CadlPrettierOptions) {
+function printBlockComment(commentPath: AstPath<BlockComment>, options: CadlPrettierOptions) {
   const comment = commentPath.getValue();
   const rawComment = options.originalText.slice(comment.pos + 2, comment.end - 2);
 
@@ -185,7 +203,7 @@ function printIndentableBlockComment(rawComment: string): Doc {
 }
 
 export function printDecorators(
-  path: FastPath<DecorableNode>,
+  path: AstPath<DecorableNode>,
   options: object,
   print: PrettierChildPrint,
   { tryInline }: { tryInline: boolean }
@@ -202,7 +220,7 @@ export function printDecorators(
 }
 
 export function printDecorator(
-  path: FastPath<DecoratorExpressionNode>,
+  path: AstPath<DecoratorExpressionNode>,
   options: object,
   print: PrettierChildPrint
 ) {
@@ -210,8 +228,28 @@ export function printDecorator(
   return concat(["@", path.call(print, "target"), args]);
 }
 
+export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
+  const node = path.getValue();
+  if (node.directives === undefined || node.directives.length === 0) {
+    return "";
+  }
+
+  const directives = path.map((x) => concat([print(x as any), line]), "directives");
+
+  return group(concat([...directives, breakParent]));
+}
+
+export function printDirective(
+  path: AstPath<DirectiveExpressionNode>,
+  options: object,
+  print: PrettierChildPrint
+) {
+  const args = printDirectiveArgs(path, options, print);
+  return concat(["#", path.call(print, "target"), " ", args]);
+}
+
 function printDecoratorArgs(
-  path: FastPath<DecoratorExpressionNode>,
+  path: AstPath<DecoratorExpressionNode>,
   options: object,
   print: PrettierChildPrint
 ) {
@@ -255,8 +293,25 @@ function printDecoratorArgs(
   ]);
 }
 
+export function printDirectiveArgs(
+  path: AstPath<DirectiveExpressionNode>,
+  options: object,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+
+  if (node.arguments.length === 0) {
+    return "";
+  }
+
+  return join(
+    " ",
+    path.map((arg) => concat([print(arg)]), "arguments")
+  );
+}
+
 export function printEnumStatement(
-  path: FastPath<EnumStatementNode>,
+  path: AstPath<EnumStatementNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -266,7 +321,7 @@ export function printEnumStatement(
 }
 
 function printEnumBlock(
-  path: FastPath<EnumStatementNode>,
+  path: AstPath<EnumStatementNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -294,7 +349,7 @@ function printEnumBlock(
 }
 
 export function printEnumMember(
-  path: FastPath<EnumMemberNode>,
+  path: AstPath<EnumMemberNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -315,7 +370,7 @@ export function printEnumMember(
  * @returns Prettier document.
  */
 export function printIntersection(
-  path: FastPath<IntersectionExpressionNode>,
+  path: AstPath<IntersectionExpressionNode>,
   options: object,
   print: PrettierChildPrint
 ) {
@@ -348,7 +403,7 @@ function isModelNode(node: Node) {
 }
 
 export function printModelExpression(
-  path: FastPath<ModelExpressionNode>,
+  path: AstPath<ModelExpressionNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -372,7 +427,7 @@ export function printModelExpression(
 }
 
 export function printModelStatement(
-  path: FastPath<ModelStatementNode>,
+  path: AstPath<ModelStatementNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -394,7 +449,7 @@ export function printModelStatement(
 }
 
 function printModelPropertiesBlock(
-  path: FastPath<Node & { properties?: (ModelPropertyNode | ModelSpreadPropertyNode)[] }>,
+  path: AstPath<Node & { properties?: (ModelPropertyNode | ModelSpreadPropertyNode)[] }>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -425,7 +480,7 @@ function printModelPropertiesBlock(
  * Figure out if this model is being used as a definition or value.
  * @returns true if the model is used as a value(e.g. decorator value), false if it is used as a model definition.
  */
-function isModelAValue(path: FastPath<Node>): boolean {
+function isModelAValue(path: AstPath<Node>): boolean {
   let count = 0;
   let node: Node | null = path.getValue();
   do {
@@ -441,20 +496,20 @@ function isModelAValue(path: FastPath<Node>): boolean {
 }
 
 export function printModelProperty(
-  path: FastPath<ModelPropertyNode>,
+  path: AstPath<ModelPropertyNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
   return concat([
-    printDecorators(path as FastPath<DecorableNode>, options, print, { tryInline: true }),
+    printDecorators(path as AstPath<DecorableNode>, options, print, { tryInline: true }),
     path.call(print, "id"),
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
   ]);
 }
 
-function isModelExpressionInBlock(path: FastPath<ModelExpressionNode>) {
+function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
   const parent: Node | null = path.getParentNode() as any;
 
   switch (parent?.kind) {
@@ -466,17 +521,17 @@ function isModelExpressionInBlock(path: FastPath<ModelExpressionNode>) {
 }
 
 export function printNamespaceStatement(
-  path: FastPath<NamespaceStatementNode>,
+  path: AstPath<NamespaceStatementNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const printNamespace = (
-    path: FastPath<NamespaceStatementNode>,
+    path: AstPath<NamespaceStatementNode>,
     names: Doc[],
     suffix: Doc | string
   ) => {};
 
-  const printNested = (currentPath: FastPath<NamespaceStatementNode>, parentNames: Doc[]): Doc => {
+  const printNested = (currentPath: AstPath<NamespaceStatementNode>, parentNames: Doc[]): Doc => {
     const names = [...parentNames, currentPath.call(print, "name")];
     const currentNode = currentPath.getNode();
 
@@ -508,12 +563,12 @@ export function printNamespaceStatement(
 }
 
 export function printOperationStatement(
-  path: FastPath<OperationStatementNode>,
+  path: AstPath<OperationStatementNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   return concat([
-    printDecorators(path as FastPath<DecorableNode>, options, print, { tryInline: true }),
+    printDecorators(path as AstPath<DecorableNode>, options, print, { tryInline: true }),
     `op `,
     path.call(print, "id"),
     "(",
@@ -525,7 +580,7 @@ export function printOperationStatement(
 }
 
 export function printStatementSequence<T extends Node>(
-  path: FastPath<T>,
+  path: AstPath<T>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint,
   property: keyof T
@@ -567,7 +622,7 @@ function getLastStatement(statements: Statement[]): Statement | undefined {
 }
 
 export function printUnion(
-  path: FastPath<UnionExpressionNode>,
+  path: AstPath<UnionExpressionNode>,
   options: object,
   print: PrettierChildPrint
 ) {
@@ -602,7 +657,7 @@ function shouldHugType(node: Node) {
 }
 
 export function printTypeReference(
-  path: prettier.FastPath<TypeReferenceNode>,
+  path: prettier.AstPath<TypeReferenceNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ): prettier.doc.builders.Doc {
@@ -612,7 +667,7 @@ export function printTypeReference(
 }
 
 export function printStringLiteral(
-  path: prettier.FastPath<StringLiteralNode>,
+  path: prettier.AstPath<StringLiteralNode>,
   options: CadlPrettierOptions
 ): prettier.doc.builders.Doc {
   const node = path.getValue();
@@ -620,7 +675,7 @@ export function printStringLiteral(
 }
 
 export function printNumberLiteral(
-  path: prettier.FastPath<NumericLiteralNode>,
+  path: prettier.AstPath<NumericLiteralNode>,
   options: CadlPrettierOptions
 ): prettier.doc.builders.Doc {
   const node = path.getValue();

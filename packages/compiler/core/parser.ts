@@ -17,6 +17,7 @@ import {
   Comment,
   DecoratorExpressionNode,
   Diagnostic,
+  DirectiveExpressionNode,
   EmptyStatementNode,
   EnumMemberNode,
   EnumStatementNode,
@@ -194,6 +195,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
   let treePrintable = true;
+  let newLineIsTrivia = true;
   const parseDiagnostics: Diagnostic[] = [];
   const scanner = createScanner(code, reportDiagnostic);
   const comments: Comment[] = [];
@@ -224,6 +226,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     let seenDecl = false;
     while (!scanner.eof()) {
       const pos = tokenPos();
+      const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
       let item: Statement;
@@ -265,6 +268,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           break;
       }
 
+      item.directives = directives;
+
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
           error("Cannot use multiple blockless namespaces.");
@@ -292,17 +297,19 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     while (token() !== Token.CloseBrace) {
       const pos = tokenPos();
+      const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
 
+      let item: Statement;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
           error("Imports must be top-level and come prior to namespaces or other declarations.");
-          stmts.push(parseImportStatement());
+          item = parseImportStatement();
           break;
         case Token.ModelKeyword:
-          stmts.push(parseModelStatement(pos, decorators));
+          item = parseModelStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
           const ns = parseNamespaceStatement(pos, decorators);
@@ -310,37 +317,39 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           if (!Array.isArray(ns.statements)) {
             error("Blockless namespace can only be top-level.");
           }
-          stmts.push(ns);
+          item = ns;
           break;
         case Token.InterfaceKeyword:
-          stmts.push(parseInterfaceStatement(pos, decorators));
+          item = parseInterfaceStatement(pos, decorators);
           break;
         case Token.OpKeyword:
-          stmts.push(parseOperationStatement(pos, decorators));
+          item = parseOperationStatement(pos, decorators);
           break;
         case Token.EnumKeyword:
-          stmts.push(parseEnumStatement(pos, decorators));
+          item = parseEnumStatement(pos, decorators);
           break;
         case Token.AliasKeyword:
           reportInvalidDecorators(decorators, "alias statement");
-          stmts.push(parseAliasStatement());
+          item = parseAliasStatement();
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
-          stmts.push(parseUsingStatement());
+          item = parseUsingStatement();
           break;
         case Token.EndOfFile:
           parseExpected(Token.CloseBrace);
           return stmts;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
-          stmts.push(parseEmptyStatement());
+          item = parseEmptyStatement();
           break;
         default:
           reportInvalidDecorators(decorators, "invalid statement");
-          stmts.push(parseInvalidStatement());
+          item = parseInvalidStatement();
           break;
       }
+      item.directives = directives;
+      stmts.push(item);
     }
 
     return stmts;
@@ -354,6 +363,16 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
 
     return decorators;
+  }
+
+  function parseDirectiveList(): DirectiveExpressionNode[] {
+    const directives: DirectiveExpressionNode[] = [];
+
+    while (token() === Token.Hash) {
+      directives.push(parseDirectiveExpression());
+    }
+
+    return directives;
   }
 
   function parseNamespaceStatement(
@@ -771,6 +790,56 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
+  function parseDirectiveExpression(): DirectiveExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.Hash);
+
+    const target = parseIdentifier();
+    if (target.sv !== "suppress") {
+      error(`Unknown directive '#${target.sv}'`, { pos, end: pos + target.sv.length }, true);
+    }
+    // The newline will mark the end of the directive.
+    newLineIsTrivia = false;
+    const args = [];
+    console.log("Get to directive", Token[token()]);
+    while (token() !== Token.NewLine && token() !== Token.EndOfFile) {
+      console.log("Get to directive2", Token[token()]);
+      const param = parseDirectiveParameter();
+      if (param) {
+        args.push(param);
+      }
+    }
+
+    newLineIsTrivia = true;
+    nextToken();
+    return {
+      kind: SyntaxKind.DirectiveExpression,
+      arguments: args,
+      target,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseDirectiveParameter() {
+    switch (token()) {
+      case Token.Identifier:
+        return parseIdentifier();
+      case Token.StringLiteral:
+        return parseStringLiteral();
+      default:
+        error(`Unexpected token ${Token[token()]}`);
+        do {
+          nextToken();
+        } while (
+          !isStatementKeyword(token()) &&
+          token() != Token.At &&
+          token() != Token.Semicolon &&
+          token() != Token.EndOfFile
+        );
+        return undefined;
+    }
+  }
+
   function parseIdentifierOrMemberExpression(): IdentifierNode | MemberExpressionNode {
     const pos = tokenPos();
     let base: IdentifierNode | MemberExpressionNode = parseIdentifier();
@@ -807,6 +876,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         case Token.At:
           const decorators = parseDecoratorList();
           reportInvalidDecorators(decorators, "expression");
+          continue;
+        case Token.Hash:
+          const directives = parseDirectiveList();
+          reportInvalidDirective(directives, "expression");
           continue;
         default:
           return parseIdentifier("Expression expected.");
@@ -924,6 +997,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     for (;;) {
       scanner.scan();
       if (isTrivia(token())) {
+        if (!newLineIsTrivia && token() === Token.NewLine) {
+          break;
+        }
         if (options.comments && isComment(token())) {
           comments.push({
             kind:
@@ -975,7 +1051,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
    * as part of a bad statement. As such, parsing of decorators and statements
    * do not go through here.
    */
-  function parseList<T>(kind: ListKind, parseItem: ParseListItem<T>): T[] {
+  function parseList<T extends Node>(kind: ListKind, parseItem: ParseListItem<T>): T[] {
     if (kind.open !== Token.None) {
       parseExpected(kind.open);
     }
@@ -987,6 +1063,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const items: T[] = [];
     while (true) {
       const pos = tokenPos();
+      const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       if (kind.invalidDecoratorTarget) {
         reportInvalidDecorators(decorators, kind.invalidDecoratorTarget);
@@ -994,6 +1071,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
       const item = parseItem(pos, decorators);
       items.push(item);
+      item.directives = directives;
       const delimiter = token();
       const delimiterPos = tokenPos();
 
@@ -1053,7 +1131,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
    * Parse a delimited list with surrounding open and close punctuation if the
    * open token is present. Otherwise, return an empty list.
    */
-  function parseOptionalList<T>(kind: SurroundedListKind, parseItem: ParseListItem<T>): T[] {
+  function parseOptionalList<T extends Node>(
+    kind: SurroundedListKind,
+    parseItem: ParseListItem<T>
+  ): T[] {
     return token() === kind.open ? parseList(kind, parseItem) : [];
   }
 
@@ -1148,6 +1229,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       error(`Cannot decorate ${nodeName}.`, decorator);
     }
   }
+  function reportInvalidDirective(directives: DirectiveExpressionNode[], nodeName: string) {
+    for (const directive of directives) {
+      error(`Cannot decorate ${nodeName}.`, directive);
+    }
+  }
 
   function parseExpected(expectedToken: Token) {
     if (token() === expectedToken) {
@@ -1217,6 +1303,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.ArrayExpression:
       return visitNode(cb, node.elementType);
     case SyntaxKind.DecoratorExpression:
+      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+    case SyntaxKind.DirectiveExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.ImportStatement:
       return visitNode(cb, node.path);

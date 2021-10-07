@@ -17,6 +17,7 @@ type CadlScope =
   | "constant.character.escape.cadl"
   | "constant.numeric.cadl"
   | "constant.language.cadl"
+  | "keyword.directive.name.cadl"
   | "entity.name.type.cadl"
   | "entity.name.function.cadl"
   | "keyword.other.cadl"
@@ -192,12 +193,24 @@ const modelSpreadProperty: BeginEndRule = {
   patterns: [expression],
 };
 
+const directive: BeginEndRule = {
+  key: "directive",
+  scope: meta,
+  begin: `(#${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.directive.name.cadl" },
+  },
+  end: `\n|${universalEnd}`,
+  patterns: [stringLiteral, identifierExpression],
+};
+
 const modelExpression: BeginEndRule = {
   key: "model-expression",
   scope: meta,
   begin: "\\{",
   end: "\\}",
   patterns: [
+    directive,
     // modelProperty must come before token or quoted property name will be
     // considered an arbitrarily positioned string literal and not match as part
     // of modelProperty begin.
@@ -363,6 +376,7 @@ const usingStatement: BeginEndRule = {
 // handle here.
 expression.patterns = [
   token,
+  directive,
   parenthesizedExpression,
   typeArguments,
   tupleExpression,
@@ -372,6 +386,7 @@ expression.patterns = [
 
 statement.patterns = [
   token,
+  directive,
   decorator,
   modelStatement,
   enumStatement,

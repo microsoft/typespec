@@ -386,7 +386,7 @@ describe("cadl: syntax", () => {
       ["\u{FDD0}", /Invalid character/], // non-character
       ["\u{244B}", /Invalid character/], // unassigned
       ["\u{009F}", /Invalid character/], // control
-      ["#", /Invalid character/], // reserved ascii punctuation
+      ["#", /Identifier expected/], // directive
       ["42", /Identifier expected/],
       ["true", /Keyword cannot be used as identifier/],
     ];

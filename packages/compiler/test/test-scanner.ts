@@ -149,6 +149,19 @@ describe("cadl: scanner", () => {
     ]);
   });
 
+  it("scans directive expressions", () => {
+    const all = tokens('#suppress foo "hello")');
+
+    verify(all, [
+      [Token.Hash],
+      [Token.Identifier, "suppress"],
+      [Token.Whitespace],
+      [Token.Identifier],
+      [Token.Whitespace],
+      [Token.StringLiteral, '"hello"'],
+    ]);
+  });
+
   it("scans extends keyword", () => {
     const all = tokens("model foo extends bar{}");
     verify(all, [

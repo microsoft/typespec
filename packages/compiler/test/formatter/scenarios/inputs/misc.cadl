@@ -53,6 +53,6 @@ namespace Operations {
     @get @doc("Abc") op get(@path id: string): ArmResponse<OperationStatusResult>;
 
 
-
+        #suppress "no-list-op" "This is actually needed"
   @get op list(): ArmResponse<OperationListResult> | ErrorResponse;
 }

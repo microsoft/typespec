@@ -63,27 +63,28 @@ export enum Token {
   Question = 25,
   Colon = 26,
   At = 27,
+  Hash = 28,
   // Update MaxPunctuation if anything is added right above here
 
   // Identifiers
-  Identifier = 28,
+  Identifier = 29,
 
   // Statement Keywords
-  ImportKeyword = 29,
-  ModelKeyword = 30,
-  NamespaceKeyword = 31,
-  UsingKeyword = 32,
-  OpKeyword = 33,
-  EnumKeyword = 34,
-  AliasKeyword = 35,
-  IsKeyword = 36,
-  InterfaceKeyword = 37,
+  ImportKeyword = 30,
+  ModelKeyword = 31,
+  NamespaceKeyword = 32,
+  UsingKeyword = 33,
+  OpKeyword = 34,
+  EnumKeyword = 35,
+  AliasKeyword = 36,
+  IsKeyword = 37,
+  InterfaceKeyword = 38,
   // Update MaxStatementKeyword if anything is added right above here
 
   // Other keywords
-  ExtendsKeyword = 38,
-  TrueKeyword = 39,
-  FalseKeyword = 40,
+  ExtendsKeyword = 39,
+  TrueKeyword = 40,
+  FalseKeyword = 41,
   // Update MaxKeyword if anything is added right above here
 }
 
@@ -91,7 +92,7 @@ const MinKeyword = Token.ImportKeyword;
 const MaxKeyword = Token.FalseKeyword;
 
 const MinPunctuation = Token.OpenBrace;
-const MaxPunctuation = Token.At;
+const MaxPunctuation = Token.Hash;
 
 const MinStatementKeyword = Token.ImportKeyword;
 const MaxStatementKeyword = Token.InterfaceKeyword;
@@ -126,6 +127,7 @@ export const TokenDisplay: readonly string[] = [
   "'?'",
   "':'",
   "'@'",
+  "'#'",
   "identifier",
   "'import'",
   "'model'",
@@ -361,6 +363,9 @@ export function createScanner(
 
         case CharCode.At:
           return next(Token.At);
+
+        case CharCode.Hash:
+          return next(Token.Hash);
 
         case CharCode.Question:
           return next(Token.Question);

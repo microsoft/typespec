@@ -213,6 +213,7 @@ export enum SyntaxKind {
   Identifier,
   NamedImport,
   DecoratorExpression,
+  DirectiveExpression,
   MemberExpression,
   NamespaceStatement,
   UsingStatement,
@@ -243,6 +244,7 @@ export enum SyntaxKind {
 export interface BaseNode extends TextRange {
   kind: SyntaxKind;
   parent?: Node;
+  directives?: DirectiveExpressionNode[];
 }
 
 export interface TemplateDeclarationNode {
@@ -259,6 +261,7 @@ export type Node =
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
+  | DirectiveExpressionNode
   | Statement
   | Expression;
 
@@ -333,6 +336,12 @@ export interface NamedImportNode extends BaseNode {
 
 export interface DecoratorExpressionNode extends BaseNode {
   kind: SyntaxKind.DecoratorExpression;
+  target: IdentifierNode | MemberExpressionNode;
+  arguments: Expression[];
+}
+
+export interface DirectiveExpressionNode extends BaseNode {
+  kind: SyntaxKind.DirectiveExpression;
   target: IdentifierNode | MemberExpressionNode;
   arguments: Expression[];
 }

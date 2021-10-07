@@ -9,6 +9,6 @@ describe("prettier-plugin: smoke test", () => {
       parser: "cadl",
       plugins: [resolve(__dirname, "..")],
     });
-    strictEqual(result, "alias Foo = string;");
+    strictEqual(result, "alias Foo = string;\n");
   });
 });
