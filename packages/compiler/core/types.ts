@@ -10,6 +10,7 @@ export interface DecoratorApplication {
   decorator: DecoratorFunction;
   args: DecoratorArgument[];
 }
+
 export interface DecoratorFunction {
   (program: Program, target: Type, ...customArgs: any[]): void;
   namespace?: string;
@@ -25,9 +26,15 @@ export interface DecoratedType {
   decorators: DecoratorApplication[];
 }
 
+export interface TemplatedType {
+  templateArguments?: Type[];
+  templateNode?: Node;
+}
+
 export type Type =
   | ModelType
   | ModelTypeProperty
+  | InterfaceType
   | EnumType
   | EnumMemberType
   | TemplateParameterType
@@ -50,15 +57,13 @@ export interface ErrorType extends IntrinsicType {
   name: "ErrorType";
 }
 
-export interface ModelType extends BaseType, DecoratedType {
+export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: string;
   node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
   baseModel?: ModelType;
-  templateArguments?: Type[];
-  templateNode?: Node;
 }
 
 export interface ModelTypeProperty extends DecoratedType {
@@ -70,6 +75,14 @@ export interface ModelTypeProperty extends DecoratedType {
   // this tracks the property we copied from.
   sourceProperty?: ModelTypeProperty;
   optional: boolean;
+}
+
+export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
+  kind: "Interface";
+  name: string;
+  node: InterfaceStatementNode;
+  namespace?: NamespaceType;
+  operations: Map<string, OperationType>;
 }
 
 export interface EnumType extends BaseType, DecoratedType {
@@ -93,6 +106,7 @@ export interface OperationType extends DecoratedType {
   node: OperationStatementNode;
   name: string;
   namespace?: NamespaceType;
+  interface?: InterfaceType;
   parameters: ModelType;
   returnType: Type;
 }
@@ -105,6 +119,7 @@ export interface NamespaceType extends BaseType, DecoratedType {
   models: Map<string, ModelType>;
   operations: Map<string, OperationType>;
   namespaces: Map<string, NamespaceType>;
+  interfaces: Map<string, InterfaceType>;
 }
 
 export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLiteralType;
@@ -205,6 +220,7 @@ export enum SyntaxKind {
   ModelExpression,
   ModelProperty,
   ModelSpreadProperty,
+  InterfaceStatement,
   EnumStatement,
   EnumMember,
   AliasStatement,
@@ -226,6 +242,11 @@ export enum SyntaxKind {
 export interface BaseNode extends TextRange {
   kind: SyntaxKind;
   parent?: Node;
+}
+
+export interface TemplateDeclarationNode {
+  templateParameters: TemplateParameterDeclarationNode[];
+  locals?: SymbolTable;
 }
 
 export type Node =
@@ -265,6 +286,7 @@ export type Statement =
   | ImportStatementNode
   | ModelStatementNode
   | NamespaceStatementNode
+  | InterfaceStatementNode
   | UsingStatementNode
   | EnumStatementNode
   | AliasStatementNode
@@ -279,6 +301,7 @@ export interface DeclarationNode {
 
 export type Declaration =
   | ModelStatementNode
+  | InterfaceStatementNode
   | NamespaceStatementNode
   | OperationStatementNode
   | TemplateParameterDeclarationNode
@@ -288,6 +311,7 @@ export type Declaration =
 export type ScopeNode =
   | NamespaceStatementNode
   | ModelStatementNode
+  | InterfaceStatementNode
   | AliasStatementNode
   | CadlScriptNode;
 
@@ -358,14 +382,20 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode {
   decorators: DecoratorExpressionNode[];
 }
 
-export interface ModelStatementNode extends BaseNode, DeclarationNode {
+export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
   properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
   extends?: ReferenceExpression;
   is?: ReferenceExpression;
-  templateParameters: TemplateParameterDeclarationNode[];
-  locals?: SymbolTable;
+  decorators: DecoratorExpressionNode[];
+}
+
+export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  kind: SyntaxKind.InterfaceStatement;
+  id: IdentifierNode;
+  operations: OperationStatementNode[];
+  mixes: ReferenceExpression[];
   decorators: DecoratorExpressionNode[];
 }
 
@@ -383,12 +413,10 @@ export interface EnumMemberNode extends BaseNode {
   decorators: DecoratorExpressionNode[];
 }
 
-export interface AliasStatementNode extends BaseNode, DeclarationNode {
+export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   kind: SyntaxKind.AliasStatement;
   id: IdentifierNode;
   value: Expression;
-  templateParameters: TemplateParameterDeclarationNode[];
-  locals?: SymbolTable;
 }
 
 export interface InvalidStatementNode extends BaseNode {

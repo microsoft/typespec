@@ -72,12 +72,13 @@ export enum Token {
   EnumKeyword = 34,
   AliasKeyword = 35,
   IsKeyword = 36,
+  InterfaceKeyword = 37,
   // Update MaxStatementKeyword if anything is added right above here
 
   // Other keywords
-  ExtendsKeyword = 37,
-  TrueKeyword = 38,
-  FalseKeyword = 39,
+  ExtendsKeyword = 38,
+  TrueKeyword = 39,
+  FalseKeyword = 40,
   // Update MaxKeyword if anything is added right above here
 }
 
@@ -88,7 +89,7 @@ const MinPunctuation = Token.OpenBrace;
 const MaxPunctuation = Token.At;
 
 const MinStatementKeyword = Token.ImportKeyword;
-const MaxStatementKeyword = Token.IsKeyword;
+const MaxStatementKeyword = Token.InterfaceKeyword;
 
 /** @internal */
 export const TokenDisplay: readonly string[] = [
@@ -129,6 +130,7 @@ export const TokenDisplay: readonly string[] = [
   "'enum'",
   "'alias'",
   "'is'",
+  "'interface'",
   "'extends'",
   "'true'",
   "'false'",
@@ -139,6 +141,7 @@ export const Keywords: readonly [string, Token][] = [
   ["import", Token.ImportKeyword],
   ["model", Token.ModelKeyword],
   ["namespace", Token.NamespaceKeyword],
+  ["interface", Token.InterfaceKeyword],
   ["using", Token.UsingKeyword],
   ["op", Token.OpKeyword],
   ["extends", Token.ExtendsKeyword],

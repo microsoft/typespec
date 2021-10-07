@@ -260,6 +260,7 @@ StatementList :
 
 Statement :
     ModelStatement
+    InterfaceStatement
     NamespaceStatement
     OperationStatement
     UsingStatement
@@ -293,6 +294,22 @@ ModelProperty:
 
 ModelSpreadProperty :
     `...` ReferenceExpression
+
+InterfaceStatement :
+    `interface` Identifier TemplateParameters? InterfaceHeritage? `{` InterfaceBody? `}`
+
+InterfaceHeritage :
+    `mixes` ReferenceExpressionList;
+
+InterfaceBody
+    InterfaceMemberList `;`?
+
+InterfaceMemberList :
+    InterfaceMember
+    InterfaceMemberList `;` InterfaceMember
+
+InterfaceMember :
+    Identifier `(` ModelPropertyList? `)` `:` Expression
 
 EnumStatement :
     DecoratorList? `enum` Identifier `{` EnumBody? `}`
@@ -359,6 +376,10 @@ Literal :
 
 ReferenceExpression :
     IdentifierOrMemberExpression TemplateArguments?
+
+ReferenceExpressionList :
+    ReferenceExpression
+    ReferenceExpressionList `,` ReferenceExpression
 
 IdentifierOrMemberExpression :
     Identifier

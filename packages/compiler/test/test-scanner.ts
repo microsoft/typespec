@@ -163,6 +163,7 @@ describe("cadl: scanner", () => {
       [Token.CloseBrace],
     ]);
   });
+
   it("does not scan greater-than-equals as one operator", () => {
     const all = tokens("x>=y");
     verify(all, [[Token.Identifier], [Token.GreaterThan], [Token.Equals], [Token.Identifier]]);

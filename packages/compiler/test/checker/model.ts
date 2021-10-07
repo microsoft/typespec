@@ -53,6 +53,26 @@ describe("cadl: models", () => {
     match(diagnostics[0].message, /Model already has a property/);
   });
 
+  it("doesn't invoke decorators on uninstantiated templates", async () => {
+    let blues = new WeakSet();
+    let calls = 0;
+    testHost.addJsFile("dec.js", {
+      $blue(p: any, t: Type) {
+        calls++;
+        blues.add(t);
+      },
+    });
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./dec.js";
+      @blue model A<T> { @blue x: int32}
+      `
+    );
+    await testHost.compile("./");
+    strictEqual(calls, 0);
+  });
+
   describe("with extends", () => {
     it("doesn't allow duplicate properties", async () => {
       testHost.addCadlFile(

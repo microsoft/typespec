@@ -9,6 +9,7 @@ import {
   DecoratorSymbol,
   EnumStatementNode,
   IdentifierNode,
+  InterfaceStatementNode,
   JsSourceFile,
   ModelStatementNode,
   NamespaceStatementNode,
@@ -171,6 +172,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
         break;
+      case SyntaxKind.InterfaceStatement:
+        bindInterfaceStatement(node);
+        break;
       case SyntaxKind.AliasStatement:
         bindAliasStatement(node);
         break;
@@ -242,6 +246,11 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     node.locals = new SymbolTable();
   }
 
+  function bindInterfaceStatement(node: InterfaceStatementNode) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    node.locals = new SymbolTable();
+  }
+
   function bindAliasStatement(node: AliasStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     // Initialize locals for type parameters
@@ -290,7 +299,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {
-    declareSymbol(getContainingSymbolTable(), statement, statement.id.sv);
+    if (scope.kind !== SyntaxKind.InterfaceStatement) {
+      declareSymbol(getContainingSymbolTable(), statement, statement.id.sv);
+    }
   }
 
   function declareSymbol(table: SymbolTable, node: Declaration, name: string) {
@@ -330,6 +341,8 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.NamespaceStatement:
       return node.statements !== undefined;
     case SyntaxKind.CadlScript:
+      return true;
+    case SyntaxKind.InterfaceStatement:
       return true;
     default:
       return false;

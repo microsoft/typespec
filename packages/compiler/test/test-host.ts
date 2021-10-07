@@ -152,7 +152,8 @@ export async function createTestHost(): Promise<TestHost> {
           target.kind === "Enum" ||
           target.kind === "Operation" ||
           target.kind === "ModelProperty" ||
-          target.kind === "EnumMember"
+          target.kind === "EnumMember" ||
+          target.kind === "Interface"
         ) {
           name = target.name;
         } else {

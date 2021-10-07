@@ -23,6 +23,7 @@ import {
   Expression,
   IdentifierNode,
   ImportStatementNode,
+  InterfaceStatementNode,
   InvalidStatementNode,
   MemberExpressionNode,
   ModelExpressionNode,
@@ -132,6 +133,15 @@ namespace ListKind {
     toleratedDelimiter: Token.Comma,
   } as const;
 
+  export const InterfaceMembers = {
+    ...PropertiesBase,
+    open: Token.OpenBrace,
+    close: Token.CloseBrace,
+    delimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Comma,
+    toleratedDelimiterIsValid: false,
+  } as const;
+
   export const EnumMembers = {
     ...ModelProperties,
   } as const;
@@ -228,6 +238,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         case Token.NamespaceKeyword:
           item = parseNamespaceStatement(pos, decorators);
           break;
+        case Token.InterfaceKeyword:
+          item = parseInterfaceStatement(pos, decorators);
+          break;
         case Token.OpKeyword:
           item = parseOperationStatement(pos, decorators);
           break;
@@ -298,6 +311,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
             error("Blockless namespace can only be top-level.");
           }
           stmts.push(ns);
+          break;
+        case Token.InterfaceKeyword:
+          stmts.push(parseInterfaceStatement(pos, decorators));
           break;
         case Token.OpKeyword:
           stmts.push(parseOperationStatement(pos, decorators));
@@ -382,6 +398,59 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return outerNs;
   }
 
+  function parseInterfaceStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): InterfaceStatementNode {
+    parseExpected(Token.InterfaceKeyword);
+    const id = parseIdentifier();
+    const templateParameters = parseOptionalList(
+      ListKind.TemplateParameters,
+      parseTemplateParameter
+    );
+
+    let mixes: ReferenceExpression[] = [];
+    if (token() === Token.Identifier) {
+      if (tokenValue() !== "mixes") {
+        error("expected 'mixes' or '{'");
+        nextToken();
+      } else {
+        nextToken();
+        mixes = parseList(ListKind.Heritage, parseReferenceExpression);
+      }
+    }
+
+    const operations = parseList(ListKind.InterfaceMembers, parseInterfaceMember);
+
+    return {
+      kind: SyntaxKind.InterfaceStatement,
+      id,
+      templateParameters,
+      operations,
+      mixes,
+      decorators,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseInterfaceMember(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): OperationStatementNode {
+    const id = parseIdentifier();
+    const parameters = parseOperationParameters();
+    parseExpected(Token.Colon);
+
+    const returnType = parseExpression();
+    return {
+      kind: SyntaxKind.OperationStatement,
+      id,
+      parameters,
+      returnType,
+      decorators,
+      ...finishNode(pos),
+    };
+  }
   function parseUsingStatement(): UsingStatementNode {
     const pos = tokenPos();
     parseExpected(Token.UsingKeyword);
@@ -931,7 +1000,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       if (parseOptionalDelimiter(kind)) {
         // Delimiter found: check if it's trailing.
         if (parseOptional(kind.close)) {
-          if (!kind.toleratedDelimiterIsValid) {
+          if (!kind.trailingDelimiterIsValid) {
             error(`Trailing ${TokenDisplay[delimiter]}.`, {
               pos: delimiterPos,
               end: delimiterPos + 1,
@@ -1164,6 +1233,14 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         Array.isArray(node.statements)
         ? visitEach(cb, node.statements as Statement[])
         : visitNode(cb, node.statements);
+    case SyntaxKind.InterfaceStatement:
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.mixes) ||
+        visitEach(cb, node.operations)
+      );
     case SyntaxKind.UsingStatement:
       return visitNode(cb, node.name);
     case SyntaxKind.IntersectionExpression:

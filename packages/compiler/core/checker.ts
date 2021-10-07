@@ -17,6 +17,8 @@ import {
   EnumType,
   ErrorType,
   IdentifierNode,
+  InterfaceStatementNode,
+  InterfaceType,
   IntersectionExpressionNode,
   JsSourceFile,
   LiteralNode,
@@ -40,6 +42,7 @@ import {
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
+  TemplateDeclarationNode,
   TemplateParameterDeclarationNode,
   TupleExpressionNode,
   TupleType,
@@ -231,6 +234,8 @@ export function createChecker(program: Program): Checker {
         return checkAlias(node);
       case SyntaxKind.EnumStatement:
         return checkEnum(node);
+      case SyntaxKind.InterfaceStatement:
+        return checkInterface(node);
       case SyntaxKind.NamespaceStatement:
         return checkNamespace(node);
       case SyntaxKind.OperationStatement:
@@ -335,9 +340,9 @@ export function createChecker(program: Program): Checker {
 
     if (
       sym.node.kind === SyntaxKind.ModelStatement ||
-      sym.node.kind === SyntaxKind.AliasStatement
+      sym.node.kind === SyntaxKind.AliasStatement ||
+      sym.node.kind === SyntaxKind.InterfaceStatement
     ) {
-      // model statement, possibly templated
       if (sym.node.templateParameters.length === 0) {
         if (args.length > 0) {
           program.reportDiagnostic(
@@ -354,7 +359,9 @@ export function createChecker(program: Program): Checker {
 
         return sym.node.kind === SyntaxKind.ModelStatement
           ? checkModelStatement(sym.node)
-          : checkAlias(sym.node);
+          : sym.node.kind === SyntaxKind.AliasStatement
+          ? checkAlias(sym.node)
+          : checkInterface(sym.node);
       } else {
         // declaration is templated, lets instantiate.
 
@@ -362,7 +369,9 @@ export function createChecker(program: Program): Checker {
           // we haven't checked the declared type yet, so do so.
           sym.node.kind === SyntaxKind.ModelStatement
             ? checkModelStatement(sym.node)
-            : checkAlias(sym.node);
+            : sym.node.kind === SyntaxKind.AliasStatement
+            ? checkAlias(sym.node)
+            : checkInterface(sym.node);
         }
 
         const templateParameters = sym.node.templateParameters;
@@ -408,7 +417,7 @@ export function createChecker(program: Program): Checker {
    * are ever in scope at once.
    */
   function instantiateTemplate(
-    templateNode: ModelStatementNode | AliasStatementNode,
+    templateNode: ModelStatementNode | AliasStatementNode | InterfaceStatementNode,
     args: Type[]
   ): Type {
     const symbolLinks = getSymbolLinks(templateNode.symbol!);
@@ -539,6 +548,7 @@ export function createChecker(program: Program): Checker {
         models: new Map(),
         operations: new Map(),
         namespaces: new Map(),
+        interfaces: new Map(),
         decorators,
       });
       namespace?.namespaces.set(name, type);
@@ -564,7 +574,12 @@ export function createChecker(program: Program): Checker {
   }
 
   function getParentNamespaceType(
-    node: ModelStatementNode | NamespaceStatementNode | OperationStatementNode | EnumStatementNode
+    node:
+      | ModelStatementNode
+      | NamespaceStatementNode
+      | OperationStatementNode
+      | EnumStatementNode
+      | InterfaceStatementNode
   ): NamespaceType | undefined {
     if (node === globalNamespaceType.node) return undefined;
     if (!node.namespaceSymbol) return globalNamespaceType;
@@ -586,7 +601,7 @@ export function createChecker(program: Program): Checker {
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
     const decorators = checkDecorators(node);
-    const type = createType({
+    const type: OperationType = {
       kind: "Operation",
       name,
       namespace,
@@ -594,8 +609,23 @@ export function createChecker(program: Program): Checker {
       parameters: getTypeForNode(node.parameters) as ModelType,
       returnType: getTypeForNode(node.returnType),
       decorators,
-    });
-    namespace?.operations.set(name, type);
+    };
+
+    if (
+      node.parent!.kind !== SyntaxKind.InterfaceStatement ||
+      shouldCreateTypeForTemplate(node.parent!)
+    ) {
+    }
+
+    if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
+      if (shouldCreateTypeForTemplate(node.parent!)) {
+        createType(type);
+      }
+    } else {
+      createType(type);
+      namespace?.operations.set(name, type);
+    }
+
     return type;
   }
 
@@ -848,11 +878,7 @@ export function createChecker(program: Program): Checker {
     // Evaluate the properties after
     checkModelProperties(node, properties, inheritedPropNames);
 
-    if (
-      (instantiatingThisTemplate &&
-        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
-      node.templateParameters.length === 0
-    ) {
+    if (shouldCreateTypeForTemplate(node)) {
       createType(type);
     }
 
@@ -866,6 +892,16 @@ export function createChecker(program: Program): Checker {
     pendingModelType = undefined;
 
     return type;
+  }
+
+  function shouldCreateTypeForTemplate(node: TemplateDeclarationNode) {
+    const instantiatingThisTemplate = instantiatingTemplate === node;
+
+    return (
+      (instantiatingThisTemplate &&
+        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
+      node.templateParameters.length === 0
+    );
   }
 
   function checkModelExpression(node: ModelExpressionNode) {
@@ -981,26 +1017,40 @@ export function createChecker(program: Program): Checker {
 
   function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
     const decorators = checkDecorators(prop);
+    let type: ModelTypeProperty;
     if (prop.id.kind === SyntaxKind.Identifier) {
-      return createType({
+      type = {
         kind: "ModelProperty",
         name: prop.id.sv,
         node: prop,
         optional: prop.optional,
         type: getTypeForNode(prop.value),
         decorators,
-      });
+      };
     } else {
       const name = prop.id.value;
-      return createType({
+      type = {
         kind: "ModelProperty",
         name,
         node: prop,
         optional: prop.optional,
         type: getTypeForNode(prop.value),
         decorators,
-      });
+      };
     }
+
+    const parentModel = prop.parent! as
+      | ModelStatementNode
+      | ModelExpressionNode
+      | OperationStatementNode;
+    if (
+      parentModel.kind !== SyntaxKind.ModelStatement ||
+      shouldCreateTypeForTemplate(parentModel)
+    ) {
+      createType(type);
+    }
+
+    return type;
   }
 
   function checkDecorators(node: { decorators: DecoratorExpressionNode[] }) {
@@ -1082,6 +1132,85 @@ export function createChecker(program: Program): Checker {
     return links.type;
   }
 
+  function checkInterface(node: InterfaceStatementNode): InterfaceType {
+    const links = getSymbolLinks(node.symbol!);
+    const instantiatingThisTemplate = instantiatingTemplate === node;
+
+    if (links.declaredType && !instantiatingThisTemplate) {
+      // we're not instantiating this interface and we've already checked it
+      return links.declaredType as InterfaceType;
+    }
+
+    const decorators = checkDecorators(node);
+
+    const interfaceType: InterfaceType = {
+      kind: "Interface",
+      decorators,
+      node,
+      namespace: getParentNamespaceType(node),
+      operations: new Map(),
+      name: node.id.sv,
+    };
+
+    for (const mixinNode of node.mixes) {
+      const mixinType = getTypeForNode(mixinNode);
+      if (mixinType.kind !== "Interface") {
+        program.reportDiagnostic("Interfaces can only mix other interfaces", mixinNode);
+        continue;
+      }
+
+      for (const newMember of mixinType.operations.values()) {
+        if (interfaceType.operations.has(newMember.name)) {
+          program.reportDiagnostic(
+            `Interface mixes cannot have duplicate members. The duplicate member is named ${newMember.name}`,
+            mixinNode
+          );
+        }
+
+        interfaceType.operations.set(newMember.name, cloneType(newMember));
+      }
+    }
+
+    const ownMembers = new Map<string, OperationType>();
+
+    checkInterfaceMembers(node, ownMembers);
+
+    for (const [k, v] of ownMembers) {
+      // don't do a duplicate check here because interface members can override
+      // an member coming from a mixin.
+      interfaceType.operations.set(k, v);
+    }
+
+    if (
+      (instantiatingThisTemplate &&
+        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
+      node.templateParameters.length === 0
+    ) {
+      createType(interfaceType);
+    }
+
+    if (!instantiatingThisTemplate) {
+      links.declaredType = interfaceType;
+      links.instantiations = new TypeInstantiationMap();
+      interfaceType.namespace?.interfaces.set(interfaceType.name, interfaceType);
+    }
+
+    return interfaceType;
+  }
+
+  function checkInterfaceMembers(
+    node: InterfaceStatementNode,
+    members: Map<string, OperationType>
+  ) {
+    for (const opNode of node.operations) {
+      const opType = checkOperation(opNode);
+      if (members.has(opType.name)) {
+        program.reportDiagnostic(`Interface already has a member named ${opType.name}`, opNode);
+        continue;
+      }
+      members.set(opType.name, opType);
+    }
+  }
   function checkEnumMember(
     parentEnum: EnumType,
     node: EnumMemberNode,
@@ -1240,6 +1369,7 @@ export function createChecker(program: Program): Checker {
       models: new Map(),
       operations: new Map(),
       namespaces: new Map(),
+      interfaces: new Map(),
       decorators: [],
     });
   }

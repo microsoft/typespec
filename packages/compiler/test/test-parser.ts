@@ -116,7 +116,16 @@ describe("cadl: syntax", () => {
       ["model bar<a, b> = a | b;", [/'{' expected/]],
     ]);
   });
-
+  describe("interface statements", () => {
+    parseEach([
+      "interface Foo { }",
+      "interface Foo<T> { }",
+      "interface Foo<T> mixes Bar<T> { }",
+      "interface Foo mixes Bar, Baz<T> { }",
+      "interface Foo { foo(): int32; }",
+      "interface Foo { foo(): int32; bar(): int32; }",
+    ]);
+  });
   describe("model expressions", () => {
     parseEach(['model Car { engine: { type: "v8" } }']);
   });
