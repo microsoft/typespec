@@ -610,12 +610,18 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.Colon);
     const value = parseExpression();
 
+    const hasDefault = parseOptional(Token.Equals);
+    if (hasDefault && !optional) {
+      error("Cannot use default with non optional properties");
+    }
+    const defaultValue = hasDefault ? parseExpression() : undefined;
     return {
       kind: SyntaxKind.ModelProperty,
       id,
       decorators,
       value,
       optional,
+      default: defaultValue,
       ...finishNode(pos),
     };
   }
@@ -1338,7 +1344,12 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.ModelExpression:
       return visitEach(cb, node.properties);
     case SyntaxKind.ModelProperty:
-      return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.value) ||
+        visitNode(cb, node.default)
+      );
     case SyntaxKind.ModelSpreadProperty:
       return visitNode(cb, node.target);
     case SyntaxKind.ModelStatement:

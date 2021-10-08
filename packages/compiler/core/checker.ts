@@ -5,6 +5,7 @@ import { Program } from "./program.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  ArrayType,
   BooleanLiteralNode,
   BooleanLiteralType,
   CadlScriptNode,
@@ -1017,27 +1018,19 @@ export function createChecker(program: Program): Checker {
 
   function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
     const decorators = checkDecorators(prop);
-    let type: ModelTypeProperty;
-    if (prop.id.kind === SyntaxKind.Identifier) {
-      type = {
-        kind: "ModelProperty",
-        name: prop.id.sv,
-        node: prop,
-        optional: prop.optional,
-        type: getTypeForNode(prop.value),
-        decorators,
-      };
-    } else {
-      const name = prop.id.value;
-      type = {
-        kind: "ModelProperty",
-        name,
-        node: prop,
-        optional: prop.optional,
-        type: getTypeForNode(prop.value),
-        decorators,
-      };
-    }
+    const valueType = getTypeForNode(prop.value);
+    const defaultValue = prop.default && checkDefault(getTypeForNode(prop.default), valueType);
+    const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
+
+    let type: ModelTypeProperty = {
+      kind: "ModelProperty",
+      name,
+      node: prop,
+      optional: prop.optional,
+      type: valueType,
+      decorators,
+      default: defaultValue,
+    };
 
     const parentModel = prop.parent! as
       | ModelStatementNode
@@ -1051,6 +1044,81 @@ export function createChecker(program: Program): Checker {
     }
 
     return type;
+  }
+
+  function checkDefault(defaultType: Type, type: Type): Type {
+    switch (type.kind) {
+      case "Model":
+        return checkDefaultForModelType(defaultType, type);
+      case "Array":
+        return checkDefaultForArrayType(defaultType, type);
+      default:
+        program.reportDiagnostic(
+          `Default values are not supported for '${type.kind}' type`,
+          defaultType
+        );
+    }
+    return errorType;
+  }
+
+  function checkDefaultForModelType(defaultType: Type, type: ModelType): Type {
+    switch (type.name) {
+      case "string":
+        return checkDefaultTypeIsString(defaultType);
+      case "boolean":
+        return checkDefaultTypeIsBoolean(defaultType);
+      case "int32":
+      case "int64":
+      case "int32":
+      case "int16":
+      case "int8":
+      case "uint64":
+      case "uint32":
+      case "uint16":
+      case "uint8":
+      case "safeint":
+      case "float32":
+      case "float64":
+        return checkDefaultTypeIsNumeric(defaultType);
+      default:
+        program.reportDiagnostic(
+          `Default is not supported for intristic type "${type.name}"`,
+          defaultType
+        );
+    }
+    return errorType;
+  }
+
+  function checkDefaultForArrayType(defaultType: Type, type: ArrayType): Type {
+    if (defaultType.kind === "Tuple") {
+      for (const item of defaultType.values) {
+        checkDefault(item, type.elementType);
+      }
+    } else {
+      program.reportDiagnostic(`Default must be a tuple`, defaultType);
+    }
+    return defaultType;
+  }
+
+  function checkDefaultTypeIsString(defaultType: Type): Type {
+    if (defaultType.kind !== "String") {
+      program.reportDiagnostic(`Default must be a string`, defaultType);
+    }
+    return defaultType;
+  }
+
+  function checkDefaultTypeIsNumeric(defaultType: Type): Type {
+    if (defaultType.kind !== "Number") {
+      program.reportDiagnostic(`Default must be a number`, defaultType);
+    }
+    return defaultType;
+  }
+
+  function checkDefaultTypeIsBoolean(defaultType: Type): Type {
+    if (defaultType.kind !== "Boolean") {
+      program.reportDiagnostic(`Default must be a boolean`, defaultType);
+    }
+    return defaultType;
   }
 
   function checkDecorators(node: { decorators: DecoratorExpressionNode[] }) {

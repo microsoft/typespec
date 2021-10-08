@@ -73,6 +73,29 @@ describe("cadl: models", () => {
     strictEqual(calls, 0);
   });
 
+  describe("doesn't allow a default of different type than the property type", () => {
+    const testCases: [string, string, RegExp][] = [
+      ["string", "123", /Default must be a string/],
+      ["int32", `"foo"`, /Default must be a number/],
+      ["boolean", `"foo"`, /Default must be a boolean/],
+      ["string[]", `["foo", 123]`, /Default must be a string/],
+    ];
+
+    for (const [type, defaultValue, errorRegex] of testCases) {
+      it(`foo?: ${type} = ${defaultValue}`, async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+          model A { foo?: ${type} = ${defaultValue} }
+          `
+        );
+        const diagnostics = await testHost.diagnose("main.cadl");
+        strictEqual(diagnostics.length, 1);
+        match(diagnostics[0].message, errorRegex);
+      });
+    }
+  });
+
   describe("with extends", () => {
     it("doesn't allow duplicate properties", async () => {
       testHost.addCadlFile(

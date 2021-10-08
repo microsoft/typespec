@@ -80,6 +80,22 @@ model Foo {
       });
     });
 
+    it("format models with default values", () => {
+      assertFormat({
+        code: `
+model Foo {
+
+    name?:    string    =      "foo";
+}
+`,
+        expected: `
+model Foo {
+  name?: string = "foo";
+}
+`,
+      });
+    });
+
     it("format models with spread", () => {
       assertFormat({
         code: `

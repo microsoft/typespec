@@ -506,6 +506,7 @@ export function printModelProperty(
     path.call(print, "id"),
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
+    node.default ? concat([" = ", path.call(print, "default")]) : "",
   ]);
 }
 

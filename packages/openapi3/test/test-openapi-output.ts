@@ -398,6 +398,22 @@ describe("openapi3: literals", () => {
   }
 });
 
+describe("openapi3: operations", () => {
+  it("define operations with param with defaults", async () => {
+    const res = await openApiFor(
+      `
+      @resource("/")
+      namespace root {
+        @get()
+        op read(@query queryWithDefault?: string = "defaultValue"): string;
+      }
+      `
+    );
+
+    deepStrictEqual(res.paths["/"].get.parameters[0].default, "defaultValue");
+  });
+});
+
 async function oapiForModel(name: string, modelDef: string) {
   const oapi = await openApiFor(`
     ${modelDef};

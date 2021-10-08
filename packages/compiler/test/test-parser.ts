@@ -27,6 +27,11 @@ describe("cadl: syntax", () => {
        };`,
 
       `model Car {
+         optional?: number;
+         withDefault?: string = "mydefault";
+       };`,
+
+      `model Car {
          prop1: number;
          prop2: string;
        }`,
@@ -90,6 +95,11 @@ describe("cadl: syntax", () => {
       ["model Car is { }", [/Identifier expected/]],
       ["model Car is Foo extends Bar { }", [/'{' expected/]],
       ["model Car extends Bar is Foo { }", [/'{' expected/]],
+      ["model Car { withDefaultMissing?: string =  }", [/Expression expected/]],
+      [
+        `model Car { withDefaultButNotOptional: string = "foo" }`,
+        [/Cannot use default with non optional properties/],
+      ],
     ]);
   });
 

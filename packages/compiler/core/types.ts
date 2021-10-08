@@ -58,9 +58,29 @@ export interface ErrorType extends IntrinsicType {
   name: "ErrorType";
 }
 
+export type IntrinsicModelName =
+  | "bytes"
+  | "int64"
+  | "int32"
+  | "int16"
+  | "int8"
+  | "uint64"
+  | "uint32"
+  | "uint16"
+  | "uint8"
+  | "safeint"
+  | "float32"
+  | "float64"
+  | "string"
+  | "plainDate"
+  | "plainTime"
+  | "zonedDateTime"
+  | "boolean"
+  | "null";
+
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
-  name: string;
+  name: IntrinsicModelName | string;
   node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
@@ -76,6 +96,7 @@ export interface ModelTypeProperty extends DecoratedType {
   // this tracks the property we copied from.
   sourceProperty?: ModelTypeProperty;
   optional: boolean;
+  default?: Type;
 }
 
 export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
@@ -457,6 +478,7 @@ export interface ModelPropertyNode extends BaseNode {
   value: Expression;
   decorators: DecoratorExpressionNode[];
   optional: boolean;
+  default?: Expression;
 }
 
 export interface ModelSpreadPropertyNode extends BaseNode {

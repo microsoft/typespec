@@ -36,11 +36,11 @@ model Foo {
   /*
    * Name is special and comment is unaligned.
    */
-  name?: string;
+  name?: string = "foo";
   isArray: string[];
   address: {
     street: string;
-    country: string;
+    country?: string;
   };
   ...Bar;
 }
