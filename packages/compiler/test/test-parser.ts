@@ -152,6 +152,15 @@ describe("cadl: syntax", () => {
     parseEach(["model A { foo: B | C }", "model A { foo: B | C & D }", "model A { foo: | B | C }"]);
   });
 
+  describe("union declarations", () => {
+    parseEach([
+      "union A { x: number, y: number } ",
+      "@dec union A { @dec a: string }",
+      "union A<T, V> { a: T; none: {} }",
+      `union A { "hi there": string }`,
+    ]);
+  });
+
   describe("template instantiations", () => {
     parseEach(["model A { x: Foo<number, string>; }", "model B { x: Foo<number, string>[]; }"]);
   });

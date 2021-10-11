@@ -43,6 +43,8 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
+  UnionStatementNode,
+  UnionVariantNode,
   UsingStatementNode,
 } from "./types.js";
 
@@ -141,6 +143,15 @@ namespace ListKind {
     delimiter: Token.Semicolon,
     toleratedDelimiter: Token.Comma,
     toleratedDelimiterIsValid: false,
+  } as const;
+
+  export const UnionVariants = {
+    ...PropertiesBase,
+    open: Token.OpenBrace,
+    close: Token.CloseBrace,
+    delimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Comma,
+    toleratedDelimiterIsValid: true,
   } as const;
 
   export const EnumMembers = {
@@ -244,6 +255,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         case Token.InterfaceKeyword:
           item = parseInterfaceStatement(pos, decorators);
           break;
+        case Token.UnionKeyword:
+          item = parseUnionStatement(pos, decorators);
+          break;
         case Token.OpKeyword:
           item = parseOperationStatement(pos, decorators);
           break;
@@ -321,6 +335,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           break;
         case Token.InterfaceKeyword:
           item = parseInterfaceStatement(pos, decorators);
+          break;
+        case Token.UnionKeyword:
+          item = parseUnionStatement(pos, decorators);
           break;
         case Token.OpKeyword:
           item = parseOperationStatement(pos, decorators);
@@ -470,6 +487,49 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       ...finishNode(pos),
     };
   }
+
+  function parseUnionStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): UnionStatementNode {
+    parseExpected(Token.UnionKeyword);
+    const id = parseIdentifier();
+    const templateParameters = parseOptionalList(
+      ListKind.TemplateParameters,
+      parseTemplateParameter
+    );
+
+    const options = parseList(ListKind.UnionVariants, parseUnionVariant);
+
+    return {
+      kind: SyntaxKind.UnionStatement,
+      id,
+      templateParameters,
+      decorators,
+      options,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
+    const id =
+      token() === Token.StringLiteral
+        ? parseStringLiteral()
+        : parseIdentifier("Property expected.");
+
+    parseExpected(Token.Colon);
+
+    const value = parseExpression();
+
+    return {
+      kind: SyntaxKind.UnionVariant,
+      id,
+      value,
+      decorators,
+      ...finishNode(pos),
+    };
+  }
+
   function parseUsingStatement(): UsingStatementNode {
     const pos = tokenPos();
     parseExpected(Token.UsingKeyword);
@@ -807,9 +867,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     // The newline will mark the end of the directive.
     newLineIsTrivia = false;
     const args = [];
-    console.log("Get to directive", Token[token()]);
     while (token() !== Token.NewLine && token() !== Token.EndOfFile) {
-      console.log("Get to directive2", Token[token()]);
       const param = parseDirectiveParameter();
       if (param) {
         args.push(param);
@@ -1361,6 +1419,15 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.is) ||
         visitEach(cb, node.properties)
       );
+    case SyntaxKind.UnionStatement:
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.options)
+      );
+    case SyntaxKind.UnionVariant:
+      return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.EnumStatement:
       return (
         visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.members)

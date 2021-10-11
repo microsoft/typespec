@@ -31,7 +31,6 @@ export interface TemplatedType {
   templateArguments?: Type[];
   templateNode?: Node;
 }
-
 export type Type =
   | ModelType
   | ModelTypeProperty
@@ -47,6 +46,7 @@ export type Type =
   | ArrayType
   | TupleType
   | UnionType
+  | UnionTypeVariant
   | IntrinsicType;
 
 export interface IntrinsicType extends BaseType {
@@ -142,6 +142,7 @@ export interface NamespaceType extends BaseType, DecoratedType {
   operations: Map<string, OperationType>;
   namespaces: Map<string, NamespaceType>;
   interfaces: Map<string, InterfaceType>;
+  unions: Map<string, UnionType>;
 }
 
 export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLiteralType;
@@ -176,10 +177,21 @@ export interface TupleType extends BaseType {
   values: Type[];
 }
 
-export interface UnionType extends BaseType {
+export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   kind: "Union";
-  node: UnionExpressionNode;
-  options: Type[];
+  name?: string;
+  node: UnionExpressionNode | UnionStatementNode;
+  namespace?: NamespaceType;
+  variants: Map<string | Symbol, Type>;
+  expression: boolean;
+  readonly options: Type[];
+}
+
+export interface UnionTypeVariant extends BaseType, DecoratedType {
+  kind: "UnionVariant";
+  name: string | Symbol;
+  node: UnionVariantNode;
+  type: Type;
 }
 
 export interface TemplateParameterType extends BaseType {
@@ -244,6 +256,8 @@ export enum SyntaxKind {
   ModelProperty,
   ModelSpreadProperty,
   InterfaceStatement,
+  UnionStatement,
+  UnionVariant,
   EnumStatement,
   EnumMember,
   AliasStatement,
@@ -277,6 +291,7 @@ export type Node =
   | CadlScriptNode
   | TemplateParameterDeclarationNode
   | ModelPropertyNode
+  | UnionVariantNode
   | OperationStatementNode
   | NamedImportNode
   | EnumMemberNode
@@ -312,6 +327,7 @@ export type Statement =
   | ModelStatementNode
   | NamespaceStatementNode
   | InterfaceStatementNode
+  | UnionStatementNode
   | UsingStatementNode
   | EnumStatementNode
   | AliasStatementNode
@@ -327,6 +343,7 @@ export interface DeclarationNode {
 export type Declaration =
   | ModelStatementNode
   | InterfaceStatementNode
+  | UnionStatementNode
   | NamespaceStatementNode
   | OperationStatementNode
   | TemplateParameterDeclarationNode
@@ -427,6 +444,20 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
   id: IdentifierNode;
   operations: OperationStatementNode[];
   mixes: ReferenceExpression[];
+  decorators: DecoratorExpressionNode[];
+}
+
+export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  kind: SyntaxKind.UnionStatement;
+  id: IdentifierNode;
+  options: UnionVariantNode[];
+  decorators: DecoratorExpressionNode[];
+}
+
+export interface UnionVariantNode extends BaseNode {
+  kind: SyntaxKind.UnionVariant;
+  id: IdentifierNode | StringLiteralNode;
+  value: Expression;
   decorators: DecoratorExpressionNode[];
 }
 

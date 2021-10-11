@@ -23,6 +23,8 @@ import {
   TextRange,
   TypeReferenceNode,
   UnionExpressionNode,
+  UnionStatementNode,
+  UnionVariantNode,
 } from "../../core/types.js";
 import { CadlPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
 
@@ -91,7 +93,8 @@ export function printNode(
       return printAliasStatement(path as AstPath<AliasStatementNode>, options, print);
     case SyntaxKind.EnumStatement:
       return printEnumStatement(path as AstPath<EnumStatementNode>, options, print);
-
+    case SyntaxKind.UnionStatement:
+      return printUnionStatement(path as AstPath<UnionStatementNode>, options, print);
     // Others.
     case SyntaxKind.Identifier:
       return node.sv;
@@ -113,6 +116,8 @@ export function printNode(
       return printIntersection(path as AstPath<IntersectionExpressionNode>, options, print);
     case SyntaxKind.EnumMember:
       return printEnumMember(path as AstPath<EnumMemberNode>, options, print);
+    case SyntaxKind.UnionVariant:
+      return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
       return printTypeReference(path as AstPath<TypeReferenceNode>, options, print);
     default:
@@ -315,8 +320,8 @@ export function printEnumStatement(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const id = path.call(print, "id");
   const decorators = printDecorators(path, options, print, { tryInline: false });
+  const id = path.call(print, "id");
   return concat([decorators, "enum ", id, " ", printEnumBlock(path, options, print)]);
 }
 
@@ -356,6 +361,63 @@ export function printEnumMember(
   const node = path.getValue();
   const id = path.call(print, "id");
   const value = node.value ? concat([": ", path.call(print, "value")]) : "";
+  const decorators = printDecorators(path, options, print, { tryInline: true });
+  return concat([decorators, id, value]);
+}
+
+export function printUnionStatement(
+  path: AstPath<UnionStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const id = path.call(print, "id");
+  const decorators = printDecorators(path, options, print, { tryInline: false });
+  const generic = printTemplateParameters(path, options, print, "templateParameters");
+  return concat([
+    decorators,
+    "union ",
+    id,
+    generic,
+    " ",
+    printUnionVariantsBlock(path, options, print),
+  ]);
+}
+
+export function printUnionVariantsBlock(
+  path: AstPath<UnionStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  if (node.options.length === 0) {
+    return "{}";
+  }
+
+  return group(
+    concat([
+      "{",
+      indent(
+        concat([
+          hardline,
+          join(
+            hardline,
+            path.map((x) => concat([print(x as any), ","]), "options")
+          ),
+        ])
+      ),
+      hardline,
+      "}",
+    ])
+  );
+}
+
+export function printUnionVariant(
+  path: AstPath<UnionVariantNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const id = path.call(print, "id");
+  const value = concat([": ", path.call(print, "value")]);
   const decorators = printDecorators(path, options, print, { tryInline: true });
   return concat([decorators, id, value]);
 }

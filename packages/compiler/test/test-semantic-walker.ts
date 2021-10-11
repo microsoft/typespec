@@ -1,5 +1,11 @@
 import assert from "assert";
-import { ModelType, ModelTypeProperty, NamespaceType, OperationType } from "../core/index.js";
+import {
+  ModelType,
+  ModelTypeProperty,
+  NamespaceType,
+  OperationType,
+  UnionType,
+} from "../core/index.js";
 import { navigateProgram } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "./test-host.js";
 
@@ -20,6 +26,7 @@ describe("SemanticWalker", () => {
       modelProperties: [] as ModelTypeProperty[],
       namespaces: [] as NamespaceType[],
       operations: [] as OperationType[],
+      unions: [] as UnionType[],
     };
 
     navigateProgram(host.program, {
@@ -27,6 +34,7 @@ describe("SemanticWalker", () => {
       operation: (x) => result.operations.push(x),
       model: (x) => result.models.push(x),
       modelProperty: (x) => result.modelProperties.push(x),
+      union: (x) => result.unions.push(x),
     });
 
     return result;
@@ -99,5 +107,16 @@ describe("SemanticWalker", () => {
     assert.strictEqual(result.modelProperties[0].name, "nested");
     assert.strictEqual(result.modelProperties[1].name, "inline");
     assert.strictEqual(result.modelProperties[2].name, "name");
+  });
+
+  it("finds unions", async () => {
+    const result = await runNavigator(`
+      union A {
+        x: true;
+      }
+    `);
+
+    assert.strictEqual(result.unions.length, 1);
+    assert.strictEqual(result.unions[0].name!, "A");
   });
 });

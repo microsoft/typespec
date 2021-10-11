@@ -64,4 +64,8 @@ describe("cadl: prettier formatter scenarios", () => {
   it("model", async () => {
     await testScenario("model.cadl");
   });
+
+  it("union", async () => {
+    await testScenario("union.cadl");
+  });
 });

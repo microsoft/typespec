@@ -153,9 +153,10 @@ export async function createTestHost(): Promise<TestHost> {
           target.kind === "Operation" ||
           target.kind === "ModelProperty" ||
           target.kind === "EnumMember" ||
-          target.kind === "Interface"
+          target.kind === "Interface" ||
+          (target.kind === "Union" && !target.expression)
         ) {
-          name = target.name;
+          name = target.name!;
         } else {
           throw new Error("Need to specify a name for test type");
         }

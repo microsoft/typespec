@@ -43,6 +43,10 @@ function navigateNamespaceType(
   for (const subNamespace of namespace.namespaces.values()) {
     navigateNamespaceType(subNamespace, eventEmitter, visited);
   }
+
+  for (const union of namespace.unions.values()) {
+    navigateUnionType(union, eventEmitter, visited);
+  }
 }
 
 function checkVisited(visited: Set<any>, item: any) {
@@ -125,8 +129,8 @@ function navigateUnionType(
     return;
   }
   eventEmitter.emit("union", type);
-  for (const option of type.options) {
-    navigateType(option, eventEmitter, visited);
+  for (const variant of type.variants.values()) {
+    navigateType(variant, eventEmitter, visited);
   }
 }
 

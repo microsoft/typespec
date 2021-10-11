@@ -311,6 +311,21 @@ InterfaceMemberList :
 InterfaceMember :
     Identifier `(` ModelPropertyList? `)` `:` Expression
 
+
+UnionStatement :
+    DecoratorList? `union` Identifier TemplateParameters? `{` UnionBody? `}`
+
+UnionBody :
+    UnionVariantList `;`? 
+
+UnionVariantList :
+    UnionVariant
+    UnionVariantList `;` UnionVariant
+
+UnionVariant :
+    DecoratorList? Identifier `:` Expression
+    DecoratorList? StringLiteral `:` Expression
+
 EnumStatement :
     DecoratorList? `enum` Identifier `{` EnumBody? `}`
 

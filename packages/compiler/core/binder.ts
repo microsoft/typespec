@@ -21,6 +21,7 @@ import {
   SyntaxKind,
   TemplateParameterDeclarationNode,
   TypeSymbol,
+  UnionStatementNode,
   UsingStatementNode,
 } from "./types.js";
 
@@ -175,6 +176,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       case SyntaxKind.InterfaceStatement:
         bindInterfaceStatement(node);
         break;
+      case SyntaxKind.UnionStatement:
+        bindUnionStatement(node);
+        break;
       case SyntaxKind.AliasStatement:
         bindAliasStatement(node);
         break;
@@ -247,6 +251,11 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   }
 
   function bindInterfaceStatement(node: InterfaceStatementNode) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    node.locals = new SymbolTable();
+  }
+
+  function bindUnionStatement(node: UnionStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     node.locals = new SymbolTable();
   }
@@ -343,6 +352,8 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.CadlScript:
       return true;
     case SyntaxKind.InterfaceStatement:
+      return true;
+    case SyntaxKind.UnionStatement:
       return true;
     default:
       return false;

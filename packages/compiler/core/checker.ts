@@ -52,7 +52,10 @@ import {
   TypeReferenceNode,
   TypeSymbol,
   UnionExpressionNode,
+  UnionStatementNode,
   UnionType,
+  UnionTypeVariant,
+  UnionVariantNode,
 } from "./types.js";
 
 export interface Checker {
@@ -237,6 +240,8 @@ export function createChecker(program: Program): Checker {
         return checkEnum(node);
       case SyntaxKind.InterfaceStatement:
         return checkInterface(node);
+      case SyntaxKind.UnionStatement:
+        return checkUnion(node);
       case SyntaxKind.NamespaceStatement:
         return checkNamespace(node);
       case SyntaxKind.OperationStatement:
@@ -342,7 +347,8 @@ export function createChecker(program: Program): Checker {
     if (
       sym.node.kind === SyntaxKind.ModelStatement ||
       sym.node.kind === SyntaxKind.AliasStatement ||
-      sym.node.kind === SyntaxKind.InterfaceStatement
+      sym.node.kind === SyntaxKind.InterfaceStatement ||
+      sym.node.kind === SyntaxKind.UnionStatement
     ) {
       if (sym.node.templateParameters.length === 0) {
         if (args.length > 0) {
@@ -362,7 +368,9 @@ export function createChecker(program: Program): Checker {
           ? checkModelStatement(sym.node)
           : sym.node.kind === SyntaxKind.AliasStatement
           ? checkAlias(sym.node)
-          : checkInterface(sym.node);
+          : sym.node.kind === SyntaxKind.InterfaceStatement
+          ? checkInterface(sym.node)
+          : checkUnion(sym.node);
       } else {
         // declaration is templated, lets instantiate.
 
@@ -372,7 +380,9 @@ export function createChecker(program: Program): Checker {
             ? checkModelStatement(sym.node)
             : sym.node.kind === SyntaxKind.AliasStatement
             ? checkAlias(sym.node)
-            : checkInterface(sym.node);
+            : sym.node.kind === SyntaxKind.InterfaceStatement
+            ? checkInterface(sym.node)
+            : checkUnion(sym.node);
         }
 
         const templateParameters = sym.node.templateParameters;
@@ -418,7 +428,11 @@ export function createChecker(program: Program): Checker {
    * are ever in scope at once.
    */
   function instantiateTemplate(
-    templateNode: ModelStatementNode | AliasStatementNode | InterfaceStatementNode,
+    templateNode:
+      | ModelStatementNode
+      | AliasStatementNode
+      | InterfaceStatementNode
+      | UnionStatementNode,
     args: Type[]
   ): Type {
     const symbolLinks = getSymbolLinks(templateNode.symbol!);
@@ -444,19 +458,27 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkUnionExpression(node: UnionExpressionNode): UnionType {
-    const options = node.options.flatMap((o) => {
+    const options: [string | Symbol, Type][] = node.options.flatMap((o) => {
       const type = getTypeForNode(o);
-      if (type.kind === "Union") {
-        return type.options;
+      if (type.kind === "Union" && type.expression) {
+        return Array.from(type.variants.entries());
       }
-      return type;
+      return [[Symbol(), type]];
     });
 
-    return createType({
+    const type: UnionType = {
       kind: "Union",
       node,
-      options,
-    });
+      get options() {
+        return Array.from(this.variants.values());
+      },
+      expression: true,
+      variants: new Map(options),
+      decorators: [],
+    };
+
+    createType(type);
+    return type;
   }
 
   function allModelTypes(types: Type[]): types is ModelType[] {
@@ -550,6 +572,7 @@ export function createChecker(program: Program): Checker {
         operations: new Map(),
         namespaces: new Map(),
         interfaces: new Map(),
+        unions: new Map(),
         decorators,
       });
       namespace?.namespaces.set(name, type);
@@ -581,6 +604,7 @@ export function createChecker(program: Program): Checker {
       | OperationStatementNode
       | EnumStatementNode
       | InterfaceStatementNode
+      | UnionStatementNode
   ): NamespaceType | undefined {
     if (node === globalNamespaceType.node) return undefined;
     if (!node.namespaceSymbol) return globalNamespaceType;
@@ -1279,6 +1303,77 @@ export function createChecker(program: Program): Checker {
       members.set(opType.name, opType);
     }
   }
+
+  function checkUnion(node: UnionStatementNode) {
+    const links = getSymbolLinks(node.symbol!);
+    const instantiatingThisTemplate = instantiatingTemplate === node;
+
+    if (links.declaredType && !instantiatingThisTemplate) {
+      // we're not instantiating this interface and we've already checked it
+      return links.declaredType as InterfaceType;
+    }
+
+    const decorators = checkDecorators(node);
+    const variants = new Map<string, UnionTypeVariant>();
+    checkUnionVariants(node, variants);
+    const unionType: UnionType = {
+      kind: "Union",
+      decorators,
+      node,
+      namespace: getParentNamespaceType(node),
+      name: node.id.sv,
+      variants,
+      get options() {
+        return Array.from(this.variants.values());
+      },
+      expression: false,
+    };
+
+    if (
+      (instantiatingThisTemplate &&
+        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
+      node.templateParameters.length === 0
+    ) {
+      createType(unionType);
+    }
+
+    if (!instantiatingThisTemplate) {
+      links.declaredType = unionType;
+      links.instantiations = new TypeInstantiationMap();
+      unionType.namespace?.unions.set(unionType.name!, unionType);
+    }
+
+    return unionType;
+  }
+
+  function checkUnionVariants(union: UnionStatementNode, variants: Map<string, UnionTypeVariant>) {
+    for (const variantNode of union.options) {
+      const variantType = checkUnionVariant(variantNode);
+      if (variants.has(variantType.name as string)) {
+        program.reportDiagnostic(
+          `Union already has a variant named ${variantType.name}`,
+          variantNode
+        );
+        continue;
+      }
+      variants.set(variantType.name as string, variantType);
+    }
+  }
+
+  function checkUnionVariant(variantNode: UnionVariantNode): UnionTypeVariant {
+    const name =
+      variantNode.id.kind === SyntaxKind.Identifier ? variantNode.id.sv : variantNode.id.value;
+    const decorators = checkDecorators(variantNode);
+    const type = getTypeForNode(variantNode.value);
+    return createType({
+      kind: "UnionVariant",
+      name,
+      node: variantNode,
+      decorators,
+      type,
+    });
+  }
+
   function checkEnumMember(
     parentEnum: EnumType,
     node: EnumMemberNode,
@@ -1438,6 +1533,7 @@ export function createChecker(program: Program): Checker {
       operations: new Map(),
       namespaces: new Map(),
       interfaces: new Map(),
+      unions: new Map(),
       decorators: [],
     });
   }
