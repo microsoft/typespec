@@ -1,10 +1,12 @@
 import assert from "assert";
 import {
+  InterfaceType,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
   OperationType,
   UnionType,
+  UnionTypeVariant,
 } from "../core/index.js";
 import { navigateProgram } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "./test-host.js";
@@ -26,7 +28,9 @@ describe("SemanticWalker", () => {
       modelProperties: [] as ModelTypeProperty[],
       namespaces: [] as NamespaceType[],
       operations: [] as OperationType[],
+      interfaces: [] as InterfaceType[],
       unions: [] as UnionType[],
+      unionVariants: [] as UnionTypeVariant[],
     };
 
     navigateProgram(host.program, {
@@ -35,6 +39,8 @@ describe("SemanticWalker", () => {
       model: (x) => result.models.push(x),
       modelProperty: (x) => result.modelProperties.push(x),
       union: (x) => result.unions.push(x),
+      interface: (x) => result.interfaces.push(x),
+      unionVariant: (x) => result.unionVariants.push(x),
     });
 
     return result;
@@ -118,5 +124,21 @@ describe("SemanticWalker", () => {
 
     assert.strictEqual(result.unions.length, 1);
     assert.strictEqual(result.unions[0].name!, "A");
+    assert.strictEqual(result.unionVariants.length, 1);
+    assert.strictEqual(result.unionVariants[0].name!, "x");
+  });
+
+  it("finds interfaces", async () => {
+    const result = await runNavigator(`
+      model B { };
+      interface A {
+        a(): true;
+      }
+    `);
+
+    assert.strictEqual(result.interfaces.length, 1, "finds interfaces");
+    assert.strictEqual(result.interfaces[0].name, "A");
+    assert.strictEqual(result.operations.length, 1, "finds operations");
+    assert.strictEqual(result.operations[0].name, "a");
   });
 });

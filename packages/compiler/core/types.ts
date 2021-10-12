@@ -684,19 +684,19 @@ export interface CompilerHost {
   // get the real path of a possibly symlinked path
   realpath(path: string): Promise<string>;
 }
+type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (k: infer I) => void
+  ? I
+  : never;
+
+type ListenerForType<T extends Type> = T extends Type
+  ? { [k in Uncapitalize<T["kind"]>]?: (context: T) => void }
+  : never;
+
+type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
 export type SemanticNodeListener = {
   root?: (context: Program) => void;
-  namespace?: (context: NamespaceType) => void;
-  model?: (context: ModelType) => void;
-  modelProperty?: (context: ModelTypeProperty) => void;
-  operation?: (context: OperationType) => void;
-  array?: (context: ArrayType) => void;
-  enum?: (context: EnumType) => void;
-  union?: (context: UnionType) => void;
-  tuple?: (context: TupleType) => void;
-  templateParameter?: (context: TemplateParameterType) => void;
-};
+} & TypeListeners;
 
 export type DiagnosticReport<
   T extends { [code: string]: DiagnosticMessages },

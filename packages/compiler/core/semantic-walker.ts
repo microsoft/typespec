@@ -2,6 +2,7 @@ import { Program } from "./program.js";
 import {
   ArrayType,
   EnumType,
+  InterfaceType,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -11,6 +12,7 @@ import {
   TupleType,
   Type,
   UnionType,
+  UnionTypeVariant,
 } from "./types.js";
 
 export function navigateProgram(
@@ -46,6 +48,10 @@ function navigateNamespaceType(
 
   for (const union of namespace.unions.values()) {
     navigateUnionType(union, eventEmitter, visited);
+  }
+
+  for (const iface of namespace.interfaces.values()) {
+    navigateInterfaceType(iface, eventEmitter, visited);
   }
 }
 
@@ -97,6 +103,21 @@ function navigateModelTypeProperty(
   navigateType(property.type, eventEmitter, visited);
 }
 
+function navigateInterfaceType(
+  type: InterfaceType,
+  eventEmitter: EventEmitter<SemanticNodeListener>,
+  visited: Set<any>
+) {
+  if (checkVisited(visited, type)) {
+    return;
+  }
+
+  eventEmitter.emit("interface", type);
+  for (const op of type.operations.values()) {
+    navigateType(op, eventEmitter, visited);
+  }
+}
+
 function navigateArrayType(
   array: ArrayType,
   eventEmitter: EventEmitter<SemanticNodeListener>,
@@ -132,6 +153,18 @@ function navigateUnionType(
   for (const variant of type.variants.values()) {
     navigateType(variant, eventEmitter, visited);
   }
+}
+
+function navigateUnionTypeVariant(
+  type: UnionTypeVariant,
+  eventEmitter: EventEmitter<SemanticNodeListener>,
+  visited: Set<any>
+) {
+  if (checkVisited(visited, type)) {
+    return;
+  }
+  eventEmitter.emit("unionVariant", type);
+  navigateType(type.type, eventEmitter, visited);
 }
 
 function navigateTupleType(
@@ -171,6 +204,8 @@ function navigateType(
       return navigateModelTypeProperty(type, eventEmitter, visited);
     case "Namespace":
       return navigateNamespaceType(type, eventEmitter, visited);
+    case "Interface":
+      return navigateInterfaceType(type, eventEmitter, visited);
     case "Array":
       return navigateArrayType(type, eventEmitter, visited);
     case "Enum":
@@ -179,6 +214,8 @@ function navigateType(
       return navigateOperationType(type, eventEmitter, visited);
     case "Union":
       return navigateUnionType(type, eventEmitter, visited);
+    case "UnionVariant":
+      return navigateUnionTypeVariant(type, eventEmitter, visited);
     case "Tuple":
       return navigateTupleType(type, eventEmitter, visited);
     case "TemplateParameter":
@@ -188,6 +225,11 @@ function navigateType(
     case "Intrinsic":
     case "Number":
     case "String":
+      return;
+    default:
+      // Dummy const to ensure we handle all types.
+      // If you get an error here, add a case for the new type you added
+      const assertNever: never = type;
       return;
   }
 }

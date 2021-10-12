@@ -13,7 +13,6 @@ describe("cadl: union declarations", () => {
     let blues = new WeakSet();
     testHost.addJsFile("test.js", {
       $blue(p: any, t: UnionType | UnionTypeVariant) {
-        console.log("WTF?");
         blues.add(t);
       },
     });

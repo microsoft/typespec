@@ -1,0 +1,4 @@
+interface Foo {
+  x(n: int32): string;
+  y(x: int32, y: int32): int32;
+}

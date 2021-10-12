@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { readdirSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import prettier from "prettier";
@@ -52,20 +53,15 @@ async function testScenario(name: string) {
   }
 }
 
-describe("cadl: prettier formatter scenarios", () => {
-  it("misc", async () => {
-    await testScenario("misc.cadl");
-  });
+describe("cadl: prettier formatter scenarios", async () => {
+  // describe has to be sync, so using sync readdir here.
+  const scenarioFiles = readdirSync(join(__dirname, "../../../../test/formatter/scenarios/inputs"));
 
-  it("alias", async () => {
-    await testScenario("alias.cadl");
-  });
-
-  it("model", async () => {
-    await testScenario("model.cadl");
-  });
-
-  it("union", async () => {
-    await testScenario("union.cadl");
-  });
+  for (const file of scenarioFiles) {
+    if (file.endsWith(".cadl")) {
+      it(file, async () => {
+        await testScenario(file);
+      });
+    }
+  }
 });

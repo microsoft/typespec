@@ -8,6 +8,7 @@ import {
   DirectiveExpressionNode,
   EnumMemberNode,
   EnumStatementNode,
+  InterfaceStatementNode,
   IntersectionExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
@@ -95,6 +96,8 @@ export function printNode(
       return printEnumStatement(path as AstPath<EnumStatementNode>, options, print);
     case SyntaxKind.UnionStatement:
       return printUnionStatement(path as AstPath<UnionStatementNode>, options, print);
+    case SyntaxKind.InterfaceStatement:
+      return printInterfaceStatement(path as AstPath<InterfaceStatementNode>, options, print);
     // Others.
     case SyntaxKind.Identifier:
       return node.sv;
@@ -422,6 +425,52 @@ export function printUnionVariant(
   return concat([decorators, id, value]);
 }
 
+export function printInterfaceStatement(
+  path: AstPath<InterfaceStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const id = path.call(print, "id");
+  const decorators = printDecorators(path, options, print, { tryInline: false });
+  const generic = printTemplateParameters(path, options, print, "templateParameters");
+  return concat([
+    decorators,
+    "interface ",
+    id,
+    generic,
+    " ",
+    printInterfaceMembers(path, options, print),
+  ]);
+}
+
+export function printInterfaceMembers(
+  path: AstPath<InterfaceStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.getValue();
+  if (node.operations.length === 0) {
+    return "{}";
+  }
+
+  return group(
+    concat([
+      "{",
+      indent(
+        concat([
+          hardline,
+          join(
+            hardline,
+            path.map((x) => print(x), "operations")
+          ),
+        ])
+      ),
+      hardline,
+      "}",
+    ])
+  );
+}
+
 /**
  * Handle printing an intersection node.
  * @example `Foo & Bar` or `{foo: string} & {bar: string}`
@@ -630,9 +679,10 @@ export function printOperationStatement(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
+  const inInterface = (path.getParentNode()?.kind as any) === SyntaxKind.InterfaceStatement;
   return concat([
     printDecorators(path as AstPath<DecorableNode>, options, print, { tryInline: true }),
-    `op `,
+    inInterface ? "" : "op ",
     path.call(print, "id"),
     "(",
     path.call(print, "parameters"),
