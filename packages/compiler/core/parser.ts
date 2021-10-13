@@ -17,6 +17,7 @@ import {
   Comment,
   DecoratorExpressionNode,
   Diagnostic,
+  DirectiveArgument,
   DirectiveExpressionNode,
   EmptyStatementNode,
   EnumMemberNode,
@@ -884,7 +885,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseDirectiveParameter() {
+  function parseDirectiveParameter(): DirectiveArgument | undefined {
     switch (token()) {
       case Token.Identifier:
         return parseIdentifier();

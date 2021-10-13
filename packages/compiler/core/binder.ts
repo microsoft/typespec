@@ -1,4 +1,4 @@
-import { compilerAssert, NoTarget } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -14,6 +14,7 @@ import {
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
+  NoTarget,
   OperationStatementNode,
   ScopeNode,
   Sym,

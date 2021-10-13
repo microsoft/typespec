@@ -2,9 +2,9 @@ import { deepStrictEqual } from "assert";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { CadlConfigJsonSchema } from "../../config/config-schema.js";
-import { SchemaValidator } from "../../config/config-validator.js";
 import { CadlRawConfig, loadCadlConfigInDir } from "../../config/index.js";
 import { createSourceFile } from "../../core/diagnostics.js";
+import { SchemaValidator } from "../../core/schema-validator.js";
 import { NodeHost } from "../../core/util.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -119,7 +119,8 @@ describe("cadl: config file loading", () => {
     it("does not allow additional properties", () => {
       deepStrictEqual(validate({ someCustomProp: true } as any), [
         {
-          file,
+          code: "invalid-schema",
+          target: { file, pos: 0, end: 0 },
           severity: "error",
           message:
             "Schema violation: must NOT have additional properties (/)\n  additionalProperty: someCustomProp",
@@ -130,7 +131,8 @@ describe("cadl: config file loading", () => {
     it("fails if passing the wrong type", () => {
       deepStrictEqual(validate({ emitters: true } as any), [
         {
-          file,
+          code: "invalid-schema",
+          target: { file, pos: 0, end: 0 },
           severity: "error",
           message: "Schema violation: must be object (/emitters)",
         },

@@ -26,6 +26,7 @@ import {
   compilerAssert,
   createSourceFile,
   formatDiagnostic,
+  getDiagnosticLocation,
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
@@ -249,12 +250,12 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
     // We should remove this once we stop using info diagnostics for verbose
     // tracing. In the meantime, we will not show info diagnostics in the
     // IDE.
-    if (each.severity === "info") {
+    if ((each.severity as any) === "info") {
       continue;
     }
-
-    if (each.file) {
-      document = (each.file as ServerSourceFile).document;
+    const location = getDiagnosticLocation(each);
+    if (location?.file) {
+      document = (location.file as ServerSourceFile).document;
     } else {
       // https://github.com/Microsoft/language-server-protocol/issues/256
       //
@@ -268,8 +269,8 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
       continue;
     }
 
-    const start = document.positionAt(each.pos ?? 0);
-    const end = document.positionAt(each.end ?? 0);
+    const start = document.positionAt(location?.pos ?? 0);
+    const end = document.positionAt(location?.end ?? 0);
     const range = Range.create(start, end);
     const severity = convertSeverity(each.severity);
     const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "Cadl");

@@ -7,11 +7,9 @@ import {
   createDiagnosticLegacy,
   createSourceFile,
   DiagnosticHandler,
-  DiagnosticTarget,
   Message,
-  NoTarget,
 } from "./diagnostics.js";
-import { CompilerHost, SourceFile } from "./types.js";
+import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "./types.js";
 
 export const cadlVersion = getVersion();
 
@@ -65,7 +63,7 @@ export async function doIO<T>(
   try {
     result = await action(path);
   } catch (e) {
-    let diagnostic;
+    let diagnostic: Diagnostic;
     let target = options?.diagnosticTarget ?? NoTarget;
 
     // blame the JS file, not the Cadl import statement for JS syntax errors.
@@ -107,7 +105,12 @@ export async function loadFile<T>(
   try {
     data = load(file.text);
   } catch (e) {
-    reportDiagnostic({ message: e.message, severity: "error", file });
+    reportDiagnostic({
+      code: "file-load",
+      message: e.message,
+      severity: "error",
+      target: { file, pos: 1, end: 1 },
+    });
     return [undefined, file];
   }
 

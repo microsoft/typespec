@@ -1,4 +1,3 @@
-import { createDiagnostic } from "./diagnostics.js";
 import { Program } from "./program.js";
 import {
   CadlLibrary,
@@ -56,14 +55,12 @@ export function createCadlLibrary<T extends { [code: string]: DiagnosticMessages
 
     const messageStr = typeof message === "string" ? message : message((diagnostic as any).format);
 
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: `${lib.name}/${diagnostic.code}`,
-        severity: diagnosticDef.severity,
-        message: messageStr,
-        target: diagnostic.target,
-      })
-    );
+    program.reportDiagnostic({
+      code: `${lib.name}/${diagnostic.code}`,
+      severity: diagnosticDef.severity,
+      message: messageStr,
+      target: diagnostic.target,
+    });
 
     program.reportDiagnostic;
   }

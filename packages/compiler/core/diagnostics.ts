@@ -1,7 +1,15 @@
 import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
 import { Message } from "./messages.js";
-import { Diagnostic, Node, SourceFile, SourceLocation, Sym, SyntaxKind, Type } from "./types.js";
+import {
+  Diagnostic,
+  DiagnosticTarget,
+  Node,
+  NoTarget,
+  SourceFile,
+  SourceLocation,
+  SyntaxKind,
+} from "./types.js";
 
 export { Message } from "./messages.js";
 
@@ -19,8 +27,6 @@ export class AggregateError extends Error {
   }
 }
 
-export const NoTarget = Symbol("NoTarget");
-export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
@@ -29,71 +35,40 @@ export function createDiagnosticLegacy(
   target: DiagnosticTarget | typeof NoTarget,
   args?: (string | number)[]
 ): Diagnostic {
-  let location: Partial<SourceLocation> = {};
-  let locationError: Error | undefined;
-  if (target !== NoTarget) {
-    try {
-      location = getSourceLocation(target);
-    } catch (err: any) {
-      locationError = err;
-      location = createDummySourceLocation();
-    }
-  }
-
   if (typeof message === "string") {
     // Temporarily allow ad-hoc strings as error messages.
     message = { text: message, severity: "error" };
   }
 
   const [formattedMessage, formatError] = format(message.text, args);
-  const diagnostic = {
-    code: message.code,
-    severity: message.severity,
-    ...location,
+  if (formatError) {
+    const diagnosticError = new Error("Error(s) occurred trying to report diagnostic: " + message);
+    throw new AggregateError(diagnosticError, formatError);
+  }
+  return {
+    code: message.code!,
+    severity: (message.severity as any) ?? "error",
+    target,
     message: formattedMessage,
   };
-
-  if (locationError || formatError) {
-    const diagnosticError = new Error(
-      "Error(s) occurred trying to report diagnostic: " + diagnostic.message
-    );
-    throw new AggregateError(diagnosticError, locationError, formatError);
-  }
-
-  return diagnostic;
-}
-
-export interface DiagnosticParams {
-  code: string;
-  severity: "error" | "warning";
-  message: string;
-  target: DiagnosticTarget | typeof NoTarget;
 }
 
 /**
  * Helper to create a @see Diagnostic from a @see DiagnosticTarget
- * @param options
+ * @param diagnostic
  * @returns
  */
-export function createDiagnostic(options: DiagnosticParams): Diagnostic {
-  let location: Partial<SourceLocation> = {};
+export function getDiagnosticLocation(diagnostic: Diagnostic): SourceLocation | undefined {
+  let location: SourceLocation | undefined;
   let locationError: Error | undefined;
-  if (options.target !== NoTarget) {
+  if (diagnostic.target !== NoTarget) {
     try {
-      location = getSourceLocation(options.target);
+      location = getSourceLocation(diagnostic.target);
     } catch (err: any) {
       locationError = err;
       location = createDummySourceLocation();
     }
   }
-
-  const diagnostic = {
-    code: options.code,
-    severity: options.severity,
-    message: options.message,
-    ...location,
-  };
-
   if (locationError) {
     const diagnosticError = new Error(
       "Error(s) occurred trying to report diagnostic: " + diagnostic.message
@@ -101,7 +76,7 @@ export function createDiagnostic(options: DiagnosticParams): Diagnostic {
     throw new AggregateError(diagnosticError, locationError);
   }
 
-  return diagnostic;
+  return location;
 }
 
 export function logDiagnostics(diagnostics: readonly Diagnostic[], writeLine: WriteLine) {
@@ -114,11 +89,12 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
   const code = diagnostic.code ? ` ${diagnostic.code}` : "";
   const severity = diagnostic.severity;
   const content = `${severity}${code}: ${diagnostic.message}`;
-  if (diagnostic.file) {
-    const pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.pos ?? 0);
+  const location = getDiagnosticLocation(diagnostic);
+  if (location?.file) {
+    const pos = location.file.getLineAndCharacterOfPosition(location.pos ?? 0);
     const line = pos.line + 1;
     const col = pos.character + 1;
-    const path = diagnostic.file.path;
+    const path = location.file.path;
     return `${path}:${line}:${col} - ${content}`;
   } else {
     return content;

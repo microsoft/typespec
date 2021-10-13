@@ -3,12 +3,7 @@ import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import {
-  createDiagnosticLegacy,
-  createSourceFile,
-  DiagnosticTarget,
-  NoTarget,
-} from "./diagnostics.js";
+import { createDiagnosticLegacy, createSourceFile } from "./diagnostics.js";
 import { Message } from "./messages.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
@@ -16,12 +11,18 @@ import {
   CadlScriptNode,
   CompilerHost,
   Diagnostic,
+  DiagnosticTarget,
+  Directive,
+  DirectiveExpressionNode,
   JsSourceFile,
   LiteralType,
+  Node,
+  NoTarget,
   SourceFile,
   Sym,
   SymbolTable,
   SyntaxKind,
+  Type,
 } from "./types.js";
 import { doIO, loadFile } from "./util.js";
 
@@ -436,6 +437,9 @@ export async function createProgram(
     if (diagnostic.severity === "error") {
       error = true;
     }
+    if (shouldSuppress(diagnostic)) {
+      return;
+    }
     diagnostics.push(diagnostic);
   }
 
@@ -443,6 +447,105 @@ export async function createProgram(
     for (const diagnostic of newDiagnostics) {
       reportDiagnostic(diagnostic);
     }
+  }
+
+  function shouldSuppress(diagnostic: Diagnostic): boolean {
+    const { target } = diagnostic;
+    if (diagnostic.code === "error") {
+      diagnostics.push(diagnostic);
+      return false;
+    }
+
+    if (target === NoTarget) {
+      return false;
+    }
+
+    if ("file" in target) {
+      return false; // No global file suppress yet.
+    }
+
+    const node = getNode(target);
+    if (node === undefined) {
+      return false; // Can't find target cannot be suppressed.
+    }
+
+    const suppressing = findDirectiveSuppressingOnNode(diagnostic.code, node);
+    if (suppressing) {
+      if (diagnostic.severity === "error") {
+        // Cannot suppress errors.
+        diagnostics.push({
+          severity: "error",
+          code: "suppress-error",
+          message: "Errors cannot be suppressed.",
+          target: suppressing.node,
+        });
+
+        return false;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function findDirectiveSuppressingOnNode(code: string, node: Node): Directive | undefined {
+    let current: Node | undefined = node;
+    do {
+      if (current.directives) {
+        const directive = findDirectiveSuppressingCode(code, current.directives);
+        if (directive) {
+          return directive;
+        }
+      }
+    } while ((current = current.parent));
+    return undefined;
+  }
+
+  /**
+   * Returns the directive node that is suppressing this code.
+   * @param code Code to check for suppression.
+   * @param directives List of directives.
+   * @returns Directive suppressing this code if found, `undefined` otherwise
+   */
+  function findDirectiveSuppressingCode(
+    code: string,
+    directives: DirectiveExpressionNode[]
+  ): Directive | undefined {
+    for (const directive of directives.map((x) => parseDirective(x))) {
+      if (directive.name === "suppress") {
+        if (directive.code === code) {
+          return directive;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  function parseDirective(node: DirectiveExpressionNode): Directive {
+    const args = node.arguments.map((x) => {
+      return x.kind === SyntaxKind.Identifier ? x.sv : x.value;
+    });
+    switch (node.target.sv) {
+      case "suppress":
+        return { name: "suppress", code: args[0], message: args[1], node };
+      default:
+        throw new Error("Unexpected directive name.");
+    }
+  }
+
+  function getNode(target: Node | Type | Sym): Node | undefined {
+    if ("node" in target) {
+      return target.node;
+    }
+
+    if (target.kind === "decorator") {
+      return undefined;
+    }
+
+    if (target.kind === "Intrinsic") {
+      return undefined;
+    }
+    return target;
   }
 
   function reportDuplicateSymbols(symbols: SymbolTable) {

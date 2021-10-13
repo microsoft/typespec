@@ -45,5 +45,5 @@ function ajvErrorToDiagnostic(error: ErrorObject, file: SourceFile): Diagnostic 
   }
 
   const message = messageLines.join("\n");
-  return { message, severity: "error", file };
+  return { code: "invalid-schema", message, severity: "error", target: { file, pos: 0, end: 0 } };
 }

@@ -1,4 +1,3 @@
-import { NoTarget } from "./diagnostics";
 import { Program } from "./program";
 
 /**
@@ -380,9 +379,11 @@ export interface DecoratorExpressionNode extends BaseNode {
 
 export interface DirectiveExpressionNode extends BaseNode {
   kind: SyntaxKind.DirectiveExpression;
-  target: IdentifierNode | MemberExpressionNode;
-  arguments: Expression[];
+  target: IdentifierNode;
+  arguments: DirectiveArgument[];
 }
+
+export type DirectiveArgument = StringLiteralNode | IdentifierNode;
 
 export type Expression =
   | ArrayExpressionNode
@@ -638,10 +639,29 @@ export interface SourceLocation extends TextRange {
   file: SourceFile;
 }
 
-export interface Diagnostic extends Partial<SourceLocation> {
+export const NoTarget = Symbol("NoTarget");
+
+export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
+
+export type DiagnosticSeverity = "error" | "warning" | "info";
+
+export interface Diagnostic {
+  code: string;
+  severity: DiagnosticSeverity;
   message: string;
-  code?: string;
-  severity: "warning" | "error" | "info";
+  target: DiagnosticTarget | typeof NoTarget;
+}
+
+export interface DirectiveBase {
+  node: DirectiveExpressionNode;
+}
+
+export type Directive = SuppressDirective;
+
+export interface SuppressDirective extends DirectiveBase {
+  name: "suppress";
+  code: string;
+  message: string;
 }
 
 export interface Dirent {

@@ -1,9 +1,9 @@
 import { basename, extname, join } from "path";
 import { Message } from "../core/diagnostics.js";
+import { SchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
 import { deepClone, deepFreeze, loadFile } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
-import { SchemaValidator } from "./config-validator.js";
 import { CadlConfig } from "./types.js";
 
 const configFilenames = [".cadlrc.yaml", ".cadlrc.yml", ".cadlrc.json", "package.json"];
