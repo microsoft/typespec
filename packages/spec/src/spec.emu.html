@@ -39,6 +39,9 @@ Keyword :
     `op`
     `extends`
     `using`
+    `interface`
+    `union`
+    `project`
 
 Identifier :
     IdentifierName but not Keyword
@@ -156,7 +159,7 @@ EscapeCharacter : one of
     `"` `r` `n` `t` `\`
 
 Punctuator : one of 
-    `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...`
+    `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...` `#`
 
 ///
 // Note that whitespace could also be specified equivalently as "Any Unicode
@@ -424,6 +427,91 @@ Decorator :
 
 DecoratorArguments :
     `(` ExpressionList? `)`
+
+
+ProjectionStatement :
+    `project` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`
+
+ProjectionSelector :
+    `model`
+    `interface`
+    `op`
+    `union`
+    Identifier
+
+ProjectionDirection :
+    `to`
+    `from`
+
+ProjectionTag :
+    `#` Identifier
+
+ProjectionParameters :
+    `(` IdentifierList? `)`
+
+ProjectionBody :
+    ProjectionExpressionList
+
+ProjectionExpressionList :
+    ProjectionExpression
+    ProjectionExpressionList `;` ProjectionExpression
+
+ProjectionExpression :
+    ProjectionLogicalOrExpression
+
+
+ProjectionLogicalOrExpression :
+    ProjectionLogicalAndExpression
+    ProjectionLogicalOrExpression `||` ProjectionLogicalAndExpression
+
+ProjectionLogicalAndExpression :
+    ProjectionRelationalExpression
+    ProjectionLogicalAndExpression `&&` ProjectionRelationalExpression
+
+ProjectionRelationalExpression :
+    ProjectionCallExpression
+    ProjectionRelationalExpression `<` PrimaryExpression
+    ProjectionRelationalExpression `>` PrimaryExpression
+    ProjectionRelationalExpression `<=` PrimaryExpression
+    ProjectionRelationalExpression `>=` PrimaryExpression
+
+
+ProjectionCallExpression :
+    ProjectionMemberExpression
+    ProjectionCallExpression ProjectionCallArguments
+    ProjectionCallExpression ProjectionInstantiationArguments
+
+ProjectionMemberExpression :
+    ProjectionPrimaryExpression
+    ProjectionMemberExpression `.` Identifier
+
+ProjectionPrimaryExpression :
+    `self`
+    ProjectionIfExpression
+    ProjectionLambdaExpression
+    Literal
+    ModelExpression
+    TupleExpression
+    CooverProjectionParenthesizedExpressionAndLambdaParameterList
+
+CooverProjectionParenthesizedExpressionAndLambdaParameterList:
+    `(` ProjectionExpression `)`
+
+ProjectionIfExpression :
+    `if` ProjectionExpression BlockExpression
+    `if` ProjectionExpression BlockExpression `else` BlockExpression
+    `if` ProjectionExpression BlockExpression `else` ProjectionIfExpression
+
+ProjectionLambdaExpression :
+    CoverProjectionParenthesizedExpressionAndLambdaParameterList `=>` BlockExpression
+
+// When processing the production
+// ProjectionLambdaExpression : CooverProjectionParenthesizedExpressionAndLambdaParameterList
+// the interpretation is refined using the following grammar:
+
+LambdaParameters :
+    `(` IdentifierList? `)`
+
 ]]>
 </emu-grammar>
 </emu-clause>
