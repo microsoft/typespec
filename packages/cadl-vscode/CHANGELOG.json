@@ -2,6 +2,24 @@
   "name": "cadl-vscode",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "cadl-vscode_v0.9.0",
+      "date": "Fri, 15 Oct 2021 21:33:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** Language server support for directives"
+          },
+          {
+            "comment": "Add colorization for interfaces"
+          },
+          {
+            "comment": "Add colorization of union declarations"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "cadl-vscode_v0.8.0",
       "date": "Tue, 10 Aug 2021 20:23:04 GMT",

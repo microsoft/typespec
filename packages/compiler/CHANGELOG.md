@@ -1,6 +1,34 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Fri, 17 Sep 2021 00:49:37 GMT and should not be manually modified.
+This log was last generated on Fri, 15 Oct 2021 21:33:37 GMT and should not be manually modified.
+
+## 0.21.0
+Fri, 15 Oct 2021 21:33:37 GMT
+
+### Minor changes
+
+- Add an API to clone a type
+- Reverse decorator evaluation order
+- **Added** Support for server default
+- **Added** New library helper for strong diagnostics definitions
+- **Added** New syntax to compiler for directive
+- **Added** support for suppressing warning via #suppress directive
+- Implement `interface`
+- Add walker, colorization, printer for interfaces
+- Surface decorator and emitter errors in IDE
+- Add union declarations
+
+### Patches
+
+- Defensive code to prevent errors in decorators and onBuild from exiting the language server
+- Fix options comment
+- Update samples
+- Fix binding JS file namespaces and namespace decorators referencing types in a later namespace.
+- fix using a namespace merged after current namespace
+- Fix namespace synthesis in certain contexts
+- Make nextLink optional in pageable response
+- Stop running decorators and emitters in language server again, fix language server crash. 
+- regenerate samples
 
 ## 0.20.0
 Fri, 17 Sep 2021 00:49:37 GMT

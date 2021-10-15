@@ -1,6 +1,11 @@
 # Change Log - cadl-vs
 
-This log was last generated on Tue, 10 Aug 2021 20:23:04 GMT and should not be manually modified.
+This log was last generated on Fri, 15 Oct 2021 21:33:37 GMT and should not be manually modified.
+
+## 0.4.1
+Fri, 15 Oct 2021 21:33:37 GMT
+
+_Version update only_
 
 ## 0.4.0
 Tue, 10 Aug 2021 20:23:04 GMT

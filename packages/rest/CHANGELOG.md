@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Fri, 17 Sep 2021 00:49:37 GMT and should not be manually modified.
+This log was last generated on Fri, 15 Oct 2021 21:33:37 GMT and should not be manually modified.
+
+## 0.6.2
+Fri, 15 Oct 2021 21:33:37 GMT
+
+### Patches
+
+- Strongly defined diagnostics
 
 ## 0.6.1
 Fri, 17 Sep 2021 00:49:37 GMT

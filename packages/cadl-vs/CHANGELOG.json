@@ -2,6 +2,18 @@
   "name": "cadl-vs",
   "entries": [
     {
+      "version": "0.4.1",
+      "tag": "cadl-vs_v0.4.1",
+      "date": "Fri, 15 Oct 2021 21:33:37 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `0.8.0` to `0.9.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "cadl-vs_v0.4.0",
       "date": "Tue, 10 Aug 2021 20:23:04 GMT",

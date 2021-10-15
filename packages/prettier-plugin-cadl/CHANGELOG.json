@@ -2,6 +2,23 @@
   "name": "@cadl-lang/prettier-plugin-cadl",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "@cadl-lang/prettier-plugin-cadl_v0.5.0",
+      "date": "Fri, 15 Oct 2021 21:33:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** Support for formatting directives"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.20.0` to `0.21.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "@cadl-lang/prettier-plugin-cadl_v0.4.0",
       "date": "Fri, 17 Sep 2021 00:49:37 GMT",

@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/openapi3",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for emitting OpenAPI 3.0 from the Cadl REST protocol binding",
   "homepage": "https://github.com/Azure/adl",
@@ -34,8 +34,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "0.20.0",
-    "@cadl-lang/rest": "0.6.1"
+    "@cadl-lang/compiler": "0.21.0",
+    "@cadl-lang/rest": "0.6.2"
   },
   "devDependencies": {
     "@types/mocha": "~7.0.2",
