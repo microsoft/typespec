@@ -2,6 +2,26 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@cadl-lang/openapi3_v0.3.0",
+      "date": "Fri, 15 Oct 2021 21:33:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** Support for server default"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.20.0` to `0.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.1` to `0.6.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@cadl-lang/openapi3_v0.2.0",
       "date": "Fri, 17 Sep 2021 00:49:37 GMT",

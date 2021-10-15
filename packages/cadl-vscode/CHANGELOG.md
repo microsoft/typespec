@@ -1,6 +1,15 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Tue, 10 Aug 2021 20:23:04 GMT and should not be manually modified.
+This log was last generated on Fri, 15 Oct 2021 21:33:37 GMT and should not be manually modified.
+
+## 0.9.0
+Fri, 15 Oct 2021 21:33:37 GMT
+
+### Minor changes
+
+- **Added** Language server support for directives
+- Add colorization for interfaces
+- Add colorization of union declarations
 
 ## 0.8.0
 Tue, 10 Aug 2021 20:23:04 GMT

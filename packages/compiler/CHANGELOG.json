@@ -2,6 +2,74 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.21.0",
+      "tag": "@cadl-lang/compiler_v0.21.0",
+      "date": "Fri, 15 Oct 2021 21:33:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Defensive code to prevent errors in decorators and onBuild from exiting the language server"
+          },
+          {
+            "comment": "Fix options comment"
+          },
+          {
+            "comment": "Update samples"
+          },
+          {
+            "comment": "Fix binding JS file namespaces and namespace decorators referencing types in a later namespace."
+          },
+          {
+            "comment": "fix using a namespace merged after current namespace"
+          },
+          {
+            "comment": "Fix namespace synthesis in certain contexts"
+          },
+          {
+            "comment": "Make nextLink optional in pageable response"
+          },
+          {
+            "comment": "Stop running decorators and emitters in language server again, fix language server crash. "
+          },
+          {
+            "comment": "regenerate samples"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Add an API to clone a type"
+          },
+          {
+            "comment": "Reverse decorator evaluation order"
+          },
+          {
+            "comment": "**Added** Support for server default"
+          },
+          {
+            "comment": "**Added** New library helper for strong diagnostics definitions"
+          },
+          {
+            "comment": "**Added** New syntax to compiler for directive"
+          },
+          {
+            "comment": "**Added** support for suppressing warning via #suppress directive"
+          },
+          {
+            "comment": "Implement `interface`"
+          },
+          {
+            "comment": "Add walker, colorization, printer for interfaces"
+          },
+          {
+            "comment": "Surface decorator and emitter errors in IDE"
+          },
+          {
+            "comment": "Add union declarations"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.20.0",
       "tag": "@cadl-lang/compiler_v0.20.0",
       "date": "Fri, 17 Sep 2021 00:49:37 GMT",
