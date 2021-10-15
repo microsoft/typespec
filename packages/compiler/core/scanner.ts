@@ -13,13 +13,9 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import {
-  createDiagnosticLegacy,
-  createSourceFile,
-  DiagnosticHandler,
-  Message,
-} from "./diagnostics.js";
-import { SourceFile } from "./types.js";
+import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
+import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import { DiagnosticReport, SourceFile } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
@@ -465,7 +461,7 @@ export function createScanner(
 
   function unterminated(t: Token) {
     tokenFlags |= TokenFlags.Unterminated;
-    error(Message.Unterminated, [TokenDisplay[t]]);
+    error({ code: "unterminated", format: { token: TokenDisplay[t] } });
     return (token = t);
   }
 
@@ -488,7 +484,7 @@ export function createScanner(
   function scanInvalidCharacter() {
     const codePoint = input.codePointAt(position)!;
     token = next(Token.Invalid, utf16CodeUnits(codePoint));
-    error(Message.InvalidCharacter);
+    error({ code: "invalid-character" });
     return token;
   }
 
@@ -509,12 +505,14 @@ export function createScanner(
     return false;
   }
 
-  function error(msg: Message, args?: (string | number)[]) {
-    const diagnostic = createDiagnosticLegacy(
-      msg,
-      { file, pos: tokenPosition, end: position },
-      args
-    );
+  function error<
+    C extends keyof CompilerDiagnostics,
+    M extends keyof CompilerDiagnostics[C] = "default"
+  >(report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target">) {
+    const diagnostic = createDiagnostic({
+      ...report,
+      target: { file, pos: tokenPosition, end: position },
+    } as any);
     diagnosticHandler(diagnostic);
   }
 
@@ -556,7 +554,7 @@ export function createScanner(
 
   function scanRequiredDigits() {
     if (eof() || !isDigit(input.charCodeAt(position))) {
-      error(Message.DigitExpected);
+      error({ code: "digit-expected" });
       return;
     }
     scanKnownDigits();
@@ -566,7 +564,7 @@ export function createScanner(
     position += 2; // consume '0x'
 
     if (eof() || !isHexDigit(input.charCodeAt(position))) {
-      error(Message.HexDigitExpected);
+      error({ code: "hex-digit-expected" });
       return (token = Token.NumericLiteral);
     }
     do {
@@ -580,7 +578,7 @@ export function createScanner(
     position += 2; // consume '0b'
 
     if (eof() || !isBinaryDigit(input.charCodeAt(position))) {
-      error(Message.BinaryDigitExpected);
+      error({ code: "binary-digit-expected" });
       return (token = Token.NumericLiteral);
     }
     do {
@@ -692,7 +690,7 @@ export function createScanner(
       }
       start++;
     } else {
-      error(Message.NoNewLineAtStartOfTripleQuotedString);
+      error({ code: "no-new-line-start-triple-quote" });
     }
 
     // remove whitespace before closing delimiter and record it as required
@@ -710,7 +708,7 @@ export function createScanner(
       }
       end--;
     } else {
-      error(Message.NoNewLineAtEndOfTripleQuotedString);
+      error({ code: "no-new-line-end-triple-quote" });
     }
 
     // remove required matching indentation from each line and unescape in the
@@ -729,7 +727,7 @@ export function createScanner(
         }
         result += input.substring(start, pos);
         if (pos === end - 1) {
-          error(Message.InvalidEscapeSequence);
+          error({ code: "invalid-escape-sequence" });
           pos++;
         } else {
           result += unescapeOne(pos);
@@ -782,7 +780,7 @@ export function createScanner(
         break;
       }
       if (ch !== input.charCodeAt(indentationPos)) {
-        error(Message.InconsistentTripleQuoteIndentation);
+        error({ code: "triple-quote-indent" });
         break;
       }
       indentationPos++;
@@ -804,7 +802,7 @@ export function createScanner(
       }
 
       if (pos === end - 1) {
-        error(Message.InvalidEscapeSequence);
+        error({ code: "invalid-escape-sequence" });
         break;
       }
 
@@ -832,7 +830,7 @@ export function createScanner(
       case CharCode.Backslash:
         return "\\";
       default:
-        error(Message.InvalidEscapeSequence);
+        error({ code: "invalid-escape-sequence" });
         return String.fromCharCode(ch);
     }
   }

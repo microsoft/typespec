@@ -1,4 +1,5 @@
 import { createBinder } from "./binder.js";
+import { createDiagnostic } from "./messages.js";
 import { parse } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -27,9 +28,13 @@ function addProperty(
   const fakeNode = parse(`model Fake { ${propertyName}: ${propertyTypeName}}`);
   if (fakeNode.parseDiagnostics.length > 0) {
     program.reportDiagnostic(
-      `Could not add property/parameter "${propertyName}" of type "${propertyTypeName}"`,
-      model
+      createDiagnostic({
+        code: "add-model-property-fail",
+        format: { propertyName, propertyTypeName },
+        target: model,
+      })
     );
+
     program.reportDiagnostics(fakeNode.parseDiagnostics);
 
     return undefined;
@@ -81,11 +86,7 @@ export function addModelProperty(
   propertyTypeName: string
 ): ModelTypeProperty | undefined {
   if (model.node.kind !== SyntaxKind.ModelStatement) {
-    program.reportDiagnostic(
-      "Cannot add a model property to anything except a model statement.",
-      model
-    );
-
+    program.reportDiagnostic(createDiagnostic({ code: "add-model-property", target: model }));
     return;
   }
 
@@ -121,10 +122,7 @@ export function addOperationParameter(
   options?: NewParameterOptions
 ): ModelTypeProperty | undefined {
   if (operation.node.kind !== SyntaxKind.OperationStatement) {
-    program.reportDiagnostic(
-      "Cannot add a parameter to anything except an operation statement.",
-      operation
-    );
+    program.reportDiagnostic(createDiagnostic({ code: "add-parameter", target: operation }));
 
     return;
   }
@@ -147,10 +145,7 @@ export function addOperationResponseType(
   responseTypeName: string
 ): any {
   if (operation.node.kind !== SyntaxKind.OperationStatement) {
-    program.reportDiagnostic(
-      "Cannot add a response to anything except an operation statement.",
-      operation
-    );
+    program.reportDiagnostic(createDiagnostic({ code: "add-response", target: operation }));
 
     return;
   }
@@ -159,9 +154,13 @@ export function addOperationResponseType(
   const opNode = parse(`op Fake(): string | ${responseTypeName};`);
   if (opNode.parseDiagnostics.length > 0) {
     program.reportDiagnostic(
-      `Could not add response type "${responseTypeName}" to operation ${operation.name}"`,
-      operation
+      createDiagnostic({
+        code: "add-response-type",
+        format: { responseTypeName, operationName: operation.name },
+        target: operation,
+      })
     );
+
     program.reportDiagnostics(opNode.parseDiagnostics);
 
     return undefined;

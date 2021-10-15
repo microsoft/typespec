@@ -1,3 +1,4 @@
+import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import { ModelTypeProperty, NamespaceType, Type } from "../core/types.js";
 
@@ -65,11 +66,23 @@ export function isErrorType(type: Type): boolean {
 const numericTypesKey = Symbol();
 export function $numeric(program: Program, target: Type) {
   if (!isIntrinsic(program, target)) {
-    program.reportDiagnostic("Cannot apply @numeric decorator to non-intrinsic type.", target);
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@numeric", to: "non-instrinsic type" },
+        target,
+      })
+    );
     return;
   }
   if (target.kind !== "Model") {
-    program.reportDiagnostic("Cannot apply @numeric decorator to non-model type.", target);
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@numeric", to: "non-model type" },
+        target,
+      })
+    );
     return;
   }
   program.stateSet(numericTypesKey).add(target.name);
@@ -87,14 +100,23 @@ const formatValuesKey = Symbol();
 export function $format(program: Program, target: Type, format: string) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
-      "Cannot apply @format to anything that isn't a Model or ModelProperty",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@format", to: "anything that isn't a Model or ModelProperty" },
+        target,
+      })
     );
     return;
   }
 
   if (getIntrinsicType(program, target) !== "string") {
-    program.reportDiagnostic("Cannot apply @format to a non-string type", target);
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@format", to: "non-string type" },
+        target,
+      })
+    );
     return;
   }
 
@@ -112,14 +134,23 @@ const minLengthValuesKey = Symbol();
 export function $minLength(program: Program, target: Type, minLength: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
-      "Cannot apply @minLength to anything that isn't a Model or ModelProperty",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@minLength", to: "anything that isn't a Model or ModelProperty" },
+        target,
+      })
     );
     return;
   }
 
   if (getIntrinsicType(program, target) !== "string") {
-    program.reportDiagnostic("Cannot apply @minLength to a non-string type", target);
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@minLength", to: "non-string type" },
+        target,
+      })
+    );
     return;
   }
 
@@ -137,14 +168,23 @@ const maxLengthValuesKey = Symbol();
 export function $maxLength(program: Program, target: Type, maxLength: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
-      "Cannot apply @maxLength to anything that isn't a Model or ModelProperty",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@maxLength", to: "anything that isn't a Model or ModelProperty" },
+        target,
+      })
     );
     return;
   }
 
   if (getIntrinsicType(program, target) !== "string") {
-    program.reportDiagnostic("Cannot apply @maxLength to a non-string type", target);
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@maxLength", to: "non-string type" },
+        target,
+      })
+    );
     return;
   }
   program.stateMap(maxLengthValuesKey).set(target, maxLength);
@@ -161,12 +201,21 @@ const minValuesKey = Symbol();
 export function $minValue(program: Program, target: Type, minValue: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
-      "Cannot apply @minValue to anything that isn't a Model or ModelProperty",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@minValue", to: "anything that isn't a Model or ModelProperty" },
+        target,
+      })
     );
   }
   if (!isNumericType(program, target)) {
-    program.reportDiagnostic("Cannot apply @minValue to a non-numeric type", target);
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@minValue", to: "non-numeric type" },
+        target,
+      })
+    );
     return;
   }
   program.stateMap(minValuesKey).set(target, minValue);
@@ -183,13 +232,22 @@ const maxValuesKey = Symbol();
 export function $maxValue(program: Program, target: Type, maxValue: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
-      "Cannot apply @maxValue to anything that isn't a Model or ModelProperty",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@maxValue", to: "anything that isn't a Model or ModelProperty" },
+        target,
+      })
     );
     return;
   }
   if (!isNumericType(program, target)) {
-    program.reportDiagnostic("Cannot apply @maxValue to a non-numeric type", target);
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@minValue", to: "non-numeric type" },
+        target,
+      })
+    );
     return;
   }
   program.stateMap(maxValuesKey).set(target, maxValue);
@@ -205,12 +263,22 @@ const secretTypesKey = Symbol();
 
 export function $secret(program: Program, target: Type) {
   if (target.kind !== "Model") {
-    program.reportDiagnostic("Cannot apply @secret to anything that isn't a Model", target);
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@secret", to: "anything that isn't a Model " },
+        target,
+      })
+    );
     return;
   }
 
   if (getIntrinsicType(program, target) !== "string") {
-    program.reportDiagnostic("Cannot apply @secret to a non-string type", target);
+    createDiagnostic({
+      code: "decorator-wrong-target",
+      format: { decorator: "@secret", to: "non-string type" },
+      target,
+    });
     return;
   }
   program.stateMap(secretTypesKey).set(target, true);
@@ -227,8 +295,11 @@ const visibilitySettingsKey = Symbol();
 export function $visibility(program: Program, target: Type, ...visibilities: string[]) {
   if (target.kind !== "ModelProperty") {
     program.reportDiagnostic(
-      "The @visibility decorator can only be applied to model properties.",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@visibility", to: "anything that isn't a ModelProperty" },
+        target,
+      })
     );
     return;
   }
@@ -242,8 +313,12 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
 export function $withVisibility(program: Program, target: Type, ...visibilities: string[]) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
-      "The @withVisibility decorator can only be applied to models.",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "model",
+        format: { decorator: "@withVisibility" },
+        target,
+      })
     );
     return;
   }
@@ -272,8 +347,12 @@ function mapFilterOut(
 export function $withOptionalProperties(program: Program, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
-      "The @withOptionalProperties decorator can only be applied to models.",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "model",
+        format: { decorator: "@withOptionalProperties" },
+        target,
+      })
     );
     return;
   }
@@ -287,8 +366,12 @@ export function $withOptionalProperties(program: Program, target: Type) {
 export function $withUpdateableProperties(program: Program, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
-      "The @withUpdateableProperties decorator can only be applied to models.",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "model",
+        format: { decorator: "@withUpdateableProperties" },
+        target,
+      })
     );
     return;
   }
@@ -307,8 +390,12 @@ const listPropertiesKey = Symbol();
 export function $list(program: Program, target: Type) {
   if (target.kind !== "Operation" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
-      "The @list decorator can only be applied to operations or model properties.",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "operationsOrModelProps",
+        format: { decorator: "@list" },
+        target,
+      })
     );
     return;
   }
@@ -327,8 +414,12 @@ const tagPropertiesKey = Symbol();
 export function $tag(program: Program, target: Type, tag: string) {
   if (target.kind !== "Operation" && target.kind !== "Namespace") {
     program.reportDiagnostic(
-      "The @tag decorator can only be applied to namespaces or operations.",
-      target
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "namespacesOrOperations",
+        format: { decorator: "@tag" },
+        target,
+      })
     );
     return;
   }

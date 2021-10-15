@@ -3,8 +3,8 @@ import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { createDiagnosticLegacy, createSourceFile } from "./diagnostics.js";
-import { Message } from "./messages.js";
+import { createSourceFile } from "./diagnostics.js";
+import { createDiagnostic } from "./messages.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
 import {
@@ -43,11 +43,6 @@ export interface Program {
   stateSet(key: Symbol): Set<any>;
   stateMap(key: Symbol): Map<any, any>;
   hasError(): boolean;
-  reportDiagnostic(
-    message: Message | string,
-    target: DiagnosticTarget | typeof NoTarget,
-    args?: (string | number)[]
-  ): void;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable): void;
@@ -188,7 +183,7 @@ export async function createProgram(
     program.sourceFiles.set(cadlScript.path, sourceFile);
     for (const stmt of sourceFile.statements) {
       if (stmt.kind !== SyntaxKind.ImportStatement) break;
-      program.reportDiagnostic(`Dynamically generated Cadl cannot have imports`, stmt);
+      program.reportDiagnostic(createDiagnostic({ code: "dynamic-import", target: stmt }));
     }
     binder.bindSourceFile(sourceFile);
 
@@ -230,7 +225,9 @@ export async function createProgram(
           target = await resolveModuleSpecifier(path, basedir);
         } catch (e) {
           if (e.code === "MODULE_NOT_FOUND") {
-            program.reportDiagnostic(`Couldn't find library "${path}"`, stmt);
+            program.reportDiagnostic(
+              createDiagnostic({ code: "library-not-found", format: { path }, target: stmt })
+            );
             continue;
           } else {
             throw e;
@@ -247,10 +244,7 @@ export async function createProgram(
       } else if (ext === ".cadl") {
         await loadCadlFile(target, stmt);
       } else {
-        program.reportDiagnostic(
-          "Import paths must reference either a directory, a .cadl file, or .js file",
-          stmt
-        );
+        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target: stmt }));
       }
     }
   }
@@ -383,10 +377,11 @@ export async function createProgram(
       // to the shim executable node_modules/.bin/cadl-server
       const betterCadlServerPath = resolve(actual, "../../../../../.bin/cadl-server");
       program.reportDiagnostic(
-        `Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${basedir}. ` +
-          `If this error occurs on the command line, try running \`cadl\` with a working directory of ${basedir}. ` +
-          `If this error occurs in the IDE, try configuring the \`cadl-server\` path to ${betterCadlServerPath}.`,
-        NoTarget
+        createDiagnostic({
+          code: "compiler-version-mismatch",
+          format: { basedir, betterCadlServerPath },
+          target: NoTarget,
+        })
       );
       return false;
     }
@@ -418,22 +413,7 @@ export async function createProgram(
     return s;
   }
 
-  function reportDiagnostic(diagnostic: Diagnostic): void;
-
-  function reportDiagnostic(
-    message: Message | string,
-    target: DiagnosticTarget | typeof NoTarget,
-    args?: (string | number)[]
-  ): void;
-
-  function reportDiagnostic(
-    diagnostic: Message | string | Diagnostic,
-    target?: DiagnosticTarget | typeof NoTarget,
-    args?: (string | number)[]
-  ): void {
-    if (typeof diagnostic === "string" || "text" in diagnostic) {
-      diagnostic = createDiagnosticLegacy(diagnostic, target!, args);
-    }
+  function reportDiagnostic(diagnostic: Diagnostic): void {
     if (diagnostic.severity === "error") {
       error = true;
     }
@@ -552,7 +532,13 @@ export async function createProgram(
     for (const symbol of symbols.duplicates) {
       if (!duplicateSymbols.has(symbol)) {
         duplicateSymbols.add(symbol);
-        reportDiagnostic("Duplicate name: " + symbol.name, symbol);
+        reportDiagnostic(
+          createDiagnostic({
+            code: "duplicate-symbol",
+            format: { name: symbol.name },
+            target: symbol,
+          })
+        );
       }
     }
   }

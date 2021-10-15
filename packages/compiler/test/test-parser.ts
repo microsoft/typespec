@@ -251,7 +251,7 @@ describe("cadl: syntax", () => {
           /Cannot decorate import/,
           /Cannot decorate import/,
           /Statement expected/,
-          /Expected '{', '=', 'extends', or 'is'/,
+          /'{', '=', 'extends', or 'is' expected/,
         ],
       ],
       ["model M {}; This is not a valid statement", [/Statement expected/]],

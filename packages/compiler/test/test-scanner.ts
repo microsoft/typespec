@@ -363,18 +363,7 @@ describe("cadl: scanner", () => {
 
   // Search for Other_ID_Continue in https://www.unicode.org/Public/UCD/latest/ucd/PropList.txt
   const otherIdContinue = [
-    0x00b7,
-    0x0387,
-    0x1369,
-    0x136a,
-    0x136b,
-    0x136c,
-    0x136d,
-    0x136e,
-    0x136f,
-    0x1370,
-    0x1371,
-    0x19da,
+    0x00b7, 0x0387, 0x1369, 0x136a, 0x136b, 0x136c, 0x136d, 0x136e, 0x136f, 0x1370, 0x1371, 0x19da,
   ];
 
   it("allows additional identifier start characters", () => {

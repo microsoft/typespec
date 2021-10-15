@@ -725,7 +725,7 @@ export type DiagnosticReport<
 > = {
   code: C;
   messageId?: M;
-  target: Type | Node | typeof NoTarget;
+  target: DiagnosticTarget | typeof NoTarget;
 } & DiagnosticFormat<T, C, M>;
 
 export type DiagnosticFormat<
@@ -751,6 +751,22 @@ export interface CallableMessage<T extends string[]> {
 export type DiagnosticMap<T extends { [code: string]: DiagnosticMessages }> = {
   readonly [code in keyof T]: DiagnosticDefinition<T[code]>;
 };
+
+export interface DiagnosticCreator<T extends { [code: string]: DiagnosticMessages }> {
+  readonly type: T;
+  readonly diagnostics: DiagnosticMap<T>;
+  createDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
+    diag: DiagnosticReport<T, C, M>
+  ): Diagnostic;
+  reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
+    program: Program,
+    diag: DiagnosticReport<T, C, M>
+  ): void;
+}
+
+export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends DiagnosticMap<infer D>
+  ? D
+  : never;
 
 /**
  * Definition of a cadle library

@@ -3,12 +3,8 @@ import { readFile, realpath, stat, writeFile } from "fs/promises";
 import fetch from "node-fetch";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
-import {
-  createDiagnosticLegacy,
-  createSourceFile,
-  DiagnosticHandler,
-  Message,
-} from "./diagnostics.js";
+import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
+import { createDiagnostic } from "./messages.js";
 import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "./types.js";
 
 export const cadlVersion = getVersion();
@@ -76,10 +72,14 @@ export async function doIO<T>(
         if (options?.allowFileNotFound) {
           return undefined;
         }
-        diagnostic = createDiagnosticLegacy(Message.FileNotFound, target, [path]);
+        diagnostic = createDiagnostic({ code: "file-not-found", target, format: { path } });
         break;
       default:
-        diagnostic = createDiagnosticLegacy(e.message, target);
+        diagnostic = createDiagnostic({
+          code: "file-load",
+          target,
+          format: { message: e.message },
+        });
         break;
     }
 

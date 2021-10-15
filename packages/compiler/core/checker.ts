@@ -1,5 +1,6 @@
 import { createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
+import { createDiagnostic } from "./messages.js";
 import { hasParseError } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -205,12 +206,14 @@ export function createChecker(program: Program): Checker {
         continue;
       }
       if (sym.kind === "decorator") {
-        program.reportDiagnostic("Can't use a decorator", using);
+        program.reportDiagnostic(
+          createDiagnostic({ code: "using-invalid-ref", messageId: "decorator", target: using })
+        );
         continue;
       }
 
       if (sym.node.kind !== SyntaxKind.NamespaceStatement) {
-        program.reportDiagnostic("Using must refer to a namespace", using);
+        program.reportDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
         continue;
       }
 
@@ -337,7 +340,10 @@ export function createChecker(program: Program): Checker {
     }
 
     if (sym.kind === "decorator") {
-      program.reportDiagnostic("Can't put a decorator in a type", node);
+      program.reportDiagnostic(
+        createDiagnostic({ code: "invalid-type-ref", messageId: "decorator", target: node })
+      );
+
       return errorType;
     }
 
@@ -353,8 +359,11 @@ export function createChecker(program: Program): Checker {
       if (sym.node.templateParameters.length === 0) {
         if (args.length > 0) {
           program.reportDiagnostic(
-            "Can't pass template arguments to model that is not templated",
-            node
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "notTemplate",
+              target: node,
+            })
           );
         }
 
@@ -387,10 +396,22 @@ export function createChecker(program: Program): Checker {
 
         const templateParameters = sym.node.templateParameters;
         if (args.length < templateParameters.length) {
-          program.reportDiagnostic("Too few template arguments provided.", node);
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "tooFew",
+              target: node,
+            })
+          );
           args = [...args, ...new Array(templateParameters.length - args.length).fill(errorType)];
         } else if (args.length > templateParameters.length) {
-          program.reportDiagnostic("Too many template arguments provided.", node);
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "tooMany",
+              target: node,
+            })
+          );
           args = args.slice(0, templateParameters.length);
         }
         return instantiateTemplate(sym.node, args);
@@ -399,7 +420,13 @@ export function createChecker(program: Program): Checker {
     // some other kind of reference
 
     if (args.length > 0) {
-      program.reportDiagnostic("Can't pass template arguments to non-templated type", node);
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-template-args",
+          messageId: "notTemplate",
+          target: node,
+        })
+      );
     }
 
     if (sym.node.kind === SyntaxKind.TemplateParameterDeclaration) {
@@ -493,7 +520,7 @@ export function createChecker(program: Program): Checker {
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
     if (!allModelTypes(optionTypes)) {
-      program.reportDiagnostic("Cannot intersect non-model types (including union types).", node);
+      program.reportDiagnostic(createDiagnostic({ code: "intersect-non-model", target: node }));
       return errorType;
     }
 
@@ -503,8 +530,11 @@ export function createChecker(program: Program): Checker {
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
           program.reportDiagnostic(
-            `Intersection contains duplicate property definitions for ${prop.name}`,
-            node
+            createDiagnostic({
+              code: "intersect-duplicate-property",
+              format: { propName: prop.name },
+              target: node,
+            })
           );
           continue;
         }
@@ -756,7 +786,9 @@ export function createChecker(program: Program): Checker {
       if (binding) return binding;
     }
 
-    program.reportDiagnostic("Unknown identifier " + node.sv, node);
+    program.reportDiagnostic(
+      createDiagnostic({ code: "unknown-identifier", format: { id: node.sv }, target: node })
+    );
     return undefined;
   }
 
@@ -776,18 +808,37 @@ export function createChecker(program: Program): Checker {
       if (base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
         const symbol = resolveIdentifierInTable(node.id, base.node.exports!, resolveDecorator);
         if (!symbol) {
-          program.reportDiagnostic(`Namespace doesn't have member ${node.id.sv}`, node);
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "underNamespace",
+              format: { id: node.id.sv },
+              target: node,
+            })
+          );
           return undefined;
         }
         return symbol;
       } else if (base.kind === "decorator") {
-        program.reportDiagnostic(`Cannot resolve '${node.id.sv}' in decorator`, node);
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "invalid-ref",
+            messageId: "inDecorator",
+            format: { id: node.id.sv },
+            target: node,
+          })
+        );
         return undefined;
       } else {
         program.reportDiagnostic(
-          `Cannot resolve '${node.id.sv}' in non-namespace node ${SyntaxKind[base.node.kind]}`,
-          node
+          createDiagnostic({
+            code: "invalid-ref",
+            messageId: "node",
+            format: { id: node.id.sv, nodeName: SyntaxKind[base.node.kind] },
+            target: node,
+          })
         );
+
         return undefined;
       }
     }
@@ -969,15 +1020,25 @@ export function createChecker(program: Program): Checker {
     inheritedPropertyNames?: Set<string>
   ) {
     if (properties.has(newProp.name)) {
-      program.reportDiagnostic(`Model already has a property named ${newProp.name}`, newProp);
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "duplicate-property",
+          format: { propName: newProp.name },
+          target: newProp,
+        })
+      );
       return;
     }
 
     if (inheritedPropertyNames?.has(newProp.name)) {
       program.reportDiagnostic(
-        `Model has an inherited property named ${newProp.name} which cannot be overridden`,
-        newProp
+        createDiagnostic({
+          code: "override-property",
+          format: { propName: newProp.name },
+          target: newProp,
+        })
       );
+
       return;
     }
 
@@ -992,7 +1053,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (heritageType.kind !== "Model") {
-      program.reportDiagnostic("Models must extend other models.", heritageRef);
+      program.reportDiagnostic(createDiagnostic({ code: "extend-model", target: heritageRef }));
       return undefined;
     }
 
@@ -1004,7 +1065,7 @@ export function createChecker(program: Program): Checker {
     const isType = getTypeForNode(isExpr);
 
     if (isType.kind !== "Model") {
-      program.reportDiagnostic("Model `is` must specify another model.", isExpr);
+      program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return;
     }
 
@@ -1017,7 +1078,7 @@ export function createChecker(program: Program): Checker {
 
     if (targetType.kind != "TemplateParameter") {
       if (targetType.kind !== "Model") {
-        program.reportDiagnostic("Cannot spread properties of non-model type.", targetNode);
+        program.reportDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
         return props;
       }
 
@@ -1078,8 +1139,11 @@ export function createChecker(program: Program): Checker {
         return checkDefaultForArrayType(defaultType, type);
       default:
         program.reportDiagnostic(
-          `Default values are not supported for '${type.kind}' type`,
-          defaultType
+          createDiagnostic({
+            code: "unsupported-default",
+            format: { type: type.kind },
+            target: defaultType,
+          })
         );
     }
     return errorType;
@@ -1106,8 +1170,11 @@ export function createChecker(program: Program): Checker {
         return checkDefaultTypeIsNumeric(defaultType);
       default:
         program.reportDiagnostic(
-          `Default is not supported for intristic type "${type.name}"`,
-          defaultType
+          createDiagnostic({
+            code: "unsupported-default",
+            format: { type: type.name },
+            target: defaultType,
+          })
         );
     }
     return errorType;
@@ -1119,28 +1186,52 @@ export function createChecker(program: Program): Checker {
         checkDefault(item, type.elementType);
       }
     } else {
-      program.reportDiagnostic(`Default must be a tuple`, defaultType);
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-default-type",
+          format: { type: "tuple" },
+          target: defaultType,
+        })
+      );
     }
     return defaultType;
   }
 
   function checkDefaultTypeIsString(defaultType: Type): Type {
     if (defaultType.kind !== "String") {
-      program.reportDiagnostic(`Default must be a string`, defaultType);
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-default-type",
+          format: { type: "string" },
+          target: defaultType,
+        })
+      );
     }
     return defaultType;
   }
 
   function checkDefaultTypeIsNumeric(defaultType: Type): Type {
     if (defaultType.kind !== "Number") {
-      program.reportDiagnostic(`Default must be a number`, defaultType);
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-default-type",
+          format: { type: "number" },
+          target: defaultType,
+        })
+      );
     }
     return defaultType;
   }
 
   function checkDefaultTypeIsBoolean(defaultType: Type): Type {
     if (defaultType.kind !== "Boolean") {
-      program.reportDiagnostic(`Default must be a boolean`, defaultType);
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-default-type",
+          format: { type: "boolean" },
+          target: defaultType,
+        })
+      );
     }
     return defaultType;
   }
@@ -1150,11 +1241,22 @@ export function createChecker(program: Program): Checker {
     for (const decNode of node.decorators) {
       const sym = resolveTypeReference(decNode.target, true);
       if (!sym) {
-        program.reportDiagnostic("Unknown decorator", decNode);
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "unknown-decorator",
+            target: decNode,
+          })
+        );
         continue;
       }
       if (sym.kind !== "decorator") {
-        program.reportDiagnostic(`${sym.name} is not a decorator`, decNode);
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "invalid-decorator",
+            format: { id: sym.name },
+            target: decNode,
+          })
+        );
         continue;
       }
 
@@ -1247,15 +1349,18 @@ export function createChecker(program: Program): Checker {
     for (const mixinNode of node.mixes) {
       const mixinType = getTypeForNode(mixinNode);
       if (mixinType.kind !== "Interface") {
-        program.reportDiagnostic("Interfaces can only mix other interfaces", mixinNode);
+        program.reportDiagnostic(createDiagnostic({ code: "mixes-interface", target: mixinNode }));
         continue;
       }
 
       for (const newMember of mixinType.operations.values()) {
         if (interfaceType.operations.has(newMember.name)) {
           program.reportDiagnostic(
-            `Interface mixes cannot have duplicate members. The duplicate member is named ${newMember.name}`,
-            mixinNode
+            createDiagnostic({
+              code: "mixes-interface-duplicate",
+              format: { name: newMember.name },
+              target: mixinNode,
+            })
           );
         }
 
@@ -1297,7 +1402,13 @@ export function createChecker(program: Program): Checker {
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode);
       if (members.has(opType.name)) {
-        program.reportDiagnostic(`Interface already has a member named ${opType.name}`, opNode);
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "interface-duplicate",
+            format: { name: opType.name },
+            target: opNode,
+          })
+        );
         continue;
       }
       members.set(opType.name, opType);
@@ -1351,8 +1462,11 @@ export function createChecker(program: Program): Checker {
       const variantType = checkUnionVariant(variantNode);
       if (variants.has(variantType.name as string)) {
         program.reportDiagnostic(
-          `Union already has a variant named ${variantType.name}`,
-          variantNode
+          createDiagnostic({
+            code: "union-duplicate",
+            format: { name: variantType.name.toString() },
+            target: variantNode,
+          })
         );
         continue;
       }
@@ -1383,7 +1497,13 @@ export function createChecker(program: Program): Checker {
     const value = node.value ? node.value.value : undefined;
     const decorators = checkDecorators(node);
     if (existingMemberNames.has(name)) {
-      program.reportDiagnostic(`Enum already has a member named ${name}`, node);
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "enum-member-duplicate",
+          format: { name: name },
+          target: node,
+        })
+      );
       return;
     }
     return createType({
@@ -1421,12 +1541,18 @@ export function createChecker(program: Program): Checker {
     try {
       const fn = decApp.decorator;
       fn(program, target, ...decApp.args);
-    } catch (err) {
+    } catch (error) {
       // do not fail the language server for exceptions in decorators
       if (program.compilerOptions.designTimeBuild) {
-        program.reportDiagnostic(`${decApp.decorator.name} failed with errors. ${err}`, target);
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "decorator-fail",
+            format: { decoratorName: decApp.decorator.name, error },
+            target,
+          })
+        );
       } else {
-        throw err;
+        throw error;
       }
     }
   }

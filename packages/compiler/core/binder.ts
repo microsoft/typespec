@@ -1,4 +1,5 @@
 import { compilerAssert } from "./diagnostics.js";
+import { createDiagnostic } from "./messages.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -104,7 +105,13 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           } catch (err) {
             if (program.compilerOptions.designTimeBuild) {
               // do not exit the language server
-              program.reportDiagnostic(`onBuild failed with errors. ${err}`, NoTarget);
+              program.reportDiagnostic(
+                createDiagnostic({
+                  code: "on-build-fail",
+                  format: { error: err },
+                  target: NoTarget,
+                })
+              );
               continue;
             } else {
               throw err;

@@ -29,18 +29,8 @@ import {
 } from "../../core/types.js";
 import { CadlPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
 
-const {
-  align,
-  breakParent,
-  concat,
-  group,
-  hardline,
-  ifBreak,
-  indent,
-  join,
-  line,
-  softline,
-} = prettier.doc.builders;
+const { align, breakParent, concat, group, hardline, ifBreak, indent, join, line, softline } =
+  prettier.doc.builders;
 
 const { isNextLineEmpty } = prettier.util;
 const { replaceNewlinesWithLiterallines } = prettier.doc.utils as any;
@@ -700,7 +690,7 @@ export function printStatementSequence<T extends Node>(
 ) {
   const node = path.getValue();
   const parts: Doc[] = [];
-  const lastStatement = getLastStatement((node[property] as any) as Statement[]);
+  const lastStatement = getLastStatement(node[property] as any as Statement[]);
 
   path.each((statementPath) => {
     const node = path.getValue();

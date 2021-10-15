@@ -1,5 +1,6 @@
 import { createSymbolTable } from "./binder.js";
-import { compilerAssert, createDiagnosticLegacy } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
+import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
   createScanner,
   isComment,
@@ -17,6 +18,7 @@ import {
   Comment,
   DecoratorExpressionNode,
   Diagnostic,
+  DiagnosticReport,
   DirectiveArgument,
   DirectiveExpressionNode,
   EmptyStatementNode,
@@ -287,15 +289,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
-          error("Cannot use multiple blockless namespaces.");
+          error({ code: "multiple-blockless-namespace" });
         }
         if (seenDecl) {
-          error("Blockless namespaces can't follow other declarations.");
+          error({ code: "blockless-namespace-first" });
         }
         seenBlocklessNs = true;
       } else if (item.kind === SyntaxKind.ImportStatement) {
         if (seenDecl || seenBlocklessNs) {
-          error("Imports must come prior to namespaces or other declarations.");
+          error({ code: "import-first" });
         }
       } else {
         seenDecl = true;
@@ -320,7 +322,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
-          error("Imports must be top-level and come prior to namespaces or other declarations.");
+          error({ code: "import-first", messageId: "topLevel" });
           item = parseImportStatement();
           break;
         case Token.ModelKeyword:
@@ -330,7 +332,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           const ns = parseNamespaceStatement(pos, decorators);
 
           if (!Array.isArray(ns.statements)) {
-            error("Blockless namespace can only be top-level.");
+            error({ code: "blockless-namespace-first", messageId: "topLevel" });
           }
           item = ns;
           break;
@@ -449,7 +451,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     let mixes: ReferenceExpression[] = [];
     if (token() === Token.Identifier) {
       if (tokenValue() !== "mixes") {
-        error("expected 'mixes' or '{'");
+        error({ code: "token-expected", format: { token: "'mixes' or '{'" } });
         nextToken();
       } else {
         nextToken();
@@ -513,10 +515,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
-    const id =
-      token() === Token.StringLiteral
-        ? parseStringLiteral()
-        : parseIdentifier("Property expected.");
+    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
 
     parseExpected(Token.Colon);
 
@@ -662,10 +661,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelPropertyNode | ModelSpreadPropertyNode {
-    const id =
-      token() === Token.StringLiteral
-        ? parseStringLiteral()
-        : parseIdentifier("Property expected.");
+    const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
@@ -673,7 +669,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const hasDefault = parseOptional(Token.Equals);
     if (hasDefault && !optional) {
-      error("Cannot use default with non optional properties");
+      error({ code: "default-optional" });
     }
     const defaultValue = hasDefault ? parseExpression() : undefined;
     return {
@@ -705,9 +701,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
     const id =
-      token() === Token.StringLiteral
-        ? parseStringLiteral()
-        : parseIdentifier("Enum member expected.");
+      token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("enumMember");
 
     let value: StringLiteralNode | NumericLiteralNode | undefined;
     if (parseOptional(Token.Colon)) {
@@ -718,7 +712,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       } else if (getFlag(expr, NodeFlags.ThisNodeHasError)) {
         parseErrorInNextFinishedNode = true;
       } else {
-        error("Expected numeric or string literal", expr);
+        error({ code: "token-expected", messageId: "numericOrStringLiteral", target: expr });
       }
     }
 
@@ -863,7 +857,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const target = parseIdentifier();
     if (target.sv !== "suppress") {
-      error(`Unknown directive '#${target.sv}'`, { pos, end: pos + target.sv.length }, true);
+      error({
+        code: "unknown-directive",
+        format: { id: target.sv },
+        target: { pos, end: pos + target.sv.length },
+        printable: true,
+      });
     }
     // The newline will mark the end of the directive.
     newLineIsTrivia = false;
@@ -892,7 +891,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       case Token.StringLiteral:
         return parseStringLiteral();
       default:
-        error(`Unexpected token ${Token[token()]}`);
+        error({
+          code: "token-expected",
+          messageId: "unexpected",
+          format: { token: Token[token()] },
+        });
         do {
           nextToken();
         } while (
@@ -947,7 +950,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           reportInvalidDirective(directives, "expression");
           continue;
         default:
-          return parseIdentifier("Expression expected.");
+          return parseIdentifier("expression");
       }
     }
   }
@@ -1015,13 +1018,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseIdentifier(message?: string): IdentifierNode {
+  function parseIdentifier(message?: keyof CompilerDiagnostics["token-expected"]): IdentifierNode {
     if (isKeyword(token())) {
-      error("Keyword cannot be used as identifier.");
+      error({ code: "reserverd-identifier" });
     } else if (token() !== Token.Identifier) {
       // Error recovery: when we fail to parse an identifier or expression,
       // we insert a synthesized identifier with a unique name.
-      error(message ?? "Identifier expected.");
+      error({ code: "token-expected", messageId: message ?? "identifer" });
       return createMissingIdentifier();
     }
 
@@ -1144,9 +1147,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         // Delimiter found: check if it's trailing.
         if (parseOptional(kind.close)) {
           if (!kind.trailingDelimiterIsValid) {
-            error(`Trailing ${TokenDisplay[delimiter]}.`, {
-              pos: delimiterPos,
-              end: delimiterPos + 1,
+            error({
+              code: "trailing-token",
+              format: { token: TokenDisplay[delimiter] },
+              target: {
+                pos: delimiterPos,
+                end: delimiterPos + 1,
+              },
             });
           }
           // It was trailing and we've consumed the close token.
@@ -1240,36 +1247,46 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       token() != Token.EndOfFile
     );
 
-    error("Statement expected.", { pos, end: previousTokenEnd });
+    error({
+      code: "token-expected",
+      messageId: "statement",
+      target: { pos, end: previousTokenEnd },
+    });
     return { kind: SyntaxKind.InvalidStatement, ...finishNode(pos) };
   }
 
-  /**
-   *
-   * @param message Error message
-   * @param target Location of the error.
-   * @param printable True if this error didn't affect the parsing and the tree can be safely printed(formatted)
-   */
-  function error(message: string, target?: TextRange & { realPos?: number }, printable?: boolean) {
+  function error<
+    C extends keyof CompilerDiagnostics,
+    M extends keyof CompilerDiagnostics[C] = "default"
+  >(
+    report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target"> & {
+      target?: TextRange & { realPos?: number };
+      printable?: boolean;
+    }
+  ) {
     const location = {
       file: scanner.file,
-      pos: target?.pos ?? tokenPos(),
-      end: target?.end ?? scanner.position,
+      pos: report.target?.pos ?? tokenPos(),
+      end: report.target?.end ?? scanner.position,
     };
 
     // Error recovery: don't report more than 1 consecutive error at the same
     // position. The code path taken by error recovery after logging an error
     // can otherwise produce redundant and less decipherable errors, which this
     // suppresses.
-    let realPos = target?.realPos ?? location.pos;
+    let realPos = report.target?.realPos ?? location.pos;
     if (realPositionOfLastError === realPos) {
       return;
     }
     realPositionOfLastError = realPos;
-    if (!printable) {
+    if (!report.printable) {
       treePrintable = false;
     }
-    const diagnostic = createDiagnosticLegacy(message, location);
+
+    const diagnostic = createDiagnostic({
+      ...report,
+      target: location,
+    } as any);
     reportDiagnostic(diagnostic);
   }
 
@@ -1291,12 +1308,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function reportInvalidDecorators(decorators: DecoratorExpressionNode[], nodeName: string) {
     for (const decorator of decorators) {
-      error(`Cannot decorate ${nodeName}.`, decorator);
+      error({ code: "invalid-decorator-location", format: { nodeName }, target: decorator });
     }
   }
   function reportInvalidDirective(directives: DirectiveExpressionNode[], nodeName: string) {
     for (const directive of directives) {
-      error(`Cannot decorate ${nodeName}.`, directive);
+      error({ code: "invalid-directive-location", format: { nodeName }, target: directive });
     }
   }
 
@@ -1307,7 +1324,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
 
     const location = getAdjustedDefaultLocation(expectedToken);
-    error(`${TokenDisplay[expectedToken]} expected.`, location, isPunctuation(expectedToken));
+    error({
+      code: "token-expected",
+      format: { token: TokenDisplay[expectedToken] },
+      target: location,
+      printable: isPunctuation(expectedToken),
+    });
     return false;
   }
 
@@ -1335,8 +1357,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
       return TokenDisplay[t];
     });
-    const msg = `Expected ${displayList.join(", ")}.`;
-    error(msg, location);
+    error({ code: "token-expected", format: { token: displayList.join(", ") }, target: location });
   }
 
   function parseOptional(optionalToken: Token) {

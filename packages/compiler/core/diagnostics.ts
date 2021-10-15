@@ -1,8 +1,12 @@
 import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
-import { Message } from "./messages.js";
+import { Program } from "./program.js";
 import {
   Diagnostic,
+  DiagnosticCreator,
+  DiagnosticMap,
+  DiagnosticMessages,
+  DiagnosticReport,
   DiagnosticTarget,
   Node,
   NoTarget,
@@ -11,7 +15,68 @@ import {
   SyntaxKind,
 } from "./types.js";
 
-export { Message } from "./messages.js";
+/**
+ * Create a new diagnostics creator.
+ * @param diagnostics Map of the potential diagnostics.
+ * @param libraryName Optional name of the library if in the scope of a library.
+ * @returns @see DiagnosticCreator
+ */
+export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMessages }>(
+  diagnostics: DiagnosticMap<T>,
+  libraryName?: string
+): DiagnosticCreator<T> {
+  const errorMessage = libraryName
+    ? `It must match one of the code defined in the library '${libraryName}'`
+    : "It must match one of the code defined in the compiler.";
+
+  function createDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
+    diagnostic: DiagnosticReport<T, C, M>
+  ): Diagnostic {
+    const diagnosticDef = diagnostics[diagnostic.code];
+
+    if (!diagnosticDef) {
+      const codeStr = Object.keys(diagnostics)
+        .map((x) => ` - ${x}`)
+        .join("\n");
+      throw new Error(
+        `Unexpected diagnostic code '${diagnostic.code}'. ${errorMessage}. Defined codes:\n${codeStr}`
+      );
+    }
+
+    const message = diagnosticDef.messages[diagnostic.messageId ?? "default"];
+    if (!message) {
+      const codeStr = Object.keys(diagnosticDef.messages)
+        .map((x) => ` - ${x}`)
+        .join("\n");
+      throw new Error(
+        `Unexpected message id '${diagnostic.messageId}'. ${errorMessage} for code '${diagnostic.code}'. Defined codes:\n${codeStr}`
+      );
+    }
+
+    const messageStr = typeof message === "string" ? message : message((diagnostic as any).format);
+
+    return {
+      code: libraryName ? `${libraryName}/${diagnostic.code}` : diagnostic.code.toString(),
+      severity: diagnosticDef.severity,
+      message: messageStr,
+      target: diagnostic.target,
+    };
+  }
+
+  function reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
+    program: Program,
+    diagnostic: DiagnosticReport<T, C, M>
+  ) {
+    const diag = createDiagnostic(diagnostic);
+    program.reportDiagnostic(diag);
+  }
+
+  return {
+    diagnostics,
+    createDiagnostic,
+    reportDiagnostic,
+  } as any;
+}
 
 /**
  * Represents a failure with multiple errors.
@@ -29,29 +94,6 @@ export class AggregateError extends Error {
 
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
-
-export function createDiagnosticLegacy(
-  message: Message | string,
-  target: DiagnosticTarget | typeof NoTarget,
-  args?: (string | number)[]
-): Diagnostic {
-  if (typeof message === "string") {
-    // Temporarily allow ad-hoc strings as error messages.
-    message = { text: message, severity: "error" };
-  }
-
-  const [formattedMessage, formatError] = format(message.text, args);
-  if (formatError) {
-    const diagnosticError = new Error("Error(s) occurred trying to report diagnostic: " + message);
-    throw new AggregateError(diagnosticError, formatError);
-  }
-  return {
-    code: message.code!,
-    severity: (message.severity as any) ?? "error",
-    target,
-    message: formattedMessage,
-  };
-}
 
 /**
  * Helper to create a @see Diagnostic from a @see DiagnosticTarget

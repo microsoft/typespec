@@ -48,7 +48,7 @@
     "glob": "~7.1.6",
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",
-    "prettier": "~2.2.1",
+    "prettier": "~2.4.1",
     "node-fetch": "~2.6.1",
     "prompts": "~2.4.1",
     "resolve": "~1.20.0",

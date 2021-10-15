@@ -12,7 +12,7 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~2.2.1"
+    "prettier": "~2.4.1"
   },
   "devDependencies": {
     "@cadl-lang/compiler": "0.21.0",

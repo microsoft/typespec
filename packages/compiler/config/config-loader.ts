@@ -1,5 +1,4 @@
 import { basename, extname, join } from "path";
-import { Message } from "../core/diagnostics.js";
 import { SchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
 import { deepClone, deepFreeze, loadFile } from "../core/util.js";
@@ -28,10 +27,7 @@ export async function loadCadlConfigInDir(
   for (const filename of configFilenames) {
     const filePath = join(directoryPath, filename);
     const config = await loadCadlConfigFile(host, filePath);
-    if (
-      config.diagnostics.length === 1 &&
-      config.diagnostics[0].code === Message.FileNotFound.code
-    ) {
+    if (config.diagnostics.length === 1 && config.diagnostics[0].code === "file-not-found") {
       continue;
     }
     return config;
