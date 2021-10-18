@@ -116,7 +116,7 @@ async function downloadTemplates(
   const file = await readUrlOrPath(host, templatesUrl);
 
   const json = JSON.parse(file.text);
-  validateTemplateDefinitions(json, file);
+  validateTemplateDefinitions(host, json, file);
   return json;
 }
 
@@ -209,13 +209,14 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
 }
 
 function validateTemplateDefinitions(
+  host: CompilerHost,
   templates: unknown,
   file: SourceFile
 ): asserts templates is Record<string, InitTemplate> {
   const validator = new SchemaValidator(InitTemplateDefinitionsSchema);
   const diagnostics = validator.validate(templates, file);
   if (diagnostics.length > 0) {
-    logDiagnostics(diagnostics, console.error);
+    logDiagnostics(diagnostics, host.logSink);
     throw new Error("Template contained error.");
   }
 }

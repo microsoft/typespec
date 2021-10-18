@@ -24,9 +24,9 @@ import {
 } from "vscode-languageserver/node.js";
 import {
   compilerAssert,
+  computeTargetLocation,
   createSourceFile,
   formatDiagnostic,
-  getDiagnosticLocation,
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
@@ -245,15 +245,7 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   for (const each of program.diagnostics) {
     let document: TextDocument | undefined;
 
-    // https://github.com/Azure/adl/issues/802
-    //
-    // We should remove this once we stop using info diagnostics for verbose
-    // tracing. In the meantime, we will not show info diagnostics in the
-    // IDE.
-    if ((each.severity as any) === "info") {
-      continue;
-    }
-    const location = getDiagnosticLocation(each);
+    const location = computeTargetLocation(each.target);
     if (location?.file) {
       document = (location.file as ServerSourceFile).document;
     } else {
@@ -357,14 +349,12 @@ function convertSourceLocation(location: SourceLocation): Location {
   };
 }
 
-function convertSeverity(severity: "warning" | "error" | "info"): DiagnosticSeverity {
+function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
   switch (severity) {
     case "warning":
       return DiagnosticSeverity.Warning;
     case "error":
       return DiagnosticSeverity.Error;
-    case "info":
-      return DiagnosticSeverity.Information;
   }
 }
 

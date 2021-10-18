@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
+import { createConsoleSink } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "./types.js";
 
@@ -139,6 +140,7 @@ export const NodeHost: CompilerHost = {
   realpath(path) {
     return realpath(path);
   },
+  logSink: createConsoleSink(),
 };
 
 export async function readUrlOrPath(host: CompilerHost, pathOrUrl: string): Promise<SourceFile> {

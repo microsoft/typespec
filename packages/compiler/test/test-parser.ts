@@ -556,7 +556,7 @@ function dumpAST(astNode: Node, file?: SourceFile) {
   logVerboseTestOutput((log) => {
     hasParseError(astNode); // force flags to initialize
     const json = JSON.stringify(astNode, replacer, 2);
-    log(json);
+    log.log({ level: "info", message: json });
   });
 
   function replacer(key: string, value: any) {

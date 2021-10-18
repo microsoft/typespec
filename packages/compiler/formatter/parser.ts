@@ -1,5 +1,5 @@
 import { Parser, ParserOptions } from "prettier";
-import { getDiagnosticLocation } from "../core/diagnostics.js";
+import { computeTargetLocation } from "../core/diagnostics.js";
 import { parse as cadlParse } from "../core/parser.js";
 import { CadlScriptNode, Diagnostic } from "../core/types.js";
 
@@ -20,7 +20,7 @@ export class PrettierParserError extends Error {
   public loc: { start: number; end: number };
   public constructor(public readonly error: Diagnostic) {
     super(error.message);
-    const location = getDiagnosticLocation(error);
+    const location = computeTargetLocation(error.target);
     this.loc = {
       start: location?.pos ?? 0,
       end: location?.end ?? 0,

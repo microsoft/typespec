@@ -168,7 +168,7 @@ function compileInput(
   let onCompileFinished = (program: Program) => {
     if (program.diagnostics.length > 0) {
       log("Diagnostics were reported during compilation:\n");
-      logDiagnostics(program.diagnostics, console.error);
+      logDiagnostics(program.diagnostics, NodeHost.logSink);
     } else {
       if (printSuccess) {
         log(
@@ -421,7 +421,7 @@ async function printInfo() {
   console.log("-----------");
   console.log(jsyaml.dump(config, { replacer }));
   console.log("-----------");
-  logDiagnostics(config.diagnostics, console.error);
+  logDiagnostics(config.diagnostics, NodeHost.logSink);
   if (config.diagnostics.some((d) => d.severity === "error")) {
     process.exit(1);
   }
@@ -500,7 +500,7 @@ function internalCompilerError(error: Error) {
   // that risks losing it in the case of a bug that does not repro easily.
   console.error("Internal compiler error!");
   console.error("File issue at https://github.com/azure/adl");
-  dumpError(error, console.error);
+  dumpError(error, NodeHost.logSink);
   process.exit(1);
 }
 

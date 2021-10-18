@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile } from "./diagnostics.js";
+import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
@@ -16,6 +17,7 @@ import {
   DirectiveExpressionNode,
   JsSourceFile,
   LiteralType,
+  Logger,
   Node,
   NoTarget,
   SourceFile,
@@ -34,6 +36,7 @@ export interface Program {
   jsSourceFiles: Map<string, JsSourceFile>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
+  logger: Logger;
   checker?: Checker;
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
@@ -61,6 +64,8 @@ export async function createProgram(
   const duplicateSymbols = new Set<Sym>();
   let error = false;
 
+  const logger = createLogger({ sink: host.logSink });
+
   const program: Program = {
     compilerOptions: options,
     sourceFiles: new Map(),
@@ -68,6 +73,7 @@ export async function createProgram(
     literalTypes: new Map(),
     host,
     diagnostics,
+    logger,
     loadCadlScript,
     evalCadlScript,
     getOption,

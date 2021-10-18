@@ -643,7 +643,7 @@ export const NoTarget = Symbol("NoTarget");
 
 export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
 
-export type DiagnosticSeverity = "error" | "warning" | "info";
+export type DiagnosticSeverity = "error" | "warning";
 
 export interface Diagnostic {
   code: string;
@@ -703,7 +703,10 @@ export interface CompilerHost {
 
   // get the real path of a possibly symlinked path
   realpath(path: string): Promise<string>;
+
+  logSink: LogSink;
 }
+
 type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (k: infer I) => void
   ? I
   : never;
@@ -790,4 +793,33 @@ export interface CadlLibrary<T extends { [code: string]: DiagnosticMessages }> {
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;
+}
+
+export type LogLevel = "debug" | "verbose" | "info" | "warning" | "error";
+
+export interface LogInfo {
+  level: LogLevel;
+  message: string;
+  code?: string;
+  target?: DiagnosticTarget | typeof NoTarget;
+}
+
+export interface ProcessedLog {
+  level: LogLevel;
+  message: string;
+  code?: string;
+  sourceLocation?: SourceLocation;
+}
+
+export interface LogSink {
+  log(log: ProcessedLog): void;
+}
+
+export interface Logger {
+  debug(message: string): void;
+  verbose(message: string): void;
+  info(message: string): void;
+  warn(message: string): void;
+  error(message: string): void;
+  log(log: LogInfo): void;
 }

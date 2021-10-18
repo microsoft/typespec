@@ -1,5 +1,6 @@
 import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
+import { formatLog } from "./logger.js";
 import { Program } from "./program.js";
 import {
   Diagnostic,
@@ -8,6 +9,7 @@ import {
   DiagnosticMessages,
   DiagnosticReport,
   DiagnosticTarget,
+  LogSink,
   Node,
   NoTarget,
   SourceFile,
@@ -95,17 +97,14 @@ export class AggregateError extends Error {
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
-/**
- * Helper to create a @see Diagnostic from a @see DiagnosticTarget
- * @param diagnostic
- * @returns
- */
-export function getDiagnosticLocation(diagnostic: Diagnostic): SourceLocation | undefined {
+export function computeTargetLocation(
+  target?: DiagnosticTarget | typeof NoTarget
+): SourceLocation | undefined {
   let location: SourceLocation | undefined;
   let locationError: Error | undefined;
-  if (diagnostic.target !== NoTarget) {
+  if (target !== undefined && target !== NoTarget) {
     try {
-      location = getSourceLocation(diagnostic.target);
+      location = getSourceLocation(target);
     } catch (err: any) {
       locationError = err;
       location = createDummySourceLocation();
@@ -113,7 +112,7 @@ export function getDiagnosticLocation(diagnostic: Diagnostic): SourceLocation | 
   }
   if (locationError) {
     const diagnosticError = new Error(
-      "Error(s) occurred trying to report diagnostic: " + diagnostic.message
+      "Error(s) occurred trying to resolve target: " + target?.toString()
     );
     throw new AggregateError(diagnosticError, locationError);
   }
@@ -121,26 +120,24 @@ export function getDiagnosticLocation(diagnostic: Diagnostic): SourceLocation | 
   return location;
 }
 
-export function logDiagnostics(diagnostics: readonly Diagnostic[], writeLine: WriteLine) {
+export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSink) {
   for (const diagnostic of diagnostics) {
-    writeLine(formatDiagnostic(diagnostic));
+    logger.log({
+      level: diagnostic.severity,
+      message: diagnostic.message,
+      code: diagnostic.code,
+      sourceLocation: computeTargetLocation(diagnostic.target),
+    });
   }
 }
 
 export function formatDiagnostic(diagnostic: Diagnostic) {
-  const code = diagnostic.code ? ` ${diagnostic.code}` : "";
-  const severity = diagnostic.severity;
-  const content = `${severity}${code}: ${diagnostic.message}`;
-  const location = getDiagnosticLocation(diagnostic);
-  if (location?.file) {
-    const pos = location.file.getLineAndCharacterOfPosition(location.pos ?? 0);
-    const line = pos.line + 1;
-    const col = pos.character + 1;
-    const path = location.file.path;
-    return `${path}:${line}:${col} - ${content}`;
-  } else {
-    return content;
-  }
+  return formatLog({
+    code: diagnostic.code,
+    level: diagnostic.severity,
+    message: diagnostic.message,
+    sourceLocation: computeTargetLocation(diagnostic.target),
+  });
 }
 
 export function createSourceFile(text: string, path: string): SourceFile {
@@ -229,24 +226,26 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
  * instead of producing the message then passing it here only to be dropped
  * when verbose output is disabled.
  */
-export function logVerboseTestOutput(messageOrCallback: string | ((log: WriteLine) => void)) {
+export function logVerboseTestOutput(messageOrCallback: string | ((log: LogSink) => void)) {
   if (process.env.CADL_VERBOSE_TEST_OUTPUT) {
     if (typeof messageOrCallback === "string") {
       console.log(messageOrCallback);
     } else {
-      messageOrCallback(console.log);
+      messageOrCallback({
+        log: ({ message }) => console.log(message),
+      });
     }
   }
 }
 
-export function dumpError(error: Error, writeLine: WriteLine) {
+export function dumpError(error: Error, logger: LogSink) {
   if (error instanceof AggregateError) {
     for (const inner of error.errors) {
-      dumpError(inner, writeLine);
+      dumpError(inner, logger);
     }
   } else {
-    writeLine("");
-    writeLine(error.stack);
+    logger.log({ level: "info", message: "" });
+    logger.log({ level: "error", message: error.stack ?? "" });
   }
 }
 
@@ -295,21 +294,6 @@ export function compilerAssert(
   } else {
     throw error;
   }
-}
-
-function format(text: string, args?: (string | number)[]): [string, Error?] {
-  let error: Error | undefined;
-  const message = text.replace(/{(\d+)}/g, (_match, indexString: string) => {
-    const index = Number(indexString);
-    if (!args || index >= args.length) {
-      error = new Error("Missing format argument.");
-      return "<missing argument>";
-    }
-
-    return args[index].toString();
-  });
-
-  return [message, error];
 }
 
 function isNotUndefined<T>(value: T | undefined): value is T {

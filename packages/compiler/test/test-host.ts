@@ -113,6 +113,10 @@ export async function createTestHost(): Promise<TestHost> {
     async realpath(path) {
       return path;
     },
+
+    logSink: {
+      log: ({ message }) => console.log(message),
+    },
   };
 
   // load standard library into the vfs
@@ -227,7 +231,7 @@ export async function createTestHost(): Promise<TestHost> {
     }
 
     program = await createProgram(compilerHost, mainFile, options);
-    logVerboseTestOutput((log) => logDiagnostics(program.diagnostics, log));
+    logVerboseTestOutput((log) => logDiagnostics(program.diagnostics, program.logger));
     return [testTypes, program.diagnostics];
   }
 }
