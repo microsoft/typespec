@@ -37,6 +37,17 @@ import "@azure-tools/cadl-rpaas";
     });
   });
 
+  it("format using", () => {
+    assertFormat({
+      code: `
+using       Azure.Arm  
+`,
+      expected: `
+using Azure.Arm;
+`,
+    });
+  });
+
   describe("model", () => {
     it("format simple models", () => {
       assertFormat({

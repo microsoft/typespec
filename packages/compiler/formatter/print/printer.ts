@@ -73,7 +73,7 @@ export function printNode(
     case SyntaxKind.ImportStatement:
       return concat([`import "${node.path.value}";`]);
     case SyntaxKind.UsingStatement:
-      return concat([`using "`, path.call(print, "name"), `";`]);
+      return concat([`using `, path.call(print, "name"), `;`]);
     case SyntaxKind.OperationStatement:
       return printOperationStatement(path as AstPath<OperationStatementNode>, options, print);
     case SyntaxKind.NamespaceStatement:
