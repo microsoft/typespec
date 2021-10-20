@@ -46,7 +46,7 @@ export function npmForEach(cmd, options) {
 // We could use { shell: true } to let Windows find .cmd, but that causes other issues.
 // It breaks ENOENT checking for command-not-found and also handles command/args with spaces
 // poorly.
-const isCmdOnWindows = ["rush", "npm", "code", "code-insiders", tsc, prettier, autorest];
+const isCmdOnWindows = ["rush", "npm", "code", "code-insiders", tsc, prettier];
 
 export class CommandFailedError extends Error {
   constructor(msg, proc) {
