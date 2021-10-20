@@ -474,6 +474,41 @@ describe("compiler: syntax", () => {
       ["alias =", [/Identifier expected/]],
     ]);
   });
+
+  describe("projections", () => {
+    describe("selectors", () => {
+      const selectors = ["model", "op", "interface", "union", "someId"];
+      const codes = selectors.map((s) => `project ${s} to #tag { }`);
+      parseEach(codes);
+    });
+
+    describe("direction", () => {
+      parseEach([`project model to #tag { }`, `project model from #tag { }`]);
+    });
+
+    describe("projection expressions", () => {
+      const exprs = [
+        `x || y`,
+        `x || y || z`,
+        `x && y`,
+        `x && y && z`,
+        `x && y || z && q`,
+        `x || y && z || q`,
+        `x <= y`,
+        `x >= y`,
+        `x > y`,
+        `x < y`,
+        `x()`,
+        `x(1, 2, 3)`,
+        `x.y`,
+        `x().y`,
+        `x().y()`,
+        `x<T>.y()<T>`,
+      ];
+      const codes = exprs.map((exp) => `project foo to #tag { ${exp}; }`);
+      parseEach(codes);
+    });
+  });
 });
 
 type Callback = (node: CadlScriptNode) => void;

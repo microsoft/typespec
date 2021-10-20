@@ -61,28 +61,36 @@ export enum Token {
   Colon = 26,
   At = 27,
   Hash = 28,
+  LessThanEquals = 29,
+  GreaterThanEquals = 30,
+  AmpsersandAmpersand = 31,
+  BarBar = 32,
+  EqualsEquals = 33,
+  EqualsGreaterThan = 34,
   // Update MaxPunctuation if anything is added right above here
 
   // Identifiers
-  Identifier = 29,
+  Identifier = 35,
 
   // Statement Keywords
-  ImportKeyword = 30,
-  ModelKeyword = 31,
-  NamespaceKeyword = 32,
-  UsingKeyword = 33,
-  OpKeyword = 34,
-  EnumKeyword = 35,
-  AliasKeyword = 36,
-  IsKeyword = 37,
-  InterfaceKeyword = 38,
-  UnionKeyword = 39,
+  ImportKeyword = 36,
+  ModelKeyword = 37,
+  NamespaceKeyword = 38,
+  UsingKeyword = 39,
+  OpKeyword = 40,
+  EnumKeyword = 41,
+  AliasKeyword = 42,
+  IsKeyword = 43,
+  InterfaceKeyword = 44,
+  UnionKeyword = 45,
+  ProjectKeyword = 46,
+  IfKeyword = 47,
   // Update MaxStatementKeyword if anything is added right above here
 
   // Other keywords
-  ExtendsKeyword = 40,
-  TrueKeyword = 41,
-  FalseKeyword = 42,
+  ExtendsKeyword = 48,
+  TrueKeyword = 49,
+  FalseKeyword = 50,
   // Update MaxKeyword if anything is added right above here
 }
 
@@ -90,10 +98,10 @@ const MinKeyword = Token.ImportKeyword;
 const MaxKeyword = Token.FalseKeyword;
 
 const MinPunctuation = Token.OpenBrace;
-const MaxPunctuation = Token.Hash;
+const MaxPunctuation = Token.EqualsGreaterThan;
 
 const MinStatementKeyword = Token.ImportKeyword;
-const MaxStatementKeyword = Token.UnionKeyword;
+const MaxStatementKeyword = Token.IfKeyword;
 
 /** @internal */
 export const TokenDisplay: readonly string[] = [
@@ -107,7 +115,7 @@ export const TokenDisplay: readonly string[] = [
   "conflict marker",
   "numeric literal",
   "string literal",
-  "'{'",
+  "'{'", // 10
   "'}'",
   "'('",
   "')'",
@@ -117,7 +125,7 @@ export const TokenDisplay: readonly string[] = [
   "'...'",
   "';'",
   "','",
-  "'<'",
+  "'<'", // 20
   "'>'",
   "'='",
   "'&'",
@@ -126,20 +134,28 @@ export const TokenDisplay: readonly string[] = [
   "':'",
   "'@'",
   "'#'",
+  "'<='",
+  "'>='", // 30
+  "'&&'",
+  "'||'",
+  "'=='",
+  "'=>'",
   "identifier",
   "'import'",
   "'model'",
   "'namespace'",
   "'using'",
-  "'op'",
+  "'op'", // 40
   "'enum'",
   "'alias'",
   "'is'",
   "'interface'",
   "'union'",
+  "'project'",
+  "'if'",
   "'extends'",
   "'true'",
-  "'false'",
+  "'false'", // 50
 ];
 
 /** @internal */
@@ -149,6 +165,8 @@ export const Keywords: readonly [string, Token][] = [
   ["namespace", Token.NamespaceKeyword],
   ["interface", Token.InterfaceKeyword],
   ["union", Token.UnionKeyword],
+  ["if", Token.IfKeyword],
+  ["project", Token.ProjectKeyword],
   ["using", Token.UsingKeyword],
   ["op", Token.OpKeyword],
   ["extends", Token.ExtendsKeyword],
@@ -371,7 +389,9 @@ export function createScanner(
           return next(Token.Question);
 
         case CharCode.Ampersand:
-          return next(Token.Ampersand);
+          return lookAhead(1) === CharCode.Ampersand
+            ? next(Token.AmpsersandAmpersand, 2)
+            : next(Token.Ampersand);
 
         case CharCode.Dot:
           return lookAhead(1) === CharCode.Dot && lookAhead(2) === CharCode.Dot
@@ -411,22 +431,32 @@ export function createScanner(
           return scanNumber();
 
         case CharCode.LessThan:
-          return isConflictMarker()
+          return lookAhead(1) === CharCode.Equals
+            ? next(Token.LessThanEquals, 2)
+            : isConflictMarker()
             ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.LessThan);
 
         case CharCode.GreaterThan:
-          return isConflictMarker()
+          return lookAhead(1) === CharCode.Equals
+            ? next(Token.GreaterThanEquals, 2)
+            : isConflictMarker()
             ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.GreaterThan);
 
         case CharCode.Equals:
-          return isConflictMarker()
+          return lookAhead(1) === CharCode.Equals
+            ? next(Token.EqualsEquals, 2)
+            : lookAhead(1) === CharCode.GreaterThan
+            ? next(Token.EqualsGreaterThan, 2)
+            : isConflictMarker()
             ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.Equals);
 
         case CharCode.Bar:
-          return isConflictMarker()
+          return lookAhead(1) === CharCode.Bar
+            ? next(Token.BarBar, 2)
+            : isConflictMarker()
             ? next(Token.ConflictMarker, mergeConflictMarkerLength)
             : next(Token.Bar);
 

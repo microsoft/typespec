@@ -40,6 +40,15 @@ import {
   Node,
   NumericLiteralNode,
   OperationStatementNode,
+  ProjectionExpression,
+  ProjectionExpressionStatement,
+  ProjectionInterfaceSelectorNode,
+  ProjectionModelSelectorNode,
+  ProjectionOperationSelectorNode,
+  ProjectionParameterDeclarationNode,
+  ProjectionStatement,
+  ProjectionStatementNode,
+  ProjectionUnionSelectorNode,
   SourceFile,
   Statement,
   StringLiteralNode,
@@ -284,6 +293,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement();
           break;
+        case Token.ProjectKeyword:
+          reportInvalidDecorators(decorators, "project statement");
+          item = parseProjectionStatement();
+          break;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
           item = parseEmptyStatement();
@@ -364,6 +377,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement();
+          break;
+        case Token.ProjectKeyword:
+          reportInvalidDecorators(decorators, "project statement");
+          item = parseProjectionStatement();
           break;
         case Token.EndOfFile:
           parseExpected(Token.CloseBrace);
@@ -1060,6 +1077,224 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
+  function parseProjectionStatement(): ProjectionStatementNode {
+    const pos = tokenPos();
+    parseExpected(Token.ProjectKeyword);
+    const selector = parseProjectionSelector();
+    const directionId = parseIdentifier("expected from or to");
+    let direction: "from" | "to";
+    if (directionId.sv !== "from" && directionId.sv !== "to") {
+      error("Expected either `from` or `to`.", selector);
+      direction = "from";
+    } else {
+      direction = directionId.sv;
+    }
+    parseExpected(Token.Hash);
+    const id = parseIdentifier();
+    parseExpected(Token.OpenBrace);
+
+    const body: ProjectionStatement[] = parseProjectionStatementList();
+    const parameters: ProjectionParameterDeclarationNode[] = [];
+
+    parseExpected(Token.CloseBrace);
+    return {
+      kind: SyntaxKind.ProjectionStatement,
+      selector,
+      direction,
+      body,
+      id,
+      parameters,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseProjectionStatementList(): ProjectionStatement[] {
+    const stmts = [];
+
+    while (token() !== Token.CloseBrace) {
+      const startPos = tokenPos();
+      if (token() === Token.EndOfFile) {
+        error(`Expected '}'`, getAdjustedDefaultLocation(token()));
+        break;
+      }
+
+      const expr = parseProjectionExpressionStatement();
+      stmts.push(expr);
+
+      if (tokenPos() === startPos) {
+        // we didn't manage to parse anything, so break out
+        // and we'll report errors elsewhere.
+        break;
+      }
+    }
+
+    return stmts;
+  }
+
+  function parseProjectionExpressionStatement(): ProjectionExpressionStatement {
+    const pos = tokenPos();
+    const expr = parseProjectionExpression();
+    parseExpected(Token.Semicolon);
+    return {
+      kind: SyntaxKind.ProjectionExpressionStatement,
+      expr,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseProjectionExpression() {
+    return parseProjectionLogicalOrExpression();
+  }
+
+  function parseProjectionLogicalOrExpression(): ProjectionExpression {
+    let expr = parseProjectionLogicalAndExpression();
+    while (token() !== Token.EndOfFile) {
+      const pos = expr.pos;
+      if (parseOptional(Token.BarBar)) {
+        expr = {
+          kind: SyntaxKind.ProjectionLogicalExpression,
+          op: "||",
+          left: expr,
+          right: parseProjectionLogicalAndExpression(),
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
+    }
+
+    return expr;
+  }
+
+  function parseProjectionLogicalAndExpression(): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionRelationalExpression();
+
+    while (token() !== Token.EndOfFile) {
+      const pos = expr.pos;
+      if (parseOptional(Token.AmpsersandAmpersand)) {
+        expr = {
+          kind: SyntaxKind.ProjectionLogicalExpression,
+          op: "&&",
+          left: expr,
+          right: parseIdentifier(),
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
+    }
+
+    return expr;
+  }
+
+  function parseProjectionRelationalExpression(): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionCallExpression();
+
+    while (token() !== Token.EndOfFile) {
+      // I think this is a TS bug? I don't get why
+      // the type assertion is needed here.
+      const pos: number = expr.pos;
+      const tok = token();
+      if (
+        tok === Token.LessThan ||
+        tok === Token.LessThanEquals ||
+        tok === Token.GreaterThan ||
+        tok === Token.GreaterThanEquals
+      ) {
+        nextToken();
+        expr = {
+          kind: SyntaxKind.ProjectionRelationalExpression,
+          op: tokenValue() as any,
+          left: expr,
+          right: parseProjectionCallExpression(),
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
+    }
+
+    return expr;
+  }
+
+  function parseProjectionCallExpression(): ProjectionExpression {
+    let expr: ProjectionExpression = parseIdentifier();
+
+    while (token() !== Token.EndOfFile) {
+      const pos: number = expr.pos;
+      if (parseOptional(Token.OpenParen)) {
+        expr = {
+          kind: SyntaxKind.ProjectionCallExpression,
+          callKind: "method",
+          target: expr,
+          arguments: [],
+          ...finishNode(pos),
+        };
+        parseExpected(Token.CloseParen);
+      } else if (parseOptional(Token.OpenBracket)) {
+        expr = {
+          kind: SyntaxKind.ProjectionCallExpression,
+          callKind: "template",
+          target: expr,
+          arguments: [],
+          ...finishNode(pos),
+        };
+        parseExpected(Token.CloseBracket);
+      } else {
+        break;
+      }
+    }
+
+    return expr;
+  }
+
+  function parseProjectionSelector():
+    | IdentifierNode
+    | ProjectionInterfaceSelectorNode
+    | ProjectionModelSelectorNode
+    | ProjectionOperationSelectorNode
+    | ProjectionUnionSelectorNode {
+    const pos = tokenPos();
+    const selectorTok = expectTokenIsOneOf(
+      Token.Identifier,
+      Token.ModelKeyword,
+      Token.OpKeyword,
+      Token.InterfaceKeyword,
+      Token.UnionKeyword
+    );
+
+    switch (selectorTok) {
+      case Token.Identifier:
+        return parseIdentifier();
+      case Token.ModelKeyword:
+        nextToken();
+        return {
+          kind: SyntaxKind.ProjectionModelSelector,
+          ...finishNode(pos),
+        };
+      case Token.OpKeyword:
+        nextToken();
+        return {
+          kind: SyntaxKind.ProjectionOperationSelector,
+          ...finishNode(pos),
+        };
+      case Token.InterfaceKeyword:
+        nextToken();
+        return {
+          kind: SyntaxKind.ProjectionInterfaceSelector,
+          ...finishNode(pos),
+        };
+      case Token.UnionKeyword:
+        nextToken();
+        return {
+          kind: SyntaxKind.ProjectionUnionSelector,
+          ...finishNode(pos),
+        };
+    }
+
+    throw new Error("Unknown token kind");
+  }
+
   // utility functions
   function token() {
     return scanner.token;
@@ -1499,14 +1734,33 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       return visitEach(cb, node.values);
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
+    case SyntaxKind.ProjectionStatement:
+      return (
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.selector) ||
+        visitEach(cb, node.parameters) ||
+        visitEach(cb, node.body)
+      );
+    case SyntaxKind.ProjectionExpressionStatement:
+      return visitNode(cb, node.expr);
+    case SyntaxKind.ProjectionLogicalExpression:
+    case SyntaxKind.ProjectionRelationalExpression:
+      return visitNode(cb, node.left) || visitNode(cb, node.right);
+    case SyntaxKind.ProjectionCallExpression:
+      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     // no children for the rest of these.
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:
     case SyntaxKind.Identifier:
     case SyntaxKind.TemplateParameterDeclaration:
+    case SyntaxKind.ProjectionParameterDeclaration:
     case SyntaxKind.InvalidStatement:
     case SyntaxKind.EmptyStatement:
+    case SyntaxKind.ProjectionModelSelector:
+    case SyntaxKind.ProjectionUnionSelector:
+    case SyntaxKind.ProjectionInterfaceSelector:
+    case SyntaxKind.ProjectionOperationSelector:
       return;
     default:
       // Dummy const to ensure we handle all node types.

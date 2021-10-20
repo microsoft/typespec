@@ -328,16 +328,18 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
     if (scope.kind === SyntaxKind.NamespaceStatement) {
       compilerAssert(
-        node.kind !== SyntaxKind.TemplateParameterDeclaration,
-        "Attempted to declare template parameter in namespace",
+        node.kind !== SyntaxKind.TemplateParameterDeclaration &&
+          node.kind !== SyntaxKind.ProjectionParameterDeclaration,
+        "Attempted to declare parameter in namespace",
         node
       );
 
       node.namespaceSymbol = scope.symbol;
     } else if (scope.kind === SyntaxKind.CadlScript) {
       compilerAssert(
-        node.kind !== SyntaxKind.TemplateParameterDeclaration,
-        "Attempted to declare template parameter in global scope",
+        node.kind !== SyntaxKind.TemplateParameterDeclaration &&
+          node.kind !== SyntaxKind.ProjectionParameterDeclaration,
+        "Attempted to declare parameter in global scope",
         node
       );
 

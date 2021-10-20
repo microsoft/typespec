@@ -177,11 +177,6 @@ describe("compiler: scanner", () => {
     ]);
   });
 
-  it("does not scan greater-than-equals as one operator", () => {
-    const all = tokens("x>=y");
-    verify(all, [[Token.Identifier], [Token.GreaterThan], [Token.Equals], [Token.Identifier]]);
-  });
-
   it("scans numeric literals", () => {
     const all = tokens("42 0xBEEF 0b1010 1.5e4 314.0e-2 1e+1000");
     verify(all, [
@@ -196,6 +191,27 @@ describe("compiler: scanner", () => {
       [Token.NumericLiteral, "314.0e-2"],
       [Token.Whitespace],
       [Token.NumericLiteral, "1e+1000"],
+    ]);
+  });
+
+  it("scans projection-related tokens", () => {
+    const all = tokens("<= >= && || == project if =>");
+    verify(all, [
+      [Token.LessThanEquals, "<="],
+      [Token.Whitespace],
+      [Token.GreaterThanEquals, ">="],
+      [Token.Whitespace],
+      [Token.AmpsersandAmpersand, "&&"],
+      [Token.Whitespace],
+      [Token.BarBar, "||"],
+      [Token.Whitespace],
+      [Token.EqualsEquals, "=="],
+      [Token.Whitespace],
+      [Token.ProjectKeyword, "project"],
+      [Token.Whitespace],
+      [Token.IfKeyword, "if"],
+      [Token.Whitespace],
+      [Token.EqualsGreaterThan, "=>"],
     ]);
   });
 

@@ -450,11 +450,14 @@ ProjectionParameters :
     `(` IdentifierList? `)`
 
 ProjectionBody :
-    ProjectionExpressionList
+    ProjectionStatementList
 
-ProjectionExpressionList :
-    ProjectionExpression
-    ProjectionExpressionList `;` ProjectionExpression
+ProjectionStatementList :
+    ProjectionStatement
+    ProjectionStatementList `;` ProjectionStatement
+
+ProjectionStatement :
+    ProjectionExpressionStatement
 
 ProjectionExpression :
     ProjectionLogicalOrExpression
@@ -494,16 +497,23 @@ ProjectionPrimaryExpression :
     TupleExpression
     CooverProjectionParenthesizedExpressionAndLambdaParameterList
 
-CooverProjectionParenthesizedExpressionAndLambdaParameterList:
-    `(` ProjectionExpression `)`
+CoverProjectionParenthesizedExpressionAndLambdaParameterList:
+    `(` ProjectionExpressionList `)`
 
+ProjectionExpressionList :
+    ProjectionExpression
+    ProjectionExpressionList `,` ProjectionExpression
+    
 ProjectionIfExpression :
     `if` ProjectionExpression BlockExpression
-    `if` ProjectionExpression BlockExpression `else` BlockExpression
+    `if` ProjectionExpression BlockExpression `else` ProjectionBlockExpression
     `if` ProjectionExpression BlockExpression `else` ProjectionIfExpression
 
 ProjectionLambdaExpression :
-    CoverProjectionParenthesizedExpressionAndLambdaParameterList `=>` BlockExpression
+    CoverProjectionParenthesizedExpressionAndLambdaParameterList `=>` ProjectionBlockExpression
+
+ProjectionBlockExpression :
+    `{` ProjectionExpressionList `}`
 
 // When processing the production
 // ProjectionLambdaExpression : CooverProjectionParenthesizedExpressionAndLambdaParameterList
@@ -511,7 +521,6 @@ ProjectionLambdaExpression :
 
 LambdaParameters :
     `(` IdentifierList? `)`
-
 ]]>
 </emu-grammar>
 </emu-clause>
