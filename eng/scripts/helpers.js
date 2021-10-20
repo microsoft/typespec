@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "child_process";
-import { statSync, readdirSync, lstatSync, readFileSync } from "fs";
+import { statSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
@@ -16,7 +16,6 @@ function read(filename) {
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const prettier = resolve(repoRoot, "packages/compiler/node_modules/.bin/prettier");
 export const tsc = resolve(repoRoot, "packages/compiler/node_modules/.bin/tsc");
-export const autorest = resolve(repoRoot, "eng/scripts/node_modules/.bin/autorest");
 
 const rush = read(`${repoRoot}/rush.json`);
 
@@ -196,18 +195,4 @@ export function runWatch(watch, dir, build, options) {
 export function logWithTime(msg) {
   const time = new Date().toLocaleTimeString();
   console.log(`[${time}] ${msg}`);
-}
-
-export function scanSwaggers(root) {
-  const files = [];
-  for (const file of readdirSync(root)) {
-    const fullPath = root + "/" + file;
-    if (lstatSync(fullPath).isDirectory()) {
-      scanSwaggers(fullPath).forEach((x) => files.push(x));
-    }
-    if (file === "openapi.json") {
-      files.push(fullPath);
-    }
-  }
-  return files;
 }
