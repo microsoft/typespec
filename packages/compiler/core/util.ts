@@ -1,7 +1,7 @@
 import fs from "fs";
 import { readFile, realpath, stat, writeFile } from "fs/promises";
 import fetch from "node-fetch";
-import { join, resolve } from "path";
+import { isAbsolute, join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { createConsoleSink } from "./logger.js";
@@ -148,6 +148,18 @@ export async function readUrlOrPath(host: CompilerHost, pathOrUrl: string): Prom
     return host.readUrl(pathOrUrl);
   }
   return host.readFile(pathOrUrl);
+}
+
+export function resolveRelativeUrlOrPath(base: string, relativeOrAbsolute: string): string {
+  if (isUrl(relativeOrAbsolute)) {
+    return relativeOrAbsolute;
+  } else if (isAbsolute(relativeOrAbsolute)) {
+    return relativeOrAbsolute;
+  } else if (isUrl(base)) {
+    return new URL(relativeOrAbsolute, base).href;
+  } else {
+    return resolve(base, relativeOrAbsolute);
+  }
 }
 
 function isUrl(url: string) {

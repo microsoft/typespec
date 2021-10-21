@@ -6,7 +6,18 @@ import { logDiagnostics } from "./diagnostics.js";
 import { formatCadl } from "./formatter.js";
 import { SchemaValidator } from "./schema-validator.js";
 import { CompilerHost, SourceFile } from "./types.js";
-import { readUrlOrPath } from "./util.js";
+import { readUrlOrPath, resolveRelativeUrlOrPath } from "./util.js";
+
+interface InitTemplateFile {
+  path: string;
+  destination: string;
+}
+
+interface InitTemplateInput {
+  description: string;
+  type: "text";
+  initialValue: any;
+}
 
 interface InitTemplate {
   /**
@@ -23,9 +34,24 @@ interface InitTemplate {
    * List of libraries to include
    */
   libraries: string[];
+
+  /**
+   * Custom inputs to prompt to the user
+   */
+  inputs?: Record<string, InitTemplateInput>;
+
+  /**
+   * List of files to copy.
+   */
+  files?: InitTemplateFile[];
 }
 
 interface ScaffoldingConfig extends InitTemplate {
+  /**
+   * Path where this template was laoded from.
+   */
+  templateUri: string;
+
   /**
    * Directory where the project should be initialized.
    */
@@ -40,6 +66,11 @@ interface ScaffoldingConfig extends InitTemplate {
    * List of libraries to include
    */
   libraries: string[];
+
+  /**
+   * Custom parameters provided in the tempalates.
+   */
+  customParameters: Record<string, any>;
 }
 
 export async function initCadlProject(
@@ -63,8 +94,31 @@ export async function initCadlProject(
   ]);
 
   const libraries = await selectLibraries(template);
-  const scaffoldingConfig: ScaffoldingConfig = { ...template, libraries, name, directory };
+  const customParameters = await promptCustomParameters(template);
+  const scaffoldingConfig: ScaffoldingConfig = {
+    ...template,
+    templateUri: templatesUrl ?? ".",
+    libraries,
+    name,
+    directory,
+    customParameters,
+  };
   await scaffoldNewProject(host, scaffoldingConfig);
+}
+
+async function promptCustomParameters(template: InitTemplate): Promise<Record<string, any>> {
+  if (!template.inputs) {
+    return {};
+  }
+
+  const promptList = [...Object.entries(template.inputs)].map(([name, input]) => {
+    return {
+      name,
+      type: input.type,
+      message: input.description,
+    };
+  });
+  return await prompts(promptList);
 }
 
 async function isDirectoryEmpty(directory: string) {
@@ -175,6 +229,7 @@ async function selectLibraries(template: InitTemplate): Promise<string[]> {
 export async function scaffoldNewProject(host: CompilerHost, config: ScaffoldingConfig) {
   await writePackageJson(host, config);
   await writeMain(host, config);
+  await writeFiles(host, config);
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
@@ -208,6 +263,24 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   return host.writeFile(join(config.directory, "main.cadl"), await formatCadl(content));
 }
 
+async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
+  if (!config.files) {
+    return;
+  }
+  for (const file of config.files) {
+    await writeFile(host, config, file);
+  }
+}
+
+async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {
+  const template = await readUrlOrPath(
+    host,
+    resolveRelativeUrlOrPath(config.templateUri, file.path)
+  );
+  const content = template.text;
+  return host.writeFile(join(config.directory, file.destination), content);
+}
+
 function validateTemplateDefinitions(
   host: CompilerHost,
   templates: unknown,
@@ -228,6 +301,32 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
     title: { type: "string" },
     description: { type: "string" },
     libraries: { type: "array", items: { type: "string" } },
+    inputs: {
+      type: "object",
+      nullable: true,
+      additionalProperties: {
+        type: "object",
+        properties: {
+          description: { type: "string" },
+          type: { type: "string", enum: ["text"] },
+          initialValue: {} as any,
+        },
+        required: ["description", "type"],
+      },
+      required: [],
+    },
+    files: {
+      type: "array",
+      nullable: true,
+      items: {
+        type: "object",
+        properties: {
+          path: { type: "string" },
+          destination: { type: "string" },
+        },
+        required: ["path", "destination"],
+      },
+    },
   },
   required: ["title", "description"],
 };
