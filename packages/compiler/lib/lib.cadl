@@ -22,7 +22,9 @@ namespace Cadl;
 // model<K, V> = [K, V][];
 // but templates aren't supported with model = yet.
 @intrinsic model Map<K, V> {
+  @doc("the key of the Map.")
   k: K,
+  @doc("the vaule of the Map.")
   v: V
 }
 

@@ -2,7 +2,9 @@ import "../dist/rest.js";
 
 @doc("The request has succeeded.")
 model OkResponse<T> {
+  @doc("The status code.")
   @header statusCode: 200;
+  @doc("The reponse body.")
   @body body: T;
 }
 
