@@ -1,0 +1,61 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "(title)",
+    "version": "0000-00-00"
+  },
+  "servers": [
+    {
+      "url": "https://management.azure.com"
+    }
+  ],
+  "tags": [],
+  "paths": {
+    "/recursive": {
+      "get": {
+        "operationId": "RecursiveOps_getRecursive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "This is an example of a model with a recursive property reference",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recursive"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Recursive": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "recursive": {
+            "$ref": "#/components/schemas/Recursive"
+          },
+          "recursives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Recursive"
+            },
+            "x-cadl-name": "Recursive[]"
+          }
+        },
+        "description": "This is an example of a model with a recursive property reference",
+        "required": [
+          "name",
+          "recursive",
+          "recursives"
+        ]
+      }
+    }
+  }
+}

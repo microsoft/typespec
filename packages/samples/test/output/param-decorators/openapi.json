@@ -1,0 +1,89 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Parameter Decorators",
+    "version": "0000-00-00"
+  },
+  "servers": [
+    {
+      "url": "https://management.azure.com"
+    }
+  ],
+  "tags": [],
+  "paths": {
+    "/thing/{name}": {
+      "get": {
+        "operationId": "Operations_getThing",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "pattern": "^[a-zA-Z0-9-]{3,24}$",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "required": true,
+            "minimum": 0,
+            "maximum": 0,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Thing"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Operations_putThing",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/NameParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Thing"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Thing": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    }
+  }
+}

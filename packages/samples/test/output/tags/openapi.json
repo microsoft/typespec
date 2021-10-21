@@ -1,0 +1,142 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "(title)",
+    "version": "0000-00-00"
+  },
+  "servers": [
+    {
+      "url": "https://management.azure.com"
+    }
+  ],
+  "tags": [
+    {
+      "name": "foo"
+    },
+    {
+      "name": "tag1"
+    },
+    {
+      "name": "tag2"
+    },
+    {
+      "name": "tag3"
+    }
+  ],
+  "paths": {
+    "/foo/{id}": {
+      "get": {
+        "operationId": "foo_read",
+        "summary": "includes namespace tag",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          }
+        },
+        "tags": [
+          "foo",
+          "tag1"
+        ]
+      },
+      "post": {
+        "operationId": "foo_create",
+        "summary": "includes namespace tag and two operations tags",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          }
+        },
+        "tags": [
+          "foo",
+          "tag2",
+          "tag1"
+        ]
+      }
+    },
+    "/bar": {
+      "get": {
+        "operationId": "bar_list",
+        "summary": "no tags",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Resp"
+                  },
+                  "x-cadl-name": "Resp[]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bar/{id}": {
+      "post": {
+        "operationId": "bar_create",
+        "summary": "one operation tag",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          }
+        },
+        "tags": [
+          "tag3"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Resp": {
+        "type": "object",
+        "properties": {
+          "out": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "out"
+        ]
+      }
+    }
+  }
+}

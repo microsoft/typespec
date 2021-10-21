@@ -1,0 +1,15 @@
+import "@cadl-lang/rest";
+import "@cadl-lang/openapi3";
+
+model HasOptional {
+  optionalNoDefault?: string;
+  optionalString?: string = "default string";
+  optionalNumber?: int32 = 123;
+  optionalBoolean?: boolean = true;
+  optionalArray?: string[] = ["foo", "bar"];
+}
+
+@resource("/test")
+namespace OptionalMethods {
+  @get op read(@query queryString?: string = "defaultQueryString", queryNumber?: int64 = 123): HasOptional;
+}

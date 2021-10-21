@@ -1,0 +1,474 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "(title)",
+    "version": "0000-00-00"
+  },
+  "schemes": ["https"],
+  "paths": {
+    "/v1/kiosks": {
+      "post": {
+        "operationId": "Display_CreateKiosk",
+        "summary": "Create a kiosk. This enrolls the kiosk for sign display.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Kiosk"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Describes a hardware device that can display signs.",
+            "schema": {
+              "$ref": "#/definitions/Kiosk"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "Display_ListKiosks",
+        "summary": "List active kiosks.",
+        "consumes": [],
+        "produces": ["application/json"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ListKiosksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      }
+    },
+    "/v1/kiosks/{id}": {
+      "get": {
+        "operationId": "Display_GetKiosk",
+        "summary": "Get a kiosk.",
+        "consumes": [],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Describes a hardware device that can display signs.",
+            "schema": {
+              "$ref": "#/definitions/Kiosk"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "Display_DeleteKiosk",
+        "summary": "Delete a kiosk.",
+        "consumes": [],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Null response"
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      }
+    },
+    "/v1/signs": {
+      "post": {
+        "operationId": "Display_CreateSign",
+        "summary": "Create a sign. This enrolls the sign for sign display.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "sign",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Sign"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Describes a digital sign.\nSigns can include text, images, or both.",
+            "schema": {
+              "$ref": "#/definitions/Sign"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "Display_ListSigns",
+        "summary": "List active signs.",
+        "consumes": [],
+        "produces": ["application/json"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ListSignsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v1/signs/{id}": {
+      "get": {
+        "operationId": "Display_GetSign",
+        "summary": "Get a sign.",
+        "consumes": [],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Describes a digital sign.\nSigns can include text, images, or both.",
+            "schema": {
+              "$ref": "#/definitions/Sign"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "Display_DeleteSign",
+        "summary": "Delete a sign.",
+        "consumes": [],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Null response"
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      }
+    },
+    "/v1/signs/{sign_id}": {
+      "post": {
+        "operationId": "Display_SetSignIdForKioskIds",
+        "summary": "Set a sign for display on one or more kiosks.",
+        "consumes": [],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "$ref": "#/parameters/SetSignIdForKioskIdsRequest.kiosk_ids"
+          },
+          {
+            "$ref": "#/parameters/SetSignIdForKioskIdsRequest.sign_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Null response"
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      }
+    },
+    "/v1/kiosks/{kiosk_id}/sign": {
+      "get": {
+        "operationId": "Display_GetSignIdForKioskId",
+        "summary": "Get the sign that should be displayed on a kiosk.",
+        "consumes": [],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "kiosk_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "\"A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GetSignIdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/RpcStatus"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Kiosk": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "unique id"
+        },
+        "name": {
+          "type": "string",
+          "description": "name of device hardware"
+        },
+        "size": {
+          "$ref": "#/definitions/ScreenSize"
+        },
+        "location": {
+          "$ref": "#/definitions/LatLng"
+        },
+        "create_time": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "description": "Describes a hardware device that can display signs.",
+      "required": ["name", "size", "location"]
+    },
+    "RpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          },
+          "x-cadl-name": "protobufAny[]"
+        }
+      },
+      "description": "An unexpected error response."
+    },
+    "ListKiosksResponse": {
+      "type": "object",
+      "properties": {
+        "kiosks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Kiosk"
+          },
+          "x-cadl-name": "Kiosk[]"
+        }
+      },
+      "description": "A successful response."
+    },
+    "Sign": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "unique id"
+        },
+        "name": {
+          "type": "string",
+          "description": "name of sign"
+        },
+        "text": {
+          "type": "string",
+          "description": "text to display"
+        },
+        "image": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          },
+          "x-cadl-name": "byte[]",
+          "description": "image to display"
+        }
+      },
+      "description": "Describes a digital sign.\nSigns can include text, images, or both.",
+      "required": ["name", "text", "image"]
+    },
+    "ListSignsResponse": {
+      "type": "object",
+      "properties": {
+        "signs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Sign"
+          },
+          "x-cadl-name": "Sign[]"
+        }
+      },
+      "description": "A successful response."
+    },
+    "GetSignIdResponse": {
+      "type": "object",
+      "properties": {
+        "sign_id": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "\"A successful response."
+    },
+    "ScreenSize": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "Represents the size of a screen in pixels.",
+      "required": ["width", "height"]
+    },
+    "LatLng": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "description": "An object that represents a latitude/longitude pair. This is expressed as a\npair of doubles to represent degrees latitude and degrees longitude. Unless\nspecified otherwise, this must conform to the\n<a href=\"http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf\">WGS84\nstandard</a>. Values must be within normalized ranges.",
+      "required": ["latitude", "longitude"]
+    },
+    "Timestamp": {
+      "type": "object",
+      "properties": {
+        "seconds": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nanos": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "A timestamp",
+      "required": ["seconds", "nanos"]
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "SetSignIdForKioskIdsRequest.kiosk_ids": {
+      "x-ms-parameter-location": "method",
+      "name": "kiosk_ids",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "x-cadl-name": "int32[]"
+      }
+    },
+    "SetSignIdForKioskIdsRequest.sign_id": {
+      "x-ms-parameter-location": "method",
+      "name": "sign_id",
+      "in": "path",
+      "required": true,
+      "type": "integer",
+      "format": "int32"
+    }
+  }
+}

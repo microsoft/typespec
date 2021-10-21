@@ -1,0 +1,463 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "(title)",
+    "version": "0000-00-00"
+  },
+  "servers": [
+    {
+      "url": "https://management.azure.com"
+    }
+  ],
+  "tags": [
+    {
+      "name": "LibraryService"
+    }
+  ],
+  "paths": {
+    "/v1/shelves": {
+      "post": {
+        "operationId": "LibraryService_CreateShelf",
+        "summary": "Creates a shelf, and returns the new Shelf.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A Shelf contains a collection of books with a theme.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Shelf"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ],
+        "requestBody": {
+          "description": "The shelf to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Shelf"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "LibraryService_ListShelves",
+        "summary": "Lists shelves. The order is unspecified but deterministic. Newly created\nshelves will not necessarily be added to the end of this list.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ListRequestBase.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/ListRequestBase.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response message for LibraryService.ListShelves.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListShelvesResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ]
+      }
+    },
+    "/v1/shelves/{name}": {
+      "get": {
+        "operationId": "LibraryService_GetShelf",
+        "summary": "Gets a shelf. Returns NOT_FOUND if the shelf does not exist.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/GetShelfRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A Shelf contains a collection of books with a theme.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Shelf"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ]
+      },
+      "delete": {
+        "operationId": "LibraryService_DeleteShelf",
+        "summary": "Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DeleteShelfRequest"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ]
+      }
+    },
+    "/v1/shelves/{name}:merge": {
+      "post": {
+        "operationId": "LibraryService_MergeShelves",
+        "summary": "Merges two shelves by adding all books from the shelf named\n`other_shelf_name` to shelf `name`, and deletes\n`other_shelf_name`. Returns the updated shelf.\nThe book ids of the moved books may not be the same as the original books.\nReturns NOT_FOUND if either shelf does not exist.\nThis call is a no-op if the specified shelves are the same.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/MergeShelvesRequest.name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A Shelf contains a collection of books with a theme.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Shelf"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ]
+      }
+    },
+    "/v1/shelves/{name}/books": {
+      "post": {
+        "operationId": "LibraryService_CreateBook",
+        "summary": "Creates a book, and returns the new Book.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CreateBookRequest.name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single book in the library.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ]
+      },
+      "get": {
+        "operationId": "LibraryService_ListBooks",
+        "summary": "Lists books in a shelf. The order is unspecified but deterministic. Newly\ncreated books will not necessarily be added to the end of this list.\nReturns NOT_FOUND if the shelf does not exist.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ListBooksRequest.name"
+          },
+          {
+            "$ref": "#/components/parameters/ListRequestBase.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/ListRequestBase.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response message for LibraryService.ListBooks.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListBooksResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ]
+      }
+    },
+    "/v1/shelves/shelf_name/books/{name}": {
+      "get": {
+        "operationId": "LibraryService_GetBook",
+        "summary": "Gets a book. Returns NOT_FOUND if the book does not exist.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/GetBookRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single book in the library.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ]
+      },
+      "delete": {
+        "operationId": "LibraryService_DeleteBook",
+        "summary": "Deletes a book. Returns NOT_FOUND if the book does not exist.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DeleteBookRequest"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "LibraryService"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Shelf": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/shelf_name",
+            "description": "The resource name of the shelf.\nShelf names have the form `shelves/{shelf_id}`.\nThe name is ignored when creating a shelf."
+          },
+          "theme": {
+            "type": "string",
+            "description": "The theme of the shelf"
+          }
+        },
+        "description": "A Shelf contains a collection of books with a theme.",
+        "required": [
+          "name"
+        ]
+      },
+      "RpcStatus": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/protobufAny"
+            },
+            "x-cadl-name": "protobufAny[]"
+          }
+        },
+        "description": "An unexpected error response."
+      },
+      "ListShelvesResponse": {
+        "type": "object",
+        "properties": {
+          "shelves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Shelf"
+            },
+            "x-cadl-name": "Shelf[]",
+            "description": "The list of shelves."
+          },
+          "next_page_token": {
+            "type": "string",
+            "description": "A token to retrieve next page of results.\nPass this value in the\n[ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]\nfield in the subsequent call to `ListShelves` method to retrieve the next\npage of results."
+          }
+        },
+        "description": "Response message for LibraryService.ListShelves.",
+        "required": [
+          "shelves"
+        ]
+      },
+      "Book": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/book_name",
+            "description": "The resource name of the book.\nBook names have the form `shelves/{shelf_id}/books/{book_id}`.\nThe name is ignored when creating a book."
+          },
+          "author": {
+            "type": "string",
+            "description": "The name of the book author."
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the book."
+          },
+          "read": {
+            "type": "boolean",
+            "description": "Value indicating whether the book has been read."
+          }
+        },
+        "description": "A single book in the library.",
+        "required": [
+          "name"
+        ]
+      },
+      "ListBooksResponse": {
+        "type": "object",
+        "properties": {
+          "books": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Book"
+            },
+            "x-cadl-name": "Book[]",
+            "description": "The list of books."
+          },
+          "next_page_token": {
+            "type": "string",
+            "description": "A token to retrieve next page of results.\nPass this value in the\n[ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]\nfield in the subsequent call to `ListShelves` method to retrieve the next\npage of results."
+          }
+        },
+        "description": "Response message for LibraryService.ListBooks.",
+        "required": [
+          "books"
+        ]
+      },
+      "shelf_name": {
+        "type": "string",
+        "pattern": "shelves/\\w+"
+      },
+      "protobufAny": {
+        "type": "object",
+        "properties": {
+          "typeUrl": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "book_name": {
+        "type": "string",
+        "pattern": "shelves/\\w+/books/\\w+"
+      }
+    }
+  }
+}

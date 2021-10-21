@@ -1,0 +1,11 @@
+{
+  "name": "local-cadl-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demonstrate using Cadl server installed locally",
+  "author": "Sample",
+  "license": "MIT",
+  "devDependencies": {
+    "@cadl-lang/compiler": "^0.6.0"
+  }
+}
