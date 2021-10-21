@@ -1,51 +1,13 @@
-import { JSONSchemaType } from "ajv";
 import { readdir } from "fs/promises";
 import Mustache from "mustache";
 import { basename, join } from "path";
 import prompts from "prompts";
-import { logDiagnostics } from "./diagnostics.js";
-import { formatCadl } from "./formatter.js";
-import { SchemaValidator } from "./schema-validator.js";
-import { CompilerHost, SourceFile } from "./types.js";
-import { readUrlOrPath, resolveRelativeUrlOrPath } from "./util.js";
-
-interface InitTemplateFile {
-  path: string;
-  destination: string;
-}
-
-interface InitTemplateInput {
-  description: string;
-  type: "text";
-  initialValue: any;
-}
-
-interface InitTemplate {
-  /**
-   * Name of the template
-   */
-  title: string;
-
-  /**
-   * Description for the template.
-   */
-  description: string;
-
-  /**
-   * List of libraries to include
-   */
-  libraries: string[];
-
-  /**
-   * Custom inputs to prompt to the user
-   */
-  inputs?: Record<string, InitTemplateInput>;
-
-  /**
-   * List of files to copy.
-   */
-  files?: InitTemplateFile[];
-}
+import { logDiagnostics } from "../core/diagnostics.js";
+import { formatCadl } from "../core/formatter.js";
+import { SchemaValidator } from "../core/schema-validator.js";
+import { CompilerHost, SourceFile } from "../core/types.js";
+import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
+import { InitTemplate, InitTemplateDefinitionsSchema, InitTemplateFile } from "./init-template.js";
 
 interface ScaffoldingConfig extends InitTemplate {
   /**
@@ -295,46 +257,3 @@ function validateTemplateDefinitions(
     throw new Error("Template contained error.");
   }
 }
-
-export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    title: { type: "string" },
-    description: { type: "string" },
-    libraries: { type: "array", items: { type: "string" } },
-    inputs: {
-      type: "object",
-      nullable: true,
-      additionalProperties: {
-        type: "object",
-        properties: {
-          description: { type: "string" },
-          type: { type: "string", enum: ["text"] },
-          initialValue: {} as any,
-        },
-        required: ["description", "type"],
-      },
-      required: [],
-    },
-    files: {
-      type: "array",
-      nullable: true,
-      items: {
-        type: "object",
-        properties: {
-          path: { type: "string" },
-          destination: { type: "string" },
-        },
-        required: ["path", "destination"],
-      },
-    },
-  },
-  required: ["title", "description"],
-};
-
-export const InitTemplateDefinitionsSchema: JSONSchemaType<Record<string, InitTemplate>> = {
-  type: "object",
-  additionalProperties: InitTemplateSchema,
-  required: [],
-};
