@@ -1,0 +1,17 @@
+import "@cadl-lang/rest";
+import "@cadl-lang/openapi3";
+
+import "./decorators.js";
+import "./common.cadl";
+
+@addProperties
+model SomeModel {
+  name: string;
+}
+
+@resource("/ops")
+namespace Ops {
+  @addResponseTypes
+  @addCommonParameters
+  @get op SomeOp(input: SomeModel): OkResponse<int32>;
+}

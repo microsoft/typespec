@@ -1,0 +1,79 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "(title)",
+    "version": "0000-00-00"
+  },
+  "servers": [
+    {
+      "url": "https://management.azure.com"
+    }
+  ],
+  "tags": [],
+  "paths": {
+    "/test": {
+      "get": {
+        "operationId": "OptionalMethods_read",
+        "parameters": [
+          {
+            "name": "queryString",
+            "in": "query",
+            "required": false,
+            "default": "defaultQueryString",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HasOptional"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HasOptional": {
+        "type": "object",
+        "properties": {
+          "optionalNoDefault": {
+            "type": "string"
+          },
+          "optionalString": {
+            "type": "string",
+            "default": "default string"
+          },
+          "optionalNumber": {
+            "type": "integer",
+            "format": "int32",
+            "default": 123
+          },
+          "optionalBoolean": {
+            "type": "boolean",
+            "default": true
+          },
+          "optionalArray": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-cadl-name": "Cadl.string[]",
+            "default": [
+              "foo",
+              "bar"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -52,6 +52,12 @@
       "shouldPublish": false
     },
     {
+      "packageName": "@cadl-lang/samples",
+      "projectFolder": "packages/samples",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
       // TMLanguage generator not in an @scope because it is neither cadl nor azure-specific.
       // Eventually, it should be split off into its own repo
       "packageName": "tmlanguage-generator",

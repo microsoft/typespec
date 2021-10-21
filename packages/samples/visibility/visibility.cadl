@@ -1,0 +1,47 @@
+import "@cadl-lang/rest";
+import "@cadl-lang/openapi3";
+
+model Person {
+  @visibility("read") id: string;
+  @visibility("write") secret: string;
+  name: string;
+
+  @visibility("read", "write")
+  test: string;
+
+  @visibility("create", "read")
+  create: string;
+}
+
+@withVisibility("read")
+model Readable<T> {
+  ... T;
+}
+
+@withVisibility("write")
+model Writable<T> {
+  ... T;
+}
+
+model ReadablePerson {
+  ... Readable<Person>;
+}
+
+model WritablePerson {
+  ... Writable<Person>;
+}
+
+model OptionalPerson {
+  ... OptionalProperties<Person>;
+}
+
+model WriteableOptionalPerson {
+  ... OptionalProperties<WritablePerson>;
+}
+
+@resource("/hello")
+namespace Hello {
+  @get op read(@path id: string, @query fieldMask: string[]): ReadablePerson;
+  @post op create(person: WritablePerson): ReadablePerson;
+  @put op update(person: WriteableOptionalPerson): ReadablePerson;
+}
