@@ -1,5 +1,6 @@
 import { JSONSchemaType } from "ajv";
 import { readdir } from "fs/promises";
+import Mustache from "mustache";
 import { basename, join } from "path";
 import prompts from "prompts";
 import { logDiagnostics } from "./diagnostics.js";
@@ -277,7 +278,7 @@ async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: In
     host,
     resolveRelativeUrlOrPath(config.templateUri, file.path)
   );
-  const content = template.text;
+  const content = Mustache.render(template.text, config.customParameters);
   return host.writeFile(join(config.directory, file.destination), content);
 }
 
