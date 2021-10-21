@@ -71,7 +71,7 @@ interface ScaffoldingConfig extends InitTemplate {
   /**
    * Custom parameters provided in the tempalates.
    */
-  customParameters: Record<string, any>;
+  parameters: Record<string, any>;
 }
 
 export async function initCadlProject(
@@ -95,14 +95,14 @@ export async function initCadlProject(
   ]);
 
   const libraries = await selectLibraries(template);
-  const customParameters = await promptCustomParameters(template);
+  const parameters = await promptCustomParameters(template);
   const scaffoldingConfig: ScaffoldingConfig = {
     ...template,
     templateUri: templatesUrl ?? ".",
     libraries,
     name,
     directory,
-    customParameters,
+    parameters,
   };
   await scaffoldNewProject(host, scaffoldingConfig);
 }
@@ -117,6 +117,7 @@ async function promptCustomParameters(template: InitTemplate): Promise<Record<st
       name,
       type: input.type,
       message: input.description,
+      initial: input.initialValue,
     };
   });
   return await prompts(promptList);
@@ -278,7 +279,7 @@ async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: In
     host,
     resolveRelativeUrlOrPath(config.templateUri, file.path)
   );
-  const content = Mustache.render(template.text, config.customParameters);
+  const content = Mustache.render(template.text, config);
   return host.writeFile(join(config.directory, file.destination), content);
 }
 
