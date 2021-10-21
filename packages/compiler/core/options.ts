@@ -7,6 +7,10 @@ export interface CompilerOptions {
   watchForChanges?: boolean;
   serviceCodePath?: string;
   /**
+   * when true , turn off the build check.
+   */
+  skipBuildCheck?: boolean;
+  /**
    * When true, indicates that a compilation is being performed for live
    * analysis in the language server.
    */

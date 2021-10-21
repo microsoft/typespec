@@ -57,6 +57,11 @@ async function main() {
             type: "boolean",
             default: false,
             describe: "Watch project files for changes and recompile.",
+          })
+          .option("skip-build-check", {
+            type: "boolean",
+            default: false,
+            describe: "Skip the checks in the onBuild method.",
           });
       },
       async (args) => {
@@ -217,6 +222,7 @@ async function getCompilerOptions(args: {
   nostdlib?: boolean;
   option?: string[];
   watch?: boolean;
+  "skip-build-check"?: boolean;
 }): Promise<CompilerOptions> {
   // Ensure output path
   const outputPath = resolve(args["output-path"]);
@@ -239,6 +245,7 @@ async function getCompilerOptions(args: {
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
     watchForChanges: args["watch"],
+    skipBuildCheck: args["skip-build-check"],
   };
 }
 

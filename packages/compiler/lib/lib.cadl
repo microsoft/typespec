@@ -26,11 +26,13 @@ namespace Cadl;
   v: V
 }
 
+@doc("The template for adding optional properties.")
 @withOptionalProperties
 model OptionalProperties<T> {
   ... T;
 }
 
+@doc("The template for adding updateable properties.")
 @withUpdateableProperties
 model UpdateableProperties<T> {
   ... T;
