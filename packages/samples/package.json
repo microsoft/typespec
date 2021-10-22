@@ -1,0 +1,44 @@
+{
+  "name": "@cadl-lang/samples",
+  "private": true,
+  "version": "1.0.0",
+  "author": "Microsoft Corporation",
+  "description": "Samples for Cadl",
+  "homepage": "https://github.com/Microsoft/cadl",
+  "readme": "https://github.com/Microsoft/cadl/blob/master/readme.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/cadl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/cadl/issues"
+  },
+  "keywords": [
+    "cadl",
+    "cli"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "build": "echo \"nothing to do for samples\"",
+    "regen-samples": "node scripts/regen-samples.js"
+  },
+  "files": [
+    "lib/*.cadl",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "dependencies": {
+    "@cadl-lang/compiler": "0.21.0",
+    "@cadl-lang/rest": "0.6.2",
+    "@cadl-lang/openapi3": "0.3.0"
+  },
+  "devDependencies": {
+    "@types/mkdirp": "~1.0.1",
+    "autorest": "~3.3.2",
+    "mkdirp": "~1.0.4"
+  }
+}

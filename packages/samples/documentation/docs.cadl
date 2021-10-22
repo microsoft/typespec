@@ -1,0 +1,45 @@
+import "@cadl-lang/rest";
+import "@cadl-lang/openapi3";
+
+@resource("/foo")
+@doc("Things to do with foo")
+namespace foo {
+    @get("DefaultDescriptions") op WithDefaultDescriptions(): Resp | Error;
+
+    @get("ModelDocDescriptions") op WithModelDocDescriptions(): RespWithDocs | ErrorWithDocs;
+
+    @get("NotFoundWithDocs") op WithStatusCodeDocs(): Resp | NotFoundWithDocsResp | Error;
+
+    @get("NotFoundDefaultDocs") op WithDefaultDescNotFound(): RespWithDocs | NotFoundResp | Error;
+}
+
+ // will have default success description
+model Resp {
+    value: int32;
+}
+
+@doc("Response from @doc")
+model RespWithDocs {
+    value: int32;
+}
+
+// Will have default error description
+model Error {
+    code: int32;
+}
+
+@doc("Error from @doc")
+model ErrorWithDocs {
+    code: int32;
+}
+
+model NotFoundResp {
+    @header statusCode: 404;
+    details: string;
+}
+
+@doc("Not found")
+model NotFoundWithDocsResp {
+    @header statusCode: 404;
+    details: string;
+}

@@ -1,0 +1,165 @@
+// Copyright (c) 2018, Google LLC.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// From https://github.com/googleapis/kiosk/blob/master/protos/kiosk.proto
+//
+
+syntax = "proto3";
+
+import "google/api/client.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/latlng.proto";
+
+option java_multiple_files = true;
+option go_package = "github.com/googleapis/kiosk/generated;kiosk";
+
+package kiosk;
+
+service Display {
+  option (google.api.default_host) = "localhost";
+
+  // Create a kiosk. This enrolls the kiosk for sign display.
+  rpc CreateKiosk(Kiosk) returns (Kiosk) {
+      option (google.api.http) = { post: "/v1/kiosks" };
+  }
+
+  // List active kiosks.
+  rpc ListKiosks(google.protobuf.Empty) returns (ListKiosksResponse) {
+      option (google.api.http) = { get: "/v1/kiosks" };
+  }
+
+  // Get a kiosk.
+  rpc GetKiosk(GetKioskRequest) returns (Kiosk) {
+      option (google.api.http) = { get: "/v1/kiosks/{id}" };
+  }
+
+  // Delete a kiosk.
+  rpc DeleteKiosk(DeleteKioskRequest) returns (google.protobuf.Empty) {
+      option (google.api.http) = { delete: "/v1/kiosks/{id}" };
+  }
+
+  // Create a sign. This enrolls the sign for sign display.
+  rpc CreateSign(Sign) returns (Sign) {
+      option (google.api.http) = { post: "/v1/signs" };
+  }
+
+  // List active signs.
+  rpc ListSigns(google.protobuf.Empty) returns (ListSignsResponse) {
+      option (google.api.http) = { get: "/v1/signs" };
+  }
+
+  // Get a sign.
+  rpc GetSign(GetSignRequest) returns (Sign) {
+      option (google.api.http) = { get: "/v1/signs/{id}" };
+  }
+
+  // Delete a sign.
+  rpc DeleteSign(DeleteSignRequest) returns (google.protobuf.Empty) {
+      option (google.api.http) = { delete: "/v1/signs/{id}" };
+  }
+
+  // Set a sign for display on one or more kiosks.
+  rpc SetSignIdForKioskIds(SetSignIdForKioskIdsRequest) returns (google.protobuf.Empty) {
+      option (google.api.http) = { post: "/v1/signs/{sign_id}" };
+  }
+
+  // Get the sign that should be displayed on a kiosk.
+  rpc GetSignIdForKioskId(GetSignIdForKioskIdRequest) returns (GetSignIdResponse) {
+      option (google.api.http) = { get: "/v1/kiosks/{kiosk_id}/sign" };
+  }
+
+  // Get signs that should be displayed on a kiosk. Streams.
+  rpc GetSignIdsForKioskId(GetSignIdForKioskIdRequest) returns (stream GetSignIdResponse) {}
+}
+
+// Describes a hardware device that can display signs.
+message Kiosk {
+  // Output only.
+  int32 id = 1;                       // unique id
+  // Required.
+  string name = 2;                    // name of device hardware
+  ScreenSize size = 3;                // screen size
+  google.type.LatLng location = 4;    // kiosk location
+
+  // Output only.
+  google.protobuf.Timestamp create_time = 5;
+}
+
+// Describes a digital sign.
+// Signs can include text, images, or both.
+message Sign {
+  // Output only.
+  int32 id = 1;                       // unique id
+  // Required.
+  string name = 2;                    // name of sign
+  string text = 3;                    // text to display
+  bytes image = 4;                    // image to display
+
+  // Output only.
+  google.protobuf.Timestamp create_time = 5;
+}
+
+// Represents the size of a screen in pixels.
+message ScreenSize {
+  int32 width = 1;                    // screen width
+  int32 height = 2;                   // screen height
+}
+
+
+message ListKiosksResponse {
+  repeated Kiosk kiosks = 1;
+}
+
+message GetKioskRequest {
+  // Required.
+  int32 id = 1;
+}
+
+message DeleteKioskRequest {
+  // Required.
+  int32 id = 1;
+}
+
+message ListSignsResponse {
+  repeated Sign signs = 1;
+}
+
+message GetSignRequest {
+  // Required.
+  int32 id = 1;
+}
+
+message DeleteSignRequest {
+  // Required.
+  int32 id = 1;
+}
+
+message SetSignIdForKioskIdsRequest {
+  // Required.
+  repeated int32 kiosk_ids = 1;
+  // Required.
+  int32 sign_id = 2;
+}
+
+message GetSignIdForKioskIdRequest {
+  // Required.
+  int32 kiosk_id = 1;
+}
+
+message GetSignIdResponse {
+  int32 sign_id = 1;
+}

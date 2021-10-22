@@ -1,0 +1,29 @@
+import "@cadl-lang/rest";
+import "@cadl-lang/openapi3";
+
+@resource("/foo")
+@tag("foo")
+namespace foo {
+  @tag("tag1")
+  @doc("includes namespace tag")
+  op read(@path id:int32): null;
+
+  @tag("tag1")
+  @tag("tag2")
+  @doc("includes namespace tag and two operations tags")
+  op create(@path id:int32): null;
+}
+
+@resource("/bar")
+namespace bar {
+  @doc("no tags")
+  op list(): Resp[];
+
+  @doc("one operation tag")
+  @tag("tag3")
+  op create(@path id:int32): null;
+}
+
+model Resp {
+  out: string;
+}

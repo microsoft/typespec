@@ -1,0 +1,104 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "(title)",
+    "version": "0000-00-00"
+  },
+  "servers": [
+    {
+      "url": "https://management.azure.com"
+    }
+  ],
+  "tags": [],
+  "paths": {
+    "/test": {
+      "get": {
+        "operationId": "NullableMethods_read",
+        "parameters": [
+          {
+            "name": "someParam",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HasNullables"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HasNullables": {
+        "type": "object",
+        "properties": {
+          "str": {
+            "type": "string"
+          },
+          "when": {
+            "type": "string",
+            "format": "time"
+          },
+          "strOrNull": {
+            "type": "string",
+            "x-cadl-name": "Cadl.string | Cadl.null"
+          },
+          "modelOrNull": {
+            "type": "object",
+            "properties": {
+              "num": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "required": [
+              "num"
+            ],
+            "x-cadl-name": "AnotherModel | Cadl.null"
+          },
+          "literalsOrNull": {
+            "type": "string",
+            "enum": [
+              "one",
+              "two"
+            ],
+            "x-cadl-name": "one | two | Cadl.null"
+          },
+          "manyNullsOneString": {
+            "type": "string",
+            "x-cadl-name": "Cadl.null | Cadl.null | Cadl.string | Cadl.null"
+          },
+          "manyNullsSomeValues": {
+            "type": "number",
+            "enum": [
+              42,
+              100
+            ],
+            "x-cadl-name": "Cadl.null | 42 | Cadl.null | 100 | Cadl.null"
+          }
+        },
+        "required": [
+          "str",
+          "when",
+          "strOrNull",
+          "modelOrNull",
+          "literalsOrNull",
+          "manyNullsOneString",
+          "manyNullsSomeValues"
+        ]
+      }
+    }
+  }
+}

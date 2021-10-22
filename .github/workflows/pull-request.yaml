@@ -30,5 +30,8 @@ jobs:
       - run: node common/scripts/install-run-rush.js check-format
         name: Check Formatting
 
+      - run: cd packages/samples && npm run regen-samples
+        name: Regenerate Samples
+
       - run: node eng/scripts/check-for-changed-files.js
         name: Check Git Status For Changed Files
