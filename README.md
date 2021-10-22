@@ -102,7 +102,7 @@ You can compile it to OpenAPI 3.0 by using the following command:
 cadl compile sample.cadl
 ```
 
-Once it compiles, you can find emitted OpenAPI document in `./cadl-output/openapi.json.
+Once it compiles, you can find the emitted OpenAPI document in `./cadl-output/openapi.json.
 
 You can also pass in a directory instead of a file to `cadl compile`. That's
 equivalent to passing `main.cadl` in that directory.
