@@ -58,10 +58,11 @@ async function main() {
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
-          .option("skip-build-check", {
-            type: "boolean",
-            default: false,
-            describe: "Skip the checks in the onBuild method.",
+          .option("diagnostic-level", {
+            type: "string",
+            default: "info",
+            choices: ["error", "warn", "info", "verbose", "debug"],
+            describe: "diagnostics of this level or above will be reported.",
           });
       },
       async (args) => {
@@ -222,7 +223,7 @@ async function getCompilerOptions(args: {
   nostdlib?: boolean;
   option?: string[];
   watch?: boolean;
-  "skip-build-check"?: boolean;
+  "diagnostic-level": string;
 }): Promise<CompilerOptions> {
   // Ensure output path
   const outputPath = resolve(args["output-path"]);
@@ -245,7 +246,7 @@ async function getCompilerOptions(args: {
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
     watchForChanges: args["watch"],
-    skipBuildCheck: args["skip-build-check"],
+    diagnosticLevel: args["diagnostic-level"] as any,
   };
 }
 
