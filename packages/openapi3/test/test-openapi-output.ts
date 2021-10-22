@@ -414,6 +414,28 @@ describe("openapi3: operations", () => {
   });
 });
 
+describe("openapi3: responses", () => {
+  it("define responses with response headers", async () => {
+    const res = await openApiFor(
+      `
+      model ETagHeader {
+        @header eTag: string;
+      }
+      model Key {
+        key: string;
+      }
+      @resource("/")
+      namespace root {
+        @get()
+        op read(): Key & ETagHeader;
+      }
+      `
+    );
+    ok(res.paths["/"].get.responses["200"].headers);
+    ok(res.paths["/"].get.responses["200"].headers["e-tag"]);
+  });
+});
+
 async function oapiForModel(name: string, modelDef: string) {
   const oapi = await openApiFor(`
     ${modelDef};
