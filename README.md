@@ -15,13 +15,13 @@ using the preview.
 | Name                                        | Changelog                    | Latest                                                     |
 | ------------------------------------------- | ---------------------------- | ---------------------------------------------------------- |
 | Core functionality                          |
-| [@cadl-lang/compiler][cadl_src]                 | [Changelog][cadl_chg]         | ![](https://img.shields.io/npm/v/@cadl-lang/compiler)         |
-| Cadl Libraries                               |
-| [@cadl-lang/rest][rest_src]       | [Changelog][rest_chg]    | ![](https://img.shields.io/npm/v/@cadl-lang/rest)    |
-| [@cadl-lang/openapi3][openapi3_src] | [Changelog][openapi3_chg] | ![](https://img.shields.io/npm/v/@cadl-lang/openapi3) |
-| Cadl Tools                                   |
-| [cadl-vs][cadl-vs_src]           | [Changelog][cadl-vs_chg]      | ![](https://img.shields.io/npm/v/@azure-tools/cadl-vs)      |
-| [cadl-vscode][cadl-vscode_src]   | [Changelog][cadl-vscode_chg]  | ![](https://img.shields.io/npm/v/cadl-vscode)               |
+| [@cadl-lang/compiler][cadl_src]             | [Changelog][cadl_chg]        | ![](https://img.shields.io/npm/v/@cadl-lang/compiler)      |
+| Cadl Libraries                              |
+| [@cadl-lang/rest][rest_src]                 | [Changelog][rest_chg]        | ![](https://img.shields.io/npm/v/@cadl-lang/rest)          |
+| [@cadl-lang/openapi3][openapi3_src]         | [Changelog][openapi3_chg]    | ![](https://img.shields.io/npm/v/@cadl-lang/openapi3)      |
+| Cadl Tools                                  |
+| [cadl-vs][cadl-vs_src]                      | [Changelog][cadl-vs_chg]     | ![](https://img.shields.io/npm/v/@azure-tools/cadl-vs)     |
+| [cadl-vscode][cadl-vscode_src]              | [Changelog][cadl-vscode_chg] | ![](https://img.shields.io/npm/v/cadl-vscode)              |
 
 [cadl_src]: packages/compiler
 [cadl_chg]: packages/compiler/CHANGELOG.md
@@ -81,18 +81,32 @@ See full usage documentation by typing:
 cadl --help
 ```
 
-You can launch Cadl in one of two ways:
+### Compiling Cadl source to an OpenAPI 3.0 specification
 
-### Compiling a folder of Cadl files to an OpenAPI 2.0 (Swagger) specification
+Here is a very small Cadl example that uses the `@cadl-lang/openapi3` library to generate OpenAPI 3.0 from Cadl.
 
-You can compile a folder containing `.cadl` files into a single OpenAPI document by
-using the following command:
-
+#### sample.cadl
 ```
-cadl compile samples/petstore/
+import "@cadl-lang/rest";
+import "@cadl-lang/openapi3";
+
+@resource("/example")
+namespace Example {
+  @get("/message")
+  op getMessage(): { statusCode: 200; @body message: string; };
+}
 ```
 
-You can now examine the emitted OpenAPI document in `./cadl-output/openapi.json`.
+You can compile it to OpenAPI 3.0 by using the following command:
+```
+cadl compile sample.cadl
+```
+
+Once it compiles, you can find the emitted OpenAPI document in `./cadl-output/openapi.json.
+
+You can also pass in a directory instead of a file to `cadl compile`. That's
+equivalent to passing `main.cadl` in that directory.
+
 
 ### Formatting Cadl files
 
