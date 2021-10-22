@@ -62,7 +62,7 @@ async function main() {
             type: "string",
             default: "info",
             choices: ["error", "warn", "info", "verbose", "debug"],
-            describe: "diagnostics of this level or above will be reported.",
+            describe: "Diagnostics of this level or above will be reported.",
           });
       },
       async (args) => {
