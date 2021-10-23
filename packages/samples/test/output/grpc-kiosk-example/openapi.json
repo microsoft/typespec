@@ -370,6 +370,17 @@
     }
   },
   "components": {
+    "parameters": {
+      "SetSignIdForKioskIdsRequest.sign_id": {
+        "name": "sign_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "schemas": {
       "Kiosk": {
         "type": "object",
