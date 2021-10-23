@@ -17,7 +17,7 @@
   "gitPolicy": {},
   "repository": {
     "defaultBranch": "main",
-    "url": "https://github.com/Azure/adl"
+    "url": "https://github.com/microsoft/cadl"
   },
   /**
    * Event hooks are customized script actions that Rush executes when specific events occur
