@@ -6,6 +6,7 @@ import {
   getDoc,
   getFormat,
   getMaxLength,
+  getMaxValue,
   getMinLength,
   getMinValue,
   getVisibility,
@@ -686,13 +687,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       ph.default = getDefaultValue(param.default);
     }
 
-    // Apply decorators to a copy of the parameter definition.  We use
-    // Object.assign here because applyIntrinsicDecorators returns a new object
-    // based on the target object and we need to apply its changes back to the
-    // original parameter.
-    Object.assign(ph, applyIntrinsicDecorators(param, ph));
-
-    let schema = getSchemaForType(param.type);
+    // Apply decorators to the schema for the parameter.
+    let schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
     if (param.type.kind === "Array") {
       schema.items = getSchemaForType(param.type.elementType);
     }
@@ -1042,7 +1038,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       };
     }
 
-    const maxValue = getMinValue(program, cadlType);
+    const maxValue = getMaxValue(program, cadlType);
     if (isNumericType(program, cadlType) && !target.maximum && maxValue !== undefined) {
       target = {
         ...target,

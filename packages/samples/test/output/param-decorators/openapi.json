@@ -19,20 +19,20 @@
             "name": "name",
             "in": "path",
             "required": true,
-            "pattern": "^[a-zA-Z0-9-]{3,24}$",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9-]{3,24}$"
             }
           },
           {
             "name": "count",
             "in": "query",
             "required": true,
-            "minimum": 0,
-            "maximum": 0,
             "schema": {
               "type": "integer",
-              "format": "int32"
+              "format": "int32",
+              "minimum": 0,
+              "maximum": 10
             }
           }
         ],
