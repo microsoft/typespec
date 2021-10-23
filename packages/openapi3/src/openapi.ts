@@ -405,6 +405,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     let contentType = "application/json";
     let contentEntry: any = {};
+    let headers: any = {};
 
     let bodyModel = responseModel;
     if (responseModel.kind === "Model") {
@@ -433,9 +434,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
             }
             break;
           default:
-            const header = getResponseHeader(prop);
-            contentEntry.headers = contentEntry.headers ?? {};
-            contentEntry.headers[headerName] = header;
+            headers[headerName] = getResponseHeader(prop);
             break;
         }
       }
@@ -449,6 +448,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         [contentType]: contentEntry,
       },
     };
+    if (Object.keys(headers).length > 0) {
+      response.headers = headers;
+    }
     currentEndpoint.responses[statusCode] = response;
   }
 
