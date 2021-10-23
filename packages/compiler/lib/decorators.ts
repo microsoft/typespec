@@ -402,29 +402,6 @@ export function $withoutDefaultValues(program: Program, target: Type) {
   target.properties.forEach((p) => delete p.default);
 }
 
-// -- @list decorator ---------------------
-
-const listPropertiesKey = Symbol();
-
-export function $list(program: Program, target: Type) {
-  if (target.kind !== "Operation" && target.kind !== "ModelProperty") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        messageId: "operationsOrModelProps",
-        format: { decorator: "@list" },
-        target,
-      })
-    );
-    return;
-  }
-  program.stateSet(listPropertiesKey).add(target);
-}
-
-export function isList(program: Program, target: Type): boolean {
-  return program.stateSet(listPropertiesKey).has(target);
-}
-
 // -- @tag decorator ---------------------
 const tagPropertiesKey = Symbol();
 

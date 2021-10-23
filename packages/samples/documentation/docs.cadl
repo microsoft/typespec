@@ -1,6 +1,8 @@
 import "@cadl-lang/rest";
 
-@resource("/foo")
+using Cadl.Http;
+
+@route("/foo")
 @doc("Things to do with foo")
 namespace foo {
   @get("DefaultDescriptions") op WithDefaultDescriptions(): Resp | Error;
