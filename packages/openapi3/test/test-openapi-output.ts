@@ -1,5 +1,5 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
-import { openApiFor } from "./testHost.js";
+import { deepStrictEqual, match, ok, strictEqual } from "assert";
+import { createOpenAPITestHost, openApiFor } from "./testHost.js";
 
 describe("openapi3: definitions", () => {
   it("defines models", async () => {
@@ -337,6 +337,43 @@ describe("openapi3: definitions", () => {
       minLength: 1,
       maxLength: 10,
     });
+  });
+
+  it("defines enum types", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      enum PetType {
+        Dog, Cat
+      }
+      model Pet { type: PetType };
+      `
+    );
+    ok(res.isRef);
+    strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
+    deepStrictEqual(res.schemas.PetType.enum, ["Dog", "Cat"]);
+  });
+
+  it("throws diagnostics for empty enum definitions", async () => {
+    let testHost = await createOpenAPITestHost();
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "rest";
+      import "openapi3";
+      enum PetType {
+      }
+      model Pet { type: PetType };
+      @resource("/")
+      namespace root {
+        op read(): Pet;
+      }
+    `
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 1);
+    match(diagnostics[0].message, /Empty unions are not supported for OpenAPI v3/);
   });
 });
 
