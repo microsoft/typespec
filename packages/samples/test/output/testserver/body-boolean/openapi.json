@@ -120,8 +120,15 @@
         "summary": "Set Boolean value false",
         "parameters": [],
         "responses": {
-          "204": {
-            "description": "No content"
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
           },
           "default": {
             "description": "Error",
@@ -154,6 +161,16 @@
         "summary": "Get null Boolean value",
         "parameters": [],
         "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No content"
           },
@@ -176,8 +193,15 @@
         "summary": "Get invalid Boolean value",
         "parameters": [],
         "responses": {
-          "204": {
-            "description": "No content"
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
           },
           "default": {
             "description": "Error",

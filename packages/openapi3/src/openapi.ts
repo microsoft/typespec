@@ -392,19 +392,31 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function emitResponseObject(responseModel: Type, statusCode: string = "200") {
+    let contentType = "application/json";
     if (
       responseModel.kind === "Model" &&
       !responseModel.baseModel &&
       responseModel.properties.size === 0
     ) {
-      currentEndpoint.responses[204] = {
-        description: "No content",
-      };
+      const schema = mapCadlTypeToOpenAPI(responseModel);
+      if (schema) {
+        currentEndpoint.responses[statusCode] = {
+          description: getResponseDescription(responseModel, statusCode),
+          content: {
+            [contentType]: {
+              schema: schema,
+            },
+          },
+        };
+      } else {
+        currentEndpoint.responses[204] = {
+          description: "No content",
+        };
+      }
 
       return;
     }
 
-    let contentType = "application/json";
     let contentEntry: any = {};
     let headers: any = {};
 
