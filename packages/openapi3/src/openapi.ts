@@ -683,14 +683,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     ph.required = !param.optional;
     ph.description = getDoc(program, param);
 
-    if (param.default) {
-      ph.default = getDefaultValue(param.default);
-    }
-
     // Apply decorators to the schema for the parameter.
     let schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
     if (param.type.kind === "Array") {
       schema.items = getSchemaForType(param.type.elementType);
+    }
+    if (param.default) {
+      schema.default = getDefaultValue(param.default);
     }
     ph.schema = schema;
   }

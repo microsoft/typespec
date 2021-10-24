@@ -410,7 +410,7 @@ describe("openapi3: operations", () => {
       `
     );
 
-    deepStrictEqual(res.paths["/"].get.parameters[0].default, "defaultValue");
+    deepStrictEqual(res.paths["/"].get.parameters[0].schema.default, "defaultValue");
   });
 
   it("define operations with param with decorators", async () => {
