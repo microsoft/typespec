@@ -207,6 +207,17 @@
     }
   },
   "components": {
+    "parameters": {
+      "PetId": {
+        "name": "petId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "schemas": {
       "Error": {
         "type": "object",

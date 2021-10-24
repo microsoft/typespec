@@ -72,6 +72,18 @@
     }
   },
   "components": {
+    "parameters": {
+      "NameParameter": {
+        "name": "name",
+        "in": "path",
+        "required": true,
+        "description": "Name parameter",
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-]{3,24}$"
+        }
+      }
+    },
     "schemas": {
       "Thing": {
         "type": "object",

@@ -699,6 +699,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     for (const [property, param] of params) {
       const key = getParameterKey(property, param);
 
+      root.components.parameters[key] = { ...param };
+
       for (const key of Object.keys(param)) {
         delete param[key];
       }
