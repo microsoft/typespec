@@ -282,11 +282,19 @@ export enum SyntaxKind {
   ProjectionInterfaceSelector,
   ProjectionExpressionStatement,
   ProjectionIfExpression,
+  ProjectionBlockExpression,
   ProjectionMemberExpression,
   ProjectionLogicalExpression,
   ProjectionRelationalExpression,
+  ProjectionArithmeticExpression,
   ProjectionCallExpression,
   ProjectionLambdaExpression,
+  ProjectionLambdaParameterDeclaration,
+  ProjectionModelExpression,
+  ProjectionModelProperty,
+  ProjectionModelSpreadProperty,
+  ProjectionSpreadProperty,
+  ProjectionTupleExpression,
 }
 
 export interface BaseNode extends TextRange {
@@ -304,6 +312,7 @@ export type Node =
   | CadlScriptNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
+  | ProjectionLambdaParameterDeclarationNode
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
@@ -314,12 +323,14 @@ export type Node =
   | DirectiveExpressionNode
   | Statement
   | Expression
-  | ProjectionStatement
+  | ProjectionStatementItem
   | ProjectionExpression
   | ProjectionModelSelectorNode
   | ProjectionInterfaceSelectorNode
   | ProjectionOperationSelectorNode
-  | ProjectionUnionSelectorNode;
+  | ProjectionUnionSelectorNode
+  | ProjectionModelPropertyNode
+  | ProjectionModelSpreadPropertyNode;
 
 export type Comment = LineComment | BlockComment;
 
@@ -369,6 +380,7 @@ export type Declaration =
   | OperationStatementNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
+  | ProjectionLambdaParameterDeclarationNode
   | EnumStatementNode
   | AliasStatementNode;
 
@@ -424,7 +436,16 @@ export type Expression =
 export type ProjectionExpression =
   | ProjectionLogicalExpressionNode
   | ProjectionRelationalExpressionNode
+  | ProjectionArithmeticExpressionNode
   | ProjectionCallExpressionNode
+  | ProjectionMemberExpressionNode
+  | ProjectionTupleExpressionNode
+  | ProjectionModelExpressionNode
+  | ProjectionIfExpressionNode
+  | ProjectionBlockExpressionNode
+  | ProjectionLambdaExpressionNode
+  | StringLiteralNode
+  | NumericLiteralNode
   | IdentifierNode;
 
 export type ReferenceExpression = TypeReferenceNode | MemberExpressionNode | IdentifierNode;
@@ -599,7 +620,7 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
     | IdentifierNode;
   direction: "to" | "from";
   parameters: ProjectionParameterDeclarationNode[];
-  body: ProjectionStatement[];
+  body: ProjectionStatementItem[];
 }
 
 export interface ProjectionModelSelectorNode extends BaseNode {
@@ -618,7 +639,7 @@ export interface ProjectionUnionSelectorNode extends BaseNode {
   kind: SyntaxKind.ProjectionUnionSelector;
 }
 
-export type ProjectionStatement = ProjectionExpressionStatement;
+export type ProjectionStatementItem = ProjectionExpressionStatement;
 
 export interface ProjectionParameterDeclarationNode extends BaseNode {
   kind: SyntaxKind.ProjectionParameterDeclaration;
@@ -644,12 +665,75 @@ export interface ProjectionRelationalExpressionNode extends BaseNode {
   right: ProjectionExpression;
 }
 
+export interface ProjectionArithmeticExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionArithmeticExpression;
+  op: "+" | "-" | "*" | "/";
+  left: ProjectionExpression;
+  right: ProjectionExpression;
+}
+
 export interface ProjectionCallExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionCallExpression;
   callKind: "method" | "template";
   target: ProjectionExpression;
   arguments: ProjectionExpression[];
 }
+
+export interface ProjectionMemberExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionMemberExpression;
+  base: ProjectionExpression;
+  id: IdentifierNode;
+}
+
+export interface ProjectionModelExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionModelExpression;
+  properties: (ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode)[];
+}
+
+export interface ProjectionTupleExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionTupleExpression;
+  values: ProjectionExpression[];
+}
+
+export interface ProjectionModelPropertyNode extends BaseNode {
+  kind: SyntaxKind.ProjectionModelProperty;
+  id: IdentifierNode | StringLiteralNode;
+  value: ProjectionExpression;
+  decorators: DecoratorExpressionNode[];
+  optional: boolean;
+  default?: ProjectionExpression;
+}
+
+export interface ProjectionModelSpreadPropertyNode extends BaseNode {
+  kind: SyntaxKind.ProjectionModelSpreadProperty;
+  target: ProjectionExpression;
+}
+
+export interface ProjectionIfExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionIfExpression;
+  test: ProjectionExpression;
+  consequent: ProjectionBlockExpressionNode;
+  alternate?: ProjectionBlockExpressionNode;
+}
+
+export interface ProjectionBlockExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionBlockExpression;
+  statements: ProjectionStatementItem[];
+}
+
+export interface ProjectionLambdaExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionLambdaExpression;
+  parameters: ProjectionLambdaParameterDeclarationNode[];
+  locals?: SymbolTable;
+  body: ProjectionBlockExpressionNode;
+}
+
+export interface ProjectionLambdaParameterDeclarationNode extends BaseNode {
+  kind: SyntaxKind.ProjectionLambdaParameterDeclaration;
+  id: IdentifierNode;
+  symbol?: TypeSymbol;
+}
+
 /**
  * Identifies the position within a source file by line number and offset from
  * beginning of line.

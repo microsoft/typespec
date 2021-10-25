@@ -290,7 +290,7 @@ ModelPropertyList :
     ModelPropertyList `,` ModelProperty
     ModelPropertyList `;` ModelProperty
 
-ModelProperty:
+ModelProperty :
     ModelSpreadProperty
     DecoratorList? Identifier `?`? `:` Expression
     DecoratorList? StringLiteral `?`? `:` Expression
@@ -453,10 +453,10 @@ ProjectionBody :
     ProjectionStatementList
 
 ProjectionStatementList :
-    ProjectionStatement
-    ProjectionStatementList `;` ProjectionStatement
+    ProjectionStatementItem
+    ProjectionStatementList `;` ProjectionStatementItem
 
-ProjectionStatement :
+ProjectionStatementItem :
     ProjectionExpressionStatement
 
 ProjectionExpression :
@@ -478,11 +478,23 @@ ProjectionRelationalExpression :
     ProjectionRelationalExpression `<=` PrimaryExpression
     ProjectionRelationalExpression `>=` PrimaryExpression
 
+ProjectionAdditiveExpression :
+    ProjectionMultiplicativeExpression
+    ProjectionAdditiveExpression `+` ProjectionMultiplicativeExpression
+    ProjectionAdditiveExpression `-` ProjectionMultiplicativeExpression
+
+ProjectionMultiplicativeExpression :
+    ProjectionCallExpression
+    ProjectionMultiplicativeExpression `*` ProjectionCallExpression
+    ProjectionMultiplicativeExpression `/` ProjectionCallExpression
 
 ProjectionCallExpression :
     ProjectionMemberExpression
     ProjectionCallExpression ProjectionCallArguments
-    ProjectionCallExpression ProjectionInstantiationArguments
+    ProjectionCallExpression `.` Identifier
+
+ProjectionCallArguments :
+    `(` ProjectionExpressionList `)`
 
 ProjectionMemberExpression :
     ProjectionPrimaryExpression
@@ -490,12 +502,13 @@ ProjectionMemberExpression :
 
 ProjectionPrimaryExpression :
     `self`
+    Identifier
     ProjectionIfExpression
     ProjectionLambdaExpression
     Literal
-    ModelExpression
-    TupleExpression
-    CooverProjectionParenthesizedExpressionAndLambdaParameterList
+    ProjectionModelExpression
+    ProjectionTupleExpression
+    CoverProjectionParenthesizedExpressionAndLambdaParameterList
 
 CoverProjectionParenthesizedExpressionAndLambdaParameterList:
     `(` ProjectionExpressionList `)`
@@ -508,6 +521,30 @@ ProjectionIfExpression :
     `if` ProjectionExpression BlockExpression
     `if` ProjectionExpression BlockExpression `else` ProjectionBlockExpression
     `if` ProjectionExpression BlockExpression `else` ProjectionIfExpression
+
+ProjectionModelExpression :
+    `{` ProjectionModelBody? `}`
+
+ProjectionModelBody :
+    ProjectionModelPropertyList `,`?
+    ProjectionModelPropertyList `;`?
+
+ProjectionModelPropertyList :
+    ProjectionModelProperty
+    ProjectionModelPropertyList `,` ProjectionModelProperty
+    ProjectionModelPropertyList `;` ProjectionModelProperty
+
+ProjectionModelProperty :
+    ProjectionModelSpreadProperty
+    DecoratorList? Identifier `?`? `:` ProjectionExpression
+    DecoratorList? StringLiteral `?`? `:` ProjectionExpression
+
+ProjectionModelSpreadProperty :
+    `...` ProjectionExpression
+
+
+ProjectionTupleExpression :
+    `[` ProjectionExpressionList `]`
 
 ProjectionLambdaExpression :
     CoverProjectionParenthesizedExpressionAndLambdaParameterList `=>` ProjectionBlockExpression

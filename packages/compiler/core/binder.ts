@@ -329,7 +329,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     if (scope.kind === SyntaxKind.NamespaceStatement) {
       compilerAssert(
         node.kind !== SyntaxKind.TemplateParameterDeclaration &&
-          node.kind !== SyntaxKind.ProjectionParameterDeclaration,
+          node.kind !== SyntaxKind.ProjectionParameterDeclaration &&
+          node.kind !== SyntaxKind.ProjectionLambdaParameterDeclaration,
         "Attempted to declare parameter in namespace",
         node
       );
@@ -338,7 +339,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     } else if (scope.kind === SyntaxKind.CadlScript) {
       compilerAssert(
         node.kind !== SyntaxKind.TemplateParameterDeclaration &&
-          node.kind !== SyntaxKind.ProjectionParameterDeclaration,
+          node.kind !== SyntaxKind.ProjectionParameterDeclaration &&
+          node.kind !== SyntaxKind.ProjectionLambdaParameterDeclaration,
         "Attempted to declare parameter in global scope",
         node
       );

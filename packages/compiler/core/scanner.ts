@@ -61,36 +61,41 @@ export enum Token {
   Colon = 26,
   At = 27,
   Hash = 28,
-  LessThanEquals = 29,
-  GreaterThanEquals = 30,
-  AmpsersandAmpersand = 31,
-  BarBar = 32,
-  EqualsEquals = 33,
-  EqualsGreaterThan = 34,
+  Star = 29,
+  ForwardSlash = 30,
+  Plus = 31,
+  Hyphen = 32,
+  LessThanEquals = 33,
+  GreaterThanEquals = 34,
+  AmpsersandAmpersand = 35,
+  BarBar = 36,
+  EqualsEquals = 37,
+  EqualsGreaterThan = 38,
   // Update MaxPunctuation if anything is added right above here
 
   // Identifiers
-  Identifier = 35,
+  Identifier = 39,
 
   // Statement Keywords
-  ImportKeyword = 36,
-  ModelKeyword = 37,
-  NamespaceKeyword = 38,
-  UsingKeyword = 39,
-  OpKeyword = 40,
-  EnumKeyword = 41,
-  AliasKeyword = 42,
-  IsKeyword = 43,
-  InterfaceKeyword = 44,
-  UnionKeyword = 45,
-  ProjectKeyword = 46,
-  IfKeyword = 47,
+  ImportKeyword = 40,
+  ModelKeyword = 41,
+  NamespaceKeyword = 42,
+  UsingKeyword = 43,
+  OpKeyword = 44,
+  EnumKeyword = 45,
+  AliasKeyword = 46,
+  IsKeyword = 47,
+  InterfaceKeyword = 48,
+  UnionKeyword = 49,
+  ProjectKeyword = 50,
+  ElseKeyword = 51,
+  IfKeyword = 52,
   // Update MaxStatementKeyword if anything is added right above here
 
   // Other keywords
-  ExtendsKeyword = 48,
-  TrueKeyword = 49,
-  FalseKeyword = 50,
+  ExtendsKeyword = 53,
+  TrueKeyword = 55,
+  FalseKeyword = 56,
   // Update MaxKeyword if anything is added right above here
 }
 
@@ -134,6 +139,10 @@ export const TokenDisplay: readonly string[] = [
   "':'",
   "'@'",
   "'#'",
+  "'*'",
+  "'/'",
+  "'+'",
+  "'-'",
   "'<='",
   "'>='", // 30
   "'&&'",
@@ -152,6 +161,7 @@ export const TokenDisplay: readonly string[] = [
   "'interface'",
   "'union'",
   "'project'",
+  "'else'",
   "'if'",
   "'extends'",
   "'true'",
@@ -166,6 +176,7 @@ export const Keywords: readonly [string, Token][] = [
   ["interface", Token.InterfaceKeyword],
   ["union", Token.UnionKeyword],
   ["if", Token.IfKeyword],
+  ["else", Token.ElseKeyword],
   ["project", Token.ProjectKeyword],
   ["using", Token.UsingKeyword],
   ["op", Token.OpKeyword],
@@ -385,6 +396,15 @@ export function createScanner(
         case CharCode.Hash:
           return next(Token.Hash);
 
+        case CharCode.Plus:
+          return next(Token.Plus);
+
+        case CharCode.Minus:
+          return next(Token.Hyphen);
+
+        case CharCode.Asterisk:
+          return next(Token.Star);
+
         case CharCode.Question:
           return next(Token.Question);
 
@@ -405,7 +425,7 @@ export function createScanner(
             case CharCode.Asterisk:
               return scanMultiLineComment();
           }
-          return scanInvalidCharacter();
+          return next(Token.ForwardSlash);
 
         case CharCode.Plus:
         case CharCode.Minus:

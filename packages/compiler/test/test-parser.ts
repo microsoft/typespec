@@ -486,7 +486,7 @@ describe("compiler: syntax", () => {
       parseEach([`project model to #tag { }`, `project model from #tag { }`]);
     });
 
-    describe("projection expressions", () => {
+    describe.only("projection expressions", () => {
       const exprs = [
         `x || y`,
         `x || y || z`,
@@ -494,16 +494,38 @@ describe("compiler: syntax", () => {
         `x && y && z`,
         `x && y || z && q`,
         `x || y && z || q`,
+        `x * y`,
+        `x + y`,
+        `x / y`,
+        `x - y`,
+        `x + y * z / a + b - c`,
         `x <= y`,
         `x >= y`,
         `x > y`,
         `x < y`,
         `x()`,
-        `x(1, 2, 3)`,
+        `x(a, b, c)`,
         `x.y`,
         `x().y`,
         `x().y()`,
-        `x<T>.y()<T>`,
+        `x()()`,
+        `x()(T)`,
+        `x(T)()`,
+        `x(T).y()(T)`,
+        `self`,
+        `if x { }`,
+        `if x { a; b; } else { c; }`,
+        `if x > 1 { }`,
+        `if if x > 1 { a; } else { b; } { c; } else { d; }`,
+        `(x) => { x + 1; }`,
+        `(x) => { if x { x; } else { y; }; }`,
+        `1`,
+        `"string"`,
+        `{ x: 1 }`,
+        `{ x: if 1 { Foo; } else { Bar; } }`,
+        `[a, b]`,
+        `(a)`,
+        `(a + 1)`,
       ];
       const codes = exprs.map((exp) => `project foo to #tag { ${exp}; }`);
       parseEach(codes);
