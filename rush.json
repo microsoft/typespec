@@ -49,7 +49,7 @@
       "packageName": "@cadl-lang/compiler",
       "projectFolder": "packages/compiler",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
     },
     {
       "packageName": "@cadl-lang/samples",
@@ -63,7 +63,7 @@
       "packageName": "tmlanguage-generator",
       "projectFolder": "packages/tmlanguage-generator",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
     },
     {
       // VS Code package can't be in an @scope as it breaks VSIX package
@@ -71,7 +71,7 @@
       "packageName": "cadl-vscode",
       "projectFolder": "packages/cadl-vscode",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
     },
     {
       // VS package not in @scope purely for symmetry with VSCode package
@@ -79,13 +79,13 @@
       "packageName": "cadl-vs",
       "projectFolder": "packages/cadl-vs",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
     },
     {
       "packageName": "@cadl-lang/prettier-plugin-cadl",
       "projectFolder": "packages/prettier-plugin-cadl",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
     },
     {
       "packageName": "@cadl-lang/spec",
@@ -97,7 +97,7 @@
       "packageName": "@cadl-lang/rest",
       "projectFolder": "packages/rest",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
     },
     {
       "packageName": "@cadl-lang/openapi3",
