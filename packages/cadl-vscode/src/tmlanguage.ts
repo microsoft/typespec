@@ -200,7 +200,7 @@ const directive: BeginEndRule = {
   beginCaptures: {
     "1": { scope: "keyword.directive.name.cadl" },
   },
-  end: `\n|${universalEnd}`,
+  end: `$|${universalEnd}`,
   patterns: [stringLiteral, identifierExpression],
 };
 
@@ -210,12 +210,12 @@ const modelExpression: BeginEndRule = {
   begin: "\\{",
   end: "\\}",
   patterns: [
-    directive,
     // modelProperty must come before token or quoted property name will be
     // considered an arbitrarily positioned string literal and not match as part
     // of modelProperty begin.
     modelProperty,
     token,
+    directive,
     decorator,
     modelSpreadProperty,
   ],
@@ -224,22 +224,11 @@ const modelExpression: BeginEndRule = {
 const modelHeritage: BeginEndRule = {
   key: "model-heritage",
   scope: meta,
-  begin: "\\b(extends)\\b",
+  begin: "\\b(extends|is)\\b",
   beginCaptures: {
     "1": { scope: "keyword.other.cadl" },
   },
-  end: universalEnd,
-  patterns: [expression],
-};
-
-const isBase: BeginEndRule = {
-  key: "model-is",
-  scope: meta,
-  begin: "\\b(is)\\b",
-  beginCaptures: {
-    "1": { scope: "keyword.other.cadl" },
-  },
-  end: universalEnd,
+  end: `((?=\\{)|${universalEnd})`,
   patterns: [expression],
 };
 
@@ -253,9 +242,8 @@ const modelStatement: BeginEndRule = {
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
     token,
-    isBase,
-    modelHeritage, // before expression or `extends` will look like type name
-    expression, // enough to match name, type parameters, and body and assignment.
+    modelHeritage, // before expression or `extends` or `is` will look like type name
+    expression, // enough to match name, type parameters, and body.
   ],
 };
 
@@ -274,17 +262,6 @@ const unionStatement: BeginEndRule = {
   key: "union-statement",
   scope: meta,
   begin: "\\b(union)\\b",
-  beginCaptures: {
-    "1": { scope: "keyword.other.cadl" },
-  },
-  end: `(?<=\\})|${universalEnd}`,
-  patterns: [token, expression],
-};
-
-const interfaceStatement: BeginEndRule = {
-  key: "interface-statement",
-  scope: meta,
-  begin: "\\b(interface)\\b",
   beginCaptures: {
     "1": { scope: "keyword.other.cadl" },
   },
@@ -365,6 +342,52 @@ const operationStatement: BeginEndRule = {
     operationName,
     operationParameters,
     typeAnnotation, // return type
+  ],
+};
+
+const interfaceMember: BeginEndRule = {
+  key: "interface-member",
+  scope: meta,
+  begin: `(?:(${identifier}))`,
+  beginCaptures: {
+    "1": { scope: "entity.name.function.cadl" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters, typeAnnotation],
+};
+
+const interfaceHeritage: BeginEndRule = {
+  key: "interface-heritage",
+  scope: meta,
+  begin: "\\b(mixes)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `((?=\\{)|${universalEnd})`,
+  patterns: [expression],
+};
+
+const interfaceBody: BeginEndRule = {
+  key: "interface-body",
+  scope: meta,
+  begin: "\\{",
+  end: "\\}",
+  patterns: [token, directive, decorator, interfaceMember],
+};
+
+const interfaceStatement: BeginEndRule = {
+  key: "interface-statement",
+  scope: meta,
+  begin: "\\b(interface)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `(?<=\\})|${universalEnd}`,
+  patterns: [
+    token,
+    interfaceHeritage, // before expression or mixes will look like type name
+    interfaceBody, // before expression or { will match model expression
+    expression, // enough to match name and type parameters
   ],
 };
 
