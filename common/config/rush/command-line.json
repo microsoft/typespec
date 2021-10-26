@@ -43,6 +43,12 @@
     },
     {
       "commandKind": "global",
+      "name": "regen-samples",
+      "summary": "(CUSTOM) Regenerate samples.",
+      "shellCommand": "node eng/scripts/npm-run.js regen-samples"
+    },
+    {
+      "commandKind": "global",
       "safeForSimultaneousRushProcesses": true,
       "name": "dogfood",
       "summary": "(CUSTOM) Globally installs local builds of @cadl-lang/compiler and cadl-vscode.",
