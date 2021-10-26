@@ -791,8 +791,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return "number";
     }
 
-    function reportUnsupportedUnion(messageId: any = "default") {
-      reportDiagnostic(program, { code: "union-unsupported", messageId: messageId, target: e });
+    function reportUnsupportedUnion(messageId: "default" | "empty" = "default") {
+      reportDiagnostic(program, { code: "union-unsupported", messageId, target: e });
     }
   }
 
