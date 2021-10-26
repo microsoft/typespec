@@ -19,9 +19,9 @@
             "name": "queryString",
             "in": "query",
             "required": false,
-            "default": "defaultQueryString",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "defaultQueryString"
             }
           }
         ],
