@@ -779,6 +779,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function getSchemaForEnum(e: EnumType) {
     const values = [];
+    if (e.members.length == 0) {
+      reportUnsupportedUnion("empty");
+      return undefined;
+    }
     const type = enumMemberType(e.members[0]);
     for (const option of e.members) {
       if (type !== enumMemberType(option)) {
@@ -800,8 +804,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return "number";
     }
 
-    function reportUnsupportedUnion() {
-      reportDiagnostic(program, { code: "union-unsupported", target: e });
+    function reportUnsupportedUnion(messageId: "default" | "empty" = "default") {
+      reportDiagnostic(program, { code: "union-unsupported", messageId, target: e });
     }
   }
 
