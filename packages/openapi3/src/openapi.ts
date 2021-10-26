@@ -171,11 +171,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       title: getServiceTitle(program),
       version: getServiceVersion(program),
     },
-    servers: [
-      {
-        url: "https://" + getServiceHost(program),
-      },
-    ],
     tags: [],
     paths: {},
     components: {
@@ -187,6 +182,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       securitySchemes: {},
     },
   };
+
+  const host = getServiceHost(program);
+  if (host) {
+    root.servers = [
+      {
+        url: "https://" + host,
+      },
+    ];
+  }
 
   // Get the service namespace string for use in name shortening
   const serviceNamespace: string | undefined = getServiceNamespaceString(program);

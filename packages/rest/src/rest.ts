@@ -323,9 +323,14 @@ export function $serviceHost(program: Program, entity: Type, host: string) {
   serviceDetails.host = host;
 }
 
-export function getServiceHost(program: Program): string {
+export function getServiceHost(program: Program): string | undefined {
   const serviceDetails = getServiceDetails(program);
-  return serviceDetails.host || "management.azure.com";
+  return serviceDetails.host;
+}
+
+export function setServiceHost(program: Program, host: string) {
+  const serviceDetails = getServiceDetails(program);
+  serviceDetails.host = host;
 }
 
 export function $serviceVersion(program: Program, entity: Type, version: string) {
