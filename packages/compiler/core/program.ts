@@ -64,7 +64,7 @@ export async function createProgram(
   const duplicateSymbols = new Set<Sym>();
   let error = false;
 
-  const logger = createLogger({ sink: host.logSink });
+  const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
 
   const program: Program = {
     compilerOptions: options,

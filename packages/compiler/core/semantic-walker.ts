@@ -72,6 +72,10 @@ function navigateOperationType(
     return;
   }
   eventEmitter.emit("operation", operation);
+  for (const parameter of operation.parameters.properties.values()) {
+    navigateType(parameter, eventEmitter, visited);
+  }
+  navigateType(operation.returnType, eventEmitter, visited);
 }
 
 function navigateModelType(

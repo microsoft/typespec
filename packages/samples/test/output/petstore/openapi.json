@@ -22,7 +22,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -55,7 +55,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -103,7 +103,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -129,7 +129,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -183,7 +183,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {

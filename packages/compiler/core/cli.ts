@@ -57,6 +57,12 @@ async function main() {
             type: "boolean",
             default: false,
             describe: "Watch project files for changes and recompile.",
+          })
+          .option("diagnostic-level", {
+            type: "string",
+            default: "info",
+            choices: ["error", "warn", "info", "verbose", "debug"],
+            describe: "Diagnostics of this level or above will be reported.",
           });
       },
       async (args) => {
@@ -217,6 +223,7 @@ async function getCompilerOptions(args: {
   nostdlib?: boolean;
   option?: string[];
   watch?: boolean;
+  "diagnostic-level": string;
 }): Promise<CompilerOptions> {
   // Ensure output path
   const outputPath = resolve(args["output-path"]);
@@ -239,6 +246,7 @@ async function getCompilerOptions(args: {
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
     watchForChanges: args["watch"],
+    diagnosticLevel: args["diagnostic-level"] as any,
   };
 }
 

@@ -1,3 +1,5 @@
+import { LogLevel } from "./types";
+
 export interface CompilerOptions {
   miscOptions?: any;
   outputPath?: string;
@@ -6,6 +8,7 @@ export interface CompilerOptions {
   noEmit?: boolean;
   watchForChanges?: boolean;
   serviceCodePath?: string;
+  diagnosticLevel?: LogLevel;
   /**
    * When true, indicates that a compilation is being performed for live
    * analysis in the language server.
