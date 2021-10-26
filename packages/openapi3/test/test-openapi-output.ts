@@ -465,6 +465,24 @@ describe("openapi3: responses", () => {
     ok(res.paths["/"].get.responses["200"].headers);
     ok(res.paths["/"].get.responses["200"].headers["e-tag"]);
   });
+
+  it("defines responses with primitive types", async () => {
+    const res = await openApiFor(
+      `
+      @resource("/")
+      namespace root {
+        @get()
+        op read(): string;
+      }
+      `
+    );
+    ok(res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    strictEqual(
+      res.paths["/"].get.responses["200"].content["application/json"].schema.type,
+      "string"
+    );
+  });
 });
 
 async function oapiForModel(name: string, modelDef: string) {

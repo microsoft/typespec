@@ -34,8 +34,15 @@
         "operationId": "SubB_DoSomething",
         "parameters": [],
         "responses": {
-          "204": {
-            "description": "No content"
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
