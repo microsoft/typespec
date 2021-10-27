@@ -59,7 +59,7 @@ export async function doIO<T>(
   let result;
   try {
     result = await action(path);
-  } catch (e) {
+  } catch (e: any) {
     let diagnostic: Diagnostic;
     let target = options?.diagnosticTarget ?? NoTarget;
 
@@ -105,7 +105,7 @@ export async function loadFile<T>(
   let data: T;
   try {
     data = load(file.text);
-  } catch (e) {
+  } catch (e: any) {
     reportDiagnostic({
       code: "file-load",
       message: e.message,

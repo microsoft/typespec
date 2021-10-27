@@ -316,12 +316,8 @@ describe("cadl: blockless namespaces", () => {
       }
       `
     );
-    try {
-      await testHost.compile("./");
-    } catch (e) {
-      console.log(e.diagnostics);
-      throw e;
-    }
+
+    await testHost.compile("./");
   });
 
   it("does lookup correctly with nested namespaces", async () => {
@@ -346,12 +342,8 @@ describe("cadl: blockless namespaces", () => {
       }
       `
     );
-    try {
-      await testHost.compile("./");
-    } catch (e) {
-      console.log(e.diagnostics);
-      throw e;
-    }
+
+    await testHost.compile("./");
   });
 
   it("binds correctly", async () => {
@@ -368,12 +360,8 @@ describe("cadl: blockless namespaces", () => {
       model X { a: N.M.A }
       `
     );
-    try {
-      await testHost.compile("/");
-    } catch (e) {
-      console.log(e.diagnostics);
-      throw e;
-    }
+
+    await testHost.compile("/");
   });
 
   it("works with blockful namespaces", async () => {

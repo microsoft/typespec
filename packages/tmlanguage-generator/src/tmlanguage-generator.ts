@@ -175,7 +175,7 @@ async function processGrammar(grammar: Grammar, options: EmitOptions): Promise<a
   function validateRegexp(regexp: string, node: any, prop: string, options: EmitOptions) {
     try {
       new OnigRegExp(regexp).testSync("");
-    } catch (err) {
+    } catch (err: any) {
       if (/^[0-9,]+$/.test(err.message)) {
         // Work around for https://github.com/NeekSandhu/onigasm/issues/26
         const array = new Uint8Array(err.message.split(",").map((s: string) => Number(s)));
