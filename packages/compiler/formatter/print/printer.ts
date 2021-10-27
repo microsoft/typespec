@@ -211,10 +211,20 @@ export function printDecorators(
     return "";
   }
 
+  const shouldBreak =
+    !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options);
   const decorators = path.map((x) => concat([print(x as any), ifBreak(line, " ")]), "decorators");
-  const shouldBreak = tryInline && decorators.length < 3 ? "" : breakParent;
 
-  return group(concat([...decorators, shouldBreak]));
+  return group(concat([shouldBreak ? breakParent : "", decorators]));
+}
+
+/**
+ * Check if there is already new lines in between the decorators of the node.
+ */
+function hasNewlineBetweenOrAfterDecorators(node: DecorableNode, options: any) {
+  return node.decorators.some((decorator) =>
+    prettier.util.hasNewline(options.originalText, decorator.end)
+  );
 }
 
 export function printDecorator(
