@@ -4,6 +4,7 @@ import mkdirp from "mkdirp";
 import watch from "node-watch";
 import os from "os";
 import { basename, extname, join, resolve } from "path";
+import { exit } from "process";
 import url from "url";
 import yargs from "yargs";
 import { loadCadlConfigInDir } from "../config/index.js";
@@ -67,7 +68,10 @@ async function main() {
       },
       async (args) => {
         const options = await getCompilerOptions(args);
-        await compileInput(args.path, options);
+        const program = await compileInput(args.path, options);
+        if (program.hasError()) {
+          exit(1);
+        }
       }
     )
     .command("code", "Manage VS Code Extension.", (cmd) => {
