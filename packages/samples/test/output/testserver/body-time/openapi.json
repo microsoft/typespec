@@ -4,11 +4,6 @@
     "title": "(title)",
     "version": "0000-00-00"
   },
-  "servers": [
-    {
-      "url": "https://management.azure.com"
-    }
-  ],
   "tags": [],
   "paths": {
     "/time": {

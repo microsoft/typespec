@@ -4,11 +4,6 @@
     "title": "Pet Store Service",
     "version": "2021-03-25"
   },
-  "servers": [
-    {
-      "url": "https://management.azure.com"
-    }
-  ],
   "tags": [],
   "paths": {
     "/pets/{petId}": {
