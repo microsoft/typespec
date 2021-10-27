@@ -67,7 +67,10 @@ async function main() {
       },
       async (args) => {
         const options = await getCompilerOptions(args);
-        await compileInput(args.path, options);
+        const program = await compileInput(args.path, options);
+        if (program.hasError()) {
+          process.exit(1);
+        }
       }
     )
     .command("code", "Manage VS Code Extension.", (cmd) => {
