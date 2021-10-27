@@ -229,7 +229,7 @@ export async function createProgram(
         try {
           // attempt to resolve a node module with this name
           target = await resolveModuleSpecifier(path, basedir);
-        } catch (e) {
+        } catch (e: any) {
           if (e.code === "MODULE_NOT_FOUND") {
             program.reportDiagnostic(
               createDiagnostic({ code: "library-not-found", format: { path }, target: stmt })
@@ -369,7 +369,7 @@ export async function createProgram(
     let actual: string;
     try {
       actual = await resolveModuleSpecifier("@cadl-lang/compiler", basedir, false);
-    } catch (err) {
+    } catch (err: any) {
       if (err.code === "MODULE_NOT_FOUND") {
         return true; // no local cadl, ok to use any compiler
       }
