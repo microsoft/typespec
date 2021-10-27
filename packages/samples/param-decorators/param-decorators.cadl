@@ -8,7 +8,6 @@ namespace Cadl.Samples;
 namespace Operations {
   @get("{name}")
   op getThing(
-
     @format("^[a-zA-Z0-9-]{3,24}$")
     @path
     name: string,
@@ -28,7 +27,6 @@ model Thing {
 }
 
 model NameParameter {
-
   @doc("Name parameter")
   @format("^[a-zA-Z0-9-]{3,24}$")
   @path

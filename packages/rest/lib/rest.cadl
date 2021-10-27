@@ -2,7 +2,6 @@ import "../dist/rest.js";
 
 @doc("The request has succeeded.")
 model OkResponse<T> {
-
   @doc("The status code.")
   @header
   statusCode: 200;
@@ -14,7 +13,6 @@ model OkResponse<T> {
 
 @doc("The Location header.")
 model LocationHeader {
-
   @doc(
     "The Location header contains the URL where the status of the long running operation can be checked."
   )
@@ -24,7 +22,6 @@ model LocationHeader {
 
 @doc("The request has succeeded and a new resource has been created as a result.")
 model CreatedResponse {
-
   @doc("The status code.")
   @header
   statusCode: 201;
@@ -32,7 +29,6 @@ model CreatedResponse {
 
 @doc("The request has been received but not yet acted upon.")
 model AcceptedResponse {
-
   @doc("The status code.")
   @header
   statusCode: 202;
@@ -40,7 +36,6 @@ model AcceptedResponse {
 
 @doc("There is no content to send for this request, but the headers may be useful. ")
 model NoContentResponse {
-
   @doc("The status code.")
   @header
   statusCode: 204;
@@ -50,7 +45,6 @@ model NoContentResponse {
   "The URL of the requested resource has been changed permanently. The new URL is given in the response."
 )
 model MovedResponse {
-
   @doc("The status code.")
   @header
   statusCode: 301;
@@ -59,7 +53,6 @@ model MovedResponse {
 
 @doc("This is used for caching purposes.")
 model NotModifiedResponse {
-
   @doc("The status code.")
   @header
   statusCode: 304;
@@ -67,7 +60,6 @@ model NotModifiedResponse {
 
 @doc("The server could not understand the request due to invalid syntax.")
 model UnauthorizedResponse {
-
   @doc("The status code.")
   @header
   statusCode: 401;
@@ -75,7 +67,6 @@ model UnauthorizedResponse {
 
 @doc("The server can not find the requested resource.")
 model NotFoundResponse {
-
   @doc("The status code.")
   @header
   statusCode: 404;
@@ -83,7 +74,6 @@ model NotFoundResponse {
 
 @doc("This response is sent when a request conflicts with the current state of the server.")
 model ConflictResponse {
-
   @doc("The status code.")
   @header
   statusCode: 409;

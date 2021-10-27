@@ -615,6 +615,8 @@ export function printModelProperty(
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
+  const propertyIndex = path.stack[path.stack.length - 2];
+  const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
   const { decorators, multiline } = printDecorators(
     path as AstPath<DecorableNode>,
     options,
@@ -624,7 +626,7 @@ export function printModelProperty(
     }
   );
   return concat([
-    multiline ? hardline : "",
+    multiline && isNotFirst ? hardline : "",
     decorators,
     path.call(print, "id"),
     node.optional ? "?: " : ": ",

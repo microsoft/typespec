@@ -3,7 +3,6 @@ import "@cadl-lang/openapi3";
 
 @doc("Uri or local path to source data.")
 model SourcePath {
-
   @minLength(0)
   @maxLength(2048)
   @doc("File source path.")
@@ -11,7 +10,6 @@ model SourcePath {
 }
 
 model Input {
-
   @doc("Input parameter.")
   @body
   input: SourcePath;

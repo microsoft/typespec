@@ -89,7 +89,6 @@ model book_name extends string {}
 
 @doc("A single book in the library.")
 model Book {
-
   @doc(
     """
 The resource name of the book.
@@ -118,7 +117,6 @@ model shelf_name extends string {}
 
 @doc("A Shelf contains a collection of books with a theme.")
 model Shelf {
-
   @doc(
     """
 The resource name of the shelf.
@@ -134,7 +132,6 @@ The name is ignored when creating a shelf.
 
 @doc("Request message for LibraryService.CreateShelf.")
 model CreateShelfRequest {
-
   @doc("The shelf to create.")
   @body
   body: Shelf;
@@ -142,7 +139,6 @@ model CreateShelfRequest {
 
 @doc("Request message for LibraryService.GetShelf.")
 model GetShelfRequest {
-
   @doc("The name of the shelf to retrieve.")
   @path
   name: shelf_name;
@@ -150,7 +146,6 @@ model GetShelfRequest {
 
 @doc("Response message for LibraryService.ListShelves.")
 model ListShelvesResponse {
-
   @doc("The list of shelves.")
   shelves: Shelf[];
   ... ListResponseBase;
@@ -158,7 +153,6 @@ model ListShelvesResponse {
 
 @doc("Request message for LibraryService.DeleteShelf.")
 model DeleteShelfRequest {
-
   @doc("The name of the shelf to delete.")
   @path
   name: shelf_name;
@@ -169,7 +163,6 @@ Describes the shelf being removed (other_shelf_name) and updated
 (name) in this merge
 """)
 model MergeShelvesRequest {
-
   @doc("The name of the shelf we're adding books to.")
   @path
   name: shelf_name;
@@ -180,7 +173,6 @@ model MergeShelvesRequest {
 
 @doc("Request message for LibraryService.CreateBook.")
 model CreateBookRequest {
-
   @doc("The name of the shelf in which the book is created.")
   @path
   name: shelf_name;
@@ -191,7 +183,6 @@ model CreateBookRequest {
 
 @doc("Request message for LibraryService.GetBook.")
 model GetBookRequest {
-
   @doc("The name of the book to retrieve.")
   @path
   name: book_name;
@@ -199,7 +190,6 @@ model GetBookRequest {
 
 @doc("Request message for LibraryService.ListBooks.")
 model ListBooksRequest {
-
   @doc("The name of the shelf whose books we'd like to list.")
   @path
   name: shelf_name;
@@ -213,7 +203,6 @@ model ListBooksRequest {
 
 @doc("Response message for LibraryService.ListBooks.")
 model ListBooksResponse {
-
   @doc("The list of books.")
   books: Book[];
   ... ListResponseBase;
@@ -221,7 +210,6 @@ model ListBooksResponse {
 
 @doc("Request message for LibraryService.UpdateBook.")
 model UpdateBookRequest {
-
   @doc("The name of the book to update.")
   name: book_name;
 
@@ -231,7 +219,6 @@ model UpdateBookRequest {
 
 @doc("Request message for LibraryService.DeleteBook.")
 model DeleteBookRequest {
-
   @doc("The name of the book to delete.")
   @path
   name: book_name;
@@ -242,7 +229,6 @@ Describes what book to move (name) and what shelf we're moving it
 to (other_shelf_name).
 """)
 model MoveBookRequest {
-
   @doc("The name of the book to move.")
   name: book_name;
 
@@ -255,7 +241,6 @@ model MoveBookRequest {
 //
 
 model ListRequestBase {
-
   @doc(
     """
 Requested page size. Server may return fewer shelves than requested.
@@ -278,7 +263,6 @@ returned from the previous call to `ListShelves` method.
 }
 
 model ListResponseBase {
-
   @doc(
     """
 A token to retrieve next page of results.
