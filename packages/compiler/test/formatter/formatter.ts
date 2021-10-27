@@ -634,4 +634,74 @@ namespace MyNamespace {
       });
     });
   });
+
+  describe("decorators", () => {
+    it("keep simple decorators inline", () => {
+      assertFormat({
+        code: `
+namespace Foo {
+  @get("inline")  op       simple(): string;
+}
+      `,
+        expected: `
+namespace Foo {
+  @get("inline") op simple(): string;
+}
+      `,
+      });
+    });
+
+    it("it preserve new line if provided", () => {
+      assertFormat({
+        code: `
+namespace Foo {
+  @get("inline")
+         op  my(): string;
+}
+      `,
+        expected: `
+namespace Foo {
+  @get("inline")
+  op my(): string;
+}
+      `,
+      });
+    });
+
+    it("split by new line if there is more than 2 decorator", () => {
+      assertFormat({
+        code: `
+namespace Foo {
+  @get("inline") @mark @bar op       my(): string;
+}
+      `,
+        expected: `
+namespace Foo {
+  @get("inline")
+  @mark
+  @bar
+  op my(): string;
+}
+      `,
+      });
+    });
+
+    it("split decorator first if line is long", () => {
+      assertFormat({
+        code: `
+namespace Foo {
+  @doc("this is a very long documentation that will for sure overflow the max line length") op my(parm: string): string;
+}
+      `,
+        expected: `
+namespace Foo {
+  @doc(
+    "this is a very long documentation that will for sure overflow the max line length"
+  )
+  op my(parm: string): string;
+}
+      `,
+      });
+    });
+  });
 });

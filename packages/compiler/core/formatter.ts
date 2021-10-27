@@ -4,11 +4,13 @@ import prettier from "prettier";
 import * as cadlPrettierPlugin from "../formatter/index.js";
 import { PrettierParserError } from "../formatter/parser.js";
 
-export async function formatCadl(code: string): Promise<string> {
+export async function formatCadl(code: string, prettierConfig?: prettier.Options): Promise<string> {
   const output = prettier.format(code, {
+    ...prettierConfig,
     parser: "cadl",
     plugins: [cadlPrettierPlugin],
   });
+
   return output;
 }
 
@@ -34,7 +36,8 @@ export async function formatCadlFiles(patterns: string[], { debug }: { debug?: b
 
 export async function formatCadlFile(filename: string) {
   const content = await readFile(filename);
-  const formattedContent = await formatCadl(content.toString());
+  const prettierConfig = await prettier.resolveConfig(filename);
+  const formattedContent = await formatCadl(content.toString(), prettierConfig ?? {});
   await writeFile(filename, formattedContent);
 }
 

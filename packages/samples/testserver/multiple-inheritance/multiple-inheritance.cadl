@@ -61,11 +61,15 @@ namespace MultipleInheritance {
   @put("cat")
   op putCat(@body cat: Cat): OkResponse<string> | ErrorResponse;
 
-  @doc("Get a kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false")
+  @doc(
+    "Get a kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false"
+  )
   @get("kitten")
   op getKitten(): OkResponse<Kitten> | ErrorResponse;
 
-  @doc("Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true")
+  @doc(
+    "Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true"
+  )
   @put("kitten")
   op putKitten(@body kitten: Kitten): OkResponse<string> | ErrorResponse;
 }
