@@ -16,6 +16,7 @@ dependencies:
   '@types/js-yaml': 4.0.2
   '@types/mkdirp': 1.0.2
   '@types/mocha': 7.0.2
+  '@types/mustache': 4.1.2
   '@types/node': 14.0.27
   '@types/node-fetch': 2.5.12
   '@types/plist': 3.0.2
@@ -32,6 +33,7 @@ dependencies:
   js-yaml: 4.1.0
   mkdirp: 1.0.4
   mocha: 8.3.2
+  mustache: 4.2.0
   node-fetch: 2.6.1
   node-watch: 0.7.1
   onigasm: 2.2.5
@@ -243,6 +245,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-ZvO2tAcjmMi8V/5Z3JsyofMe3hasRcaw88cto5etSVMwVQfeivGAlEYmaQgceUSVYFofVjT+ioHsATjdWcFt1w==
+  /@types/mustache/4.1.2:
+    dev: false
+    resolution:
+      integrity: sha512-c4OVMMcyodKQ9dpwBwh3ofK9P6U9ZktKU9S+p33UqwMNN1vlv2P0zJZUScTshnx7OEoIIRcCFNQ904sYxZz8kg==
   /@types/node-fetch/2.5.12:
     dependencies:
       '@types/node': 14.0.27
@@ -1817,6 +1823,11 @@ packages:
     dev: false
     resolution:
       integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
+  /mustache/4.2.0:
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==
   /mute-stream/0.0.8:
     dev: false
     resolution:
@@ -2931,6 +2942,7 @@ packages:
       '@types/js-yaml': 4.0.2
       '@types/mkdirp': 1.0.2
       '@types/mocha': 7.0.2
+      '@types/mustache': 4.1.2
       '@types/node': 14.0.27
       '@types/node-fetch': 2.5.12
       '@types/prettier': 2.3.2
@@ -2944,6 +2956,7 @@ packages:
       js-yaml: 4.1.0
       mkdirp: 1.0.4
       mocha: 8.3.2
+      mustache: 4.2.0
       node-fetch: 2.6.1
       node-watch: 0.7.1
       prettier: 2.4.1
@@ -2958,7 +2971,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-fmO+nBTONglG1fWRA5k5cbS35AlN7nW195/F30SmJtO6Op3Y1WYVwiOGp/DpzBjZ4hFrCHRNRvO+U72jUKoAcQ==
+      integrity: sha512-XeLl7F4RsSd7HVlf8sXU6cUAYxnHobDa28xTn3LcTAsXR80YAssKeLCZNXbDf1uNuI90TmDquF8JzxHuZLootA==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -3052,6 +3065,7 @@ specifiers:
   '@types/js-yaml': ~4.0.1
   '@types/mkdirp': ~1.0.1
   '@types/mocha': ~7.0.2
+  '@types/mustache': ~4.1.2
   '@types/node': ~14.0.27
   '@types/node-fetch': ~2.5.12
   '@types/plist': ~3.0.2
@@ -3068,6 +3082,7 @@ specifiers:
   js-yaml: ~4.1.0
   mkdirp: ~1.0.4
   mocha: ~8.3.2
+  mustache: ~4.2.0
   node-fetch: ~2.6.1
   node-watch: ~0.7.1
   onigasm: ~2.2.5

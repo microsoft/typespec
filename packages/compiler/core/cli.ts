@@ -9,9 +9,9 @@ import yargs from "yargs";
 import { loadCadlConfigInDir } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
+import { initCadlProject } from "../init/index.js";
 import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { formatCadlFiles } from "./formatter.js";
-import { initCadlProject } from "./init.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
 async function main() {
