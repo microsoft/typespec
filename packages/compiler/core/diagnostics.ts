@@ -275,7 +275,7 @@ export function compilerAssert(
     let location: SourceLocation | undefined;
     try {
       location = getSourceLocation(target);
-    } catch (err) {
+    } catch (err: any) {
       locationError = err;
     }
 

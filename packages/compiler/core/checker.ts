@@ -1541,7 +1541,7 @@ export function createChecker(program: Program): Checker {
     try {
       const fn = decApp.decorator;
       fn(program, target, ...decApp.args);
-    } catch (error) {
+    } catch (error: any) {
       // do not fail the language server for exceptions in decorators
       if (program.compilerOptions.designTimeBuild) {
         program.reportDiagnostic(

@@ -39,12 +39,12 @@ dependencies:
   onigasm: 2.2.5
   plist: 3.0.2
   prettier: 2.4.1
-  prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.3.5
+  prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.4
   prompts: 2.4.1
   resolve: 1.20.0
   rollup: 2.41.5
   source-map-support: 0.5.19
-  typescript: 4.3.5
+  typescript: 4.4.4
   vsce: 1.85.1
   vscode-languageclient: 7.0.0
   vscode-languageserver: 7.0.0
@@ -2043,10 +2043,10 @@ packages:
       node: '>= 0.8.0'
     resolution:
       integrity: sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
-  /prettier-plugin-organize-imports/1.1.1_prettier@2.4.1+typescript@4.3.5:
+  /prettier-plugin-organize-imports/1.1.1_prettier@2.4.1+typescript@4.4.4:
     dependencies:
       prettier: 2.4.1
-      typescript: 4.3.5
+      typescript: 4.4.4
     dev: false
     peerDependencies:
       prettier: '>=1.10'
@@ -2581,13 +2581,13 @@ packages:
     dev: false
     resolution:
       integrity: sha512-FrUshzZ1yxH8YwGR29PWWnfksLEILbWJydU7zfIRkyH7kAEzB62uMAl2WY6EyolWpLpVHeJGgQm45/MaruaHpw==
-  /typescript/4.3.5:
+  /typescript/4.4.4:
     dev: false
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
+      integrity: sha512-DqGhF5IKoBl8WNf8C1gu8q0xZSInh9j1kJJMqT3a94w1JzVaBU4EXOSMrz9yDqMT0xt3selp83fuFMQ0uzv6qA==
   /uc.micro/1.0.6:
     dev: false
     resolution:
@@ -2926,14 +2926,14 @@ packages:
       '@types/vscode': 1.53.0
       mkdirp: 1.0.4
       rollup: 2.41.5
-      typescript: 4.3.5
+      typescript: 4.4.4
       vsce: 1.85.1
       vscode-languageclient: 7.0.0
       watch: 1.0.2
     dev: false
     name: '@rush-temp/cadl-vscode'
     resolution:
-      integrity: sha512-vsWFnqnxl0GD9DI+j1iYb1zMRVx4gSMEVuqwiN0k5GJWi7EnbUpcVdTNJYIBRnoNY/kcmkhq3jOd67shy968WA==
+      integrity: sha512-8A/WjJ/MnaGsQLWwbobQ95MxRNRul9dhCKdFplY8N4SwSV8FrRwrAKHF3LD2xlZcYA3yYRwdCKytrI5IjwtonQ==
       tarball: file:projects/cadl-vscode.tgz
     version: 0.0.0
   file:projects/compiler.tgz:
@@ -2960,18 +2960,18 @@ packages:
       node-fetch: 2.6.1
       node-watch: 0.7.1
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.3.5
+      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.4
       prompts: 2.4.1
       resolve: 1.20.0
       source-map-support: 0.5.19
-      typescript: 4.3.5
+      typescript: 4.4.4
       vscode-languageserver: 7.0.0
       vscode-languageserver-textdocument: 1.0.1
       yargs: 17.0.1
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-XeLl7F4RsSd7HVlf8sXU6cUAYxnHobDa28xTn3LcTAsXR80YAssKeLCZNXbDf1uNuI90TmDquF8JzxHuZLootA==
+      integrity: sha512-ZDVCIuRM2TbW3T6EKifr3a3SVFhdQFs1//aN986adkecR3TW9JG4YBBo2PLRCygY31EZ97EwrDfSt1Scq5h6cw==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -2979,11 +2979,11 @@ packages:
       '@types/mocha': 7.0.2
       '@types/node': 14.0.27
       mocha: 8.3.2
-      typescript: 4.3.5
+      typescript: 4.4.4
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-w5RQEXsCnyRjxqdnFSQSi1mP4QMpDZJrqDsQ+HxizpWSd/Az0Lh8RbWgLCVJ9zEUoOqDVjD068GHY2opG2mzGQ==
+      integrity: sha512-tyqNE62Hssz4ditaM3rhaM5tiR/DFo46xVrTPdURooOIF7qpTm0FArc+a1PX6RrOWQrQz/WnluNsaDwTPI1UsQ==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
@@ -3004,11 +3004,11 @@ packages:
   file:projects/rest.tgz:
     dependencies:
       '@types/node': 14.0.27
-      typescript: 4.3.5
+      typescript: 4.4.4
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-aIh7CsVR+XgSHN93/A8HL3L0qxk4tKZHr3XMCDg7wce3tFNch7ut8+E40cuMnj1C4zNqKGMxVl/WVLQV1Tt0HA==
+      integrity: sha512-aPXlsop/m6NssqERYYIe7G6VhPMzHdi5VJnjjPs+zoQB6Cp2cKvbJoOtghBRfncxrHU4vW+j1H84NdSXaAvl1A==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -3019,7 +3019,7 @@ packages:
     dev: false
     name: '@rush-temp/samples'
     resolution:
-      integrity: sha512-JHpZNjY7k+Lqyz18dYQHJPSYouve30SeDjbFVAm2HuQ1baKXBlO7doR2ODRePan8rqN4uxn1LfToOXSscoPV7w==
+      integrity: sha512-C18QhGGyuVHKo3Uuew1rqMu+TFONwcNnGubfOAjIj38WqGDbMRS8ra5P7BhcPp/Fdueyx+TIj3ISi9EVSz+fzw==
       tarball: file:projects/samples.tgz
     version: 0.0.0
   file:projects/spec.tgz:
@@ -3093,7 +3093,7 @@ specifiers:
   resolve: ~1.20.0
   rollup: ~2.41.4
   source-map-support: ~0.5.19
-  typescript: ~4.3.2
+  typescript: ~4.4.4
   vsce: ~1.85.1
   vscode-languageclient: ~7.0.0
   vscode-languageserver: ~7.0.0

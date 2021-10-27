@@ -102,7 +102,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           try {
             program.onBuild(member as any);
             continue;
-          } catch (err) {
+          } catch (err: any) {
             if (program.compilerOptions.designTimeBuild) {
               // do not exit the language server
               program.reportDiagnostic(
