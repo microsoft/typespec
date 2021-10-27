@@ -133,7 +133,7 @@ Preferences -> Settings, and adjust `cadl.cadl-server.path` accordingly. You may
 need to restart VS Code after changing this.
 
 You can also configure a project to use a local npm install of
-`@cadl-lang/compiler`. See [local-cadl sample](packages/cadl-samples/local-cadl).
+`@cadl-lang/compiler`. See [local-cadl sample](packages/samples/local-cadl).
 
 ### Installing Visual Studio Extension
 
