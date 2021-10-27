@@ -635,7 +635,7 @@ namespace MyNamespace {
     });
   });
 
-  describe.only("decorators", () => {
+  describe("decorators", () => {
     it("keep simple decorators inline", () => {
       assertFormat({
         code: `
