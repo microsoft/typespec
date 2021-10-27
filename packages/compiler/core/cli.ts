@@ -4,7 +4,6 @@ import mkdirp from "mkdirp";
 import watch from "node-watch";
 import os from "os";
 import { basename, extname, join, resolve } from "path";
-import { exit } from "process";
 import url from "url";
 import yargs from "yargs";
 import { loadCadlConfigInDir } from "../config/index.js";
@@ -70,7 +69,7 @@ async function main() {
         const options = await getCompilerOptions(args);
         const program = await compileInput(args.path, options);
         if (program.hasError()) {
-          exit(1);
+          process.exit(1);
         }
       }
     )
