@@ -11,5 +11,8 @@ model HasOptional {
 
 @resource("/test")
 namespace OptionalMethods {
-  @get op read(@query queryString?: string = "defaultQueryString", queryNumber?: int64 = 123): HasOptional;
+  @get op read(
+    @query queryString?: string = "defaultQueryString",
+    queryNumber?: int64 = 123
+  ): HasOptional;
 }

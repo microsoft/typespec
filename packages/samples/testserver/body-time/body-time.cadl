@@ -7,13 +7,14 @@ model Error {
   message: string;
 }
 
-
 @doc("AutoRest Time Test Service")
 @resource("/time")
 namespace Time {
   @doc("Get time value \"11:34:56\"")
-  @get op get(): OkResponse<plainTime> | Error;
-  
+  @get
+  op get(): OkResponse<plainTime> | Error;
+
   @doc("Put time value \"08:07:56\"")
-  @put op put(@body value: plainTime): OkResponse<{}> | Error;
+  @put
+  op put(@body value: plainTime): OkResponse<{}> | Error;
 }

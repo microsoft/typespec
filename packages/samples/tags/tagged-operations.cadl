@@ -6,12 +6,12 @@ import "@cadl-lang/openapi3";
 namespace foo {
   @tag("tag1")
   @doc("includes namespace tag")
-  op read(@path id:int32): null;
+  op read(@path id: int32): null;
 
   @tag("tag1")
   @tag("tag2")
   @doc("includes namespace tag and two operations tags")
-  op create(@path id:int32): null;
+  op create(@path id: int32): null;
 }
 
 @resource("/bar")
@@ -21,7 +21,7 @@ namespace bar {
 
   @doc("one operation tag")
   @tag("tag3")
-  op create(@path id:int32): null;
+  op create(@path id: int32): null;
 }
 
 model Resp {
