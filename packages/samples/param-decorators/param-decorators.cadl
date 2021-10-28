@@ -9,17 +9,17 @@ namespace Operations {
   @get("{name}")
   op getThing(
     @format("^[a-zA-Z0-9-]{3,24}$")
-    @path name: string,
+    @path
+    name: string,
 
     @minValue(0)
     @maxValue(10)
-    @query count: int32
+    @query
+    count: int32
   ): OkResponse<Thing>;
 
   @put("{name}")
-  op putThing(
-    ...NameParameter,
-  ): OkResponse<Thing>;
+  op putThing(...NameParameter): OkResponse<Thing>;
 }
 
 model Thing {
@@ -29,5 +29,6 @@ model Thing {
 model NameParameter {
   @doc("Name parameter")
   @format("^[a-zA-Z0-9-]{3,24}$")
-  @path name: string;
+  @path
+  name: string;
 }

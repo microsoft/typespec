@@ -11,7 +11,8 @@ model SourcePath {
 
 model Input {
   @doc("Input parameter.")
-  @body input: SourcePath;
+  @body
+  input: SourcePath;
 }
 
 @resource("/mediatypes")
@@ -20,20 +21,19 @@ namespace MediaTypes {
   @post("analyze")
   @operationId("AnalyzeBody")
   op analyzeBody(
-    ... Input;
+    ... Input,
     @header contentType:
-      "application/pdf" |
-      "application/json" |
-      "image/jpeg" |
-      "image/png" |
-      "image/tiff";
+      | "application/pdf"
+      | "application/json"
+      | "image/jpeg"
+      | "image/png"
+      | "image/tiff"
   ): OkResponse<string>;
 
-  @doc("Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter")
+  @doc(
+    "Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter"
+  )
   @post("contentTypeWithEncoding")
   @operationId("contentTypeWithEncoding")
-  op contentTypeWithEncoding(
-    ... Input;
-    @header contentType: "text/plain";
-  ): OkResponse<string>;
+  op contentTypeWithEncoding(... Input, @header contentType: "text/plain"): OkResponse<string>;
 }

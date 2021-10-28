@@ -6,5 +6,6 @@
   "semi": true,
   "singleQuote": false,
   "tabWidth": 2,
-  "pluginSearchDirs": ["./packages/compiler"]
+  "pluginSearchDirs": ["./packages/compiler"],
+  "plugins": ["./packages/prettier-plugin-cadl"]
 }
