@@ -4,69 +4,67 @@ import "@cadl-lang/openapi3";
 @resource("/v1")
 @tag("Display")
 namespace Display {
-    @doc("Create a kiosk. This enrolls the kiosk for sign display.")
-    @post("kiosks")
-    op CreateKiosk(@body body: Kiosk): Kiosk | RpcStatus;
+  @doc("Create a kiosk. This enrolls the kiosk for sign display.")
+  @post("kiosks")
+  op CreateKiosk(@body body: Kiosk): Kiosk | RpcStatus;
 
+  @doc("List active kiosks.")
+  @get("kiosks")
+  op ListKiosks(... Empty): ListKiosksResponse | RpcStatus;
 
-    @doc("List active kiosks.")
-    @get("kiosks")
-    op ListKiosks(... Empty): ListKiosksResponse | RpcStatus;
+  @doc("Get a kiosk.")
+  @get("kiosks/{id}")
+  op GetKiosk(@path id: KioskId): Kiosk | RpcStatus;
 
-    @doc("Get a kiosk.")
-    @get("kiosks/{id}")
-    op GetKiosk(@path id: KioskId): Kiosk | RpcStatus;
+  @doc("Delete a kiosk.")
+  @delete("kiosks/{id}")
+  op DeleteKiosk(@path id: KioskId): Empty | RpcStatus;
 
-    @doc("Delete a kiosk.")
-    @delete("kiosks/{id}")
-    op DeleteKiosk(@path id: KioskId): Empty | RpcStatus;
+  @doc("Create a sign. This enrolls the sign for sign display.")
+  @post("signs")
+  op CreateSign(@body sign: Sign): Sign | RpcStatus;
 
-    @doc("Create a sign. This enrolls the sign for sign display.")
-    @post("signs")
-    op CreateSign(@body sign: Sign): Sign | RpcStatus;
+  @doc("List active signs.")
+  @get("signs")
+  op ListSigns(... Empty): ListSignsResponse;
 
-    @doc("List active signs.")
-    @get("signs")
-    op ListSigns(... Empty): ListSignsResponse;
+  @doc("Get a sign.")
+  @get("signs/{id}")
+  op GetSign(@path id: SignId): Sign | RpcStatus;
 
-    @doc("Get a sign.")
-    @get("signs/{id}")
-    op GetSign(@path id: SignId): Sign | RpcStatus;
+  @doc("Delete a sign.")
+  @delete("signs/{id}")
+  op DeleteSign(@path id: SignId): Empty | RpcStatus;
 
-    @doc("Delete a sign.")
-    @delete("signs/{id}")
-    op DeleteSign(@path id: SignId): Empty | RpcStatus;
+  @doc("Set a sign for display on one or more kiosks.")
+  @post("signs/{sign_id}")
+  op SetSignIdForKioskIds(... SetSignIdForKioskIdsRequest): Empty | RpcStatus;
 
-    @doc("Set a sign for display on one or more kiosks.")
-    @post("signs/{sign_id}")
-    op SetSignIdForKioskIds(... SetSignIdForKioskIdsRequest): Empty | RpcStatus;
+  @doc("Get the sign that should be displayed on a kiosk.")
+  @get("kiosks/{kiosk_id}/sign")
+  op GetSignIdForKioskId(@path kiosk_id: int32): GetSignIdResponse | RpcStatus;
 
-    @doc("Get the sign that should be displayed on a kiosk.")
-    @get("kiosks/{kiosk_id}/sign")
-    op GetSignIdForKioskId( @path kiosk_id: int32): GetSignIdResponse | RpcStatus;
-
-    //
-    // TODO[JC]: Streaming ?
-    //@doc("Get signs that should be displayed on a kiosk. Streams.")
-    //op GetSignIdsForKioskId(... GetSignIdForKioskIdRequest): @streaming GetSignIdResponse;
-    //
+  //
+  // TODO[JC]: Streaming ?
+  //@doc("Get signs that should be displayed on a kiosk. Streams.")
+  //op GetSignIdsForKioskId(... GetSignIdForKioskIdRequest): @streaming GetSignIdResponse;
+  //
 }
 
 @doc("Describes a hardware device that can display signs.")
 model Kiosk {
-    @doc("unique id")
-    id?: int32; // Output only.
+  @doc("unique id")
+  id?: int32; // Output only.
 
-    @doc("name of device hardware")
-    name: string;
+  @doc("name of device hardware")
+  name: string;
 
-    @doc("screen size")
-    size: ScreenSize;
+  @doc("screen size")
+  size: ScreenSize;
 
-    @doc("kiosk location")
-    location: LatLng;
-
-    create_time?: Timestamp; // Output only.
+  @doc("kiosk location")
+  location: LatLng;
+  create_time?: Timestamp; // Output only.
 }
 
 @doc("""
@@ -74,50 +72,50 @@ Describes a digital sign.
 Signs can include text, images, or both.
 """)
 model Sign {
-    @doc("unique id")
-    id?: int32; // Output only.
+  @doc("unique id")
+  id?: int32; // Output only.
 
-    @doc("name of sign")
-    name: string;
+  @doc("name of sign")
+  name: string;
 
-    @doc("text to display")
-    text: string;
+  @doc("text to display")
+  text: string;
 
-    @doc("image to display")
-    image: bytes;
+  @doc("image to display")
+  image: bytes;
 }
 
 @doc("Represents the size of a screen in pixels.")
 model ScreenSize {
-    width: int32;
-    height: int32;
+  width: int32;
+  height: int32;
 }
 
 @doc("A successful response.")
 model ListKiosksResponse {
-    kiosks?: Kiosk[];
+  kiosks?: Kiosk[];
 }
 
 @doc("A successful response.")
 model ListSignsResponse {
-    signs?: Sign[];
+  signs?: Sign[];
 }
 
 model SetSignIdForKioskIdsRequest {
-    kiosk_ids: int32[];
+  kiosk_ids: int32[];
 
-    @path
-    sign_id: int32;
+  @path
+  sign_id: int32;
 }
 
 model GetSignIdForKioskIdRequest {
-    @path
-    kiosk_id: int32;
+  @path
+  kiosk_id: int32;
 }
 
 @doc("A successful response.")
 model GetSignIdResponse {
-    sign_id?: int32;
+  sign_id?: int32;
 }
 
 alias KioskId = int32;

@@ -205,17 +205,20 @@ export function printDecorators(
   options: object,
   print: PrettierChildPrint,
   { tryInline }: { tryInline: boolean }
-) {
+): { decorators: prettier.Doc; multiline: boolean } {
   const node = path.getValue();
   if (node.decorators.length === 0) {
-    return "";
+    return { decorators: "", multiline: false };
   }
 
   const shouldBreak =
     !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options);
   const decorators = path.map((x) => concat([print(x as any), ifBreak(line, " ")]), "decorators");
 
-  return group(concat([shouldBreak ? breakParent : "", decorators]));
+  return {
+    decorators: group(concat([shouldBreak ? breakParent : "", decorators])),
+    multiline: shouldBreak,
+  };
 }
 
 /**
@@ -323,7 +326,7 @@ export function printEnumStatement(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const decorators = printDecorators(path, options, print, { tryInline: false });
+  const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const id = path.call(print, "id");
   return concat([decorators, "enum ", id, " ", printEnumBlock(path, options, print)]);
 }
@@ -364,7 +367,7 @@ export function printEnumMember(
   const node = path.getValue();
   const id = path.call(print, "id");
   const value = node.value ? concat([": ", path.call(print, "value")]) : "";
-  const decorators = printDecorators(path, options, print, { tryInline: true });
+  const { decorators } = printDecorators(path, options, print, { tryInline: true });
   return concat([decorators, id, value]);
 }
 
@@ -374,7 +377,7 @@ export function printUnionStatement(
   print: PrettierChildPrint
 ) {
   const id = path.call(print, "id");
-  const decorators = printDecorators(path, options, print, { tryInline: false });
+  const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return concat([
     decorators,
@@ -421,7 +424,7 @@ export function printUnionVariant(
 ) {
   const id = path.call(print, "id");
   const value = concat([": ", path.call(print, "value")]);
-  const decorators = printDecorators(path, options, print, { tryInline: true });
+  const { decorators } = printDecorators(path, options, print, { tryInline: true });
   return concat([decorators, id, value]);
 }
 
@@ -431,7 +434,7 @@ export function printInterfaceStatement(
   print: PrettierChildPrint
 ) {
   const id = path.call(print, "id");
-  const decorators = printDecorators(path, options, print, { tryInline: false });
+  const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return concat([
     decorators,
@@ -548,7 +551,7 @@ export function printModelStatement(
   const isBase = node.is ? concat(["is ", path.call(print, "is"), " "]) : "";
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return concat([
-    printDecorators(path, options, print, { tryInline: false }),
+    printDecorators(path, options, print, { tryInline: false }).decorators,
     "model ",
     id,
     generic,
@@ -612,8 +615,19 @@ export function printModelProperty(
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
+  const propertyIndex = path.stack[path.stack.length - 2];
+  const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
+  const { decorators, multiline } = printDecorators(
+    path as AstPath<DecorableNode>,
+    options,
+    print,
+    {
+      tryInline: true,
+    }
+  );
   return concat([
-    printDecorators(path as AstPath<DecorableNode>, options, print, { tryInline: true }),
+    multiline && isNotFirst ? hardline : "",
+    decorators,
     path.call(print, "id"),
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
@@ -637,12 +651,6 @@ export function printNamespaceStatement(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const printNamespace = (
-    path: AstPath<NamespaceStatementNode>,
-    names: Doc[],
-    suffix: Doc | string
-  ) => {};
-
   const printNested = (currentPath: AstPath<NamespaceStatementNode>, parentNames: Doc[]): Doc => {
     const names = [...parentNames, currentPath.call(print, "name")];
     const currentNode = currentPath.getNode();
@@ -663,12 +671,9 @@ export function printNamespaceStatement(
             hardline,
             "}",
           ]);
-    return concat([
-      printDecorators(path, options, print, { tryInline: false }),
-      `namespace `,
-      join(".", names),
-      suffix,
-    ]);
+
+    const { decorators } = printDecorators(path, options, print, { tryInline: false });
+    return concat([decorators, `namespace `, join(".", names), suffix]);
   };
 
   return printNested(path, []);
@@ -680,8 +685,12 @@ export function printOperationStatement(
   print: PrettierChildPrint
 ) {
   const inInterface = (path.getParentNode()?.kind as any) === SyntaxKind.InterfaceStatement;
+  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
+    tryInline: true,
+  });
+
   return concat([
-    printDecorators(path as AstPath<DecorableNode>, options, print, { tryInline: true }),
+    decorators,
     inInterface ? "" : "op ",
     path.call(print, "id"),
     "(",

@@ -6,7 +6,8 @@
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
 
-@doc("""
+@doc(
+  """
 This API represents a simple digital library.  It lets you manage Shelf
 resources and Book resources in the library. It defines the following
 resource model:
@@ -16,60 +17,67 @@ resource model:
 
 - Each Shelf has a collection of [Book][google.example.library.v1.Book]
   resources, named `shelves/*/books/*`
-""")
+"""
+)
 @resource("/v1")
 @tag("LibraryService")
 namespace LibraryService {
-    @doc("Creates a shelf, and returns the new Shelf.")
-    @post("shelves")
-    op CreateShelf(... CreateShelfRequest): Shelf | RpcStatus;
+  @doc("Creates a shelf, and returns the new Shelf.")
+  @post("shelves")
+  op CreateShelf(... CreateShelfRequest): Shelf | RpcStatus;
 
-    @doc("Gets a shelf. Returns NOT_FOUND if the shelf does not exist.")
-    @get("shelves")
-    op GetShelf(... GetShelfRequest): Shelf | RpcStatus;
+  @doc("Gets a shelf. Returns NOT_FOUND if the shelf does not exist.")
+  @get("shelves")
+  op GetShelf(... GetShelfRequest): Shelf | RpcStatus;
 
-    @doc("""
+  @doc(
+    """
 Lists shelves. The order is unspecified but deterministic. Newly created
 shelves will not necessarily be added to the end of this list.
-""")
-    @pageable("next_page_token")
-    @get("shelves")
-    op ListShelves(... ListRequestBase): ListShelvesResponse | RpcStatus;
+"""
+  )
+  @pageable("next_page_token")
+  @get("shelves")
+  op ListShelves(... ListRequestBase): ListShelvesResponse | RpcStatus;
 
-    @doc("Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.")
-    @delete("shelves")
-    op DeleteShelf(... DeleteShelfRequest): Empty | RpcStatus;
+  @doc("Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.")
+  @delete("shelves")
+  op DeleteShelf(... DeleteShelfRequest): Empty | RpcStatus;
 
-    @doc("""
+  @doc(
+    """
 Merges two shelves by adding all books from the shelf named
 `other_shelf_name` to shelf `name`, and deletes
 `other_shelf_name`. Returns the updated shelf.
 The book ids of the moved books may not be the same as the original books.
 Returns NOT_FOUND if either shelf does not exist.
 This call is a no-op if the specified shelves are the same.
-""")
-    @post("shelves/{name}:merge")
-    op MergeShelves(... MergeShelvesRequest): Shelf | RpcStatus;
+"""
+  )
+  @post("shelves/{name}:merge")
+  op MergeShelves(... MergeShelvesRequest): Shelf | RpcStatus;
 
-    @doc("Creates a book, and returns the new Book.")
-    @post("shelves/{name}/books")
-    op CreateBook(... CreateBookRequest): Book | RpcStatus;
+  @doc("Creates a book, and returns the new Book.")
+  @post("shelves/{name}/books")
+  op CreateBook(... CreateBookRequest): Book | RpcStatus;
 
-    @doc("Gets a book. Returns NOT_FOUND if the book does not exist.")
-    @get("shelves/shelf_name/books/{name}")
-    op GetBook(... GetBookRequest): Book | RpcStatus;
+  @doc("Gets a book. Returns NOT_FOUND if the book does not exist.")
+  @get("shelves/shelf_name/books/{name}")
+  op GetBook(... GetBookRequest): Book | RpcStatus;
 
-    @doc("""
+  @doc(
+    """
 Lists books in a shelf. The order is unspecified but deterministic. Newly
 created books will not necessarily be added to the end of this list.
 Returns NOT_FOUND if the shelf does not exist.
-""")
-    @get("shelves/{name}/books")
-    op ListBooks(... ListBooksRequest): ListBooksResponse | RpcStatus;
+"""
+  )
+  @get("shelves/{name}/books")
+  op ListBooks(... ListBooksRequest): ListBooksResponse | RpcStatus;
 
-    @delete("shelves/shelf_name/books/{name}")
-    @doc("Deletes a book. Returns NOT_FOUND if the book does not exist.")
-    op DeleteBook(... DeleteBookRequest): Empty | RpcStatus;
+  @delete("shelves/shelf_name/books/{name}")
+  @doc("Deletes a book. Returns NOT_FOUND if the book does not exist.")
+  op DeleteBook(... DeleteBookRequest): Empty | RpcStatus;
 }
 
 @doc("""
@@ -77,15 +85,17 @@ The name of a book.
 Book names have the form `shelves/{shelf_id}/books/{book_id}`
 """)
 @format("shelves/\\w+/books/\\w+")
-model book_name extends string {};
+model book_name extends string {}
 
 @doc("A single book in the library.")
 model Book {
-  @doc("""
+  @doc(
+    """
 The resource name of the book.
 Book names have the form `shelves/{shelf_id}/books/{book_id}`.
 The name is ignored when creating a book.
-""")
+"""
+  )
   name: book_name;
 
   @doc("The name of the book author.")
@@ -103,26 +113,28 @@ The name of a shelf.
 Shelf names have the form `shelves/{shelf_id}`.
 """)
 @format("shelves/\\w+")
-model shelf_name extends string {};
+model shelf_name extends string {}
 
 @doc("A Shelf contains a collection of books with a theme.")
 model Shelf {
-    @doc("""
+  @doc(
+    """
 The resource name of the shelf.
 Shelf names have the form `shelves/{shelf_id}`.
 The name is ignored when creating a shelf.
-""")
-    name: shelf_name;
+"""
+  )
+  name: shelf_name;
 
-    @doc("The theme of the shelf")
-    theme?: string;
+  @doc("The theme of the shelf")
+  theme?: string;
 }
 
 @doc("Request message for LibraryService.CreateShelf.")
 model CreateShelfRequest {
-    @doc("The shelf to create.")
-    @body
-    body: Shelf;
+  @doc("The shelf to create.")
+  @body
+  body: Shelf;
 }
 
 @doc("Request message for LibraryService.GetShelf.")
@@ -132,15 +144,12 @@ model GetShelfRequest {
   name: shelf_name;
 }
 
-
 @doc("Response message for LibraryService.ListShelves.")
 model ListShelvesResponse {
   @doc("The list of shelves.")
   shelves: Shelf[];
-
   ... ListResponseBase;
 }
-
 
 @doc("Request message for LibraryService.DeleteShelf.")
 model DeleteShelfRequest {
@@ -179,13 +188,11 @@ model GetBookRequest {
   name: book_name;
 }
 
-
 @doc("Request message for LibraryService.ListBooks.")
 model ListBooksRequest {
   @doc("The name of the shelf whose books we'd like to list.")
   @path
   name: shelf_name;
-
   ... ListRequestBase;
 
   // TODO[JC]: This is a specialized comment on `page_size`. How would we handle this?
@@ -198,7 +205,6 @@ model ListBooksRequest {
 model ListBooksResponse {
   @doc("The list of books.")
   books: Book[];
-
   ... ListResponseBase;
 }
 
@@ -218,7 +224,6 @@ model DeleteBookRequest {
   name: book_name;
 }
 
-
 @doc("""
 Describes what book to move (name) and what shelf we're moving it
 to (other_shelf_name).
@@ -236,31 +241,37 @@ model MoveBookRequest {
 //
 
 model ListRequestBase {
-  @doc("""
+  @doc(
+    """
 Requested page size. Server may return fewer shelves than requested.
 If unspecified, server will pick an appropriate default.
-""")
+"""
+  )
   @query
   page_size?: int32;
 
-  @doc("""
+  @doc(
+    """
 A token identifying a page of results the server should return.
 Typically, this is the value of
 [ListShelvesResponse.next_page_token][google.example.library.v1.ListShelvesResponse.next_page_token]
 returned from the previous call to `ListShelves` method.
-""")
+"""
+  )
   @query
   page_token?: string;
 }
 
 model ListResponseBase {
-  @doc("""
+  @doc(
+    """
 A token to retrieve next page of results.
 Pass this value in the
 [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
 field in the subsequent call to `ListShelves` method to retrieve the next
 page of results.
-""")
+"""
+  )
   next_page_token?: string;
 }
 
@@ -269,12 +280,12 @@ model Empty {}
 
 @doc("An unexpected error response.")
 model RpcStatus {
-    code?: int32;
-    message?: string;
-    details?: protobufAny[];
+  code?: int32;
+  message?: string;
+  details?: protobufAny[];
 }
 
 model protobufAny {
-    typeUrl?: string;
-    value?: string; // format:byte
+  typeUrl?: string;
+  value?: string; // format:byte
 }

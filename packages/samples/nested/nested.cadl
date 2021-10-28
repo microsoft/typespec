@@ -30,6 +30,6 @@ namespace Root {
   }
 
   namespace SubC {
-      op AnotherOp(thing: Root.SubA.Thing, thing2: SubA.Thing): string;
+    op AnotherOp(thing: Root.SubA.Thing, thing2: SubA.Thing): string;
   }
 }

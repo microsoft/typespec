@@ -13,5 +13,6 @@ model SomeModel {
 namespace Ops {
   @addResponseTypes
   @addCommonParameters
-  @get op SomeOp(input: SomeModel): OkResponse<int32>;
+  @get
+  op SomeOp(input: SomeModel): OkResponse<int32>;
 }
