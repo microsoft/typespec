@@ -8,19 +8,23 @@ model Recursive {
   recursives: Recursive[];
 }
 
+@doc("Example of a model that reference back to itself.")
 model Parent {
   child: Child;
   children: Child[];
 }
 
+@doc("Example of a model that reference back to itself.")
 model Child {
   parent: Parent;
   parents: Parent[];
 }
 
+@doc("Example of a template referencing itself in properties")
 model Templated<T> {
   value: T;
   parent?: Templated<T>;
+  parents: Templated<T>[];
 }
 
 

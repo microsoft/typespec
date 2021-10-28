@@ -30,7 +30,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Example of a model that reference back to itself.",
             "content": {
               "application/json": {
                 "schema": {
@@ -48,7 +48,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Example of a template referencing itself in properties",
             "content": {
               "application/json": {
                 "schema": {
@@ -101,6 +101,7 @@
             "x-cadl-name": "Child[]"
           }
         },
+        "description": "Example of a model that reference back to itself.",
         "required": [
           "child",
           "children"
@@ -114,10 +115,19 @@
           },
           "parent": {
             "$ref": "#/components/schemas/Templated_string"
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Templated_string"
+            },
+            "x-cadl-name": "Templated_Cadl.string[]"
           }
         },
+        "description": "Example of a template referencing itself in properties",
         "required": [
-          "value"
+          "value",
+          "parents"
         ]
       },
       "Child": {
@@ -134,6 +144,7 @@
             "x-cadl-name": "Parent[]"
           }
         },
+        "description": "Example of a model that reference back to itself.",
         "required": [
           "parent",
           "parents"
