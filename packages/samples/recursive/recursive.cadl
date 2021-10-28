@@ -18,7 +18,6 @@ model Child {
   parents: Parent[]
 }
 
-
 @resource("/recursive")
 namespace RecursiveOps {
   @get("self-recursive") op getRecursive(): Recursive;
