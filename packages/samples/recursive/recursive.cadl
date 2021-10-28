@@ -8,7 +8,20 @@ model Recursive {
   recursives: Recursive[];
 }
 
+model Parent {
+  child: Child;
+  children: Child[];
+}
+
+model Child {
+  parent: Parent;
+  parents: Parent[]
+}
+
+
 @resource("/recursive")
 namespace RecursiveOps {
-  @get op getRecursive(): Recursive;
+  @get("self-recursive") op getRecursive(): Recursive;
+
+  @get("mutual-recursive") op getMutualRecursive(): Parent;
 }

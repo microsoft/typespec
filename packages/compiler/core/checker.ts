@@ -122,11 +122,6 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<Type[], Type>
   implements TypeInstantiationMap {};
 
-interface PendingModelInfo {
-  id: IdentifierNode;
-  type: ModelType;
-}
-
 export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
   let instantiatingTemplate: Node | undefined;
@@ -141,7 +136,7 @@ export function createChecker(program: Program): Checker {
   // This variable holds on to the model type that is currently
   // being instantiated in checkModelStatement so that it is
   // possible to have recursive type references in properties.
-  let pendingModelType: PendingModelInfo | undefined = undefined;
+  const pendingModelTypes = new Map<string, ModelType>();
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
   }
@@ -369,8 +364,8 @@ export function createChecker(program: Program): Checker {
 
         if (symbolLinks.declaredType) {
           return symbolLinks.declaredType;
-        } else if (pendingModelType && pendingModelType.id.sv === sym.node.id.sv) {
-          return pendingModelType.type;
+        } else if (pendingModelTypes.has(sym.node.id.sv)) {
+          return pendingModelTypes.get(sym.node.id.sv)!;
         }
 
         return sym.node.kind === SyntaxKind.ModelStatement
@@ -942,10 +937,7 @@ export function createChecker(program: Program): Checker {
 
     // Hold on to the model type that's being defined so that it
     // can be referenced
-    pendingModelType = {
-      id: node.id,
-      type,
-    };
+    pendingModelTypes.set(node.id.sv, type);
 
     const inheritedPropNames = new Set(
       Array.from(walkPropertiesInherited(type)).map((v) => v.name)
@@ -965,7 +957,7 @@ export function createChecker(program: Program): Checker {
     }
 
     // The model is fully created now
-    pendingModelType = undefined;
+    pendingModelTypes.delete(node.id.sv);
 
     return type;
   }
