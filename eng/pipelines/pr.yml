@@ -1,0 +1,33 @@
+trigger: none
+pr:
+  - main
+
+strategy:
+  matrix:
+    "Linux - Node 14.x":
+      imageName: ubuntu-latest
+      nodeVersion: "14.x"
+
+    "Linux - Node 16.x":
+      imageName: ubuntu-latest
+      nodeVersion: "16.x"
+
+    "Windows - Node 14.x":
+      imageName: windows-2019
+      nodeVersion: "14.x"
+
+    "Windows - Node 16.x":
+      imageName: windows-2019
+      nodeVersion: "16.x"
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+  - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+    displayName: Enable official Visual Studio extension build
+    condition: eq(variables.imageName, 'windows-2019')
+
+  - template: pull-request-common.yml
+    parameters:
+      nodeVersion: $(nodeVersion)
