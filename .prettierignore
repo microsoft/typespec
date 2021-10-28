@@ -12,5 +12,5 @@ common/config/rush/pnpm-lock.yaml
 # Don't format compiler cadl files.
 packages/compiler/**/*.cadl
 
-# That is an example with error and can't be formatter
+# That is an example with error and can't be formatted
 packages/samples/local-cadl/test.cadl
