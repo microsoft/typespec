@@ -10,7 +10,7 @@
    * Options that are only used when the PNPM package manager is selected
    */
   "pnpmOptions": {},
-  "nodeSupportedVersionRange": ">=14.0.0 <15.0.0",
+  "nodeSupportedVersionRange": ">=14.0.0",
   "suppressNodeLtsWarning": true,
   "projectFolderMinDepth": 1,
   "projectFolderMaxDepth": 5,
