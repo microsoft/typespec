@@ -1,9 +1,0 @@
-trigger: none
-pr:
-  - main
-
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-  - template: pull-request-common.yml

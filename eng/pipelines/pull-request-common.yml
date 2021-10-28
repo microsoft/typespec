@@ -1,7 +1,11 @@
+parameters:
+  - name: nodeVersion
+    type: string
+
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: 14.x
+      versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
 
   - script: node common/scripts/install-run-rush.js install
