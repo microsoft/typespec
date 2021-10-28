@@ -18,9 +18,17 @@ model Child {
   parents: Parent[];
 }
 
+model Templated<T> {
+  value: T;
+  parent?: Templated<T>;
+}
+
+
 @resource("/recursive")
 namespace RecursiveOps {
   @get("self-recursive") op getRecursive(): Recursive;
 
   @get("mutual-recursive") op getMutualRecursive(): Parent;
+
+  @get("mutual-template") op getMutualTemplateRecursive(): Templated<string>;
 }

@@ -41,6 +41,24 @@
           }
         }
       }
+    },
+    "/recursive/mutual-template": {
+      "get": {
+        "operationId": "RecursiveOps_getMutualTemplateRecursive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Templated_string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -86,6 +104,20 @@
         "required": [
           "child",
           "children"
+        ]
+      },
+      "Templated_string": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/Templated_string"
+          }
+        },
+        "required": [
+          "value"
         ]
       },
       "Child": {

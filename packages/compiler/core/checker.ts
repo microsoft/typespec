@@ -379,14 +379,16 @@ export function createChecker(program: Program): Checker {
         // declaration is templated, lets instantiate.
 
         if (!symbolLinks.declaredType) {
-          // we haven't checked the declared type yet, so do so.
-          sym.node.kind === SyntaxKind.ModelStatement
-            ? checkModelStatement(sym.node)
-            : sym.node.kind === SyntaxKind.AliasStatement
-            ? checkAlias(sym.node)
-            : sym.node.kind === SyntaxKind.InterfaceStatement
-            ? checkInterface(sym.node)
-            : checkUnion(sym.node);
+          if (!pendingModelTypes.has(sym.node.id.sv)) {
+            // we haven't checked the declared type yet, so do so.
+            sym.node.kind === SyntaxKind.ModelStatement
+              ? checkModelStatement(sym.node)
+              : sym.node.kind === SyntaxKind.AliasStatement
+              ? checkAlias(sym.node)
+              : sym.node.kind === SyntaxKind.InterfaceStatement
+              ? checkInterface(sym.node)
+              : checkUnion(sym.node);
+          }
         }
 
         const templateParameters = sym.node.templateParameters;
@@ -468,7 +470,7 @@ export function createChecker(program: Program): Checker {
     templateInstantiation = args;
     instantiatingTemplate = templateNode;
 
-    const type = getTypeForNode(templateNode);
+    const type = pendingModelTypes.get(templateNode.id.sv) ?? getTypeForNode(templateNode);
 
     symbolLinks.instantiations!.set(args, type);
     if (type.kind === "Model") {
@@ -939,6 +941,12 @@ export function createChecker(program: Program): Checker {
     // can be referenced
     pendingModelTypes.set(node.id.sv, type);
 
+    if (!instantiatingThisTemplate) {
+      links.declaredType = type;
+      links.instantiations = new TypeInstantiationMap();
+      type.namespace?.models.set(type.name, type);
+    }
+
     const inheritedPropNames = new Set(
       Array.from(walkPropertiesInherited(type)).map((v) => v.name)
     );
@@ -948,12 +956,6 @@ export function createChecker(program: Program): Checker {
 
     if (shouldCreateTypeForTemplate(node)) {
       createType(type);
-    }
-
-    if (!instantiatingThisTemplate) {
-      links.declaredType = type;
-      links.instantiations = new TypeInstantiationMap();
-      type.namespace?.models.set(type.name, type);
     }
 
     // The model is fully created now
