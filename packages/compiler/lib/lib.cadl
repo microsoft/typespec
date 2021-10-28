@@ -39,3 +39,8 @@ model OptionalProperties<T> {
 model UpdateableProperties<T> {
   ... T;
 }
+
+@withoutDefaultValues
+model OmitDefaults<T> {
+  ... T;
+}

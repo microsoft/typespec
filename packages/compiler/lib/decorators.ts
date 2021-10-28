@@ -383,6 +383,25 @@ export function $withUpdateableProperties(program: Program, target: Type) {
   });
 }
 
+// -- @withoutDefaultValues decorator ----------------------
+
+export function $withoutDefaultValues(program: Program, target: Type) {
+  if (target.kind !== "Model") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "model",
+        format: { decorator: "@withoutDefaultValues" },
+        target,
+      })
+    );
+    return;
+  }
+
+  // remove all read-only properties from the target type
+  target.properties.forEach((p) => delete p.default);
+}
+
 // -- @list decorator ---------------------
 
 const listPropertiesKey = Symbol();
