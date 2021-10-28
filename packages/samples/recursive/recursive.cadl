@@ -15,7 +15,7 @@ model Parent {
 
 model Child {
   parent: Parent;
-  parents: Parent[]
+  parents: Parent[];
 }
 
 @resource("/recursive")
