@@ -6,7 +6,7 @@
   },
   "tags": [],
   "paths": {
-    "/recursive": {
+    "/recursive/self-recursive": {
       "get": {
         "operationId": "RecursiveOps_getRecursive",
         "parameters": [],
@@ -17,6 +17,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Recursive"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recursive/mutual-recursive": {
+      "get": {
+        "operationId": "RecursiveOps_getMutualRecursive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Parent"
                 }
               }
             }
@@ -49,6 +67,44 @@
           "name",
           "recursive",
           "recursives"
+        ]
+      },
+      "Parent": {
+        "type": "object",
+        "properties": {
+          "child": {
+            "$ref": "#/components/schemas/Child"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Child"
+            },
+            "x-cadl-name": "Child[]"
+          }
+        },
+        "required": [
+          "child",
+          "children"
+        ]
+      },
+      "Child": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "$ref": "#/components/schemas/Parent"
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Parent"
+            },
+            "x-cadl-name": "Parent[]"
+          }
+        },
+        "required": [
+          "parent",
+          "parents"
         ]
       }
     }
