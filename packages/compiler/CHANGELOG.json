@@ -2,6 +2,38 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.22.0",
+      "tag": "@cadl-lang/compiler_v0.22.0",
+      "date": "Thu, 28 Oct 2021 21:17:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Return non-zero exit code when compilation has errors"
+          },
+          {
+            "comment": "Diagnostics are strongly defined and all have a code"
+          },
+          {
+            "comment": "**Fix** `using` formatting"
+          },
+          {
+            "comment": "**Tweak** formatter model properties with decorators"
+          },
+          {
+            "comment": "**Improve** decorator formatting"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "**Added** logger functionality to log information"
+          },
+          {
+            "comment": "Add `OmitDefaults` model to remove default values of a model"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.21.0",
       "tag": "@cadl-lang/compiler_v0.21.0",
       "date": "Fri, 15 Oct 2021 21:33:37 GMT",
