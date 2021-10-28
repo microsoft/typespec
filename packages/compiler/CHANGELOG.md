@@ -1,6 +1,22 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Fri, 15 Oct 2021 21:33:37 GMT and should not be manually modified.
+This log was last generated on Thu, 28 Oct 2021 21:17:50 GMT and should not be manually modified.
+
+## 0.22.0
+Thu, 28 Oct 2021 21:17:50 GMT
+
+### Minor changes
+
+- **Added** logger functionality to log information
+- Add `OmitDefaults` model to remove default values of a model
+
+### Patches
+
+- Return non-zero exit code when compilation has errors
+- Diagnostics are strongly defined and all have a code
+- **Fix** `using` formatting
+- **Tweak** formatter model properties with decorators
+- **Improve** decorator formatting
 
 ## 0.21.0
 Fri, 15 Oct 2021 21:33:37 GMT

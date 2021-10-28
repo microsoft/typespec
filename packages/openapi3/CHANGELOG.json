@@ -2,6 +2,47 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.3.1",
+      "tag": "@cadl-lang/openapi3_v0.3.1",
+      "date": "Thu, 28 Oct 2021 21:17:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Use strict diagnostics"
+          },
+          {
+            "comment": "Fix crash on empty enum in openapi3 emitter"
+          },
+          {
+            "comment": "Set shared param definitions in components.parameters"
+          },
+          {
+            "comment": "Fix param default to be in schema"
+          },
+          {
+            "comment": "Fix handling of decorators on parameters in openapi3"
+          },
+          {
+            "comment": "Fix generation of openapi3 response headers"
+          },
+          {
+            "comment": "Define response body for primitive response type"
+          },
+          {
+            "comment": "Remove management.azure.com service host default"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.21.0` to `0.22.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.2` to `0.6.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@cadl-lang/openapi3_v0.3.0",
       "date": "Fri, 15 Oct 2021 21:33:37 GMT",
