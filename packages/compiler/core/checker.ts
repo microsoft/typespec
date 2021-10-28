@@ -133,9 +133,9 @@ export function createChecker(program: Program): Checker {
   let cadlNamespaceNode: NamespaceStatementNode | undefined;
   const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
 
-  // This variable holds on to the model type that is currently
-  // being instantiated in checkModelStatement so that it is
-  // possible to have recursive type references in properties.
+  // Map keeping track of the models currently being checked.
+  // When a model type start being instantiated it gets added to this map which lets properties
+  // and referenced models to be able to reference back to it without an infinite recursion.
   const pendingModelTypes = new Map<string, ModelType>();
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
