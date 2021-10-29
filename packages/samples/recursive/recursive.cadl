@@ -29,7 +29,7 @@ model Templated<T> {
 
 namespace Foo {
   namespace Nested {
-    @doc("Example of a template another model with the same name ut in a different namespace")  
+    @doc("Example of a template another model with the same name ut in a different namespace")
     model Some {
       name: Some;
       related: Bar.Nested.Some;
@@ -46,8 +46,6 @@ namespace Bar {
   }
 }
 
-
-
 @resource("/recursive")
 namespace RecursiveOps {
   @get("self-recursive") op getRecursive(): Recursive;
@@ -56,5 +54,5 @@ namespace RecursiveOps {
 
   @get("mutual-template") op getMutualTemplateRecursive(): Templated<string>;
 
-   @get("recursive-namespace") op getNamespaceRecursive(): Foo.Nested.Some;
+  @get("recursive-namespace") op getNamespaceRecursive(): Foo.Nested.Some;
 }
