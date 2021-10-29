@@ -136,7 +136,7 @@ export function createChecker(program: Program): Checker {
   // Map keeping track of the models currently being checked.
   // When a model type start being instantiated it gets added to this map which lets properties
   // and referenced models to be able to reference back to it without an infinite recursion.
-  const pendingModelTypes = new Map<string, ModelType>();
+  const pendingModelTypes = new Map<number, ModelType>();
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
   }
@@ -300,21 +300,10 @@ export function createChecker(program: Program): Checker {
   /**
    * Return a fully qualified id of node
    */
-  function getNodeFqn(
+  function getNodeSymId(
     node: ModelStatementNode | AliasStatementNode | InterfaceStatementNode | UnionStatementNode
-  ): string {
-    let names = [node.id.sv];
-
-    let current: Node = node;
-    while (true) {
-      if ("namespaceSymbol" in current && current.namespaceSymbol) {
-        names.unshift(current.namespaceSymbol.name);
-        current = current.namespaceSymbol.node;
-      } else {
-        break;
-      }
-    }
-    return names.join(".");
+  ): number {
+    return node.symbol?.id!;
   }
 
   function getModelName(model: ModelType) {
@@ -384,8 +373,8 @@ export function createChecker(program: Program): Checker {
 
         if (symbolLinks.declaredType) {
           return symbolLinks.declaredType;
-        } else if (pendingModelTypes.has(getNodeFqn(sym.node))) {
-          return pendingModelTypes.get(getNodeFqn(sym.node))!;
+        } else if (pendingModelTypes.has(getNodeSymId(sym.node))) {
+          return pendingModelTypes.get(getNodeSymId(sym.node))!;
         }
 
         return sym.node.kind === SyntaxKind.ModelStatement
@@ -399,7 +388,7 @@ export function createChecker(program: Program): Checker {
         // declaration is templated, lets instantiate.
 
         if (!symbolLinks.declaredType) {
-          if (!pendingModelTypes.has(getNodeFqn(sym.node))) {
+          if (!pendingModelTypes.has(getNodeSymId(sym.node))) {
             // we haven't checked the declared type yet, so do so.
             sym.node.kind === SyntaxKind.ModelStatement
               ? checkModelStatement(sym.node)
@@ -490,7 +479,7 @@ export function createChecker(program: Program): Checker {
     templateInstantiation = args;
     instantiatingTemplate = templateNode;
 
-    const type = pendingModelTypes.get(getNodeFqn(templateNode)) ?? getTypeForNode(templateNode);
+    const type = pendingModelTypes.get(getNodeSymId(templateNode)) ?? getTypeForNode(templateNode);
 
     symbolLinks.instantiations!.set(args, type);
     if (type.kind === "Model") {
@@ -959,7 +948,7 @@ export function createChecker(program: Program): Checker {
 
     // Hold on to the model type that's being defined so that it
     // can be referenced
-    pendingModelTypes.set(getNodeFqn(node), type);
+    pendingModelTypes.set(getNodeSymId(node), type);
 
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
@@ -979,7 +968,7 @@ export function createChecker(program: Program): Checker {
     }
 
     // The model is fully created now
-    pendingModelTypes.delete(getNodeFqn(node));
+    pendingModelTypes.delete(getNodeSymId(node));
 
     return type;
   }
