@@ -59,6 +59,24 @@
           }
         }
       }
+    },
+    "/recursive/recursive-namespace": {
+      "get": {
+        "operationId": "RecursiveOps_getNamespaceRecursive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Example of a template another model with the same name ut in a different namespace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Foo.Nested.Some"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -130,6 +148,22 @@
           "parents"
         ]
       },
+      "Foo.Nested.Some": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/Foo.Nested.Some"
+          },
+          "related": {
+            "$ref": "#/components/schemas/Bar.Nested.Some"
+          }
+        },
+        "description": "Example of a template another model with the same name ut in a different namespace",
+        "required": [
+          "name",
+          "related"
+        ]
+      },
       "Child": {
         "type": "object",
         "properties": {
@@ -148,6 +182,21 @@
         "required": [
           "parent",
           "parents"
+        ]
+      },
+      "Bar.Nested.Some": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/Bar.Nested.Some"
+          },
+          "related": {
+            "$ref": "#/components/schemas/Foo.Nested.Some"
+          }
+        },
+        "required": [
+          "name",
+          "related"
         ]
       }
     }
