@@ -122,11 +122,6 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<Type[], Type>
   implements TypeInstantiationMap {};
 
-interface PendingModelInfo {
-  id: IdentifierNode;
-  type: ModelType;
-}
-
 export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
   let instantiatingTemplate: Node | undefined;
@@ -138,10 +133,10 @@ export function createChecker(program: Program): Checker {
   let cadlNamespaceNode: NamespaceStatementNode | undefined;
   const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
 
-  // This variable holds on to the model type that is currently
-  // being instantiated in checkModelStatement so that it is
-  // possible to have recursive type references in properties.
-  let pendingModelType: PendingModelInfo | undefined = undefined;
+  // Map keeping track of the models currently being checked.
+  // When a model type start being instantiated it gets added to this map which lets properties
+  // and referenced models to be able to reference back to it without an infinite recursion.
+  const pendingModelTypes = new Map<number, ModelType>();
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
   }
@@ -302,6 +297,15 @@ export function createChecker(program: Program): Checker {
     return nsName ? `${nsName}.${e.name}` : e.name;
   }
 
+  /**
+   * Return a fully qualified id of node
+   */
+  function getNodeSymId(
+    node: ModelStatementNode | AliasStatementNode | InterfaceStatementNode | UnionStatementNode
+  ): number {
+    return node.symbol?.id!;
+  }
+
   function getModelName(model: ModelType) {
     const nsName = getNamespaceString(model.namespace);
     const modelName = (nsName ? nsName + "." : "") + (model.name || "(anonymous model)");
@@ -369,8 +373,8 @@ export function createChecker(program: Program): Checker {
 
         if (symbolLinks.declaredType) {
           return symbolLinks.declaredType;
-        } else if (pendingModelType && pendingModelType.id.sv === sym.node.id.sv) {
-          return pendingModelType.type;
+        } else if (pendingModelTypes.has(getNodeSymId(sym.node))) {
+          return pendingModelTypes.get(getNodeSymId(sym.node))!;
         }
 
         return sym.node.kind === SyntaxKind.ModelStatement
@@ -384,14 +388,16 @@ export function createChecker(program: Program): Checker {
         // declaration is templated, lets instantiate.
 
         if (!symbolLinks.declaredType) {
-          // we haven't checked the declared type yet, so do so.
-          sym.node.kind === SyntaxKind.ModelStatement
-            ? checkModelStatement(sym.node)
-            : sym.node.kind === SyntaxKind.AliasStatement
-            ? checkAlias(sym.node)
-            : sym.node.kind === SyntaxKind.InterfaceStatement
-            ? checkInterface(sym.node)
-            : checkUnion(sym.node);
+          if (!pendingModelTypes.has(getNodeSymId(sym.node))) {
+            // we haven't checked the declared type yet, so do so.
+            sym.node.kind === SyntaxKind.ModelStatement
+              ? checkModelStatement(sym.node)
+              : sym.node.kind === SyntaxKind.AliasStatement
+              ? checkAlias(sym.node)
+              : sym.node.kind === SyntaxKind.InterfaceStatement
+              ? checkInterface(sym.node)
+              : checkUnion(sym.node);
+          }
         }
 
         const templateParameters = sym.node.templateParameters;
@@ -473,7 +479,7 @@ export function createChecker(program: Program): Checker {
     templateInstantiation = args;
     instantiatingTemplate = templateNode;
 
-    const type = getTypeForNode(templateNode);
+    const type = pendingModelTypes.get(getNodeSymId(templateNode)) ?? getTypeForNode(templateNode);
 
     symbolLinks.instantiations!.set(args, type);
     if (type.kind === "Model") {
@@ -942,10 +948,13 @@ export function createChecker(program: Program): Checker {
 
     // Hold on to the model type that's being defined so that it
     // can be referenced
-    pendingModelType = {
-      id: node.id,
-      type,
-    };
+    pendingModelTypes.set(getNodeSymId(node), type);
+
+    if (!instantiatingThisTemplate) {
+      links.declaredType = type;
+      links.instantiations = new TypeInstantiationMap();
+      type.namespace?.models.set(type.name, type);
+    }
 
     const inheritedPropNames = new Set(
       Array.from(walkPropertiesInherited(type)).map((v) => v.name)
@@ -958,14 +967,8 @@ export function createChecker(program: Program): Checker {
       createType(type);
     }
 
-    if (!instantiatingThisTemplate) {
-      links.declaredType = type;
-      links.instantiations = new TypeInstantiationMap();
-      type.namespace?.models.set(type.name, type);
-    }
-
     // The model is fully created now
-    pendingModelType = undefined;
+    pendingModelTypes.delete(getNodeSymId(node));
 
     return type;
   }
