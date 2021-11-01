@@ -1452,7 +1452,10 @@ export function createChecker(program: Program): Checker {
           );
         }
 
-        interfaceType.operations.set(newMember.name, cloneType(newMember));
+        interfaceType.operations.set(
+          newMember.name,
+          cloneType(newMember, { interface: interfaceType })
+        );
       }
     }
 
@@ -1464,6 +1467,7 @@ export function createChecker(program: Program): Checker {
       // don't do a duplicate check here because interface members can override
       // an member coming from a mixin.
       interfaceType.operations.set(k, v);
+      v.interface = interfaceType;
     }
 
     if (
