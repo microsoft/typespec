@@ -1,5 +1,5 @@
 # Prerequisites
-* Install [Node.js](https://nodejs.org/) 14 LTS
+* Install [Node.js](https://nodejs.org/) 14 LTS or 16 LTS
 * Install [Rush](https://rushjs.io/)
 
 ```
@@ -175,24 +175,6 @@ to the extension or the Cadl language server.
 The VS debugger will attach only to the VS client process. Use "Attach
 to Lanugage Server" described above to debug the language server in
 VS Code.
-
-# Publishing a release
-To publish a release of the packages in this repository, first create
-a branch starting with `publish/` (e.g. `publish/0.4.0`) and run the
-following command:
-
-```
-rush publish --apply
-```
-
-This will bump versions across all packages and update changelogs
-*without* publishing the packages to `npm`.  Stage all of the changed
-files, commit them, and then send a PR.  Once the PR is merged, the
-updated packages will automatically be published to `npm`.
-
-**NOTE:** The `publish/` prefix is necessary to prevent `rush change
--v` from being run in the release preparation PR!
-
 
 # Installing your build
 ```
