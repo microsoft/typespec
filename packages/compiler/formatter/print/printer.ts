@@ -433,15 +433,19 @@ export function printInterfaceStatement(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
+  const node = path.getValue();
   const id = path.call(print, "id");
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
+  const mixes =
+    node.mixes.length > 0 ? concat(["mixes ", join(", ", path.map(print, "mixes")), " "]) : "";
   return concat([
     decorators,
     "interface ",
     id,
     generic,
     " ",
+    mixes,
     printInterfaceMembers(path, options, print),
   ]);
 }
