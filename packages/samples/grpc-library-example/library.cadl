@@ -4,7 +4,6 @@
 
 // package google.example.library.v1;
 import "@cadl-lang/rest";
-import "@cadl-lang/openapi3";
 
 @doc(
   """

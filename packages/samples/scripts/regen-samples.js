@@ -38,6 +38,7 @@ function main() {
       "compile",
       inputPath,
       `--output-path=${outputPath}`,
+      `--import=@cadl-lang/openapi3`,
       `--debug`,
     ]);
   }
