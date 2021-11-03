@@ -103,7 +103,7 @@ export async function createProgram(
 
   await loadMain(mainFile, options);
 
-  if (options.emitters) {
+  if (options.emitters && !options.noEmit) {
     await loadEmitters(mainFile, options.emitters);
   }
 
