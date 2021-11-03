@@ -478,16 +478,19 @@ describe("compiler: syntax", () => {
   describe("projections", () => {
     describe("selectors", () => {
       const selectors = ["model", "op", "interface", "union", "someId"];
-      const codes = selectors.map((s) => `project ${s} to #tag { }`);
+      const codes = selectors.map((s) => `projection ${s}#tag { }`);
       parseEach(codes);
     });
 
     describe("direction", () => {
-      parseEach([`project model to #tag { }`, `project model from #tag { }`]);
+      parseEach([`projection model#tag { to { } }`, `projection model #tag { from { } }`]);
     });
 
     describe("projection parameters", () => {
-      parseEach([`project model to #v(version) { }`, `project model from #foo(bar, baz) { }`]);
+      parseEach([
+        `projection model#v { to(version) { } }`,
+        `projection model#foo{ from(bar, baz) { } }`,
+      ]);
     });
     describe("projection expressions", () => {
       const exprs = [
@@ -530,7 +533,7 @@ describe("compiler: syntax", () => {
         `(a)`,
         `(a + 1)`,
       ];
-      const codes = exprs.map((exp) => `project foo to #tag { ${exp}; }`);
+      const codes = exprs.map((exp) => `projection foo#tag { to { ${exp}; } }`);
       parseEach(codes);
     });
   });

@@ -207,7 +207,7 @@ describe("compiler: scanner", () => {
       [Token.Whitespace],
       [Token.EqualsEquals, "=="],
       [Token.Whitespace],
-      [Token.ProjectKeyword, "project"],
+      [Token.ProjectionKeyword, "project"],
       [Token.Whitespace],
       [Token.IfKeyword, "if"],
       [Token.Whitespace],

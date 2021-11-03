@@ -49,6 +49,7 @@ import {
   ProjectionIfExpressionNode,
   ProjectionLambdaExpressionNode,
   ProjectionMemberExpressionNode,
+  ProjectionNode,
   ProjectionRelationalExpressionNode,
   ProjectionStatementItem,
   ProjectionStatementNode,
@@ -94,7 +95,7 @@ export interface Checker {
   getNamespaceString(type: NamespaceType | undefined): string;
   cloneType<T extends Type>(type: T): T;
   resolveCompletions(node: IdentifierNode): Map<string, Sym>;
-  evalProjection(node: ProjectionStatementNode, target: Type, args: Type[]): Type;
+  evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
 }
 
 /**
@@ -145,12 +146,7 @@ export function createChecker(program: Program): Checker {
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
   const typePrototype = {
-    project(
-      this: Type,
-      target: Type,
-      projection: ProjectionStatementNode,
-      args: Type[] = []
-    ): Type {
+    project(this: Type, target: Type, projection: ProjectionNode, args: Type[] = []): Type {
       return evalProjectionStatement(projection, target, args);
     },
     get projections(): ProjectionStatementNode[] {
@@ -2028,7 +2024,7 @@ export function createChecker(program: Program): Checker {
     });
   }
   function evalProjectionStatement(
-    node: ProjectionStatementNode,
+    node: ProjectionNode,
     target: Type,
     args: (Type | number | string | boolean)[]
   ): Type {

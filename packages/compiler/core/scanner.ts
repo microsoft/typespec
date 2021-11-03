@@ -87,7 +87,7 @@ export enum Token {
   IsKeyword = 47,
   InterfaceKeyword = 48,
   UnionKeyword = 49,
-  ProjectKeyword = 50,
+  ProjectionKeyword = 50,
   ElseKeyword = 51,
   IfKeyword = 52,
   // Update MaxStatementKeyword if anything is added right above here
@@ -160,7 +160,7 @@ export const TokenDisplay: readonly string[] = [
   "'is'",
   "'interface'",
   "'union'",
-  "'project'",
+  "'projection'",
   "'else'",
   "'if'",
   "'extends'",
@@ -177,7 +177,7 @@ export const Keywords: readonly [string, Token][] = [
   ["union", Token.UnionKeyword],
   ["if", Token.IfKeyword],
   ["else", Token.ElseKeyword],
-  ["project", Token.ProjectKeyword],
+  ["projection", Token.ProjectionKeyword],
   ["using", Token.UsingKeyword],
   ["op", Token.OpKeyword],
   ["extends", Token.ExtendsKeyword],
@@ -194,7 +194,7 @@ export const enum KeywordLimit {
   // If this ever exceeds 10, we will overflow the keyword map key, needing 11*5
   // = 55 bits or more, exceeding the JavaScript safe integer range. We would
   // have to change the keyword lookup algorithm in that case.
-  MaxLength = 9,
+  MaxLength = 10,
 }
 
 const KeywordMap: ReadonlyMap<number, Token> = new Map(

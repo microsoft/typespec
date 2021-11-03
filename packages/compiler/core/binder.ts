@@ -20,8 +20,8 @@ import {
   OperationStatementNode,
   ProjectionLambdaExpressionNode,
   ProjectionLambdaParameterDeclarationNode,
+  ProjectionNode,
   ProjectionParameterDeclarationNode,
-  ProjectionRecordNode,
   ProjectionStatementNode,
   ScopeNode,
   Sym,
@@ -224,6 +224,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       case SyntaxKind.UsingStatement:
         bindUsingStatement(node);
         break;
+      case SyntaxKind.Projection:
+        bindProjection(node);
+        break;
       case SyntaxKind.ProjectionStatement:
         bindProjectionStatement(node);
         break;
@@ -278,45 +281,17 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     }
   }
 
-  function bindProjectionStatement(node: ProjectionStatementNode) {
+  function bindProjection(node: ProjectionNode) {
     node.locals = new SymbolTable();
+  }
 
+  function bindProjectionStatement(node: ProjectionStatementNode) {
     // munge the name to give projections a unique namespace
     // probably the projections could use a different symbol type
     // but for now they're the same.
     const name = `#${node.id.sv}`;
 
-    // combine separate projection AST nodes into one
-    const container = getContainingSymbolTable();
-    if (container.has("#" + node.id.sv)) {
-      const existingSymbol = container.get(name)!;
-      if (existingSymbol.kind !== "type") {
-        // report the duplicate
-        declareSymbol(getContainingSymbolTable(), node, name);
-        return;
-      }
-
-      if (existingSymbol.node.kind !== SyntaxKind.ProjectionRecord) {
-        // report the duplicate
-        declareSymbol(getContainingSymbolTable(), node, name);
-        return;
-      }
-
-      const record = existingSymbol.node;
-      if ((record.to && node.direction === "to") || (record.from && node.direction === "from")) {
-      }
-
-      record[node.direction] = node;
-    } else {
-      const record: ProjectionRecordNode = {
-        kind: SyntaxKind.ProjectionRecord,
-        name,
-        [node.direction]: node,
-        pos: node.pos,
-        end: node.end,
-      };
-      declareSymbol(getContainingSymbolTable(), record, name);
-    }
+    declareSymbol(getContainingSymbolTable(), node, name);
   }
 
   function bindProjectionParameterDeclaration(node: ProjectionParameterDeclarationNode) {
@@ -452,7 +427,7 @@ function hasScope(node: Node): node is ScopeNode {
       return true;
     case SyntaxKind.UnionStatement:
       return true;
-    case SyntaxKind.ProjectionStatement:
+    case SyntaxKind.Projection:
       return true;
     case SyntaxKind.ProjectionLambdaExpression:
       return true;

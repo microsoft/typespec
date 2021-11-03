@@ -51,6 +51,7 @@ import {
   ProjectionModelPropertyNode,
   ProjectionModelSelectorNode,
   ProjectionModelSpreadPropertyNode,
+  ProjectionNode,
   ProjectionOperationSelectorNode,
   ProjectionParameterDeclarationNode,
   ProjectionStatementItem,
@@ -322,7 +323,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement();
           break;
-        case Token.ProjectKeyword:
+        case Token.ProjectionKeyword:
           reportInvalidDecorators(decorators, "project statement");
           item = parseProjectionStatement();
           break;
@@ -407,7 +408,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement();
           break;
-        case Token.ProjectKeyword:
+        case Token.ProjectionKeyword:
           reportInvalidDecorators(decorators, "project statement");
           item = parseProjectionStatement();
           break;
@@ -1108,8 +1109,43 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseProjectionStatement(): ProjectionStatementNode {
     const pos = tokenPos();
-    parseExpected(Token.ProjectKeyword);
+    parseExpected(Token.ProjectionKeyword);
     const selector = parseProjectionSelector();
+    parseExpected(Token.Hash);
+
+    const id = parseIdentifier();
+
+    parseExpected(Token.OpenBrace);
+    let from, to;
+    let proj1, proj2;
+    if (token() === Token.Identifier) {
+      proj1 = parseProjection();
+
+      if (token() === Token.Identifier) {
+        proj2 = parseProjection();
+      }
+    }
+
+    if (proj1 && proj2 && proj1.direction === proj2.direction) {
+      error({ code: "duplicate-symbol", target: proj2, format: { name: "projection" } });
+    } else if (proj1) {
+      [to, from] = proj1.direction === "to" ? [proj1, proj2] : [proj2, proj1];
+    }
+
+    parseExpected(Token.CloseBrace);
+
+    return {
+      kind: SyntaxKind.ProjectionStatement,
+      selector,
+      from,
+      to,
+      id,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseProjection(): ProjectionNode {
+    const pos = tokenPos();
     const directionId = parseIdentifier("projectionDirection");
     let direction: "from" | "to";
     if (directionId.sv !== "from" && directionId.sv !== "to") {
@@ -1118,8 +1154,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     } else {
       direction = directionId.sv;
     }
-    parseExpected(Token.Hash);
-    const id = parseIdentifier();
     let parameters: ProjectionParameterDeclarationNode[];
     if (token() === Token.OpenParen) {
       parameters = parseList(ListKind.ProjectionParameter, parseProjectionParameter);
@@ -1129,12 +1163,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.OpenBrace);
     const body: ProjectionStatementItem[] = parseProjectionStatementList();
     parseExpected(Token.CloseBrace);
+
     return {
-      kind: SyntaxKind.ProjectionStatement,
-      selector,
-      direction,
+      kind: SyntaxKind.Projection,
       body,
-      id,
+      direction,
       parameters,
       ...finishNode(pos),
     };
@@ -2020,13 +2053,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       return visitEach(cb, node.values);
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
-    case SyntaxKind.ProjectionStatement:
-      return (
-        visitNode(cb, node.id) ||
-        visitNode(cb, node.selector) ||
-        visitEach(cb, node.parameters) ||
-        visitEach(cb, node.body)
-      );
+    case SyntaxKind.Projection:
+      return visitEach(cb, node.parameters) || visitEach(cb, node.body);
     case SyntaxKind.ProjectionExpressionStatement:
       return visitNode(cb, node.expr);
     case SyntaxKind.ProjectionCallExpression:
@@ -2059,8 +2087,13 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       );
     case SyntaxKind.ProjectionLambdaExpression:
       return visitEach(cb, node.parameters) || visitNode(cb, node.body);
-    case SyntaxKind.ProjectionRecord:
-      return visitNode(cb, node.from) || visitNode(cb, node.to);
+    case SyntaxKind.ProjectionStatement:
+      return (
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.selector) ||
+        visitNode(cb, node.from) ||
+        visitNode(cb, node.to)
+      );
     // no children for the rest of these.
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:

@@ -20,24 +20,25 @@ describe.only("cadl: projections", () => {
         c: string;
       }
 
-      project Foo to #v(version) {
-        if version <= 1 {
-          self.deleteProperty("c");
-        };
+      projection Foo#v {
+        to(version) {
+          if version <= 1 {
+            self.deleteProperty("c");
+          };
 
-        if version <= 2 {
-          self.deleteProperty("b");
-        };
+          if version <= 2 {
+            self.deleteProperty("b");
+          };
+        }
       }
     `
     );
 
     const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-    let result = Foo.project(Foo, Foo.projections[0], [1]) as ModelType;
+    let result = Foo.project(Foo, Foo.projections[0].to!, [1]) as ModelType;
     strictEqual(result.properties.size, 1);
 
-    console.log("Start", Foo);
-    let result2 = Foo.project(Foo, Foo.projections[0], [2]) as ModelType;
+    let result2 = Foo.project(Foo, Foo.projections[0].to!, [2]) as ModelType;
     console.log(result2.properties);
     strictEqual(result2.properties.size, 2);
   });
@@ -73,47 +74,48 @@ describe.only("cadl: projections", () => {
         @removed(2) d: string;
       }
 
-      project Foo to #v(version) {
-        self.properties.forEach((p) => {
-          if getAddedOn(p) > version {
-            self.deleteProperty(p.name);
-          };
+      projection model#v {
+        to(version) {
+          self.properties.forEach((p) => {
+            if getAddedOn(p) > version {
+              self.deleteProperty(p.name);
+            };
 
-          if getRemovedOn(p) <= version {
-            self.deleteProperty(p.name);
-          };
-        });
-      }
-      
-      
-      project Foo from #v(version) {
-        Foo.properties.forEach((p) => {
-          if getAddedOn(p) > version {
-            self.addProperty(p.name, p.type);
-          };
+            if getRemovedOn(p) <= version {
+              self.deleteProperty(p.name);
+            };
+          });
+        }
+        from(version) {
+          Foo.properties.forEach((p) => {
+            if getAddedOn(p) > version {
+              self.addProperty(p.name, p.type);
+            };
 
-          if getRemovedOn(p) <= version {
-            self.addProperty(p.name, p.type);
-          };
-        });
+            if getRemovedOn(p) <= version {
+              self.addProperty(p.name, p.type);
+            };
+          });
+        }
       }
     `
     );
 
     const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
 
-    let result = Foo.project(Foo, Foo.projections[0], [1]) as ModelType;
+    let result = Foo.project(Foo, Foo.projections[0].to!, [1]) as ModelType;
     strictEqual(result.properties.size, 2);
     console.log("Projected v1 keys:", Array.from(result.properties.keys()));
-    let resultBack = Foo.project(result, Foo.projections[1], [1]) as ModelType;
+    let resultBack = Foo.project(result, Foo.projections[0].from!, [1]) as ModelType;
     console.log("Projected back:", Array.from(resultBack.properties.keys()));
 
-    let result2 = Foo.project(Foo, Foo.projections[0], [2]) as ModelType;
+    let result2 = Foo.project(Foo, Foo.projections[0].to!, [2]) as ModelType;
     console.log("Projected v2 keys:", Array.from(result2.properties.keys()));
     strictEqual(result2.properties.size, 2);
-    let resultBack2 = Foo.project(result2, Foo.projections[1], [2]) as ModelType;
+    let resultBack2 = Foo.project(result2, Foo.projections[0].from!, [2]) as ModelType;
     console.log("Projected back:", Array.from(resultBack2.properties.keys()));
   });
+
   it("imported js functions are in-scope", async () => {
     testHost.addJsFile("test.js", {
       foo() {
@@ -214,71 +216,14 @@ describe.only("cadl: projections", () => {
       `
       ${imports.map((v) => `import "${v}";`).join("\n")}
       @test ${model}
-      project model to #test {
-        ${projection}
+      projection model #test {
+        to {
+          ${projection}
+        }
       }
       `
     );
     const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-    return Foo.project(Foo, Foo.projections[0]) as ModelType;
+    return Foo.project(Foo, Foo.projections[0].to!) as ModelType;
   }
-
-  /*
-  it("works", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      @test model Foo {
-        foo_prop: string;
-        bar_prop: string;
-      }
-
-      project model to #json {
-        self.properties.forEach((p) => {
-          self.renameProperty(p.name, p.name.toCamelCase());
-        });
-      }
-
-      project model to #pascal {
-        self.properties.forEach((p) => {
-          self.renameProperty(p.name, p.name.toPascalCase());
-        });
-      }
-
-      project model to #snake {
-        self.properties.forEach((p) => {
-          self.renameProperty(p.name, p.name.toSnakeCase());
-        });
-      }
-      project model to #snake {
-        self.properties.forEach((p) => {
-          self.renameProperty(p.name, p.name.toSnakeCase());
-        });
-      }
-
-      project model to #
-
-      project Foo to #v1 {
-        self.deleteProperty("bar_prop");
-      }
-
-      project Foo from #v1 {
-        self.addProperty("bar_prop", string);
-      }
-      `
-    );
-
-    const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-
-    const out0 = Foo.project(Foo, Foo.projections[0], []) as ModelType;
-    ok(out0.properties.get("fooProp"));
-    ok(out0.properties.get("barProp"));
-    // there...
-    const out1 = Foo.project(Foo, Foo.projections[1], []) as ModelType;
-    strictEqual(out1.properties.size, 1);
-    // and back again
-    const out2 = Foo.project(out1, Foo.projections[2], []) as ModelType;
-    strictEqual(out2.properties.size, 2);
-  });
-  */
 });
