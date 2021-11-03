@@ -9,6 +9,7 @@ import {
   Declaration,
   DecoratorSymbol,
   EnumStatementNode,
+  FunctionSymbol,
   IdentifierNode,
   InterfaceStatementNode,
   JsSourceFile,
@@ -17,6 +18,11 @@ import {
   Node,
   NoTarget,
   OperationStatementNode,
+  ProjectionLambdaExpressionNode,
+  ProjectionLambdaParameterDeclarationNode,
+  ProjectionParameterDeclarationNode,
+  ProjectionRecordNode,
+  ProjectionStatementNode,
   ScopeNode,
   Sym,
   SymbolTable,
@@ -93,30 +99,38 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     const rootNs = sourceFile.esmExports["namespace"];
     const namespaces = new Set<NamespaceStatementNode>();
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
-      if (typeof member === "function" && isFunctionName(key)) {
+      let name: string;
+      let kind: "decorator" | "function";
+
+      if (typeof member === "function") {
         // lots of 'any' casts here because control flow narrowing `member` to Function
         // isn't particularly useful it turns out.
-
-        const name = getFunctionName(key);
-        if (name === "onBuild") {
-          try {
-            program.onBuild(member as any);
-            continue;
-          } catch (err: any) {
-            if (program.compilerOptions.designTimeBuild) {
-              // do not exit the language server
-              program.reportDiagnostic(
-                createDiagnostic({
-                  code: "on-build-fail",
-                  format: { error: err },
-                  target: NoTarget,
-                })
-              );
+        if (isFunctionName(key)) {
+          name = getFunctionName(key);
+          kind = "decorator";
+          if (name === "onBuild") {
+            try {
+              program.onBuild(member as any);
               continue;
-            } else {
-              throw err;
+            } catch (err) {
+              if (program.compilerOptions.designTimeBuild) {
+                // do not exit the language server
+                program.reportDiagnostic(
+                  createDiagnostic({
+                    code: "on-build-fail",
+                    format: { error: err },
+                    target: NoTarget,
+                  })
+                );
+                continue;
+              } else {
+                throw err;
+              }
             }
           }
+        } else {
+          name = key;
+          kind = "function";
         }
 
         const memberNs: string = (member as any).namespace;
@@ -156,7 +170,12 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
             scope = nsNode;
           }
         }
-        const sym = createDecoratorSymbol(name, sourceFile.file.path, member);
+        let sym;
+        if (kind === "decorator") {
+          sym = createDecoratorSymbol(name, sourceFile.file.path, member);
+        } else {
+          sym = createFunctionSymbol(name, member as any);
+        }
         scope.exports!.set(sym.name, sym);
       }
     }
@@ -205,6 +224,17 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       case SyntaxKind.UsingStatement:
         bindUsingStatement(node);
         break;
+      case SyntaxKind.ProjectionStatement:
+        bindProjectionStatement(node);
+        break;
+      case SyntaxKind.ProjectionParameterDeclaration:
+        bindProjectionParameterDeclaration(node);
+        break;
+      case SyntaxKind.ProjectionLambdaParameterDeclaration:
+        bindProjectionLambdaParameterDeclaration(node);
+        break;
+      case SyntaxKind.ProjectionLambdaExpression:
+        bindProjectionLambdaExpression(node);
     }
 
     const prevParent = parentNode;
@@ -246,6 +276,61 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       default:
         return scope.locals!;
     }
+  }
+
+  function bindProjectionStatement(node: ProjectionStatementNode) {
+    node.locals = new SymbolTable();
+
+    // munge the name to give projections a unique namespace
+    // probably the projections could use a different symbol type
+    // but for now they're the same.
+    const name = `#${node.id.sv}`;
+
+    // combine separate projection AST nodes into one
+    const container = getContainingSymbolTable();
+    if (container.has("#" + node.id.sv)) {
+      const existingSymbol = container.get(name)!;
+      if (existingSymbol.kind !== "type") {
+        // report the duplicate
+        declareSymbol(getContainingSymbolTable(), node, name);
+        return;
+      }
+
+      if (existingSymbol.node.kind !== SyntaxKind.ProjectionRecord) {
+        // report the duplicate
+        declareSymbol(getContainingSymbolTable(), node, name);
+        return;
+      }
+
+      const record = existingSymbol.node;
+      if ((record.to && node.direction === "to") || (record.from && node.direction === "from")) {
+      }
+
+      record[node.direction] = node;
+    } else {
+      const record: ProjectionRecordNode = {
+        kind: SyntaxKind.ProjectionRecord,
+        name,
+        [node.direction]: node,
+        pos: node.pos,
+        end: node.end,
+      };
+      declareSymbol(getContainingSymbolTable(), record, name);
+    }
+  }
+
+  function bindProjectionParameterDeclaration(node: ProjectionParameterDeclarationNode) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+  }
+
+  function bindProjectionLambdaParameterDeclaration(
+    node: ProjectionLambdaParameterDeclarationNode
+  ) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+  }
+
+  function bindProjectionLambdaExpression(node: ProjectionLambdaExpressionNode) {
+    node.locals = new SymbolTable();
   }
 
   function bindTemplateParameterDeclaration(node: TemplateParameterDeclarationNode) {
@@ -367,6 +452,10 @@ function hasScope(node: Node): node is ScopeNode {
       return true;
     case SyntaxKind.UnionStatement:
       return true;
+    case SyntaxKind.ProjectionStatement:
+      return true;
+    case SyntaxKind.ProjectionLambdaExpression:
+      return true;
     default:
       return false;
   }
@@ -385,6 +474,14 @@ function createDecoratorSymbol(name: string, path: string, value: any): Decorato
     kind: "decorator",
     name: `@` + name,
     path,
+    value,
+  };
+}
+
+function createFunctionSymbol(name: string, value: (...args: any[]) => any): FunctionSymbol {
+  return {
+    kind: "function",
+    name,
     value,
   };
 }

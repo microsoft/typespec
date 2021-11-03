@@ -486,7 +486,10 @@ describe("compiler: syntax", () => {
       parseEach([`project model to #tag { }`, `project model from #tag { }`]);
     });
 
-    describe.only("projection expressions", () => {
+    describe("projection parameters", () => {
+      parseEach([`project model to #v(version) { }`, `project model from #foo(bar, baz) { }`]);
+    });
+    describe("projection expressions", () => {
       const exprs = [
         `x || y`,
         `x || y || z`,

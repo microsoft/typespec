@@ -234,6 +234,13 @@ namespace ListKind {
     open: Token.OpenParen,
     close: Token.CloseParen,
   } as const;
+
+  export const ProjectionParameter = {
+    ...ExpresionsBase,
+    allowEmpty: true,
+    open: Token.OpenParen,
+    close: Token.CloseParen,
+  } as const;
 }
 
 export interface ParseOptions {
@@ -1113,11 +1120,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
     parseExpected(Token.Hash);
     const id = parseIdentifier();
+    let parameters: ProjectionParameterDeclarationNode[];
+    if (token() === Token.OpenParen) {
+      parameters = parseList(ListKind.ProjectionParameter, parseProjectionParameter);
+    } else {
+      parameters = [];
+    }
     parseExpected(Token.OpenBrace);
-
     const body: ProjectionStatementItem[] = parseProjectionStatementList();
-    const parameters: ProjectionParameterDeclarationNode[] = [];
-
     parseExpected(Token.CloseBrace);
     return {
       kind: SyntaxKind.ProjectionStatement,
@@ -1130,6 +1140,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
+  function parseProjectionParameter(): ProjectionParameterDeclarationNode {
+    const pos = tokenPos();
+    const id = parseIdentifier();
+    return {
+      kind: SyntaxKind.ProjectionParameterDeclaration,
+      id,
+      ...finishNode(pos),
+    };
+  }
   function parseProjectionStatementList(): ProjectionStatementItem[] {
     const stmts = [];
 
@@ -1217,6 +1236,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       // the type assertion is needed here.
       const pos: number = expr.pos;
       const tok = token();
+      const value = tokenValue();
       if (
         tok === Token.LessThan ||
         tok === Token.LessThanEquals ||
@@ -1226,7 +1246,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         nextToken();
         expr = {
           kind: SyntaxKind.ProjectionRelationalExpression,
-          op: tokenValue() as any,
+          op: value as any,
           left: expr,
           right: parseProjectionAdditiveExpressionOrHigher(),
           ...finishNode(pos),
@@ -1515,7 +1535,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
   function parseProjectionSelector():
-    | IdentifierNode
+    | ReferenceExpression
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
     | ProjectionOperationSelectorNode
@@ -1531,7 +1551,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     switch (selectorTok) {
       case Token.Identifier:
-        return parseIdentifier();
+        return parseReferenceExpression();
       case Token.ModelKeyword:
         nextToken();
         return {
@@ -2039,6 +2059,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       );
     case SyntaxKind.ProjectionLambdaExpression:
       return visitEach(cb, node.parameters) || visitNode(cb, node.body);
+    case SyntaxKind.ProjectionRecord:
+      return visitNode(cb, node.from) || visitNode(cb, node.to);
     // no children for the rest of these.
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:

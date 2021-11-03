@@ -20,6 +20,12 @@ export interface BaseType {
   kind: string;
   node?: Node;
   instantiationParameters?: Type[];
+  project(
+    target: Type,
+    projection: ProjectionStatementNode,
+    args?: (Type | string | number | boolean)[]
+  ): Type;
+  get projections(): ProjectionStatementNode[];
 }
 
 export interface DecoratedType {
@@ -46,7 +52,19 @@ export type Type =
   | TupleType
   | UnionType
   | UnionTypeVariant
-  | IntrinsicType;
+  | IntrinsicType
+  | FunctionType
+  | ObjectType;
+
+export interface FunctionType extends BaseType {
+  kind: "Function";
+  call(...args: any[]): Type;
+}
+
+export interface ObjectType extends BaseType {
+  kind: "Object";
+  properties: Record<string, Type>;
+}
 
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
@@ -200,7 +218,7 @@ export interface TemplateParameterType extends BaseType {
 }
 
 // trying to avoid masking built-in Symbol
-export type Sym = DecoratorSymbol | TypeSymbol;
+export type Sym = DecoratorSymbol | TypeSymbol | FunctionSymbol;
 
 export interface DecoratorSymbol {
   kind: "decorator";
@@ -209,6 +227,11 @@ export interface DecoratorSymbol {
   value: (...args: any[]) => any;
 }
 
+export interface FunctionSymbol {
+  kind: "function";
+  name: string;
+  value: (...args: any[]) => any;
+}
 export interface TypeSymbol {
   kind: "type";
   node: Node;
@@ -295,6 +318,7 @@ export enum SyntaxKind {
   ProjectionModelSpreadProperty,
   ProjectionSpreadProperty,
   ProjectionTupleExpression,
+  ProjectionRecord,
 }
 
 export interface BaseNode extends TextRange {
@@ -330,7 +354,8 @@ export type Node =
   | ProjectionOperationSelectorNode
   | ProjectionUnionSelectorNode
   | ProjectionModelPropertyNode
-  | ProjectionModelSpreadPropertyNode;
+  | ProjectionModelSpreadPropertyNode
+  | ProjectionRecordNode;
 
 export type Comment = LineComment | BlockComment;
 
@@ -379,6 +404,8 @@ export type Declaration =
   | NamespaceStatementNode
   | OperationStatementNode
   | TemplateParameterDeclarationNode
+  | ProjectionStatementNode
+  | ProjectionRecordNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
   | EnumStatementNode
@@ -389,7 +416,9 @@ export type ScopeNode =
   | ModelStatementNode
   | InterfaceStatementNode
   | AliasStatementNode
-  | CadlScriptNode;
+  | CadlScriptNode
+  | ProjectionLambdaExpressionNode
+  | ProjectionStatementNode;
 
 export interface ImportStatementNode extends BaseNode {
   kind: SyntaxKind.ImportStatement;
@@ -617,10 +646,11 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
     | ProjectionInterfaceSelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
-    | IdentifierNode;
+    | ReferenceExpression;
   direction: "to" | "from";
   parameters: ProjectionParameterDeclarationNode[];
   body: ProjectionStatementItem[];
+  locals?: SymbolTable;
 }
 
 export interface ProjectionModelSelectorNode extends BaseNode {
@@ -651,6 +681,7 @@ export interface ProjectionExpressionStatement extends BaseNode {
   kind: SyntaxKind.ProjectionExpressionStatement;
   expr: ProjectionExpression;
 }
+
 export interface ProjectionLogicalExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionLogicalExpression;
   op: "||" | "&&";
@@ -734,6 +765,12 @@ export interface ProjectionLambdaParameterDeclarationNode extends BaseNode {
   symbol?: TypeSymbol;
 }
 
+export interface ProjectionRecordNode extends BaseNode, DeclarationNode {
+  kind: SyntaxKind.ProjectionRecord;
+  name: string;
+  to?: ProjectionStatementNode;
+  from?: ProjectionStatementNode;
+}
 /**
  * Identifies the position within a source file by line number and offset from
  * beginning of line.

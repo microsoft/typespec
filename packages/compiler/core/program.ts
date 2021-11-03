@@ -538,6 +538,11 @@ export async function createProgram(
     if (target.kind === "Intrinsic") {
       return undefined;
     }
+
+    if (target.kind === "function" || target.kind === "Function" || target.kind === "Object") {
+      return undefined;
+    }
+
     return target;
   }
 

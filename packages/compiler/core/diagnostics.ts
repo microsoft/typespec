@@ -185,6 +185,10 @@ export function getSourceLocation(target: DiagnosticTarget): SourceLocation {
     return createDummySourceLocation(target.path);
   }
 
+  if (target.kind === "Function" || target.kind === "function" || target.kind === "Object") {
+    return createDummySourceLocation();
+  }
+
   const node = "node" in target ? target.node! : target;
   if (node.kind === "Intrinsic") {
     return createDummySourceLocation();

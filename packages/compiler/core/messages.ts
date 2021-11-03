@@ -176,6 +176,7 @@ const diagnostics = {
     messages: {
       default: "Using must refer to a namespace",
       decorator: "Can't use a decorator",
+      function: "Can't use a function",
     },
   },
   "invalid-type-ref": {
@@ -183,6 +184,7 @@ const diagnostics = {
     messages: {
       default: "Invalid type reference",
       decorator: "Can't put a decorator in a type",
+      function: "Can't use a function as a type",
     },
   },
   "invalid-template-args": {

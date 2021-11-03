@@ -224,6 +224,8 @@ function navigateType(
       return navigateTupleType(type, eventEmitter, visited);
     case "TemplateParameter":
       return navigateTemplateParameter(type, eventEmitter, visited);
+    case "Object":
+    case "Function":
     case "Boolean":
     case "EnumMember":
     case "Intrinsic":
