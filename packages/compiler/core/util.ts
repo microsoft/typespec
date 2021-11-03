@@ -46,7 +46,7 @@ export function deepClone<T>(value: T): T {
 
 export interface FileHandlingOptions {
   allowFileNotFound?: boolean;
-  diagnosticTarget?: DiagnosticTarget;
+  diagnosticTarget?: DiagnosticTarget | typeof NoTarget;
   jsDiagnosticTarget?: DiagnosticTarget;
 }
 

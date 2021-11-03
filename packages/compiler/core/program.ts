@@ -15,6 +15,8 @@ import {
   DiagnosticTarget,
   Directive,
   DirectiveExpressionNode,
+  Emitter,
+  JsBindingOptions,
   JsSourceFile,
   LiteralType,
   Logger,
@@ -38,6 +40,7 @@ export interface Program {
   host: CompilerHost;
   logger: Logger;
   checker?: Checker;
+  emitters: Emitter[];
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
   evalCadlScript(cadlScript: string): void;
@@ -62,6 +65,7 @@ export async function createProgram(
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
+  const emitters: Emitter[] = [];
   let error = false;
 
   const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
@@ -74,6 +78,7 @@ export async function createProgram(
     host,
     diagnostics,
     logger,
+    emitters,
     loadCadlScript,
     evalCadlScript,
     getOption,
@@ -103,6 +108,10 @@ export async function createProgram(
   program.checker.checkProgram();
 
   for (const cb of buildCbs) {
+    await cb(program);
+  }
+
+  for (const cb of emitters) {
     await cb(program);
   }
 
@@ -139,7 +148,11 @@ export async function createProgram(
     }
   }
 
-  async function loadJsFile(path: string, diagnosticTarget: DiagnosticTarget) {
+  async function loadJsFile(
+    path: string,
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget,
+    bindingOptions: JsBindingOptions
+  ) {
     if (program.jsSourceFiles.has(path)) return;
 
     const file = createSourceFile("", path);
@@ -158,10 +171,9 @@ export async function createProgram(
       file,
       namespaces: [],
     };
-
     program.jsSourceFiles.set(path, sourceFile);
 
-    binder.bindJsSourceFile(sourceFile);
+    binder.bindJsSourceFile(sourceFile, bindingOptions);
   }
 
   async function loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode> {
@@ -246,12 +258,41 @@ export async function createProgram(
       if (ext === "") {
         await loadDirectory(target, stmt);
       } else if (ext === ".js" || ext === ".mjs") {
-        await loadJsFile(target, stmt);
+        await loadJsFile(target, stmt, { decorators: true, onBuild: true });
       } else if (ext === ".cadl") {
         await loadCadlFile(target, stmt);
       } else {
         program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target: stmt }));
       }
+    }
+  }
+
+  async function loadEmitters(file: CadlScriptNode, emitters: string[]) {
+    for (const [emitterPackage, emitterName] of emitters.map((x) => x.split(":"))) {
+      const basedir = dirname(file.file.path);
+      let module;
+      try {
+        // attempt to resolve a node module with this name
+        module = await resolveModuleSpecifier(emitterPackage, basedir);
+      } catch (e: any) {
+        if (e.code === "MODULE_NOT_FOUND") {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "library-not-found",
+              format: { path: emitterPackage },
+              target: NoTarget,
+            })
+          );
+          continue;
+        } else {
+          throw e;
+        }
+      }
+      await loadJsFile(module, NoTarget, {
+        decorators: false,
+        onBuild: true,
+        emitter: emitterName,
+      });
     }
   }
 

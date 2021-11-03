@@ -8,9 +8,11 @@ import {
   ContainerNode,
   Declaration,
   DecoratorSymbol,
+  Emitter,
   EnumStatementNode,
   IdentifierNode,
   InterfaceStatementNode,
+  JsBindingOptions,
   JsSourceFile,
   ModelStatementNode,
   NamespaceStatementNode,
@@ -49,7 +51,7 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
 
 export interface Binder {
   bindSourceFile(sourceFile: CadlScriptNode): void;
-  bindJsSourceFile(sourceFile: JsSourceFile): void;
+  bindJsSourceFile(sourceFile: JsSourceFile, options: JsBindingOptions): void;
   bindNode(node: Node): void;
 }
 
@@ -87,7 +89,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     return name.replace(DecoratorFunctionPattern, "");
   }
 
-  function bindJsSourceFile(sourceFile: JsSourceFile) {
+  function bindJsSourceFile(sourceFile: JsSourceFile, options: JsBindingOptions) {
     sourceFile.exports = createSymbolTable();
     isJsFile = true;
     const rootNs = sourceFile.esmExports["namespace"];
@@ -98,7 +100,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         // isn't particularly useful it turns out.
 
         const name = getFunctionName(key);
-        if (name === "onBuild") {
+        if ((options.onBuild, name === "onBuild")) {
           try {
             program.onBuild(member as any);
             continue;
@@ -117,6 +119,10 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
               throw err;
             }
           }
+        }
+
+        if (!options.decorators) {
+          continue;
         }
 
         const memberNs: string = (member as any).namespace;
@@ -158,6 +164,24 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         }
         const sym = createDecoratorSymbol(name, sourceFile.file.path, member);
         scope.exports!.set(sym.name, sym);
+      } else if (
+        options.emitter &&
+        typeof member === "object" &&
+        member !== null &&
+        key === "$emitters"
+      ) {
+        const emitter: Emitter | undefined = (member as any)[options.emitter];
+        if (emitter === undefined) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "emitter-not-found",
+              format: { emitterName: options.emitter },
+              target: NoTarget,
+            })
+          );
+        } else {
+          program.emitters.push(emitter);
+        }
       }
     }
 

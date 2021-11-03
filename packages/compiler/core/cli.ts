@@ -58,6 +58,11 @@ async function main() {
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
+          .option("emit", {
+            type: "array",
+            string: true,
+            describe: "Name of the emitters",
+          })
           .option("diagnostic-level", {
             type: "string",
             default: "info",

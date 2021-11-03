@@ -354,6 +354,12 @@ const diagnostics = {
       default: paramMessage`onBuild failed with errors. ${"error"}`,
     },
   },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Cannot find emitter with name ${"emitterName"}`,
+    },
+  },
 
   /**
    * Decorator

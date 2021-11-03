@@ -41,14 +41,16 @@ import {
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
-export async function $onBuild(p: Program) {
-  const options: OpenAPIEmitterOptions = {
-    outputFile: p.compilerOptions.swaggerOutputFile || path.resolve("./openapi.json"),
-  };
+export const $emitters = {
+  default: async (p: Program) => {
+    const options: OpenAPIEmitterOptions = {
+      outputFile: p.compilerOptions.swaggerOutputFile || path.resolve("./openapi.json"),
+    };
 
-  const emitter = createOAPIEmitter(p, options);
-  await emitter.emitOpenAPI();
-}
+    const emitter = createOAPIEmitter(p, options);
+    await emitter.emitOpenAPI();
+  },
+};
 
 const operationIdsKey = Symbol();
 export function $operationId(program: Program, entity: Type, opId: string) {
