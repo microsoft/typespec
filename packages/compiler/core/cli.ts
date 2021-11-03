@@ -12,6 +12,7 @@ import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
 import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { formatCadlFiles } from "./formatter.js";
+import { Diagnostic } from "./types.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
 async function main() {
@@ -178,6 +179,7 @@ function compileInput(
     if (program.diagnostics.length > 0) {
       log("Diagnostics were reported during compilation:\n");
       logDiagnostics(program.diagnostics, NodeHost.logSink);
+      logDiagnosticCount(program.diagnostics);
     } else {
       if (printSuccess) {
         log(
@@ -219,6 +221,22 @@ function compileInput(
   } else {
     return runCompile();
   }
+}
+
+function logDiagnosticCount(diagnostics: readonly Diagnostic[]) {
+  const errorCount = diagnostics.filter((x) => x.severity === "error").length;
+  const warningCount = diagnostics.filter((x) => x.severity === "warning").length;
+
+  const addSuffix = (count: number, suffix: string) =>
+    count > 1
+      ? `${errorCount} ${suffix}s`
+      : errorCount === 1
+      ? `${errorCount} ${suffix}`
+      : undefined;
+  const errorText = addSuffix(errorCount, "error");
+  const warningText = addSuffix(warningCount, "warning");
+
+  console.log(`\nFound ${[errorText, warningText].filter((x) => x !== undefined).join(", ")}.`);
 }
 
 async function getCompilerOptions(args: {
@@ -433,6 +451,7 @@ async function printInfo() {
   console.log(jsyaml.dump(config, { replacer }));
   console.log("-----------");
   logDiagnostics(config.diagnostics, NodeHost.logSink);
+  logDiagnosticCount(config.diagnostics);
   if (config.diagnostics.some((d) => d.severity === "error")) {
     process.exit(1);
   }
