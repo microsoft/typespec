@@ -249,6 +249,7 @@ async function getCompilerOptions(args: {
   nostdlib?: boolean;
   option?: string[];
   watch?: boolean;
+  emit?: string[];
   "diagnostic-level": string;
 }): Promise<CompilerOptions> {
   // Ensure output path
@@ -265,7 +266,6 @@ async function getCompilerOptions(args: {
     }
     miscOptions[optionParts[0]] = optionParts[1];
   }
-
   return {
     miscOptions,
     outputPath,
@@ -273,6 +273,7 @@ async function getCompilerOptions(args: {
     nostdlib: args["nostdlib"],
     watchForChanges: args["watch"],
     diagnosticLevel: args["diagnostic-level"] as any,
+    emitters: args.emit,
   };
 }
 

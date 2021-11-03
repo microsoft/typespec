@@ -104,6 +104,10 @@ export async function createProgram(
 
   await loadMain(mainFile, options);
 
+  if (options.emitters) {
+    await loadEmitters(mainFile, options.emitters);
+  }
+
   const checker = (program.checker = createChecker(program));
   program.checker.checkProgram();
 
@@ -153,25 +157,26 @@ export async function createProgram(
     diagnosticTarget: DiagnosticTarget | typeof NoTarget,
     bindingOptions: JsBindingOptions
   ) {
-    if (program.jsSourceFiles.has(path)) return;
+    let sourceFile: JsSourceFile | undefined = program.jsSourceFiles.get(path);
+    if (sourceFile === undefined) {
+      const file = createSourceFile("", path);
+      const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
+        diagnosticTarget,
+        jsDiagnosticTarget: { file, pos: 0, end: 0 },
+      });
 
-    const file = createSourceFile("", path);
-    const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
-      diagnosticTarget,
-      jsDiagnosticTarget: { file, pos: 0, end: 0 },
-    });
+      if (!exports) {
+        return;
+      }
 
-    if (!exports) {
-      return;
+      sourceFile = {
+        kind: "JsSourceFile",
+        esmExports: exports,
+        file,
+        namespaces: [],
+      };
+      program.jsSourceFiles.set(path, sourceFile);
     }
-
-    const sourceFile: JsSourceFile = {
-      kind: "JsSourceFile",
-      esmExports: exports,
-      file,
-      namespaces: [],
-    };
-    program.jsSourceFiles.set(path, sourceFile);
 
     binder.bindJsSourceFile(sourceFile, bindingOptions);
   }
@@ -267,9 +272,9 @@ export async function createProgram(
     }
   }
 
-  async function loadEmitters(file: CadlScriptNode, emitters: string[]) {
+  async function loadEmitters(mainFile: string, emitters: string[]) {
     for (const [emitterPackage, emitterName] of emitters.map((x) => x.split(":"))) {
-      const basedir = dirname(file.file.path);
+      const basedir = dirname(mainFile);
       let module;
       try {
         // attempt to resolve a node module with this name
@@ -291,7 +296,7 @@ export async function createProgram(
       await loadJsFile(module, NoTarget, {
         decorators: false,
         onBuild: true,
-        emitter: emitterName,
+        emitter: emitterName ?? "default",
       });
     }
   }
