@@ -16,7 +16,6 @@ import {
   Directive,
   DirectiveExpressionNode,
   Emitter,
-  JsBindingOptions,
   JsSourceFile,
   LiteralType,
   Logger,
@@ -154,31 +153,41 @@ export async function createProgram(
 
   async function loadJsFile(
     path: string,
-    diagnosticTarget: DiagnosticTarget | typeof NoTarget,
-    bindingOptions: JsBindingOptions
-  ) {
-    let sourceFile: JsSourceFile | undefined = program.jsSourceFiles.get(path);
-    if (sourceFile === undefined) {
-      const file = createSourceFile("", path);
-      const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
-        diagnosticTarget,
-        jsDiagnosticTarget: { file, pos: 0, end: 0 },
-      });
-
-      if (!exports) {
-        return;
-      }
-
-      sourceFile = {
-        kind: "JsSourceFile",
-        esmExports: exports,
-        file,
-        namespaces: [],
-      };
-      program.jsSourceFiles.set(path, sourceFile);
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget
+  ): Promise<{ file: JsSourceFile | undefined; alreadyLoaded: boolean }> {
+    let sourceFile = program.jsSourceFiles.get(path);
+    if (sourceFile !== undefined) {
+      return { file: sourceFile, alreadyLoaded: true };
     }
 
-    binder.bindJsSourceFile(sourceFile, bindingOptions);
+    const file = createSourceFile("", path);
+    const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
+      diagnosticTarget,
+      jsDiagnosticTarget: { file, pos: 0, end: 0 },
+    });
+
+    if (!exports) {
+      return { file: undefined, alreadyLoaded: false };
+    }
+
+    sourceFile = {
+      kind: "JsSourceFile",
+      esmExports: exports,
+      file,
+      namespaces: [],
+    };
+    program.jsSourceFiles.set(path, sourceFile);
+    return { file: sourceFile, alreadyLoaded: false };
+  }
+
+  /**
+   * Import the Javascript files decorator and onBuild hook.
+   */
+  async function importJsFile(path: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
+    const { file, alreadyLoaded } = await loadJsFile(path, diagnosticTarget);
+    if (file !== undefined && !alreadyLoaded) {
+      binder.bindJsSourceFile(file);
+    }
   }
 
   async function loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode> {
@@ -263,7 +272,7 @@ export async function createProgram(
       if (ext === "") {
         await loadDirectory(target, stmt);
       } else if (ext === ".js" || ext === ".mjs") {
-        await loadJsFile(target, stmt, { decorators: true, onBuild: true });
+        await importJsFile(target, stmt);
       } else if (ext === ".cadl") {
         await loadCadlFile(target, stmt);
       } else {
@@ -274,30 +283,65 @@ export async function createProgram(
 
   async function loadEmitters(mainFile: string, emitters: string[]) {
     for (const [emitterPackage, emitterName] of emitters.map((x) => x.split(":"))) {
-      const basedir = dirname(mainFile);
-      let module;
-      try {
-        // attempt to resolve a node module with this name
-        module = await resolveModuleSpecifier(emitterPackage, basedir);
-      } catch (e: any) {
-        if (e.code === "MODULE_NOT_FOUND") {
-          program.reportDiagnostic(
-            createDiagnostic({
-              code: "library-not-found",
-              format: { path: emitterPackage },
-              target: NoTarget,
-            })
-          );
-          continue;
-        } else {
-          throw e;
-        }
+      await loadEmitter(mainFile, emitterPackage, emitterName ?? "default");
+    }
+  }
+
+  async function loadEmitter(mainFile: string, emitterPackage: string, emitterName: string) {
+    const basedir = dirname(mainFile);
+    let module;
+    try {
+      // attempt to resolve a node module with this name
+      module = await resolveModuleSpecifier(emitterPackage, basedir);
+    } catch (e: any) {
+      if (e.code === "MODULE_NOT_FOUND") {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "library-not-found",
+            format: { path: emitterPackage },
+            target: NoTarget,
+          })
+        );
+        return;
+      } else {
+        throw e;
       }
-      await loadJsFile(module, NoTarget, {
-        decorators: false,
-        onBuild: true,
-        emitter: emitterName ?? "default",
-      });
+    }
+    const { file } = await loadJsFile(module, NoTarget);
+
+    if (file === undefined) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "emitter-not-found",
+          format: { emitterPackage, emitterName },
+          target: NoTarget,
+        })
+      );
+      return;
+    }
+
+    const exportEmitter = file.esmExports.$emitters;
+    if (typeof exportEmitter === "object" && exportEmitter !== null) {
+      const emitter: Emitter | undefined = exportEmitter[emitterName];
+      if (emitter === undefined) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "emitter-not-found",
+            format: { emitterPackage, emitterName },
+            target: NoTarget,
+          })
+        );
+      } else {
+        emitters.push(emitter);
+      }
+    } else {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "emitter-not-found",
+          format: { emitterPackage, emitterName },
+          target: NoTarget,
+        })
+      );
     }
   }
 

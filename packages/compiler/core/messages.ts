@@ -357,7 +357,7 @@ const diagnostics = {
   "emitter-not-found": {
     severity: "error",
     messages: {
-      default: paramMessage`Cannot find emitter with name ${"emitterName"}`,
+      default: paramMessage`Cannot find emitter with name ${"emitterName"} in ${"emitterPackage"}`,
     },
   },
 

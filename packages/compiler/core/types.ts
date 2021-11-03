@@ -594,23 +594,6 @@ export interface JsSourceFile {
   namespaces: NamespaceStatementNode[];
 }
 
-export interface JsBindingOptions {
-  /**
-   * Import all decorators and onBuild function
-   */
-  decorators: boolean;
-
-  /**
-   * Name of onbuild.
-   */
-  onBuild: boolean;
-
-  /**
-   * Name of emitter to import
-   */
-  emitter?: string;
-}
-
 export type Emitter = (program: Program) => void;
 
 export interface SourceFile {
