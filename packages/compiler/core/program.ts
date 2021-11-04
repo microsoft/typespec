@@ -101,6 +101,13 @@ export async function createProgram(
     await loadStandardLibrary(program);
   }
 
+  // Load additional imports prior to compilation
+  if (options.additionalImports) {
+    const importScript = options.additionalImports.map((i) => `import "${i}";`).join("\n");
+    const sourceFile = createSourceFile(importScript, `__additional_imports`);
+    await loadCadlScript(sourceFile);
+  }
+
   await loadMain(mainFile, options);
 
   if (options.emitters && !options.noEmit) {

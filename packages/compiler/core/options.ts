@@ -7,6 +7,7 @@ export interface CompilerOptions {
   emitters?: string[];
   nostdlib?: boolean;
   noEmit?: boolean;
+  additionalImports?: string[];
   watchForChanges?: boolean;
   serviceCodePath?: string;
   diagnosticLevel?: LogLevel;
