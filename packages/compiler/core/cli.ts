@@ -54,6 +54,12 @@ async function main() {
             default: false,
             describe: "Don't load the Cadl standard library.",
           })
+          .option("import", {
+            type: "array",
+            string: true,
+            describe:
+              "Additional imports to include.  This parameter can be used multiple times to add more imports.",
+          })
           .option("watch", {
             type: "boolean",
             default: false,
@@ -243,6 +249,7 @@ async function getCompilerOptions(args: {
   "output-path": string;
   nostdlib?: boolean;
   option?: string[];
+  import?: string[];
   watch?: boolean;
   "diagnostic-level": string;
 }): Promise<CompilerOptions> {
@@ -266,6 +273,7 @@ async function getCompilerOptions(args: {
     outputPath,
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
+    additionalImports: args["import"],
     watchForChanges: args["watch"],
     diagnosticLevel: args["diagnostic-level"] as any,
   };

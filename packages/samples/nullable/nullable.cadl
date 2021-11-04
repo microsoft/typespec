@@ -1,5 +1,4 @@
 import "@cadl-lang/rest";
-import "@cadl-lang/openapi3";
 
 model HasNullables {
   str: string;

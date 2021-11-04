@@ -6,6 +6,7 @@ export interface CompilerOptions {
   swaggerOutputFile?: string;
   nostdlib?: boolean;
   noEmit?: boolean;
+  additionalImports?: string[];
   watchForChanges?: boolean;
   serviceCodePath?: string;
   diagnosticLevel?: LogLevel;
