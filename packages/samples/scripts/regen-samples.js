@@ -39,6 +39,7 @@ function main() {
       inputPath,
       `--output-path=${outputPath}`,
       `--import=@cadl-lang/openapi3`,
+      `--emit=@cadl-lang/openapi3`,
       `--debug`,
     ]);
   }

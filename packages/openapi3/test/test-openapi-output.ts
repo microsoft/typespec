@@ -371,7 +371,7 @@ describe("openapi3: definitions", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await testHost.diagnose("./", { emitters: ["openapi3"], noEmit: false });
     strictEqual(diagnostics.length, 1);
     match(diagnostics[0].message, /Empty unions are not supported for OpenAPI v3/);
   });

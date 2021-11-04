@@ -37,6 +37,10 @@ export async function openApiFor(code: string) {
   const host = await createOpenAPITestHost();
   const outPath = resolve("/openapi.json");
   host.addCadlFile("./main.cadl", `import "rest"; import "openapi3";${code}`);
-  await host.compile("./main.cadl", { noEmit: false, swaggerOutputFile: outPath });
+  await host.compile("./main.cadl", {
+    noEmit: false,
+    swaggerOutputFile: outPath,
+    emitters: ["openapi3"],
+  });
   return JSON.parse(host.fs.get(outPath)!);
 }
