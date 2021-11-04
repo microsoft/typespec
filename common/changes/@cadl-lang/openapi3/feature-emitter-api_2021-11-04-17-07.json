@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Configure for new emitter syntax",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}
