@@ -7,7 +7,7 @@ import { createSourceFile } from "./diagnostics.js";
 import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { CompilerOptions } from "./options.js";
-import { parse } from "./parser.js";
+import { isImportStatement, parse } from "./parser.js";
 import {
   CadlScriptNode,
   CompilerHost,
@@ -129,11 +129,11 @@ export async function createProgram(
 
   async function loadStandardLibrary(program: Program) {
     for (const dir of host.getLibDirs()) {
-      await loadDirectory(dir);
+      await loadDirectory(dir, NoTarget);
     }
   }
 
-  async function loadDirectory(dir: string, diagnosticTarget?: DiagnosticTarget) {
+  async function loadDirectory(dir: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
     const pkgJsonPath = resolve(dir, "package.json");
     let [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
@@ -143,7 +143,7 @@ export async function createProgram(
     await loadCadlFile(mainFile, diagnosticTarget);
   }
 
-  async function loadCadlFile(path: string, diagnosticTarget?: DiagnosticTarget) {
+  async function loadCadlFile(path: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
     if (seenSourceFiles.has(path)) {
       return;
     }
@@ -207,7 +207,7 @@ export async function createProgram(
     program.reportDiagnostics(sourceFile.parseDiagnostics);
     program.sourceFiles.set(cadlScript.path, sourceFile);
     binder.bindSourceFile(sourceFile);
-    await loadImports(sourceFile);
+    await loadScriptImports(sourceFile);
     return sourceFile;
   }
 
@@ -246,26 +246,34 @@ export async function createProgram(
     reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports!);
   }
 
-  async function loadImports(file: CadlScriptNode) {
+  async function loadScriptImports(file: CadlScriptNode) {
     // collect imports
-    for (const stmt of file.statements) {
-      if (stmt.kind !== SyntaxKind.ImportStatement) break;
-      const path = stmt.path.value;
-      const basedir = dirname(file.file.path);
+    const basedir = dirname(file.file.path);
+    await loadImports(
+      file.statements.filter(isImportStatement).map((x) => ({ path: x.path.value, target: x })),
+      basedir
+    );
+  }
 
-      let target: string;
+  async function loadImports(
+    imports: Array<{ path: string; target: DiagnosticTarget | typeof NoTarget }>,
+    relativeTo: string
+  ) {
+    // collect imports
+    for (const { path, target } of imports) {
+      let importFilePath: string;
       if (path.startsWith("./") || path.startsWith("../")) {
-        target = resolve(basedir, path);
+        importFilePath = resolve(relativeTo, path);
       } else if (isAbsolute(path)) {
-        target = path;
+        importFilePath = path;
       } else {
         try {
           // attempt to resolve a node module with this name
-          target = await resolveModuleSpecifier(path, basedir);
+          importFilePath = await resolveModuleSpecifier(path, relativeTo);
         } catch (e: any) {
           if (e.code === "MODULE_NOT_FOUND") {
             program.reportDiagnostic(
-              createDiagnostic({ code: "library-not-found", format: { path }, target: stmt })
+              createDiagnostic({ code: "library-not-found", format: { path }, target })
             );
             continue;
           } else {
@@ -274,16 +282,16 @@ export async function createProgram(
         }
       }
 
-      const ext = extname(target);
+      const ext = extname(importFilePath);
 
       if (ext === "") {
-        await loadDirectory(target, stmt);
+        await loadDirectory(importFilePath, target);
       } else if (ext === ".js" || ext === ".mjs") {
-        await importJsFile(target, stmt);
+        await importJsFile(importFilePath, target);
       } else if (ext === ".cadl") {
-        await loadCadlFile(target, stmt);
+        await loadCadlFile(importFilePath, target);
       } else {
-        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target: stmt }));
+        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target: target }));
       }
     }
   }
@@ -446,9 +454,9 @@ export async function createProgram(
     }
 
     if (mainStat.isDirectory()) {
-      await loadDirectory(mainPath);
+      await loadDirectory(mainPath, NoTarget);
     } else {
-      await loadCadlFile(mainPath);
+      await loadCadlFile(mainPath, NoTarget);
     }
   }
 

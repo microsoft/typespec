@@ -1538,6 +1538,10 @@ function checkForDescendantErrors(node: Node) {
   });
 }
 
+export function isImportStatement(node: Node): node is ImportStatementNode {
+  return node.kind === SyntaxKind.ImportStatement;
+}
+
 function getFlag(node: Node, flag: NodeFlags) {
   return ((node as any).flags & flag) !== 0;
 }
