@@ -129,7 +129,7 @@ const diagnostics = {
       default: paramMessage`${"token"} expected.`,
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal",
-      identifer: "Identifier expected.",
+      identifier: "Identifier expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
@@ -148,7 +148,7 @@ const diagnostics = {
       default: paramMessage`Unknown directive '#${"id"}'`,
     },
   },
-  "reserverd-identifier": {
+  "reserved-identifier": {
     severity: "error",
     messages: {
       default: "Keyword cannot be used as identifier.",
