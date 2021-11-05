@@ -310,15 +310,15 @@ export interface BlockComment extends TextRange {
 }
 
 export interface CadlScriptNode extends ContainerNode, BaseNode {
-  kind: SyntaxKind.CadlScript;
-  statements: Statement[];
-  file: SourceFile;
-  inScopeNamespaces: NamespaceStatementNode[]; // namespaces that declarations in this file belong to
-  namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
-  usings: UsingStatementNode[];
-  comments: Comment[];
-  parseDiagnostics: Diagnostic[];
-  printable: boolean; // If this ast tree can safely be printed/formatted.
+  readonly kind: SyntaxKind.CadlScript;
+  readonly statements: Statement[];
+  readonly file: SourceFile;
+  readonly inScopeNamespaces: NamespaceStatementNode[]; // namespaces that declarations in this file belong to
+  readonly namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
+  readonly usings: UsingStatementNode[];
+  readonly comments: Comment[];
+  readonly parseDiagnostics: Diagnostic[];
+  readonly printable: boolean; // If this ast tree can safely be printed/formatted.
 }
 
 export type Statement =
@@ -335,8 +335,8 @@ export type Statement =
   | InvalidStatementNode;
 
 export interface DeclarationNode {
-  symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
-  namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
+  readonly symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
+  readonly namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
 }
 
 export type Declaration =
@@ -357,30 +357,30 @@ export type ScopeNode =
   | CadlScriptNode;
 
 export interface ImportStatementNode extends BaseNode {
-  kind: SyntaxKind.ImportStatement;
-  path: StringLiteralNode;
+  readonly kind: SyntaxKind.ImportStatement;
+  readonly path: StringLiteralNode;
 }
 
 export interface IdentifierNode extends BaseNode {
-  kind: SyntaxKind.Identifier;
-  sv: string;
+  readonly kind: SyntaxKind.Identifier;
+  readonly sv: string;
 }
 
 export interface NamedImportNode extends BaseNode {
-  kind: SyntaxKind.NamedImport;
-  id: IdentifierNode;
+  readonly kind: SyntaxKind.NamedImport;
+  readonly id: IdentifierNode;
 }
 
 export interface DecoratorExpressionNode extends BaseNode {
-  kind: SyntaxKind.DecoratorExpression;
-  target: IdentifierNode | MemberExpressionNode;
-  arguments: Expression[];
+  readonly kind: SyntaxKind.DecoratorExpression;
+  readonly target: IdentifierNode | MemberExpressionNode;
+  readonly arguments: Expression[];
 }
 
 export interface DirectiveExpressionNode extends BaseNode {
-  kind: SyntaxKind.DirectiveExpression;
-  target: IdentifierNode;
-  arguments: DirectiveArgument[];
+  readonly kind: SyntaxKind.DirectiveExpression;
+  readonly target: IdentifierNode;
+  readonly arguments: DirectiveArgument[];
 }
 
 export type DirectiveArgument = StringLiteralNode | IdentifierNode;
@@ -401,160 +401,160 @@ export type Expression =
 export type ReferenceExpression = TypeReferenceNode | MemberExpressionNode | IdentifierNode;
 
 export interface MemberExpressionNode extends BaseNode {
-  kind: SyntaxKind.MemberExpression;
-  id: IdentifierNode;
-  base: MemberExpressionNode | IdentifierNode;
+  readonly kind: SyntaxKind.MemberExpression;
+  readonly id: IdentifierNode;
+  readonly base: MemberExpressionNode | IdentifierNode;
 }
 
 export interface ContainerNode {
-  locals?: SymbolTable;
-  exports?: SymbolTable;
+  readonly locals?: SymbolTable;
+  readonly exports?: SymbolTable;
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode, ContainerNode {
-  kind: SyntaxKind.NamespaceStatement;
-  name: IdentifierNode;
-  statements?: Statement[] | NamespaceStatementNode;
-  decorators: DecoratorExpressionNode[];
+  readonly kind: SyntaxKind.NamespaceStatement;
+  readonly name: IdentifierNode;
+  readonly statements?: Statement[] | NamespaceStatementNode;
+  readonly decorators: DecoratorExpressionNode[];
 }
 
 export interface UsingStatementNode extends BaseNode {
-  kind: SyntaxKind.UsingStatement;
-  name: IdentifierNode | MemberExpressionNode;
+  readonly kind: SyntaxKind.UsingStatement;
+  readonly name: IdentifierNode | MemberExpressionNode;
 }
 
 export interface OperationStatementNode extends BaseNode, DeclarationNode {
-  kind: SyntaxKind.OperationStatement;
-  id: IdentifierNode;
-  parameters: ModelExpressionNode;
-  returnType: Expression;
-  decorators: DecoratorExpressionNode[];
+  readonly kind: SyntaxKind.OperationStatement;
+  readonly id: IdentifierNode;
+  readonly parameters: ModelExpressionNode;
+  readonly returnType: Expression;
+  readonly decorators: DecoratorExpressionNode[];
 }
 
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
-  kind: SyntaxKind.ModelStatement;
-  id: IdentifierNode;
-  properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
-  extends?: ReferenceExpression;
-  is?: ReferenceExpression;
-  decorators: DecoratorExpressionNode[];
+  readonly kind: SyntaxKind.ModelStatement;
+  readonly id: IdentifierNode;
+  readonly properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly extends?: ReferenceExpression;
+  readonly is?: ReferenceExpression;
+  readonly decorators: DecoratorExpressionNode[];
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
-  kind: SyntaxKind.InterfaceStatement;
-  id: IdentifierNode;
-  operations: OperationStatementNode[];
-  mixes: ReferenceExpression[];
-  decorators: DecoratorExpressionNode[];
+  readonly kind: SyntaxKind.InterfaceStatement;
+  readonly id: IdentifierNode;
+  readonly operations: OperationStatementNode[];
+  readonly mixes: ReferenceExpression[];
+  readonly decorators: DecoratorExpressionNode[];
 }
 
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
-  kind: SyntaxKind.UnionStatement;
-  id: IdentifierNode;
-  options: UnionVariantNode[];
-  decorators: DecoratorExpressionNode[];
+  readonly kind: SyntaxKind.UnionStatement;
+  readonly id: IdentifierNode;
+  readonly options: UnionVariantNode[];
+  readonly decorators: DecoratorExpressionNode[];
 }
 
 export interface UnionVariantNode extends BaseNode {
-  kind: SyntaxKind.UnionVariant;
-  id: IdentifierNode | StringLiteralNode;
-  value: Expression;
-  decorators: DecoratorExpressionNode[];
+  readonly kind: SyntaxKind.UnionVariant;
+  readonly id: IdentifierNode | StringLiteralNode;
+  readonly value: Expression;
+  readonly decorators: DecoratorExpressionNode[];
 }
 
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
-  kind: SyntaxKind.EnumStatement;
-  id: IdentifierNode;
-  members: EnumMemberNode[];
-  decorators: DecoratorExpressionNode[];
+  readonly kind: SyntaxKind.EnumStatement;
+  readonly id: IdentifierNode;
+  readonly members: EnumMemberNode[];
+  readonly decorators: DecoratorExpressionNode[];
 }
 
 export interface EnumMemberNode extends BaseNode {
-  kind: SyntaxKind.EnumMember;
-  id: IdentifierNode | StringLiteralNode;
-  value?: StringLiteralNode | NumericLiteralNode;
-  decorators: DecoratorExpressionNode[];
+  readonly kind: SyntaxKind.EnumMember;
+  readonly id: IdentifierNode | StringLiteralNode;
+  readonly value?: StringLiteralNode | NumericLiteralNode;
+  readonly decorators: DecoratorExpressionNode[];
 }
 
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
-  kind: SyntaxKind.AliasStatement;
-  id: IdentifierNode;
-  value: Expression;
+  readonly kind: SyntaxKind.AliasStatement;
+  readonly id: IdentifierNode;
+  readonly value: Expression;
 }
 
 export interface InvalidStatementNode extends BaseNode {
-  kind: SyntaxKind.InvalidStatement;
+  readonly kind: SyntaxKind.InvalidStatement;
 }
 
 export interface EmptyStatementNode extends BaseNode {
-  kind: SyntaxKind.EmptyStatement;
+  readonly kind: SyntaxKind.EmptyStatement;
 }
 
 export interface ModelExpressionNode extends BaseNode {
-  kind: SyntaxKind.ModelExpression;
-  properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly kind: SyntaxKind.ModelExpression;
+  readonly properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
 }
 
 export interface ArrayExpressionNode extends BaseNode {
-  kind: SyntaxKind.ArrayExpression;
-  elementType: Expression;
+  readonly kind: SyntaxKind.ArrayExpression;
+  readonly elementType: Expression;
 }
 export interface TupleExpressionNode extends BaseNode {
-  kind: SyntaxKind.TupleExpression;
-  values: Expression[];
+  readonly kind: SyntaxKind.TupleExpression;
+  readonly values: Expression[];
 }
 
 export interface ModelPropertyNode extends BaseNode {
-  kind: SyntaxKind.ModelProperty;
-  id: IdentifierNode | StringLiteralNode;
-  value: Expression;
-  decorators: DecoratorExpressionNode[];
-  optional: boolean;
-  default?: Expression;
+  readonly kind: SyntaxKind.ModelProperty;
+  readonly id: IdentifierNode | StringLiteralNode;
+  readonly value: Expression;
+  readonly decorators: DecoratorExpressionNode[];
+  readonly optional: boolean;
+  readonly default?: Expression;
 }
 
 export interface ModelSpreadPropertyNode extends BaseNode {
-  kind: SyntaxKind.ModelSpreadProperty;
-  target: ReferenceExpression;
+  readonly kind: SyntaxKind.ModelSpreadProperty;
+  readonly target: ReferenceExpression;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
 
 export interface StringLiteralNode extends BaseNode {
-  kind: SyntaxKind.StringLiteral;
-  value: string;
+  readonly kind: SyntaxKind.StringLiteral;
+  readonly value: string;
 }
 
 export interface NumericLiteralNode extends BaseNode {
-  kind: SyntaxKind.NumericLiteral;
-  value: number;
+  readonly kind: SyntaxKind.NumericLiteral;
+  readonly value: number;
 }
 
 export interface BooleanLiteralNode extends BaseNode {
-  kind: SyntaxKind.BooleanLiteral;
-  value: boolean;
+  readonly kind: SyntaxKind.BooleanLiteral;
+  readonly value: boolean;
 }
 
 export interface UnionExpressionNode extends BaseNode {
-  kind: SyntaxKind.UnionExpression;
-  options: Expression[];
+  readonly kind: SyntaxKind.UnionExpression;
+  readonly options: Expression[];
 }
 
 export interface IntersectionExpressionNode extends BaseNode {
-  kind: SyntaxKind.IntersectionExpression;
-  options: Expression[];
+  readonly kind: SyntaxKind.IntersectionExpression;
+  readonly options: Expression[];
 }
 
 export interface TypeReferenceNode extends BaseNode {
-  kind: SyntaxKind.TypeReference;
-  target: ReferenceExpression;
-  arguments: Expression[];
+  readonly kind: SyntaxKind.TypeReference;
+  readonly target: ReferenceExpression;
+  readonly arguments: Expression[];
 }
 
 export interface TemplateParameterDeclarationNode extends BaseNode {
-  kind: SyntaxKind.TemplateParameterDeclaration;
-  id: IdentifierNode;
-  symbol?: TypeSymbol;
+  readonly kind: SyntaxKind.TemplateParameterDeclaration;
+  readonly id: IdentifierNode;
+  readonly symbol?: TypeSymbol;
 }
 
 /**
