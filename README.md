@@ -12,16 +12,16 @@ using the preview.
 
 ## Packages
 
-| Name                                        | Changelog                    | Latest                                                     |
-| ------------------------------------------- | ---------------------------- | ---------------------------------------------------------- |
-| Core functionality                          |
-| [@cadl-lang/compiler][cadl_src]             | [Changelog][cadl_chg]        | ![](https://img.shields.io/npm/v/@cadl-lang/compiler)      |
-| Cadl Libraries                              |
-| [@cadl-lang/rest][rest_src]                 | [Changelog][rest_chg]        | ![](https://img.shields.io/npm/v/@cadl-lang/rest)          |
-| [@cadl-lang/openapi3][openapi3_src]         | [Changelog][openapi3_chg]    | ![](https://img.shields.io/npm/v/@cadl-lang/openapi3)      |
-| Cadl Tools                                  |
-| [cadl-vs][cadl-vs_src]                      | [Changelog][cadl-vs_chg]     | ![](https://img.shields.io/npm/v/@azure-tools/cadl-vs)     |
-| [cadl-vscode][cadl-vscode_src]              | [Changelog][cadl-vscode_chg] | ![](https://img.shields.io/npm/v/cadl-vscode)              |
+| Name                                | Changelog                    | Latest                                                 |
+| ----------------------------------- | ---------------------------- | ------------------------------------------------------ |
+| Core functionality                  |
+| [@cadl-lang/compiler][cadl_src]     | [Changelog][cadl_chg]        | ![](https://img.shields.io/npm/v/@cadl-lang/compiler)  |
+| Cadl Libraries                      |
+| [@cadl-lang/rest][rest_src]         | [Changelog][rest_chg]        | ![](https://img.shields.io/npm/v/@cadl-lang/rest)      |
+| [@cadl-lang/openapi3][openapi3_src] | [Changelog][openapi3_chg]    | ![](https://img.shields.io/npm/v/@cadl-lang/openapi3)  |
+| Cadl Tools                          |
+| [cadl-vs][cadl-vs_src]              | [Changelog][cadl-vs_chg]     | ![](https://img.shields.io/npm/v/@azure-tools/cadl-vs) |
+| [cadl-vscode][cadl-vscode_src]      | [Changelog][cadl-vscode_chg] | ![](https://img.shields.io/npm/v/cadl-vscode)          |
 
 [cadl_src]: packages/compiler
 [cadl_chg]: packages/compiler/CHANGELOG.md
@@ -72,7 +72,6 @@ using the preview.
 
    This will compile the Cadl files in the project folder into one output file: `.\cadl-output\openapi.json`.
 
-
 ## Usage
 
 See full usage documentation by typing:
@@ -86,6 +85,7 @@ cadl --help
 Here is a very small Cadl example that uses the `@cadl-lang/openapi3` library to generate OpenAPI 3.0 from Cadl.
 
 #### sample.cadl
+
 ```
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
@@ -98,6 +98,7 @@ namespace Example {
 ```
 
 You can compile it to OpenAPI 3.0 by using the following command:
+
 ```
 cadl compile sample.cadl
 ```
@@ -106,7 +107,6 @@ Once it compiles, you can find the emitted OpenAPI document in `./cadl-output/op
 
 You can also pass in a directory instead of a file to `cadl compile`. That's
 equivalent to passing `main.cadl` in that directory.
-
 
 ### Formatting Cadl files
 
@@ -130,7 +130,7 @@ This will download and install the latest VS Code extension. Use `cadl code unin
 If `cadl-server` cannot be found on PATH by VS Code in your setup, you can
 configure its location in VS Code settings. Search for "Cadl" in File ->
 Preferences -> Settings, and adjust `cadl.cadl-server.path` accordingly. You may
-need to restart VS Code after changing this.
+need to restart VS Code after changing this. This should be the path to the `@cadl-lang/compiler` package. (e.g. `./node_modules/@cadl-lang/compiler`)
 
 You can also configure a project to use a local npm install of
 `@cadl-lang/compiler`. See [local-cadl sample](packages/samples/local-cadl).

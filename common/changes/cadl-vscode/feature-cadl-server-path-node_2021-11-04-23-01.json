@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "**Change** `cadl.cadl-server.path` should point to the `@cadl-lang/compiler` package instead of `cadl-server` binary.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

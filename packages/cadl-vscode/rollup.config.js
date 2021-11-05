@@ -10,7 +10,7 @@ export default {
     sourcemap: true,
     exports: "default",
   },
-  external: ["vscode"],
+  external: ["fs/promises", "vscode"],
   plugins: [resolve({ preferBuiltins: true }), commonjs()],
   onwarn: (warning, warn) => {
     if (warning.code === "CIRCULAR_DEPENDENCY") {
