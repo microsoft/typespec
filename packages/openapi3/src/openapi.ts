@@ -10,11 +10,19 @@ import {
   getMinLength,
   getMinValue,
   getVisibility,
+  isArrayType,
+  isBooleanLiteralType,
+  isEnumType,
   isErrorType,
   isIntrinsic,
+  isModelType,
+  isModelTypeProperty,
+  isNumericLiteralType,
   isNumericType,
   isSecret,
+  isStringLiteralType,
   isStringType,
+  isUnionType,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -67,7 +75,7 @@ function getPageable(program: Program, entity: Type): string | undefined {
 const refTargetsKey = Symbol();
 
 export function $useRef(program: Program, entity: Type, refUrl: string): void {
-  if (entity.kind === "Model" || entity.kind === "ModelProperty") {
+  if (isModelType(entity) || isModelTypeProperty(entity)) {
     program.stateMap(refTargetsKey).set(entity, refUrl);
   } else {
     reportDiagnostic(program, {
@@ -386,7 +394,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function emitResponses(responseType: Type) {
-    if (responseType.kind === "Union") {
+    if (isUnionType(responseType)) {
       for (const [i, option] of responseType.options.entries()) {
         emitResponseObject(option, i === 0 ? "200" : "default");
       }
@@ -398,7 +406,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function emitResponseObject(responseModel: Type, statusCode: string = "200") {
     let contentType = "application/json";
     if (
-      responseModel.kind === "Model" &&
+      isModelType(responseModel) &&
       !responseModel.baseModel &&
       responseModel.properties.size === 0
     ) {
@@ -425,7 +433,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     let headers: any = {};
 
     let bodyModel = responseModel;
-    if (responseModel.kind === "Model") {
+    if (isModelType(responseModel)) {
       for (const prop of responseModel.properties.values()) {
         if (isBody(program, prop)) {
           if (bodyModel !== responseModel) {
@@ -441,12 +449,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           case undefined:
             break;
           case "status-code":
-            if (type.kind === "Number") {
+            if (isNumericLiteralType(type)) {
               statusCode = String(type.value);
             }
             break;
           case "content-type":
-            if (type.kind === "String") {
+            if (isStringLiteralType(type)) {
               contentType = type.value;
             }
             break;
@@ -500,7 +508,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       };
     }
 
-    if (type.kind === "Model" && !type.baseModel) {
+    if (isModelType(type) && !type.baseModel) {
       // If this is a model that isn't derived from anything, there's a chance
       // it's a base Cadl "primitive" that corresponds directly to an OpenAPI
       // primitive. In such cases, we don't want to emit a ref and instead just
@@ -511,7 +519,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
+    if (isStringLiteralType(type) || isNumericLiteralType(type) || isBooleanLiteralType(type)) {
       // For literal types, we just want to emit them directly as well.
       return mapCadlTypeToOpenAPI(type);
     }
@@ -644,12 +652,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getContentTypes(param: ModelTypeProperty): string[] {
-    if (param.type.kind === "String") {
+    if (isStringLiteralType(param.type)) {
       return [param.type.value];
-    } else if (param.type.kind === "Union") {
+    } else if (isUnionType(param.type)) {
       const contentTypes = [];
       for (const option of param.type.options) {
-        if (option.kind === "String") {
+        if (isStringLiteralType(option)) {
           contentTypes.push(option.value);
         } else {
           reportDiagnostic(program, {
@@ -670,12 +678,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getModelTypeIfNullable(type: Type): ModelType | undefined {
-    if (type.kind === "Model") {
+    if (isModelType(type)) {
       return type;
-    } else if (type.kind === "Union") {
+    } else if (isUnionType(type)) {
       // Remove all `null` types and make sure there's a single model type
       const nonNulls = type.options.filter((o) => !isNullType(o));
-      if (nonNulls.every((t) => t.kind === "Model")) {
+      if (nonNulls.every((t) => isModelType(t))) {
         return nonNulls.length === 1 ? (nonNulls[0] as ModelType) : undefined;
       }
     }
@@ -701,7 +709,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     // Apply decorators to the schema for the parameter.
     let schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
-    if (param.type.kind === "Array") {
+    if (isArrayType(param.type)) {
       schema.items = getSchemaForType(param.type.elementType);
     }
     if (param.default) {
@@ -763,13 +771,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const builtinType = mapCadlTypeToOpenAPI(type);
     if (builtinType !== undefined) return builtinType;
 
-    if (type.kind === "Array") {
+    if (isArrayType(type)) {
       return getSchemaForArray(type);
-    } else if (type.kind === "Model") {
+    } else if (isModelType(type)) {
       return getSchemaForModel(type);
-    } else if (type.kind === "Union") {
+    } else if (isUnionType(type)) {
       return getSchemaForUnion(type);
-    } else if (type.kind === "Enum") {
+    } else if (isEnumType(type)) {
       return getSchemaForEnum(type);
     }
 
@@ -890,7 +898,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function isNullType(type: Type): boolean {
-    return type.kind === "Model" && type.name === "null" && isIntrinsic(program, type);
+    return isModelType(type) && type.name === "null" && isIntrinsic(program, type);
   }
 
   function getDefaultValue(type: Type): any {
@@ -1132,7 +1140,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     // The base model doesn't correspond to a primitive OA type, but it could
     // derive from one. Let's check.
-    if (cadlType.kind === "Model" && cadlType.baseModel) {
+    if (isModelType(cadlType) && cadlType.baseModel) {
       const baseSchema = mapCadlTypeToOpenAPI(cadlType.baseModel);
       if (baseSchema) {
         return applyIntrinsicDecorators(cadlType, baseSchema);

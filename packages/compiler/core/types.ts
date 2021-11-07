@@ -85,6 +85,7 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   properties: Map<string, ModelTypeProperty>;
   baseModel?: ModelType;
 }
+export const isModelType = (t: Type): t is ModelType => t.kind === "Model";
 
 export interface ModelTypeProperty extends DecoratedType {
   kind: "ModelProperty";
@@ -97,6 +98,7 @@ export interface ModelTypeProperty extends DecoratedType {
   optional: boolean;
   default?: Type;
 }
+export const isModelTypeProperty = (t: Type): t is ModelTypeProperty => t.kind === "ModelProperty";
 
 export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
   kind: "Interface";
@@ -105,6 +107,7 @@ export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
   namespace?: NamespaceType;
   operations: Map<string, OperationType>;
 }
+export const isInterfaceType = (t: Type): t is InterfaceType => t.kind === "Interface";
 
 export interface EnumType extends BaseType, DecoratedType {
   kind: "Enum";
@@ -113,6 +116,7 @@ export interface EnumType extends BaseType, DecoratedType {
   namespace?: NamespaceType;
   members: EnumMemberType[];
 }
+export const isEnumType = (t: Type): t is EnumType => t.kind === "Enum";
 
 export interface EnumMemberType extends BaseType, DecoratedType {
   kind: "EnumMember";
@@ -121,6 +125,7 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   node: EnumMemberNode;
   value?: string | number;
 }
+export const isEnumMemberType = (t: Type): t is EnumMemberType => t.kind === "EnumMember";
 
 export interface OperationType extends DecoratedType {
   kind: "Operation";
@@ -131,6 +136,7 @@ export interface OperationType extends DecoratedType {
   parameters: ModelType;
   returnType: Type;
 }
+export const isOperationType = (t: Type): t is OperationType => t.kind === "Operation";
 
 export interface NamespaceType extends BaseType, DecoratedType {
   kind: "Namespace";
@@ -143,6 +149,7 @@ export interface NamespaceType extends BaseType, DecoratedType {
   interfaces: Map<string, InterfaceType>;
   unions: Map<string, UnionType>;
 }
+export const isNamespaceType = (t: Type): t is NamespaceType => t.kind === "Namespace";
 
 export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
@@ -151,30 +158,35 @@ export interface StringLiteralType extends BaseType {
   node: StringLiteralNode;
   value: string;
 }
+export const isStringLiteralType = (t: Type): t is StringLiteralType => t.kind === "String";
 
 export interface NumericLiteralType extends BaseType {
   kind: "Number";
   node: NumericLiteralNode;
   value: number;
 }
+export const isNumericLiteralType = (t: Type): t is NumericLiteralType => t.kind === "Number";
 
 export interface BooleanLiteralType extends BaseType {
   kind: "Boolean";
   node: BooleanLiteralNode;
   value: boolean;
 }
+export const isBooleanLiteralType = (t: Type): t is BooleanLiteralType => t.kind === "Boolean";
 
 export interface ArrayType extends BaseType {
   kind: "Array";
   node: ArrayExpressionNode;
   elementType: Type;
 }
+export const isArrayType = (t: Type): t is ArrayType => t.kind === "Array";
 
 export interface TupleType extends BaseType {
   kind: "Tuple";
   node: TupleExpressionNode;
   values: Type[];
 }
+export const isTupleType = (t: Type): t is TupleType => t.kind === "Tuple";
 
 export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   kind: "Union";
@@ -185,6 +197,7 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   expression: boolean;
   readonly options: Type[];
 }
+export const isUnionType = (t: Type): t is UnionType => t.kind === "Union";
 
 export interface UnionTypeVariant extends BaseType, DecoratedType {
   kind: "UnionVariant";
@@ -192,11 +205,14 @@ export interface UnionTypeVariant extends BaseType, DecoratedType {
   node: UnionVariantNode;
   type: Type;
 }
+export const isUnionTypeVariant = (t: Type): t is UnionTypeVariant => t.kind === "UnionVariant";
 
 export interface TemplateParameterType extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
 }
+export const isTemplateParameterType = (t: Type): t is TemplateParameterType =>
+  t.kind === "TemplateParameter";
 
 // trying to avoid masking built-in Symbol
 export type Sym = DecoratorSymbol | TypeSymbol;
