@@ -216,6 +216,25 @@ export function getOperationRoute(program: Program, entity: Type): OperationRout
   return program.stateMap(operationRoutesKey).get(entity);
 }
 
+export function verbForEndpoint(name: string): HttpVerb | undefined {
+  switch (name) {
+    case "list":
+      return "get";
+    case "create":
+      return "post";
+    case "read":
+      return "get";
+    case "update":
+      return "patch";
+    case "delete":
+      return "delete";
+    case "deleteAll":
+      return "delete";
+  }
+
+  return undefined;
+}
+
 export function $get(program: Program, entity: Type, subPath?: string) {
   setOperationRoute(program, entity, {
     verb: "get",

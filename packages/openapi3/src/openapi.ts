@@ -35,8 +35,8 @@ import {
   getServiceNamespaceString,
   getServiceTitle,
   getServiceVersion,
-  HttpVerb,
   isBody,
+  verbForEndpoint,
 } from "@cadl-lang/rest";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
@@ -314,25 +314,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     return [verb, pathSegments, routePath];
-  }
-
-  function verbForEndpoint(name: string): HttpVerb | undefined {
-    switch (name) {
-      case "list":
-        return "get";
-      case "create":
-        return "post";
-      case "read":
-        return "get";
-      case "update":
-        return "patch";
-      case "delete":
-        return "delete";
-      case "deleteAll":
-        return "delete";
-    }
-
-    return undefined;
   }
 
   function emitEndpoint(resource: NamespaceType, op: OperationType) {
