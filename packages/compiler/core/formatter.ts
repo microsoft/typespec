@@ -15,6 +15,21 @@ export async function formatCadl(code: string, prettierConfig?: prettier.Options
 }
 
 /**
+ * Check the given is correctly formatted.
+ * @returns true if code is formatted correctly.
+ */
+export async function checkFormatCadl(
+  code: string,
+  prettierConfig?: prettier.Options
+): Promise<boolean> {
+  return prettier.check(code, {
+    ...prettierConfig,
+    parser: "cadl",
+    plugins: [cadlPrettierPlugin],
+  });
+}
+
+/**
  * Format all the Cadl files.
  * @param patterns List of wildcard pattern searching for Cadl files.
  */
@@ -34,11 +49,48 @@ export async function formatCadlFiles(patterns: string[], { debug }: { debug?: b
   }
 }
 
+/**
+ * Find all the unformatted files.
+ * @returns list of files not formatted.
+ */
+export async function findUnformattedCadlFiles(
+  patterns: string[],
+  { debug }: { debug?: boolean }
+): Promise<string[]> {
+  const files = await findFiles(patterns);
+  const unformatted = [];
+  for (const file of files) {
+    try {
+      if (!(await checkFormatCadlFile(file))) {
+        unformatted.push(file);
+      }
+    } catch (e) {
+      if (e instanceof PrettierParserError) {
+        const details = debug ? e.message : "";
+        console.error(`File '${file}' failed to fromat. ${details}`);
+      } else {
+        throw e;
+      }
+    }
+  }
+  return unformatted;
+}
+
 export async function formatCadlFile(filename: string) {
   const content = await readFile(filename);
   const prettierConfig = await prettier.resolveConfig(filename);
   const formattedContent = await formatCadl(content.toString(), prettierConfig ?? {});
   await writeFile(filename, formattedContent);
+}
+
+/**
+ * Check the given cadl file is correctly formatted.
+ * @returns true if code is formatted correctly.
+ */
+export async function checkFormatCadlFile(filename: string): Promise<boolean> {
+  const content = await readFile(filename);
+  const prettierConfig = await prettier.resolveConfig(filename);
+  return await checkFormatCadl(content.toString(), prettierConfig ?? {});
 }
 
 async function findFilesFromPattern(pattern: string): Promise<string[]> {
