@@ -68,6 +68,7 @@ export async function findUnformattedCadlFiles(
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
         console.error(`File '${file}' failed to fromat. ${details}`);
+        unformatted.push(file);
       } else {
         throw e;
       }
