@@ -70,14 +70,9 @@ model DateTimeWrapper {
   now: zonedDateTime;
 }
 
-// model DateTimeRfc1123Wrapper {
-//   field: zonedDateTime;
-//   now: zonedDateTime;
-// }
-
-// model DurationWrapper {
-//   field: duration;
-// }
+model DurationWrapper {
+  field: duration;
+}
 
 model BytesWrapper {
   field: bytes;
@@ -170,6 +165,14 @@ namespace Complex {
   @doc("Put complex types with DateTime properties")
   @put("/primitive/datetime")
   op putZonedDateTime(@body value: DateTimeWrapper): OkResponse<{}> | Error;
+
+  @doc("Get complex types with Duration properties")
+  @get("/primitive/duration")
+  op getZonedDuration(): OkResponse<DurationWrapper> | Error;
+
+  @doc("Put complex types with Duration properties")
+  @put("/primitive/duration")
+  op putZonedDuration(@body value: DurationWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with bytes properties")
   @get("/primitive/bytes")

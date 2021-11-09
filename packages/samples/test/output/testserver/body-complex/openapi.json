@@ -609,6 +609,73 @@
         }
       }
     },
+    "/complex/primitive/duration": {
+      "get": {
+        "operationId": "Complex_getZonedDuration",
+        "summary": "Get complex types with Duration properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DurationWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putZonedDuration",
+        "summary": "Put complex types with Duration properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DurationWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
     "/complex/primitive/bytes": {
       "get": {
         "operationId": "Complex_getBytes",
@@ -988,6 +1055,18 @@
         "required": [
           "field",
           "now"
+        ]
+      },
+      "DurationWrapper": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "format": "duration"
+          }
+        },
+        "required": [
+          "field"
         ]
       },
       "BytesWrapper": {
