@@ -74,6 +74,7 @@ export type IntrinsicModelName =
   | "plainDate"
   | "plainTime"
   | "zonedDateTime"
+  | "duration"
   | "boolean"
   | "null";
 
