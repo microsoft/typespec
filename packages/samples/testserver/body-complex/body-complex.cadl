@@ -178,7 +178,7 @@ namespace Complex {
   @doc("Put complex types with bytes properties")
   @put("/primitive/bytes")
   op putBytes(@body value: BytesWrapper): OkResponse<{}> | Error;
-  
+
   @doc("Get complex types with array properties")
   @get("/array/valid")
   op getArray(): OkResponse<ArrayWrapper> | Error;
@@ -186,7 +186,7 @@ namespace Complex {
   @doc("Put complex types with array properties")
   @put("/array/valid")
   op putArray(@body value: ArrayWrapper): OkResponse<{}> | Error;
-  
+
   @resource("/dictionary")
   namespace Dictionary {
     @doc("Get complex types with dictionary property")
