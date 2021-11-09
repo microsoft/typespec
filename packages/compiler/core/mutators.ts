@@ -172,7 +172,8 @@ export function addOperationResponseType(
   // Graft the union into the operation
   const originalResponse = operation.node.returnType;
   graftUnion.options[0] = originalResponse;
-  operation.node.returnType = graftUnion;
+  // TODO fix readonly issue
+  (operation.node as any).returnType = graftUnion;
 
   // Create a binder to wire up the grafted property
   const binder = createBinder(program, {

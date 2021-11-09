@@ -335,8 +335,8 @@ export type Statement =
   | InvalidStatementNode;
 
 export interface DeclarationNode {
-  readonly symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
-  readonly namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
+  symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
+  namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
 }
 
 export type Declaration =
@@ -407,8 +407,8 @@ export interface MemberExpressionNode extends BaseNode {
 }
 
 export interface ContainerNode {
-  readonly locals?: SymbolTable;
-  readonly exports?: SymbolTable;
+  locals?: SymbolTable;
+  exports?: SymbolTable;
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode, ContainerNode {
@@ -554,7 +554,7 @@ export interface TypeReferenceNode extends BaseNode {
 export interface TemplateParameterDeclarationNode extends BaseNode {
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly id: IdentifierNode;
-  readonly symbol?: TypeSymbol;
+  symbol?: TypeSymbol;
 }
 
 /**
