@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Fix Visual Studio 2022 support",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vs"
+}
