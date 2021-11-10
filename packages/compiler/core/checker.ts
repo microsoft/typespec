@@ -746,23 +746,12 @@ export function createChecker(program: Program): Checker {
   }
 
   function resolveCompletions(identifier: IdentifierNode): string[] {
-    let resolveDecorator = false;
-
-    // Walk to first non-MemberExpression parent of identifier. If it's
-    // a TypeReference or DecoratorExpression, then we can complete it.
-    loop: for (let node = identifier.parent; node; node = node!.parent) {
-      switch (node.kind) {
-        case SyntaxKind.MemberExpression:
-          continue;
-        case SyntaxKind.DecoratorExpression:
-          resolveDecorator = true;
-          break loop;
-        case SyntaxKind.TypeReference:
-          break loop;
-        default:
-          // This identifier is not part of a type reference or decorator expression.
-          return [];
-      }
+    // If first non-MemberExpression parent of identifier is a TypeReference
+    // or DecoratorExpression, then we can complete it.
+    const parent = findFirstNonMemberExpressionParent(identifier);
+    const resolveDecorator = parent.kind === SyntaxKind.DecoratorExpression;
+    if (parent.kind !== SyntaxKind.TypeReference && !resolveDecorator) {
+      return [];
     }
 
     const completions = new Set<string>();
@@ -800,6 +789,20 @@ export function createChecker(program: Program): Checker {
     }
 
     return Array.from(completions);
+
+    function findFirstNonMemberExpressionParent(identifier: IdentifierNode) {
+      for (let node = identifier.parent; node; node = node.parent) {
+        if (node.kind !== SyntaxKind.MemberExpression) {
+          return node;
+        }
+      }
+
+      compilerAssert(
+        false,
+        "Shouldn't have an identifier with only member expression parents all the way to the root.",
+        identifier
+      );
+    }
 
     function addCompletions(table: SymbolTable) {
       if (resolveDecorator) {
