@@ -3032,10 +3032,11 @@ packages:
       '@types/plist': 3.0.2
       onigasm: 2.2.5
       plist: 3.0.4
+      typescript: 4.4.4
     dev: false
     name: '@rush-temp/tmlanguage-generator'
     resolution:
-      integrity: sha512-WM1WhCLQw/RzuttQrS7QutOHooQHzcxlNAI8Jv5FUgaPmH7OGl7G3m/dH8KcWE4vSQRteEKlCNqeHU8w1z152w==
+      integrity: sha512-knw/L+Bae0ugyw0PdTcsoHMPZIAuAz07xX0LuxYb3mcXklWfh3ubNBGuNnn94abkOXM5yd6fiWgwtgpwowPREg==
       tarball: file:projects/tmlanguage-generator.tgz
     version: 0.0.0
 specifiers:
