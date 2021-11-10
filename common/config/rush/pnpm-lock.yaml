@@ -1,5 +1,4 @@
 dependencies:
-  '@esfx/cancelable': 1.0.0-pre.30
   '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.5
   '@rollup/plugin-json': 4.1.0_rollup@2.41.5
   '@rollup/plugin-node-resolve': 11.2.1_rollup@2.41.5
@@ -19,7 +18,6 @@ dependencies:
   '@types/mocha': 7.0.2
   '@types/mustache': 4.1.2
   '@types/node': 14.0.27
-  '@types/node-fetch': 2.5.12
   '@types/plist': 3.0.2
   '@types/prettier': 2.4.1
   '@types/prompts': 2.0.14
@@ -35,7 +33,7 @@ dependencies:
   mkdirp: 1.0.4
   mocha: 8.3.2
   mustache: 4.2.0
-  node-fetch: 2.6.6
+  node-fetch: 3.1.0
   node-watch: 0.7.2
   onigasm: 2.2.5
   plist: 3.0.4
@@ -801,6 +799,12 @@ packages:
       node: '>=0.10'
     resolution:
       integrity: sha1-hTz6D3y+L+1d4gMmuN1YEDX24vA=
+  /data-uri-to-buffer/4.0.0:
+    dev: false
+    engines:
+      node: '>= 12'
+    resolution:
+      integrity: sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==
   /data-urls/1.1.0:
     dependencies:
       abab: 2.0.5
@@ -1192,6 +1196,14 @@ packages:
     dev: false
     resolution:
       integrity: sha1-JcfInLH5B3+IkbvmHY85Dq4lbx4=
+  /fetch-blob/3.1.3:
+    dependencies:
+      web-streams-polyfill: 3.2.0
+    dev: false
+    engines:
+      node: ^12.20 || >= 14.13
+    resolution:
+      integrity: sha512-ax1Y5I9w+9+JiM+wdHkhBoxew+zG4AJ2SvAD1v1szpddUIiPERVGBxrMcB2ZqW0Y3PP8bOWYv2zqQq1Jp2kqUQ==
   /file-entry-cache/6.0.1:
     dependencies:
       flat-cache: 3.0.4
@@ -1259,6 +1271,14 @@ packages:
       node: '>= 6'
     resolution:
       integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==
+  /formdata-polyfill/4.0.10:
+    dependencies:
+      fetch-blob: 3.1.3
+    dev: false
+    engines:
+      node: '>=12.20.0'
+    resolution:
+      integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==
   /fs.realpath/1.0.0:
     dev: false
     resolution:
@@ -1867,14 +1887,16 @@ packages:
     dev: false
     resolution:
       integrity: sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
-  /node-fetch/2.6.6:
+  /node-fetch/3.1.0:
     dependencies:
-      whatwg-url: 5.0.0
+      data-uri-to-buffer: 4.0.0
+      fetch-blob: 3.1.3
+      formdata-polyfill: 4.0.10
     dev: false
     engines:
-      node: 4.x || >=6.0.0
+      node: ^12.20.0 || ^14.13.1 || >=16.0.0
     resolution:
-      integrity: sha512-Z8/6vRlTUChSdIgMa51jxQ4lrw/Jy5SOW10ObaA47/RElsAN2c5Pn8bTgFGWn/ibwzXTE8qwr1Yzx28vsecXEA==
+      integrity: sha512-QU0WbIfMUjd5+MUzQOYhenAazakV7Irh1SGkWCsRzBwvm4fAhzEUaHMJ6QLP7gWT6WO9/oH2zhKMMGMuIrDyKw==
   /node-watch/0.7.2:
     dev: false
     engines:
@@ -2512,10 +2534,6 @@ packages:
       node: '>=0.8'
     resolution:
       integrity: sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==
-  /tr46/0.0.3:
-    dev: false
-    resolution:
-      integrity: sha1-gYT9NH2snNwYWZLzpmIuFLnZq2o=
   /tr46/1.0.1:
     dependencies:
       punycode: 2.1.1
@@ -2702,10 +2720,12 @@ packages:
     hasBin: true
     resolution:
       integrity: sha1-NApxe952Vyb6CqB9ch4BR6VR3ww=
-  /webidl-conversions/3.0.1:
+  /web-streams-polyfill/3.2.0:
     dev: false
+    engines:
+      node: '>= 8'
     resolution:
-      integrity: sha1-JFNCdeKnvGvnvIZhHMFq4KVlSHE=
+      integrity: sha512-EqPmREeOzttaLRm5HS7io98goBgZ7IVz79aDvqjD0kYXLtFZTc0T/U6wHTPKyIjb+MdN7DFIIX6hgdBEpWmfPA==
   /webidl-conversions/4.0.2:
     dev: false
     resolution:
@@ -2720,13 +2740,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-M4yMwr6mAnQz76TbJm914+gPpB/nCwvZbJU28cUD6dR004SAxDLOOSUaB1JDRqLtaOV/vi0IC5lEAGFgrjGv/g==
-  /whatwg-url/5.0.0:
-    dependencies:
-      tr46: 0.0.3
-      webidl-conversions: 3.0.1
-    dev: false
-    resolution:
-      integrity: sha1-lmRU6HZUYuN2RNNib2dCzotwll0=
   /whatwg-url/6.5.0:
     dependencies:
       lodash.sortby: 4.7.0
@@ -2935,7 +2948,7 @@ packages:
       mkdirp: 1.0.4
       mocha: 8.3.2
       mustache: 4.2.0
-      node-fetch: 2.6.6
+      node-fetch: 3.1.0
       node-watch: 0.7.2
       prettier: 2.4.1
       prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.4
@@ -2949,7 +2962,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-ZDVCIuRM2TbW3T6EKifr3a3SVFhdQFs1//aN986adkecR3TW9JG4YBBo2PLRCygY31EZ97EwrDfSt1Scq5h6cw==
+      integrity: sha512-SOTqrJEuDKycWEDYY5SGKdznKBGvHpUCOhyHFe5Yj8mlj9RxfOJ6UvOPO9kTVB9Mxy1s+b6MKKLAisbsErEDHw==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -3010,7 +3023,7 @@ packages:
     dev: false
     name: '@rush-temp/spec'
     resolution:
-      integrity: sha512-5Tbka35JHSU9HZKpj4tm6cDJ9EKGuJNOxymvcnyT2yLhSZIYLTWnteAaQv95GD/R1lfOx9aXs8KwJUR9z/iLCw==
+      integrity: sha512-//Vmd0q1lh8GkX1H65KNxm9EKDPxBbpsre783M3o4A7BEczpMhZXED/lkPdf6vbisVui877dYfM7r/c8NRj0WA==
       tarball: file:projects/spec.tgz
     version: 0.0.0
   file:projects/tmlanguage-generator.tgz:
@@ -3026,7 +3039,6 @@ packages:
       tarball: file:projects/tmlanguage-generator.tgz
     version: 0.0.0
 specifiers:
-  '@esfx/cancelable': ^1.0.0-pre.30
   '@rollup/plugin-commonjs': ~17.1.0
   '@rollup/plugin-json': ~4.1.0
   '@rollup/plugin-node-resolve': ~11.2.0
@@ -3046,7 +3058,6 @@ specifiers:
   '@types/mocha': ~7.0.2
   '@types/mustache': ~4.1.2
   '@types/node': ~14.0.27
-  '@types/node-fetch': ~2.5.12
   '@types/plist': ~3.0.2
   '@types/prettier': ^2.0.2
   '@types/prompts': ~2.0.14
@@ -3062,7 +3073,7 @@ specifiers:
   mkdirp: ~1.0.4
   mocha: ~8.3.2
   mustache: ~4.2.0
-  node-fetch: ~2.6.1
+  node-fetch: ~3.1.0
   node-watch: ~0.7.1
   onigasm: ~2.2.5
   plist: ~3.0.2
