@@ -186,7 +186,7 @@ function relevance(result) {
     relevance += 2048;
   }
 
-  relevance += Math.max(0, 255 - result.entry.key.length);
+  relevance += Math.max(0, 255 - result.key.length);
 
   return relevance;
 }
@@ -216,14 +216,15 @@ Search.prototype.search = function (searchString) {
 
     for (let i = 0; i < this.biblio.entries.length; i++) {
       let entry = this.biblio.entries[i];
-      if (!entry.key) {
+      let key = getKey(entry);
+      if (!key) {
         // biblio entries without a key aren't searchable
         continue;
       }
 
-      let match = fuzzysearch(searchString, entry.key);
+      let match = fuzzysearch(searchString, key);
       if (match) {
-        results.push({ entry, match });
+        results.push({ key, entry, match });
       }
     }
 
@@ -272,6 +273,7 @@ Search.prototype.displayResults = function (results) {
     let html = '<ul>';
 
     results.forEach(result => {
+      let key = result.key;
       let entry = result.entry;
       let id = entry.id;
       let cssClass = '';
@@ -279,19 +281,19 @@ Search.prototype.displayResults = function (results) {
 
       if (entry.type === 'clause') {
         let number = entry.number ? entry.number + ' ' : '';
-        text = number + entry.key;
+        text = number + key;
         cssClass = 'clause';
         id = entry.id;
       } else if (entry.type === 'production') {
-        text = entry.key;
+        text = key;
         cssClass = 'prod';
         id = entry.id;
       } else if (entry.type === 'op') {
-        text = entry.key;
+        text = key;
         cssClass = 'op';
         id = entry.id || entry.refId;
       } else if (entry.type === 'term') {
-        text = entry.key;
+        text = key;
         cssClass = 'term';
         id = entry.id || entry.refId;
       }
@@ -310,6 +312,31 @@ Search.prototype.displayResults = function (results) {
     this.$searchResults.classList.add('no-results');
   }
 };
+
+function getKey(item) {
+  if (item.key) {
+    return item.key;
+  }
+  switch (item.type) {
+    case 'clause':
+      return item.title || item.titleHTML;
+    case 'production':
+      return item.name;
+    case 'op':
+      return item.aoid;
+    case 'term':
+      return item.term;
+    case 'table':
+    case 'figure':
+    case 'example':
+    case 'note':
+      return item.caption;
+    case 'step':
+      return item.id;
+    default:
+      throw new Error("Can't get key for " + item.type);
+  }
+}
 
 function Menu() {
   this.$toggle = document.getElementById('menu-toggle');
@@ -566,24 +593,6 @@ Menu.prototype.selectPin = function (num) {
 };
 
 let menu;
-function init() {
-  menu = new Menu();
-  let $container = document.getElementById('spec-container');
-  $container.addEventListener(
-    'mouseover',
-    debounce(e => {
-      Toolbox.activateIfMouseOver(e);
-    })
-  );
-  document.addEventListener(
-    'keydown',
-    debounce(e => {
-      if (e.code === 'Escape' && Toolbox.active) {
-        Toolbox.deactivate();
-      }
-    })
-  );
-}
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -606,18 +615,17 @@ function debounce(fn, opts) {
 }
 
 let CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
-function findLocalReferences($elem) {
-  let name = $elem.innerHTML;
-  let references = [];
-
+function findContainer($elem) {
   let parentClause = $elem.parentNode;
   while (parentClause && CLAUSE_NODES.indexOf(parentClause.nodeName) === -1) {
     parentClause = parentClause.parentNode;
   }
+  return parentClause;
+}
 
-  if (!parentClause) return;
-
+function findLocalReferences(parentClause, name) {
   let vars = parentClause.querySelectorAll('var');
+  let references = [];
 
   for (let i = 0; i < vars.length; i++) {
     let $var = vars[i];
@@ -630,15 +638,32 @@ function findLocalReferences($elem) {
   return references;
 }
 
+let REFERENCED_CLASSES = Array.from({ length: 7 }, (x, i) => `referenced${i}`);
+function chooseHighlightIndex(parentClause) {
+  let counts = REFERENCED_CLASSES.map($class => parentClause.getElementsByClassName($class).length);
+  // Find the earliest index with the lowest count.
+  let minCount = Infinity;
+  let index = null;
+  for (let i = 0; i < counts.length; i++) {
+    if (counts[i] < minCount) {
+      minCount = counts[i];
+      index = i;
+    }
+  }
+  return index;
+}
+
 function toggleFindLocalReferences($elem) {
-  let references = findLocalReferences($elem);
+  let parentClause = findContainer($elem);
+  let references = findLocalReferences(parentClause, $elem.innerHTML);
   if ($elem.classList.contains('referenced')) {
     references.forEach($reference => {
-      $reference.classList.remove('referenced');
+      $reference.classList.remove('referenced', ...REFERENCED_CLASSES);
     });
   } else {
+    let index = chooseHighlightIndex(parentClause);
     references.forEach($reference => {
-      $reference.classList.add('referenced');
+      $reference.classList.add('referenced', `referenced${index}`);
     });
   }
 }
@@ -717,126 +742,6 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
 
   return { caseMatch: !caseInsensitive, chunks, prefix: j <= qlen };
 }
-
-let Toolbox = {
-  init() {
-    this.$outer = document.createElement('div');
-    this.$outer.classList.add('toolbox-container');
-    this.$container = document.createElement('div');
-    this.$container.classList.add('toolbox');
-    this.$outer.appendChild(this.$container);
-    this.$permalink = document.createElement('a');
-    this.$permalink.textContent = 'Permalink';
-    this.$pinLink = document.createElement('a');
-    this.$pinLink.textContent = 'Pin';
-    this.$pinLink.setAttribute('href', '#');
-    this.$pinLink.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      menu.togglePinEntry(this.entry.id);
-    });
-
-    this.$refsLink = document.createElement('a');
-    this.$refsLink.setAttribute('href', '#');
-    this.$refsLink.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      referencePane.showReferencesFor(this.entry);
-    });
-    this.$container.appendChild(this.$permalink);
-    this.$container.appendChild(this.$pinLink);
-    this.$container.appendChild(this.$refsLink);
-    document.body.appendChild(this.$outer);
-  },
-
-  activate(el, entry, target) {
-    if (el === this._activeEl) return;
-    sdoBox.deactivate();
-    this.active = true;
-    this.entry = entry;
-    this.$outer.classList.add('active');
-    this.top = el.offsetTop - this.$outer.offsetHeight;
-    this.left = el.offsetLeft - 10;
-    this.$outer.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
-    this.updatePermalink();
-    this.updateReferences();
-    this._activeEl = el;
-    if (this.top < document.body.scrollTop && el === target) {
-      // don't scroll unless it's a small thing (< 200px)
-      this.$outer.scrollIntoView();
-    }
-  },
-
-  updatePermalink() {
-    this.$permalink.setAttribute('href', makeLinkToId(this.entry.id));
-  },
-
-  updateReferences() {
-    this.$refsLink.textContent = `References (${this.entry.referencingIds.length})`;
-  },
-
-  activateIfMouseOver(e) {
-    let ref = this.findReferenceUnder(e.target);
-    if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
-      let entry = menu.search.biblio.byId[ref.id];
-      this.activate(ref.element, entry, e.target);
-    } else if (
-      this.active &&
-      (e.pageY < this.top || e.pageY > this._activeEl.offsetTop + this._activeEl.offsetHeight)
-    ) {
-      this.deactivate();
-    }
-  },
-
-  findReferenceUnder(el) {
-    while (el) {
-      let parent = el.parentNode;
-      if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
-        return null;
-      }
-      if (
-        el.nodeName === 'H1' &&
-        parent.nodeName.match(/EMU-CLAUSE|EMU-ANNEX|EMU-INTRO/) &&
-        parent.id
-      ) {
-        return { element: el, id: parent.id };
-      } else if (el.nodeName === 'EMU-NT') {
-        if (
-          parent.nodeName === 'EMU-PRODUCTION' &&
-          parent.id &&
-          parent.id[0] !== '_' &&
-          parent.firstElementChild === el
-        ) {
-          // return the LHS non-terminal element
-          return { element: el, id: parent.id };
-        }
-        return null;
-      } else if (
-        el.nodeName.match(/EMU-(?!CLAUSE|XREF|ANNEX|INTRO)|DFN/) &&
-        el.id &&
-        el.id[0] !== '_'
-      ) {
-        if (
-          el.nodeName === 'EMU-FIGURE' ||
-          el.nodeName === 'EMU-TABLE' ||
-          el.nodeName === 'EMU-EXAMPLE'
-        ) {
-          // return the figcaption element
-          return { element: el.children[0].children[0], id: el.id };
-        } else {
-          return { element: el, id: el.id };
-        }
-      }
-      el = parent;
-    }
-  },
-
-  deactivate() {
-    this.$outer.classList.remove('active');
-    this._activeEl = null;
-    this.active = false;
-  },
-};
 
 let referencePane = {
   init() {
@@ -977,6 +882,126 @@ let referencePane = {
   },
 };
 
+let Toolbox = {
+  init() {
+    this.$outer = document.createElement('div');
+    this.$outer.classList.add('toolbox-container');
+    this.$container = document.createElement('div');
+    this.$container.classList.add('toolbox');
+    this.$outer.appendChild(this.$container);
+    this.$permalink = document.createElement('a');
+    this.$permalink.textContent = 'Permalink';
+    this.$pinLink = document.createElement('a');
+    this.$pinLink.textContent = 'Pin';
+    this.$pinLink.setAttribute('href', '#');
+    this.$pinLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      menu.togglePinEntry(this.entry.id);
+    });
+
+    this.$refsLink = document.createElement('a');
+    this.$refsLink.setAttribute('href', '#');
+    this.$refsLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      referencePane.showReferencesFor(this.entry);
+    });
+    this.$container.appendChild(this.$permalink);
+    this.$container.appendChild(this.$pinLink);
+    this.$container.appendChild(this.$refsLink);
+    document.body.appendChild(this.$outer);
+  },
+
+  activate(el, entry, target) {
+    if (el === this._activeEl) return;
+    sdoBox.deactivate();
+    this.active = true;
+    this.entry = entry;
+    this.$outer.classList.add('active');
+    this.top = el.offsetTop - this.$outer.offsetHeight;
+    this.left = el.offsetLeft - 10;
+    this.$outer.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
+    this.updatePermalink();
+    this.updateReferences();
+    this._activeEl = el;
+    if (this.top < document.body.scrollTop && el === target) {
+      // don't scroll unless it's a small thing (< 200px)
+      this.$outer.scrollIntoView();
+    }
+  },
+
+  updatePermalink() {
+    this.$permalink.setAttribute('href', makeLinkToId(this.entry.id));
+  },
+
+  updateReferences() {
+    this.$refsLink.textContent = `References (${this.entry.referencingIds.length})`;
+  },
+
+  activateIfMouseOver(e) {
+    let ref = this.findReferenceUnder(e.target);
+    if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
+      let entry = menu.search.biblio.byId[ref.id];
+      this.activate(ref.element, entry, e.target);
+    } else if (
+      this.active &&
+      (e.pageY < this.top || e.pageY > this._activeEl.offsetTop + this._activeEl.offsetHeight)
+    ) {
+      this.deactivate();
+    }
+  },
+
+  findReferenceUnder(el) {
+    while (el) {
+      let parent = el.parentNode;
+      if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
+        return null;
+      }
+      if (
+        el.nodeName === 'H1' &&
+        parent.nodeName.match(/EMU-CLAUSE|EMU-ANNEX|EMU-INTRO/) &&
+        parent.id
+      ) {
+        return { element: el, id: parent.id };
+      } else if (el.nodeName === 'EMU-NT') {
+        if (
+          parent.nodeName === 'EMU-PRODUCTION' &&
+          parent.id &&
+          parent.id[0] !== '_' &&
+          parent.firstElementChild === el
+        ) {
+          // return the LHS non-terminal element
+          return { element: el, id: parent.id };
+        }
+        return null;
+      } else if (
+        el.nodeName.match(/EMU-(?!CLAUSE|XREF|ANNEX|INTRO)|DFN/) &&
+        el.id &&
+        el.id[0] !== '_'
+      ) {
+        if (
+          el.nodeName === 'EMU-FIGURE' ||
+          el.nodeName === 'EMU-TABLE' ||
+          el.nodeName === 'EMU-EXAMPLE'
+        ) {
+          // return the figcaption element
+          return { element: el.children[0].children[0], id: el.id };
+        } else {
+          return { element: el, id: el.id };
+        }
+      }
+      el = parent;
+    }
+  },
+
+  deactivate() {
+    this.$outer.classList.remove('active');
+    this._activeEl = null;
+    this.active = false;
+  },
+};
+
 function sortByClauseNumber(clause1, clause2) {
   let c1c = clause1.number.split('.');
   let c2c = clause2.number.split('.');
@@ -1023,6 +1048,61 @@ function makeLinkToId(id) {
   return (targetSec === 'index' ? './' : targetSec + '.html') + hash;
 }
 
+function doShortcut(e) {
+  if (!(e.target instanceof HTMLElement)) {
+    return;
+  }
+  let target = e.target;
+  let name = target.nodeName.toLowerCase();
+  if (name === 'textarea' || name === 'input' || name === 'select' || target.isContentEditable) {
+    return;
+  }
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+    return;
+  }
+  if (e.key === 'm' && usesMultipage) {
+    let pathParts = location.pathname.split('/');
+    let hash = location.hash;
+    if (pathParts[pathParts.length - 2] === 'multipage') {
+      if (hash === '') {
+        let sectionName = pathParts[pathParts.length - 1];
+        if (sectionName.endsWith('.html')) {
+          sectionName = sectionName.slice(0, -5);
+        }
+        if (idToSection['sec-' + sectionName] !== undefined) {
+          hash = '#sec-' + sectionName;
+        }
+      }
+      location = pathParts.slice(0, -2).join('/') + '/' + hash;
+    } else {
+      location = 'multipage/' + hash;
+    }
+  } else if (e.key === 'u') {
+    document.documentElement.classList.toggle('show-ao-annotations');
+  }
+}
+
+function init() {
+  menu = new Menu();
+  let $container = document.getElementById('spec-container');
+  $container.addEventListener(
+    'mouseover',
+    debounce(e => {
+      Toolbox.activateIfMouseOver(e);
+    })
+  );
+  document.addEventListener(
+    'keydown',
+    debounce(e => {
+      if (e.code === 'Escape' && Toolbox.active) {
+        Toolbox.deactivate();
+      }
+    })
+  );
+}
+
+document.addEventListener('keypress', doShortcut);
+
 document.addEventListener('DOMContentLoaded', () => {
   Toolbox.init();
   referencePane.init();
@@ -1060,7 +1140,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let sdoMap = JSON.parse(`{}`);
-let biblio = JSON.parse(`{"refsByClause":{"lexical-grammar":["_ref_0","_ref_1","_ref_2","_ref_3","_ref_4","_ref_5","_ref_6","_ref_7","_ref_8","_ref_9","_ref_10","_ref_11","_ref_12","_ref_13","_ref_14","_ref_15","_ref_16","_ref_17","_ref_18","_ref_19","_ref_20","_ref_21","_ref_22","_ref_23","_ref_24","_ref_25","_ref_26","_ref_27","_ref_28","_ref_29","_ref_30","_ref_31","_ref_32","_ref_33","_ref_34","_ref_35","_ref_36","_ref_37","_ref_38","_ref_39","_ref_40","_ref_41","_ref_42","_ref_43","_ref_44","_ref_45","_ref_46","_ref_47","_ref_48","_ref_49","_ref_50","_ref_51","_ref_52","_ref_53","_ref_54","_ref_55","_ref_56","_ref_57","_ref_58","_ref_59","_ref_60","_ref_61","_ref_62","_ref_63","_ref_64","_ref_65","_ref_66","_ref_67","_ref_68","_ref_69"],"syntactic-grammar":["_ref_70","_ref_71","_ref_72","_ref_73","_ref_74","_ref_75","_ref_76","_ref_77","_ref_78","_ref_79","_ref_80","_ref_81","_ref_82","_ref_83","_ref_84","_ref_85","_ref_86","_ref_87","_ref_88","_ref_89","_ref_90","_ref_91","_ref_92","_ref_93","_ref_94","_ref_95","_ref_96","_ref_97","_ref_98","_ref_99","_ref_100","_ref_101","_ref_102","_ref_103","_ref_104","_ref_105","_ref_106","_ref_107","_ref_108","_ref_109","_ref_110","_ref_111","_ref_112","_ref_113","_ref_114","_ref_115","_ref_116","_ref_117","_ref_118","_ref_119","_ref_120","_ref_121","_ref_122","_ref_123","_ref_124","_ref_125","_ref_126","_ref_127","_ref_128","_ref_129","_ref_130","_ref_131","_ref_132","_ref_133","_ref_134","_ref_135","_ref_136","_ref_137","_ref_138","_ref_139","_ref_140","_ref_141","_ref_142","_ref_143","_ref_144","_ref_145","_ref_146","_ref_147","_ref_148","_ref_149","_ref_150","_ref_151","_ref_152","_ref_153","_ref_154","_ref_155","_ref_156","_ref_157","_ref_158","_ref_159","_ref_160","_ref_161","_ref_162","_ref_163","_ref_164","_ref_165","_ref_166","_ref_167","_ref_168","_ref_169","_ref_170","_ref_171","_ref_172","_ref_173","_ref_174","_ref_175","_ref_176","_ref_177","_ref_178","_ref_179","_ref_180","_ref_181","_ref_182","_ref_183","_ref_184","_ref_185","_ref_186","_ref_187","_ref_188","_ref_189","_ref_190","_ref_191","_ref_192","_ref_193","_ref_194","_ref_195","_ref_196","_ref_197","_ref_198","_ref_199"]},"entries":[{"type":"clause","id":"intro","aoid":null,"titleHTML":"Introduction","number":"","referencingIds":[],"key":"Introduction"},{"type":"production","id":"prod-SourceCharacter","name":"SourceCharacter","referencingIds":["_ref_49","_ref_53","_ref_64","_ref_65","_ref_69"],"key":"SourceCharacter"},{"type":"production","id":"prod-InputElement","name":"InputElement","referencingIds":[],"key":"InputElement"},{"type":"production","id":"prod-Token","name":"Token","referencingIds":["_ref_0"],"key":"Token"},{"type":"production","id":"prod-Trivia","name":"Trivia","referencingIds":["_ref_1"],"key":"Trivia"},{"type":"production","id":"prod-Keyword","name":"Keyword","referencingIds":["_ref_2","_ref_11"],"key":"Keyword"},{"type":"production","id":"prod-Identifier","name":"Identifier","referencingIds":["_ref_3","_ref_89","_ref_103","_ref_109","_ref_116","_ref_120","_ref_127","_ref_133","_ref_143","_ref_150","_ref_153","_ref_155","_ref_160","_ref_185","_ref_187"],"key":"Identifier"},{"type":"production","id":"prod-IdentifierName","name":"IdentifierName","referencingIds":["_ref_10","_ref_13"],"key":"IdentifierName"},{"type":"production","id":"prod-IdentifierStart","name":"IdentifierStart","referencingIds":["_ref_12"],"key":"IdentifierStart"},{"type":"production","id":"prod-IdentifierContinue","name":"IdentifierContinue","referencingIds":["_ref_14","_ref_15"],"key":"IdentifierContinue"},{"type":"production","id":"prod-AsciiLetter","name":"AsciiLetter","referencingIds":["_ref_17"],"key":"AsciiLetter"},{"type":"production","id":"prod-BooleanLiteral","name":"BooleanLiteral","referencingIds":["_ref_9","_ref_178"],"key":"BooleanLiteral"},{"type":"production","id":"prod-NumericLiteral","name":"NumericLiteral","referencingIds":["_ref_4","_ref_149","_ref_179"],"key":"NumericLiteral"},{"type":"production","id":"prod-DecimalLiteral","name":"DecimalLiteral","referencingIds":["_ref_19"],"key":"DecimalLiteral"},{"type":"production","id":"prod-DecimalIntegerLiteral","name":"DecimalIntegerLiteral","referencingIds":["_ref_22","_ref_25","_ref_33"],"key":"DecimalIntegerLiteral"},{"type":"production","id":"prod-DecimalDigits","name":"DecimalDigits","referencingIds":["_ref_23","_ref_27","_ref_28","_ref_29","_ref_31","_ref_34","_ref_35","_ref_36"],"key":"DecimalDigits"},{"type":"production","id":"prod-DecimalDigit","name":"DecimalDigit","referencingIds":["_ref_16","_ref_18","_ref_30","_ref_32"],"key":"DecimalDigit"},{"type":"production","id":"prod-ExponentPart","name":"ExponentPart","referencingIds":["_ref_24","_ref_26"],"key":"ExponentPart"},{"type":"production","id":"prod-DecimalIntegerInteger","name":"DecimalIntegerInteger","referencingIds":[],"key":"DecimalIntegerInteger"},{"type":"production","id":"prod-HexIntegerLiteral","name":"HexIntegerLiteral","referencingIds":["_ref_20"],"key":"HexIntegerLiteral"},{"type":"production","id":"prod-HexDigits","name":"HexDigits","referencingIds":["_ref_37","_ref_39"],"key":"HexDigits"},{"type":"production","id":"prod-HexDigit","name":"HexDigit","referencingIds":["_ref_38","_ref_40"],"key":"HexDigit"},{"type":"production","id":"prod-BinaryIntegerLiteral","name":"BinaryIntegerLiteral","referencingIds":["_ref_21"],"key":"BinaryIntegerLiteral"},{"type":"production","id":"prod-BinaryDigits","name":"BinaryDigits","referencingIds":["_ref_41","_ref_43"],"key":"BinaryDigits"},{"type":"production","id":"prod-BinaryDigit","name":"BinaryDigit","referencingIds":["_ref_42","_ref_44"],"key":"BinaryDigit"},{"type":"production","id":"prod-StringLiteral","name":"StringLiteral","referencingIds":["_ref_5","_ref_77","_ref_106","_ref_130","_ref_146","_ref_148","_ref_177"],"key":"StringLiteral"},{"type":"production","id":"prod-StringCharacters","name":"StringCharacters","referencingIds":["_ref_45","_ref_48"],"key":"StringCharacters"},{"type":"production","id":"prod-StringCharacter","name":"StringCharacter","referencingIds":["_ref_47"],"key":"StringCharacter"},{"type":"production","id":"prod-TripleQuotedStringCharacters","name":"TripleQuotedStringCharacters","referencingIds":["_ref_46","_ref_52"],"key":"TripleQuotedStringCharacters"},{"type":"production","id":"prod-TripleQuotedStringCharacter","name":"TripleQuotedStringCharacter","referencingIds":["_ref_51"],"key":"TripleQuotedStringCharacter"},{"type":"production","id":"prod-EscapeCharacter","name":"EscapeCharacter","referencingIds":["_ref_50","_ref_54"],"key":"EscapeCharacter"},{"type":"production","id":"prod-Punctuator","name":"Punctuator","referencingIds":["_ref_6"],"key":"Punctuator"},{"type":"production","id":"prod-WhiteSpace","name":"WhiteSpace","referencingIds":["_ref_8"],"key":"WhiteSpace"},{"type":"production","id":"prod-Comment","name":"Comment","referencingIds":["_ref_7"],"key":"Comment"},{"type":"production","id":"prod-MultiLineComment","name":"MultiLineComment","referencingIds":["_ref_55"],"key":"MultiLineComment"},{"type":"production","id":"prod-MultiLineCommentChars","name":"MultiLineCommentChars","referencingIds":["_ref_57","_ref_59","_ref_62"],"key":"MultiLineCommentChars"},{"type":"production","id":"prod-PostAsteriskCommentChars","name":"PostAsteriskCommentChars","referencingIds":["_ref_60","_ref_63"],"key":"PostAsteriskCommentChars"},{"type":"production","id":"prod-MultiLineNotAsteriskChar","name":"MultiLineNotAsteriskChar","referencingIds":["_ref_58"],"key":"MultiLineNotAsteriskChar"},{"type":"production","id":"prod-MultiLineNotForwardSlashOrAsteriskChar","name":"MultiLineNotForwardSlashOrAsteriskChar","referencingIds":["_ref_61"],"key":"MultiLineNotForwardSlashOrAsteriskChar"},{"type":"production","id":"prod-SingleLineComment","name":"SingleLineComment","referencingIds":["_ref_56"],"key":"SingleLineComment"},{"type":"production","id":"prod-SingleLineCommentChars","name":"SingleLineCommentChars","referencingIds":["_ref_66","_ref_68"],"key":"SingleLineCommentChars"},{"type":"production","id":"prod-SingleLineCommentChar","name":"SingleLineCommentChar","referencingIds":["_ref_67"],"key":"SingleLineCommentChar"},{"type":"clause","id":"lexical-grammar","aoid":null,"titleHTML":"Lexical Grammar","number":"1","referencingIds":[],"key":"Lexical Grammar"},{"type":"production","id":"prod-CadlScriptItemList","name":"CadlScriptItemList","referencingIds":["_ref_70"],"key":"CadlScriptItemList"},{"type":"production","id":"prod-CadlScriptItem","name":"CadlScriptItem","referencingIds":["_ref_71"],"key":"CadlScriptItem"},{"type":"production","id":"prod-BlocklessNamespaceStatement","name":"BlocklessNamespaceStatement","referencingIds":["_ref_72"],"key":"BlocklessNamespaceStatement"},{"type":"production","id":"prod-ImportStatement","name":"ImportStatement","referencingIds":["_ref_73"],"key":"ImportStatement"},{"type":"production","id":"prod-StatementList","name":"StatementList","referencingIds":["_ref_78","_ref_158"],"key":"StatementList"},{"type":"production","id":"prod-Statement","name":"Statement","referencingIds":["_ref_74","_ref_79"],"key":"Statement"},{"type":"production","id":"prod-UsingStatement","name":"UsingStatement","referencingIds":["_ref_84"],"key":"UsingStatement"},{"type":"production","id":"prod-ModelStatement","name":"ModelStatement","referencingIds":["_ref_80"],"key":"ModelStatement"},{"type":"production","id":"prod-ModelHeritage","name":"ModelHeritage","referencingIds":["_ref_90"],"key":"ModelHeritage"},{"type":"production","id":"prod-ModelBody","name":"ModelBody","referencingIds":["_ref_91","_ref_190"],"key":"ModelBody"},{"type":"production","id":"prod-ModelPropertyList","name":"ModelPropertyList","referencingIds":["_ref_94","_ref_95","_ref_97","_ref_99","_ref_117","_ref_161"],"key":"ModelPropertyList"},{"type":"production","id":"prod-ModelProperty","name":"ModelProperty","referencingIds":["_ref_96","_ref_98","_ref_100"],"key":"ModelProperty"},{"type":"production","id":"prod-ModelSpreadProperty","name":"ModelSpreadProperty","referencingIds":["_ref_101"],"key":"ModelSpreadProperty"},{"type":"production","id":"prod-InterfaceStatement","name":"InterfaceStatement","referencingIds":["_ref_81"],"key":"InterfaceStatement"},{"type":"production","id":"prod-InterfaceHeritage","name":"InterfaceHeritage","referencingIds":["_ref_110"],"key":"InterfaceHeritage"},{"type":"production","id":"prod-InterfaceMemberList","name":"InterfaceMemberList","referencingIds":["_ref_112","_ref_114"],"key":"InterfaceMemberList"},{"type":"production","id":"prod-InterfaceMember","name":"InterfaceMember","referencingIds":["_ref_113","_ref_115"],"key":"InterfaceMember"},{"type":"production","id":"prod-UnionStatement","name":"UnionStatement","referencingIds":[],"key":"UnionStatement"},{"type":"production","id":"prod-UnionBody","name":"UnionBody","referencingIds":["_ref_121"],"key":"UnionBody"},{"type":"production","id":"prod-UnionVariantList","name":"UnionVariantList","referencingIds":["_ref_122","_ref_124"],"key":"UnionVariantList"},{"type":"production","id":"prod-UnionVariant","name":"UnionVariant","referencingIds":["_ref_123","_ref_125"],"key":"UnionVariant"},{"type":"production","id":"prod-EnumStatement","name":"EnumStatement","referencingIds":["_ref_85"],"key":"EnumStatement"},{"type":"production","id":"prod-EnumBody","name":"EnumBody","referencingIds":["_ref_134"],"key":"EnumBody"},{"type":"production","id":"prod-EnumMemberList","name":"EnumMemberList","referencingIds":["_ref_135","_ref_136","_ref_138","_ref_140"],"key":"EnumMemberList"},{"type":"production","id":"prod-EnumMember","name":"EnumMember","referencingIds":["_ref_137","_ref_139","_ref_141"],"key":"EnumMember"},{"type":"production","id":"prod-EnumMemberValue","name":"EnumMemberValue","referencingIds":["_ref_144","_ref_147"],"key":"EnumMemberValue"},{"type":"production","id":"prod-AliasStatement","name":"AliasStatement","referencingIds":["_ref_86"],"key":"AliasStatement"},{"type":"production","id":"prod-IdentifierList","name":"IdentifierList","referencingIds":["_ref_152","_ref_154"],"key":"IdentifierList"},{"type":"production","id":"prod-NamespaceStatement","name":"NamespaceStatement","referencingIds":["_ref_82"],"key":"NamespaceStatement"},{"type":"production","id":"prod-OperationStatement","name":"OperationStatement","referencingIds":["_ref_83"],"key":"OperationStatement"},{"type":"production","id":"prod-Expression","name":"Expression","referencingIds":["_ref_104","_ref_107","_ref_118","_ref_128","_ref_131","_ref_151","_ref_162","_ref_189","_ref_192","_ref_194"],"key":"Expression"},{"type":"production","id":"prod-UnionExpressionOrHigher","name":"UnionExpressionOrHigher","referencingIds":["_ref_163","_ref_165"],"key":"UnionExpressionOrHigher"},{"type":"production","id":"prod-IntersectionExpressionOrHigher","name":"IntersectionExpressionOrHigher","referencingIds":["_ref_164","_ref_166","_ref_168"],"key":"IntersectionExpressionOrHigher"},{"type":"production","id":"prod-ArrayExpressionOrHigher","name":"ArrayExpressionOrHigher","referencingIds":["_ref_167","_ref_169","_ref_171"],"key":"ArrayExpressionOrHigher"},{"type":"production","id":"prod-PrimaryExpression","name":"PrimaryExpression","referencingIds":["_ref_170"],"key":"PrimaryExpression"},{"type":"production","id":"prod-Literal","name":"Literal","referencingIds":["_ref_172"],"key":"Literal"},{"type":"production","id":"prod-ReferenceExpression","name":"ReferenceExpression","referencingIds":["_ref_92","_ref_93","_ref_108","_ref_173","_ref_182","_ref_184"],"key":"ReferenceExpression"},{"type":"production","id":"prod-ReferenceExpressionList","name":"ReferenceExpressionList","referencingIds":["_ref_111","_ref_183"],"key":"ReferenceExpressionList"},{"type":"production","id":"prod-IdentifierOrMemberExpression","name":"IdentifierOrMemberExpression","referencingIds":["_ref_76","_ref_87","_ref_157","_ref_180","_ref_186","_ref_197"],"key":"IdentifierOrMemberExpression"},{"type":"production","id":"prod-TemplateArguments","name":"TemplateArguments","referencingIds":["_ref_181"],"key":"TemplateArguments"},{"type":"production","id":"prod-ParenthesizedExpression","name":"ParenthesizedExpression","referencingIds":["_ref_174"],"key":"ParenthesizedExpression"},{"type":"production","id":"prod-ModelExpression","name":"ModelExpression","referencingIds":["_ref_175"],"key":"ModelExpression"},{"type":"production","id":"prod-TupleExpression","name":"TupleExpression","referencingIds":["_ref_176"],"key":"TupleExpression"},{"type":"production","id":"prod-ExpressionList","name":"ExpressionList","referencingIds":["_ref_188","_ref_191","_ref_193","_ref_199"],"key":"ExpressionList"},{"type":"production","id":"prod-DecoratorList","name":"DecoratorList","referencingIds":["_ref_75","_ref_88","_ref_102","_ref_105","_ref_119","_ref_126","_ref_129","_ref_132","_ref_142","_ref_145","_ref_156","_ref_159","_ref_195"],"key":"DecoratorList"},{"type":"production","id":"prod-Decorator","name":"Decorator","referencingIds":["_ref_196"],"key":"Decorator"},{"type":"production","id":"prod-DecoratorArguments","name":"DecoratorArguments","referencingIds":["_ref_198"],"key":"DecoratorArguments"},{"type":"clause","id":"syntactic-grammar","aoid":null,"titleHTML":"Syntactic Grammar","number":"2","referencingIds":[],"key":"Syntactic Grammar"}]}`);</script><style>body {
+let biblio = JSON.parse(`{"refsByClause":{"lexical-grammar":["_ref_0","_ref_1","_ref_2","_ref_3","_ref_4","_ref_5","_ref_6","_ref_7","_ref_8","_ref_9","_ref_10","_ref_11","_ref_12","_ref_13","_ref_14","_ref_15","_ref_16","_ref_17","_ref_18","_ref_19","_ref_20","_ref_21","_ref_22","_ref_23","_ref_24","_ref_25","_ref_26","_ref_27","_ref_28","_ref_29","_ref_30","_ref_31","_ref_32","_ref_33","_ref_34","_ref_35","_ref_36","_ref_37","_ref_38","_ref_39","_ref_40","_ref_41","_ref_42","_ref_43","_ref_44","_ref_45","_ref_46","_ref_47","_ref_48","_ref_49","_ref_50","_ref_51","_ref_52","_ref_53","_ref_54","_ref_55","_ref_56","_ref_57","_ref_58","_ref_59","_ref_60","_ref_61","_ref_62","_ref_63","_ref_64","_ref_65","_ref_66","_ref_67","_ref_68","_ref_69"],"syntactic-grammar":["_ref_70","_ref_71","_ref_72","_ref_73","_ref_74","_ref_75","_ref_76","_ref_77","_ref_78","_ref_79","_ref_80","_ref_81","_ref_82","_ref_83","_ref_84","_ref_85","_ref_86","_ref_87","_ref_88","_ref_89","_ref_90","_ref_91","_ref_92","_ref_93","_ref_94","_ref_95","_ref_96","_ref_97","_ref_98","_ref_99","_ref_100","_ref_101","_ref_102","_ref_103","_ref_104","_ref_105","_ref_106","_ref_107","_ref_108","_ref_109","_ref_110","_ref_111","_ref_112","_ref_113","_ref_114","_ref_115","_ref_116","_ref_117","_ref_118","_ref_119","_ref_120","_ref_121","_ref_122","_ref_123","_ref_124","_ref_125","_ref_126","_ref_127","_ref_128","_ref_129","_ref_130","_ref_131","_ref_132","_ref_133","_ref_134","_ref_135","_ref_136","_ref_137","_ref_138","_ref_139","_ref_140","_ref_141","_ref_142","_ref_143","_ref_144","_ref_145","_ref_146","_ref_147","_ref_148","_ref_149","_ref_150","_ref_151","_ref_152","_ref_153","_ref_154","_ref_155","_ref_156","_ref_157","_ref_158","_ref_159","_ref_160","_ref_161","_ref_162","_ref_163","_ref_164","_ref_165","_ref_166","_ref_167","_ref_168","_ref_169","_ref_170","_ref_171","_ref_172","_ref_173","_ref_174","_ref_175","_ref_176","_ref_177","_ref_178","_ref_179","_ref_180","_ref_181","_ref_182","_ref_183","_ref_184","_ref_185","_ref_186","_ref_187","_ref_188","_ref_189","_ref_190","_ref_191","_ref_192","_ref_193","_ref_194","_ref_195","_ref_196","_ref_197","_ref_198","_ref_199"]},"entries":[{"type":"clause","id":"intro","aoid":null,"titleHTML":"Introduction","number":"","referencingIds":[]},{"type":"production","id":"prod-SourceCharacter","name":"SourceCharacter","referencingIds":["_ref_49","_ref_53","_ref_64","_ref_65","_ref_69"]},{"type":"production","id":"prod-InputElement","name":"InputElement","referencingIds":[]},{"type":"production","id":"prod-Token","name":"Token","referencingIds":["_ref_0"]},{"type":"production","id":"prod-Trivia","name":"Trivia","referencingIds":["_ref_1"]},{"type":"production","id":"prod-Keyword","name":"Keyword","referencingIds":["_ref_2","_ref_11"]},{"type":"production","id":"prod-Identifier","name":"Identifier","referencingIds":["_ref_3","_ref_89","_ref_103","_ref_109","_ref_116","_ref_120","_ref_127","_ref_133","_ref_143","_ref_150","_ref_153","_ref_155","_ref_160","_ref_185","_ref_187"]},{"type":"production","id":"prod-IdentifierName","name":"IdentifierName","referencingIds":["_ref_10","_ref_13"]},{"type":"production","id":"prod-IdentifierStart","name":"IdentifierStart","referencingIds":["_ref_12"]},{"type":"production","id":"prod-IdentifierContinue","name":"IdentifierContinue","referencingIds":["_ref_14","_ref_15"]},{"type":"production","id":"prod-AsciiLetter","name":"AsciiLetter","referencingIds":["_ref_17"]},{"type":"production","id":"prod-BooleanLiteral","name":"BooleanLiteral","referencingIds":["_ref_9","_ref_178"]},{"type":"production","id":"prod-NumericLiteral","name":"NumericLiteral","referencingIds":["_ref_4","_ref_149","_ref_179"]},{"type":"production","id":"prod-DecimalLiteral","name":"DecimalLiteral","referencingIds":["_ref_19"]},{"type":"production","id":"prod-DecimalIntegerLiteral","name":"DecimalIntegerLiteral","referencingIds":["_ref_22","_ref_25","_ref_33"]},{"type":"production","id":"prod-DecimalDigits","name":"DecimalDigits","referencingIds":["_ref_23","_ref_27","_ref_28","_ref_29","_ref_31","_ref_34","_ref_35","_ref_36"]},{"type":"production","id":"prod-DecimalDigit","name":"DecimalDigit","referencingIds":["_ref_16","_ref_18","_ref_30","_ref_32"]},{"type":"production","id":"prod-ExponentPart","name":"ExponentPart","referencingIds":["_ref_24","_ref_26"]},{"type":"production","id":"prod-DecimalIntegerInteger","name":"DecimalIntegerInteger","referencingIds":[]},{"type":"production","id":"prod-HexIntegerLiteral","name":"HexIntegerLiteral","referencingIds":["_ref_20"]},{"type":"production","id":"prod-HexDigits","name":"HexDigits","referencingIds":["_ref_37","_ref_39"]},{"type":"production","id":"prod-HexDigit","name":"HexDigit","referencingIds":["_ref_38","_ref_40"]},{"type":"production","id":"prod-BinaryIntegerLiteral","name":"BinaryIntegerLiteral","referencingIds":["_ref_21"]},{"type":"production","id":"prod-BinaryDigits","name":"BinaryDigits","referencingIds":["_ref_41","_ref_43"]},{"type":"production","id":"prod-BinaryDigit","name":"BinaryDigit","referencingIds":["_ref_42","_ref_44"]},{"type":"production","id":"prod-StringLiteral","name":"StringLiteral","referencingIds":["_ref_5","_ref_77","_ref_106","_ref_130","_ref_146","_ref_148","_ref_177"]},{"type":"production","id":"prod-StringCharacters","name":"StringCharacters","referencingIds":["_ref_45","_ref_48"]},{"type":"production","id":"prod-StringCharacter","name":"StringCharacter","referencingIds":["_ref_47"]},{"type":"production","id":"prod-TripleQuotedStringCharacters","name":"TripleQuotedStringCharacters","referencingIds":["_ref_46","_ref_52"]},{"type":"production","id":"prod-TripleQuotedStringCharacter","name":"TripleQuotedStringCharacter","referencingIds":["_ref_51"]},{"type":"production","id":"prod-EscapeCharacter","name":"EscapeCharacter","referencingIds":["_ref_50","_ref_54"]},{"type":"production","id":"prod-Punctuator","name":"Punctuator","referencingIds":["_ref_6"]},{"type":"production","id":"prod-WhiteSpace","name":"WhiteSpace","referencingIds":["_ref_8"]},{"type":"production","id":"prod-Comment","name":"Comment","referencingIds":["_ref_7"]},{"type":"production","id":"prod-MultiLineComment","name":"MultiLineComment","referencingIds":["_ref_55"]},{"type":"production","id":"prod-MultiLineCommentChars","name":"MultiLineCommentChars","referencingIds":["_ref_57","_ref_59","_ref_62"]},{"type":"production","id":"prod-PostAsteriskCommentChars","name":"PostAsteriskCommentChars","referencingIds":["_ref_60","_ref_63"]},{"type":"production","id":"prod-MultiLineNotAsteriskChar","name":"MultiLineNotAsteriskChar","referencingIds":["_ref_58"]},{"type":"production","id":"prod-MultiLineNotForwardSlashOrAsteriskChar","name":"MultiLineNotForwardSlashOrAsteriskChar","referencingIds":["_ref_61"]},{"type":"production","id":"prod-SingleLineComment","name":"SingleLineComment","referencingIds":["_ref_56"]},{"type":"production","id":"prod-SingleLineCommentChars","name":"SingleLineCommentChars","referencingIds":["_ref_66","_ref_68"]},{"type":"production","id":"prod-SingleLineCommentChar","name":"SingleLineCommentChar","referencingIds":["_ref_67"]},{"type":"clause","id":"lexical-grammar","aoid":null,"titleHTML":"Lexical Grammar","number":"1","referencingIds":[]},{"type":"production","id":"prod-CadlScriptItemList","name":"CadlScriptItemList","referencingIds":["_ref_70"]},{"type":"production","id":"prod-CadlScriptItem","name":"CadlScriptItem","referencingIds":["_ref_71"]},{"type":"production","id":"prod-BlocklessNamespaceStatement","name":"BlocklessNamespaceStatement","referencingIds":["_ref_72"]},{"type":"production","id":"prod-ImportStatement","name":"ImportStatement","referencingIds":["_ref_73"]},{"type":"production","id":"prod-StatementList","name":"StatementList","referencingIds":["_ref_78","_ref_158"]},{"type":"production","id":"prod-Statement","name":"Statement","referencingIds":["_ref_74","_ref_79"]},{"type":"production","id":"prod-UsingStatement","name":"UsingStatement","referencingIds":["_ref_84"]},{"type":"production","id":"prod-ModelStatement","name":"ModelStatement","referencingIds":["_ref_80"]},{"type":"production","id":"prod-ModelHeritage","name":"ModelHeritage","referencingIds":["_ref_90"]},{"type":"production","id":"prod-ModelBody","name":"ModelBody","referencingIds":["_ref_91","_ref_190"]},{"type":"production","id":"prod-ModelPropertyList","name":"ModelPropertyList","referencingIds":["_ref_94","_ref_95","_ref_97","_ref_99","_ref_117","_ref_161"]},{"type":"production","id":"prod-ModelProperty","name":"ModelProperty","referencingIds":["_ref_96","_ref_98","_ref_100"]},{"type":"production","id":"prod-ModelSpreadProperty","name":"ModelSpreadProperty","referencingIds":["_ref_101"]},{"type":"production","id":"prod-InterfaceStatement","name":"InterfaceStatement","referencingIds":["_ref_81"]},{"type":"production","id":"prod-InterfaceHeritage","name":"InterfaceHeritage","referencingIds":["_ref_110"]},{"type":"production","id":"prod-InterfaceMemberList","name":"InterfaceMemberList","referencingIds":["_ref_112","_ref_114"]},{"type":"production","id":"prod-InterfaceMember","name":"InterfaceMember","referencingIds":["_ref_113","_ref_115"]},{"type":"production","id":"prod-UnionStatement","name":"UnionStatement","referencingIds":[]},{"type":"production","id":"prod-UnionBody","name":"UnionBody","referencingIds":["_ref_121"]},{"type":"production","id":"prod-UnionVariantList","name":"UnionVariantList","referencingIds":["_ref_122","_ref_124"]},{"type":"production","id":"prod-UnionVariant","name":"UnionVariant","referencingIds":["_ref_123","_ref_125"]},{"type":"production","id":"prod-EnumStatement","name":"EnumStatement","referencingIds":["_ref_85"]},{"type":"production","id":"prod-EnumBody","name":"EnumBody","referencingIds":["_ref_134"]},{"type":"production","id":"prod-EnumMemberList","name":"EnumMemberList","referencingIds":["_ref_135","_ref_136","_ref_138","_ref_140"]},{"type":"production","id":"prod-EnumMember","name":"EnumMember","referencingIds":["_ref_137","_ref_139","_ref_141"]},{"type":"production","id":"prod-EnumMemberValue","name":"EnumMemberValue","referencingIds":["_ref_144","_ref_147"]},{"type":"production","id":"prod-AliasStatement","name":"AliasStatement","referencingIds":["_ref_86"]},{"type":"production","id":"prod-IdentifierList","name":"IdentifierList","referencingIds":["_ref_152","_ref_154"]},{"type":"production","id":"prod-NamespaceStatement","name":"NamespaceStatement","referencingIds":["_ref_82"]},{"type":"production","id":"prod-OperationStatement","name":"OperationStatement","referencingIds":["_ref_83"]},{"type":"production","id":"prod-Expression","name":"Expression","referencingIds":["_ref_104","_ref_107","_ref_118","_ref_128","_ref_131","_ref_151","_ref_162","_ref_189","_ref_192","_ref_194"]},{"type":"production","id":"prod-UnionExpressionOrHigher","name":"UnionExpressionOrHigher","referencingIds":["_ref_163","_ref_165"]},{"type":"production","id":"prod-IntersectionExpressionOrHigher","name":"IntersectionExpressionOrHigher","referencingIds":["_ref_164","_ref_166","_ref_168"]},{"type":"production","id":"prod-ArrayExpressionOrHigher","name":"ArrayExpressionOrHigher","referencingIds":["_ref_167","_ref_169","_ref_171"]},{"type":"production","id":"prod-PrimaryExpression","name":"PrimaryExpression","referencingIds":["_ref_170"]},{"type":"production","id":"prod-Literal","name":"Literal","referencingIds":["_ref_172"]},{"type":"production","id":"prod-ReferenceExpression","name":"ReferenceExpression","referencingIds":["_ref_92","_ref_93","_ref_108","_ref_173","_ref_182","_ref_184"]},{"type":"production","id":"prod-ReferenceExpressionList","name":"ReferenceExpressionList","referencingIds":["_ref_111","_ref_183"]},{"type":"production","id":"prod-IdentifierOrMemberExpression","name":"IdentifierOrMemberExpression","referencingIds":["_ref_76","_ref_87","_ref_157","_ref_180","_ref_186","_ref_197"]},{"type":"production","id":"prod-TemplateArguments","name":"TemplateArguments","referencingIds":["_ref_181"]},{"type":"production","id":"prod-ParenthesizedExpression","name":"ParenthesizedExpression","referencingIds":["_ref_174"]},{"type":"production","id":"prod-ModelExpression","name":"ModelExpression","referencingIds":["_ref_175"]},{"type":"production","id":"prod-TupleExpression","name":"TupleExpression","referencingIds":["_ref_176"]},{"type":"production","id":"prod-ExpressionList","name":"ExpressionList","referencingIds":["_ref_188","_ref_191","_ref_193","_ref_199"]},{"type":"production","id":"prod-DecoratorList","name":"DecoratorList","referencingIds":["_ref_75","_ref_88","_ref_102","_ref_105","_ref_119","_ref_126","_ref_129","_ref_132","_ref_142","_ref_145","_ref_156","_ref_159","_ref_195"]},{"type":"production","id":"prod-Decorator","name":"Decorator","referencingIds":["_ref_196"]},{"type":"production","id":"prod-DecoratorArguments","name":"DecoratorArguments","referencingIds":["_ref_198"]},{"type":"clause","id":"syntactic-grammar","aoid":null,"titleHTML":"Syntactic Grammar","number":"2","referencingIds":[]}]}`);
+;let usesMultipage = false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/styles/base16/solarized-light.min.css"><style>body {
   display: flex;
   font-size: 18px;
   line-height: 1.5;
@@ -1097,6 +1178,38 @@ a:hover {
   color: #239dee;
 }
 
+a.e-user-code {
+  white-space: nowrap;
+}
+
+a.e-user-code::before {
+  display: none;
+  color: brown;
+  background-color: white;
+  border: 2pt solid brown;
+  padding: 0.3ex;
+  margin: 0 0.25em 0 0;
+  line-height: 1;
+  vertical-align: text-top;
+  text-transform: uppercase;
+  font-family: "Comic Code", sans-serif;
+  font-weight: 900;
+  font-size: x-small;
+}
+
+a.e-user-code:hover::before {
+  background-color: brown;
+  color: white;
+}
+
+html.show-ao-annotations a.e-user-code::before {
+  display: inline-block;
+}
+
+a.e-user-code::before {
+  content: 'UC';
+}
+
 code {
   font-weight: bold;
   font-family: Consolas, Monaco, monospace;
@@ -1129,8 +1242,40 @@ var {
   cursor: pointer;
 }
 
-var.referenced {
+var.referenced0 {
+  color: inherit;
   background-color: #ffff33;
+  box-shadow: 0 0 0 2px #ffff33;
+}
+var.referenced1 {
+  color: inherit;
+  background-color: #ff87a2;
+  box-shadow: 0 0 0 2px #ff87a2;
+}
+var.referenced2 {
+  color: inherit;
+  background-color: #96e885;
+  box-shadow: 0 0 0 2px #96e885;
+}
+var.referenced3 {
+  color: inherit;
+  background-color: #3eeed2;
+  box-shadow: 0 0 0 2px #3eeed2;
+}
+var.referenced4 {
+  color: inherit;
+  background-color: #eacfb6;
+  box-shadow: 0 0 0 2px #eacfb6;
+}
+var.referenced5 {
+  color: inherit;
+  background-color: #82ddff;
+  box-shadow: 0 0 0 2px #82ddff;
+}
+var.referenced6 {
+  color: inherit;
+  background-color: #ffbcf2;
+  box-shadow: 0 0 0 2px #ffbcf2;
 }
 
 emu-const {
@@ -2189,22 +2334,26 @@ li.menu-search-result-term:before {
   }
 }
 
-[normative-optional] {
+[normative-optional],
+[legacy] {
   border-left: 5px solid #ff6600;
   padding: 0.5em;
   display: block;
   background: #ffeedd;
 }
 
-.normative-optional-tag {
+.clause-attributes-tag {
   text-transform: uppercase;
   color: #884400;
 }
 
-.normative-optional-tag a {
+.clause-attributes-tag a {
   color: #884400;
 }
-</style></head><body><div id="menu-toggle">☰</div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#intro" title="Introduction">Introduction</a></li><li><span class="item-toggle-none"></span><a href="#lexical-grammar" title="Lexical Grammar"><span class="secnum">1</span> Lexical Grammar</a></li><li><span class="item-toggle-none"></span><a href="#syntactic-grammar" title="Syntactic Grammar"><span class="secnum">2</span> Syntactic Grammar</a></li></ol></div></div><div id="spec-container">
+</style></head><body><div id="menu-toggle"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; stroke:currentColor" viewBox="0 0 120 120">
+      <title>Menu</title>
+      <path stroke-width="10" stroke-linecap="round" d="M30,60 h60  M30,30 m0,5 h60  M30,90 m0,-5 h60"></path>
+    </svg></div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#intro" title="Introduction">Introduction</a></li><li><span class="item-toggle-none"></span><a href="#lexical-grammar" title="Lexical Grammar"><span class="secnum">1</span> Lexical Grammar</a></li><li><span class="item-toggle-none"></span><a href="#syntactic-grammar" title="Syntactic Grammar"><span class="secnum">2</span> Syntactic Grammar</a></li></ol></div></div><div id="spec-container">
 
 <emu-intro id="intro">
 <h1>Introduction</h1>
