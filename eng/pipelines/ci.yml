@@ -43,10 +43,12 @@ jobs:
       - task: Docker@1
         displayName: "Build and test with Docker"
         inputs:
+          command: "Build an image"
+          imageName: cadl-test
+      - task: Docker@1
+        displayName: "Build and test with Docker"
+        inputs:
           azureContainerRegistry: azuresdkimages.azurecr.io
           azureSubscriptionEndpoint: "Azure SDK ACR"
           command: "Run an image"
           imageName: cadl-test
-          qualifyImageName: true
-          runInBackground: false
-          volumes: "$(System.DefaultWorkingDirectory):/data"
