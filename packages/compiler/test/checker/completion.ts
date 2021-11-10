@@ -125,7 +125,7 @@ describe("cadl: completion", () => {
 
   async function complete(sourceWithCursor: string): Promise<string[]> {
     const pos = sourceWithCursor.indexOf("┆");
-    ok(pos > 0, "no cursor found");
+    ok(pos >= 0, "no cursor found");
 
     const source = sourceWithCursor.replace("┆", "");
     const testHost = await createTestHost();
