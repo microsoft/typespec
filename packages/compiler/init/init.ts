@@ -206,6 +206,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   const packageJson = {
     name: config.name,
     dependencies,
+    private: true,
   };
 
   return host.writeFile(
