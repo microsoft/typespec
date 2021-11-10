@@ -47,6 +47,7 @@ jobs:
           imageName: cadl-test
           dockerFile: ./docker/Dockerfile
           includeLatestTag: true
+          useDefaultContext: false
           buildContext: "."
 
       - task: Docker@1
