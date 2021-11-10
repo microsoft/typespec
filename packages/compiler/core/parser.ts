@@ -1544,7 +1544,7 @@ export function getNodeAtPosition(
   // the position past any trivia. This is done because a zero-width
   // inserted missing identifier that the user is now trying to complete
   // starts after the trivia following the cursor.
-  let cp = codePointBefore(script.file.text, position);
+  const cp = codePointBefore(script.file.text, position);
   if (!cp || !isIdentifierContinue(cp)) {
     position = skipTrivia(script.file.text, position);
   }
