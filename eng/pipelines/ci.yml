@@ -41,12 +41,16 @@ jobs:
       vmImage: ubuntu-latest
     steps:
       - task: Docker@1
-        displayName: "Build and test with Docker"
+        displayName: "Build"
         inputs:
           command: "Build an image"
           imageName: cadl-test
+          dockerFile: ./docker/Dockerfile
+          includeLatestTag: true
+          buildContext: "."
+
       - task: Docker@1
-        displayName: "Build and test with Docker"
+        displayName: "Push"
         inputs:
           azureContainerRegistry: azuresdkimages.azurecr.io
           azureSubscriptionEndpoint: "Azure SDK ACR"
