@@ -37,6 +37,8 @@ jobs:
 
   - job: docker
     displayName: docker
+    variables:
+      imageName: "cadl-test"
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -44,7 +46,7 @@ jobs:
         displayName: "Build"
         inputs:
           command: "Build an image"
-          imageName: cadl-test
+          imageName: "$(iamgeName)"
           dockerFile: ./docker/Dockerfile
           includeLatestTag: true
           useDefaultContext: false
@@ -55,5 +57,5 @@ jobs:
         inputs:
           azureContainerRegistry: azuresdkimages.azurecr.io
           azureSubscriptionEndpoint: "Azure SDK ACR"
-          command: "Run an image"
-          imageName: cadl-test
+          command: "Push an image"
+          imageName: "$(imageName)"
