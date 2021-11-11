@@ -56,5 +56,5 @@ jobs:
             .
         displayName: "Build"
 
-      - script: docker push $(imageName)
+      - script: docker push $(imageName) --all-tags
         displayName: "Push"
