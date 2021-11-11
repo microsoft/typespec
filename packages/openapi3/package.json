@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/openapi3",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for emitting OpenAPI 3.0 from the Cadl REST protocol binding",
   "homepage": "https://github.com/Azure/adl",

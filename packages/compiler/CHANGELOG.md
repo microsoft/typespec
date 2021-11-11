@@ -1,6 +1,22 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 28 Oct 2021 21:17:50 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Nov 2021 20:24:18 GMT and should not be manually modified.
+
+## 0.23.0
+Thu, 11 Nov 2021 20:24:18 GMT
+
+### Minor changes
+
+- **Added** `duration` intrinsic type
+- **Added** `--check` option to `cadl format` command to verify files are formatted
+- **Added** log of the error and warning count at the end in case `cadl compile` failed.
+- **Added** Support for models with mutual references
+- `cadl init` generate `package.json` with `private: true`
+
+### Patches
+
+- Add Prettier formatting support for interface mixes
+- Add new --import CLI parameter to add a global import via the command line
 
 ## 0.22.0
 Thu, 28 Oct 2021 21:17:50 GMT
