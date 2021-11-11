@@ -49,8 +49,11 @@ jobs:
           azureContainerRegistry: azsdkengsys.azurecr.io
           command: login
 
-      - script: docker build -f ./docker/Dockerfile -t $(imageName) -t $(imageName):alpine .
+      - script: docker build -f ./docker/Dockerfile \
+          -t $(imageName):latest \
+          -t $(imageName):alpine \
+          .
         displayName: "Build"
 
-      - script: docker push $(imageName) $(imageName):alpine
+      - script: docker push $(imageName)
         displayName: "Push"
