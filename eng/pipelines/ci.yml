@@ -36,23 +36,21 @@ jobs:
   #       displayName: Release
 
   - job: docker
-    displayName: docker
+    displayName: Docker build and publish
+    variables:
+      imageName: "azsdkengsys.azurecr.io/cadl"
     pool:
       vmImage: ubuntu-latest
     steps:
       - task: Docker@1
-        displayName: "Build"
+        displayName: login
         inputs:
-          command: "Build an image"
-          imageName: cadl-test
-          dockerFile: ./docker/Dockerfile
-          includeLatestTag: true
-          buildContext: "."
+          azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
+          azureContainerRegistry: azsdkengsys.azurecr.io
+          command: login
 
-      - task: Docker@1
+      - script: docker build -f ./docker/Dockerfile -t $(imageName) -t $(imageName):alpine .
+        displayName: "Build"
+
+      - script: docker push $(imageName) $(imageName):alpine
         displayName: "Push"
-        inputs:
-          azureContainerRegistry: azuresdkimages.azurecr.io
-          azureSubscriptionEndpoint: "Azure SDK ACR"
-          command: "Run an image"
-          imageName: cadl-test
