@@ -2,6 +2,26 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@cadl-lang/openapi3_v0.4.0",
+      "date": "Thu, 11 Nov 2021 21:46:21 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** Support for duration type"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.22.0` to `0.23.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.3` to `0.6.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@cadl-lang/openapi3_v0.3.1",
       "date": "Thu, 28 Oct 2021 21:17:50 GMT",

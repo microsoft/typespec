@@ -1,6 +1,13 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Fri, 15 Oct 2021 21:33:37 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Nov 2021 21:46:21 GMT and should not be manually modified.
+
+## 0.10.0
+Thu, 11 Nov 2021 21:46:21 GMT
+
+### Minor changes
+
+- **Change** `cadl.cadl-server.path` should point to the `@cadl-lang/compiler` package instead of `cadl-server` binary.
 
 ## 0.9.0
 Fri, 15 Oct 2021 21:33:37 GMT

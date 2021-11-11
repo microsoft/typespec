@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Thu, 28 Oct 2021 21:17:50 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Nov 2021 21:46:21 GMT and should not be manually modified.
+
+## 0.4.0
+Thu, 11 Nov 2021 21:46:21 GMT
+
+### Minor changes
+
+- **Added** Support for duration type
 
 ## 0.3.1
 Thu, 28 Oct 2021 21:17:50 GMT
