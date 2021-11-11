@@ -12,6 +12,7 @@ import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
 import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
+import { installCadlDependencies } from "./install.js";
 import { Diagnostic } from "./types.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
@@ -160,6 +161,12 @@ async function main() {
           type: "string",
         }),
       (args) => initCadlProject(NodeHost, process.cwd(), args.templatesUrl)
+    )
+    .command(
+      "install",
+      "Install cadl dependencies",
+      () => {},
+      () => installCadlDependencies(process.cwd())
     )
     .command(
       "info",
