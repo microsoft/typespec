@@ -5,35 +5,35 @@ trigger:
 pr: none
 
 jobs:
-  # - job: npm
-  #   displayName: Npm publish
-  #   pool:
-  #     vmImage: windows-2019
-  #   steps:
-  #     - task: NodeTool@0
-  #       inputs:
-  #         versionSpec: 14.x
-  #       displayName: Install Node.js
+  - job: npm
+    displayName: Npm publish
+    pool:
+      vmImage: windows-2019
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 14.x
+        displayName: Install Node.js
 
-  #     - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
-  #       displayName: Enable official Visual Studio extension build
+      - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+        displayName: Enable official Visual Studio extension build
 
-  #     - script: node common/scripts/install-run-rush.js install
-  #       displayName: Install JavaScript Dependencies
+      - script: node common/scripts/install-run-rush.js install
+        displayName: Install JavaScript Dependencies
 
-  #     - script: node packages/cadl-vs/scripts/build.js --restore
-  #       displayName: Restore .NET Dependencies
+      - script: node packages/cadl-vs/scripts/build.js --restore
+        displayName: Restore .NET Dependencies
 
-  #     - script: node common/scripts/install-run-rush.js rebuild --verbose
-  #       displayName: Build
+      - script: node common/scripts/install-run-rush.js rebuild --verbose
+        displayName: Build
 
-  #     - script: node common/scripts/install-run-rush.js test-official
-  #       displayName: Test
+      - script: node common/scripts/install-run-rush.js test-official
+        displayName: Test
 
-  #     - script: |
-  #         set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-  #         node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
-  #       displayName: Release
+      - script: |
+          set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
+          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
+        displayName: Release
 
   - job: docker
     displayName: Docker build and publish
