@@ -15,6 +15,9 @@ describe("cadl: syntax", () => {
     ]);
   });
 
+  describe("empty script", () =>
+    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]));
+
   describe("model statements", () => {
     parseEach([
       "model Car { };",
@@ -100,6 +103,7 @@ describe("cadl: syntax", () => {
         `model Car { withDefaultButNotOptional: string = "foo" }`,
         [/Cannot use default with non optional properties/],
       ],
+      ["model", [/Identifier expected/]],
     ]);
   });
 
@@ -453,6 +457,7 @@ describe("cadl: syntax", () => {
 
     parseErrorEach([
       ["enum Foo { a: number }", [/Expected numeric or string literal/]],
+      ["enum Foo { a: [number] }", [/Expected numeric or string literal/]],
       ["enum Foo { a: ; b: ; }", [/Expression expected/, /Expression expected/]],
       ["enum Foo { ;+", [/Enum member expected/]],
       ["enum { }", [/Identifier expected/]],
@@ -491,7 +496,6 @@ function parseEach(cases: (string | [string, Callback])[]) {
       logVerboseTestOutput("\n=== Diagnostics ===");
       if (astNode.parseDiagnostics.length > 0) {
         const diagnostics = astNode.parseDiagnostics.map(formatDiagnostic).join("\n");
-
         assert.strictEqual(
           hasParseError(astNode),
           astNode.parseDiagnostics.some((e) => e.severity === "error"),
@@ -545,6 +549,8 @@ function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhite
         hasParseError(astNode),
         "node claims to have no parse errors, but above were reported."
       );
+
+      checkPositioning(astNode, astNode.file);
     });
   }
 }

@@ -2,6 +2,8 @@ import { dirname, isAbsolute, join, normalize } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionList,
+  CompletionParams,
   Connection,
   createConnection,
   DefinitionParams,
@@ -30,13 +32,11 @@ import {
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
-import { visitChildren } from "../core/parser.js";
+import { getNodeAtPosition } from "../core/parser.js";
 import { createProgram, Program } from "../core/program.js";
 import {
-  CadlScriptNode,
   CompilerHost,
   Diagnostic as CadlDiagnostic,
-  Node,
   SourceFile,
   SourceLocation,
   SyntaxKind,
@@ -113,13 +113,15 @@ function main() {
   log("Command Line", process.argv);
 
   connection = createConnection(ProposedFeatures.all);
-  documents = new TextDocuments(TextDocument);
 
   connection.onInitialize(initialize);
   connection.onInitialized(initialized);
   connection.onDidChangeWatchedFiles(watchedFilesChanged);
-  documents.onDidChangeContent(checkChange);
   connection.onDefinition(gotoDefinition);
+  connection.onCompletion(complete);
+
+  documents = new TextDocuments(TextDocument);
+  documents.onDidChangeContent(checkChange);
   documents.onDidClose(documentClosed);
   documents.listen(connection);
   connection.listen();
@@ -129,6 +131,11 @@ function initialize(params: InitializeParams): InitializeResult {
   const capabilities: ServerCapabilities = {
     textDocumentSync: TextDocumentSyncKind.Incremental,
     definitionProvider: true,
+    completionProvider: {
+      resolveProvider: false,
+      triggerCharacters: [".", "@"],
+      allCommitCharacters: [".", ",", ";", "("],
+    },
   };
 
   if (params.capabilities.workspace?.workspaceFolders) {
@@ -194,9 +201,7 @@ function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
   }
 }
 
-async function compile(
-  document: TextDocument | TextDocumentIdentifier
-): Promise<Program | undefined> {
+async function compile(document: TextDocument): Promise<Program | undefined> {
   const path = getPath(document);
   const mainFile = await getMainFileForDocument(path);
   if (!upToDate(document)) {
@@ -280,21 +285,27 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
 }
 
 async function gotoDefinition(params: DefinitionParams): Promise<Location | undefined> {
-  const path = getPath(params.textDocument);
-  const mainFile = await getMainFileForDocument(path);
-  const program = await createProgram(serverHost, mainFile, serverOptions);
-
   const document = documents.get(params.textDocument.uri);
   if (!document) {
     return undefined;
   }
 
+  const program = await compile(document);
+  if (!program) {
+    return undefined;
+  }
+
+  const path = getPath(document);
   const file = program.sourceFiles.get(path);
   if (!file) {
     return undefined;
   }
 
-  const referringNode = getTypeReferenceNodeAtPosition(file, document.offsetAt(params.position));
+  const referringNode = getNodeAtPosition(
+    file,
+    document.offsetAt(params.position),
+    (node) => node.kind === SyntaxKind.TypeReference
+  );
   if (!referringNode) {
     return undefined;
   }
@@ -308,36 +319,43 @@ async function gotoDefinition(params: DefinitionParams): Promise<Location | unde
   return convertSourceLocation(definingLocation);
 }
 
+async function complete(params: CompletionParams): Promise<CompletionList> {
+  const completions: CompletionList = {
+    isIncomplete: false,
+    items: [],
+  };
+
+  const document = documents.get(params.textDocument.uri);
+  if (!document) {
+    return completions;
+  }
+
+  const program = await compile(document);
+  if (!program) {
+    return completions;
+  }
+
+  const path = getPath(document);
+  const file = program.sourceFiles.get(path);
+  if (!file) {
+    return completions;
+  }
+
+  const node = getNodeAtPosition(file, document.offsetAt(params.position));
+  if (!node) {
+    return completions;
+  }
+
+  if (node.kind === SyntaxKind.Identifier) {
+    completions.items = program.checker!.resolveCompletions(node).map((sv) => ({ label: sv }));
+  }
+
+  return completions;
+}
+
 function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
   // clear diagnostics on file close
   sendDiagnostics(change.document, []);
-}
-
-function getTypeReferenceNodeAtPosition(file: CadlScriptNode, position: number) {
-  return visit(file);
-
-  function visit(node: Node): Node | undefined {
-    if (node.pos <= position && position < node.end) {
-      // We only need to recursively visit children of nodes that satisfied
-      // the condition above and therefore contain the given position. If a
-      // node does not contain a position, then neither do its children.
-      const child = visitChildren(node, visit);
-
-      // A child match here is better than a self-match below as we want the
-      // deepest (most specific) node. In other words, the search is depth
-      // first. For example, consider `A<B<C>>`: If the cursor is on `B`,
-      // then prefer B<C> over A<B<C>>.
-      if (child) {
-        return child;
-      }
-
-      if (node.kind === SyntaxKind.TypeReference) {
-        return node;
-      }
-    }
-
-    return undefined;
-  }
 }
 
 function convertSourceLocation(location: SourceLocation): Location {

@@ -10,6 +10,7 @@ import {
   isLowercaseAsciiLetter,
   isNonAsciiIdentifierCharacter,
   isNonAsciiWhiteSpaceSingleLine,
+  isWhiteSpace,
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
@@ -589,28 +590,14 @@ export function createScanner(
   }
 
   function scanSingleLineComment() {
-    position += 2; // consume '//'
-
-    for (; !eof(); position++) {
-      if (isLineBreak(input.charCodeAt(position))) {
-        break;
-      }
-    }
-
+    position = skipSingleLineComment(input, position);
     return (token = Token.SingleLineComment);
   }
 
   function scanMultiLineComment() {
-    position += 2; // consume '/*'
-
-    for (; !eof(); position++) {
-      if (input.charCodeAt(position) === CharCode.Asterisk && lookAhead(1) === CharCode.Slash) {
-        position += 2;
-        return (token = Token.MultiLineComment);
-      }
-    }
-
-    return unterminated(Token.MultiLineComment);
+    position = skipMultiLineComment(input, position);
+    token = Token.MultiLineComment;
+    return position === input.length ? unterminated(token) : token;
   }
 
   function scanString() {
@@ -907,4 +894,58 @@ export function createScanner(
 
     return (token = Token.Identifier);
   }
+}
+
+export function skipTrivia(input: string, position: number): number {
+  while (position < input.length) {
+    let ch = input.charCodeAt(position);
+
+    if (isWhiteSpace(ch)) {
+      position++;
+      continue;
+    }
+
+    if (ch === CharCode.Slash) {
+      switch (input.charCodeAt(position + 1)) {
+        case CharCode.Slash:
+          position = skipSingleLineComment(input, position);
+          continue;
+        case CharCode.Asterisk:
+          position = skipMultiLineComment(input, position);
+          continue;
+      }
+    }
+
+    break;
+  }
+
+  return position;
+}
+
+function skipSingleLineComment(input: string, position: number): number {
+  position += 2; // consume '//'
+
+  for (; position < input.length; position++) {
+    if (isLineBreak(input.charCodeAt(position))) {
+      break;
+    }
+  }
+
+  return position;
+}
+
+function skipMultiLineComment(input: string, position: number): number {
+  position += 2; // consume '/*'
+
+  for (; position < input.length; position++) {
+    if (
+      input.charCodeAt(position) === CharCode.Asterisk &&
+      input.charCodeAt(position + 1) === CharCode.Slash
+    ) {
+      position += 2;
+      break;
+    }
+  }
+
+  return position;
 }

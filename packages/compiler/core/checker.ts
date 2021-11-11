@@ -10,6 +10,7 @@ import {
   BooleanLiteralNode,
   BooleanLiteralType,
   CadlScriptNode,
+  ContainerNode,
   DecoratorApplication,
   DecoratorExpressionNode,
   DecoratorSymbol,
@@ -25,6 +26,7 @@ import {
   JsSourceFile,
   LiteralNode,
   LiteralType,
+  MemberExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
@@ -37,7 +39,6 @@ import {
   NumericLiteralType,
   OperationStatementNode,
   OperationType,
-  ReferenceExpression,
   StringLiteralNode,
   StringLiteralType,
   Sym,
@@ -79,6 +80,7 @@ export interface Checker {
   getTypeName(type: Type): string;
   getNamespaceString(type: NamespaceType | undefined): string;
   cloneType<T extends Type>(type: T): T;
+  resolveCompletions(node: IdentifierNode): string[];
 }
 
 /**
@@ -182,6 +184,7 @@ export function createChecker(program: Program): Checker {
     getMergedSymbol,
     getMergedNamespace,
     cloneType,
+    resolveCompletions,
   };
 
   function mergeJsSourceFile(file: JsSourceFile) {
@@ -742,6 +745,82 @@ export function createChecker(program: Program): Checker {
     return getMergedSymbol(sym);
   }
 
+  function resolveCompletions(identifier: IdentifierNode): string[] {
+    // If first non-MemberExpression parent of identifier is a TypeReference
+    // or DecoratorExpression, then we can complete it.
+    const parent = findFirstNonMemberExpressionParent(identifier);
+    const resolveDecorator = parent.kind === SyntaxKind.DecoratorExpression;
+    if (parent.kind !== SyntaxKind.TypeReference && !resolveDecorator) {
+      return [];
+    }
+
+    const completions = new Set<string>();
+    if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
+      const base = resolveTypeReference(identifier.parent.base, resolveDecorator);
+      if (base && base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
+        addCompletions(base.node.exports!);
+      }
+    } else {
+      let scope: Node | undefined = identifier.parent;
+      while (scope && scope.kind !== SyntaxKind.CadlScript) {
+        if ("exports" in scope) {
+          const mergedSymbol = getMergedSymbol(scope.symbol) as TypeSymbol;
+          addCompletions((mergedSymbol.node as ContainerNode).exports!);
+        }
+        if ("locals" in scope) {
+          addCompletions(scope.locals!);
+        }
+        scope = scope.parent;
+      }
+
+      if (scope && scope.kind === SyntaxKind.CadlScript) {
+        // check any blockless namespace decls
+        for (const ns of scope.inScopeNamespaces) {
+          const mergedSymbol = getMergedSymbol(ns.symbol) as TypeSymbol;
+          addCompletions((mergedSymbol.node as ContainerNode).exports!);
+        }
+
+        // check "global scope" declarations
+        addCompletions(globalNamespaceNode.exports!);
+
+        // check "global scope" usings
+        addCompletions(scope.locals!);
+      }
+    }
+
+    return Array.from(completions);
+
+    function findFirstNonMemberExpressionParent(identifier: IdentifierNode) {
+      for (let node = identifier.parent; node; node = node.parent) {
+        if (node.kind !== SyntaxKind.MemberExpression) {
+          return node;
+        }
+      }
+
+      compilerAssert(
+        false,
+        "Shouldn't have an identifier with only member expression parents all the way to the root.",
+        identifier
+      );
+    }
+
+    function addCompletions(table: SymbolTable) {
+      if (resolveDecorator) {
+        for (const sv of table.keys()) {
+          if (sv.startsWith("@")) {
+            completions.add(sv.slice(1));
+          }
+        }
+      } else {
+        for (const sv of table.keys()) {
+          if (!sv.startsWith("@")) {
+            completions.add(sv);
+          }
+        }
+      }
+    }
+  }
+
   function resolveIdentifier(node: IdentifierNode, resolveDecorator = false) {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
@@ -757,7 +836,7 @@ export function createChecker(program: Program): Checker {
         const mergedSymbol = getMergedSymbol(scope.symbol) as TypeSymbol;
         binding = resolveIdentifierInTable(
           node,
-          (mergedSymbol.node as any).exports!,
+          (mergedSymbol.node as ContainerNode).exports!,
           resolveDecorator
         );
         if (binding) return binding;
@@ -777,7 +856,7 @@ export function createChecker(program: Program): Checker {
         const mergedSymbol = getMergedSymbol(ns.symbol) as TypeSymbol;
         binding = resolveIdentifierInTable(
           node,
-          (mergedSymbol.node as any).exports!,
+          (mergedSymbol.node as ContainerNode).exports!,
           resolveDecorator
         );
         if (binding) return binding;
@@ -799,9 +878,15 @@ export function createChecker(program: Program): Checker {
   }
 
   function resolveTypeReference(
-    node: ReferenceExpression,
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     resolveDecorator = false
   ): DecoratorSymbol | TypeSymbol | undefined {
+    if (hasParseError(node)) {
+      // Don't report synthetic identifiers used for parser error recovery.
+      // The parse error is the root cause and will already have been logged.
+      return undefined;
+    }
+
     if (node.kind === SyntaxKind.TypeReference) {
       return resolveTypeReference(node.target, resolveDecorator);
     }
@@ -1048,7 +1133,7 @@ export function createChecker(program: Program): Checker {
     properties.set(newProp.name, newProp);
   }
 
-  function checkClassHeritage(heritageRef: ReferenceExpression): ModelType | undefined {
+  function checkClassHeritage(heritageRef: TypeReferenceNode): ModelType | undefined {
     const heritageType = getTypeForNode(heritageRef);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
@@ -1063,7 +1148,7 @@ export function createChecker(program: Program): Checker {
     return heritageType;
   }
 
-  function checkModelIs(isExpr: ReferenceExpression | undefined): ModelType | undefined {
+  function checkModelIs(isExpr: TypeReferenceNode | undefined): ModelType | undefined {
     if (!isExpr) return undefined;
     const isType = getTypeForNode(isExpr);
 
@@ -1075,7 +1160,7 @@ export function createChecker(program: Program): Checker {
     return isType;
   }
 
-  function checkSpreadProperty(targetNode: ReferenceExpression): ModelTypeProperty[] {
+  function checkSpreadProperty(targetNode: TypeReferenceNode): ModelTypeProperty[] {
     const props: ModelTypeProperty[] = [];
     const targetType = getTypeForNode(targetNode);
 
