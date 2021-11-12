@@ -36,6 +36,12 @@ using the preview.
 
 ## Getting Started
 
+### Using Docker
+
+[See docker documentation](./docs/docker.md)
+
+### Using Node & Npm
+
 1. Install [Node.js 14 LTS](https://nodejs.org/en/download/) and ensure you are able to run the `npm` command in a command prompt:
 
    ```
