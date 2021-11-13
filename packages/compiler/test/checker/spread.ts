@@ -2,7 +2,7 @@ import { ok, strictEqual } from "assert";
 import { ModelType, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: spread", () => {
+describe("compiler: spread", () => {
   const blues = new WeakSet();
   function $blue(_: any, target: Type) {
     blues.add(target);

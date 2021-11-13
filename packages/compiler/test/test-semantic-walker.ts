@@ -11,7 +11,7 @@ import {
 import { navigateProgram } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "./test-host.js";
 
-describe("SemanticWalker", () => {
+describe("compiler: semantic walker", () => {
   let host: TestHost;
 
   beforeEach(async () => {

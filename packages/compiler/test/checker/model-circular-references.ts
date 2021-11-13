@@ -10,7 +10,7 @@ function assertArray(type: Type): asserts type is ArrayType {
   assert(type.kind === "Array");
 }
 
-describe("cadl: model circular references", () => {
+describe("compiler: model circular references", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
