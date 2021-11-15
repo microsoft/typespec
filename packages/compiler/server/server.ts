@@ -42,6 +42,7 @@ import {
   SyntaxKind,
 } from "../core/types.js";
 import { cadlVersion, doIO, loadFile, NodeHost } from "../core/util.js";
+import { getDoc } from "../lib/decorators.js";
 
 interface ServerSourceFile extends SourceFile {
   // Keep track of the open doucment (if any) associated with a source file.
@@ -342,12 +343,17 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
   }
 
   const node = getNodeAtPosition(file, document.offsetAt(params.position));
-  if (!node) {
+  if (node?.kind !== SyntaxKind.Identifier) {
     return completions;
   }
 
-  if (node.kind === SyntaxKind.Identifier) {
-    completions.items = program.checker!.resolveCompletions(node).map((sv) => ({ label: sv }));
+  for (const [label, sym] of program.checker!.resolveCompletions(node)) {
+    let documentation: string | undefined;
+    if (sym.kind === "type") {
+      const type = program!.checker!.getTypeForNode(sym.node);
+      documentation = getDoc(program, type);
+    }
+    completions.items.push({ label, documentation });
   }
 
   return completions;
