@@ -260,11 +260,7 @@ function logDiagnosticCount(diagnostics: readonly Diagnostic[]) {
   const warningCount = diagnostics.filter((x) => x.severity === "warning").length;
 
   const addSuffix = (count: number, suffix: string) =>
-    count > 1
-      ? `${errorCount} ${suffix}s`
-      : errorCount === 1
-      ? `${errorCount} ${suffix}`
-      : undefined;
+    count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
   const errorText = addSuffix(errorCount, "error");
   const warningText = addSuffix(warningCount, "warning");
 
