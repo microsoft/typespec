@@ -107,6 +107,18 @@
       "projectFolder": "packages/openapi3",
       "reviewCategory": "production",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@cadl-lang/versioning",
+      "projectFolder": "packages/versioning",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@cadl-lang/azure-functions",
+      "projectFolder": "packages/azure-functions",
+      "reviewCategory": "production",
+      "shouldPublish": true
     }
   ]
 }

@@ -286,10 +286,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   }
 
   function bindProjectionStatement(node: ProjectionStatementNode) {
-    // munge the name to give projections a unique namespace
-    // probably the projections could use a different symbol type
-    // but for now they're the same.
-    const name = `#${node.id.sv}`;
+    const name = node.id.sv;
 
     declareSymbol(getContainingSymbolTable(), node, name);
   }

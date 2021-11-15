@@ -1,6 +1,8 @@
 {
   "references": [
     { "path": "packages/compiler/tsconfig.json" },
+    { "path": "packages/versioning/tsconfig.json" },
+    { "path": "packages/azure-functions/tsconfig.json" },
     { "path": "packages/rest/tsconfig.json" },
     { "path": "packages/cadl-vscode/tsconfig.json" },
     { "path": "packages/tmlanguage-generator/tsconfig.json" }

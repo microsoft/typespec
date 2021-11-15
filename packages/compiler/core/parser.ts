@@ -47,6 +47,7 @@ import {
   ProjectionInterfaceSelectorNode,
   ProjectionLambdaExpressionNode,
   ProjectionLambdaParameterDeclarationNode,
+  ProjectionMemberExpressionNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSelectorNode,
@@ -1317,7 +1318,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseProjectionMultiplicativeExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionCallExpressionOrHigher();
+    let expr: ProjectionExpression = parseProjectionReferenceExpressionOrHigher();
     while (token() !== Token.EndOfFile) {
       // I think this is a TS bug? I don't get why
       // the type assertion is needed here.
@@ -1329,12 +1330,35 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           kind: SyntaxKind.ProjectionRelationalExpression,
           op: tokenValue() as any,
           left: expr,
-          right: parseProjectionCallExpressionOrHigher(),
+          right: parseProjectionReferenceExpressionOrHigher(),
           ...finishNode(pos),
         };
       } else {
         break;
       }
+    }
+
+    return expr;
+  }
+
+  function parseProjectionReferenceExpressionOrHigher(): ProjectionExpression {
+    const pos = tokenPos();
+    let expr = parseProjectionCallExpressionOrHigher();
+    while (token() === Token.Hash) {
+      parseExpected(Token.Hash);
+      const reference = parseProjectionIdentifierOrMemberExpression();
+      let args: ProjectionExpression[] = [];
+      if (token() === Token.OpenParen) {
+        args = parseList(ListKind.CallArguments, parseProjectionExpression);
+      }
+
+      expr = {
+        kind: SyntaxKind.ProjectionReference,
+        target: expr,
+        reference,
+        arguments: args,
+        ...finishNode(pos),
+      };
     }
 
     return expr;
@@ -1367,6 +1391,16 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     let expr = parseProjectionPrimaryExpression();
     expr = parseProjectionMemberExpressionRest(expr, pos);
     return expr;
+  }
+
+  function parseProjectionIdentifierOrMemberExpression():
+    | ProjectionMemberExpressionNode
+    | IdentifierNode {
+    const pos = tokenPos();
+    const expr = parseIdentifier();
+    return parseProjectionMemberExpressionRest(expr, pos) as
+      | ProjectionMemberExpressionNode
+      | IdentifierNode;
   }
 
   function parseProjectionMemberExpressionRest(
@@ -2093,6 +2127,10 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.selector) ||
         visitNode(cb, node.from) ||
         visitNode(cb, node.to)
+      );
+    case SyntaxKind.ProjectionReference:
+      return (
+        visitNode(cb, node.target) || visitNode(cb, node.reference) || visitEach(cb, node.arguments)
       );
     // no children for the rest of these.
     case SyntaxKind.StringLiteral:

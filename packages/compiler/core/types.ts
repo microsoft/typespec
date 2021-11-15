@@ -20,11 +20,6 @@ export interface BaseType {
   kind: string;
   node?: Node;
   instantiationParameters?: Type[];
-  project(
-    target: Type,
-    projection: ProjectionNode,
-    args?: (Type | string | number | boolean)[]
-  ): Type;
   get projections(): ProjectionStatementNode[];
 }
 
@@ -54,7 +49,8 @@ export type Type =
   | UnionTypeVariant
   | IntrinsicType
   | FunctionType
-  | ObjectType;
+  | ObjectType
+  | ProjectionType;
 
 export interface FunctionType extends BaseType {
   kind: "Function";
@@ -64,6 +60,11 @@ export interface FunctionType extends BaseType {
 export interface ObjectType extends BaseType {
   kind: "Object";
   properties: Record<string, Type>;
+}
+
+export interface ProjectionType extends BaseType {
+  kind: "Projection";
+  node: ProjectionStatementNode;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -141,7 +142,7 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   value?: string | number;
 }
 
-export interface OperationType extends DecoratedType {
+export interface OperationType extends BaseType, DecoratedType {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
@@ -319,6 +320,7 @@ export enum SyntaxKind {
   ProjectionSpreadProperty,
   ProjectionTupleExpression,
   ProjectionStatement,
+  ProjectionReference,
 }
 
 export interface BaseNode extends TextRange {
@@ -466,6 +468,7 @@ export type ProjectionExpression =
   | ProjectionLogicalExpressionNode
   | ProjectionRelationalExpressionNode
   | ProjectionArithmeticExpressionNode
+  | ProjectionReferenceExpressionNode
   | ProjectionCallExpressionNode
   | ProjectionMemberExpressionNode
   | ProjectionTupleExpressionNode
@@ -688,6 +691,12 @@ export interface ProjectionArithmeticExpressionNode extends BaseNode {
   right: ProjectionExpression;
 }
 
+export interface ProjectionReferenceExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionReference;
+  target: ProjectionExpression;
+  reference: ProjectionMemberExpressionNode | IdentifierNode;
+  arguments: ProjectionExpression[];
+}
 export interface ProjectionCallExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionCallExpression;
   callKind: "method" | "template";
@@ -749,6 +758,7 @@ export interface ProjectionLambdaParameterDeclarationNode extends BaseNode {
   id: IdentifierNode;
   symbol?: TypeSymbol;
 }
+
 export interface ProjectionNode extends BaseNode {
   kind: SyntaxKind.Projection;
   direction: "to" | "from";

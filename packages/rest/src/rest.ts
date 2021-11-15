@@ -8,6 +8,125 @@ import {
 import { reportDiagnostic } from "./diagnostics.js";
 
 const producesTypesKey = Symbol();
+const libDefinition = {
+  name: "@cadl-lang/rest",
+  diagnostics: {
+    "service-title-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @serviceTitle decorator can only be applied to namespaces.",
+      },
+    },
+    "service-title-duplicate": {
+      severity: "error",
+      messages: {
+        default: "Service title can only be set once per Cadl document.",
+      },
+    },
+    "service-host-duplicate": {
+      severity: "error",
+      messages: {
+        default: "Service host can only be set once per Cadl document.",
+      },
+    },
+    "service-host-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @serviceHost decorator can only be applied to namespaces.",
+      },
+    },
+    "service-version-duplicate": {
+      severity: "error",
+      messages: {
+        default: "Service version can only be set once per Cadl document.",
+      },
+    },
+    "service-version-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @serviceVersion decorator can only be applied to namespaces.",
+      },
+    },
+    "produces-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @produces decorator can only be applied to namespaces.",
+      },
+    },
+    "consumes-namespace-only": {
+      severity: "error",
+      messages: {
+        default: "The @consumes decorator can only be applied to namespaces.",
+      },
+    },
+    "service-namespace-duplicate": {
+      severity: "error",
+      messages: {
+        default: "Cannot set service namespace more than once in an Cadl project.",
+      },
+    },
+    "http-verb-duplicate": {
+      severity: "error",
+      messages: {
+        default: paramMessage`HTTP verb already applied to ${"entityName"}`,
+      },
+    },
+    "http-verb-wrong-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Cannot use @${"verb"} on a ${"entityKind"}`,
+      },
+    },
+  },
+} as const;
+
+export const restLib = createCadlLibrary(libDefinition);
+
+const { reportDiagnostic } = restLib;
+
+const basePathsKey = Symbol();
+export interface HttpOperationType extends OperationType {
+  basePath: string;
+  route: OperationRoute;
+}
+
+export function getHttpOperation(
+  program: Program,
+  operation: OperationType
+): HttpOperationType | undefined {
+  if (!operation.namespace || !isResource(program, operation.namespace!)) {
+    return undefined;
+  }
+  return {
+    basePath: basePathForResource(program, operation)!,
+    route: getOperationRoute(program, operation)!,
+    kind: operation.kind,
+    name: operation.name,
+    node: operation.node,
+    returnType: operation.returnType,
+    namespace: operation.namespace,
+    parameters: operation.parameters,
+    decorators: operation.decorators,
+    projections: [],
+  };
+}
+
+export function $resource(program: Program, entity: Type, basePath = "") {
+  if (entity.kind !== "Namespace") return;
+  program.stateMap(basePathsKey).set(entity, basePath);
+}
+
+export function getResources(program: Program) {
+  return Array.from(program.stateMap(basePathsKey).keys());
+}
+
+export function isResource(program: Program, obj: Type) {
+  return program.stateMap(basePathsKey).has(obj);
+}
+
+export function basePathForResource(program: Program, resource: Type) {
+  return program.stateMap(basePathsKey).get(resource);
+}
 
 export function $produces(program: Program, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {

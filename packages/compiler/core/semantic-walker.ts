@@ -225,6 +225,7 @@ function navigateType(
     case "TemplateParameter":
       return navigateTemplateParameter(type, eventEmitter, visited);
     case "Object":
+    case "Projection":
     case "Function":
     case "Boolean":
     case "EnumMember":

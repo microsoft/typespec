@@ -50,6 +50,7 @@ import {
   ProjectionLambdaExpressionNode,
   ProjectionMemberExpressionNode,
   ProjectionNode,
+  ProjectionReferenceExpressionNode,
   ProjectionRelationalExpressionNode,
   ProjectionStatementItem,
   ProjectionStatementNode,
@@ -96,6 +97,16 @@ export interface Checker {
   cloneType<T extends Type>(type: T): T;
   resolveCompletions(node: IdentifierNode): Map<string, Sym>;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
+  project(
+    target: Type,
+    projection: ProjectionNode,
+    args?: (Type | string | number | boolean)[]
+  ): Type;
+  getProjectionInstructions(
+    target: Type,
+    projection: ProjectionNode,
+    args?: (Type | string | number | boolean)[]
+  ): any[];
 }
 
 /**
@@ -146,9 +157,6 @@ export function createChecker(program: Program): Checker {
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
   const typePrototype = {
-    project(this: Type, target: Type, projection: ProjectionNode, args: Type[] = []): Type {
-      return evalProjectionStatement(projection, target, args);
-    },
     get projections(): ProjectionStatementNode[] {
       return (projectionsByTypeKind.get((this as Type).kind) || []).concat(
         projectionsByType.get(this as Type) || []
@@ -164,6 +172,7 @@ export function createChecker(program: Program): Checker {
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([["Model", []]]);
   const projectionsByType = new Map<Type, ProjectionStatementNode[]>();
+  let currentProjectionDirection: "to" | "from" | undefined;
 
   // Map keeping track of the models currently being checked.
   // When a model type start being instantiated it gets added to this map which lets properties
@@ -219,13 +228,15 @@ export function createChecker(program: Program): Checker {
     cloneType,
     resolveCompletions,
     evalProjection: evalProjectionStatement,
+    project,
+    getProjectionInstructions,
   };
 
   function initializeCadlIntrinsics() {
     cadlNamespaceNode!.exports!.set("log", {
       kind: "function",
       name: "log",
-      value(str: StringLiteralType): Type {
+      value(p: Program, str: StringLiteralType): Type {
         console.log(str.value);
         return voidType;
       },
@@ -233,7 +244,7 @@ export function createChecker(program: Program): Checker {
     cadlNamespaceNode!.exports!.set("inspect", {
       kind: "function",
       name: "inspect",
-      value(str: Type): Type {
+      value(p: Program, str: Type): Type {
         console.log(str);
         return voidType;
       },
@@ -727,7 +738,7 @@ export function createChecker(program: Program): Checker {
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
     const decorators = checkDecorators(node);
-    const type: OperationType = {
+    const type: OperationType = createType({
       kind: "Operation",
       name,
       namespace,
@@ -735,13 +746,7 @@ export function createChecker(program: Program): Checker {
       parameters: getTypeForNode(node.parameters) as ModelType,
       returnType: getTypeForNode(node.returnType),
       decorators,
-    };
-
-    if (
-      node.parent!.kind !== SyntaxKind.InterfaceStatement ||
-      shouldCreateTypeForTemplate(node.parent!)
-    ) {
-    }
+    });
 
     if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
       if (shouldCreateTypeForTemplate(node.parent!)) {
@@ -1888,6 +1893,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkProjectionDeclaration(node: ProjectionStatementNode): Type {
+    const links = getSymbolLinks(node.symbol!);
+    if (links.declaredType) {
+      return links.declaredType;
+    }
     switch (node.selector.kind) {
       case SyntaxKind.ProjectionModelSelector:
         projectionsByTypeKind.get("Model")!.push(node);
@@ -1907,7 +1916,12 @@ export function createChecker(program: Program): Checker {
         break;
     }
 
-    return errorType;
+    links.declaredType = createType({
+      kind: "Projection",
+      node,
+    });
+
+    return links.declaredType;
   }
 
   function evalProjectionNode(node: ProjectionExpression | ProjectionStatementItem): Type {
@@ -1940,6 +1954,8 @@ export function createChecker(program: Program): Checker {
         return evalProjectionIfExpression(node);
       case SyntaxKind.ProjectionRelationalExpression:
         return evalProjectionRelationalExpression(node);
+      case SyntaxKind.ProjectionReference:
+        return evalProjectionReferenceExpression(node);
       default:
         throw new Error("Can't eval " + SyntaxKind[node.kind]);
     }
@@ -1949,6 +1965,37 @@ export function createChecker(program: Program): Checker {
     node: Node;
     locals: Map<string, Type>;
     parent?: EvalContext;
+  }
+
+  function evalProjectionReferenceExpression(node: ProjectionReferenceExpressionNode) {
+    const args = node.arguments.map(evalProjectionNode);
+    const target = evalProjectionNode(node.target);
+    const projection = evalProjectionNode(node.reference);
+
+    if (projection.kind !== "Projection") {
+      throw new Error(`Can't project using a non-projection type`);
+    }
+
+    if (
+      target.kind !== "Interface" &&
+      target.kind !== "Model" &&
+      target.kind !== "Operation" &&
+      target.kind !== "Union"
+    ) {
+      throw new Error(`Can't project ${target.kind} type.`);
+    }
+
+    if (target.projections.indexOf(projection.node!) === -1) {
+      throw new Error(`Target doesn't have projection ${projection.node!.id.sv}`);
+    }
+
+    if (!projection.node[currentProjectionDirection!]) {
+      throw new Error(
+        `Target doesn't have a projection in the ${currentProjectionDirection} direction.`
+      );
+    }
+
+    return evalProjectionStatement(projection.node[currentProjectionDirection!]!, target, args);
   }
 
   function evalProjectionRelationalExpression(node: ProjectionRelationalExpressionNode): Type {
@@ -2023,11 +2070,17 @@ export function createChecker(program: Program): Checker {
       node: node as any,
     });
   }
+
   function evalProjectionStatement(
     node: ProjectionNode,
     target: Type,
     args: (Type | number | string | boolean)[]
   ): Type {
+    let topLevelProjection = false;
+    if (!currentProjectionDirection) {
+      topLevelProjection = true;
+      currentProjectionDirection = node.direction;
+    }
     evalContext = createEvalContext(node);
     for (const [i, param] of node.parameters.entries()) {
       if (!args[i]) {
@@ -2051,6 +2104,9 @@ export function createChecker(program: Program): Checker {
       evalProjectionNode(item);
     }
 
+    if (topLevelProjection) {
+      currentProjectionDirection = undefined;
+    }
     return clone;
   }
 
@@ -2165,8 +2221,15 @@ export function createChecker(program: Program): Checker {
         switch (member) {
           case "name":
             return valueToLiteralType(base.name);
+          case "type":
+            return base.type;
+          case "setType":
+            return functionTypeFromFunction((_: Program, t: Type) => {
+              base.type = t;
+              return voidType;
+            });
           default:
-            return errorType;
+            throw new Error(`Model doesn't have member ${member}`);
         }
       case "Object":
         return base.properties[member] || errorType;
@@ -2277,6 +2340,13 @@ export function createChecker(program: Program): Checker {
               return valueToLiteralType(retval);
             }
 
+            if (typeof retval === "object" && !retval.kind) {
+              return createType({
+                kind: "Object",
+                properties: retval,
+              });
+            }
+
             // TODO: check this better.
             return retval as Type;
           },
@@ -2326,6 +2396,14 @@ export function createChecker(program: Program): Checker {
       node,
       value: node.value,
     });
+  }
+
+  function project(target: Type, projection: ProjectionNode, args: Type[] = []) {
+    return evalProjectionStatement(projection, target, args);
+  }
+
+  function getProjectionInstructions(target: Type, projection: ProjectionNode, args: Type[] = []) {
+    return [];
   }
 }
 

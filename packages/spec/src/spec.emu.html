@@ -484,9 +484,16 @@ ProjectionAdditiveExpression :
     ProjectionAdditiveExpression `-` ProjectionMultiplicativeExpression
 
 ProjectionMultiplicativeExpression :
+    ProjectionProjectionReference
+    ProjectionMultiplicativeExpression `*` ProjectionProjectionReference
+    ProjectionMultiplicativeExpression `/` ProjectionProjectionReference
+
+ProjectionProjectionReference :
     ProjectionCallExpression
-    ProjectionMultiplicativeExpression `*` ProjectionCallExpression
-    ProjectionMultiplicativeExpression `/` ProjectionCallExpression
+    ProjectionProjectionReference `#` ProjectionMemberExpression ProjectionProjectionReferenceArguments?
+
+ProjectionProjectionReferenceArguments :
+    `(` ProjectionExpressionList? `)`
 
 ProjectionCallExpression :
     ProjectionMemberExpression
@@ -494,7 +501,7 @@ ProjectionCallExpression :
     ProjectionCallExpression `.` Identifier
 
 ProjectionCallArguments :
-    `(` ProjectionExpressionList `)`
+    `(` ProjectionExpressionList? `)`
 
 ProjectionMemberExpression :
     ProjectionPrimaryExpression
@@ -541,7 +548,6 @@ ProjectionModelProperty :
 
 ProjectionModelSpreadProperty :
     `...` ProjectionExpression
-
 
 ProjectionTupleExpression :
     `[` ProjectionExpressionList `]`
