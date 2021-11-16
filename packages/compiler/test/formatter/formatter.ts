@@ -15,7 +15,7 @@ function assertFormat({ code, expected }: { code: string; expected: string }) {
   strictEqual(result.trim(), expected.trim());
 }
 
-describe("cadl: prettier formatter", () => {
+describe("compiler: prettier formatter", () => {
   it("throws error if there is a parsing issue", () => {
     const code = `namespace this is invalid`;
 

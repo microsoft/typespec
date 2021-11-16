@@ -2,7 +2,7 @@ import { match, ok, strictEqual } from "assert";
 import { ModelType, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: models", () => {
+describe("compiler: models", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

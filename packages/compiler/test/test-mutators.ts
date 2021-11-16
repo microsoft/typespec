@@ -8,7 +8,7 @@ import { Program } from "../core/program.js";
 import { ModelType, OperationType, UnionType } from "../core/types.js";
 import { createTestHost, TestHost } from "./test-host.js";
 
-describe("cadl: mutators", () => {
+describe("compiler: mutators", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

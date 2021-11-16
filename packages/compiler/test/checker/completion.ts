@@ -3,7 +3,7 @@ import { getNodeAtPosition } from "../../core/parser.js";
 import { SyntaxKind } from "../../core/types.js";
 import { createTestHost } from "../test-host.js";
 
-describe("cadl: completion", () => {
+describe("compiler: completion", () => {
   it("completes globals", async () => {
     const completions = await complete(
       `

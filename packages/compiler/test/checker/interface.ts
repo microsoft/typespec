@@ -2,7 +2,7 @@ import { match, ok, strictEqual } from "assert";
 import { InterfaceType, ModelType, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: interfaces", () => {
+describe("compiler: interfaces", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

@@ -3,7 +3,7 @@ import { Program } from "../../core/program.js";
 import { ModelType, NamespaceType, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: namespaces with blocks", () => {
+describe("compiler: namespaces with blocks", () => {
   const blues = new WeakSet();
   function $blue(_: any, target: Type) {
     blues.add(target);
@@ -215,7 +215,7 @@ describe("cadl: namespaces with blocks", () => {
   });
 });
 
-describe("cadl: blockless namespaces", () => {
+describe("compiler: blockless namespaces", () => {
   const blues = new WeakSet();
   function $blue(_: any, target: Type) {
     blues.add(target);
@@ -468,7 +468,7 @@ describe("cadl: blockless namespaces", () => {
   });
 });
 
-describe("cadl: namespace type name", () => {
+describe("compiler: namespace type name", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -497,7 +497,7 @@ describe("cadl: namespace type name", () => {
   });
 });
 
-describe("cadl: decorators in namespaces", () => {
+describe("compiler: decorators in namespaces", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

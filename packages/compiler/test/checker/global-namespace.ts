@@ -3,7 +3,7 @@ import { assert } from "console";
 import { ModelType } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: global namespace", () => {
+describe("compiler: global namespace", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

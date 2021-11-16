@@ -4,7 +4,7 @@ import { formatDiagnostic, logDiagnostics, logVerboseTestOutput } from "../core/
 import { hasParseError, NodeFlags, parse, visitChildren } from "../core/parser.js";
 import { CadlScriptNode, Node, SourceFile, SyntaxKind } from "../core/types.js";
 
-describe("cadl: syntax", () => {
+describe("compiler: syntax", () => {
   describe("import statements", () => {
     parseEach(['import "x";']);
 
