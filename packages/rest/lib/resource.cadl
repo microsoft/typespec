@@ -5,25 +5,33 @@ namespace Cadl.Rest.Resource;
 
 @doc("The default error response for resource operations.")
 model ResourceError {
+  @doc("The error code.")
   code: int32;
+
+  @doc("The error message.")
   message: string;
 }
 
+@doc("Dynamically gathers keys of the model type T.")
 @copyResourceKeyParameters
 model KeysOf<T> {}
 
+@doc("Dynamically gathers parent keys of the model type T.")
 @copyResourceKeyParameters("parent")
 model ParentKeysOf<T> {}
 
+@doc("Represents operation parameters for resource TResource.")
 model ResourceParameters<TResource> {
   ...KeysOf<TResource>;
 }
 
+@doc("Represents collection operation parameters for resource TResource.")
 model ResourceCollectionParameters<TResource> {
   ...ParentKeysOf<TResource>;
 }
 
 interface ResourceRead<TResource, TError> {
+  @doc("Gets an instance of the resource.")
   @read(TResource)
   Get(...ResourceParameters<TResource>): TResource | TError;
 }
@@ -35,6 +43,7 @@ model ResourceCreatedResponse<T> {
 }
 
 interface ResourceCreate<TResource, TError> {
+  @doc("Creates a new instance of the resource.")
   @create(TResource)
   Create(
     ...ResourceParameters<TResource>,
@@ -43,6 +52,7 @@ interface ResourceCreate<TResource, TError> {
 }
 
 interface ResourceUpdate<TResource, TError> {
+  @doc("Updates an existing instance of the resource.")
   @update(TResource)
   Update(
     ...ResourceParameters<TResource>,
@@ -52,10 +62,13 @@ interface ResourceUpdate<TResource, TError> {
 
 @doc("Resource deleted successfully.")
 model ResourceDeletedResponse {
-  @Cadl.Http.header statusCode: 200;
+  @doc("The status code.")
+  @Cadl.Http.header
+  statusCode: 200;
 }
 
 interface ResourceDelete<TResource, TError> {
+  @doc("Deletes an existing instance of the resource.")
   @delete(TResource)
   Delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
 }
@@ -70,6 +83,7 @@ model Page<T> {
 }
 
 interface ResourceList<TResource, TError> {
+  @doc("Lists all instances of the resource.")
   @list(TResource)
   List(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
 }

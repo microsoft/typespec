@@ -9,6 +9,7 @@
     "/pets/{petId}": {
       "get": {
         "operationId": "Pets_Get",
+        "summary": "Gets an instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -39,6 +40,7 @@
       },
       "patch": {
         "operationId": "Pets_Update",
+        "summary": "Updates an existing instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -94,6 +96,7 @@
       },
       "delete": {
         "operationId": "Pets_Delete",
+        "summary": "Deletes an existing instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -124,6 +127,7 @@
       },
       "post": {
         "operationId": "Pets_Create",
+        "summary": "Creates a new instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -175,6 +179,7 @@
     "/pets": {
       "get": {
         "operationId": "Pets_List",
+        "summary": "Lists all instances of the resource.",
         "parameters": [],
         "responses": {
           "200": {
@@ -203,6 +208,7 @@
     "/pets/{petId}/toys/{toyId}": {
       "get": {
         "operationId": "Toys_Get",
+        "summary": "Gets an instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PetStore.Pet.petId"
