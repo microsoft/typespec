@@ -2,44 +2,81 @@ import "../dist/http.js";
 
 namespace Cadl.Http;
 
+@doc("The request has succeeded.")
 model OkResponse<T> {
-  @header statusCode: 200;
-  @body body: T;
+  @doc("The status code.")
+  @header
+  statusCode: 200;
+
+  @doc("The reponse body.")
+  @body
+  body: T;
 }
 
+@doc("The Location header.")
 model LocationHeader {
-  @header location: string;
+  @doc(
+    "The Location header contains the URL where the status of the long running operation can be checked."
+  )
+  @header
+  location: string;
 }
 
+@doc("The request has succeeded and a new resource has been created as a result.")
 model CreatedResponse {
-  @header statusCode: 201;
+  @doc("The status code.")
+  @header
+  statusCode: 201;
 }
 
+@doc("The request has been received but not yet acted upon.")
 model AcceptedResponse {
-  @header statusCode: 202;
+  @doc("The status code.")
+  @header
+  statusCode: 202;
 }
 
+@doc("There is no content to send for this request, but the headers may be useful. ")
 model NoContentResponse {
-  @header statusCode: 204;
+  @doc("The status code.")
+  @header
+  statusCode: 204;
 }
 
+@doc(
+  "The URL of the requested resource has been changed permanently. The new URL is given in the response."
+)
 model MovedResponse {
-  @header statusCode: 301;
+  @doc("The status code.")
+  @header
+  statusCode: 301;
   ... LocationHeader;
 }
 
+@doc("This is used for caching purposes.")
 model NotModifiedResponse {
-  @header statusCode: 304;
+  @doc("The status code.")
+  @header
+  statusCode: 304;
 }
 
+@doc("The server could not understand the request due to invalid syntax.")
 model UnauthorizedResponse {
-  @header statusCode: 401;
+  @doc("The status code.")
+  @header
+  statusCode: 401;
 }
 
+@doc("The server can not find the requested resource.")
 model NotFoundResponse {
-  @header statusCode: 404;
+  @doc("The status code.")
+  @header
+  statusCode: 404;
 }
 
+@doc("This response is sent when a request conflicts with the current state of the server.")
 model ConflictResponse {
-  @header statusCode: 409;
+  @doc("The status code.")
+  @header
+  statusCode: 409;
 }

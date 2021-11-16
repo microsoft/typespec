@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add documentation strings to models and operations",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
