@@ -197,7 +197,9 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
-  const dependencies: Record<string, string> = {};
+  const dependencies: Record<string, string> = {
+    "@cadl-lang/compiler": "latest"
+  };
 
   for (const library of config.libraries) {
     dependencies[library] = "latest";

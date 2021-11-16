@@ -33,7 +33,7 @@
     "dist/**",
     "!dist/test/**"
   ],
-  "dependencies": {
+  "peerDependencies": {
     "@cadl-lang/compiler": "0.23.0",
     "@cadl-lang/rest": "0.6.4"
   },
