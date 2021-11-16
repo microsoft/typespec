@@ -38,6 +38,9 @@
   },
   "devDependencies": {
     "@types/mkdirp": "~1.0.1",
+    "@cadl-lang/compiler": "0.23.0",
+    "@cadl-lang/rest": "0.6.4",
+    "@cadl-lang/openapi3": "0.4.0",
     "autorest": "~3.3.2",
     "mkdirp": "~1.0.4"
   }

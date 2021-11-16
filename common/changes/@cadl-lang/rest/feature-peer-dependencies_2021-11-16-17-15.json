@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/rest",
-      "comment": "Update cadl depdendencies to peerDepdendencies",
+      "comment": "Update cadl depdendencies to peerDependencies",
       "type": "minor"
     }
   ],
