@@ -5,13 +5,14 @@ using Cadl.Http;
 @route("/foo")
 @doc("Things to do with foo")
 namespace foo {
-  @get("DefaultDescriptions") op WithDefaultDescriptions(): Resp | Error;
 
-  @get("ModelDocDescriptions") op WithModelDocDescriptions(): RespWithDocs | ErrorWithDocs;
+  @route("DefaultDescriptions") op WithDefaultDescriptions(): Resp | Error;
 
-  @get("NotFoundWithDocs") op WithStatusCodeDocs(): Resp | NotFoundWithDocsResp | Error;
+  @route("ModelDocDescriptions") op WithModelDocDescriptions(): RespWithDocs | ErrorWithDocs;
 
-  @get("NotFoundDefaultDocs") op WithDefaultDescNotFound(): RespWithDocs | NotFoundResp | Error;
+  @route("NotFoundWithDocs") op WithStatusCodeDocs(): Resp | NotFoundWithDocsResp | Error;
+
+  @route("NotFoundDefaultDocs") op WithDefaultDescNotFound(): RespWithDocs | NotFoundResp | Error;
 }
 
 // will have default success description

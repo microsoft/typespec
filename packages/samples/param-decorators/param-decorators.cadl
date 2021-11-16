@@ -7,7 +7,7 @@ using Cadl.Http;
 
 @route("/thing")
 namespace Operations {
-  @get("{name}")
+  @route("{name}")
   op getThing(
     @format("^[a-zA-Z0-9-]{3,24}$")
     @path
@@ -19,8 +19,8 @@ namespace Operations {
     count: int32
   ): OkResponse<Thing>;
 
-  @put("{name}")
-  op putThing(...NameParameter): OkResponse<Thing>;
+  @route("{name}")
+  @put op putThing(...NameParameter): OkResponse<Thing>;
 }
 
 model Thing {

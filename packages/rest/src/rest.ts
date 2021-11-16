@@ -1,4 +1,5 @@
 import {
+  $list,
   ModelType,
   OperationType,
   Program,
@@ -106,7 +107,7 @@ export function setResourceOperation(
 export function getResourceOperation(
   program: Program,
   cadlOperation: OperationType
-): ResourceOperation {
+): ResourceOperation | undefined {
   return program.stateMap(resourceOperationsKey).get(cadlOperation);
 }
 
@@ -131,6 +132,12 @@ export function $deletesResource(program: Program, entity: Type, resourceType: T
 }
 
 export function $listsResource(program: Program, entity: Type, resourceType: Type) {
+  // Skip this for template parameters passed into the decorator
+  if (resourceType.kind !== "TemplateParameter") {
+    // Add the @list decorator too so that collection routes are generated correctly
+    $list(program, entity, resourceType);
+  }
+
   setResourceOperation(program, entity, resourceType, "list");
 }
 
@@ -145,15 +152,11 @@ export function $action(program: Program, entity: Type, name?: string) {
     return;
   }
 
-  program.stateMap(actionsKey).set(entity, name);
+  program.stateMap(actionsKey).set(entity, name || entity.name);
 }
 
-export function getAction(
-  program: Program,
-  operation: OperationType,
-  defaultActionName?: string
-): string | undefined {
-  return program.stateMap(actionsKey).get(operation) || defaultActionName;
+export function getAction(program: Program, operation: OperationType): string | null | undefined {
+  return program.stateMap(actionsKey).get(operation);
 }
 
 setDecoratorNamespace(

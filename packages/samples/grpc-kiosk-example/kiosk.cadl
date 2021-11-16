@@ -6,43 +6,43 @@ using Cadl.Http;
 @tag("Display")
 namespace Display {
   @doc("Create a kiosk. This enrolls the kiosk for sign display.")
-  @post("kiosks")
-  op CreateKiosk(@body body: Kiosk): Kiosk | RpcStatus;
+  @route("kiosks")
+  @post op CreateKiosk(@body body: Kiosk): Kiosk | RpcStatus;
 
   @doc("List active kiosks.")
-  @get("kiosks")
+  @route("kiosks")
   op ListKiosks(... Empty): ListKiosksResponse | RpcStatus;
 
   @doc("Get a kiosk.")
-  @get("kiosks/{id}")
+  @route("kiosks/{id}")
   op GetKiosk(@path id: KioskId): Kiosk | RpcStatus;
 
   @doc("Delete a kiosk.")
-  @delete("kiosks/{id}")
-  op DeleteKiosk(@path id: KioskId): Empty | RpcStatus;
+  @route("kiosks/{id}")
+  @delete op DeleteKiosk(@path id: KioskId): Empty | RpcStatus;
 
   @doc("Create a sign. This enrolls the sign for sign display.")
-  @post("signs")
-  op CreateSign(@body sign: Sign): Sign | RpcStatus;
+  @route("signs")
+  @post op CreateSign(@body sign: Sign): Sign | RpcStatus;
 
   @doc("List active signs.")
-  @get("signs")
+  @route("signs")
   op ListSigns(... Empty): ListSignsResponse;
 
   @doc("Get a sign.")
-  @get("signs/{id}")
+  @route("signs/{id}")
   op GetSign(@path id: SignId): Sign | RpcStatus;
 
   @doc("Delete a sign.")
-  @delete("signs/{id}")
-  op DeleteSign(@path id: SignId): Empty | RpcStatus;
+  @route("signs/{id}")
+  @delete op DeleteSign(@path id: SignId): Empty | RpcStatus;
 
   @doc("Set a sign for display on one or more kiosks.")
-  @post("signs/{sign_id}")
-  op SetSignIdForKioskIds(... SetSignIdForKioskIdsRequest): Empty | RpcStatus;
+  @route("signs/{sign_id}")
+  @post op SetSignIdForKioskIds(... SetSignIdForKioskIdsRequest): Empty | RpcStatus;
 
   @doc("Get the sign that should be displayed on a kiosk.")
-  @get("kiosks/{kiosk_id}/sign")
+  @route("kiosks/{kiosk_id}/sign")
   op GetSignIdForKioskId(@path kiosk_id: int32): GetSignIdResponse | RpcStatus;
 
   //
