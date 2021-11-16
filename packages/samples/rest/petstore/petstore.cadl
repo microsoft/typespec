@@ -1,5 +1,4 @@
 import "@cadl-lang/rest";
-import "@cadl-lang/openapi3";
 
 @serviceTitle("Pet Store Service")
 @serviceVersion("2021-03-25")
