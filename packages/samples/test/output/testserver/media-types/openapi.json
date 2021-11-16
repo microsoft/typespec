@@ -13,7 +13,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
+            "description": "A successful response",
             "content": {
               "application/json": {
                 "schema": {
@@ -62,7 +62,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
+            "description": "A successful response",
             "content": {
               "application/json": {
                 "schema": {
