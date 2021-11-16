@@ -17,7 +17,7 @@
     "cadl"
   ],
   "type": "module",
-  "main": "dist/rest.js",
+  "main": "dist/lib.js",
   "cadlMain": "lib/rest.cadl",
   "engines": {
     "node": ">=14.0.0"

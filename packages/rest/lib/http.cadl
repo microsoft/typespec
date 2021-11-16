@@ -1,0 +1,45 @@
+import "../dist/http.js";
+
+namespace Cadl.Http;
+
+model OkResponse<T> {
+  @header statusCode: 200;
+  @body body: T;
+}
+
+model LocationHeader {
+  @header location: string;
+}
+
+model CreatedResponse {
+  @header statusCode: 201;
+}
+
+model AcceptedResponse {
+  @header statusCode: 202;
+}
+
+model NoContentResponse {
+  @header statusCode: 204;
+}
+
+model MovedResponse {
+  @header statusCode: 301;
+  ... LocationHeader;
+}
+
+model NotModifiedResponse {
+  @header statusCode: 304;
+}
+
+model UnauthorizedResponse {
+  @header statusCode: 401;
+}
+
+model NotFoundResponse {
+  @header statusCode: 404;
+}
+
+model ConflictResponse {
+  @header statusCode: 409;
+}

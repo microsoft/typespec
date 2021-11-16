@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add new Cadl.Rest.Resource namespace for new resource modelling pattern",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

@@ -5,6 +5,8 @@
 // package google.example.library.v1;
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 @doc(
   """
 This API represents a simple digital library.  It lets you manage Shelf
@@ -18,7 +20,7 @@ resource model:
   resources, named `shelves/*/books/*`
 """
 )
-@resource("/v1")
+@route("/v1")
 @tag("LibraryService")
 namespace LibraryService {
   @doc("Creates a shelf, and returns the new Shelf.")

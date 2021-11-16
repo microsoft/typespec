@@ -3,7 +3,8 @@ import {
   addOperationParameter,
   addOperationResponseType,
 } from "@cadl-lang/compiler";
-import { $path, $query } from "@cadl-lang/rest";
+import { http } from "@cadl-lang/rest";
+const { $path, $query } = http;
 
 export function $addProperties(program, model) {
   // Add a property of intrinsic type

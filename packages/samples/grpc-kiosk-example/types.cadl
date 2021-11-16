@@ -1,3 +1,5 @@
+using Cadl.Http;
+
 //
 // types.cadl
 //

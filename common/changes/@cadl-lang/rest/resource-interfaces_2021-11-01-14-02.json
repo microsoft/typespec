@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Refactor REST and HTTP decorators and split them into Cadl.Rest and Cadl.Http, respectively",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

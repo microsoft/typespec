@@ -1,6 +1,8 @@
 import "@cadl-lang/rest";
 
-@resource("/v1")
+using Cadl.Http;
+
+@route("/v1")
 @tag("Display")
 namespace Display {
   @doc("Create a kiosk. This enrolls the kiosk for sign display.")

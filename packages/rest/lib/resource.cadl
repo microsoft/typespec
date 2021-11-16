@@ -1,0 +1,81 @@
+import "./http.cadl";
+import "../dist/resource.js";
+
+namespace Cadl.Rest.Resource;
+
+@doc("The default error response for resource operations.")
+model ResourceError {
+  code: int32;
+  message: string;
+}
+
+@copyResourceKeyParameters
+model KeysOf<T> {}
+
+@copyResourceKeyParameters("parent")
+model ParentKeysOf<T> {}
+
+model ResourceParameters<TResource> {
+  ...KeysOf<TResource>;
+}
+
+model ResourceCollectionParameters<TResource> {
+  ...ParentKeysOf<TResource>;
+}
+
+interface ResourceRead<TResource, TError> {
+  @read(TResource)
+  Get(...ResourceParameters<TResource>): TResource | TError;
+}
+
+@doc("Resource create operation completed successfully.")
+model ResourceCreatedResponse<T> {
+  ...Cadl.Http.CreatedResponse;
+  @Cadl.Http.body body: T;
+}
+
+interface ResourceCreate<TResource, TError> {
+  @create(TResource)
+  Create(
+    ...ResourceParameters<TResource>,
+    @Cadl.Http.body resource: TResource
+  ): TResource | ResourceCreatedResponse<TResource> | TError;
+}
+
+interface ResourceUpdate<TResource, TError> {
+  @update(TResource)
+  Update(
+    ...ResourceParameters<TResource>,
+    @Cadl.Http.body properties: OptionalProperties<UpdateableProperties<TResource>>
+  ): TResource | TError;
+}
+
+@doc("Resource deleted successfully.")
+model ResourceDeletedResponse {
+  @Cadl.Http.header statusCode: 200;
+}
+
+interface ResourceDelete<TResource, TError> {
+  @delete(TResource)
+  Delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
+}
+
+@doc("Paged response")
+model Page<T> {
+  @doc("The items on this page")
+  value: T[];
+
+  @doc("The link to the next page of items")
+  nextLink?: string;
+}
+
+interface ResourceList<TResource, TError> {
+  @list(TResource)
+  List(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
+}
+
+interface ResourceInstanceOperations<TResource, TError> mixes ResourceRead<TResource, TError>, ResourceUpdate<TResource, TError>, ResourceDelete<TResource, TError> {}
+
+interface ResourceCollectionOperations<TResource, TError> mixes ResourceCreate<TResource, TError>, ResourceList<TResource, TError> {}
+
+interface ResourceOperations<TResource, TError> mixes ResourceInstanceOperations<TResource, TError>, ResourceCollectionOperations<TResource, TError> {}

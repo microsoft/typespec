@@ -44,3 +44,7 @@ export function paramMessage<T extends string[]>(
   template.keys = keys;
   return template;
 }
+
+export function setDecoratorNamespace(namespace: string, ...decorators: Function[]): void {
+  decorators.forEach((c: any) => (c.namespace = namespace));
+}

@@ -1,5 +1,7 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 model Pet {
   name: string;
 }
@@ -26,7 +28,7 @@ model ErrorResponse {
   @body body: string;
 }
 
-@resource("/multipleInheritance")
+@route("/multipleInheritance")
 namespace MultipleInheritance {
   @doc("Get a horse with name 'Fred' and isAShowHorse true")
   @get("horse")
