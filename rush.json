@@ -6,10 +6,13 @@
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
   "rushVersion": "5.54.0",
   "pnpmVersion": "5.18.10",
+  "ensureConsistentVersions": true,
   /**
    * Options that are only used when the PNPM package manager is selected
    */
-  "pnpmOptions": {},
+  "pnpmOptions": {
+    "strictPeerDependencies": true
+  },
   "nodeSupportedVersionRange": ">=14.0.0",
   "suppressNodeLtsWarning": true,
   "projectFolderMinDepth": 1,
