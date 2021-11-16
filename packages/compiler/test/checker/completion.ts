@@ -139,6 +139,6 @@ describe("compiler: completion", () => {
 
     ok(node?.kind === SyntaxKind.Identifier, "expected to find an identifier");
     ok(testHost.program.checker, "program should have a checker");
-    return testHost.program.checker.resolveCompletions(node);
+    return Array.from(testHost.program.checker.resolveCompletions(node).keys());
   }
 });

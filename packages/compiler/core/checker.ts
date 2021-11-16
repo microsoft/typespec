@@ -80,7 +80,7 @@ export interface Checker {
   getTypeName(type: Type): string;
   getNamespaceString(type: NamespaceType | undefined): string;
   cloneType<T extends Type>(type: T): T;
-  resolveCompletions(node: IdentifierNode): string[];
+  resolveCompletions(node: IdentifierNode): Map<string, Sym>;
 }
 
 /**
@@ -745,16 +745,17 @@ export function createChecker(program: Program): Checker {
     return getMergedSymbol(sym);
   }
 
-  function resolveCompletions(identifier: IdentifierNode): string[] {
+  function resolveCompletions(identifier: IdentifierNode): Map<string, Sym> {
+    const completions = new Map<string, Sym>();
+
     // If first non-MemberExpression parent of identifier is a TypeReference
     // or DecoratorExpression, then we can complete it.
     const parent = findFirstNonMemberExpressionParent(identifier);
     const resolveDecorator = parent.kind === SyntaxKind.DecoratorExpression;
     if (parent.kind !== SyntaxKind.TypeReference && !resolveDecorator) {
-      return [];
+      return completions;
     }
 
-    const completions = new Set<string>();
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       const base = resolveTypeReference(identifier.parent.base, resolveDecorator);
       if (base && base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
@@ -788,7 +789,7 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    return Array.from(completions);
+    return completions;
 
     function findFirstNonMemberExpressionParent(identifier: IdentifierNode) {
       for (let node = identifier.parent; node; node = node.parent) {
@@ -805,17 +806,15 @@ export function createChecker(program: Program): Checker {
     }
 
     function addCompletions(table: SymbolTable) {
-      if (resolveDecorator) {
-        for (const sv of table.keys()) {
-          if (sv.startsWith("@")) {
-            completions.add(sv.slice(1));
-          }
+      for (let [key, value] of table) {
+        if (resolveDecorator !== key.startsWith("@")) {
+          continue;
         }
-      } else {
-        for (const sv of table.keys()) {
-          if (!sv.startsWith("@")) {
-            completions.add(sv);
-          }
+        if (resolveDecorator) {
+          key = key.slice(1);
+        }
+        if (!completions.has(key)) {
+          completions.set(key, value);
         }
       }
     }
