@@ -96,10 +96,12 @@ Here is a very small Cadl example that uses the `@cadl-lang/openapi3` library to
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
 
-@resource("/example")
+using Cadl.Http;
+
+@route("/example")
 namespace Example {
   @get("/message")
-  op getMessage(): { statusCode: 200; @body message: string; };
+  op getMessage(): string;
 }
 ```
 
