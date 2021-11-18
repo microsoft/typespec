@@ -25,7 +25,7 @@
     "Microsoft.Cadl.VS2022.vsix"
   ],
   "scripts": {
-    "build": ""
+    "build": "node scripts/build.js"
   },
   "dependencies": {},
   "devDependencies": {
