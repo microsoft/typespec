@@ -1,6 +1,7 @@
 import {
   ArrayType,
   checkIfServiceNamespace,
+  EmitOptionsFor,
   EnumMemberType,
   EnumType,
   getAllTags,
@@ -32,7 +33,7 @@ import {
 } from "@cadl-lang/compiler";
 import { getInterfaceOperations, http, OperationDetails } from "@cadl-lang/rest";
 import * as path from "path";
-import { reportDiagnostic } from "./lib.js";
+import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 
 const {
   basePathForRoute,
@@ -45,8 +46,8 @@ const {
   isBody,
 } = http;
 
-export async function $onEmit(p: Program) {
-  const options: OpenAPIEmitterOptions = {
+export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
+  const options = {
     outputFile: p.compilerOptions.swaggerOutputFile || path.resolve("./openapi.json"),
   };
 

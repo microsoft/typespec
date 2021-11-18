@@ -19,9 +19,10 @@ import { CadlLibrary, CadlLibraryDef, CallableMessage, DiagnosticMessages } from
  *
  * const lib = createCadlLibrary(libDef);
  */
-export function createCadlLibrary<T extends { [code: string]: DiagnosticMessages }>(
-  lib: Readonly<CadlLibraryDef<T>>
-): CadlLibrary<T> {
+export function createCadlLibrary<
+  T extends { [code: string]: DiagnosticMessages },
+  E extends string
+>(lib: Readonly<CadlLibraryDef<T, E>>): CadlLibrary<T, E> {
   const { reportDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
   return { ...lib, reportDiagnostic };
 }
