@@ -16,6 +16,7 @@ import {
   Directive,
   DirectiveExpressionNode,
   Emitter,
+  EmitterOptions,
   JsSourceFile,
   LiteralType,
   Logger,
@@ -39,7 +40,7 @@ export interface Program {
   host: CompilerHost;
   logger: Logger;
   checker?: Checker;
-  emitters: Emitter[];
+  emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
   evalCadlScript(cadlScript: string): void;
@@ -53,6 +54,11 @@ export interface Program {
   reportDuplicateSymbols(symbols: SymbolTable): void;
 }
 
+interface EmitterRef {
+  emitter: Emitter;
+  options: EmitterOptions;
+}
+
 export async function createProgram(
   host: CompilerHost,
   mainFile: string,
@@ -64,7 +70,7 @@ export async function createProgram(
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
-  const emitters: Emitter[] = [];
+  const emitters: EmitterRef[] = [];
   let error = false;
 
   const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
@@ -121,8 +127,8 @@ export async function createProgram(
     await cb(program);
   }
 
-  for (const cb of emitters) {
-    await cb(program);
+  for (const instance of emitters) {
+    await instance.emitter(program, instance.options);
   }
 
   return program;
@@ -335,20 +341,9 @@ export async function createProgram(
       return;
     }
 
-    const exportEmitter = file.esmExports.$emitters;
-    if (typeof exportEmitter === "object" && exportEmitter !== null) {
-      const emitter: Emitter | undefined = exportEmitter[emitterName];
-      if (emitter === undefined) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "emitter-not-found",
-            format: { emitterPackage, emitterName },
-            target: NoTarget,
-          })
-        );
-      } else {
-        emitters.push(emitter);
-      }
+    const emitterFunction = file.esmExports.$onEmit;
+    if (emitterFunction !== undefined) {
+      emitters.push({ emitter: emitterFunction, options: { name: emitterName } });
     } else {
       program.reportDiagnostic(
         createDiagnostic({

@@ -594,7 +594,8 @@ export interface JsSourceFile {
   namespaces: NamespaceStatementNode[];
 }
 
-export type Emitter = (program: Program) => void;
+export type EmitterOptions = { name?: string } & Record<string, any>;
+export type Emitter = (program: Program, options: EmitterOptions) => void;
 
 export interface SourceFile {
   /** The source code text. */
