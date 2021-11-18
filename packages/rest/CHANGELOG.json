@@ -2,6 +2,31 @@
   "name": "@cadl-lang/rest",
   "entries": [
     {
+      "version": "0.7.0",
+      "tag": "@cadl-lang/rest_v0.7.0",
+      "date": "Thu, 18 Nov 2021 13:58:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Refactor REST and HTTP decorators and split them into Cadl.Rest and Cadl.Http, respectively"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Add new Cadl.Rest.Resource namespace for new resource modelling pattern"
+          },
+          {
+            "comment": "Add documentation strings to models and operations"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.23.0` to `0.24.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.4",
       "tag": "@cadl-lang/rest_v0.6.4",
       "date": "Thu, 11 Nov 2021 21:46:21 GMT",
