@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Fix colorization of multiple mixes",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

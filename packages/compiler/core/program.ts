@@ -48,7 +48,7 @@ export interface Program {
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: Diagnostic[]): void;
-  reportDuplicateSymbols(symbols: SymbolTable): void;
+  reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
 }
 
 export async function createProgram(
@@ -211,13 +211,13 @@ export async function createProgram(
     const cadlScript = loadCadlScriptSync(sourceFile);
     checker.mergeCadlSourceFile(cadlScript);
     checker.setUsingsForFile(cadlScript);
-    reportDuplicateSymbols(cadlScript.locals!);
+    reportDuplicateSymbols(cadlScript.locals);
     for (const ns of cadlScript.namespaces) {
       const mergedNs = checker.getMergedNamespace(ns);
-      reportDuplicateSymbols(mergedNs.locals!);
-      reportDuplicateSymbols(mergedNs.exports!);
+      reportDuplicateSymbols(mergedNs.locals);
+      reportDuplicateSymbols(mergedNs.exports);
     }
-    reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports!);
+    reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports);
   }
 
   async function loadImports(file: CadlScriptNode) {
@@ -541,7 +541,10 @@ export async function createProgram(
     return target;
   }
 
-  function reportDuplicateSymbols(symbols: SymbolTable) {
+  function reportDuplicateSymbols(symbols: SymbolTable | undefined) {
+    if (!symbols) {
+      return;
+    }
     for (const symbol of symbols.duplicates) {
       if (!duplicateSymbols.has(symbol)) {
         duplicateSymbols.add(symbol);
