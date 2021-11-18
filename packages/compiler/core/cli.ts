@@ -84,6 +84,11 @@ async function main() {
         if (program.hasError()) {
           process.exit(1);
         }
+        if (program.emitters.length === 0) {
+          console.log(
+            "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter."
+          );
+        }
       }
     )
     .command("code", "Manage VS Code Extension.", (cmd) => {
