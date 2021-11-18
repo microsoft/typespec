@@ -60,6 +60,7 @@ import {
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
+  ReferenceExpression,
   SourceFile,
   Statement,
   StringLiteralNode,
@@ -1117,7 +1118,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     } else if (token() !== Token.Identifier) {
       // Error recovery: when we fail to parse an identifier or expression,
       // we insert a synthesized identifier with a unique name.
-      error({ code: "token-expected", messageId: message ?? "identifier" });
+      error({ code: "token-expected", messageId: message ?? "identifer" });
       return createMissingIdentifier();
     }
 

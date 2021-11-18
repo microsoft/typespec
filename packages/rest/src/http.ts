@@ -30,6 +30,7 @@ export function getHttpOperation(
     namespace: operation.namespace,
     parameters: operation.parameters,
     decorators: operation.decorators,
+    projections: [],
   };
 }
 
