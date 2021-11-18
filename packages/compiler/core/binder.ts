@@ -98,16 +98,16 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         // isn't particularly useful it turns out.
 
         const name = getFunctionName(key);
-        if (name === "onBuild") {
+        if (name === "onValidate") {
           try {
-            program.onBuild(member as any);
+            program.onValidate(member as any);
             continue;
           } catch (err: any) {
             if (program.compilerOptions.designTimeBuild) {
               // do not exit the language server
               program.reportDiagnostic(
                 createDiagnostic({
-                  code: "on-build-fail",
+                  code: "on-validate-fail",
                   format: { error: err },
                   target: NoTarget,
                 })

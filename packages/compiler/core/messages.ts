@@ -348,10 +348,10 @@ const diagnostics = {
   /**
    * Binder
    */
-  "on-build-fail": {
+  "on-validate-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`onBuild failed with errors. ${"error"}`,
+      default: paramMessage`onValidate failed with errors. ${"error"}`,
     },
   },
   "emitter-not-found": {
