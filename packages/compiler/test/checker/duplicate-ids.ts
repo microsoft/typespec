@@ -3,7 +3,7 @@ import { Program } from "../../core/program.js";
 import { Diagnostic } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: duplicate declarations", () => {
+describe("compiler: duplicate declarations", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

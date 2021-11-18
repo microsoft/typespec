@@ -15,9 +15,25 @@ export async function createOpenAPITestHost() {
     "./node_modules/rest/lib/rest.cadl",
     resolve(root, "../rest/lib/rest.cadl")
   );
+  await host.addRealCadlFile(
+    "./node_modules/rest/lib/resource.cadl",
+    resolve(root, "../rest/lib/resource.cadl")
+  );
+  await host.addRealCadlFile(
+    "./node_modules/rest/lib/http.cadl",
+    resolve(root, "../rest/lib/http.cadl")
+  );
   await host.addRealJsFile(
     "./node_modules/rest/dist/rest.js",
     resolve(root, "../rest/dist/rest.js")
+  );
+  await host.addRealJsFile(
+    "./node_modules/rest/dist/resource.js",
+    resolve(root, "../rest/dist/resource.js")
+  );
+  await host.addRealJsFile(
+    "./node_modules/rest/dist/http.js",
+    resolve(root, "../rest/dist/http.js")
   );
 
   // load openapi
@@ -36,7 +52,7 @@ export async function createOpenAPITestHost() {
 export async function openApiFor(code: string) {
   const host = await createOpenAPITestHost();
   const outPath = resolve("/openapi.json");
-  host.addCadlFile("./main.cadl", `import "rest"; import "openapi3";${code}`);
+  host.addCadlFile("./main.cadl", `import "rest"; import "openapi3";using Cadl.Http;${code}`);
   await host.compile("./main.cadl", {
     noEmit: false,
     swaggerOutputFile: outPath,

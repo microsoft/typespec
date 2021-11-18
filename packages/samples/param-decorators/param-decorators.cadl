@@ -3,7 +3,9 @@ import "@cadl-lang/rest";
 @serviceTitle("Parameter Decorators")
 namespace Cadl.Samples;
 
-@resource("/thing")
+using Cadl.Http;
+
+@route("/thing")
 namespace Operations {
   @get("{name}")
   op getThing(

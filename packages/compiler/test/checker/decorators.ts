@@ -1,7 +1,7 @@
 import { ok } from "assert";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: decorators", () => {
+describe("compiler: decorators", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

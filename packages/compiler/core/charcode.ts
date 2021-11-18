@@ -131,6 +131,14 @@ export function utf16CodeUnits(codePoint: number) {
   return codePoint >= 0x10000 ? 2 : 1;
 }
 
+export function isHighSurrogate(ch: number) {
+  return ch >= 0xd800 && ch <= 0xdbff;
+}
+
+export function isLowSurrogate(ch: number) {
+  return ch >= 0xdc00 && ch <= 0xdfff;
+}
+
 export function isLineBreak(ch: number) {
   return ch === CharCode.LineFeed || ch == CharCode.CarriageReturn;
 }
@@ -152,6 +160,10 @@ export function isNonAsciiWhiteSpaceSingleLine(ch: number) {
     ch === CharCode.LineSeparator ||
     ch === CharCode.ParagraphSeparator
   );
+}
+
+export function isWhiteSpace(ch: number) {
+  return isWhiteSpaceSingleLine(ch) || isLineBreak(ch);
 }
 
 export function isWhiteSpaceSingleLine(ch: number) {
@@ -214,6 +226,19 @@ export function isIdentifierContinue(codePoint: number) {
 
 export function isNonAsciiIdentifierCharacter(codePoint: number) {
   return lookupInNonAsciiMap(codePoint, nonAsciiIdentifierMap);
+}
+
+export function codePointBefore(text: string, pos: number): number | undefined {
+  if (pos <= 0 || pos >= text.length) {
+    return undefined;
+  }
+
+  const ch = text.charCodeAt(pos - 1);
+  if (!isLowSurrogate(ch) || !isHighSurrogate(text.charCodeAt(pos - 2))) {
+    return ch;
+  }
+
+  return text.codePointAt(pos - 2);
 }
 
 function lookupInNonAsciiMap(codePoint: number, map: readonly number[]) {

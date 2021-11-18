@@ -361,10 +361,11 @@ describe("openapi3: definitions", () => {
       `
       import "rest";
       import "openapi3";
+      using Cadl.Http;
       enum PetType {
       }
       model Pet { type: PetType };
-      @resource("/")
+      @route("/")
       namespace root {
         op read(): Pet;
       }
@@ -394,6 +395,7 @@ describe("openapi3: primitives", () => {
     ["plainDate", { type: "string", format: "date" }],
     ["zonedDateTime", { type: "string", format: "date-time" }],
     ["plainTime", { type: "string", format: "time" }],
+    ["duration", { type: "string", format: "duration" }],
     ["bytes", { type: "string", format: "byte" }],
   ];
 
@@ -439,7 +441,7 @@ describe("openapi3: operations", () => {
   it("define operations with param with defaults", async () => {
     const res = await openApiFor(
       `
-      @resource("/")
+      @route("/")
       namespace root {
         @get()
         op read(@query queryWithDefault?: string = "defaultValue"): string;
@@ -453,7 +455,7 @@ describe("openapi3: operations", () => {
   it("define operations with param with decorators", async () => {
     const res = await openApiFor(
       `
-      @resource("/thing")
+      @route("/thing")
       namespace root {
         @get("{name}")
         op getThing(
@@ -492,7 +494,7 @@ describe("openapi3: responses", () => {
       model Key {
         key: string;
       }
-      @resource("/")
+      @route("/")
       namespace root {
         @get()
         op read(): Key & ETagHeader;
@@ -506,7 +508,7 @@ describe("openapi3: responses", () => {
   it("defines responses with primitive types", async () => {
     const res = await openApiFor(
       `
-      @resource("/")
+      @route("/")
       namespace root {
         @get()
         op read(): string;
@@ -525,7 +527,7 @@ describe("openapi3: responses", () => {
 async function oapiForModel(name: string, modelDef: string) {
   const oapi = await openApiFor(`
     ${modelDef};
-    @resource("/")
+    @route("/")
     namespace root {
       op read(): ${name};
     }

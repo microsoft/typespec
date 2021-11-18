@@ -1,5 +1,7 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 @doc("Uri or local path to source data.")
 model SourcePath {
   @minLength(0)
@@ -14,7 +16,7 @@ model Input {
   input: SourcePath;
 }
 
-@resource("/mediatypes")
+@route("/mediatypes")
 namespace MediaTypes {
   @doc("Analyze body, that could be different media types.")
   @post("analyze")

@@ -90,5 +90,5 @@
     "NODE_OPTIONS": "--stack-trace-limit=50"
   },
   "testExplorer.errorDecoration": false,
-  "cadl.cadl-server.path": "${workspaceRoot}/packages/samples/node_modules/.bin/cadl-server"
+  "cadl.cadl-server.path": "${workspaceRoot}/packages/compiler"
 }

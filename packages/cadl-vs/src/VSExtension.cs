@@ -39,6 +39,7 @@ namespace Microsoft.Cadl.VisualStudio {
     public string Name => "Cadl";
     public IEnumerable<string>? ConfigurationSections => null;
     public object? InitializationOptions => null;
+    public bool ShowNotificationOnInitializeFailed =>  true;
     public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.cadl", "**/package.json" };
     public event AsyncEventHandler<EventArgs>? StartAsync;
     public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
@@ -86,10 +87,19 @@ namespace Microsoft.Cadl.VisualStudio {
       }
     }
 
+#if VS2019
     public Task OnServerInitializeFailedAsync(Exception e) {
       Debug.Fail("Failed to initialize cadl-server:\r\n\r\n" + e);
       return Task.CompletedTask;
     }
+#endif
+
+#if VS2022
+    public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState) {
+      Debug.Fail("Failed to initialize cadl-server:\r\n\r\n" + initializationState.InitializationException);
+      return Task.FromResult<InitializationFailureContext?>(null);
+    }
+ #endif
 
     public Task OnServerInitializedAsync() {
       return Task.CompletedTask;

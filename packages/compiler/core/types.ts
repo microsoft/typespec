@@ -74,6 +74,7 @@ export type IntrinsicModelName =
   | "plainDate"
   | "plainTime"
   | "zonedDateTime"
+  | "duration"
   | "boolean"
   | "null";
 
@@ -398,8 +399,6 @@ export type Expression =
   | NumericLiteralNode
   | BooleanLiteralNode;
 
-export type ReferenceExpression = TypeReferenceNode | MemberExpressionNode | IdentifierNode;
-
 export interface MemberExpressionNode extends BaseNode {
   kind: SyntaxKind.MemberExpression;
   id: IdentifierNode;
@@ -435,8 +434,8 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   kind: SyntaxKind.ModelStatement;
   id: IdentifierNode;
   properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
-  extends?: ReferenceExpression;
-  is?: ReferenceExpression;
+  extends?: TypeReferenceNode;
+  is?: TypeReferenceNode;
   decorators: DecoratorExpressionNode[];
 }
 
@@ -444,7 +443,7 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
   kind: SyntaxKind.InterfaceStatement;
   id: IdentifierNode;
   operations: OperationStatementNode[];
-  mixes: ReferenceExpression[];
+  mixes: TypeReferenceNode[];
   decorators: DecoratorExpressionNode[];
 }
 
@@ -515,7 +514,7 @@ export interface ModelPropertyNode extends BaseNode {
 
 export interface ModelSpreadPropertyNode extends BaseNode {
   kind: SyntaxKind.ModelSpreadProperty;
-  target: ReferenceExpression;
+  target: TypeReferenceNode;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
@@ -547,7 +546,7 @@ export interface IntersectionExpressionNode extends BaseNode {
 
 export interface TypeReferenceNode extends BaseNode {
   kind: SyntaxKind.TypeReference;
-  target: ReferenceExpression;
+  target: MemberExpressionNode | IdentifierNode;
   arguments: Expression[];
 }
 

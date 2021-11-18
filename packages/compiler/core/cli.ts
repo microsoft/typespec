@@ -11,7 +11,8 @@ import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
 import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
-import { formatCadlFiles } from "./formatter.js";
+import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
+import { installCadlDependencies } from "./install.js";
 import { Diagnostic } from "./types.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
@@ -126,15 +127,34 @@ async function main() {
       "format <include...>",
       "Format given list of Cadl files.",
       (cmd) => {
-        return cmd.positional("include", {
-          description: "Wildcard pattern of the list of files.",
-          type: "string",
-          array: true,
-          demandOption: true,
-        });
+        return cmd
+          .positional("include", {
+            description: "Wildcard pattern of the list of files.",
+            type: "string",
+            array: true,
+            demandOption: true,
+          })
+          .option("check", {
+            alias: "c",
+            type: "boolean",
+            describe: "Verify the files are formatted.",
+          });
       },
       async (args) => {
-        await formatCadlFiles(args["include"], { debug: args.debug });
+        if (args["check"]) {
+          const unformatted = await findUnformattedCadlFiles(args["include"], {
+            debug: args.debug,
+          });
+          if (unformatted.length > 0) {
+            console.log(`Found ${unformatted.length} unformatted files:`);
+            for (const file of unformatted) {
+              console.log(` - ${file}`);
+            }
+            process.exit(1);
+          }
+        } else {
+          await formatCadlFiles(args["include"], { debug: args.debug });
+        }
       }
     )
     .command(
@@ -146,6 +166,12 @@ async function main() {
           type: "string",
         }),
       (args) => initCadlProject(NodeHost, process.cwd(), args.templatesUrl)
+    )
+    .command(
+      "install",
+      "Install cadl dependencies",
+      () => {},
+      () => installCadlDependencies(process.cwd())
     )
     .command(
       "info",
@@ -239,11 +265,7 @@ function logDiagnosticCount(diagnostics: readonly Diagnostic[]) {
   const warningCount = diagnostics.filter((x) => x.severity === "warning").length;
 
   const addSuffix = (count: number, suffix: string) =>
-    count > 1
-      ? `${errorCount} ${suffix}s`
-      : errorCount === 1
-      ? `${errorCount} ${suffix}`
-      : undefined;
+    count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
   const errorText = addSuffix(errorCount, "error");
   const warningText = addSuffix(warningCount, "warning");
 

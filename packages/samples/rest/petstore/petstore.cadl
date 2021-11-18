@@ -1,0 +1,41 @@
+import "@cadl-lang/rest";
+
+@serviceTitle("Pet Store Service")
+@serviceVersion("2021-03-25")
+namespace PetStore;
+
+using Cadl.Rest;
+using Cadl.Rest.Resource;
+
+model PetStoreError {
+  code: int32;
+  message: string;
+}
+
+model Pet {
+  @segment("pets")
+  @key("petId")
+  id: int32;
+  name: string;
+  tag?: string;
+
+  @minValue(0)
+  @maxValue(20)
+  age: int32;
+}
+
+@parentResource(Pet)
+model Toy {
+  @segment("toys")
+  @key("toyId")
+  id: int64;
+  petId: int64;
+  name: string;
+}
+
+interface Pets mixes ResourceOperations<Pet, PetStoreError> {}
+
+interface Toys mixes ResourceRead<Toy, PetStoreError> {
+  @list(Toy)
+  List(...ParentKeysOf<Toy>, @Cadl.Http.query nameFilter: string): Page<Toy> | PetStoreError;
+}

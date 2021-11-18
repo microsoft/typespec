@@ -1,5 +1,6 @@
 import {
   ArrayType,
+  checkIfServiceNamespace,
   EnumMemberType,
   EnumType,
   getAllTags,
@@ -9,7 +10,13 @@ import {
   getMaxValue,
   getMinLength,
   getMinValue,
+  getServiceHost,
+  getServiceNamespace,
+  getServiceNamespaceString,
+  getServiceTitle,
+  getServiceVersion,
   getVisibility,
+  InterfaceType,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -23,23 +30,20 @@ import {
   Type,
   UnionType,
 } from "@cadl-lang/compiler";
-import {
-  basePathForResource,
-  checkIfServiceNamespace,
+import { getInterfaceOperations, http, OperationDetails } from "@cadl-lang/rest";
+import * as path from "path";
+import { reportDiagnostic } from "./lib.js";
+
+const {
+  basePathForRoute,
   getHeaderFieldName,
   getOperationRoute,
   getPathParamName,
   getQueryParamName,
-  getResources,
-  getServiceHost,
-  getServiceNamespaceString,
-  getServiceTitle,
-  getServiceVersion,
-  HttpVerb,
+  getRoutes,
+  hasBody,
   isBody,
-} from "@cadl-lang/rest";
-import * as path from "path";
-import { reportDiagnostic } from "./lib.js";
+} = http;
 
 export async function $onEmit(p: Program) {
   const options: OpenAPIEmitterOptions = {
@@ -214,17 +218,26 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   async function emitOpenAPI() {
     try {
-      for (let resource of getResources(program)) {
-        if (resource.kind !== "Namespace") {
+      for (let route of getRoutes(program)) {
+        if (route.kind !== "Namespace" && route.kind !== "Interface") {
           reportDiagnostic(program, {
             code: "resource-namespace",
-            target: resource,
+            target: route,
           });
           continue;
         }
 
-        emitResource(resource as NamespaceType);
+        // An interface can have @route applied but is handled by emitInterface
+        if (route.kind === "Namespace") {
+          emitRoute(route as NamespaceType);
+        }
       }
+
+      const actualNamespace = getServiceNamespace(program);
+      if (actualNamespace) {
+        emitInterfaces(actualNamespace);
+      }
+
       emitReferences();
       emitTags();
 
@@ -253,12 +266,61 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function emitResource(resource: NamespaceType): void {
-    currentBasePath = basePathForResource(program, resource);
+  function emitRoute(route: NamespaceType): void {
+    currentBasePath = basePathForRoute(program, route);
 
-    for (const [name, op] of resource.operations) {
-      emitEndpoint(resource, op);
+    for (const [_, op] of route.operations) {
+      emitEndpoint(route, op);
     }
+  }
+
+  function emitInterfaces(namespace: NamespaceType): void {
+    for (const [_, iface] of namespace.interfaces) {
+      emitInterface(iface);
+    }
+
+    // Walk interfaces of sub-namespaces
+    for (const [_, subNs] of namespace.namespaces) {
+      emitInterfaces(subNs);
+    }
+  }
+
+  function emitInterface(iface: InterfaceType): void {
+    const operations = getInterfaceOperations(program, iface);
+    for (const op of operations) {
+      emitInterfaceOperation(iface, op);
+    }
+  }
+
+  function emitInterfaceOperation(iface: InterfaceType, operation: OperationDetails): void {
+    const { path: fullPath, operation: op, verb, parameters } = operation;
+
+    if (!root.paths[fullPath]) {
+      root.paths[fullPath] = {};
+    }
+
+    currentPath = root.paths[fullPath];
+    if (!currentPath[verb]) {
+      currentPath[verb] = {};
+    }
+    currentEndpoint = currentPath[verb];
+
+    if (program.stateMap(operationIdsKey).has(op)) {
+      currentEndpoint.operationId = program.stateMap(operationIdsKey).get(op);
+    } else {
+      // Synthesize an operation ID
+      currentEndpoint.operationId = `${iface.name}_${op.name}`;
+    }
+
+    // allow operation extensions
+    attachExtensions(op, currentEndpoint);
+    currentEndpoint.summary = getDoc(program, op);
+    currentEndpoint.parameters = [];
+    currentEndpoint.responses = {};
+
+    emitEndpointParameters(op, op.parameters, parameters);
+    emitRequestBody(op, op.parameters, parameters);
+    emitResponses(op.returnType);
   }
 
   function getPathParameters(ns: NamespaceType, op: OperationType) {
@@ -316,7 +378,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     return [verb, pathSegments, routePath];
   }
 
-  function verbForEndpoint(name: string): HttpVerb | undefined {
+  function verbForEndpoint(name: string): http.HttpVerb | undefined {
     switch (name) {
       case "list":
         return "get";
@@ -1121,6 +1183,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
             return { type: "string", format: "date-time" };
           case "plainTime":
             return { type: "string", format: "time" };
+          case "duration":
+            return { type: "string", format: "duration" };
           case "Map":
             // We assert on valType because Map types always have a type
             const valType = cadlType.properties.get("v");

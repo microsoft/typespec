@@ -129,7 +129,7 @@ const diagnostics = {
       default: paramMessage`${"token"} expected.`,
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal",
-      identifer: "Identifier expected.",
+      identifier: "Identifier expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
@@ -148,7 +148,7 @@ const diagnostics = {
       default: paramMessage`Unknown directive '#${"id"}'`,
     },
   },
-  "reserverd-identifier": {
+  "reserved-identifier": {
     severity: "error",
     messages: {
       default: "Keyword cannot be used as identifier.",
@@ -371,6 +371,28 @@ const diagnostics = {
       model: paramMessage`The ${"decorator"} decorator can only be applied to models.`,
       namespacesOrOperations: paramMessage`The ${"decorator"} decorator can only be applied to namespaces or operations.`,
       operationsOrModelProps: paramMessage`The ${"decorator"} decorator  can only be applied to operations or model properties.`,
+    },
+  },
+
+  /**
+   * Service
+   */
+  "service-decorator-duplicate": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
+    },
+  },
+  "service-decorator-namespace-only": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The ${"decorator"} decorator can only be applied to namespaces.`,
+    },
+  },
+  "service-namespace-duplicate": {
+    severity: "error",
+    messages: {
+      default: "Cannot set service namespace more than once in a Cadl project.",
     },
   },
 

@@ -60,6 +60,9 @@ model plainTime {}
 model zonedDateTime {}
 
 @intrinsic
+model duration {}
+
+@intrinsic
 model boolean {}
 
 @intrinsic
