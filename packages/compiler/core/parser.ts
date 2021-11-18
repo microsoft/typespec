@@ -37,6 +37,7 @@ import {
   ModelSpreadPropertyNode,
   ModelStatementNode,
   NamespaceStatementNode,
+  NeverKeywordNode,
   Node,
   NumericLiteralNode,
   OperationStatementNode,
@@ -70,6 +71,7 @@ import {
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
+  VoidKeywordNode,
 } from "./types.js";
 
 /**
@@ -1015,10 +1017,32 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           const directives = parseDirectiveList();
           reportInvalidDirective(directives, "expression");
           continue;
+        case Token.VoidKeyword:
+          return parseVoidKeyword();
+        case Token.NeverKeyword:
+          return parseNeverKeyword();
         default:
           return parseReferenceExpression("expression");
       }
     }
+  }
+
+  function parseVoidKeyword(): VoidKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.VoidKeyword);
+    return {
+      kind: SyntaxKind.VoidKeyword,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseNeverKeyword(): NeverKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.NeverKeyword);
+    return {
+      kind: SyntaxKind.NeverKeyword,
+      ...finishNode(pos),
+    };
   }
 
   function parseParenthesizedExpression(): Expression {
@@ -1218,6 +1242,20 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseProjectionExpression() {
+    return parseProjectionReturnExpressionOrHigher();
+  }
+
+  function parseProjectionReturnExpressionOrHigher(): ProjectionExpression {
+    if (token() === Token.ReturnKeyword) {
+      const pos = tokenPos();
+      parseExpected(Token.ReturnKeyword);
+      return {
+        kind: SyntaxKind.Return,
+        value: parseProjectionExpression(),
+        ...finishNode(pos),
+      };
+    }
+
     return parseProjectionLogicalOrExpressionOrHigher();
   }
 
@@ -1437,6 +1475,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         return parseProjectionModelExpression();
       case Token.OpenParen:
         return parseProjectionLambdaOrParenthesizedExpression();
+      case Token.VoidKeyword:
+        return parseVoidKeyword();
+      case Token.NeverKeyword:
+        return parseNeverKeyword();
       default:
         return parseIdentifier("expression");
     }
@@ -1568,7 +1610,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const consequent = parseProjectionBlockExpression();
     let alternate = undefined;
     if (parseOptional(Token.ElseKeyword)) {
-      alternate = parseProjectionBlockExpression();
+      if (token() === Token.IfKeyword) {
+        alternate = parseProjectionIfExpression();
+      } else {
+        alternate = parseProjectionBlockExpression();
+      }
     }
 
     return {
@@ -2132,6 +2178,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       return (
         visitNode(cb, node.target) || visitNode(cb, node.reference) || visitEach(cb, node.arguments)
       );
+    case SyntaxKind.Return:
+      return visitNode(cb, node.value);
     // no children for the rest of these.
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
@@ -2146,6 +2194,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.ProjectionUnionSelector:
     case SyntaxKind.ProjectionInterfaceSelector:
     case SyntaxKind.ProjectionOperationSelector:
+    case SyntaxKind.VoidKeyword:
+    case SyntaxKind.NeverKeyword:
       return;
     default:
       // Dummy const to ensure we handle all node types.

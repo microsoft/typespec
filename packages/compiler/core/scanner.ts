@@ -94,13 +94,16 @@ export enum Token {
 
   // Other keywords
   ExtendsKeyword = 53,
-  TrueKeyword = 55,
-  FalseKeyword = 56,
+  TrueKeyword = 54,
+  FalseKeyword = 55,
+  ReturnKeyword = 56,
+  VoidKeyword = 57,
+  NeverKeyword = 58,
   // Update MaxKeyword if anything is added right above here
 }
 
 const MinKeyword = Token.ImportKeyword;
-const MaxKeyword = Token.FalseKeyword;
+const MaxKeyword = Token.NeverKeyword;
 
 const MinPunctuation = Token.OpenBrace;
 const MaxPunctuation = Token.EqualsGreaterThan;
@@ -140,32 +143,35 @@ export const TokenDisplay: readonly string[] = [
   "'@'",
   "'#'",
   "'*'",
-  "'/'",
+  "'/'", // 30
   "'+'",
   "'-'",
   "'<='",
-  "'>='", // 30
+  "'>='",
   "'&&'",
   "'||'",
   "'=='",
   "'=>'",
   "identifier",
-  "'import'",
+  "'import'", // 40
   "'model'",
   "'namespace'",
   "'using'",
-  "'op'", // 40
+  "'op'",
   "'enum'",
   "'alias'",
   "'is'",
   "'interface'",
   "'union'",
-  "'projection'",
+  "'projection'", // 50
   "'else'",
   "'if'",
   "'extends'",
   "'true'",
-  "'false'", // 50
+  "'false'",
+  "'return'",
+  "'void'",
+  "'never'",
 ];
 
 /** @internal */
@@ -186,6 +192,9 @@ export const Keywords: readonly [string, Token][] = [
   ["alias", Token.AliasKeyword],
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
+  ["return", Token.ReturnKeyword],
+  ["void", Token.VoidKeyword],
+  ["never", Token.NeverKeyword],
 ];
 
 /** @internal */
@@ -397,10 +406,10 @@ export function createScanner(
           return next(Token.Hash);
 
         case CharCode.Plus:
-          return next(Token.Plus);
+          return isDigit(lookAhead(1)) ? scanSignedNumber() : next(Token.Plus);
 
         case CharCode.Minus:
-          return next(Token.Hyphen);
+          return isDigit(lookAhead(1)) ? scanSignedNumber() : next(Token.Hyphen);
 
         case CharCode.Asterisk:
           return next(Token.Star);
@@ -426,10 +435,6 @@ export function createScanner(
               return scanMultiLineComment();
           }
           return next(Token.ForwardSlash);
-
-        case CharCode.Plus:
-        case CharCode.Minus:
-          return isDigit(lookAhead(1)) ? scanSignedNumber() : scanInvalidCharacter();
 
         case CharCode._0:
           switch (lookAhead(1)) {

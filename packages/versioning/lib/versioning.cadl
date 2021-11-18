@@ -1,0 +1,75 @@
+import "../dist/src/versioning.js";
+
+projection union#v {
+  to(version) {
+    if getAddedOn(self) > version {
+      return never;
+    } else {
+      self.variants.forEach((v) => {
+        if getAddedOn(v) > version {
+          self.deleteVariant(v.name);
+        } else if getRemovedOn(v) <= version {
+          self.deleteVariant(v.name);
+        } else if getRenamedFromVersion(v) > version {
+          self.deleteVariant(v.name, getRenamedFromOldName(v));
+        } else {
+          self.projectVariant(v.name, v);
+        };
+      });
+    };
+  }
+  from(version) {
+    if getAddedOn(self) > version {
+      return never;
+    } else {
+      self.projectionSource.variants.forEach((v) => {
+        if getAddedOn(v) > version {
+          self.addProperty(v.name, v.type);
+        } else if getRemovedOn(v) <= version {
+          self.addProperty(v.name, v.type);
+        } else if getRenamedFromVersion(v) > version {
+          self.renameProperty(getRenamedFromOldName(v), v.name);
+        } else {
+          self.projectVariant(v.name, v);
+        };
+      });
+    };
+  }
+}
+
+projection model#v {
+  to(version) {
+    if getAddedOn(self) > version {
+      return never;
+    } else {
+      self.properties.forEach((p) => {
+        if getAddedOn(p) > version {
+          self.deleteProperty(p.name);
+        } else if getRemovedOn(p) <= version {
+          self.deleteProperty(p.name);
+        } else if getRenamedFromVersion(p) > version {
+          self.renameProperty(p.name, getRenamedFromOldName(p));
+        } else {
+          self.projectVariant(p.name, version);
+        };
+      });
+    };
+  }
+  from(version) {
+    if getAddedOn(self) > version {
+      return never;
+    } else {
+      self.projectionSource.properties.forEach((p) => {
+        if getAddedOn(p) > version {
+          self.addProperty(p.name, p.type);
+        } else if getRemovedOn(p) <= version {
+          self.addProperty(p.name, p.type);
+        } else if getRenamedFromVersion(p) > version {
+          self.renameProperty(getRenamedFromOldName(p), p.name);
+        } else {
+          self.projectVariant(p.name, version);
+        };
+      });
+    };
+  }
+}

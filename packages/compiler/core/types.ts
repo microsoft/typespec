@@ -21,6 +21,7 @@ export interface BaseType {
   node?: Node;
   instantiationParameters?: Type[];
   get projections(): ProjectionStatementNode[];
+  projectionSource?: Type;
 }
 
 export interface DecoratedType {
@@ -52,6 +53,8 @@ export type Type =
   | ObjectType
   | ProjectionType;
 
+export type TypeOrReturnRecord = Type | ReturnRecord;
+
 export interface FunctionType extends BaseType {
   kind: "Function";
   call(...args: any[]): Type;
@@ -74,6 +77,13 @@ export interface IntrinsicType extends BaseType {
 
 export interface ErrorType extends IntrinsicType {
   name: "ErrorType";
+}
+
+// represents a type that is being returned from the
+// currently executing lambda or projection
+export interface ReturnRecord {
+  kind: "Return";
+  value: Type;
 }
 
 export type IntrinsicModelName =
@@ -106,7 +116,7 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   baseModel?: ModelType;
 }
 
-export interface ModelTypeProperty extends DecoratedType {
+export interface ModelTypeProperty extends BaseType, DecoratedType {
   kind: "ModelProperty";
   node: ModelPropertyNode | ModelSpreadPropertyNode;
   name: string;
@@ -201,7 +211,7 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   name?: string;
   node: UnionExpressionNode | UnionStatementNode;
   namespace?: NamespaceType;
-  variants: Map<string | Symbol, Type>;
+  variants: Map<string | Symbol, UnionTypeVariant>;
   expression: boolean;
   readonly options: Type[];
 }
@@ -209,7 +219,7 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
 export interface UnionTypeVariant extends BaseType, DecoratedType {
   kind: "UnionVariant";
   name: string | Symbol;
-  node: UnionVariantNode;
+  node: UnionVariantNode | undefined;
   type: Type;
 }
 
@@ -292,6 +302,8 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
+  VoidKeyword,
+  NeverKeyword,
   TypeReference,
   TemplateParameterDeclaration,
   EmptyStatement,
@@ -321,6 +333,7 @@ export enum SyntaxKind {
   ProjectionTupleExpression,
   ProjectionStatement,
   ProjectionReference,
+  Return,
 }
 
 export interface BaseNode extends TextRange {
@@ -462,7 +475,9 @@ export type Expression =
   | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
-  | BooleanLiteralNode;
+  | BooleanLiteralNode
+  | VoidKeywordNode
+  | NeverKeywordNode;
 
 export type ProjectionExpression =
   | ProjectionLogicalExpressionNode
@@ -478,9 +493,17 @@ export type ProjectionExpression =
   | ProjectionLambdaExpressionNode
   | StringLiteralNode
   | NumericLiteralNode
-  | IdentifierNode;
+  | IdentifierNode
+  | VoidKeywordNode
+  | NeverKeywordNode
+  | ReturnExpressionNode;
 
-export type ReferenceExpression = TypeReferenceNode | MemberExpressionNode | IdentifierNode;
+export type ReferenceExpression =
+  | TypeReferenceNode
+  | MemberExpressionNode
+  | IdentifierNode
+  | VoidKeywordNode
+  | NeverKeywordNode;
 
 export interface MemberExpressionNode extends BaseNode {
   kind: SyntaxKind.MemberExpression;
@@ -617,6 +640,19 @@ export interface BooleanLiteralNode extends BaseNode {
   value: boolean;
 }
 
+export interface VoidKeywordNode extends BaseNode {
+  kind: SyntaxKind.VoidKeyword;
+}
+
+export interface NeverKeywordNode extends BaseNode {
+  kind: SyntaxKind.NeverKeyword;
+}
+
+export interface ReturnExpressionNode extends BaseNode {
+  kind: SyntaxKind.Return;
+  value: ProjectionExpression;
+}
+
 export interface UnionExpressionNode extends BaseNode {
   kind: SyntaxKind.UnionExpression;
   options: Expression[];
@@ -738,7 +774,7 @@ export interface ProjectionIfExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionIfExpression;
   test: ProjectionExpression;
   consequent: ProjectionBlockExpressionNode;
-  alternate?: ProjectionBlockExpressionNode;
+  alternate?: ProjectionBlockExpressionNode | ProjectionIfExpressionNode;
 }
 
 export interface ProjectionBlockExpressionNode extends BaseNode {
@@ -779,6 +815,39 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
   to?: ProjectionNode;
   from?: ProjectionNode;
 }
+
+export interface ProjectionInstructionBase {
+  op: string;
+}
+
+export interface ProjectionRenamePropertyInstruction extends ProjectionInstructionBase {
+  op: "renameProperty";
+  from: string;
+  to: string;
+}
+
+export interface ProjectionDeletePropertyInstruction extends ProjectionInstructionBase {
+  op: "deleteProperty";
+  name: string;
+}
+
+export interface ProjectionAddPropertyInstruction extends ProjectionInstructionBase {
+  op: "addProperty";
+  name: string;
+  type: Type;
+}
+
+export interface ProjectionProjectPropertyInstruction extends ProjectionInstructionBase {
+  op: "projectProperty";
+  name: string;
+  ops: ProjectionInstruction[];
+}
+
+export type ProjectionInstruction =
+  | ProjectionRenamePropertyInstruction
+  | ProjectionDeletePropertyInstruction
+  | ProjectionAddPropertyInstruction
+  | ProjectionProjectPropertyInstruction;
 /**
  * Identifies the position within a source file by line number and offset from
  * beginning of line.

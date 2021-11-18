@@ -195,7 +195,7 @@ describe("compiler: scanner", () => {
   });
 
   it("scans projection-related tokens", () => {
-    const all = tokens("<= >= && || == project if =>");
+    const all = tokens("<= >= && || == projection if =>");
     verify(all, [
       [Token.LessThanEquals, "<="],
       [Token.Whitespace],
@@ -207,7 +207,7 @@ describe("compiler: scanner", () => {
       [Token.Whitespace],
       [Token.EqualsEquals, "=="],
       [Token.Whitespace],
-      [Token.ProjectionKeyword, "project"],
+      [Token.ProjectionKeyword, "projection"],
       [Token.Whitespace],
       [Token.IfKeyword, "if"],
       [Token.Whitespace],
@@ -310,7 +310,14 @@ describe("compiler: scanner", () => {
     );
 
     // check that keywords have appropriate display and limits
-    const nonStatementKeywords = [Token.ExtendsKeyword, Token.TrueKeyword, Token.FalseKeyword];
+    const nonStatementKeywords = [
+      Token.ExtendsKeyword,
+      Token.ReturnKeyword,
+      Token.TrueKeyword,
+      Token.FalseKeyword,
+      Token.VoidKeyword,
+      Token.NeverKeyword,
+    ];
     let minKeywordLengthFound = Number.MAX_SAFE_INTEGER;
     let maxKeywordLengthFound = Number.MIN_SAFE_INTEGER;
 
@@ -323,7 +330,7 @@ describe("compiler: scanner", () => {
       minKeywordLengthFound = Math.min(minKeywordLengthFound, name.length);
       maxKeywordLengthFound = Math.max(maxKeywordLengthFound, name.length);
 
-      assert.strictEqual(TokenDisplay[token], `'${name}'`);
+      assert.strictEqual(TokenDisplay[token], `'${name}'`, "token display should match");
       assert(isKeyword(token), `${name} should be classified as a keyword`);
       if (!nonStatementKeywords.includes(token)) {
         assert(isStatementKeyword(token), `${name} should be classified as statement keyword`);

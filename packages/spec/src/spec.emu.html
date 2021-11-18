@@ -41,7 +41,9 @@ Keyword :
     `using`
     `interface`
     `union`
-    `project`
+    `projection`
+    `void`
+    `never`
 
 Identifier :
     IdentifierName but not Keyword
@@ -460,8 +462,11 @@ ProjectionStatementItem :
     ProjectionExpressionStatement
 
 ProjectionExpression :
-    ProjectionLogicalOrExpression
+    ProjectionReturnExpression
 
+ProjectionReturnExpression :
+    ProjectionLogicalOrExpression
+    `return` ProjectionExpression
 
 ProjectionLogicalOrExpression :
     ProjectionLogicalAndExpression
