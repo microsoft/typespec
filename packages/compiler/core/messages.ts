@@ -177,6 +177,7 @@ const diagnostics = {
       default: "Using must refer to a namespace",
       decorator: "Can't use a decorator",
       function: "Can't use a function",
+      projection: "Can't use a projection",
     },
   },
   "invalid-type-ref": {

@@ -67,7 +67,9 @@ export interface ObjectType extends BaseType {
 
 export interface ProjectionType extends BaseType {
   kind: "Projection";
-  node: ProjectionStatementNode;
+  node: undefined;
+  nodeByKind: Map<string, ProjectionStatementNode>;
+  nodeByType: Map<Type, ProjectionStatementNode>;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -229,7 +231,16 @@ export interface TemplateParameterType extends BaseType {
 }
 
 // trying to avoid masking built-in Symbol
-export type Sym = DecoratorSymbol | TypeSymbol | FunctionSymbol;
+export type Sym = DecoratorSymbol | TypeSymbol | FunctionSymbol | ProjectionSymbol;
+
+export interface ProjectionSymbol {
+  kind: "projection";
+  name: string;
+  node: ProjectionStatementNode;
+  byKind: Map<string, { to?: ProjectionNode; from?: ProjectionNode }>;
+  byId: Map<IdentifierNode | MemberExpressionNode, { to?: ProjectionNode; from?: ProjectionNode }>;
+  id?: number;
+}
 
 export interface DecoratorSymbol {
   kind: "decorator";
@@ -408,8 +419,8 @@ export type Statement =
   | InvalidStatementNode
   | ProjectionStatementNode;
 
-export interface DeclarationNode {
-  symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
+export interface DeclarationNode<SymbolKind = TypeSymbol> {
+  symbol?: SymbolKind; // tracks the symbol assigned to this declaration
   namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
 }
 
@@ -803,7 +814,7 @@ export interface ProjectionNode extends BaseNode {
   locals?: SymbolTable;
 }
 
-export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
+export interface ProjectionStatementNode extends BaseNode, DeclarationNode<ProjectionSymbol> {
   kind: SyntaxKind.ProjectionStatement;
   id: IdentifierNode;
   selector:
@@ -811,7 +822,8 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
     | ProjectionInterfaceSelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
-    | ReferenceExpression;
+    | MemberExpressionNode
+    | IdentifierNode;
   to?: ProjectionNode;
   from?: ProjectionNode;
 }

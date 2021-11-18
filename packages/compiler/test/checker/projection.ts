@@ -4,6 +4,7 @@ import {
   IntrinsicType,
   ModelType,
   NumericLiteralType,
+  OperationType,
   StringLiteralType,
   Type,
   UnionType,
@@ -42,7 +43,6 @@ describe("cadl: projections", () => {
     );
 
     const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-
     let result = testHost.program.checker!.project(Foo, Foo.projections[0].to!, [1]) as ModelType;
     strictEqual(result.properties.size, 1);
 
@@ -443,6 +443,46 @@ describe("cadl: projections", () => {
       const variantType = result.variants.get("bar_prop")!.type as ModelType;
       ok(variantType.properties.has("hi"));
     });
+  });
+
+  describe("operations", () => {
+    const testOp = `
+      @test op Foo(p1: int32): int32;
+    `;
+
+    async function project(code: string, additionalCode = "") {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        ${testOp}
+        
+        projection op#addReturnTypeVariant {
+          to {
+            self.setReturnType(unionOf(self.returnType, int32));
+            ${code}
+          }
+          from {
+            self.returnType.removeVariantWithType(int32);
+          }
+        }
+
+        ${additionalCode}
+        `
+      );
+      const { Foo } = (await testHost.compile("main.cadl")) as { Foo: OperationType };
+      return testHost.program.checker!.project(Foo, Foo.projections[0].to!) as OperationType;
+    }
+
+    it("can project parameters");
+    it("can change return type");
+    it("can project return type");
+  });
+
+  describe("interfaces", () => {
+    it("can add members");
+    it("can remove members");
+    it("can project members");
+    it("can rename members");
   });
 
   describe("projection instructions", () => {

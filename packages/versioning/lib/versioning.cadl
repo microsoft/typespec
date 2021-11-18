@@ -1,19 +1,45 @@
 import "../dist/src/versioning.js";
 
-projection union#v {
+projection op#v {
   to(version) {
     if getAddedOn(self) > version {
       return never;
+    } else if (getRemovedOn(self) <= version) {
+      return never;
     } else {
-      self.variants.forEach((v) => {
-        if getAddedOn(v) > version {
-          self.deleteVariant(v.name);
-        } else if getRemovedOn(v) <= version {
-          self.deleteVariant(v.name);
-        } else if getRenamedFromVersion(v) > version {
-          self.deleteVariant(v.name, getRenamedFromOldName(v));
+      self.projectParameters(v, version);
+      self.projectReturnType(v, version);
+    };
+  }
+  from(version) {
+    if getAddedOn(self) > version {
+      return never;
+    } else if (getRemovedOn(self) <= version) {
+      return never;
+    } else {
+      self.projectParameters(v, version);
+      self.projectReturnType(v, version);
+    };
+  }
+}
+
+
+projection interface#v {
+  to(version) {
+    if getAddedOn(self) > version {
+      return never;
+    } else if (getRemovedOn(self) <= version) {
+      return never;
+    } else {
+      self.operations.forEach((operation) => {
+        if getAddedOn(operation) > version {
+          self.deleteOperation(operation.name);
+        } else if getRemovedOn(operation) <= version {
+          self.deleteOperation(operation.name);
+        } else if getRenamedFromVersion(operation) > version {
+          self.renameOperation(operation.name, getRenamedFromOldName(operation));
         } else {
-          self.projectVariant(v.name, v);
+          self.projectOperation(operation.name, v, version);
         };
       });
     };
@@ -21,16 +47,60 @@ projection union#v {
   from(version) {
     if getAddedOn(self) > version {
       return never;
+    } else if (getRemovedOn(self) <= version) {
+      return never;
     } else {
-      self.projectionSource.variants.forEach((v) => {
-        if getAddedOn(v) > version {
-          self.addProperty(v.name, v.type);
-        } else if getRemovedOn(v) <= version {
-          self.addProperty(v.name, v.type);
-        } else if getRenamedFromVersion(v) > version {
-          self.renameProperty(getRenamedFromOldName(v), v.name);
+      self.projectionSource.operations.forEach((operation) => {
+        if getAddedOn(operation) > version {
+          self.addOperation(operation.name, operation.parameters, operation.returnType);
+        } else if getRemovedOn(operation) <= version {
+          self.addOperation(operation.name, operation.parameters, operation.returnType);
+        } else if getRenamedFromVersion(operation) > version {
+          self.renameOperation(getRenamedFromOldName(operation), operation.name);
         } else {
-          self.projectVariant(v.name, v);
+          self.projectOperation(operation.name, v, version);
+        };
+      });
+    };
+  }
+}
+
+
+projection union#v {
+  to(version) {
+    if getAddedOn(self) > version {
+      return never;
+    } else if (getRemovedOn(self) <= version) {
+      return never;
+    } else {
+      self.variants.forEach((variant) => {
+        if getAddedOn(variant) > version {
+          self.deleteVariant(variant.name);
+        } else if getRemovedOn(variant) <= version {
+          self.deleteVariant(variant.name);
+        } else if getRenamedFromVersion(variant) > version {
+          self.renameVariant(variant.name, getRenamedFromOldName(variant));
+        } else {
+          self.projectVariant(variant.name, v, version);
+        };
+      });
+    };
+  }
+  from(version) {
+    if getAddedOn(self) > version {
+      return never;
+    } else if (getRemovedOn(self) <= version) {
+      return never;
+    } else {
+      self.projectionSource.variants.forEach((variant) => {
+        if getAddedOn(variant) > version {
+          self.addVariant(variant.name, variant.type);
+        } else if getRemovedOn(variant) <= version {
+          self.addVariant(variant.name, variant.type);
+        } else if getRenamedFromVersion(variant) > version {
+          self.renameVariant(getRenamedFromOldName(variant), variant.name);
+        } else {
+          self.projectVariant(variant.name, v, version);
         };
       });
     };
@@ -41,6 +111,8 @@ projection model#v {
   to(version) {
     if getAddedOn(self) > version {
       return never;
+    } else if (getRemovedOn(self) <= version) {
+      return never;
     } else {
       self.properties.forEach((p) => {
         if getAddedOn(p) > version {
@@ -50,13 +122,15 @@ projection model#v {
         } else if getRenamedFromVersion(p) > version {
           self.renameProperty(p.name, getRenamedFromOldName(p));
         } else {
-          self.projectVariant(p.name, version);
+          self.projectProperty(p.name, v, version);
         };
       });
     };
   }
   from(version) {
     if getAddedOn(self) > version {
+      return never;
+    } else if (getRemovedOn(self) <= version) {
       return never;
     } else {
       self.projectionSource.properties.forEach((p) => {
@@ -67,7 +141,7 @@ projection model#v {
         } else if getRenamedFromVersion(p) > version {
           self.renameProperty(getRenamedFromOldName(p), p.name);
         } else {
-          self.projectVariant(p.name, version);
+          self.projectProperty(p.name, v, version);
         };
       });
     };

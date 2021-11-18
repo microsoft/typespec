@@ -55,6 +55,8 @@ import {
   ProjectionRelationalExpressionNode,
   ProjectionStatementItem,
   ProjectionStatementNode,
+  ProjectionSymbol,
+  ProjectionType,
   ReturnExpressionNode,
   ReturnRecord,
   StringLiteralNode,
@@ -281,7 +283,7 @@ export function createChecker(program: Program): Checker {
       if (!sym) {
         continue;
       }
-      if (sym.kind === "decorator" || sym.kind === "function") {
+      if (sym.kind === "decorator" || sym.kind === "function" || sym.kind === "projection") {
         program.reportDiagnostic(
           createDiagnostic({ code: "using-invalid-ref", messageId: sym.kind, target: using })
         );
@@ -428,7 +430,9 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function checkTypeReference(node: TypeReferenceNode): Type {
+  function checkTypeReference(
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
+  ): Type {
     const sym = resolveTypeReference(node);
     if (!sym) {
       return errorType;
@@ -451,7 +455,7 @@ export function createChecker(program: Program): Checker {
     }
 
     const symbolLinks = getSymbolLinks(sym);
-    let args = node.arguments.map(getTypeForNode);
+    let args = node.kind === SyntaxKind.TypeReference ? node.arguments.map(getTypeForNode) : [];
 
     if (
       sym.node.kind === SyntaxKind.ModelStatement ||
@@ -811,7 +815,7 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function getSymbolLinks(s: TypeSymbol): SymbolLinks {
+  function getSymbolLinks(s: TypeSymbol | ProjectionSymbol): SymbolLinks {
     const id = getSymbolId(s);
 
     if (symbolLinks.has(id)) {
@@ -824,7 +828,7 @@ export function createChecker(program: Program): Checker {
     return links;
   }
 
-  function getSymbolId(s: TypeSymbol) {
+  function getSymbolId(s: TypeSymbol | ProjectionSymbol) {
     if (s.id === undefined) {
       s.id = currentSymbolId++;
     }
@@ -1894,7 +1898,7 @@ export function createChecker(program: Program): Checker {
       case "Union":
         return finishType({
           ...type,
-          properties: new Map<string | Symbol, UnionTypeVariant>(
+          variants: new Map<string | Symbol, UnionTypeVariant>(
             Array.from(type.variants.entries()).map(([key, prop]) => [
               key,
               prop.kind === "UnionVariant" ? cloneType(prop) : prop,
@@ -1949,37 +1953,47 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkProjectionDeclaration(node: ProjectionStatementNode): Type {
+    // todo: check for duplicate model decls.
     const links = getSymbolLinks(node.symbol!);
-    if (links.declaredType) {
-      return links.declaredType;
+    let type;
+    if (!links.declaredType) {
+      type = links.declaredType = createType({
+        kind: "Projection",
+        node: undefined,
+        nodeByKind: new Map(),
+        nodeByType: new Map(),
+      });
+    } else {
+      type = links.declaredType as ProjectionType;
     }
     switch (node.selector.kind) {
       case SyntaxKind.ProjectionModelSelector:
         projectionsByTypeKind.get("Model")!.push(node);
+        type.nodeByKind.set("Model", node);
         break;
       case SyntaxKind.ProjectionOperationSelector:
         projectionsByTypeKind.get("Operation")!.push(node);
+        type.nodeByKind.set("Operation", node);
         break;
       case SyntaxKind.ProjectionUnionSelector:
         projectionsByTypeKind.get("Union")!.push(node);
+        type.nodeByKind.set("Union", node);
         break;
       case SyntaxKind.ProjectionInterfaceSelector:
         projectionsByTypeKind.get("Interface")!.push(node);
+        type.nodeByKind.set("Interface", node);
+        break;
       default:
-        const projected = getTypeForNode(node.selector);
+        const projected = checkTypeReference(node.selector);
         let current = projectionsByType.get(projected);
         if (!current) {
           current = [];
           projectionsByType.set(projected, current);
         }
         current.push(node);
+        type.nodeByType.set(projected, node);
         break;
     }
-
-    links.declaredType = createType({
-      kind: "Projection",
-      node,
-    });
 
     return links.declaredType;
   }
@@ -2015,7 +2029,6 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.VoidKeyword:
         return voidType;
       case SyntaxKind.NeverKeyword:
-        console.log("Have never keyword");
         return neverType;
       case SyntaxKind.Return:
         return evalReturnKeyword(node);
@@ -2070,17 +2083,20 @@ export function createChecker(program: Program): Checker {
       throw new Error(`Can't project ${target.kind} type.`);
     }
 
-    if (target.projections.indexOf(projection.node!) === -1) {
-      throw new Error(`Target doesn't have projection ${projection.node!.id.sv}`);
+    let projectionNode =
+      projection.nodeByType.get(target) ?? projection.nodeByKind.get(target.kind);
+
+    if (!projectionNode) {
+      throw new Error(`Target doesn't have projection`);
     }
 
-    if (!projection.node[currentProjectionDirection!]) {
+    if (!projectionNode[currentProjectionDirection!]) {
       throw new Error(
         `Target doesn't have a projection in the ${currentProjectionDirection} direction.`
       );
     }
 
-    return evalProjectionStatement(projection.node[currentProjectionDirection!]!, target, args);
+    return evalProjectionStatement(projectionNode[currentProjectionDirection!]!, target, args);
   }
 
   function evalProjectionRelationalExpression(
@@ -2214,6 +2230,7 @@ export function createChecker(program: Program): Checker {
       evalContext.locals.set(param.id.sv, typeVal);
     }
     const clone = cloneType(target);
+
     clone.projectionSource = target;
     evalContext.locals.set("self", clone);
     let lastVal: TypeOrReturnRecord = voidType;
@@ -2242,6 +2259,7 @@ export function createChecker(program: Program): Checker {
 
   function evalProjectionCallExpression(node: ProjectionCallExpressionNode) {
     const target = evalProjectionNode(node.target);
+
     if (!target) throw new Error("target undefined");
     const args = [];
     for (const arg of node.arguments) {
@@ -2271,7 +2289,7 @@ export function createChecker(program: Program): Checker {
       case "Model":
         switch (member) {
           case "projectionSource":
-            return base.projectionSource || voidType;
+            return base.projectionSource?.projectionSource || voidType;
           case "properties":
             const props: ObjectType = createType({
               kind: "Object",
@@ -2358,7 +2376,6 @@ export function createChecker(program: Program): Checker {
                 return errorType;
               }
               base.properties.delete(name);
-
               if (emitInstructions) {
                 emittedInstructions.push({
                   op: "deleteProperty",
@@ -2389,9 +2406,15 @@ export function createChecker(program: Program): Checker {
                   outerInstructions = emittedInstructions;
                   emittedInstructions = [];
                 }
+                const projectionNode =
+                  projection.nodeByType.get(prop.type) ?? projection.nodeByKind.get(prop.type.kind);
+
+                if (!projectionNode) {
+                  return voidType;
+                }
 
                 prop.type = evalProjectionStatement(
-                  projection.node[currentProjectionDirection!]!,
+                  projectionNode[currentProjectionDirection!]!,
                   prop.type,
                   args
                 );
@@ -2413,7 +2436,7 @@ export function createChecker(program: Program): Checker {
               }
             );
           default:
-            return errorType;
+            throw new Error(`Model doesn't have member ${member}`);
         }
       case "ModelProperty":
         switch (member) {
@@ -2427,12 +2450,12 @@ export function createChecker(program: Program): Checker {
               return voidType;
             });
           default:
-            throw new Error(`Model doesn't have member ${member}`);
+            throw new Error(`Model property doesn't have member ${member}`);
         }
       case "Union":
         switch (member) {
           case "projectionSource":
-            return base.projectionSource || voidType;
+            return base.projectionSource?.projectionSource || voidType;
           case "variants":
             const variantsType: ObjectType = createType({
               kind: "Object",
@@ -2506,17 +2529,18 @@ export function createChecker(program: Program): Checker {
             return functionTypeFromFunction(
               (_: Program, nameT: Type, projection: Type, ...args: Type[]) => {
                 if (nameT.kind !== "String") {
-                  return errorType;
+                  throw new Error("Name must be a string");
                 }
                 const name = literalTypeToValue(nameT);
 
                 const variant = base.variants.get(name);
                 if (!variant) {
-                  return errorType;
+                  throw new Error(`Can't find variant named ${name}`);
                 }
 
                 if (projection.kind !== "Projection") {
-                  throw new Error("`projectProperty` takes a name and a projection");
+                  console.log(projection);
+                  throw new Error("`projectVariant` takes a name and a projection");
                 }
 
                 let outerInstructions: ProjectionInstruction[];
@@ -2524,9 +2548,15 @@ export function createChecker(program: Program): Checker {
                   outerInstructions = emittedInstructions;
                   emittedInstructions = [];
                 }
+                const projectionNode =
+                  projection.nodeByType.get(variant.type) ??
+                  projection.nodeByKind.get(variant.type.kind);
 
+                if (!projectionNode) {
+                  return voidType;
+                }
                 const projectedType = evalProjectionStatement(
-                  projection.node[currentProjectionDirection!]!,
+                  projectionNode[currentProjectionDirection!]!,
                   variant.type,
                   args
                 ) as UnionTypeVariant;
@@ -2576,8 +2606,225 @@ export function createChecker(program: Program): Checker {
               base.type = type;
               return voidType;
             });
+          case "type":
+            return base.type;
           default:
             throw new Error("Union variant doesn't have member " + member);
+        }
+      case "Operation":
+        switch (member) {
+          case "name":
+            return valueToLiteralType(base.name);
+          case "projectionSource":
+            return base.projectionSource?.projectionSource ?? voidType;
+          case "parameters":
+            return base.parameters;
+          case "returnType":
+            return base.returnType;
+          case "projectParameters":
+            return functionTypeFromFunction((_: Program, projection: Type, ...args: Type[]) => {
+              if (projection.kind !== "Projection") {
+                throw new Error("`projectProperty` takes a name and a projection");
+              }
+
+              let outerInstructions: ProjectionInstruction[];
+              if (emitInstructions) {
+                outerInstructions = emittedInstructions;
+                emittedInstructions = [];
+              }
+              const projectionNode = projection.nodeByKind.get("Model");
+              if (!projectionNode) {
+                return voidType;
+              }
+
+              base.parameters = evalProjectionStatement(
+                projectionNode[currentProjectionDirection!]!,
+                base.parameters,
+                args
+              ) as ModelType;
+
+              if (emitInstructions) {
+                // todo: instructions for projecting operations
+              }
+
+              return voidType;
+            });
+          case "projectReturnType":
+            return functionTypeFromFunction((_: Program, projection: Type, ...args: Type[]) => {
+              if (projection.kind !== "Projection") {
+                throw new Error("`projectProperty` takes a name and a projection");
+              }
+
+              if (projection.kind !== "Projection") {
+                throw new Error("`projectProperty` takes a name and a projection");
+              }
+
+              let outerInstructions: ProjectionInstruction[];
+              if (emitInstructions) {
+                outerInstructions = emittedInstructions;
+                emittedInstructions = [];
+              }
+              const projectionNode =
+                projection.nodeByKind.get(base.returnType.kind) ||
+                projection.nodeByType.get(base.returnType);
+
+              if (!projectionNode) {
+                return voidType;
+              }
+
+              base.returnType = evalProjectionStatement(
+                projectionNode[currentProjectionDirection!]!,
+                base.returnType,
+                args
+              );
+
+              if (emitInstructions) {
+                // todo: instructions for projecting operations
+              }
+
+              return voidType;
+            });
+          default:
+            throw new Error(`Operation doesn't have member ${member}`);
+        }
+      case "Interface":
+        switch (member) {
+          case "projectionSource":
+            return base.projectionSource?.projectionSource || voidType;
+          case "operations":
+            const props: ObjectType = createType({
+              kind: "Object",
+              properties: {},
+            });
+
+            props.properties.forEach = functionTypeFromFunction(
+              (_: Program, block: FunctionType) => {
+                const props = Array.from(base.operations.values());
+                props.forEach((p) => block.call(p));
+                return voidType;
+              }
+            );
+
+            return props;
+          case "renameOperation":
+            return functionTypeFromFunction((_: Program, oldNameT: Type, newNameT: Type) => {
+              if (oldNameT.kind !== "String" || newNameT.kind !== "String") {
+                return errorType;
+              }
+              const oldName = literalTypeToValue(oldNameT);
+              const newName = literalTypeToValue(newNameT);
+
+              const op = base.operations.get(oldName);
+              if (!op) {
+                return errorType;
+              }
+              const clone = cloneType(op);
+              clone.name = newName;
+              base.operations.delete(oldName);
+              base.operations.set(newName, clone);
+
+              if (emitInstructions) {
+                // todo: instructions for interfaces
+              }
+              return voidType;
+            });
+          case "addOperation":
+            return functionTypeFromFunction(
+              (_: Program, nameT: Type, parameters: Type, returnType: Type) => {
+                if (nameT.kind !== "String") {
+                  return errorType;
+                }
+                const name = literalTypeToValue(nameT);
+
+                if (parameters.kind !== "Model") {
+                  throw new Error("Parameters need to be a model type");
+                }
+
+                const prop = base.operations.get(name);
+                if (prop) {
+                  throw new Error(`Operation named ${name} already exists`);
+                }
+
+                base.operations.set(
+                  name,
+                  createType({
+                    kind: "Operation",
+                    name,
+                    node: undefined as any,
+                    parameters,
+                    returnType,
+                    decorators: [],
+                  })
+                );
+
+                if (emitInstructions) {
+                  // todo: instructions for interfaces
+                }
+
+                return voidType;
+              }
+            );
+          case "deleteOperation":
+            return functionTypeFromFunction((_: Program, nameT: Type) => {
+              if (nameT.kind !== "String") {
+                return errorType;
+              }
+              const name = literalTypeToValue(nameT);
+
+              const prop = base.operations.get(name);
+              if (!prop) {
+                return voidType;
+              }
+              base.operations.delete(name);
+              if (emitInstructions) {
+                // todo interface insturctions
+              }
+              return voidType;
+            });
+          case "projectOperation":
+            return functionTypeFromFunction(
+              (_: Program, nameT: Type, projection: Type, ...args: Type[]) => {
+                if (nameT.kind !== "String") {
+                  return errorType;
+                }
+                const name = literalTypeToValue(nameT);
+
+                const op = base.operations.get(name);
+                if (!op) {
+                  return errorType;
+                }
+
+                if (projection.kind !== "Projection") {
+                  throw new Error("`projectProperty` takes a name and a projection");
+                }
+
+                let outerInstructions: ProjectionInstruction[];
+                if (emitInstructions) {
+                  outerInstructions = emittedInstructions;
+                  emittedInstructions = [];
+                }
+                const projectionNode = projection.nodeByKind.get("Operation");
+
+                if (!projectionNode) {
+                  return voidType;
+                }
+
+                const projectedOp = evalProjectionStatement(
+                  projectionNode[currentProjectionDirection!]!,
+                  op,
+                  args
+                ) as OperationType;
+
+                base.operations.set(name, projectedOp);
+                if (emitInstructions) {
+                  // todo: interface instructions
+                }
+
+                return voidType;
+              }
+            );
+          default:
+            throw new Error(`Interface doesn't have member ${member}`);
         }
       case "Object":
         return base.properties[member] || errorType;
@@ -2700,10 +2947,11 @@ export function createChecker(program: Program): Checker {
         } as const);
         return t;
       case "type":
+      case "projection":
         const links = getSymbolLinks(ref);
         compilerAssert(links.declaredType, "Should have checked all types by now");
 
-        return links.declaredType || links.type || errorType;
+        return links.declaredType;
     }
   }
 

@@ -287,8 +287,54 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
   function bindProjectionStatement(node: ProjectionStatementNode) {
     const name = node.id.sv;
+    const table = getContainingSymbolTable();
+    let sym: Sym;
+    if (table.has(name)) {
+      sym = table.get(name)!;
+      if (sym.kind !== "projection") {
+        // clashing with some other decl, report duplicate symbol
+        declareSymbol(getContainingSymbolTable(), node, name);
+        return;
+      }
+    } else {
+      sym = {
+        kind: "projection",
+        name,
+        node: node,
+        byId: new Map(),
+        byKind: new Map(),
+      };
+      table.set(name, sym);
+    }
 
-    declareSymbol(getContainingSymbolTable(), node, name);
+    if (fileNamespace.kind !== SyntaxKind.CadlScript) {
+      node.namespaceSymbol = fileNamespace.symbol;
+    }
+    node.symbol = sym;
+
+    if (
+      node.selector.kind !== SyntaxKind.MemberExpression &&
+      node.selector.kind !== SyntaxKind.Identifier
+    ) {
+      const selectorString =
+        node.selector.kind === SyntaxKind.ProjectionModelSelector
+          ? "model"
+          : node.selector.kind === SyntaxKind.ProjectionOperationSelector
+          ? "op"
+          : node.selector.kind === SyntaxKind.ProjectionUnionSelector
+          ? "union"
+          : "interface";
+
+      if (sym.byKind.has(selectorString)) {
+        // clashing with a like-named decl with this selector, so throw.
+        declareSymbol(getContainingSymbolTable(), node, name);
+        return;
+      }
+
+      sym.byKind.set(selectorString, { to: node.to, from: node.from });
+    } else {
+      sym.byId.set(node.selector, { to: node.to, from: node.from });
+    }
   }
 
   function bindProjectionParameterDeclaration(node: ProjectionParameterDeclarationNode) {

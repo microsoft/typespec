@@ -1,14 +1,27 @@
-import { ModelType } from "@cadl-lang/compiler";
+import {
+  InterfaceType,
+  IntrinsicType,
+  ModelType,
+  OperationType,
+  UnionType,
+} from "@cadl-lang/compiler";
 import { ok, strictEqual } from "assert";
 import { createVersioningTestHost, TestHost } from "./testHost.js";
 
 describe("cadl: versioning", () => {
-  describe("versioning models", () => {
-    let host: TestHost;
-    beforeEach(async () => {
-      host = await createVersioningTestHost();
+  let host: TestHost;
+  beforeEach(async () => {
+    host = await createVersioningTestHost();
+  });
+  describe("models", () => {
+    it("can add models", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedModel([1, 2], `@added(2) model Test {}`);
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Model");
     });
-
     it("can add properties", async () => {
       const {
         source,
@@ -27,12 +40,13 @@ describe("cadl: versioning", () => {
         }
         `
       );
+
       assertHasProperties(v1, ["a"]);
       assertHasProperties(v2, ["a", "b", "nested"]);
       assertHasProperties(v2.properties.get("nested")!.type as ModelType, ["d"]);
       assertHasProperties(v3, ["a", "b", "c", "nested"]);
       assertHasProperties(v3.properties.get("nested")!.type as ModelType, ["d", "e"]);
-      assertProjectsTo(
+      assertModelProjectsTo(
         [
           [v1, 1],
           [v2, 2],
@@ -40,6 +54,16 @@ describe("cadl: versioning", () => {
         ],
         source
       );
+    });
+
+    it("can remove models", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedModel([1, 2], `@removed(2) model Test {}`);
+
+      strictEqual(v1.kind, "Model");
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
     });
 
     it("can remove properties", async () => {
@@ -65,7 +89,7 @@ describe("cadl: versioning", () => {
       assertHasProperties(v2, ["a", "c", "nested"]);
       assertHasProperties(v2.properties.get("nested")!.type as ModelType, ["d"]);
       assertHasProperties(v3, ["a"]);
-      assertProjectsTo(
+      assertModelProjectsTo(
         [
           [v1, 1],
           [v2, 2],
@@ -91,7 +115,7 @@ describe("cadl: versioning", () => {
       assertHasProperties(v1, ["a", "foo", "bar"]);
       assertHasProperties(v2, ["a", "b", "bar"]);
       assertHasProperties(v3, ["a", "b", "c"]);
-      assertProjectsTo(
+      assertModelProjectsTo(
         [
           [v1, 1],
           [v2, 2],
@@ -122,24 +146,376 @@ describe("cadl: versioning", () => {
         }),
       };
     }
+  });
+  describe("unions", () => {
+    it("can add unions", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedUnion([1, 2], `@added(2) union Test {}`);
 
-    function assertHasProperties(model: ModelType, props: string[]) {
-      strictEqual(model.properties.size, props.length, `Model ${model.name} property count`);
-      for (const propName of props) {
-        ok(model.properties.has(propName), `Model ${model.name} should have property ${propName}`);
-      }
-    }
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Union");
+    });
 
-    function assertProjectsTo(models: [ModelType, number][], target: ModelType) {
-      models.forEach(([m, version]) => {
-        const projection = host.program.checker!.project(m, m.projections[0].from!, [
-          version,
-        ]) as ModelType;
-        strictEqual(projection.properties.size, target.properties.size);
-        for (const prop of projection.properties.values()) {
-          ok(target.properties.has(prop.name));
+    it("can add variants", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedUnion(
+        [1, 2, 3],
+        `union Test {
+          a: int8;
+          @added(2) b: int16;
+          @added(3) c: int32;
+          @added(2) nested: Nested;
         }
-      });
+        model Nested {
+          d: int32;
+          @added(3) e: int32;
+        }
+        `
+      );
+      assertHasVariants(v1, ["a"]);
+
+      assertHasVariants(v2, ["a", "b", "nested"]);
+      assertHasProperties(v2.variants.get("nested")!.type as ModelType, ["d"]);
+      assertHasVariants(v3, ["a", "b", "c", "nested"]);
+      assertHasProperties(v3.variants.get("nested")!.type as ModelType, ["d", "e"]);
+      assertUnionProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+          [v3, 3],
+        ],
+        source
+      );
+    });
+
+    it("can remove unions", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedUnion([1, 2], `@removed(2) union Test {}`);
+
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
+      strictEqual(v1.kind, "Union");
+    });
+
+    it("can remove variants", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedUnion(
+        [1, 2, 3],
+        `union Test {
+          a: int32;
+          @removed(2) b: int32;
+          @removed(3) c: int32;
+          @removed(3) nested: Nested;
+        }
+        model Nested {
+          d: int32;
+          @removed(2) e: int32;
+        }
+        `
+      );
+      assertHasVariants(v1, ["a", "b", "c", "nested"]);
+      assertHasProperties(v1.variants.get("nested")!.type as ModelType, ["d", "e"]);
+      assertHasVariants(v2, ["a", "c", "nested"]);
+      assertHasProperties(v2.variants.get("nested")!.type as ModelType, ["d"]);
+      assertHasVariants(v3, ["a"]);
+      assertUnionProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+          [v3, 3],
+        ],
+        source
+      );
+    });
+
+    it("can rename variants", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedUnion(
+        [1, 2, 3],
+        `union Test {
+          a: int32;
+          @renamedFrom(2, "foo") b: int32;
+          @renamedFrom(3, "bar") c: int32;
+        }`
+      );
+
+      assertHasVariants(v1, ["a", "foo", "bar"]);
+      assertHasVariants(v2, ["a", "b", "bar"]);
+      assertHasVariants(v3, ["a", "b", "c"]);
+      assertUnionProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+          [v3, 3],
+        ],
+        source
+      );
+    });
+
+    async function versionedUnion(versions: (string | number)[], union: string) {
+      host.addCadlFile(
+        "main.cadl",
+        `
+      import "versioning";
+      @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+      namespace MyService;
+
+      @test ${union}
+      `
+      );
+
+      const { Test } = (await host.compile("./main.cadl")) as { Test: UnionType };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return host.program.checker!.project(Test, Test.projections[0].to!, [v]) as UnionType;
+        }),
+      };
     }
   });
+
+  describe("operations", () => {
+    it("can be added", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation([1, 2], `@added(2) op Test(): void;`);
+
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Operation");
+    });
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation([1, 2], `@removed(2) op Test(): void;`);
+
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
+      strictEqual(v1.kind, "Operation");
+    });
+    it("can version parameters", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation([1, 2], `op Test(@added(2) a: string): void;`);
+
+      assertHasProperties(v1.parameters, []);
+      assertHasProperties(v2.parameters, ["a"]);
+    });
+    it("can version return type", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        [1, 2],
+        `
+        op Test(): ReturnTypes;
+        union ReturnTypes {
+          a: string;
+          @added(2) b: int32;
+        }
+        `
+      );
+
+      assertHasVariants(v1.returnType as UnionType, ["a"]);
+      assertHasVariants(v2.returnType as UnionType, ["a", "b"]);
+    });
+
+    async function versionedOperation(versions: (string | number)[], operation: string) {
+      host.addCadlFile(
+        "main.cadl",
+        `
+          import "versioning";
+          @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+          namespace MyService;
+
+          @test ${operation}
+          `
+      );
+
+      const { Test } = (await host.compile("./main.cadl")) as { Test: OperationType };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return host.program.checker!.project(Test, Test.projections[0].to!, [v]) as OperationType;
+        }),
+      };
+    }
+  });
+
+  describe("interfaces", () => {
+    it("can be added", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedInterface([1, 2], `@added(2) interface Test { }`);
+
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Interface");
+    });
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedInterface([1, 2], `@removed(2) interface Test { }`);
+
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
+      strictEqual(v1.kind, "Interface");
+    });
+    it("can add members", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedInterface(
+        [1, 2],
+        `interface Test {
+        @added(2) foo(): void;
+      }`
+      );
+
+      assertHasOperations(v1, []);
+      assertHasOperations(v2, ["foo"]);
+      assertInterfaceProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+        ],
+        source
+      );
+    });
+    it("can remove members", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedInterface(
+        [1, 2],
+        `interface Test {
+        @removed(2) foo(): void;
+      }`
+      );
+
+      assertHasOperations(v1, ["foo"]);
+      assertHasOperations(v2, []);
+      assertInterfaceProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+        ],
+        source
+      );
+    });
+    it("can rename members", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedInterface(
+        [1, 2],
+        `interface Test {
+        @renamedFrom(2, "bar") foo(): void;
+      }`
+      );
+
+      assertHasOperations(v1, ["bar"]);
+      assertHasOperations(v2, ["foo"]);
+      assertInterfaceProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+        ],
+        source
+      );
+    });
+
+    async function versionedInterface(versions: (string | number)[], iface: string) {
+      host.addCadlFile(
+        "main.cadl",
+        `
+          import "versioning";
+          @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+          namespace MyService;
+
+          @test ${iface}
+          `
+      );
+
+      const { Test } = (await host.compile("./main.cadl")) as { Test: InterfaceType };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return host.program.checker!.project(Test, Test.projections[0].to!, [v]) as InterfaceType;
+        }),
+      };
+    }
+  });
+
+  function assertHasProperties(model: ModelType, props: string[]) {
+    strictEqual(model.properties.size, props.length, `Model ${model.name} property count`);
+    for (const propName of props) {
+      ok(model.properties.has(propName), `Model ${model.name} should have property ${propName}`);
+    }
+  }
+
+  function assertHasVariants(union: UnionType, variants: string[]) {
+    strictEqual(union.variants.size, variants.length, `Union ${union.name} variant count`);
+    for (const variantName of variants) {
+      ok(union.variants.has(variantName), `Union ${union.name} should have variant ${variantName}`);
+    }
+  }
+  function assertHasOperations(iface: InterfaceType, operations: string[]) {
+    strictEqual(
+      iface.operations.size,
+      operations.length,
+      `Interface ${iface.name} operation count`
+    );
+    for (const operationName of operations) {
+      ok(
+        iface.operations.has(operationName),
+        `Interface ${iface.name} should have operation ${operationName}`
+      );
+    }
+  }
+  function assertModelProjectsTo(types: [ModelType, number][], target: ModelType) {
+    types.forEach(([m, version]) => {
+      const projection = host.program.checker!.project(m, m.projections[0].from!, [
+        version,
+      ]) as ModelType;
+      strictEqual(projection.properties.size, target.properties.size);
+      for (const prop of projection.properties.values()) {
+        ok(target.properties.has(prop.name));
+      }
+    });
+  }
+
+  function assertUnionProjectsTo(types: [UnionType, number][], target: UnionType) {
+    types.forEach(([m, version]) => {
+      const projection = host.program.checker!.project(m, m.projections[0].from!, [
+        version,
+      ]) as UnionType;
+      strictEqual(projection.variants.size, target.variants.size);
+      for (const prop of projection.variants.values()) {
+        ok(target.variants.has(prop.name));
+      }
+    });
+  }
+  function assertInterfaceProjectsTo(types: [InterfaceType, number][], target: InterfaceType) {
+    types.forEach(([m, version]) => {
+      const projection = host.program.checker!.project(m, m.projections[0].from!, [
+        version,
+      ]) as InterfaceType;
+      strictEqual(projection.operations.size, target.operations.size);
+      for (const prop of projection.operations.values()) {
+        ok(target.operations.has(prop.name), "interface should have operation " + prop.name);
+      }
+    });
+  }
 });

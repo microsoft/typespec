@@ -60,7 +60,6 @@ import {
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
-  ReferenceExpression,
   SourceFile,
   Statement,
   StringLiteralNode,
@@ -1649,7 +1648,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
   function parseProjectionSelector():
-    | ReferenceExpression
+    | IdentifierNode
+    | MemberExpressionNode
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
     | ProjectionOperationSelectorNode
@@ -1665,7 +1665,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     switch (selectorTok) {
       case Token.Identifier:
-        return parseReferenceExpression();
+        return parseIdentifierOrMemberExpression();
       case Token.ModelKeyword:
         nextToken();
         return {
