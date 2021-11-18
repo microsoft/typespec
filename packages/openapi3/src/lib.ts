@@ -81,7 +81,9 @@ const libDef = {
       },
     },
   },
-  emitterNames: ["openapi3"],
+  emitter: {
+    names: ["openapi3"],
+  },
 } as const;
 const lib = createCadlLibrary(libDef);
 export const { reportDiagnostic } = lib;

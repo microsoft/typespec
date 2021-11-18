@@ -793,7 +793,9 @@ export interface CadlLibraryDef<
   /**
    * Provide names for emitters if there is multiple.
    */
-  readonly emitterNames?: readonly E[];
+  readonly emitter?: {
+    names?: readonly E[];
+  };
 }
 
 export interface CadlLibrary<
@@ -802,7 +804,10 @@ export interface CadlLibrary<
 > {
   readonly name: string;
   readonly diagnostics: DiagnosticMap<T>;
-  readonly emitterNames?: readonly E[];
+  readonly emitter?: {
+    names?: readonly E[];
+  };
+
   reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
     program: Program,
     diag: DiagnosticReport<T, C, M>
