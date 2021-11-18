@@ -2,6 +2,35 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.24.0",
+      "tag": "@cadl-lang/compiler_v0.24.0",
+      "date": "Thu, 18 Nov 2021 13:58:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** `cadl install` command which shell out to `npm install`"
+          },
+          {
+            "comment": "Remove @list decorator"
+          },
+          {
+            "comment": "Show `@doc` info along with completions"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "**Fix** Logging of warning counts, showing error count"
+          },
+          {
+            "comment": "Ensure interface is assigned for checked operations"
+          },
+          {
+            "comment": "Add setDecoratorNamespace helper function"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.23.0",
       "tag": "@cadl-lang/compiler_v0.23.0",
       "date": "Thu, 11 Nov 2021 21:46:21 GMT",

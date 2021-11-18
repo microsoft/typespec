@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Thu, 11 Nov 2021 21:46:21 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Nov 2021 13:58:15 GMT and should not be manually modified.
+
+## 0.7.0
+Thu, 18 Nov 2021 13:58:15 GMT
+
+### Minor changes
+
+- Refactor REST and HTTP decorators and split them into Cadl.Rest and Cadl.Http, respectively
+
+### Patches
+
+- Add new Cadl.Rest.Resource namespace for new resource modelling pattern
+- Add documentation strings to models and operations
 
 ## 0.6.4
 Thu, 11 Nov 2021 21:46:21 GMT

@@ -1,6 +1,21 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 11 Nov 2021 21:46:21 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Nov 2021 13:58:15 GMT and should not be manually modified.
+
+## 0.24.0
+Thu, 18 Nov 2021 13:58:15 GMT
+
+### Minor changes
+
+- **Added** `cadl install` command which shell out to `npm install`
+- Remove @list decorator
+- Show `@doc` info along with completions
+
+### Patches
+
+- **Fix** Logging of warning counts, showing error count
+- Ensure interface is assigned for checked operations
+- Add setDecoratorNamespace helper function
 
 ## 0.23.0
 Thu, 11 Nov 2021 21:46:21 GMT

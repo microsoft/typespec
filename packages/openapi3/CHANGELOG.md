@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Thu, 11 Nov 2021 21:46:21 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Nov 2021 13:58:15 GMT and should not be manually modified.
+
+## 0.4.1
+Thu, 18 Nov 2021 13:58:15 GMT
+
+### Patches
+
+- Enable operation generation from interfaces
 
 ## 0.4.0
 Thu, 11 Nov 2021 21:46:21 GMT
