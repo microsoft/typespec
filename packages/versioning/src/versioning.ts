@@ -1,36 +1,45 @@
 import { NumericLiteralType, Program, StringLiteralType, Type } from "@cadl-lang/compiler";
-
 const addedOnKey = Symbol();
 const removedOnKey = Symbol();
 const versionsKey = Symbol();
 const renamedFromKey = Symbol();
+const madeOptionalKey = Symbol();
 
-export function $added(p: Program, t: Type, v: NumericLiteralType) {
+export function $added(p: Program, t: Type, v: StringLiteralType | NumericLiteralType) {
   p.stateMap(addedOnKey).set(t, v);
 }
-export function $removed(p: Program, t: Type, v: NumericLiteralType) {
+export function $removed(p: Program, t: Type, v: StringLiteralType | NumericLiteralType) {
   p.stateMap(removedOnKey).set(t, v);
 }
 export function $renamedFrom(
   p: Program,
   t: Type,
-  v: NumericLiteralType,
+  v: StringLiteralType | NumericLiteralType,
   oldName: StringLiteralType
 ) {
-  const record = { v, oldName };
+  const record = { v: v, oldName: oldName };
   p.stateMap(renamedFromKey).set(t, record);
 }
+
+export function $madeOptional(p: Program, t: Type, v: string | boolean) {
+  p.stateMap(madeOptionalKey).set(t, v);
+}
+
 export function getRenamedFromVersion(p: Program, t: Type) {
   return p.stateMap(renamedFromKey).get(t)?.v ?? -1;
 }
 export function getRenamedFromOldName(p: Program, t: Type) {
-  return p.stateMap(renamedFromKey).get(t)?.oldName || "";
+  return p.stateMap(renamedFromKey).get(t)?.oldName ?? "";
 }
 export function getAddedOn(p: Program, t: Type) {
-  return p.stateMap(addedOnKey).get(t) || -1;
+  return p.stateMap(addedOnKey).get(t) ?? -1;
 }
 export function getRemovedOn(p: Program, t: Type) {
-  return p.stateMap(removedOnKey).get(t) || Infinity;
+  return p.stateMap(removedOnKey).get(t) ?? Infinity;
+}
+
+export function getMadeOptionalOn(p: Program, t: Type) {
+  return p.stateMap(madeOptionalKey).get(t) ?? -1;
 }
 
 export function $versioned(p: Program, t: Type, v: Type) {
@@ -80,46 +89,50 @@ export function getVersions(p: Program, t: Type): (string | number)[] {
   }
 }
 
+// these decorators take a `versionSource` parameter because not all types can walk up to
+// the containing namespace. Model properties, for example.
 export function addedAfter(p: Program, type: Type, version: Type, versionSource?: Type) {
-  const versions = getVersions(p, versionSource ?? type);
-  if (versions.length === 0) return false;
-  const addedOnVersion = getAddedOn(p, type);
-  const normalizedVersion = versions.indexOf(addedOnVersion);
-  if (normalizedVersion === -1) return false;
-
-  if (version.kind !== "String" && version.kind !== "Number") {
-    throw new TypeError("version must be a string or number");
-  }
-  const normalizedTestVersion = versions.indexOf(version.value);
-  return normalizedVersion > normalizedTestVersion;
+  const appliesAt = appliesAtVersion(getAddedOn, p, type, version, versionSource);
+  return appliesAt === null ? false : !appliesAt;
 }
 
 export function removedOnOrBefore(p: Program, type: Type, version: Type, versionSource?: Type) {
-  const versions = getVersions(p, versionSource ?? type);
-  if (versions.length === 0) return false;
-  const removedOnVersion = getRemovedOn(p, type);
-  const normalizedVersion = versions.indexOf(removedOnVersion);
-  if (normalizedVersion === -1) return false;
-
-  if (version.kind !== "String" && version.kind !== "Number") {
-    throw new TypeError("version must be a string or number");
-  }
-  const normalizedTestVersion = versions.indexOf(version.value);
-
-  return normalizedVersion <= normalizedTestVersion;
+  const appliesAt = appliesAtVersion(getRemovedOn, p, type, version, versionSource);
+  return appliesAt === null ? false : appliesAt;
 }
 
 export function renamedAfter(p: Program, type: Type, version: Type, versionSource?: Type) {
-  const versions = getVersions(p, versionSource ?? type);
-  if (!versions || versions.length === 0) return false;
-  const renamedOnVersion = getRenamedFromVersion(p, type);
-  const normalizedVersion = versions.indexOf(renamedOnVersion);
-  if (normalizedVersion === -1) return false;
+  const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version, versionSource);
+  return appliesAt === null ? false : !appliesAt;
+}
 
+export function madeOptionalAfter(p: Program, type: Type, version: Type, versionSource?: Type) {
+  const appliesAt = appliesAtVersion(getMadeOptionalOn, p, type, version, versionSource);
+  return appliesAt === null ? false : !appliesAt;
+}
+
+/**
+ * returns either null, which means unversioned, or true or false dependnig
+ * on whether the change is active or not at that particular version
+ */
+function appliesAtVersion(
+  getMetadataFn: (p: Program, t: Type) => string | number,
+  p: Program,
+  type: Type,
+  version: Type,
+  versionSource?: Type
+) {
   if (version.kind !== "String" && version.kind !== "Number") {
     throw new TypeError("version must be a string or number");
   }
-  const normalizedTestVersion = versions.indexOf(version.value);
 
-  return normalizedVersion > normalizedTestVersion;
+  const versions = getVersions(p, versionSource ?? type);
+  if (!versions || versions.length === 0) return null;
+  const appliedOnVersion = getMetadataFn(p, type);
+  const appliedOnVersionIndex = versions.indexOf(appliedOnVersion);
+  if (appliedOnVersionIndex === -1) return null;
+  const testVersionIndex = versions.indexOf(version.value);
+  if (testVersionIndex === -1) return null;
+
+  return testVersionIndex >= appliedOnVersionIndex;
 }

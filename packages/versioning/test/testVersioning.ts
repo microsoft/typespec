@@ -56,6 +56,7 @@ describe("cadl: versioning", () => {
       strictEqual((v1 as any as IntrinsicType).name, "never");
       strictEqual(v2.kind, "Model");
     });
+
     it("can add properties", async () => {
       const {
         source,
@@ -157,6 +158,24 @@ describe("cadl: versioning", () => {
         ],
         source
       );
+    });
+
+    it("can make properties optional", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedModel(
+        [1, 2],
+        `model Test {
+          a: int32;
+          @madeOptional(2) b?: int32;
+        }`
+      );
+
+      ok(v1.properties.get("a")!.optional === false);
+      ok(v1.properties.get("b")!.optional === false);
+      ok(v2.properties.get("a")!.optional === false);
+      ok(v2.properties.get("b")!.optional === true);
     });
 
     async function versionedModel(versions: (string | number)[], model: string) {

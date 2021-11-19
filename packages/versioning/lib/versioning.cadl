@@ -117,14 +117,22 @@ projection model#v {
       return never;
     } else {
       self.properties.forEach((p) => {
+        self.projectProperty(p.name, v, version);
+
         if addedAfter(p, version, self) {
           self.deleteProperty(p.name);
-        } else if removedOnOrBefore(p, version, self) {
+        };
+        
+        if removedOnOrBefore(p, version, self) {
           self.deleteProperty(p.name);
-        } else if renamedAfter(p, version, self) {
+        };
+        
+        if renamedAfter(p, version, self) {
           self.renameProperty(p.name, getRenamedFromOldName(p));
-        } else {
-          self.projectProperty(p.name, v, version);
+        };
+
+        if madeOptionalAfter(p, version, self) {
+          p.setOptional(false);
         };
       });
     };
@@ -136,14 +144,22 @@ projection model#v {
       return never;
     } else {
       self.projectionSource.properties.forEach((p) => {
+        self.projectProperty(p.name, v, version);
+
         if addedAfter(p, version, self) {
           self.addProperty(p.name, p.type);
-        } else if removedOnOrBefore(p, version, self) {
+        };
+        
+        if removedOnOrBefore(p, version, self) {
           self.addProperty(p.name, p.type);
-        } else if renamedAfter(p, version, self) {
+        };
+
+        if renamedAfter(p, version, self) {
           self.renameProperty(getRenamedFromOldName(p), p.name);
-        } else {
-          self.projectProperty(p.name, v, version);
+        };
+
+        if madeOptionalAfter(p, version, self) {
+          p.setOptional(true);
         };
       });
     };

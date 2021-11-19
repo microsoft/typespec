@@ -1506,6 +1506,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         return parseNumericLiteral();
       case Token.StringLiteral:
         return parseStringLiteral();
+      case Token.TrueKeyword:
+      case Token.FalseKeyword:
+        return parseBooleanLiteral();
       case Token.OpenBracket:
         return parseProjectionTupleExpression();
       case Token.OpenBrace:

@@ -508,6 +508,7 @@ export type ProjectionExpression =
   | ProjectionLambdaExpressionNode
   | StringLiteralNode
   | NumericLiteralNode
+  | BooleanLiteralNode
   | IdentifierNode
   | VoidKeywordNode
   | NeverKeywordNode

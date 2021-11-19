@@ -2038,6 +2038,8 @@ export function createChecker(program: Program): Checker {
         return evalStringLiteral(node);
       case SyntaxKind.NumericLiteral:
         return evalNumericLiteral(node);
+      case SyntaxKind.BooleanLiteral:
+        return evalBooleanLiteral(node);
       case SyntaxKind.ProjectionBlockExpression:
         return evalProjectionBlockExpression(node);
       case SyntaxKind.ProjectionArithmeticExpression:
@@ -2515,6 +2517,14 @@ export function createChecker(program: Program): Checker {
               base.type = t;
               return voidType;
             });
+          case "setOptional":
+            return functionTypeFromFunction((_: Program, optional?: Type) => {
+              if (!optional || optional.kind !== "Boolean") {
+                throw new TypeError("Optional must be boolean");
+              }
+              base.optional = literalTypeToValue(optional);
+              return voidType;
+            });
           default:
             throw new Error(`Model property doesn't have member ${member}`);
         }
@@ -2947,6 +2957,9 @@ export function createChecker(program: Program): Checker {
   function literalTypeToValue(type: BooleanLiteralType): boolean;
   function literalTypeToValue(
     type: StringLiteralType | NumericLiteralType | BooleanLiteralType
+  ): boolean;
+  function literalTypeToValue(
+    type: StringLiteralType | NumericLiteralType | BooleanLiteralType
   ): string | number | boolean {
     return type.value;
   }
@@ -3057,6 +3070,14 @@ export function createChecker(program: Program): Checker {
   function evalNumericLiteral(node: NumericLiteralNode): NumericLiteralType {
     return createType({
       kind: "Number",
+      node,
+      value: node.value,
+    });
+  }
+
+  function evalBooleanLiteral(node: BooleanLiteralNode): BooleanLiteralType {
+    return createType({
+      kind: "Boolean",
       node,
       value: node.value,
     });
