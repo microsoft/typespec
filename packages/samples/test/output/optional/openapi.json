@@ -26,7 +26,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HasOptional2"
+                  "$ref": "#/components/schemas/HasOptional"
                 }
               }
             }
@@ -37,7 +37,7 @@
   },
   "components": {
     "schemas": {
-      "HasOptional2": {
+      "HasOptional": {
         "type": "object",
         "properties": {
           "optionalNoDefault": {
