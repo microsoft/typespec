@@ -107,6 +107,12 @@
       "projectFolder": "packages/openapi3",
       "reviewCategory": "production",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@cadl-lang/openapi-ui",
+      "projectFolder": "packages/openapi-ui",
+      "reviewCategory": "production",
+      "shouldPublish": true
     }
   ]
 }
