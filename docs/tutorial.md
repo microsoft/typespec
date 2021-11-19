@@ -6,23 +6,23 @@ Cadl is an object oriented dynamic language whose evaluation results in an objec
 
 Cadl's primary benefits include:
 
-* Protocol agnostic: it can describe and generate code for APIs across multiple protocols and serialization languages
-* Modular: developers can group common API shapes and conventions together and reuse them
-* Terse: the syntax is expressive, capable of describing complex APIs with minimal code
-* Extensible: developers can customize the language to describe just about any style of API
- 
+- Protocol agnostic: it can describe and generate code for APIs across multiple protocols and serialization languages
+- Modular: developers can group common API shapes and conventions together and reuse them
+- Terse: the syntax is expressive, capable of describing complex APIs with minimal code
+- Extensible: developers can customize the language to describe just about any style of API
+
 ## Language Tour
 
 Cadl consists of the following language features:
 
-* Models: data shapes or schemas
-* Type Literals: strings and numbers with specific values
-* Type Operators: syntax for composing model types into other types
-* Operations: service endpoints with parameters and return values
-* Namespaces & Usings: groups models and operations together into hierarchical groups with friendly names
-* Imports: links declarations across multiple files and libraries together into a single program
-* Decorators: bits of TypeScript code that add metadata or sometimes mutate declarations
-* Libraries: encapsulate Cadl definitions into reusable components
+- Models: data shapes or schemas
+- Type Literals: strings and numbers with specific values
+- Type Operators: syntax for composing model types into other types
+- Operations: service endpoints with parameters and return values
+- Namespaces & Usings: groups models and operations together into hierarchical groups with friendly names
+- Imports: links declarations across multiple files and libraries together into a single program
+- Decorators: bits of TypeScript code that add metadata or sometimes mutate declarations
+- Libraries: encapsulate Cadl definitions into reusable components
 
 In addition, Cadl comes with a standard library for describing REST APIs and generating OpenAPI. Other protocol bindings are a work in progress!
 
@@ -41,19 +41,19 @@ model Dog {
 
 Cadl comes with built-in models for common data types:
 
-* `string`: sequence of characters
-* `int32`: 32-bit integer
-* `int64`: 64-bit integer
-* `safeint`: an integer that is safe to store in a IEEE754 double and safe to round trip through  all JSON processors.
-* `byte`: an 8-bit element of data
-* `float32`: IEEE 754 single-precision floating point number
-* `float64`: IEEE 754 double-precision floating point number
-* `plainDate`: A date on a calendar without a time zone, e.g. "April 10th"
-* `plainTime`: A time on a clock without a time zone, e.g. "3:00 am"
-* `zonedDateTime`: A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST"
-* `boolean`: true or false
-* `null`: the null value found in e.g. JSON.
-* `Map<K, V>`: a map from K to V.
+- `string`: sequence of characters
+- `int32`: 32-bit integer
+- `int64`: 64-bit integer
+- `safeint`: an integer that is safe to store in a IEEE754 double and safe to round trip through all JSON processors.
+- `byte`: an 8-bit element of data
+- `float32`: IEEE 754 single-precision floating point number
+- `float64`: IEEE 754 double-precision floating point number
+- `plainDate`: A date on a calendar without a time zone, e.g. "April 10th"
+- `plainTime`: A time on a clock without a time zone, e.g. "3:00 am"
+- `zonedDateTime`: A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST"
+- `boolean`: true or false
+- `null`: the null value found in e.g. JSON.
+- `Map<K, V>`: a map from K to V.
 
 #### Spread
 
@@ -111,6 +111,7 @@ enum Color {
 In this case, we haven't specified how the constants will be represented, allowing for different choices in different scenarios. For example, the OpenAPI emitter will choose string values "Red", "Green", "Blue". Another protocol might prefer to assign incrementing numeric values 0, 1, 2.
 
 We can also specify explicit string or numeric values:
+
 ```
 enum Color {
   Red: "red",
@@ -147,7 +148,7 @@ Sometimes it's convenient to alias a model template instantiation or type produc
 alias DogPage = Page<Dog>;
 ```
 
-Unlike `model`, `alias` does not create a new entity, and as such will not change generated code in any way. An  alias merely describes a source code shorthand to avoid repeating the right-hand side in multiple places. 
+Unlike `model`, `alias` does not create a new entity, and as such will not change generated code in any way. An alias merely describes a source code shorthand to avoid repeating the right-hand side in multiple places.
 
 ### Type Literals
 
@@ -172,7 +173,6 @@ model Dog {
     """
 }
 ```
-
 
 ### Type Operators
 
@@ -225,7 +225,6 @@ model DogNotFound {
 
 op getDog(name: string): Dog | DogNotFound;
 ```
-
 
 ### Namespaces & Usings
 
@@ -350,12 +349,12 @@ Dog type: Model
 
 Cadl comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
 
-* @doc - attach a documentation string. Works great with multi-line string literals.
-* @tag - attach a simple tag to a declaration
-* @secret - mark a string as a secret value that should be treated carefully to avoid exposure
-* @minValue/@maxValue - set the min and max values of number types
-* @minLength/@maxLength - set the min and max lengths for strings
-* @format - set the format for a string using regular expression syntax
+- @doc - attach a documentation string. Works great with multi-line string literals.
+- @tag - attach a simple tag to a declaration
+- @secret - mark a string as a secret value that should be treated carefully to avoid exposure
+- @minValue/@maxValue - set the min and max values of number types
+- @minLength/@maxLength - set the min and max lengths for strings
+- @format - set the format for a string using regular expression syntax
 
 ##### Visibility decorators
 
@@ -367,7 +366,7 @@ Consider the following example:
 model Dog {
   // the service will generate an ID, so you dont need to send it.
   @visibility('read') id: int32;
-  
+
   // the service will store this secret name, but won't ever return it
   @visibility('write') secretName: string;
 
@@ -428,10 +427,10 @@ The following examples assume you have imported both `@cadl-lang/openapi3` and `
 
 A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. Cadl offers the following decorators for providing this metadata, and all are optional.
 
-* @serviceTitle - the title of the service
-* @serviceVersion - the version of the service. Can be any string, but later version should lexigraphically sort after earlier versions
-* @produces - the content types the service may produce
-* @consumes - the content types that may be sent to the service
+- @serviceTitle - the title of the service
+- @serviceVersion - the version of the service. Can be any string, but later version should lexigraphically sort after earlier versions
+- @produces - the content types the service may produce
+- @consumes - the content types that may be sent to the service
 
 Here's an example that uses these to define a Pet Store service:
 
@@ -442,7 +441,6 @@ Here's an example that uses these to define a Pet Store service:
 @consumes("application/json")
 namespace PetStore;
 ```
-
 
 #### Resources & routes
 
@@ -459,7 +457,7 @@ To define an operation on this resource, you need to provide the HTTP verb for t
 @resource("/pets")
 namespace Pets {
   op list(): Pet[];
-  
+
   // or you could also use
   @get op listPets(): Pet[];
 }
@@ -473,7 +471,7 @@ Model properties and parameters which should be passed as path and query paramet
 @resource("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): Pet[];
-  
+
   op read(@path petId: int32): Pet;
 }
 ```
@@ -543,4 +541,3 @@ namespace Pets {
   op create(@body pet: Pet): OkResponse<{}>;
 }
 ```
-

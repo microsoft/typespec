@@ -71,6 +71,13 @@
     "editor.detectIndentation": false,
     "editor.tabSize": 2
   },
+  "[markdown]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "files.associations": {
     "rush.json": "jsonc",
     "common-versions.json": "jsonc",
