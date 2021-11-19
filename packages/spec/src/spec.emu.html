@@ -476,12 +476,17 @@ ProjectionLogicalAndExpression :
     ProjectionRelationalExpression
     ProjectionLogicalAndExpression `&&` ProjectionRelationalExpression
 
+ProjectionEqualityExpression :
+    ProjectionRelationalExpression
+    ProjectionEqualityExpression `==` ProjectionRelationalExpression
+    ProjectionEqualityExpression `!=` ProjectionRelationalExpression
+
 ProjectionRelationalExpression :
-    ProjectionCallExpression
-    ProjectionRelationalExpression `<` PrimaryExpression
-    ProjectionRelationalExpression `>` PrimaryExpression
-    ProjectionRelationalExpression `<=` PrimaryExpression
-    ProjectionRelationalExpression `>=` PrimaryExpression
+    ProjectionAdditiveExpression
+    ProjectionRelationalExpression `<` ProjectionAdditiveExpression
+    ProjectionRelationalExpression `>` ProjectionAdditiveExpression
+    ProjectionRelationalExpression `<=` ProjectionAdditiveExpression
+    ProjectionRelationalExpression `>=` ProjectionAdditiveExpression
 
 ProjectionAdditiveExpression :
     ProjectionMultiplicativeExpression
@@ -489,9 +494,13 @@ ProjectionAdditiveExpression :
     ProjectionAdditiveExpression `-` ProjectionMultiplicativeExpression
 
 ProjectionMultiplicativeExpression :
+    ProjectionUnaryExpression
+    ProjectionMultiplicativeExpression `*` ProjectionUnaryExpression
+    ProjectionMultiplicativeExpression `/` ProjectionUnaryExpression
+
+ProjectionUnaryExpression :
     ProjectionProjectionReference
-    ProjectionMultiplicativeExpression `*` ProjectionProjectionReference
-    ProjectionMultiplicativeExpression `/` ProjectionProjectionReference
+    `!` ProjectionUnaryExpression
 
 ProjectionProjectionReference :
     ProjectionCallExpression

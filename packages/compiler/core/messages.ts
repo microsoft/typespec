@@ -348,6 +348,12 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
+  "projections-are-experimental": {
+    severity: "warning",
+    messages: {
+      default: "Projections are experimental - your code WILL be broken.",
+    },
+  },
 
   /**
    * Binder

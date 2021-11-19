@@ -13,6 +13,40 @@ describe("cadl: versioning", () => {
   beforeEach(async () => {
     host = await createVersioningTestHost();
   });
+  describe("version compare", () => {
+    it("compares arbitrary types in order", async () => {
+      host.addCadlFile(
+        "main.cadl",
+        `
+        import "versioning";
+        @versioned(1 | "version two" | 3)
+        namespace MyService;
+
+        @test model Test {
+          @added(1) a: 1;
+          @added("version two") b: 1;
+          @added(3) c: 1;
+        }
+        `
+      );
+      const { Test } = (await host.compile("./main.cadl")) as { Test: ModelType };
+
+      const v1 = host.program.checker!.project(Test, Test.projections[0].to!, [1]) as ModelType;
+      ok(v1.properties.has("a"), "v1 has a");
+      ok(!v1.properties.has("b"), "v2 doesn't have b");
+      ok(!v1.properties.has("c"));
+      const v2 = host.program.checker!.project(Test, Test.projections[0].to!, [
+        "version two",
+      ]) as ModelType;
+      ok(v2.properties.has("a"));
+      ok(v2.properties.has("b"));
+      ok(!v2.properties.has("c"));
+      const v3 = host.program.checker!.project(Test, Test.projections[0].to!, [3]) as ModelType;
+      ok(v3.properties.has("a"));
+      ok(v3.properties.has("b"));
+      ok(v3.properties.has("c"));
+    });
+  });
   describe("models", () => {
     it("can add models", async () => {
       const {

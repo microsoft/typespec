@@ -65,40 +65,42 @@ export enum Token {
   ForwardSlash = 30,
   Plus = 31,
   Hyphen = 32,
-  LessThanEquals = 33,
-  GreaterThanEquals = 34,
-  AmpsersandAmpersand = 35,
-  BarBar = 36,
-  EqualsEquals = 37,
-  EqualsGreaterThan = 38,
+  Exclamation = 33,
+  LessThanEquals = 34,
+  GreaterThanEquals = 35,
+  AmpsersandAmpersand = 36,
+  BarBar = 37,
+  EqualsEquals = 38,
+  ExclamationEquals = 39,
+  EqualsGreaterThan = 40,
   // Update MaxPunctuation if anything is added right above here
 
   // Identifiers
-  Identifier = 39,
+  Identifier = 41,
 
   // Statement Keywords
-  ImportKeyword = 40,
-  ModelKeyword = 41,
-  NamespaceKeyword = 42,
-  UsingKeyword = 43,
-  OpKeyword = 44,
-  EnumKeyword = 45,
-  AliasKeyword = 46,
-  IsKeyword = 47,
-  InterfaceKeyword = 48,
-  UnionKeyword = 49,
-  ProjectionKeyword = 50,
-  ElseKeyword = 51,
-  IfKeyword = 52,
+  ImportKeyword = 42,
+  ModelKeyword = 43,
+  NamespaceKeyword = 44,
+  UsingKeyword = 45,
+  OpKeyword = 46,
+  EnumKeyword = 47,
+  AliasKeyword = 48,
+  IsKeyword = 49,
+  InterfaceKeyword = 50,
+  UnionKeyword = 51,
+  ProjectionKeyword = 52,
+  ElseKeyword = 53,
+  IfKeyword = 54,
   // Update MaxStatementKeyword if anything is added right above here
 
   // Other keywords
-  ExtendsKeyword = 53,
-  TrueKeyword = 54,
-  FalseKeyword = 55,
-  ReturnKeyword = 56,
-  VoidKeyword = 57,
-  NeverKeyword = 58,
+  ExtendsKeyword = 55,
+  TrueKeyword = 56,
+  FalseKeyword = 57,
+  ReturnKeyword = 58,
+  VoidKeyword = 59,
+  NeverKeyword = 60,
   // Update MaxKeyword if anything is added right above here
 }
 
@@ -146,14 +148,16 @@ export const TokenDisplay: readonly string[] = [
   "'/'", // 30
   "'+'",
   "'-'",
+  "'!'",
   "'<='",
   "'>='",
   "'&&'",
   "'||'",
   "'=='",
-  "'=>'",
+  "'!='",
+  "'=>'", // 40
   "identifier",
-  "'import'", // 40
+  "'import'",
   "'model'",
   "'namespace'",
   "'using'",
@@ -161,9 +165,9 @@ export const TokenDisplay: readonly string[] = [
   "'enum'",
   "'alias'",
   "'is'",
-  "'interface'",
+  "'interface'", // 50
   "'union'",
-  "'projection'", // 50
+  "'projection'",
   "'else'",
   "'if'",
   "'extends'",
@@ -171,7 +175,7 @@ export const TokenDisplay: readonly string[] = [
   "'false'",
   "'return'",
   "'void'",
-  "'never'",
+  "'never'", // 60
 ];
 
 /** @internal */
@@ -434,6 +438,7 @@ export function createScanner(
             case CharCode.Asterisk:
               return scanMultiLineComment();
           }
+
           return next(Token.ForwardSlash);
 
         case CharCode._0:
@@ -489,7 +494,10 @@ export function createScanner(
           return lookAhead(1) === CharCode.DoubleQuote && lookAhead(2) === CharCode.DoubleQuote
             ? scanTripleQuotedString()
             : scanString();
-
+        case CharCode.Exclamation:
+          return lookAhead(1) === CharCode.Equals
+            ? next(Token.ExclamationEquals, 2)
+            : next(Token.Exclamation);
         default:
           if (isLowercaseAsciiLetter(ch)) {
             return scanIdentifierOrKeyword();

@@ -44,6 +44,7 @@ import {
   ProjectionArithmeticExpressionNode,
   ProjectionBlockExpressionNode,
   ProjectionCallExpressionNode,
+  ProjectionEqualityExpressionNode,
   ProjectionExpression,
   ProjectionExpressionStatement,
   ProjectionIfExpressionNode,
@@ -57,6 +58,7 @@ import {
   ProjectionStatementNode,
   ProjectionSymbol,
   ProjectionType,
+  ProjectionUnaryExpressionNode,
   ReturnExpressionNode,
   ReturnRecord,
   StringLiteralNode,
@@ -786,6 +788,7 @@ export function createChecker(program: Program): Checker {
       returnType: getTypeForNode(node.returnType),
       decorators,
     });
+    type.parameters.namespace = namespace;
 
     if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
       if (shouldCreateTypeForTemplate(node.parent!)) {
@@ -1953,7 +1956,14 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkProjectionDeclaration(node: ProjectionStatementNode): Type {
-    // todo: check for duplicate model decls.
+    // todo: check for duplicate projection decls on individual types
+    // right now you can declare the same projection on a specific type
+    // this could maybe go in the binder? But right now we don't know
+    // what an identifier resolves to until check time.
+    program.reportDiagnostic(
+      createDiagnostic({ code: "projections-are-experimental", target: node })
+    );
+
     const links = getSymbolLinks(node.symbol!);
     let type;
     if (!links.declaredType) {
@@ -2022,6 +2032,10 @@ export function createChecker(program: Program): Checker {
         return evalProjectionArithmeticExpression(node);
       case SyntaxKind.ProjectionIfExpression:
         return evalProjectionIfExpression(node);
+      case SyntaxKind.ProjectionEqualityExpression:
+        return evalProjectionEqualityExpression(node);
+      case SyntaxKind.ProjectionUnaryExpression:
+        return evalProjectionUnaryExpression(node);
       case SyntaxKind.ProjectionRelationalExpression:
         return evalProjectionRelationalExpression(node);
       case SyntaxKind.ProjectionReference:
@@ -2125,6 +2139,46 @@ export function createChecker(program: Program): Checker {
         return valueToLiteralType(left.value > right.value);
       case ">=":
         return valueToLiteralType(left.value >= right.value);
+    }
+  }
+
+  function evalProjectionUnaryExpression(node: ProjectionUnaryExpressionNode): TypeOrReturnRecord {
+    const target = evalProjectionNode(node.target);
+    if (target.kind !== "Boolean") {
+      throw new Error("Can't negate a non-boolean");
+    }
+
+    switch (node.op) {
+      case "!":
+        return valueToLiteralType(!target.value);
+    }
+  }
+  function evalProjectionEqualityExpression(
+    node: ProjectionEqualityExpressionNode
+  ): TypeOrReturnRecord {
+    const left = evalProjectionNode(node.left);
+    if (left.kind === "Return") {
+      return left;
+    } else if (left.kind !== "Number" && left.kind !== "String") {
+      throw new Error("Comparisons must be strings or numbers");
+    }
+
+    const right = evalProjectionNode(node.right);
+    if (right.kind === "Return") {
+      return right;
+    } else if (right.kind !== "Number" && right.kind !== "String") {
+      throw new Error("Comparisons must be strings or numbers");
+    }
+
+    if (right.kind !== left.kind) {
+      throw new Error("Can't compare number and string");
+    }
+
+    switch (node.op) {
+      case "==":
+        return valueToLiteralType(left.value === right.value);
+      case "!=":
+        return valueToLiteralType(left.value !== right.value);
     }
   }
 

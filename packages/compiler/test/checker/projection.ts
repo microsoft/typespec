@@ -28,6 +28,7 @@ describe("cadl: projections", () => {
         c: string;
       }
 
+      #suppress "projections-are-experimental"
       projection Foo#v {
         to(version) {
           if version <= 1 {
@@ -97,6 +98,7 @@ describe("cadl: projections", () => {
           @renamedFrom(2, "oldName") newName: string;
         }
 
+        #suppress "projections-are-experimental"
         projection model#v {
           to(version) {
             if getAddedOn(self) > version {
@@ -145,6 +147,7 @@ describe("cadl: projections", () => {
           };
         }
         
+        #suppress "projections-are-experimental"
         projection model#camelCase {
           to {
             self.properties.forEach((p) => {
@@ -186,6 +189,7 @@ describe("cadl: projections", () => {
         prop: string;
       }
       
+      #suppress "projections-are-experimental"
       projection model#deleted {
         to {
           if 1 {
@@ -236,6 +240,7 @@ describe("cadl: projections", () => {
             bar_prop: int32;
           }
 
+          #suppress "projections-are-experimental"
           projection model#toCamelCase {
             to {
               self.properties.forEach((p) => {
@@ -341,6 +346,7 @@ describe("cadl: projections", () => {
         `
       ${imports.map((v) => `import "${v}";`).join("\n")}
       @test ${model}
+      #suppress "projections-are-experimental"
       projection model #test {
         to {
           ${projection}
@@ -367,6 +373,7 @@ describe("cadl: projections", () => {
         `
         ${testModel}
         
+        #suppress "projections-are-experimental"
         projection union#project {
           to {
             ${code}
@@ -431,6 +438,7 @@ describe("cadl: projections", () => {
         self.projectVariant("bar_prop", addModelProp);
       `,
         `
+      #suppress "projections-are-experimental"
       projection model#addModelProp {
         to {
           self.addProperty("hi", int32);
@@ -456,6 +464,7 @@ describe("cadl: projections", () => {
         `
         ${testOp}
         
+        #suppress "projections-are-experimental"
         projection op#addReturnTypeVariant {
           to {
             self.setReturnType(unionOf(self.returnType, int32));
@@ -496,6 +505,7 @@ describe("cadl: projections", () => {
         };
       }
       
+      #suppress "projections-are-experimental"
       projection model#camelCase {
         to {
           self.properties.forEach((p) => {
@@ -564,6 +574,7 @@ describe("cadl: projections", () => {
           @renamedFrom(2, "oldName") newName: string;
         }
 
+        #suppress "projections-are-experimental"
         projection model#v {
           to(version) {
             if getAddedOn(self) > version {

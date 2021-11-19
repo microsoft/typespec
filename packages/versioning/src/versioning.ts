@@ -74,8 +74,52 @@ export function getVersions(p: Program, t: Type): (string | number)[] {
     t.kind === "Model" ||
     t.kind === "Union"
   ) {
-    return getVersion(p, t.namespace!);
+    return getVersion(p, t.namespace!) || [];
   } else {
     return [];
   }
+}
+
+export function addedAfter(p: Program, type: Type, version: Type, versionSource?: Type) {
+  const versions = getVersions(p, versionSource ?? type);
+  if (versions.length === 0) return false;
+  const addedOnVersion = getAddedOn(p, type);
+  const normalizedVersion = versions.indexOf(addedOnVersion);
+  if (normalizedVersion === -1) return false;
+
+  if (version.kind !== "String" && version.kind !== "Number") {
+    throw new TypeError("version must be a string or number");
+  }
+  const normalizedTestVersion = versions.indexOf(version.value);
+  return normalizedVersion > normalizedTestVersion;
+}
+
+export function removedOnOrBefore(p: Program, type: Type, version: Type, versionSource?: Type) {
+  const versions = getVersions(p, versionSource ?? type);
+  if (versions.length === 0) return false;
+  const removedOnVersion = getRemovedOn(p, type);
+  const normalizedVersion = versions.indexOf(removedOnVersion);
+  if (normalizedVersion === -1) return false;
+
+  if (version.kind !== "String" && version.kind !== "Number") {
+    throw new TypeError("version must be a string or number");
+  }
+  const normalizedTestVersion = versions.indexOf(version.value);
+
+  return normalizedVersion <= normalizedTestVersion;
+}
+
+export function renamedAfter(p: Program, type: Type, version: Type, versionSource?: Type) {
+  const versions = getVersions(p, versionSource ?? type);
+  if (!versions || versions.length === 0) return false;
+  const renamedOnVersion = getRenamedFromVersion(p, type);
+  const normalizedVersion = versions.indexOf(renamedOnVersion);
+  if (normalizedVersion === -1) return false;
+
+  if (version.kind !== "String" && version.kind !== "Number") {
+    throw new TypeError("version must be a string or number");
+  }
+  const normalizedTestVersion = versions.indexOf(version.value);
+
+  return normalizedVersion > normalizedTestVersion;
 }

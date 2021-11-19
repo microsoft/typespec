@@ -1280,7 +1280,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseProjectionLogicalAndExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionRelationalExpressionOrHigher();
+    let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher();
 
     while (token() !== Token.EndOfFile) {
       const pos = expr.pos;
@@ -1290,6 +1290,29 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           op: "&&",
           left: expr,
           right: parseIdentifier(),
+          ...finishNode(pos),
+        };
+      } else {
+        break;
+      }
+    }
+
+    return expr;
+  }
+
+  function parseProjectionEqualityExpressionOrHigher(): ProjectionExpression {
+    let expr: ProjectionExpression = parseProjectionRelationalExpressionOrHigher();
+    while (token() !== Token.EndOfFile) {
+      const pos = expr.pos;
+      const tok = token();
+      const value = tokenValue();
+      if (tok === Token.EqualsEquals || tok === Token.ExclamationEquals) {
+        nextToken();
+        expr = {
+          kind: SyntaxKind.ProjectionEqualityExpression,
+          op: value as any,
+          left: expr,
+          right: parseProjectionRelationalExpressionOrHigher(),
           ...finishNode(pos),
         };
       } else {
@@ -1356,7 +1379,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseProjectionMultiplicativeExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionReferenceExpressionOrHigher();
+    let expr: ProjectionExpression = parseProjectionUnaryExpressionOrHigher();
     while (token() !== Token.EndOfFile) {
       // I think this is a TS bug? I don't get why
       // the type assertion is needed here.
@@ -1368,7 +1391,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           kind: SyntaxKind.ProjectionRelationalExpression,
           op: tokenValue() as any,
           left: expr,
-          right: parseProjectionReferenceExpressionOrHigher(),
+          right: parseProjectionUnaryExpressionOrHigher(),
           ...finishNode(pos),
         };
       } else {
@@ -1377,6 +1400,20 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
 
     return expr;
+  }
+
+  function parseProjectionUnaryExpressionOrHigher(): ProjectionExpression {
+    if (token() === Token.Exclamation) {
+      const pos = tokenPos();
+      nextToken();
+      return {
+        kind: SyntaxKind.ProjectionUnaryExpression,
+        op: tokenValue() as any,
+        target: parseProjectionUnaryExpressionOrHigher(),
+        ...finishNode(pos),
+      };
+    }
+    return parseProjectionReferenceExpressionOrHigher();
   }
 
   function parseProjectionReferenceExpressionOrHigher(): ProjectionExpression {
@@ -2146,7 +2183,10 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.ProjectionLogicalExpression:
     case SyntaxKind.ProjectionRelationalExpression:
     case SyntaxKind.ProjectionArithmeticExpression:
+    case SyntaxKind.ProjectionEqualityExpression:
       return visitNode(cb, node.left) || visitNode(cb, node.right);
+    case SyntaxKind.ProjectionUnaryExpression:
+      return visitNode(cb, node.target);
     case SyntaxKind.ProjectionModelExpression:
       return visitEach(cb, node.properties);
     case SyntaxKind.ProjectionModelProperty:
