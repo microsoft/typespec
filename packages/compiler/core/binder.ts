@@ -285,6 +285,20 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     node.locals = new SymbolTable();
   }
 
+  /**
+   * Binding projection statements is interesting because there may be
+   * multiple declarations spread across various source files that all
+   * contribute to the same symbol because they declare the same
+   * projection on different selectors.
+   *
+   * There is presently an issue where we do not check for duplicate
+   * projections when they're applied to a specific type. This could
+   * be done with ease in the checker during evaluation, but could
+   * probably instead be done in a post-bind phase - we just need
+   * all the symbols in place so we know if a projection was declared
+   * multiple times for the same symbol.
+   *
+   */
   function bindProjectionStatement(node: ProjectionStatementNode) {
     const name = node.id.sv;
     const table = getContainingSymbolTable();

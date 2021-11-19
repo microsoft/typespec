@@ -251,6 +251,7 @@ export function createChecker(program: Program): Checker {
   };
 
   function initializeCadlIntrinsics() {
+    // a utility function to log strings or numbers
     cadlNamespaceNode!.exports!.set("log", {
       kind: "function",
       name: "log",
@@ -259,6 +260,8 @@ export function createChecker(program: Program): Checker {
         return voidType;
       },
     });
+
+    // a utility function to dump a type
     cadlNamespaceNode!.exports!.set("inspect", {
       kind: "function",
       name: "inspect",
@@ -1035,7 +1038,16 @@ export function createChecker(program: Program): Checker {
         );
         return undefined;
       } else if (base.kind === "function") {
-        throw new Error("NYA");
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "invalid-ref",
+            messageId: "node",
+            format: { id: node.id.sv, nodeName: "function" },
+            target: node,
+          })
+        );
+
+        return undefined;
       } else {
         program.reportDiagnostic(
           createDiagnostic({
