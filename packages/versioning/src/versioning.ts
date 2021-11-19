@@ -92,22 +92,37 @@ export function getVersions(p: Program, t: Type): (string | number)[] {
 
 // these decorators take a `versionSource` parameter because not all types can walk up to
 // the containing namespace. Model properties, for example.
-export function addedAfter(p: Program, type: Type, version: Type, versionSource?: Type) {
+export function addedAfter(p: Program, type: Type, version: string | number, versionSource?: Type) {
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version, versionSource);
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function removedOnOrBefore(p: Program, type: Type, version: Type, versionSource?: Type) {
+export function removedOnOrBefore(
+  p: Program,
+  type: Type,
+  version: string | number,
+  versionSource?: Type
+) {
   const appliesAt = appliesAtVersion(getRemovedOn, p, type, version, versionSource);
   return appliesAt === null ? false : appliesAt;
 }
 
-export function renamedAfter(p: Program, type: Type, version: Type, versionSource?: Type) {
+export function renamedAfter(
+  p: Program,
+  type: Type,
+  version: string | number,
+  versionSource?: Type
+) {
   const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version, versionSource);
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function madeOptionalAfter(p: Program, type: Type, version: Type, versionSource?: Type) {
+export function madeOptionalAfter(
+  p: Program,
+  type: Type,
+  version: string | number,
+  versionSource?: Type
+) {
   const appliesAt = appliesAtVersion(getMadeOptionalOn, p, type, version, versionSource);
   return appliesAt === null ? false : !appliesAt;
 }
@@ -120,10 +135,10 @@ function appliesAtVersion(
   getMetadataFn: (p: Program, t: Type) => string | number,
   p: Program,
   type: Type,
-  version: Type,
+  version: string | number,
   versionSource?: Type
 ) {
-  if (version.kind !== "String" && version.kind !== "Number") {
+  if (typeof version !== "string" && typeof version !== "number") {
     throw new TypeError("version must be a string or number");
   }
 
@@ -132,7 +147,7 @@ function appliesAtVersion(
   const appliedOnVersion = getMetadataFn(p, type);
   const appliedOnVersionIndex = versions.indexOf(appliedOnVersion);
   if (appliedOnVersionIndex === -1) return null;
-  const testVersionIndex = versions.indexOf(version.value);
+  const testVersionIndex = versions.indexOf(version);
   if (testVersionIndex === -1) return null;
 
   return testVersionIndex >= appliedOnVersionIndex;

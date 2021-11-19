@@ -347,6 +347,7 @@ export enum SyntaxKind {
   ProjectionTupleExpression,
   ProjectionStatement,
   ProjectionReference,
+  ProjectionDecoratorReferenceExpression,
   Return,
 }
 
@@ -503,6 +504,7 @@ export type ProjectionExpression =
   | ProjectionReferenceExpressionNode
   | ProjectionCallExpressionNode
   | ProjectionMemberExpressionNode
+  | ProjectionDecoratorReferenceExpressionNode
   | ProjectionTupleExpressionNode
   | ProjectionModelExpressionNode
   | ProjectionIfExpressionNode
@@ -851,6 +853,11 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode<Proje
     | IdentifierNode;
   to?: ProjectionNode;
   from?: ProjectionNode;
+}
+
+export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionDecoratorReferenceExpression;
+  target: MemberExpressionNode | IdentifierNode;
 }
 
 export interface ProjectionInstructionBase {

@@ -510,12 +510,16 @@ ProjectionProjectionReferenceArguments :
     `(` ProjectionExpressionList? `)`
 
 ProjectionCallExpression :
-    ProjectionMemberExpression
+    ProjectionDecoratorReferenceExpression
     ProjectionCallExpression ProjectionCallArguments
     ProjectionCallExpression `.` Identifier
 
 ProjectionCallArguments :
     `(` ProjectionExpressionList? `)`
+
+ProjectionDecoratorReferenceExpression :
+    ProjectionMemberExpression
+    `@` IdentifierOrMemberExpression
 
 ProjectionMemberExpression :
     ProjectionPrimaryExpression

@@ -44,6 +44,7 @@ import {
   ProjectionArithmeticExpressionNode,
   ProjectionBlockExpressionNode,
   ProjectionCallExpressionNode,
+  ProjectionDecoratorReferenceExpressionNode,
   ProjectionEqualityExpressionNode,
   ProjectionExpression,
   ProjectionExpressionStatement,
@@ -256,8 +257,8 @@ export function createChecker(program: Program): Checker {
     cadlNamespaceNode!.exports!.set("log", {
       kind: "function",
       name: "log",
-      value(p: Program, str: StringLiteralType): Type {
-        console.log(str.value);
+      value(p: Program, str: string): Type {
+        console.log(str);
         return voidType;
       },
     });
@@ -2056,6 +2057,8 @@ export function createChecker(program: Program): Checker {
         return evalProjectionCallExpression(node);
       case SyntaxKind.ProjectionMemberExpression:
         return evalProjectionMemberExpression(node);
+      case SyntaxKind.ProjectionDecoratorReferenceExpression:
+        return evalProjectionDecoratorReference(node);
       case SyntaxKind.Identifier:
         return evalProjectionIdentifier(node);
       case SyntaxKind.ProjectionLambdaExpression:
@@ -2400,17 +2403,25 @@ export function createChecker(program: Program): Checker {
             );
 
             return props;
+          case "getProperty":
+            return functionTypeFromFunction((_: Program, nameT: Type) => {
+              if (nameT.kind !== "String") {
+                throw new Error("Property name must be a string");
+              }
+              const name = literalTypeToValue(nameT);
+              return base.properties.get(name) ?? voidType;
+            });
           case "renameProperty":
             return functionTypeFromFunction((_: Program, oldNameT: Type, newNameT: Type) => {
               if (oldNameT.kind !== "String" || newNameT.kind !== "String") {
-                return errorType;
+                throw new Error("Property names must be a string");
               }
               const oldName = literalTypeToValue(oldNameT);
               const newName = literalTypeToValue(newNameT);
 
               const prop = base.properties.get(oldName);
               if (!prop) {
-                return errorType;
+                throw new Error(`Property ${oldName} not found`);
               }
               prop.name = newName;
               base.properties.delete(oldName);
@@ -2428,13 +2439,13 @@ export function createChecker(program: Program): Checker {
           case "addProperty":
             return functionTypeFromFunction((_: Program, nameT: Type, type: Type) => {
               if (nameT.kind !== "String") {
-                return errorType;
+                throw new Error("Property name must be a string");
               }
               const name = literalTypeToValue(nameT);
 
               const prop = base.properties.get(name);
               if (prop) {
-                return errorType;
+                throw new Error(`Property ${name} already exists`);
               }
 
               base.properties.set(
@@ -2462,13 +2473,13 @@ export function createChecker(program: Program): Checker {
           case "deleteProperty":
             return functionTypeFromFunction((_: Program, nameT: Type) => {
               if (nameT.kind !== "String") {
-                return errorType;
+                throw new Error("Property name must be a string");
               }
               const name = literalTypeToValue(nameT);
 
               const prop = base.properties.get(name);
               if (!prop) {
-                return errorType;
+                return voidType;
               }
               base.properties.delete(name);
               if (emitInstructions) {
@@ -2483,13 +2494,13 @@ export function createChecker(program: Program): Checker {
             return functionTypeFromFunction(
               (_: Program, nameT: Type, projection: Type, ...args: Type[]) => {
                 if (nameT.kind !== "String") {
-                  return errorType;
+                  throw new Error("Property name must be a string");
                 }
                 const name = literalTypeToValue(nameT);
 
                 const prop = base.properties.get(name);
                 if (!prop) {
-                  return errorType;
+                  return voidType;
                 }
 
                 if (projection.kind !== "Projection") {
@@ -3100,6 +3111,21 @@ export function createChecker(program: Program): Checker {
     });
   }
 
+  function evalProjectionDecoratorReference(
+    node: ProjectionDecoratorReferenceExpressionNode
+  ): Type {
+    const ref = resolveTypeReference(node.target, true);
+    if (!ref) throw new Error("Can't find decorator.");
+    compilerAssert(ref.kind === "decorator", "should only resolve decorator symbols");
+    return createType({
+      kind: "Function",
+      call(...args: Type[]): Type {
+        let retval = ref.value(program, ...marshalProjectionArguments(args));
+        return voidType;
+      },
+    } as const);
+  }
+
   function evalProjectionIdentifier(node: IdentifierNode): Type {
     // first check the eval context
 
@@ -3110,36 +3136,23 @@ export function createChecker(program: Program): Checker {
       }
       currentContext = currentContext.parent;
     }
+
+    // next, resolve outside
     const ref = resolveTypeReference(node);
     if (!ref) throw new Error("Unknown identifier " + node.sv);
 
     switch (ref.kind) {
       case "decorator":
+        // shouldn't ever resolve a decorator symbol here (without passing
+        // true to resolveTypeReference)
         return errorType;
       case "function":
         // TODO: store this in a symbol link probably?
         const t: FunctionType = createType({
           kind: "Function",
-          call(...args: any[]): Type {
-            let retval = ref.value(program, ...args);
-
-            if (
-              typeof retval === "number" ||
-              typeof retval === "string" ||
-              typeof retval === "boolean"
-            ) {
-              return valueToLiteralType(retval);
-            }
-
-            if (typeof retval === "object" && !retval.kind) {
-              return createType({
-                kind: "Object",
-                properties: retval,
-              });
-            }
-
-            // TODO: check this better.
-            return retval as Type;
+          call(...args: Type[]): Type {
+            let retval = ref.value(program, ...marshalProjectionArguments(args));
+            return marshalProjectionReturn(retval);
           },
         } as const);
         return t;
@@ -3150,6 +3163,35 @@ export function createChecker(program: Program): Checker {
 
         return links.declaredType;
     }
+  }
+
+  function marshalProjectionArguments(args: Type[]): (Type | number | boolean | string | object)[] {
+    return args.map((arg) => {
+      if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
+        return literalTypeToValue(arg);
+      }
+      return arg;
+    });
+  }
+
+  function marshalProjectionReturn(value: unknown): Type {
+    if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
+      return valueToLiteralType(value);
+    }
+
+    if (typeof value === "object" && value !== null) {
+      if ("kind" in value) {
+        return value as Type;
+      } else {
+        // this could probably be more robust
+        return createType({
+          kind: "Object",
+          properties: value as any,
+        });
+      }
+    }
+
+    throw new Error("Can't marshal value returned from JS function into cadl");
   }
 
   function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {

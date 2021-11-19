@@ -9,6 +9,7 @@ import {
   Type,
   UnionType,
 } from "../../core/types.js";
+import { getDoc } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
 describe("cadl: projections", () => {
@@ -51,6 +52,29 @@ describe("cadl: projections", () => {
     strictEqual(result2.properties.size, 2);
   });
 
+  it("can call decorators", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @test model Foo {
+        a: int32;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#addDocs {
+        to {
+          @doc(self, "This is a model Foo");
+          @doc(self.getProperty("a"), "Prop");
+        }
+      }
+    `
+    );
+
+    const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
+    let result = testHost.program.checker!.project(Foo, Foo.projections[0].to!, [1]) as ModelType;
+    strictEqual(getDoc(testHost.program, result), "This is a model Foo");
+    strictEqual(getDoc(testHost.program, result.properties.get("a")!), "Prop");
+  });
   describe("models", () => {
     it("works for versioning", async () => {
       const addedOnKey = Symbol();

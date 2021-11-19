@@ -1441,7 +1441,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseProjectionCallExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionMemberExpressionOrHigher();
+    let expr: ProjectionExpression = parseProjectionDecoratorReferenceExpressionOrHigher();
 
     while (token() !== Token.EndOfFile) {
       const pos: number = expr.pos;
@@ -1460,6 +1460,20 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
 
     return expr;
+  }
+
+  function parseProjectionDecoratorReferenceExpressionOrHigher(): ProjectionExpression {
+    if (token() === Token.At) {
+      const pos = tokenPos();
+      nextToken();
+      return {
+        kind: SyntaxKind.ProjectionDecoratorReferenceExpression,
+        target: parseIdentifierOrMemberExpression(),
+        ...finishNode(pos),
+      };
+    }
+
+    return parseProjectionMemberExpressionOrHigher();
   }
 
   function parseProjectionMemberExpressionOrHigher(): ProjectionExpression {
@@ -2231,6 +2245,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       return (
         visitNode(cb, node.target) || visitNode(cb, node.reference) || visitEach(cb, node.arguments)
       );
+    case SyntaxKind.ProjectionDecoratorReferenceExpression:
+      return visitNode(cb, node.target);
     case SyntaxKind.Return:
       return visitNode(cb, node.value);
     // no children for the rest of these.
