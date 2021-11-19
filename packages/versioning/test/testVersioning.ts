@@ -1,4 +1,5 @@
 import {
+  EnumType,
   InterfaceType,
   IntrinsicType,
   ModelType,
@@ -510,6 +511,127 @@ describe("cadl: versioning", () => {
       };
     }
   });
+  describe("enums", () => {
+    it("can add enums", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedEnum([1, 2], `@added(2) enum Test {}`);
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Enum");
+    });
+
+    it("can add members", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedEnum(
+        [1, 2, 3],
+        `enum Test {
+          a: 1;
+          @added(2) b: 2;
+          @added(3) c: 3;
+        }
+        `
+      );
+
+      assertHasMembers(v1, ["a"]);
+      assertHasMembers(v2, ["a", "b"]);
+      assertHasMembers(v3, ["a", "b", "c"]);
+      assertEnumProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+          [v3, 3],
+        ],
+        source
+      );
+    });
+
+    it("can remove enums", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedEnum([1, 2], `@removed(2) enum Test {}`);
+
+      strictEqual(v1.kind, "Enum");
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
+    });
+
+    it("can remove members", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedEnum(
+        [1, 2, 3],
+        `enum Test {
+          a: 1;
+          @removed(2) b: 2;
+          @removed(3) c: 3;
+        }
+        `
+      );
+      assertHasMembers(v1, ["a", "b", "c"]);
+      assertHasMembers(v2, ["a", "c"]);
+      assertHasMembers(v3, ["a"]);
+      assertEnumProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+          [v3, 3],
+        ],
+        source
+      );
+    });
+
+    it("can rename members", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedEnum(
+        [1, 2, 3],
+        `enum Test {
+          a: 1;
+          @renamedFrom(2, "foo") b: 2;
+          @renamedFrom(3, "bar") c: 3;
+        }`
+      );
+
+      assertHasMembers(v1, ["a", "foo", "bar"]);
+      assertHasMembers(v2, ["a", "b", "bar"]);
+      assertHasMembers(v3, ["a", "b", "c"]);
+      assertEnumProjectsTo(
+        [
+          [v1, 1],
+          [v2, 2],
+          [v3, 3],
+        ],
+        source
+      );
+    });
+
+    async function versionedEnum(versions: (string | number)[], enumCode: string) {
+      host.addCadlFile(
+        "main.cadl",
+        `
+      import "versioning";
+      @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+      namespace MyService;
+
+      @test ${enumCode}
+      `
+      );
+
+      const { Test } = (await host.compile("./main.cadl")) as { Test: EnumType };
+
+      return {
+        source: Test,
+        projections: versions.map((v) => {
+          return host.program.checker!.project(Test, Test.projections[0].to!, [v]) as EnumType;
+        }),
+      };
+    }
+  });
 
   function assertHasProperties(model: ModelType, props: string[]) {
     strictEqual(model.properties.size, props.length, `Model ${model.name} property count`);
@@ -537,6 +659,17 @@ describe("cadl: versioning", () => {
       );
     }
   }
+
+  function assertHasMembers(enumType: EnumType, members: string[]) {
+    strictEqual(enumType.members.length, members.length, `Enum ${enumType.name} member count`);
+    for (const member of members) {
+      ok(
+        enumType.members.findIndex((m) => m.name === member) > -1,
+        `Enum ${enumType.name} should have member ${member}`
+      );
+    }
+  }
+
   function assertModelProjectsTo(types: [ModelType, number][], target: ModelType) {
     types.forEach(([m, version]) => {
       const projection = host.program.checker!.project(m, m.projections[0].from!, [
@@ -568,6 +701,20 @@ describe("cadl: versioning", () => {
       strictEqual(projection.operations.size, target.operations.size);
       for (const prop of projection.operations.values()) {
         ok(target.operations.has(prop.name), "interface should have operation " + prop.name);
+      }
+    });
+  }
+  function assertEnumProjectsTo(types: [EnumType, number][], target: EnumType) {
+    types.forEach(([m, version]) => {
+      const projection = host.program.checker!.project(m, m.projections[0].from!, [
+        version,
+      ]) as EnumType;
+      strictEqual(projection.members.length, target.members.length);
+      for (const member of projection.members) {
+        ok(
+          target.members.findIndex((m) => m.name === member.name) > -1,
+          "enum should have operation " + member.name
+        );
       }
     });
   }

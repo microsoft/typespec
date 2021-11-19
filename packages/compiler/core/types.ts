@@ -327,6 +327,7 @@ export enum SyntaxKind {
   ProjectionOperationSelector,
   ProjectionUnionSelector,
   ProjectionInterfaceSelector,
+  ProjectionEnumSelector,
   ProjectionExpressionStatement,
   ProjectionIfExpression,
   ProjectionBlockExpression,
@@ -380,6 +381,7 @@ export type Node =
   | ProjectionModelSelectorNode
   | ProjectionInterfaceSelectorNode
   | ProjectionOperationSelectorNode
+  | ProjectionEnumSelectorNode
   | ProjectionUnionSelectorNode
   | ProjectionModelPropertyNode
   | ProjectionModelSpreadPropertyNode
@@ -709,6 +711,10 @@ export interface ProjectionUnionSelectorNode extends BaseNode {
   kind: SyntaxKind.ProjectionUnionSelector;
 }
 
+export interface ProjectionEnumSelectorNode extends BaseNode {
+  kind: SyntaxKind.ProjectionEnumSelector;
+}
+
 export type ProjectionStatementItem = ProjectionExpressionStatement;
 
 export interface ProjectionParameterDeclarationNode extends BaseNode {
@@ -840,6 +846,7 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode<Proje
     | ProjectionInterfaceSelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
+    | ProjectionEnumSelectorNode
     | MemberExpressionNode
     | IdentifierNode;
   to?: ProjectionNode;

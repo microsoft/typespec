@@ -184,6 +184,7 @@ export function createChecker(program: Program): Checker {
     ["Union", []],
     ["Operation", []],
     ["Interface", []],
+    ["Enum", []],
   ]);
   const projectionsByType = new Map<Type, ProjectionStatementNode[]>();
 
@@ -1899,6 +1900,21 @@ export function createChecker(program: Program): Checker {
     });
   }
 
+  /**
+   * Clone a type, resulting in an identical type with all the same decorators
+   * applied. Decorators are re-run on the clone to achieve this.
+   *
+   * Care is taken to clone nested data structures that are part of the type.
+   * Any type with e.g. a map or an array property must recreate the map or array
+   * so that clones don't share the same object.
+   *
+   * For types which have sub-types that are part of it, e.g. enums with members,
+   * unions with variants, or models with properties, the sub-types are cloned
+   * as well.
+   *
+   * If the entire type graph needs to be cloned, then cloneType must be called
+   * recursively by the caller.
+   */
   function cloneType<T extends Type>(type: T, additionalProps: { [P in keyof T]?: T[P] } = {}): T {
     // TODO: this needs to handle other types
     switch (type.kind) {
@@ -1929,6 +1945,12 @@ export function createChecker(program: Program): Checker {
         return finishType({
           ...type,
           operations: new Map(type.operations.entries()),
+          ...additionalProps,
+        });
+      case "Enum":
+        return finishType({
+          ...type,
+          members: [...type.members.map((v) => cloneType(v))],
           ...additionalProps,
         });
       default:
@@ -2004,6 +2026,10 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ProjectionInterfaceSelector:
         projectionsByTypeKind.get("Interface")!.push(node);
         type.nodeByKind.set("Interface", node);
+        break;
+      case SyntaxKind.ProjectionEnumSelector:
+        projectionsByTypeKind.get("Enum")!.push(node);
+        type.nodeByKind.set("Enum", node);
         break;
       default:
         const projected = checkTypeReference(node.selector);
@@ -2106,7 +2132,8 @@ export function createChecker(program: Program): Checker {
       target.kind !== "Interface" &&
       target.kind !== "Model" &&
       target.kind !== "Operation" &&
-      target.kind !== "Union"
+      target.kind !== "Union" &&
+      target.kind !== "Enum"
     ) {
       throw new Error(`Can't project ${target.kind} type.`);
     }
@@ -2901,6 +2928,97 @@ export function createChecker(program: Program): Checker {
             );
           default:
             throw new Error(`Interface doesn't have member ${member}`);
+        }
+      case "Enum":
+        switch (member) {
+          case "projectionSource":
+            return base.projectionSource?.projectionSource ?? voidType;
+          case "members":
+            const props: ObjectType = createType({
+              kind: "Object",
+              properties: {},
+            });
+
+            props.properties.forEach = functionTypeFromFunction(
+              (_: Program, block: FunctionType) => {
+                const props = Array.from(base.members);
+                props.forEach((p) => block.call(p));
+                return voidType;
+              }
+            );
+
+            return props;
+          case "name":
+            return valueToLiteralType(base.name);
+          case "addMember":
+            return functionTypeFromFunction((_: Program, nameT: Type, type?: Type) => {
+              if (nameT.kind !== "String") {
+                throw new TypeError(`Enum member names must be string`);
+              }
+              const name = literalTypeToValue(nameT);
+
+              const member = base.members.find((member) => member.name === name);
+              if (member) {
+                throw new Error(`Enum already has a member named ${name}`);
+              }
+
+              if (type && type.kind !== "String" && type.kind !== "Number") {
+                throw new TypeError(`Enum types must be either string or number`);
+              }
+
+              base.members.push(
+                createType({
+                  kind: "EnumMember",
+                  enum: base,
+                  name,
+                  decorators: [],
+                  node: undefined as any,
+                  type,
+                })
+              );
+
+              return voidType;
+            });
+          case "deleteMember":
+            return functionTypeFromFunction((_: Program, nameT: Type) => {
+              if (nameT.kind !== "String") {
+                throw new TypeError(`Enum member names must be string`);
+              }
+              const name = literalTypeToValue(nameT);
+
+              const member = base.members.findIndex((member) => member.name === name);
+              if (member === -1) return voidType;
+
+              base.members.splice(member, 1);
+
+              return voidType;
+            });
+          case "renameMember":
+            return functionTypeFromFunction((_: Program, nameT: Type, newNameT: Type) => {
+              if (nameT.kind !== "String" || newNameT.kind !== "String") {
+                throw new TypeError(`Enum member names must be string`);
+              }
+              const name = literalTypeToValue(nameT);
+              const newName = literalTypeToValue(newNameT);
+
+              const member = base.members.find((member) => member.name === name);
+              if (!member) {
+                throw new Error(`Enum doesn't have member ${name}`);
+              }
+              member.name = newName;
+              return voidType;
+            });
+          default:
+            throw new Error(`Enum doesn't have member ${member}`);
+        }
+      case "EnumMember":
+        switch (member) {
+          case "name":
+            return valueToLiteralType(base.name);
+          case "type":
+            return base.value ? valueToLiteralType(base.value) : neverType;
+          default:
+            throw new Error(`Enum member doesn't have member ${member}`);
         }
       case "Object":
         return base.properties[member] || errorType;

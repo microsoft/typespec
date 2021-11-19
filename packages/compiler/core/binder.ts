@@ -337,6 +337,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           ? "op"
           : node.selector.kind === SyntaxKind.ProjectionUnionSelector
           ? "union"
+          : node.selector.kind === SyntaxKind.ProjectionEnumSelector
+          ? "enum"
           : "interface";
 
       if (sym.byKind.has(selectorString)) {

@@ -42,6 +42,7 @@ import {
   NumericLiteralNode,
   OperationStatementNode,
   ProjectionBlockExpressionNode,
+  ProjectionEnumSelectorNode,
   ProjectionExpression,
   ProjectionExpressionStatement,
   ProjectionIfExpressionNode,
@@ -1693,14 +1694,16 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
     | ProjectionOperationSelectorNode
-    | ProjectionUnionSelectorNode {
+    | ProjectionUnionSelectorNode
+    | ProjectionEnumSelectorNode {
     const pos = tokenPos();
     const selectorTok = expectTokenIsOneOf(
       Token.Identifier,
       Token.ModelKeyword,
       Token.OpKeyword,
       Token.InterfaceKeyword,
-      Token.UnionKeyword
+      Token.UnionKeyword,
+      Token.EnumKeyword
     );
 
     switch (selectorTok) {
@@ -1728,6 +1731,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         nextToken();
         return {
           kind: SyntaxKind.ProjectionUnionSelector,
+          ...finishNode(pos),
+        };
+      case Token.EnumKeyword:
+        nextToken();
+        return {
+          kind: SyntaxKind.ProjectionEnumSelector,
           ...finishNode(pos),
         };
     }
@@ -2238,6 +2247,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.ProjectionUnionSelector:
     case SyntaxKind.ProjectionInterfaceSelector:
     case SyntaxKind.ProjectionOperationSelector:
+    case SyntaxKind.ProjectionEnumSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
       return;

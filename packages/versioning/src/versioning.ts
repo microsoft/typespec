@@ -81,7 +81,8 @@ export function getVersions(p: Program, t: Type): (string | number)[] {
     t.kind === "Operation" ||
     t.kind === "Interface" ||
     t.kind === "Model" ||
-    t.kind === "Union"
+    t.kind === "Union" ||
+    t.kind === "Enum"
   ) {
     return getVersion(p, t.namespace!) || [];
   } else {

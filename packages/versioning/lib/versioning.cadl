@@ -165,3 +165,49 @@ projection model#v {
     };
   }
 }
+
+#suppress "projections-are-experimental"
+projection enum#v {
+  to(version) {
+    if addedAfter(self, version) {
+      return never;
+    } else if (removedOnOrBefore(self, version)) {
+      return never;
+    } else {
+      self.members.forEach((m) => {
+        if addedAfter(m, version, self) {
+          self.deleteMember(m.name);
+        };
+        
+        if removedOnOrBefore(m, version, self) {
+          self.deleteMember(m.name);
+        };
+        
+        if renamedAfter(m, version, self) {
+          self.renameMember(m.name, getRenamedFromOldName(m));
+        };
+      });
+    };
+  }
+  from(version) {
+    if addedAfter(self, version) {
+      return never;
+    } else if (removedOnOrBefore(self, version)) {
+      return never;
+    } else {
+      self.projectionSource.members.forEach((m) => {
+        if addedAfter(m, version, self) {
+          self.addMember(m.name, m.type);
+        };
+        
+        if removedOnOrBefore(m, version, self) {
+          self.addMember(m.name, m.type);
+        };
+
+        if renamedAfter(m, version, self) {
+          self.renameMember(getRenamedFromOldName(m), m.name);
+        };
+      });
+    };
+  }
+}
