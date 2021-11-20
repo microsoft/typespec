@@ -1118,7 +1118,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     } else if (token() !== Token.Identifier) {
       // Error recovery: when we fail to parse an identifier or expression,
       // we insert a synthesized identifier with a unique name.
-      error({ code: "token-expected", messageId: message ?? "identifer" });
+      error({ code: "token-expected", messageId: message ?? "identifier" });
       return createMissingIdentifier();
     }
 
@@ -1554,7 +1554,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
             end: expr.end,
           });
         } else {
-          error({ code: "token-expected", messageId: "identifer", target: expr });
+          error({ code: "token-expected", messageId: "identifier", target: expr });
         }
       }
 

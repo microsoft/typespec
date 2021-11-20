@@ -1747,6 +1747,11 @@ export function createChecker(program: Program): Checker {
     return finishType(typeDef as any) as any;
   }
 
+  /**
+   * Given the own-properties of a type, returns a fully-initialized type.
+   * So far, that amounts to setting the prototype to typePrototype which
+   * contains the `projections` getter.
+   */
   function createType<T>(typeDef: T): T & typeof typePrototype {
     Object.setPrototypeOf(typeDef, typePrototype);
     return typeDef as any;
@@ -2090,7 +2095,7 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.Return:
         return evalReturnKeyword(node);
       default:
-        throw new Error("Can't eval " + SyntaxKind[node.kind]);
+        compilerAssert(false, `Can't eval the node ${SyntaxKind[node.kind]}`);
     }
   }
 

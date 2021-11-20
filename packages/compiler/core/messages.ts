@@ -129,7 +129,7 @@ const diagnostics = {
       default: paramMessage`${"token"} expected.`,
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal",
-      identifer: "Identifier expected.",
+      identifier: "Identifier expected.",
       projectionDirection: "from or to expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
