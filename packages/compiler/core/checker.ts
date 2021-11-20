@@ -437,9 +437,7 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function checkTypeReference(
-    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
-  ): Type {
+  function checkTypeReference(node: TypeReferenceNode): Type {
     const sym = resolveTypeReference(node);
     if (!sym) {
       return errorType;

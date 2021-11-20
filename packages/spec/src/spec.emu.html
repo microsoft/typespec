@@ -432,14 +432,14 @@ DecoratorArguments :
 
 
 ProjectionStatement :
-    `project` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`
+    `projection` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`
 
 ProjectionSelector :
     `model`
     `interface`
     `op`
     `union`
-    Identifier
+    ReferenceExpression
 
 ProjectionDirection :
     `to`

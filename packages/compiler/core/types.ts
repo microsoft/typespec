@@ -238,7 +238,7 @@ export interface ProjectionSymbol {
   name: string;
   node: ProjectionStatementNode;
   byKind: Map<string, { to?: ProjectionNode; from?: ProjectionNode }>;
-  byId: Map<IdentifierNode | MemberExpressionNode, { to?: ProjectionNode; from?: ProjectionNode }>;
+  byId: Map<TypeReferenceNode, { to?: ProjectionNode; from?: ProjectionNode }>;
   id?: number;
 }
 
@@ -849,8 +849,7 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode<Proje
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
     | ProjectionEnumSelectorNode
-    | MemberExpressionNode
-    | IdentifierNode;
+    | TypeReferenceNode;
   to?: ProjectionNode;
   from?: ProjectionNode;
 }

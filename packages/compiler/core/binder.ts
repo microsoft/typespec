@@ -326,10 +326,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     }
     node.symbol = sym;
 
-    if (
-      node.selector.kind !== SyntaxKind.MemberExpression &&
-      node.selector.kind !== SyntaxKind.Identifier
-    ) {
+    if (node.selector.kind !== SyntaxKind.TypeReference) {
       const selectorString =
         node.selector.kind === SyntaxKind.ProjectionModelSelector
           ? "model"

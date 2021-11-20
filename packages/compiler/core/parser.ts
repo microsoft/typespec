@@ -1703,8 +1703,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
   function parseProjectionSelector():
-    | IdentifierNode
-    | MemberExpressionNode
+    | TypeReferenceNode
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
     | ProjectionOperationSelectorNode
@@ -1722,7 +1721,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     switch (selectorTok) {
       case Token.Identifier:
-        return parseIdentifierOrMemberExpression();
+        return parseReferenceExpression();
       case Token.ModelKeyword:
         nextToken();
         return {
