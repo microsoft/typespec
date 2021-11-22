@@ -57,9 +57,12 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[cadl]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
     "editor.insertSpaces": true,
+    "editor.tabSize": 2,
     "editor.detectIndentation": false,
-    "editor.tabSize": 2
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[csharp]": {
     "editor.insertSpaces": true,
@@ -96,6 +99,8 @@
     "CADL_VERBOSE_TEST_OUTPUT": "true",
     "NODE_OPTIONS": "--stack-trace-limit=50"
   },
+  "prettier.prettierPath": "./packages/compiler/node_modules/prettier",
+  "prettier.documentSelectors": ["**/*.cadl"],
   "testExplorer.errorDecoration": false,
   "cadl.cadl-server.path": "${workspaceRoot}/packages/compiler"
 }

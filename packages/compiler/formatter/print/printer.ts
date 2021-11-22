@@ -605,6 +605,7 @@ function isModelAValue(path: AstPath<Node>): boolean {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.AliasStatement:
+      case SyntaxKind.OperationStatement:
         return false;
       case SyntaxKind.DecoratorExpression:
         return true;
@@ -644,7 +645,7 @@ function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
 
   switch (parent?.kind) {
     case SyntaxKind.OperationStatement:
-      return false;
+      return parent.parameters !== path.getNode();
     default:
       return true;
   }
