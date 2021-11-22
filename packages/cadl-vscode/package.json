@@ -45,6 +45,9 @@
           ".cadl"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "markdown-cadl"
       }
     ],
     "configuration": [
@@ -67,7 +70,7 @@
         "path": "./dist/cadl.tmLanguage"
       },
       {
-        "language": "cadl",
+        "language": "markdown-cadl",
         "scopeName": "markdown.cadl.codeblock",
         "path": "./markdown-cadl.json",
         "injectTo": [
