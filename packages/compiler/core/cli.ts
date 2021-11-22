@@ -66,6 +66,12 @@ async function main() {
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
+          .option("dev-server", {
+            type: "boolean",
+            default: false,
+            describe:
+              "Start a dev server that will recompile on change, expose the output as http endpoint and let extension present UI.",
+          })
           .option("diagnostic-level", {
             type: "string",
             default: "info",
@@ -185,9 +191,10 @@ function compileInput(
 ): Promise<Program> {
   let compileRequested: boolean = false;
   let currentCompilePromise: Promise<Program> | undefined = undefined;
+  const watchForChanges = compilerOptions.watchForChanges || compilerOptions.useDevServer;
 
   let log = (message?: any, ...optionalParams: any[]) => {
-    let prefix = compilerOptions.watchForChanges ? `[${new Date().toLocaleTimeString()}] ` : "";
+    let prefix = watchForChanges ? `[${new Date().toLocaleTimeString()}] ` : "";
     console.log(`${prefix}${message}`, ...optionalParams);
   };
 
@@ -195,7 +202,7 @@ function compileInput(
     // Don't run the compiler if it's already running
     if (!currentCompilePromise) {
       // Clear the console before compiling in watch mode
-      if (compilerOptions.watchForChanges) {
+      if (watchForChanges) {
         console.clear();
       }
 
@@ -222,7 +229,7 @@ function compileInput(
 
     console.log(); // Insert a newline
     currentCompilePromise = undefined;
-    if (compilerOptions.watchForChanges && compileRequested) {
+    if (watchForChanges && compileRequested) {
       compileRequested = false;
       runCompile();
     }
@@ -230,7 +237,7 @@ function compileInput(
     return program;
   };
 
-  if (compilerOptions.watchForChanges) {
+  if (watchForChanges) {
     runCompile();
     return new Promise((resolve, reject) => {
       const watcher = watch(
@@ -273,6 +280,7 @@ async function getCompilerOptions(args: {
   option?: string[];
   import?: string[];
   watch?: boolean;
+  "dev-server"?: boolean;
   "diagnostic-level": string;
 }): Promise<CompilerOptions> {
   // Ensure output path
@@ -297,6 +305,7 @@ async function getCompilerOptions(args: {
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
     watchForChanges: args["watch"],
+    useDevServer: args["dev-server"],
     diagnosticLevel: args["diagnostic-level"] as any,
   };
 }

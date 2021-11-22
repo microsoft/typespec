@@ -8,6 +8,7 @@ export interface CompilerOptions {
   noEmit?: boolean;
   additionalImports?: string[];
   watchForChanges?: boolean;
+  useDevServer?: boolean;
   serviceCodePath?: string;
   diagnosticLevel?: LogLevel;
   /**
