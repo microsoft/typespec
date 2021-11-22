@@ -37,6 +37,20 @@ import "@azure-tools/cadl-rpaas";
     });
   });
 
+  it("formats returns of anonymous models", () => {
+    assertFormat({
+      code: `
+op test(): { a: string; b: string; };
+`,
+      expected: `
+op test(): {
+  a: string;
+  b: string;
+};
+`,
+    });
+  });
+
   it("format using", () => {
     assertFormat({
       code: `

@@ -65,6 +65,17 @@
         "language": "cadl",
         "scopeName": "source.cadl",
         "path": "./dist/cadl.tmLanguage"
+      },
+      {
+        "language": "cadl",
+        "scopeName": "markdown.cadl.codeblock",
+        "path": "./markdown-cadl.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.cadl": "cadl"
+        }
       }
     ]
   },
