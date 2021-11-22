@@ -10,6 +10,7 @@ import { loadCadlConfigInDir } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
+import { CadlDevServer, startDevServer } from "./dev-server.js";
 import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
 import { installCadlDependencies } from "./install.js";
@@ -198,6 +199,11 @@ function compileInput(
     console.log(`${prefix}${message}`, ...optionalParams);
   };
 
+  let server: CadlDevServer | undefined;
+  if (compilerOptions.useDevServer) {
+    server = startDevServer();
+  }
+
   let runCompile = () => {
     // Don't run the compiler if it's already running
     if (!currentCompilePromise) {
@@ -206,7 +212,9 @@ function compileInput(
         console.clear();
       }
 
-      currentCompilePromise = compile(path, NodeHost, compilerOptions).then(onCompileFinished);
+      currentCompilePromise = compile(path, server?.host ?? NodeHost, compilerOptions).then(
+        onCompileFinished
+      );
     } else {
       compileRequested = true;
     }
@@ -255,6 +263,11 @@ function compileInput(
       process.on("SIGINT", () => {
         watcher.close();
         console.info("Terminating watcher...\n");
+        if (server) {
+          console.info("Terminating server...\n");
+          server.server.close();
+          process.kill(1);
+        }
       });
     });
   } else {
