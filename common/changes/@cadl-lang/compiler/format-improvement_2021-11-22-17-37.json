@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix formatting bug with operations returning anonymous models",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

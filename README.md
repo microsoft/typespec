@@ -98,7 +98,7 @@ Here is a very small Cadl example that uses the `@cadl-lang/openapi3` library to
 
 #### sample.cadl
 
-```
+```cadl
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
 
@@ -109,6 +109,7 @@ namespace Example {
   @get("/message")
   op getMessage(): string;
 }
+
 ```
 
 You can compile it to OpenAPI 3.0 by using the following command:
