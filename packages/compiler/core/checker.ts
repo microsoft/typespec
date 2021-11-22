@@ -2656,7 +2656,6 @@ export function createChecker(program: Program): Checker {
                 }
 
                 if (projection.kind !== "Projection") {
-                  console.log(projection);
                   throw new Error("`projectVariant` takes a name and a projection");
                 }
 
@@ -2725,6 +2724,33 @@ export function createChecker(program: Program): Checker {
             });
           case "type":
             return base.type;
+          case "project":
+            return functionTypeFromFunction((_: Program, projection: Type, ...args: Type[]) => {
+              if (projection.kind !== "Projection") {
+                throw new Error("`projectVariant` takes a name and a projection");
+              }
+
+              let outerInstructions: ProjectionInstruction[];
+              if (emitInstructions) {
+                outerInstructions = emittedInstructions;
+                emittedInstructions = [];
+              }
+              const projectionNode =
+                projection.nodeByType.get(base.type) ?? projection.nodeByKind.get(base.type.kind);
+
+              if (!projectionNode) {
+                return voidType;
+              }
+              const projectedType = evalProjectionStatement(
+                projectionNode[currentProjectionDirection!]!,
+                base.type,
+                args
+              ) as UnionTypeVariant;
+
+              base.type = projectedType;
+
+              return voidType;
+            });
           default:
             throw new Error("Union variant doesn't have member " + member);
         }

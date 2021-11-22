@@ -35,7 +35,8 @@
   ],
   "dependencies": {
     "@cadl-lang/compiler": "0.24.0",
-    "@cadl-lang/rest": "0.7.0"
+    "@cadl-lang/rest": "0.7.0",
+    "@cadl-lang/versioning": "0.1.0"
   },
   "devDependencies": {
     "@types/mocha": "~7.0.2",

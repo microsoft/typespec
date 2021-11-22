@@ -82,7 +82,7 @@ projection union#v {
         } else if renamedAfter(variant, version, self) {
           self.renameVariant(variant.name, getRenamedFromOldName(variant));
         } else {
-          self.projectVariant(variant.name, v, version);
+          variant.project(v, version);
         };
       });
     };
@@ -101,7 +101,7 @@ projection union#v {
         } else if renamedAfter(variant, version, self) {
           self.renameVariant(getRenamedFromOldName(variant), variant.name);
         } else {
-          self.projectVariant(variant.name, v, version);
+          variant.project(v, version);
         };
       });
     };

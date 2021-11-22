@@ -31,9 +31,9 @@ import {
   UnionType,
 } from "@cadl-lang/compiler";
 import { getInterfaceOperations, http, OperationDetails } from "@cadl-lang/rest";
+import { getVersions } from "@cadl-lang/versioning";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
-
 const {
   basePathForRoute,
   getHeaderFieldName,
@@ -202,6 +202,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   let currentBasePath: string | undefined = "";
   let currentPath: any = root.paths;
   let currentEndpoint: any;
+  let currentVersion: string | number | undefined;
 
   // Keep a list of all Types encountered that need schema definitions
   const schemas = new Set<Type>();
@@ -218,42 +219,47 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   async function emitOpenAPI() {
     try {
-      for (let route of getRoutes(program)) {
-        if (route.kind !== "Namespace" && route.kind !== "Interface") {
-          reportDiagnostic(program, {
-            code: "resource-namespace",
-            target: route,
-          });
-          continue;
+      const routes = getRoutes(program);
+      const versions = getVersions(program, routes[0]) ?? [undefined];
+      for (const [index, version] of versions.entries()) {
+        currentVersion = version;
+        for (let route of routes) {
+          if (route.kind !== "Namespace" && route.kind !== "Interface") {
+            reportDiagnostic(program, {
+              code: "resource-namespace",
+              target: route,
+            });
+            continue;
+          }
+
+          // An interface can have @route applied but is handled by emitInterface
+          if (route.kind === "Namespace") {
+            emitRoute(route as NamespaceType);
+          }
         }
 
-        // An interface can have @route applied but is handled by emitInterface
-        if (route.kind === "Namespace") {
-          emitRoute(route as NamespaceType);
+        const actualNamespace = getServiceNamespace(program);
+        if (actualNamespace) {
+          emitInterfaces(actualNamespace);
         }
-      }
 
-      const actualNamespace = getServiceNamespace(program);
-      if (actualNamespace) {
-        emitInterfaces(actualNamespace);
-      }
+        emitReferences();
+        emitTags();
 
-      emitReferences();
-      emitTags();
-
-      // Clean up empty entries
-      for (let elem of Object.keys(root.components)) {
-        if (Object.keys(root.components[elem]).length === 0) {
-          delete root.components[elem];
+        // Clean up empty entries
+        for (let elem of Object.keys(root.components)) {
+          if (Object.keys(root.components[elem]).length === 0) {
+            delete root.components[elem];
+          }
         }
-      }
 
-      if (!program.compilerOptions.noEmit && !program.hasError()) {
-        // Write out the OpenAPI document to the output path
-        await program.host.writeFile(
-          path.resolve(options.outputFile),
-          prettierOutput(JSON.stringify(root, null, 2))
-        );
+        if (!program.compilerOptions.noEmit && !program.hasError()) {
+          // Write out the OpenAPI document to the output path
+          await program.host.writeFile(
+            path.resolve(options.outputFile.replace(".json", `.v${index}.json`)),
+            prettierOutput(JSON.stringify(root, null, 2))
+          );
+        }
       }
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -270,7 +276,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentBasePath = basePathForRoute(program, route);
 
     for (const [_, op] of route.operations) {
-      emitEndpoint(route, op);
+      if (currentVersion) {
+        const projectedOp = program.checker!.project(op, op.projections[0].to!, [
+          currentVersion,
+        ]) as OperationType;
+        emitEndpoint(route, projectedOp);
+      } else {
+        emitEndpoint(route, op);
+      }
     }
   }
 
