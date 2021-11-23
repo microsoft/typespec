@@ -84,7 +84,11 @@ export function getVersions(p: Program, t: Type): (string | number)[] {
     t.kind === "Union" ||
     t.kind === "Enum"
   ) {
-    return getVersion(p, t.namespace!) || [];
+    if (t.namespace) {
+      return getVersions(p, t.namespace!) || [];
+    } else {
+      return [];
+    }
   } else {
     return [];
   }
@@ -143,7 +147,9 @@ function appliesAtVersion(
   }
 
   const versions = getVersions(p, versionSource ?? type);
-  if (!versions || versions.length === 0) return null;
+  if (!versions || versions.length === 0) {
+    return null;
+  }
   const appliedOnVersion = getMetadataFn(p, type);
   const appliedOnVersionIndex = versions.indexOf(appliedOnVersion);
   if (appliedOnVersionIndex === -1) return null;

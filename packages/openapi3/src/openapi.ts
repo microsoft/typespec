@@ -17,6 +17,7 @@ import {
   getServiceVersion,
   getVisibility,
   InterfaceType,
+  IntrinsicType,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -169,38 +170,13 @@ export interface OpenAPIEmitterOptions {
 }
 
 function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
-  const root: any = {
-    openapi: "3.0.0",
-    info: {
-      title: getServiceTitle(program),
-      version: getServiceVersion(program),
-    },
-    tags: [],
-    paths: {},
-    components: {
-      parameters: {},
-      requestBodies: {},
-      responses: {},
-      schemas: {},
-      examples: {},
-      securitySchemes: {},
-    },
-  };
-
-  const host = getServiceHost(program);
-  if (host) {
-    root.servers = [
-      {
-        url: "https://" + host,
-      },
-    ];
-  }
+  let root: any;
 
   // Get the service namespace string for use in name shortening
   const serviceNamespace: string | undefined = getServiceNamespaceString(program);
 
-  let currentBasePath: string | undefined = "";
-  let currentPath: any = root.paths;
+  let currentBasePath: string | undefined;
+  let currentPath: any;
   let currentEndpoint: any;
   let currentVersion: string | number | undefined;
 
@@ -217,11 +193,45 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   return { emitOpenAPI };
 
+  function initializeOpenAPI() {
+    root = {
+      openapi: "3.0.0",
+      info: {
+        title: getServiceTitle(program),
+        version: getServiceVersion(program),
+      },
+      tags: [],
+      paths: {},
+      components: {
+        parameters: {},
+        requestBodies: {},
+        responses: {},
+        schemas: {},
+        examples: {},
+        securitySchemes: {},
+      },
+    };
+
+    const host = getServiceHost(program);
+    if (host) {
+      root.servers = [
+        {
+          url: "https://" + host,
+        },
+      ];
+    }
+
+    currentBasePath = "";
+    currentPath = root.paths;
+    currentEndpoint = undefined;
+    currentVersion = undefined;
+  }
   async function emitOpenAPI() {
     try {
       const routes = getRoutes(program);
       const versions = getVersions(program, routes[0]) ?? [undefined];
       for (const [index, version] of versions.entries()) {
+        initializeOpenAPI();
         currentVersion = version;
         for (let route of routes) {
           if (route.kind !== "Namespace" && route.kind !== "Interface") {
@@ -279,7 +289,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       if (currentVersion) {
         const projectedOp = program.checker!.project(op, op.projections[0].to!, [
           currentVersion,
-        ]) as OperationType;
+        ]) as OperationType | IntrinsicType;
+        if (projectedOp.kind === "Intrinsic") {
+          continue;
+        }
         emitEndpoint(route, projectedOp);
       } else {
         emitEndpoint(route, op);
