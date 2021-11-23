@@ -1,10 +1,10 @@
 {
   "changes": [
     {
-      "packageName": "@cadl-lang/rest",
+      "packageName": "cadl-vscode",
       "comment": "",
       "type": "none"
     }
   ],
-  "packageName": "@cadl-lang/rest"
+  "packageName": "cadl-vscode"
 }

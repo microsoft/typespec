@@ -33,6 +33,7 @@ const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
+const universalEndExceptComma = `(?=;|@|\\)|\\}|${statementKeyword})`;
 const hexNumber = "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)";
 const binaryNumber = "\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)";
 const decimalNumber =
@@ -228,7 +229,7 @@ const modelHeritage: BeginEndRule = {
   beginCaptures: {
     "1": { scope: "keyword.other.cadl" },
   },
-  end: `((?=\\{)|${universalEnd})`,
+  end: `((?=\\{)|${universalEndExceptComma})`,
   patterns: [expression],
 };
 
@@ -363,7 +364,7 @@ const interfaceHeritage: BeginEndRule = {
   beginCaptures: {
     "1": { scope: "keyword.other.cadl" },
   },
-  end: `((?=\\{)|${universalEnd})`,
+  end: `((?=\\{)|${universalEndExceptComma})`,
   patterns: [expression],
 };
 

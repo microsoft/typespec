@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Remove @list decorator",
-      "type": "minor"
+      "comment": "Fix formatting bug with operations returning anonymous models",
+      "type": "patch"
     }
   ],
   "packageName": "@cadl-lang/compiler"

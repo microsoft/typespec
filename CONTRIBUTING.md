@@ -1,12 +1,14 @@
 # Prerequisites
-* Install [Node.js](https://nodejs.org/) 14 LTS or 16 LTS
-* Install [Rush](https://rushjs.io/)
+
+- Install [Node.js](https://nodejs.org/) 14 LTS or 16 LTS
+- Install [Rush](https://rushjs.io/)
 
 ```
 npm install -g @microsoft/rush
 ```
 
 # Installing NPM dependencies
+
 ```
 rush update
 ```
@@ -21,28 +23,37 @@ using the command line.
 # Using command line
 
 ## Rebuild the whole repo
+
 ```
 rush rebuild
 ```
+
 This will build all projects in the correct dependency order.
 
 ## Build the whole repo incrementally
+
 ```
 rush build
 ```
+
 This will build all projects that have changed since the last `rush build` in
 dependency order.
 
 ## Build an individual package on the command line
+
 ```
 cd packages/<project>
 rushx build
 ```
+
 ## Run all tests for the whole repo
+
 ```
 rush test
 ```
+
 ## Run tests for an individual package
+
 ```
 cd packages/<project>
 rushx test
@@ -55,9 +66,11 @@ this output on the command line, set environment variable
 ADL_VERBOSE_TEST_OUPUT=true.
 
 ## Reformat source code
+
 ```
 rush format
 ```
+
 PR validation enforces code formatting style rules for the repo. This
 command will reformat code automatically so that it passes.
 
@@ -70,6 +83,7 @@ whenever you save.
 # Using VS Code
 
 ## Recommended extensions
+
 1. [Mocha Test
    Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter):
    Run tests from the IDE.
@@ -82,12 +96,13 @@ Always open the root of the repo as the workspace. Things are setup to
 allow easy development across packages rather than opening one package
 at a time in the IDE.
 
- * File -> Open Workspace, select root folder where the Cadl repo was
-   cloned
- * Or run `code /path/to/repo/root` on the command line
+- File -> Open Workspace, select root folder where the Cadl repo was
+  cloned
+- Or run `code /path/to/repo/root` on the command line
 
 ## Building
-* Terminal -> Run Build Task (`Ctrl+Shift+B`)
+
+- Terminal -> Run Build Task (`Ctrl+Shift+B`)
 
 This will setup a an incremental watching build for the whole
 repo. From there on, your changes will be built whenever you save.
@@ -95,13 +110,14 @@ repo. From there on, your changes will be built whenever you save.
 Problems will be reported in the Problems pane auotomatically and the
 Terminal pane will have three parallel watch tasks running:
 
-  * `watch-source`: tsc process that recompiles on TypeScript changes
-  * `watch-spec`: process that regenerates spec.html when
-    spec.emu.html changes
-  * `watch-tmlanguage`: process that regenerates cadl.tmlanguage when
-    tmlanguage.ts changes
+- `watch-source`: tsc process that recompiles on TypeScript changes
+- `watch-spec`: process that regenerates spec.html when
+  spec.emu.html changes
+- `watch-tmlanguage`: process that regenerates cadl.tmlanguage when
+  tmlanguage.ts changes
 
 ## Testing
+
 With [Mocha Test
 Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter)
 installed, click on its icon in the sidebar, then click on the play
@@ -115,6 +131,7 @@ output pane. Unlike the command line, no environment variable is
 needed.
 
 ## Debugging
+
 There are several "Run and Debug" tasks set up. Click on the Run and
 Debug icon on the sidebar, pick one from its down, and press F5 to
 debug the last one you chose.
@@ -143,12 +160,14 @@ debug the last one you chose.
 # Developing the Visual Studio Extension
 
 ## Prerequisites
+
 Install [Visual Studio](https://visualstudio.microsoft.com/vs/) 16.9
-or later.  It is not currently possible to build the VS extension
+or later. It is not currently possible to build the VS extension
 without it, and of course you'll need Visual Studio to run and debug
 the Visual Studio extension.
 
 ## Build VS extension on the command line
+
 See the command line build steps above. If you have VS installed,
 the VS extension will be included in your command line full repo
 builds automatically.
@@ -158,15 +177,17 @@ will simply skip building the VS extension and only build the VS Code
 extension.
 
 ## Build VS extension in VS
-* Open packages/cadl-vs/Microsoft.Cadl.VisualStudio.sln in Visual Studio
-* Build -> Build solution (`Ctrl+Shift+B`)
+
+- Open packages/cadl-vs/Microsoft.Cadl.VisualStudio.sln in Visual Studio
+- Build -> Build solution (`Ctrl+Shift+B`)
 
 Unlike TypeScript in VS Code above, this is not a watching build, but
 it is relatively fast to run. Press Ctrl+Shift+B again to build any
 changes after you make them.
 
 ## Debug VS extension
-* Click on the play icon in the toolbar or press `F5`
+
+- Click on the play icon in the toolbar or press `F5`
 
 This will run and debug an experimental instance of VS with a version
 of the Cadl extension for VS Code running live with any of your changes
@@ -177,6 +198,7 @@ to Lanugage Server" described above to debug the language server in
 VS Code.
 
 # Installing your build
+
 ```
 rush dogfood
 ```
@@ -189,9 +211,9 @@ Note the important difference between this and the steps to run and
 debug the VS Code extension above: the `dogfood` command installs the
 Cadl extension with your changes in regular, non-experimental instance
 of VS Code, meaning you will have it always, and not only when running
-the debug steps above. This is exactly like using `cadl vscode
-install`, only instead of downloading the latest release, it uses a
-build with your changes applied.
+the debug steps above. This is exactly like using `cadl vscode install`,
+only instead of downloading the latest release, it uses a build with your
+changes applied.
 
 There is no automatic `dogfood` process for installing the VS
 extension non-experimentally, but if you build the cadl-vs project from

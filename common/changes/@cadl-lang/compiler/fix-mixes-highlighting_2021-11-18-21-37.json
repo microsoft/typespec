@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Ensure interface is assigned for checked operations",
+      "comment": "Fix crash in language server",
       "type": "patch"
     }
   ],

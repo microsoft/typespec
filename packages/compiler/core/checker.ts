@@ -732,9 +732,12 @@ export function createChecker(program: Program): Checker {
 
   function resolveIdentifierInTable(
     node: IdentifierNode,
-    table: SymbolTable,
+    table: SymbolTable | undefined,
     resolveDecorator = false
   ) {
+    if (!table) {
+      return undefined;
+    }
     let sym;
     if (resolveDecorator) {
       sym = table.get("@" + node.sv);
@@ -759,17 +762,17 @@ export function createChecker(program: Program): Checker {
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       const base = resolveTypeReference(identifier.parent.base, resolveDecorator);
       if (base && base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
-        addCompletions(base.node.exports!);
+        addCompletions(base.node.exports);
       }
     } else {
       let scope: Node | undefined = identifier.parent;
       while (scope && scope.kind !== SyntaxKind.CadlScript) {
         if ("exports" in scope) {
           const mergedSymbol = getMergedSymbol(scope.symbol) as TypeSymbol;
-          addCompletions((mergedSymbol.node as ContainerNode).exports!);
+          addCompletions((mergedSymbol.node as ContainerNode).exports);
         }
         if ("locals" in scope) {
-          addCompletions(scope.locals!);
+          addCompletions(scope.locals);
         }
         scope = scope.parent;
       }
@@ -778,14 +781,14 @@ export function createChecker(program: Program): Checker {
         // check any blockless namespace decls
         for (const ns of scope.inScopeNamespaces) {
           const mergedSymbol = getMergedSymbol(ns.symbol) as TypeSymbol;
-          addCompletions((mergedSymbol.node as ContainerNode).exports!);
+          addCompletions((mergedSymbol.node as ContainerNode).exports);
         }
 
         // check "global scope" declarations
-        addCompletions(globalNamespaceNode.exports!);
+        addCompletions(globalNamespaceNode.exports);
 
         // check "global scope" usings
-        addCompletions(scope.locals!);
+        addCompletions(scope.locals);
       }
     }
 
@@ -805,7 +808,10 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    function addCompletions(table: SymbolTable) {
+    function addCompletions(table: SymbolTable | undefined) {
+      if (!table) {
+        return;
+      }
       for (let [key, value] of table) {
         if (resolveDecorator !== key.startsWith("@")) {
           continue;
@@ -835,14 +841,14 @@ export function createChecker(program: Program): Checker {
         const mergedSymbol = getMergedSymbol(scope.symbol) as TypeSymbol;
         binding = resolveIdentifierInTable(
           node,
-          (mergedSymbol.node as ContainerNode).exports!,
+          (mergedSymbol.node as ContainerNode).exports,
           resolveDecorator
         );
         if (binding) return binding;
       }
 
       if ("locals" in scope) {
-        binding = resolveIdentifierInTable(node, scope.locals!, resolveDecorator);
+        binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
         if (binding) return binding;
       }
 
@@ -855,18 +861,18 @@ export function createChecker(program: Program): Checker {
         const mergedSymbol = getMergedSymbol(ns.symbol) as TypeSymbol;
         binding = resolveIdentifierInTable(
           node,
-          (mergedSymbol.node as ContainerNode).exports!,
+          (mergedSymbol.node as ContainerNode).exports,
           resolveDecorator
         );
         if (binding) return binding;
       }
 
       // check "global scope" declarations
-      binding = resolveIdentifierInTable(node, globalNamespaceNode.exports!, resolveDecorator);
+      binding = resolveIdentifierInTable(node, globalNamespaceNode.exports, resolveDecorator);
       if (binding) return binding;
 
       // check "global scope" usings
-      binding = resolveIdentifierInTable(node, scope.locals!, resolveDecorator);
+      binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
       if (binding) return binding;
     }
 
@@ -896,7 +902,7 @@ export function createChecker(program: Program): Checker {
         return undefined;
       }
       if (base.kind === "type" && base.node.kind === SyntaxKind.NamespaceStatement) {
-        const symbol = resolveIdentifierInTable(node.id, base.node.exports!, resolveDecorator);
+        const symbol = resolveIdentifierInTable(node.id, base.node.exports, resolveDecorator);
         if (!symbol) {
           program.reportDiagnostic(
             createDiagnostic({
@@ -953,12 +959,12 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkProgram() {
-    program.reportDuplicateSymbols(globalNamespaceNode.exports!);
+    program.reportDuplicateSymbols(globalNamespaceNode.exports);
     for (const file of program.sourceFiles.values()) {
-      program.reportDuplicateSymbols(file.locals!);
+      program.reportDuplicateSymbols(file.locals);
       for (const ns of file.namespaces) {
-        program.reportDuplicateSymbols(ns.locals!);
-        program.reportDuplicateSymbols(ns.exports!);
+        program.reportDuplicateSymbols(ns.locals);
+        program.reportDuplicateSymbols(ns.exports);
 
         initializeTypeForNamespace(ns);
       }

@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/rest",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "author": "Microsoft Corporation",
   "description": "Cadl REST protocol binding",
   "homepage": "https://github.com/Azure/adl",
@@ -32,11 +32,11 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "0.23.0"
+    "@cadl-lang/compiler": "0.24.0"
   },
   "devDependencies": {
     "@types/node": "~14.0.27",
-    "@cadl-lang/compiler": "0.23.0",
+    "@cadl-lang/compiler": "0.24.0",
     "typescript": "~4.4.4"
   }
 }

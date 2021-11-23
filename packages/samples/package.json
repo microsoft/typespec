@@ -32,15 +32,15 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "0.23.0",
-    "@cadl-lang/rest": "0.6.4",
-    "@cadl-lang/openapi3": "0.4.0"
+    "@cadl-lang/compiler": "0.24.0",
+    "@cadl-lang/rest": "0.7.0",
+    "@cadl-lang/openapi3": "0.4.1"
   },
   "devDependencies": {
     "@types/mkdirp": "~1.0.1",
-    "@cadl-lang/compiler": "0.23.0",
-    "@cadl-lang/rest": "0.6.4",
-    "@cadl-lang/openapi3": "0.4.0",
+    "@cadl-lang/compiler": "0.24.0",
+    "@cadl-lang/rest": "0.7.0",
+    "@cadl-lang/openapi3": "0.4.1",
     "autorest": "~3.3.2",
     "mkdirp": "~1.0.4"
   }
