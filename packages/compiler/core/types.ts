@@ -828,4 +828,6 @@ export interface CadlDevServer {
   host: CompilerHost;
   app: Express;
   server: Server;
+  onCompiled(callback: () => void): void;
+  notifyCompiled(): void;
 }

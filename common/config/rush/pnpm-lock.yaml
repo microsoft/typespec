@@ -27,6 +27,7 @@ dependencies:
   '@types/swagger-ui': 3.52.0
   '@types/swagger-ui-dist': 3.30.1
   '@types/vscode': 1.53.0
+  '@types/ws': 8.2.0
   '@types/yargs': 17.0.5
   ajv: 8.4.0
   autorest: 3.3.2
@@ -57,6 +58,7 @@ dependencies:
   vscode-languageserver: 7.0.0
   vscode-languageserver-textdocument: 1.0.2
   watch: 1.0.2
+  ws: 8.2.3
   yargs: 17.0.1
 lockfileVersion: 5.2
 packages:
@@ -461,6 +463,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-XjFWbSPOM0EKIT2XhhYm3D3cx3nn3lshMUcWNy1eqefk+oqRuBq8unVb6BYIZqXy9lQZyeUl7eaBCOZWv+LcXQ==
+  /@types/ws/8.2.0:
+    dependencies:
+      '@types/node': 14.0.27
+    dev: false
+    resolution:
+      integrity: sha512-cyeefcUCgJlEk+hk2h3N+MqKKsPViQgF5boi9TTHSK+PoR9KWBb/C5ccPcDyAqgsbAYHTwulch725DV84+pSpg==
   /@types/yargs-parser/20.2.1:
     dev: false
     resolution:
@@ -3959,6 +3967,20 @@ packages:
     dev: false
     resolution:
       integrity: sha512-ZGh/8kF9rrRNffkLFV4AzhvooEclrOH0xaugmqGsIfFgOE/pIz4fMc4Ef+5HSQqTEug2S9JZIWDR47duDSLfaA==
+  /ws/8.2.3:
+    dev: false
+    engines:
+      node: '>=10.0.0'
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    resolution:
+      integrity: sha512-wBuoj1BDpC6ZQ1B7DWQBYVLphPWkm8i9Y0/3YdHjHKHiohOJ1ws+3OccDWtH+PoC9DZD5WOTrJvNbWvjS6JWaA==
   /xml-but-prettier/1.0.1:
     dependencies:
       repeat-string: 1.6.1
@@ -4151,16 +4173,18 @@ packages:
       '@types/node': 14.0.27
       '@types/swagger-ui': 3.52.0
       '@types/swagger-ui-dist': 3.30.1
+      '@types/ws': 8.2.0
       express: 4.17.1
       mocha: 8.3.2
       react: 17.0.2
       swagger-ui: 4.1.0
       swagger-ui-dist: 4.1.0
       typescript: 4.4.4
+      ws: 8.2.3
     dev: false
     name: '@rush-temp/openapi-ui'
     resolution:
-      integrity: sha512-88jUQ5FbksW2sCXk/w5km3Oj+RRa8UCGa4Se2oMkHUWBrgnJoF4VHHI5TWs8AsLOfabHEvQGY3PzFE5rTY4zmw==
+      integrity: sha512-S+krxmgWBGV7hk1DcNxWO9a6mGZMgcoXMHAMK5Uh7b2VZeCHbCU8uwqdeiEl0W4gE+LvJz6gZLLbxoal7vViVA==
       tarball: file:projects/openapi-ui.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -4208,7 +4232,7 @@ packages:
     dev: false
     name: '@rush-temp/samples'
     resolution:
-      integrity: sha512-NrVyUOPfoBMtkc4nkyaQ8ADZdEYNgsmcOJVqKS2dHcrGPgTkUKVoCrqinJQofe98VDSuzqkXcCcvjhf8RCC+GQ==
+      integrity: sha512-KFVgM51nbZn1MAEjzWrJuP5uJZoLGmAbimjTJOjXnzBATTePu1Unzduwi9nwv4TEDFgBSkmlSb7srYIEetcaxw==
       tarball: file:projects/samples.tgz
     version: 0.0.0
   file:projects/spec.tgz:
@@ -4266,6 +4290,7 @@ specifiers:
   '@types/swagger-ui': ~3.52.0
   '@types/swagger-ui-dist': ~3.30.1
   '@types/vscode': ~1.53.0
+  '@types/ws': ~8.2.0
   '@types/yargs': ~17.0.2
   ajv: ~8.4.0
   autorest: ~3.3.2
@@ -4296,4 +4321,5 @@ specifiers:
   vscode-languageserver: ~7.0.0
   vscode-languageserver-textdocument: ~1.0.1
   watch: ~1.0.2
+  ws: 8.2.3
   yargs: ~17.0.1

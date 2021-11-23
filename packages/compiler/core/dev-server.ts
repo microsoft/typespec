@@ -11,7 +11,11 @@ export async function startDevServer(plugins: string[]): Promise<CadlDevServer> 
     const param = (req.params as any).file;
     const output = outputs[param];
     if (output === undefined) {
-      console.log(`cannot find ${param} in outputs. [${Object.keys(outputs).join(",")}]`);
+      console.log(
+        `cannot find ${param} in outputs: [${Object.keys(outputs)
+          .map((x) => ` - ${x}`)
+          .join("\n")}]`
+      );
       return res.status(404).end();
     }
     return res.status(200).send(output).end();
@@ -28,10 +32,23 @@ export async function startDevServer(plugins: string[]): Promise<CadlDevServer> 
     },
   };
 
-  const devServer = {
+  const onCompiledCallbacks: Function[] = [];
+  function onCompiled(callback: () => void) {
+    onCompiledCallbacks.push(callback);
+  }
+
+  function notifyCompiled() {
+    for (const callback of onCompiledCallbacks) {
+      callback();
+    }
+  }
+
+  const devServer: CadlDevServer = {
     host,
     app,
     server,
+    onCompiled,
+    notifyCompiled,
   };
   await loadPlugins(plugins, devServer);
 

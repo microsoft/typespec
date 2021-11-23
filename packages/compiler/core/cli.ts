@@ -214,7 +214,7 @@ async function compileInput(
     if (!currentCompilePromise) {
       // Clear the console before compiling in watch mode
       if (watchForChanges) {
-        // console.clear();
+        console.clear();
       }
 
       currentCompilePromise = compile(path, server?.host ?? NodeHost, compilerOptions).then(
@@ -233,6 +233,9 @@ async function compileInput(
       logDiagnostics(program.diagnostics, NodeHost.logSink);
       logDiagnosticCount(program.diagnostics);
     } else {
+      if (server) {
+        server.notifyCompiled();
+      }
       if (printSuccess) {
         log(
           `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
