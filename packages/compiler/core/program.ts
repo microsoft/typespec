@@ -274,7 +274,7 @@ export async function createProgram(
       host,
       specifier,
       basedir,
-      useCadlMain ? (pkg) => pkg.adlMain : undefined
+      useCadlMain ? (pkg) => pkg.cadlMain : undefined
     );
   }
 

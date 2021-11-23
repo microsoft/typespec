@@ -214,7 +214,7 @@ async function compileInput(
     if (!currentCompilePromise) {
       // Clear the console before compiling in watch mode
       if (watchForChanges) {
-        console.clear();
+        // console.clear();
       }
 
       currentCompilePromise = compile(path, server?.host ?? NodeHost, compilerOptions).then(

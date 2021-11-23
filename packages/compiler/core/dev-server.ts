@@ -1,4 +1,5 @@
 import express from "express";
+import { basename } from "path";
 import { CadlDevServer, CompilerHost } from "./types.js";
 import { NodeHost, resolvePluginModule } from "./util.js";
 
@@ -22,9 +23,7 @@ export async function startDevServer(plugins: string[]): Promise<CadlDevServer> 
   const host: CompilerHost = {
     ...NodeHost,
     writeFile: (path, content) => {
-      outputs[path] = content;
-      console.log("Write path", path);
-      throw new Error("AVC");
+      outputs[basename(path)] = content;
       return NodeHost.writeFile(path, content);
     },
   };
@@ -47,11 +46,9 @@ async function loadPlugins(plugins: string[], devServer: CadlDevServer) {
       process.cwd(),
       (pkg) => pkg.main
     );
-    console.log("Path", importPath);
     const plugin = await import(importPath);
-    console.log("Got pkugin");
     if (plugin.$onDevServer) {
-      console.log("Got dev server function");
+      await plugin.$onDevServer(devServer);
     }
   }
 }
