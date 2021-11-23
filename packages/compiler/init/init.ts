@@ -113,7 +113,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
   rest: {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
-    libraries: ["@cadl-lang/rest", "@cadl-lang/openapi"],
+    libraries: ["@cadl-lang/rest", "@cadl-lang/openapi3"],
   },
 };
 

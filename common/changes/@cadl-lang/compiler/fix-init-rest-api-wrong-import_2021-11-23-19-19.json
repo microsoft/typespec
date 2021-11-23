@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Fix** Wrong library import for the rest template",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
