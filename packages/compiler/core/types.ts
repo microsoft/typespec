@@ -1,5 +1,6 @@
+import { Express } from "express";
+import { Server } from "http";
 import { Program } from "./program";
-
 /**
  * Type System types
  */
@@ -821,4 +822,10 @@ export interface Logger {
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
+}
+
+export interface CadlDevServer {
+  host: CompilerHost;
+  app: Express;
+  server: Server;
 }

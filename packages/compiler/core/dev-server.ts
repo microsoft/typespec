@@ -1,15 +1,8 @@
-import express, { Express } from "express";
-import { Server } from "http";
-import { CompilerHost } from "./types.js";
-import { NodeHost } from "./util.js";
+import express from "express";
+import { CadlDevServer, CompilerHost } from "./types.js";
+import { NodeHost, resolvePluginModule } from "./util.js";
 
-export interface CadlDevServer {
-  host: CompilerHost;
-  app: Express;
-  server: Server;
-}
-
-export function startDevServer(): CadlDevServer {
+export async function startDevServer(plugins: string[]): Promise<CadlDevServer> {
   const app = express();
   const outputs: Record<string, string> = {};
 
@@ -36,9 +29,29 @@ export function startDevServer(): CadlDevServer {
     },
   };
 
-  return {
+  const devServer = {
     host,
     app,
     server,
   };
+  await loadPlugins(plugins, devServer);
+
+  return devServer;
+}
+
+async function loadPlugins(plugins: string[], devServer: CadlDevServer) {
+  for (const pluginName of plugins) {
+    const importPath = await resolvePluginModule(
+      NodeHost,
+      pluginName,
+      process.cwd(),
+      (pkg) => pkg.main
+    );
+    console.log("Path", importPath);
+    const plugin = await import(importPath);
+    console.log("Got pkugin");
+    if (plugin.$onDevServer) {
+      console.log("Got dev server function");
+    }
+  }
 }

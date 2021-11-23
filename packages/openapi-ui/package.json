@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/openapi-ui",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "UI for OpenAPI",
   "type": "module",
   "main": "dist/src/main.js",

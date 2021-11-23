@@ -1,5 +1,4 @@
 import { dirname, extname, isAbsolute, join, resolve } from "path";
-import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
@@ -26,7 +25,7 @@ import {
   SyntaxKind,
   Type,
 } from "./types.js";
-import { doIO, loadFile } from "./util.js";
+import { doIO, loadFile, resolvePluginModule } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -271,77 +270,12 @@ export async function createProgram(
     basedir: string,
     useCadlMain = true
   ): Promise<string> {
-    return new Promise((resolveP, rejectP) => {
-      resolveModule(
-        specifier,
-        {
-          // default node semantics are preserveSymlinks: false
-          // this ensures that we resolve our monorepo referecnes to an actual location
-          // on disk.
-          preserveSymlinks: false,
-          basedir,
-          readFile(path, cb) {
-            host
-              .readFile(path)
-              .then((c) => cb(null, c.text))
-              .catch((e) => cb(e));
-          },
-          isDirectory(path, cb) {
-            host
-              .stat(path)
-              .then((s) => cb(null, s.isDirectory()))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, false);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          isFile(path, cb) {
-            host
-              .stat(path)
-              .then((s) => cb(null, s.isFile()))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, false);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          realpath(path, cb) {
-            host
-              .realpath(path)
-              .then((p) => cb(null, p))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, path);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          packageFilter(pkg) {
-            if (useCadlMain) {
-              // this lets us follow node resolve semantics more-or-less exactly
-              // but using cadlMain instead of main.
-              pkg.main = pkg.cadlMain;
-            }
-            return pkg;
-          },
-        },
-        (err, resolved) => {
-          if (err) {
-            rejectP(err);
-          } else if (!resolved) {
-            rejectP(new Error("BUG: Module resolution succeeded but didn't return a value."));
-          } else {
-            resolveP(resolved);
-          }
-        }
-      );
-    });
+    return resolvePluginModule(
+      host,
+      specifier,
+      basedir,
+      useCadlMain ? (pkg) => pkg.adlMain : undefined
+    );
   }
 
   async function loadMain(mainFile: string, options: CompilerOptions) {

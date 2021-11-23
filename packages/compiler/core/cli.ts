@@ -10,11 +10,11 @@ import { loadCadlConfigInDir } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
-import { CadlDevServer, startDevServer } from "./dev-server.js";
+import { startDevServer } from "./dev-server.js";
 import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
 import { installCadlDependencies } from "./install.js";
-import { Diagnostic } from "./types.js";
+import { CadlDevServer, Diagnostic } from "./types.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
 async function main() {
@@ -72,6 +72,11 @@ async function main() {
             default: false,
             describe:
               "Start a dev server that will recompile on change, expose the output as http endpoint and let extension present UI.",
+          })
+          .option("dev-server-plugin", {
+            type: "string",
+            array: true,
+            describe: "List of library plugins to load with the dev server.",
           })
           .option("diagnostic-level", {
             type: "string",
@@ -185,7 +190,7 @@ async function main() {
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
 
-function compileInput(
+async function compileInput(
   path: string,
   compilerOptions: CompilerOptions,
   printSuccess = true
@@ -201,7 +206,7 @@ function compileInput(
 
   let server: CadlDevServer | undefined;
   if (compilerOptions.useDevServer) {
-    server = startDevServer();
+    server = await startDevServer(compilerOptions.devServerPlugins ?? []);
   }
 
   let runCompile = () => {
@@ -294,6 +299,7 @@ async function getCompilerOptions(args: {
   import?: string[];
   watch?: boolean;
   "dev-server"?: boolean;
+  "dev-server-plugin"?: string[];
   "diagnostic-level": string;
 }): Promise<CompilerOptions> {
   // Ensure output path
@@ -319,6 +325,7 @@ async function getCompilerOptions(args: {
     additionalImports: args["import"],
     watchForChanges: args["watch"],
     useDevServer: args["dev-server"],
+    devServerPlugins: args["dev-server-plugin"],
     diagnosticLevel: args["diagnostic-level"] as any,
   };
 }

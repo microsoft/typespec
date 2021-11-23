@@ -9,6 +9,7 @@ export interface CompilerOptions {
   additionalImports?: string[];
   watchForChanges?: boolean;
   useDevServer?: boolean;
+  devServerPlugins?: string[];
   serviceCodePath?: string;
   diagnosticLevel?: LogLevel;
   /**

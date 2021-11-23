@@ -2,6 +2,7 @@ import fs from "fs";
 import { readFile, realpath, stat, writeFile } from "fs/promises";
 import fetch from "node-fetch";
 import { isAbsolute, join, resolve } from "path";
+import resolveModule from "resolve";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { createConsoleSink } from "./logger.js";
@@ -169,4 +170,86 @@ function isUrl(url: string) {
   } catch {
     return false;
   }
+}
+/**
+ * Resolve the path to the entrypoint of a module given endpoint.
+ * This will look for a local installation of the plugin relative to the basedir.
+ *
+ * @getMain Returns which field in the package.json should be the endpoint.
+ */
+export function resolvePluginModule(
+  host: CompilerHost,
+  specifier: string,
+  basedir: string,
+  getMain: ((pkg: any) => string) | undefined
+): Promise<string> {
+  return new Promise((resolveP, rejectP) => {
+    resolveModule(
+      specifier,
+      {
+        // default node semantics are preserveSymlinks: false
+        // this ensures that we resolve our monorepo referecnes to an actual location
+        // on disk.
+        preserveSymlinks: false,
+        basedir,
+        readFile(path, cb) {
+          host
+            .readFile(path)
+            .then((c) => cb(null, c.text))
+            .catch((e) => cb(e));
+        },
+        isDirectory(path, cb) {
+          host
+            .stat(path)
+            .then((s) => cb(null, s.isDirectory()))
+            .catch((e) => {
+              if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+                cb(null, false);
+              } else {
+                cb(e);
+              }
+            });
+        },
+        isFile(path, cb) {
+          host
+            .stat(path)
+            .then((s) => cb(null, s.isFile()))
+            .catch((e) => {
+              if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+                cb(null, false);
+              } else {
+                cb(e);
+              }
+            });
+        },
+        realpath(path, cb) {
+          host
+            .realpath(path)
+            .then((p) => cb(null, p))
+            .catch((e) => {
+              if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+                cb(null, path);
+              } else {
+                cb(e);
+              }
+            });
+        },
+        packageFilter(pkg) {
+          if (getMain) {
+            pkg.main = getMain(pkg);
+          }
+          return pkg;
+        },
+      },
+      (err, resolved) => {
+        if (err) {
+          rejectP(err);
+        } else if (!resolved) {
+          rejectP(new Error("BUG: Module resolution succeeded but didn't return a value."));
+        } else {
+          resolveP(resolved);
+        }
+      }
+    );
+  });
 }
