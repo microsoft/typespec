@@ -29,6 +29,7 @@ import {
   Program,
   Type,
   UnionType,
+  UnionTypeVariant,
 } from "@cadl-lang/compiler";
 import { getInterfaceOperations, http, OperationDetails } from "@cadl-lang/rest";
 import * as path from "path";
@@ -56,11 +57,27 @@ export async function $onBuild(p: Program) {
 
 const operationIdsKey = Symbol();
 export function $operationId(program: Program, entity: Type, opId: string) {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decoratorName: "operationId", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
   program.stateMap(operationIdsKey).set(entity, opId);
 }
 
 const pageableOperationsKey = Symbol();
 export function $pageable(program: Program, entity: Type, nextLinkName: string = "nextLink") {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decoratorName: "pageable", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
   program.stateMap(pageableOperationsKey).set(entity, nextLinkName);
 }
 
@@ -85,6 +102,23 @@ export function $useRef(program: Program, entity: Type, refUrl: string): void {
 
 function getRef(program: Program, entity: Type): string | undefined {
   return program.stateMap(refTargetsKey).get(entity);
+}
+
+const oneOfKey = Symbol();
+export function $oneOf(program: Program, entity: Type) {
+  if (entity.kind !== "Union") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decoratorName: "oneOf", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(oneOfKey).set(entity, true);
+}
+
+function getOneOf(program: Program, entity: Type): boolean {
+  return program.stateMap(oneOfKey).get(entity);
 }
 
 // NOTE: These functions aren't meant to be used directly as decorators but as a
@@ -831,6 +865,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return getSchemaForModel(type);
     } else if (type.kind === "Union") {
       return getSchemaForUnion(type);
+    } else if (type.kind === "UnionVariant") {
+      return getSchemaForUnionVariant(type);
     } else if (type.kind === "Enum") {
       return getSchemaForEnum(type);
     }
@@ -898,29 +934,29 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "Model":
         type = "model";
         break;
+      case "UnionVariant":
+        type = "model";
+        break;
       default:
         reportUnsupportedUnion();
         return {};
     }
 
-    const values = [];
     if (type === "model") {
-      // Model unions can only ever be a model type with 'null'
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
         const schema: any = getSchemaForType(nonNullOptions[0]);
 
         return schema;
       } else {
-        reportDiagnostic(program, {
-          code: "union-unsupported",
-          messageId: "null",
-          target: union,
-        });
-        return {};
+        const variants = nonNullOptions.map((s) => getSchemaOrRef(s));
+        const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
+        const schema: any = { [ofType]: nonNullOptions.map((s) => getSchemaOrRef(s)) };
+        return schema;
       }
     }
 
+    const values = [];
     for (const option of nonNullOptions) {
       if (option.kind != kind) {
         reportUnsupportedUnion();
@@ -940,6 +976,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     function reportUnsupportedUnion() {
       reportDiagnostic(program, { code: "union-unsupported", target: union });
     }
+  }
+
+  function getSchemaForUnionVariant(variant: UnionTypeVariant) {
+    const schema: any = getSchemaForType(variant.type);
+    return schema;
   }
 
   function getSchemaForArray(array: ArrayType) {
