@@ -384,6 +384,7 @@ describe("openapi3: primitives", () => {
     ["int16", { type: "integer", format: "int16" }],
     ["int32", { type: "integer", format: "int32" }],
     ["int64", { type: "integer", format: "int64" }],
+    ["safeint", { type: "integer", format: "int64" }],
     ["uint8", { type: "integer", format: "uint8" }],
     ["uint16", { type: "integer", format: "uint16" }],
     ["uint32", { type: "integer", format: "uint32" }],
