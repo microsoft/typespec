@@ -1161,6 +1161,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
           case "int64":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+          case "safeint":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
           case "uint8":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });
           case "uint16":
