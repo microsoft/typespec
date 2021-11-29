@@ -769,6 +769,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
+    attachExtensions(param, ph);
     ph.schema = schema;
   }
 
