@@ -20,6 +20,7 @@ Cadl consists of the following language features:
 - Type Operators: syntax for composing model types into other types
 - Operations: service endpoints with parameters and return values
 - Namespaces & Usings: groups models and operations together into hierarchical groups with friendly names
+- Interfaces: groups operations
 - Imports: links declarations across multiple files and libraries together into a single program
 - Decorators: bits of TypeScript code that add metadata or sometimes mutate declarations
 - Libraries: encapsulate Cadl definitions into reusable components
@@ -98,6 +99,26 @@ model Animal {
 }
 
 model Dog extends Animal {}
+
+```
+
+### Is
+
+Sometimes you want to copy all aspects of a type wihtout not creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It is like spread, but also copies [decorators](#Decorators) in addition to properties. One common use case is to give a better name to a [template](#Templates) instantiation:
+
+```cadl
+@decorator
+model Thing<T> {
+  property: T;
+}
+
+model StringThing is Thing<string> {}
+
+// StringThing declaration is equivalent to the following declaration:
+@decorator
+model StringThing {
+  property: string;
+}
 
 ```
 
@@ -197,6 +218,21 @@ Unions describe a type that must be exactly one of the union's constituents. Cre
 alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
 
 ```
+
+##### Named unions
+
+There is also a declaration syntax for naming a union and its options:
+
+```cadl
+union GoodBreed {
+  beagle: Beagle,
+  shepherd: GermanShepherd,
+  retriever: GoldenRetriever,
+}
+
+```
+
+The above example is equivalent to the `GoodBreed` alias above, except that emitters can actually see `GoodBreed` as a named entity and also see the `beagle`, `shepherd`, and `retriever` names for the options. It also becomes possible to apply [decorators](#Decorators) to each of the options when using this form.
 
 #### Intersections
 
@@ -319,6 +355,35 @@ namespace Test2 {
 alias C = Test2.A; // not ok
 alias C = Test2.B; // ok
 
+```
+
+### Interfaces
+
+Interfaces can be used to group operations.
+
+```cadl
+interface A {
+  op a(): string;
+}
+
+interface B {
+  op b(): string;
+}
+```
+
+And the keyword `mixes` can be used to compose operations from other interfaces into a new interface:
+
+```cadl
+interface C mixes A, B {
+  op c(): string;
+}
+
+// C is equivalent to the following declaration
+interface C {
+  op a(): string;
+  op b(): string;
+  op c(): string;
+}
 ```
 
 ### Imports
