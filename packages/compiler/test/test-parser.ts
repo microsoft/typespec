@@ -163,6 +163,14 @@ describe("compiler: syntax", () => {
       "union A<T, V> { a: T; none: {} }",
       `union A { "hi there": string }`,
     ]);
+
+    parseErrorEach([
+      [
+        'union A { @dec "x" x: number, y: string }',
+        [/':' expected/],
+        (n) => assert(!n.printable, "should not be printable"),
+      ],
+    ]);
   });
 
   describe("template instantiations", () => {
@@ -507,6 +515,8 @@ function parseEach(cases: (string | [string, Callback])[]) {
         assert.fail("Unexpected parse errors in test:\n" + diagnostics);
       }
 
+      assert(astNode.printable, "Parse tree with no errors should be printable");
+
       checkPositioning(astNode, astNode.file);
     });
   }
@@ -548,6 +558,12 @@ function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhite
       assert(
         hasParseError(astNode),
         "node claims to have no parse errors, but above were reported."
+      );
+
+      assert(
+        !astNode.printable ||
+          !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
+        "parse tree with errors other than missing punctuation should not be printable"
       );
 
       checkPositioning(astNode, astNode.file);
