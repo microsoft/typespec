@@ -18,19 +18,19 @@ The Cadl equivalent of OpenAPI data types are the Cadl primitive types or [built
 
 The following table shows how common OpenAPI types map to Cadl types:
 
-| OpenAPI `type`/`format`           | Cadl type        | Notes                  |
-| --------------------------------- | ---------------- | ---------------------- |
-| `type: integer, format: int32`    | `int32`          |                        |
-| `type: integer, format: int64`    | `int64`          |                        |
-| `type: number, format: float`     | `float32`        |                        |
-| `type: number, format: double`    | `float64`        |                        |
-| `type: string`                    | `string`         |                        |
-| `type: string, format: byte`      |                  |                        |
-| `type: string, format: binary`    | `byte[]`         | any sequence of octets |
-| `type: boolean`                   | `boolean`        |                        |
-| `type: string, format: date`      | `plainDate`      |                        |
-| `type: string, format: date-time` | `zonedDateTime`  | RFC 3339 date          |
-| `type: string, format: password`  | `@secret string` |                        |
+| OpenAPI `type`/`format`           | Cadl type        | Notes                    |
+| --------------------------------- | ---------------- | ------------------------ |
+| `type: integer, format: int32`    | `int32`          |                          |
+| `type: integer, format: int64`    | `int64`          |                          |
+| `type: number, format: float`     | `float32`        |                          |
+| `type: number, format: double`    | `float64`        |                          |
+| `type: string`                    | `string`         |                          |
+| `type: string, format: byte`      | `bytes`          |                          |
+| `type: string, format: binary`    |                  | Not currently supported. |
+| `type: boolean`                   | `boolean`        |                          |
+| `type: string, format: date`      | `plainDate`      |                          |
+| `type: string, format: date-time` | `zonedDateTime`  | RFC 3339 date            |
+| `type: string, format: password`  | `@secret string` |                          |
 
 OpenAPI supports a variety of "assertions" that can be used further restrict the values allowed for a data type.
 These are actually borrowed into OpenAPI from JSON Schema.
@@ -50,42 +50,20 @@ For `type: string` data types:
 | `maxLength: value`          | `@maxLength(value)` decorator |       |
 | `pattern: regex`            | `@format(regex)` decorator    |       |
 
-To define a `type: string` parameter or property with an `enum`, define the Cadl element as the union of the enum values.
-For example:
+There are two ways to define an `enum` data type. One is with the [Cadl `enum` statement(https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#enums)], e.g.:
+
+```
+enum Color {
+  Red: "red",
+  Blue: "blue",
+  Green: "green",
+}
+```
+
+You can a use the union operation to define the enum values inline, e.g.:
 
 ```cadl
 status: "Running" | "Stopped" | "Failed"
-```
-
-## Info Object
-
-In OpenAPI, the `info` object [[v2][v2-info], [v3][v3-info]] contains metadata about the API such as a `title`, `description`, `license`, and `version`.
-
-[v2-info]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#infoObject
-[v3-info]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#infoObject
-
-In Cadl this information is specified with [decorators on the namespace][cadl-service-metadata].
-
-| OpenAPI `info` field | Cadl decorator    | Notes                    |
-| -------------------- | ----------------- | ------------------------ |
-| `title`              | `@serviceTitle`   |                          |
-| `version`            | `@serviceVersion` |                          |
-| `description`        |                   | Not currently supported. |
-| `license`            |                   | Not currently supported. |
-| `contact`            |                   | Not currently supported. |
-
-[cadl-service-metadata]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#service-definition-and-metadata
-
-## Consumes / Produces (OAS2)
-
-In OpenAPI v2, the top-level `consumes` and `produces` fields specify a list of MIME types an operation can consume / produce
-when not overridden by a `consumes` or `produces` on an individual operation.
-
-In Cadl, these global values for `consumes` and `produces` are defined with the `@consumes` and `@produces` decorators.
-
-```cadl
-@produces("application/json", "image/png")
-@consumes("application/json", "application/octet-stream")
 ```
 
 ## Host / BasePath / Servers
@@ -98,7 +76,9 @@ In OpenAPI v3, the top-level `servers` field specifies an array of `server` obje
 
 There is also an autorest extension used in many Azure API definitions called [`x-ms-parameterized-host`](https://github.com/Azure/autorest/tree/main/docs/extensions#x-ms-parameterized-host) to define the base URL for the service.
 
-In Cadl, these fields are currently set using javascript that is imported into the Cadl definition. In the near future there will likely be decorators that allow some of these elements to be set directly from Cadl.
+In Cadl, the `host` in OpenAPI v2 can be specified with the `@serviceHost` decorator on the namespace. Similar support will be added to the openapi3 emitter shortly.
+
+There is currently no mechanism to specify `basePath` so all paths in the path object must derive directly from the `@serviceHost` value.
 
 ## Paths Object
 
@@ -244,7 +224,47 @@ Models can be defined with the `model` statement and then referenced by name, wh
 Cadl supports the ["spread" operator](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#spread) (`...`), which copies the members of the source model into the target model.
 But Cadl processes all spread transformations before emitters are invoked, so this form of reuse is not represented in the emitted OpenAPI.
 
-Cadl also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. Cadl does not current provide a means to produce an `allOf` with more than one element -- these are generally treated as "composition" in code generators and thus better represented in Cadl with the spread operator.
+The spread operation is useful if you want one or more properties to be present in several different models but in a standard fashion. For example:
+
+````
+model Legs {
+  @doc("number of legs")
+  legs: int32;
+}
+
+model Dog {
+  name: string;
+  ...Legs;
+}
+
+model Cat {
+  name: string;
+  ...Legs;
+}
+
+model Snake {
+  name: string;
+  // snakes have no legs
+}
+```
+
+Cadl also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI.  For example:
+
+```
+model Pet {
+  name: string;
+}
+
+model Cat extends Pet {
+  meow: int32;
+}
+
+model Dog extends Pet {
+  bark: string;
+}
+```
+
+ Cadl does not current provide a means to produce an `allOf` with more than one element -- these are generally treated as "composition" in code generators and thus better represented in Cadl with the spread operator.
 
 Cadl does not yet support a means to specify an OpenAPI `discriminator` but this support is currently in development.
 
@@ -265,11 +285,44 @@ namespace Pets {
   op read(... PetId): Pet | Error;
 }
 
-```
+````
 
 results in a `$ref` to the named parameter `PetId` in either `parameters` or `components.parameters`.
 
-## Security Schemes Object
+## Info Object
+
+In OpenAPI, the `info` object [[v2][v2-info], [v3][v3-info]] contains metadata about the API such as a `title`, `description`, `license`, and `version`.
+
+[v2-info]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#infoObject
+[v3-info]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#infoObject
+
+In Cadl this information is specified with [decorators on the namespace][cadl-service-metadata].
+
+| OpenAPI `info` field | Cadl decorator    | Notes                    |
+| -------------------- | ----------------- | ------------------------ |
+| `title`              | `@serviceTitle`   |                          |
+| `version`            | `@serviceVersion` |                          |
+| `description`        |                   | Not currently supported. |
+| `license`            |                   | Not currently supported. |
+| `contact`            |                   | Not currently supported. |
+
+[cadl-service-metadata]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#service-definition-and-metadata
+
+## Consumes / Produces (OAS2)
+
+In OpenAPI v2, the top-level `consumes` and `produces` fields specify a list of MIME types an operation can consume / produce
+when not overridden by a `consumes` or `produces` on an individual operation.
+
+In Cadl, these global values for `consumes` and `produces` are defined with the `@consumes` and `@produces` [decorators on the namespace][cadl-service-metadata].
+
+```cadl
+@produces("application/json", "image/png")
+@consumes("application/json", "application/octet-stream")
+```
+
+## securityDefinitions / securitySchemes Object
+
+In Cadl, these fields are currently set using javascript that is imported into the Cadl definition. In the near future there will likely be decorators that allow some of these elements to be set directly from Cadl.
 
 ## Specification Extensions
 
