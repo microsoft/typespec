@@ -4,6 +4,7 @@ import "@cadl-lang/rest";
 @serviceVersion("2021-03-25")
 namespace PetStore;
 
+using Cadl.Http;
 using Cadl.Rest;
 using Cadl.Rest.Resource;
 
@@ -45,8 +46,8 @@ model Checkup {
 interface Pets mixes ResourceOperations<Pet, PetStoreError> {}
 
 interface Toys mixes ResourceRead<Toy, PetStoreError> {
-  @list(Toy)
-  List(...ParentKeysOf<Toy>, @Cadl.Http.query nameFilter: string): Page<Toy> | PetStoreError;
+  @listsResource(Toy)
+  List(...ParentKeysOf<Toy>, @query nameFilter: string): Page<Toy> | PetStoreError;
 }
 
 interface Checkups mixes ResourceCreateOrUpdate<Checkup, PetStoreError>, ResourceList<Checkup, PetStoreError> {}

@@ -110,32 +110,32 @@ export function getResourceOperation(
   return program.stateMap(resourceOperationsKey).get(cadlOperation);
 }
 
-export function $read(program: Program, entity: Type, resourceType: Type) {
+export function $readsResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "read");
 }
 
-export function $createOrUpdate(program: Program, entity: Type, resourceType: Type) {
-  setResourceOperation(program, entity, resourceType, "createOrUpdate");
-}
-
-export function $create(program: Program, entity: Type, resourceType: Type) {
+export function $createsResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "create");
 }
 
-export function $update(program: Program, entity: Type, resourceType: Type) {
+export function $createsOrUpdatesResource(program: Program, entity: Type, resourceType: Type) {
+  setResourceOperation(program, entity, resourceType, "createOrUpdate");
+}
+
+export function $updatesResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "update");
 }
 
-export function $delete(program: Program, entity: Type, resourceType: Type) {
+export function $deletesResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "delete");
 }
 
-export function $list(program: Program, entity: Type, resourceType: Type) {
+export function $listsResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "list");
 }
 
 const actionsKey = Symbol();
-export function $action(program: Program, entity: Type, resourceType: Type, name: string) {
+export function $action(program: Program, entity: Type, name?: string) {
   if (entity.kind !== "Operation") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
@@ -161,10 +161,10 @@ setDecoratorNamespace(
   $produces,
   $consumes,
   $segment,
-  $read,
-  $create,
-  $update,
-  $delete,
-  $list,
+  $readsResource,
+  $createsResource,
+  $updatesResource,
+  $deletesResource,
+  $listsResource,
   $action
 );
