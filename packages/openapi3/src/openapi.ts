@@ -3,6 +3,7 @@ import {
   checkIfServiceNamespace,
   EnumMemberType,
   EnumType,
+  findChildModels,
   getAllTags,
   getDoc,
   getFormat,
@@ -10,6 +11,7 @@ import {
   getMaxValue,
   getMinLength,
   getMinValue,
+  getProperty,
   getServiceHost,
   getServiceNamespaceString,
   getServiceTitle,
@@ -29,7 +31,7 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getAllRoutes, http, OperationDetails } from "@cadl-lang/rest";
+import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
@@ -49,7 +51,7 @@ export function $operationId(program: Program, entity: Type, opId: string) {
   if (entity.kind !== "Operation") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
-      format: { decoratorName: "operationId", entityKind: entity.kind },
+      format: { decorator: "operationId", entityKind: entity.kind },
       target: entity,
     });
     return;
@@ -62,7 +64,7 @@ export function $pageable(program: Program, entity: Type, nextLinkName: string =
   if (entity.kind !== "Operation") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
-      format: { decoratorName: "pageable", entityKind: entity.kind },
+      format: { decorator: "pageable", entityKind: entity.kind },
       target: entity,
     });
     return;
@@ -98,7 +100,7 @@ export function $oneOf(program: Program, entity: Type) {
   if (entity.kind !== "Union") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
-      format: { decoratorName: "oneOf", entityKind: entity.kind },
+      format: { decorator: "oneOf", entityKind: entity.kind },
       target: entity,
     });
     return;
@@ -864,6 +866,28 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       description: getDoc(program, model),
     };
 
+    const discriminator = getDiscriminator(program, model);
+    if (discriminator) {
+      const childModels = findChildModels(program, model);
+
+      if (!validateDiscriminator(discriminator, childModels)) {
+        // appropriate diagnostic is generated with the validate function
+        return {};
+      }
+
+      // getSchemaOrRef on all children to push them into components.schemas
+      for (let child of childModels) {
+        getSchemaOrRef(child);
+      }
+
+      const mapping = getDiscriminatorMapping(discriminator, childModels);
+      if (mapping) {
+        discriminator.mapping = mapping;
+      }
+
+      modelSchema.discriminator = discriminator;
+    }
+
     for (const [name, prop] of model.properties) {
       if (!isSchemaProperty(prop)) {
         continue;
@@ -932,6 +956,103 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         emitObject[key] = extensions.get(key);
       }
     }
+  }
+
+  function validateDiscriminator(discriminator: any, childModels: ModelType[]): boolean {
+    const { propertyName } = discriminator;
+    var retVals = childModels.map((t) => {
+      const prop = getProperty(t, propertyName);
+      if (!prop) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
+        return false;
+      }
+      var retval = true;
+      if (!isOasString(prop.type)) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "type", target: prop });
+        retval = false;
+      }
+      if (prop.optional) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "required", target: prop });
+        retval = false;
+      }
+      return retval;
+    });
+    // Map of discriminator value to the model in which it is declared
+    const discriminatorValues = new Map<string, string>();
+    for (let t of childModels) {
+      // Get the discriminator property directly in the child model
+      const prop = t.properties?.get(propertyName);
+      // Issue warning diagnostic if discriminator property missing or is not a string literal
+      if (!prop || !isStringLiteral(prop.type)) {
+        reportDiagnostic(program, {
+          code: "discriminator-value",
+          messageId: "literal",
+          target: prop || t,
+        });
+      }
+      if (prop) {
+        const vals = getStringValues(prop.type);
+        vals.forEach((val) => {
+          if (discriminatorValues.has(val)) {
+            reportDiagnostic(program, {
+              code: "discriminator",
+              messageId: "duplicate",
+              format: { val: val, model1: discriminatorValues.get(val)!, model2: t.name },
+              target: prop,
+            });
+            retVals.push(false);
+          } else {
+            discriminatorValues.set(val, t.name);
+          }
+        });
+      }
+    }
+    return retVals.every((v) => v);
+  }
+
+  function getDiscriminatorMapping(discriminator: any, childModels: ModelType[]) {
+    const { propertyName } = discriminator;
+    const getMapping = (t: ModelType): any => {
+      const prop = t.properties?.get(propertyName);
+      if (prop) {
+        return getStringValues(prop.type).flatMap((v) => [{ [v]: getSchemaOrRef(t).$ref }]);
+      }
+      return undefined;
+    };
+    var mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
+    return mappings.length > 0 ? mappings.reduce((a, s) => ({ ...a, ...s }), {}) : undefined;
+  }
+
+  // An openapi "string" can be defined in several different ways in Cadl
+  function isOasString(type: Type): boolean {
+    if (type.kind === "String") {
+      // A string literal
+      return true;
+    } else if (type.kind === "Model" && type.name === "string") {
+      // string type
+      return true;
+    } else if (type.kind === "Union") {
+      // A union where all variants are an OasString
+      return type.options.every((o) => isOasString(o));
+    }
+    return false;
+  }
+
+  function isStringLiteral(type: Type): boolean {
+    return (
+      type.kind === "String" ||
+      (type.kind === "Union" && type.options.every((o) => o.kind === "String"))
+    );
+  }
+
+  // Return any string literal values for type
+  function getStringValues(type: Type): string[] {
+    if (type.kind === "String") {
+      return [type.value];
+    } else if (type.kind === "Union") {
+      return type.options.flatMap(getStringValues).filter((v) => v);
+    }
+    return [];
   }
 
   /**
