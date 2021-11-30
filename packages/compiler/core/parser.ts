@@ -1297,6 +1297,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       end: report.target?.end ?? tokenEnd(),
     };
 
+    if (!report.printable) {
+      treePrintable = false;
+    }
+
     // Error recovery: don't report more than 1 consecutive error at the same
     // position. The code path taken by error recovery after logging an error
     // can otherwise produce redundant and less decipherable errors, which this
@@ -1306,9 +1310,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       return;
     }
     realPositionOfLastError = realPos;
-    if (!report.printable) {
-      treePrintable = false;
-    }
 
     const diagnostic = createDiagnostic({
       ...report,
@@ -1322,6 +1323,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function reportDiagnostic(diagnostic: Diagnostic) {
     if (diagnostic.severity === "error") {
       parseErrorInNextFinishedNode = true;
+      treePrintable = false;
     }
     parseDiagnostics.push(diagnostic);
   }
