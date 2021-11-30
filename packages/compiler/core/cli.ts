@@ -66,6 +66,11 @@ async function main() {
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
+          .option("service-code-path", {
+            type: "string",
+            describe:
+              "The output path for generated service code.  If it does not exist, it will be created.",
+          })
           .option("diagnostic-level", {
             type: "string",
             default: "info",
@@ -274,10 +279,17 @@ async function getCompilerOptions(args: {
   import?: string[];
   watch?: boolean;
   "diagnostic-level": string;
+  "service-code-path"?: string;
 }): Promise<CompilerOptions> {
   // Ensure output path
   const outputPath = resolve(args["output-path"]);
+  const serviceCodePath = args["service-code-path"]
+    ? resolve(args["service-code-path"])
+    : undefined;
   await mkdirp(outputPath);
+  if (serviceCodePath) {
+    await mkdirp(serviceCodePath);
+  }
 
   const miscOptions: any = {};
   for (const option of args.option || []) {
@@ -293,6 +305,7 @@ async function getCompilerOptions(args: {
   return {
     miscOptions,
     outputPath,
+    serviceCodePath,
     swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
