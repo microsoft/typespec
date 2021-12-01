@@ -307,7 +307,7 @@ const diagnostics = {
   "decorator-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`${"decoratorName"} failed with errors. ${"error"}`,
+      default: paramMessage`Decorator ${"decoratorName"} failed!\n\n${"error"}`,
     },
   },
 
@@ -344,14 +344,10 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
-
-  /**
-   * Binder
-   */
   "on-build-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`onBuild failed with errors. ${"error"}`,
+      default: paramMessage`onBuild failed!\n\n${"error"}`,
     },
   },
 

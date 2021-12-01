@@ -26,7 +26,6 @@ import {
 } from "vscode-languageserver/node.js";
 import {
   compilerAssert,
-  computeTargetLocation,
   createSourceFile,
   formatDiagnostic,
   getSourceLocation,
@@ -209,18 +208,36 @@ async function compile(document: TextDocument): Promise<Program | undefined> {
     return undefined;
   }
 
-  let program = await createProgram(serverHost, mainFile, serverOptions);
-  if (!upToDate(document)) {
-    return undefined;
-  }
+  let program: Program;
+  try {
+    program = await createProgram(serverHost, mainFile, serverOptions);
+    if (!upToDate(document)) {
+      return undefined;
+    }
 
-  if (mainFile !== path && !program.sourceFiles.has(path)) {
-    // If the file that changed wasn't imported by anything from the main
-    // file, retry using the file itself as the main file.
-    program = await createProgram(serverHost, path, serverOptions);
-  }
+    if (mainFile !== path && !program.sourceFiles.has(path)) {
+      // If the file that changed wasn't imported by anything from the main
+      // file, retry using the file itself as the main file.
+      program = await createProgram(serverHost, path, serverOptions);
+    }
 
-  if (!upToDate(document)) {
+    if (!upToDate(document)) {
+      return undefined;
+    }
+  } catch (err: any) {
+    connection.sendDiagnostics({
+      uri: document.uri,
+      diagnostics: [
+        {
+          severity: DiagnosticSeverity.Error,
+          range: Range.create(document.positionAt(0), document.positionAt(0)),
+          message:
+            `Internal compiler error!\nFile issue at https://github.com/microsoft/cadl\n\n` +
+            err.stack,
+        },
+      ],
+    });
+
     return undefined;
   }
 
@@ -251,7 +268,7 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   for (const each of program.diagnostics) {
     let document: TextDocument | undefined;
 
-    const location = computeTargetLocation(each.target);
+    const location = getSourceLocation(each.target);
     if (location?.file) {
       document = (location.file as ServerSourceFile).document;
     } else {

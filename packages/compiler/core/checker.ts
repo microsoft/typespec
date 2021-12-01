@@ -1363,6 +1363,7 @@ export function createChecker(program: Program): Checker {
 
       decorators.unshift({
         decorator: sym.value,
+        node: decNode,
         args,
       });
     }
@@ -1644,8 +1645,8 @@ export function createChecker(program: Program): Checker {
         program.reportDiagnostic(
           createDiagnostic({
             code: "decorator-fail",
-            format: { decoratorName: decApp.decorator.name, error },
-            target,
+            format: { decoratorName: decApp.decorator.name, error: error.stack },
+            target: decApp.node ?? target,
           })
         );
       } else {
