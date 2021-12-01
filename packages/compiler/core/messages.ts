@@ -344,6 +344,12 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
+  "ambiguous-symbol": {
+    severity: "error",
+    messages: {
+      default: paramMessage`"${"name"}" is an ambiguous name between ${"duplicateNames"}`,
+    },
+  },
   "on-build-fail": {
     severity: "error",
     messages: {

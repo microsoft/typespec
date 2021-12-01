@@ -198,7 +198,6 @@ export function createChecker(program: Program): Checker {
   function setUsingsForFile(file: CadlScriptNode) {
     for (const using of file.usings) {
       const parentNs = using.parent! as NamespaceStatementNode | CadlScriptNode;
-
       const sym = resolveTypeReference(using.name);
       if (!sym) {
         continue;
@@ -215,15 +214,17 @@ export function createChecker(program: Program): Checker {
         continue;
       }
 
-      for (const [name, binding] of sym.node.exports!) {
-        parentNs.locals!.set(name, binding);
+      if (!parentNs.usingsRefs) {
+        parentNs.usingsRefs = [];
       }
+      parentNs.usingsRefs.push(sym.node);
     }
 
     if (cadlNamespaceNode) {
-      for (const [name, binding] of cadlNamespaceNode.exports!) {
-        file.locals!.set(name, binding);
+      if (!file.usingsRefs) {
+        file.usingsRefs = [];
       }
+      file.usingsRefs.push(cadlNamespaceNode);
     }
   }
 
@@ -871,9 +872,36 @@ export function createChecker(program: Program): Checker {
       binding = resolveIdentifierInTable(node, globalNamespaceNode.exports, resolveDecorator);
       if (binding) return binding;
 
-      // check "global scope" usings
+      // check standard lib types
       binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
       if (binding) return binding;
+
+      // check "global scope" usings
+      if (scope.usingsRefs) {
+        const bindings = scope.usingsRefs
+          .map((x) => ({
+            binding: resolveIdentifierInTable(node, x.exports!, resolveDecorator),
+            namespace: x,
+          }))
+          .filter((x) => x.binding !== undefined);
+        // binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+        if (bindings.length === 1) return bindings[0].binding;
+        if (bindings.length > 1) {
+          const duplicateNames = bindings
+            .map(
+              (x) => `${getNamespaceString(getTypeForNode(x.namespace) as any)}.${x.binding?.name}`
+            )
+            .join(", ");
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "ambiguous-symbol",
+              format: { name: node.sv, duplicateNames },
+              target: node,
+            })
+          );
+          return;
+        }
+      }
     }
 
     program.reportDiagnostic(

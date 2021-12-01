@@ -407,6 +407,7 @@ export interface MemberExpressionNode extends BaseNode {
 }
 
 export interface ContainerNode {
+  usingsRefs?: NamespaceStatementNode[];
   locals?: SymbolTable;
   exports?: SymbolTable;
 }
