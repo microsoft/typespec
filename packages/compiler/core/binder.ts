@@ -1,6 +1,5 @@
 import { compilerAssert } from "./diagnostics.js";
-import { createDiagnostic } from "./messages.js";
-import { visitChildren } from "./parser.js";
+import { NodeFlags, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
@@ -15,7 +14,6 @@ import {
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
-  NoTarget,
   OperationStatementNode,
   ScopeNode,
   Sym,
@@ -99,24 +97,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
         const name = getFunctionName(key);
         if (name === "onBuild") {
-          try {
-            program.onBuild(member as any);
-            continue;
-          } catch (err: any) {
-            if (program.compilerOptions.designTimeBuild) {
-              // do not exit the language server
-              program.reportDiagnostic(
-                createDiagnostic({
-                  code: "on-build-fail",
-                  format: { error: err },
-                  target: NoTarget,
-                })
-              );
-              continue;
-            } else {
-              throw err;
-            }
-          }
+          program.onBuild(member as any);
+          continue;
         }
 
         const memberNs: string = (member as any).namespace;
@@ -385,7 +367,7 @@ function createDecoratorSymbol(name: string, path: string, value: any): Decorato
   };
 }
 
-function createSyntheticNamespace(name: string): NamespaceStatementNode {
+function createSyntheticNamespace(name: string): NamespaceStatementNode & { flags: NodeFlags } {
   const nsId: IdentifierNode = {
     kind: SyntaxKind.Identifier,
     pos: 0,
@@ -401,5 +383,6 @@ function createSyntheticNamespace(name: string): NamespaceStatementNode {
     name: nsId,
     locals: createSymbolTable(),
     exports: createSymbolTable(),
+    flags: NodeFlags.Synthetic,
   };
 }

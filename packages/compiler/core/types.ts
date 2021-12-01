@@ -9,6 +9,7 @@ export type DecoratorArgument = Type | number | string | boolean;
 export interface DecoratorApplication {
   decorator: DecoratorFunction;
   args: DecoratorArgument[];
+  node?: DecoratorExpressionNode;
 }
 
 export interface DecoratorFunction {

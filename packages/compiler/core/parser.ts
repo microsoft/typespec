@@ -114,6 +114,11 @@ export const enum NodeFlags {
    * transitively) has a parse error.
    */
   DescendantHasError = 1 << 2,
+
+  /**
+   * Indicates that a node was created synthetically and therefore may not be parented.
+   */
+  Synthetic = 1 << 3,
 }
 
 /**
@@ -1591,6 +1596,10 @@ export function hasParseError(node: Node) {
 
   checkForDescendantErrors(node);
   return getFlag(node, NodeFlags.DescendantHasError);
+}
+
+export function isSynthetic(node: Node) {
+  return getFlag(node, NodeFlags.Synthetic);
 }
 
 function checkForDescendantErrors(node: Node) {

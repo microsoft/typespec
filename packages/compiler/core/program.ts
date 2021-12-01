@@ -3,7 +3,7 @@ import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { createSourceFile } from "./diagnostics.js";
+import { createSourceFile, getSourceLocation } from "./diagnostics.js";
 import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { CompilerOptions } from "./options.js";
@@ -110,7 +110,21 @@ export async function createProgram(
   program.checker.checkProgram();
 
   for (const cb of buildCbs) {
-    await cb(program);
+    try {
+      await cb(program);
+    } catch (error: any) {
+      if (options.designTimeBuild) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "on-build-fail",
+            format: { error: error.stack },
+            target: NoTarget,
+          })
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   return program;
@@ -427,6 +441,8 @@ export async function createProgram(
   }
 
   function reportDiagnostic(diagnostic: Diagnostic): void {
+    getSourceLocation(diagnostic.target);
+
     if (diagnostic.severity === "error") {
       error = true;
     }
