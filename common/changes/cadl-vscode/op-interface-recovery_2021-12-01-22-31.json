@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Improve error recovery from `op` keyword in interfaces",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

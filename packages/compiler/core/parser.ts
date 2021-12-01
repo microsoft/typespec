@@ -490,6 +490,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): OperationStatementNode {
+    if (token() === Token.OpKeyword) {
+      // Error recovery: common mistake to use `op` in interfaces as in
+      // namespaces or top-level. Better to assume it's an extra token
+      // before the operation name than an attempt to use `op` as the
+      // operation name.
+      error({ code: "interface-op" });
+      nextToken();
+    }
+
     const id = parseIdentifier();
     const parameters = parseOperationParameters();
     parseExpected(Token.Colon);

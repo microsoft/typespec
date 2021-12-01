@@ -349,9 +349,11 @@ const operationStatement: BeginEndRule = {
 const interfaceMember: BeginEndRule = {
   key: "interface-member",
   scope: meta,
-  begin: `(?:(${identifier}))`,
+  // `op` keyword is an error, but a common one, so recover from it
+  begin: `(?:\\b(op)\\b\\s+)?(${identifier})`,
   beginCaptures: {
-    "1": { scope: "entity.name.function.cadl" },
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "entity.name.type.cadl" },
   },
   end: universalEnd,
   patterns: [token, operationParameters, typeAnnotation],

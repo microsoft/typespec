@@ -139,6 +139,8 @@ describe("compiler: syntax", () => {
       "interface Foo { foo(): int32; }",
       "interface Foo { foo(): int32; bar(): int32; }",
     ]);
+
+    parseErrorEach([[`interface Foo { op foo(): int32 }`, [/'op' keyword/]]]);
   });
   describe("model expressions", () => {
     parseEach(['model Car { engine: { type: "v8" } }']);

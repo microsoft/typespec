@@ -166,6 +166,12 @@ const diagnostics = {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
     },
   },
+  "interface-op": {
+    severity: "error",
+    messages: {
+      default: "Interface operations cannot be prefixed with 'op' keyword",
+    },
+  },
 
   /**
    * Checker
