@@ -2,6 +2,18 @@
   "name": "tmlanguage-generator",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "tmlanguage-generator_v0.2.1",
+      "date": "Wed, 01 Dec 2021 22:56:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Update README"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "tmlanguage-generator_v0.2.0",
       "date": "Tue, 10 Aug 2021 20:23:04 GMT",

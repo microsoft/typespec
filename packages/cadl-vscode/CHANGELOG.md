@@ -1,6 +1,19 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Thu, 11 Nov 2021 21:46:21 GMT and should not be manually modified.
+This log was last generated on Wed, 01 Dec 2021 22:56:11 GMT and should not be manually modified.
+
+## 0.11.0
+Wed, 01 Dec 2021 22:56:11 GMT
+
+### Minor changes
+
+- Add syntax highlighting code-fenced cadl blocks in markdown
+
+### Patches
+
+- Fix colorization of multiple mixes
+- Fix syntax highlighting of namespace-qualified decorator application
+- Update README
 
 ## 0.10.0
 Thu, 11 Nov 2021 21:46:21 GMT
