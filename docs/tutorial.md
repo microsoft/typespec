@@ -363,27 +363,29 @@ Interfaces can be used to group operations.
 
 ```cadl
 interface A {
-  op a(): string;
+  a(): string;
 }
 
 interface B {
-  op b(): string;
+  b(): string;
 }
+
 ```
 
 And the keyword `mixes` can be used to compose operations from other interfaces into a new interface:
 
 ```cadl
 interface C mixes A, B {
-  op c(): string;
+  c(): string;
 }
 
 // C is equivalent to the following declaration
 interface C {
-  op a(): string;
-  op b(): string;
-  op c(): string;
+  a(): string;
+  b(): string;
+  c(): string;
 }
+
 ```
 
 ### Imports
