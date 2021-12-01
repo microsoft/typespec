@@ -30,6 +30,7 @@ const identifierStart = "[_$[:alpha:]]";
 const identifierContinue = "[_$[:alnum:]]";
 const beforeIdentifier = `(?=${identifierStart})`;
 const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
+const qualifiedIdentifier = `\\b${identifierStart}(${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
@@ -136,7 +137,7 @@ const parenthesizedExpression: BeginEndRule = {
 const decorator: BeginEndRule = {
   key: "decorator",
   scope: meta,
-  begin: `@(${identifier})`,
+  begin: `@(${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.function.cadl" },
   },

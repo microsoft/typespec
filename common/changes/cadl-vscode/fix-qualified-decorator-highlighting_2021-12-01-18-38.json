@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Fix syntax highlighting of namespace-qualified decorator application",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
