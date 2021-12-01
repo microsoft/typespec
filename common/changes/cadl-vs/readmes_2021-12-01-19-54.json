@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Update README",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vs"
+}
