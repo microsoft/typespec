@@ -129,7 +129,7 @@ describe("compiler: using statements", () => {
     await rejects(testHost.compile("./"));
   });
 
-  it("throws errors for different usings with the same bindings", async () => {
+  it("does not throws errors for different usings with the same bindings if not used", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -158,7 +158,44 @@ describe("compiler: using statements", () => {
       `
     );
 
-    await rejects(testHost.compile("./"));
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 0);
+  });
+
+  it("report ambigous diagnostics when using name present in multiple using", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./a.cadl";
+      import "./b.cadl";
+      `
+    );
+    testHost.addCadlFile(
+      "a.cadl",
+      `
+      namespace N {
+        model A { }
+      }
+
+      namespace M {
+        model A { }
+      }
+      `
+    );
+
+    testHost.addCadlFile(
+      "b.cadl",
+      `
+      using N;
+      using M;
+
+      model B extends A {}
+      `
+    );
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "ambiguous-symbol");
+    strictEqual(diagnostics[0].message, '"A" is an ambiguous name between N.A, M.A');
   });
 
   it("resolves 'local' decls over usings", async () => {
