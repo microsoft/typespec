@@ -122,11 +122,13 @@ describe("compiler: using statements", () => {
       `
       using N.M;
       using N.M;
-      @test model Y { ... X }
       `
     );
 
-    await rejects(testHost.compile("./"));
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "duplicate-using");
+    strictEqual(diagnostics[0].message, 'Duplicate using of "N.M" namespace');
   });
 
   it("does not throws errors for different usings with the same bindings if not used", async () => {
