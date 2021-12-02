@@ -90,7 +90,7 @@ In OpenAPI, the `paths` object [[v2][v2-paths], [v3][v3-paths]] is the top-level
 In Cadl, a path is associated with a `namespace` using the `@route` decorator. Then all operations within the namespace use this path, plus any path parameters an operation may define.
 
 ```cadl
-@resource("/pets")
+@route("/pets")
 namespace Pets {
   op create(@body pet: Pet): Pet; // uses path "/pets"
   op read(@path petId: int32): Pet; // uses path "/pets/{petId}"
@@ -111,7 +111,7 @@ But a namespace may contain operations for a set of related paths (depending on 
 The http method decorators also accept an explicit path, which is appended to the namespace path.
 
 ```cadl
-@resource("/pets")
+@route("/pets")
 namespace Pets {
   op @get list(): Pet[];                  // get on path "/pets"
   op @get read(@path petId: int32): Pet;  // get on path "/pets/{petId}"
