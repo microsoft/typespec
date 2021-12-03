@@ -246,6 +246,7 @@ export function getInterfaceOperations(program: Program, iface: InterfaceType): 
 const resourceOperationToVerb: any = {
   read: "get",
   create: "post",
+  createOrUpdate: "put",
   update: "patch",
   delete: "delete",
   list: "get",
