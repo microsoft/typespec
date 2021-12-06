@@ -1,5 +1,6 @@
 import fs from "fs";
 import { readFile, realpath, stat, writeFile } from "fs/promises";
+import mkdirp from "mkdirp";
 import fetch from "node-fetch";
 import { isAbsolute, join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
@@ -141,6 +142,7 @@ export const NodeHost: CompilerHost = {
     return realpath(path);
   },
   logSink: createConsoleSink(),
+  mkdirp: (path: string) => mkdirp(path),
 };
 
 export async function readUrlOrPath(host: CompilerHost, pathOrUrl: string): Promise<SourceFile> {

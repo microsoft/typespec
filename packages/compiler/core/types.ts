@@ -684,6 +684,12 @@ export interface CompilerHost {
    */
   writeFile(path: string, content: string): Promise<void>;
 
+  /**
+   * create directory recursively.
+   * @param path Path to the directory.
+   */
+  mkdirp(path: string): Promise<string | undefined>;
+
   // get the directory Cadl is executing from
   getExecutionRoot(): string;
 
