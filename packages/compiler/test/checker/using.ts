@@ -1,6 +1,7 @@
-import { rejects, strictEqual } from "assert";
+import { match, rejects, strictEqual } from "assert";
+import { getSourceLocation } from "../../core/index.js";
 import { Program } from "../../core/program";
-import { ModelType } from "../../core/types";
+import { ModelType } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
 describe("compiler: using statements", () => {
@@ -231,6 +232,53 @@ describe("compiler: using statements", () => {
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "ambiguous-symbol");
     strictEqual(diagnostics[0].message, '"A" is an ambiguous name between N.A, M.A');
+  });
+
+  it("ambigous use doesn't affect other files", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./a.cadl";
+      import "./ambiguous.cadl";
+      import "./notambiguous.cadl";
+      `
+    );
+    testHost.addCadlFile(
+      "a.cadl",
+      `
+      namespace N {
+        model A { }
+      }
+
+      namespace M {
+        model A { }
+      }
+      `
+    );
+
+    testHost.addCadlFile(
+      "ambiguous.cadl",
+      `
+      using N;
+      using M;
+
+      model Ambiguous extends A {}
+      `
+    );
+
+    testHost.addCadlFile(
+      "notambiguous.cadl",
+      `
+      using N;
+
+      model NotAmiguous extends A {}
+      `
+    );
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "ambiguous-symbol");
+    strictEqual(diagnostics[0].message, '"A" is an ambiguous name between N.A, M.A');
+    match(getSourceLocation(diagnostics[0].target)?.file.path!, /ambiguous\.cadl$/);
   });
 
   it("resolves 'local' decls over usings", async () => {
