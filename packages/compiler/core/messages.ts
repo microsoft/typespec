@@ -347,7 +347,7 @@ const diagnostics = {
   "ambiguous-symbol": {
     severity: "error",
     messages: {
-      default: paramMessage`"${"name"}" is an ambiguous name between ${"duplicateNames"}`,
+      default: paramMessage`"${"name"}" is an ambiguous name between ${"duplicateNames"}. Try using fully qualified name instead: ${"duplicateNames"}`,
     },
   },
   "duplicate-using": {

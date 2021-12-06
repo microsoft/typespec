@@ -243,14 +243,11 @@ export interface SymbolTableEntry {
   flags: SymbolFlags;
 }
 
-export interface SymbolTable extends Iterable<[string, Readonly<Sym>]> {
+export interface SymbolTable extends Map<string, Sym> {
   /**
    * Duplicate
    */
   readonly duplicates: Map<Sym, Set<Sym>>;
-
-  set(key: string, sym: Sym): void;
-  get(key: string): Readonly<Sym> | undefined;
 }
 
 /**

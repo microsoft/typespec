@@ -30,15 +30,14 @@ import {
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
 
-const SymbolTable = class implements SymbolTable {
+const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   duplicates = new Map<Sym, Set<Sym>>();
-  map = new Map<string, Sym>();
 
   // First set for a given key wins, but record all duplicates for diagnostics.
   set(key: string, value: Sym) {
-    const existing = this.map.get(key);
+    const existing = super.get(key);
     if (existing === undefined) {
-      this.map.set(key, value);
+      super.set(key, value);
     } else {
       if (existing.flags & SymbolFlags.using) {
         existing.flags = existing.flags | SymbolFlags.usingDuplicates;
@@ -52,14 +51,6 @@ const SymbolTable = class implements SymbolTable {
       }
     }
     return this;
-  }
-
-  get(key: string): Sym | undefined {
-    return this.map.get(key);
-  }
-
-  [Symbol.iterator](): IterableIterator<[string, Sym]> {
-    return this.map.entries();
   }
 };
 
