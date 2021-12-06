@@ -561,16 +561,18 @@ export async function createProgram(
     if (!symbols) {
       return;
     }
-    for (const symbol of symbols.duplicates) {
-      if (!duplicateSymbols.has(symbol)) {
-        duplicateSymbols.add(symbol);
-        reportDiagnostic(
-          createDiagnostic({
-            code: "duplicate-symbol",
-            format: { name: symbol.name },
-            target: symbol,
-          })
-        );
+    for (const set of symbols.duplicates.values()) {
+      for (const symbol of set) {
+        if (!duplicateSymbols.has(symbol)) {
+          duplicateSymbols.add(symbol);
+          reportDiagnostic(
+            createDiagnostic({
+              code: "duplicate-symbol",
+              format: { name: symbol.name },
+              target: symbol,
+            })
+          );
+        }
       }
     }
   }

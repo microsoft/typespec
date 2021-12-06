@@ -3,7 +3,7 @@ import { Program } from "../../core/program";
 import { ModelType } from "../../core/types";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe.only("compiler: using statements", () => {
+describe("compiler: using statements", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

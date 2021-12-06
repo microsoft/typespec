@@ -17,52 +17,49 @@ import {
   OperationStatementNode,
   ScopeNode,
   Sym,
+  SymbolFlags,
   SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
   TypeSymbol,
   UnionStatementNode,
   UsingStatementNode,
-  UsingSymbolTable,
 } from "./types.js";
 
 // Use a regular expression to define the prefix for Cadl-exposed functions
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
 
-const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
-  duplicates = new Set<Sym>();
+const SymbolTable = class implements SymbolTable {
+  duplicates = new Map<Sym, Set<Sym>>();
+  map = new Map<string, Sym>();
 
   // First set for a given key wins, but record all duplicates for diagnostics.
   set(key: string, value: Sym) {
-    const existing = this.get(key);
+    const existing = this.map.get(key);
     if (existing === undefined) {
-      super.set(key, value);
+      this.map.set(key, value);
     } else {
-      this.duplicates.add(existing);
-      this.duplicates.add(value);
+      if (existing.flags & SymbolFlags.using) {
+        existing.flags = existing.flags | SymbolFlags.usingDuplicates;
+      }
+
+      const duplicateArray = this.duplicates.get(existing);
+      if (duplicateArray) {
+        duplicateArray.add(value);
+      } else {
+        this.duplicates.set(existing, new Set([existing, value]));
+      }
     }
     return this;
   }
-};
 
-const UsingSymbolTable = class implements UsingSymbolTable {
-  [Symbol.iterator](): Iterator<[string, Sym[]], any, undefined> {
-    return this.map.entries();
-  }
-  map = new Map<string, Sym[]>();
-
-  set(key: string, sym: Sym): void {
-    const existing = this.map.get(key);
-    if (existing === undefined) {
-      this.map.set(key, [sym]);
-    } else {
-      existing.push(sym);
-    }
-  }
-
-  get(key: string): Sym[] | undefined {
+  get(key: string): Sym | undefined {
     return this.map.get(key);
+  }
+
+  [Symbol.iterator](): IterableIterator<[string, Sym]> {
+    return this.map.entries();
   }
 };
 
@@ -74,10 +71,6 @@ export interface Binder {
 
 export function createSymbolTable(): SymbolTable {
   return new SymbolTable();
-}
-
-export function createUsingSymbolTable(): UsingSymbolTable {
-  return new UsingSymbolTable();
 }
 
 export interface BinderOptions {
@@ -228,9 +221,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
       visitChildren(node, bindNode);
 
-      // if (node.kind !== SyntaxKind.NamespaceStatement && node.locals) {
-      //   program.reportDuplicateSymbols(node.locals!);
-      // }
+      if (node.kind !== SyntaxKind.NamespaceStatement && node.locals) {
+        program.reportDuplicateSymbols(node.locals!);
+      }
 
       scope = prevScope;
       currentNamespace = prevNamespace;
@@ -291,7 +284,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     if (existingBinding && existingBinding.kind === "type") {
       statement.symbol = existingBinding;
       // locals are never shared.
-      statement.locals = new UsingSymbolTable();
+      statement.locals = createSymbolTable();
 
       // todo: don't merge exports
       statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
@@ -299,7 +292,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
 
       // Initialize locals for non-exported symbols
-      statement.locals = new UsingSymbolTable();
+      statement.locals = createSymbolTable();
 
       // initialize exports for exported symbols
       statement.exports = new SymbolTable();
@@ -379,6 +372,7 @@ function createTypeSymbol(node: Node, name: string): TypeSymbol {
   return {
     kind: "type",
     node,
+    flags: SymbolFlags.none,
     name,
   };
 }
@@ -388,6 +382,7 @@ function createDecoratorSymbol(name: string, path: string, value: any): Decorato
     kind: "decorator",
     name: `@` + name,
     path,
+    flags: SymbolFlags.none,
     value,
   };
 }
@@ -406,7 +401,7 @@ function createSyntheticNamespace(name: string): NamespaceStatementNode & { flag
     pos: 0,
     end: 0,
     name: nsId,
-    locals: createUsingSymbolTable(),
+    locals: createSymbolTable(),
     exports: createSymbolTable(),
     flags: NodeFlags.Synthetic,
   };
