@@ -1,4 +1,4 @@
-import { createSymbolTable } from "./binder.js";
+import { createUsingSymbolTable } from "./binder.js";
 import { codePointBefore, isIdentifierContinue } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
@@ -239,7 +239,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       file: scanner.file,
       namespaces: [],
       usings: [],
-      locals: createSymbolTable(),
+      locals: createUsingSymbolTable(),
       inScopeNamespaces: [],
       parseDiagnostics,
       comments,

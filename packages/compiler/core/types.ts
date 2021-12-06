@@ -230,6 +230,11 @@ export interface SymbolTable extends Map<string, Sym> {
   readonly duplicates: Set<Sym>;
 }
 
+export interface UsingSymbolTable extends Iterable<[string, Sym[]]> {
+  set(key: string, sym: Sym): void;
+  get(key: string): Sym[] | undefined;
+}
+
 /**
  * Maps type arguments to instantiated type.
  */
@@ -408,7 +413,7 @@ export interface MemberExpressionNode extends BaseNode {
 
 export interface ContainerNode {
   usingsRefs?: NamespaceStatementNode[];
-  locals?: SymbolTable;
+  locals?: UsingSymbolTable;
   exports?: SymbolTable;
 }
 

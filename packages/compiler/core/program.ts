@@ -225,10 +225,10 @@ export async function createProgram(
     const cadlScript = loadCadlScriptSync(sourceFile);
     checker.mergeCadlSourceFile(cadlScript);
     checker.setUsingsForFile(cadlScript);
-    reportDuplicateSymbols(cadlScript.locals);
+    // reportDuplicateSymbols(cadlScript.locals);
     for (const ns of cadlScript.namespaces) {
       const mergedNs = checker.getMergedNamespace(ns);
-      reportDuplicateSymbols(mergedNs.locals);
+      // reportDuplicateSymbols(mergedNs.locals);
       reportDuplicateSymbols(mergedNs.exports);
     }
     reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports);

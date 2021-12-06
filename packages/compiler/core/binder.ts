@@ -23,6 +23,7 @@ import {
   TypeSymbol,
   UnionStatementNode,
   UsingStatementNode,
+  UsingSymbolTable,
 } from "./types.js";
 
 // Use a regular expression to define the prefix for Cadl-exposed functions
@@ -45,6 +46,26 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   }
 };
 
+const UsingSymbolTable = class implements UsingSymbolTable {
+  [Symbol.iterator](): Iterator<[string, Sym[]], any, undefined> {
+    return this.map.entries();
+  }
+  map = new Map<string, Sym[]>();
+
+  set(key: string, sym: Sym): void {
+    const existing = this.map.get(key);
+    if (existing === undefined) {
+      this.map.set(key, [sym]);
+    } else {
+      existing.push(sym);
+    }
+  }
+
+  get(key: string): Sym[] | undefined {
+    return this.map.get(key);
+  }
+};
+
 export interface Binder {
   bindSourceFile(sourceFile: CadlScriptNode): void;
   bindJsSourceFile(sourceFile: JsSourceFile): void;
@@ -53,6 +74,10 @@ export interface Binder {
 
 export function createSymbolTable(): SymbolTable {
   return new SymbolTable();
+}
+
+export function createUsingSymbolTable(): UsingSymbolTable {
+  return new UsingSymbolTable();
 }
 
 export interface BinderOptions {
@@ -203,9 +228,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
       visitChildren(node, bindNode);
 
-      if (node.kind !== SyntaxKind.NamespaceStatement && node.locals) {
-        program.reportDuplicateSymbols(node.locals!);
-      }
+      // if (node.kind !== SyntaxKind.NamespaceStatement && node.locals) {
+      //   program.reportDuplicateSymbols(node.locals!);
+      // }
 
       scope = prevScope;
       currentNamespace = prevNamespace;
@@ -266,7 +291,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     if (existingBinding && existingBinding.kind === "type") {
       statement.symbol = existingBinding;
       // locals are never shared.
-      statement.locals = new SymbolTable();
+      statement.locals = new UsingSymbolTable();
 
       // todo: don't merge exports
       statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
@@ -274,7 +299,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
 
       // Initialize locals for non-exported symbols
-      statement.locals = new SymbolTable();
+      statement.locals = new UsingSymbolTable();
 
       // initialize exports for exported symbols
       statement.exports = new SymbolTable();
@@ -381,7 +406,7 @@ function createSyntheticNamespace(name: string): NamespaceStatementNode & { flag
     pos: 0,
     end: 0,
     name: nsId,
-    locals: createSymbolTable(),
+    locals: createUsingSymbolTable(),
     exports: createSymbolTable(),
     flags: NodeFlags.Synthetic,
   };

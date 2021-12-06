@@ -1,4 +1,4 @@
-import { createSymbolTable } from "./binder.js";
+import { createSymbolTable, createUsingSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
 import { hasParseError } from "./parser.js";
@@ -58,6 +58,7 @@ import {
   UnionType,
   UnionTypeVariant,
   UnionVariantNode,
+  UsingSymbolTable,
 } from "./types.js";
 
 export interface Checker {
@@ -123,6 +124,8 @@ class MultiKeyMap<K extends object[], V> {
 const TypeInstantiationMap = class
   extends MultiKeyMap<Type[], Type>
   implements TypeInstantiationMap {};
+
+const DuplicateSym = Symbol("DuplicateSymbol");
 
 export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
@@ -214,17 +217,15 @@ export function createChecker(program: Program): Checker {
         continue;
       }
 
-      if (!parentNs.usingsRefs) {
-        parentNs.usingsRefs = [];
+      for (const [name, binding] of sym.node.exports!) {
+        parentNs.locals!.set(name, binding);
       }
-      parentNs.usingsRefs.push(sym.node);
     }
 
     if (cadlNamespaceNode) {
-      if (!file.usingsRefs) {
-        file.usingsRefs = [];
+      for (const [name, binding] of cadlNamespaceNode.exports!) {
+        file.locals!.set(name, binding);
       }
-      file.usingsRefs.push(cadlNamespaceNode);
     }
   }
 
@@ -735,7 +736,7 @@ export function createChecker(program: Program): Checker {
     node: IdentifierNode,
     table: SymbolTable | undefined,
     resolveDecorator = false
-  ) {
+  ): Sym | undefined {
     if (!table) {
       return undefined;
     }
@@ -747,6 +748,52 @@ export function createChecker(program: Program): Checker {
     }
 
     return getMergedSymbol(sym);
+  }
+
+  function resolveIdentifierInUsingTable(
+    node: IdentifierNode,
+    table: UsingSymbolTable | undefined,
+    resolveDecorator = false
+  ): Sym | typeof DuplicateSym | undefined {
+    if (!table) {
+      return undefined;
+    }
+    let symbols;
+    if (resolveDecorator) {
+      symbols = table.get("@" + node.sv);
+    } else {
+      symbols = table.get(node.sv);
+    }
+
+    if (!symbols) {
+      return undefined;
+    }
+
+    if (symbols.length > 1) {
+      reportAmbiguousIdentifier(node, symbols);
+      return DuplicateSym;
+    } else {
+      return getMergedSymbol(symbols[0]);
+    }
+  }
+
+  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
+    const duplicateNames = symbols
+      .map((x) => {
+        const namespace =
+          x.kind === "type"
+            ? getNamespaceString((getTypeForNode(x.node) as any).namespace)
+            : (x.value as any).namespace;
+        return `${namespace}.${node.sv}`;
+      })
+      .join(", ");
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "ambiguous-symbol",
+        format: { name: node.sv, duplicateNames },
+        target: node,
+      })
+    );
   }
 
   function resolveCompletions(identifier: IdentifierNode): Map<string, Sym> {
@@ -809,7 +856,7 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    function addCompletions(table: SymbolTable | undefined) {
+    function addCompletions(table: SymbolTable | UsingSymbolTable | undefined) {
       if (!table) {
         return;
       }
@@ -821,13 +868,18 @@ export function createChecker(program: Program): Checker {
           key = key.slice(1);
         }
         if (!completions.has(key)) {
-          completions.set(key, value);
+          if (Array.isArray(value)) {
+            // TODO? should complete propose different options and use fqn?
+            completions.set(key, value[0]);
+          } else {
+            completions.set(key, value);
+          }
         }
       }
     }
   }
 
-  function resolveIdentifier(node: IdentifierNode, resolveDecorator = false) {
+  function resolveIdentifier(node: IdentifierNode, resolveDecorator = false): Sym | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
       // The parse error is the root cause and will already have been logged.
@@ -849,8 +901,14 @@ export function createChecker(program: Program): Checker {
       }
 
       if ("locals" in scope) {
-        binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-        if (binding) return binding;
+        if ("duplicates" in scope.locals!) {
+          binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+        } else {
+          binding = resolveIdentifierInUsingTable(node, scope.locals, resolveDecorator);
+        }
+        if (binding) {
+          return binding === DuplicateSym ? undefined : binding;
+        }
       }
 
       scope = scope.parent;
@@ -873,34 +931,9 @@ export function createChecker(program: Program): Checker {
       if (binding) return binding;
 
       // check standard lib types
-      binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-      if (binding) return binding;
-
-      // check "global scope" usings
-      if (scope.usingsRefs) {
-        const bindings = scope.usingsRefs
-          .map((x) => ({
-            binding: resolveIdentifierInTable(node, x.exports!, resolveDecorator),
-            namespace: x,
-          }))
-          .filter((x) => x.binding !== undefined);
-        // binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-        if (bindings.length === 1) return bindings[0].binding;
-        if (bindings.length > 1) {
-          const duplicateNames = bindings
-            .map(
-              (x) => `${getNamespaceString(getTypeForNode(x.namespace) as any)}.${x.binding?.name}`
-            )
-            .join(", ");
-          program.reportDiagnostic(
-            createDiagnostic({
-              code: "ambiguous-symbol",
-              format: { name: node.sv, duplicateNames },
-              target: node,
-            })
-          );
-          return;
-        }
+      binding = resolveIdentifierInUsingTable(node, scope.locals, resolveDecorator);
+      if (binding) {
+        return binding === DuplicateSym ? undefined : binding;
       }
     }
 
@@ -989,9 +1022,9 @@ export function createChecker(program: Program): Checker {
   function checkProgram() {
     program.reportDuplicateSymbols(globalNamespaceNode.exports);
     for (const file of program.sourceFiles.values()) {
-      program.reportDuplicateSymbols(file.locals);
+      // program.reportDuplicateSymbols(file.locals);
       for (const ns of file.namespaces) {
-        program.reportDuplicateSymbols(ns.locals);
+        // program.reportDuplicateSymbols(ns.locals);
         program.reportDuplicateSymbols(ns.exports);
 
         initializeTypeForNamespace(ns);
@@ -1771,7 +1804,7 @@ export function createChecker(program: Program): Checker {
       pos: 0,
       end: 0,
       name: nsId,
-      locals: createSymbolTable(),
+      locals: createUsingSymbolTable(),
       exports: createSymbolTable(),
     };
   }
@@ -1804,13 +1837,13 @@ export function createChecker(program: Program): Checker {
   function dumpScope(scope = globalNamespaceNode, indent = 0) {
     if (scope.locals) {
       console.log(`${Array(indent * 2).join(" ")}-locals:`);
-      for (const [name, sym] of scope.locals) {
-        console.log(
-          `${Array(indent * 2 + 1).join(" ")}${name} => ${
-            sym.kind === "type" ? SyntaxKind[sym.node.kind] : "[fn]"
-          }`
-        );
-      }
+      // for (const [name, sym] of scope.locals) {
+      //   console.log(
+      //     `${Array(indent * 2 + 1).join(" ")}${name} => ${
+      //       sym.kind === "type" ? SyntaxKind[sym.node.kind] : "[fn]"
+      //     }`
+      //   );
+      // }
     }
     console.log(`${Array(indent * 2).join(" ")}-exports:`);
     for (const [name, sym] of scope.exports!) {
