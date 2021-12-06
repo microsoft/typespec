@@ -2166,15 +2166,19 @@ export function createChecker(program: Program): Checker {
     const left = evalProjectionNode(node.left);
     if (left.kind === "Return") {
       return left;
-    } else if (left.kind !== "Number") {
-      return errorType;
+    } else if (left.kind !== "Number" && left.kind !== "String") {
+      throw new Error("Can only compare numbers or strings");
     }
 
     const right = evalProjectionNode(node.right);
     if (right.kind === "Return") {
       return right;
-    } else if (right.kind !== "Number") {
-      return errorType;
+    } else if (right.kind !== "Number" && right.kind !== "String") {
+      throw new Error("Can only compare numbers or strings");
+    }
+
+    if (left.kind !== right.kind) {
+      throw new Error("Can't compare numbers and strings");
     }
 
     switch (node.op) {
@@ -2230,15 +2234,23 @@ export function createChecker(program: Program): Checker {
   }
 
   function evalProjectionIfExpression(node: ProjectionIfExpressionNode): TypeOrReturnRecord {
-    const test = evalProjectionNode(node.test);
-    if (test.kind === "Return") {
-      return test;
-    }
+    let ifExpr: ProjectionIfExpressionNode | undefined = node;
+    while (ifExpr) {
+      const test = evalProjectionNode(ifExpr.test);
+      if (test.kind === "Return") {
+        return test;
+      }
 
-    if (typeIsTruthy(test)) {
-      return evalProjectionBlockExpression(node.consequent);
-    } else if (node.alternate) {
-      return evalProjectionNode(node.alternate);
+      if (typeIsTruthy(test)) {
+        return evalProjectionBlockExpression(ifExpr.consequent);
+      } else if (
+        ifExpr.alternate &&
+        ifExpr.alternate.kind === SyntaxKind.ProjectionBlockExpression
+      ) {
+        return evalProjectionBlockExpression(ifExpr.alternate);
+      } else {
+        ifExpr = ifExpr.alternate;
+      }
     }
 
     return voidType;
@@ -2311,6 +2323,10 @@ export function createChecker(program: Program): Checker {
     if (!currentProjectionDirection) {
       topLevelProjection = true;
       currentProjectionDirection = node.direction;
+    }
+    if (currentProjectionDirection === "from" && !target.projectionSource) {
+      // this model wasn't projected, so we'll just return the target
+      return target;
     }
     const originalContext = evalContext;
     evalContext = createEvalContext(node);
@@ -2385,7 +2401,7 @@ export function createChecker(program: Program): Checker {
           const links = getSymbolLinks(sym);
           return links.declaredType || links.type || errorType;
         } else {
-          return errorType;
+          throw new Error(`Namespace doesn't have member ${member}`);
         }
       case "Model":
         switch (member) {
@@ -2440,39 +2456,42 @@ export function createChecker(program: Program): Checker {
               return voidType;
             });
           case "addProperty":
-            return functionTypeFromFunction((_: Program, nameT: Type, type: Type) => {
-              if (nameT.kind !== "String") {
-                throw new Error("Property name must be a string");
-              }
-              const name = literalTypeToValue(nameT);
+            return functionTypeFromFunction(
+              (_: Program, nameT: Type, type: Type, defaultT: Type) => {
+                if (nameT.kind !== "String") {
+                  throw new Error("Property name must be a string");
+                }
+                const name = literalTypeToValue(nameT);
 
-              const prop = base.properties.get(name);
-              if (prop) {
-                throw new Error(`Property ${name} already exists`);
-              }
+                const prop = base.properties.get(name);
+                if (prop) {
+                  throw new Error(`Property ${name} already exists`);
+                }
 
-              base.properties.set(
-                name,
-                createType({
-                  kind: "ModelProperty",
+                base.properties.set(
                   name,
-                  optional: false,
-                  decorators: [],
-                  node: undefined as any,
-                  type,
-                })
-              );
+                  createType({
+                    kind: "ModelProperty",
+                    name,
+                    optional: false,
+                    decorators: [],
+                    node: undefined as any,
+                    default: defaultT,
+                    type,
+                  })
+                );
 
-              if (emitInstructions) {
-                emittedInstructions.push({
-                  op: "addProperty",
-                  name,
-                  type,
-                });
+                if (emitInstructions) {
+                  emittedInstructions.push({
+                    op: "addProperty",
+                    name,
+                    type,
+                  });
+                }
+
+                return voidType;
               }
-
-              return voidType;
-            });
+            );
           case "deleteProperty":
             return functionTypeFromFunction((_: Program, nameT: Type) => {
               if (nameT.kind !== "String") {
@@ -2591,14 +2610,14 @@ export function createChecker(program: Program): Checker {
           case "renameVariant":
             return functionTypeFromFunction((_: Program, oldNameT: Type, newNameT: Type) => {
               if (oldNameT.kind !== "String" || newNameT.kind !== "String") {
-                return errorType;
+                throw new Error("Variant names must be strings");
               }
               const oldName = literalTypeToValue(oldNameT);
               const newName = literalTypeToValue(newNameT);
 
               const variant = base.variants.get(oldName);
               if (!variant) {
-                return errorType;
+                throw new Error(`Couldn't find variant ${variant}`);
               }
               base.variants.delete(oldName);
               base.variants.set(newName, variant);
@@ -2620,7 +2639,7 @@ export function createChecker(program: Program): Checker {
           case "addVariant":
             return functionTypeFromFunction((_: Program, nameT: Type, type: Type) => {
               if (nameT.kind !== "String") {
-                return errorType;
+                throw new Error("Variant name must be a string");
               }
               const name = literalTypeToValue(nameT);
               const variantType: UnionTypeVariant = createType({
@@ -2636,7 +2655,7 @@ export function createChecker(program: Program): Checker {
           case "deleteVariant":
             return functionTypeFromFunction((_: Program, nameT: Type) => {
               if (nameT.kind !== "String") {
-                return errorType;
+                throw new Error("Variant name must be a string");
               }
               const name = literalTypeToValue(nameT);
               base.variants.delete(name);
@@ -2701,7 +2720,7 @@ export function createChecker(program: Program): Checker {
           case "getVariant":
             return functionTypeFromFunction((_: Program, nameT: Type) => {
               if (nameT.kind !== "String") {
-                return errorType;
+                throw new Error("Variant name must be a string");
               }
               const name = literalTypeToValue(nameT);
               return base.variants.get(name) ?? voidType;
@@ -2730,11 +2749,6 @@ export function createChecker(program: Program): Checker {
                 throw new Error("`projectVariant` takes a name and a projection");
               }
 
-              let outerInstructions: ProjectionInstruction[];
-              if (emitInstructions) {
-                outerInstructions = emittedInstructions;
-                emittedInstructions = [];
-              }
               const projectionNode =
                 projection.nodeByType.get(base.type) ?? projection.nodeByKind.get(base.type.kind);
 
@@ -2852,14 +2866,14 @@ export function createChecker(program: Program): Checker {
           case "renameOperation":
             return functionTypeFromFunction((_: Program, oldNameT: Type, newNameT: Type) => {
               if (oldNameT.kind !== "String" || newNameT.kind !== "String") {
-                return errorType;
+                throw new Error("Operation names must be a string");
               }
               const oldName = literalTypeToValue(oldNameT);
               const newName = literalTypeToValue(newNameT);
 
               const op = base.operations.get(oldName);
               if (!op) {
-                return errorType;
+                throw new Error(`Couldn't find operation named ${oldName}`);
               }
               const clone = cloneType(op);
               clone.name = newName;
@@ -2875,7 +2889,7 @@ export function createChecker(program: Program): Checker {
             return functionTypeFromFunction(
               (_: Program, nameT: Type, parameters: Type, returnType: Type) => {
                 if (nameT.kind !== "String") {
-                  return errorType;
+                  throw new Error("Operation name must be a string");
                 }
                 const name = literalTypeToValue(nameT);
 
@@ -2910,7 +2924,7 @@ export function createChecker(program: Program): Checker {
           case "deleteOperation":
             return functionTypeFromFunction((_: Program, nameT: Type) => {
               if (nameT.kind !== "String") {
-                return errorType;
+                throw new Error("Operation name must be a string");
               }
               const name = literalTypeToValue(nameT);
 
@@ -2928,13 +2942,13 @@ export function createChecker(program: Program): Checker {
             return functionTypeFromFunction(
               (_: Program, nameT: Type, projection: Type, ...args: Type[]) => {
                 if (nameT.kind !== "String") {
-                  return errorType;
+                  throw new Error("Operation name must be a string");
                 }
                 const name = literalTypeToValue(nameT);
 
                 const op = base.operations.get(name);
                 if (!op) {
-                  return errorType;
+                  throw new Error(`Couldn't find operation named ${op}`);
                 }
 
                 if (projection.kind !== "Projection") {
@@ -3082,11 +3096,11 @@ export function createChecker(program: Program): Checker {
               return valueToLiteralType(paramCase(base.value));
             });
           default:
-            return errorType;
+            throw new Error(`String doesn't have member ${member}`);
         }
     }
 
-    throw new Error(`The type ${base.kind} has no members.`);
+    throw new Error(`The type ${JSON.stringify(base)} has no members, but you looked up ${member}`);
   }
 
   function functionTypeFromFunction(fn: (...args: any[]) => Type): FunctionType {
@@ -3240,7 +3254,7 @@ export function createChecker(program: Program): Checker {
     for (const [i, param] of node.parameters.entries()) {
       evalContext.locals.set(param.id.sv, args[i]);
     }
-    const retval = evalProjectionNode(node.body);
+    const retval = evalProjectionBlockExpression(node.body);
     evalContext = originalContext;
     if (retval.kind === "Return") {
       return retval.value;

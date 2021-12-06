@@ -229,7 +229,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   async function emitOpenAPI() {
     try {
       const routes = getRoutes(program);
-      const versions = getVersions(program, routes[0]) ?? [undefined];
+      if (routes.length === 0) {
+        return;
+      }
+      let versions: (string | number | undefined)[] = getVersions(program, routes[0]);
+      if (versions.length === 0) {
+        versions = [undefined];
+      }
       for (const [index, version] of versions.entries()) {
         initializeOpenAPI();
         currentVersion = version;
