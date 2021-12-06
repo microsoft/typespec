@@ -101,6 +101,39 @@ describe("compiler: using statements", () => {
     strictEqual(Y.properties.size, 1);
   });
 
+  it("can use 2 namespace with the same last name", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./a.cadl";
+      import "./b.cadl";
+      `
+    );
+    testHost.addCadlFile(
+      "a.cadl",
+      `
+      namespace N.A {
+        model B { }
+      }
+
+      namespace M.A {
+        model B { }
+      }
+      `
+    );
+
+    testHost.addCadlFile(
+      "b.cadl",
+      `
+      using N.A;
+      using M.A;
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 0);
+  });
+
   it("throws errors for duplicate imported usings", async () => {
     testHost.addCadlFile(
       "main.cadl",
@@ -128,7 +161,7 @@ describe("compiler: using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "duplicate-using");
-    strictEqual(diagnostics[0].message, 'Duplicate using of "N.M" namespace');
+    strictEqual(diagnostics[0].message, 'duplicate using of "N.M" namespace');
   });
 
   it("does not throws errors for different usings with the same bindings if not used", async () => {

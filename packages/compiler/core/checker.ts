@@ -1,6 +1,6 @@
 import { createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
-import { createDiagnostic } from "./messages.js";
+import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { hasParseError } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -199,12 +199,15 @@ export function createChecker(program: Program): Checker {
   }
 
   function setUsingsForFile(file: CadlScriptNode) {
+    const usedUsing = new Set<string>();
+
     for (const using of file.usings) {
       const parentNs = using.parent! as NamespaceStatementNode | CadlScriptNode;
       const sym = resolveTypeReference(using.name);
       if (!sym) {
         continue;
       }
+
       if (sym.kind === "decorator") {
         program.reportDiagnostic(
           createDiagnostic({ code: "using-invalid-ref", messageId: "decorator", target: using })
@@ -216,6 +219,17 @@ export function createChecker(program: Program): Checker {
         program.reportDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: using }));
         continue;
       }
+
+      const namespace = getNamespaceString(getTypeForNode(sym.node) as any);
+      if (usedUsing.has(namespace)) {
+        reportDiagnostic(program, {
+          code: "duplicate-using",
+          format: { usingName: namespace },
+          target: using,
+        });
+        continue;
+      }
+      usedUsing.add(namespace);
 
       for (const [name, binding] of sym.node.exports!) {
         parentNs.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });

@@ -350,6 +350,12 @@ const diagnostics = {
       default: paramMessage`"${"name"}" is an ambiguous name between ${"duplicateNames"}`,
     },
   },
+  "duplicate-using": {
+    severity: "error",
+    messages: {
+      default: paramMessage`duplicate using of "${"usingName"}" namespace`,
+    },
+  },
   "on-build-fail": {
     severity: "error",
     messages: {
