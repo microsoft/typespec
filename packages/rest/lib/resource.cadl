@@ -42,11 +42,20 @@ model ResourceCreatedResponse<T> {
   @Cadl.Http.body body: T;
 }
 
+interface ResourceCreateOrUpdate<TResource, TError> {
+  @doc("Creates or update a instance of the resource.")
+  @createOrUpdate(TResource)
+  Create(
+    ...ResourceParameters<TResource>,
+    @Cadl.Http.body resource: TResource
+  ): TResource | ResourceCreatedResponse<TResource> | TError;
+}
+
 interface ResourceCreate<TResource, TError> {
   @doc("Creates a new instance of the resource.")
   @create(TResource)
   Create(
-    ...ResourceParameters<TResource>,
+    ...ResourceCollectionParameters<TResource>,
     @Cadl.Http.body resource: TResource
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }

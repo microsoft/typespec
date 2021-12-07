@@ -33,9 +33,20 @@ model Toy {
   name: string;
 }
 
+@parentResource(Pet)
+model Checkup {
+  @segment("checkups")
+  @key
+  id: int32;
+  vetName: string;
+  notes: string;
+}
+
 interface Pets mixes ResourceOperations<Pet, PetStoreError> {}
 
 interface Toys mixes ResourceRead<Toy, PetStoreError> {
   @list(Toy)
   List(...ParentKeysOf<Toy>, @Cadl.Http.query nameFilter: string): Page<Toy> | PetStoreError;
 }
+
+interface Checkups mixes ResourceCreateOrUpdate<Checkup, PetStoreError>, ResourceList<Checkup, PetStoreError> {}
