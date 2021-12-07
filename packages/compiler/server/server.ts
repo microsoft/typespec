@@ -366,13 +366,14 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
   if (node === undefined) {
     addKeywordCompletion("root", completions);
   } else {
+    console.error("NOde is", SyntaxKind[node.kind], node.parent && SyntaxKind[node.parent.kind]);
     switch (node.kind) {
       case SyntaxKind.NamespaceStatement:
         addKeywordCompletion("namespace", completions);
         break;
-      case SyntaxKind.ModelStatement:
-        addKeywordCompletion("model", completions);
-        break;
+      // case SyntaxKind.ModelStatement:
+      //   addKeywordCompletion("model", completions);
+      // break;
       case SyntaxKind.Identifier:
         addIdentifierCompletion(program, node, completions);
         break;
@@ -430,7 +431,11 @@ function addIdentifierCompletion(
   node: IdentifierNode,
   completions: CompletionList
 ) {
-  for (const [key, { sym, label }] of program.checker!.resolveCompletions(node)) {
+  const result = program.checker!.resolveCompletions(node);
+  if (result.size === 0) {
+    return;
+  }
+  for (const [key, { sym, label }] of result) {
     let documentation: string | undefined;
     let kind: CompletionItemKind;
     if (sym.kind === "type") {
