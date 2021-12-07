@@ -41,9 +41,10 @@ import {
   SourceFile,
   SourceLocation,
   SyntaxKind,
+  Type,
 } from "../core/types.js";
 import { cadlVersion, doIO, loadFile, NodeHost } from "../core/util.js";
-import { getDoc } from "../lib/decorators.js";
+import { getDoc, isIntrinsic } from "../lib/decorators.js";
 
 interface ServerSourceFile extends SourceFile {
   // Keep track of the open doucment (if any) associated with a source file.
@@ -362,7 +363,6 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
   }
 
   const node = getNodeAtPosition(file, document.offsetAt(params.position));
-  console.error("node", node && SyntaxKind[node.kind]);
   if (node === undefined) {
     addKeywordCompletion("root", completions);
   } else {
@@ -386,6 +386,7 @@ interface KeywordArea {
   root?: boolean;
   namespace?: boolean;
   model?: boolean;
+  identifier?: boolean;
 }
 
 const keywords = [
@@ -405,6 +406,10 @@ const keywords = [
   // On model `model Foo <keyword> ...`
   ["extends", { model: true }],
   ["is", { model: true }],
+
+  // On identifier`
+  ["true", { identifier: true }],
+  ["false", { identifier: true }],
 ] as const;
 
 function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
@@ -432,7 +437,7 @@ function addIdentifierCompletion(
       const type = program!.checker!.getTypeForNode(sym.node);
       documentation = getDoc(program, type);
       // Todo: have mapping from cadl types https://github.com/microsoft/cadl/issues/112
-      kind = CompletionItemKind.Interface;
+      kind = getCompletionItemKind(program, type, sym.node.kind);
     } else {
       kind = CompletionItemKind.Function;
     }
@@ -442,6 +447,25 @@ function addIdentifierCompletion(
       kind,
       insertText: key,
     });
+  }
+  addKeywordCompletion("identifier", completions);
+}
+
+function getCompletionItemKind(
+  program: Program,
+  target: Type,
+  kind: SyntaxKind
+): CompletionItemKind {
+  switch (kind) {
+    case SyntaxKind.EnumStatement:
+    case SyntaxKind.UnionStatement:
+      return CompletionItemKind.Enum;
+    case SyntaxKind.AliasStatement:
+      return CompletionItemKind.Variable;
+    case SyntaxKind.ModelStatement:
+      return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+    default:
+      return CompletionItemKind.Struct;
   }
 }
 
