@@ -436,7 +436,9 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function checkTypeReference(node: TypeReferenceNode): Type {
+  function checkTypeReference(
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
+  ): Type {
     const sym = resolveTypeReference(node);
     if (!sym) {
       return errorType;
@@ -459,7 +461,7 @@ export function createChecker(program: Program): Checker {
     }
 
     const symbolLinks = getSymbolLinks(sym);
-    let args = node.arguments.map(getTypeForNode);
+    let args = node.kind === SyntaxKind.TypeReference ? node.arguments.map(getTypeForNode) : [];
 
     // this will be the type referred to by the type reference
     // it is initialized differently depending on what kind of type
@@ -562,51 +564,54 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    for (const projection of node.projections) {
-      const target = resolveTypeReference(projection.target);
-      if (!target) {
-        // should have already reported an error, so just proceed.
-        continue;
-      }
-      if (target.kind !== "projection") {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "invalid-projection",
-            messageId: "wrongType",
-            target: projection,
-          })
-        );
-        continue;
-      }
-      if (!target.node.to) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "invalid-projection",
-            messageId: "noTo",
-            target: projection,
-          })
-        );
-        continue;
-      }
-      checkProjectionDeclaration(target.node);
-      const args = projection.arguments.map(getTypeForNode);
-      try {
-        baseType = evalProjectionStatement(target.node.to, baseType, args);
-      } catch (e: any) {
-        if (e.name === "ProjectionError") {
+    if (node.kind === SyntaxKind.TypeReference) {
+      for (const projection of node.projections) {
+        const target = resolveTypeReference(projection.target);
+        if (!target) {
+          // should have already reported an error, so just proceed.
+          continue;
+        }
+        if (target.kind !== "projection") {
           program.reportDiagnostic(
             createDiagnostic({
               code: "invalid-projection",
-              messageId: "projectionError",
+              messageId: "wrongType",
               target: projection,
-              format: { message: e.message },
             })
           );
-        } else {
-          throw e;
+          continue;
+        }
+        if (!target.node.to) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-projection",
+              messageId: "noTo",
+              target: projection,
+            })
+          );
+          continue;
+        }
+        checkProjectionDeclaration(target.node);
+        const args = projection.arguments.map(getTypeForNode);
+        try {
+          baseType = evalProjectionStatement(target.node.to, baseType, args);
+        } catch (e: any) {
+          if (e.name === "ProjectionError") {
+            program.reportDiagnostic(
+              createDiagnostic({
+                code: "invalid-projection",
+                messageId: "projectionError",
+                target: projection,
+                format: { message: e.message },
+              })
+            );
+          } else {
+            throw e;
+          }
         }
       }
     }
+
     return baseType;
   }
 
@@ -2464,7 +2469,32 @@ export function createChecker(program: Program): Checker {
   function evalProjectionMemberExpression(node: ProjectionMemberExpressionNode): Type {
     const base = evalProjectionNode(node.base);
     const member = node.id.sv;
+    const selector = node.selector;
 
+    if (selector === "@") {
+      switch (base.kind) {
+        case "Model":
+          const prop = base.properties.get(member);
+          if (!prop) {
+            throw new ProjectionError(`Model doesn't have property ${member}`);
+          }
+          return prop;
+        case "Enum":
+          const enumMember = base.members.find((v) => v.name === member);
+          if (!enumMember) {
+            throw new ProjectionError(`Enum doesn't have member ${member}`);
+          }
+          return enumMember;
+        case "Union":
+          const variant = base.variants.get(member);
+          if (!variant) {
+            throw new ProjectionError(`Union doesn't have variant ${member}`);
+          }
+          return variant;
+        default:
+          throw new ProjectionError(`Can't get members of type ${base.kind}`);
+      }
+    }
     switch (base.kind) {
       case "Namespace":
         const sym = base.node.exports!.get(member) as TypeSymbol;

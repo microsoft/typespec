@@ -779,6 +779,7 @@ export interface ProjectionReferenceExpressionNode extends BaseNode {
   reference: ProjectionMemberExpressionNode | IdentifierNode;
   arguments: ProjectionExpression[];
 }
+
 export interface ProjectionCallExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionCallExpression;
   callKind: "method" | "template";
@@ -790,6 +791,7 @@ export interface ProjectionMemberExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionMemberExpression;
   base: ProjectionExpression;
   id: IdentifierNode;
+  selector: "." | "@";
 }
 
 export interface ProjectionModelExpressionNode extends BaseNode {
@@ -858,7 +860,8 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode<Proje
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
     | ProjectionEnumSelectorNode
-    | TypeReferenceNode;
+    | MemberExpressionNode
+    | IdentifierNode;
   to?: ProjectionNode;
   from?: ProjectionNode;
 }

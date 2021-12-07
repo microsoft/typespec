@@ -523,6 +523,7 @@ ProjectionCallExpression :
     ProjectionDecoratorReferenceExpression
     ProjectionCallExpression ProjectionCallArguments
     ProjectionCallExpression `.` Identifier
+    ProjectionCallExpression `@` Identifier
 
 ProjectionCallArguments :
     `(` ProjectionExpressionList? `)`
@@ -534,6 +535,7 @@ ProjectionDecoratorReferenceExpression :
 ProjectionMemberExpression :
     ProjectionPrimaryExpression
     ProjectionMemberExpression `.` Identifier
+    ProjectionMemberExpression `@` Identifier
 
 ProjectionPrimaryExpression :
     `self`

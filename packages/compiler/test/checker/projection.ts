@@ -663,7 +663,7 @@ describe("cadl: projections", () => {
       const projectedModel = Foo.properties.get("test")!.type as ModelType;
       ok(projectedModel.properties.has("propOne"), "should have camel cased properties");
     });
-    it.only("reports errors as diagnostics", async () => {
+    it("reports errors as diagnostics", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `

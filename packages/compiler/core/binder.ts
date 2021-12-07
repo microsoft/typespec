@@ -326,7 +326,10 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     }
     node.symbol = sym;
 
-    if (node.selector.kind !== SyntaxKind.TypeReference) {
+    if (
+      node.selector.kind !== SyntaxKind.Identifier &&
+      node.selector.kind !== SyntaxKind.MemberExpression
+    ) {
       const selectorString =
         node.selector.kind === SyntaxKind.ProjectionModelSelector
           ? "model"
@@ -345,8 +348,6 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       }
 
       sym.byKind.set(selectorString, { to: node.to, from: node.from });
-    } else {
-      sym.byId.set(node.selector, { to: node.to, from: node.from });
     }
   }
 

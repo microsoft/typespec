@@ -1523,6 +1523,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           kind: SyntaxKind.ProjectionMemberExpression,
           base: expr,
           id: parseIdentifier(),
+          selector: ".",
+          ...finishNode(pos),
+        };
+      } else if (parseOptional(Token.At)) {
+        expr = {
+          kind: SyntaxKind.ProjectionMemberExpression,
+          base: expr,
+          id: parseIdentifier(),
+          selector: "@",
           ...finishNode(pos),
         };
       } else {
@@ -1723,7 +1732,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
   function parseProjectionSelector():
-    | TypeReferenceNode
+    | IdentifierNode
+    | MemberExpressionNode
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
     | ProjectionOperationSelectorNode
@@ -1741,7 +1751,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     switch (selectorTok) {
       case Token.Identifier:
-        return parseReferenceExpression();
+        return parseIdentifierOrMemberExpression();
       case Token.ModelKeyword:
         nextToken();
         return {
