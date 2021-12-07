@@ -37,6 +37,7 @@ import { createProgram, Program } from "../core/program.js";
 import {
   CompilerHost,
   Diagnostic as CadlDiagnostic,
+  IdentifierNode,
   SourceFile,
   SourceLocation,
   SyntaxKind,
@@ -361,10 +362,69 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
   }
 
   const node = getNodeAtPosition(file, document.offsetAt(params.position));
-  if (node?.kind !== SyntaxKind.Identifier) {
-    return completions;
+  console.error("node", node && SyntaxKind[node.kind]);
+  if (node === undefined) {
+    addKeywordCompletion("root", completions);
+  } else {
+    switch (node.kind) {
+      case SyntaxKind.NamespaceStatement:
+        addKeywordCompletion("namespace", completions);
+        break;
+      case SyntaxKind.ModelStatement:
+        addKeywordCompletion("model", completions);
+        break;
+      case SyntaxKind.Identifier:
+        addIdentifierCompletion(program, node, completions);
+        break;
+    }
   }
 
+  return completions;
+}
+
+interface KeywordArea {
+  root?: boolean;
+  namespace?: boolean;
+  model?: boolean;
+}
+
+const keywords = [
+  // Root only
+  ["import", { root: true }],
+
+  // Root and namespace
+  ["using", { root: true, namespace: true }],
+  ["model", { root: true, namespace: true }],
+  ["namespace", { root: true, namespace: true }],
+  ["interface", { root: true, namespace: true }],
+  ["union", { root: true, namespace: true }],
+  ["enum", { root: true, namespace: true }],
+  ["alias", { root: true, namespace: true }],
+  ["op", { root: true, namespace: true }],
+
+  // On model `model Foo <keyword> ...`
+  ["extends", { model: true }],
+  ["is", { model: true }],
+] as const;
+
+function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
+  const filteredKeywords = keywords.filter(([_, x]) => area in x);
+  for (const [keyword] of filteredKeywords) {
+    completions.items.push({
+      label: keyword,
+      kind: CompletionItemKind.Keyword,
+    });
+  }
+}
+
+/**
+ * Add completion options for an identifier.
+ */
+function addIdentifierCompletion(
+  program: Program,
+  node: IdentifierNode,
+  completions: CompletionList
+) {
   for (const [key, { sym, label }] of program.checker!.resolveCompletions(node)) {
     let documentation: string | undefined;
     let kind: CompletionItemKind;
@@ -383,8 +443,6 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
       insertText: key,
     });
   }
-
-  return completions;
 }
 
 function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
