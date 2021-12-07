@@ -10,6 +10,14 @@ export function $doc(program: Program, target: Type, text: string) {
 }
 
 export function getDoc(program: Program, target: Type): string {
+  const docsProjections = target.projectionsByName("docs");
+  for (const proj of docsProjections) {
+    if (!proj.to) {
+      continue;
+    }
+    target = program.checker!.project(target, proj.to);
+  }
+
   return program.stateMap(docsKey).get(target);
 }
 

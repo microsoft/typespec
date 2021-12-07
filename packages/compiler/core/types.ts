@@ -21,6 +21,7 @@ export interface BaseType {
   node?: Node;
   instantiationParameters?: Type[];
   get projections(): ProjectionStatementNode[];
+  projectionsByName(name: string): ProjectionStatementNode[];
   projectionSource?: Type;
 }
 

@@ -58,6 +58,7 @@ import {
   ProjectionStatementItem,
   ProjectionStatementNode,
   ProjectionSymbol,
+  ProjectionType,
   ProjectionUnaryExpressionNode,
   ReturnExpressionNode,
   ReturnRecord,
@@ -170,6 +171,9 @@ export function createChecker(program: Program): Checker {
         projectionsByType.get(this as Type) || []
       );
     },
+    projectionsByName(name: string): ProjectionStatementNode[] {
+      return this.projections.filter((p) => p.id.sv === name);
+    },
   };
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceType = createGlobalNamespaceType();
@@ -187,6 +191,9 @@ export function createChecker(program: Program): Checker {
     ["Enum", []],
   ]);
   const projectionsByType = new Map<Type, ProjectionStatementNode[]>();
+  // whether we've checked this specific projection statement before
+  // and added it to the various projection maps.
+  const processedProjections = new Set<ProjectionStatementNode>();
 
   // interpreter state
   let currentProjectionDirection: "to" | "from" | undefined;
@@ -268,6 +275,20 @@ export function createChecker(program: Program): Checker {
       name: "inspect",
       value(p: Program, str: Type): Type {
         console.log(str);
+        return voidType;
+      },
+    });
+
+    cadlNamespaceNode!.exports!.set("projectSelf", {
+      kind: "function",
+      name: "projectSelf",
+      value(p: Program, projectionName: string, arg1: Type): Type {
+        let selfType = evalContext!.locals.get("self")!;
+        const projections = selfType.projectionsByName(projectionName);
+        for (const proj of projections) {
+          selfType = project(selfType, proj[currentProjectionDirection!]!, arg1 ? [arg1] : []);
+        }
+        evalContext!.locals.set("self", selfType);
         return voidType;
       },
     });
@@ -1977,17 +1998,19 @@ export function createChecker(program: Program): Checker {
    */
   function cloneType<T extends Type>(type: T, additionalProps: { [P in keyof T]?: T[P] } = {}): T {
     // TODO: this needs to handle other types
+    let clone;
     switch (type.kind) {
       case "Model":
-        return finishType({
+        clone = finishType({
           ...type,
           properties: new Map(
             Array.from(type.properties.entries()).map(([key, prop]) => [key, cloneType(prop)])
           ),
           ...additionalProps,
         });
+        break;
       case "Union":
-        return finishType({
+        clone = finishType({
           ...type,
           variants: new Map<string | Symbol, UnionTypeVariant>(
             Array.from(type.variants.entries()).map(([key, prop]) => [
@@ -2001,24 +2024,32 @@ export function createChecker(program: Program): Checker {
           },
           ...additionalProps,
         });
+        break;
       case "Interface":
-        return finishType({
+        clone = finishType({
           ...type,
           operations: new Map(type.operations.entries()),
           ...additionalProps,
         });
+        break;
       case "Enum":
-        return finishType({
+        clone = finishType({
           ...type,
           members: [...type.members.map((v) => cloneType(v))],
           ...additionalProps,
         });
+        break;
       default:
-        return finishType({
+        clone = finishType({
           ...type,
           ...additionalProps,
         });
     }
+    if (projectionsByType.has(type)) {
+      projectionsByType.set(clone, projectionsByType.get(type)!);
+    }
+
+    return clone;
   }
 
   /**
@@ -2055,20 +2086,26 @@ export function createChecker(program: Program): Checker {
     // this could maybe go in the binder? But right now we don't know
     // what an identifier resolves to until check time.
     const links = getSymbolLinks(node.symbol!);
-    if (links.declaredType) {
-      return links.declaredType;
+    if (processedProjections.has(node)) {
+      return links.declaredType!;
     }
-
+    processedProjections.add(node);
     program.reportDiagnostic(
       createDiagnostic({ code: "projections-are-experimental", target: node })
     );
 
-    let type = (links.declaredType = createType({
-      kind: "Projection",
-      node: undefined,
-      nodeByKind: new Map(),
-      nodeByType: new Map(),
-    }));
+    let type;
+
+    if (links.declaredType) {
+      type = links.declaredType as ProjectionType;
+    } else {
+      type = links.declaredType = createType({
+        kind: "Projection",
+        node: undefined,
+        nodeByKind: new Map(),
+        nodeByType: new Map(),
+      });
+    }
 
     switch (node.selector.kind) {
       case SyntaxKind.ProjectionModelSelector:
@@ -2437,12 +2474,13 @@ export function createChecker(program: Program): Checker {
     if (topLevelProjection) {
       currentProjectionDirection = undefined;
     }
+    const selfResult = evalContext.locals.get("self")!;
     evalContext = originalContext;
 
     if (lastVal.kind === "Return") {
       return lastVal.value;
     } else {
-      return clone;
+      return selfResult;
     }
   }
 
@@ -2506,6 +2544,8 @@ export function createChecker(program: Program): Checker {
         }
       case "Model":
         switch (member) {
+          case "name":
+            return valueToLiteralType(base.name);
           case "projectionSource":
             return base.projectionSource?.projectionSource || voidType;
           case "properties":

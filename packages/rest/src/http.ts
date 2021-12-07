@@ -31,6 +31,9 @@ export function getHttpOperation(
     parameters: operation.parameters,
     decorators: operation.decorators,
     projections: [],
+    projectionsByName() {
+      return [];
+    },
   };
 }
 

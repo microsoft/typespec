@@ -158,3 +158,21 @@ function appliesAtVersion(
 
   return testVersionIndex >= appliedOnVersionIndex;
 }
+
+export function versionCompare(
+  p: Program,
+  versionSource: Type,
+  v1: string | number,
+  v2: string | number
+): number {
+  const versions = getVersions(p, versionSource);
+  if (!versions || versions.length === 0) {
+    return 0;
+  }
+  const v1Index = versions.indexOf(v1);
+  if (v1Index === -1) return 0;
+  const v2Index = versions.indexOf(v2);
+  if (v2Index === -1) return 0;
+
+  return v1Index - v2Index;
+}

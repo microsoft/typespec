@@ -111,6 +111,7 @@ projection union#v {
 #suppress "projections-are-experimental"
 projection model#v {
   to(version) {
+    projectSelf("customVersion", version);
     if addedAfter(self, version) {
       return never;
     } else if (removedOnOrBefore(self, version)) {
@@ -138,6 +139,7 @@ projection model#v {
     };
   }
   from(version) {
+    projectSelf("customVersion", version);
     if addedAfter(self, version) {
       return never;
     } else if (removedOnOrBefore(self, version)) {
