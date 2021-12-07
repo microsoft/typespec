@@ -7,14 +7,15 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Microsoft.VisualStudio.Workspace;
+using Microsoft.VisualStudio.Workspace.Settings;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
-
 using Task = System.Threading.Tasks.Task;
-
+using System.Linq;
 
 namespace Microsoft.Cadl.VisualStudio {
   [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
@@ -36,37 +37,51 @@ namespace Microsoft.Cadl.VisualStudio {
   [Export(typeof(ILanguageClient))]
   [ContentType("cadl")]
   public sealed class LanguageClient : ILanguageClient {
+
     public string Name => "Cadl";
-    public IEnumerable<string>? ConfigurationSections => null;
+    public IEnumerable<string>? ConfigurationSections {
+      get {
+        yield return "cadl";
+      }
+    }
+
     public object? InitializationOptions => null;
-    public bool ShowNotificationOnInitializeFailed =>  true;
+    public bool ShowNotificationOnInitializeFailed => true;
     public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.cadl", "**/package.json" };
     public event AsyncEventHandler<EventArgs>? StartAsync;
     public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
 
+    private readonly IVsFolderWorkspaceService workspaceService;
+
+    [ImportingConstructor]
+    public LanguageClient([Import] IVsFolderWorkspaceService workspaceService) {
+      this.workspaceService = workspaceService;
+    }
+
     public async Task<Connection?> ActivateAsync(CancellationToken token) {
       await Task.Yield();
 
+      var workspace = workspaceService.CurrentWorkspace;
+      var settingsManager = workspace?.GetSettingsManager();
+      var settings = settingsManager?.GetAggregatedSettings(SettingsTypes.Generic);
       var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
+      var (serverCommand, serverArgs) = resolveCadlServer(settings);
       var info = new ProcessStartInfo {
         // Use cadl-server on PATH in production
-        FileName = "cadl-server.cmd",
-        Arguments = "--stdio",
+        FileName = serverCommand,
+        Arguments = string.Join(" ", serverArgs),
         RedirectStandardInput = true,
         RedirectStandardOutput = true,
         RedirectStandardError = true,
         UseShellExecute = false,
         CreateNoWindow = true,
         Environment = { new("NODE_OPTIONS", options) },
+        WorkingDirectory = settings?.ScopePath,
       };
 
 #if DEBUG
       // Use local build of cadl-server in development (lauched from F5 in VS)
       if (InDevelopmentMode()) {
-        var module = GetDevelopmentCadlServerPath();
-        info.FileName = "node.exe";
-        info.Arguments = $"{options} {module} {info.Arguments}";
-        // --nolazy isn't supported by NODE_OPTIONS so we pass these via CLI instead
         info.Environment.Remove("NODE_OPTIONS");
       }
 #endif
@@ -99,7 +114,7 @@ namespace Microsoft.Cadl.VisualStudio {
       Debug.Fail("Failed to initialize cadl-server:\r\n\r\n" + initializationState.InitializationException);
       return Task.FromResult<InitializationFailureContext?>(null);
     }
- #endif
+#endif
 
     public Task OnServerInitializedAsync() {
       return Task.CompletedTask;
@@ -115,7 +130,7 @@ namespace Microsoft.Cadl.VisualStudio {
       // there's probably a bug.
       Debugger.Log(0, null, "cadl-server (stderr): " + message);
       Debug.Assert(
-        message.IndexOf("debugger", StringComparison.OrdinalIgnoreCase) >= 0 || 
+        message.IndexOf("debugger", StringComparison.OrdinalIgnoreCase) >= 0 ||
         message.IndexOf("https://nodejs.org/en/docs/inspector", StringComparison.Ordinal) >= 0,
         "Unexpected output on stderr from cadl-server: " + message);
     }
@@ -138,5 +153,35 @@ namespace Microsoft.Cadl.VisualStudio {
       return Path.GetFullPath(Path.Combine(srcDir, "../compiler/cmd/cadl-server.js"));
     }
 #endif
+
+    private (string, string[]) resolveCadlServer(IWorkspaceSettings? settings) {
+      var args = new string[] { "--stdio" };
+
+#if DEBUG
+      // Use local build of cadl-server in development (lauched from F5 in VS)
+      if (InDevelopmentMode()) {
+        var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
+        var module = GetDevelopmentCadlServerPath();
+        return ("node.exe", new string[] { module, options }.Concat(args).ToArray());
+      }
+#endif
+
+      var serverPath = settings.Property<string>("cadl.cadl-server.path");
+      if (serverPath == null) {
+        return ("cadl-server.cmd", args);
+      }
+
+      if (!serverPath.EndsWith(".js")) {
+        if (File.Exists(serverPath)) {
+          var command = serverPath.EndsWith(".cmd") ? serverPath : $"${serverPath}.cmd";
+          return (command, args);
+        } else {
+          serverPath = Path.Combine(serverPath, "cmd/cadl-server.js");
+        }
+      }
+      return ("node.exe", new string[] { serverPath }.Concat(args).ToArray());
+
+    }
   }
 }
+
