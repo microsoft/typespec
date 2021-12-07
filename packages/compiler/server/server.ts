@@ -37,12 +37,14 @@ import { createProgram, Program } from "../core/program.js";
 import {
   CompilerHost,
   Diagnostic as CadlDiagnostic,
+  IdentifierNode,
   SourceFile,
   SourceLocation,
   SyntaxKind,
+  Type,
 } from "../core/types.js";
 import { cadlVersion, doIO, loadFile, NodeHost } from "../core/util.js";
-import { getDoc } from "../lib/decorators.js";
+import { getDoc, isIntrinsic } from "../lib/decorators.js";
 
 interface ServerSourceFile extends SourceFile {
   // Keep track of the open doucment (if any) associated with a source file.
@@ -361,18 +363,81 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
   }
 
   const node = getNodeAtPosition(file, document.offsetAt(params.position));
-  if (node?.kind !== SyntaxKind.Identifier) {
-    return completions;
+  if (node === undefined) {
+    addKeywordCompletion("root", completions);
+  } else {
+    switch (node.kind) {
+      case SyntaxKind.NamespaceStatement:
+        addKeywordCompletion("namespace", completions);
+        break;
+      case SyntaxKind.Identifier:
+        addIdentifierCompletion(program, node, completions);
+        break;
+    }
   }
 
-  for (const [key, { sym, label }] of program.checker!.resolveCompletions(node)) {
+  return completions;
+}
+
+interface KeywordArea {
+  root?: boolean;
+  namespace?: boolean;
+  model?: boolean;
+  identifier?: boolean;
+}
+
+const keywords = [
+  // Root only
+  ["import", { root: true }],
+
+  // Root and namespace
+  ["using", { root: true, namespace: true }],
+  ["model", { root: true, namespace: true }],
+  ["namespace", { root: true, namespace: true }],
+  ["interface", { root: true, namespace: true }],
+  ["union", { root: true, namespace: true }],
+  ["enum", { root: true, namespace: true }],
+  ["alias", { root: true, namespace: true }],
+  ["op", { root: true, namespace: true }],
+
+  // On model `model Foo <keyword> ...`
+  ["extends", { model: true }],
+  ["is", { model: true }],
+
+  // On identifier`
+  ["true", { identifier: true }],
+  ["false", { identifier: true }],
+] as const;
+
+function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
+  const filteredKeywords = keywords.filter(([_, x]) => area in x);
+  for (const [keyword] of filteredKeywords) {
+    completions.items.push({
+      label: keyword,
+      kind: CompletionItemKind.Keyword,
+    });
+  }
+}
+
+/**
+ * Add completion options for an identifier.
+ */
+function addIdentifierCompletion(
+  program: Program,
+  node: IdentifierNode,
+  completions: CompletionList
+) {
+  const result = program.checker!.resolveCompletions(node);
+  if (result.size === 0) {
+    return;
+  }
+  for (const [key, { sym, label }] of result) {
     let documentation: string | undefined;
     let kind: CompletionItemKind;
     if (sym.kind === "type") {
       const type = program!.checker!.getTypeForNode(sym.node);
       documentation = getDoc(program, type);
-      // Todo: have mapping from cadl types https://github.com/microsoft/cadl/issues/112
-      kind = CompletionItemKind.Interface;
+      kind = getCompletionItemKind(program, type, sym.node.kind);
     } else {
       kind = CompletionItemKind.Function;
     }
@@ -383,8 +448,25 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
       insertText: key,
     });
   }
+  addKeywordCompletion("identifier", completions);
+}
 
-  return completions;
+function getCompletionItemKind(
+  program: Program,
+  target: Type,
+  kind: SyntaxKind
+): CompletionItemKind {
+  switch (kind) {
+    case SyntaxKind.EnumStatement:
+    case SyntaxKind.UnionStatement:
+      return CompletionItemKind.Enum;
+    case SyntaxKind.AliasStatement:
+      return CompletionItemKind.Variable;
+    case SyntaxKind.ModelStatement:
+      return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+    default:
+      return CompletionItemKind.Struct;
+  }
 }
 
 function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
