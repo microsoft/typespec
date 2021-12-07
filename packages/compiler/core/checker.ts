@@ -81,7 +81,13 @@ export interface Checker {
   getTypeName(type: Type): string;
   getNamespaceString(type: NamespaceType | undefined): string;
   cloneType<T extends Type>(type: T): T;
-  resolveCompletions(node: IdentifierNode): Map<string, Sym>;
+  resolveCompletions(node: IdentifierNode): Map<string, CadlCompletitionItem>;
+}
+
+export interface CadlCompletitionItem {
+  sym: Sym;
+  label?: string;
+  info?: string;
 }
 
 /**
@@ -124,8 +130,6 @@ class MultiKeyMap<K extends object[], V> {
 const TypeInstantiationMap = class
   extends MultiKeyMap<Type[], Type>
   implements TypeInstantiationMap {};
-
-const DuplicateSym = Symbol("DuplicateSymbol");
 
 export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
@@ -789,8 +793,8 @@ export function createChecker(program: Program): Checker {
     );
   }
 
-  function resolveCompletions(identifier: IdentifierNode): Map<string, Sym> {
-    const completions = new Map<string, Sym>();
+  function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletitionItem> {
+    const completions = new Map<string, CadlCompletitionItem>();
 
     // If first non-MemberExpression parent of identifier is a TypeReference
     // or DecoratorExpression, then we can complete it.
@@ -853,7 +857,7 @@ export function createChecker(program: Program): Checker {
       if (!table) {
         return;
       }
-      for (let [key, value] of table) {
+      for (let [key, sym] of table) {
         if (resolveDecorator !== key.startsWith("@")) {
           continue;
         }
@@ -861,11 +865,20 @@ export function createChecker(program: Program): Checker {
           key = key.slice(1);
         }
         if (!completions.has(key)) {
-          if (Array.isArray(value)) {
-            // TODO? should complete propose different options and use fqn?
-            completions.set(key, value[0]);
+          // TODO? should complete propose different options and use fqn?
+
+          if (sym.flags & SymbolFlags.using && sym.flags & SymbolFlags.usingDuplicates) {
+            const duplicates = table.duplicates.get(sym)!;
+            for (const duplicate of duplicates) {
+              const namespace =
+                duplicate.kind === "type"
+                  ? getNamespaceString((getTypeForNode(duplicate.node) as any).namespace)
+                  : (duplicate.value as any).namespace;
+              const fqn = `${namespace}.${key}`;
+              completions.set(fqn, { sym: duplicate, label: key, info: namespace });
+            }
           } else {
-            completions.set(key, value);
+            completions.set(key, { sym });
           }
         }
       }

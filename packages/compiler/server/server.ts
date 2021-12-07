@@ -2,6 +2,7 @@ import { dirname, isAbsolute, join, normalize } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionItemKind,
   CompletionList,
   CompletionParams,
   Connection,
@@ -364,13 +365,22 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
     return completions;
   }
 
-  for (const [label, sym] of program.checker!.resolveCompletions(node)) {
+  for (const [key, { sym, label, info }] of program.checker!.resolveCompletions(node)) {
     let documentation: string | undefined;
+    let kind: CompletionItemKind;
     if (sym.kind === "type") {
       const type = program!.checker!.getTypeForNode(sym.node);
       documentation = getDoc(program, type);
+      kind = CompletionItemKind.Interface;
+    } else {
+      kind = CompletionItemKind.Function;
     }
-    completions.items.push({ label, documentation });
+    completions.items.push({
+      label: { label: label ?? key, description: info } as any,
+      documentation,
+      kind,
+      insertText: key,
+    });
   }
 
   return completions;
