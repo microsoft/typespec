@@ -52,12 +52,13 @@ For `type: string` data types:
 
 There are two ways to define an `enum` data type. One is with the [Cadl `enum` statement(https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#enums)], e.g.:
 
-```
+```cadl
 enum Color {
   Red: "red",
   Blue: "blue",
   Green: "green",
 }
+
 ```
 
 You can a use the union operation to define the enum values inline, e.g.:
@@ -113,11 +114,11 @@ The http method decorators also accept an explicit path, which is appended to th
 ```cadl
 @route("/pets")
 namespace Pets {
-  op @get list(): Pet[];                  // get on path "/pets"
-  op @get read(@path petId: int32): Pet;  // get on path "/pets/{petId}"
-  @post("{petId}:walk")
-  op walk(... PetId): {};                 // post on path "/pets/{petId}:walk"
+  @get op list(): Pet[]; // get on path "/pets"
+  @get op read(@path petId: int32): Pet; // get on path "/pets/{petId}"
+  @post("{petId}:walk") op walk(... PetId): ; // post on path "/pets/{petId}:walk"
 }
+
 ```
 
 ## Operation Object
@@ -226,10 +227,9 @@ But Cadl processes all spread transformations before emitters are invoked, so th
 
 The spread operation is useful if you want one or more properties to be present in several different models but in a standard fashion. For example:
 
-````
+```cadl
 model Legs {
-  @doc("number of legs")
-  legs: int32;
+  @doc("number of legs") legs: int32;
 }
 
 model Dog {
@@ -246,11 +246,12 @@ model Snake {
   name: string;
   // snakes have no legs
 }
-```
-
-Cadl also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI.  For example:
 
 ```
+
+Cadl also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. For example:
+
+```cadl
 model Pet {
   name: string;
 }
@@ -262,9 +263,10 @@ model Cat extends Pet {
 model Dog extends Pet {
   bark: string;
 }
+
 ```
 
- Cadl does not current provide a means to produce an `allOf` with more than one element -- these are generally treated as "composition" in code generators and thus better represented in Cadl with the spread operator.
+Cadl does not current provide a means to produce an `allOf` with more than one element -- these are generally treated as "composition" in code generators and thus better represented in Cadl with the spread operator.
 
 Cadl does not yet support a means to specify an OpenAPI `discriminator` but this support is currently in development.
 
@@ -285,7 +287,7 @@ namespace Pets {
   op read(... PetId): Pet | Error;
 }
 
-````
+```
 
 results in a `$ref` to the named parameter `PetId` in either `parameters` or `components.parameters`.
 
@@ -331,8 +333,7 @@ For example:
 
 ```cadl
 namespace Pets {
-  @extension("x-streaming-operation", true)
-  op read(... PetId): Pet | Error;
+  @extension("x-streaming-operation", true) op read(... PetId): Pet | Error;
 }
 
 ```
