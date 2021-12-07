@@ -94,6 +94,16 @@ export class AggregateError extends Error {
   }
 }
 
+/**
+ * Represents a failure while interpreting a projection.
+ */
+export class ProjectionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ProjectionError";
+  }
+}
+
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 

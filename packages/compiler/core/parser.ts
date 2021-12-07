@@ -57,6 +57,7 @@ import {
   ProjectionNode,
   ProjectionOperationSelectorNode,
   ProjectionParameterDeclarationNode,
+  ProjectionReferenceNode,
   ProjectionStatementItem,
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
@@ -876,15 +877,33 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
     const args = parseOptionalList(ListKind.TemplateArguments, parseExpression);
+    const projections = parseProjectionReferences();
 
     return {
       kind: SyntaxKind.TypeReference,
       target,
+      projections,
       arguments: args,
       ...finishNode(pos),
     };
   }
 
+  function parseProjectionReferences(): ProjectionReferenceNode[] {
+    const refs: ProjectionReferenceNode[] = [];
+    while (token() === Token.Hash) {
+      const pos = tokenPos();
+      parseExpected(Token.Hash);
+      const target = parseIdentifierOrMemberExpression("identifier");
+      const args = parseOptionalList(ListKind.CallArguments, parseExpression);
+      refs.push({
+        kind: SyntaxKind.ProjectionReference,
+        target,
+        arguments: args,
+        ...finishNode(pos),
+      });
+    }
+    return refs;
+  }
   function parseImportStatement(): ImportStatementNode {
     const pos = tokenPos();
 
@@ -1363,10 +1382,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const pos: number = expr.pos;
       const tok = token();
       if (tok === Token.Plus || tok === Token.Hyphen) {
+        const op = tokenValue() as any;
         nextToken();
         expr = {
           kind: SyntaxKind.ProjectionArithmeticExpression,
-          op: tokenValue() as any,
+          op,
           left: expr,
           right: parseProjectionMultiplicativeExpressionOrHigher(),
           ...finishNode(pos),
@@ -1414,10 +1434,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         ...finishNode(pos),
       };
     }
-    return parseProjectionReferenceExpressionOrHigher();
+    return parseProjectionProjectionReferenceExpressionOrHigher();
   }
 
-  function parseProjectionReferenceExpressionOrHigher(): ProjectionExpression {
+  function parseProjectionProjectionReferenceExpressionOrHigher(): ProjectionExpression {
     const pos = tokenPos();
     let expr = parseProjectionCallExpressionOrHigher();
     while (token() === Token.Hash) {
@@ -1429,7 +1449,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
 
       expr = {
-        kind: SyntaxKind.ProjectionReference,
+        kind: SyntaxKind.ProjectionProjectionReference,
         target: expr,
         reference,
         arguments: args,
@@ -2191,6 +2211,12 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.NamedImport:
       return visitNode(cb, node.id);
     case SyntaxKind.TypeReference:
+      return (
+        visitNode(cb, node.target) ||
+        visitEach(cb, node.arguments) ||
+        visitEach(cb, node.projections)
+      );
+    case SyntaxKind.ProjectionReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
@@ -2240,7 +2266,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.from) ||
         visitNode(cb, node.to)
       );
-    case SyntaxKind.ProjectionReference:
+    case SyntaxKind.ProjectionProjectionReference:
       return (
         visitNode(cb, node.target) || visitNode(cb, node.reference) || visitEach(cb, node.arguments)
       );

@@ -167,7 +167,15 @@ const diagnostics = {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
     },
   },
-
+  "invalid-projection": {
+    severity: "error",
+    messages: {
+      default: "Invalid projection",
+      wrongType: "Non-projection can't be used to project",
+      noTo: "Projection missing to projection",
+      projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
+    },
+  },
   /**
    * Checker
    */

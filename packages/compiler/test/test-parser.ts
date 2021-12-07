@@ -536,6 +536,15 @@ describe("compiler: syntax", () => {
       const codes = exprs.map((exp) => `projection foo#tag { to { ${exp}; } }`);
       parseEach(codes);
     });
+    describe("projection references", () => {
+      parseEach([
+        `alias test = foo#bar;`,
+        `alias test = foo.bar#baz;`,
+        `alias test = foo.bar#baz();`,
+        `alias test = foo.bar#baz(a, b);`,
+        `alias test = foo#bar(a,b)#baz();`,
+      ]);
+    });
   });
 });
 

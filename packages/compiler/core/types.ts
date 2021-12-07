@@ -316,6 +316,7 @@ export enum SyntaxKind {
   VoidKeyword,
   NeverKeyword,
   TypeReference,
+  ProjectionReference,
   TemplateParameterDeclaration,
   EmptyStatement,
   InvalidStatement,
@@ -346,7 +347,7 @@ export enum SyntaxKind {
   ProjectionSpreadProperty,
   ProjectionTupleExpression,
   ProjectionStatement,
-  ProjectionReference,
+  ProjectionProjectionReference,
   ProjectionDecoratorReferenceExpression,
   Return,
 }
@@ -375,6 +376,7 @@ export type Node =
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | DirectiveExpressionNode
+  | ProjectionReferenceNode
   | Statement
   | Expression
   | ProjectionStatementItem
@@ -687,6 +689,13 @@ export interface TypeReferenceNode extends BaseNode {
   kind: SyntaxKind.TypeReference;
   target: MemberExpressionNode | IdentifierNode;
   arguments: Expression[];
+  projections: ProjectionReferenceNode[];
+}
+
+export interface ProjectionReferenceNode extends BaseNode {
+  kind: SyntaxKind.ProjectionReference;
+  target: MemberExpressionNode | IdentifierNode;
+  arguments: Expression[];
 }
 
 export interface TemplateParameterDeclarationNode extends BaseNode {
@@ -765,7 +774,7 @@ export interface ProjectionUnaryExpressionNode extends BaseNode {
 }
 
 export interface ProjectionReferenceExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionReference;
+  kind: SyntaxKind.ProjectionProjectionReference;
   target: ProjectionExpression;
   reference: ProjectionMemberExpressionNode | IdentifierNode;
   arguments: ProjectionExpression[];

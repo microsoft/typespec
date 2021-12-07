@@ -549,7 +549,7 @@ describe("cadl: projections", () => {
 
       const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
       let result = testHost.program.checker!.getProjectionInstructions(Foo, Foo.projections[0].to!);
-      console.log(JSON.stringify(result, null, 4));
+      // todo: test result
     });
 
     it("can emit instructions for versioning", async () => {
@@ -632,6 +632,58 @@ describe("cadl: projections", () => {
       result = testHost.program.checker!.getProjectionInstructions(Foo, toVersion, [2]);
       strictEqual(result[0].op, "deleteProperty");
       strictEqual(result[1].op, "deleteProperty");
+    });
+  });
+
+  describe("references", () => {
+    it("works", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test model Foo {
+          test: Bar#camelCase
+        }
+
+        model Bar {
+          prop_one: string;
+        };
+        
+        #suppress "projections-are-experimental"
+        projection model#camelCase {
+          to {
+            self.properties.forEach((p) => {
+              self.projectProperty(p.name, camelCase);
+              self.renameProperty(p.name, p.name.toCamelCase());
+            });
+          }
+        }
+      `
+      );
+      const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
+      const projectedModel = Foo.properties.get("test")!.type as ModelType;
+      ok(projectedModel.properties.has("propOne"), "should have camel cased properties");
+    });
+    it.only("reports errors as diagnostics", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test model Foo {
+          test: Bar#throw
+        }
+
+        model Bar {};
+        
+        #suppress "projections-are-experimental"
+        projection model#throw {
+          to {
+            1+"hi";
+          }
+        }
+      `
+      );
+      const diags = await testHost.diagnose("main.cadl");
+      strictEqual(diags.length, 1);
+      strictEqual(diags[0].code, "invalid-projection");
     });
   });
 });

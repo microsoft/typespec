@@ -236,7 +236,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       if (versions.length === 0) {
         versions = [undefined];
       }
-      for (const [index, version] of versions.entries()) {
+      for (const version of versions) {
         initializeOpenAPI();
         currentVersion = version;
         for (let route of routes) {
@@ -272,7 +272,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         if (!program.compilerOptions.noEmit && !program.hasError()) {
           // Write out the OpenAPI document to the output path
           await program.host.writeFile(
-            path.resolve(options.outputFile.replace(".json", `.v${index}.json`)),
+            path.resolve(options.outputFile.replace(".json", `.${version}.json`)),
             prettierOutput(JSON.stringify(root, null, 2))
           );
         }
