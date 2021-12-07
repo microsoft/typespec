@@ -81,10 +81,10 @@ export interface Checker {
   getTypeName(type: Type): string;
   getNamespaceString(type: NamespaceType | undefined): string;
   cloneType<T extends Type>(type: T): T;
-  resolveCompletions(node: IdentifierNode): Map<string, CadlCompletitionItem>;
+  resolveCompletions(node: IdentifierNode): Map<string, CadlCompletionItem>;
 }
 
-export interface CadlCompletitionItem {
+export interface CadlCompletionItem {
   sym: Sym;
 
   /**
@@ -796,8 +796,8 @@ export function createChecker(program: Program): Checker {
     );
   }
 
-  function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletitionItem> {
-    const completions = new Map<string, CadlCompletitionItem>();
+  function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletionItem> {
+    const completions = new Map<string, CadlCompletionItem>();
 
     // If first non-MemberExpression parent of identifier is a TypeReference
     // or DecoratorExpression, then we can complete it.
@@ -1031,9 +1031,7 @@ export function createChecker(program: Program): Checker {
   function checkProgram() {
     program.reportDuplicateSymbols(globalNamespaceNode.exports);
     for (const file of program.sourceFiles.values()) {
-      // program.reportDuplicateSymbols(file.locals);
       for (const ns of file.namespaces) {
-        // program.reportDuplicateSymbols(ns.locals);
         program.reportDuplicateSymbols(ns.exports);
 
         initializeTypeForNamespace(ns);
@@ -1855,13 +1853,13 @@ export function createChecker(program: Program): Checker {
   function dumpScope(scope = globalNamespaceNode, indent = 0) {
     if (scope.locals) {
       console.log(`${Array(indent * 2).join(" ")}-locals:`);
-      // for (const [name, sym] of scope.locals) {
-      //   console.log(
-      //     `${Array(indent * 2 + 1).join(" ")}${name} => ${
-      //       sym.kind === "type" ? SyntaxKind[sym.node.kind] : "[fn]"
-      //     }`
-      //   );
-      // }
+      for (const [name, sym] of scope.locals) {
+        console.log(
+          `${Array(indent * 2 + 1).join(" ")}${name} => ${
+            sym.kind === "type" ? SyntaxKind[sym.node.kind] : "[fn]"
+          }`
+        );
+      }
     }
     console.log(`${Array(indent * 2).join(" ")}-exports:`);
     for (const [name, sym] of scope.exports!) {
