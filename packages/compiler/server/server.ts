@@ -365,18 +365,19 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
     return completions;
   }
 
-  for (const [key, { sym, label, info }] of program.checker!.resolveCompletions(node)) {
+  for (const [key, { sym, label }] of program.checker!.resolveCompletions(node)) {
     let documentation: string | undefined;
     let kind: CompletionItemKind;
     if (sym.kind === "type") {
       const type = program!.checker!.getTypeForNode(sym.node);
       documentation = getDoc(program, type);
+      // Todo: have mapping from cadl types https://github.com/microsoft/cadl/issues/112
       kind = CompletionItemKind.Interface;
     } else {
       kind = CompletionItemKind.Function;
     }
     completions.items.push({
-      label: { label: label ?? key, description: info } as any,
+      label: label ?? key,
       documentation,
       kind,
       insertText: key,

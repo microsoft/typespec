@@ -86,8 +86,11 @@ export interface Checker {
 
 export interface CadlCompletitionItem {
   sym: Sym;
+
+  /**
+   *  Optional label if different from the text to complete.
+   */
   label?: string;
-  info?: string;
 }
 
 /**
@@ -875,7 +878,7 @@ export function createChecker(program: Program): Checker {
                   ? getNamespaceString((getTypeForNode(duplicate.node) as any).namespace)
                   : (duplicate.value as any).namespace;
               const fqn = `${namespace}.${key}`;
-              completions.set(fqn, { sym: duplicate, label: key, info: namespace });
+              completions.set(fqn, { sym: duplicate });
             }
           } else {
             completions.set(key, { sym });
