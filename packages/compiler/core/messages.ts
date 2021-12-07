@@ -344,6 +344,18 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
+  "ambiguous-symbol": {
+    severity: "error",
+    messages: {
+      default: paramMessage`"${"name"}" is an ambiguous name between ${"duplicateNames"}. Try using fully qualified name instead: ${"duplicateNames"}`,
+    },
+  },
+  "duplicate-using": {
+    severity: "error",
+    messages: {
+      default: paramMessage`duplicate using of "${"usingName"}" namespace`,
+    },
+  },
   "on-build-fail": {
     severity: "error",
     messages: {

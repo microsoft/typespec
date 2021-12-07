@@ -207,6 +207,7 @@ export interface DecoratorSymbol {
   kind: "decorator";
   path: string;
   name: string;
+  flags: SymbolFlags;
   value: (...args: any[]) => any;
 }
 
@@ -214,7 +215,18 @@ export interface TypeSymbol {
   kind: "type";
   node: Node;
   name: string;
+  flags: SymbolFlags;
   id?: number;
+}
+
+export const enum SymbolFlags {
+  none = 0,
+
+  /**
+   * If the symbol is used from a using
+   */
+  using = 1 << 0,
+  usingDuplicates = 1 << 1,
 }
 
 export interface SymbolLinks {
@@ -226,8 +238,16 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
+export interface SymbolTableEntry {
+  sym: Sym;
+  flags: SymbolFlags;
+}
+
 export interface SymbolTable extends Map<string, Sym> {
-  readonly duplicates: Set<Sym>;
+  /**
+   * Duplicate
+   */
+  readonly duplicates: Map<Sym, Set<Sym>>;
 }
 
 /**
@@ -407,6 +427,7 @@ export interface MemberExpressionNode extends BaseNode {
 }
 
 export interface ContainerNode {
+  usingsRefs?: NamespaceStatementNode[];
   locals?: SymbolTable;
   exports?: SymbolTable;
 }

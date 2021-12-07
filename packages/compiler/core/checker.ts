@@ -1,6 +1,6 @@
 import { createSymbolTable } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
-import { createDiagnostic } from "./messages.js";
+import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { hasParseError } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -42,6 +42,7 @@ import {
   StringLiteralNode,
   StringLiteralType,
   Sym,
+  SymbolFlags,
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
@@ -80,7 +81,16 @@ export interface Checker {
   getTypeName(type: Type): string;
   getNamespaceString(type: NamespaceType | undefined): string;
   cloneType<T extends Type>(type: T): T;
-  resolveCompletions(node: IdentifierNode): Map<string, Sym>;
+  resolveCompletions(node: IdentifierNode): Map<string, CadlCompletionItem>;
+}
+
+export interface CadlCompletionItem {
+  sym: Sym;
+
+  /**
+   *  Optional label if different from the text to complete.
+   */
+  label?: string;
 }
 
 /**
@@ -162,7 +172,7 @@ export function createChecker(program: Program): Checker {
     cadlNamespaceNode = cadlNamespaceBinding.node;
     for (const file of program.sourceFiles.values()) {
       for (const [name, binding] of cadlNamespaceNode.exports!) {
-        file.locals!.set(name, binding);
+        file.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });
       }
     }
   }
@@ -196,13 +206,15 @@ export function createChecker(program: Program): Checker {
   }
 
   function setUsingsForFile(file: CadlScriptNode) {
+    const usedUsing = new Set<string>();
+
     for (const using of file.usings) {
       const parentNs = using.parent! as NamespaceStatementNode | CadlScriptNode;
-
       const sym = resolveTypeReference(using.name);
       if (!sym) {
         continue;
       }
+
       if (sym.kind === "decorator") {
         program.reportDiagnostic(
           createDiagnostic({ code: "using-invalid-ref", messageId: "decorator", target: using })
@@ -215,14 +227,25 @@ export function createChecker(program: Program): Checker {
         continue;
       }
 
+      const namespace = getNamespaceString(getTypeForNode(sym.node) as any);
+      if (usedUsing.has(namespace)) {
+        reportDiagnostic(program, {
+          code: "duplicate-using",
+          format: { usingName: namespace },
+          target: using,
+        });
+        continue;
+      }
+      usedUsing.add(namespace);
+
       for (const [name, binding] of sym.node.exports!) {
-        parentNs.locals!.set(name, binding);
+        parentNs.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });
       }
     }
 
     if (cadlNamespaceNode) {
       for (const [name, binding] of cadlNamespaceNode.exports!) {
-        file.locals!.set(name, binding);
+        file.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });
       }
     }
   }
@@ -734,7 +757,7 @@ export function createChecker(program: Program): Checker {
     node: IdentifierNode,
     table: SymbolTable | undefined,
     resolveDecorator = false
-  ) {
+  ): Sym | undefined {
     if (!table) {
       return undefined;
     }
@@ -745,11 +768,36 @@ export function createChecker(program: Program): Checker {
       sym = table.get(node.sv);
     }
 
+    if (!sym) return sym;
+
+    if (sym.flags & SymbolFlags.using && sym.flags & SymbolFlags.usingDuplicates) {
+      reportAmbiguousIdentifier(node, [...(table.duplicates.get(sym) ?? [])]);
+      return sym;
+    }
     return getMergedSymbol(sym);
   }
 
-  function resolveCompletions(identifier: IdentifierNode): Map<string, Sym> {
-    const completions = new Map<string, Sym>();
+  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
+    const duplicateNames = symbols
+      .map((x) => {
+        const namespace =
+          x.kind === "type"
+            ? getNamespaceString((getTypeForNode(x.node) as any).namespace)
+            : (x.value as any).namespace;
+        return `${namespace}.${node.sv}`;
+      })
+      .join(", ");
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "ambiguous-symbol",
+        format: { name: node.sv, duplicateNames },
+        target: node,
+      })
+    );
+  }
+
+  function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletionItem> {
+    const completions = new Map<string, CadlCompletionItem>();
 
     // If first non-MemberExpression parent of identifier is a TypeReference
     // or DecoratorExpression, then we can complete it.
@@ -812,7 +860,7 @@ export function createChecker(program: Program): Checker {
       if (!table) {
         return;
       }
-      for (let [key, value] of table) {
+      for (let [key, sym] of table) {
         if (resolveDecorator !== key.startsWith("@")) {
           continue;
         }
@@ -820,13 +868,27 @@ export function createChecker(program: Program): Checker {
           key = key.slice(1);
         }
         if (!completions.has(key)) {
-          completions.set(key, value);
+          // TODO? should complete propose different options and use fqn?
+
+          if (sym.flags & SymbolFlags.using && sym.flags & SymbolFlags.usingDuplicates) {
+            const duplicates = table.duplicates.get(sym)!;
+            for (const duplicate of duplicates) {
+              const namespace =
+                duplicate.kind === "type"
+                  ? getNamespaceString((getTypeForNode(duplicate.node) as any).namespace)
+                  : (duplicate.value as any).namespace;
+              const fqn = `${namespace}.${key}`;
+              completions.set(fqn, { sym: duplicate });
+            }
+          } else {
+            completions.set(key, { sym });
+          }
         }
       }
     }
   }
 
-  function resolveIdentifier(node: IdentifierNode, resolveDecorator = false) {
+  function resolveIdentifier(node: IdentifierNode, resolveDecorator = false): Sym | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
       // The parse error is the root cause and will already have been logged.
@@ -844,11 +906,17 @@ export function createChecker(program: Program): Checker {
           (mergedSymbol.node as ContainerNode).exports,
           resolveDecorator
         );
+
         if (binding) return binding;
       }
 
       if ("locals" in scope) {
-        binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+        if ("duplicates" in scope.locals!) {
+          binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+        } else {
+          binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+        }
+
         if (binding) return binding;
       }
 
@@ -864,16 +932,18 @@ export function createChecker(program: Program): Checker {
           (mergedSymbol.node as ContainerNode).exports,
           resolveDecorator
         );
+
         if (binding) return binding;
       }
 
       // check "global scope" declarations
       binding = resolveIdentifierInTable(node, globalNamespaceNode.exports, resolveDecorator);
+
       if (binding) return binding;
 
-      // check "global scope" usings
+      // check using types
       binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-      if (binding) return binding;
+      if (binding) return binding.flags & SymbolFlags.usingDuplicates ? undefined : binding;
     }
 
     program.reportDiagnostic(
@@ -961,9 +1031,7 @@ export function createChecker(program: Program): Checker {
   function checkProgram() {
     program.reportDuplicateSymbols(globalNamespaceNode.exports);
     for (const file of program.sourceFiles.values()) {
-      program.reportDuplicateSymbols(file.locals);
       for (const ns of file.namespaces) {
-        program.reportDuplicateSymbols(ns.locals);
         program.reportDuplicateSymbols(ns.exports);
 
         initializeTypeForNamespace(ns);
@@ -1682,9 +1750,17 @@ export function createChecker(program: Program): Checker {
   }
 
   function mergeSymbolTable(source: SymbolTable, target: SymbolTable) {
-    for (const dupe of source.duplicates) {
-      target.duplicates.add(dupe);
+    for (const [sym, duplicates] of source.duplicates) {
+      const targetSet = target.duplicates.get(sym);
+      if (targetSet === undefined) {
+        target.duplicates.set(sym, new Set([...duplicates]));
+      } else {
+        for (const duplicate of duplicates) {
+          targetSet.add(duplicate);
+        }
+      }
     }
+
     for (const [key, sourceBinding] of source) {
       if (
         sourceBinding.kind === "type" &&
@@ -1700,6 +1776,7 @@ export function createChecker(program: Program): Checker {
             node: sourceBinding.node,
             name: sourceBinding.name,
             id: sourceBinding.id,
+            flags: sourceBinding.flags,
           };
           target.set(key, existingBinding);
           mergedSymbols.set(sourceBinding, existingBinding);
