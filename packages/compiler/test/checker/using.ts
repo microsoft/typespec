@@ -231,7 +231,10 @@ describe("compiler: using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "ambiguous-symbol");
-    strictEqual(diagnostics[0].message, '"A" is an ambiguous name between N.A, M.A');
+    strictEqual(
+      diagnostics[0].message,
+      '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A'
+    );
   });
 
   it("ambigous use doesn't affect other files", async () => {
@@ -277,7 +280,10 @@ describe("compiler: using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "ambiguous-symbol");
-    strictEqual(diagnostics[0].message, '"A" is an ambiguous name between N.A, M.A');
+    strictEqual(
+      diagnostics[0].message,
+      '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A'
+    );
     match(getSourceLocation(diagnostics[0].target)?.file.path!, /ambiguous\.cadl$/);
   });
 
