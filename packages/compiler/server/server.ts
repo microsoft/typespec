@@ -366,14 +366,10 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
   if (node === undefined) {
     addKeywordCompletion("root", completions);
   } else {
-    console.error("NOde is", SyntaxKind[node.kind], node.parent && SyntaxKind[node.parent.kind]);
     switch (node.kind) {
       case SyntaxKind.NamespaceStatement:
         addKeywordCompletion("namespace", completions);
         break;
-      // case SyntaxKind.ModelStatement:
-      //   addKeywordCompletion("model", completions);
-      // break;
       case SyntaxKind.Identifier:
         addIdentifierCompletion(program, node, completions);
         break;
@@ -441,7 +437,6 @@ function addIdentifierCompletion(
     if (sym.kind === "type") {
       const type = program!.checker!.getTypeForNode(sym.node);
       documentation = getDoc(program, type);
-      // Todo: have mapping from cadl types https://github.com/microsoft/cadl/issues/112
       kind = getCompletionItemKind(program, type, sym.node.kind);
     } else {
       kind = CompletionItemKind.Function;
