@@ -116,6 +116,7 @@ export async function createTestHost(): Promise<TestHost> {
     },
 
     logSink: NodeHost.logSink,
+    mkdirp: async (path: string) => path,
   };
 
   // load standard library into the vfs

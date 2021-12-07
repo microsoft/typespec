@@ -20,6 +20,7 @@ Cadl consists of the following language features:
 - Type Operators: syntax for composing model types into other types
 - Operations: service endpoints with parameters and return values
 - Namespaces & Usings: groups models and operations together into hierarchical groups with friendly names
+- Interfaces: groups operations
 - Imports: links declarations across multiple files and libraries together into a single program
 - Decorators: bits of TypeScript code that add metadata or sometimes mutate declarations
 - Libraries: encapsulate Cadl definitions into reusable components
@@ -43,10 +44,16 @@ model Dog {
 Cadl comes with built-in models for common data types:
 
 - `string`: sequence of characters
-- `int32`: 32-bit integer
-- `int64`: 64-bit integer
+- `bytes`: a sequence of bytes
+- `int8`: 8-bit signed integer
+- `int16`: 16-bit signed integer
+- `int32`: 32-bit signed integer
+- `int64`: 64-bit signed integer
+- `uint8`: 8-bit unsigned integer
+- `uint16`: 16-bit unsigned integer
+- `uint32`: 32-bit unsigned integer
+- `uint64`: 64-bit unsigned integer
 - `safeint`: an integer that is safe to store in a IEEE754 double and safe to round trip through all JSON processors.
-- `byte`: an 8-bit element of data
 - `float32`: IEEE 754 single-precision floating point number
 - `float64`: IEEE 754 double-precision floating point number
 - `plainDate`: A date on a calendar without a time zone, e.g. "April 10th"
@@ -92,6 +99,26 @@ model Animal {
 }
 
 model Dog extends Animal {}
+
+```
+
+### Is
+
+Sometimes you want to copy all aspects of a type without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It is like spread, but also copies [decorators](#Decorators) in addition to properties. One common use case is to give a better name to a [template](#Templates) instantiation:
+
+```cadl
+@decorator
+model Thing<T> {
+  property: T;
+}
+
+model StringThing is Thing<string> {}
+
+// StringThing declaration is equivalent to the following declaration:
+@decorator
+model StringThing {
+  property: string;
+}
 
 ```
 
@@ -183,7 +210,7 @@ model Dog {
 
 Cadl supports a few type operators that make it easy to compose new models from other models.
 
-#### Union
+#### Unions
 
 Unions describe a type that must be exactly one of the union's constituents. Create a union with the `|` operator.
 
@@ -192,7 +219,22 @@ alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
 
 ```
 
-#### Intersection
+##### Named unions
+
+There is also a declaration syntax for naming a union and its options:
+
+```cadl
+union GoodBreed {
+  beagle: Beagle,
+  shepherd: GermanShepherd,
+  retriever: GoldenRetriever,
+}
+
+```
+
+The above example is equivalent to the `GoodBreed` alias above, except that emitters can actually see `GoodBreed` as a named entity and also see the `beagle`, `shepherd`, and `retriever` names for the options. It also becomes possible to apply [decorators](#Decorators) to each of the options when using this form.
+
+#### Intersections
 
 Intersections describe a type that must include all of the intersection's constituents. Create an intersection with the `&` operator.
 
@@ -201,7 +243,7 @@ alias Dog = Animal & Pet;
 
 ```
 
-#### Array
+#### Arrays
 
 Arrays describe lists of things. Create an Array type with the `[]` operator.
 
@@ -255,11 +297,15 @@ You can also put an entire Cadl file into a namespace by using the blockless nam
 ```cadl
 // models.cadl
 namespace Models;
-model Dog { };
+model Dog {}
 
+```
+
+```cadl
 // main.cadl
 import "./models.cadl";
-operation getDog(): Models.Dog;
+op getDog(): Models.Dog;
+
 ```
 
 Namespace declarations can declare multiple namespaces at once by using a dotted member expression. There's no need to declare nested namespace blocks if you don't want to.
@@ -282,12 +328,16 @@ It can be convenient to add references to a namespace's declarations to your loc
 ```cadl
 // models.cadl
 namespace Service.Models;
-model Dog { };
+model Dog {}
 
+```
+
+```cadl
 // main.cadl
 import "./models.cadl";
 using ServiceModels;
-operation getDog(): Dog; // here we can use Dog directly.
+op getDog(): Dog; // here we can use Dog directly.
+
 ```
 
 The bindings introduced by a `using` statement are local to the namespace they are declared in. They do not become part of the namespace themselves.
@@ -307,23 +357,61 @@ alias C = Test2.B; // ok
 
 ```
 
+### Interfaces
+
+Interfaces can be used to group operations.
+
+```cadl
+interface A {
+  a(): string;
+}
+
+interface B {
+  b(): string;
+}
+
+```
+
+And the keyword `mixes` can be used to compose operations from other interfaces into a new interface:
+
+```cadl
+interface C mixes A, B {
+  c(): string;
+}
+
+// C is equivalent to the following declaration
+interface C {
+  a(): string;
+  b(): string;
+  c(): string;
+}
+
+```
+
 ### Imports
 
 Imports add files or libraries to your Cadl program. When you compile an Cadl file, you provide a path to your root Cadl file, by convention called "main.cadl". From there, any files you import are added to your program. If you import a directory, Cadl will look for a `main.cadl` file inside that directory.
 
 The path you import must either begin with "./" or "../" or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either ".cadl" or ".js". The following demonstrates how to use imports to assemble an Cadl program from multiple files:
 
-```
+```cadl
 // main.cadl
 import "./models";
 op getDog(): Dog;
 
-// models/main.cadl
-import "./dog.cadl"
+```
 
+```cadl
+// models/main.cadl
+import "./dog.cadl";
+
+```
+
+```cadl
 // models/dog.cadl
 namespace Models;
-model Dog { }
+model Dog {}
+
 ```
 
 ### Decorators
@@ -345,15 +433,16 @@ export function logType(compilation, targetType, name) {
 }
 ```
 
-```
+```cadl
 // main.cadl
-import "./model.js"
+import "./model.js";
 
 @logType("Dog type")
 model Dog {
   @logType("Name type")
   name: string;
-};
+}
+
 ```
 
 After running this Cadl program, the following will be printed to the console:
@@ -380,7 +469,7 @@ Additionally, the decorators `@withVisibility` and `@visibility` provide an exte
 
 Consider the following example:
 
-```
+```cadl
 model Dog {
   // the service will generate an ID, so you dont need to send it.
   @visibility('read') id: int32;
@@ -421,10 +510,11 @@ Then, in your Cadl project directory, type `npm install libraryName` to install 
 
 Lastly, you need to import the libraries into your Cadl program. By convention, all external dependencies are imported in your `main.cadl` file, but can be in any Cadl file imported into your program. Importing the two libraries we installed above would look like this:
 
-```
+```cadl
 // in main.cadl
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
+
 ```
 
 #### Creating libraries
@@ -452,20 +542,23 @@ A definition for a service is the namespace that contains all the operations for
 
 Here's an example that uses these to define a Pet Store service:
 
-```
+```cadl
 @serviceTitle("Pet Store Service")
 @serviceVersion("2021-03-25")
-@produces("application/json", "image/png")
-@consumes("application/json")
+@Cadl.Rest.produces("application/json", "image/png")
+@Cadl.Rest.consumes("application/json")
 namespace PetStore;
+
 ```
 
 #### Resources & routes
 
-Resources are operations that are grouped in a namespace. You declare such a namespace by adding the `@resource` decorator and providing the path to that resource:
+Resources are operations that are grouped in a namespace. You declare such a namespace by adding the `@route` decorator to provide the path to that resource:
 
 ```cadl
-@resource("/pets")
+using Cadl.Http;
+
+@route("/pets")
 namespace Pets {
 
 }
@@ -475,7 +568,7 @@ namespace Pets {
 To define an operation on this resource, you need to provide the HTTP verb for the route using the `@get`, `@head` `@post`, `@put`, `@patch`, or `@delete` decorators. Alternatively, you can name your operation `list`, `create`, `read`, `update`, `delete`, or `deleteAll` and the appropriate verb will be used automatically. Lets add an operation to our `Pets` resource:
 
 ```cadl
-@resource("/pets")
+@route("/pets")
 namespace Pets {
   op list(): Pet[];
 
@@ -487,13 +580,12 @@ namespace Pets {
 
 #### Path and query parameters
 
-Model properties and parameters which should be passed as path and query parameters use the `@path` and `@query` parameters respectively. Let's modify our list route to support pagination, and add a read route to our Pets resource:
+Model properties and parameters which should be passed as path and query parameters use the `@path` and `@query` parameters respectively. Let's modify our list operation to support pagination, and add a read operation to our Pets resource:
 
 ```cadl
-@resource("/pets")
+@route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): Pet[];
-
   op read(@path petId: int32): Pet;
 }
 
@@ -502,27 +594,9 @@ namespace Pets {
 Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following Cadl. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
 
 ```cadl
-@resource("/pets/{petId}/toys")
+@route("/pets/{petId}/toys")
 namespace PetToys {
   op list(@path petId: int32): Toy[];
-}
-
-```
-
-#### Headers
-
-Model properties and parameters that should be passed in a header use the `@header` decorator. The decorator takes the header name as a parameter. If a header name is not provided, it is inferred from the property or parameter name. Let's add `etag` support to our pet store's read operation:
-
-```cadl
-model PetWithETag {
-  ... Pet;
-  @header eTag: string;
-}
-
-@resource("/pets")
-namespace Pets {
-  op list(@query skip: int32, @query top: int32): Pet[];
-  op read(@path petId: int32, @header ifMatch?: string): PetWithETag;
 }
 
 ```
@@ -532,14 +606,32 @@ namespace Pets {
 Request and response bodies are declared using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
 
 ```cadl
-alias Foo = {};
-@resource("/pets")
+@route("/pets")
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): {
+    @body pets: Pet[];
+  };
+  op read(@path petId: int32): {
+    @body pet: Pet;
+  };
+  op create(@body pet: Pet): {};
+}
+
+```
+
+#### Headers
+
+Model properties and parameters that should be passed in a header use the `@header` decorator. The decorator takes the header name as a parameter. If a header name is not provided, it is inferred from the property or parameter name. Let's add `etag` support to our pet store's read operation.
+
+```cadl
+@route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {
     @body pets: Pet[];
   };
   op read(@path petId: int32, @header ifMatch?: string): {
-    @body pet: PetWithETag;
+    @header eTag: string;
+    @body pet: Pet;
   };
   op create(@body pet: Pet): {};
 }
@@ -548,23 +640,24 @@ namespace Pets {
 
 #### Status codes
 
-Use the `@status` decorator to declare a status code for a response. Generally, setting this to just `int32` isn't particularly useful. Instead, use number literal types to create a discriminated union of response types. Let's add status codes to our responses, and add a 404 response to our read endpoint.
+Use the `@header` decorator on a property named `statusCode` to declare a status code for a response. Generally, setting this to just `int32` isn't particularly useful. Instead, use number literal types to create a discriminated union of response types. Let's add status codes to our responses, and add a 404 response to our read endpoint.
 
 ```cadl
-@resource("/pets")
+@route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {
-    @status code: 200;
+    @header statusCode: 200;
     @body pets: Pet[];
   };
   op read(@path petId: int32, @header ifMatch?: string): {
-    @status code: 200;
-    @body pet: PetWithETag;
+    @header statusCode: 200;
+    @header eTag: string;
+    @body pet: Pet;
   } | {
-    @status code: 404;
+    @header statusCode: 404;
   };
   op create(@body pet: Pet): {
-    @status code: 200;
+    @header statusCode: 200;
   };
 }
 
@@ -575,10 +668,15 @@ namespace Pets {
 Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently. Lets update our sample one last time to use these built-in response types:
 
 ```cadl
-@resource("/pets")
+model OkResponseWithETag<T> {
+  ...OkResponse<T>;
+  @header eTag: string;
+}
+
+@route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): OkResponse<Pet[]>;
-  op read(@path petId: int32, @header ifMatch?: string): OkResponse<PetWithETag> | NotFoundResponse;
+  op read(@path petId: int32, @header ifMatch?: string): OkResponseWithETag<Pet> | NotFoundResponse;
   op create(@body pet: Pet): OkResponse<{}>;
 }
 

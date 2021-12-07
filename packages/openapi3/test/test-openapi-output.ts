@@ -384,6 +384,7 @@ describe("openapi3: primitives", () => {
     ["int16", { type: "integer", format: "int16" }],
     ["int32", { type: "integer", format: "int32" }],
     ["int64", { type: "integer", format: "int64" }],
+    ["safeint", { type: "integer", format: "int64" }],
     ["uint8", { type: "integer", format: "uint8" }],
     ["uint16", { type: "integer", format: "uint16" }],
     ["uint32", { type: "integer", format: "uint32" }],
@@ -521,6 +522,71 @@ describe("openapi3: responses", () => {
       res.paths["/"].get.responses["200"].content["application/json"].schema.type,
       "string"
     );
+  });
+});
+
+describe("openapi3: extension decorator", () => {
+  it("adds an arbitrary extension to a model", async () => {
+    const oapi = await openApiFor(
+      `
+      @extension("x-model-extension", "foobar")
+      model Pet {
+        name: string;
+      }
+      @route("/")
+      namespace root {
+        @get()
+        op read(): Pet;
+      }
+      `
+    );
+    ok(oapi.components.schemas.Pet);
+    strictEqual(oapi.components.schemas.Pet["x-model-extension"], "foobar");
+  });
+
+  it("adds an arbitrary extension to an operation", async () => {
+    const oapi = await openApiFor(
+      `
+      model Pet {
+        name: string;
+      }
+      @route("/")
+      namespace root {
+        @get()
+        @extension("x-operation-extension", "barbaz")
+        op list(): Pet[];
+      }
+      `
+    );
+    ok(oapi.paths["/"].get);
+    strictEqual(oapi.paths["/"].get["x-operation-extension"], "barbaz");
+  });
+
+  it("adds an arbitrary extension to a parameter", async () => {
+    const oapi = await openApiFor(
+      `
+      model Pet {
+        name: string;
+      }
+      model PetId {
+        @path
+        @extension("x-parameter-extension", "foobaz")
+        petId: string;
+      }
+      @route("/Pets")
+      namespace root {
+        @get()
+        op get(... PetId): Pet;
+      }
+      `
+    );
+    ok(oapi.paths["/Pets/{petId}"].get);
+    strictEqual(
+      oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
+      "#/components/parameters/PetId"
+    );
+    strictEqual(oapi.components.parameters.PetId.name, "petId");
+    strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
   });
 });
 

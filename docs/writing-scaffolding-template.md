@@ -41,7 +41,7 @@ You can add a list of cadl libraries to include. This will automatically add tho
   "rest": {
     "title": "Rest API",
     "description": "Create a new project representing a REST API",
-    "libraries": ["@cadl-lang/rest", "@cadl-lang/openapi"]
+    "libraries": ["@cadl-lang/rest", "@cadl-lang/openapi3"]
   }
 }
 ```

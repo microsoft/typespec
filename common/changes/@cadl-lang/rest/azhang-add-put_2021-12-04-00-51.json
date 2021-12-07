@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Adding @CreateOrUpdate (PUT) and standard operation in REST.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

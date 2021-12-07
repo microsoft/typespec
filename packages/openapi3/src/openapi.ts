@@ -801,6 +801,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
+    attachExtensions(param, ph);
     ph.schema = schema;
   }
 
@@ -1192,6 +1193,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           case "int32":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
           case "int64":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+          case "safeint":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
           case "uint8":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });

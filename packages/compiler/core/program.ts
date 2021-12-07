@@ -3,7 +3,7 @@ import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { createSourceFile } from "./diagnostics.js";
+import { createSourceFile, getSourceLocation } from "./diagnostics.js";
 import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { CompilerOptions } from "./options.js";
@@ -110,7 +110,21 @@ export async function createProgram(
   program.checker.checkProgram();
 
   for (const cb of buildCbs) {
-    await cb(program);
+    try {
+      await cb(program);
+    } catch (error: any) {
+      if (options.designTimeBuild) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "on-build-fail",
+            format: { error: error.stack },
+            target: NoTarget,
+          })
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   return program;
@@ -211,10 +225,8 @@ export async function createProgram(
     const cadlScript = loadCadlScriptSync(sourceFile);
     checker.mergeCadlSourceFile(cadlScript);
     checker.setUsingsForFile(cadlScript);
-    reportDuplicateSymbols(cadlScript.locals);
     for (const ns of cadlScript.namespaces) {
       const mergedNs = checker.getMergedNamespace(ns);
-      reportDuplicateSymbols(mergedNs.locals);
       reportDuplicateSymbols(mergedNs.exports);
     }
     reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports);
@@ -427,6 +439,8 @@ export async function createProgram(
   }
 
   function reportDiagnostic(diagnostic: Diagnostic): void {
+    getSourceLocation(diagnostic.target);
+
     if (diagnostic.severity === "error") {
       error = true;
     }
@@ -550,16 +564,18 @@ export async function createProgram(
     if (!symbols) {
       return;
     }
-    for (const symbol of symbols.duplicates) {
-      if (!duplicateSymbols.has(symbol)) {
-        duplicateSymbols.add(symbol);
-        reportDiagnostic(
-          createDiagnostic({
-            code: "duplicate-symbol",
-            format: { name: symbol.name },
-            target: symbol,
-          })
-        );
+    for (const set of symbols.duplicates.values()) {
+      for (const symbol of set) {
+        if (!duplicateSymbols.has(symbol)) {
+          duplicateSymbols.add(symbol);
+          reportDiagnostic(
+            createDiagnostic({
+              code: "duplicate-symbol",
+              format: { name: symbol.name },
+              target: symbol,
+            })
+          );
+        }
       }
     }
   }

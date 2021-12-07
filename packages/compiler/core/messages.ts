@@ -319,7 +319,7 @@ const diagnostics = {
   "decorator-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`${"decoratorName"} failed with errors. ${"error"}`,
+      default: paramMessage`Decorator ${"decoratorName"} failed!\n\n${"error"}`,
     },
   },
 
@@ -366,10 +366,22 @@ const diagnostics = {
   /**
    * Binder
    */
+  "ambiguous-symbol": {
+    severity: "error",
+    messages: {
+      default: paramMessage`"${"name"}" is an ambiguous name between ${"duplicateNames"}. Try using fully qualified name instead: ${"duplicateNames"}`,
+    },
+  },
+  "duplicate-using": {
+    severity: "error",
+    messages: {
+      default: paramMessage`duplicate using of "${"usingName"}" namespace`,
+    },
+  },
   "on-build-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`onBuild failed with errors. ${"error"}`,
+      default: paramMessage`onBuild failed!\n\n${"error"}`,
     },
   },
 

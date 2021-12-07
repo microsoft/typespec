@@ -10,7 +10,7 @@ import { loadCadlConfigInDir } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
-import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
+import { compilerAssert, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
 import { installCadlDependencies } from "./install.js";
 import { Diagnostic } from "./types.js";
@@ -559,8 +559,9 @@ function internalCompilerError(error: Error) {
   // considered a bug and therefore we should not suppress the stack trace as
   // that risks losing it in the case of a bug that does not repro easily.
   console.error("Internal compiler error!");
-  console.error("File issue at https://github.com/azure/adl");
-  dumpError(error, NodeHost.logSink);
+  console.error("File issue at https://github.com/microsoft/cadl");
+  console.error();
+  console.error(error);
   process.exit(1);
 }
 

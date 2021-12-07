@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix crash in language server",
-      "type": "patch"
+      "comment": "**Added** keyword autocomplete and icons",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/compiler"

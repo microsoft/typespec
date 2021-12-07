@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 18 Nov 2021 13:58:15 GMT and should not be manually modified.
+This log was last generated on Wed, 01 Dec 2021 22:56:11 GMT and should not be manually modified.
+
+## 0.24.1
+Wed, 01 Dec 2021 22:56:11 GMT
+
+### Patches
+
+- Fix issue where formatter would try to format a document with irrecoverable parse errors in certain cases
+- **Fix** Wrong library import for the rest template
+- Fix crash in language server
+- Fix formatting bug with operations returning anonymous models
+- Fix language server crashes in certain error cases
+- Update README
 
 ## 0.24.0
 Thu, 18 Nov 2021 13:58:15 GMT

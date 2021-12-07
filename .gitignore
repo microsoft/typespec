@@ -183,6 +183,9 @@ obj/
 # tsc incremental build files
 *.tsbuildinfo
 
+# MacOS
+.DS_Store
+
 *.vsix
 *.zip
 

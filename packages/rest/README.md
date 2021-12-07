@@ -1,7 +1,6 @@
-# Cadl compiler and CLI
+# Cadl Rest Library
 
-This package implements the core of the [Cadl](https://github.com/microsoft/cadl)
-compiler and its command-line interface.
+This package provides [Cadl](htps://github.com/microsoft/Cadl) decorators to describe REST API.
 
 ## See also
 

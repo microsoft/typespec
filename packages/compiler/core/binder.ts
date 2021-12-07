@@ -1,6 +1,6 @@
 import { compilerAssert } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
-import { visitChildren } from "./parser.js";
+import { NodeFlags, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
@@ -25,6 +25,7 @@ import {
   ProjectionStatementNode,
   ScopeNode,
   Sym,
+  SymbolFlags,
   SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
@@ -38,16 +39,24 @@ import {
 const DecoratorFunctionPattern = /^\$/;
 
 const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
-  duplicates = new Set<Sym>();
+  duplicates = new Map<Sym, Set<Sym>>();
 
   // First set for a given key wins, but record all duplicates for diagnostics.
   set(key: string, value: Sym) {
-    const existing = this.get(key);
+    const existing = super.get(key);
     if (existing === undefined) {
       super.set(key, value);
     } else {
-      this.duplicates.add(existing);
-      this.duplicates.add(value);
+      if (existing.flags & SymbolFlags.using) {
+        existing.flags = existing.flags | SymbolFlags.usingDuplicates;
+      }
+
+      const duplicateArray = this.duplicates.get(existing);
+      if (duplicateArray) {
+        duplicateArray.add(value);
+      } else {
+        this.duplicates.set(existing, new Set([existing, value]));
+      }
     }
     return this;
   }
@@ -401,7 +410,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     if (existingBinding && existingBinding.kind === "type") {
       statement.symbol = existingBinding;
       // locals are never shared.
-      statement.locals = new SymbolTable();
+      statement.locals = createSymbolTable();
 
       // todo: don't merge exports
       statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
@@ -409,7 +418,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
 
       // Initialize locals for non-exported symbols
-      statement.locals = new SymbolTable();
+      statement.locals = createSymbolTable();
 
       // initialize exports for exported symbols
       statement.exports = new SymbolTable();
@@ -497,6 +506,7 @@ function createTypeSymbol(node: Node, name: string): TypeSymbol {
   return {
     kind: "type",
     node,
+    flags: SymbolFlags.none,
     name,
   };
 }
@@ -506,6 +516,7 @@ function createDecoratorSymbol(name: string, path: string, value: any): Decorato
     kind: "decorator",
     name: `@` + name,
     path,
+    flags: SymbolFlags.none,
     value,
   };
 }
@@ -518,7 +529,7 @@ function createFunctionSymbol(name: string, value: (...args: any[]) => any): Fun
   };
 }
 
-function createSyntheticNamespace(name: string): NamespaceStatementNode {
+function createSyntheticNamespace(name: string): NamespaceStatementNode & { flags: NodeFlags } {
   const nsId: IdentifierNode = {
     kind: SyntaxKind.Identifier,
     pos: 0,
@@ -534,5 +545,6 @@ function createSyntheticNamespace(name: string): NamespaceStatementNode {
     name: nsId,
     locals: createSymbolTable(),
     exports: createSymbolTable(),
+    flags: NodeFlags.Synthetic,
   };
 }

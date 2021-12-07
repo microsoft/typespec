@@ -32,14 +32,13 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "0.24.0",
-    "@cadl-lang/rest": "0.7.0",
-    "@cadl-lang/openapi3": "0.4.1",
+    "@cadl-lang/compiler": "0.24.1",
+    "@cadl-lang/rest": "0.7.1",
+    "@cadl-lang/openapi3": "0.4.2",
     "@cadl-lang/versioning": "0.1.0"
   },
   "devDependencies": {
     "@types/mkdirp": "~1.0.1",
-    "autorest": "~3.3.2",
     "mkdirp": "~1.0.4"
   }
 }

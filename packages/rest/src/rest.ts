@@ -64,7 +64,13 @@ export function getSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentsKey).get(entity);
 }
 
-export type ResourceOperations = "read" | "create" | "update" | "delete" | "list";
+export type ResourceOperations =
+  | "read"
+  | "createOrUpdate"
+  | "create"
+  | "update"
+  | "delete"
+  | "list";
 
 export interface ResourceOperation {
   operation: string;
@@ -106,6 +112,10 @@ export function getResourceOperation(
 
 export function $read(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "read");
+}
+
+export function $createOrUpdate(program: Program, entity: Type, resourceType: Type) {
+  setResourceOperation(program, entity, resourceType, "createOrUpdate");
 }
 
 export function $create(program: Program, entity: Type, resourceType: Type) {

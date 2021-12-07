@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "",
-      "type": "none"
+      "comment": "add mkdirp to compilerHost",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/compiler"
