@@ -48,7 +48,7 @@ model ResourceCreatedResponse<T> {
 interface ResourceCreateOrUpdate<TResource, TError> {
   @autoRoute
   @doc("Creates or update a instance of the resource.")
-  @createOrUpdate(TResource)
+  @createsOrUpdatesResource(TResource)
   CreateOrUpdate(
     ...ResourceParameters<TResource>,
     @body resource: TResource

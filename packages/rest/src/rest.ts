@@ -166,6 +166,7 @@ setDecoratorNamespace(
   $segment,
   $readsResource,
   $createsResource,
+  $createsOrUpdatesResource,
   $updatesResource,
   $deletesResource,
   $listsResource,
