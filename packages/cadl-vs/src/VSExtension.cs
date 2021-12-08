@@ -39,7 +39,7 @@ namespace Microsoft.Cadl.VisualStudio {
   public sealed class LanguageClient : ILanguageClient {
 
     public string Name => "Cadl";
-    public IEnumerable<string>? ConfigurationSections { get; } = new[] { "cadl" }
+    public IEnumerable<string>? ConfigurationSections { get; } = new[] { "cadl" };
 
     public object? InitializationOptions => null;
     public bool ShowNotificationOnInitializeFailed => true;
