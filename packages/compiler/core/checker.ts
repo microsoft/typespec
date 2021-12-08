@@ -42,7 +42,6 @@ import {
   StringLiteralNode,
   StringLiteralType,
   Sym,
-  SymbolFlags,
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
@@ -59,6 +58,7 @@ import {
   UnionType,
   UnionTypeVariant,
   UnionVariantNode,
+  UsingSymbol,
 } from "./types.js";
 
 export interface Checker {
@@ -172,7 +172,7 @@ export function createChecker(program: Program): Checker {
     cadlNamespaceNode = cadlNamespaceBinding.node;
     for (const file of program.sourceFiles.values()) {
       for (const [name, binding] of cadlNamespaceNode.exports!) {
-        file.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });
+        file.locals!.set(name, { kind: "using", symbolSource: binding });
       }
     }
   }
@@ -239,13 +239,13 @@ export function createChecker(program: Program): Checker {
       usedUsing.add(namespace);
 
       for (const [name, binding] of sym.node.exports!) {
-        parentNs.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });
+        parentNs.locals!.set(name, { kind: "using", symbolSource: binding });
       }
     }
 
     if (cadlNamespaceNode) {
       for (const [name, binding] of cadlNamespaceNode.exports!) {
-        file.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });
+        file.locals!.set(name, { kind: "using", symbolSource: binding });
       }
     }
   }
@@ -753,11 +753,11 @@ export function createChecker(program: Program): Checker {
     return s.id;
   }
 
-  function resolveIdentifierInTable(
+  function resolveIdentifierInTable<T extends Sym>(
     node: IdentifierNode,
-    table: SymbolTable | undefined,
+    table: SymbolTable<T> | undefined,
     resolveDecorator = false
-  ): Sym | undefined {
+  ): T | undefined {
     if (!table) {
       return undefined;
     }
@@ -770,20 +770,20 @@ export function createChecker(program: Program): Checker {
 
     if (!sym) return sym;
 
-    if (sym.flags & SymbolFlags.using && sym.flags & SymbolFlags.usingDuplicates) {
-      reportAmbiguousIdentifier(node, [...(table.duplicates.get(sym) ?? [])]);
+    if ("duplicate" in sym && sym.duplicate) {
+      reportAmbiguousIdentifier(node, [...((table.duplicates.get(sym) as any) ?? [])]);
       return sym;
     }
     return getMergedSymbol(sym);
   }
 
-  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
+  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: UsingSymbol[]) {
     const duplicateNames = symbols
       .map((x) => {
         const namespace =
-          x.kind === "type"
-            ? getNamespaceString((getTypeForNode(x.node) as any).namespace)
-            : (x.value as any).namespace;
+          x.symbolSource.kind === "type"
+            ? getNamespaceString((getTypeForNode(x.symbolSource.node) as any).namespace)
+            : (x.symbolSource.value as any).namespace;
         return `${namespace}.${node.sv}`;
       })
       .join(", ");
@@ -856,7 +856,7 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    function addCompletions(table: SymbolTable | undefined) {
+    function addCompletions(table: SymbolTable<Sym> | undefined) {
       if (!table) {
         return;
       }
@@ -870,13 +870,18 @@ export function createChecker(program: Program): Checker {
         if (!completions.has(key)) {
           // TODO? should complete propose different options and use fqn?
 
-          if (sym.flags & SymbolFlags.using && sym.flags & SymbolFlags.usingDuplicates) {
+          if (sym.kind === "using" && sym.duplicate) {
             const duplicates = table.duplicates.get(sym)!;
             for (const duplicate of duplicates) {
+              if (duplicate.kind !== "using") {
+                continue;
+              }
               const namespace =
-                duplicate.kind === "type"
-                  ? getNamespaceString((getTypeForNode(duplicate.node) as any).namespace)
-                  : (duplicate.value as any).namespace;
+                duplicate.symbolSource.kind === "type"
+                  ? getNamespaceString(
+                      (getTypeForNode(duplicate.symbolSource.node) as any).namespace
+                    )
+                  : (duplicate.symbolSource.value as any).namespace;
               const fqn = `${namespace}.${key}`;
               completions.set(fqn, { sym: duplicate });
             }
@@ -943,7 +948,7 @@ export function createChecker(program: Program): Checker {
 
       // check using types
       binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-      if (binding) return binding.flags & SymbolFlags.usingDuplicates ? undefined : binding;
+      if (binding) return binding.kind === "using" && binding.duplicate ? undefined : binding;
     }
 
     program.reportDiagnostic(
@@ -1010,7 +1015,8 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.Identifier) {
-      return resolveIdentifier(node, resolveDecorator);
+      const sym = resolveIdentifier(node, resolveDecorator);
+      return sym?.kind === "using" ? sym.symbolSource : sym;
     }
 
     compilerAssert(false, "Unknown type reference kind", node);
@@ -1749,7 +1755,7 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function mergeSymbolTable(source: SymbolTable, target: SymbolTable) {
+  function mergeSymbolTable(source: SymbolTable<Sym>, target: SymbolTable<Sym>) {
     for (const [sym, duplicates] of source.duplicates) {
       const targetSet = target.duplicates.get(sym);
       if (targetSet === undefined) {
@@ -1776,7 +1782,6 @@ export function createChecker(program: Program): Checker {
             node: sourceBinding.node,
             name: sourceBinding.name,
             id: sourceBinding.id,
-            flags: sourceBinding.flags,
           };
           target.set(key, existingBinding);
           mergedSymbols.set(sourceBinding, existingBinding);
@@ -1796,9 +1801,9 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function getMergedSymbol(sym: Sym | undefined): Sym | undefined {
+  function getMergedSymbol<T extends Sym>(sym: T | undefined): T | undefined {
     if (!sym) return sym;
-    return mergedSymbols.get(sym) || sym;
+    return mergedSymbols.get(sym) || (sym as any);
   }
 
   function getMergedNamespace(node: NamespaceStatementNode): NamespaceStatementNode {

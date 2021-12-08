@@ -156,6 +156,10 @@ export function getSourceLocation(
     return target;
   }
 
+  if (target.kind === "using") {
+    target = target.symbolSource;
+  }
+
   if (target.kind === "decorator") {
     return createDummySourceLocation(target.path);
   }
