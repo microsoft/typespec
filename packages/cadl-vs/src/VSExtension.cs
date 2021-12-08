@@ -39,11 +39,7 @@ namespace Microsoft.Cadl.VisualStudio {
   public sealed class LanguageClient : ILanguageClient {
 
     public string Name => "Cadl";
-    public IEnumerable<string>? ConfigurationSections {
-      get {
-        yield return "cadl";
-      }
-    }
+    public IEnumerable<string>? ConfigurationSections { get; } = new[] { "cadl" }
 
     public object? InitializationOptions => null;
     public bool ShowNotificationOnInitializeFailed => true;
@@ -82,6 +78,7 @@ namespace Microsoft.Cadl.VisualStudio {
 #if DEBUG
       // Use local build of cadl-server in development (lauched from F5 in VS)
       if (InDevelopmentMode()) {
+        // --nolazy isn't supported by NODE_OPTIONS so we pass these via CLI instead
         info.Environment.Remove("NODE_OPTIONS");
       }
 #endif
