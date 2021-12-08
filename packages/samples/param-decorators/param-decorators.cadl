@@ -20,7 +20,8 @@ namespace Operations {
   ): OkResponse<Thing>;
 
   @route("{name}")
-  @put op putThing(...NameParameter): OkResponse<Thing>;
+  @put
+  op putThing(...NameParameter): OkResponse<Thing>;
 }
 
 model Thing {

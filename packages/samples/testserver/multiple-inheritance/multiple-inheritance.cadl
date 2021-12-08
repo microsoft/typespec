@@ -36,7 +36,8 @@ namespace MultipleInheritance {
 
   @doc("Put a horse with name 'General' and isAShowHorse false")
   @route("horse")
-  @put op putHorse(@body horse: Horse): OkResponse<string> | ErrorResponse;
+  @put
+  op putHorse(@body horse: Horse): OkResponse<string> | ErrorResponse;
 
   @doc("Get a pet with name 'Peanut'")
   @route("pet")
@@ -44,7 +45,8 @@ namespace MultipleInheritance {
 
   @doc("Put a pet with name 'Butter'")
   @route("pet")
-  @put op putPet(@body horse: Pet): OkResponse<string> | ErrorResponse;
+  @put
+  op putPet(@body horse: Pet): OkResponse<string> | ErrorResponse;
 
   @doc("Get a feline where meows and hisses are true")
   @route("feline")
@@ -52,7 +54,8 @@ namespace MultipleInheritance {
 
   @doc("Put a feline who hisses and doesn't meow")
   @route("feline")
-  @put op putFeline(@body feline: Feline): OkResponse<string> | ErrorResponse;
+  @put
+  op putFeline(@body feline: Feline): OkResponse<string> | ErrorResponse;
 
   @doc("Get a cat with name 'Whiskers' where likesMilk, meows, and hisses is true")
   @route("cat")
@@ -60,7 +63,8 @@ namespace MultipleInheritance {
 
   @doc("Put a cat with name 'Boots' where likesMilk and hisses is false, meows is true")
   @route("cat")
-  @put op putCat(@body cat: Cat): OkResponse<string> | ErrorResponse;
+  @put
+  op putCat(@body cat: Cat): OkResponse<string> | ErrorResponse;
 
   @doc(
     "Get a kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false"
@@ -72,5 +76,6 @@ namespace MultipleInheritance {
     "Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true"
   )
   @route("kitten")
-  @put op putKitten(@body kitten: Kitten): OkResponse<string> | ErrorResponse;
+  @put
+  op putKitten(@body kitten: Kitten): OkResponse<string> | ErrorResponse;
 }

@@ -25,7 +25,8 @@ resource model:
 namespace LibraryService {
   @doc("Creates a shelf, and returns the new Shelf.")
   @route("shelves")
-  @post op CreateShelf(... CreateShelfRequest): Shelf | RpcStatus;
+  @post
+  op CreateShelf(... CreateShelfRequest): Shelf | RpcStatus;
 
   @doc("Gets a shelf. Returns NOT_FOUND if the shelf does not exist.")
   @route("shelves")
@@ -43,7 +44,8 @@ shelves will not necessarily be added to the end of this list.
 
   @doc("Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.")
   @route("shelves")
-  @delete op DeleteShelf(... DeleteShelfRequest): Empty | RpcStatus;
+  @delete
+  op DeleteShelf(... DeleteShelfRequest): Empty | RpcStatus;
 
   @doc(
     """
@@ -56,11 +58,13 @@ This call is a no-op if the specified shelves are the same.
 """
   )
   @route("shelves/{name}:merge")
-  @post op MergeShelves(... MergeShelvesRequest): Shelf | RpcStatus;
+  @post
+  op MergeShelves(... MergeShelvesRequest): Shelf | RpcStatus;
 
   @doc("Creates a book, and returns the new Book.")
   @route("shelves/{name}/books")
-  @post op CreateBook(... CreateBookRequest): Book | RpcStatus;
+  @post
+  op CreateBook(... CreateBookRequest): Book | RpcStatus;
 
   @doc("Gets a book. Returns NOT_FOUND if the book does not exist.")
   @route("shelves/shelf_name/books/{name}")
@@ -78,7 +82,8 @@ Returns NOT_FOUND if the shelf does not exist.
 
   @route("shelves/shelf_name/books/{name}")
   @doc("Deletes a book. Returns NOT_FOUND if the book does not exist.")
-  @delete op DeleteBook(... DeleteBookRequest): Empty | RpcStatus;
+  @delete
+  op DeleteBook(... DeleteBookRequest): Empty | RpcStatus;
 }
 
 @doc("""
