@@ -3,10 +3,14 @@ import { Node, SyntaxKind } from "../../core/types.js";
 
 const { util } = prettier;
 
-export interface CommentNode {
+interface CommentNode {
   precedingNode?: Node;
   enclosingNode?: Node;
 }
+
+/**
+ * Override the default behavior to attach comments to syntax node.
+ */
 export const commentHandler: Printer<Node>["handleComments"] = {
   ownLine: (comment) => [addEmptyInterfaceComment, addEmptyModelComment].some((x) => x(comment)),
 };
