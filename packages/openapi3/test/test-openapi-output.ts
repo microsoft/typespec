@@ -523,6 +523,95 @@ describe("openapi3: responses", () => {
       "string"
     );
   });
+
+  describe("binary responses", () => {
+    it("bytes responses should default to application/octet-stream", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @get op read(): bytes;
+      }
+      `
+      );
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["application/octet-stream"].schema.type, "string");
+      strictEqual(response.content["application/octet-stream"].schema.format, "binary");
+    });
+
+    it("@body body: bytes responses should default to application/octet-stream", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @get op read(): {@body body: bytes};
+      }
+      `
+      );
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["application/octet-stream"].schema.type, "string");
+      strictEqual(response.content["application/octet-stream"].schema.format, "binary");
+    });
+
+    it("@header contentType should override binary content type", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @get op read(): {@header contentType: "image/png", @body body: bytes};
+      }
+      `
+      );
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["image/png"].schema.type, "string");
+      strictEqual(response.content["image/png"].schema.format, "binary");
+    });
+  });
+});
+
+describe("openapi3: request", () => {
+  describe("binary request", () => {
+    it("bytes request should default to application/octet-stream", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @post op read(@body body: bytes): {};
+      }
+      `
+      );
+
+      const requestBody = res.paths["/"].post.requestBody;
+      ok(requestBody);
+      strictEqual(requestBody.content["application/octet-stream"].schema.type, "string");
+      strictEqual(requestBody.content["application/octet-stream"].schema.format, "binary");
+    });
+
+    it("bytes request should respect @header contentType", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @post op read(@header contentType: "image/png", @body body: bytes): {};
+      }
+      `
+      );
+
+      const requestBody = res.paths["/"].post.requestBody;
+      ok(requestBody);
+      strictEqual(requestBody.content["image/png"].schema.type, "string");
+      strictEqual(requestBody.content["image/png"].schema.format, "binary");
+    });
+  });
 });
 
 describe("openapi3: extension decorator", () => {
