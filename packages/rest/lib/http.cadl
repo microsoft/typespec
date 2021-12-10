@@ -2,6 +2,8 @@ import "../dist/src/http.js";
 
 namespace Cadl.Http;
 
+using Private;
+
 @doc("The request has succeeded.")
 model OkResponse<T> {
   @doc("The status code.")
@@ -79,4 +81,15 @@ model ConflictResponse {
   @doc("The status code.")
   @header
   statusCode: 409;
+}
+
+// Produces a new model with the same properties as T, but with @query,
+// @header, @body, and @path decorators removed from all properties.
+//
+// ISSUE: Can't use @doc to document this as it leaks into OpenAPI output.
+// We probably need a way to do Cadl-developer-only docs that show in the
+// IDE but do not leak into output.
+@plainData
+model PlainData<T> {
+  ...T;
 }
