@@ -9,7 +9,7 @@ namespace Root {
       id: int64;
     }
 
-    @route("/sub/sub/a")
+    @route("subsub")
     namespace SubSubA {
       op DoSomething(thing: Thing): OkResponse<string>;
 

@@ -24,11 +24,12 @@ resource model:
 @tag("LibraryService")
 namespace LibraryService {
   @doc("Creates a shelf, and returns the new Shelf.")
-  @post("shelves")
+  @route("shelves")
+  @post
   op CreateShelf(... CreateShelfRequest): Shelf | RpcStatus;
 
   @doc("Gets a shelf. Returns NOT_FOUND if the shelf does not exist.")
-  @get("shelves")
+  @route("shelves")
   op GetShelf(... GetShelfRequest): Shelf | RpcStatus;
 
   @doc(
@@ -38,11 +39,12 @@ shelves will not necessarily be added to the end of this list.
 """
   )
   @pageable("next_page_token")
-  @get("shelves")
+  @route("shelves")
   op ListShelves(... ListRequestBase): ListShelvesResponse | RpcStatus;
 
   @doc("Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.")
-  @delete("shelves")
+  @route("shelves")
+  @delete
   op DeleteShelf(... DeleteShelfRequest): Empty | RpcStatus;
 
   @doc(
@@ -55,15 +57,17 @@ Returns NOT_FOUND if either shelf does not exist.
 This call is a no-op if the specified shelves are the same.
 """
   )
-  @post("shelves/{name}:merge")
+  @route("shelves/{name}:merge")
+  @post
   op MergeShelves(... MergeShelvesRequest): Shelf | RpcStatus;
 
   @doc("Creates a book, and returns the new Book.")
-  @post("shelves/{name}/books")
+  @route("shelves/{name}/books")
+  @post
   op CreateBook(... CreateBookRequest): Book | RpcStatus;
 
   @doc("Gets a book. Returns NOT_FOUND if the book does not exist.")
-  @get("shelves/shelf_name/books/{name}")
+  @route("shelves/shelf_name/books/{name}")
   op GetBook(... GetBookRequest): Book | RpcStatus;
 
   @doc(
@@ -73,11 +77,12 @@ created books will not necessarily be added to the end of this list.
 Returns NOT_FOUND if the shelf does not exist.
 """
   )
-  @get("shelves/{name}/books")
+  @route("shelves/{name}/books")
   op ListBooks(... ListBooksRequest): ListBooksResponse | RpcStatus;
 
-  @delete("shelves/shelf_name/books/{name}")
+  @route("shelves/shelf_name/books/{name}")
   @doc("Deletes a book. Returns NOT_FOUND if the book does not exist.")
+  @delete
   op DeleteBook(... DeleteBookRequest): Empty | RpcStatus;
 }
 

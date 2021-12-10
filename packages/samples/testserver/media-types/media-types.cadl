@@ -19,8 +19,9 @@ model Input {
 @route("/mediatypes")
 namespace MediaTypes {
   @doc("Analyze body, that could be different media types.")
-  @post("analyze")
+  @route("analyze")
   @operationId("AnalyzeBody")
+  @post
   op analyzeBody(
     ... Input,
     @header contentType:
@@ -34,7 +35,8 @@ namespace MediaTypes {
   @doc(
     "Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter"
   )
-  @post("contentTypeWithEncoding")
+  @route("contentTypeWithEncoding")
   @operationId("contentTypeWithEncoding")
+  @post
   op contentTypeWithEncoding(... Input, @header contentType: "text/plain"): OkResponse<string>;
 }

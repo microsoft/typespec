@@ -11,12 +11,10 @@ import {
   getMinLength,
   getMinValue,
   getServiceHost,
-  getServiceNamespace,
   getServiceNamespaceString,
   getServiceTitle,
   getServiceVersion,
   getVisibility,
-  InterfaceType,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -30,20 +28,11 @@ import {
   Type,
   UnionType,
 } from "@cadl-lang/compiler";
-import { getInterfaceOperations, http, OperationDetails } from "@cadl-lang/rest";
+import { getAllRoutes, http, OperationDetails } from "@cadl-lang/rest";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
-const {
-  basePathForRoute,
-  getHeaderFieldName,
-  getOperationRoute,
-  getPathParamName,
-  getQueryParamName,
-  getRoutes,
-  hasBody,
-  isBody,
-} = http;
+const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody } = http;
 
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
@@ -218,26 +207,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   async function emitOpenAPI() {
     try {
-      for (let route of getRoutes(program)) {
-        if (route.kind !== "Namespace" && route.kind !== "Interface") {
-          reportDiagnostic(program, {
-            code: "resource-namespace",
-            target: route,
-          });
-          continue;
-        }
-
-        // An interface can have @route applied but is handled by emitInterface
-        if (route.kind === "Namespace") {
-          emitRoute(route as NamespaceType);
-        }
-      }
-
-      const actualNamespace = getServiceNamespace(program);
-      if (actualNamespace) {
-        emitInterfaces(actualNamespace);
-      }
-
+      getAllRoutes(program).forEach(emitOperation);
       emitReferences();
       emitTags();
 
@@ -266,143 +236,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function emitRoute(route: NamespaceType): void {
-    currentBasePath = basePathForRoute(program, route);
-
-    for (const [_, op] of route.operations) {
-      emitEndpoint(route, op);
-    }
-  }
-
-  function emitInterfaces(namespace: NamespaceType): void {
-    for (const [_, iface] of namespace.interfaces) {
-      emitInterface(iface);
-    }
-
-    // Walk interfaces of sub-namespaces
-    for (const [_, subNs] of namespace.namespaces) {
-      emitInterfaces(subNs);
-    }
-  }
-
-  function emitInterface(iface: InterfaceType): void {
-    const operations = getInterfaceOperations(program, iface);
-    for (const op of operations) {
-      emitInterfaceOperation(iface, op);
-    }
-  }
-
-  function emitInterfaceOperation(iface: InterfaceType, operation: OperationDetails): void {
-    const { path: fullPath, operation: op, verb, parameters } = operation;
-
-    if (!root.paths[fullPath]) {
-      root.paths[fullPath] = {};
-    }
-
-    currentPath = root.paths[fullPath];
-    if (!currentPath[verb]) {
-      currentPath[verb] = {};
-    }
-    currentEndpoint = currentPath[verb];
-
-    if (program.stateMap(operationIdsKey).has(op)) {
-      currentEndpoint.operationId = program.stateMap(operationIdsKey).get(op);
-    } else {
-      // Synthesize an operation ID
-      currentEndpoint.operationId = `${iface.name}_${op.name}`;
-    }
-
-    // allow operation extensions
-    attachExtensions(op, currentEndpoint);
-    currentEndpoint.summary = getDoc(program, op);
-    currentEndpoint.parameters = [];
-    currentEndpoint.responses = {};
-
-    emitEndpointParameters(op, op.parameters, parameters);
-    emitRequestBody(op, op.parameters, parameters);
-    emitResponses(op.returnType);
-  }
-
-  function getPathParameters(ns: NamespaceType, op: OperationType) {
-    return [...(op.parameters?.properties.values() ?? [])].filter(
-      (param) => getPathParamName(program, param) !== undefined
-    );
-  }
-
-  /**
-   * Translates endpoint names like `read` to REST verbs like `get`.
-   */
-  function pathForEndpoint(
-    op: OperationType,
-    pathParams: ModelTypeProperty[]
-  ): [string, string[], string] {
-    const paramByName = new Map(pathParams.map((p) => [p.name, p]));
-    const route = getOperationRoute(program, op);
-    const inferredVerb = verbForEndpoint(op.name);
-    const verb = route?.verb || inferredVerb || "get";
-
-    // Build the full route path including any sub-path
-    const routePath =
-      (currentBasePath || "") +
-      (route?.subPath
-        ? `/${route?.subPath?.replace(/^\//g, "")}`
-        : !inferredVerb && !route
-        ? "/get"
-        : "");
-
-    // Find path parameter names
-    const declaredPathParamNames = routePath.match(/\{\w+\}/g)?.map((s) => s.slice(1, -1)) ?? [];
-
-    // For each param in the declared path parameters (e.g. /foo/{id} has one, id),
-    // delete it because it doesn't need to be added to the path.
-    for (const declaredParam of declaredPathParamNames) {
-      const param = paramByName.get(declaredParam);
-      if (!param) {
-        reportDiagnostic(program, {
-          code: "missing-path-param",
-          format: { param: declaredParam },
-          target: op,
-        });
-        continue;
-      }
-
-      paramByName.delete(declaredParam);
-    }
-
-    // Add any remaining declared path params
-    const pathSegments = [];
-    for (const name of paramByName.keys()) {
-      pathSegments.push(name);
-    }
-
-    return [verb, pathSegments, routePath];
-  }
-
-  function verbForEndpoint(name: string): http.HttpVerb | undefined {
-    switch (name) {
-      case "list":
-        return "get";
-      case "create":
-        return "post";
-      case "read":
-        return "get";
-      case "update":
-        return "patch";
-      case "delete":
-        return "delete";
-      case "deleteAll":
-        return "delete";
-    }
-
-    return undefined;
-  }
-
-  function emitEndpoint(resource: NamespaceType, op: OperationType) {
-    const params = getPathParameters(resource, op);
-    const [verb, newPathParams, resolvedPath] = pathForEndpoint(op, params);
-    const fullPath =
-      resolvedPath +
-      (newPathParams.length > 0 ? "/" + newPathParams.map((p) => "{" + p + "}").join("/") : "");
+  function emitOperation(operation: OperationDetails): void {
+    const { path: fullPath, operation: op, groupName, container, verb, parameters } = operation;
 
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
@@ -424,7 +259,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       currentEndpoint.operationId = program.stateMap(operationIdsKey).get(op);
     } else {
       // Synthesize an operation ID
-      currentEndpoint.operationId = `${resource.name}_${op.name}`;
+      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
     }
 
     // allow operation extensions
@@ -433,7 +268,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
 
-    const currentTags = getAllTags(program, resource, op);
+    const currentTags = getAllTags(program, container, op);
     if (currentTags) {
       currentEndpoint.tags = currentTags;
       for (const tag of currentTags) {
@@ -442,8 +277,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    emitEndpointParameters(op, op.parameters, [...(op.parameters?.properties.values() ?? [])]);
-    emitRequestBody(op, op.parameters, [...(op.parameters?.properties.values() ?? [])]);
+    emitEndpointParameters(op, op.parameters, parameters);
+    emitRequestBody(op, op.parameters, parameters);
     emitResponses(op.returnType);
   }
 

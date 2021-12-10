@@ -6,13 +6,22 @@
   },
   "tags": [],
   "paths": {
-    "/sub/a/subsub": {
+    "/alpha/{id}": {
       "get": {
-        "operationId": "SubSubA_DoSomething",
-        "parameters": [],
+        "operationId": "DoAlpha",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
+            "description": "A successful response",
             "content": {
               "application/json": {
                 "schema": {
@@ -24,10 +33,19 @@
         }
       }
     },
-    "/sub/b": {
+    "/beta/{id}": {
       "get": {
-        "operationId": "SubB_DoSomething",
-        "parameters": [],
+        "operationId": "DoBeta",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response",

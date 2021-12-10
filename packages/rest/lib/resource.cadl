@@ -1,7 +1,9 @@
 import "./http.cadl";
-import "../dist/resource.js";
+import "../dist/src/resource.js";
 
 namespace Cadl.Rest.Resource;
+
+using Cadl.Http;
 
 @doc("The default error response for resource operations.")
 model ResourceError {
@@ -31,54 +33,59 @@ model ResourceCollectionParameters<TResource> {
 }
 
 interface ResourceRead<TResource, TError> {
+  @autoRoute
   @doc("Gets an instance of the resource.")
-  @read(TResource)
+  @readsResource(TResource)
   Get(...ResourceParameters<TResource>): TResource | TError;
 }
 
 @doc("Resource create operation completed successfully.")
 model ResourceCreatedResponse<T> {
-  ...Cadl.Http.CreatedResponse;
-  @Cadl.Http.body body: T;
+  ...CreatedResponse;
+  @body body: T;
 }
 
 interface ResourceCreateOrUpdate<TResource, TError> {
+  @autoRoute
   @doc("Creates or update a instance of the resource.")
-  @createOrUpdate(TResource)
-  Create(
+  @createsOrUpdatesResource(TResource)
+  CreateOrUpdate(
     ...ResourceParameters<TResource>,
-    @Cadl.Http.body resource: TResource
+    @body resource: TResource
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }
 
 interface ResourceCreate<TResource, TError> {
+  @autoRoute
   @doc("Creates a new instance of the resource.")
-  @create(TResource)
+  @createsResource(TResource)
   Create(
     ...ResourceCollectionParameters<TResource>,
-    @Cadl.Http.body resource: TResource
+    @body resource: TResource
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }
 
 interface ResourceUpdate<TResource, TError> {
+  @autoRoute
   @doc("Updates an existing instance of the resource.")
-  @update(TResource)
+  @updatesResource(TResource)
   Update(
     ...ResourceParameters<TResource>,
-    @Cadl.Http.body properties: OptionalProperties<UpdateableProperties<TResource>>
+    @body properties: OptionalProperties<UpdateableProperties<TResource>>
   ): TResource | TError;
 }
 
 @doc("Resource deleted successfully.")
 model ResourceDeletedResponse {
   @doc("The status code.")
-  @Cadl.Http.header
+  @header
   statusCode: 200;
 }
 
 interface ResourceDelete<TResource, TError> {
+  @autoRoute
   @doc("Deletes an existing instance of the resource.")
-  @delete(TResource)
+  @deletesResource(TResource)
   Delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
 }
 
@@ -92,8 +99,9 @@ model Page<T> {
 }
 
 interface ResourceList<TResource, TError> {
+  @autoRoute
   @doc("Lists all instances of the resource.")
-  @list(TResource)
+  @listsResource(TResource)
   List(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
 }
 

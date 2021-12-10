@@ -126,7 +126,7 @@
         }
       }
     },
-    "": {
+    "/pets": {
       "post": {
         "operationId": "Pets_Create",
         "summary": "Creates a new instance of the resource.",
@@ -172,9 +172,7 @@
             }
           }
         }
-      }
-    },
-    "/pets": {
+      },
       "get": {
         "operationId": "Pets_List",
         "summary": "Lists all instances of the resource.",
@@ -281,7 +279,7 @@
     },
     "/pets/{petId}/checkups/{id}": {
       "put": {
-        "operationId": "Checkups_Create",
+        "operationId": "Checkups_CreateOrUpdate",
         "summary": "Creates or update a instance of the resource.",
         "parameters": [
           {

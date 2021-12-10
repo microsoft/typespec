@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Update openapi3 emitter to consume new Cadl.Rest route generation API",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}

@@ -2906,7 +2906,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vs'
     resolution:
-      integrity: sha512-lSjfPF3Dly8vQO4NUXdpoyNPaR/DPME7kAPN2hVXc/wcFZFcVDY6RXUAMCJhAeXPWXHfKdaTbVYfD6WHhSY1NA==
+      integrity: sha512-nH9sd2RHKXtO/8HPImqzGvkPKaKfPHpi7ZMsu2pmNLyw0hNe2AMznSzLDnwzWjVoMMHrhGN58yWSznn/+DWiBg==
       tarball: file:projects/cadl-vs.tgz
     version: 0.0.0
   file:projects/cadl-vscode.tgz:
@@ -2974,7 +2974,7 @@ packages:
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-iQ+d6uUPsy3WWFNxd7GCwLkqIqCjKxsuSp27g/DVRdsmw+nrM42YZXARjiSAZdXP6jRRMDu4lkoVCZ6Fp+gAGA==
+      integrity: sha512-QTXaLTrPNz6Iu38aBBQT79/vYyhZlViiXRarelwSgnm2DOUL39jsfDPirBcun3GwqNJm1ADmmvGhNeFRKp3yKw==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
@@ -2989,17 +2989,19 @@ packages:
     dev: false
     name: '@rush-temp/prettier-plugin-cadl'
     resolution:
-      integrity: sha512-kOwiM0LOLxx1kaoWogHuyuukpDsB+losyhR2v4sJ4NKlsCWP6qdYNWUXrPCAFwroD0i2eF/SlhUtSKSQ9sx7sg==
+      integrity: sha512-KX8rMCUZOwKkNtfkC77JxEUOxVuTgL56IAY9Gr5xl7cRO5DfSaOvYGYYI6Nzd+LhTXzp5eh9dAJMMf07H6bYfA==
       tarball: file:projects/prettier-plugin-cadl.tgz
     version: 0.0.0
   file:projects/rest.tgz:
     dependencies:
+      '@types/mocha': 7.0.2
       '@types/node': 14.0.27
+      mocha: 8.3.2
       typescript: 4.4.4
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-SpwbjlrtAuO4QSyRyj2V6h9bP0lWeGBpVZzs9/d4EM6tiIZAQ+VScmf4NEe9D6fIkOwSTMMGxmRf/QRgV16Raw==
+      integrity: sha512-827/v4x7sgVx7FKaY4g6kwO1VuvanDIxnxwKD4GG3QtsfTWais0tNS2fOold4I5Y0f7rDduqaH5bCRX38xeTRQ==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -3010,7 +3012,7 @@ packages:
     dev: false
     name: '@rush-temp/samples'
     resolution:
-      integrity: sha512-LXbwEirjWDMtVBplgV1hLVXMCOB7fjLrC004z7dv4JzQfi35ZQ7d1J8b14vlywU8QavmhKa2ZwUS3NNbOBoj7w==
+      integrity: sha512-NrVyUOPfoBMtkc4nkyaQ8ADZdEYNgsmcOJVqKS2dHcrGPgTkUKVoCrqinJQofe98VDSuzqkXcCcvjhf8RCC+GQ==
       tarball: file:projects/samples.tgz
     version: 0.0.0
   file:projects/spec.tgz:
