@@ -115,6 +115,8 @@ export function printNode(
       return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
       return printTypeReference(path as AstPath<TypeReferenceNode>, options, print);
+    case SyntaxKind.ModelSpreadProperty:
+      return printModelSpread(path as AstPath<ModelSpreadPropertyNode>, options, print);
     default:
       return getRawText(node, options);
   }
@@ -436,21 +438,38 @@ export function printInterfaceStatement(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
   const id = path.call(print, "id");
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
-  const mixes =
-    node.mixes.length > 0 ? concat(["mixes ", join(", ", path.map(print, "mixes")), " "]) : "";
-  return concat([
+  const mixes = printInterfaceMixes(path, options, print);
+
+  return [
     decorators,
     "interface ",
     id,
     generic,
-    " ",
     mixes,
+    " ",
     printInterfaceMembers(path, options, print),
-  ]);
+  ];
+}
+
+function printInterfaceMixes(
+  path: AstPath<InterfaceStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  if (node.mixes.length === 0) {
+    return "";
+  }
+
+  const keyword = "mixes ";
+  return [
+    group(
+      indent([line, keyword, align(keyword.length, join([",", line], path.map(print, "mixes")))])
+    ),
+  ];
 }
 
 export function printInterfaceMembers(
@@ -465,18 +484,30 @@ export function printInterfaceMembers(
     return "{}";
   }
 
-  const body: prettier.Doc[] = [
-    hardline,
-    join(
-      hardline,
-      path.map((x) => print(x), "operations")
-    ),
-  ];
+  const lastOperation = node.operations[node.operations.length - 1];
+
+  const parts: prettier.Doc[] = [];
+  path.each((operationPath) => {
+    const node = operationPath.getValue() as any as OperationStatementNode;
+
+    const printed = print(operationPath);
+    parts.push(printed);
+
+    if (node !== lastOperation) {
+      parts.push(hardline);
+
+      if (isNextLineEmpty(options.originalText, node, options.locEnd)) {
+        parts.push(hardline);
+      }
+    }
+  }, "operations");
+
+  const body: prettier.Doc[] = [hardline, parts];
 
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
-  return group(concat(["{", indent(concat(body)), hardline, "}"]));
+  return group(["{", indent(body), hardline, "}"]);
 }
 
 function printDanglingComments(
@@ -762,7 +793,7 @@ export function printStatementSequence<T extends Node>(
     }
   }, property);
 
-  return concat(parts);
+  return parts;
 }
 
 function getLastStatement(statements: Statement[]): Statement | undefined {
@@ -818,6 +849,14 @@ export function printTypeReference(
   const type = path.call(print, "target");
   const template = printTemplateParameters(path, options, print, "arguments");
   return concat([type, template]);
+}
+
+function printModelSpread(
+  path: prettier.AstPath<ModelSpreadPropertyNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  return ["...", path.call(print, "target")];
 }
 
 export function printStringLiteral(

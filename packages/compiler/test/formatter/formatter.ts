@@ -216,6 +216,23 @@ model Foo<T> {}
 `,
       });
     });
+
+    it("format spread reference", () => {
+      assertFormat({
+        code: `
+model Foo {
+        ...       Bar
+
+
+}
+`,
+        expected: `
+model Foo {
+  ...Bar;
+}
+`,
+      });
+    });
   });
 
   describe("comments", () => {
