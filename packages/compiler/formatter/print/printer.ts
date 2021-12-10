@@ -218,10 +218,10 @@ export function printDecorators(
 
   const shouldBreak =
     !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options);
-  const decorators = path.map((x) => concat([print(x as any), ifBreak(line, " ")]), "decorators");
+  const decorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
 
   return {
-    decorators: group(concat([shouldBreak ? breakParent : "", decorators])),
+    decorators: group([shouldBreak ? breakParent : "", decorators]),
     multiline: shouldBreak,
   };
 }
@@ -237,11 +237,11 @@ function hasNewlineBetweenOrAfterDecorators(node: DecorableNode, options: any) {
 
 export function printDecorator(
   path: AstPath<DecoratorExpressionNode>,
-  options: object,
+  options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const args = printDecoratorArgs(path, options, print);
-  return concat(["@", path.call(print, "target"), args]);
+  return ["@", path.call(print, "target"), args];
 }
 
 export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
@@ -257,7 +257,7 @@ export function printDirectives(path: AstPath<Node>, options: object, print: Pre
 
 export function printDirective(
   path: AstPath<DirectiveExpressionNode>,
-  options: object,
+  options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const args = printDirectiveArgs(path, options, print);
@@ -266,7 +266,7 @@ export function printDirective(
 
 function printDecoratorArgs(
   path: AstPath<DecoratorExpressionNode>,
-  options: object,
+  options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
@@ -279,7 +279,9 @@ function printDecoratorArgs(
   //   value: "foo"
   // })
   const shouldHug =
-    node.arguments.length === 1 && node.arguments[0].kind === SyntaxKind.ModelExpression;
+    node.arguments.length === 1 &&
+    (node.arguments[0].kind === SyntaxKind.ModelExpression ||
+      node.arguments[0].kind === SyntaxKind.StringLiteral);
 
   if (shouldHug) {
     return concat([
