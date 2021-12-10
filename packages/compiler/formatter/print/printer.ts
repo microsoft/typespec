@@ -556,7 +556,6 @@ export function printModelExpression(
   const inBlock = isModelExpressionInBlock(path);
 
   if (inBlock) {
-    console.log("will print", path.getValue());
     return group(printModelPropertiesBlock(path, options, print));
   } else {
     return group(
