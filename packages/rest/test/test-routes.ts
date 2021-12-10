@@ -148,6 +148,7 @@ describe("rest: routes", () => {
         interface SubInterface {
           @get
           @list(Subthing)
+          @segmentOf(Subthing)
           GetSubthings(...KeysOf<Thing>): string;
 
           @post CreateSubthing(...KeysOf<Thing>, ...KeysOf<Subthing>): string;
@@ -165,87 +166,6 @@ describe("rest: routes", () => {
         verb: "post",
         path: "/api/things/{thingId}/subthings/{subthingId}",
         params: ["thingId", "subthingId"],
-      },
-    ]);
-  });
-
-  it("generates standard operations for resources types and their children", async () => {
-    const routes = await getRoutesFor(
-      `
-      using Cadl.Rest.Resource;
-
-      namespace Things {
-        model Thing {
-          @key
-          @segment("things")
-          thingId: string;
-        }
-
-        @parentResource(Thing)
-        model Subthing {
-          @key
-          @segment("subthings")
-          subthingId: string;
-        }
-
-        model Error {}
-
-        interface Things mixes ResourceOperations<Thing, Error> {}
-        interface Subthings mixes ResourceOperations<Subthing, Error> {}
-      }
-      `
-    );
-
-    deepStrictEqual(routes, [
-      {
-        verb: "get",
-        path: "/things/{thingId}",
-        params: ["thingId"],
-      },
-      {
-        verb: "patch",
-        path: "/things/{thingId}",
-        params: ["thingId"],
-      },
-      {
-        verb: "delete",
-        path: "/things/{thingId}",
-        params: ["thingId"],
-      },
-      {
-        verb: "post",
-        path: "/things",
-        params: [],
-      },
-      {
-        verb: "get",
-        path: "/things",
-        params: [],
-      },
-      {
-        verb: "get",
-        path: "/things/{thingId}/subthings/{subthingId}",
-        params: ["thingId", "subthingId"],
-      },
-      {
-        verb: "patch",
-        path: "/things/{thingId}/subthings/{subthingId}",
-        params: ["thingId", "subthingId"],
-      },
-      {
-        verb: "delete",
-        path: "/things/{thingId}/subthings/{subthingId}",
-        params: ["thingId", "subthingId"],
-      },
-      {
-        path: "/things/{thingId}/subthings",
-        verb: "post",
-        params: ["thingId"],
-      },
-      {
-        verb: "get",
-        path: "/things/{thingId}/subthings",
-        params: ["thingId"],
       },
     ]);
   });
