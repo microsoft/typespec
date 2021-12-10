@@ -9,8 +9,8 @@ interface Bar mixes ResourceOperations<BarResource> {
 
 interface Baz
   mixes ResourceRead<BarResource>,
-        ResourceCreate<BarResource>,
-        ResourceDelete<BarResource> {
+    ResourceCreate<BarResource>,
+    ResourceDelete<BarResource> {
   glorp(n: int32): string;
 }
 

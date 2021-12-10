@@ -450,11 +450,7 @@ function printInterfaceMixes(
   }
 
   const keyword = "mixes ";
-  return [
-    group(
-      indent([line, keyword, align(keyword.length, join([",", line], path.map(print, "mixes")))])
-    ),
-  ];
+  return [group(indent([line, keyword, indent(join([",", line], path.map(print, "mixes")))]))];
 }
 
 export function printInterfaceMembers(
