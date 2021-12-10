@@ -491,9 +491,7 @@ function printDanglingComments(
   }
   path.each((commentPath) => {
     const comment = commentPath.getValue();
-    console.log("print comment", comment, !comment.leading && !comment.trailing);
     if (!comment.leading && !comment.trailing) {
-      console.log("Print this", JSON.stringify(printComment(path, options)));
       parts.push(printComment(path, options));
     }
   }, "comments");
@@ -881,16 +879,13 @@ function getCommentTestFunction(flags: CommentCheckFlags | undefined): CommentTe
   if (flags) {
     return (comment: any, index: number, comments: any[]) =>
       !(
-        (
-          (flags & CommentCheckFlags.Leading && !comment.leading) ||
-          (flags & CommentCheckFlags.Trailing && !comment.trailing) ||
-          (flags & CommentCheckFlags.Dangling && (comment.leading || comment.trailing)) ||
-          (flags & CommentCheckFlags.Block && !isBlockComment(comment)) ||
-          (flags & CommentCheckFlags.Line && !isLineComment(comment)) ||
-          (flags & CommentCheckFlags.First && index !== 0) ||
-          (flags & CommentCheckFlags.Last && index !== comments.length - 1)
-        )
-        // (flags & CommentCheckFlags.PrettierIgnore && !isPrettierIgnoreComment(comment)) ||
+        (flags & CommentCheckFlags.Leading && !comment.leading) ||
+        (flags & CommentCheckFlags.Trailing && !comment.trailing) ||
+        (flags & CommentCheckFlags.Dangling && (comment.leading || comment.trailing)) ||
+        (flags & CommentCheckFlags.Block && !isBlockComment(comment)) ||
+        (flags & CommentCheckFlags.Line && !isLineComment(comment)) ||
+        (flags & CommentCheckFlags.First && index !== 0) ||
+        (flags & CommentCheckFlags.Last && index !== comments.length - 1)
       );
   }
   return undefined;
