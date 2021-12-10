@@ -10,6 +10,7 @@ import {
   EnumStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
+  LineComment,
   ModelExpressionNode,
   ModelPropertyNode,
   ModelSpreadPropertyNode,
@@ -27,18 +28,19 @@ import {
   UnionStatementNode,
   UnionVariantNode,
 } from "../../core/types.js";
+import { commentHandler } from "./comment-handler.js";
 import { CadlPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
 
 const { align, breakParent, concat, group, hardline, ifBreak, indent, join, line, softline } =
   prettier.doc.builders;
 
 const { isNextLineEmpty } = prettier.util;
-const { replaceNewlinesWithLiterallines } = prettier.doc.utils as any;
 
 export const cadlPrinter: Printer<Node> = {
   print: printCadl,
   canAttachComment: canAttachComment,
   printComment: printComment,
+  handleComments: commentHandler,
 };
 
 export function printCadl(
@@ -151,6 +153,7 @@ export function printComment(
   options: CadlPrettierOptions
 ): Doc {
   const comment = commentPath.getValue();
+  (comment as any).printed = true;
 
   switch (comment.kind) {
     case SyntaxKind.BlockComment:
@@ -171,7 +174,7 @@ function printBlockComment(commentPath: AstPath<BlockComment>, options: CadlPret
     return printed;
   }
 
-  return concat(["/*", replaceNewlinesWithLiterallines(rawComment), "*/"]);
+  return concat(["/*", rawComment, "*/"]);
 }
 
 function isIndentableBlockComment(rawComment: string): boolean {
@@ -456,26 +459,51 @@ export function printInterfaceMembers(
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
-  if (node.operations.length === 0) {
+  const hasOperations = node.operations.length > 0;
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  if (!hasOperations && !nodeHasComments) {
     return "{}";
   }
 
-  return group(
-    concat([
-      "{",
-      indent(
-        concat([
-          hardline,
-          join(
-            hardline,
-            path.map((x) => print(x), "operations")
-          ),
-        ])
-      ),
+  const body: prettier.Doc[] = [
+    hardline,
+    join(
       hardline,
-      "}",
-    ])
-  );
+      path.map((x) => print(x), "operations")
+    ),
+  ];
+
+  if (nodeHasComments) {
+    body.push(printDanglingComments(path, options, { sameIndent: true }));
+  }
+  return group(concat(["{", indent(concat(body)), hardline, "}"]));
+}
+
+function printDanglingComments(
+  path: AstPath<any>,
+  options: CadlPrettierOptions,
+  { sameIndent }: { sameIndent: boolean }
+) {
+  const node = path.getValue();
+  const parts: prettier.Doc[] = [];
+  if (!node || !node.comments) {
+    return "";
+  }
+  path.each((commentPath) => {
+    const comment = commentPath.getValue();
+    if (!comment.leading && !comment.trailing) {
+      parts.push(printComment(path, options));
+    }
+  }, "comments");
+
+  if (parts.length === 0) {
+    return "";
+  }
+
+  if (sameIndent) {
+    return join(hardline, parts);
+  }
+  return indent([hardline, join(hardline, parts)]);
 }
 
 /**
@@ -571,27 +599,26 @@ function printModelPropertiesBlock(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getNode();
-  if (!node?.properties || node.properties.length === 0) {
+  const node = path.getValue();
+  const hasProperties = node.properties && node.properties.length > 0;
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  if (!hasProperties && !nodeHasComments) {
     return "{}";
   }
 
   const seperator = isModelAValue(path) ? "," : ";";
 
-  return concat([
-    "{",
-    indent(
-      concat([
-        hardline,
-        join(
-          hardline,
-          path.map((x) => concat([print(x as any), seperator]), "properties")
-        ),
-      ])
-    ),
+  const body: prettier.Doc = [
     hardline,
-    "}",
-  ]);
+    join(
+      hardline,
+      path.map((x) => concat([print(x as any), seperator]), "properties")
+    ),
+  ];
+  if (nodeHasComments) {
+    body.push(printDanglingComments(path, options, { sameIndent: true }));
+  }
+  return concat(["{", indent(concat(body)), hardline, "}"]);
 }
 
 /**
@@ -816,4 +843,57 @@ export function printNumberLiteral(
  */
 function getRawText(node: TextRange, options: CadlPrettierOptions) {
   return options.originalText.slice(node.pos, node.end);
+}
+
+function hasComments(node: any, flags?: CommentCheckFlags) {
+  if (!node.comments || node.comments.length === 0) {
+    return false;
+  }
+  const test = getCommentTestFunction(flags);
+  return test ? node.comments.some(test) : true;
+}
+
+enum CommentCheckFlags {
+  /** Check comment is a leading comment */
+  Leading = 1 << 1,
+  /** Check comment is a trailing comment */
+  Trailing = 1 << 2,
+  /** Check comment is a dangling comment */
+  Dangling = 1 << 3,
+  /** Check comment is a block comment */
+  Block = 1 << 4,
+  /** Check comment is a line comment */
+  Line = 1 << 5,
+  /** Check comment is a `prettier-ignore` comment */
+  PrettierIgnore = 1 << 6,
+  /** Check comment is the first attached comment */
+  First = 1 << 7,
+  /** Check comment is the last attached comment */
+  Last = 1 << 8,
+}
+
+type CommentTestFn = (comment: any, index: number, comments: any[]) => boolean;
+
+function getCommentTestFunction(flags: CommentCheckFlags | undefined): CommentTestFn | undefined {
+  if (flags) {
+    return (comment: any, index: number, comments: any[]) =>
+      !(
+        (flags & CommentCheckFlags.Leading && !comment.leading) ||
+        (flags & CommentCheckFlags.Trailing && !comment.trailing) ||
+        (flags & CommentCheckFlags.Dangling && (comment.leading || comment.trailing)) ||
+        (flags & CommentCheckFlags.Block && !isBlockComment(comment)) ||
+        (flags & CommentCheckFlags.Line && !isLineComment(comment)) ||
+        (flags & CommentCheckFlags.First && index !== 0) ||
+        (flags & CommentCheckFlags.Last && index !== comments.length - 1)
+      );
+  }
+  return undefined;
+}
+
+function isBlockComment(comment: Comment): comment is BlockComment {
+  return comment.kind === SyntaxKind.BlockComment;
+}
+
+function isLineComment(comment: Comment): comment is LineComment {
+  return comment.kind === SyntaxKind.BlockComment;
 }
