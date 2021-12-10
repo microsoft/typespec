@@ -48,14 +48,14 @@ model PetId {
 @route("/pets")
 namespace Pets {
   @doc("Delete a pet.")
-  op delete(... PetId): OkResponse<{}> | Error;
+  op delete(...PetId): OkResponse<{}> | Error;
 
   @fancyDoc("List pets.")
   @pageable
   op list(@query nextLink?: string): OkResponse<ResponsePage<Pet>> | Error;
 
   @doc("Returns a pet. Supports eTags.")
-  op read(... PetId): OkResponse<Pet> | NotModified<Pet> | Error;
+  op read(...PetId): OkResponse<Pet> | NotModified<Pet> | Error;
 
   op create(@body pet: Pet): OkResponse<Pet> | Error;
 }

@@ -23,7 +23,7 @@ namespace MediaTypes {
   @operationId("AnalyzeBody")
   @post
   op analyzeBody(
-    ... Input,
+    ...Input,
     @header contentType:
       | "application/pdf"
       | "application/json"
@@ -32,11 +32,9 @@ namespace MediaTypes {
       | "image/tiff"
   ): OkResponse<string>;
 
-  @doc(
-    "Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter"
-  )
+  @doc("Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter")
   @route("contentTypeWithEncoding")
   @operationId("contentTypeWithEncoding")
   @post
-  op contentTypeWithEncoding(... Input, @header contentType: "text/plain"): OkResponse<string>;
+  op contentTypeWithEncoding(...Input, @header contentType: "text/plain"): OkResponse<string>;
 }
