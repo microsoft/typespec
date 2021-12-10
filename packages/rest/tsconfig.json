@@ -3,7 +3,8 @@
   "references": [{ "path": "../compiler/tsconfig.json" }],
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": ".",
+    "types": ["node", "mocha"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }

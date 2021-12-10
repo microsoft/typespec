@@ -21,12 +21,6 @@ const libDef = {
         default: "Resource goes on namespace",
       },
     },
-    "missing-path-param": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
-      },
-    },
     "path-query": {
       severity: "error",
       messages: {
