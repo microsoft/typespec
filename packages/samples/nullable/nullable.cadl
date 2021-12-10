@@ -1,2 +1,23 @@
-// only comment
+import "@cadl-lang/rest";
 
+using Cadl.Http;
+
+model HasNullables {
+  str: string;
+  when: plainTime;
+  strOrNull: string | null;
+  modelOrNull: AnotherModel | null;
+  literalsOrNull: "one" | "two" | null;
+  manyNullsOneString: null | null | string | null;
+  manyNullsSomeValues: null | 42 | null | 100 | null;
+  // thisWillFail: AnotherModel | string | null;
+}
+
+@route("/test")
+namespace NullableMethods {
+  @get op read(@query someParam: string | null, modelOrNull: AnotherModel | null): HasNullables;
+}
+
+model AnotherModel {
+  num: int32;
+}
