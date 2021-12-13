@@ -1298,7 +1298,10 @@ export function createChecker(program: Program): Checker {
         return checkDefaultForModelType(defaultType, type);
       case "Array":
         return checkDefaultForArrayType(defaultType, type);
+      case "Union":
+        return checkDefaultForUnionType(defaultType, type);
       default:
+        console.log("Default not supported", type.kind);
         program.reportDiagnostic(
           createDiagnostic({
             code: "unsupported-default",
@@ -1351,6 +1354,35 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({
           code: "invalid-default-type",
           format: { type: "tuple" },
+          target: defaultType,
+        })
+      );
+    }
+    return defaultType;
+  }
+
+  function checkDefaultForUnionType(defaultType: Type, type: UnionType): Type {
+    let found = false;
+    for (const option of type.options) {
+      if (option.kind === defaultType.kind) {
+        switch (defaultType.kind) {
+          case "String":
+            if (defaultType.value === (option as StringLiteralType).value) {
+              found = true;
+            }
+          case "Number":
+            if (defaultType.value === (option as NumericLiteralType).value) {
+              found = true;
+            }
+        }
+      }
+    }
+
+    if (!found) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "unassignable",
+          format: { value: getTypeName(defaultType), targetType: getTypeName(type) },
           target: defaultType,
         })
       );

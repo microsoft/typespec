@@ -274,6 +274,12 @@ const diagnostics = {
       default: paramMessage`Default must be a ${"type"}`,
     },
   },
+  unassignable: {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
+    },
+  },
   "mixes-interface": {
     severity: "error",
     messages: {
