@@ -799,6 +799,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return type.value;
       case "Boolean":
         return type.value;
+      case "EnumMember":
+        return type.value ?? type.name;
       case "Tuple":
         return type.values.map(getDefaultValue);
       default:

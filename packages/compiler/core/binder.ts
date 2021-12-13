@@ -271,7 +271,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     for (const enumMember of node.members) {
       const name =
         enumMember.id.kind === SyntaxKind.Identifier ? enumMember.id.sv : enumMember.id.value;
-      const symbol = createTypeSymbol(node, name);
+      const symbol = createTypeSymbol(enumMember, name);
       node.symbol = symbol;
       node.locals.set(name, symbol);
     }

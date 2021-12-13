@@ -262,6 +262,8 @@ export function createChecker(program: Program): Checker {
         return checkAlias(node);
       case SyntaxKind.EnumStatement:
         return checkEnum(node);
+      case SyntaxKind.EnumMember:
+        return checkEnumMember(node.parent as any, node, new Set())!;
       case SyntaxKind.InterfaceStatement:
         return checkInterface(node);
       case SyntaxKind.UnionStatement:
@@ -1280,7 +1282,6 @@ export function createChecker(program: Program): Checker {
   function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
     const decorators = checkDecorators(prop);
     const valueType = getTypeForNode(prop.value);
-    console.log("Get default", prop.default, prop.default && getTypeForNode(prop.default));
     const defaultValue = prop.default && checkDefault(getTypeForNode(prop.default), valueType);
     const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
 
@@ -1409,17 +1410,23 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDefaultForEnumType(defaultType: Type, type: EnumType): Type {
-    let found = false;
-    console.log("default type is", defaultType.kind);
-
-    if (!found) {
+    if (defaultType.kind !== "EnumMember") {
       program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-default-type",
+          format: { type: "string" },
+          target: defaultType,
+        })
+      );
+    } else {
+      const name = type.members.find((x) => x.name === defaultType.name);
+      if (name === undefined) {
         createDiagnostic({
           code: "unassignable",
           format: { value: getTypeName(defaultType), targetType: getTypeName(type) },
           target: defaultType,
-        })
-      );
+        });
+      }
     }
     return defaultType;
   }
