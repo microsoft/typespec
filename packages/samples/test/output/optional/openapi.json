@@ -66,6 +66,15 @@
               "foo",
               "bar"
             ]
+          },
+          "optionalUnion": {
+            "type": "string",
+            "enum": [
+              "foo",
+              "bar"
+            ],
+            "x-cadl-name": "foo | bar",
+            "default": "foo"
           }
         }
       }
