@@ -3,18 +3,24 @@ import "@cadl-lang/rest";
 using Cadl.Http;
 
 model HasOptional {
-  optionalNoDefault?: string;
-  optionalString?: string = "default string";
-  optionalNumber?: int32 = 123;
-  optionalBoolean?: boolean = true;
-  optionalArray?: string[] = ["foo", "bar"];
-  optionalUnion?: "foo" | "bar" = "foo";
+  // optionalNoDefault?: string;
+  // optionalString?: string = "default string";
+  // optionalNumber?: int32 = 123;
+  // optionalBoolean?: boolean = true;
+  // optionalArray?: string[] = ["foo", "bar"];
+  // optionalUnion?: "foo" | "bar" = "foo";
+  optionalEnum?: OptionalEnum = OptionalEnum.foo;
 }
 
-@route("/test")
-namespace OptionalMethods {
-  @get op read(
-    @query queryString?: string = "defaultQueryString",
-    queryNumber?: int64 = 123
-  ): HasOptional;
+enum OptionalEnum {
+  foo,
+  bar,
 }
+
+// @route("/test")
+// namespace OptionalMethods {
+//   @get op read(
+//     @query queryString?: string = "defaultQueryString",
+//     queryNumber?: int64 = 123
+//   ): HasOptional;
+// }

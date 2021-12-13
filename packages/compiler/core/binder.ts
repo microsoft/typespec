@@ -267,6 +267,14 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
   function bindEnumStatement(node: EnumStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    node.locals = createSymbolTable();
+    for (const enumMember of node.members) {
+      const name =
+        enumMember.id.kind === SyntaxKind.Identifier ? enumMember.id.sv : enumMember.id.value;
+      const symbol = createTypeSymbol(node, name);
+      node.symbol = symbol;
+      node.locals.set(name, symbol);
+    }
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {

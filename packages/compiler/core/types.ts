@@ -487,6 +487,10 @@ export interface EnumStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.EnumStatement;
   id: IdentifierNode;
   members: EnumMemberNode[];
+  /**
+   * Symbol table for the members.
+   */
+  locals?: SymbolTable;
   decorators: DecoratorExpressionNode[];
 }
 
@@ -494,6 +498,7 @@ export interface EnumMemberNode extends BaseNode {
   kind: SyntaxKind.EnumMember;
   id: IdentifierNode | StringLiteralNode;
   value?: StringLiteralNode | NumericLiteralNode;
+  symbol?: TypeSymbol;
   decorators: DecoratorExpressionNode[];
 }
 

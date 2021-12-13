@@ -985,6 +985,21 @@ export function createChecker(program: Program): Checker {
           return undefined;
         }
         return symbol;
+      } else if (base.kind === "type" && base.node.kind === SyntaxKind.EnumStatement) {
+        const symbol = resolveIdentifierInTable(node.id, base.node.locals, resolveDecorator);
+
+        if (!symbol) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "inEnum",
+              format: { enumName: base.node.id.sv, id: node.id.sv },
+              target: node,
+            })
+          );
+          return undefined;
+        }
+        return symbol;
       } else if (base.kind === "decorator") {
         program.reportDiagnostic(
           createDiagnostic({
@@ -1265,6 +1280,7 @@ export function createChecker(program: Program): Checker {
   function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
     const decorators = checkDecorators(prop);
     const valueType = getTypeForNode(prop.value);
+    console.log("Get default", prop.default, prop.default && getTypeForNode(prop.default));
     const defaultValue = prop.default && checkDefault(getTypeForNode(prop.default), valueType);
     const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
 
@@ -1300,6 +1316,8 @@ export function createChecker(program: Program): Checker {
         return checkDefaultForArrayType(defaultType, type);
       case "Union":
         return checkDefaultForUnionType(defaultType, type);
+      case "Enum":
+        return checkDefaultForEnumType(defaultType, type);
       default:
         console.log("Default not supported", type.kind);
         program.reportDiagnostic(
@@ -1377,6 +1395,22 @@ export function createChecker(program: Program): Checker {
         }
       }
     }
+
+    if (!found) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "unassignable",
+          format: { value: getTypeName(defaultType), targetType: getTypeName(type) },
+          target: defaultType,
+        })
+      );
+    }
+    return defaultType;
+  }
+
+  function checkDefaultForEnumType(defaultType: Type, type: EnumType): Type {
+    let found = false;
+    console.log("default type is", defaultType.kind);
 
     if (!found) {
       program.reportDiagnostic(
