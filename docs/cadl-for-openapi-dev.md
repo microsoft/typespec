@@ -284,7 +284,7 @@ model PetId {
 }
 
 namespace Pets {
-  op read(... PetId): Pet | Error;
+  op read(...PetId): Pet | Error;
 }
 
 ```
@@ -333,7 +333,7 @@ For example:
 
 ```cadl
 namespace Pets {
-  @extension("x-streaming-operation", true) op read(... PetId): Pet | Error;
+  @extension("x-streaming-operation", true) op read(...PetId): Pet | Error;
 }
 
 ```

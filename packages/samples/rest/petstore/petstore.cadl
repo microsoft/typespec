@@ -51,4 +51,6 @@ interface Toys mixes ResourceRead<Toy, PetStoreError> {
   List(...ParentKeysOf<Toy>, @query nameFilter: string): Page<Toy> | PetStoreError;
 }
 
-interface Checkups mixes ResourceCreateOrUpdate<Checkup, PetStoreError>, ResourceList<Checkup, PetStoreError> {}
+interface Checkups
+  mixes ResourceCreateOrUpdate<Checkup, PetStoreError>,
+    ResourceList<Checkup, PetStoreError> {}

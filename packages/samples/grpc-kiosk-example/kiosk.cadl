@@ -12,7 +12,7 @@ namespace Display {
 
   @doc("List active kiosks.")
   @route("kiosks")
-  op ListKiosks(... Empty): ListKiosksResponse | RpcStatus;
+  op ListKiosks(...Empty): ListKiosksResponse | RpcStatus;
 
   @doc("Get a kiosk.")
   @route("kiosks/{id}")
@@ -30,7 +30,7 @@ namespace Display {
 
   @doc("List active signs.")
   @route("signs")
-  op ListSigns(... Empty): ListSignsResponse;
+  op ListSigns(...Empty): ListSignsResponse;
 
   @doc("Get a sign.")
   @route("signs/{id}")
@@ -44,7 +44,7 @@ namespace Display {
   @doc("Set a sign for display on one or more kiosks.")
   @route("signs/{sign_id}")
   @post
-  op SetSignIdForKioskIds(... SetSignIdForKioskIdsRequest): Empty | RpcStatus;
+  op SetSignIdForKioskIds(...SetSignIdForKioskIdsRequest): Empty | RpcStatus;
 
   @doc("Get the sign that should be displayed on a kiosk.")
   @route("kiosks/{kiosk_id}/sign")

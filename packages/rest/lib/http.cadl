@@ -17,9 +17,7 @@ model OkResponse<T> {
 
 @doc("The Location header.")
 model LocationHeader {
-  @doc(
-    "The Location header contains the URL where the status of the long running operation can be checked."
-  )
+  @doc("The Location header contains the URL where the status of the long running operation can be checked.")
   @header
   location: string;
 }
@@ -45,14 +43,12 @@ model NoContentResponse {
   statusCode: 204;
 }
 
-@doc(
-  "The URL of the requested resource has been changed permanently. The new URL is given in the response."
-)
+@doc("The URL of the requested resource has been changed permanently. The new URL is given in the response.")
 model MovedResponse {
   @doc("The status code.")
   @header
   statusCode: 301;
-  ... LocationHeader;
+  ...LocationHeader;
 }
 
 @doc("This is used for caching purposes.")

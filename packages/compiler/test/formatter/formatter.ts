@@ -216,6 +216,23 @@ model Foo<T> {}
 `,
       });
     });
+
+    it("format spread reference", () => {
+      assertFormat({
+        code: `
+model Foo {
+        ...       Bar
+
+
+}
+`,
+        expected: `
+model Foo {
+  ...Bar;
+}
+`,
+      });
+    });
   });
 
   describe("comments", () => {
@@ -835,9 +852,7 @@ namespace Foo {
       `,
         expected: `
 namespace Foo {
-  @doc(
-    "this is a very long documentation that will for sure overflow the max line length"
-  )
+  @doc("this is a very long documentation that will for sure overflow the max line length")
   op my(parm: string): string;
 }
       `,
