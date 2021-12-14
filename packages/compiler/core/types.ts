@@ -201,13 +201,12 @@ export interface TemplateParameterType extends BaseType {
 }
 
 // trying to avoid masking built-in Symbol
-export type Sym = DecoratorSymbol | TypeSymbol;
+// export type Sym = DecoratorSymbol | TypeSymbol;
 
 export interface DecoratorSymbol {
   kind: "decorator";
   path: string;
   name: string;
-  flags: SymbolFlags;
   value: (...args: any[]) => any;
 }
 
@@ -215,19 +214,18 @@ export interface TypeSymbol {
   kind: "type";
   node: Node;
   name: string;
-  flags: SymbolFlags;
   id?: number;
 }
 
-export const enum SymbolFlags {
-  none = 0,
-
-  /**
-   * If the symbol is used from a using
-   */
-  using = 1 << 0,
-  usingDuplicates = 1 << 1,
+export interface UsingSymbol {
+  kind: "using";
+  symbolSource: ExportSymbol;
+  duplicate?: boolean;
 }
+
+export type LocalSymbol = UsingSymbol | TypeSymbol;
+export type ExportSymbol = TypeSymbol | DecoratorSymbol;
+export type Sym = UsingSymbol | TypeSymbol | DecoratorSymbol;
 
 export interface SymbolLinks {
   type?: Type;
@@ -238,16 +236,11 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
-export interface SymbolTableEntry {
-  sym: Sym;
-  flags: SymbolFlags;
-}
-
-export interface SymbolTable extends Map<string, Sym> {
+export interface SymbolTable<T extends Sym> extends Map<string, T> {
   /**
    * Duplicate
    */
-  readonly duplicates: Map<Sym, Set<Sym>>;
+  readonly duplicates: Map<T, Set<T>>;
 }
 
 /**
@@ -305,7 +298,7 @@ export interface BaseNode extends TextRange {
 
 export interface TemplateDeclarationNode {
   templateParameters: TemplateParameterDeclarationNode[];
-  locals?: SymbolTable;
+  locals?: SymbolTable<LocalSymbol>;
 }
 
 export type Node =
@@ -428,8 +421,8 @@ export interface MemberExpressionNode extends BaseNode {
 
 export interface ContainerNode {
   usingsRefs?: NamespaceStatementNode[];
-  locals?: SymbolTable;
-  exports?: SymbolTable;
+  locals?: SymbolTable<LocalSymbol>;
+  exports?: SymbolTable<ExportSymbol>;
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode, ContainerNode {
@@ -609,7 +602,7 @@ export interface JsSourceFile {
   esmExports: any;
 
   /* Exported "global scope" bindings */
-  exports?: SymbolTable;
+  exports?: SymbolTable<DecoratorSymbol>;
 
   /* Any namespaces declared by decorators. */
   namespaces: NamespaceStatementNode[];
