@@ -122,3 +122,38 @@ setDecoratorNamespace(
   $path,
   $body
 );
+
+export function $plainData(program: Program, entity: Type) {
+  if (entity.kind !== "Model") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      target: entity,
+      format: { decorator: "plainData", entityKind: entity.kind },
+    });
+    return;
+  }
+
+  const decoratorsToRemove = ["$header", "$body", "$query", "$path"];
+  const [headers, queries, paths, bodies] = [
+    program.stateMap(headerFieldsKey),
+    program.stateSet(bodyFieldsKey),
+    program.stateMap(queryFieldsKey),
+    program.stateMap(pathFieldsKey),
+  ];
+
+  for (const property of entity.properties.values()) {
+    // Remove the decorators so that they do not run in the future, for example,
+    // if this model is later spread into another.
+    property.decorators = property.decorators.filter(
+      (d) => !decoratorsToRemove.includes(d.decorator.name)
+    );
+
+    // Remove the impact the decorators already had on this model.
+    headers.delete(property);
+    bodies.delete(property);
+    queries.delete(property);
+    paths.delete(property);
+  }
+}
+
+setDecoratorNamespace("Cadl.Http.Private", $plainData);
