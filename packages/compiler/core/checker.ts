@@ -1300,6 +1300,8 @@ export function createChecker(program: Program): Checker {
         return checkDefaultForModelType(defaultType, type);
       case "Array":
         return checkDefaultForArrayType(defaultType, type);
+      case "Union":
+        return checkDefaultForUnionType(defaultType, type);
       default:
         program.reportDiagnostic(
           createDiagnostic({
@@ -1357,6 +1359,33 @@ export function createChecker(program: Program): Checker {
         })
       );
     }
+    return defaultType;
+  }
+
+  function checkDefaultForUnionType(defaultType: Type, type: UnionType): Type {
+    for (const option of type.options) {
+      if (option.kind === defaultType.kind) {
+        switch (defaultType.kind) {
+          case "String":
+            if (defaultType.value === (option as StringLiteralType).value) {
+              return defaultType;
+            }
+          case "Number":
+            if (defaultType.value === (option as NumericLiteralType).value) {
+              return defaultType;
+            }
+        }
+      }
+    }
+
+    // Didn't find any compatible options
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "unassignable",
+        format: { value: getTypeName(defaultType), targetType: getTypeName(type) },
+        target: defaultType,
+      })
+    );
     return defaultType;
   }
 

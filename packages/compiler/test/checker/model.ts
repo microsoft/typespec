@@ -79,6 +79,7 @@ describe("compiler: models", () => {
       ["int32", `"foo"`, /Default must be a number/],
       ["boolean", `"foo"`, /Default must be a boolean/],
       ["string[]", `["foo", 123]`, /Default must be a string/],
+      [`"foo" | "bar"`, `"foo1"`, /Type 'foo1' is not assignable to type 'foo | bar'/],
     ];
 
     for (const [type, defaultValue, errorRegex] of testCases) {
