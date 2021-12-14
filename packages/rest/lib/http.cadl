@@ -88,7 +88,7 @@ model ConflictResponse {
 //
 // ISSUE: Can't use @doc to document this as it leaks into OpenAPI output.
 // We probably need a way to do Cadl-developer-only docs that show in the
-// IDE but do not leak into output.
+// IDE but do not leak into output. https://github.com/microsoft/cadl/issues/131
 @plainData
 model PlainData<T> {
   ...T;
