@@ -1301,7 +1301,6 @@ export function createChecker(program: Program): Checker {
       case "Union":
         return checkDefaultForUnionType(defaultType, type);
       default:
-        console.log("Default not supported", type.kind);
         program.reportDiagnostic(
           createDiagnostic({
             code: "unsupported-default",
@@ -1362,31 +1361,29 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDefaultForUnionType(defaultType: Type, type: UnionType): Type {
-    let found = false;
     for (const option of type.options) {
       if (option.kind === defaultType.kind) {
         switch (defaultType.kind) {
           case "String":
             if (defaultType.value === (option as StringLiteralType).value) {
-              found = true;
+              return defaultType;
             }
           case "Number":
             if (defaultType.value === (option as NumericLiteralType).value) {
-              found = true;
+              return defaultType;
             }
         }
       }
     }
 
-    if (!found) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "unassignable",
-          format: { value: getTypeName(defaultType), targetType: getTypeName(type) },
-          target: defaultType,
-        })
-      );
-    }
+    // Didn't find any compatible options
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "unassignable",
+        format: { value: getTypeName(defaultType), targetType: getTypeName(type) },
+        target: defaultType,
+      })
+    );
     return defaultType;
   }
 
