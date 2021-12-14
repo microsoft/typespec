@@ -300,7 +300,9 @@ export function createChecker(program: Program): Checker {
       case "Enum":
         return getEnumName(type);
       case "Union":
-        return type.options.map(getTypeName).join(" | ");
+        return type.name || type.options.map(getTypeName).join(" | ");
+      case "UnionVariant":
+        return getTypeName(type.type);
       case "Array":
         return getTypeName(type.elementType) + "[]";
       case "String":
