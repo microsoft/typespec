@@ -521,7 +521,8 @@ export function createChecker(program: Program): Checker {
     templateInstantiation = args;
     instantiatingTemplate = templateNode;
 
-    const type = pendingModelTypes.get(getNodeSymId(templateNode)) ?? getTypeForNode(templateNode);
+    const pending = pendingModelTypes.get(getNodeSymId(templateNode));
+    const type = pending && oldTemplate === templateNode ? pending : getTypeForNode(templateNode);
 
     symbolLinks.instantiations!.set(args, type);
     if (type.kind === "Model") {

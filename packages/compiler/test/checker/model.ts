@@ -273,5 +273,29 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 0);
     });
+
+    it("resolve recursive template types", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A<T> {
+          c: T;
+          b: B
+        }
+        @test
+        model B is A<string> {}
+        @test
+        model C is A<int32> {}
+        `
+      );
+      const { B, C } = await testHost.compile("main.cadl");
+      strictEqual((B as ModelType).properties.size, 2);
+      strictEqual(((B as ModelType).properties.get("c")?.type as any).name, "string");
+      strictEqual(((B as ModelType).properties.get("b")?.type as any).name, "B");
+
+      strictEqual((C as ModelType).properties.size, 2);
+      strictEqual(((C as ModelType).properties.get("c")?.type as any).name, "int32");
+      strictEqual(((C as ModelType).properties.get("b")?.type as any).name, "B");
+    });
   });
 });
