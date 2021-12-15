@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { paramMessage } from "../core/library.js";
 
-describe("cadl: library", () => {
+describe("compiler: library", () => {
   describe("paramMessage", () => {
     it("interpolate single param in middle", () => {
       const message = paramMessage`My name is ${"name"}.`;

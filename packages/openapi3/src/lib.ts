@@ -6,6 +6,7 @@ const libDef = {
     "decorator-wrong-type": {
       severity: "error",
       messages: {
+        default: paramMessage`Cannot apply ${"decoratorName"} decorator to ${"entityKind"}`,
         modelsOperations: paramMessage`${"decoratorName"} decorator can only be applied to models and operation parameters.`,
       },
     },
@@ -19,12 +20,6 @@ const libDef = {
       severity: "error",
       messages: {
         default: "Resource goes on namespace",
-      },
-    },
-    "missing-path-param": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
       },
     },
     "path-query": {

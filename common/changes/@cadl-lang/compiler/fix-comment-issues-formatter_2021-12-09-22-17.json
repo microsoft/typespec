@@ -1,0 +1,20 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Formatter** fix issues with empty model and interface with comments being moved outside.",
+      "type": "patch"
+    },
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Formatter** fix crash when having a comment in anynoymous empty model.",
+      "type": "patch"
+    },
+     {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Formatter** fix crash when using multi-line comment without each line starting with `*`.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

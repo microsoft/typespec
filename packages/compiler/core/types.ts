@@ -9,6 +9,7 @@ export type DecoratorArgument = Type | number | string | boolean;
 export interface DecoratorApplication {
   decorator: DecoratorFunction;
   args: DecoratorArgument[];
+  node?: DecoratorExpressionNode;
 }
 
 export interface DecoratorFunction {
@@ -74,6 +75,7 @@ export type IntrinsicModelName =
   | "plainDate"
   | "plainTime"
   | "zonedDateTime"
+  | "duration"
   | "boolean"
   | "null";
 
@@ -199,7 +201,7 @@ export interface TemplateParameterType extends BaseType {
 }
 
 // trying to avoid masking built-in Symbol
-export type Sym = DecoratorSymbol | TypeSymbol;
+// export type Sym = DecoratorSymbol | TypeSymbol;
 
 export interface DecoratorSymbol {
   kind: "decorator";
@@ -215,6 +217,16 @@ export interface TypeSymbol {
   id?: number;
 }
 
+export interface UsingSymbol {
+  kind: "using";
+  symbolSource: ExportSymbol;
+  duplicate?: boolean;
+}
+
+export type LocalSymbol = UsingSymbol | TypeSymbol;
+export type ExportSymbol = TypeSymbol | DecoratorSymbol;
+export type Sym = UsingSymbol | TypeSymbol | DecoratorSymbol;
+
 export interface SymbolLinks {
   type?: Type;
 
@@ -224,8 +236,11 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
-export interface SymbolTable extends Map<string, Sym> {
-  readonly duplicates: Set<Sym>;
+export interface SymbolTable<T extends Sym> extends Map<string, T> {
+  /**
+   * Duplicate
+   */
+  readonly duplicates: Map<T, Set<T>>;
 }
 
 /**
@@ -283,7 +298,7 @@ export interface BaseNode extends TextRange {
 
 export interface TemplateDeclarationNode {
   templateParameters: TemplateParameterDeclarationNode[];
-  locals?: SymbolTable;
+  locals?: SymbolTable<LocalSymbol>;
 }
 
 export type Node =
@@ -398,8 +413,6 @@ export type Expression =
   | NumericLiteralNode
   | BooleanLiteralNode;
 
-export type ReferenceExpression = TypeReferenceNode | MemberExpressionNode | IdentifierNode;
-
 export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
   readonly id: IdentifierNode;
@@ -407,8 +420,9 @@ export interface MemberExpressionNode extends BaseNode {
 }
 
 export interface ContainerNode {
-  locals?: SymbolTable;
-  exports?: SymbolTable;
+  usingsRefs?: NamespaceStatementNode[];
+  locals?: SymbolTable<LocalSymbol>;
+  exports?: SymbolTable<ExportSymbol>;
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode, ContainerNode {
@@ -435,8 +449,8 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly kind: SyntaxKind.ModelStatement;
   readonly id: IdentifierNode;
   readonly properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
-  readonly extends?: ReferenceExpression;
-  readonly is?: ReferenceExpression;
+  readonly extends?: TypeReferenceNode;
+  readonly is?: TypeReferenceNode;
   readonly decorators: DecoratorExpressionNode[];
 }
 
@@ -444,7 +458,7 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
   readonly kind: SyntaxKind.InterfaceStatement;
   readonly id: IdentifierNode;
   readonly operations: OperationStatementNode[];
-  readonly mixes: ReferenceExpression[];
+  readonly mixes: TypeReferenceNode[];
   readonly decorators: DecoratorExpressionNode[];
 }
 
@@ -515,7 +529,7 @@ export interface ModelPropertyNode extends BaseNode {
 
 export interface ModelSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelSpreadProperty;
-  readonly target: ReferenceExpression;
+  readonly target: TypeReferenceNode;
 }
 
 export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
@@ -547,7 +561,7 @@ export interface IntersectionExpressionNode extends BaseNode {
 
 export interface TypeReferenceNode extends BaseNode {
   readonly kind: SyntaxKind.TypeReference;
-  readonly target: ReferenceExpression;
+  readonly target: MemberExpressionNode | IdentifierNode;
   readonly arguments: Expression[];
 }
 
@@ -588,7 +602,7 @@ export interface JsSourceFile {
   esmExports: any;
 
   /* Exported "global scope" bindings */
-  exports?: SymbolTable;
+  exports?: SymbolTable<DecoratorSymbol>;
 
   /* Any namespaces declared by decorators. */
   namespaces: NamespaceStatementNode[];
@@ -683,6 +697,12 @@ export interface CompilerHost {
    * @param content Content of the file.
    */
   writeFile(path: string, content: string): Promise<void>;
+
+  /**
+   * create directory recursively.
+   * @param path Path to the directory.
+   */
+  mkdirp(path: string): Promise<string | undefined>;
 
   // get the directory Cadl is executing from
   getExecutionRoot(): string;

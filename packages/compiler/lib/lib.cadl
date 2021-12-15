@@ -60,6 +60,9 @@ model plainTime {}
 model zonedDateTime {}
 
 @intrinsic
+model duration {}
+
+@intrinsic
 model boolean {}
 
 @intrinsic
@@ -80,16 +83,16 @@ model Map<K, V> {
 @doc("The template for adding optional properties.")
 @withOptionalProperties
 model OptionalProperties<T> {
-  ... T;
+  ...T;
 }
 
 @doc("The template for adding updateable properties.")
 @withUpdateableProperties
 model UpdateableProperties<T> {
-  ... T;
+  ...T;
 }
 
 @withoutDefaultValues
 model OmitDefaults<T> {
-  ... T;
+  ...T;
 }

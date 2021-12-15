@@ -1,5 +1,7 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 model Pet {
   name: string;
 }
@@ -26,49 +28,50 @@ model ErrorResponse {
   @body body: string;
 }
 
-@resource("/multipleInheritance")
+@route("/multipleInheritance")
 namespace MultipleInheritance {
   @doc("Get a horse with name 'Fred' and isAShowHorse true")
-  @get("horse")
+  @route("horse")
   op getHorse(): OkResponse<Horse> | ErrorResponse;
 
   @doc("Put a horse with name 'General' and isAShowHorse false")
-  @put("horse")
+  @route("horse")
+  @put
   op putHorse(@body horse: Horse): OkResponse<string> | ErrorResponse;
 
   @doc("Get a pet with name 'Peanut'")
-  @get("pet")
+  @route("pet")
   op getPet(): OkResponse<Pet> | ErrorResponse;
 
   @doc("Put a pet with name 'Butter'")
-  @put("pet")
+  @route("pet")
+  @put
   op putPet(@body horse: Pet): OkResponse<string> | ErrorResponse;
 
   @doc("Get a feline where meows and hisses are true")
-  @get("feline")
+  @route("feline")
   op getFeline(): OkResponse<Feline> | ErrorResponse;
 
   @doc("Put a feline who hisses and doesn't meow")
-  @put("feline")
+  @route("feline")
+  @put
   op putFeline(@body feline: Feline): OkResponse<string> | ErrorResponse;
 
   @doc("Get a cat with name 'Whiskers' where likesMilk, meows, and hisses is true")
-  @get("cat")
+  @route("cat")
   op getCat(): OkResponse<Cat> | ErrorResponse;
 
   @doc("Put a cat with name 'Boots' where likesMilk and hisses is false, meows is true")
-  @put("cat")
+  @route("cat")
+  @put
   op putCat(@body cat: Cat): OkResponse<string> | ErrorResponse;
 
-  @doc(
-    "Get a kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false"
-  )
-  @get("kitten")
+  @doc("Get a kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false")
+  @route("kitten")
   op getKitten(): OkResponse<Kitten> | ErrorResponse;
 
-  @doc(
-    "Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true"
-  )
-  @put("kitten")
+  @doc("Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true")
+  @route("kitten")
+  @put
   op putKitten(@body kitten: Kitten): OkResponse<string> | ErrorResponse;
 }

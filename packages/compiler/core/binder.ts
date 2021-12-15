@@ -1,6 +1,5 @@
 import { compilerAssert } from "./diagnostics.js";
-import { createDiagnostic } from "./messages.js";
-import { visitChildren } from "./parser.js";
+import { NodeFlags, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
@@ -9,13 +8,14 @@ import {
   Declaration,
   DecoratorSymbol,
   EnumStatementNode,
+  ExportSymbol,
   IdentifierNode,
   InterfaceStatementNode,
   JsSourceFile,
+  LocalSymbol,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
-  NoTarget,
   OperationStatementNode,
   ScopeNode,
   Sym,
@@ -31,17 +31,25 @@ import {
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
 
-const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
-  duplicates = new Set<Sym>();
+const SymbolTable = class<T extends Sym> extends Map<string, T> implements SymbolTable<T> {
+  duplicates = new Map<T, Set<T>>();
 
   // First set for a given key wins, but record all duplicates for diagnostics.
-  set(key: string, value: Sym) {
-    const existing = this.get(key);
+  set(key: string, value: T) {
+    const existing = super.get(key);
     if (existing === undefined) {
       super.set(key, value);
     } else {
-      this.duplicates.add(existing);
-      this.duplicates.add(value);
+      if (existing.kind === "using") {
+        existing.duplicate = true;
+      }
+
+      const duplicateArray = this.duplicates.get(existing);
+      if (duplicateArray) {
+        duplicateArray.add(value);
+      } else {
+        this.duplicates.set(existing, new Set([existing, value]));
+      }
     }
     return this;
   }
@@ -53,8 +61,8 @@ export interface Binder {
   bindNode(node: Node): void;
 }
 
-export function createSymbolTable(): SymbolTable {
-  return new SymbolTable();
+export function createSymbolTable<T extends Sym>(): SymbolTable<T> {
+  return new SymbolTable<T>();
 }
 
 export interface BinderOptions {
@@ -99,24 +107,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
         const name = getFunctionName(key);
         if (name === "onBuild") {
-          try {
-            program.onBuild(member as any);
-            continue;
-          } catch (err: any) {
-            if (program.compilerOptions.designTimeBuild) {
-              // do not exit the language server
-              program.reportDiagnostic(
-                createDiagnostic({
-                  code: "on-build-fail",
-                  format: { error: err },
-                  target: NoTarget,
-                })
-              );
-              continue;
-            } else {
-              throw err;
-            }
-          }
+          program.onBuild(member as any);
+          continue;
         }
 
         const memberNs: string = (member as any).namespace;
@@ -255,23 +247,23 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   function bindModelStatement(node: ModelStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     // Initialize locals for type parameters
-    node.locals = new SymbolTable();
+    node.locals = new SymbolTable<LocalSymbol>();
   }
 
   function bindInterfaceStatement(node: InterfaceStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
-    node.locals = new SymbolTable();
+    node.locals = new SymbolTable<LocalSymbol>();
   }
 
   function bindUnionStatement(node: UnionStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
-    node.locals = new SymbolTable();
+    node.locals = new SymbolTable<LocalSymbol>();
   }
 
   function bindAliasStatement(node: AliasStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     // Initialize locals for type parameters
-    node.locals = new SymbolTable();
+    node.locals = new SymbolTable<LocalSymbol>();
   }
 
   function bindEnumStatement(node: EnumStatementNode) {
@@ -284,7 +276,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     if (existingBinding && existingBinding.kind === "type") {
       statement.symbol = existingBinding;
       // locals are never shared.
-      statement.locals = new SymbolTable();
+      statement.locals = createSymbolTable();
 
       // todo: don't merge exports
       statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
@@ -292,10 +284,10 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
 
       // Initialize locals for non-exported symbols
-      statement.locals = new SymbolTable();
+      statement.locals = createSymbolTable();
 
       // initialize exports for exported symbols
-      statement.exports = new SymbolTable();
+      statement.exports = new SymbolTable<ExportSymbol>();
     }
 
     currentFile.namespaces.push(statement);
@@ -321,7 +313,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     }
   }
 
-  function declareSymbol(table: SymbolTable, node: Declaration, name: string) {
+  function declareSymbol(table: SymbolTable<Sym>, node: Declaration, name: string) {
     compilerAssert(table, "Attempted to declare symbol on non-existent table");
     const symbol = createTypeSymbol(node, name);
     node.symbol = symbol;
@@ -385,7 +377,7 @@ function createDecoratorSymbol(name: string, path: string, value: any): Decorato
   };
 }
 
-function createSyntheticNamespace(name: string): NamespaceStatementNode {
+function createSyntheticNamespace(name: string): NamespaceStatementNode & { flags: NodeFlags } {
   const nsId: IdentifierNode = {
     kind: SyntaxKind.Identifier,
     pos: 0,
@@ -401,5 +393,6 @@ function createSyntheticNamespace(name: string): NamespaceStatementNode {
     name: nsId,
     locals: createSymbolTable(),
     exports: createSymbolTable(),
+    flags: NodeFlags.Synthetic,
   };
 }

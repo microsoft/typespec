@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/prettier-plugin-cadl",
+      "comment": "refresh 3Party notice",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/prettier-plugin-cadl"
+}

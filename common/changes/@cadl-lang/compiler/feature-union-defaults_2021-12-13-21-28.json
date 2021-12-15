@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Add Prettier formatting support for interface mixes",
-      "type": "patch"
+      "comment": "**Added** support for union default values",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/compiler"

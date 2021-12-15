@@ -1,6 +1,8 @@
 import "@cadl-lang/rest";
 
-@resource("/foo")
+using Cadl.Http;
+
+@route("/foo")
 @tag("foo")
 namespace foo {
   @tag("tag1")
@@ -13,7 +15,7 @@ namespace foo {
   op create(@path id: int32): null;
 }
 
-@resource("/bar")
+@route("/bar")
 namespace bar {
   @doc("no tags")
   op list(): Resp[];
@@ -21,6 +23,19 @@ namespace bar {
   @doc("one operation tag")
   @tag("tag3")
   op create(@path id: int32): null;
+}
+
+@tag("outer")
+@route("/nested")
+namespace NestedOuter {
+  @tag("inner")
+  namespace NestedInner {
+    @tag("moreInner")
+    namespace NestedMoreInner {
+      @tag("innerOp")
+      op createOther(@path id: int32): null;
+    }
+  }
 }
 
 model Resp {

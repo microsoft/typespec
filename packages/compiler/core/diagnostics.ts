@@ -1,6 +1,7 @@
 import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger.js";
+import { isSynthetic } from "./parser.js";
 import { Program } from "./program.js";
 import {
   Diagnostic,
@@ -80,45 +81,8 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
   } as any;
 }
 
-/**
- * Represents a failure with multiple errors.
- */
-export class AggregateError extends Error {
-  readonly errors: readonly Error[];
-
-  constructor(...errors: (Error | undefined)[]) {
-    super("Multiple errors. See errors array.");
-    this.errors = errors.filter(isNotUndefined);
-    // Tests don't have our catch all handler so log the inner errors now.
-    logVerboseTestOutput((log) => this.errors.map((e) => dumpError(e, log)));
-  }
-}
-
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
-
-export function computeTargetLocation(
-  target?: DiagnosticTarget | typeof NoTarget
-): SourceLocation | undefined {
-  let location: SourceLocation | undefined;
-  let locationError: Error | undefined;
-  if (target !== undefined && target !== NoTarget) {
-    try {
-      location = getSourceLocation(target);
-    } catch (err: any) {
-      locationError = err;
-      location = createDummySourceLocation();
-    }
-  }
-  if (locationError) {
-    const diagnosticError = new Error(
-      "Error(s) occurred trying to resolve target: " + target?.toString()
-    );
-    throw new AggregateError(diagnosticError, locationError);
-  }
-
-  return location;
-}
 
 export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSink) {
   for (const diagnostic of diagnostics) {
@@ -126,7 +90,7 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
       level: diagnostic.severity,
       message: diagnostic.message,
       code: diagnostic.code,
-      sourceLocation: computeTargetLocation(diagnostic.target),
+      sourceLocation: getSourceLocation(diagnostic.target),
     });
   }
 }
@@ -136,7 +100,7 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
     code: diagnostic.code,
     level: diagnostic.severity,
     message: diagnostic.message,
-    sourceLocation: computeTargetLocation(diagnostic.target),
+    sourceLocation: getSourceLocation(diagnostic.target),
   });
 }
 
@@ -176,9 +140,24 @@ export function createSourceFile(text: string, path: string): SourceFile {
   }
 }
 
-export function getSourceLocation(target: DiagnosticTarget): SourceLocation {
+export function getSourceLocation(target: DiagnosticTarget): SourceLocation;
+export function getSourceLocation(target: typeof NoTarget | undefined): undefined;
+export function getSourceLocation(
+  target: DiagnosticTarget | typeof NoTarget | undefined
+): SourceLocation | undefined;
+export function getSourceLocation(
+  target: DiagnosticTarget | typeof NoTarget | undefined
+): SourceLocation | undefined {
+  if (target === NoTarget || target === undefined) {
+    return undefined;
+  }
+
   if ("file" in target) {
     return target;
+  }
+
+  if (target.kind === "using") {
+    target = target.symbolSource;
   }
 
   if (target.kind === "decorator") {
@@ -208,7 +187,13 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
     root = root.parent;
   }
 
-  compilerAssert(root.kind === SyntaxKind.CadlScript, "Cannot obtain source file of unbound node.");
+  if (root.kind !== SyntaxKind.CadlScript) {
+    return createDummySourceLocation(
+      isSynthetic(node)
+        ? undefined
+        : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/cadl>"
+    );
+  }
 
   return {
     file: root.file,
@@ -235,17 +220,6 @@ export function logVerboseTestOutput(messageOrCallback: string | ((log: LogSink)
         log: ({ message }) => console.log(message),
       });
     }
-  }
-}
-
-export function dumpError(error: Error, logger: LogSink) {
-  if (error instanceof AggregateError) {
-    for (const inner of error.errors) {
-      dumpError(inner, logger);
-    }
-  } else {
-    logger.log({ level: "info", message: "" });
-    logger.log({ level: "error", message: error.stack ?? "" });
   }
 }
 
@@ -288,16 +262,7 @@ export function compilerAssert(
     }
   }
 
-  const error = new AssertionError({ message });
-  if (locationError) {
-    throw new AggregateError(error, locationError);
-  } else {
-    throw error;
-  }
-}
-
-function isNotUndefined<T>(value: T | undefined): value is T {
-  return value !== undefined;
+  throw new AssertionError({ message });
 }
 
 function scanLineStarts(text: string): number[] {

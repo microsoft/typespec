@@ -1,13 +1,15 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 namespace Root {
-  @resource("/sub/a")
+  @route("/sub/a")
   namespace SubA {
     model Thing {
       id: int64;
     }
 
-    @resource("/sub/sub/a")
+    @route("subsub")
     namespace SubSubA {
       op DoSomething(thing: Thing): OkResponse<string>;
 
@@ -18,7 +20,7 @@ namespace Root {
     }
   }
 
-  @resource("/sub/b")
+  @route("/sub/b")
   namespace SubB {
     // Uses the same name as
     model Thing {

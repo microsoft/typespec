@@ -7,7 +7,7 @@ import { createTestHost } from "../test-host.js";
 
 const libs = ["simple"];
 
-describe("cadl: libraries", () => {
+describe("compiler: libraries", () => {
   for (const lib of libs) {
     describe(lib, () => {
       it("compiles without error", async () => {

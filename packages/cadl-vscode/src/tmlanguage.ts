@@ -30,9 +30,11 @@ const identifierStart = "[_$[:alpha:]]";
 const identifierContinue = "[_$[:alnum:]]";
 const beforeIdentifier = `(?=${identifierStart})`;
 const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
+const qualifiedIdentifier = `\\b${identifierStart}(${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
+const universalEndExceptComma = `(?=;|@|\\)|\\}|${statementKeyword})`;
 const hexNumber = "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)";
 const binaryNumber = "\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)";
 const decimalNumber =
@@ -135,7 +137,7 @@ const parenthesizedExpression: BeginEndRule = {
 const decorator: BeginEndRule = {
   key: "decorator",
   scope: meta,
-  begin: `@(${identifier})`,
+  begin: `@(${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.function.cadl" },
   },
@@ -228,7 +230,7 @@ const modelHeritage: BeginEndRule = {
   beginCaptures: {
     "1": { scope: "keyword.other.cadl" },
   },
-  end: `((?=\\{)|${universalEnd})`,
+  end: `((?=\\{)|${universalEndExceptComma})`,
   patterns: [expression],
 };
 
@@ -363,7 +365,7 @@ const interfaceHeritage: BeginEndRule = {
   beginCaptures: {
     "1": { scope: "keyword.other.cadl" },
   },
-  end: `((?=\\{)|${universalEnd})`,
+  end: `((?=\\{)|${universalEndExceptComma})`,
   patterns: [expression],
 };
 

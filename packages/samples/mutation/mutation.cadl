@@ -3,12 +3,14 @@ import "@cadl-lang/rest";
 import "./decorators.js";
 import "./common.cadl";
 
+using Cadl.Http;
+
 @addProperties
 model SomeModel {
   name: string;
 }
 
-@resource("/ops")
+@route("/ops")
 namespace Ops {
   @addResponseTypes
   @addCommonParameters

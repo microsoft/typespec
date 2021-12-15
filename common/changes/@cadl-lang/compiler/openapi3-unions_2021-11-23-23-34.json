@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "**Added** Support for models with mutual references",
-      "type": "minor"
+      "comment": "Improve getTypeName support for Unions and UnionVariants",
+      "type": "patch"
     }
   ],
   "packageName": "@cadl-lang/compiler"

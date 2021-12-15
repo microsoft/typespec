@@ -129,7 +129,7 @@ const diagnostics = {
       default: paramMessage`${"token"} expected.`,
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal",
-      identifer: "Identifier expected.",
+      identifier: "Identifier expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
@@ -148,7 +148,7 @@ const diagnostics = {
       default: paramMessage`Unknown directive '#${"id"}'`,
     },
   },
-  "reserverd-identifier": {
+  "reserved-identifier": {
     severity: "error",
     messages: {
       default: "Keyword cannot be used as identifier.",
@@ -274,6 +274,12 @@ const diagnostics = {
       default: paramMessage`Default must be a ${"type"}`,
     },
   },
+  unassignable: {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
+    },
+  },
   "mixes-interface": {
     severity: "error",
     messages: {
@@ -307,7 +313,7 @@ const diagnostics = {
   "decorator-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`${"decoratorName"} failed with errors. ${"error"}`,
+      default: paramMessage`Decorator ${"decoratorName"} failed!\n\n${"error"}`,
     },
   },
 
@@ -344,14 +350,22 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
-
-  /**
-   * Binder
-   */
+  "ambiguous-symbol": {
+    severity: "error",
+    messages: {
+      default: paramMessage`"${"name"}" is an ambiguous name between ${"duplicateNames"}. Try using fully qualified name instead: ${"duplicateNames"}`,
+    },
+  },
+  "duplicate-using": {
+    severity: "error",
+    messages: {
+      default: paramMessage`duplicate using of "${"usingName"}" namespace`,
+    },
+  },
   "on-build-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`onBuild failed with errors. ${"error"}`,
+      default: paramMessage`onBuild failed!\n\n${"error"}`,
     },
   },
 
@@ -363,8 +377,37 @@ const diagnostics = {
     messages: {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
       model: paramMessage`The ${"decorator"} decorator can only be applied to models.`,
-      namespacesOrOperations: paramMessage`The ${"decorator"} decorator can only be applied to namespaces or operations.`,
-      operationsOrModelProps: paramMessage`The ${"decorator"} decorator  can only be applied to operations or model properties.`,
+      operations: paramMessage`The ${"decorator"} decorator can only be applied to operations.`,
+      namespacesInterfacesOrOperations: paramMessage`The ${"decorator"} decorator can only be applied to namespaces, interfaces, or operations.`,
+      operationsOrModelProps: paramMessage`The ${"decorator"} decorator can only be applied to operations or model properties.`,
+    },
+  },
+
+  /**
+   * Service
+   */
+  "service-decorator-duplicate": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
+    },
+  },
+  "service-decorator-namespace-only": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The ${"decorator"} decorator can only be applied to namespaces.`,
+    },
+  },
+  "service-namespace-duplicate": {
+    severity: "error",
+    messages: {
+      default: "Cannot set service namespace more than once in a Cadl project.",
+    },
+  },
+  "list-type-not-model": {
+    severity: "error",
+    messages: {
+      default: "@list decorator's parameter must be a model type reference.",
     },
   },
 
@@ -399,6 +442,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Could not add response type "${"responseTypeName"}" to operation ${"operationName"}"`,
+    },
+  },
+  "circular-base-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
 } as const;

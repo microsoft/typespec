@@ -2,6 +2,97 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.24.1",
+      "tag": "@cadl-lang/compiler_v0.24.1",
+      "date": "Wed, 01 Dec 2021 22:56:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix issue where formatter would try to format a document with irrecoverable parse errors in certain cases"
+          },
+          {
+            "comment": "**Fix** Wrong library import for the rest template"
+          },
+          {
+            "comment": "Fix crash in language server"
+          },
+          {
+            "comment": "Fix formatting bug with operations returning anonymous models"
+          },
+          {
+            "comment": "Fix language server crashes in certain error cases"
+          },
+          {
+            "comment": "Update README"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.0",
+      "tag": "@cadl-lang/compiler_v0.24.0",
+      "date": "Thu, 18 Nov 2021 13:58:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** `cadl install` command which shell out to `npm install`"
+          },
+          {
+            "comment": "Remove @list decorator"
+          },
+          {
+            "comment": "Show `@doc` info along with completions"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "**Fix** Logging of warning counts, showing error count"
+          },
+          {
+            "comment": "Ensure interface is assigned for checked operations"
+          },
+          {
+            "comment": "Add setDecoratorNamespace helper function"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.0",
+      "tag": "@cadl-lang/compiler_v0.23.0",
+      "date": "Thu, 11 Nov 2021 21:46:21 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** `duration` intrinsic type"
+          },
+          {
+            "comment": "**Added** `--check` option to `cadl format` command to verify files are formatted"
+          },
+          {
+            "comment": "**Added** log of the error and warning count at the end in case `cadl compile` failed."
+          },
+          {
+            "comment": "**Added** Support for models with mutual references"
+          },
+          {
+            "comment": "Add completion (\"IntelliSense\") support to language server"
+          },
+          {
+            "comment": "`cadl init` generate `package.json` with `private: true`"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Add Prettier formatting support for interface mixes"
+          },
+          {
+            "comment": "Add new --import CLI parameter to add a global import via the command line"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.0",
       "tag": "@cadl-lang/compiler_v0.22.0",
       "date": "Thu, 28 Oct 2021 21:17:50 GMT",

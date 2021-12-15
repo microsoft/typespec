@@ -1,6 +1,50 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 28 Oct 2021 21:17:50 GMT and should not be manually modified.
+This log was last generated on Wed, 01 Dec 2021 22:56:11 GMT and should not be manually modified.
+
+## 0.24.1
+Wed, 01 Dec 2021 22:56:11 GMT
+
+### Patches
+
+- Fix issue where formatter would try to format a document with irrecoverable parse errors in certain cases
+- **Fix** Wrong library import for the rest template
+- Fix crash in language server
+- Fix formatting bug with operations returning anonymous models
+- Fix language server crashes in certain error cases
+- Update README
+
+## 0.24.0
+Thu, 18 Nov 2021 13:58:15 GMT
+
+### Minor changes
+
+- **Added** `cadl install` command which shell out to `npm install`
+- Remove @list decorator
+- Show `@doc` info along with completions
+
+### Patches
+
+- **Fix** Logging of warning counts, showing error count
+- Ensure interface is assigned for checked operations
+- Add setDecoratorNamespace helper function
+
+## 0.23.0
+Thu, 11 Nov 2021 21:46:21 GMT
+
+### Minor changes
+
+- **Added** `duration` intrinsic type
+- **Added** `--check` option to `cadl format` command to verify files are formatted
+- **Added** log of the error and warning count at the end in case `cadl compile` failed.
+- **Added** Support for models with mutual references
+- Add completion ("IntelliSense") support to language server
+- `cadl init` generate `package.json` with `private: true`
+
+### Patches
+
+- Add Prettier formatting support for interface mixes
+- Add new --import CLI parameter to add a global import via the command line
 
 ## 0.22.0
 Thu, 28 Oct 2021 21:17:50 GMT

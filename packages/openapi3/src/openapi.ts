@@ -1,5 +1,6 @@
 import {
   ArrayType,
+  checkIfServiceNamespace,
   EnumMemberType,
   EnumType,
   getAllTags,
@@ -9,6 +10,10 @@ import {
   getMaxValue,
   getMinLength,
   getMinValue,
+  getServiceHost,
+  getServiceNamespaceString,
+  getServiceTitle,
+  getServiceVersion,
   getVisibility,
   isErrorType,
   isIntrinsic,
@@ -22,24 +27,13 @@ import {
   Program,
   Type,
   UnionType,
+  UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import {
-  basePathForResource,
-  checkIfServiceNamespace,
-  getHeaderFieldName,
-  getOperationRoute,
-  getPathParamName,
-  getQueryParamName,
-  getResources,
-  getServiceHost,
-  getServiceNamespaceString,
-  getServiceTitle,
-  getServiceVersion,
-  HttpVerb,
-  isBody,
-} from "@cadl-lang/rest";
+import { getAllRoutes, http, OperationDetails } from "@cadl-lang/rest";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
+
+const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody } = http;
 
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
@@ -52,11 +46,27 @@ export async function $onBuild(p: Program) {
 
 const operationIdsKey = Symbol();
 export function $operationId(program: Program, entity: Type, opId: string) {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decoratorName: "operationId", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
   program.stateMap(operationIdsKey).set(entity, opId);
 }
 
 const pageableOperationsKey = Symbol();
 export function $pageable(program: Program, entity: Type, nextLinkName: string = "nextLink") {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decoratorName: "pageable", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
   program.stateMap(pageableOperationsKey).set(entity, nextLinkName);
 }
 
@@ -81,6 +91,23 @@ export function $useRef(program: Program, entity: Type, refUrl: string): void {
 
 function getRef(program: Program, entity: Type): string | undefined {
   return program.stateMap(refTargetsKey).get(entity);
+}
+
+const oneOfKey = Symbol();
+export function $oneOf(program: Program, entity: Type) {
+  if (entity.kind !== "Union") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decoratorName: "oneOf", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(oneOfKey).set(entity, true);
+}
+
+function getOneOf(program: Program, entity: Type): boolean {
+  return program.stateMap(oneOfKey).get(entity);
 }
 
 // NOTE: These functions aren't meant to be used directly as decorators but as a
@@ -214,17 +241,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   async function emitOpenAPI() {
     try {
-      for (let resource of getResources(program)) {
-        if (resource.kind !== "Namespace") {
-          reportDiagnostic(program, {
-            code: "resource-namespace",
-            target: resource,
-          });
-          continue;
-        }
-
-        emitResource(resource as NamespaceType);
-      }
+      getAllRoutes(program).forEach(emitOperation);
       emitReferences();
       emitTags();
 
@@ -253,94 +270,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function emitResource(resource: NamespaceType): void {
-    currentBasePath = basePathForResource(program, resource);
-
-    for (const [name, op] of resource.operations) {
-      emitEndpoint(resource, op);
-    }
-  }
-
-  function getPathParameters(ns: NamespaceType, op: OperationType) {
-    return [...(op.parameters?.properties.values() ?? [])].filter(
-      (param) => getPathParamName(program, param) !== undefined
-    );
-  }
-
-  /**
-   * Translates endpoint names like `read` to REST verbs like `get`.
-   */
-  function pathForEndpoint(
-    op: OperationType,
-    pathParams: ModelTypeProperty[]
-  ): [string, string[], string] {
-    const paramByName = new Map(pathParams.map((p) => [p.name, p]));
-    const route = getOperationRoute(program, op);
-    const inferredVerb = verbForEndpoint(op.name);
-    const verb = route?.verb || inferredVerb || "get";
-
-    // Build the full route path including any sub-path
-    const routePath =
-      (currentBasePath || "") +
-      (route?.subPath
-        ? `/${route?.subPath?.replace(/^\//g, "")}`
-        : !inferredVerb && !route
-        ? "/get"
-        : "");
-
-    // Find path parameter names
-    const declaredPathParamNames = routePath.match(/\{\w+\}/g)?.map((s) => s.slice(1, -1)) ?? [];
-
-    // For each param in the declared path parameters (e.g. /foo/{id} has one, id),
-    // delete it because it doesn't need to be added to the path.
-    for (const declaredParam of declaredPathParamNames) {
-      const param = paramByName.get(declaredParam);
-      if (!param) {
-        reportDiagnostic(program, {
-          code: "missing-path-param",
-          format: { param: declaredParam },
-          target: op,
-        });
-        continue;
-      }
-
-      paramByName.delete(declaredParam);
-    }
-
-    // Add any remaining declared path params
-    const pathSegments = [];
-    for (const name of paramByName.keys()) {
-      pathSegments.push(name);
-    }
-
-    return [verb, pathSegments, routePath];
-  }
-
-  function verbForEndpoint(name: string): HttpVerb | undefined {
-    switch (name) {
-      case "list":
-        return "get";
-      case "create":
-        return "post";
-      case "read":
-        return "get";
-      case "update":
-        return "patch";
-      case "delete":
-        return "delete";
-      case "deleteAll":
-        return "delete";
-    }
-
-    return undefined;
-  }
-
-  function emitEndpoint(resource: NamespaceType, op: OperationType) {
-    const params = getPathParameters(resource, op);
-    const [verb, newPathParams, resolvedPath] = pathForEndpoint(op, params);
-    const fullPath =
-      resolvedPath +
-      (newPathParams.length > 0 ? "/" + newPathParams.map((p) => "{" + p + "}").join("/") : "");
+  function emitOperation(operation: OperationDetails): void {
+    const { path: fullPath, operation: op, groupName, verb, parameters } = operation;
 
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
@@ -362,7 +293,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       currentEndpoint.operationId = program.stateMap(operationIdsKey).get(op);
     } else {
       // Synthesize an operation ID
-      currentEndpoint.operationId = `${resource.name}_${op.name}`;
+      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
     }
 
     // allow operation extensions
@@ -371,7 +302,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
 
-    const currentTags = getAllTags(program, resource, op);
+    const currentTags = getAllTags(program, op);
     if (currentTags) {
       currentEndpoint.tags = currentTags;
       for (const tag of currentTags) {
@@ -380,8 +311,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    emitEndpointParameters(op, op.parameters, [...(op.parameters?.properties.values() ?? [])]);
-    emitRequestBody(op, op.parameters, [...(op.parameters?.properties.values() ?? [])]);
+    emitEndpointParameters(op, op.parameters, parameters);
+    emitRequestBody(op, op.parameters, parameters);
     emitResponses(op.returnType);
   }
 
@@ -707,6 +638,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
+    attachExtensions(param, ph);
     ph.schema = schema;
   }
 
@@ -769,6 +701,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return getSchemaForModel(type);
     } else if (type.kind === "Union") {
       return getSchemaForUnion(type);
+    } else if (type.kind === "UnionVariant") {
+      return getSchemaForUnionVariant(type);
     } else if (type.kind === "Enum") {
       return getSchemaForEnum(type);
     }
@@ -836,29 +770,29 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "Model":
         type = "model";
         break;
+      case "UnionVariant":
+        type = "model";
+        break;
       default:
         reportUnsupportedUnion();
         return {};
     }
 
-    const values = [];
     if (type === "model") {
-      // Model unions can only ever be a model type with 'null'
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
         const schema: any = getSchemaForType(nonNullOptions[0]);
 
         return schema;
       } else {
-        reportDiagnostic(program, {
-          code: "union-unsupported",
-          messageId: "null",
-          target: union,
-        });
-        return {};
+        const variants = nonNullOptions.map((s) => getSchemaOrRef(s));
+        const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
+        const schema: any = { [ofType]: nonNullOptions.map((s) => getSchemaOrRef(s)) };
+        return schema;
       }
     }
 
+    const values = [];
     for (const option of nonNullOptions) {
       if (option.kind != kind) {
         reportUnsupportedUnion();
@@ -878,6 +812,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     function reportUnsupportedUnion() {
       reportDiagnostic(program, { code: "union-unsupported", target: union });
     }
+  }
+
+  function getSchemaForUnionVariant(variant: UnionTypeVariant) {
+    const schema: any = getSchemaForType(variant.type);
+    return schema;
   }
 
   function getSchemaForArray(array: ArrayType) {
@@ -1099,6 +1038,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
           case "int64":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+          case "safeint":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
           case "uint8":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });
           case "uint16":
@@ -1121,6 +1062,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
             return { type: "string", format: "date-time" };
           case "plainTime":
             return { type: "string", format: "time" };
+          case "duration":
+            return { type: "string", format: "duration" };
           case "Map":
             // We assert on valType because Map types always have a type
             const valType = cadlType.properties.get("v");

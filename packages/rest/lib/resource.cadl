@@ -1,0 +1,119 @@
+import "./http.cadl";
+import "../dist/src/resource.js";
+
+namespace Cadl.Rest.Resource;
+
+using Cadl.Http;
+
+@doc("The default error response for resource operations.")
+model ResourceError {
+  @doc("The error code.")
+  code: int32;
+
+  @doc("The error message.")
+  message: string;
+}
+
+@doc("Dynamically gathers keys of the model type T.")
+@copyResourceKeyParameters
+model KeysOf<T> {}
+
+@doc("Dynamically gathers parent keys of the model type T.")
+@copyResourceKeyParameters("parent")
+model ParentKeysOf<T> {}
+
+@doc("Represents operation parameters for resource TResource.")
+model ResourceParameters<TResource> {
+  ...KeysOf<TResource>;
+}
+
+@doc("Represents collection operation parameters for resource TResource.")
+model ResourceCollectionParameters<TResource> {
+  ...ParentKeysOf<TResource>;
+}
+
+interface ResourceRead<TResource, TError> {
+  @autoRoute
+  @doc("Gets an instance of the resource.")
+  @readsResource(TResource)
+  Get(...ResourceParameters<TResource>): TResource | TError;
+}
+
+@doc("Resource create operation completed successfully.")
+model ResourceCreatedResponse<T> {
+  ...CreatedResponse;
+  @body body: T;
+}
+
+interface ResourceCreateOrUpdate<TResource, TError> {
+  @autoRoute
+  @doc("Creates or update a instance of the resource.")
+  @createsOrUpdatesResource(TResource)
+  CreateOrUpdate(
+    ...ResourceParameters<TResource>,
+    @body resource: TResource
+  ): TResource | ResourceCreatedResponse<TResource> | TError;
+}
+
+interface ResourceCreate<TResource, TError> {
+  @autoRoute
+  @doc("Creates a new instance of the resource.")
+  @createsResource(TResource)
+  Create(
+    ...ResourceCollectionParameters<TResource>,
+    @body resource: TResource
+  ): TResource | ResourceCreatedResponse<TResource> | TError;
+}
+
+interface ResourceUpdate<TResource, TError> {
+  @autoRoute
+  @doc("Updates an existing instance of the resource.")
+  @updatesResource(TResource)
+  Update(
+    ...ResourceParameters<TResource>,
+    @body properties: OptionalProperties<UpdateableProperties<TResource>>
+  ): TResource | TError;
+}
+
+@doc("Resource deleted successfully.")
+model ResourceDeletedResponse {
+  @doc("The status code.")
+  @header
+  statusCode: 200;
+}
+
+interface ResourceDelete<TResource, TError> {
+  @autoRoute
+  @doc("Deletes an existing instance of the resource.")
+  @deletesResource(TResource)
+  Delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
+}
+
+@doc("Paged response")
+model Page<T> {
+  @doc("The items on this page")
+  value: T[];
+
+  @doc("The link to the next page of items")
+  nextLink?: string;
+}
+
+interface ResourceList<TResource, TError> {
+  @autoRoute
+  @doc("Lists all instances of the resource.")
+  @listsResource(TResource)
+  List(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
+}
+
+interface ResourceInstanceOperations<TResource, TError>
+  mixes ResourceRead<TResource, TError>,
+    ResourceUpdate<TResource, TError>,
+    ResourceDelete<TResource, TError> {}
+
+interface ResourceCollectionOperations<TResource, TError>
+  mixes ResourceCreate<TResource, TError>,
+    ResourceList<TResource, TError> {}
+
+interface ResourceOperations<TResource, TError>
+  mixes ResourceInstanceOperations<TResource, TError>,
+    ResourceCollectionOperations<TResource, TError> {}

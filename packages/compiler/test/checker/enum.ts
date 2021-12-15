@@ -2,7 +2,7 @@ import { match, ok, strictEqual } from "assert";
 import { EnumMemberType, EnumType, ModelType } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: enums", () => {
+describe("compiler: enums", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

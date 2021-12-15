@@ -2,6 +2,9 @@ import { dirname, isAbsolute, join, normalize } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionItemKind,
+  CompletionList,
+  CompletionParams,
   Connection,
   createConnection,
   DefinitionParams,
@@ -24,24 +27,24 @@ import {
 } from "vscode-languageserver/node.js";
 import {
   compilerAssert,
-  computeTargetLocation,
   createSourceFile,
   formatDiagnostic,
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
-import { visitChildren } from "../core/parser.js";
+import { getNodeAtPosition } from "../core/parser.js";
 import { createProgram, Program } from "../core/program.js";
 import {
-  CadlScriptNode,
   CompilerHost,
   Diagnostic as CadlDiagnostic,
-  Node,
+  IdentifierNode,
   SourceFile,
   SourceLocation,
   SyntaxKind,
+  Type,
 } from "../core/types.js";
 import { cadlVersion, doIO, loadFile, NodeHost } from "../core/util.js";
+import { getDoc, isIntrinsic } from "../lib/decorators.js";
 
 interface ServerSourceFile extends SourceFile {
   // Keep track of the open doucment (if any) associated with a source file.
@@ -113,13 +116,15 @@ function main() {
   log("Command Line", process.argv);
 
   connection = createConnection(ProposedFeatures.all);
-  documents = new TextDocuments(TextDocument);
 
   connection.onInitialize(initialize);
   connection.onInitialized(initialized);
   connection.onDidChangeWatchedFiles(watchedFilesChanged);
-  documents.onDidChangeContent(checkChange);
   connection.onDefinition(gotoDefinition);
+  connection.onCompletion(complete);
+
+  documents = new TextDocuments(TextDocument);
+  documents.onDidChangeContent(checkChange);
   documents.onDidClose(documentClosed);
   documents.listen(connection);
   connection.listen();
@@ -129,6 +134,11 @@ function initialize(params: InitializeParams): InitializeResult {
   const capabilities: ServerCapabilities = {
     textDocumentSync: TextDocumentSyncKind.Incremental,
     definitionProvider: true,
+    completionProvider: {
+      resolveProvider: false,
+      triggerCharacters: [".", "@"],
+      allCommitCharacters: [".", ",", ";", "("],
+    },
   };
 
   if (params.capabilities.workspace?.workspaceFolders) {
@@ -194,27 +204,43 @@ function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
   }
 }
 
-async function compile(
-  document: TextDocument | TextDocumentIdentifier
-): Promise<Program | undefined> {
+async function compile(document: TextDocument): Promise<Program | undefined> {
   const path = getPath(document);
   const mainFile = await getMainFileForDocument(path);
   if (!upToDate(document)) {
     return undefined;
   }
 
-  let program = await createProgram(serverHost, mainFile, serverOptions);
-  if (!upToDate(document)) {
-    return undefined;
-  }
+  let program: Program;
+  try {
+    program = await createProgram(serverHost, mainFile, serverOptions);
+    if (!upToDate(document)) {
+      return undefined;
+    }
 
-  if (mainFile !== path && !program.sourceFiles.has(path)) {
-    // If the file that changed wasn't imported by anything from the main
-    // file, retry using the file itself as the main file.
-    program = await createProgram(serverHost, path, serverOptions);
-  }
+    if (mainFile !== path && !program.sourceFiles.has(path)) {
+      // If the file that changed wasn't imported by anything from the main
+      // file, retry using the file itself as the main file.
+      program = await createProgram(serverHost, path, serverOptions);
+    }
 
-  if (!upToDate(document)) {
+    if (!upToDate(document)) {
+      return undefined;
+    }
+  } catch (err: any) {
+    connection.sendDiagnostics({
+      uri: document.uri,
+      diagnostics: [
+        {
+          severity: DiagnosticSeverity.Error,
+          range: Range.create(document.positionAt(0), document.positionAt(0)),
+          message:
+            `Internal compiler error!\nFile issue at https://github.com/microsoft/cadl\n\n` +
+            err.stack,
+        },
+      ],
+    });
+
     return undefined;
   }
 
@@ -245,7 +271,7 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   for (const each of program.diagnostics) {
     let document: TextDocument | undefined;
 
-    const location = computeTargetLocation(each.target);
+    const location = getSourceLocation(each.target);
     if (location?.file) {
       document = (location.file as ServerSourceFile).document;
     } else {
@@ -280,21 +306,27 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
 }
 
 async function gotoDefinition(params: DefinitionParams): Promise<Location | undefined> {
-  const path = getPath(params.textDocument);
-  const mainFile = await getMainFileForDocument(path);
-  const program = await createProgram(serverHost, mainFile, serverOptions);
-
   const document = documents.get(params.textDocument.uri);
   if (!document) {
     return undefined;
   }
 
+  const program = await compile(document);
+  if (!program) {
+    return undefined;
+  }
+
+  const path = getPath(document);
   const file = program.sourceFiles.get(path);
   if (!file) {
     return undefined;
   }
 
-  const referringNode = getTypeReferenceNodeAtPosition(file, document.offsetAt(params.position));
+  const referringNode = getNodeAtPosition(
+    file,
+    document.offsetAt(params.position),
+    (node) => node.kind === SyntaxKind.TypeReference
+  );
   if (!referringNode) {
     return undefined;
   }
@@ -308,36 +340,138 @@ async function gotoDefinition(params: DefinitionParams): Promise<Location | unde
   return convertSourceLocation(definingLocation);
 }
 
+async function complete(params: CompletionParams): Promise<CompletionList> {
+  const completions: CompletionList = {
+    isIncomplete: false,
+    items: [],
+  };
+
+  const document = documents.get(params.textDocument.uri);
+  if (!document) {
+    return completions;
+  }
+
+  const program = await compile(document);
+  if (!program) {
+    return completions;
+  }
+
+  const path = getPath(document);
+  const file = program.sourceFiles.get(path);
+  if (!file) {
+    return completions;
+  }
+
+  const node = getNodeAtPosition(file, document.offsetAt(params.position));
+  if (node === undefined) {
+    addKeywordCompletion("root", completions);
+  } else {
+    switch (node.kind) {
+      case SyntaxKind.NamespaceStatement:
+        addKeywordCompletion("namespace", completions);
+        break;
+      case SyntaxKind.Identifier:
+        addIdentifierCompletion(program, node, completions);
+        break;
+    }
+  }
+
+  return completions;
+}
+
+interface KeywordArea {
+  root?: boolean;
+  namespace?: boolean;
+  model?: boolean;
+  identifier?: boolean;
+}
+
+const keywords = [
+  // Root only
+  ["import", { root: true }],
+
+  // Root and namespace
+  ["using", { root: true, namespace: true }],
+  ["model", { root: true, namespace: true }],
+  ["namespace", { root: true, namespace: true }],
+  ["interface", { root: true, namespace: true }],
+  ["union", { root: true, namespace: true }],
+  ["enum", { root: true, namespace: true }],
+  ["alias", { root: true, namespace: true }],
+  ["op", { root: true, namespace: true }],
+
+  // On model `model Foo <keyword> ...`
+  ["extends", { model: true }],
+  ["is", { model: true }],
+
+  // On identifier`
+  ["true", { identifier: true }],
+  ["false", { identifier: true }],
+] as const;
+
+function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
+  const filteredKeywords = keywords.filter(([_, x]) => area in x);
+  for (const [keyword] of filteredKeywords) {
+    completions.items.push({
+      label: keyword,
+      kind: CompletionItemKind.Keyword,
+    });
+  }
+}
+
+/**
+ * Add completion options for an identifier.
+ */
+function addIdentifierCompletion(
+  program: Program,
+  node: IdentifierNode,
+  completions: CompletionList
+) {
+  const result = program.checker!.resolveCompletions(node);
+  if (result.size === 0) {
+    return;
+  }
+  for (const [key, { sym, label }] of result) {
+    let documentation: string | undefined;
+    let kind: CompletionItemKind;
+    if (sym.kind === "type") {
+      const type = program!.checker!.getTypeForNode(sym.node);
+      documentation = getDoc(program, type);
+      kind = getCompletionItemKind(program, type, sym.node.kind);
+    } else {
+      kind = CompletionItemKind.Function;
+    }
+    completions.items.push({
+      label: label ?? key,
+      documentation,
+      kind,
+      insertText: key,
+    });
+  }
+  addKeywordCompletion("identifier", completions);
+}
+
+function getCompletionItemKind(
+  program: Program,
+  target: Type,
+  kind: SyntaxKind
+): CompletionItemKind {
+  switch (kind) {
+    case SyntaxKind.EnumStatement:
+    case SyntaxKind.UnionStatement:
+      return CompletionItemKind.Enum;
+    case SyntaxKind.AliasStatement:
+      return CompletionItemKind.Variable;
+    case SyntaxKind.ModelStatement:
+      return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+    default:
+      return CompletionItemKind.Struct;
+  }
+}
+
 function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
   // clear diagnostics on file close
   sendDiagnostics(change.document, []);
-}
-
-function getTypeReferenceNodeAtPosition(file: CadlScriptNode, position: number) {
-  return visit(file);
-
-  function visit(node: Node): Node | undefined {
-    if (node.pos <= position && position < node.end) {
-      // We only need to recursively visit children of nodes that satisfied
-      // the condition above and therefore contain the given position. If a
-      // node does not contain a position, then neither do its children.
-      const child = visitChildren(node, visit);
-
-      // A child match here is better than a self-match below as we want the
-      // deepest (most specific) node. In other words, the search is depth
-      // first. For example, consider `A<B<C>>`: If the cursor is on `B`,
-      // then prefer B<C> over A<B<C>>.
-      if (child) {
-        return child;
-      }
-
-      if (node.kind === SyntaxKind.TypeReference) {
-        return node;
-      }
-    }
-
-    return undefined;
-  }
 }
 
 function convertSourceLocation(location: SourceLocation): Location {

@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+
+# Rush files
+common/temp/**
+package-deps.json
+
+# tsc incremental build files
+**/*.tsbuildinfo

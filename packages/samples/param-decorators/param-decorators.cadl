@@ -3,9 +3,11 @@ import "@cadl-lang/rest";
 @serviceTitle("Parameter Decorators")
 namespace Cadl.Samples;
 
-@resource("/thing")
+using Cadl.Http;
+
+@route("/thing")
 namespace Operations {
-  @get("{name}")
+  @route("{name}")
   op getThing(
     @format("^[a-zA-Z0-9-]{3,24}$")
     @path
@@ -17,7 +19,8 @@ namespace Operations {
     count: int32
   ): OkResponse<Thing>;
 
-  @put("{name}")
+  @route("{name}")
+  @put
   op putThing(...NameParameter): OkResponse<Thing>;
 }
 

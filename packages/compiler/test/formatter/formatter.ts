@@ -15,7 +15,7 @@ function assertFormat({ code, expected }: { code: string; expected: string }) {
   strictEqual(result.trim(), expected.trim());
 }
 
-describe("cadl: prettier formatter", () => {
+describe("compiler: prettier formatter", () => {
   it("throws error if there is a parsing issue", () => {
     const code = `namespace this is invalid`;
 
@@ -37,6 +37,20 @@ import "@azure-tools/cadl-rpaas";
     });
   });
 
+  it("formats returns of anonymous models", () => {
+    assertFormat({
+      code: `
+op test(): { a: string; b: string; };
+`,
+      expected: `
+op test(): {
+  a: string;
+  b: string;
+};
+`,
+    });
+  });
+
   it("format using", () => {
     assertFormat({
       code: `
@@ -49,6 +63,21 @@ using Azure.Arm;
   });
 
   describe("model", () => {
+    it("format empty model on single line", () => {
+      assertFormat({
+        code: `
+model Foo {
+  
+
+  
+}
+`,
+        expected: `
+model Foo {}
+`,
+      });
+    });
+
     it("format simple models", () => {
       assertFormat({
         code: `
@@ -187,6 +216,23 @@ model Foo<T> {}
 `,
       });
     });
+
+    it("format spread reference", () => {
+      assertFormat({
+        code: `
+model Foo {
+        ...       Bar
+
+
+}
+`,
+        expected: `
+model Foo {
+  ...Bar;
+}
+`,
+      });
+    });
   });
 
   describe("comments", () => {
@@ -203,7 +249,7 @@ model Foo {}
       });
     });
 
-    it("format multi line comments", () => {
+    it("format indentable multi line comments", () => {
       assertFormat({
         code: `
   /**
@@ -218,6 +264,117 @@ model Foo {}
  * that has bad formatting.
  */
 model Foo {}
+`,
+      });
+    });
+
+    it("format regular multi line comments", () => {
+      assertFormat({
+        code: `
+  /**
+  This is a multiline comment
+       that has bad formatting.
+    */
+model Foo {}
+`,
+        expected: `
+/**
+  This is a multiline comment
+       that has bad formatting.
+    */
+model Foo {}
+`,
+      });
+    });
+
+    it("format empty model with comment inside", () => {
+      assertFormat({
+        code: `
+model Foo {
+  // empty model
+
+  
+}
+`,
+        expected: `
+model Foo {
+  // empty model
+}
+`,
+      });
+
+      assertFormat({
+        code: `
+model Foo {
+  // empty model 1
+
+
+     // empty model 2
+
+  
+}
+`,
+        expected: `
+model Foo {
+  // empty model 1
+  // empty model 2
+}
+`,
+      });
+    });
+
+    it("format empty anynymous model with comment inside", () => {
+      assertFormat({
+        code: `
+model Foo {
+  nested: {
+  // empty model
+
+  }
+}
+`,
+        expected: `
+model Foo {
+  nested: {
+    // empty model
+  };
+}
+`,
+      });
+    });
+
+    it("format empty interface with comment inside", () => {
+      assertFormat({
+        code: `
+interface Foo {
+  // empty interface
+
+  
+}
+`,
+        expected: `
+interface Foo {
+  // empty interface
+}
+`,
+      });
+
+      assertFormat({
+        code: `
+interface Foo {
+  // empty interface 1
+
+
+     // empty interface 2
+
+  
+}
+`,
+        expected: `
+interface Foo {
+  // empty interface 1
+  // empty interface 2
+}
 `,
       });
     });
@@ -695,9 +852,7 @@ namespace Foo {
       `,
         expected: `
 namespace Foo {
-  @doc(
-    "this is a very long documentation that will for sure overflow the max line length"
-  )
+  @doc("this is a very long documentation that will for sure overflow the max line length")
   op my(parm: string): string;
 }
       `,

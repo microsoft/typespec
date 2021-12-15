@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Add new --import CLI parameter to add a global import via the command line",
+      "comment": "Add support for `interface` as a `@tag` decorator target",
       "type": "patch"
     }
   ],
