@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "camelCase operations",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

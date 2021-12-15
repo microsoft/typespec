@@ -8,7 +8,7 @@
   "paths": {
     "/ops/{subscriptionId}": {
       "get": {
-        "operationId": "Ops_SomeOp",
+        "operationId": "Ops_someOp",
         "parameters": [
           {
             "name": "subscriptionId",

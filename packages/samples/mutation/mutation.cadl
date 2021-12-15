@@ -15,5 +15,5 @@ namespace Ops {
   @addResponseTypes
   @addCommonParameters
   @get
-  op SomeOp(input: SomeModel): OkResponse<int32>;
+  op someOp(input: SomeModel): OkResponse<int32>;
 }

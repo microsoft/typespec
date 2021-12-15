@@ -48,7 +48,7 @@ interface Pets mixes ResourceOperations<Pet, PetStoreError> {}
 
 interface Toys mixes ResourceRead<Toy, PetStoreError> {
   @listsResource(Toy)
-  List(...ParentKeysOf<Toy>, @query nameFilter: string): Page<Toy> | PetStoreError;
+  list(...ParentKeysOf<Toy>, @query nameFilter: string): Page<Toy> | PetStoreError;
 }
 
 interface Checkups
