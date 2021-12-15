@@ -142,9 +142,14 @@ export function createChecker(program: Program): Checker {
   const mergedSymbols = new Map<Sym, Sym>();
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceType = createGlobalNamespaceType();
-  const pendingResolutions = new Set<Node>();
   let cadlNamespaceNode: NamespaceStatementNode | undefined;
   const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
+
+  /**
+   * Set keeping track of node pending type resolution.
+   * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
+   */
+  const pendingResolutions = new Set<number>();
 
   // Map keeping track of the models currently being checked.
   // When a model type start being instantiated it gets added to this map which lets properties
@@ -1219,7 +1224,8 @@ export function createChecker(program: Program): Checker {
     model: ModelStatementNode,
     heritageRef: TypeReferenceNode
   ): ModelType | undefined {
-    if (pendingResolutions.has(model)) {
+    const modelSymId = getNodeSymId(model);
+    if (pendingResolutions.has(modelSymId)) {
       reportDiagnostic(program, {
         code: "circular-base-type",
         format: { typeName: model.id.sv },
@@ -1227,10 +1233,10 @@ export function createChecker(program: Program): Checker {
       });
       return undefined;
     }
-    pendingResolutions.add(model);
+    pendingResolutions.add(modelSymId);
 
     const heritageType = getTypeForNode(heritageRef);
-    pendingResolutions.delete(model);
+    pendingResolutions.delete(modelSymId);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
       return undefined;
@@ -1249,7 +1255,8 @@ export function createChecker(program: Program): Checker {
     isExpr: TypeReferenceNode | undefined
   ): ModelType | undefined {
     if (!isExpr) return undefined;
-    if (pendingResolutions.has(model)) {
+    const modelSymId = getNodeSymId(model);
+    if (pendingResolutions.has(modelSymId)) {
       reportDiagnostic(program, {
         code: "circular-base-type",
         format: { typeName: model.id.sv },
@@ -1257,9 +1264,9 @@ export function createChecker(program: Program): Checker {
       });
       return undefined;
     }
-    pendingResolutions.add(model);
+    pendingResolutions.add(modelSymId);
     const isType = getTypeForNode(isExpr);
-    pendingResolutions.delete(model);
+    pendingResolutions.delete(modelSymId);
 
     if (isType.kind !== "Model") {
       program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
