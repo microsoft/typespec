@@ -19,6 +19,7 @@ import {
   EnumStatementNode,
   EnumType,
   ErrorType,
+  Expression,
   IdentifierNode,
   InterfaceStatementNode,
   InterfaceType,
@@ -155,6 +156,7 @@ export function createChecker(program: Program): Checker {
   // When a model type start being instantiated it gets added to this map which lets properties
   // and referenced models to be able to reference back to it without an infinite recursion.
   const pendingModelTypes = new Map<number, ModelType>();
+
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
   }
@@ -376,17 +378,23 @@ export function createChecker(program: Program): Checker {
     if (!sym) {
       return errorType;
     }
+    return checkTypeReferenceSymbol(sym, node.arguments);
+  }
 
+  function checkTypeReferenceSymbol(
+    sym: TypeSymbol | DecoratorSymbol,
+    nodeArgs: Expression[]
+  ): Type {
     if (sym.kind === "decorator") {
       program.reportDiagnostic(
-        createDiagnostic({ code: "invalid-type-ref", messageId: "decorator", target: node })
+        createDiagnostic({ code: "invalid-type-ref", messageId: "decorator", target: sym })
       );
 
       return errorType;
     }
 
     const symbolLinks = getSymbolLinks(sym);
-    let args = node.arguments.map(getTypeForNode);
+    let args = nodeArgs.map(getTypeForNode);
 
     if (
       sym.node.kind === SyntaxKind.ModelStatement ||
@@ -400,7 +408,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "notTemplate",
-              target: node,
+              target: sym,
             })
           );
         }
@@ -440,7 +448,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "tooFew",
-              target: node,
+              target: sym,
             })
           );
           args = [...args, ...new Array(templateParameters.length - args.length).fill(errorType)];
@@ -449,7 +457,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "tooMany",
-              target: node,
+              target: sym,
             })
           );
           args = args.slice(0, templateParameters.length);
@@ -464,7 +472,7 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({
           code: "invalid-template-args",
           messageId: "notTemplate",
-          target: node,
+          target: sym,
         })
       );
     }
@@ -1079,20 +1087,29 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this model and we've already checked it
       return links.declaredType;
     }
+    const decorators: DecoratorApplication[] = [];
+
+    const type: ModelType = {
+      kind: "Model",
+      name: node.id.sv,
+      node: node,
+      properties: new Map<string, ModelTypeProperty>(),
+      namespace: getParentNamespaceType(node),
+      decorators,
+    };
+    pendingModelTypes.set(getNodeSymId(node), type);
 
     const isBase = checkModelIs(node, node.is);
 
-    const decorators: DecoratorApplication[] = [];
     if (isBase) {
       // copy decorators
       decorators.push(...isBase.decorators);
     }
     decorators.push(...checkDecorators(node));
 
-    const properties = new Map<string, ModelTypeProperty>();
     if (isBase) {
       for (const prop of isBase.properties.values()) {
-        properties.set(
+        type.properties.set(
           prop.name,
           createType({
             ...prop,
@@ -1101,27 +1118,14 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    let baseModels;
     if (isBase) {
-      baseModels = isBase.baseModel;
+      type.baseModel = isBase.baseModel;
     } else if (node.extends) {
-      baseModels = checkClassHeritage(node, node.extends);
+      type.baseModel = checkClassHeritage(node, node.extends);
     }
-
-    const type: ModelType = {
-      kind: "Model",
-      name: node.id.sv,
-      node: node,
-      properties,
-      baseModel: baseModels,
-      namespace: getParentNamespaceType(node),
-      decorators,
-    };
 
     // Hold on to the model type that's being defined so that it
     // can be referenced
-    pendingModelTypes.set(getNodeSymId(node), type);
-
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
       links.instantiations = new TypeInstantiationMap();
@@ -1133,7 +1137,7 @@ export function createChecker(program: Program): Checker {
     );
 
     // Evaluate the properties after
-    checkModelProperties(node, properties, inheritedPropNames);
+    checkModelProperties(node, type.properties, inheritedPropNames);
 
     if (shouldCreateTypeForTemplate(node)) {
       createType(type);
@@ -1225,17 +1229,21 @@ export function createChecker(program: Program): Checker {
     heritageRef: TypeReferenceNode
   ): ModelType | undefined {
     const modelSymId = getNodeSymId(model);
-    if (pendingResolutions.has(modelSymId)) {
+    pendingResolutions.add(modelSymId);
+
+    const target = resolveTypeReference(heritageRef) as TypeSymbol;
+    if (target === undefined) {
+      return undefined;
+    }
+    if (pendingResolutions.has(getNodeSymId(target.node as any))) {
       reportDiagnostic(program, {
         code: "circular-base-type",
-        format: { typeName: model.id.sv },
-        target: model,
+        format: { typeName: (target.node as any).id.sv },
+        target: target,
       });
       return undefined;
     }
-    pendingResolutions.add(modelSymId);
-
-    const heritageType = getTypeForNode(heritageRef);
+    const heritageType = checkTypeReferenceSymbol(target, heritageRef.arguments);
     pendingResolutions.delete(modelSymId);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
@@ -1256,16 +1264,20 @@ export function createChecker(program: Program): Checker {
   ): ModelType | undefined {
     if (!isExpr) return undefined;
     const modelSymId = getNodeSymId(model);
-    if (pendingResolutions.has(modelSymId)) {
+    pendingResolutions.add(modelSymId);
+    const target = resolveTypeReference(isExpr) as TypeSymbol;
+    if (target === undefined) {
+      return undefined;
+    }
+    if (pendingResolutions.has(getNodeSymId(target.node as any))) {
       reportDiagnostic(program, {
         code: "circular-base-type",
-        format: { typeName: model.id.sv },
-        target: model,
+        format: { typeName: (target.node as any).id.sv },
+        target: target,
       });
       return undefined;
     }
-    pendingResolutions.add(modelSymId);
-    const isType = getTypeForNode(isExpr);
+    const isType = checkTypeReferenceSymbol(target, isExpr.arguments);
     pendingResolutions.delete(modelSymId);
 
     if (isType.kind !== "Model") {

@@ -135,6 +135,20 @@ describe("compiler: models", () => {
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
+
+    it("emit no error when extends has property to base model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A extends B {}
+        model B {
+          a: A
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      strictEqual(diagnostics.length, 0);
+    });
   });
 
   describe("with is", () => {
@@ -244,6 +258,20 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+    });
+
+    it("emit no error when extends has property to base model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A is B {}
+        model B {
+          a: A
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      strictEqual(diagnostics.length, 0);
     });
   });
 });
