@@ -155,8 +155,6 @@ export function createChecker(program: Program): Checker {
   // Map keeping track of the models currently being checked.
   // When a model type start being instantiated it gets added to this map which lets properties
   // and referenced models to be able to reference back to it without an infinite recursion.
-  const pendingModelTypes = new Map<number, ModelType>();
-
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
   }
@@ -415,10 +413,7 @@ export function createChecker(program: Program): Checker {
 
         if (symbolLinks.declaredType) {
           return symbolLinks.declaredType;
-        } else if (pendingModelTypes.has(getNodeSymId(sym.node))) {
-          return pendingModelTypes.get(getNodeSymId(sym.node))!;
         }
-
         return sym.node.kind === SyntaxKind.ModelStatement
           ? checkModelStatement(sym.node)
           : sym.node.kind === SyntaxKind.AliasStatement
@@ -430,16 +425,14 @@ export function createChecker(program: Program): Checker {
         // declaration is templated, lets instantiate.
 
         if (!symbolLinks.declaredType) {
-          if (!pendingModelTypes.has(getNodeSymId(sym.node))) {
-            // we haven't checked the declared type yet, so do so.
-            sym.node.kind === SyntaxKind.ModelStatement
-              ? checkModelStatement(sym.node)
-              : sym.node.kind === SyntaxKind.AliasStatement
-              ? checkAlias(sym.node)
-              : sym.node.kind === SyntaxKind.InterfaceStatement
-              ? checkInterface(sym.node)
-              : checkUnion(sym.node);
-          }
+          // we haven't checked the declared type yet, so do so.
+          sym.node.kind === SyntaxKind.ModelStatement
+            ? checkModelStatement(sym.node)
+            : sym.node.kind === SyntaxKind.AliasStatement
+            ? checkAlias(sym.node)
+            : sym.node.kind === SyntaxKind.InterfaceStatement
+            ? checkInterface(sym.node)
+            : checkUnion(sym.node);
         }
 
         const templateParameters = sym.node.templateParameters;
@@ -521,8 +514,10 @@ export function createChecker(program: Program): Checker {
     templateInstantiation = args;
     instantiatingTemplate = templateNode;
 
-    const pending = pendingModelTypes.get(getNodeSymId(templateNode));
-    const type = pending && oldTemplate === templateNode ? pending : getTypeForNode(templateNode);
+    const type =
+      symbolLinks.declaredType && oldTemplate === templateNode
+        ? symbolLinks.declaredType
+        : getTypeForNode(templateNode);
 
     symbolLinks.instantiations!.set(args, type);
     if (type.kind === "Model") {
@@ -1098,8 +1093,9 @@ export function createChecker(program: Program): Checker {
       namespace: getParentNamespaceType(node),
       decorators,
     };
-    pendingModelTypes.set(getNodeSymId(node), type);
-
+    if (!instantiatingThisTemplate) {
+      links.declaredType = type;
+    }
     const isBase = checkModelIs(node, node.is);
 
     if (isBase) {
@@ -1143,9 +1139,6 @@ export function createChecker(program: Program): Checker {
     if (shouldCreateTypeForTemplate(node)) {
       createType(type);
     }
-
-    // The model is fully created now
-    pendingModelTypes.delete(getNodeSymId(node));
 
     return type;
   }
