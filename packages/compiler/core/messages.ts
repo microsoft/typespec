@@ -444,6 +444,12 @@ const diagnostics = {
       default: paramMessage`Could not add response type "${"responseTypeName"}" to operation ${"operationName"}"`,
     },
   },
+  "circular-base-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
+    },
+  },
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;

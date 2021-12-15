@@ -145,6 +145,12 @@ export function createChecker(program: Program): Checker {
   let cadlNamespaceNode: NamespaceStatementNode | undefined;
   const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
 
+  /**
+   * Set keeping track of node pending type resolution.
+   * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
+   */
+  const pendingResolutions = new Set<number>();
+
   // Map keeping track of the models currently being checked.
   // When a model type start being instantiated it gets added to this map which lets properties
   // and referenced models to be able to reference back to it without an infinite recursion.
@@ -1074,7 +1080,7 @@ export function createChecker(program: Program): Checker {
       return links.declaredType;
     }
 
-    const isBase = checkModelIs(node.is);
+    const isBase = checkModelIs(node, node.is);
 
     const decorators: DecoratorApplication[] = [];
     if (isBase) {
@@ -1099,7 +1105,7 @@ export function createChecker(program: Program): Checker {
     if (isBase) {
       baseModels = isBase.baseModel;
     } else if (node.extends) {
-      baseModels = checkClassHeritage(node.extends);
+      baseModels = checkClassHeritage(node, node.extends);
     }
 
     const type: ModelType = {
@@ -1214,8 +1220,23 @@ export function createChecker(program: Program): Checker {
     properties.set(newProp.name, newProp);
   }
 
-  function checkClassHeritage(heritageRef: TypeReferenceNode): ModelType | undefined {
+  function checkClassHeritage(
+    model: ModelStatementNode,
+    heritageRef: TypeReferenceNode
+  ): ModelType | undefined {
+    const modelSymId = getNodeSymId(model);
+    if (pendingResolutions.has(modelSymId)) {
+      reportDiagnostic(program, {
+        code: "circular-base-type",
+        format: { typeName: model.id.sv },
+        target: model,
+      });
+      return undefined;
+    }
+    pendingResolutions.add(modelSymId);
+
     const heritageType = getTypeForNode(heritageRef);
+    pendingResolutions.delete(modelSymId);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
       return undefined;
@@ -1229,9 +1250,23 @@ export function createChecker(program: Program): Checker {
     return heritageType;
   }
 
-  function checkModelIs(isExpr: TypeReferenceNode | undefined): ModelType | undefined {
+  function checkModelIs(
+    model: ModelStatementNode,
+    isExpr: TypeReferenceNode | undefined
+  ): ModelType | undefined {
     if (!isExpr) return undefined;
+    const modelSymId = getNodeSymId(model);
+    if (pendingResolutions.has(modelSymId)) {
+      reportDiagnostic(program, {
+        code: "circular-base-type",
+        format: { typeName: model.id.sv },
+        target: model,
+      });
+      return undefined;
+    }
+    pendingResolutions.add(modelSymId);
     const isType = getTypeForNode(isExpr);
+    pendingResolutions.delete(modelSymId);
 
     if (isType.kind !== "Model") {
       program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
