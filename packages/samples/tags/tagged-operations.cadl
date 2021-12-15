@@ -4,7 +4,7 @@ using Cadl.Http;
 
 @route("/foo")
 @tag("foo")
-namespace foo {
+namespace Foo {
   @tag("tag1")
   @doc("includes namespace tag")
   op read(@path id: int32): null;
@@ -16,7 +16,7 @@ namespace foo {
 }
 
 @route("/bar")
-namespace bar {
+namespace Bar {
   @doc("no tags")
   op list(): Resp[];
 
