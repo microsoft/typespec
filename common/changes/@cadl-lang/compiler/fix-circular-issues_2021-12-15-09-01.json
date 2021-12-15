@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "**Fix** Ciruclar reference in `is` or `extends` now emit a diagnostic instead of crashing",
+      "comment": "**Fix** Circular reference in `is` or `extends` now emit a diagnostic instead of crashing",
       "type": "patch"
     }
   ],
