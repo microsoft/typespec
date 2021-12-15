@@ -51,7 +51,9 @@ import {
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
+  Writable,
 } from "./types.js";
+import { isArray } from "./util.js";
 
 /**
  * Callback to parse each element in a delimited list
@@ -257,7 +259,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
-      let item: Statement;
+      let item: Writable<Statement>;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -332,7 +334,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const decorators = parseDecoratorList();
       const tok = token();
 
-      let item: Statement;
+      let item: Writable<Statement>;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -1161,7 +1163,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
 
-      let item;
+      let item: Writable<T>;
       if (kind.invalidDecoratorTarget) {
         reportInvalidDecorators(decorators, kind.invalidDecoratorTarget);
         item = (parseItem as ParseListItem<UndecoratedListKind, T>)();
@@ -1438,9 +1440,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.returnType)
       );
     case SyntaxKind.NamespaceStatement:
-      return visitEach(cb, node.decorators) ||
-        visitNode(cb, node.name) ||
-        Array.isArray(node.statements)
+      return visitEach(cb, node.decorators) || visitNode(cb, node.name) || isArray(node.statements)
         ? visitEach(cb, node.statements as Statement[])
         : visitNode(cb, node.statements);
     case SyntaxKind.InterfaceStatement:
@@ -1528,7 +1528,7 @@ function visitNode<T>(cb: NodeCb<T>, node: Node | undefined): T | undefined {
   return node && cb(node);
 }
 
-function visitEach<T>(cb: NodeCb<T>, nodes: Node[] | undefined): T | undefined {
+function visitEach<T>(cb: NodeCb<T>, nodes: readonly Node[] | undefined): T | undefined {
   if (!nodes) {
     return;
   }
@@ -1637,7 +1637,7 @@ function isBlocklessNamespace(node: Node) {
   if (node.kind !== SyntaxKind.NamespaceStatement) {
     return false;
   }
-  while (!Array.isArray(node.statements) && node.statements) {
+  while (!isArray(node.statements) && node.statements) {
     node = node.statements;
   }
 

@@ -153,7 +153,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       }
     }
 
-    sourceFile.namespaces = Array.from(namespaces);
+    (sourceFile as any).namespaces = Array.from(namespaces);
   }
 
   function bindSourceFile(sourceFile: CadlScriptNode) {
@@ -297,14 +297,14 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       fileNamespace = statement;
       let current: CadlScriptNode | NamespaceStatementNode = statement;
       while (current.kind !== SyntaxKind.CadlScript) {
-        currentFile.inScopeNamespaces.push(current);
+        (currentFile.inScopeNamespaces as NamespaceStatementNode[]).push(current);
         current = current.parent as CadlScriptNode | NamespaceStatementNode;
       }
     }
   }
 
   function bindUsingStatement(statement: UsingStatementNode) {
-    currentFile.usings.push(statement);
+    (currentFile.usings as UsingStatementNode[]).push(statement);
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {

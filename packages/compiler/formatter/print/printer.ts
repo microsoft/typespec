@@ -28,6 +28,7 @@ import {
   UnionStatementNode,
   UnionVariantNode,
 } from "../../core/types.js";
+import { isArray } from "../../core/util.js";
 import { commentHandler } from "./comment-handler.js";
 import { CadlPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
 
@@ -605,7 +606,7 @@ export function printModelStatement(
 }
 
 function printModelPropertiesBlock(
-  path: AstPath<Node & { properties?: (ModelPropertyNode | ModelSpreadPropertyNode)[] }>,
+  path: AstPath<Node & { properties?: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[] }>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -698,7 +699,7 @@ export function printNamespaceStatement(
     const currentNode = currentPath.getNode();
 
     if (
-      !Array.isArray(currentNode?.statements) &&
+      !isArray(currentNode?.statements) &&
       currentNode?.statements?.kind === SyntaxKind.NamespaceStatement
     ) {
       return path.call((x) => printNested(x, names), "statements");
