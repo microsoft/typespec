@@ -152,9 +152,6 @@ export function createChecker(program: Program): Checker {
    */
   const pendingResolutions = new Set<number>();
 
-  // Map keeping track of the models currently being checked.
-  // When a model type start being instantiated it gets added to this map which lets properties
-  // and referenced models to be able to reference back to it without an infinite recursion.
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
   }
