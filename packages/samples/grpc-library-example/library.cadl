@@ -24,11 +24,11 @@ namespace LibraryService {
   @doc("Creates a shelf, and returns the new Shelf.")
   @route("shelves")
   @post
-  op CreateShelf(...CreateShelfRequest): Shelf | RpcStatus;
+  op createShelf(...CreateShelfRequest): Shelf | RpcStatus;
 
   @doc("Gets a shelf. Returns NOT_FOUND if the shelf does not exist.")
   @route("shelves")
-  op GetShelf(...GetShelfRequest): Shelf | RpcStatus;
+  op getShelf(...GetShelfRequest): Shelf | RpcStatus;
 
   @doc("""
 Lists shelves. The order is unspecified but deterministic. Newly created
@@ -36,12 +36,12 @@ shelves will not necessarily be added to the end of this list.
 """)
   @pageable("next_page_token")
   @route("shelves")
-  op ListShelves(...ListRequestBase): ListShelvesResponse | RpcStatus;
+  op listShelves(...ListRequestBase): ListShelvesResponse | RpcStatus;
 
   @doc("Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.")
   @route("shelves")
   @delete
-  op DeleteShelf(...DeleteShelfRequest): Empty | RpcStatus;
+  op deleteShelf(...DeleteShelfRequest): Empty | RpcStatus;
 
   @doc("""
 Merges two shelves by adding all books from the shelf named
@@ -53,16 +53,16 @@ This call is a no-op if the specified shelves are the same.
 """)
   @route("shelves/{name}:merge")
   @post
-  op MergeShelves(...MergeShelvesRequest): Shelf | RpcStatus;
+  op mergeShelves(...MergeShelvesRequest): Shelf | RpcStatus;
 
   @doc("Creates a book, and returns the new Book.")
   @route("shelves/{name}/books")
   @post
-  op CreateBook(...CreateBookRequest): Book | RpcStatus;
+  op createBook(...CreateBookRequest): Book | RpcStatus;
 
   @doc("Gets a book. Returns NOT_FOUND if the book does not exist.")
   @route("shelves/shelf_name/books/{name}")
-  op GetBook(...GetBookRequest): Book | RpcStatus;
+  op getBook(...GetBookRequest): Book | RpcStatus;
 
   @doc("""
 Lists books in a shelf. The order is unspecified but deterministic. Newly
@@ -70,12 +70,12 @@ created books will not necessarily be added to the end of this list.
 Returns NOT_FOUND if the shelf does not exist.
 """)
   @route("shelves/{name}/books")
-  op ListBooks(...ListBooksRequest): ListBooksResponse | RpcStatus;
+  op listBooks(...ListBooksRequest): ListBooksResponse | RpcStatus;
 
   @route("shelves/shelf_name/books/{name}")
   @doc("Deletes a book. Returns NOT_FOUND if the book does not exist.")
   @delete
-  op DeleteBook(...DeleteBookRequest): Empty | RpcStatus;
+  op deleteBook(...DeleteBookRequest): Empty | RpcStatus;
 }
 
 @doc("""
@@ -270,10 +270,10 @@ model Empty {}
 model RpcStatus {
   code?: int32;
   message?: string;
-  details?: protobufAny[];
+  details?: ProtobufAny[];
 }
 
-model protobufAny {
+model ProtobufAny {
   typeUrl?: string;
   value?: string; // format:byte
 }

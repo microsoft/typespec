@@ -36,7 +36,7 @@ interface ResourceRead<TResource, TError> {
   @autoRoute
   @doc("Gets an instance of the resource.")
   @readsResource(TResource)
-  Get(...ResourceParameters<TResource>): TResource | TError;
+  get(...ResourceParameters<TResource>): TResource | TError;
 }
 
 @doc("Resource create operation completed successfully.")
@@ -49,7 +49,7 @@ interface ResourceCreateOrUpdate<TResource, TError> {
   @autoRoute
   @doc("Creates or update a instance of the resource.")
   @createsOrUpdatesResource(TResource)
-  CreateOrUpdate(
+  createOrUpdate(
     ...ResourceParameters<TResource>,
     @body resource: TResource
   ): TResource | ResourceCreatedResponse<TResource> | TError;
@@ -59,7 +59,7 @@ interface ResourceCreate<TResource, TError> {
   @autoRoute
   @doc("Creates a new instance of the resource.")
   @createsResource(TResource)
-  Create(
+  create(
     ...ResourceCollectionParameters<TResource>,
     @body resource: TResource
   ): TResource | ResourceCreatedResponse<TResource> | TError;
@@ -69,7 +69,7 @@ interface ResourceUpdate<TResource, TError> {
   @autoRoute
   @doc("Updates an existing instance of the resource.")
   @updatesResource(TResource)
-  Update(
+  update(
     ...ResourceParameters<TResource>,
     @body properties: OptionalProperties<UpdateableProperties<TResource>>
   ): TResource | TError;
@@ -86,7 +86,7 @@ interface ResourceDelete<TResource, TError> {
   @autoRoute
   @doc("Deletes an existing instance of the resource.")
   @deletesResource(TResource)
-  Delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
+  delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
 }
 
 @doc("Paged response")
@@ -102,7 +102,7 @@ interface ResourceList<TResource, TError> {
   @autoRoute
   @doc("Lists all instances of the resource.")
   @listsResource(TResource)
-  List(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
+  list(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
 }
 
 interface ResourceInstanceOperations<TResource, TError>

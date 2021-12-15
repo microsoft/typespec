@@ -33,10 +33,10 @@ model Empty {}
 model RpcStatus {
   code?: int32;
   message?: string;
-  details?: protobufAny[];
+  details?: ProtobufAny[];
 }
 
-model protobufAny {
+model ProtobufAny {
   typeUrl?: string;
   value?: string; // format:byte
 }
