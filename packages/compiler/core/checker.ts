@@ -142,6 +142,7 @@ export function createChecker(program: Program): Checker {
   const mergedSymbols = new Map<Sym, Sym>();
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceType = createGlobalNamespaceType();
+  const pendingResolutions = new Set<Node>();
   let cadlNamespaceNode: NamespaceStatementNode | undefined;
   const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
 
@@ -1074,7 +1075,7 @@ export function createChecker(program: Program): Checker {
       return links.declaredType;
     }
 
-    const isBase = checkModelIs(node.is);
+    const isBase = checkModelIs(node, node.is);
 
     const decorators: DecoratorApplication[] = [];
     if (isBase) {
@@ -1099,7 +1100,7 @@ export function createChecker(program: Program): Checker {
     if (isBase) {
       baseModels = isBase.baseModel;
     } else if (node.extends) {
-      baseModels = checkClassHeritage(node.extends);
+      baseModels = checkClassHeritage(node, node.extends);
     }
 
     const type: ModelType = {
@@ -1214,8 +1215,22 @@ export function createChecker(program: Program): Checker {
     properties.set(newProp.name, newProp);
   }
 
-  function checkClassHeritage(heritageRef: TypeReferenceNode): ModelType | undefined {
+  function checkClassHeritage(
+    model: ModelStatementNode,
+    heritageRef: TypeReferenceNode
+  ): ModelType | undefined {
+    if (pendingResolutions.has(model)) {
+      reportDiagnostic(program, {
+        code: "circular-base-type",
+        format: { typeName: model.id.sv },
+        target: model,
+      });
+      return undefined;
+    }
+    pendingResolutions.add(model);
+
     const heritageType = getTypeForNode(heritageRef);
+    pendingResolutions.delete(model);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
       return undefined;
@@ -1229,9 +1244,22 @@ export function createChecker(program: Program): Checker {
     return heritageType;
   }
 
-  function checkModelIs(isExpr: TypeReferenceNode | undefined): ModelType | undefined {
+  function checkModelIs(
+    model: ModelStatementNode,
+    isExpr: TypeReferenceNode | undefined
+  ): ModelType | undefined {
     if (!isExpr) return undefined;
+    if (pendingResolutions.has(model)) {
+      reportDiagnostic(program, {
+        code: "circular-base-type",
+        format: { typeName: model.id.sv },
+        target: model,
+      });
+      return undefined;
+    }
+    pendingResolutions.add(model);
     const isType = getTypeForNode(isExpr);
+    pendingResolutions.delete(model);
 
     if (isType.kind !== "Model") {
       program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
