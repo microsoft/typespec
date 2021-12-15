@@ -79,6 +79,7 @@ describe("compiler: models", () => {
       ["int32", `"foo"`, /Default must be a number/],
       ["boolean", `"foo"`, /Default must be a boolean/],
       ["string[]", `["foo", 123]`, /Default must be a string/],
+      [`"foo" | "bar"`, `"foo1"`, /Type 'foo1' is not assignable to type 'foo | bar'/],
     ];
 
     for (const [type, defaultValue, errorRegex] of testCases) {
@@ -108,6 +109,31 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
       match(diagnostics[0].message, /Model has an inherited property/);
+    });
+
+    it("emit error when extends itself", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A extends A {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+    });
+
+    it("emit error when extends ciruclar reference", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A extends B {}
+        model B extends A {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
   });
 
@@ -180,6 +206,44 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
       match(diagnostics[0].message, /Model already has a property/);
+    });
+
+    it("emit error when is itself", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A is A {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+    });
+
+    it("emit error when 'is' has circular reference", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A is B {}
+        model B is A {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+    });
+
+    it("emit error when 'is' circular reference via extends", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A is B {}
+        model B extends A {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
     });
   });
 });

@@ -77,8 +77,8 @@ model Pet {
 }
 
 model Dog {
-  ... Animal;
-  ... Pet;
+  ...Animal;
+  ...Pet;
 }
 
 // Dog is equivalent to the following declaration:
@@ -164,7 +164,7 @@ model Page<T> {
 }
 
 model DogPage {
-  ... Page<Dog>;
+  ...Page<Dog>;
 }
 
 ```
@@ -264,7 +264,7 @@ op getDog(name: string): Dog;
 The operation's parameters describe a model, so anything you can do in a model you can do in a parameter list as well, including using the spread operator:
 
 ```cadl
-op getDog(... commonParams, name: string): Dog;
+op getDog(...commonParams, name: string): Dog;
 
 ```
 
@@ -485,12 +485,12 @@ model Dog {
 // visibility setting
 @withVisibility("read")
 model ReadDog {
-  ... Dog;
+  ...Dog;
 }
 
 @withVisibility("write")
 model WriteDog {
-  ... Dog;
+  ...Dog;
 }
 
 ```

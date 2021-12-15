@@ -51,7 +51,7 @@ export function printCadl(
 ): prettier.Doc {
   const directives = printDirectives(path, options, print);
   const node = printNode(path, options, print);
-  return concat([directives, node]);
+  return [directives, node];
 }
 
 export function printNode(
@@ -66,16 +66,16 @@ export function printNode(
   switch (node.kind) {
     // Root
     case SyntaxKind.CadlScript:
-      return concat([
+      return [
         printStatementSequence(path as AstPath<CadlScriptNode>, options, print, "statements"),
         line,
-      ]);
+      ];
 
     // Statements
     case SyntaxKind.ImportStatement:
-      return concat([`import "${node.path.value}";`]);
+      return [`import "${node.path.value}";`];
     case SyntaxKind.UsingStatement:
-      return concat([`using `, path.call(print, "name"), `;`]);
+      return [`using `, path.call(print, "name"), `;`];
     case SyntaxKind.OperationStatement:
       return printOperationStatement(path as AstPath<OperationStatementNode>, options, print);
     case SyntaxKind.NamespaceStatement:
@@ -115,6 +115,8 @@ export function printNode(
       return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
       return printTypeReference(path as AstPath<TypeReferenceNode>, options, print);
+    case SyntaxKind.ModelSpreadProperty:
+      return printModelSpread(path as AstPath<ModelSpreadPropertyNode>, options, print);
     default:
       return getRawText(node, options);
   }
@@ -127,7 +129,7 @@ export function printAliasStatement(
 ) {
   const id = path.call(print, "id");
   const template = printTemplateParameters(path, options, print, "templateParameters");
-  return concat(["alias ", id, template, " = ", path.call(print, "value"), ";"]);
+  return ["alias ", id, template, " = ", path.call(print, "value"), ";"];
 }
 
 function printTemplateParameters<T extends Node>(
@@ -140,7 +142,7 @@ function printTemplateParameters<T extends Node>(
   if ((value as any).length === 0) {
     return "";
   }
-  return concat(["<", join(", ", path.map(print, propertyName)), ">"]);
+  return ["<", join(", ", path.map(print, propertyName)), ">"];
 }
 
 export function canAttachComment(node: Node): boolean {
@@ -174,7 +176,7 @@ function printBlockComment(commentPath: AstPath<BlockComment>, options: CadlPret
     return printed;
   }
 
-  return concat(["/*", rawComment, "*/"]);
+  return ["/*", rawComment, "*/"];
 }
 
 function isIndentableBlockComment(rawComment: string): boolean {
@@ -189,7 +191,7 @@ function isIndentableBlockComment(rawComment: string): boolean {
 function printIndentableBlockComment(rawComment: string): Doc {
   const lines = rawComment.split("\n");
 
-  return concat([
+  return [
     "/*",
     join(
       hardline,
@@ -200,7 +202,7 @@ function printIndentableBlockComment(rawComment: string): Doc {
       )
     ),
     "*/",
-  ]);
+  ];
 }
 
 export function printDecorators(
@@ -216,10 +218,10 @@ export function printDecorators(
 
   const shouldBreak =
     !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options);
-  const decorators = path.map((x) => concat([print(x as any), ifBreak(line, " ")]), "decorators");
+  const decorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
 
   return {
-    decorators: group(concat([shouldBreak ? breakParent : "", decorators])),
+    decorators: group([shouldBreak ? breakParent : "", decorators]),
     multiline: shouldBreak,
   };
 }
@@ -235,11 +237,11 @@ function hasNewlineBetweenOrAfterDecorators(node: DecorableNode, options: any) {
 
 export function printDecorator(
   path: AstPath<DecoratorExpressionNode>,
-  options: object,
+  options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const args = printDecoratorArgs(path, options, print);
-  return concat(["@", path.call(print, "target"), args]);
+  return ["@", path.call(print, "target"), args];
 }
 
 export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
@@ -248,23 +250,23 @@ export function printDirectives(path: AstPath<Node>, options: object, print: Pre
     return "";
   }
 
-  const directives = path.map((x) => concat([print(x as any), line]), "directives");
+  const directives = path.map((x) => [print(x as any), line], "directives");
 
-  return group(concat([...directives, breakParent]));
+  return group([...directives, breakParent]);
 }
 
 export function printDirective(
   path: AstPath<DirectiveExpressionNode>,
-  options: object,
+  options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const args = printDirectiveArgs(path, options, print);
-  return concat(["#", path.call(print, "target"), " ", args]);
+  return ["#", path.call(print, "target"), " ", args];
 }
 
 function printDecoratorArgs(
   path: AstPath<DecoratorExpressionNode>,
-  options: object,
+  options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const node = path.getValue();
@@ -277,34 +279,34 @@ function printDecoratorArgs(
   //   value: "foo"
   // })
   const shouldHug =
-    node.arguments.length === 1 && node.arguments[0].kind === SyntaxKind.ModelExpression;
+    node.arguments.length === 1 &&
+    (node.arguments[0].kind === SyntaxKind.ModelExpression ||
+      node.arguments[0].kind === SyntaxKind.StringLiteral);
 
   if (shouldHug) {
-    return concat([
+    return [
       "(",
       join(
         ", ",
-        path.map((arg) => concat([print(arg)]), "arguments")
+        path.map((arg) => [print(arg)], "arguments")
       ),
       ")",
-    ]);
+    ];
   }
 
-  return concat([
+  return [
     "(",
-    group(
-      concat([
-        indent(
-          join(
-            ", ",
-            path.map((arg) => concat([softline, print(arg)]), "arguments")
-          )
-        ),
-        softline,
-      ])
-    ),
+    group([
+      indent(
+        join(
+          ", ",
+          path.map((arg) => [softline, print(arg)], "arguments")
+        )
+      ),
+      softline,
+    ]),
     ")",
-  ]);
+  ];
 }
 
 export function printDirectiveArgs(
@@ -320,7 +322,7 @@ export function printDirectiveArgs(
 
   return join(
     " ",
-    path.map((arg) => concat([print(arg)]), "arguments")
+    path.map((arg) => [print(arg)], "arguments")
   );
 }
 
@@ -331,7 +333,7 @@ export function printEnumStatement(
 ) {
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const id = path.call(print, "id");
-  return concat([decorators, "enum ", id, " ", printEnumBlock(path, options, print)]);
+  return [decorators, "enum ", id, " ", printEnumBlock(path, options, print)];
 }
 
 function printEnumBlock(
@@ -344,22 +346,18 @@ function printEnumBlock(
     return "{}";
   }
 
-  return group(
-    concat([
-      "{",
-      indent(
-        concat([
-          hardline,
-          join(
-            hardline,
-            path.map((x) => concat([print(x as any), ","]), "members")
-          ),
-        ])
-      ),
+  return group([
+    "{",
+    indent([
       hardline,
-      "}",
-    ])
-  );
+      join(
+        hardline,
+        path.map((x) => [print(x as any), ","], "members")
+      ),
+    ]),
+    hardline,
+    "}",
+  ]);
 }
 
 export function printEnumMember(
@@ -369,9 +367,9 @@ export function printEnumMember(
 ) {
   const node = path.getValue();
   const id = path.call(print, "id");
-  const value = node.value ? concat([": ", path.call(print, "value")]) : "";
+  const value = node.value ? [": ", path.call(print, "value")] : "";
   const { decorators } = printDecorators(path, options, print, { tryInline: true });
-  return concat([decorators, id, value]);
+  return [decorators, id, value];
 }
 
 export function printUnionStatement(
@@ -382,14 +380,7 @@ export function printUnionStatement(
   const id = path.call(print, "id");
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
-  return concat([
-    decorators,
-    "union ",
-    id,
-    generic,
-    " ",
-    printUnionVariantsBlock(path, options, print),
-  ]);
+  return [decorators, "union ", id, generic, " ", printUnionVariantsBlock(path, options, print)];
 }
 
 export function printUnionVariantsBlock(
@@ -402,22 +393,18 @@ export function printUnionVariantsBlock(
     return "{}";
   }
 
-  return group(
-    concat([
-      "{",
-      indent(
-        concat([
-          hardline,
-          join(
-            hardline,
-            path.map((x) => concat([print(x as any), ","]), "options")
-          ),
-        ])
-      ),
+  return group([
+    "{",
+    indent([
       hardline,
-      "}",
-    ])
-  );
+      join(
+        hardline,
+        path.map((x) => [print(x as any), ","], "options")
+      ),
+    ]),
+    hardline,
+    "}",
+  ]);
 }
 
 export function printUnionVariant(
@@ -426,9 +413,9 @@ export function printUnionVariant(
   print: PrettierChildPrint
 ) {
   const id = path.call(print, "id");
-  const value = concat([": ", path.call(print, "value")]);
+  const value = [": ", path.call(print, "value")];
   const { decorators } = printDecorators(path, options, print, { tryInline: true });
-  return concat([decorators, id, value]);
+  return [decorators, id, value];
 }
 
 export function printInterfaceStatement(
@@ -436,21 +423,34 @@ export function printInterfaceStatement(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
   const id = path.call(print, "id");
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
-  const mixes =
-    node.mixes.length > 0 ? concat(["mixes ", join(", ", path.map(print, "mixes")), " "]) : "";
-  return concat([
+  const mixes = printInterfaceMixes(path, options, print);
+
+  return [
     decorators,
     "interface ",
     id,
     generic,
-    " ",
     mixes,
+    " ",
     printInterfaceMembers(path, options, print),
-  ]);
+  ];
+}
+
+function printInterfaceMixes(
+  path: AstPath<InterfaceStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  if (node.mixes.length === 0) {
+    return "";
+  }
+
+  const keyword = "mixes ";
+  return [group(indent([line, keyword, indent(join([",", line], path.map(print, "mixes")))]))];
 }
 
 export function printInterfaceMembers(
@@ -465,18 +465,30 @@ export function printInterfaceMembers(
     return "{}";
   }
 
-  const body: prettier.Doc[] = [
-    hardline,
-    join(
-      hardline,
-      path.map((x) => print(x), "operations")
-    ),
-  ];
+  const lastOperation = node.operations[node.operations.length - 1];
+
+  const parts: prettier.Doc[] = [];
+  path.each((operationPath) => {
+    const node = operationPath.getValue() as any as OperationStatementNode;
+
+    const printed = print(operationPath);
+    parts.push(printed);
+
+    if (node !== lastOperation) {
+      parts.push(hardline);
+
+      if (isNextLineEmpty(options.originalText, node, options.locEnd)) {
+        parts.push(hardline);
+      }
+    }
+  }, "operations");
+
+  const body: prettier.Doc[] = [hardline, parts];
 
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
-  return group(concat(["{", indent(concat(body)), hardline, "}"]));
+  return group(["{", indent(body), hardline, "}"]);
 }
 
 function printDanglingComments(
@@ -529,10 +541,10 @@ export function printIntersection(
       result.push(types[i]);
     } else if (isModelNode(node.options[i - 1]) && isModelNode(node.options[i])) {
       // If both are objects, don't indent
-      result.push(concat([" & ", wasIndented ? indent(types[i]) : types[i]]));
+      result.push([" & ", wasIndented ? indent(types[i]) : types[i]]);
     } else if (!isModelNode(node.options[i - 1]) && !isModelNode(node.options[i])) {
       // If no object is involved, go to the next line if it breaks
-      result.push(indent(concat([" &", line, types[i]])));
+      result.push(indent([" &", line, types[i]]));
     } else {
       // If you go from object to non-object or vis-versa, then inline it
       if (i > 1) {
@@ -541,7 +553,7 @@ export function printIntersection(
       result.push(" & ", i > 1 ? indent(types[i]) : types[i]);
     }
   }
-  return group(concat(result));
+  return group(result);
 }
 
 function isModelNode(node: Node) {
@@ -558,17 +570,15 @@ export function printModelExpression(
   if (inBlock) {
     return group(printModelPropertiesBlock(path, options, print));
   } else {
-    return group(
-      concat([
-        indent(
-          join(
-            ", ",
-            path.map((arg) => concat([softline, print(arg)]), "properties")
-          )
-        ),
-        softline,
-      ])
-    );
+    return group([
+      indent(
+        join(
+          ", ",
+          path.map((arg) => [softline, print(arg)], "properties")
+        )
+      ),
+      softline,
+    ]);
   }
 }
 
@@ -579,10 +589,10 @@ export function printModelStatement(
 ) {
   const node = path.getValue();
   const id = path.call(print, "id");
-  const heritage = node.extends ? concat(["extends ", path.call(print, "extends"), " "]) : "";
-  const isBase = node.is ? concat(["is ", path.call(print, "is"), " "]) : "";
+  const heritage = node.extends ? ["extends ", path.call(print, "extends"), " "] : "";
+  const isBase = node.is ? ["is ", path.call(print, "is"), " "] : "";
   const generic = printTemplateParameters(path, options, print, "templateParameters");
-  return concat([
+  return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
     "model ",
     id,
@@ -591,7 +601,7 @@ export function printModelStatement(
     heritage,
     isBase,
     printModelPropertiesBlock(path, options, print),
-  ]);
+  ];
 }
 
 function printModelPropertiesBlock(
@@ -612,13 +622,13 @@ function printModelPropertiesBlock(
     hardline,
     join(
       hardline,
-      path.map((x) => concat([print(x as any), seperator]), "properties")
+      path.map((x) => [print(x as any), seperator], "properties")
     ),
   ];
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
-  return concat(["{", indent(concat(body)), hardline, "}"]);
+  return ["{", indent(body), hardline, "}"];
 }
 
 /**
@@ -657,14 +667,14 @@ export function printModelProperty(
       tryInline: true,
     }
   );
-  return concat([
+  return [
     multiline && isNotFirst ? hardline : "",
     decorators,
     path.call(print, "id"),
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
-    node.default ? concat([" = ", path.call(print, "default")]) : "",
-  ]);
+    node.default ? [" = ", path.call(print, "default")] : "",
+  ];
 }
 
 function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
@@ -697,15 +707,15 @@ export function printNamespaceStatement(
     const suffix =
       currentNode?.statements === undefined
         ? ";"
-        : concat([
+        : [
             " {",
-            indent(concat([hardline, printStatementSequence(path, options, print, "statements")])),
+            indent([hardline, printStatementSequence(path, options, print, "statements")]),
             hardline,
             "}",
-          ]);
+          ];
 
     const { decorators } = printDecorators(path, options, print, { tryInline: false });
-    return concat([decorators, `namespace `, join(".", names), suffix]);
+    return [decorators, `namespace `, join(".", names), suffix];
   };
 
   return printNested(path, []);
@@ -721,7 +731,7 @@ export function printOperationStatement(
     tryInline: true,
   });
 
-  return concat([
+  return [
     decorators,
     inInterface ? "" : "op ",
     path.call(print, "id"),
@@ -730,7 +740,7 @@ export function printOperationStatement(
     "): ",
     path.call(print, "returnType"),
     `;`,
-  ]);
+  ];
 }
 
 export function printStatementSequence<T extends Node>(
@@ -762,7 +772,7 @@ export function printStatementSequence<T extends Node>(
     }
   }, property);
 
-  return concat(parts);
+  return parts;
 }
 
 function getLastStatement(statements: Statement[]): Statement | undefined {
@@ -796,11 +806,8 @@ export function printUnion(
   }
 
   const shouldAddStartLine = true;
-  const code = [
-    ifBreak(concat([shouldAddStartLine ? line : "", "| "]), ""),
-    join(concat([line, "| "]), types),
-  ];
-  return group(indent(concat(code)));
+  const code = [ifBreak([shouldAddStartLine ? line : "", "| "], ""), join([line, "| "], types)];
+  return group(indent(code));
 }
 
 function shouldHugType(node: Node) {
@@ -817,7 +824,15 @@ export function printTypeReference(
 ): prettier.doc.builders.Doc {
   const type = path.call(print, "target");
   const template = printTemplateParameters(path, options, print, "arguments");
-  return concat([type, template]);
+  return [type, template];
+}
+
+function printModelSpread(
+  path: prettier.AstPath<ModelSpreadPropertyNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  return ["...", path.call(print, "target")];
 }
 
 export function printStringLiteral(

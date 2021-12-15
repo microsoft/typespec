@@ -105,8 +105,15 @@ interface ResourceList<TResource, TError> {
   List(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
 }
 
-interface ResourceInstanceOperations<TResource, TError> mixes ResourceRead<TResource, TError>, ResourceUpdate<TResource, TError>, ResourceDelete<TResource, TError> {}
+interface ResourceInstanceOperations<TResource, TError>
+  mixes ResourceRead<TResource, TError>,
+    ResourceUpdate<TResource, TError>,
+    ResourceDelete<TResource, TError> {}
 
-interface ResourceCollectionOperations<TResource, TError> mixes ResourceCreate<TResource, TError>, ResourceList<TResource, TError> {}
+interface ResourceCollectionOperations<TResource, TError>
+  mixes ResourceCreate<TResource, TError>,
+    ResourceList<TResource, TError> {}
 
-interface ResourceOperations<TResource, TError> mixes ResourceInstanceOperations<TResource, TError>, ResourceCollectionOperations<TResource, TError> {}
+interface ResourceOperations<TResource, TError>
+  mixes ResourceInstanceOperations<TResource, TError>,
+    ResourceCollectionOperations<TResource, TError> {}

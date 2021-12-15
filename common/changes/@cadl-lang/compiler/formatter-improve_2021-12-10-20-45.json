@@ -1,0 +1,25 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Formatter** Add support for spread model formatting",
+      "type": "minor"
+    },
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Formatter** Tweak formatting of interface mixes that overflow.",
+      "type": "patch"
+    },
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Formatter** Keep single value decroator inline.",
+      "type": "patch"
+    },
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Formatter** Keep empty line seperation in interface similar to namespace (Only keeps 1 max between operation).",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

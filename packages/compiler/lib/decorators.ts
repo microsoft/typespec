@@ -454,11 +454,11 @@ const tagPropertiesKey = Symbol();
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
 export function $tag(program: Program, target: Type, tag: string) {
-  if (target.kind !== "Operation" && target.kind !== "Namespace") {
+  if (target.kind !== "Operation" && target.kind !== "Namespace" && target.kind !== "Interface") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        messageId: "namespacesOrOperations",
+        messageId: "namespacesInterfacesOrOperations",
         format: { decorator: "@tag" },
         target,
       })
@@ -480,20 +480,26 @@ export function getTags(program: Program, target: Type): string[] {
 
 // Merge the tags for a operation with the tags that are on the namespace or
 // interface it resides within.
-//
-// TODO: (JC) We'll need to update this for nested namespaces
 export function getAllTags(
   program: Program,
-  container: NamespaceType | InterfaceType,
-  target: Type
+  target: NamespaceType | InterfaceType | OperationType
 ): string[] | undefined {
   const tags = new Set<string>();
 
-  for (const t of getTags(program, container)) {
-    tags.add(t);
+  let current: NamespaceType | InterfaceType | OperationType | undefined = target;
+  while (current !== undefined) {
+    for (const t of getTags(program, current)) {
+      tags.add(t);
+    }
+
+    // Move up to the parent
+    if (current.kind === "Operation") {
+      current = current.interface ?? current.namespace;
+    } else {
+      // Type is a namespace or interface
+      current = current.namespace;
+    }
   }
-  for (const t of getTags(program, target)) {
-    tags.add(t);
-  }
-  return tags.size > 0 ? Array.from(tags) : undefined;
+
+  return tags.size > 0 ? Array.from(tags).reverse() : undefined;
 }

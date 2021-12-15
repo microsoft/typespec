@@ -8,6 +8,7 @@ model HasOptional {
   optionalNumber?: int32 = 123;
   optionalBoolean?: boolean = true;
   optionalArray?: string[] = ["foo", "bar"];
+  optionalUnion?: "foo" | "bar" = "foo";
 }
 
 @route("/test")

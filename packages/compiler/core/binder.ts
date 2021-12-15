@@ -8,16 +8,17 @@ import {
   Declaration,
   DecoratorSymbol,
   EnumStatementNode,
+  ExportSymbol,
   IdentifierNode,
   InterfaceStatementNode,
   JsSourceFile,
+  LocalSymbol,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
   OperationStatementNode,
   ScopeNode,
   Sym,
-  SymbolFlags,
   SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
@@ -30,17 +31,17 @@ import {
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
 
-const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
-  duplicates = new Map<Sym, Set<Sym>>();
+const SymbolTable = class<T extends Sym> extends Map<string, T> implements SymbolTable<T> {
+  duplicates = new Map<T, Set<T>>();
 
   // First set for a given key wins, but record all duplicates for diagnostics.
-  set(key: string, value: Sym) {
+  set(key: string, value: T) {
     const existing = super.get(key);
     if (existing === undefined) {
       super.set(key, value);
     } else {
-      if (existing.flags & SymbolFlags.using) {
-        existing.flags = existing.flags | SymbolFlags.usingDuplicates;
+      if (existing.kind === "using") {
+        existing.duplicate = true;
       }
 
       const duplicateArray = this.duplicates.get(existing);
@@ -60,8 +61,8 @@ export interface Binder {
   bindNode(node: Node): void;
 }
 
-export function createSymbolTable(): SymbolTable {
-  return new SymbolTable();
+export function createSymbolTable<T extends Sym>(): SymbolTable<T> {
+  return new SymbolTable<T>();
 }
 
 export interface BinderOptions {
@@ -246,23 +247,23 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   function bindModelStatement(node: ModelStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     // Initialize locals for type parameters
-    node.locals = new SymbolTable();
+    node.locals = new SymbolTable<LocalSymbol>();
   }
 
   function bindInterfaceStatement(node: InterfaceStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
-    node.locals = new SymbolTable();
+    node.locals = new SymbolTable<LocalSymbol>();
   }
 
   function bindUnionStatement(node: UnionStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
-    node.locals = new SymbolTable();
+    node.locals = new SymbolTable<LocalSymbol>();
   }
 
   function bindAliasStatement(node: AliasStatementNode) {
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
     // Initialize locals for type parameters
-    node.locals = new SymbolTable();
+    node.locals = new SymbolTable<LocalSymbol>();
   }
 
   function bindEnumStatement(node: EnumStatementNode) {
@@ -286,7 +287,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       statement.locals = createSymbolTable();
 
       // initialize exports for exported symbols
-      statement.exports = new SymbolTable();
+      statement.exports = new SymbolTable<ExportSymbol>();
     }
 
     currentFile.namespaces.push(statement);
@@ -312,7 +313,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     }
   }
 
-  function declareSymbol(table: SymbolTable, node: Declaration, name: string) {
+  function declareSymbol(table: SymbolTable<Sym>, node: Declaration, name: string) {
     compilerAssert(table, "Attempted to declare symbol on non-existent table");
     const symbol = createTypeSymbol(node, name);
     node.symbol = symbol;
@@ -363,7 +364,6 @@ function createTypeSymbol(node: Node, name: string): TypeSymbol {
   return {
     kind: "type",
     node,
-    flags: SymbolFlags.none,
     name,
   };
 }
@@ -373,7 +373,6 @@ function createDecoratorSymbol(name: string, path: string, value: any): Decorato
     kind: "decorator",
     name: `@` + name,
     path,
-    flags: SymbolFlags.none,
     value,
   };
 }

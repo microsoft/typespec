@@ -6,6 +6,15 @@ model   WithProps {
       bar: string
 }
 
+model WithSpreadAndProps {
+        foo:      string;
+  ...       WithProps
+
+
+  other: 
+    int16;
+}
+
 model     GenericExtension<T>     extends   Parent<T> {
 
 }
