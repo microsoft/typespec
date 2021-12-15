@@ -25,6 +25,19 @@ namespace bar {
   op create(@path id: int32): null;
 }
 
+@tag("outer")
+@route("/nested")
+namespace NestedOuter {
+  @tag("inner")
+  namespace NestedInner {
+    @tag("moreInner")
+    namespace NestedMoreInner {
+      @tag("innerOp")
+      op createOther(@path id: int32): null;
+    }
+  }
+}
+
 model Resp {
   out: string;
 }
