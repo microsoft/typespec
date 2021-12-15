@@ -717,7 +717,7 @@ describe("openapi3: responses", () => {
   });
 
   describe("binary responses", () => {
-    it("bytes responses should default to application/octet-stream", async () => {
+    it("bytes responses should default to application/json with byte format", async () => {
       const res = await openApiFor(
         `
       @route("/")
@@ -730,11 +730,11 @@ describe("openapi3: responses", () => {
       const response = res.paths["/"].get.responses["200"];
       ok(response);
       ok(response.content);
-      strictEqual(response.content["application/octet-stream"].schema.type, "string");
-      strictEqual(response.content["application/octet-stream"].schema.format, "binary");
+      strictEqual(response.content["application/json"].schema.type, "string");
+      strictEqual(response.content["application/json"].schema.format, "byte");
     });
 
-    it("@body body: bytes responses should default to application/octet-stream", async () => {
+    it("@body body: bytes responses default to application/json with bytes format", async () => {
       const res = await openApiFor(
         `
       @route("/")
@@ -747,11 +747,28 @@ describe("openapi3: responses", () => {
       const response = res.paths["/"].get.responses["200"];
       ok(response);
       ok(response.content);
-      strictEqual(response.content["application/octet-stream"].schema.type, "string");
-      strictEqual(response.content["application/octet-stream"].schema.format, "binary");
+      strictEqual(response.content["application/json"].schema.type, "string");
+      strictEqual(response.content["application/json"].schema.format, "byte");
     });
 
-    it("@header contentType should override binary content type", async () => {
+    it("@header contentType text/plain should keep format to byte", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @get op read(): {@header contentType: "text/plain", @body body: bytes};
+      }
+      `
+      );
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["text/plain"].schema.type, "string");
+      strictEqual(response.content["text/plain"].schema.format, "byte");
+    });
+
+    it("@header contentType not json or text should set format to binary", async () => {
       const res = await openApiFor(
         `
       @route("/")
@@ -772,7 +789,7 @@ describe("openapi3: responses", () => {
 
 describe("openapi3: request", () => {
   describe("binary request", () => {
-    it("bytes request should default to application/octet-stream", async () => {
+    it("bytes request should default to application/json byte", async () => {
       const res = await openApiFor(
         `
       @route("/")
@@ -784,11 +801,11 @@ describe("openapi3: request", () => {
 
       const requestBody = res.paths["/"].post.requestBody;
       ok(requestBody);
-      strictEqual(requestBody.content["application/octet-stream"].schema.type, "string");
-      strictEqual(requestBody.content["application/octet-stream"].schema.format, "binary");
+      strictEqual(requestBody.content["application/json"].schema.type, "string");
+      strictEqual(requestBody.content["application/json"].schema.format, "byte");
     });
 
-    it("bytes request should respect @header contentType", async () => {
+    it("bytes request should respect @header contentType and use binary format when not json or text", async () => {
       const res = await openApiFor(
         `
       @route("/")
