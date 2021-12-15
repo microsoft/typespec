@@ -120,7 +120,10 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+      strictEqual(
+        diagnostics[0].message,
+        "Model type 'A' recursively references itself as a base type."
+      );
     });
 
     it("emit error when extends ciruclar reference", async () => {
@@ -133,7 +136,10 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+      strictEqual(
+        diagnostics[0].message,
+        "Model type 'A' recursively references itself as a base type."
+      );
     });
 
     it("emit no error when extends has property to base model", async () => {
@@ -231,7 +237,10 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+      strictEqual(
+        diagnostics[0].message,
+        "Model type 'A' recursively references itself as a base type."
+      );
     });
 
     it("emit error when 'is' has circular reference", async () => {
@@ -244,7 +253,10 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+      strictEqual(
+        diagnostics[0].message,
+        "Model type 'A' recursively references itself as a base type."
+      );
     });
 
     it("emit error when 'is' circular reference via extends", async () => {
@@ -257,7 +269,10 @@ describe("compiler: models", () => {
       );
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+      strictEqual(
+        diagnostics[0].message,
+        "Model type 'A' recursively references itself as a base type."
+      );
     });
 
     it("emit no error when extends has property to base model", async () => {

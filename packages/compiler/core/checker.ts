@@ -1525,11 +1525,23 @@ export function createChecker(program: Program): Checker {
       return links.declaredType;
     }
 
+    const aliasSymId = getNodeSymId(node);
+    if (pendingResolutions.has(aliasSymId)) {
+      reportDiagnostic(program, {
+        code: "circular-alias-type",
+        format: { typeName: node.id.sv },
+        target: node,
+      });
+      return errorType;
+    }
+
+    pendingResolutions.add(aliasSymId);
     const type = getTypeForNode(node.value);
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
       links.instantiations = new TypeInstantiationMap();
     }
+    pendingResolutions.delete(aliasSymId);
 
     return type;
   }

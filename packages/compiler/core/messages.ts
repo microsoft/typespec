@@ -447,7 +447,13 @@ const diagnostics = {
   "circular-base-type": {
     severity: "error",
     messages: {
-      default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
+      default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+    },
+  },
+  "circular-alias-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
     },
   },
 } as const;
