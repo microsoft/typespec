@@ -1,7 +1,7 @@
 {
   "name": "cadl-vs",
   "author": "Microsoft Corporation",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "Cadl Language Support for Visual Studio",
   "homepage": "https://github.com/Azure/adl",
   "readme": "https://github.com/Azure/adl/blob/master/README.md",
