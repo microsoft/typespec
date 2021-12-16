@@ -8,7 +8,7 @@
   "paths": {
     "/pets/{petId}": {
       "get": {
-        "operationId": "Pets_Get",
+        "operationId": "Pets_get",
         "summary": "Gets an instance of the resource.",
         "parameters": [
           {
@@ -39,7 +39,7 @@
         }
       },
       "patch": {
-        "operationId": "Pets_Update",
+        "operationId": "Pets_update",
         "summary": "Updates an existing instance of the resource.",
         "parameters": [
           {
@@ -95,7 +95,7 @@
         }
       },
       "delete": {
-        "operationId": "Pets_Delete",
+        "operationId": "Pets_delete",
         "summary": "Deletes an existing instance of the resource.",
         "parameters": [
           {
@@ -124,15 +124,13 @@
             }
           }
         }
-      },
+      }
+    },
+    "/pets": {
       "post": {
-        "operationId": "Pets_Create",
+        "operationId": "Pets_create",
         "summary": "Creates a new instance of the resource.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Pet.petId"
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "A successful response",
@@ -174,11 +172,9 @@
             }
           }
         }
-      }
-    },
-    "/pets": {
+      },
       "get": {
-        "operationId": "Pets_List",
+        "operationId": "Pets_list",
         "summary": "Lists all instances of the resource.",
         "parameters": [],
         "responses": {
@@ -207,7 +203,7 @@
     },
     "/pets/{petId}/toys/{toyId}": {
       "get": {
-        "operationId": "Toys_Get",
+        "operationId": "Toys_get",
         "summary": "Gets an instance of the resource.",
         "parameters": [
           {
@@ -243,7 +239,7 @@
     },
     "/pets/{petId}/toys": {
       "get": {
-        "operationId": "Toys_List",
+        "operationId": "Toys_list",
         "parameters": [
           {
             "$ref": "#/components/parameters/PetStore.Pet.petId"
@@ -264,6 +260,94 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Cadl.Rest.Resource.Page_Toy"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PetStoreError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pets/{petId}/checkups/{id}": {
+      "put": {
+        "operationId": "Checkups_createOrUpdate",
+        "summary": "Creates or update a instance of the resource.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PetStore.Pet.petId"
+          },
+          {
+            "$ref": "#/components/parameters/Checkup.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Checkup"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Resource create operation completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Checkup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PetStoreError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Checkup"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pets/{petId}/checkups": {
+      "get": {
+        "operationId": "Checkups_list",
+        "summary": "Lists all instances of the resource.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PetStore.Pet.petId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cadl.Rest.Resource.Page_Checkup"
                 }
               }
             }
@@ -309,6 +393,15 @@
         "schema": {
           "type": "integer",
           "format": "int64"
+        }
+      },
+      "Checkup.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -411,6 +504,47 @@
               "$ref": "#/components/schemas/Toy"
             },
             "x-cadl-name": "PetStore.Toy[]",
+            "description": "The items on this page"
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "The link to the next page of items"
+          }
+        },
+        "description": "Paged response",
+        "required": [
+          "value"
+        ]
+      },
+      "Checkup": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vetName": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "vetName",
+          "notes"
+        ]
+      },
+      "Cadl.Rest.Resource.Page_Checkup": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Checkup"
+            },
+            "x-cadl-name": "PetStore.Checkup[]",
             "description": "The items on this page"
           },
           "nextLink": {

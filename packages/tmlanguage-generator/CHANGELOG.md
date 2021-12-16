@@ -1,6 +1,13 @@
 # Change Log - tmlanguage-generator
 
-This log was last generated on Tue, 10 Aug 2021 20:23:04 GMT and should not be manually modified.
+This log was last generated on Wed, 01 Dec 2021 22:56:11 GMT and should not be manually modified.
+
+## 0.2.1
+Wed, 01 Dec 2021 22:56:11 GMT
+
+### Patches
+
+- Update README
 
 ## 0.2.0
 Tue, 10 Aug 2021 20:23:04 GMT

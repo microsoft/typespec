@@ -6,9 +6,9 @@
   },
   "tags": [],
   "paths": {
-    "/sub/sub/a/get": {
+    "/sub/a/subsub": {
       "get": {
-        "operationId": "SubSubA_DoSomething",
+        "operationId": "SubSubA_doSomething",
         "parameters": [],
         "responses": {
           "200": {
@@ -24,9 +24,9 @@
         }
       }
     },
-    "/sub/b/get": {
+    "/sub/b": {
       "get": {
-        "operationId": "SubB_DoSomething",
+        "operationId": "SubB_doSomething",
         "parameters": [],
         "responses": {
           "200": {

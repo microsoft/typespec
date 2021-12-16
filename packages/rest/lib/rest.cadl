@@ -1,4 +1,5 @@
-import "../dist/rest.js";
+import "../dist/src/rest.js";
+import "../dist/src/route.js";
 
 import "./http.cadl";
 import "./resource.cadl";

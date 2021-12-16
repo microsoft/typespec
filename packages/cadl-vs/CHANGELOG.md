@@ -1,6 +1,20 @@
 # Change Log - cadl-vs
 
-This log was last generated on Thu, 11 Nov 2021 21:46:21 GMT and should not be manually modified.
+This log was last generated on Thu, 16 Dec 2021 08:02:20 GMT and should not be manually modified.
+
+## 0.5.0
+Thu, 16 Dec 2021 08:02:20 GMT
+
+### Minor changes
+
+- **Fix** Issues with resolving `cadl-server` path + added support for passing `cadl.cadl-server.path` setting via `.vs/VSWorkspaceSettings.json` file
+
+## 0.4.3
+Wed, 01 Dec 2021 22:56:11 GMT
+
+### Patches
+
+- Update README
 
 ## 0.4.2
 Thu, 11 Nov 2021 21:46:21 GMT

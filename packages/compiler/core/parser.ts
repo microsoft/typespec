@@ -114,6 +114,11 @@ export const enum NodeFlags {
    * transitively) has a parse error.
    */
   DescendantHasError = 1 << 2,
+
+  /**
+   * Indicates that a node was created synthetically and therefore may not be parented.
+   */
+  Synthetic = 1 << 3,
 }
 
 /**
@@ -1297,6 +1302,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       end: report.target?.end ?? tokenEnd(),
     };
 
+    if (!report.printable) {
+      treePrintable = false;
+    }
+
     // Error recovery: don't report more than 1 consecutive error at the same
     // position. The code path taken by error recovery after logging an error
     // can otherwise produce redundant and less decipherable errors, which this
@@ -1306,9 +1315,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       return;
     }
     realPositionOfLastError = realPos;
-    if (!report.printable) {
-      treePrintable = false;
-    }
 
     const diagnostic = createDiagnostic({
       ...report,
@@ -1322,6 +1328,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function reportDiagnostic(diagnostic: Diagnostic) {
     if (diagnostic.severity === "error") {
       parseErrorInNextFinishedNode = true;
+      treePrintable = false;
     }
     parseDiagnostics.push(diagnostic);
   }
@@ -1591,25 +1598,29 @@ export function hasParseError(node: Node) {
   return getFlag(node, NodeFlags.DescendantHasError);
 }
 
+export function isSynthetic(node: Node) {
+  return getFlag(node, NodeFlags.Synthetic);
+}
+
 function checkForDescendantErrors(node: Node) {
   if (getFlag(node, NodeFlags.DescendantErrorsExamined)) {
     return;
   }
+  setFlag(node, NodeFlags.DescendantErrorsExamined);
 
   visitChildren(node, (child) => {
     if (getFlag(child, NodeFlags.ThisNodeHasError)) {
       setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
       return true;
     }
-
     checkForDescendantErrors(child);
 
     if (getFlag(child, NodeFlags.DescendantHasError)) {
       setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
       return true;
     }
-
     setFlag(child, NodeFlags.DescendantErrorsExamined);
+
     return false;
   });
 }

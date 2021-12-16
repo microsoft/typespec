@@ -162,4 +162,28 @@ describe("compiler: aliases", () => {
     ok(B.properties.has("a"));
     strictEqual(C.properties.get("c")!.type, Test);
   });
+
+  it("emit diagnostics if assign itself", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      alias A = A;
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].message, "Alias type 'A' recursively references itself.");
+  });
+
+  it("emit diagnostics if reference itself", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      alias A = "string" | A;
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].message, "Alias type 'A' recursively references itself.");
+  });
 });

@@ -1,54 +1,5 @@
-import {
-  ModelTypeProperty,
-  OperationType,
-  Program,
-  setDecoratorNamespace,
-  Type,
-} from "@cadl-lang/compiler";
+import { ModelTypeProperty, Program, setDecoratorNamespace, Type } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
-
-const baseRoutesKey = Symbol();
-export interface HttpOperationType extends OperationType {
-  basePath: string;
-  route: OperationRoute;
-}
-
-export function getHttpOperation(
-  program: Program,
-  operation: OperationType
-): HttpOperationType | undefined {
-  if (!operation.namespace || !isRoute(program, operation.namespace!)) {
-    return undefined;
-  }
-  return {
-    basePath: basePathForRoute(program, operation)!,
-    route: getOperationRoute(program, operation)!,
-    kind: operation.kind,
-    name: operation.name,
-    node: operation.node,
-    returnType: operation.returnType,
-    namespace: operation.namespace,
-    parameters: operation.parameters,
-    decorators: operation.decorators,
-  };
-}
-
-export function $route(program: Program, entity: Type, basePath = "") {
-  if (entity.kind !== "Namespace" && entity.kind !== "Interface") return;
-  program.stateMap(baseRoutesKey).set(entity, basePath);
-}
-
-export function getRoutes(program: Program) {
-  return Array.from(program.stateMap(baseRoutesKey).keys());
-}
-
-export function isRoute(program: Program, obj: Type) {
-  return program.stateMap(baseRoutesKey).has(obj);
-}
-
-export function basePathForRoute(program: Program, resource: Type) {
-  return program.stateMap(baseRoutesKey).get(resource);
-}
 
 const headerFieldsKey = Symbol();
 export function $header(program: Program, entity: Type, headerName: string) {
@@ -113,17 +64,12 @@ export function hasBody(program: Program, parameters: ModelTypeProperty[]): bool
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete";
 
-interface OperationRoute {
-  verb: HttpVerb;
-  subPath?: string;
-}
+const operationVerbsKey = Symbol();
 
-const operationRoutesKey = Symbol();
-
-function setOperationRoute(program: Program, entity: Type, verb: OperationRoute): void {
+function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
   if (entity.kind === "Operation") {
-    if (!program.stateMap(operationRoutesKey).has(entity)) {
-      program.stateMap(operationRoutesKey).set(entity, verb);
+    if (!program.stateMap(operationVerbsKey).has(entity)) {
+      program.stateMap(operationVerbsKey).set(entity, verb);
     } else {
       reportDiagnostic(program, {
         code: "http-verb-duplicate",
@@ -134,49 +80,34 @@ function setOperationRoute(program: Program, entity: Type, verb: OperationRoute)
   } else {
     reportDiagnostic(program, {
       code: "http-verb-wrong-type",
-      format: { verb: verb.verb, entityKind: entity.kind },
+      format: { verb, entityKind: entity.kind },
       target: entity,
     });
   }
 }
 
-export function getOperationRoute(program: Program, entity: Type): OperationRoute | undefined {
-  return program.stateMap(operationRoutesKey).get(entity);
+export function getOperationVerb(program: Program, entity: Type): HttpVerb | undefined {
+  return program.stateMap(operationVerbsKey).get(entity);
 }
 
-export function $get(program: Program, entity: Type, subPath?: string) {
-  setOperationRoute(program, entity, {
-    verb: "get",
-    subPath,
-  });
+export function $get(program: Program, entity: Type) {
+  setOperationVerb(program, entity, "get");
 }
 
-export function $put(program: Program, entity: Type, subPath?: string) {
-  setOperationRoute(program, entity, {
-    verb: "put",
-    subPath,
-  });
+export function $put(program: Program, entity: Type) {
+  setOperationVerb(program, entity, "put");
 }
 
-export function $post(program: Program, entity: Type, subPath?: string) {
-  setOperationRoute(program, entity, {
-    verb: "post",
-    subPath,
-  });
+export function $post(program: Program, entity: Type) {
+  setOperationVerb(program, entity, "post");
 }
 
-export function $patch(program: Program, entity: Type, subPath?: string) {
-  setOperationRoute(program, entity, {
-    verb: "patch",
-    subPath,
-  });
+export function $patch(program: Program, entity: Type) {
+  setOperationVerb(program, entity, "patch");
 }
 
-export function $delete(program: Program, entity: Type, subPath?: string) {
-  setOperationRoute(program, entity, {
-    verb: "delete",
-    subPath,
-  });
+export function $delete(program: Program, entity: Type) {
+  setOperationVerb(program, entity, "delete");
 }
 
 setDecoratorNamespace(
@@ -189,6 +120,40 @@ setDecoratorNamespace(
   $header,
   $query,
   $path,
-  $body,
-  $route
+  $body
 );
+
+export function $plainData(program: Program, entity: Type) {
+  if (entity.kind !== "Model") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      target: entity,
+      format: { decorator: "plainData", entityKind: entity.kind },
+    });
+    return;
+  }
+
+  const decoratorsToRemove = ["$header", "$body", "$query", "$path"];
+  const [headers, queries, paths, bodies] = [
+    program.stateMap(headerFieldsKey),
+    program.stateSet(bodyFieldsKey),
+    program.stateMap(queryFieldsKey),
+    program.stateMap(pathFieldsKey),
+  ];
+
+  for (const property of entity.properties.values()) {
+    // Remove the decorators so that they do not run in the future, for example,
+    // if this model is later spread into another.
+    property.decorators = property.decorators.filter(
+      (d) => !decoratorsToRemove.includes(d.decorator.name)
+    );
+
+    // Remove the impact the decorators already had on this model.
+    headers.delete(property);
+    bodies.delete(property);
+    queries.delete(property);
+    paths.delete(property);
+  }
+}
+
+setDecoratorNamespace("Cadl.Http.Private", $plainData);

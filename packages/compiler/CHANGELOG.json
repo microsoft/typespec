@@ -2,6 +2,98 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.25.0",
+      "tag": "@cadl-lang/compiler_v0.25.0",
+      "date": "Thu, 16 Dec 2021 08:02:20 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Update** reference resolution with `using` to fix duplicate symbols issues"
+          },
+          {
+            "comment": "**Added** keyword autocomplete and icons"
+          },
+          {
+            "comment": "**Added** support for union default values"
+          },
+          {
+            "comment": "**Formatter** Add support for spread model formatting"
+          },
+          {
+            "comment": "add mkdirp to compilerHost"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Add findChildModels and getProperty utility functions"
+          },
+          {
+            "comment": "**Fix** Circular reference in `is` or `extends` now emit a diagnostic instead of crashing"
+          },
+          {
+            "comment": "**Fix** Circular reference in `alias` now emit a diagnostic instead of crashing"
+          },
+          {
+            "comment": "**Fix** Circular reference between template model and non template model causing unresolved types issues."
+          },
+          {
+            "comment": "**Formatter** fix issues with empty model and interface with comments being moved outside."
+          },
+          {
+            "comment": "**Formatter** fix crash when having a comment in anynoymous empty model."
+          },
+          {
+            "comment": "**Formatter** fix crash when using multi-line comment without each line starting with `*`."
+          },
+          {
+            "comment": "**Formatter** Tweak formatting of interface mixes that overflow."
+          },
+          {
+            "comment": "**Formatter** Keep single value decroator inline."
+          },
+          {
+            "comment": "**Formatter** Keep empty line seperation in interface similar to namespace (Only keeps 1 max between operation)."
+          },
+          {
+            "comment": "Add support for `interface` as a `@tag` decorator target"
+          },
+          {
+            "comment": "Reintroduce @list decorator to assist with collection operations"
+          },
+          {
+            "comment": "Improve getTypeName support for Unions and UnionVariants"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.1",
+      "tag": "@cadl-lang/compiler_v0.24.1",
+      "date": "Wed, 01 Dec 2021 22:56:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix issue where formatter would try to format a document with irrecoverable parse errors in certain cases"
+          },
+          {
+            "comment": "**Fix** Wrong library import for the rest template"
+          },
+          {
+            "comment": "Fix crash in language server"
+          },
+          {
+            "comment": "Fix formatting bug with operations returning anonymous models"
+          },
+          {
+            "comment": "Fix language server crashes in certain error cases"
+          },
+          {
+            "comment": "Update README"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.24.0",
       "tag": "@cadl-lang/compiler_v0.24.0",
       "date": "Thu, 18 Nov 2021 13:58:15 GMT",

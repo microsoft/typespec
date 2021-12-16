@@ -1,15 +1,12 @@
 import {
-  InterfaceType,
   ModelType,
   ModelTypeProperty,
-  OperationType,
   Program,
   setDecoratorNamespace,
   Type,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
-import { $path, getOperationRoute, getPathParamName, hasBody, HttpVerb } from "./http.js";
-import { getAction, getResourceOperation, getSegment } from "./rest.js";
+import { $path } from "./http.js";
 
 export interface ResourceKey {
   resourceType: ModelType;
@@ -78,14 +75,6 @@ export function getResourceTypeKey(program: Program, resourceType: ModelType): R
   });
 
   return resourceKey;
-}
-
-function getSegmentForResourceType(program: Program, resourceType: ModelType): string {
-  // Get key property for type
-  const key = getResourceTypeKey(program, resourceType);
-
-  // Get segment name for key property
-  return getSegment(program, key.keyProperty) || lowerCaseFirstChar(resourceType.name);
 }
 
 function cloneKeyProperties(program: Program, target: ModelType, resourceType: ModelType) {
@@ -168,87 +157,5 @@ export function $parentResource(program: Program, entity: Type, parentType: Type
 
   program.stateMap(parentResourceTypesKey).set(entity, parentType);
 }
-
-export interface OperationDetails {
-  path: string;
-  verb: HttpVerb;
-  parameters: ModelTypeProperty[];
-  operation: OperationType;
-}
-
-function lowerCaseFirstChar(str: string): string {
-  return str[0].toLocaleLowerCase() + str.substring(1);
-}
-
-export function getInterfaceOperations(program: Program, iface: InterfaceType): OperationDetails[] {
-  const operations: OperationDetails[] = [];
-
-  for (const [_, op] of iface.operations) {
-    // TODO: Allow parent route to be passed in as parameter, start with that
-    let fullPath = "";
-    const filteredParameters: ModelTypeProperty[] = [];
-    const route = getOperationRoute(program, op);
-
-    // TODO: Allow explicit @route to override the generated path
-    for (const [name, param] of op.parameters.properties) {
-      if (getPathParamName(program, param)) {
-        const segment = getSegment(program, param);
-
-        // Don't add the segment prefix if it is meant to be excluded
-        // (empty string means exclude the segment)
-        if (segment !== "") {
-          fullPath += `/${segment}`;
-        }
-
-        // Add the path variable for the parameter
-        if (param.type.kind === "String") {
-          fullPath += `/${param.type.value}`;
-          continue; // Skip adding to the parameter list
-        } else {
-          fullPath += `/{${param.name}}`;
-        }
-      }
-
-      filteredParameters.push(param);
-    }
-
-    // It's an action if not marked as another resource operation
-    const resourceOperation = getResourceOperation(program, op);
-    if (!resourceOperation) {
-      // Append the action name if necessary
-      const action = getAction(program, op, op.name);
-      fullPath += `/${lowerCaseFirstChar(action!)}`;
-    } else {
-      if (resourceOperation.operation === "list") {
-        // Extract the key for the resource type, grab the segment
-        const segment = getSegmentForResourceType(program, resourceOperation.resourceType);
-        fullPath += `/${segment}`;
-      }
-    }
-
-    let verb =
-      (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ||
-      route?.verb ||
-      (hasBody(program, filteredParameters) ? "post" : "get");
-
-    // TODO: Allow overriding the existing resource operation of the same kind
-    operations.push({
-      path: fullPath,
-      verb,
-      parameters: filteredParameters,
-      operation: op,
-    });
-  }
-
-  return operations;
-}
-
-const resourceOperationToVerb: any = {
-  read: "get",
-  create: "post",
-  update: "patch",
-  delete: "delete",
-  list: "get",
-};
 
 setDecoratorNamespace("Cadl.Rest.Resource", $parentResource, $copyResourceKeyParameters, $key);

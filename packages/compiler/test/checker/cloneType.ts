@@ -3,7 +3,7 @@ import { Program } from "../../core/program.js";
 import { Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("type cloning", () => {
+describe("compiler: type cloning", () => {
   let testHost: TestHost;
   const blues = new Set();
 

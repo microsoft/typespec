@@ -1,4 +1,5 @@
 import {
+  $list,
   ModelType,
   OperationType,
   Program,
@@ -64,7 +65,13 @@ export function getSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentsKey).get(entity);
 }
 
-export type ResourceOperations = "read" | "create" | "update" | "delete" | "list";
+export type ResourceOperations =
+  | "read"
+  | "createOrUpdate"
+  | "create"
+  | "update"
+  | "delete"
+  | "list";
 
 export interface ResourceOperation {
   operation: string;
@@ -100,32 +107,42 @@ export function setResourceOperation(
 export function getResourceOperation(
   program: Program,
   cadlOperation: OperationType
-): ResourceOperation {
+): ResourceOperation | undefined {
   return program.stateMap(resourceOperationsKey).get(cadlOperation);
 }
 
-export function $read(program: Program, entity: Type, resourceType: Type) {
+export function $readsResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "read");
 }
 
-export function $create(program: Program, entity: Type, resourceType: Type) {
+export function $createsResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "create");
 }
 
-export function $update(program: Program, entity: Type, resourceType: Type) {
+export function $createsOrUpdatesResource(program: Program, entity: Type, resourceType: Type) {
+  setResourceOperation(program, entity, resourceType, "createOrUpdate");
+}
+
+export function $updatesResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "update");
 }
 
-export function $delete(program: Program, entity: Type, resourceType: Type) {
+export function $deletesResource(program: Program, entity: Type, resourceType: Type) {
   setResourceOperation(program, entity, resourceType, "delete");
 }
 
-export function $list(program: Program, entity: Type, resourceType: Type) {
+export function $listsResource(program: Program, entity: Type, resourceType: Type) {
+  // Skip this for template parameters passed into the decorator
+  if (resourceType.kind !== "TemplateParameter") {
+    // Add the @list decorator too so that collection routes are generated correctly
+    $list(program, entity, resourceType);
+  }
+
   setResourceOperation(program, entity, resourceType, "list");
 }
 
 const actionsKey = Symbol();
-export function $action(program: Program, entity: Type, resourceType: Type, name: string) {
+export function $action(program: Program, entity: Type, name?: string) {
   if (entity.kind !== "Operation") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
@@ -135,15 +152,11 @@ export function $action(program: Program, entity: Type, resourceType: Type, name
     return;
   }
 
-  program.stateMap(actionsKey).set(entity, name);
+  program.stateMap(actionsKey).set(entity, name || entity.name);
 }
 
-export function getAction(
-  program: Program,
-  operation: OperationType,
-  defaultActionName?: string
-): string | undefined {
-  return program.stateMap(actionsKey).get(operation) || defaultActionName;
+export function getAction(program: Program, operation: OperationType): string | null | undefined {
+  return program.stateMap(actionsKey).get(operation);
 }
 
 setDecoratorNamespace(
@@ -151,10 +164,11 @@ setDecoratorNamespace(
   $produces,
   $consumes,
   $segment,
-  $read,
-  $create,
-  $update,
-  $delete,
-  $list,
+  $readsResource,
+  $createsResource,
+  $createsOrUpdatesResource,
+  $updatesResource,
+  $deletesResource,
+  $listsResource,
   $action
 );
