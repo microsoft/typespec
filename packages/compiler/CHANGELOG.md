@@ -1,6 +1,32 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Wed, 01 Dec 2021 22:56:11 GMT and should not be manually modified.
+This log was last generated on Thu, 16 Dec 2021 08:02:20 GMT and should not be manually modified.
+
+## 0.25.0
+Thu, 16 Dec 2021 08:02:20 GMT
+
+### Minor changes
+
+- **Update** reference resolution with `using` to fix duplicate symbols issues
+- **Added** keyword autocomplete and icons
+- **Added** support for union default values
+- **Formatter** Add support for spread model formatting
+- add mkdirp to compilerHost
+
+### Patches
+
+- **Fix** Circular reference in `is` or `extends` now emit a diagnostic instead of crashing
+- **Fix** Circular reference in `alias` now emit a diagnostic instead of crashing
+- **Fix** Circular reference between template model and non template model causing unresolved types issues.
+- **Formatter** fix issues with empty model and interface with comments being moved outside.
+- **Formatter** fix crash when having a comment in anynoymous empty model.
+- **Formatter** fix crash when using multi-line comment without each line starting with `*`.
+- **Formatter** Tweak formatting of interface mixes that overflow.
+- **Formatter** Keep single value decroator inline.
+- **Formatter** Keep empty line seperation in interface similar to namespace (Only keeps 1 max between operation).
+- Add support for `interface` as a `@tag` decorator target
+- Reintroduce @list decorator to assist with collection operations
+- Improve getTypeName support for Unions and UnionVariants
 
 ## 0.24.1
 Wed, 01 Dec 2021 22:56:11 GMT
