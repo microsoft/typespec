@@ -1,6 +1,6 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 16 Dec 2021 08:02:20 GMT and should not be manually modified.
+This log was last generated on Thu, 16 Dec 2021 16:21:46 GMT and should not be manually modified.
 
 ## 0.25.0
 Thu, 16 Dec 2021 08:02:20 GMT
@@ -15,6 +15,7 @@ Thu, 16 Dec 2021 08:02:20 GMT
 
 ### Patches
 
+- Add findChildModels and getProperty utility functions
 - **Fix** Circular reference in `is` or `extends` now emit a diagnostic instead of crashing
 - **Fix** Circular reference in `alias` now emit a diagnostic instead of crashing
 - **Fix** Circular reference between template model and non template model causing unresolved types issues.

@@ -25,6 +25,9 @@
         ],
         "patch": [
           {
+            "comment": "Add findChildModels and getProperty utility functions"
+          },
+          {
             "comment": "**Fix** Circular reference in `is` or `extends` now emit a diagnostic instead of crashing"
           },
           {
