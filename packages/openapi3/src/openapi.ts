@@ -782,6 +782,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
         const schema: any = getSchemaForType(nonNullOptions[0]);
+        if (nullable) {
+          schema["nullable"] = true;
+        }
 
         return schema;
       } else {
@@ -805,6 +808,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const schema: any = { type };
     if (values.length > 0) {
       schema.enum = values;
+    }
+    if (nullable) {
+      schema["nullable"] = true;
     }
 
     return schema;
