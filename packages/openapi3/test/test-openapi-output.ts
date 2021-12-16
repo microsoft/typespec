@@ -354,6 +354,53 @@ describe("openapi3: definitions", () => {
     deepStrictEqual(res.schemas.PetType.enum, ["Dog", "Cat"]);
   });
 
+  it("defines nullable properties", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: string | null;
+      };
+      `
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          nullable: true,
+          "x-cadl-name": "Cadl.string | Cadl.null",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  it("defines enums with a nullable variant", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        type: "cat" | "dog" | null;
+      };
+    `
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        type: {
+          type: "string",
+          enum: ["cat", "dog"],
+          nullable: true,
+          "x-cadl-name": "cat | dog | Cadl.null",
+        },
+      },
+      required: ["type"],
+    });
+  });
+
   it("throws diagnostics for empty enum definitions", async () => {
     let testHost = await createOpenAPITestHost();
     testHost.addCadlFile(
