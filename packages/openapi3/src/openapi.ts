@@ -272,7 +272,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         if (!program.compilerOptions.noEmit && !program.hasError()) {
           // Write out the OpenAPI document to the output path
           await program.host.writeFile(
-            path.resolve(options.outputFile.replace(".json", `.${version}.json`)),
+            path.resolve(
+              options.outputFile.replace(".json", version ? `.${version}.json` : ".json")
+            ),
             prettierOutput(JSON.stringify(root, null, 2))
           );
         }
@@ -318,9 +320,22 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function emitInterface(iface: InterfaceType): void {
-    const operations = getInterfaceOperations(program, iface);
-    for (const op of operations) {
-      emitInterfaceOperation(iface, op);
+    if (currentVersion) {
+      const piface = program.checker!.project(iface, iface.projections[0].to!, [currentVersion]) as
+        | InterfaceType
+        | IntrinsicType;
+      if (piface.kind === "Intrinsic") {
+        return;
+      }
+      const operations = getInterfaceOperations(program, piface);
+      for (const op of operations) {
+        emitInterfaceOperation(piface, op);
+      }
+    } else {
+      const operations = getInterfaceOperations(program, iface);
+      for (const op of operations) {
+        emitInterfaceOperation(iface, op);
+      }
     }
   }
 
@@ -1008,6 +1023,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getSchemaForModel(model: ModelType) {
+    const projections = model.projectionsByName("typescript");
+    for (const proj of projections) {
+      model = program.checker!.project(model, proj.to!) as ModelType;
+    }
     let modelSchema: any = {
       type: "object",
       properties: {},

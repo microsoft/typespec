@@ -16,6 +16,7 @@ import {
   SourceFile,
   SourceLocation,
   SyntaxKind,
+  Type,
 } from "./types.js";
 
 /**
@@ -175,6 +176,7 @@ export function getSourceLocation(
   }
 
   const node = "node" in target ? target.node! : target;
+
   if (node.kind === "Intrinsic") {
     return createDummySourceLocation();
   }
@@ -322,4 +324,17 @@ function binarySearch(array: readonly number[], value: number) {
   }
 
   return ~low;
+}
+
+/**
+ * Assert that the input type has one of the kinds provided
+ */
+export function assertType<TKind extends Type["kind"][]>(
+  typeDescription: string,
+  t: Type,
+  ...kinds: TKind
+): asserts t is Type & { kind: TKind[number] } {
+  if (kinds.indexOf(t.kind) === -1) {
+    throw new ProjectionError(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
+  }
 }

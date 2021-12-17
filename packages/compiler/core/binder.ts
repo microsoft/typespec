@@ -326,6 +326,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         node: node,
         byId: new Map(),
         byKind: new Map(),
+        flags: SymbolFlags.none,
       };
       table.set(name, sym);
     }
@@ -526,6 +527,7 @@ function createFunctionSymbol(name: string, value: (...args: any[]) => any): Fun
     kind: "function",
     name,
     value,
+    flags: SymbolFlags.none,
   };
 }
 

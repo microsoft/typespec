@@ -462,6 +462,9 @@ describe("cadl: projections", () => {
         self.projectVariant("bar_prop", addModelProp);
       `,
         `
+      model Blah { x: int32 }
+      alias x = Blah;
+        
       #suppress "projections-are-experimental"
       projection model#addModelProp {
         to {
@@ -472,7 +475,7 @@ describe("cadl: projections", () => {
       );
 
       const variant = result.variants.get("bar_prop")!;
-      const variantType = result.variants.get("bar_prop")!.type as ModelType;
+      const variantType = variant.type as ModelType;
       ok(variantType.properties.has("hi"));
     });
   });

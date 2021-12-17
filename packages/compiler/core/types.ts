@@ -242,6 +242,8 @@ export interface ProjectionSymbol {
   byKind: Map<string, { to?: ProjectionNode; from?: ProjectionNode }>;
   byId: Map<TypeReferenceNode, { to?: ProjectionNode; from?: ProjectionNode }>;
   id?: number;
+  flags: SymbolFlags;
+  symbolSource?: ProjectionSymbol;
 }
 
 export interface DecoratorSymbol {
@@ -249,6 +251,7 @@ export interface DecoratorSymbol {
   path: string;
   name: string;
   flags: SymbolFlags;
+  symbolSource?: DecoratorSymbol;
   value: (...args: any[]) => any;
 }
 
@@ -256,12 +259,15 @@ export interface FunctionSymbol {
   kind: "function";
   name: string;
   value: (...args: any[]) => any;
+  flags: SymbolFlags;
+  symbolSource?: FunctionSymbol;
 }
 export interface TypeSymbol {
   kind: "type";
   node: Node;
   name: string;
   flags: SymbolFlags;
+  symbolSource?: TypeSymbol;
   id?: number;
 }
 

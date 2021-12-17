@@ -34,7 +34,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "0.24.0"
+    "@cadl-lang/compiler": "0.24.1"
   },
   "devDependencies": {
     "@types/mocha": "~7.0.2",
