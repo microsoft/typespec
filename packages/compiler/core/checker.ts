@@ -1,89 +1,88 @@
-import { camelCase, paramCase, pascalCase, snakeCase } from "change-case";
 import { createSymbolTable } from "./binder.js";
-import { assertType, compilerAssert, ProjectionError } from "./diagnostics.js";
-import { createDiagnostic, reportDiagnostic } from "./messages.js";
+import { assertType,compilerAssert,ProjectionError } from "./diagnostics.js";
+import { createDiagnostic,reportDiagnostic } from "./messages.js";
 import { hasParseError } from "./parser.js";
 import { Program } from "./program.js";
+import { createProjectionMembers } from "./projectionMembers.js";
 import {
-  AliasStatementNode,
-  ArrayExpressionNode,
-  ArrayType,
-  BooleanLiteralNode,
-  BooleanLiteralType,
-  CadlScriptNode,
-  ContainerNode,
-  DecoratorApplication,
-  DecoratorExpressionNode,
-  EnumMemberNode,
-  EnumMemberType,
-  EnumStatementNode,
-  EnumType,
-  ErrorType,
-  FunctionType,
-  IdentifierNode,
-  InterfaceStatementNode,
-  InterfaceType,
-  IntersectionExpressionNode,
-  IntrinsicType,
-  JsSourceFile,
-  LiteralNode,
-  LiteralType,
-  MemberExpressionNode,
-  ModelExpressionNode,
-  ModelPropertyNode,
-  ModelStatementNode,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceStatementNode,
-  NamespaceType,
-  Node,
-  NumericLiteralNode,
-  NumericLiteralType,
-  ObjectType,
-  OperationStatementNode,
-  OperationType,
-  ProjectionArithmeticExpressionNode,
-  ProjectionBlockExpressionNode,
-  ProjectionCallExpressionNode,
-  ProjectionDecoratorReferenceExpressionNode,
-  ProjectionEqualityExpressionNode,
-  ProjectionExpression,
-  ProjectionExpressionStatement,
-  ProjectionIfExpressionNode,
-  ProjectionInstruction,
-  ProjectionLambdaExpressionNode,
-  ProjectionMemberExpressionNode,
-  ProjectionNode,
-  ProjectionReferenceExpressionNode,
-  ProjectionRelationalExpressionNode,
-  ProjectionStatementItem,
-  ProjectionStatementNode,
-  ProjectionSymbol,
-  ProjectionType,
-  ProjectionUnaryExpressionNode,
-  ReturnExpressionNode,
-  ReturnRecord,
-  StringLiteralNode,
-  StringLiteralType,
-  Sym,
-  SymbolFlags,
-  SymbolLinks,
-  SymbolTable,
-  SyntaxKind,
-  TemplateDeclarationNode,
-  TemplateParameterDeclarationNode,
-  TupleExpressionNode,
-  TupleType,
-  Type,
-  TypeInstantiationMap,
-  TypeOrReturnRecord,
-  TypeReferenceNode,
-  TypeSymbol,
-  UnionExpressionNode,
-  UnionStatementNode,
-  UnionType,
-  UnionTypeVariant,
-  UnionVariantNode,
+AliasStatementNode,
+ArrayExpressionNode,
+ArrayType,
+BooleanLiteralNode,
+BooleanLiteralType,
+CadlScriptNode,
+ContainerNode,
+DecoratorApplication,
+DecoratorExpressionNode,
+EnumMemberNode,
+EnumMemberType,
+EnumStatementNode,
+EnumType,
+ErrorType,
+FunctionType,
+IdentifierNode,
+InterfaceStatementNode,
+InterfaceType,
+IntersectionExpressionNode,
+IntrinsicType,
+JsSourceFile,
+LiteralNode,
+LiteralType,
+MemberExpressionNode,
+ModelExpressionNode,
+ModelPropertyNode,
+ModelStatementNode,
+ModelType,
+ModelTypeProperty,
+NamespaceStatementNode,
+NamespaceType,
+Node,
+NumericLiteralNode,
+NumericLiteralType,
+OperationStatementNode,
+OperationType,
+ProjectionArithmeticExpressionNode,
+ProjectionBlockExpressionNode,
+ProjectionCallExpressionNode,
+ProjectionDecoratorReferenceExpressionNode,
+ProjectionEqualityExpressionNode,
+ProjectionExpression,
+ProjectionExpressionStatement,
+ProjectionIfExpressionNode,
+ProjectionInstruction,
+ProjectionLambdaExpressionNode,
+ProjectionMemberExpressionNode,
+ProjectionNode,
+ProjectionReferenceExpressionNode,
+ProjectionRelationalExpressionNode,
+ProjectionStatementItem,
+ProjectionStatementNode,
+ProjectionSymbol,
+ProjectionType,
+ProjectionUnaryExpressionNode,
+ReturnExpressionNode,
+ReturnRecord,
+StringLiteralNode,
+StringLiteralType,
+Sym,
+SymbolFlags,
+SymbolLinks,
+SymbolTable,
+SyntaxKind,
+TemplateDeclarationNode,
+TemplateParameterDeclarationNode,
+TupleExpressionNode,
+TupleType,
+Type,
+TypeInstantiationMap,
+TypeOrReturnRecord,
+TypeReferenceNode,
+TypeSymbol,
+UnionExpressionNode,
+UnionStatementNode,
+UnionType,
+UnionTypeVariant,
+UnionVariantNode
 } from "./types.js";
 
 export interface Checker {
@@ -121,6 +120,18 @@ export interface Checker {
 
   createType<T>(typeDef: T): T & TypePrototype;
   createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
+  createLiteralType(value: string, node?: StringLiteralNode): StringLiteralType;
+  createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteralType;
+  createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteralType;
+  createLiteralType(
+    value: string | number | boolean,
+    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+  ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+  createLiteralType(
+    value: string | number | boolean,
+    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+  ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+
   errorType: IntrinsicType;
   voidType: IntrinsicType;
   neverType: IntrinsicType;
@@ -262,7 +273,7 @@ export function createChecker(program: Program): Checker {
 
   let evalContext: EvalContext | undefined = undefined;
 
-  return {
+  const checker: Checker = {
     getTypeForNode,
     checkProgram,
     checkSourceFile,
@@ -288,7 +299,11 @@ export function createChecker(program: Program): Checker {
     voidType,
     createType,
     createFunctionType,
+    createLiteralType,
   };
+
+  const projectionMembers = createProjectionMembers(checker);
+  return checker;
 
   function initializeCadlIntrinsics() {
     // a utility function to log strings or numbers
@@ -1973,7 +1988,7 @@ export function createChecker(program: Program): Checker {
   function getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
   function getLiteralType(node: LiteralNode): LiteralType;
   function getLiteralType(node: LiteralNode): LiteralType {
-    return valueToLiteralType(node.value, node);
+    return createLiteralType(node.value, node);
   }
 
   function mergeSymbolTable(source: SymbolTable, target: SymbolTable) {
@@ -2368,13 +2383,13 @@ export function createChecker(program: Program): Checker {
 
     switch (node.op) {
       case "<":
-        return valueToLiteralType(left.value < right.value);
+        return createLiteralType(left.value < right.value);
       case "<=":
-        return valueToLiteralType(left.value <= right.value);
+        return createLiteralType(left.value <= right.value);
       case ">":
-        return valueToLiteralType(left.value > right.value);
+        return createLiteralType(left.value > right.value);
       case ">=":
-        return valueToLiteralType(left.value >= right.value);
+        return createLiteralType(left.value >= right.value);
     }
   }
 
@@ -2386,7 +2401,7 @@ export function createChecker(program: Program): Checker {
 
     switch (node.op) {
       case "!":
-        return valueToLiteralType(!target.value);
+        return createLiteralType(!target.value);
     }
   }
   function evalProjectionEqualityExpression(
@@ -2412,9 +2427,9 @@ export function createChecker(program: Program): Checker {
 
     switch (node.op) {
       case "==":
-        return valueToLiteralType(left.value === right.value);
+        return createLiteralType(left.value === right.value);
       case "!=":
-        return valueToLiteralType(left.value !== right.value);
+        return createLiteralType(left.value !== right.value);
     }
   }
 
@@ -2499,11 +2514,9 @@ export function createChecker(program: Program): Checker {
     }
 
     if (lhs.kind === "String") {
-      return valueToLiteralType(
-        (lhs as StringLiteralType).value + (rhs as StringLiteralType).value
-      );
+      return createLiteralType((lhs as StringLiteralType).value + (rhs as StringLiteralType).value);
     } else {
-      return valueToLiteralType(
+      return createLiteralType(
         (lhs as NumericLiteralType).value + (rhs as NumericLiteralType).value
       );
     }
@@ -2537,7 +2550,7 @@ export function createChecker(program: Program): Checker {
       let typeVal;
 
       if (typeof argVal === "number" || typeof argVal === "string" || typeof argVal === "boolean") {
-        typeVal = valueToLiteralType(argVal);
+        typeVal = createLiteralType(argVal);
       } else {
         typeVal = argVal;
       }
@@ -2589,8 +2602,13 @@ export function createChecker(program: Program): Checker {
     return target.call(...args);
   }
 
-  function evalProjectionMemberExpression(node: ProjectionMemberExpressionNode): Type {
+  function evalProjectionMemberExpression(
+    node: ProjectionMemberExpressionNode
+  ): TypeOrReturnRecord {
     const base = evalProjectionNode(node.base);
+    if (base.kind === "Return") {
+      return base;
+    }
     const member = node.id.sv;
     const selector = node.selector;
 
@@ -2618,36 +2636,8 @@ export function createChecker(program: Program): Checker {
           throw new ProjectionError(`Can't get members of type ${base.kind}`);
       }
     }
+
     switch (base.kind) {
-      case "Array":
-        switch (member) {
-          case "elementType":
-            return base.elementType;
-          case "projectElementType":
-            return createFunctionType((projection: Type, ...args: Type[]) => {
-              if (projection.kind !== "Projection") {
-                throw new ProjectionError("`projectProperty` takes a name and a projection");
-              }
-
-              const projectionNode =
-                projection.nodeByType.get(base.elementType) ??
-                projection.nodeByKind.get(base.elementType.kind);
-
-              if (!projectionNode) {
-                return voidType;
-              }
-
-              base.elementType = evalProjectionStatement(
-                projectionNode[currentProjectionDirection!]!,
-                base.elementType,
-                args
-              );
-
-              return voidType;
-            });
-          default:
-            throw new ProjectionError(`Array type doesn't have property ${member}`);
-        }
       case "Namespace":
         const sym = base.node.exports!.get(member) as TypeSymbol;
         if (sym) {
@@ -2656,639 +2646,22 @@ export function createChecker(program: Program): Checker {
         } else {
           throw new ProjectionError(`Namespace doesn't have member ${member}`);
         }
-      case "Model":
-        switch (member) {
-          case "name":
-            return valueToLiteralType(base.name);
-          case "projectionSource":
-            return base.projectionSource?.projectionSource || voidType;
-          case "properties":
-            const props: ObjectType = createType({
-              kind: "Object",
-              properties: {},
-            });
-
-            props.properties.forEach = createFunctionType((block: Type) => {
-              assertType("block", block, "Function");
-              const props = Array.from(base.properties.values());
-              props.forEach((p) => block.call(p));
-              return voidType;
-            });
-
-            return props;
-          case "getProperty":
-            return createFunctionType((nameT: Type) => {
-              if (nameT.kind !== "String") {
-                throw new ProjectionError("Property name must be a string");
-              }
-              const name = literalTypeToValue(nameT);
-              return base.properties.get(name) ?? voidType;
-            });
-          case "renameProperty":
-            return createFunctionType((oldNameT: Type, newNameT: Type) => {
-              if (oldNameT.kind !== "String" || newNameT.kind !== "String") {
-                throw new ProjectionError("Property names must be a string");
-              }
-              const oldName = literalTypeToValue(oldNameT);
-              const newName = literalTypeToValue(newNameT);
-
-              const prop = base.properties.get(oldName);
-              if (!prop) {
-                throw new ProjectionError(`Property ${oldName} not found`);
-              }
-              prop.name = newName;
-              base.properties.delete(oldName);
-              base.properties.set(newName, prop);
-
-              if (emitInstructions) {
-                emittedInstructions.push({
-                  op: "renameProperty",
-                  from: oldName,
-                  to: newName,
-                });
-              }
-              return voidType;
-            });
-          case "addProperty":
-            return createFunctionType((nameT: Type, type: Type, defaultT: Type) => {
-              if (nameT.kind !== "String") {
-                throw new ProjectionError("Property name must be a string");
-              }
-              const name = literalTypeToValue(nameT);
-
-              const prop = base.properties.get(name);
-              if (prop) {
-                throw new ProjectionError(`Property ${name} already exists`);
-              }
-
-              base.properties.set(
-                name,
-                createType({
-                  kind: "ModelProperty",
-                  name,
-                  optional: false,
-                  decorators: [],
-                  node: undefined as any,
-                  default: defaultT,
-                  type,
-                })
-              );
-
-              if (emitInstructions) {
-                emittedInstructions.push({
-                  op: "addProperty",
-                  name,
-                  type,
-                });
-              }
-
-              return voidType;
-            });
-          case "deleteProperty":
-            return createFunctionType((nameT: Type) => {
-              if (nameT.kind !== "String") {
-                throw new ProjectionError("Property name must be a string");
-              }
-              const name = literalTypeToValue(nameT);
-
-              const prop = base.properties.get(name);
-              if (!prop) {
-                return voidType;
-              }
-              base.properties.delete(name);
-              if (emitInstructions) {
-                emittedInstructions.push({
-                  op: "deleteProperty",
-                  name,
-                });
-              }
-              return voidType;
-            });
-          case "projectProperty":
-            return createFunctionType((nameT: Type, projection: Type, ...args: Type[]) => {
-              if (nameT.kind !== "String") {
-                throw new ProjectionError("Property name must be a string");
-              }
-              const name = literalTypeToValue(nameT);
-
-              const prop = base.properties.get(name);
-              if (!prop) {
-                return voidType;
-              }
-
-              if (projection.kind !== "Projection") {
-                throw new ProjectionError("`projectProperty` takes a name and a projection");
-              }
-
-              let outerInstructions: ProjectionInstruction[];
-              if (emitInstructions) {
-                outerInstructions = emittedInstructions;
-                emittedInstructions = [];
-              }
-              const projectionNode =
-                projection.nodeByType.get(prop.type) ?? projection.nodeByKind.get(prop.type.kind);
-
-              if (!projectionNode) {
-                return voidType;
-              }
-
-              prop.type = evalProjectionStatement(
-                projectionNode[currentProjectionDirection!]!,
-                prop.type,
-                args
-              );
-
-              if (emitInstructions) {
-                let nestedInstructions = emittedInstructions;
-                emittedInstructions = outerInstructions!;
-
-                if (nestedInstructions.length > 0) {
-                  emittedInstructions.push({
-                    op: "projectProperty",
-                    name: name,
-                    ops: nestedInstructions,
-                  });
-                }
-              }
-
-              return voidType;
-            });
-          default:
-            throw new ProjectionError(`Model doesn't have member ${member}`);
-        }
-      case "ModelProperty":
-        switch (member) {
-          case "name":
-            return valueToLiteralType(base.name);
-          case "type":
-            return base.type;
-          case "setType":
-            return createFunctionType((t: Type) => {
-              base.type = t;
-              return voidType;
-            });
-          case "setOptional":
-            return createFunctionType((optional: Type) => {
-              assertType("Optional", optional, "Boolean");
-              base.optional = literalTypeToValue(optional);
-              return voidType;
-            });
-          default:
-            throw new ProjectionError(`Model property doesn't have member ${member}`);
-        }
-      case "Union":
-        switch (member) {
-          case "projectionSource":
-            return base.projectionSource?.projectionSource || voidType;
-          case "variants":
-            const variantsType: ObjectType = createType({
-              kind: "Object",
-              properties: {},
-            });
-
-            variantsType.properties.forEach = createFunctionType((block: Type) => {
-              assertType("block", block, "Function");
-              const variants = Array.from(base.variants.values());
-              variants.forEach((p) => block.call(p));
-              return voidType;
-            });
-
-            return variantsType;
-          case "renameVariant":
-            return createFunctionType((oldNameT: Type, newNameT: Type) => {
-              assertType("old variant name", oldNameT, "String");
-              assertType("new vaariant name", newNameT, "String");
-              const oldName = literalTypeToValue(oldNameT);
-              const newName = literalTypeToValue(newNameT);
-
-              const variant = base.variants.get(oldName);
-              if (!variant) {
-                throw new ProjectionError(`Couldn't find variant ${variant}`);
-              }
-              base.variants.delete(oldName);
-              base.variants.set(newName, variant);
-              if (variant.kind === "UnionVariant") {
-                variant.name = newName;
-              }
-
-              return voidType;
-            });
-          case "addVariant":
-            return createFunctionType((nameT: Type, type: Type) => {
-              assertType("Variant name", nameT, "String");
-              const name = literalTypeToValue(nameT);
-              const variantType: UnionTypeVariant = createType({
-                kind: "UnionVariant",
-                decorators: [],
-                name,
-                node: undefined,
-                type,
-              });
-              base.variants.set(name, variantType);
-              return voidType;
-            });
-          case "deleteVariant":
-            return createFunctionType((nameT: Type) => {
-              assertType("Name", nameT, "String");
-              const name = literalTypeToValue(nameT);
-              base.variants.delete(name);
-              return voidType;
-            });
-          case "projectVariant":
-            return createFunctionType((nameT: Type, projection: Type, ...args: Type[]) => {
-              assertType("Name", nameT, "String");
-              assertType("projection", projection, "Projection");
-              const name = literalTypeToValue(nameT);
-
-              const variant = base.variants.get(name);
-              if (!variant) {
-                throw new ProjectionError(`Can't find variant named ${name}`);
-              }
-
-              let outerInstructions: ProjectionInstruction[];
-              if (emitInstructions) {
-                outerInstructions = emittedInstructions;
-                emittedInstructions = [];
-              }
-              const projectionNode =
-                projection.nodeByType.get(variant.type) ??
-                projection.nodeByKind.get(variant.type.kind);
-
-              if (!projectionNode) {
-                return voidType;
-              }
-              const projectedType = evalProjectionStatement(
-                projectionNode[currentProjectionDirection!]!,
-                variant.type,
-                args
-              ) as UnionTypeVariant;
-
-              variant.type = projectedType;
-
-              if (emitInstructions) {
-                let nestedInstructions = emittedInstructions;
-                emittedInstructions = outerInstructions!;
-
-                if (nestedInstructions.length > 0) {
-                  // TODO: Instructions for projecting unions?
-                }
-              }
-
-              return voidType;
-            });
-          case "getVariant":
-            return createFunctionType((nameT: Type) => {
-              assertType("variant namee", nameT, "String");
-              const name = literalTypeToValue(nameT);
-              return base.variants.get(name) ?? voidType;
-            });
-          default:
-            throw new ProjectionError("Union doesn't have member " + member);
-        }
-      case "UnionVariant":
-        switch (member) {
-          case "name":
-            if (typeof base.name === "string") {
-              return valueToLiteralType(base.name);
-            } else {
-              throw new ProjectionError("Can't refer to name of anonymous union variant");
-            }
-          case "setType":
-            return createFunctionType((type: Type) => {
-              base.type = type;
-              return voidType;
-            });
-          case "type":
-            return base.type;
-          case "project":
-            return createFunctionType((projection: Type, ...args: Type[]) => {
-              assertType("projection", projection, "Projection");
-
-              const projectionNode =
-                projection.nodeByType.get(base.type) ?? projection.nodeByKind.get(base.type.kind);
-
-              if (!projectionNode) {
-                return voidType;
-              }
-              const projectedType = evalProjectionStatement(
-                projectionNode[currentProjectionDirection!]!,
-                base.type,
-                args
-              ) as UnionTypeVariant;
-
-              base.type = projectedType;
-
-              return voidType;
-            });
-          default:
-            throw new ProjectionError("Union variant doesn't have member " + member);
-        }
-      case "Operation":
-        switch (member) {
-          case "name":
-            return valueToLiteralType(base.name);
-          case "projectionSource":
-            return base.projectionSource?.projectionSource ?? voidType;
-          case "parameters":
-            return base.parameters;
-          case "returnType":
-            return base.returnType;
-          case "projectParameters":
-            return createFunctionType((projection: Type, ...args: Type[]) => {
-              assertType("projection", projection, "Projection");
-
-              let outerInstructions: ProjectionInstruction[];
-              if (emitInstructions) {
-                outerInstructions = emittedInstructions;
-                emittedInstructions = [];
-              }
-              const projectionNode = projection.nodeByKind.get("Model");
-              if (!projectionNode) {
-                return voidType;
-              }
-
-              base.parameters = evalProjectionStatement(
-                projectionNode[currentProjectionDirection!]!,
-                base.parameters,
-                args
-              ) as ModelType;
-
-              if (emitInstructions) {
-                // todo: instructions for projecting operations
-              }
-
-              return voidType;
-            });
-          case "projectReturnType":
-            return createFunctionType((projection: Type, ...args: Type[]) => {
-              assertType("projection", projection, "Projection");
-
-              let outerInstructions: ProjectionInstruction[];
-              if (emitInstructions) {
-                outerInstructions = emittedInstructions;
-                emittedInstructions = [];
-              }
-              const projectionNode =
-                projection.nodeByKind.get(base.returnType.kind) ||
-                projection.nodeByType.get(base.returnType);
-
-              if (!projectionNode) {
-                return voidType;
-              }
-
-              base.returnType = evalProjectionStatement(
-                projectionNode[currentProjectionDirection!]!,
-                base.returnType,
-                args
-              );
-
-              if (emitInstructions) {
-                // todo: instructions for projecting operations
-              }
-
-              return voidType;
-            });
-          default:
-            throw new ProjectionError(`Operation doesn't have member ${member}`);
-        }
-      case "Interface":
-        switch (member) {
-          case "projectionSource":
-            return base.projectionSource?.projectionSource || voidType;
-          case "operations":
-            const props: ObjectType = createType({
-              kind: "Object",
-              properties: {},
-            });
-
-            // decorator ordering is possibly backward
-            // maybe want profiles
-            // try to get m4 -> cadl
-            props.properties.forEach = createFunctionType((block: Type) => {
-              assertType("block", block, "Function");
-              const props = Array.from(base.operations.values());
-              props.forEach((p) => block.call(p));
-              return voidType;
-            });
-
-            return props;
-          case "renameOperation":
-            return createFunctionType((oldNameT: Type, newNameT: Type) => {
-              assertType("operation name", oldNameT, "String");
-              assertType("operation name", newNameT, "String");
-              const oldName = literalTypeToValue(oldNameT);
-              const newName = literalTypeToValue(newNameT);
-
-              const op = base.operations.get(oldName);
-              if (!op) {
-                throw new ProjectionError(`Couldn't find operation named ${oldName}`);
-              }
-              const clone = cloneType(op);
-              clone.name = newName;
-              base.operations.delete(oldName);
-              base.operations.set(newName, clone);
-
-              if (emitInstructions) {
-                // todo: instructions for interfaces
-              }
-              return voidType;
-            });
-          case "addOperation":
-            return createFunctionType((nameT: Type, parameters: Type, returnType: Type) => {
-              assertType("operation name", nameT, "String");
-              assertType("parameters", parameters, "Model");
-              const name = literalTypeToValue(nameT);
-              const prop = base.operations.get(name);
-              if (prop) {
-                throw new ProjectionError(`Operation named ${name} already exists`);
-              }
-
-              base.operations.set(
-                name,
-                createType({
-                  kind: "Operation",
-                  name,
-                  node: undefined as any,
-                  parameters,
-                  returnType,
-                  decorators: [],
-                })
-              );
-
-              if (emitInstructions) {
-                // todo: instructions for interfaces
-              }
-
-              return voidType;
-            });
-          case "deleteOperation":
-            return createFunctionType((nameT: Type) => {
-              assertType("operation name", nameT, "String");
-              const name = literalTypeToValue(nameT);
-
-              const prop = base.operations.get(name);
-              if (!prop) {
-                return voidType;
-              }
-              base.operations.delete(name);
-              if (emitInstructions) {
-                // todo interface insturctions
-              }
-              return voidType;
-            });
-          case "projectOperation":
-            return createFunctionType((nameT: Type, projection: Type, ...args: Type[]) => {
-              assertType("operation name", nameT, "String");
-              assertType("projection", projection, "Projection");
-              const name = literalTypeToValue(nameT);
-
-              const op = base.operations.get(name);
-              if (!op) {
-                throw new ProjectionError(`Couldn't find operation named ${op}`);
-              }
-
-              let outerInstructions: ProjectionInstruction[];
-              if (emitInstructions) {
-                outerInstructions = emittedInstructions;
-                emittedInstructions = [];
-              }
-              const projectionNode = projection.nodeByKind.get("Operation");
-
-              if (!projectionNode) {
-                return voidType;
-              }
-
-              const projectedOp = evalProjectionStatement(
-                projectionNode[currentProjectionDirection!]!,
-                op,
-                args
-              ) as OperationType;
-
-              base.operations.set(name, projectedOp);
-              if (emitInstructions) {
-                // todo: interface instructions
-              }
-
-              return voidType;
-            });
-          default:
-            throw new ProjectionError(`Interface doesn't have member ${member}`);
-        }
-      case "Enum":
-        switch (member) {
-          case "projectionSource":
-            return base.projectionSource?.projectionSource ?? voidType;
-          case "members":
-            const props: ObjectType = createType({
-              kind: "Object",
-              properties: {},
-            });
-
-            props.properties.forEach = createFunctionType((block: Type) => {
-              assertType("parameter", block, "Function");
-              const props = Array.from(base.members);
-              props.forEach((p) => block.call(p));
-              return voidType;
-            });
-
-            return props;
-          case "name":
-            return valueToLiteralType(base.name);
-          case "addMember":
-            return createFunctionType((nameT: Type, type?: Type) => {
-              assertType("enum member", nameT, "String");
-
-              const name = literalTypeToValue(nameT);
-
-              const member = base.members.find((member) => member.name === name);
-              if (member) {
-                throw new ProjectionError(`Enum already has a member named ${name}`);
-              }
-
-              if (type && type.kind !== "String" && type.kind !== "Number") {
-                throw new TypeError(`Enum types must be either string or number`);
-              }
-
-              base.members.push(
-                createType({
-                  kind: "EnumMember",
-                  enum: base,
-                  name,
-                  decorators: [],
-                  node: undefined as any,
-                  type,
-                })
-              );
-
-              return voidType;
-            });
-          case "deleteMember":
-            return createFunctionType((nameT: Type) => {
-              assertType("enum member", nameT, "String");
-
-              const name = literalTypeToValue(nameT);
-
-              const member = base.members.findIndex((member) => member.name === name);
-              if (member === -1) return voidType;
-
-              base.members.splice(member, 1);
-
-              return voidType;
-            });
-          case "renameMember":
-            return createFunctionType((nameT: Type, newNameT: Type) => {
-              assertType("enum member", nameT, "String");
-              assertType("enum member", newNameT, "String");
-
-              const name = literalTypeToValue(nameT);
-              const newName = literalTypeToValue(newNameT);
-
-              const member = base.members.find((member) => member.name === name);
-              if (!member) {
-                throw new ProjectionError(`Enum doesn't have member ${name}`);
-              }
-              member.name = newName;
-              return voidType;
-            });
-          default:
-            throw new ProjectionError(`Enum doesn't have member ${member}`);
-        }
-      case "EnumMember":
-        switch (member) {
-          case "name":
-            return valueToLiteralType(base.name);
-          case "type":
-            return base.value ? valueToLiteralType(base.value) : neverType;
-          default:
-            throw new ProjectionError(`Enum member doesn't have member ${member}`);
-        }
       case "Object":
         return base.properties[member] || errorType;
-
-      case "String":
-        switch (member) {
-          case "toCamelCase":
-            return createFunctionType(() => {
-              return valueToLiteralType(camelCase(base.value));
-            });
-          case "toPascalCase":
-            return createFunctionType(() => {
-              return valueToLiteralType(pascalCase(base.value));
-            });
-          case "toSnakeCase":
-            return createFunctionType(() => {
-              return valueToLiteralType(snakeCase(base.value));
-            });
-          case "toKebabCase":
-            return createFunctionType(() => {
-              return valueToLiteralType(paramCase(base.value));
-            });
-          default:
-            throw new ProjectionError(`String doesn't have member ${member}`);
+      default:
+        const typeOps = projectionMembers[base.kind];
+        if (!typeOps) {
+          throw new ProjectionError(`${base.kind} doesn't have a member named ${member}`);
         }
-    }
+        // any cast needed to ensure we don't get a too complex union error on the call
+        // to op further down.
+        const op: any = typeOps[member];
+        if (!op) {
+          throw new ProjectionError(`${base.kind} doesn't have a member named ${member}`);
+        }
 
-    throw new ProjectionError(`The type ${base.kind} has no members, but you looked up ${member}`);
+        return op(base);
+    }
   }
 
   function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
@@ -3322,14 +2695,14 @@ export function createChecker(program: Program): Checker {
     return type.value;
   }
 
-  function valueToLiteralType(value: string, node?: StringLiteralNode): StringLiteralType;
-  function valueToLiteralType(value: number, node?: NumericLiteralNode): NumericLiteralType;
-  function valueToLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteralType;
-  function valueToLiteralType(
+  function createLiteralType(value: string, node?: StringLiteralNode): StringLiteralType;
+  function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteralType;
+  function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteralType;
+  function createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
-  function valueToLiteralType(
+  function createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType {
@@ -3413,7 +2786,7 @@ export function createChecker(program: Program): Checker {
 
   function marshalProjectionReturn(value: unknown): Type {
     if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
-      return valueToLiteralType(value);
+      return createLiteralType(value);
     }
 
     if (typeof value === "object" && value !== null) {
@@ -3457,15 +2830,15 @@ export function createChecker(program: Program): Checker {
   }
 
   function evalStringLiteral(node: StringLiteralNode): StringLiteralType {
-    return valueToLiteralType(node.value, node);
+    return createLiteralType(node.value, node);
   }
 
   function evalNumericLiteral(node: NumericLiteralNode): NumericLiteralType {
-    return valueToLiteralType(node.value, node);
+    return createLiteralType(node.value, node);
   }
 
   function evalBooleanLiteral(node: BooleanLiteralNode): BooleanLiteralType {
-    return valueToLiteralType(node.value, node);
+    return createLiteralType(node.value, node);
   }
 
   function project(
