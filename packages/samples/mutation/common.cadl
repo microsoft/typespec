@@ -1,3 +1,8 @@
+import "@cadl-lang/rest";
+
+using Cadl.Http;
+
 model OtherModel {
+  @statusCode _: "default";
   num: int32;
 }

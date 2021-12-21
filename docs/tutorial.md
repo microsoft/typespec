@@ -674,18 +674,18 @@ Use the `@header` decorator on a property named `statusCode` to declare a status
 @route("/pets")
 namespace Pets {
   op list(@query skip: int32, @query top: int32): {
-    @header statusCode: 200;
+    @statusCode statusCode: 200;
     @body pets: Pet[];
   };
   op read(@path petId: int32, @header ifMatch?: string): {
-    @header statusCode: 200;
+    @statusCode statusCode: 200;
     @header eTag: string;
     @body pet: Pet;
   } | {
-    @header statusCode: 404;
+    @statusCode statusCode: 404;
   };
   op create(@body pet: Pet): {
-    @header statusCode: 200;
+    @statusCode statusCode: 200;
   };
 }
 

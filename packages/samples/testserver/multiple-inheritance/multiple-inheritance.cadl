@@ -25,6 +25,7 @@ model Horse extends Pet {
 
 @doc("Unexpected error")
 model ErrorResponse {
+  @statusCode _: "default";
   @body body: string;
 }
 
