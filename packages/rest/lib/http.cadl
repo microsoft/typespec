@@ -7,8 +7,8 @@ using Private;
 @doc("The request has succeeded.")
 model OkResponse<T> {
   @doc("The status code.")
-  @header
-  statusCode: 200;
+  @statusCode
+  _: 200;
 
   @doc("The reponse body.")
   @body
@@ -25,58 +25,58 @@ model LocationHeader {
 @doc("The request has succeeded and a new resource has been created as a result.")
 model CreatedResponse {
   @doc("The status code.")
-  @header
-  statusCode: 201;
+  @statusCode
+  _: 201;
 }
 
 @doc("The request has been received but not yet acted upon.")
 model AcceptedResponse {
   @doc("The status code.")
-  @header
-  statusCode: 202;
+  @statusCode
+  _: 202;
 }
 
 @doc("There is no content to send for this request, but the headers may be useful. ")
 model NoContentResponse {
   @doc("The status code.")
-  @header
-  statusCode: 204;
+  @statusCode
+  _: 204;
 }
 
 @doc("The URL of the requested resource has been changed permanently. The new URL is given in the response.")
 model MovedResponse {
   @doc("The status code.")
-  @header
-  statusCode: 301;
+  @statusCode
+  _: 301;
   ...LocationHeader;
 }
 
 @doc("This is used for caching purposes.")
 model NotModifiedResponse {
   @doc("The status code.")
-  @header
-  statusCode: 304;
+  @statusCode
+  _: 304;
 }
 
 @doc("The server could not understand the request due to invalid syntax.")
 model UnauthorizedResponse {
   @doc("The status code.")
-  @header
-  statusCode: 401;
+  @statusCode
+  _: 401;
 }
 
 @doc("The server can not find the requested resource.")
 model NotFoundResponse {
   @doc("The status code.")
-  @header
-  statusCode: 404;
+  @statusCode
+  _: 404;
 }
 
 @doc("This response is sent when a request conflicts with the current state of the server.")
 model ConflictResponse {
   @doc("The status code.")
-  @header
-  statusCode: 409;
+  @statusCode
+  _: 409;
 }
 
 // Produces a new model with the same properties as T, but with @query,

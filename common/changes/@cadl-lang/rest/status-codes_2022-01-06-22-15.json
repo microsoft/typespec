@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add statusCode decorator for http status code",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

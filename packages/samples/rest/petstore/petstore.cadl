@@ -10,6 +10,7 @@ using Cadl.Rest;
 using Cadl.Rest.Resource;
 
 model PetStoreError {
+  @statusCode _: "default";
   code: int32;
   message: string;
 }
