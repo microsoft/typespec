@@ -77,8 +77,8 @@ model Pet {
 }
 
 model Dog {
-  ... Animal;
-  ... Pet;
+  ...Animal;
+  ...Pet;
 }
 
 // Dog is equivalent to the following declaration:
@@ -164,7 +164,7 @@ model Page<T> {
 }
 
 model DogPage {
-  ... Page<Dog>;
+  ...Page<Dog>;
 }
 
 ```
@@ -264,7 +264,7 @@ op getDog(name: string): Dog;
 The operation's parameters describe a model, so anything you can do in a model you can do in a parameter list as well, including using the spread operator:
 
 ```cadl
-op getDog(... commonParams, name: string): Dog;
+op getDog(...commonParams, name: string): Dog;
 
 ```
 
@@ -472,28 +472,27 @@ Consider the following example:
 ```cadl
 model Dog {
   // the service will generate an ID, so you dont need to send it.
-  @visibility('read') id: int32;
-
+  @visibility("read") id: int32;
   // the service will store this secret name, but won't ever return it
-  @visibility('write') secretName: string;
-
+  @visibility("write") secretName: string;
   // no flags are like specifying all flags at once, so in this case
-  // equivalent to @visibility('read', 'write')
+  // equivalent to @visibility("read", "write")
   name: string;
 }
 
 // The spread operator will copy all the properties of Dog into ReadDog,
 // and withVisibility will remove any that don't match the current
 // visibility setting
-@withVisibility('read')
+@withVisibility("read")
 model ReadDog {
-  ... Dog;
+  ...Dog;
 }
 
-@withVisibility('write')
+@withVisibility("write")
 model WriteDog {
-  ... Dog;
+  ...Dog;
 }
+
 ```
 
 ### Libraries

@@ -45,6 +45,12 @@ const libDefinition = {
         default: "Cannot copy keys from a non-key type (KeysOf<T> or ParentKeysOf<T>)",
       },
     },
+    "missing-path-param": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
+      },
+    },
   },
 } as const;
 

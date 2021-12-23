@@ -241,6 +241,30 @@ function navigateType(
   }
 }
 
+// Find the immediate children of the given model.
+export function findChildModels(program: Program, parent: ModelType) {
+  const children: ModelType[] = [];
+  navigateProgram(program, {
+    model: (model) => {
+      if (model.baseModel === parent) {
+        children.push(model);
+      }
+    },
+  });
+  return children;
+}
+
+// Return property from type, nesting into baseTypes as needed.
+export function getProperty(type: ModelType, propertyName: string): ModelTypeProperty | undefined {
+  while (type.baseModel) {
+    if (type.properties.has(propertyName)) {
+      return type.properties.get(propertyName);
+    }
+    type = type.baseModel;
+  }
+  return type.properties.get(propertyName);
+}
+
 export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
   private listeners: Map<keyof T, Array<(...args: any[]) => any>> = new Map();
 

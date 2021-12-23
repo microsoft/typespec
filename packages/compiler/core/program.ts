@@ -48,7 +48,7 @@ export interface Program {
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: Diagnostic[]): void;
-  reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+  reportDuplicateSymbols(symbols: SymbolTable<Sym> | undefined): void;
 }
 
 export async function createProgram(
@@ -541,6 +541,10 @@ export async function createProgram(
   }
 
   function getNode(target: Node | Type | Sym): Node | undefined {
+    if (target.kind === "using") {
+      target = target.symbolSource;
+    }
+
     if ("node" in target) {
       return target.node;
     }
@@ -560,7 +564,7 @@ export async function createProgram(
     return target;
   }
 
-  function reportDuplicateSymbols(symbols: SymbolTable | undefined) {
+  function reportDuplicateSymbols(symbols: SymbolTable<Sym> | undefined) {
     if (!symbols) {
       return;
     }
@@ -568,10 +572,11 @@ export async function createProgram(
       for (const symbol of set) {
         if (!duplicateSymbols.has(symbol)) {
           duplicateSymbols.add(symbol);
+          const name = symbol.kind === "using" ? symbol.symbolSource.name : symbol.name;
           reportDiagnostic(
             createDiagnostic({
               code: "duplicate-symbol",
-              format: { name: symbol.name },
+              format: { name },
               target: symbol,
             })
           );

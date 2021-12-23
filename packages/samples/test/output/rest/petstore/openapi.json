@@ -8,7 +8,7 @@
   "paths": {
     "/pets/{petId}": {
       "get": {
-        "operationId": "Pets_Get",
+        "operationId": "Pets_get",
         "summary": "Gets an instance of the resource.",
         "parameters": [
           {
@@ -39,7 +39,7 @@
         }
       },
       "patch": {
-        "operationId": "Pets_Update",
+        "operationId": "Pets_update",
         "summary": "Updates an existing instance of the resource.",
         "parameters": [
           {
@@ -95,7 +95,7 @@
         }
       },
       "delete": {
-        "operationId": "Pets_Delete",
+        "operationId": "Pets_delete",
         "summary": "Deletes an existing instance of the resource.",
         "parameters": [
           {
@@ -126,9 +126,9 @@
         }
       }
     },
-    "": {
+    "/pets": {
       "post": {
-        "operationId": "Pets_Create",
+        "operationId": "Pets_create",
         "summary": "Creates a new instance of the resource.",
         "parameters": [],
         "responses": {
@@ -172,11 +172,9 @@
             }
           }
         }
-      }
-    },
-    "/pets": {
+      },
       "get": {
-        "operationId": "Pets_List",
+        "operationId": "Pets_list",
         "summary": "Lists all instances of the resource.",
         "parameters": [],
         "responses": {
@@ -205,7 +203,7 @@
     },
     "/pets/{petId}/toys/{toyId}": {
       "get": {
-        "operationId": "Toys_Get",
+        "operationId": "Toys_get",
         "summary": "Gets an instance of the resource.",
         "parameters": [
           {
@@ -241,7 +239,7 @@
     },
     "/pets/{petId}/toys": {
       "get": {
-        "operationId": "Toys_List",
+        "operationId": "Toys_list",
         "parameters": [
           {
             "$ref": "#/components/parameters/PetStore.Pet.petId"
@@ -281,7 +279,7 @@
     },
     "/pets/{petId}/checkups/{id}": {
       "put": {
-        "operationId": "Checkups_Create",
+        "operationId": "Checkups_createOrUpdate",
         "summary": "Creates or update a instance of the resource.",
         "parameters": [
           {
@@ -336,7 +334,7 @@
     },
     "/pets/{petId}/checkups": {
       "get": {
-        "operationId": "Checkups_List",
+        "operationId": "Checkups_list",
         "summary": "Lists all instances of the resource.",
         "parameters": [
           {

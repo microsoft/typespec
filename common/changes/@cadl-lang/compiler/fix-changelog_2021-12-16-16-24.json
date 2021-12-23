@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "**Added** keyword autocomplete and icons",
-      "type": "minor"
+      "comment": "",
+      "type": "none"
     }
   ],
   "packageName": "@cadl-lang/compiler"

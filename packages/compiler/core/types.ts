@@ -242,9 +242,6 @@ export interface TemplateParameterType extends BaseType {
   node: TemplateParameterDeclarationNode;
 }
 
-// trying to avoid masking built-in Symbol
-export type Sym = DecoratorSymbol | TypeSymbol | FunctionSymbol | ProjectionSymbol;
-
 export interface ProjectionSymbol {
   kind: "projection";
   name: string;
@@ -252,7 +249,6 @@ export interface ProjectionSymbol {
   byKind: Map<string, { to?: ProjectionNode; from?: ProjectionNode }>;
   byId: Map<TypeReferenceNode, { to?: ProjectionNode; from?: ProjectionNode }>;
   id?: number;
-  flags: SymbolFlags;
   symbolSource?: ProjectionSymbol;
 }
 
@@ -260,8 +256,6 @@ export interface DecoratorSymbol {
   kind: "decorator";
   path: string;
   name: string;
-  flags: SymbolFlags;
-  symbolSource?: DecoratorSymbol;
   value: (...args: any[]) => any;
 }
 
@@ -269,27 +263,24 @@ export interface FunctionSymbol {
   kind: "function";
   name: string;
   value: (...args: any[]) => any;
-  flags: SymbolFlags;
   symbolSource?: FunctionSymbol;
 }
 export interface TypeSymbol {
   kind: "type";
   node: Node;
   name: string;
-  flags: SymbolFlags;
-  symbolSource?: TypeSymbol;
   id?: number;
 }
 
-export const enum SymbolFlags {
-  none = 0,
-
-  /**
-   * If the symbol is used from a using
-   */
-  using = 1 << 0,
-  usingDuplicates = 1 << 1,
+export interface UsingSymbol {
+  kind: "using";
+  symbolSource: ExportSymbol;
+  duplicate?: boolean;
 }
+
+export type LocalSymbol = UsingSymbol | TypeSymbol;
+export type ExportSymbol = TypeSymbol | DecoratorSymbol | ProjectionSymbol | FunctionSymbol;
+export type Sym = LocalSymbol | ExportSymbol;
 
 export interface SymbolLinks {
   type?: Type;
@@ -300,16 +291,11 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
-export interface SymbolTableEntry {
-  sym: Sym;
-  flags: SymbolFlags;
-}
-
-export interface SymbolTable extends Map<string, Sym> {
+export interface SymbolTable<T extends Sym> extends Map<string, T> {
   /**
    * Duplicate
    */
-  readonly duplicates: Map<Sym, Set<Sym>>;
+  readonly duplicates: Map<T, Set<T>>;
 }
 
 /**
@@ -398,7 +384,7 @@ export interface BaseNode extends TextRange {
 
 export interface TemplateDeclarationNode {
   templateParameters: TemplateParameterDeclarationNode[];
-  locals?: SymbolTable;
+  locals?: SymbolTable<LocalSymbol>;
 }
 
 export type Node =
@@ -573,8 +559,8 @@ export interface MemberExpressionNode extends BaseNode {
 
 export interface ContainerNode {
   usingsRefs?: NamespaceStatementNode[];
-  locals?: SymbolTable;
-  exports?: SymbolTable;
+  locals?: SymbolTable<LocalSymbol>;
+  exports?: SymbolTable<ExportSymbol>;
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode, ContainerNode {
@@ -872,7 +858,7 @@ export interface ProjectionBlockExpressionNode extends BaseNode {
 export interface ProjectionLambdaExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionLambdaExpression;
   parameters: ProjectionLambdaParameterDeclarationNode[];
-  locals?: SymbolTable;
+  locals?: SymbolTable<LocalSymbol>;
   body: ProjectionBlockExpressionNode;
 }
 
@@ -887,7 +873,7 @@ export interface ProjectionNode extends BaseNode {
   direction: "to" | "from";
   parameters: ProjectionParameterDeclarationNode[];
   body: ProjectionStatementItem[];
-  locals?: SymbolTable;
+  locals?: SymbolTable<LocalSymbol>;
 }
 
 export interface ProjectionStatementNode extends BaseNode, DeclarationNode<ProjectionSymbol> {
@@ -973,7 +959,7 @@ export interface JsSourceFile {
   esmExports: any;
 
   /* Exported "global scope" bindings */
-  exports?: SymbolTable;
+  exports?: SymbolTable<DecoratorSymbol | FunctionSymbol>;
 
   /* Any namespaces declared by decorators. */
   namespaces: NamespaceStatementNode[];

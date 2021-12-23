@@ -1,6 +1,13 @@
 import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
-import { ModelTypeProperty, NamespaceType, Type } from "../core/types.js";
+import {
+  InterfaceType,
+  ModelType,
+  ModelTypeProperty,
+  NamespaceType,
+  OperationType,
+  Type,
+} from "../core/types.js";
 
 export const namespace = "Cadl";
 
@@ -410,17 +417,56 @@ export function $withoutDefaultValues(program: Program, target: Type) {
   target.properties.forEach((p) => delete p.default);
 }
 
+// -- @list decorator ---------------------
+
+const listPropertiesKey = Symbol();
+
+export function $list(program: Program, target: Type, listedType?: Type) {
+  if (target.kind !== "Operation") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "operations",
+        format: { decorator: "@list" },
+        target,
+      })
+    );
+    return;
+  }
+
+  if (listedType && listedType.kind !== "Model") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "list-type-not-model",
+        target,
+      })
+    );
+    return;
+  }
+
+  program.stateMap(listPropertiesKey).set(target, listedType);
+}
+
+export function getListOperationType(program: Program, target: Type): ModelType | undefined {
+  return program.stateMap(listPropertiesKey).get(target);
+}
+
+export function isListOperation(program: Program, target: OperationType): boolean {
+  // The type stored for the operation
+  return program.stateMap(listPropertiesKey).has(target);
+}
+
 // -- @tag decorator ---------------------
 const tagPropertiesKey = Symbol();
 
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
 export function $tag(program: Program, target: Type, tag: string) {
-  if (target.kind !== "Operation" && target.kind !== "Namespace") {
+  if (target.kind !== "Operation" && target.kind !== "Namespace" && target.kind !== "Interface") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        messageId: "namespacesOrOperations",
+        messageId: "namespacesInterfacesOrOperations",
         format: { decorator: "@tag" },
         target,
       })
@@ -440,21 +486,28 @@ export function getTags(program: Program, target: Type): string[] {
   return program.stateMap(tagPropertiesKey).get(target) || [];
 }
 
-// Merge the tags for a operation with the tags that are on the namespace it resides within.
-//
-// TODO: (JC) We'll need to update this for nested namespaces
+// Merge the tags for a operation with the tags that are on the namespace or
+// interface it resides within.
 export function getAllTags(
   program: Program,
-  namespace: NamespaceType,
-  target: Type
+  target: NamespaceType | InterfaceType | OperationType
 ): string[] | undefined {
   const tags = new Set<string>();
 
-  for (const t of getTags(program, namespace)) {
-    tags.add(t);
+  let current: NamespaceType | InterfaceType | OperationType | undefined = target;
+  while (current !== undefined) {
+    for (const t of getTags(program, current)) {
+      tags.add(t);
+    }
+
+    // Move up to the parent
+    if (current.kind === "Operation") {
+      current = current.interface ?? current.namespace;
+    } else {
+      // Type is a namespace or interface
+      current = current.namespace;
+    }
   }
-  for (const t of getTags(program, target)) {
-    tags.add(t);
-  }
-  return tags.size > 0 ? Array.from(tags) : undefined;
+
+  return tags.size > 0 ? Array.from(tags).reverse() : undefined;
 }

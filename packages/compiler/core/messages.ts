@@ -286,6 +286,12 @@ const diagnostics = {
       default: paramMessage`Default must be a ${"type"}`,
     },
   },
+  unassignable: {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
+    },
+  },
   "mixes-interface": {
     severity: "error",
     messages: {
@@ -393,8 +399,9 @@ const diagnostics = {
     messages: {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
       model: paramMessage`The ${"decorator"} decorator can only be applied to models.`,
-      namespacesOrOperations: paramMessage`The ${"decorator"} decorator can only be applied to namespaces or operations.`,
-      operationsOrModelProps: paramMessage`The ${"decorator"} decorator  can only be applied to operations or model properties.`,
+      operations: paramMessage`The ${"decorator"} decorator can only be applied to operations.`,
+      namespacesInterfacesOrOperations: paramMessage`The ${"decorator"} decorator can only be applied to namespaces, interfaces, or operations.`,
+      operationsOrModelProps: paramMessage`The ${"decorator"} decorator can only be applied to operations or model properties.`,
     },
   },
 
@@ -417,6 +424,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Cannot set service namespace more than once in a Cadl project.",
+    },
+  },
+  "list-type-not-model": {
+    severity: "error",
+    messages: {
+      default: "@list decorator's parameter must be a model type reference.",
     },
   },
 
@@ -451,6 +464,18 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Could not add response type "${"responseTypeName"}" to operation ${"operationName"}"`,
+    },
+  },
+  "circular-base-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+    },
+  },
+  "circular-alias-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
     },
   },
 } as const;

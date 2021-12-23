@@ -8,7 +8,7 @@
   "paths": {
     "/foo/DefaultDescriptions": {
       "get": {
-        "operationId": "foo_WithDefaultDescriptions",
+        "operationId": "Foo_withDefaultDescriptions",
         "parameters": [],
         "responses": {
           "200": {
@@ -36,7 +36,7 @@
     },
     "/foo/ModelDocDescriptions": {
       "get": {
-        "operationId": "foo_WithModelDocDescriptions",
+        "operationId": "Foo_withModelDocDescriptions",
         "parameters": [],
         "responses": {
           "200": {
@@ -64,7 +64,7 @@
     },
     "/foo/NotFoundWithDocs": {
       "get": {
-        "operationId": "foo_WithStatusCodeDocs",
+        "operationId": "Foo_withStatusCodeDocs",
         "parameters": [],
         "responses": {
           "200": {
@@ -102,7 +102,7 @@
     },
     "/foo/NotFoundDefaultDocs": {
       "get": {
-        "operationId": "foo_WithDefaultDescNotFound",
+        "operationId": "Foo_withDefaultDescNotFound",
         "parameters": [],
         "responses": {
           "200": {

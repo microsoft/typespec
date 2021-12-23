@@ -18,29 +18,29 @@ The Cadl equivalent of OpenAPI data types are the Cadl primitive types or [built
 
 The following table shows how common OpenAPI types map to Cadl types:
 
-| OpenAPI `type`/`format`           | Cadl type        | Notes                    |
-| --------------------------------- | ---------------- | ------------------------ |
-| `type: integer, format: int32`    | `int32`          |                          |
-| `type: integer, format: int64`    | `int64`          |                          |
-| `type: number, format: float`     | `float32`        |                          |
-| `type: number, format: double`    | `float64`        |                          |
-| `type: string`                    | `string`         |                          |
-| `type: string, format: byte`      | `bytes`          |                          |
-| `type: string, format: binary`    |                  | Not currently supported. |
-| `type: boolean`                   | `boolean`        |                          |
-| `type: string, format: date`      | `plainDate`      |                          |
-| `type: string, format: date-time` | `zonedDateTime`  | RFC 3339 date            |
-| `type: string, format: password`  | `@secret string` |                          |
+| OpenAPI `type`/`format`           | Cadl type        | Notes                                                                     |
+| --------------------------------- | ---------------- | ------------------------------------------------------------------------- |
+| `type: integer, format: int32`    | `int32`          |                                                                           |
+| `type: integer, format: int64`    | `int64`          |                                                                           |
+| `type: number, format: float`     | `float32`        |                                                                           |
+| `type: number, format: double`    | `float64`        |                                                                           |
+| `type: string`                    | `string`         |                                                                           |
+| `type: string, format: byte`      | `bytes`          | for content-type == 'application/json' or 'text/plain'                    |
+| `type: string, format: binary`    | `bytes`          | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
+| `type: boolean`                   | `boolean`        |                                                                           |
+| `type: string, format: date`      | `plainDate`      |                                                                           |
+| `type: string, format: date-time` | `zonedDateTime`  | RFC 3339 date                                                             |
+| `type: string, format: password`  | `@secret string` |                                                                           |
 
 OpenAPI supports a variety of "assertions" that can be used further restrict the values allowed for a data type.
 These are actually borrowed into OpenAPI from JSON Schema.
 
 For `type: integer` and `type: number` data types:
 
-| OpenAPI/JSON Schema keyword | Cadl construct              | Notes |
-| --------------------------- | --------------------------- | ----- |
-| `minimum: value`            | `@minimum(value)` decorator |       |
-| `maximum: value`            | `@maximum(value)` decorator |       |
+| OpenAPI/JSON Schema keyword | Cadl construct               | Notes |
+| --------------------------- | ---------------------------- | ----- |
+| `minimum: value`            | `@minValue(value)` decorator |       |
+| `maximum: value`            | `@maxValue(value)` decorator |       |
 
 For `type: string` data types:
 
@@ -284,7 +284,7 @@ model PetId {
 }
 
 namespace Pets {
-  op read(... PetId): Pet | Error;
+  op read(...PetId): Pet | Error;
 }
 
 ```
@@ -315,12 +315,8 @@ In Cadl this information is specified with [decorators on the namespace][cadl-se
 In OpenAPI v2, the top-level `consumes` and `produces` fields specify a list of MIME types an operation can consume / produce
 when not overridden by a `consumes` or `produces` on an individual operation.
 
-In Cadl, these global values for `consumes` and `produces` are defined with the `@consumes` and `@produces` [decorators on the namespace][cadl-service-metadata].
-
-```cadl
-@produces("application/json", "image/png")
-@consumes("application/json", "application/octet-stream")
-```
+The cadl-autorest emitter previously supported `@produces` and `@consumes` decorators on a namespace, but these are deprecated
+in favor of explicit `content-type` and `accept` header properties in request and response bodies.
 
 ## securityDefinitions / securitySchemes Object
 
@@ -333,7 +329,7 @@ For example:
 
 ```cadl
 namespace Pets {
-  @extension("x-streaming-operation", true) op read(... PetId): Pet | Error;
+  @extension("x-streaming-operation", true) op read(...PetId): Pet | Error;
 }
 
 ```

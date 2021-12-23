@@ -14,11 +14,14 @@ import {
   ContainerNode,
   DecoratorApplication,
   DecoratorExpressionNode,
+  DecoratorSymbol,
   EnumMemberNode,
   EnumMemberType,
   EnumStatementNode,
   EnumType,
   ErrorType,
+  Expression,
+  FunctionSymbol,
   FunctionType,
   IdentifierNode,
   InterfaceStatementNode,
@@ -67,7 +70,6 @@ import {
   StringLiteralNode,
   StringLiteralType,
   Sym,
-  SymbolFlags,
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
@@ -85,6 +87,7 @@ import {
   UnionType,
   UnionTypeVariant,
   UnionVariantNode,
+  UsingSymbol,
 } from "./types.js";
 
 export interface Checker {
@@ -236,10 +239,12 @@ export function createChecker(program: Program): Checker {
   let emitInstructions = false;
   let emittedInstructions: ProjectionInstruction[] = [];
 
-  // Map keeping track of the models currently being checked.
-  // When a model type start being instantiated it gets added to this map which lets properties
-  // and referenced models to be able to reference back to it without an infinite recursion.
-  const pendingModelTypes = new Map<number, ModelType>();
+  /**
+   * Set keeping track of node pending type resolution.
+   * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
+   */
+  const pendingResolutions = new Set<number>();
+
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
   }
@@ -264,11 +269,7 @@ export function createChecker(program: Program): Checker {
     initializeCadlIntrinsics();
     for (const file of program.sourceFiles.values()) {
       for (const [name, binding] of cadlNamespaceNode.exports!) {
-        file.locals!.set(name, {
-          ...binding,
-          flags: binding.flags | SymbolFlags.using,
-          symbolSource: binding as any, // this should be safe
-        });
+        file.locals!.set(name, { kind: "using", symbolSource: binding });
       }
     }
   }
@@ -316,7 +317,6 @@ export function createChecker(program: Program): Checker {
         console.log(str);
         return voidType;
       },
-      flags: SymbolFlags.none,
     });
 
     // a utility function to dump a type
@@ -327,7 +327,6 @@ export function createChecker(program: Program): Checker {
         console.log(str);
         return voidType;
       },
-      flags: SymbolFlags.none,
     });
 
     cadlNamespaceNode!.exports!.set("projectSelf", {
@@ -342,7 +341,6 @@ export function createChecker(program: Program): Checker {
         evalContext!.locals.set("self", selfType);
         return voidType;
       },
-      flags: SymbolFlags.none,
     });
   }
 
@@ -387,13 +385,13 @@ export function createChecker(program: Program): Checker {
       usedUsing.add(namespace);
 
       for (const [name, binding] of sym.node.exports!) {
-        parentNs.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });
+        parentNs.locals!.set(name, { kind: "using", symbolSource: binding });
       }
     }
 
     if (cadlNamespaceNode) {
       for (const [name, binding] of cadlNamespaceNode.exports!) {
-        file.locals!.set(name, { ...binding, flags: binding.flags | SymbolFlags.using });
+        file.locals!.set(name, { kind: "using", symbolSource: binding });
       }
     }
   }
@@ -458,7 +456,9 @@ export function createChecker(program: Program): Checker {
       case "Enum":
         return getEnumName(type);
       case "Union":
-        return type.options.map(getTypeName).join(" | ");
+        return type.name || type.options.map(getTypeName).join(" | ");
+      case "UnionVariant":
+        return getTypeName(type.type);
       case "Array":
         return getTypeName(type.elementType) + "[]";
       case "String":
@@ -528,10 +528,19 @@ export function createChecker(program: Program): Checker {
     if (!sym) {
       return errorType;
     }
+    return checkTypeReferenceSymbol(
+      sym,
+      node.kind === SyntaxKind.TypeReference ? node.arguments : []
+    );
+  }
 
+  function checkTypeReferenceSymbol(
+    sym: TypeSymbol | DecoratorSymbol | FunctionSymbol | ProjectionSymbol,
+    nodeArgs: Expression[]
+  ): Type {
     if (sym.kind === "decorator") {
       program.reportDiagnostic(
-        createDiagnostic({ code: "invalid-type-ref", messageId: "decorator", target: node })
+        createDiagnostic({ code: "invalid-type-ref", messageId: "decorator", target: sym })
       );
 
       return errorType;
@@ -539,20 +548,15 @@ export function createChecker(program: Program): Checker {
 
     if (sym.kind === "function") {
       program.reportDiagnostic(
-        createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: node })
+        createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: sym })
       );
 
       return errorType;
     }
 
     const symbolLinks = getSymbolLinks(sym);
-    let args = node.kind === SyntaxKind.TypeReference ? node.arguments.map(getTypeForNode) : [];
-
-    // this will be the type referred to by the type reference
-    // it is initialized differently depending on what kind of type
-    // we refer to and whether type arguments are provided.
     let baseType;
-
+    let args = nodeArgs.map(getTypeForNode);
     if (
       sym.node.kind === SyntaxKind.ModelStatement ||
       sym.node.kind === SyntaxKind.AliasStatement ||
@@ -565,17 +569,14 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "notTemplate",
-              target: node,
+              target: sym,
             })
           );
         }
 
         if (symbolLinks.declaredType) {
           baseType = symbolLinks.declaredType;
-        } else if (pendingModelTypes.has(getNodeSymId(sym.node))) {
-          baseType = pendingModelTypes.get(getNodeSymId(sym.node))!;
         } else {
-          // we don't yet have a delcared type, so let's get it
           baseType =
             sym.node.kind === SyntaxKind.ModelStatement
               ? checkModelStatement(sym.node)
@@ -589,16 +590,14 @@ export function createChecker(program: Program): Checker {
         // declaration is templated, lets instantiate.
 
         if (!symbolLinks.declaredType) {
-          if (!pendingModelTypes.has(getNodeSymId(sym.node))) {
-            // we haven't checked the declared type yet, so do so.
-            sym.node.kind === SyntaxKind.ModelStatement
-              ? checkModelStatement(sym.node)
-              : sym.node.kind === SyntaxKind.AliasStatement
-              ? checkAlias(sym.node)
-              : sym.node.kind === SyntaxKind.InterfaceStatement
-              ? checkInterface(sym.node)
-              : checkUnion(sym.node);
-          }
+          // we haven't checked the declared type yet, so do so.
+          sym.node.kind === SyntaxKind.ModelStatement
+            ? checkModelStatement(sym.node)
+            : sym.node.kind === SyntaxKind.AliasStatement
+            ? checkAlias(sym.node)
+            : sym.node.kind === SyntaxKind.InterfaceStatement
+            ? checkInterface(sym.node)
+            : checkUnion(sym.node);
         }
 
         const templateParameters = sym.node.templateParameters;
@@ -607,7 +606,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "tooFew",
-              target: node,
+              target: sym,
             })
           );
           args = [...args, ...new Array(templateParameters.length - args.length).fill(errorType)];
@@ -616,7 +615,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "tooMany",
-              target: node,
+              target: sym,
             })
           );
           args = args.slice(0, templateParameters.length);
@@ -631,7 +630,7 @@ export function createChecker(program: Program): Checker {
           createDiagnostic({
             code: "invalid-template-args",
             messageId: "notTemplate",
-            target: node,
+            target: sym,
           })
         );
       }
@@ -649,8 +648,8 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    if (node.kind === SyntaxKind.TypeReference) {
-      for (const projection of node.projections) {
+    if (sym.node.kind === SyntaxKind.TypeReference) {
+      for (const projection of sym.node.projections) {
         const target = resolveTypeReference(projection.target);
         if (!target) {
           // should have already reported an error, so just proceed.
@@ -728,7 +727,10 @@ export function createChecker(program: Program): Checker {
     templateInstantiation = args;
     instantiatingTemplate = templateNode;
 
-    const type = pendingModelTypes.get(getNodeSymId(templateNode)) ?? getTypeForNode(templateNode);
+    const type =
+      symbolLinks.declaredType && oldTemplate === templateNode
+        ? symbolLinks.declaredType
+        : getTypeForNode(templateNode);
 
     symbolLinks.instantiations!.set(args, type);
     if (type.kind === "Model") {
@@ -963,7 +965,6 @@ export function createChecker(program: Program): Checker {
   }
 
   function getSymbolLinks(s: TypeSymbol | ProjectionSymbol): SymbolLinks {
-    if (s.symbolSource) s = s.symbolSource;
     const id = getSymbolId(s);
 
     if (symbolLinks.has(id)) {
@@ -984,11 +985,11 @@ export function createChecker(program: Program): Checker {
     return s.id;
   }
 
-  function resolveIdentifierInTable(
+  function resolveIdentifierInTable<T extends Sym>(
     node: IdentifierNode,
-    table: SymbolTable | undefined,
+    table: SymbolTable<T> | undefined,
     resolveDecorator = false
-  ): Sym | undefined {
+  ): T | undefined {
     if (!table) {
       return undefined;
     }
@@ -1001,20 +1002,20 @@ export function createChecker(program: Program): Checker {
 
     if (!sym) return sym;
 
-    if (sym.flags & SymbolFlags.using && sym.flags & SymbolFlags.usingDuplicates) {
-      reportAmbiguousIdentifier(node, [...(table.duplicates.get(sym) ?? [])]);
+    if ("duplicate" in sym && sym.duplicate) {
+      reportAmbiguousIdentifier(node, [...((table.duplicates.get(sym) as any) ?? [])]);
       return sym;
     }
     return getMergedSymbol(sym);
   }
 
-  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
+  function reportAmbiguousIdentifier(node: IdentifierNode, symbols: UsingSymbol[]) {
     const duplicateNames = symbols
       .map((x) => {
         const namespace =
-          x.kind === "type" || x.kind === "projection"
-            ? getNamespaceString((getTypeForNode(x.node) as any).namespace)
-            : (x.value as any).namespace;
+          x.symbolSource.kind == "type" || x.symbolSource.kind === "projection"
+            ? getNamespaceString((getTypeForNode(x.symbolSource.node) as any).namespace)
+            : (x.symbolSource.value as any).namespace;
         return `${namespace}.${node.sv}`;
       })
       .join(", ");
@@ -1087,7 +1088,7 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    function addCompletions(table: SymbolTable | undefined) {
+    function addCompletions(table: SymbolTable<Sym> | undefined) {
       if (!table) {
         return;
       }
@@ -1101,13 +1102,19 @@ export function createChecker(program: Program): Checker {
         if (!completions.has(key)) {
           // TODO? should complete propose different options and use fqn?
 
-          if (sym.flags & SymbolFlags.using && sym.flags & SymbolFlags.usingDuplicates) {
+          if (sym.kind === "using" && sym.duplicate) {
             const duplicates = table.duplicates.get(sym)!;
             for (const duplicate of duplicates) {
+              if (duplicate.kind !== "using") {
+                continue;
+              }
               const namespace =
-                duplicate.kind === "type" || duplicate.kind === "projection"
-                  ? getNamespaceString((getTypeForNode(duplicate.node) as any).namespace)
-                  : (duplicate.value as any).namespace;
+                duplicate.symbolSource.kind === "type" ||
+                duplicate.symbolSource.kind === "projection"
+                  ? getNamespaceString(
+                      (getTypeForNode(duplicate.symbolSource.node) as any).namespace
+                    )
+                  : (duplicate.symbolSource.value as any).namespace;
               const fqn = `${namespace}.${key}`;
               completions.set(fqn, { sym: duplicate });
             }
@@ -1174,7 +1181,7 @@ export function createChecker(program: Program): Checker {
 
       // check using types
       binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-      if (binding) return binding.flags & SymbolFlags.usingDuplicates ? undefined : binding;
+      if (binding) return binding.kind === "using" && binding.duplicate ? undefined : binding;
     }
 
     program.reportDiagnostic(
@@ -1186,7 +1193,7 @@ export function createChecker(program: Program): Checker {
   function resolveTypeReference(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     resolveDecorator = false
-  ): Sym | undefined {
+  ): DecoratorSymbol | TypeSymbol | ProjectionSymbol | FunctionSymbol | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
       // The parse error is the root cause and will already have been logged.
@@ -1252,7 +1259,8 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.Identifier) {
-      return resolveIdentifier(node, resolveDecorator);
+      const sym = resolveIdentifier(node, resolveDecorator);
+      return sym?.kind === "using" ? sym.symbolSource : sym;
     }
 
     compilerAssert(false, "Unknown type reference kind", node);
@@ -1307,20 +1315,31 @@ export function createChecker(program: Program): Checker {
       // we're not instantiating this model and we've already checked it
       return links.declaredType;
     }
-
-    const isBase = checkModelIs(node.is);
-
     const decorators: DecoratorApplication[] = [];
+
+    const type: ModelType = createType({
+      kind: "Model",
+      name: node.id.sv,
+      node: node,
+      properties: new Map<string, ModelTypeProperty>(),
+      namespace: getParentNamespaceType(node),
+      decorators,
+    });
+
+    if (!instantiatingThisTemplate) {
+      links.declaredType = type;
+    }
+    const isBase = checkModelIs(node, node.is);
+
     if (isBase) {
       // copy decorators
       decorators.push(...isBase.decorators);
     }
     decorators.push(...checkDecorators(node));
 
-    const properties = new Map<string, ModelTypeProperty>();
     if (isBase) {
       for (const prop of isBase.properties.values()) {
-        properties.set(
+        type.properties.set(
           prop.name,
           finishType({
             ...prop,
@@ -1329,27 +1348,14 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    let baseModels;
     if (isBase) {
-      baseModels = isBase.baseModel;
+      type.baseModel = isBase.baseModel;
     } else if (node.extends) {
-      baseModels = checkClassHeritage(node.extends);
+      type.baseModel = checkClassHeritage(node, node.extends);
     }
-
-    const type: ModelType = createType({
-      kind: "Model",
-      name: node.id.sv,
-      node: node,
-      properties,
-      baseModel: baseModels,
-      namespace: getParentNamespaceType(node),
-      decorators,
-    });
 
     // Hold on to the model type that's being defined so that it
     // can be referenced
-    pendingModelTypes.set(getNodeSymId(node), type);
-
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
       links.instantiations = new TypeInstantiationMap();
@@ -1361,14 +1367,11 @@ export function createChecker(program: Program): Checker {
     );
 
     // Evaluate the properties after
-    checkModelProperties(node, properties, inheritedPropNames);
+    checkModelProperties(node, type.properties, inheritedPropNames);
 
     if (shouldCreateTypeForTemplate(node)) {
       finishType(type);
     }
-
-    // The model is fully created now
-    pendingModelTypes.delete(getNodeSymId(node));
 
     return type;
   }
@@ -1448,8 +1451,27 @@ export function createChecker(program: Program): Checker {
     properties.set(newProp.name, newProp);
   }
 
-  function checkClassHeritage(heritageRef: TypeReferenceNode): ModelType | undefined {
-    const heritageType = getTypeForNode(heritageRef);
+  function checkClassHeritage(
+    model: ModelStatementNode,
+    heritageRef: TypeReferenceNode
+  ): ModelType | undefined {
+    const modelSymId = getNodeSymId(model);
+    pendingResolutions.add(modelSymId);
+
+    const target = resolveTypeReference(heritageRef) as TypeSymbol;
+    if (target === undefined) {
+      return undefined;
+    }
+    if (pendingResolutions.has(getNodeSymId(target.node as any))) {
+      reportDiagnostic(program, {
+        code: "circular-base-type",
+        format: { typeName: (target.node as any).id.sv },
+        target: target,
+      });
+      return undefined;
+    }
+    const heritageType = checkTypeReferenceSymbol(target, heritageRef.arguments);
+    pendingResolutions.delete(modelSymId);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
       return undefined;
@@ -1463,9 +1485,27 @@ export function createChecker(program: Program): Checker {
     return heritageType;
   }
 
-  function checkModelIs(isExpr: TypeReferenceNode | undefined): ModelType | undefined {
+  function checkModelIs(
+    model: ModelStatementNode,
+    isExpr: TypeReferenceNode | undefined
+  ): ModelType | undefined {
     if (!isExpr) return undefined;
-    const isType = getTypeForNode(isExpr);
+    const modelSymId = getNodeSymId(model);
+    pendingResolutions.add(modelSymId);
+    const target = resolveTypeReference(isExpr) as TypeSymbol;
+    if (target === undefined) {
+      return undefined;
+    }
+    if (pendingResolutions.has(getNodeSymId(target.node as any))) {
+      reportDiagnostic(program, {
+        code: "circular-base-type",
+        format: { typeName: (target.node as any).id.sv },
+        target: target,
+      });
+      return undefined;
+    }
+    const isType = checkTypeReferenceSymbol(target, isExpr.arguments);
+    pendingResolutions.delete(modelSymId);
 
     if (isType.kind !== "Model") {
       program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
@@ -1540,6 +1580,8 @@ export function createChecker(program: Program): Checker {
         return checkDefaultForModelType(defaultType, type);
       case "Array":
         return checkDefaultForArrayType(defaultType, type);
+      case "Union":
+        return checkDefaultForUnionType(defaultType, type);
       default:
         program.reportDiagnostic(
           createDiagnostic({
@@ -1597,6 +1639,33 @@ export function createChecker(program: Program): Checker {
         })
       );
     }
+    return defaultType;
+  }
+
+  function checkDefaultForUnionType(defaultType: Type, type: UnionType): Type {
+    for (const option of type.options) {
+      if (option.kind === defaultType.kind) {
+        switch (defaultType.kind) {
+          case "String":
+            if (defaultType.value === (option as StringLiteralType).value) {
+              return defaultType;
+            }
+          case "Number":
+            if (defaultType.value === (option as NumericLiteralType).value) {
+              return defaultType;
+            }
+        }
+      }
+    }
+
+    // Didn't find any compatible options
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "unassignable",
+        format: { value: getTypeName(defaultType), targetType: getTypeName(type) },
+        target: defaultType,
+      })
+    );
     return defaultType;
   }
 
@@ -1689,11 +1758,23 @@ export function createChecker(program: Program): Checker {
       return links.declaredType;
     }
 
+    const aliasSymId = getNodeSymId(node);
+    if (pendingResolutions.has(aliasSymId)) {
+      reportDiagnostic(program, {
+        code: "circular-alias-type",
+        format: { typeName: node.id.sv },
+        target: node,
+      });
+      return errorType;
+    }
+
+    pendingResolutions.add(aliasSymId);
     const type = getTypeForNode(node.value);
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
       links.instantiations = new TypeInstantiationMap();
     }
+    pendingResolutions.delete(aliasSymId);
 
     return type;
   }
@@ -1993,7 +2074,7 @@ export function createChecker(program: Program): Checker {
     return createLiteralType(node.value, node);
   }
 
-  function mergeSymbolTable(source: SymbolTable, target: SymbolTable) {
+  function mergeSymbolTable(source: SymbolTable<Sym>, target: SymbolTable<Sym>) {
     for (const [sym, duplicates] of source.duplicates) {
       const targetSet = target.duplicates.get(sym);
       if (targetSet === undefined) {
@@ -2020,7 +2101,6 @@ export function createChecker(program: Program): Checker {
             node: sourceBinding.node,
             name: sourceBinding.name,
             id: sourceBinding.id,
-            flags: sourceBinding.flags,
           };
           target.set(key, existingBinding);
           mergedSymbols.set(sourceBinding, existingBinding);
@@ -2040,9 +2120,9 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function getMergedSymbol(sym: Sym | undefined): Sym | undefined {
+  function getMergedSymbol<T extends Sym>(sym: T | undefined): T | undefined {
     if (!sym) return sym;
-    return mergedSymbols.get(sym) || sym;
+    return mergedSymbols.get(sym) || (sym as any);
   }
 
   function getMergedNamespace(node: NamespaceStatementNode): NamespaceStatementNode {

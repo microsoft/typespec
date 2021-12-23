@@ -16,28 +16,28 @@ model Person {
 
 @withVisibility("read")
 model Readable<T> {
-  ... T;
+  ...T;
 }
 
 @withVisibility("write")
 model Writable<T> {
-  ... T;
+  ...T;
 }
 
 model ReadablePerson {
-  ... Readable<Person>;
+  ...Readable<Person>;
 }
 
 model WritablePerson {
-  ... Writable<Person>;
+  ...Writable<Person>;
 }
 
 model OptionalPerson {
-  ... OptionalProperties<Person>;
+  ...OptionalProperties<Person>;
 }
 
 model WriteableOptionalPerson {
-  ... OptionalProperties<WritablePerson>;
+  ...OptionalProperties<WritablePerson>;
 }
 
 @route("/hello")
