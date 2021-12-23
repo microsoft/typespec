@@ -227,6 +227,24 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentVersion = undefined;
   }
   async function emitOpenAPI() {
+    const service = getServiceNamespace(program);
+    if (!service) {
+      throw new Error("Service namespace not found");
+    }
+    const versions = getVersions(program, service);
+    if (versions.length === 0) {
+      await emitOpenAPIForVersion(service, undefined);
+    } else {
+      for (const version of versions) {
+        await emitOpenAPIForVersion(service, version);
+      }
+    }
+  }
+
+  async function emitOpenAPIForVersion(
+    service: NamespaceType,
+    version: string | number | undefined
+  ) {
     try {
       const routes = getRoutes(program);
       if (routes.length === 0) {
@@ -1023,10 +1041,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getSchemaForModel(model: ModelType) {
-    const projections = model.projectionsByName("typescript");
-    for (const proj of projections) {
-      model = program.checker!.project(model, proj.to!) as ModelType;
-    }
     let modelSchema: any = {
       type: "object",
       properties: {},

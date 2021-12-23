@@ -74,6 +74,16 @@ export interface ProjectionType extends BaseType {
   nodeByType: Map<Type, ProjectionStatementNode>;
 }
 
+export interface ProjectionApplication {
+  projection: ProjectionType;
+  arguments: Type[];
+}
+
+export interface Projector {
+  projections: ProjectionApplication[];
+  cache: Map<Type, Type>;
+}
+
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
   name: string;
