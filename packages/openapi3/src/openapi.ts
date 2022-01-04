@@ -3,6 +3,7 @@ import {
   checkIfServiceNamespace,
   EnumMemberType,
   EnumType,
+  findChildModels,
   getAllTags,
   getDoc,
   getFormat,
@@ -10,6 +11,7 @@ import {
   getMaxValue,
   getMinLength,
   getMinValue,
+  getProperty,
   getServiceHost,
   getServiceNamespaceString,
   getServiceTitle,
@@ -27,8 +29,9 @@ import {
   Program,
   Type,
   UnionType,
+  UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getAllRoutes, http, OperationDetails } from "@cadl-lang/rest";
+import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
@@ -45,11 +48,27 @@ export async function $onBuild(p: Program) {
 
 const operationIdsKey = Symbol();
 export function $operationId(program: Program, entity: Type, opId: string) {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "operationId", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
   program.stateMap(operationIdsKey).set(entity, opId);
 }
 
 const pageableOperationsKey = Symbol();
 export function $pageable(program: Program, entity: Type, nextLinkName: string = "nextLink") {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "pageable", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
   program.stateMap(pageableOperationsKey).set(entity, nextLinkName);
 }
 
@@ -74,6 +93,23 @@ export function $useRef(program: Program, entity: Type, refUrl: string): void {
 
 function getRef(program: Program, entity: Type): string | undefined {
   return program.stateMap(refTargetsKey).get(entity);
+}
+
+const oneOfKey = Symbol();
+export function $oneOf(program: Program, entity: Type) {
+  if (entity.kind !== "Union") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "oneOf", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(oneOfKey).set(entity, true);
+}
+
+function getOneOf(program: Program, entity: Type): boolean {
+  return program.stateMap(oneOfKey).get(entity);
 }
 
 // NOTE: These functions aren't meant to be used directly as decorators but as a
@@ -237,7 +273,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function emitOperation(operation: OperationDetails): void {
-    const { path: fullPath, operation: op, groupName, container, verb, parameters } = operation;
+    const { path: fullPath, operation: op, groupName, verb, parameters } = operation;
 
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
@@ -268,7 +304,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
 
-    const currentTags = getAllTags(program, container, op);
+    const currentTags = getAllTags(program, op);
     if (currentTags) {
       currentEndpoint.tags = currentTags;
       for (const tag of currentTags) {
@@ -677,6 +713,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return getSchemaForModel(type);
     } else if (type.kind === "Union") {
       return getSchemaForUnion(type);
+    } else if (type.kind === "UnionVariant") {
+      return getSchemaForUnionVariant(type);
     } else if (type.kind === "Enum") {
       return getSchemaForEnum(type);
     }
@@ -744,29 +782,32 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "Model":
         type = "model";
         break;
+      case "UnionVariant":
+        type = "model";
+        break;
       default:
         reportUnsupportedUnion();
         return {};
     }
 
-    const values = [];
     if (type === "model") {
-      // Model unions can only ever be a model type with 'null'
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
         const schema: any = getSchemaForType(nonNullOptions[0]);
+        if (nullable) {
+          schema["nullable"] = true;
+        }
 
         return schema;
       } else {
-        reportDiagnostic(program, {
-          code: "union-unsupported",
-          messageId: "null",
-          target: union,
-        });
-        return {};
+        const variants = nonNullOptions.map((s) => getSchemaOrRef(s));
+        const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
+        const schema: any = { [ofType]: nonNullOptions.map((s) => getSchemaOrRef(s)) };
+        return schema;
       }
     }
 
+    const values = [];
     for (const option of nonNullOptions) {
       if (option.kind != kind) {
         reportUnsupportedUnion();
@@ -780,12 +821,20 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (values.length > 0) {
       schema.enum = values;
     }
+    if (nullable) {
+      schema["nullable"] = true;
+    }
 
     return schema;
 
     function reportUnsupportedUnion() {
       reportDiagnostic(program, { code: "union-unsupported", target: union });
     }
+  }
+
+  function getSchemaForUnionVariant(variant: UnionTypeVariant) {
+    const schema: any = getSchemaForType(variant.type);
+    return schema;
   }
 
   function getSchemaForArray(array: ArrayType) {
@@ -826,6 +875,28 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       properties: {},
       description: getDoc(program, model),
     };
+
+    const discriminator = getDiscriminator(program, model);
+    if (discriminator) {
+      const childModels = findChildModels(program, model);
+
+      if (!validateDiscriminator(discriminator, childModels)) {
+        // appropriate diagnostic is generated with the validate function
+        return {};
+      }
+
+      // getSchemaOrRef on all children to push them into components.schemas
+      for (let child of childModels) {
+        getSchemaOrRef(child);
+      }
+
+      const mapping = getDiscriminatorMapping(discriminator, childModels);
+      if (mapping) {
+        discriminator.mapping = mapping;
+      }
+
+      modelSchema.discriminator = discriminator;
+    }
 
     for (const [name, prop] of model.properties) {
       if (!isSchemaProperty(prop)) {
@@ -895,6 +966,103 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         emitObject[key] = extensions.get(key);
       }
     }
+  }
+
+  function validateDiscriminator(discriminator: any, childModels: ModelType[]): boolean {
+    const { propertyName } = discriminator;
+    var retVals = childModels.map((t) => {
+      const prop = getProperty(t, propertyName);
+      if (!prop) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
+        return false;
+      }
+      var retval = true;
+      if (!isOasString(prop.type)) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "type", target: prop });
+        retval = false;
+      }
+      if (prop.optional) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "required", target: prop });
+        retval = false;
+      }
+      return retval;
+    });
+    // Map of discriminator value to the model in which it is declared
+    const discriminatorValues = new Map<string, string>();
+    for (let t of childModels) {
+      // Get the discriminator property directly in the child model
+      const prop = t.properties?.get(propertyName);
+      // Issue warning diagnostic if discriminator property missing or is not a string literal
+      if (!prop || !isStringLiteral(prop.type)) {
+        reportDiagnostic(program, {
+          code: "discriminator-value",
+          messageId: "literal",
+          target: prop || t,
+        });
+      }
+      if (prop) {
+        const vals = getStringValues(prop.type);
+        vals.forEach((val) => {
+          if (discriminatorValues.has(val)) {
+            reportDiagnostic(program, {
+              code: "discriminator",
+              messageId: "duplicate",
+              format: { val: val, model1: discriminatorValues.get(val)!, model2: t.name },
+              target: prop,
+            });
+            retVals.push(false);
+          } else {
+            discriminatorValues.set(val, t.name);
+          }
+        });
+      }
+    }
+    return retVals.every((v) => v);
+  }
+
+  function getDiscriminatorMapping(discriminator: any, childModels: ModelType[]) {
+    const { propertyName } = discriminator;
+    const getMapping = (t: ModelType): any => {
+      const prop = t.properties?.get(propertyName);
+      if (prop) {
+        return getStringValues(prop.type).flatMap((v) => [{ [v]: getSchemaOrRef(t).$ref }]);
+      }
+      return undefined;
+    };
+    var mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
+    return mappings.length > 0 ? mappings.reduce((a, s) => ({ ...a, ...s }), {}) : undefined;
+  }
+
+  // An openapi "string" can be defined in several different ways in Cadl
+  function isOasString(type: Type): boolean {
+    if (type.kind === "String") {
+      // A string literal
+      return true;
+    } else if (type.kind === "Model" && type.name === "string") {
+      // string type
+      return true;
+    } else if (type.kind === "Union") {
+      // A union where all variants are an OasString
+      return type.options.every((o) => isOasString(o));
+    }
+    return false;
+  }
+
+  function isStringLiteral(type: Type): boolean {
+    return (
+      type.kind === "String" ||
+      (type.kind === "Union" && type.options.every((o) => o.kind === "String"))
+    );
+  }
+
+  // Return any string literal values for type
+  function getStringValues(type: Type): string[] {
+    if (type.kind === "String") {
+      return [type.value];
+    } else if (type.kind === "Union") {
+      return type.options.flatMap(getStringValues).filter((v) => v);
+    }
+    return [];
   }
 
   /**

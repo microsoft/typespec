@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi3",
-      "comment": "Update openapi3 emitter to consume new Cadl.Rest route generation API",
-      "type": "patch"
+      "comment": "Openapi3 support for discriminated unions",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/openapi3"

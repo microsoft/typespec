@@ -38,6 +38,27 @@ export function getConsumes(program: Program, entity: Type): string[] {
   return program.stateMap(consumesTypesKey).get(entity) || [];
 }
 
+const discriminatorKey = Symbol();
+export function $discriminator(program: Program, entity: Type, propertyName: string) {
+  if (entity.kind !== "Model") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "discriminator", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(discriminatorKey).set(entity, propertyName);
+}
+
+export function getDiscriminator(program: Program, entity: Type): any | undefined {
+  const propertyName = program.stateMap(discriminatorKey).get(entity);
+  if (propertyName) {
+    return { propertyName };
+  }
+  return undefined;
+}
+
 const segmentsKey = Symbol();
 export function $segment(program: Program, entity: Type, name: string) {
   if (entity.kind !== "ModelProperty") {

@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "add mkdirp to compilerHost",
-      "type": "minor"
+      "comment": "Init include compiler as dependency in generated package.json",
+      "type": "patch"
     }
   ],
   "packageName": "@cadl-lang/compiler"

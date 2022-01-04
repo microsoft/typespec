@@ -1606,21 +1606,21 @@ function checkForDescendantErrors(node: Node) {
   if (getFlag(node, NodeFlags.DescendantErrorsExamined)) {
     return;
   }
+  setFlag(node, NodeFlags.DescendantErrorsExamined);
 
   visitChildren(node, (child) => {
     if (getFlag(child, NodeFlags.ThisNodeHasError)) {
       setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
       return true;
     }
-
     checkForDescendantErrors(child);
 
     if (getFlag(child, NodeFlags.DescendantHasError)) {
       setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
       return true;
     }
-
     setFlag(child, NodeFlags.DescendantErrorsExamined);
+
     return false;
   });
 }

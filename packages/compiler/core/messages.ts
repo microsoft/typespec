@@ -274,6 +274,12 @@ const diagnostics = {
       default: paramMessage`Default must be a ${"type"}`,
     },
   },
+  unassignable: {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
+    },
+  },
   "mixes-interface": {
     severity: "error",
     messages: {
@@ -372,7 +378,7 @@ const diagnostics = {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
       model: paramMessage`The ${"decorator"} decorator can only be applied to models.`,
       operations: paramMessage`The ${"decorator"} decorator can only be applied to operations.`,
-      namespacesOrOperations: paramMessage`The ${"decorator"} decorator can only be applied to namespaces or operations.`,
+      namespacesInterfacesOrOperations: paramMessage`The ${"decorator"} decorator can only be applied to namespaces, interfaces, or operations.`,
       operationsOrModelProps: paramMessage`The ${"decorator"} decorator can only be applied to operations or model properties.`,
     },
   },
@@ -436,6 +442,18 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Could not add response type "${"responseTypeName"}" to operation ${"operationName"}"`,
+    },
+  },
+  "circular-base-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+    },
+  },
+  "circular-alias-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
     },
   },
 } as const;
