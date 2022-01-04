@@ -1907,6 +1907,7 @@ export function createChecker(program: Program): Checker {
       pos: 0,
       end: 0,
       name: nsId,
+      symbol: undefined as any,
       locals: createSymbolTable(),
       exports: createSymbolTable(),
     };

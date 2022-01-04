@@ -350,8 +350,8 @@ export type Statement =
   | InvalidStatementNode;
 
 export interface DeclarationNode {
-  symbol?: TypeSymbol; // tracks the symbol assigned to this declaration
-  namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
+  readonly symbol: TypeSymbol; // tracks the symbol assigned to this declaration
+  readonly namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
 }
 
 export type Declaration =
@@ -420,8 +420,8 @@ export interface MemberExpressionNode extends BaseNode {
 }
 
 export interface ContainerNode {
-  locals?: SymbolTable<LocalSymbol>;
-  exports?: SymbolTable<ExportSymbol>;
+  readonly locals?: SymbolTable<LocalSymbol>;
+  readonly exports?: SymbolTable<ExportSymbol>;
 }
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode, ContainerNode {
