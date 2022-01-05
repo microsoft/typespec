@@ -328,14 +328,26 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
+  function isBinaryPayload(body: Type, contentType: string) {
+    return (
+      body.kind === "Model" &&
+      body.name === "bytes" &&
+      contentType !== "application/json" &&
+      contentType !== "text/plain"
+    );
+  }
+
   function emitResponseObject(responseModel: Type, statusCode: string = "200") {
-    let contentType = "application/json";
+    let contentType: string = "application/json";
     if (
       responseModel.kind === "Model" &&
       !responseModel.baseModel &&
       responseModel.properties.size === 0
     ) {
-      const schema = mapCadlTypeToOpenAPI(responseModel);
+      const isBinary = isBinaryPayload(responseModel, contentType);
+      const schema = isBinary
+        ? { type: "string", format: "binary" }
+        : mapCadlTypeToOpenAPI(responseModel);
       if (schema) {
         currentEndpoint.responses[statusCode] = {
           description: getResponseDescription(responseModel, statusCode),
@@ -390,12 +402,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    contentEntry.schema = getSchemaOrRef(bodyModel);
+    const isBinary = isBinaryPayload(bodyModel, contentType);
+    contentEntry.schema = isBinary
+      ? { type: "string", format: "binary" }
+      : getSchemaOrRef(bodyModel);
 
     const response: any = {
       description: getResponseDescription(responseModel, statusCode),
       content: {
-        [contentType]: contentEntry,
+        [contentType ?? "application/json"]: contentEntry,
       },
     };
     if (Object.keys(headers).length > 0) {
@@ -553,7 +568,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     const bodyParam = bodyParams[0];
     const bodyType = bodyParam.type;
-    const bodySchema = getSchemaOrRef(bodyType);
 
     const requestBody: any = {
       description: getDoc(program, bodyParam),
@@ -567,6 +581,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       ? getContentTypes(contentTypeParam)
       : ["application/json"];
     for (let contentType of contentTypes) {
+      const isBinary = isBinaryPayload(bodyType, contentType);
+      const bodySchema = isBinary ? { type: "string", format: "binary" } : getSchemaOrRef(bodyType);
       const contentEntry: any = {
         schema: bodySchema,
       };
