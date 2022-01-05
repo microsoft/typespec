@@ -1,8 +1,6 @@
 import {
-  getListOperationType,
   getServiceNamespace,
   InterfaceType,
-  isListOperation,
   ModelTypeProperty,
   NamespaceType,
   OperationType,
@@ -12,8 +10,7 @@ import {
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 import { getOperationVerb, getPathParamName, hasBody, HttpVerb, isPathParam } from "./http.js";
-import { getResourceTypeKey } from "./resource.js";
-import { getAction, getResourceOperation, getSegment } from "./rest.js";
+import { getResourceOperation, getSegment } from "./rest.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
 
@@ -97,13 +94,9 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
   // Don't add the segment prefix if it is meant to be excluded
   // (empty string means exclude the segment)
   const segment = getSegment(program, target);
-  if (segment !== "") {
+  if (segment && segment !== "") {
     pathFragments.push(`/${segment}`);
   }
-}
-
-function lowerCaseFirstChar(str: string): string {
-  return str[0].toLocaleLowerCase() + str.substring(1);
 }
 
 function generatePathFromParameters(
@@ -128,27 +121,8 @@ function generatePathFromParameters(
     parameters.push(param);
   }
 
-  // If the operation is marked as a list op, add the collection segment
-  if (isListOperation(program, operation)) {
-    const resourceType = getListOperationType(program, operation);
-    if (resourceType) {
-      const resourceKey = getResourceTypeKey(program, resourceType);
-      addSegmentFragment(program, resourceKey.keyProperty, pathFragments);
-    }
-  } else {
-    // If it's a create operation, add the collection segment
-    const resourceOperation = getResourceOperation(program, operation);
-    if (resourceOperation && resourceOperation.operation === "create") {
-      const resourceKey = getResourceTypeKey(program, resourceOperation.resourceType);
-      addSegmentFragment(program, resourceKey.keyProperty, pathFragments);
-    } else {
-      // Append the action name if necessary
-      const action = getAction(program, operation);
-      if (action) {
-        pathFragments.push(`/${lowerCaseFirstChar(action!)}`);
-      }
-    }
-  }
+  // Add the operation's own segment if present
+  addSegmentFragment(program, operation, pathFragments);
 }
 
 function getPathForOperation(
