@@ -62,6 +62,20 @@ export async function createTestHost(): Promise<TestHost> {
       virtualFs.set(path, content);
     },
 
+    async readDir(path: string) {
+      return [...virtualFs.keys()]
+        .filter((x) => x.startsWith(`${path}/`))
+        .map((x) => x.replace(`${path}/`, ""));
+    },
+
+    async removeDir(path: string) {
+      for (const key of virtualFs.keys()) {
+        if (key.startsWith(`${path}/`)) {
+          virtualFs.delete(key);
+        }
+      }
+    },
+
     getLibDirs() {
       return [resolve("/.cadl/lib"), resolve("/.cadl/test-lib")];
     },
