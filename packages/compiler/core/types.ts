@@ -736,11 +736,6 @@ export interface CompilerHost {
   // get a promise for the ESM module shape of a JS module
   getJsImport(path: string): Promise<any>;
 
-  // If path is already absolute, normalize it, otherwise resolve an
-  // absolute path to the given path based on current working directory and
-  // normalize it.
-  resolveAbsolutePath(path: string): string;
-
   // get info about a path
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
 

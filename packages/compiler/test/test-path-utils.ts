@@ -1,10 +1,11 @@
-import { deepStrictEqual, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
   getAnyExtensionFromPath,
   getBaseFileName,
   getDirectoryPath,
   getPathComponents,
   getRootLength,
+  isUrl,
   joinPaths,
   normalizeSlashes,
   reducePathComponents,
@@ -68,6 +69,30 @@ describe("compiler: path utils", () => {
     strictEqual(getRootLength("file://server/c%3A/d"), 14);
     strictEqual(getRootLength("http://server"), 13);
     strictEqual(getRootLength("http://server/path"), 14);
+  });
+
+  it("isUrl", () => {
+    // NOT url
+    ok(!isUrl("a"));
+    ok(!isUrl("/"));
+    ok(!isUrl("c:"));
+    ok(!isUrl("c:d"));
+    ok(!isUrl("c:/"));
+    ok(!isUrl("c:\\"));
+    ok(!isUrl("//server"));
+    ok(!isUrl("//server/share"));
+    ok(!isUrl("\\\\server"));
+    ok(!isUrl("\\\\server\\share"));
+
+    // Is Url
+    ok(isUrl("file:///path"));
+    ok(isUrl("file:///c:"));
+    ok(isUrl("file:///c:d"));
+    ok(isUrl("file:///c:/path"));
+    ok(isUrl("file://server"));
+    ok(isUrl("file://server/path"));
+    ok(isUrl("http://server"));
+    ok(isUrl("http://server/path"));
   });
 
   it("getDirectoryPath", () => {

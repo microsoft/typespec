@@ -18,6 +18,32 @@ const relativePathSegmentRegExp = /(?:\/\/)|(?:^|\/)\.\.?(?:$|\/)/;
 export function isAnyDirectorySeparator(charCode: number): boolean {
   return charCode === CharacterCodes.slash || charCode === CharacterCodes.backslash;
 }
+
+/**
+ * Determines whether a path starts with a URL scheme (e.g. starts with `http://`, `ftp://`, `file://`, etc.).
+ */
+export function isUrl(path: string) {
+  return getEncodedRootLength(path) < 0;
+}
+
+/*
+ * Determines whether a path starts with an absolute path component (i.e. `/`, `c:/`, `file://`, etc.).
+ *
+ * ```ts
+ * // POSIX
+ * isPathAbsolute("/path/to/file.ext") === true
+ * // DOS
+ * isPathAbsolute("c:/path/to/file.ext") === true
+ * // URL
+ * isPathAbsolute("file:///path/to/file.ext") === true
+ * // Non-absolute
+ * isPathAbsolute("path/to/file.ext") === false
+ * isPathAbsolute("./path/to/file.ext") === false
+ * ```
+ */
+export function isPathAbsolute(path: string): boolean {
+  return getEncodedRootLength(path) !== 0;
+}
 //#endregion
 
 //#region Path Parsing

@@ -1,4 +1,3 @@
-import { dirname, extname, isAbsolute, join, resolve } from "path";
 import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
@@ -8,6 +7,12 @@ import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
+import {
+  getAnyExtensionFromPath,
+  getDirectoryPath,
+  isPathAbsolute,
+  resolvePath,
+} from "./path-utils.js";
 import {
   CadlScriptNode,
   CompilerHost,
@@ -136,12 +141,15 @@ export async function createProgram(
   }
 
   async function loadDirectory(dir: string, diagnosticTarget?: DiagnosticTarget) {
-    const pkgJsonPath = resolve(dir, "package.json");
+    const pkgJsonPath = resolvePath(dir, "package.json");
     let [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
       diagnosticTarget,
     });
-    const mainFile = resolve(dir, typeof pkg?.cadlMain === "string" ? pkg.cadlMain : "main.cadl");
+    const mainFile = resolvePath(
+      dir,
+      typeof pkg?.cadlMain === "string" ? pkg.cadlMain : "main.cadl"
+    );
     await loadCadlFile(mainFile, diagnosticTarget);
   }
 
@@ -237,12 +245,12 @@ export async function createProgram(
     for (const stmt of file.statements) {
       if (stmt.kind !== SyntaxKind.ImportStatement) break;
       const path = stmt.path.value;
-      const basedir = dirname(file.file.path);
+      const basedir = getDirectoryPath(file.file.path);
 
       let target: string;
       if (path.startsWith("./") || path.startsWith("../")) {
-        target = resolve(basedir, path);
-      } else if (isAbsolute(path)) {
+        target = resolvePath(basedir, path);
+      } else if (isPathAbsolute(path)) {
         target = path;
       } else {
         try {
@@ -260,7 +268,7 @@ export async function createProgram(
         }
       }
 
-      const ext = extname(target);
+      const ext = getAnyExtensionFromPath(target);
 
       if (ext === "") {
         await loadDirectory(target, stmt);
@@ -357,7 +365,7 @@ export async function createProgram(
   }
 
   async function loadMain(mainFile: string, options: CompilerOptions) {
-    const mainPath = host.resolveAbsolutePath(mainFile);
+    const mainPath = resolvePath(mainFile);
     const mainStat = await doIO(host.stat, mainPath, program.reportDiagnostic);
     if (!mainStat) {
       return;
@@ -384,7 +392,7 @@ export async function createProgram(
     mainPath: string,
     mainPathIsDirectory: boolean
   ): Promise<boolean> {
-    const basedir = mainPathIsDirectory ? mainPath : dirname(mainPath);
+    const basedir = mainPathIsDirectory ? mainPath : getDirectoryPath(mainPath);
     let actual: string;
     try {
       actual = await resolveModuleSpecifier("@cadl-lang/compiler", basedir, false);
@@ -396,11 +404,13 @@ export async function createProgram(
     }
 
     // NOTE: realpath here ensures consistent path normalization with resolveModuleSpecifier below.
-    const expected = await host.realpath(join(fileURLToPath(import.meta.url), "../index.js"));
+    const expected = await host.realpath(
+      resolvePath(fileURLToPath(import.meta.url), "../index.js")
+    );
     if (actual !== expected) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server
-      const betterCadlServerPath = resolve(actual, "../../../../../.bin/cadl-server");
+      const betterCadlServerPath = resolvePath(actual, "../../../../../.bin/cadl-server");
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",

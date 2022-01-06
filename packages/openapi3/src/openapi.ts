@@ -27,19 +27,19 @@ import {
   NamespaceType,
   OperationType,
   Program,
+  resolvePath,
   Type,
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
 import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
-import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
 const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody } = http;
 
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
-    outputFile: p.compilerOptions.swaggerOutputFile || path.resolve("./openapi.json"),
+    outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
   };
 
   const emitter = createOAPIEmitter(p, options);
@@ -257,7 +257,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       if (!program.compilerOptions.noEmit && !program.hasError()) {
         // Write out the OpenAPI document to the output path
         await program.host.writeFile(
-          path.resolve(options.outputFile),
+          resolvePath(options.outputFile),
           prettierOutput(JSON.stringify(root, null, 2))
         );
       }

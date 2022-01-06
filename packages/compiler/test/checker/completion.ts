@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { resolve } from "path";
 import { getNodeAtPosition } from "../../core/parser.js";
 import { SyntaxKind } from "../../core/types.js";
 import { createTestHost } from "../test-host.js";
@@ -132,7 +133,7 @@ describe("compiler: completion", () => {
     testHost.addCadlFile("test.cadl", source);
     await testHost.compileAndDiagnose("test.cadl");
 
-    const path = testHost.program.host.resolveAbsolutePath("test.cadl");
+    const path = resolve("/", "test.cadl");
     const script = testHost.program.sourceFiles.get(path);
     ok(script, "file added above not found in program.");
     const node = getNodeAtPosition(script, pos);
