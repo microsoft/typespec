@@ -3,6 +3,7 @@ import { mkdtemp, readdir, rmdir } from "fs/promises";
 import mkdirp from "mkdirp";
 import watch from "node-watch";
 import os from "os";
+import { resolve } from "path";
 import url from "url";
 import yargs from "yargs";
 import { loadCadlConfigInDir } from "../config/index.js";
@@ -199,7 +200,9 @@ function compileInput(
         console.clear();
       }
 
-      currentCompilePromise = compile(path, NodeHost, compilerOptions).then(onCompileFinished);
+      currentCompilePromise = compile(resolve(path), NodeHost, compilerOptions).then(
+        onCompileFinished
+      );
     } else {
       compileRequested = true;
     }

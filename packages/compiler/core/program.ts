@@ -1,16 +1,17 @@
-import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile, getSourceLocation } from "./diagnostics.js";
 import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
+import { resolveModule } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
 import {
   getAnyExtensionFromPath,
   getDirectoryPath,
   isPathAbsolute,
+  joinPaths,
   resolvePath,
 } from "./path-utils.js";
 import {
@@ -105,7 +106,10 @@ export async function createProgram(
   // Load additional imports prior to compilation
   if (options.additionalImports) {
     const importScript = options.additionalImports.map((i) => `import "${i}";`).join("\n");
-    const sourceFile = createSourceFile(importScript, `__additional_imports`);
+    const sourceFile = createSourceFile(
+      importScript,
+      joinPaths(getDirectoryPath(mainFile), `__additional_imports`)
+    );
     await loadCadlScript(sourceFile);
   }
 
@@ -288,79 +292,19 @@ export async function createProgram(
    */
   function resolveModuleSpecifier(
     specifier: string,
-    basedir: string,
+    baseDir: string,
     useCadlMain = true
   ): Promise<string> {
-    return new Promise((resolveP, rejectP) => {
-      resolveModule(
-        specifier,
-        {
-          // default node semantics are preserveSymlinks: false
-          // this ensures that we resolve our monorepo referecnes to an actual location
-          // on disk.
-          preserveSymlinks: false,
-          basedir,
-          readFile(path, cb) {
-            host
-              .readFile(path)
-              .then((c) => cb(null, c.text))
-              .catch((e) => cb(e));
-          },
-          isDirectory(path, cb) {
-            host
-              .stat(path)
-              .then((s) => cb(null, s.isDirectory()))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, false);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          isFile(path, cb) {
-            host
-              .stat(path)
-              .then((s) => cb(null, s.isFile()))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, false);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          realpath(path, cb) {
-            host
-              .realpath(path)
-              .then((p) => cb(null, p))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, path);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          packageFilter(pkg) {
-            if (useCadlMain) {
-              // this lets us follow node resolve semantics more-or-less exactly
-              // but using cadlMain instead of main.
-              pkg.main = pkg.cadlMain;
-            }
-            return pkg;
-          },
-        },
-        (err, resolved) => {
-          if (err) {
-            rejectP(err);
-          } else if (!resolved) {
-            rejectP(new Error("BUG: Module resolution succeeded but didn't return a value."));
-          } else {
-            resolveP(resolved);
-          }
+    return resolveModule(host, specifier, {
+      baseDir,
+      resolveMain(pkg) {
+        if (useCadlMain) {
+          // this lets us follow node resolve semantics more-or-less exactly
+          // but using cadlMain instead of main.
+          return pkg.cadlMain;
         }
-      );
+        return pkg.main;
+      },
     });
   }
 
@@ -407,6 +351,7 @@ export async function createProgram(
     const expected = await host.realpath(
       resolvePath(fileURLToPath(import.meta.url), "../index.js")
     );
+
     if (actual !== expected) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server

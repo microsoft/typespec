@@ -1,5 +1,4 @@
 import { readdir, readFile } from "fs/promises";
-import { resolve } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import {
   createSourceFile,
@@ -39,7 +38,7 @@ class TestHostError extends Error {
 }
 
 function resolveVFsPath(path: string) {
-  return resolve("/", path);
+  return resolvePath("/", path);
 }
 
 export async function createTestHost(): Promise<TestHost> {
@@ -150,8 +149,8 @@ export async function createTestHost(): Promise<TestHost> {
     const dir = resolvePath(fileURLToPath(import.meta.url), relDir);
     const entries = await readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
-      const realPath = resolve(dir, entry.name);
-      const virtualPath = resolve(virtualDir, entry.name);
+      const realPath = resolvePath(dir, entry.name);
+      const virtualPath = resolvePath(virtualDir, entry.name);
       if (entry.isFile()) {
         switch (getAnyExtensionFromPath(entry.name)) {
           case ".cadl":

@@ -81,6 +81,8 @@ export async function doIO<T>(
         if (options?.allowFileNotFound) {
           return undefined;
         }
+        console.trace("Will load path", path);
+
         diagnostic = createDiagnostic({ code: "file-not-found", target, format: { path } });
         break;
       default:
