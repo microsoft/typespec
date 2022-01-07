@@ -486,6 +486,11 @@ export function $list(program: Program, target: Type, listedType?: Type) {
     return;
   }
 
+  if (listedType && listedType.kind == "TemplateParameter") {
+    // Silently return because this is probably being used in a templated interface
+    return;
+  }
+
   if (listedType && listedType.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
