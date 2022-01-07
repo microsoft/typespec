@@ -164,4 +164,4 @@ export function $parentResource(program: Program, entity: Type, parentType: Type
   program.stateMap(parentResourceTypesKey).set(entity, parentType);
 }
 
-setDecoratorNamespace("Cadl.Rest.Resource", $parentResource, $copyResourceKeyParameters, $key);
+setDecoratorNamespace("Cadl.Rest", $parentResource, $copyResourceKeyParameters, $key);
