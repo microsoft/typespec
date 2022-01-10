@@ -259,7 +259,7 @@ export async function createProgram(
       } else {
         try {
           // attempt to resolve a node module with this name
-          target = await resolveModuleSpecifier(path, basedir);
+          target = await resolveCadlLibrary(path, basedir);
         } catch (e: any) {
           if (e.code === "MODULE_NOT_FOUND") {
             program.reportDiagnostic(
@@ -290,20 +290,13 @@ export async function createProgram(
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
    * that module, e.g. "/cadl/node_modules/myLib/main.cadl".
    */
-  function resolveModuleSpecifier(
-    specifier: string,
-    baseDir: string,
-    useCadlMain = true
-  ): Promise<string> {
+  function resolveCadlLibrary(specifier: string, baseDir: string): Promise<string> {
     return resolveModule(host, specifier, {
       baseDir,
       resolveMain(pkg) {
-        if (useCadlMain) {
-          // this lets us follow node resolve semantics more-or-less exactly
-          // but using cadlMain instead of main.
-          return pkg.cadlMain;
-        }
-        return pkg.main;
+        // this lets us follow node resolve semantics more-or-less exactly
+        // but using cadlMain instead of main.
+        return pkg.cadlMain ?? pkg.main;
       },
     });
   }
@@ -336,10 +329,10 @@ export async function createProgram(
     mainPath: string,
     mainPathIsDirectory: boolean
   ): Promise<boolean> {
-    const basedir = mainPathIsDirectory ? mainPath : getDirectoryPath(mainPath);
+    const baseDir = mainPathIsDirectory ? mainPath : getDirectoryPath(mainPath);
     let actual: string;
     try {
-      actual = await resolveModuleSpecifier("@cadl-lang/compiler", basedir, false);
+      actual = await resolveModule(host, "@cadl-lang/compiler", { baseDir });
     } catch (err: any) {
       if (err.code === "MODULE_NOT_FOUND") {
         return true; // no local cadl, ok to use any compiler
@@ -347,11 +340,11 @@ export async function createProgram(
       throw err;
     }
 
-    // NOTE: realpath here ensures consistent path normalization with resolveModuleSpecifier below.
     const expected = await host.realpath(
       resolvePath(fileURLToPath(import.meta.url), "../index.js")
     );
 
+    console.log("Expected", { expected, actual });
     if (actual !== expected) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server
@@ -359,7 +352,7 @@ export async function createProgram(
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir, betterCadlServerPath },
+          format: { basedir: baseDir, betterCadlServerPath },
           target: NoTarget,
         })
       );

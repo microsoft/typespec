@@ -12,13 +12,12 @@ import { NodeHost } from "../core/util.js";
 export async function runScript(relativePath: string): Promise<void> {
   let packageRoot;
   try {
-    const resolved = await resolveModule(NodeHost, relativePath, {
+    const resolved = await resolveModule(NodeHost, "@cadl-lang/compiler", {
       baseDir: process.cwd(),
     });
     packageRoot = path.resolve(resolved, "../../..");
-  } catch (err) {
-    let packageRoot: string;
-    if ((err as any).code === "MODULE_NOT_FOUND") {
+  } catch (err: any) {
+    if (err.code === "MODULE_NOT_FOUND") {
       // Resolution from cwd failed: use current package.
       packageRoot = path.resolve(url.fileURLToPath(import.meta.url), "../../..");
     } else {
@@ -32,7 +31,7 @@ export async function runScript(relativePath: string): Promise<void> {
     import(scriptUrl);
   } else {
     throw new Error(
-      "Couldn't resolve Cadl package root. This is unexpected. Please file an issue."
+      "Couldn't resolve Cadl compiler root. This is unexpected. Please file an issue at https://github.com/Microsoft/cadl."
     );
   }
 }
