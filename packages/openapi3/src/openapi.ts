@@ -35,7 +35,7 @@ import {
 import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
 import { reportDiagnostic } from "./lib.js";
 
-const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody } = http;
+const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isStatusCode } = http;
 
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
@@ -321,7 +321,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function emitResponses(responseType: Type) {
     if (responseType.kind === "Union") {
       for (const [i, option] of responseType.options.entries()) {
-        emitResponseObject(option, i === 0 ? "200" : "default");
+        emitResponseObject(option);
       }
     } else {
       emitResponseObject(responseType);
@@ -337,8 +337,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     );
   }
 
-  function emitResponseObject(responseModel: Type, statusCode: string = "200") {
-    let contentType: string = "application/json";
+  function emitResponseObject(responseModel: Type) {
+    let statusCode = undefined;
+    let contentType = "application/json";
     if (
       responseModel.kind === "Model" &&
       !responseModel.baseModel &&
@@ -349,8 +350,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         ? { type: "string", format: "binary" }
         : mapCadlTypeToOpenAPI(responseModel);
       if (schema) {
-        currentEndpoint.responses[statusCode] = {
-          description: getResponseDescription(responseModel, statusCode),
+        currentEndpoint.responses["200"] = {
+          description: getResponseDescription(responseModel, "200"),
           content: {
             [contentType]: {
               schema: schema,
@@ -358,7 +359,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           },
         };
       } else {
-        currentEndpoint.responses[204] = {
+        currentEndpoint.responses["204"] = {
           description: "No content",
         };
       }
@@ -380,15 +381,21 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
           bodyModel = prop.type;
         }
+        if (isStatusCode(program, prop)) {
+          if (statusCode) {
+            reportDiagnostic(program, { code: "duplicate-status-code", target: responseModel });
+            continue;
+          }
+          if (prop.type.kind === "Number") {
+            statusCode = String(prop.type.value);
+          } else if (prop.type.kind === "String") {
+            statusCode = prop.type.value;
+          }
+        }
         const type = prop.type;
         const headerName = getHeaderFieldName(program, prop);
         switch (headerName) {
           case undefined:
-            break;
-          case "status-code":
-            if (type.kind === "Number") {
-              statusCode = String(type.value);
-            }
             break;
           case "content-type":
             if (type.kind === "String") {
@@ -406,6 +413,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     contentEntry.schema = isBinary
       ? { type: "string", format: "binary" }
       : getSchemaOrRef(bodyModel);
+
+    // If no status code was defined in the response model, use 200.
+    statusCode ??= "200";
 
     const response: any = {
       description: getResponseDescription(responseModel, statusCode),
@@ -1081,7 +1091,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const headerInfo = getHeaderFieldName(program, property);
     const queryInfo = getQueryParamName(program, property);
     const pathInfo = getPathParamName(program, property);
-    return !(headerInfo || queryInfo || pathInfo);
+    const statusCodeinfo = isStatusCode(program, property);
+    return !(headerInfo || queryInfo || pathInfo || statusCodeinfo);
   }
 
   function getTypeNameForSchemaProperties(type: Type) {

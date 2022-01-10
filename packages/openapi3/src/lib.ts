@@ -34,6 +34,12 @@ const libDef = {
         default: "Duplicate @body declarations on response type",
       },
     },
+    "duplicate-status-code": {
+      severity: "error",
+      messages: {
+        default: "Duplicate @statusCode declarations on response type",
+      },
+    },
     "duplicate-body-types": {
       severity: "error",
       messages: {

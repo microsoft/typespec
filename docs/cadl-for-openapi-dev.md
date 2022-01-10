@@ -179,7 +179,7 @@ The responses object maps a HTTP response code to the expected response.
 [v2-responses]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#responsesObject
 [v3-responses]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#responsesObject
 
-In Cadl, operation responses are defined by the return types of the `op`. The status code for a response can be specified as an `@header` property in the return type called `statusCode`. The Cadl.Http package also defines several standard response types:
+In Cadl, operation responses are defined by the return types of the `op`. The status code for a response can be specified as a property in the return type with the `@statusCode` decorator (the property name is ignored). The Cadl.Http package also defines several standard response types:
 
 | OpenAPI response | Cadl construct         | Notes                                |
 | ---------------- | ---------------------- | ------------------------------------ |
@@ -193,8 +193,7 @@ In Cadl, operation responses are defined by the return types of the `op`. The st
 | `404`            | `NotFoundResponse`     |                                      |
 | `409`            | `ConflictResponse`     |                                      |
 
-If the first return type does not contain a `statusCode` header, it is assumed to be the `200` response.
-Any return type after the first that does not contain a `statusCode` header is assumed to be the `default` response.
+If a return type does not contain a `statusCode`, it is assumed to be the `200` response.
 
 ### Response Object
 

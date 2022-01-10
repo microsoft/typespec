@@ -78,8 +78,8 @@ interface ResourceUpdate<TResource, TError> {
 @doc("Resource deleted successfully.")
 model ResourceDeletedResponse {
   @doc("The status code.")
-  @header
-  statusCode: 200;
+  @statusCode
+  _: 200;
 }
 
 interface ResourceDelete<TResource, TError> {

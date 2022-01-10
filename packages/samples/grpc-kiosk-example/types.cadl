@@ -31,6 +31,7 @@ model Empty {}
 
 @doc("An unexpected error response.")
 model RpcStatus {
+  @statusCode _: "default";
   code?: int32;
   message?: string;
   details?: ProtobufAny[];
