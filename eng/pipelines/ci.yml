@@ -30,9 +30,6 @@ jobs:
       - script: node common/scripts/install-run-rush.js test-official
         displayName: Test
 
-      - script: node common/scripts/install-run-rush.js e2e
-        displayName: Test
-
       - script: |
           set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
           node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
