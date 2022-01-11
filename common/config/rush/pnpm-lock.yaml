@@ -2906,7 +2906,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vs'
     resolution:
-      integrity: sha512-nH9sd2RHKXtO/8HPImqzGvkPKaKfPHpi7ZMsu2pmNLyw0hNe2AMznSzLDnwzWjVoMMHrhGN58yWSznn/+DWiBg==
+      integrity: sha512-GUTScqRUtl6lVwaHWO1vskyTpDmqqY9ljuW45kodQXlFWbiex15KdFgURIiXYSpTV4EghyD1xSxWzkM8RQRciA==
       tarball: file:projects/cadl-vs.tgz
     version: 0.0.0
   file:projects/cadl-vscode.tgz:
@@ -2925,7 +2925,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vscode'
     resolution:
-      integrity: sha512-8A/WjJ/MnaGsQLWwbobQ95MxRNRul9dhCKdFplY8N4SwSV8FrRwrAKHF3LD2xlZcYA3yYRwdCKytrI5IjwtonQ==
+      integrity: sha512-fQb5dEJzxOH3PZpU1aJemOovoHDPSnZyfaTBQAuaXcAB/53Z9QIeikIqDELc34owbNbrcXxGFv+M63bbA0uv3A==
       tarball: file:projects/cadl-vscode.tgz
     version: 0.0.0
   file:projects/compiler.tgz:
@@ -2974,7 +2974,7 @@ packages:
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-QTXaLTrPNz6Iu38aBBQT79/vYyhZlViiXRarelwSgnm2DOUL39jsfDPirBcun3GwqNJm1ADmmvGhNeFRKp3yKw==
+      integrity: sha512-J2GVtY7i0bqYlu6zD3ZS1HeKVQmjNZDKftDVaNw7Nc5j4wYuY4LVTHlqmY43X4LreBCeLI0AXJJwWmhUT2b32g==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
@@ -2989,7 +2989,7 @@ packages:
     dev: false
     name: '@rush-temp/prettier-plugin-cadl'
     resolution:
-      integrity: sha512-KX8rMCUZOwKkNtfkC77JxEUOxVuTgL56IAY9Gr5xl7cRO5DfSaOvYGYYI6Nzd+LhTXzp5eh9dAJMMf07H6bYfA==
+      integrity: sha512-np50XuH21IWMazMzTDO3S0oNwduErH1urhYUPQfPalynCx3aH5lVQW66pWk9z9qH9JFVT3RTma6Ch1v9fvDECQ==
       tarball: file:projects/prettier-plugin-cadl.tgz
     version: 0.0.0
   file:projects/rest.tgz:
@@ -3001,7 +3001,7 @@ packages:
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-827/v4x7sgVx7FKaY4g6kwO1VuvanDIxnxwKD4GG3QtsfTWais0tNS2fOold4I5Y0f7rDduqaH5bCRX38xeTRQ==
+      integrity: sha512-A1rXu6X1Qs3IFebpnmOc3L6yh42V69kth7nvOTxMc7zJWCTWpFUkpjv9oUQBv8rkVBibGlLTdtNGAIEwnfO0WQ==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -3012,7 +3012,7 @@ packages:
     dev: false
     name: '@rush-temp/samples'
     resolution:
-      integrity: sha512-NrVyUOPfoBMtkc4nkyaQ8ADZdEYNgsmcOJVqKS2dHcrGPgTkUKVoCrqinJQofe98VDSuzqkXcCcvjhf8RCC+GQ==
+      integrity: sha512-P4HUSIB8rwE76JAA+DV2o0kKI5TKM/p73dYFAR7YG74AZT26py+3KYfBLPfjtqFdYYjbjydt9A0WP8yYwlrFsQ==
       tarball: file:projects/samples.tgz
     version: 0.0.0
   file:projects/spec.tgz:

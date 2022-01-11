@@ -354,6 +354,53 @@ describe("openapi3: definitions", () => {
     deepStrictEqual(res.schemas.PetType.enum, ["Dog", "Cat"]);
   });
 
+  it("defines nullable properties", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: string | null;
+      };
+      `
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          nullable: true,
+          "x-cadl-name": "Cadl.string | Cadl.null",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  it("defines enums with a nullable variant", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        type: "cat" | "dog" | null;
+      };
+    `
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        type: {
+          type: "string",
+          enum: ["cat", "dog"],
+          nullable: true,
+          "x-cadl-name": "cat | dog | Cadl.null",
+        },
+      },
+      required: ["type"],
+    });
+  });
+
   it("throws diagnostics for empty enum definitions", async () => {
     let testHost = await createOpenAPITestHost();
     testHost.addCadlFile(
@@ -714,6 +761,112 @@ describe("openapi3: responses", () => {
       res.paths["/"].get.responses["200"].content["application/json"].schema.type,
       "string"
     );
+  });
+
+  describe("binary responses", () => {
+    it("bytes responses should default to application/json with byte format", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @get op read(): bytes;
+      }
+      `
+      );
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["application/json"].schema.type, "string");
+      strictEqual(response.content["application/json"].schema.format, "byte");
+    });
+
+    it("@body body: bytes responses default to application/json with bytes format", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @get op read(): {@body body: bytes};
+      }
+      `
+      );
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["application/json"].schema.type, "string");
+      strictEqual(response.content["application/json"].schema.format, "byte");
+    });
+
+    it("@header contentType text/plain should keep format to byte", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @get op read(): {@header contentType: "text/plain", @body body: bytes};
+      }
+      `
+      );
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["text/plain"].schema.type, "string");
+      strictEqual(response.content["text/plain"].schema.format, "byte");
+    });
+
+    it("@header contentType not json or text should set format to binary", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @get op read(): {@header contentType: "image/png", @body body: bytes};
+      }
+      `
+      );
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["image/png"].schema.type, "string");
+      strictEqual(response.content["image/png"].schema.format, "binary");
+    });
+  });
+});
+
+describe("openapi3: request", () => {
+  describe("binary request", () => {
+    it("bytes request should default to application/json byte", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @post op read(@body body: bytes): {};
+      }
+      `
+      );
+
+      const requestBody = res.paths["/"].post.requestBody;
+      ok(requestBody);
+      strictEqual(requestBody.content["application/json"].schema.type, "string");
+      strictEqual(requestBody.content["application/json"].schema.format, "byte");
+    });
+
+    it("bytes request should respect @header contentType and use binary format when not json or text", async () => {
+      const res = await openApiFor(
+        `
+      @route("/")
+      namespace root {
+        @post op read(@header contentType: "image/png", @body body: bytes): {};
+      }
+      `
+      );
+
+      const requestBody = res.paths["/"].post.requestBody;
+      ok(requestBody);
+      strictEqual(requestBody.content["image/png"].schema.type, "string");
+      strictEqual(requestBody.content["image/png"].schema.format, "binary");
+    });
   });
 });
 

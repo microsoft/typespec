@@ -2,6 +2,18 @@
   "name": "cadl-vs",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "cadl-vs_v0.5.0",
+      "date": "Thu, 16 Dec 2021 08:02:20 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Fix** Issues with resolving `cadl-server` path + added support for passing `cadl.cadl-server.path` setting via `.vs/VSWorkspaceSettings.json` file"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.3",
       "tag": "cadl-vs_v0.4.3",
       "date": "Wed, 01 Dec 2021 22:56:11 GMT",

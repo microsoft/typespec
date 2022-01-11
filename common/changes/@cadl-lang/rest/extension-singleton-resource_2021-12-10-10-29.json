@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/rest",
-      "comment": "Add Cadl.Http.PlainData<T>",
-      "type": "minor"
+      "comment": "Add interfaces for modelling extension and singleton resources",
+      "type": "patch"
     }
   ],
   "packageName": "@cadl-lang/rest"

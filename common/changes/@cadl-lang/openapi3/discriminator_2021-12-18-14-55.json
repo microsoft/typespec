@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi3",
-      "comment": "Generate anyOf or oneOf schemas for Cadl unions in openapi3",
+      "comment": "Openapi3 support for discriminated unions",
       "type": "minor"
     }
   ],

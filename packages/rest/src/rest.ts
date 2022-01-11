@@ -7,6 +7,7 @@ import {
   Type,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
+import { getResourceTypeKey } from "./resource.js";
 
 const producesTypesKey = Symbol();
 
@@ -38,9 +39,30 @@ export function getConsumes(program: Program, entity: Type): string[] {
   return program.stateMap(consumesTypesKey).get(entity) || [];
 }
 
+const discriminatorKey = Symbol();
+export function $discriminator(program: Program, entity: Type, propertyName: string) {
+  if (entity.kind !== "Model") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "discriminator", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(discriminatorKey).set(entity, propertyName);
+}
+
+export function getDiscriminator(program: Program, entity: Type): any | undefined {
+  const propertyName = program.stateMap(discriminatorKey).get(entity);
+  if (propertyName) {
+    return { propertyName };
+  }
+  return undefined;
+}
+
 const segmentsKey = Symbol();
 export function $segment(program: Program, entity: Type, name: string) {
-  if (entity.kind !== "ModelProperty") {
+  if (entity.kind !== "Model" && entity.kind !== "ModelProperty" && entity.kind !== "Operation") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
       format: { decorator: "segment", entityKind: entity.kind },
@@ -52,16 +74,36 @@ export function $segment(program: Program, entity: Type, name: string) {
   program.stateMap(segmentsKey).set(entity, name);
 }
 
-export function getSegment(program: Program, entity: Type): string | undefined {
-  if (entity.kind !== "ModelProperty") {
+export function $segmentOf(program: Program, entity: Type, resourceType: Type) {
+  if (resourceType.kind === "TemplateParameter") {
+    // Skip it, this operation is in a templated interface
+    return;
+  } else if (resourceType.kind !== "Model") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
-      format: { decorator: "segment", entityKind: entity.kind },
+      format: { decorator: "segmentOf", entityKind: entity.kind },
       target: entity,
     });
     return;
   }
 
+  // Add path segment for resource type key (if it has one)
+  const resourceKey = getResourceTypeKey(program, resourceType);
+  if (resourceKey) {
+    const keySegment = getSegment(program, resourceKey.keyProperty);
+    if (keySegment) {
+      $segment(program, entity, keySegment);
+    }
+  } else {
+    // Does the model itself have a segment attached?
+    const modelSegment = getSegment(program, resourceType);
+    if (modelSegment) {
+      $segment(program, entity, modelSegment);
+    }
+  }
+}
+
+export function getSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentsKey).get(entity);
 }
 
@@ -116,6 +158,9 @@ export function $readsResource(program: Program, entity: Type, resourceType: Typ
 }
 
 export function $createsResource(program: Program, entity: Type, resourceType: Type) {
+  // Add path segment for resource type key
+  $segmentOf(program, entity, resourceType);
+
   setResourceOperation(program, entity, resourceType, "create");
 }
 
@@ -138,7 +183,14 @@ export function $listsResource(program: Program, entity: Type, resourceType: Typ
     $list(program, entity, resourceType);
   }
 
+  // Add path segment for resource type key
+  $segmentOf(program, entity, resourceType);
+
   setResourceOperation(program, entity, resourceType, "list");
+}
+
+function lowerCaseFirstChar(str: string): string {
+  return str[0].toLocaleLowerCase() + str.substring(1);
 }
 
 const actionsKey = Symbol();
@@ -152,7 +204,11 @@ export function $action(program: Program, entity: Type, name?: string) {
     return;
   }
 
-  program.stateMap(actionsKey).set(entity, name || entity.name);
+  // Generate the action name and add it as an operation path segment
+  const action = lowerCaseFirstChar(name || entity.name);
+  $segment(program, entity, action);
+
+  program.stateMap(actionsKey).set(entity, action);
 }
 
 export function getAction(program: Program, operation: OperationType): string | null | undefined {
@@ -164,6 +220,7 @@ setDecoratorNamespace(
   $produces,
   $consumes,
   $segment,
+  $segmentOf,
   $readsResource,
   $createsResource,
   $createsOrUpdatesResource,

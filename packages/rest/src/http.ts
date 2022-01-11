@@ -62,6 +62,23 @@ export function hasBody(program: Program, parameters: ModelTypeProperty[]): bool
   return parameters.find((p) => isBody(program, p)) !== undefined;
 }
 
+const statusCodeKey = Symbol();
+export function $statusCode(program: Program, entity: Type) {
+  if (entity.kind === "ModelProperty") {
+    program.stateSet(statusCodeKey).add(entity);
+  } else {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "statusCode", entityKind: entity.kind },
+      target: entity,
+    });
+  }
+}
+
+export function isStatusCode(program: Program, entity: Type) {
+  return program.stateSet(statusCodeKey).has(entity);
+}
+
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete";
 
 const operationVerbsKey = Symbol();
@@ -120,7 +137,8 @@ setDecoratorNamespace(
   $header,
   $query,
   $path,
-  $body
+  $body,
+  $statusCode
 );
 
 export function $plainData(program: Program, entity: Type) {
@@ -133,12 +151,13 @@ export function $plainData(program: Program, entity: Type) {
     return;
   }
 
-  const decoratorsToRemove = ["$header", "$body", "$query", "$path"];
-  const [headers, queries, paths, bodies] = [
+  const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
+  const [headers, bodies, queries, paths, statusCodes] = [
     program.stateMap(headerFieldsKey),
     program.stateSet(bodyFieldsKey),
     program.stateMap(queryFieldsKey),
     program.stateMap(pathFieldsKey),
+    program.stateMap(statusCodeKey),
   ];
 
   for (const property of entity.properties.values()) {
@@ -153,6 +172,7 @@ export function $plainData(program: Program, entity: Type) {
     bodies.delete(property);
     queries.delete(property);
     paths.delete(property);
+    statusCodes.delete(property);
   }
 }
 

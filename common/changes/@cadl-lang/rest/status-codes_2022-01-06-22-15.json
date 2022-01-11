@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/rest",
-      "comment": "camelCase operations",
-      "type": "patch"
+      "comment": "Add statusCode decorator for http status code",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/rest"

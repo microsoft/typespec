@@ -25,13 +25,14 @@ model Toy {
 
 @doc("Error")
 model Error {
+  @statusCode _: "default";
   code: int32;
   message: string;
 }
 
 @doc("Not modified")
 model NotModified<T> {
-  @header statusCode: 304;
+  @statusCode _: 304;
   @body body: T;
 }
 

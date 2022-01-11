@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi3",
-      "comment": "",
-      "type": "none"
+      "comment": "Update cadl depdendencies to peerDependencies",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/openapi3"
