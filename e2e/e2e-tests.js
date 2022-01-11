@@ -79,7 +79,7 @@ function testBasicCurrentTgz(packages) {
     },
     private: true,
   };
-  writeFileSync(join(basicCurrentDir, "pacakge.json"), JSON.stringify(packageJson, null, 2));
+  writeFileSync(join(basicCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
   console.log("Generatedpackage.json for basic-current");
 
   console.log("Installing basic-latest dependencies");
