@@ -59,7 +59,7 @@
       "safeForSimultaneousRushProcesses": true,
       "name": "e2e",
       "summary": "(CUSTOM) Runs the e2e tests",
-      "shellCommand": "node eng/scripts/e2e-tests.js"
+      "shellCommand": "node e2e/e2e-tests.js"
     }
   ],
   /**
