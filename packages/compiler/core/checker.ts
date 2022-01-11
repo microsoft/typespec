@@ -61,6 +61,7 @@ import {
   UnionVariantNode,
   UsingSymbol,
 } from "./types.js";
+import { isArray } from "./util.js";
 
 export interface Checker {
   getTypeForNode(node: Node): Type;
@@ -378,7 +379,7 @@ export function createChecker(program: Program): Checker {
 
   function checkTypeReferenceSymbol(
     sym: TypeSymbol | DecoratorSymbol,
-    nodeArgs: Expression[]
+    nodeArgs: readonly Expression[]
   ): Type {
     if (sym.kind === "decorator") {
       program.reportDiagnostic(
@@ -615,7 +616,7 @@ export function createChecker(program: Program): Checker {
       type = initializeTypeForNamespace(node);
     }
 
-    if (Array.isArray(node.statements)) {
+    if (isArray(node.statements)) {
       node.statements.forEach(getTypeForNode);
     } else if (node.statements) {
       const subNs = checkNamespace(node.statements);
@@ -1472,7 +1473,7 @@ export function createChecker(program: Program): Checker {
     return defaultType;
   }
 
-  function checkDecorators(node: { decorators: DecoratorExpressionNode[] }) {
+  function checkDecorators(node: { decorators: readonly DecoratorExpressionNode[] }) {
     const decorators: DecoratorApplication[] = [];
     for (const decNode of node.decorators) {
       const sym = resolveTypeReference(decNode.target, true);
@@ -1906,6 +1907,7 @@ export function createChecker(program: Program): Checker {
       pos: 0,
       end: 0,
       name: nsId,
+      symbol: undefined as any,
       locals: createSymbolTable(),
       exports: createSymbolTable(),
     };
