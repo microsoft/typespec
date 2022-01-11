@@ -44,7 +44,7 @@ function testBasicLatest() {
   const basicLatestDir = join(e2eTestDir, "basic-latest");
   const outputDir = join(basicLatestDir, "cadl-output");
   console.log("Clearing basic-latest output");
-  rmSync(outputDir, { recursive: true });
+  rmSync(outputDir, { recursive: true, force: true });
   console.log("Cleared basic-latest output");
 
   console.log("Installing basic-latest dependencies");
@@ -66,7 +66,7 @@ function testBasicCurrentTgz(packages) {
   const basicCurrentDir = join(e2eTestDir, "basic-current");
   const outputDir = join(basicCurrentDir, "cadl-output");
   console.log("Clearing basic-current");
-  rmSync(outputDir, { recursive: true });
+  rmSync(outputDir, { recursive: true, force: true });
   console.log("Cleared basic-current");
 
   console.log("Generating package.json for basic-current");
