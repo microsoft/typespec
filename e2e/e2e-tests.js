@@ -66,7 +66,7 @@ function testBasicCurrentTgz(packages) {
   const basicCurrentDir = join(e2eTestDir, "basic-current");
   const outputDir = join(basicCurrentDir, "cadl-output");
   console.log("Clearing basic-current");
-  rmSync(basicCurrentDir, { recursive: true });
+  rmSync(outputDir, { recursive: true });
   console.log("Cleared basic-current");
 
   console.log("Generating package.json for basic-current");
