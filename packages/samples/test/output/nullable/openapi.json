@@ -31,6 +31,26 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "num": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                },
+                "required": [
+                  "num"
+                ],
+                "nullable": true,
+                "x-cadl-name": "AnotherModel | Cadl.null"
+              }
+            }
+          }
         }
       }
     }

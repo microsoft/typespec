@@ -1,7 +1,7 @@
 import { createTestHost } from "@cadl-lang/compiler/dist/test/test-host.js";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
-import { HttpVerb, isPathParam } from "../src/http.js";
+import { HttpVerb } from "../src/http.js";
 import { getAllRoutes } from "../src/route.js";
 
 export { TestHost } from "@cadl-lang/compiler/dist/test/test-host.js";
@@ -63,8 +63,8 @@ export async function getRoutesFor(code: string): Promise<RouteDetails[]> {
     return {
       verb: r.verb,
       path: r.path,
-      params: r.parameters
-        .map((p) => (isPathParam(host.program, p) ? p.name : undefined))
+      params: r.parameters.parameters
+        .map(({ type, name }) => (type === "path" ? name : undefined))
         .filter((p) => p !== undefined) as string[],
     };
   });
