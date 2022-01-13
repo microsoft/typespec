@@ -7,9 +7,6 @@ projection op#v {
       return never;
     } else if removedOnOrBefore(self, version) {
       return never;
-    } else {
-      self.projectParameters(v, version);
-      self.projectReturnType(v, version);
     };
   }
   from(version) {
@@ -17,9 +14,6 @@ projection op#v {
       return never;
     } else if removedOnOrBefore(self, version) {
       return never;
-    } else {
-      self.projectParameters(v, version);
-      self.projectReturnType(v, version);
     };
   }
 }
@@ -39,8 +33,6 @@ projection interface#v {
           self.deleteOperation(operation.name);
         } else if renamedAfter(operation, version, self) {
           self.renameOperation(operation.name, getRenamedFromOldName(operation));
-        } else {
-          self.projectOperation(operation.name, v, version);
         };
       });
     };
@@ -58,8 +50,6 @@ projection interface#v {
           self.addOperation(operation.name, operation.parameters, operation.returnType);
         } else if renamedAfter(operation, version, self) {
           self.renameOperation(getRenamedFromOldName(operation), operation.name);
-        } else {
-          self.projectOperation(operation.name, v, version);
         };
       });
     };
@@ -81,8 +71,6 @@ projection union#v {
           self.deleteVariant(variant.name);
         } else if renamedAfter(variant, version, self) {
           self.renameVariant(variant.name, getRenamedFromOldName(variant));
-        } else {
-          variant.project(v, version);
         };
       });
     };
@@ -100,8 +88,6 @@ projection union#v {
           self.addVariant(variant.name, variant.type);
         } else if renamedAfter(variant, version, self) {
           self.renameVariant(getRenamedFromOldName(variant), variant.name);
-        } else {
-          variant.project(v, version);
         };
       });
     };
@@ -111,15 +97,12 @@ projection union#v {
 #suppress "projections-are-experimental"
 projection model#v {
   to(version) {
-    projectSelf("customVersion", version);
     if addedAfter(self, version) {
       return never;
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self.properties.forEach((p) => {
-        self.projectProperty(p.name, v, version);
-
         if addedAfter(p, version, self) {
           self.deleteProperty(p.name);
         };
@@ -139,15 +122,12 @@ projection model#v {
     };
   }
   from(version) {
-    projectSelf("customVersion", version);
     if addedAfter(self, version) {
       return never;
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self.projectionSource.properties.forEach((p) => {
-        self.projectProperty(p.name, v, version);
-
         if addedAfter(p, version, self) {
           self.addProperty(p.name, p.type);
         };
@@ -221,8 +201,6 @@ projection array#v {
       return never;
     } else if removedOnOrBefore(self, version) {
       return never;
-    } else {
-      self.projectElementType(v, version);
     };
   }
   from(version) {
@@ -230,8 +208,6 @@ projection array#v {
       return never;
     } else if removedOnOrBefore(self, version) {
       return never;
-    } else {
-      self.projectElementType(v, version);
     };
   }
 }

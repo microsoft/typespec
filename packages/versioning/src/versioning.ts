@@ -1,4 +1,10 @@
-import { NumericLiteralType, Program, StringLiteralType, Type } from "@cadl-lang/compiler";
+import {
+  NamespaceType,
+  NumericLiteralType,
+  Program,
+  StringLiteralType,
+  Type,
+} from "@cadl-lang/compiler";
 const addedOnKey = Symbol();
 const removedOnKey = Symbol();
 const versionsKey = Symbol();
@@ -175,4 +181,19 @@ export function versionCompare(
   if (v2Index === -1) return 0;
 
   return v1Index - v2Index;
+}
+
+interface VersionRecord {
+  ns: NamespaceType;
+  versions: (string | number)[];
+}
+
+export function getVersionedNamespaces(p: Program): VersionRecord[] {
+  const records: VersionRecord[] = [];
+  const versionsMap: Map<NamespaceType, (string | number)[]> = p.stateMap(versionsKey);
+  for (const [ns, versions] of versionsMap) {
+    records.push({ ns, versions });
+  }
+
+  return records;
 }

@@ -75,13 +75,19 @@ export interface ProjectionType extends BaseType {
 }
 
 export interface ProjectionApplication {
-  projection: ProjectionType;
-  arguments: Type[];
+  scope?: Type;
+  projectionName: string;
+  arguments: DecoratorArgument[];
+  direction?: "from" | "to";
 }
 
 export interface Projector {
   projections: ProjectionApplication[];
-  cache: Map<Type, Type>;
+  projectedTypes: Map<Type, Type>;
+  stateMaps: Map<Symbol, Map<any, any>>;
+  stateSets: Map<Symbol, Set<any>>;
+  projectType(type: Type): Type;
+  projectedStartNode?: Type;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -1088,8 +1094,9 @@ type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (
   ? I
   : never;
 
+type exitListener<T extends string | number | symbol> = T extends string ? `exit${T}` : T;
 type ListenerForType<T extends Type> = T extends Type
-  ? { [k in Uncapitalize<T["kind"]>]?: (context: T) => void }
+  ? { [k in Uncapitalize<T["kind"]> | exitListener<T["kind"]>]?: (context: T) => void }
   : never;
 
 type TypeListeners = UnionToIntersection<ListenerForType<Type>>;

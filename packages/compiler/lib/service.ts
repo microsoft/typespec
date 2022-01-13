@@ -23,9 +23,11 @@ function getServiceDetails(program: Program) {
 export function setServiceNamespace(program: Program, namespace: NamespaceType): void {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.namespace && serviceDetails.namespace !== namespace) {
+    /*
     program.reportDiagnostic(
       createDiagnostic({ code: "service-namespace-duplicate", target: namespace })
     );
+    */
   }
 
   serviceDetails.namespace = namespace;
@@ -39,6 +41,7 @@ export function checkIfServiceNamespace(program: Program, namespace: NamespaceTy
 export function $serviceTitle(program: Program, target: Type, title: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.title) {
+    /*
     program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
@@ -46,6 +49,7 @@ export function $serviceTitle(program: Program, target: Type, title: string) {
         target,
       })
     );
+    */
   }
 
   if (target.kind !== "Namespace") {
@@ -71,6 +75,7 @@ export function getServiceTitle(program: Program): string {
 export function $serviceHost(program: Program, target: Type, host: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.version) {
+    /*
     program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
@@ -78,6 +83,7 @@ export function $serviceHost(program: Program, target: Type, host: string) {
         target,
       })
     );
+    */
   }
 
   if (target.kind !== "Namespace") {
@@ -109,6 +115,7 @@ export function $serviceVersion(program: Program, target: Type, version: string)
   const serviceDetails = getServiceDetails(program);
   // TODO: This will need to change once we support multiple service versions
   if (serviceDetails.version) {
+    /*
     program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
@@ -116,6 +123,7 @@ export function $serviceVersion(program: Program, target: Type, version: string)
         target,
       })
     );
+    */
   }
 
   if (target.kind !== "Namespace") {

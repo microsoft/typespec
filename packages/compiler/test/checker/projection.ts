@@ -1,10 +1,11 @@
 import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
 import {
-  IntrinsicType,
+  DecoratorArgument,
   ModelType,
   NumericLiteralType,
   OperationType,
+  ProjectionApplication,
   StringLiteralType,
   Type,
   UnionType,
@@ -45,10 +46,11 @@ describe("cadl: projections", () => {
     );
 
     const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-    let result = testHost.program.checker!.project(Foo, Foo.projections[0].to!, [1]) as ModelType;
+
+    let result = getProjectedType(testHost, Foo, "v", 1);
     strictEqual(result.properties.size, 1);
 
-    let result2 = testHost.program.checker!.project(Foo, Foo.projections[0].to!, [2]) as ModelType;
+    let result2 = getProjectedType(testHost, Foo, "v", 2);
     strictEqual(result2.properties.size, 2);
   });
 
@@ -71,10 +73,43 @@ describe("cadl: projections", () => {
     );
 
     const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-    let result = testHost.program.checker!.project(Foo, Foo.projections[0].to!, [1]) as ModelType;
+    let result = getProjectedType(testHost, Foo, "addDocs");
     strictEqual(getDoc(testHost.program, result), "This is a model Foo");
     strictEqual(getDoc(testHost.program, result.properties.get("a")!), "Prop");
   });
+
+  it("projects decorated types before projecting", async () => {
+    let props;
+    testHost.addJsFile("test.js", {
+      $checkPropCount(_: Program, t: ModelType) {
+        props = t.properties.size;
+      },
+    });
+
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./test.js";
+      model Bar {
+        a: int32;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Bar#munge {
+        to {
+         self.deleteProperty("a");
+        }
+      }
+
+      @checkPropCount(Bar) model Foo { };
+    `
+    );
+
+    await testHost.compile("main.cadl");
+    testHost.program.enableProjections([{ projectionName: "munge", arguments: [] }]);
+    strictEqual(props, 0);
+  });
+
   describe("models", () => {
     it("works for versioning", async () => {
       const addedOnKey = Symbol();
@@ -135,8 +170,6 @@ describe("cadl: projections", () => {
                   self.deleteProperty(p.name);
                 } else if getRenamedFromVersion(p) > version {
                   self.renameProperty(p.name, getRenamedFromOldName(p));
-                } else {
-                  self.projectProperty(p.name, v, version);
                 };
               });
             };
@@ -148,14 +181,12 @@ describe("cadl: projections", () => {
       );
 
       const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-      const toVersion = Foo.projections[0].to!;
-
-      let result = testHost.program.checker!.project(Foo, toVersion, [1]) as ModelType;
+      let result = getProjectedType(testHost, Foo, [{ projectionName: "v", arguments: [1] }]);
       strictEqual(result.properties.size, 4);
       let resultNested = result.properties.get("e")!.type as ModelType;
       strictEqual(resultNested.properties.size, 1);
 
-      let result2 = testHost.program.checker!.project(Foo, toVersion, [2]) as ModelType;
+      let result2 = getProjectedType(testHost, Foo, [{ projectionName: "v", arguments: [2] }]);
       strictEqual(result2.properties.size, 4);
       let resultNested2 = result2.properties.get("e")!.type as ModelType;
       strictEqual(resultNested2.properties.size, 2);
@@ -176,13 +207,11 @@ describe("cadl: projections", () => {
           to {
             self.properties.forEach((p) => {
               self.renameProperty(p.name, p.name.toCamelCase());
-              p.setType(p.type#camelCase);
             });
           }
           from {
             self.properties.forEach((p) => {
               self.renameProperty(p.name, p.name.toSnakeCase());
-              p.setType(p.type#camelCase);
             });
           }
         }
@@ -190,12 +219,13 @@ describe("cadl: projections", () => {
       );
 
       const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-      let result = testHost.program.checker!.project(Foo, Foo.projections[0].to!, [1]) as ModelType;
+      let result = getProjectedType(testHost, Foo, "camelCase");
       const propOne = result.properties.get("propOne")!;
       ok(propOne, "has propOne");
       const nestedProp = (propOne.type as ModelType).properties.get("nestedProp")!;
       ok(nestedProp, "has nestedProp");
 
+      /*
       const backResult = testHost.program.checker!.project(result, Foo.projections[0].from!, [
         1,
       ]) as ModelType;
@@ -203,6 +233,7 @@ describe("cadl: projections", () => {
       ok(prop_one, "has prop_one");
       const nested_prop = (prop_one.type as ModelType).properties.get("nested_prop")!;
       ok(nested_prop, "has nested_prop");
+      */
     });
 
     it("can replace itself", async () => {
@@ -214,7 +245,7 @@ describe("cadl: projections", () => {
       }
       
       #suppress "projections-are-experimental"
-      projection model#deleted {
+      projection Foo#deleted {
         to {
           if 1 {
             return void;
@@ -227,9 +258,7 @@ describe("cadl: projections", () => {
       `
       );
       const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-      let result = testHost.program.checker!.project(Foo, Foo.projections[0].to!, [
-        1,
-      ]) as IntrinsicType;
+      let result = getProjectedType(testHost, Foo, "deleted", 1);
       strictEqual(result.kind, "Intrinsic");
       strictEqual(result.name, "void");
     });
@@ -251,9 +280,9 @@ describe("cadl: projections", () => {
 
     describe("renaming properties", () => {
       const testModel = `model Foo {
-      foo_prop: string;
-      bar_prop: string;
-    }`;
+        foo_prop: string;
+        bar_prop: string;
+      }`;
 
       it("can round trip", async () => {
         testHost.addCadlFile(
@@ -281,11 +310,14 @@ describe("cadl: projections", () => {
         );
 
         const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-        const toCase = Foo.projections[0].to!;
-        const fromCase = Foo.projections[0].from!;
-        const cased = testHost.program.checker!.project(Foo, toCase) as ModelType;
-        const uncased = testHost.program.checker!.project(cased, fromCase) as ModelType;
-
+        const projector1 = testHost.program.enableProjections([
+          { projectionName: "toCamelCase", arguments: [], direction: "to" },
+        ]);
+        const projector2 = testHost.program.enableProjections(
+          [{ projectionName: "toCamelCase", arguments: [], direction: "from" }],
+          projector1.projectedStartNode
+        );
+        let uncased = projector2.projectType(Foo) as ModelType;
         Foo.properties.forEach((prop) => {
           ok(uncased.properties.has(prop.name));
         });
@@ -379,7 +411,7 @@ describe("cadl: projections", () => {
       `
       );
       const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
-      return testHost.program.checker!.project(Foo, Foo.projections[0].to!) as ModelType;
+      return getProjectedType(testHost, Foo, "test");
     }
   });
 
@@ -690,3 +722,35 @@ describe("cadl: projections", () => {
     });
   });
 });
+
+function getProjectedType<T extends Type>(
+  host: TestHost,
+  type: T,
+  projectionName: string,
+  args?: DecoratorArgument | DecoratorArgument[]
+): T;
+function getProjectedType<T extends Type>(
+  host: TestHost,
+  type: T,
+  projections: ProjectionApplication[]
+): T;
+function getProjectedType<T extends Type>(
+  host: TestHost,
+  type: T,
+  projectionsOrName: string | ProjectionApplication[],
+  args?: DecoratorArgument | DecoratorArgument[]
+): T {
+  let papp: ProjectionApplication[];
+  if (typeof projectionsOrName === "string") {
+    papp = [
+      {
+        projectionName: projectionsOrName,
+        arguments: args ? (Array.isArray(args) ? args! : [args!]) : [],
+      },
+    ];
+  } else {
+    papp = projectionsOrName;
+  }
+  const projector = host.program.enableProjections(papp);
+  return projector.projectType(type) as T;
+}

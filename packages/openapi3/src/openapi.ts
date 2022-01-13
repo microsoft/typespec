@@ -30,6 +30,7 @@ import {
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
 import { getAllRoutes, http, OperationDetails } from "@cadl-lang/rest";
+import { getVersionedNamespaces } from "@cadl-lang/versioning";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
@@ -192,54 +193,86 @@ export interface OpenAPIEmitterOptions {
 }
 
 function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
-  const root: any = {
-    openapi: "3.0.0",
-    info: {
-      title: getServiceTitle(program),
-      version: getServiceVersion(program),
-    },
-    tags: [],
-    paths: {},
-    components: {
-      parameters: {},
-      requestBodies: {},
-      responses: {},
-      schemas: {},
-      examples: {},
-      securitySchemes: {},
-    },
-  };
-
-  const host = getServiceHost(program);
-  if (host) {
-    root.servers = [
-      {
-        url: "https://" + host,
-      },
-    ];
-  }
+  let root: any;
+  let host: string | undefined;
 
   // Get the service namespace string for use in name shortening
-  const serviceNamespace: string | undefined = getServiceNamespaceString(program);
-
-  let currentBasePath: string | undefined = "";
-  let currentPath: any = root.paths;
+  let serviceNamespace: string | undefined;
+  let currentBasePath: string | undefined;
+  let currentPath: any;
   let currentEndpoint: any;
 
   // Keep a list of all Types encountered that need schema definitions
-  const schemas = new Set<Type>();
+  let schemas = new Set<Type>();
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
   // this map.
-  const params = new Map<ModelTypeProperty, any>();
+  let params: Map<ModelTypeProperty, any>;
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
-  const tags = new Set<string>();
+  let tags: Set<string>;
 
   return { emitOpenAPI };
 
+  function initializeEmitter() {
+    root = {
+      openapi: "3.0.0",
+      info: {
+        title: getServiceTitle(program),
+        version: getServiceVersion(program),
+      },
+      tags: [],
+      paths: {},
+      components: {
+        parameters: {},
+        requestBodies: {},
+        responses: {},
+        schemas: {},
+        examples: {},
+        securitySchemes: {},
+      },
+    };
+    host = getServiceHost(program);
+    if (host) {
+      root.servers = [
+        {
+          url: "https://" + host,
+        },
+      ];
+    }
+    serviceNamespace = getServiceNamespaceString(program);
+    currentBasePath = "";
+    currentPath = root.paths;
+    currentEndpoint = undefined;
+    schemas = new Set();
+    params = new Map();
+    tags = new Set();
+  }
   async function emitOpenAPI() {
+    const versionedNamespaces = getVersionedNamespaces(program);
+    const versionNs = versionedNamespaces[0]; // TODO: Select the service namespace
+    console.log("starting openapi emit!");
+    if (versionNs) {
+      console.log("Got versioned namespace");
+      for (const version of versionNs.versions) {
+        // TODO: find versioned dependencies
+        const projections = [
+          { scope: versionedNamespaces[0].ns, projectionName: "v", arguments: [version] },
+        ];
+        console.log(">>>> PROJECT ENABLED <<<<<<", version);
+        program.enableProjections(projections);
+
+        await emitOpenAPIFromVersion(version);
+        break;
+      }
+    } else {
+      await emitOpenAPIFromVersion();
+    }
+  }
+
+  async function emitOpenAPIFromVersion(version?: string | number) {
+    initializeEmitter();
     try {
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();
@@ -254,8 +287,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
       if (!program.compilerOptions.noEmit && !program.hasError()) {
         // Write out the OpenAPI document to the output path
+
         await program.host.writeFile(
-          path.resolve(options.outputFile),
+          version
+            ? path.resolve(options.outputFile.replace(".json", `.${version}.json`))
+            : path.resolve(options.outputFile),
           prettierOutput(JSON.stringify(root, null, 2))
         );
       }
@@ -866,6 +902,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     for (const [name, prop] of model.properties) {
       if (!isSchemaProperty(prop)) {
+        if (model.name === "AnomalyAlertingConfiguration") {
+          console.log(name + " is not a chema prop");
+        }
         continue;
       }
 
@@ -944,6 +983,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const headerInfo = getHeaderFieldName(program, property);
     const queryInfo = getQueryParamName(program, property);
     const pathInfo = getPathParamName(program, property);
+
+    if (property.name === "anomalyAlertingConfigurationId") {
+      console.log(property);
+      console.log(headerInfo, queryInfo, pathInfo);
+    }
     return !(headerInfo || queryInfo || pathInfo);
   }
 

@@ -44,7 +44,6 @@ import {
   NumericLiteralType,
   OperationStatementNode,
   OperationType,
-  ProjectionApplication,
   ProjectionArithmeticExpressionNode,
   ProjectionBlockExpressionNode,
   ProjectionCallExpressionNode,
@@ -64,7 +63,6 @@ import {
   ProjectionSymbol,
   ProjectionType,
   ProjectionUnaryExpressionNode,
-  Projector,
   ReturnExpressionNode,
   ReturnRecord,
   StringLiteralNode,
@@ -124,6 +122,10 @@ export interface Checker {
   resolveCompletions(node: IdentifierNode): Map<string, CadlCompletionItem>;
 
   createType<T>(typeDef: T): T & TypePrototype;
+  createAndFinishType<U extends Type extends any ? Omit<Type, keyof TypePrototype> : never>(
+    typeDef: U
+  ): U & TypePrototype;
+  finishType<T extends Type>(typeDef: T): T;
   createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteralType;
   createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteralType;
@@ -301,8 +303,10 @@ export function createChecker(program: Program): Checker {
     errorType,
     voidType,
     createType,
+    createAndFinishType,
     createFunctionType,
     createLiteralType,
+    finishType,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -828,7 +832,7 @@ export function createChecker(program: Program): Checker {
     return intersection;
   }
 
-  function checkArrayExpression(node: ArrayExpressionNode) {
+  function checkArrayExpression(node: ArrayExpressionNode): ArrayType {
     return createAndFinishType({
       kind: "Array",
       node,
@@ -2185,9 +2189,11 @@ export function createChecker(program: Program): Checker {
       case "Model":
         clone = finishType({
           ...type,
-          properties: new Map(
-            Array.from(type.properties.entries()).map(([key, prop]) => [key, cloneType(prop)])
-          ),
+          properties: additionalProps.hasOwnProperty("properties")
+            ? undefined
+            : new Map(
+                Array.from(type.properties.entries()).map(([key, prop]) => [key, cloneType(prop)])
+              ),
           ...additionalProps,
         });
         break;
@@ -2201,7 +2207,6 @@ export function createChecker(program: Program): Checker {
             ])
           ),
           get options() {
-            // this cast confuses me.
             return Array.from(this.variants.values()).map((v: any) => v.type);
           },
           ...additionalProps,
@@ -2606,11 +2611,6 @@ export function createChecker(program: Program): Checker {
 
   function evalProjectionStatement(node: ProjectionNode, target: Type, args: Type[]): Type {
     const parentProjection = node.parent! as ProjectionStatementNode;
-    if (target.projections.indexOf(parentProjection) === -1) {
-      throw new ProjectionError(
-        `Can't apply projection ${parentProjection.id.sv} to type ${target.kind}`
-      );
-    }
     let topLevelProjection = false;
     if (!currentProjectionDirection) {
       topLevelProjection = true;
@@ -2639,10 +2639,8 @@ export function createChecker(program: Program): Checker {
 
       evalContext.locals.set(param.id.sv, typeVal);
     }
-    const clone = cloneType(target);
 
-    clone.projectionSource = target;
-    evalContext.locals.set("self", clone);
+    evalContext.locals.set("self", target);
     let lastVal: TypeOrReturnRecord = voidType;
     for (const item of node.body) {
       lastVal = evalProjectionNode(item);
@@ -2929,16 +2927,6 @@ export function createChecker(program: Program): Checker {
     args: (Type | boolean | string | number)[] = []
   ) {
     return evalProjectionStatement(projection, target, args.map(marshalProjectionReturn));
-  }
-
-  function createProjector(
-    projections: ProjectionApplication[],
-    scope: Program | NamespaceType = program
-  ) {
-    const projector: Projector = {
-      projections,
-      cache: new Map(),
-    };
   }
 
   function getProjectionInstructions(target: Type, projection: ProjectionNode, args: Type[] = []) {

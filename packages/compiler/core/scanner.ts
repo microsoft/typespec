@@ -220,7 +220,7 @@ const KeywordMap: ReadonlyMap<number, Token> = new Map(
 function keywordKey(keyword: string) {
   let key = 0;
   for (let i = 0; i < keyword.length; i++) {
-    key = (key << 5) | (keyword.charCodeAt(i) - CharCode.a);
+    key = key * 32 + (keyword.charCodeAt(i) - CharCode.a);
   }
   return key;
 }
@@ -893,7 +893,7 @@ export function createScanner(
     while (true) {
       position++;
       count++;
-      key = (key << 5) | (ch - CharCode.a);
+      key = key * 32 + (ch - CharCode.a);
 
       if (eof()) {
         break;

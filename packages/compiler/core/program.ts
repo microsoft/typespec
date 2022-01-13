@@ -8,6 +8,7 @@ import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
+import { createProjector } from "./projector.js";
 import {
   CadlScriptNode,
   CompilerHost,
@@ -20,6 +21,8 @@ import {
   Logger,
   Node,
   NoTarget,
+  ProjectionApplication,
+  Projector,
   SourceFile,
   Sym,
   SymbolTable,
@@ -49,6 +52,9 @@ export interface Program {
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable<Sym> | undefined): void;
+  enableProjections(projections: ProjectionApplication[], startNode?: Type): Projector;
+  disableProjections(): void;
+  currentProjector?: Projector;
 }
 
 export async function createProgram(
@@ -62,6 +68,7 @@ export async function createProgram(
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
+  let currentProjector: Projector | undefined;
   let error = false;
 
   const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
@@ -87,6 +94,14 @@ export async function createProgram(
     },
     onBuild(cb) {
       buildCbs.push(cb);
+    },
+    enableProjections,
+    disableProjections,
+    get currentProjector() {
+      return currentProjector;
+    },
+    set currentProjector(v) {
+      currentProjector = v;
     },
   };
 
@@ -419,23 +434,51 @@ export async function createProgram(
   }
 
   function stateMap(key: Symbol): Map<any, any> {
-    let m = stateMaps.get(key);
+    let m;
+    if (currentProjector) {
+      m = currentProjector.stateMaps.get(key);
+    } else {
+      m = stateMaps.get(key);
+    }
+
     if (!m) {
       m = new Map();
-      stateMaps.set(key, m);
+      if (currentProjector) {
+        currentProjector.stateMaps.set(key, m);
+      } else {
+        stateMaps.set(key, m);
+      }
     }
 
     return m;
   }
 
   function stateSet(key: Symbol): Set<any> {
-    let s = stateSets.get(key);
+    let s;
+    if (currentProjector) {
+      s = currentProjector.stateSets.get(key);
+    } else {
+      s = stateSets.get(key);
+    }
+
     if (!s) {
       s = new Set();
-      stateSets.set(key, s);
+      if (currentProjector) {
+        currentProjector.stateSets.set(key, s);
+      } else {
+        stateSets.set(key, s);
+      }
     }
 
     return s;
+  }
+
+  function enableProjections(projections: ProjectionApplication[], startNode?: Type) {
+    return createProjector(program, projections, stateMaps, stateSets, startNode);
+  }
+
+  function disableProjections() {
+    currentProjector = undefined;
   }
 
   function reportDiagnostic(diagnostic: Diagnostic): void {

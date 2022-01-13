@@ -1138,6 +1138,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     recoverFromKeyword = true
   ): IdentifierNode {
     if (recoverFromKeyword && isKeyword(token())) {
+      console.log(tokenValue());
+      console.log(token());
       error({ code: "reserved-identifier" });
     } else if (token() !== Token.Identifier) {
       // Error recovery: when we fail to parse an identifier or expression,

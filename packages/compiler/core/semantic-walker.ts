@@ -93,6 +93,7 @@ function navigateModelType(
   if (model.baseModel) {
     navigateModelType(model.baseModel, eventEmitter, visited);
   }
+  eventEmitter.emit("exitModel", model);
 }
 
 function navigateModelTypeProperty(
@@ -142,6 +143,7 @@ function navigateEnumType(
   if (checkVisited(visited, type)) {
     return;
   }
+  
   eventEmitter.emit("enum", type);
 }
 
