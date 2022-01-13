@@ -51,6 +51,16 @@ const libDefinition = {
         default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
       },
     },
+    "duplicate-body": {
+      severity: "error",
+      messages: {
+        default: "Operation has multiple @body parameters declared",
+        duplicateUnannotated:
+          "Operation has multiple unannotated parameters. There can only be one representing the body",
+        bodyAndUnannotated:
+          "Operation has a @body and an unannotated parameter. There can only be one representing the body",
+      },
+    },
   },
 } as const;
 
