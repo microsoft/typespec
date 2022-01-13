@@ -9,7 +9,7 @@ import { NodeHost } from "../../core/util.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-describe("cadl: config file loading", () => {
+describe("compiler: config file loading", () => {
   describe("file discovery", async () => {
     const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (folderName: string) => {

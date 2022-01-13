@@ -1,5 +1,7 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 model Person {
   @visibility("read") id: string;
   @visibility("write") secret: string;
@@ -14,31 +16,31 @@ model Person {
 
 @withVisibility("read")
 model Readable<T> {
-  ... T;
+  ...T;
 }
 
 @withVisibility("write")
 model Writable<T> {
-  ... T;
+  ...T;
 }
 
 model ReadablePerson {
-  ... Readable<Person>;
+  ...Readable<Person>;
 }
 
 model WritablePerson {
-  ... Writable<Person>;
+  ...Writable<Person>;
 }
 
 model OptionalPerson {
-  ... OptionalProperties<Person>;
+  ...OptionalProperties<Person>;
 }
 
 model WriteableOptionalPerson {
-  ... OptionalProperties<WritablePerson>;
+  ...OptionalProperties<WritablePerson>;
 }
 
-@resource("/hello")
+@route("/hello")
 namespace Hello {
   @get op read(@path id: string, @query fieldMask: string[]): ReadablePerson;
   @post op create(person: WritablePerson): ReadablePerson;

@@ -113,7 +113,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
   rest: {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
-    libraries: ["@cadl-lang/rest", "@cadl-lang/openapi"],
+    libraries: ["@cadl-lang/rest", "@cadl-lang/openapi3"],
   },
 };
 
@@ -197,7 +197,9 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
-  const dependencies: Record<string, string> = {};
+  const dependencies: Record<string, string> = {
+    "@cadl-lang/compiler": "latest",
+  };
 
   for (const library of config.libraries) {
     dependencies[library] = "latest";
@@ -206,6 +208,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   const packageJson = {
     name: config.name,
     dependencies,
+    private: true,
   };
 
   return host.writeFile(

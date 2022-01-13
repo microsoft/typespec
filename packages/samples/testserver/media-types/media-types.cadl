@@ -1,5 +1,7 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 @doc("Uri or local path to source data.")
 model SourcePath {
   @minLength(0)
@@ -14,13 +16,14 @@ model Input {
   input: SourcePath;
 }
 
-@resource("/mediatypes")
+@route("/mediatypes")
 namespace MediaTypes {
   @doc("Analyze body, that could be different media types.")
-  @post("analyze")
+  @route("analyze")
   @operationId("AnalyzeBody")
+  @post
   op analyzeBody(
-    ... Input,
+    ...Input,
     @header contentType:
       | "application/pdf"
       | "application/json"
@@ -29,10 +32,9 @@ namespace MediaTypes {
       | "image/tiff"
   ): OkResponse<string>;
 
-  @doc(
-    "Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter"
-  )
-  @post("contentTypeWithEncoding")
+  @doc("Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter")
+  @route("contentTypeWithEncoding")
   @operationId("contentTypeWithEncoding")
-  op contentTypeWithEncoding(... Input, @header contentType: "text/plain"): OkResponse<string>;
+  @post
+  op contentTypeWithEncoding(...Input, @header contentType: "text/plain"): OkResponse<string>;
 }

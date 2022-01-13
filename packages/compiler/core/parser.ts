@@ -1,4 +1,5 @@
 import { createSymbolTable } from "./binder.js";
+import { codePointBefore, isIdentifierContinue } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
@@ -8,6 +9,7 @@ import {
   isPunctuation,
   isStatementKeyword,
   isTrivia,
+  skipTrivia,
   Token,
   TokenDisplay,
 } from "./scanner.js";
@@ -16,6 +18,8 @@ import {
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
+  ContainerNode,
+  DeclarationNode,
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticReport,
@@ -38,7 +42,6 @@ import {
   Node,
   NumericLiteralNode,
   OperationStatementNode,
-  ReferenceExpression,
   SourceFile,
   Statement,
   StringLiteralNode,
@@ -46,10 +49,13 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
+  TypeReferenceNode,
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
+  Writable,
 } from "./types.js";
+import { isArray } from "./util.js";
 
 /**
  * Callback to parse each element in a delimited list
@@ -60,7 +66,9 @@ import {
  * @param decorators The decorators that were applied to the list element and
  *                   parsed before entering the callback.
  */
-type ParseListItem<T> = (pos: number, decorators: DecoratorExpressionNode[]) => T;
+type ParseListItem<K, T> = K extends UndecoratedListKind
+  ? () => T
+  : (pos: number, decorators: DecoratorExpressionNode[]) => T;
 
 type OpenToken = Token.OpenBrace | Token.OpenParen | Token.OpenBracket | Token.LessThan;
 type CloseToken = Token.CloseBrace | Token.CloseParen | Token.CloseBracket | Token.GreaterThan;
@@ -86,6 +94,10 @@ interface SurroundedListKind extends ListKind {
   readonly close: CloseToken;
 }
 
+interface UndecoratedListKind extends ListKind {
+  invalidDecoratorTarget: string;
+}
+
 /** @internal */
 export const enum NodeFlags {
   None = 0,
@@ -106,6 +118,11 @@ export const enum NodeFlags {
    * transitively) has a parse error.
    */
   DescendantHasError = 1 << 2,
+
+  /**
+   * Indicates that a node was created synthetically and therefore may not be parented.
+   */
+  Synthetic = 1 << 3,
 }
 
 /**
@@ -175,6 +192,7 @@ namespace ListKind {
     allowEmpty: false,
     open: Token.LessThan,
     close: Token.GreaterThan,
+    invalidDecoratorTarget: "template parameter",
   } as const;
 
   export const TemplateArguments = {
@@ -238,12 +256,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const stmts: Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
-    while (!scanner.eof()) {
+    while (token() !== Token.EndOfFile) {
       const pos = tokenPos();
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
-      let item: Statement;
+      let item: Writable<Statement>;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -318,7 +336,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const decorators = parseDecoratorList();
       const tok = token();
 
-      let item: Statement;
+      let item: Writable<Statement>;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -416,22 +434,23 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       parseExpected(Token.CloseBrace);
     }
 
-    let outerNs: NamespaceStatementNode = {
+    let outerNs: NamespaceStatementNode = createNode({
       kind: SyntaxKind.NamespaceStatement,
       decorators,
       name: nsSegments[0],
       statements,
+
       ...finishNode(pos),
-    };
+    });
 
     for (let i = 1; i < nsSegments.length; i++) {
-      outerNs = {
+      outerNs = createNode({
         kind: SyntaxKind.NamespaceStatement,
         decorators: [],
         name: nsSegments[i],
         statements: outerNs,
         ...finishNode(pos),
-      };
+      });
     }
 
     return outerNs;
@@ -448,7 +467,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       parseTemplateParameter
     );
 
-    let mixes: ReferenceExpression[] = [];
+    let mixes: TypeReferenceNode[] = [];
     if (token() === Token.Identifier) {
       if (tokenValue() !== "mixes") {
         error({ code: "token-expected", format: { token: "'mixes' or '{'" } });
@@ -461,7 +480,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const operations = parseList(ListKind.InterfaceMembers, parseInterfaceMember);
 
-    return {
+    return createNode({
       kind: SyntaxKind.InterfaceStatement,
       id,
       templateParameters,
@@ -469,7 +488,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       mixes,
       decorators,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseInterfaceMember(
@@ -481,14 +500,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.Colon);
 
     const returnType = parseExpression();
-    return {
+    return createNode({
       kind: SyntaxKind.OperationStatement,
       id,
       parameters,
       returnType,
       decorators,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseUnionStatement(
@@ -504,14 +523,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const options = parseList(ListKind.UnionVariants, parseUnionVariant);
 
-    return {
+    return createNode({
       kind: SyntaxKind.UnionStatement,
       id,
       templateParameters,
       decorators,
       options,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
@@ -556,14 +575,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const returnType = parseExpression();
     parseExpected(Token.Semicolon);
 
-    return {
+    return createNode({
       kind: SyntaxKind.OperationStatement,
       id,
       parameters,
       returnType,
       decorators,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseOperationParameters(): ModelExpressionNode {
@@ -590,11 +609,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
-    const optionalExtends: ReferenceExpression | undefined = parseOptionalModelExtends();
+    const optionalExtends: TypeReferenceNode | undefined = parseOptionalModelExtends();
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
     const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
 
-    return {
+    return createNode({
       kind: SyntaxKind.ModelStatement,
       id,
       extends: optionalExtends,
@@ -603,7 +622,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       decorators,
       properties,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseOptionalModelExtends() {
@@ -620,11 +639,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return;
   }
 
-  function parseTemplateParameter(
-    pos: number,
-    decorators: DecoratorExpressionNode[]
-  ): TemplateParameterDeclarationNode {
-    reportInvalidDecorators(decorators, "template parameter");
+  function parseTemplateParameter(): TemplateParameterDeclarationNode {
+    const pos = tokenPos();
     const id = parseIdentifier();
     return {
       kind: SyntaxKind.TemplateParameterDeclaration,
@@ -690,13 +706,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
     const members = parseList(ListKind.EnumMembers, parseEnumMember);
-    return {
+    return createNode({
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
       members,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
@@ -709,7 +725,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
       if (expr.kind === SyntaxKind.StringLiteral || expr.kind === SyntaxKind.NumericLiteral) {
         value = expr;
-      } else if (getFlag(expr, NodeFlags.ThisNodeHasError)) {
+      } else if (
+        expr.kind === SyntaxKind.TypeReference &&
+        getFlag(expr.target, NodeFlags.ThisNodeHasError)
+      ) {
         parseErrorInNextFinishedNode = true;
       } else {
         error({ code: "token-expected", messageId: "numericOrStringLiteral", target: expr });
@@ -736,13 +755,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.Equals);
     const value = parseExpression();
     parseExpected(Token.Semicolon);
-    return {
+    return createNode({
       kind: SyntaxKind.AliasStatement,
       id,
       templateParameters,
       value,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseExpression(): Expression {
@@ -810,9 +829,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return expr;
   }
 
-  function parseReferenceExpression(): ReferenceExpression {
+  function parseReferenceExpression(
+    message?: keyof CompilerDiagnostics["token-expected"]
+  ): TypeReferenceNode {
     const pos = tokenPos();
-    const target = parseIdentifierOrMemberExpression();
+    const target = parseIdentifierOrMemberExpression(message);
     const args = parseOptionalList(ListKind.TemplateArguments, parseExpression);
 
     return {
@@ -841,7 +862,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const pos = tokenPos();
     parseExpected(Token.At);
 
-    const target = parseIdentifierOrMemberExpression();
+    // Error recovery: false arg here means don't treat a keyword as an
+    // identifier. We want to parse `@ model Foo` as invalid decorator
+    // `@<missing identifier>` applied to `model Foo`, and not as `@model`
+    // applied to invalid statement `Foo`.
+    const target = parseIdentifierOrMemberExpression(undefined, false);
     const args = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
     return {
       kind: SyntaxKind.DecoratorExpression,
@@ -908,9 +933,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
   }
 
-  function parseIdentifierOrMemberExpression(): IdentifierNode | MemberExpressionNode {
+  function parseIdentifierOrMemberExpression(
+    message?: keyof CompilerDiagnostics["token-expected"],
+    recoverFromKeyword = true
+  ): IdentifierNode | MemberExpressionNode {
     const pos = tokenPos();
-    let base: IdentifierNode | MemberExpressionNode = parseIdentifier();
+    let base: IdentifierNode | MemberExpressionNode = parseIdentifier(message, recoverFromKeyword);
     while (parseOptional(Token.Dot)) {
       base = {
         kind: SyntaxKind.MemberExpression,
@@ -950,7 +978,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           reportInvalidDirective(directives, "expression");
           continue;
         default:
-          return parseIdentifier("expression");
+          return parseReferenceExpression("expression");
       }
     }
   }
@@ -1018,13 +1046,16 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseIdentifier(message?: keyof CompilerDiagnostics["token-expected"]): IdentifierNode {
-    if (isKeyword(token())) {
-      error({ code: "reserverd-identifier" });
+  function parseIdentifier(
+    message?: keyof CompilerDiagnostics["token-expected"],
+    recoverFromKeyword = true
+  ): IdentifierNode {
+    if (recoverFromKeyword && isKeyword(token())) {
+      error({ code: "reserved-identifier" });
     } else if (token() !== Token.Identifier) {
       // Error recovery: when we fail to parse an identifier or expression,
       // we insert a synthesized identifier with a unique name.
-      error({ code: "token-expected", messageId: message ?? "identifer" });
+      error({ code: "token-expected", messageId: message ?? "identifier" });
       return createMissingIdentifier();
     }
 
@@ -1052,7 +1083,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return scanner.tokenPosition;
   }
 
-  function tokenEndPos() {
+  function tokenEnd() {
     return scanner.position;
   }
 
@@ -1075,7 +1106,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
                 ? SyntaxKind.LineComment
                 : SyntaxKind.BlockComment,
             pos: tokenPos(),
-            end: tokenEndPos(),
+            end: tokenEnd(),
           });
         }
       } else {
@@ -1085,23 +1116,21 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function createMissingIdentifier(): IdentifierNode {
+    const pos = tokenPos();
+    previousTokenEnd = pos;
     missingIdentifierCounter++;
+
     return {
       kind: SyntaxKind.Identifier,
       sv: "<missing identifier>" + missingIdentifierCounter,
-      ...finishNode(tokenPos()),
+      ...finishNode(pos),
     };
   }
 
   function finishNode(pos: number): TextRange & { flags: NodeFlags } {
     const flags = parseErrorInNextFinishedNode ? NodeFlags.ThisNodeHasError : NodeFlags.None;
     parseErrorInNextFinishedNode = false;
-
-    return {
-      pos,
-      end: previousTokenEnd,
-      flags,
-    };
+    return { pos, end: previousTokenEnd, flags };
   }
 
   /**
@@ -1119,7 +1148,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
    * as part of a bad statement. As such, parsing of decorators and statements
    * do not go through here.
    */
-  function parseList<T extends Node>(kind: ListKind, parseItem: ParseListItem<T>): T[] {
+  function parseList<K extends ListKind, T extends Node>(
+    kind: K,
+    parseItem: ParseListItem<K, T>
+  ): T[] {
     if (kind.open !== Token.None) {
       parseExpected(kind.open);
     }
@@ -1133,11 +1165,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const pos = tokenPos();
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
+
+      let item: Writable<T>;
       if (kind.invalidDecoratorTarget) {
         reportInvalidDecorators(decorators, kind.invalidDecoratorTarget);
+        item = (parseItem as ParseListItem<UndecoratedListKind, T>)();
+      } else {
+        item = parseItem(pos, decorators);
       }
-
-      const item = parseItem(pos, decorators);
       items.push(item);
       item.directives = directives;
       const delimiter = token();
@@ -1203,9 +1238,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
    * Parse a delimited list with surrounding open and close punctuation if the
    * open token is present. Otherwise, return an empty list.
    */
-  function parseOptionalList<T extends Node>(
-    kind: SurroundedListKind,
-    parseItem: ParseListItem<T>
+  function parseOptionalList<K extends SurroundedListKind, T extends Node>(
+    kind: K,
+    parseItem: ParseListItem<K, T>
   ): T[] {
     return token() === kind.open ? parseList(kind, parseItem) : [];
   }
@@ -1264,11 +1299,17 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       printable?: boolean;
     }
   ) {
+    parseErrorInNextFinishedNode = true;
+
     const location = {
       file: scanner.file,
       pos: report.target?.pos ?? tokenPos(),
-      end: report.target?.end ?? scanner.position,
+      end: report.target?.end ?? tokenEnd(),
     };
+
+    if (!report.printable) {
+      treePrintable = false;
+    }
 
     // Error recovery: don't report more than 1 consecutive error at the same
     // position. The code path taken by error recovery after logging an error
@@ -1279,20 +1320,20 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       return;
     }
     realPositionOfLastError = realPos;
-    if (!report.printable) {
-      treePrintable = false;
-    }
 
     const diagnostic = createDiagnostic({
       ...report,
       target: location,
     } as any);
-    reportDiagnostic(diagnostic);
+
+    assert(diagnostic.severity === "error", "This function assumes it's reporting an error.");
+    parseDiagnostics.push(diagnostic);
   }
 
   function reportDiagnostic(diagnostic: Diagnostic) {
     if (diagnostic.severity === "error") {
       parseErrorInNextFinishedNode = true;
+      treePrintable = false;
     }
     parseDiagnostics.push(diagnostic);
   }
@@ -1301,7 +1342,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const location = {
       file: scanner.file,
       pos: tokenPos(),
-      end: scanner.position,
+      end: tokenEnd(),
     };
     compilerAssert(condition, message, location);
   }
@@ -1402,9 +1443,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.returnType)
       );
     case SyntaxKind.NamespaceStatement:
-      return visitEach(cb, node.decorators) ||
-        visitNode(cb, node.name) ||
-        Array.isArray(node.statements)
+      return visitEach(cb, node.decorators) || visitNode(cb, node.name) || isArray(node.statements)
         ? visitEach(cb, node.statements as Statement[])
         : visitNode(cb, node.statements);
     case SyntaxKind.InterfaceStatement:
@@ -1492,7 +1531,7 @@ function visitNode<T>(cb: NodeCb<T>, node: Node | undefined): T | undefined {
   return node && cb(node);
 }
 
-function visitEach<T>(cb: NodeCb<T>, nodes: Node[] | undefined): T | undefined {
+function visitEach<T>(cb: NodeCb<T>, nodes: readonly Node[] | undefined): T | undefined {
   if (!nodes) {
     return;
   }
@@ -1506,6 +1545,53 @@ function visitEach<T>(cb: NodeCb<T>, nodes: Node[] | undefined): T | undefined {
   return;
 }
 
+export function getNodeAtPosition(
+  script: CadlScriptNode,
+  position: number,
+  filter = (node: Node) => true
+) {
+  // If we're not immediately after an identifier character, then advance
+  // the position past any trivia. This is done because a zero-width
+  // inserted missing identifier that the user is now trying to complete
+  // starts after the trivia following the cursor.
+  const cp = codePointBefore(script.file.text, position);
+  if (!cp || !isIdentifierContinue(cp)) {
+    position = skipTrivia(script.file.text, position);
+  }
+
+  return visit(script);
+
+  function visit(node: Node): Node | undefined {
+    // We deliberately include the end position here because we need to hit
+    // nodes when the cursor is positioned immediately after an identifier.
+    // This is especially vital for completion. It's also generally OK
+    // because the language doesn't (and should never) have syntax where you
+    // could place the cursor ambiguously between two adjacent,
+    // non-punctuation, non-trivia tokens that have no punctuation or trivia
+    // separating them.
+    if (node.pos <= position && position <= node.end) {
+      // We only need to recursively visit children of nodes that satisfied
+      // the condition above and therefore contain the given position. If a
+      // node does not contain a position, then neither do its children.
+      const child = visitChildren(node, visit);
+
+      // A child match here is better than a self-match below as we want the
+      // deepest (most specific) node. In other words, the search is depth
+      // first. For example, consider `A<B<C>>`: If the cursor is on `B`,
+      // then prefer B<C> over A<B<C>>.
+      if (child) {
+        return child;
+      }
+
+      if (filter(node)) {
+        return node;
+      }
+    }
+
+    return undefined;
+  }
+}
+
 export function hasParseError(node: Node) {
   if (getFlag(node, NodeFlags.ThisNodeHasError)) {
     return true;
@@ -1515,25 +1601,29 @@ export function hasParseError(node: Node) {
   return getFlag(node, NodeFlags.DescendantHasError);
 }
 
+export function isSynthetic(node: Node) {
+  return getFlag(node, NodeFlags.Synthetic);
+}
+
 function checkForDescendantErrors(node: Node) {
   if (getFlag(node, NodeFlags.DescendantErrorsExamined)) {
     return;
   }
+  setFlag(node, NodeFlags.DescendantErrorsExamined);
 
   visitChildren(node, (child) => {
     if (getFlag(child, NodeFlags.ThisNodeHasError)) {
       setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
       return true;
     }
-
     checkForDescendantErrors(child);
 
     if (getFlag(child, NodeFlags.DescendantHasError)) {
       setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
       return true;
     }
-
     setFlag(child, NodeFlags.DescendantErrorsExamined);
+
     return false;
   });
 }
@@ -1550,9 +1640,13 @@ function isBlocklessNamespace(node: Node) {
   if (node.kind !== SyntaxKind.NamespaceStatement) {
     return false;
   }
-  while (!Array.isArray(node.statements) && node.statements) {
+  while (!isArray(node.statements) && node.statements) {
     node = node.statements;
   }
 
   return node.statements === undefined;
+}
+
+function createNode<T extends Node>(node: Omit<T, keyof DeclarationNode | keyof ContainerNode>): T {
+  return node as any;
 }

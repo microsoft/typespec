@@ -2,6 +2,97 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "@cadl-lang/openapi3_v0.5.0",
+      "date": "Thu, 16 Dec 2021 08:02:20 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Update openapi3 emitter to consume new Cadl.Rest route generation API"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Generate anyOf or oneOf schemas for Cadl unions in openapi3"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.24.1` to `0.25.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.7.1` to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.2",
+      "tag": "@cadl-lang/openapi3_v0.4.2",
+      "date": "Wed, 01 Dec 2021 22:56:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add support for extension decorator on parameters and tests"
+          },
+          {
+            "comment": "Add openapi3 support for Cadl safeint"
+          },
+          {
+            "comment": "Add README"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.24.0` to `0.24.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.7.0` to `0.7.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.1",
+      "tag": "@cadl-lang/openapi3_v0.4.1",
+      "date": "Thu, 18 Nov 2021 13:58:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Enable operation generation from interfaces"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.23.0` to `0.24.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.4` to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.0",
+      "tag": "@cadl-lang/openapi3_v0.4.0",
+      "date": "Thu, 11 Nov 2021 21:46:21 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** Support for duration type"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.22.0` to `0.23.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.3` to `0.6.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@cadl-lang/openapi3_v0.3.1",
       "date": "Thu, 28 Oct 2021 21:17:50 GMT",

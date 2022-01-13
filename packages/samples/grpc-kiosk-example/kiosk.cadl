@@ -1,47 +1,54 @@
 import "@cadl-lang/rest";
 
-@resource("/v1")
+using Cadl.Http;
+
+@route("/v1")
 @tag("Display")
 namespace Display {
   @doc("Create a kiosk. This enrolls the kiosk for sign display.")
-  @post("kiosks")
-  op CreateKiosk(@body body: Kiosk): Kiosk | RpcStatus;
+  @route("kiosks")
+  @post
+  op createKiosk(@body body: Kiosk): Kiosk | RpcStatus;
 
   @doc("List active kiosks.")
-  @get("kiosks")
-  op ListKiosks(... Empty): ListKiosksResponse | RpcStatus;
+  @route("kiosks")
+  op listKiosks(...Empty): ListKiosksResponse | RpcStatus;
 
   @doc("Get a kiosk.")
-  @get("kiosks/{id}")
-  op GetKiosk(@path id: KioskId): Kiosk | RpcStatus;
+  @route("kiosks/{id}")
+  op getKiosk(@path id: KioskId): Kiosk | RpcStatus;
 
   @doc("Delete a kiosk.")
-  @delete("kiosks/{id}")
-  op DeleteKiosk(@path id: KioskId): Empty | RpcStatus;
+  @route("kiosks/{id}")
+  @delete
+  op deleteKiosk(@path id: KioskId): Empty | RpcStatus;
 
   @doc("Create a sign. This enrolls the sign for sign display.")
-  @post("signs")
-  op CreateSign(@body sign: Sign): Sign | RpcStatus;
+  @route("signs")
+  @post
+  op createSign(@body sign: Sign): Sign | RpcStatus;
 
   @doc("List active signs.")
-  @get("signs")
-  op ListSigns(... Empty): ListSignsResponse;
+  @route("signs")
+  op listSigns(...Empty): ListSignsResponse;
 
   @doc("Get a sign.")
-  @get("signs/{id}")
-  op GetSign(@path id: SignId): Sign | RpcStatus;
+  @route("signs/{id}")
+  op getSign(@path id: SignId): Sign | RpcStatus;
 
   @doc("Delete a sign.")
-  @delete("signs/{id}")
-  op DeleteSign(@path id: SignId): Empty | RpcStatus;
+  @route("signs/{id}")
+  @delete
+  op deleteSign(@path id: SignId): Empty | RpcStatus;
 
   @doc("Set a sign for display on one or more kiosks.")
-  @post("signs/{sign_id}")
-  op SetSignIdForKioskIds(... SetSignIdForKioskIdsRequest): Empty | RpcStatus;
+  @route("signs/{sign_id}")
+  @post
+  op setSignIdForKioskIds(...SetSignIdForKioskIdsRequest): Empty | RpcStatus;
 
   @doc("Get the sign that should be displayed on a kiosk.")
-  @get("kiosks/{kiosk_id}/sign")
-  op GetSignIdForKioskId(@path kiosk_id: int32): GetSignIdResponse | RpcStatus;
+  @route("kiosks/{kiosk_id}/sign")
+  op getSignIdForKioskId(@path kiosk_id: int32): GetSignIdResponse | RpcStatus;
 
   //
   // TODO[JC]: Streaming ?

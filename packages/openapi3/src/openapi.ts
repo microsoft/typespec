@@ -1,7 +1,9 @@
 import {
   ArrayType,
+  checkIfServiceNamespace,
   EnumMemberType,
   EnumType,
+  findChildModels,
   getAllTags,
   getDoc,
   getFormat,
@@ -9,6 +11,11 @@ import {
   getMaxValue,
   getMinLength,
   getMinValue,
+  getProperty,
+  getServiceHost,
+  getServiceNamespaceString,
+  getServiceTitle,
+  getServiceVersion,
   getVisibility,
   isErrorType,
   isIntrinsic,
@@ -22,24 +29,13 @@ import {
   Program,
   Type,
   UnionType,
+  UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import {
-  basePathForResource,
-  checkIfServiceNamespace,
-  getHeaderFieldName,
-  getOperationRoute,
-  getPathParamName,
-  getQueryParamName,
-  getResources,
-  getServiceHost,
-  getServiceNamespaceString,
-  getServiceTitle,
-  getServiceVersion,
-  HttpVerb,
-  isBody,
-} from "@cadl-lang/rest";
+import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
+
+const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isStatusCode } = http;
 
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
@@ -52,11 +48,27 @@ export async function $onBuild(p: Program) {
 
 const operationIdsKey = Symbol();
 export function $operationId(program: Program, entity: Type, opId: string) {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "operationId", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
   program.stateMap(operationIdsKey).set(entity, opId);
 }
 
 const pageableOperationsKey = Symbol();
 export function $pageable(program: Program, entity: Type, nextLinkName: string = "nextLink") {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "pageable", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
   program.stateMap(pageableOperationsKey).set(entity, nextLinkName);
 }
 
@@ -81,6 +93,23 @@ export function $useRef(program: Program, entity: Type, refUrl: string): void {
 
 function getRef(program: Program, entity: Type): string | undefined {
   return program.stateMap(refTargetsKey).get(entity);
+}
+
+const oneOfKey = Symbol();
+export function $oneOf(program: Program, entity: Type) {
+  if (entity.kind !== "Union") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "oneOf", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(oneOfKey).set(entity, true);
+}
+
+function getOneOf(program: Program, entity: Type): boolean {
+  return program.stateMap(oneOfKey).get(entity);
 }
 
 // NOTE: These functions aren't meant to be used directly as decorators but as a
@@ -214,17 +243,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   async function emitOpenAPI() {
     try {
-      for (let resource of getResources(program)) {
-        if (resource.kind !== "Namespace") {
-          reportDiagnostic(program, {
-            code: "resource-namespace",
-            target: resource,
-          });
-          continue;
-        }
-
-        emitResource(resource as NamespaceType);
-      }
+      getAllRoutes(program).forEach(emitOperation);
       emitReferences();
       emitTags();
 
@@ -253,94 +272,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function emitResource(resource: NamespaceType): void {
-    currentBasePath = basePathForResource(program, resource);
-
-    for (const [name, op] of resource.operations) {
-      emitEndpoint(resource, op);
-    }
-  }
-
-  function getPathParameters(ns: NamespaceType, op: OperationType) {
-    return [...(op.parameters?.properties.values() ?? [])].filter(
-      (param) => getPathParamName(program, param) !== undefined
-    );
-  }
-
-  /**
-   * Translates endpoint names like `read` to REST verbs like `get`.
-   */
-  function pathForEndpoint(
-    op: OperationType,
-    pathParams: ModelTypeProperty[]
-  ): [string, string[], string] {
-    const paramByName = new Map(pathParams.map((p) => [p.name, p]));
-    const route = getOperationRoute(program, op);
-    const inferredVerb = verbForEndpoint(op.name);
-    const verb = route?.verb || inferredVerb || "get";
-
-    // Build the full route path including any sub-path
-    const routePath =
-      (currentBasePath || "") +
-      (route?.subPath
-        ? `/${route?.subPath?.replace(/^\//g, "")}`
-        : !inferredVerb && !route
-        ? "/get"
-        : "");
-
-    // Find path parameter names
-    const declaredPathParamNames = routePath.match(/\{\w+\}/g)?.map((s) => s.slice(1, -1)) ?? [];
-
-    // For each param in the declared path parameters (e.g. /foo/{id} has one, id),
-    // delete it because it doesn't need to be added to the path.
-    for (const declaredParam of declaredPathParamNames) {
-      const param = paramByName.get(declaredParam);
-      if (!param) {
-        reportDiagnostic(program, {
-          code: "missing-path-param",
-          format: { param: declaredParam },
-          target: op,
-        });
-        continue;
-      }
-
-      paramByName.delete(declaredParam);
-    }
-
-    // Add any remaining declared path params
-    const pathSegments = [];
-    for (const name of paramByName.keys()) {
-      pathSegments.push(name);
-    }
-
-    return [verb, pathSegments, routePath];
-  }
-
-  function verbForEndpoint(name: string): HttpVerb | undefined {
-    switch (name) {
-      case "list":
-        return "get";
-      case "create":
-        return "post";
-      case "read":
-        return "get";
-      case "update":
-        return "patch";
-      case "delete":
-        return "delete";
-      case "deleteAll":
-        return "delete";
-    }
-
-    return undefined;
-  }
-
-  function emitEndpoint(resource: NamespaceType, op: OperationType) {
-    const params = getPathParameters(resource, op);
-    const [verb, newPathParams, resolvedPath] = pathForEndpoint(op, params);
-    const fullPath =
-      resolvedPath +
-      (newPathParams.length > 0 ? "/" + newPathParams.map((p) => "{" + p + "}").join("/") : "");
+  function emitOperation(operation: OperationDetails): void {
+    const { path: fullPath, operation: op, groupName, verb, parameters } = operation;
 
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
@@ -362,7 +295,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       currentEndpoint.operationId = program.stateMap(operationIdsKey).get(op);
     } else {
       // Synthesize an operation ID
-      currentEndpoint.operationId = `${resource.name}_${op.name}`;
+      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
     }
 
     // allow operation extensions
@@ -371,7 +304,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
 
-    const currentTags = getAllTags(program, resource, op);
+    const currentTags = getAllTags(program, op);
     if (currentTags) {
       currentEndpoint.tags = currentTags;
       for (const tag of currentTags) {
@@ -380,32 +313,45 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    emitEndpointParameters(op, op.parameters, [...(op.parameters?.properties.values() ?? [])]);
-    emitRequestBody(op, op.parameters, [...(op.parameters?.properties.values() ?? [])]);
+    emitEndpointParameters(op, op.parameters, parameters);
+    emitRequestBody(op, op.parameters, parameters);
     emitResponses(op.returnType);
   }
 
   function emitResponses(responseType: Type) {
     if (responseType.kind === "Union") {
       for (const [i, option] of responseType.options.entries()) {
-        emitResponseObject(option, i === 0 ? "200" : "default");
+        emitResponseObject(option);
       }
     } else {
       emitResponseObject(responseType);
     }
   }
 
-  function emitResponseObject(responseModel: Type, statusCode: string = "200") {
+  function isBinaryPayload(body: Type, contentType: string) {
+    return (
+      body.kind === "Model" &&
+      body.name === "bytes" &&
+      contentType !== "application/json" &&
+      contentType !== "text/plain"
+    );
+  }
+
+  function emitResponseObject(responseModel: Type) {
+    let statusCode = undefined;
     let contentType = "application/json";
     if (
       responseModel.kind === "Model" &&
       !responseModel.baseModel &&
       responseModel.properties.size === 0
     ) {
-      const schema = mapCadlTypeToOpenAPI(responseModel);
+      const isBinary = isBinaryPayload(responseModel, contentType);
+      const schema = isBinary
+        ? { type: "string", format: "binary" }
+        : mapCadlTypeToOpenAPI(responseModel);
       if (schema) {
-        currentEndpoint.responses[statusCode] = {
-          description: getResponseDescription(responseModel, statusCode),
+        currentEndpoint.responses["200"] = {
+          description: getResponseDescription(responseModel, "200"),
           content: {
             [contentType]: {
               schema: schema,
@@ -413,7 +359,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           },
         };
       } else {
-        currentEndpoint.responses[204] = {
+        currentEndpoint.responses["204"] = {
           description: "No content",
         };
       }
@@ -435,15 +381,21 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
           bodyModel = prop.type;
         }
+        if (isStatusCode(program, prop)) {
+          if (statusCode) {
+            reportDiagnostic(program, { code: "duplicate-status-code", target: responseModel });
+            continue;
+          }
+          if (prop.type.kind === "Number") {
+            statusCode = String(prop.type.value);
+          } else if (prop.type.kind === "String") {
+            statusCode = prop.type.value;
+          }
+        }
         const type = prop.type;
         const headerName = getHeaderFieldName(program, prop);
         switch (headerName) {
           case undefined:
-            break;
-          case "status-code":
-            if (type.kind === "Number") {
-              statusCode = String(type.value);
-            }
             break;
           case "content-type":
             if (type.kind === "String") {
@@ -457,12 +409,18 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    contentEntry.schema = getSchemaOrRef(bodyModel);
+    const isBinary = isBinaryPayload(bodyModel, contentType);
+    contentEntry.schema = isBinary
+      ? { type: "string", format: "binary" }
+      : getSchemaOrRef(bodyModel);
+
+    // If no status code was defined in the response model, use 200.
+    statusCode ??= "200";
 
     const response: any = {
       description: getResponseDescription(responseModel, statusCode),
       content: {
-        [contentType]: contentEntry,
+        [contentType ?? "application/json"]: contentEntry,
       },
     };
     if (Object.keys(headers).length > 0) {
@@ -620,7 +578,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     const bodyParam = bodyParams[0];
     const bodyType = bodyParam.type;
-    const bodySchema = getSchemaOrRef(bodyType);
 
     const requestBody: any = {
       description: getDoc(program, bodyParam),
@@ -634,6 +591,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       ? getContentTypes(contentTypeParam)
       : ["application/json"];
     for (let contentType of contentTypes) {
+      const isBinary = isBinaryPayload(bodyType, contentType);
+      const bodySchema = isBinary ? { type: "string", format: "binary" } : getSchemaOrRef(bodyType);
       const contentEntry: any = {
         schema: bodySchema,
       };
@@ -707,6 +666,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
+    attachExtensions(param, ph);
     ph.schema = schema;
   }
 
@@ -769,6 +729,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return getSchemaForModel(type);
     } else if (type.kind === "Union") {
       return getSchemaForUnion(type);
+    } else if (type.kind === "UnionVariant") {
+      return getSchemaForUnionVariant(type);
     } else if (type.kind === "Enum") {
       return getSchemaForEnum(type);
     }
@@ -836,29 +798,32 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "Model":
         type = "model";
         break;
+      case "UnionVariant":
+        type = "model";
+        break;
       default:
         reportUnsupportedUnion();
         return {};
     }
 
-    const values = [];
     if (type === "model") {
-      // Model unions can only ever be a model type with 'null'
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
         const schema: any = getSchemaForType(nonNullOptions[0]);
+        if (nullable) {
+          schema["nullable"] = true;
+        }
 
         return schema;
       } else {
-        reportDiagnostic(program, {
-          code: "union-unsupported",
-          messageId: "null",
-          target: union,
-        });
-        return {};
+        const variants = nonNullOptions.map((s) => getSchemaOrRef(s));
+        const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
+        const schema: any = { [ofType]: nonNullOptions.map((s) => getSchemaOrRef(s)) };
+        return schema;
       }
     }
 
+    const values = [];
     for (const option of nonNullOptions) {
       if (option.kind != kind) {
         reportUnsupportedUnion();
@@ -872,12 +837,20 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (values.length > 0) {
       schema.enum = values;
     }
+    if (nullable) {
+      schema["nullable"] = true;
+    }
 
     return schema;
 
     function reportUnsupportedUnion() {
       reportDiagnostic(program, { code: "union-unsupported", target: union });
     }
+  }
+
+  function getSchemaForUnionVariant(variant: UnionTypeVariant) {
+    const schema: any = getSchemaForType(variant.type);
+    return schema;
   }
 
   function getSchemaForArray(array: ArrayType) {
@@ -918,6 +891,28 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       properties: {},
       description: getDoc(program, model),
     };
+
+    const discriminator = getDiscriminator(program, model);
+    if (discriminator) {
+      const childModels = findChildModels(program, model);
+
+      if (!validateDiscriminator(discriminator, childModels)) {
+        // appropriate diagnostic is generated with the validate function
+        return {};
+      }
+
+      // getSchemaOrRef on all children to push them into components.schemas
+      for (let child of childModels) {
+        getSchemaOrRef(child);
+      }
+
+      const mapping = getDiscriminatorMapping(discriminator, childModels);
+      if (mapping) {
+        discriminator.mapping = mapping;
+      }
+
+      modelSchema.discriminator = discriminator;
+    }
 
     for (const [name, prop] of model.properties) {
       if (!isSchemaProperty(prop)) {
@@ -989,6 +984,103 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
+  function validateDiscriminator(discriminator: any, childModels: ModelType[]): boolean {
+    const { propertyName } = discriminator;
+    var retVals = childModels.map((t) => {
+      const prop = getProperty(t, propertyName);
+      if (!prop) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
+        return false;
+      }
+      var retval = true;
+      if (!isOasString(prop.type)) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "type", target: prop });
+        retval = false;
+      }
+      if (prop.optional) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "required", target: prop });
+        retval = false;
+      }
+      return retval;
+    });
+    // Map of discriminator value to the model in which it is declared
+    const discriminatorValues = new Map<string, string>();
+    for (let t of childModels) {
+      // Get the discriminator property directly in the child model
+      const prop = t.properties?.get(propertyName);
+      // Issue warning diagnostic if discriminator property missing or is not a string literal
+      if (!prop || !isStringLiteral(prop.type)) {
+        reportDiagnostic(program, {
+          code: "discriminator-value",
+          messageId: "literal",
+          target: prop || t,
+        });
+      }
+      if (prop) {
+        const vals = getStringValues(prop.type);
+        vals.forEach((val) => {
+          if (discriminatorValues.has(val)) {
+            reportDiagnostic(program, {
+              code: "discriminator",
+              messageId: "duplicate",
+              format: { val: val, model1: discriminatorValues.get(val)!, model2: t.name },
+              target: prop,
+            });
+            retVals.push(false);
+          } else {
+            discriminatorValues.set(val, t.name);
+          }
+        });
+      }
+    }
+    return retVals.every((v) => v);
+  }
+
+  function getDiscriminatorMapping(discriminator: any, childModels: ModelType[]) {
+    const { propertyName } = discriminator;
+    const getMapping = (t: ModelType): any => {
+      const prop = t.properties?.get(propertyName);
+      if (prop) {
+        return getStringValues(prop.type).flatMap((v) => [{ [v]: getSchemaOrRef(t).$ref }]);
+      }
+      return undefined;
+    };
+    var mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
+    return mappings.length > 0 ? mappings.reduce((a, s) => ({ ...a, ...s }), {}) : undefined;
+  }
+
+  // An openapi "string" can be defined in several different ways in Cadl
+  function isOasString(type: Type): boolean {
+    if (type.kind === "String") {
+      // A string literal
+      return true;
+    } else if (type.kind === "Model" && type.name === "string") {
+      // string type
+      return true;
+    } else if (type.kind === "Union") {
+      // A union where all variants are an OasString
+      return type.options.every((o) => isOasString(o));
+    }
+    return false;
+  }
+
+  function isStringLiteral(type: Type): boolean {
+    return (
+      type.kind === "String" ||
+      (type.kind === "Union" && type.options.every((o) => o.kind === "String"))
+    );
+  }
+
+  // Return any string literal values for type
+  function getStringValues(type: Type): string[] {
+    if (type.kind === "String") {
+      return [type.value];
+    } else if (type.kind === "Union") {
+      return type.options.flatMap(getStringValues).filter((v) => v);
+    }
+    return [];
+  }
+
   /**
    * A "schema property" here is a property that is emitted to OpenAPI schema.
    *
@@ -999,7 +1091,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const headerInfo = getHeaderFieldName(program, property);
     const queryInfo = getQueryParamName(program, property);
     const pathInfo = getPathParamName(program, property);
-    return !(headerInfo || queryInfo || pathInfo);
+    const statusCodeinfo = isStatusCode(program, property);
+    return !(headerInfo || queryInfo || pathInfo || statusCodeinfo);
   }
 
   function getTypeNameForSchemaProperties(type: Type) {
@@ -1098,6 +1191,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           case "int32":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
           case "int64":
+            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+          case "safeint":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
           case "uint8":
             return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });

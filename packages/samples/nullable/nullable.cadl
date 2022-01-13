@@ -1,5 +1,7 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 model HasNullables {
   str: string;
   when: plainTime;
@@ -11,7 +13,7 @@ model HasNullables {
   // thisWillFail: AnotherModel | string | null;
 }
 
-@resource("/test")
+@route("/test")
 namespace NullableMethods {
   @get op read(@query someParam: string | null, modelOrNull: AnotherModel | null): HasNullables;
 }

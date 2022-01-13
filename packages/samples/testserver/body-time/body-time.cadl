@@ -1,13 +1,16 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 @doc("Error")
 model Error {
+  @statusCode _: "default";
   status: int32;
   message: string;
 }
 
 @doc("AutoRest Time Test Service")
-@resource("/time")
+@route("/time")
 namespace Time {
   @doc("Get time value \"11:34:56\"")
   @get

@@ -2,6 +2,52 @@
   "name": "cadl-vs",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "cadl-vs_v0.5.0",
+      "date": "Thu, 16 Dec 2021 08:02:20 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Fix** Issues with resolving `cadl-server` path + added support for passing `cadl.cadl-server.path` setting via `.vs/VSWorkspaceSettings.json` file"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.3",
+      "tag": "cadl-vs_v0.4.3",
+      "date": "Wed, 01 Dec 2021 22:56:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Update README"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `0.10.0` to `0.11.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.2",
+      "tag": "cadl-vs_v0.4.2",
+      "date": "Thu, 11 Nov 2021 21:46:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix Visual Studio 2022 support"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `0.9.0` to `0.10.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.1",
       "tag": "cadl-vs_v0.4.1",
       "date": "Fri, 15 Oct 2021 21:33:37 GMT",

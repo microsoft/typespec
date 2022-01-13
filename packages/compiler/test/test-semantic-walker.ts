@@ -8,10 +8,10 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "../core/index.js";
-import { navigateProgram } from "../core/semantic-walker.js";
+import { findChildModels, getProperty, navigateProgram } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "./test-host.js";
 
-describe("SemanticWalker", () => {
+describe("compiler: semantic walker", () => {
   let host: TestHost;
 
   beforeEach(async () => {
@@ -140,5 +140,46 @@ describe("SemanticWalker", () => {
     assert.strictEqual(result.interfaces[0].name, "A");
     assert.strictEqual(result.operations.length, 1, "finds operations");
     assert.strictEqual(result.operations[0].name, "a");
+  });
+
+  it("finds child models", async () => {
+    const result = await runNavigator(`
+      model Pet {
+        name: true;
+      }
+
+      model Cat extends Pet {
+        meow: true;
+      }
+
+      model Dog extends Pet {
+        bark: true;
+      }
+    `);
+
+    assert.strictEqual(result.models.length, 3);
+    assert.strictEqual(result.models[0].name, "Pet");
+    const childModels = findChildModels(host.program, result.models[0]);
+    assert.strictEqual(childModels[0].name, "Cat");
+    assert.strictEqual(childModels[1].name, "Dog");
+  });
+
+  it("finds owned or inherited properties", async () => {
+    const result = await runNavigator(`
+      model Pet {
+        name: true;
+      }
+
+      model Cat extends Pet {
+        meow: true;
+      }
+    `);
+
+    assert.strictEqual(result.models.length, 2);
+    assert.strictEqual(result.models[0].name, "Pet");
+    assert.strictEqual(result.models[1].name, "Cat");
+    assert.ok(getProperty(result.models[1], "meow"));
+    assert.ok(getProperty(result.models[1], "name"));
+    assert.strictEqual(getProperty(result.models[1], "bark"), undefined);
   });
 });

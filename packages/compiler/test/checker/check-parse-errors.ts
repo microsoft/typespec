@@ -1,7 +1,7 @@
 import { match, strictEqual } from "assert";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: semantic checks on source with parse errors", () => {
+describe("compiler: semantic checks on source with parse errors", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

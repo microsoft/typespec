@@ -1,6 +1,6 @@
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: loader", () => {
+describe("compiler: loader", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

@@ -1,7 +1,10 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 @doc("Error")
 model Error {
+  @statusCode _: "default";
   code: int32;
   message: string;
 }
@@ -9,7 +12,7 @@ model Error {
 alias NullableBoolean = boolean | null;
 
 @doc("AutoRest Bool Test Service")
-@resource("/bool/true")
+@route("/bool/true")
 namespace BoolsTrue {
   @doc("Get true Boolean value")
   @operationId("bool_getTrue")
@@ -23,7 +26,7 @@ namespace BoolsTrue {
 }
 
 @doc("AutoRest Bool Test Service")
-@resource("/bool/false")
+@route("/bool/false")
 namespace BoolsFalse {
   @doc("Get true Boolean false")
   @operationId("bool_getFalse")
@@ -37,7 +40,7 @@ namespace BoolsFalse {
 }
 
 @doc("AutoRest Bool Test Service")
-@resource("/bool/null")
+@route("/bool/null")
 namespace BoolsNull {
   @doc("Get null Boolean value")
   @operationId("bool_getNull")
@@ -46,7 +49,7 @@ namespace BoolsNull {
 }
 
 @doc("AutoRest Bool Test Service")
-@resource("/bool/invalid")
+@route("/bool/invalid")
 namespace BoolsInvalid {
   @doc("Get invalid Boolean value")
   @operationId("bool_getInvalid")

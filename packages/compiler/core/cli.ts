@@ -10,8 +10,9 @@ import { loadCadlConfigInDir } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
-import { compilerAssert, dumpError, logDiagnostics } from "./diagnostics.js";
+import { compilerAssert, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
+import { installCadlDependencies } from "./install.js";
 import { Diagnostic } from "./types.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
@@ -162,6 +163,12 @@ async function main() {
       (args) => initCadlProject(NodeHost, process.cwd(), args.templatesUrl)
     )
     .command(
+      "install",
+      "Install cadl dependencies",
+      () => {},
+      () => installCadlDependencies(process.cwd())
+    )
+    .command(
       "info",
       "Show information about current Cadl compiler.",
       () => {},
@@ -253,11 +260,7 @@ function logDiagnosticCount(diagnostics: readonly Diagnostic[]) {
   const warningCount = diagnostics.filter((x) => x.severity === "warning").length;
 
   const addSuffix = (count: number, suffix: string) =>
-    count > 1
-      ? `${errorCount} ${suffix}s`
-      : errorCount === 1
-      ? `${errorCount} ${suffix}`
-      : undefined;
+    count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
   const errorText = addSuffix(errorCount, "error");
   const warningText = addSuffix(warningCount, "warning");
 
@@ -556,8 +559,9 @@ function internalCompilerError(error: Error) {
   // considered a bug and therefore we should not suppress the stack trace as
   // that risks losing it in the case of a bug that does not repro easily.
   console.error("Internal compiler error!");
-  console.error("File issue at https://github.com/azure/adl");
-  dumpError(error, NodeHost.logSink);
+  console.error("File issue at https://github.com/microsoft/cadl");
+  console.error();
+  console.error(error);
   process.exit(1);
 }
 

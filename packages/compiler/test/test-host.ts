@@ -10,6 +10,7 @@ import {
 import { CompilerOptions } from "../core/options.js";
 import { createProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
+import { NodeHost } from "../core/util.js";
 
 export interface TestHost {
   addCadlFile(path: string, contents: string): void;
@@ -114,9 +115,8 @@ export async function createTestHost(): Promise<TestHost> {
       return path;
     },
 
-    logSink: {
-      log: ({ message }) => console.log(message),
-    },
+    logSink: NodeHost.logSink,
+    mkdirp: async (path: string) => path,
   };
 
   // load standard library into the vfs

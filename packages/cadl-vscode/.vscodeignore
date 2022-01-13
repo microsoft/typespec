@@ -10,5 +10,6 @@
 !dist/**/*.js.map
 !extension-shim.js
 !language-configuration.json
+!markdown-cadl.json
 !README.md
 !ThirdPartyNotices.txt

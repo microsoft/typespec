@@ -2,6 +2,162 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.25.0",
+      "tag": "@cadl-lang/compiler_v0.25.0",
+      "date": "Thu, 16 Dec 2021 08:02:20 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Update** reference resolution with `using` to fix duplicate symbols issues"
+          },
+          {
+            "comment": "**Added** keyword autocomplete and icons"
+          },
+          {
+            "comment": "**Added** support for union default values"
+          },
+          {
+            "comment": "**Formatter** Add support for spread model formatting"
+          },
+          {
+            "comment": "add mkdirp to compilerHost"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Add findChildModels and getProperty utility functions"
+          },
+          {
+            "comment": "**Fix** Circular reference in `is` or `extends` now emit a diagnostic instead of crashing"
+          },
+          {
+            "comment": "**Fix** Circular reference in `alias` now emit a diagnostic instead of crashing"
+          },
+          {
+            "comment": "**Fix** Circular reference between template model and non template model causing unresolved types issues."
+          },
+          {
+            "comment": "**Formatter** fix issues with empty model and interface with comments being moved outside."
+          },
+          {
+            "comment": "**Formatter** fix crash when having a comment in anynoymous empty model."
+          },
+          {
+            "comment": "**Formatter** fix crash when using multi-line comment without each line starting with `*`."
+          },
+          {
+            "comment": "**Formatter** Tweak formatting of interface mixes that overflow."
+          },
+          {
+            "comment": "**Formatter** Keep single value decroator inline."
+          },
+          {
+            "comment": "**Formatter** Keep empty line seperation in interface similar to namespace (Only keeps 1 max between operation)."
+          },
+          {
+            "comment": "Add support for `interface` as a `@tag` decorator target"
+          },
+          {
+            "comment": "Reintroduce @list decorator to assist with collection operations"
+          },
+          {
+            "comment": "Improve getTypeName support for Unions and UnionVariants"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.1",
+      "tag": "@cadl-lang/compiler_v0.24.1",
+      "date": "Wed, 01 Dec 2021 22:56:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix issue where formatter would try to format a document with irrecoverable parse errors in certain cases"
+          },
+          {
+            "comment": "**Fix** Wrong library import for the rest template"
+          },
+          {
+            "comment": "Fix crash in language server"
+          },
+          {
+            "comment": "Fix formatting bug with operations returning anonymous models"
+          },
+          {
+            "comment": "Fix language server crashes in certain error cases"
+          },
+          {
+            "comment": "Update README"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.0",
+      "tag": "@cadl-lang/compiler_v0.24.0",
+      "date": "Thu, 18 Nov 2021 13:58:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** `cadl install` command which shell out to `npm install`"
+          },
+          {
+            "comment": "Remove @list decorator"
+          },
+          {
+            "comment": "Show `@doc` info along with completions"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "**Fix** Logging of warning counts, showing error count"
+          },
+          {
+            "comment": "Ensure interface is assigned for checked operations"
+          },
+          {
+            "comment": "Add setDecoratorNamespace helper function"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.0",
+      "tag": "@cadl-lang/compiler_v0.23.0",
+      "date": "Thu, 11 Nov 2021 21:46:21 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** `duration` intrinsic type"
+          },
+          {
+            "comment": "**Added** `--check` option to `cadl format` command to verify files are formatted"
+          },
+          {
+            "comment": "**Added** log of the error and warning count at the end in case `cadl compile` failed."
+          },
+          {
+            "comment": "**Added** Support for models with mutual references"
+          },
+          {
+            "comment": "Add completion (\"IntelliSense\") support to language server"
+          },
+          {
+            "comment": "`cadl init` generate `package.json` with `private: true`"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Add Prettier formatting support for interface mixes"
+          },
+          {
+            "comment": "Add new --import CLI parameter to add a global import via the command line"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.0",
       "tag": "@cadl-lang/compiler_v0.22.0",
       "date": "Thu, 28 Oct 2021 21:17:50 GMT",

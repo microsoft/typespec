@@ -4,7 +4,7 @@ import { formatDiagnostic, logDiagnostics, logVerboseTestOutput } from "../core/
 import { hasParseError, NodeFlags, parse, visitChildren } from "../core/parser.js";
 import { CadlScriptNode, Node, SourceFile, SyntaxKind } from "../core/types.js";
 
-describe("cadl: syntax", () => {
+describe("compiler: syntax", () => {
   describe("import statements", () => {
     parseEach(['import "x";']);
 
@@ -14,6 +14,9 @@ describe("cadl: syntax", () => {
       ['model Foo { } import "x";', [/Imports must come prior/]],
     ]);
   });
+
+  describe("empty script", () =>
+    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]));
 
   describe("model statements", () => {
     parseEach([
@@ -100,6 +103,7 @@ describe("cadl: syntax", () => {
         `model Car { withDefaultButNotOptional: string = "foo" }`,
         [/Cannot use default with non optional properties/],
       ],
+      ["model", [/Identifier expected/]],
     ]);
   });
 
@@ -158,6 +162,14 @@ describe("cadl: syntax", () => {
       "@dec union A { @dec a: string }",
       "union A<T, V> { a: T; none: {} }",
       `union A { "hi there": string }`,
+    ]);
+
+    parseErrorEach([
+      [
+        'union A { @dec "x" x: number, y: string }',
+        [/':' expected/],
+        (n) => assert(!n.printable, "should not be printable"),
+      ],
     ]);
   });
 
@@ -453,6 +465,7 @@ describe("cadl: syntax", () => {
 
     parseErrorEach([
       ["enum Foo { a: number }", [/Expected numeric or string literal/]],
+      ["enum Foo { a: [number] }", [/Expected numeric or string literal/]],
       ["enum Foo { a: ; b: ; }", [/Expression expected/, /Expression expected/]],
       ["enum Foo { ;+", [/Enum member expected/]],
       ["enum { }", [/Identifier expected/]],
@@ -491,7 +504,6 @@ function parseEach(cases: (string | [string, Callback])[]) {
       logVerboseTestOutput("\n=== Diagnostics ===");
       if (astNode.parseDiagnostics.length > 0) {
         const diagnostics = astNode.parseDiagnostics.map(formatDiagnostic).join("\n");
-
         assert.strictEqual(
           hasParseError(astNode),
           astNode.parseDiagnostics.some((e) => e.severity === "error"),
@@ -502,6 +514,8 @@ function parseEach(cases: (string | [string, Callback])[]) {
 
         assert.fail("Unexpected parse errors in test:\n" + diagnostics);
       }
+
+      assert(astNode.printable, "Parse tree with no errors should be printable");
 
       checkPositioning(astNode, astNode.file);
     });
@@ -545,6 +559,14 @@ function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhite
         hasParseError(astNode),
         "node claims to have no parse errors, but above were reported."
       );
+
+      assert(
+        !astNode.printable ||
+          !astNode.parseDiagnostics.some((d) => !/^'[,;:{}()]' expected\.$/.test(d.message)),
+        "parse tree with errors other than missing punctuation should not be printable"
+      );
+
+      checkPositioning(astNode, astNode.file);
     });
   }
 }

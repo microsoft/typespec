@@ -1,9 +1,10 @@
-import { rejects, strictEqual } from "assert";
+import { match, rejects, strictEqual } from "assert";
+import { getSourceLocation } from "../../core/index.js";
 import { Program } from "../../core/program";
-import { ModelType } from "../../core/types";
+import { ModelType } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("cadl: using statements", () => {
+describe("compiler: using statements", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -101,6 +102,39 @@ describe("cadl: using statements", () => {
     strictEqual(Y.properties.size, 1);
   });
 
+  it("can use 2 namespace with the same last name", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./a.cadl";
+      import "./b.cadl";
+      `
+    );
+    testHost.addCadlFile(
+      "a.cadl",
+      `
+      namespace N.A {
+        model B { }
+      }
+
+      namespace M.A {
+        model B { }
+      }
+      `
+    );
+
+    testHost.addCadlFile(
+      "b.cadl",
+      `
+      using N.A;
+      using M.A;
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 0);
+  });
+
   it("throws errors for duplicate imported usings", async () => {
     testHost.addCadlFile(
       "main.cadl",
@@ -122,14 +156,16 @@ describe("cadl: using statements", () => {
       `
       using N.M;
       using N.M;
-      @test model Y { ... X }
       `
     );
 
-    await rejects(testHost.compile("./"));
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "duplicate-using");
+    strictEqual(diagnostics[0].message, 'duplicate using of "N.M" namespace');
   });
 
-  it("throws errors for different usings with the same bindings", async () => {
+  it("does not throws errors for different usings with the same bindings if not used", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -158,7 +194,97 @@ describe("cadl: using statements", () => {
       `
     );
 
-    await rejects(testHost.compile("./"));
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 0);
+  });
+
+  it("report ambigous diagnostics when using name present in multiple using", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./a.cadl";
+      import "./b.cadl";
+      `
+    );
+    testHost.addCadlFile(
+      "a.cadl",
+      `
+      namespace N {
+        model A { }
+      }
+
+      namespace M {
+        model A { }
+      }
+      `
+    );
+
+    testHost.addCadlFile(
+      "b.cadl",
+      `
+      using N;
+      using M;
+
+      model B extends A {}
+      `
+    );
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "ambiguous-symbol");
+    strictEqual(
+      diagnostics[0].message,
+      '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A'
+    );
+  });
+
+  it("ambigous use doesn't affect other files", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./a.cadl";
+      import "./ambiguous.cadl";
+      import "./notambiguous.cadl";
+      `
+    );
+    testHost.addCadlFile(
+      "a.cadl",
+      `
+      namespace N {
+        model A { }
+      }
+
+      namespace M {
+        model A { }
+      }
+      `
+    );
+
+    testHost.addCadlFile(
+      "ambiguous.cadl",
+      `
+      using N;
+      using M;
+
+      model Ambiguous extends A {}
+      `
+    );
+
+    testHost.addCadlFile(
+      "notambiguous.cadl",
+      `
+      using N;
+
+      model NotAmiguous extends A {}
+      `
+    );
+    const diagnostics = await testHost.diagnose("./");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "ambiguous-symbol");
+    strictEqual(
+      diagnostics[0].message,
+      '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A'
+    );
+    match(getSourceLocation(diagnostics[0].target)?.file.path!, /ambiguous\.cadl$/);
   });
 
   it("resolves 'local' decls over usings", async () => {

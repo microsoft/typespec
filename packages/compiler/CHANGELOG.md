@@ -1,6 +1,77 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 28 Oct 2021 21:17:50 GMT and should not be manually modified.
+This log was last generated on Thu, 16 Dec 2021 16:21:46 GMT and should not be manually modified.
+
+## 0.25.0
+Thu, 16 Dec 2021 08:02:20 GMT
+
+### Minor changes
+
+- **Update** reference resolution with `using` to fix duplicate symbols issues
+- **Added** keyword autocomplete and icons
+- **Added** support for union default values
+- **Formatter** Add support for spread model formatting
+- add mkdirp to compilerHost
+
+### Patches
+
+- Add findChildModels and getProperty utility functions
+- **Fix** Circular reference in `is` or `extends` now emit a diagnostic instead of crashing
+- **Fix** Circular reference in `alias` now emit a diagnostic instead of crashing
+- **Fix** Circular reference between template model and non template model causing unresolved types issues.
+- **Formatter** fix issues with empty model and interface with comments being moved outside.
+- **Formatter** fix crash when having a comment in anynoymous empty model.
+- **Formatter** fix crash when using multi-line comment without each line starting with `*`.
+- **Formatter** Tweak formatting of interface mixes that overflow.
+- **Formatter** Keep single value decroator inline.
+- **Formatter** Keep empty line seperation in interface similar to namespace (Only keeps 1 max between operation).
+- Add support for `interface` as a `@tag` decorator target
+- Reintroduce @list decorator to assist with collection operations
+- Improve getTypeName support for Unions and UnionVariants
+
+## 0.24.1
+Wed, 01 Dec 2021 22:56:11 GMT
+
+### Patches
+
+- Fix issue where formatter would try to format a document with irrecoverable parse errors in certain cases
+- **Fix** Wrong library import for the rest template
+- Fix crash in language server
+- Fix formatting bug with operations returning anonymous models
+- Fix language server crashes in certain error cases
+- Update README
+
+## 0.24.0
+Thu, 18 Nov 2021 13:58:15 GMT
+
+### Minor changes
+
+- **Added** `cadl install` command which shell out to `npm install`
+- Remove @list decorator
+- Show `@doc` info along with completions
+
+### Patches
+
+- **Fix** Logging of warning counts, showing error count
+- Ensure interface is assigned for checked operations
+- Add setDecoratorNamespace helper function
+
+## 0.23.0
+Thu, 11 Nov 2021 21:46:21 GMT
+
+### Minor changes
+
+- **Added** `duration` intrinsic type
+- **Added** `--check` option to `cadl format` command to verify files are formatted
+- **Added** log of the error and warning count at the end in case `cadl compile` failed.
+- **Added** Support for models with mutual references
+- Add completion ("IntelliSense") support to language server
+- `cadl init` generate `package.json` with `private: true`
+
+### Patches
+
+- Add Prettier formatting support for interface mixes
+- Add new --import CLI parameter to add a global import via the command line
 
 ## 0.22.0
 Thu, 28 Oct 2021 21:17:50 GMT
