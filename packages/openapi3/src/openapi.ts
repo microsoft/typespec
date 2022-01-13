@@ -801,12 +801,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "UnionVariant":
         type = "model";
         break;
+      case "Array":
+        type = "array";
+        break;
       default:
-        reportUnsupportedUnion();
+        reportUnsupportedUnionType(nonNullOptions[0]);
         return {};
     }
 
-    if (type === "model") {
+    if (type === "model" || type === "array") {
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
         const schema: any = getSchemaForType(nonNullOptions[0]);
@@ -842,6 +845,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     return schema;
+
+    function reportUnsupportedUnionType(type: Type) {
+      reportDiagnostic(program, {
+        code: "union-unsupported",
+        messageId: "type",
+        format: { kind: type.kind },
+        target: type,
+      });
+    }
 
     function reportUnsupportedUnion() {
       reportDiagnostic(program, { code: "union-unsupported", target: union });
