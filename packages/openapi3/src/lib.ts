@@ -69,6 +69,7 @@ const libDef = {
       severity: "error",
       messages: {
         default: "Unions are not supported unless all options are literals of the same type.",
+        type: paramMessage`Type "${"kind"}" cannot be used in unions`,
         empty:
           "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
         null: "Unions containing multiple model types cannot be emitted to OpenAPI v2 unless the union is between one model type and 'null'.",
