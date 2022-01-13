@@ -16,6 +16,29 @@ import {
 } from "./types.js";
 
 type DeclScope = NamespaceType | ModelType | InterfaceType | UnionType | EnumType | OperationType;
+
+/**
+ * Creates a projector which returns a projected view of either the global namespace or the
+ * start node provided. Projecting a type effectively clones every type referenced underneath
+ * it. This is accomplished by doing a semantic walk of each type, cloning each type we find,
+ * and running projection code on the clone.
+ *
+ * Projectors can run multiple projections at once. In such cases, each projection is run
+ * on the same clone of the unprojected type. It is up to projections and the user to ensure
+ * that projections which depend on a particular shape are run when that shape is present (or
+ * else to ensure that their projections are tolerant to shape changes).
+ *
+ * The projector maintains its own state maps and sets. If a projection is active (i.e.
+ * program.currentProjector is set), then the projector's state will be returned instead
+ * of the program's state. This ensures that there is no overlap between projected and
+ * unprojected state. It also means that you cannot get state for nodes that are not
+ * part of the active projection.
+ *
+ * Note that decorators are run on namespaces prior to cloning any child types to align
+ * with the checker semantics, while projections are run after everything under the namespace
+ * is cloned. All other run decorators and projections after all child types are cloned and
+ * have their decorators run.
+ */
 export function createProjector(
   program: Program,
   projections: ProjectionApplication[],
@@ -98,9 +121,7 @@ export function createProjector(
     const childOperations = new Map<string, OperationType>();
     const childInterfaces = new Map<string, InterfaceType>();
     const childUnions = new Map<string, UnionType>();
-    const childEnums = new Map<string, EnumType>();
 
-    removeProjectedState(ns);
     let projectedNs: NamespaceType = checker.createAndFinishType({
       ...ns,
       namespaces: childNamespaces,
@@ -187,7 +208,6 @@ export function createProjector(
 
     projectedModel.decorators = projectDecorators(model.decorators);
     if (shouldFinishType(model)) {
-      removeProjectedState(model);
       checker.finishType(projectedModel);
     }
     projectedModel.templateArguments = templateArguments;
@@ -231,7 +251,6 @@ export function createProjector(
     });
     projectedTypes.set(prop, projectedProp);
 
-    removeProjectedState(prop);
     checker.finishType(projectedProp);
     return projectedProp;
   }
@@ -253,7 +272,6 @@ export function createProjector(
     } else if (op.namespace) {
       projectedOp.namespace = projectedNamespaceScope();
     }
-    removeProjectedState(op);
     checker.finishType(projectedOp);
     return applyProjection(op, projectedOp);
   }
@@ -277,7 +295,6 @@ export function createProjector(
     }
 
     if (shouldFinishType(iface)) {
-      removeProjectedState(iface);
       checker.finishType(projectedIface);
     }
 
@@ -305,7 +322,6 @@ export function createProjector(
     });
     projectedTypes.set(union, projectedUnion);
     if (shouldFinishType(union)) {
-      removeProjectedState(union);
       checker.finishType(projectedUnion);
     }
 
@@ -323,7 +339,6 @@ export function createProjector(
     });
     projectedTypes.set(variant, projectedVariant);
 
-    removeProjectedState(variant);
     checker.finishType(projectedVariant);
     return projectedVariant;
   }
@@ -371,7 +386,6 @@ export function createProjector(
     });
 
     projectedTypes.set(e, projectedEnum);
-    removeProjectedState(e);
     checker.finishType(projectedEnum);
     return applyProjection(e, projectedEnum);
   }
@@ -384,8 +398,6 @@ export function createProjector(
       decorators,
     });
     projectedTypes.set(e, projectedMember);
-
-    removeProjectedState(e);
     checker.finishType(projectedMember);
     return projectedMember;
   }
@@ -489,16 +501,5 @@ export function createProjector(
     projectedTypes.set(baseType, projectedType);
 
     return projectedType;
-  }
-  function removeProjectedState(type: Type) {
-    /*
-    for (const set of stateSets.values()) {
-      set.delete(type);
-    }
-
-    for (const map of stateMaps.values()) {
-      map.delete(type);
-    }
-    */
   }
 }
