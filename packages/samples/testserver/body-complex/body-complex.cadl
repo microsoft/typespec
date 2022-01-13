@@ -1,8 +1,10 @@
 import "@cadl-lang/rest";
 
+using Cadl.Http;
+
 @doc("Error")
 model Error {
-  status: int32;
+  @statusCode status: "default";
   message: string;
 }
 
@@ -10,9 +12,7 @@ model Basic {
   @doc("Basic Id")
   id: int32 | null;
 
-  @doc(
-    "Name property with a very long description that does not fit on a single line and a line break."
-  )
+  @doc("Name property with a very long description that does not fit on a single line and a line break.")
   name: string;
   color: CMYKColors;
 }
@@ -92,112 +92,136 @@ model ReadonlyObj {
 }
 
 @doc("AutoRest Complex Body Test Service")
-@resource("/complex")
+@route("/complex")
 namespace Complex {
   @doc("Get complex type {id: 2, name: 'abc', color: 'YELLOW'}")
-  @get("/basic/valid")
+  @route("/basic/valid")
+  @get
   op getValid(): OkResponse<Basic> | Error;
 
   @doc("Please put {id: 2, name: 'abc', color: 'Magenta'}")
-  @put("/basic/valid")
+  @route("/basic/valid")
+  @put
   op putValid(@body value: Basic): OkResponse<{}> | Error;
 
   @doc("Get complex types with integer properties")
-  @get("/primitive/integer")
+  @route("/primitive/integer")
   op getInt(): OkResponse<IntWrapper> | Error;
 
   @doc("Put complex types with integer properties")
-  @put("/primitive/integer")
+  @route("/primitive/integer")
+  @put
   op putInt(@body value: IntWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with long properties")
-  @get("/primitive/long")
+  @route("/primitive/long")
+  @get
   op getLong(): OkResponse<LongWrapper> | Error;
 
   @doc("Put complex types with long properties")
-  @put("/primitive/long")
+  @route("/primitive/long")
+  @put
   op putLong(@body value: LongWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with float properties")
-  @get("/primitive/float")
+  @route("/primitive/float")
+  @get
   op getFloat(): OkResponse<FloatWrapper> | Error;
 
   @doc("Put complex types with float properties")
-  @put("/primitive/float")
+  @route("/primitive/float")
+  @put
   op putFloat(@body value: FloatWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with double properties")
-  @get("/primitive/double")
+  @route("/primitive/double")
+  @get
   op getDouble(): OkResponse<DoubleWrapper> | Error;
 
   @doc("Put complex types with double properties")
-  @put("/primitive/double")
+  @route("/primitive/double")
+  @put
   op putDouble(@body value: DoubleWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with bool properties")
-  @get("/primitive/bool")
+  @route("/primitive/bool")
+  @get
   op getBool(): OkResponse<BooleanWrapper> | Error;
 
   @doc("Put complex types with bool properties")
-  @put("/primitive/bool")
+  @route("/primitive/bool")
+  @put
   op putBool(@body value: BooleanWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with string properties")
-  @get("/primitive/string")
+  @route("/primitive/string")
+  @get
   op getString(): OkResponse<StringWrapper> | Error;
 
   @doc("Put complex types with string properties")
-  @put("/primitive/string")
+  @route("/primitive/string")
+  @put
   op putString(@body value: StringWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with date properties")
-  @get("/primitive/date")
+  @route("/primitive/date")
+  @get
   op getPlainDate(): OkResponse<PlainDateWrapper> | Error;
 
   @doc("Put complex types with date properties")
-  @put("/primitive/date")
+  @route("/primitive/date")
+  @put
   op putPlainDate(@body value: PlainDateWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with DateTime properties")
-  @get("/primitive/datetime")
+  @route("/primitive/datetime")
+  @get
   op getZonedDateTime(): OkResponse<DateTimeWrapper> | Error;
 
   @doc("Put complex types with DateTime properties")
-  @put("/primitive/datetime")
+  @route("/primitive/datetime")
+  @put
   op putZonedDateTime(@body value: DateTimeWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with Duration properties")
-  @get("/primitive/duration")
+  @route("/primitive/duration")
+  @get
   op getZonedDuration(): OkResponse<DurationWrapper> | Error;
 
   @doc("Put complex types with Duration properties")
-  @put("/primitive/duration")
+  @route("/primitive/duration")
+  @put
   op putZonedDuration(@body value: DurationWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with bytes properties")
-  @get("/primitive/bytes")
+  @route("/primitive/bytes")
+  @get
   op getBytes(): OkResponse<BytesWrapper> | Error;
 
   @doc("Put complex types with bytes properties")
-  @put("/primitive/bytes")
+  @route("/primitive/bytes")
+  @put
   op putBytes(@body value: BytesWrapper): OkResponse<{}> | Error;
 
   @doc("Get complex types with array properties")
-  @get("/array/valid")
+  @route("/array/valid")
   op getArray(): OkResponse<ArrayWrapper> | Error;
 
   @doc("Put complex types with array properties")
-  @put("/array/valid")
+  @route("/array/valid")
+  @put
   op putArray(@body value: ArrayWrapper): OkResponse<{}> | Error;
 
-  @resource("/dictionary")
+  @route("/dictionary")
   namespace Dictionary {
     @doc("Get complex types with dictionary property")
-    @get("/typed/valid")
+    @route("/typed/valid")
+    @get
     op getDictionary(): OkResponse<DictionaryWrapper> | Error;
 
     @doc("Put complex types with dictionary property")
-    @put("/typed/valid")
+    @route("/typed/valid")
+    @put
     op putArray(@body value: DictionaryWrapper): OkResponse<{}> | Error;
   }
 }

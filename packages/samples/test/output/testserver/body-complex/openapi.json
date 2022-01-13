@@ -810,7 +810,7 @@
         }
       }
     },
-    "/dictionary/typed/valid": {
+    "/complex/dictionary/typed/valid": {
       "get": {
         "operationId": "Dictionary_getDictionary",
         "summary": "Get complex types with dictionary property",
@@ -886,6 +886,7 @@
           "id": {
             "type": "integer",
             "format": "int32",
+            "nullable": true,
             "x-cadl-name": "Cadl.int32 | Cadl.null",
             "description": "Basic Id"
           },
@@ -906,17 +907,12 @@
       "Error": {
         "type": "object",
         "properties": {
-          "status": {
-            "type": "integer",
-            "format": "int32"
-          },
           "message": {
             "type": "string"
           }
         },
         "description": "Error",
         "required": [
-          "status",
           "message"
         ]
       },
@@ -1014,6 +1010,7 @@
           },
           "null": {
             "type": "string",
+            "nullable": true,
             "x-cadl-name": "Cadl.string | Cadl.null"
           }
         },
