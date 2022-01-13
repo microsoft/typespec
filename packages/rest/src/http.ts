@@ -38,9 +38,6 @@ export function $path(program: Program, entity: Type, paramName: string) {
   if (!paramName && entity.kind === "ModelProperty") {
     paramName = entity.name;
   }
-  if (entity.kind === "ModelProperty" && entity.name === "anomalyAlertingConfigurationId") {
-    console.log("anomalyAlertingConfigurationId paramName: " + paramName);
-  }
   program.stateMap(pathFieldsKey).set(entity, paramName);
 }
 

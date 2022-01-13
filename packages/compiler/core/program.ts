@@ -474,7 +474,7 @@ export async function createProgram(
   }
 
   function enableProjections(projections: ProjectionApplication[], startNode?: Type) {
-    return createProjector(program, projections, stateMaps, stateSets, startNode);
+    return createProjector(program, projections, startNode);
   }
 
   function disableProjections() {

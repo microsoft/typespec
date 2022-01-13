@@ -193,21 +193,3 @@ projection enum#v {
     };
   }
 }
-
-#suppress "projections-are-experimental"
-projection array#v {
-  to(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
-      return never;
-    };
-  }
-  from(version) {
-    if addedAfter(self, version) {
-      return never;
-    } else if removedOnOrBefore(self, version) {
-      return never;
-    };
-  }
-}

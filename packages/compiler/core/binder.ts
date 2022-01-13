@@ -463,7 +463,6 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         "Attempted to declare parameter in namespace",
         node
       );
-
       node.namespaceSymbol = scope.symbol;
     } else if (scope.kind === SyntaxKind.CadlScript) {
       compilerAssert(

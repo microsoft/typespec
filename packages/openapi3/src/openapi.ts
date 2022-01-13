@@ -13,6 +13,7 @@ import {
   getMinValue,
   getProperty,
   getServiceHost,
+  getServiceNamespace,
   getServiceNamespaceString,
   getServiceTitle,
   getServiceVersion,
@@ -32,7 +33,7 @@ import {
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
 import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
-import { getVersionedNamespaces } from "@cadl-lang/versioning";
+import { getVersionRecords } from "@cadl-lang/versioning";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
@@ -252,24 +253,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     tags = new Set();
   }
   async function emitOpenAPI() {
-    const versionedNamespaces = getVersionedNamespaces(program);
-    const versionNs = versionedNamespaces[0]; // TODO: Select the service namespace
-    console.log("starting openapi emit!");
-    if (versionNs) {
-      console.log("Got versioned namespace");
-      for (const version of versionNs.versions) {
-        // TODO: find versioned dependencies
-        const projections = [
-          { scope: versionedNamespaces[0].ns, projectionName: "v", arguments: [version] },
-        ];
-        console.log(">>>> PROJECT ENABLED <<<<<<", version);
-        program.enableProjections(projections);
-
-        await emitOpenAPIFromVersion(version);
-        break;
-      }
-    } else {
-      await emitOpenAPIFromVersion();
+    const serviceNs = getServiceNamespace(program);
+    if (!serviceNs) {
+      throw new Error("Service NS not found");
+    }
+    const versions = getVersionRecords(program, serviceNs);
+    for (const record of versions) {
+      program.enableProjections(record.projections);
+      await emitOpenAPIFromVersion(record.version);
     }
   }
 
@@ -952,9 +943,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     for (const [name, prop] of model.properties) {
       if (!isSchemaProperty(prop)) {
-        if (model.name === "AnomalyAlertingConfiguration") {
-          console.log(name + " is not a chema prop");
-        }
         continue;
       }
 

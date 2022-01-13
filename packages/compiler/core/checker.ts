@@ -230,7 +230,6 @@ export function createChecker(program: Program): Checker {
     ["Operation", []],
     ["Interface", []],
     ["Enum", []],
-    ["Array", []],
   ]);
   const projectionsByType = new Map<Type, ProjectionStatementNode[]>();
   // whether we've checked this specific projection statement before
@@ -911,7 +910,17 @@ export function createChecker(program: Program): Checker {
       | UnionStatementNode
   ): NamespaceType | undefined {
     if (node === globalNamespaceType.node) return undefined;
-    if (!node.namespaceSymbol) return globalNamespaceType;
+    // we leave namespaces for interface members as undefined
+    if (!node.namespaceSymbol) {
+      if (
+        node.kind === SyntaxKind.OperationStatement &&
+        node.parent &&
+        node.parent.kind === SyntaxKind.InterfaceStatement
+      ) {
+        return undefined;
+      }
+      return globalNamespaceType;
+    }
 
     const mergedSymbol = getMergedSymbol(node.namespaceSymbol) as TypeSymbol;
     const symbolLinks = getSymbolLinks(mergedSymbol);
@@ -926,7 +935,10 @@ export function createChecker(program: Program): Checker {
     return symbolLinks.type as NamespaceType;
   }
 
-  function checkOperation(node: OperationStatementNode): OperationType {
+  function checkOperation(
+    node: OperationStatementNode,
+    parentInterface?: InterfaceType
+  ): OperationType {
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
     const decorators = checkDecorators(node);
@@ -938,7 +950,9 @@ export function createChecker(program: Program): Checker {
       parameters: getTypeForNode(node.parameters) as ModelType,
       returnType: getTypeForNode(node.returnType),
       decorators,
+      interface: parentInterface,
     });
+
     type.parameters.namespace = namespace;
 
     if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
@@ -1863,13 +1877,12 @@ export function createChecker(program: Program): Checker {
 
     const ownMembers = new Map<string, OperationType>();
 
-    checkInterfaceMembers(node, ownMembers);
+    checkInterfaceMembers(node, ownMembers, interfaceType);
 
     for (const [k, v] of ownMembers) {
       // don't do a duplicate check here because interface members can override
       // an member coming from a mixin.
       interfaceType.operations.set(k, v);
-      v.interface = interfaceType;
     }
 
     if (
@@ -1891,10 +1904,11 @@ export function createChecker(program: Program): Checker {
 
   function checkInterfaceMembers(
     node: InterfaceStatementNode,
-    members: Map<string, OperationType>
+    members: Map<string, OperationType>,
+    interfaceType: InterfaceType
   ) {
     for (const opNode of node.operations) {
-      const opType = checkOperation(opNode);
+      const opType = checkOperation(opNode, interfaceType);
       if (members.has(opType.name)) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -2318,11 +2332,6 @@ export function createChecker(program: Program): Checker {
         type.nodeByKind.set("Enum", node);
         break;
       default:
-        if (node.selector.kind === SyntaxKind.Identifier && node.selector.sv === "array") {
-          projectionsByTypeKind.get("Array")!.push(node);
-          type.nodeByKind.set("Array", node);
-          break;
-        }
         const projected = checkTypeReference(node.selector);
         let current = projectionsByType.get(projected);
         if (!current) {
