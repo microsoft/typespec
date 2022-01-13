@@ -34,6 +34,7 @@ import {
   TypeSymbol,
   UnionStatementNode,
   UsingStatementNode,
+  Writable,
 } from "./types.js";
 
 // Use a regular expression to define the prefix for Cadl-exposed functions
@@ -191,10 +192,10 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       }
     }
 
-    sourceFile.namespaces = Array.from(namespaces);
+    (sourceFile as any).namespaces = Array.from(namespaces);
   }
 
-  function bindSourceFile(sourceFile: CadlScriptNode) {
+  function bindSourceFile(sourceFile: Writable<CadlScriptNode>) {
     isJsFile = false;
     sourceFile.exports = createSymbolTable();
     fileNamespace = currentFile = sourceFile;
@@ -310,7 +311,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
    * multiple times for the same symbol.
    *
    */
-  function bindProjectionStatement(node: ProjectionStatementNode) {
+  function bindProjectionStatement(node: Writable<ProjectionStatementNode>) {
     const name = node.id.sv;
     const table: SymbolTable<Sym> = getContainingSymbolTable();
     let sym;
@@ -406,7 +407,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     declareSymbol(getContainingSymbolTable(), node, node.id.sv);
   }
 
-  function bindNamespaceStatement(statement: NamespaceStatementNode) {
+  function bindNamespaceStatement(statement: Writable<NamespaceStatementNode>) {
     // check if there's an existing symbol for this namespace
     const existingBinding = currentNamespace.exports!.get(statement.name.sv);
     if (existingBinding && existingBinding.kind === "type") {
@@ -433,14 +434,14 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       fileNamespace = statement;
       let current: CadlScriptNode | NamespaceStatementNode = statement;
       while (current.kind !== SyntaxKind.CadlScript) {
-        currentFile.inScopeNamespaces.push(current);
+        (currentFile.inScopeNamespaces as NamespaceStatementNode[]).push(current);
         current = current.parent as CadlScriptNode | NamespaceStatementNode;
       }
     }
   }
 
   function bindUsingStatement(statement: UsingStatementNode) {
-    currentFile.usings.push(statement);
+    (currentFile.usings as UsingStatementNode[]).push(statement);
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {
@@ -449,7 +450,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     }
   }
 
-  function declareSymbol(table: SymbolTable<Sym>, node: Declaration, name: string) {
+  function declareSymbol(table: SymbolTable<Sym>, node: Writable<Declaration>, name: string) {
     compilerAssert(table, "Attempted to declare symbol on non-existent table");
     const symbol = createTypeSymbol(node, name);
     node.symbol = symbol;
@@ -529,7 +530,9 @@ function createFunctionSymbol(name: string, value: (...args: any[]) => any): Fun
   };
 }
 
-function createSyntheticNamespace(name: string): NamespaceStatementNode & { flags: NodeFlags } {
+function createSyntheticNamespace(
+  name: string
+): Writable<NamespaceStatementNode & { flags: NodeFlags }> {
   const nsId: IdentifierNode = {
     kind: SyntaxKind.Identifier,
     pos: 0,
@@ -543,6 +546,7 @@ function createSyntheticNamespace(name: string): NamespaceStatementNode & { flag
     pos: 0,
     end: 0,
     name: nsId,
+    symbol: undefined as any,
     locals: createSymbolTable(),
     exports: createSymbolTable(),
     flags: NodeFlags.Synthetic,

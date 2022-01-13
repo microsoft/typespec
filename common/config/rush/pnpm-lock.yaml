@@ -12,7 +12,6 @@ dependencies:
   '@rush-temp/samples': file:projects/samples.tgz
   '@rush-temp/spec': file:projects/spec.tgz
   '@rush-temp/tmlanguage-generator': file:projects/tmlanguage-generator.tgz
-  '@rush-temp/versioning': file:projects/versioning.tgz
   '@types/glob': 7.1.4
   '@types/js-yaml': 4.0.4
   '@types/mkdirp': 1.0.2
@@ -26,7 +25,7 @@ dependencies:
   '@types/vscode': 1.53.0
   '@types/yargs': 17.0.5
   ajv: 8.4.0
-  change-case: 4.1.2
+  autorest: 3.3.2
   ecmarkup: 9.6.0
   glob: 7.1.7
   grammarkdown: 3.1.2
@@ -609,27 +608,12 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
-  /camel-case/4.1.2:
-    dependencies:
-      pascal-case: 3.1.2
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==
   /camelcase/6.2.0:
     dev: false
     engines:
       node: '>=10'
     resolution:
       integrity: sha512-c7wVvbw3f37nuobQNtgsgG9POC9qMbNuMQmTCqZv23b6MIz0fcYpBiOlv9gEN/hdLdnZTDQhg6e9Dq5M1vKvfg==
-  /capital-case/1.0.4:
-    dependencies:
-      no-case: 3.0.4
-      tslib: 2.3.1
-      upper-case-first: 2.0.2
-    dev: false
-    resolution:
-      integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==
   /caseless/0.12.0:
     dev: false
     resolution:
@@ -675,23 +659,6 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
-  /change-case/4.1.2:
-    dependencies:
-      camel-case: 4.1.2
-      capital-case: 1.0.4
-      constant-case: 3.0.4
-      dot-case: 3.0.4
-      header-case: 2.0.4
-      no-case: 3.0.4
-      param-case: 3.0.4
-      pascal-case: 3.1.2
-      path-case: 3.0.4
-      sentence-case: 3.0.4
-      snake-case: 3.0.4
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-bSxY2ws9OtviILG1EiY5K7NNxkqg/JnRnFxLtKQ96JaviiIxi7djMrSd0ECT9AC+lttClmYwKw53BWpOMblo7A==
   /cheerio-select/1.5.0:
     dependencies:
       css-select: 4.1.3
@@ -784,14 +751,6 @@ packages:
     dev: false
     resolution:
       integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
-  /constant-case/3.0.4:
-    dependencies:
-      no-case: 3.0.4
-      tslib: 2.3.1
-      upper-case: 2.0.2
-    dev: false
-    resolution:
-      integrity: sha512-I2hSBi7Vvs7BEuJDr5dDHfzb/Ruj3FyvFyh7KLilAjNQw3Be+xgqUBA2W6scVEcL0hL1dwPRtIqEPVUCKkSsyQ==
   /core-util-is/1.0.2:
     dev: false
     resolution:
@@ -959,13 +918,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-w96Cjofp72M5IIhpjgobBimYEfoPjx1Vx0BSX9P30WBdZW2WIKU0T1Bd0kz2eNZ9ikjKgHbEyKx8BB6H1L3h3A==
-  /dot-case/3.0.4:
-    dependencies:
-      no-case: 3.0.4
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==
   /ecc-jsbn/0.1.2:
     dependencies:
       jsbn: 0.1.1
@@ -1467,13 +1419,6 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
-  /header-case/2.0.4:
-    dependencies:
-      capital-case: 1.0.4
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-H/vuk5TEEVZwrR0lp2zed9OCo1uAILMlx0JEMgC26rzyJJ3N1v6XkwHHXJQdR2doSjcGPM6OKPYoJgf0plJ11Q==
   /highlight.js/11.0.1:
     dev: false
     engines:
@@ -1789,12 +1734,6 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-FN8JBzLx6CzeMrB0tg6pqlGU1wCrXW+ZXGH481kfsBqer0hToTIiHdjH4Mq8xJUbvATujKCvaREGWpGUionraA==
-  /lower-case/2.0.2:
-    dependencies:
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==
   /lru-cache/5.1.1:
     dependencies:
       yallist: 3.1.1
@@ -1948,13 +1887,6 @@ packages:
     dev: false
     resolution:
       integrity: sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
-  /no-case/3.0.4:
-    dependencies:
-      lower-case: 2.0.2
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==
   /node-fetch/3.1.0:
     dependencies:
       data-uri-to-buffer: 4.0.0
@@ -2076,13 +2008,6 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==
-  /param-case/3.0.4:
-    dependencies:
-      dot-case: 3.0.4
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==
   /parent-module/1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -2111,20 +2036,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==
-  /pascal-case/3.1.2:
-    dependencies:
-      no-case: 3.0.4
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==
-  /path-case/3.0.4:
-    dependencies:
-      dot-case: 3.0.4
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-qO4qCFjXqVTrcbPt/hQfhTQ+VhFsqNKOPtytgNKkKxSoEp3XPUQ8ObFuePylOIok5gjn69ry8XiULxCwot3Wfg==
   /path-exists/4.0.0:
     dev: false
     engines:
@@ -2414,14 +2325,6 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ==
-  /sentence-case/3.0.4:
-    dependencies:
-      no-case: 3.0.4
-      tslib: 2.3.1
-      upper-case-first: 2.0.2
-    dev: false
-    resolution:
-      integrity: sha512-8LS0JInaQMCRoQ7YUytAo/xUu5W2XnQxV2HI/6uM6U7CITS1RqPElr30V6uIqyMKM9lJGRVFy5/4CuzcixNYSg==
   /serialize-javascript/5.0.1:
     dependencies:
       randombytes: 2.1.0
@@ -2456,13 +2359,6 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-qMCMfhY040cVHT43K9BFygqYbUPFZKHOg7K73mtTWJRb8pyP3fzf4Ixd5SzdEJQ6MRUg/WBnOLxghZtKKurENQ==
-  /snake-case/3.0.4:
-    dependencies:
-      dot-case: 3.0.4
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==
   /source-map-support/0.5.20:
     dependencies:
       buffer-from: 1.1.2
@@ -2712,18 +2608,6 @@ packages:
     dev: false
     resolution:
       integrity: sha1-Tz+1OxBuYJf8+ctBCfKl6b36UCI=
-  /upper-case-first/2.0.2:
-    dependencies:
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==
-  /upper-case/2.0.2:
-    dependencies:
-      tslib: 2.3.1
-    dev: false
-    resolution:
-      integrity: sha512-KgdgDGJt2TpuwBUIjgG6lzw2GWFRCW9Qkfkiv0DxqHHLYJHmtmdUIKcZd8rHgFSjopVTlw6ggzCm1b8MFQwikg==
   /uri-js/4.4.1:
     dependencies:
       punycode: 2.1.1
@@ -3058,7 +2942,6 @@ packages:
       '@types/resolve': 1.20.1
       '@types/yargs': 17.0.5
       ajv: 8.4.0
-      change-case: 4.1.2
       glob: 7.1.7
       grammarkdown: 3.1.2
       js-yaml: 4.1.0
@@ -3079,7 +2962,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-YNm907NWqE2DBhSzKcZo8dj2MWgs/tXwAoBgBHfeEi88LaSDgL0W6tfDFTkr+zT7BfgbktA0/ICQ5ZLcd4vzMQ==
+      integrity: sha512-SOTqrJEuDKycWEDYY5SGKdznKBGvHpUCOhyHFe5Yj8mlj9RxfOJ6UvOPO9kTVB9Mxy1s+b6MKKLAisbsErEDHw==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -3091,7 +2974,7 @@ packages:
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-mzwJKiDcwoxE5Gxf3W76QOFJNl//Na8xov5Adpco5dKw6Ey0Y8+NNUiKRIMeyFHZ+j9c4eVYuKi8feuEoZY+rA==
+      integrity: sha512-J2GVtY7i0bqYlu6zD3ZS1HeKVQmjNZDKftDVaNw7Nc5j4wYuY4LVTHlqmY43X4LreBCeLI0AXJJwWmhUT2b32g==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
@@ -3106,7 +2989,7 @@ packages:
     dev: false
     name: '@rush-temp/prettier-plugin-cadl'
     resolution:
-      integrity: sha512-0yDn+At77/0Sg0LHIqDXy3mIenT9l7DsclxCF2qZ0vOE+YCujel2/GLIEejNZSgKR1m0AZbjkmt9Og9+mn3CrQ==
+      integrity: sha512-np50XuH21IWMazMzTDO3S0oNwduErH1urhYUPQfPalynCx3aH5lVQW66pWk9z9qH9JFVT3RTma6Ch1v9fvDECQ==
       tarball: file:projects/prettier-plugin-cadl.tgz
     version: 0.0.0
   file:projects/rest.tgz:
@@ -3118,7 +3001,7 @@ packages:
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-SKaaCn2uTgmFHggv1pvUV+v2du/4uPaUWJ0E2oc9y0oMZLv1EZpiPnh24w3bMu6cM7nxFrlEQHRrv2sRTPsIzg==
+      integrity: sha512-A1rXu6X1Qs3IFebpnmOc3L6yh42V69kth7nvOTxMc7zJWCTWpFUkpjv9oUQBv8rkVBibGlLTdtNGAIEwnfO0WQ==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -3129,7 +3012,7 @@ packages:
     dev: false
     name: '@rush-temp/samples'
     resolution:
-      integrity: sha512-8rHiaXYpGajNJGgluAXfV8XtLntid0d17Tx0MuJx6RgkFpDx3Pa8pU5cKqY4243txJ3+znmbJADnRrYvRl7+3A==
+      integrity: sha512-P4HUSIB8rwE76JAA+DV2o0kKI5TKM/p73dYFAR7YG74AZT26py+3KYfBLPfjtqFdYYjbjydt9A0WP8yYwlrFsQ==
       tarball: file:projects/samples.tgz
     version: 0.0.0
   file:projects/spec.tgz:
@@ -3158,18 +3041,6 @@ packages:
       integrity: sha512-knw/L+Bae0ugyw0PdTcsoHMPZIAuAz07xX0LuxYb3mcXklWfh3ubNBGuNnn94abkOXM5yd6fiWgwtgpwowPREg==
       tarball: file:projects/tmlanguage-generator.tgz
     version: 0.0.0
-  file:projects/versioning.tgz:
-    dependencies:
-      '@types/mocha': 7.0.2
-      '@types/node': 14.0.27
-      mocha: 8.3.2
-      typescript: 4.4.4
-    dev: false
-    name: '@rush-temp/versioning'
-    resolution:
-      integrity: sha512-NLzNu2PKxoYAjB3tgNpqQUPAlNe7Auoh5EFMPbJL1d2x+voiYH8qEk/Gp+SKb4RwY/TeJtnPBCOcVfL2wFBFng==
-      tarball: file:projects/versioning.tgz
-    version: 0.0.0
 specifiers:
   '@rollup/plugin-commonjs': ~17.1.0
   '@rollup/plugin-json': ~4.1.0
@@ -3184,7 +3055,6 @@ specifiers:
   '@rush-temp/samples': file:./projects/samples.tgz
   '@rush-temp/spec': file:./projects/spec.tgz
   '@rush-temp/tmlanguage-generator': file:./projects/tmlanguage-generator.tgz
-  '@rush-temp/versioning': file:./projects/versioning.tgz
   '@types/glob': ~7.1.3
   '@types/js-yaml': ~4.0.1
   '@types/mkdirp': ~1.0.1
@@ -3198,7 +3068,7 @@ specifiers:
   '@types/vscode': ~1.53.0
   '@types/yargs': ~17.0.2
   ajv: ~8.4.0
-  change-case: ~4.1.2
+  autorest: ~3.3.2
   ecmarkup: ~9.6.0
   glob: ~7.1.6
   grammarkdown: ~3.1.2

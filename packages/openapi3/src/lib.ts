@@ -6,7 +6,7 @@ const libDef = {
     "decorator-wrong-type": {
       severity: "error",
       messages: {
-        default: paramMessage`Cannot apply ${"decoratorName"} decorator to ${"entityKind"}`,
+        default: paramMessage`Cannot use @${"decorator"} on a ${"entityKind"}`,
         modelsOperations: paramMessage`${"decoratorName"} decorator can only be applied to models and operation parameters.`,
       },
     },
@@ -32,6 +32,12 @@ const libDef = {
       severity: "error",
       messages: {
         default: "Duplicate @body declarations on response type",
+      },
+    },
+    "duplicate-status-code": {
+      severity: "error",
+      messages: {
+        default: "Duplicate @statusCode declarations on response type",
       },
     },
     "duplicate-body-types": {
@@ -68,7 +74,22 @@ const libDef = {
         null: "Unions containing multiple model types cannot be emitted to OpenAPI v2 unless the union is between one model type and 'null'.",
       },
     },
-
+    discriminator: {
+      severity: "error",
+      messages: {
+        duplicate: paramMessage`Discriminator value "${"val"}" defined in two different variants: ${"model1"} and ${"model2"}`,
+        missing: "The discriminator property is not defined in a variant of a discriminated union.",
+        required: "The discriminator property must be a required property.",
+        type: "The discriminator property must be type 'string'.",
+      },
+    },
+    "discriminator-value": {
+      severity: "warning",
+      messages: {
+        literal:
+          "Each variant of a discriminated union should define the discriminator property with a string literal value.",
+      },
+    },
     "invalid-default": {
       severity: "error",
       messages: {

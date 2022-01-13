@@ -50,7 +50,7 @@ export interface Program {
   stateMap(key: Symbol): Map<any, any>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
-  reportDiagnostics(diagnostics: Diagnostic[]): void;
+  reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable<Sym> | undefined): void;
   enableProjections(projections: ProjectionApplication[], startNode?: Type): Projector;
   disableProjections(): void;
@@ -559,7 +559,7 @@ export async function createProgram(
    */
   function findDirectiveSuppressingCode(
     code: string,
-    directives: DirectiveExpressionNode[]
+    directives: readonly DirectiveExpressionNode[]
   ): Directive | undefined {
     for (const directive of directives.map((x) => parseDirective(x))) {
       if (directive.name === "suppress") {

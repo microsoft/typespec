@@ -3,6 +3,7 @@ import {
   checkIfServiceNamespace,
   EnumMemberType,
   EnumType,
+  findChildModels,
   getAllTags,
   getDoc,
   getFormat,
@@ -10,6 +11,7 @@ import {
   getMaxValue,
   getMinLength,
   getMinValue,
+  getProperty,
   getServiceHost,
   getServiceNamespaceString,
   getServiceTitle,
@@ -29,12 +31,12 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getAllRoutes, http, OperationDetails } from "@cadl-lang/rest";
+import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
 import { getVersionedNamespaces } from "@cadl-lang/versioning";
 import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
-const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody } = http;
+const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isStatusCode } = http;
 
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
@@ -50,7 +52,7 @@ export function $operationId(program: Program, entity: Type, opId: string) {
   if (entity.kind !== "Operation") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
-      format: { decoratorName: "operationId", entityKind: entity.kind },
+      format: { decorator: "operationId", entityKind: entity.kind },
       target: entity,
     });
     return;
@@ -63,7 +65,7 @@ export function $pageable(program: Program, entity: Type, nextLinkName: string =
   if (entity.kind !== "Operation") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
-      format: { decoratorName: "pageable", entityKind: entity.kind },
+      format: { decorator: "pageable", entityKind: entity.kind },
       target: entity,
     });
     return;
@@ -99,7 +101,7 @@ export function $oneOf(program: Program, entity: Type) {
   if (entity.kind !== "Union") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
-      format: { decoratorName: "oneOf", entityKind: entity.kind },
+      format: { decorator: "oneOf", entityKind: entity.kind },
       target: entity,
     });
     return;
@@ -355,24 +357,37 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function emitResponses(responseType: Type) {
     if (responseType.kind === "Union") {
       for (const [i, option] of responseType.options.entries()) {
-        emitResponseObject(option, i === 0 ? "200" : "default");
+        emitResponseObject(option);
       }
     } else {
       emitResponseObject(responseType);
     }
   }
 
-  function emitResponseObject(responseModel: Type, statusCode: string = "200") {
+  function isBinaryPayload(body: Type, contentType: string) {
+    return (
+      body.kind === "Model" &&
+      body.name === "bytes" &&
+      contentType !== "application/json" &&
+      contentType !== "text/plain"
+    );
+  }
+
+  function emitResponseObject(responseModel: Type) {
+    let statusCode = undefined;
     let contentType = "application/json";
     if (
       responseModel.kind === "Model" &&
       !responseModel.baseModel &&
       responseModel.properties.size === 0
     ) {
-      const schema = mapCadlTypeToOpenAPI(responseModel);
+      const isBinary = isBinaryPayload(responseModel, contentType);
+      const schema = isBinary
+        ? { type: "string", format: "binary" }
+        : mapCadlTypeToOpenAPI(responseModel);
       if (schema) {
-        currentEndpoint.responses[statusCode] = {
-          description: getResponseDescription(responseModel, statusCode),
+        currentEndpoint.responses["200"] = {
+          description: getResponseDescription(responseModel, "200"),
           content: {
             [contentType]: {
               schema: schema,
@@ -380,7 +395,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           },
         };
       } else {
-        currentEndpoint.responses[204] = {
+        currentEndpoint.responses["204"] = {
           description: "No content",
         };
       }
@@ -402,15 +417,21 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
           bodyModel = prop.type;
         }
+        if (isStatusCode(program, prop)) {
+          if (statusCode) {
+            reportDiagnostic(program, { code: "duplicate-status-code", target: responseModel });
+            continue;
+          }
+          if (prop.type.kind === "Number") {
+            statusCode = String(prop.type.value);
+          } else if (prop.type.kind === "String") {
+            statusCode = prop.type.value;
+          }
+        }
         const type = prop.type;
         const headerName = getHeaderFieldName(program, prop);
         switch (headerName) {
           case undefined:
-            break;
-          case "status-code":
-            if (type.kind === "Number") {
-              statusCode = String(type.value);
-            }
             break;
           case "content-type":
             if (type.kind === "String") {
@@ -424,12 +445,18 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    contentEntry.schema = getSchemaOrRef(bodyModel);
+    const isBinary = isBinaryPayload(bodyModel, contentType);
+    contentEntry.schema = isBinary
+      ? { type: "string", format: "binary" }
+      : getSchemaOrRef(bodyModel);
+
+    // If no status code was defined in the response model, use 200.
+    statusCode ??= "200";
 
     const response: any = {
       description: getResponseDescription(responseModel, statusCode),
       content: {
-        [contentType]: contentEntry,
+        [contentType ?? "application/json"]: contentEntry,
       },
     };
     if (Object.keys(headers).length > 0) {
@@ -587,7 +614,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     const bodyParam = bodyParams[0];
     const bodyType = bodyParam.type;
-    const bodySchema = getSchemaOrRef(bodyType);
 
     const requestBody: any = {
       description: getDoc(program, bodyParam),
@@ -601,6 +627,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       ? getContentTypes(contentTypeParam)
       : ["application/json"];
     for (let contentType of contentTypes) {
+      const isBinary = isBinaryPayload(bodyType, contentType);
+      const bodySchema = isBinary ? { type: "string", format: "binary" } : getSchemaOrRef(bodyType);
       const contentEntry: any = {
         schema: bodySchema,
       };
@@ -900,6 +928,28 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       description: getDoc(program, model),
     };
 
+    const discriminator = getDiscriminator(program, model);
+    if (discriminator) {
+      const childModels = findChildModels(program, model);
+
+      if (!validateDiscriminator(discriminator, childModels)) {
+        // appropriate diagnostic is generated with the validate function
+        return {};
+      }
+
+      // getSchemaOrRef on all children to push them into components.schemas
+      for (let child of childModels) {
+        getSchemaOrRef(child);
+      }
+
+      const mapping = getDiscriminatorMapping(discriminator, childModels);
+      if (mapping) {
+        discriminator.mapping = mapping;
+      }
+
+      modelSchema.discriminator = discriminator;
+    }
+
     for (const [name, prop] of model.properties) {
       if (!isSchemaProperty(prop)) {
         if (model.name === "AnomalyAlertingConfiguration") {
@@ -973,6 +1023,103 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
+  function validateDiscriminator(discriminator: any, childModels: ModelType[]): boolean {
+    const { propertyName } = discriminator;
+    var retVals = childModels.map((t) => {
+      const prop = getProperty(t, propertyName);
+      if (!prop) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
+        return false;
+      }
+      var retval = true;
+      if (!isOasString(prop.type)) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "type", target: prop });
+        retval = false;
+      }
+      if (prop.optional) {
+        reportDiagnostic(program, { code: "discriminator", messageId: "required", target: prop });
+        retval = false;
+      }
+      return retval;
+    });
+    // Map of discriminator value to the model in which it is declared
+    const discriminatorValues = new Map<string, string>();
+    for (let t of childModels) {
+      // Get the discriminator property directly in the child model
+      const prop = t.properties?.get(propertyName);
+      // Issue warning diagnostic if discriminator property missing or is not a string literal
+      if (!prop || !isStringLiteral(prop.type)) {
+        reportDiagnostic(program, {
+          code: "discriminator-value",
+          messageId: "literal",
+          target: prop || t,
+        });
+      }
+      if (prop) {
+        const vals = getStringValues(prop.type);
+        vals.forEach((val) => {
+          if (discriminatorValues.has(val)) {
+            reportDiagnostic(program, {
+              code: "discriminator",
+              messageId: "duplicate",
+              format: { val: val, model1: discriminatorValues.get(val)!, model2: t.name },
+              target: prop,
+            });
+            retVals.push(false);
+          } else {
+            discriminatorValues.set(val, t.name);
+          }
+        });
+      }
+    }
+    return retVals.every((v) => v);
+  }
+
+  function getDiscriminatorMapping(discriminator: any, childModels: ModelType[]) {
+    const { propertyName } = discriminator;
+    const getMapping = (t: ModelType): any => {
+      const prop = t.properties?.get(propertyName);
+      if (prop) {
+        return getStringValues(prop.type).flatMap((v) => [{ [v]: getSchemaOrRef(t).$ref }]);
+      }
+      return undefined;
+    };
+    var mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
+    return mappings.length > 0 ? mappings.reduce((a, s) => ({ ...a, ...s }), {}) : undefined;
+  }
+
+  // An openapi "string" can be defined in several different ways in Cadl
+  function isOasString(type: Type): boolean {
+    if (type.kind === "String") {
+      // A string literal
+      return true;
+    } else if (type.kind === "Model" && type.name === "string") {
+      // string type
+      return true;
+    } else if (type.kind === "Union") {
+      // A union where all variants are an OasString
+      return type.options.every((o) => isOasString(o));
+    }
+    return false;
+  }
+
+  function isStringLiteral(type: Type): boolean {
+    return (
+      type.kind === "String" ||
+      (type.kind === "Union" && type.options.every((o) => o.kind === "String"))
+    );
+  }
+
+  // Return any string literal values for type
+  function getStringValues(type: Type): string[] {
+    if (type.kind === "String") {
+      return [type.value];
+    } else if (type.kind === "Union") {
+      return type.options.flatMap(getStringValues).filter((v) => v);
+    }
+    return [];
+  }
+
   /**
    * A "schema property" here is a property that is emitted to OpenAPI schema.
    *
@@ -983,12 +1130,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const headerInfo = getHeaderFieldName(program, property);
     const queryInfo = getQueryParamName(program, property);
     const pathInfo = getPathParamName(program, property);
-
-    if (property.name === "anomalyAlertingConfigurationId") {
-      console.log(property);
-      console.log(headerInfo, queryInfo, pathInfo);
-    }
-    return !(headerInfo || queryInfo || pathInfo);
+    const statusCodeinfo = isStatusCode(program, property);
+    return !(headerInfo || queryInfo || pathInfo || statusCodeinfo);
   }
 
   function getTypeNameForSchemaProperties(type: Type) {

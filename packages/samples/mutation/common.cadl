@@ -1,3 +1,0 @@
-model OtherModel {
-  num: int32;
-}

@@ -18,6 +18,8 @@ import {
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
+  ContainerNode,
+  DeclarationNode,
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticReport,
@@ -74,8 +76,9 @@ import {
   UnionVariantNode,
   UsingStatementNode,
   VoidKeywordNode,
+  Writable,
 } from "./types.js";
-
+import { isArray } from "./util.js";
 /**
  * Callback to parse each element in a delimited list
  *
@@ -301,7 +304,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
-      let item: Statement;
+      let item: Writable<Statement>;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -380,7 +383,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const decorators = parseDecoratorList();
       const tok = token();
 
-      let item: Statement;
+      let item: Writable<Statement>;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -482,22 +485,23 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       parseExpected(Token.CloseBrace);
     }
 
-    let outerNs: NamespaceStatementNode = {
+    let outerNs: NamespaceStatementNode = createNode({
       kind: SyntaxKind.NamespaceStatement,
       decorators,
       name: nsSegments[0],
       statements,
+
       ...finishNode(pos),
-    };
+    });
 
     for (let i = 1; i < nsSegments.length; i++) {
-      outerNs = {
+      outerNs = createNode({
         kind: SyntaxKind.NamespaceStatement,
         decorators: [],
         name: nsSegments[i],
         statements: outerNs,
         ...finishNode(pos),
-      };
+      });
     }
 
     return outerNs;
@@ -527,7 +531,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const operations = parseList(ListKind.InterfaceMembers, parseInterfaceMember);
 
-    return {
+    return createNode({
       kind: SyntaxKind.InterfaceStatement,
       id,
       templateParameters,
@@ -535,7 +539,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       mixes,
       decorators,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseInterfaceMember(
@@ -547,14 +551,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.Colon);
 
     const returnType = parseExpression();
-    return {
+    return createNode({
       kind: SyntaxKind.OperationStatement,
       id,
       parameters,
       returnType,
       decorators,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseUnionStatement(
@@ -570,14 +574,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const options = parseList(ListKind.UnionVariants, parseUnionVariant);
 
-    return {
+    return createNode({
       kind: SyntaxKind.UnionStatement,
       id,
       templateParameters,
       decorators,
       options,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
@@ -622,14 +626,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const returnType = parseExpression();
     parseExpected(Token.Semicolon);
 
-    return {
+    return createNode({
       kind: SyntaxKind.OperationStatement,
       id,
       parameters,
       returnType,
       decorators,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseOperationParameters(): ModelExpressionNode {
@@ -660,7 +664,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
     const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
 
-    return {
+    return createNode({
       kind: SyntaxKind.ModelStatement,
       id,
       extends: optionalExtends,
@@ -669,7 +673,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       decorators,
       properties,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseOptionalModelExtends() {
@@ -753,13 +757,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
     const members = parseList(ListKind.EnumMembers, parseEnumMember);
-    return {
+    return createNode({
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
       members,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
@@ -802,13 +806,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.Equals);
     const value = parseExpression();
     parseExpected(Token.Semicolon);
-    return {
+    return createNode({
       kind: SyntaxKind.AliasStatement,
       id,
       templateParameters,
       value,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseExpression(): Expression {
@@ -1186,14 +1190,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     parseExpected(Token.CloseBrace);
 
-    return {
+    return createNode({
       kind: SyntaxKind.ProjectionStatement,
       selector,
       from,
       to,
       id,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseProjection(): ProjectionNode {
@@ -1216,13 +1220,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const body: ProjectionStatementItem[] = parseProjectionStatementList();
     parseExpected(Token.CloseBrace);
 
-    return {
+    return createNode({
       kind: SyntaxKind.Projection,
       body,
       direction,
       parameters,
       ...finishNode(pos),
-    };
+    });
   }
 
   function parseProjectionParameter(): ProjectionParameterDeclarationNode {
@@ -1890,7 +1894,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
 
-      let item;
+      let item: Writable<T>;
       if (kind.invalidDecoratorTarget) {
         reportInvalidDecorators(decorators, kind.invalidDecoratorTarget);
         item = (parseItem as ParseListItem<UndecoratedListKind, T>)();
@@ -2167,9 +2171,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.returnType)
       );
     case SyntaxKind.NamespaceStatement:
-      return visitEach(cb, node.decorators) ||
-        visitNode(cb, node.name) ||
-        Array.isArray(node.statements)
+      return visitEach(cb, node.decorators) || visitNode(cb, node.name) || isArray(node.statements)
         ? visitEach(cb, node.statements as Statement[])
         : visitNode(cb, node.statements);
     case SyntaxKind.InterfaceStatement:
@@ -2324,7 +2326,7 @@ function visitNode<T>(cb: NodeCb<T>, node: Node | undefined): T | undefined {
   return node && cb(node);
 }
 
-function visitEach<T>(cb: NodeCb<T>, nodes: Node[] | undefined): T | undefined {
+function visitEach<T>(cb: NodeCb<T>, nodes: readonly Node[] | undefined): T | undefined {
   if (!nodes) {
     return;
   }
@@ -2433,9 +2435,13 @@ function isBlocklessNamespace(node: Node) {
   if (node.kind !== SyntaxKind.NamespaceStatement) {
     return false;
   }
-  while (!Array.isArray(node.statements) && node.statements) {
+  while (!isArray(node.statements) && node.statements) {
     node = node.statements;
   }
 
   return node.statements === undefined;
+}
+
+function createNode<T extends Node>(node: Omit<T, keyof DeclarationNode | keyof ContainerNode>): T {
+  return node as any;
 }

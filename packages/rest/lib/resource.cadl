@@ -78,8 +78,8 @@ interface ResourceUpdate<TResource, TError> {
 @doc("Resource deleted successfully.")
 model ResourceDeletedResponse {
   @doc("The status code.")
-  @header
-  statusCode: 200;
+  @statusCode
+  _: 200;
 }
 
 interface ResourceDelete<TResource, TError> {
@@ -117,3 +117,98 @@ interface ResourceCollectionOperations<TResource, TError>
 interface ResourceOperations<TResource, TError>
   mixes ResourceInstanceOperations<TResource, TError>,
     ResourceCollectionOperations<TResource, TError> {}
+
+interface SingletonResourceRead<TSingleton, TResource, TError> {
+  @autoRoute
+  @doc("Gets the singleton resource.")
+  @segmentOf(TSingleton)
+  @readsResource(TSingleton)
+  Get(...ResourceParameters<TResource>): TSingleton | TError;
+}
+
+interface SingletonResourceUpdate<TSingleton, TResource, TError> {
+  @autoRoute
+  @doc("Updates the singleton resource.")
+  @segmentOf(TSingleton)
+  @updatesResource(TSingleton)
+  Update(
+    ...ResourceParameters<TResource>,
+    @body properties: OptionalProperties<UpdateableProperties<TSingleton>>
+  ): TSingleton | TError;
+}
+
+interface SingletonResourceOperations<TSingleton, TResource, TError>
+  mixes SingletonResourceRead<TSingleton, TResource, TError>,
+    SingletonResourceUpdate<TSingleton, TResource, TError> {}
+
+interface ExtensionResourceRead<TExtension, TResource, TError> {
+  @autoRoute
+  @doc("Gets an instance of the extension resource.")
+  @readsResource(TExtension)
+  Get(...ResourceParameters<TResource>, ...ResourceParameters<TExtension>): TExtension | TError;
+}
+
+interface ExtensionResourceCreateOrUpdate<TExtension, TResource, TError> {
+  @autoRoute
+  @doc("Creates or update a instance of the extension resource.")
+  @createsOrUpdatesResource(TExtension)
+  CreateOrUpdate(
+    ...ResourceParameters<TResource>,
+    ...ResourceParameters<TExtension>,
+    @body resource: TExtension
+  ): TExtension | ResourceCreatedResponse<TExtension> | TError;
+}
+
+interface ExtensionResourceCreate<TExtension, TResource, TError> {
+  @autoRoute
+  @doc("Creates a new instance of the extension resource.")
+  @createsResource(TExtension)
+  Create(
+    ...ResourceParameters<TResource>,
+    @body resource: TResource
+  ): TExtension | ResourceCreatedResponse<TExtension> | TError;
+}
+
+interface ExtensionResourceUpdate<TExtension, TResource, TError> {
+  @autoRoute
+  @doc("Updates an existing instance of the extension resource.")
+  @updatesResource(TExtension)
+  Update(
+    ...ResourceParameters<TResource>,
+    ...ResourceParameters<TExtension>,
+    @body properties: OptionalProperties<UpdateableProperties<TExtension>>
+  ): TExtension | TError;
+}
+
+interface ExtensionResourceDelete<TExtension, TResource, TError> {
+  @autoRoute
+  @doc("Deletes an existing instance of the extension resource.")
+  @deletesResource(TExtension)
+  Delete(
+    ...ResourceParameters<TResource>,
+    ...ResourceParameters<TExtension>
+  ): ResourceDeletedResponse | TError;
+}
+
+interface ExtensionResourceList<TExtension, TResource, TError> {
+  @autoRoute
+  @doc("Lists all instances of the extension resource.")
+  @listsResource(TExtension)
+  List(
+    ...ResourceParameters<TResource>,
+    ...ResourceCollectionParameters<TExtension>
+  ): Page<TExtension> | TError;
+}
+
+interface ExtensionResourceInstanceOperations<TExtension, TResource, TError>
+  mixes ExtensionResourceRead<TExtension, TResource, TError>,
+    ExtensionResourceUpdate<TExtension, TResource, TError>,
+    ExtensionResourceDelete<TExtension, TResource, TError> {}
+
+interface ExtensionResourceCollectionOperations<TExtension, TResource, TError>
+  mixes ExtensionResourceCreate<TExtension, TResource, TError>,
+    ExtensionResourceList<TExtension, TResource, TError> {}
+
+interface ExtensionResourceOperations<TExtension, TResource, TError>
+  mixes ExtensionResourceInstanceOperations<TExtension, TResource, TError>,
+    ExtensionResourceCollectionOperations<TExtension, TResource, TError> {}

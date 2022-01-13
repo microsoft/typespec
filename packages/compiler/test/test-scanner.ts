@@ -346,12 +346,12 @@ describe("compiler: scanner", () => {
       KeywordLimit.MinLength,
       `min keyword length is incorrect, set KeywordLimit.MinLength to ${minKeywordLengthFound}`
     );
+
     assert.strictEqual(
       maxKeywordLengthFound,
       KeywordLimit.MaxLength,
       `max keyword length is incorrect, set KeywordLimit.MaxLength to ${maxKeywordLengthFound}`
     );
-
     assert(
       maxKeywordLengthFound < 11,
       "We need to change the keyword lookup algorithm in the scanner if we ever add a keyword with 11 characters or more."
@@ -420,6 +420,15 @@ describe("compiler: scanner", () => {
 
     assert(isIdentifierContinue(0x200c), "U+200C (ZWNJ) should be allowed to continue identifier.");
     assert(isIdentifierContinue(0x200d), "U+200D (ZWJ) should be allowed to continue identifier.");
+  });
+
+  describe("keyword collision", () => {
+    for (const identifier of ["outerface", "famespace", "notanamespace", "notaninterface"]) {
+      it(`does not think ${identifier} is a keyword`, () => {
+        const [[token]] = tokens(identifier);
+        assert.strictEqual(token, Token.Identifier);
+      });
+    }
   });
 
   it("scans this file", async () => {
