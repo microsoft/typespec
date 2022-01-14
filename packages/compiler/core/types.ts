@@ -719,7 +719,6 @@ export interface TypeReferenceNode extends BaseNode {
   kind: SyntaxKind.TypeReference;
   target: MemberExpressionNode | IdentifierNode;
   arguments: Expression[];
-  projections: ProjectionReferenceNode[];
 }
 
 export interface ProjectionReferenceNode extends BaseNode {

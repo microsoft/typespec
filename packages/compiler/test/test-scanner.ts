@@ -215,10 +215,6 @@ describe("compiler: scanner", () => {
     ]);
   });
 
-  it("scans the property 'direction' properly", () => {
-    const all = tokens("model Foo { direction: Direction }");
-    console.log(all);
-  });
   function scanString(text: string, expectedValue: string, expectedDiagnostic?: RegExp) {
     const scanner = createScanner(text, (diagnostic) => {
       if (expectedDiagnostic) {

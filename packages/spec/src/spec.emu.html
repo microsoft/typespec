@@ -395,7 +395,7 @@ Literal :
     NumericLiteral
 
 ReferenceExpression :
-    IdentifierOrMemberExpression TemplateArguments? ProjectionReferenceList?
+    IdentifierOrMemberExpression TemplateArguments?
 
 ReferenceExpressionList :
     ReferenceExpression
@@ -407,13 +407,6 @@ IdentifierOrMemberExpression :
 
 TemplateArguments :
     `<` ExpressionList `>`
-
-ProjectionReferenceList :
-    ProjectionReference
-    ProjectionReferenceList? ProjectionReference
-    
-ProjectionReference :
-    `#` IdentifierOrMemberExpression ProjectionArguments?
 
 ProjectionArguments :
     `(` ExpressionList? `)`

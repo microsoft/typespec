@@ -652,54 +652,6 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    if (sym.node.kind === SyntaxKind.TypeReference) {
-      for (const projection of sym.node.projections) {
-        const target = resolveTypeReference(projection.target);
-        if (!target) {
-          // should have already reported an error, so just proceed.
-          continue;
-        }
-        if (target.kind !== "projection") {
-          program.reportDiagnostic(
-            createDiagnostic({
-              code: "invalid-projection",
-              messageId: "wrongType",
-              target: projection,
-            })
-          );
-          continue;
-        }
-        if (!target.node.to) {
-          program.reportDiagnostic(
-            createDiagnostic({
-              code: "invalid-projection",
-              messageId: "noTo",
-              target: projection,
-            })
-          );
-          continue;
-        }
-        checkProjectionDeclaration(target.node);
-        const args = projection.arguments.map(getTypeForNode);
-        try {
-          baseType = evalProjectionStatement(target.node.to, baseType, args);
-        } catch (e: any) {
-          if (e.name === "ProjectionError") {
-            program.reportDiagnostic(
-              createDiagnostic({
-                code: "invalid-projection",
-                messageId: "projectionError",
-                target: projection,
-                format: { message: e.message },
-              })
-            );
-          } else {
-            throw e;
-          }
-        }
-      }
-    }
-
     return baseType;
   }
 
