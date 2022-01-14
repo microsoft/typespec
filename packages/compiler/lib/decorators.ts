@@ -100,16 +100,16 @@ export function isNumericType(program: Program, target: Type): boolean {
   return intrinsicType !== undefined && program.stateSet(numericTypesKey).has(intrinsicType);
 }
 
-// -- @format decorator ---------------------
+// -- @pattern decorator ---------------------
 
-const formatValuesKey = Symbol();
+const patternValuesKey = Symbol();
 
-export function $format(program: Program, target: Type, format: string) {
+export function $pattern(program: Program, target: Type, pattern: string) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        format: { decorator: "@format", to: "anything that isn't a Model or ModelProperty" },
+        format: { decorator: "@pattern", to: "anything that isn't a Model or ModelProperty" },
         target,
       })
     );
@@ -120,18 +120,18 @@ export function $format(program: Program, target: Type, format: string) {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        format: { decorator: "@format", to: "non-string type" },
+        format: { decorator: "@pattern", to: "non-string type" },
         target,
       })
     );
     return;
   }
 
-  program.stateMap(formatValuesKey).set(target, format);
+  program.stateMap(patternValuesKey).set(target, pattern);
 }
 
-export function getFormat(program: Program, target: Type): string | undefined {
-  return program.stateMap(formatValuesKey).get(target);
+export function getPattern(program: Program, target: Type): string | undefined {
+  return program.stateMap(patternValuesKey).get(target);
 }
 
 // -- @minLength decorator ---------------------

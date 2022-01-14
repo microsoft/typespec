@@ -445,7 +445,7 @@ describe("compiler: syntax", () => {
   describe("sample regressions", () => {
     parseEach([
       [
-        `/* \\n <-- before string! */ @format("\\\\w") model M {}`,
+        `/* \\n <-- before string! */ @pattern("\\\\w") model M {}`,
         (node) => {
           assert(node.statements[0].kind === SyntaxKind.ModelStatement);
           assert(node.statements[0].decorators[0].arguments[0].kind === SyntaxKind.StringLiteral);

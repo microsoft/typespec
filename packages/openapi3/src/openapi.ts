@@ -6,11 +6,11 @@ import {
   findChildModels,
   getAllTags,
   getDoc,
-  getFormat,
   getMaxLength,
   getMaxValue,
   getMinLength,
   getMinValue,
+  getPattern,
   getProperty,
   getServiceHost,
   getServiceNamespaceString,
@@ -1132,7 +1132,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function applyIntrinsicDecorators(cadlType: Type, target: any): any {
-    const pattern = getFormat(program, cadlType);
+    const pattern = getPattern(program, cadlType);
     if (isStringType(program, cadlType) && !target.pattern && pattern) {
       target = {
         ...target,
