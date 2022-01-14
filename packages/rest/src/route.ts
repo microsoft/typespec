@@ -130,13 +130,29 @@ export function getOperationParameters(
     const queryParam = getQueryParamName(program, param);
     const pathParam = getPathParamName(program, param);
     const headerParam = getHeaderFieldName(program, param);
+    const bodyParm = isBody(program, param);
+
+    const defined = [
+      ["query", queryParam],
+      ["path", pathParam],
+      ["header", headerParam],
+      ["body", bodyParm],
+    ].filter((x) => !!x[1]);
+    if (defined.length >= 2) {
+      reportDiagnostic(program, {
+        code: "operation-param-duplicate-type",
+        format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
+        target: param,
+      });
+    }
+
     if (queryParam) {
       result.parameters.push({ type: "query", name: queryParam, param });
     } else if (pathParam) {
       result.parameters.push({ type: "path", name: pathParam, param });
     } else if (headerParam) {
       result.parameters.push({ type: "header", name: headerParam, param });
-    } else if (isBody(program, param)) {
+    } else if (bodyParm) {
       if (result.body === undefined) {
         result.body = param;
       } else {

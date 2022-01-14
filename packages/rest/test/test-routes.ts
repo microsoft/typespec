@@ -174,6 +174,17 @@ describe("rest: routes", () => {
     it("emit diagnostic when there is multiple unannotted parameters", async () => {
       const [_, diagnostics] = await compileOperations(`
         @route("/test")
+        @get op get(@body body: string, @path @query multiParam: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/operation-param-duplicate-type");
+      strictEqual(diagnostics[0].message, "Param multiParam has multiple types: [query, path]");
+    });
+
+    it("emit diagnostic when there is multiple unannotted parameters", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
         @get op get(param1: string, param2: string): string;
       `);
 

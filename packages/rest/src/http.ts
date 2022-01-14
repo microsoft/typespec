@@ -54,7 +54,7 @@ export function $body(program: Program, entity: Type) {
   program.stateSet(bodyFieldsKey).add(entity);
 }
 
-export function isBody(program: Program, entity: Type) {
+export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(bodyFieldsKey).has(entity);
 }
 

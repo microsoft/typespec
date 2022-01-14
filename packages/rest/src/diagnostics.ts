@@ -61,6 +61,12 @@ const libDefinition = {
           "Operation has a @body and an unannotated parameter. There can only be one representing the body",
       },
     },
+    "operation-param-duplicate-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Param ${"paramName"} has multiple types: [${"types"}]`,
+      },
+    },
   },
 } as const;
 
