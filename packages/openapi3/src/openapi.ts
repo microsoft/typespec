@@ -255,7 +255,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   async function emitOpenAPI() {
     const serviceNs = getServiceNamespace(program);
     if (!serviceNs) {
-      throw new Error("Service NS not found");
+      return;
     }
     const versions = getVersionRecords(program, serviceNs);
     for (const record of versions) {
@@ -264,7 +264,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  async function emitOpenAPIFromVersion(version?: string | number) {
+  async function emitOpenAPIFromVersion(version?: string) {
     initializeEmitter();
     try {
       getAllRoutes(program).forEach(emitOperation);

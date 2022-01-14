@@ -1,11 +1,5 @@
-import {
-  NamespaceType,
-  NumericLiteralType,
-  Program,
-  ProjectionApplication,
-  StringLiteralType,
-  Type,
-} from "@cadl-lang/compiler";
+import { NamespaceType, Program, ProjectionApplication, Type } from "@cadl-lang/compiler";
+import { reportDiagnostic } from "./lib.js";
 const addedOnKey = Symbol();
 const removedOnKey = Symbol();
 const versionsKey = Symbol();
@@ -13,23 +7,52 @@ const versionDependencyKey = Symbol();
 const renamedFromKey = Symbol();
 const madeOptionalKey = Symbol();
 
-export function $added(p: Program, t: Type, v: StringLiteralType | NumericLiteralType) {
+export function $added(p: Program, t: Type, v: string) {
+  if (typeof v !== "string") {
+    reportDiagnostic(p, { code: "version-must-be-string", target: t });
+    return;
+  }
+  if (!hasVersion(p, t, v)) {
+    reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
+    return;
+  }
+
   p.stateMap(addedOnKey).set(t, v);
 }
-export function $removed(p: Program, t: Type, v: StringLiteralType | NumericLiteralType) {
+export function $removed(p: Program, t: Type, v: string) {
+  if (typeof v !== "string") {
+    reportDiagnostic(p, { code: "version-must-be-string", target: t });
+    return;
+  }
+  if (!hasVersion(p, t, v)) {
+    reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
+    return;
+  }
   p.stateMap(removedOnKey).set(t, v);
 }
-export function $renamedFrom(
-  p: Program,
-  t: Type,
-  v: StringLiteralType | NumericLiteralType,
-  oldName: StringLiteralType
-) {
+export function $renamedFrom(p: Program, t: Type, v: string, oldName: string) {
+  if (typeof v !== "string") {
+    reportDiagnostic(p, { code: "version-must-be-string", target: t });
+    return;
+  }
+  if (!hasVersion(p, t, v)) {
+    reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
+    return;
+  }
   const record = { v: v, oldName: oldName };
   p.stateMap(renamedFromKey).set(t, record);
 }
 
-export function $madeOptional(p: Program, t: Type, v: string | boolean) {
+export function $madeOptional(p: Program, t: Type, v: string) {
+  if (typeof v !== "string") {
+    reportDiagnostic(p, { code: "version-must-be-string", target: t });
+    return;
+  }
+  if (!hasVersion(p, t, v)) {
+    reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
+    return;
+  }
+
   p.stateMap(madeOptionalKey).set(t, v);
 }
 
@@ -51,6 +74,10 @@ export function getMadeOptionalOn(p: Program, t: Type) {
 }
 
 export function $versioned(p: Program, t: Type, v: Type) {
+  if (t.kind !== "Namespace") {
+    reportDiagnostic(p, { code: "versioned-not-on-namespace", target: t });
+    return;
+  }
   const versions = [];
 
   switch (v.kind) {
@@ -81,18 +108,27 @@ export function $versionedDependency(
   versionRecord: Type
 ) {
   if (referenceNamespace.kind !== "Namespace") {
-    // TODO:
-    throw new Error("must be added to NS");
+    reportDiagnostic(p, {
+      code: "versioned-dependency-not-on-namespace",
+      target: referenceNamespace,
+    });
+    return;
   }
+
   if (targetNamespace.kind !== "Namespace") {
-    // TODO:
-    throw new Error("must be added to NS");
+    reportDiagnostic(p, {
+      code: "versioned-dependency-not-to-namespace",
+      target: referenceNamespace,
+    });
+    return;
   }
 
   if (versionRecord.kind !== "Model") {
-    throw new Error(
-      "Versions must be an anonymous model mapping local versions to dependency versions"
-    );
+    reportDiagnostic(p, {
+      code: "versioned-dependency-record-not-model",
+      target: referenceNamespace,
+    });
+    return;
   }
 
   let state = p.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
@@ -113,7 +149,7 @@ export function $versionedDependency(
 
   for (const [name, prop] of versionRecord.properties) {
     if (prop.type.kind !== "String") {
-      throw new Error("must be string");
+      continue;
     }
     versionMap.set(name, prop.type.value);
   }
@@ -182,6 +218,13 @@ export function getVersions(p: Program, t: Type): string[] {
     } else {
       return [];
     }
+  } else if (t.kind === "ModelProperty" || t.kind === "UnionVariant" || t.kind === "EnumMember") {
+    // attempt to find the parent type by poking into the AST.
+    const parentType = p.checker!.getTypeForNode(t.node!.parent!);
+    return getVersions(
+      p,
+      p.currentProjector ? p.currentProjector!.projectType(parentType) : parentType
+    );
   } else {
     return [];
   }
@@ -220,10 +263,6 @@ function appliesAtVersion(
   version: string,
   versionSource?: Type
 ) {
-  if (typeof version !== "string") {
-    throw new TypeError("version must be a string");
-  }
-
   const versions = getVersions(p, versionSource ?? type);
   if (!versions || versions.length === 0) {
     return null;
@@ -248,4 +287,10 @@ export function versionCompare(p: Program, versionSource: Type, v1: string, v2: 
   if (v2Index === -1) return 0;
 
   return v1Index - v2Index;
+}
+
+export function hasVersion(p: Program, t: Type, v: string) {
+  const versions = getVersions(p, t);
+  if (!versions) return false;
+  return versions.includes(v);
 }
