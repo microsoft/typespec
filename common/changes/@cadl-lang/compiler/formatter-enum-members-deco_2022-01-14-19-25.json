@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Formatter: Seperate Enum members with decorator",
+      "comment": "Formatter: Separate Enum members with decorator with new lines",
       "type": "minor"
     }
   ],
