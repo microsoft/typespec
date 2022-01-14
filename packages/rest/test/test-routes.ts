@@ -1,5 +1,5 @@
-import { deepStrictEqual } from "assert";
-import { getRoutesFor } from "./test-host.js";
+import { deepStrictEqual, strictEqual } from "assert";
+import { compileOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   it("finds routes on bare operations", async () => {
@@ -168,5 +168,78 @@ describe("rest: routes", () => {
         params: ["thingId", "subthingId"],
       },
     ]);
+  });
+
+  describe("operation parameters", () => {
+    it("emit diagnostic when there is multiple unannotted parameters", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(param1: string, param2: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-body");
+      strictEqual(
+        diagnostics[0].message,
+        "Operation has multiple unannotated parameters. There can only be one representing the body"
+      );
+    });
+
+    it("emit diagnostic when there is an unannotted parameter but a @body param", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(param1: string, @body param2: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-body");
+      strictEqual(
+        diagnostics[0].message,
+        "Operation has a @body and an unannotated parameter. There can only be one representing the body"
+      );
+    });
+
+    it("emit diagnostic when there is multiple @body param", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@query select: string, @body param1: string, @body param2: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-body");
+      strictEqual(diagnostics[0].message, "Operation has multiple @body parameters declared");
+    });
+
+    it("resolve body when defined with @body", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@query select: string, @body bodyParam: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 0);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test",
+          params: { params: [{ type: "query", name: "select" }], body: "bodyParam" },
+        },
+      ]);
+    });
+
+    it("resolve body when only unannoted parameter", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@query select: string, unannotedBodyParam: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 0);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test",
+          params: { params: [{ type: "query", name: "select" }], body: "unannotedBodyParam" },
+        },
+      ]);
+    });
   });
 });
