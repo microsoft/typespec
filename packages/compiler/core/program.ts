@@ -344,7 +344,6 @@ export async function createProgram(
       resolvePath(fileURLToPath(import.meta.url), "../index.js")
     );
 
-    console.log("Expected", { expected, actual });
     if (actual !== expected) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server
