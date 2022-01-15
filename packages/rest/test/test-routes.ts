@@ -237,7 +237,7 @@ describe("rest: routes", () => {
       ]);
     });
 
-    it("resolve body when only unannoted parameter", async () => {
+    it("resolves a single unannotated parameter as request body", async () => {
       const [routes, diagnostics] = await compileOperations(`
         @route("/test")
         @get op get(@query select: string, unannotedBodyParam: string): string;
