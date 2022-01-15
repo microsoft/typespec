@@ -196,7 +196,7 @@ describe("rest: routes", () => {
       );
     });
 
-    it("emit diagnostic when there is an unannotted parameter but a @body param", async () => {
+    it("emit diagnostic when there is an unannotated parameter and a @body param", async () => {
       const [_, diagnostics] = await compileOperations(`
         @route("/test")
         @get op get(param1: string, @body param2: string): string;
