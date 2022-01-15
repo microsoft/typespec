@@ -683,6 +683,16 @@ export interface Dirent {
   isDirectory(): boolean;
 }
 
+export interface RemoveDirOptions {
+  /**
+   * If `true`, perform a recursive directory removal. In
+   * recursive mode, errors are not reported if `path` does not exist, and
+   * operations are retried on failure.
+   * @default false
+   */
+  recursive?: boolean;
+}
+
 export interface CompilerHost {
   // read a file at the given url.
   readUrl(url: string): Promise<SourceFile>;
@@ -698,6 +708,19 @@ export interface CompilerHost {
   writeFile(path: string, content: string): Promise<void>;
 
   /**
+   * Read directory.
+   * @param path Path to the directory.
+   * @returns list of file/directory in the given directory. Returns the name not the full path.
+   */
+  readDir(dir: string): Promise<string[]>;
+
+  /**
+   * Deletes the directory.
+   * @param path Path to the directory.
+   */
+  removeDir(dir: string, options?: RemoveDirOptions): Promise<void>;
+
+  /**
    * create directory recursively.
    * @param path Path to the directory.
    */
@@ -711,11 +734,6 @@ export interface CompilerHost {
 
   // get a promise for the ESM module shape of a JS module
   getJsImport(path: string): Promise<any>;
-
-  // If path is already absolute, normalize it, otherwise resolve an
-  // absolute path to the given path based on current working directory and
-  // normalize it.
-  resolveAbsolutePath(path: string): string;
 
   // get info about a path
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;

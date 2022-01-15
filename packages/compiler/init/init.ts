@@ -1,9 +1,9 @@
 import { readdir } from "fs/promises";
 import Mustache from "mustache";
-import { basename, join } from "path";
 import prompts from "prompts";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
+import { getBaseFileName, joinPaths } from "../core/path-utils.js";
 import { SchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
@@ -44,7 +44,7 @@ export async function initCadlProject(
   if (!(await confirmDirectoryEmpty(directory))) {
     return;
   }
-  const folderName = basename(directory);
+  const folderName = getBaseFileName(directory);
 
   const template = await selectTemplate(host, templatesUrl);
   const { name } = await prompts([
@@ -212,7 +212,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   };
 
   return host.writeFile(
-    join(config.directory, "package.json"),
+    joinPaths(config.directory, "package.json"),
     JSON.stringify(packageJson, null, 2)
   );
 }
@@ -227,7 +227,7 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const lines = [...config.libraries.map((x) => `import "${x}";`), ""];
   const content = lines.join("\n");
 
-  return host.writeFile(join(config.directory, "main.cadl"), await formatCadl(content));
+  return host.writeFile(joinPaths(config.directory, "main.cadl"), await formatCadl(content));
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
@@ -245,7 +245,7 @@ async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: In
     resolveRelativeUrlOrPath(config.templateUri, file.path)
   );
   const content = Mustache.render(template.text, config);
-  return host.writeFile(join(config.directory, file.destination), content);
+  return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 
 function validateTemplateDefinitions(
