@@ -182,7 +182,7 @@ describe("rest: routes", () => {
       strictEqual(diagnostics[0].message, "Param multiParam has multiple types: [query, path]");
     });
 
-    it("emit diagnostic when there is multiple unannotted parameters", async () => {
+    it("emit diagnostic when there are multiple unannotated parameters", async () => {
       const [_, diagnostics] = await compileOperations(`
         @route("/test")
         @get op get(param1: string, param2: string): string;
