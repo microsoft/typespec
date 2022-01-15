@@ -1,6 +1,6 @@
 import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
 
-const libDef = {
+export const libDef = {
   name: "@cadl-lang/openapi3",
   diagnostics: {
     "decorator-wrong-type": {
@@ -38,12 +38,6 @@ const libDef = {
       severity: "error",
       messages: {
         default: "Duplicate @statusCode declarations on response type",
-      },
-    },
-    "duplicate-body-types": {
-      severity: "error",
-      messages: {
-        default: "Request has multiple body types",
       },
     },
     "content-type-string": {

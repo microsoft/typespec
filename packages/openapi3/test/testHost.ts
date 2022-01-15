@@ -63,3 +63,17 @@ export async function openApiFor(code: string) {
   await host.compile("./main.cadl", { noEmit: false, swaggerOutputFile: outPath });
   return JSON.parse(host.fs.get(outPath)!);
 }
+
+export async function checkFor(code: string) {
+  const host = await createOpenAPITestHost();
+  const outPath = resolvePath("/openapi.json");
+  host.addCadlFile(
+    "./main.cadl",
+    `import "rest"; import "openapi3";using Cadl.Rest;using Cadl.Http;${code}`
+  );
+  const result = await host.diagnose("./main.cadl", {
+    noEmit: false,
+    swaggerOutputFile: outPath,
+  });
+  return result;
+}
