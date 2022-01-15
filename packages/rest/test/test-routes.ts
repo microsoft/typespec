@@ -210,7 +210,7 @@ describe("rest: routes", () => {
       );
     });
 
-    it("emit diagnostic when there is multiple @body param", async () => {
+    it("emit diagnostic when there are multiple @body param", async () => {
       const [_, diagnostics] = await compileOperations(`
         @route("/test")
         @get op get(@query select: string, @body param1: string, @body param2: string): string;
