@@ -171,7 +171,7 @@ describe("rest: routes", () => {
   });
 
   describe("operation parameters", () => {
-    it("emit diagnostic when there is multiple unannotted parameters", async () => {
+    it("emit diagnostic for parameters with multiple http request annotations", async () => {
       const [_, diagnostics] = await compileOperations(`
         @route("/test")
         @get op get(@body body: string, @path @query multiParam: string): string;
