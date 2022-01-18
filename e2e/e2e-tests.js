@@ -4,7 +4,7 @@ import { join } from "path";
 import { existsSync, readdirSync, rmSync, writeFileSync } from "fs";
 
 const e2eTestDir = join(repoRoot, "e2e");
-const cadlCmd = process.platform === "win32" ? "cadl.cmd" : "cadl";
+const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
 
 function main() {
   const packages = packPackages();
@@ -34,7 +34,7 @@ function packPackages() {
 }
 
 function runCadl(compilerTgz, args, options) {
-  run("npx", [compilerTgz, ...args], options);
+  run(npxCmd, ["-p", compilerTgz, "cadl", ...args], { ...options });
 }
 
 function testBasicLatest(packages) {
