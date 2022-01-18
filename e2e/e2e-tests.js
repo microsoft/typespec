@@ -8,8 +8,7 @@ const cadlCmd = process.platform === "win32" ? "cadl.cmd" : "cadl";
 
 function main() {
   const packages = packPackages();
-  installCompiler(packages["@cadl-lang/compiler"]);
-  testBasicLatest();
+  testBasicLatest(packages);
   testBasicCurrentTgz(packages);
 }
 main();
@@ -34,13 +33,11 @@ function packPackages() {
   };
 }
 
-function installCompiler(compilerTgz) {
-  console.log("Installing compiler globally with", compilerTgz);
-  run("npm", ["install", "-g", compilerTgz], { cwd: repoRoot });
-  console.log("Installed compiller globally");
+function runCadl(compilerTgz, args, options) {
+  run("npx", [compilerTgz, ...args], options);
 }
 
-function testBasicLatest() {
+function testBasicLatest(packages) {
   const basicLatestDir = join(e2eTestDir, "basic-latest");
   const outputDir = join(basicLatestDir, "cadl-output");
   console.log("Clearing basic-latest output");
@@ -48,11 +45,11 @@ function testBasicLatest() {
   console.log("Cleared basic-latest output");
 
   console.log("Installing basic-latest dependencies");
-  run(cadlCmd, ["install"], { cwd: basicLatestDir });
+  runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicLatestDir });
   console.log("Installed basic-latest dependencies");
 
   console.log("Running cadl compile .");
-  run(cadlCmd, ["compile", "."], { cwd: basicLatestDir });
+  runCadl(packages["@cadl-lang/compiler"], ["compile", "."], { cwd: basicLatestDir });
   console.log("Completed cadl compile .");
 
   if (existsSync(join(outputDir, "openapi.json"))) {
@@ -83,11 +80,11 @@ function testBasicCurrentTgz(packages) {
   console.log("Generatedpackage.json for basic-current");
 
   console.log("Installing basic-latest dependencies");
-  run(cadlCmd, ["install"], { cwd: basicCurrentDir });
+  runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicCurrentDir });
   console.log("Installed basic-latest dependencies");
 
   console.log("Running cadl compile .");
-  run(cadlCmd, ["compile", "."], { cwd: basicCurrentDir });
+  runCadl(packages["@cadl-lang/compiler"], ["compile", "."], { cwd: basicCurrentDir });
   console.log("Completed cadl compile .");
 
   if (existsSync(join(outputDir, "openapi.json"))) {
