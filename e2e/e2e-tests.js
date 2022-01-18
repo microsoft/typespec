@@ -80,7 +80,7 @@ function testBasicCurrentTgz(packages) {
     private: true,
   };
   writeFileSync(join(basicCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
-  console.log("Generatedpackage.json for basic-current");
+  console.log("Generated package.json for basic-current");
 
   console.log("Installing basic-latest dependencies");
   run(cadlCmd, ["install"], { cwd: basicCurrentDir });
