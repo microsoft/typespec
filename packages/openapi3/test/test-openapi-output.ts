@@ -726,7 +726,7 @@ describe("openapi3: operations", () => {
       namespace root {
         @get("{name}")
         op getThing(
-          @format("^[a-zA-Z0-9-]{3,24}$")
+          @pattern("^[a-zA-Z0-9-]{3,24}$")
           @path name: string,
 
           @minValue(1)

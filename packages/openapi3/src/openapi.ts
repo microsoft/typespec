@@ -6,11 +6,11 @@ import {
   findChildModels,
   getAllTags,
   getDoc,
-  getFormat,
   getMaxLength,
   getMaxValue,
   getMinLength,
   getMinValue,
+  getPattern,
   getProperty,
   getServiceHost,
   getServiceNamespaceString,
@@ -27,6 +27,7 @@ import {
   NamespaceType,
   OperationType,
   Program,
+  resolvePath,
   Type,
   UnionType,
   UnionTypeVariant,
@@ -39,14 +40,13 @@ import {
   HttpOperationParameters,
   OperationDetails,
 } from "@cadl-lang/rest";
-import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
 const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isStatusCode } = http;
 
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
-    outputFile: p.compilerOptions.swaggerOutputFile || path.resolve("./openapi.json"),
+    outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
   };
 
   const emitter = createOAPIEmitter(p, options);
@@ -264,7 +264,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       if (!program.compilerOptions.noEmit && !program.hasError()) {
         // Write out the OpenAPI document to the output path
         await program.host.writeFile(
-          path.resolve(options.outputFile),
+          resolvePath(options.outputFile),
           prettierOutput(JSON.stringify(root, null, 2))
         );
       }
@@ -1136,7 +1136,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function applyIntrinsicDecorators(cadlType: Type, target: any): any {
-    const pattern = getFormat(program, cadlType);
+    const pattern = getPattern(program, cadlType);
     if (isStringType(program, cadlType) && !target.pattern && pattern) {
       target = {
         ...target,

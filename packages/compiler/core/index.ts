@@ -3,6 +3,7 @@ export * from "../lib/service.js";
 export * from "./diagnostics.js";
 export * from "./library.js";
 export * from "./parser.js";
+export * from "./path-utils.js";
 export * from "./program.js";
 export * from "./semantic-walker.js";
 export * from "./types.js";
