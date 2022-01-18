@@ -268,25 +268,6 @@ function getPathForOperation(
   };
 }
 
-function verbForOperationName(name: string): HttpVerb | undefined {
-  switch (name) {
-    case "list":
-      return "get";
-    case "create":
-      return "post";
-    case "read":
-      return "get";
-    case "update":
-      return "patch";
-    case "delete":
-      return "delete";
-    case "deleteAll":
-      return "delete";
-  }
-
-  return undefined;
-}
-
 function getVerbForOperation(
   program: Program,
   operation: OperationType,
@@ -295,8 +276,7 @@ function getVerbForOperation(
   const resourceOperation = getResourceOperation(program, operation);
   const verb =
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
-    getOperationVerb(program, operation) ??
-    verbForOperationName(operation.name);
+    getOperationVerb(program, operation);
   if (verb !== undefined) {
     return verb;
   }
