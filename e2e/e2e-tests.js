@@ -27,9 +27,9 @@ function packPackages() {
   }
 
   return {
-    "@cadl-lang/compiler": resolvePacakge("cadl-lang-compiler-"),
-    "@cadl-lang/openapi3": resolvePacakge("cadl-lang-openapi3-"),
-    "@cadl-lang/rest": resolvePacakge("cadl-lang-rest-"),
+    "@cadl-lang/compiler": resolvePackage("cadl-lang-compiler-"),
+    "@cadl-lang/openapi3": resolvePackage("cadl-lang-openapi3-"),
+    "@cadl-lang/rest": resolvePackage("cadl-lang-rest-"),
   };
 }
 
