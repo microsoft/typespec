@@ -103,7 +103,7 @@ describe("rest: routes", () => {
         @put op ActionTwo(...ThingId): string;
 
         @action
-        op ActionThree(...ThingId, @body bodyParam: string): string;
+        @post op ActionThree(...ThingId, @body bodyParam: string): string;
       }
       `
     );
@@ -168,6 +168,16 @@ describe("rest: routes", () => {
         params: ["thingId", "subthingId"],
       },
     ]);
+  });
+
+  it("emit diagnostics if operation has a body but didn't specify the verb", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        op get(@body body: string): string;
+    `);
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "@cadl-lang/rest/http-verb-missing-with-body");
+    strictEqual(diagnostics[0].message, "Operation get has a body but doesn't specify a verb");
   });
 
   describe("operation parameters", () => {

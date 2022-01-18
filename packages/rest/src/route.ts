@@ -293,12 +293,23 @@ function getVerbForOperation(
   parameters: HttpOperationParameters
 ): HttpVerb {
   const resourceOperation = getResourceOperation(program, operation);
-  return (
-    (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ||
-    getOperationVerb(program, operation) ||
-    verbForOperationName(operation.name) ||
-    (parameters.body !== undefined ? "post" : "get")
-  );
+  const verb =
+    (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
+    getOperationVerb(program, operation) ??
+    verbForOperationName(operation.name);
+  if (verb !== undefined) {
+    return verb;
+  }
+
+  if (parameters.body) {
+    reportDiagnostic(program, {
+      code: "http-verb-missing-with-body",
+      format: { operationName: operation.name },
+      target: operation,
+    });
+  }
+
+  return "get";
 }
 
 function buildRoutes(
