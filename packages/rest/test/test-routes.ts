@@ -177,7 +177,7 @@ describe("rest: routes", () => {
     `);
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "@cadl-lang/rest/http-verb-missing-with-body");
-    strictEqual(diagnostics[0].message, "Operation get has a body but doesn't specify a verb");
+    strictEqual(diagnostics[0].message, "Operation get has a body but doesn't specify a verb.");
   });
 
   describe("operation parameters", () => {
