@@ -20,7 +20,7 @@ function packPackages() {
   const files = readdirSync(outputFolder);
   console.log("Built packages:", files);
 
-  function resolvePacakge(start) {
+  function resolvePackage(start) {
     return join(
       outputFolder,
       files.find((x) => x.startsWith(start))
