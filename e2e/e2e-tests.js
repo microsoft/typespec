@@ -19,7 +19,7 @@ function packPackages() {
   const files = readdirSync(outputFolder);
   console.log("Built packages:", files);
 
-  function resolvePacakge(start) {
+  function resolvePackage(start) {
     return join(
       outputFolder,
       files.find((x) => x.startsWith(start))
@@ -77,7 +77,7 @@ function testBasicCurrentTgz(packages) {
     private: true,
   };
   writeFileSync(join(basicCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
-  console.log("Generatedpackage.json for basic-current");
+  console.log("Generated package.json for basic-current");
 
   console.log("Installing basic-latest dependencies");
   runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicCurrentDir });
