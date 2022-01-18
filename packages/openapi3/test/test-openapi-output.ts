@@ -377,6 +377,33 @@ describe("openapi3: definitions", () => {
     });
   });
 
+  it("defines nullable array", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: int32[] | null;
+      };
+      `
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          type: "array",
+          items: {
+            type: "integer",
+            format: "int32",
+          },
+          nullable: true,
+          "x-cadl-name": "Cadl.int32[] | Cadl.null",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
   it("defines enums with a nullable variant", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -699,7 +726,7 @@ describe("openapi3: operations", () => {
       namespace root {
         @get("{name}")
         op getThing(
-          @format("^[a-zA-Z0-9-]{3,24}$")
+          @pattern("^[a-zA-Z0-9-]{3,24}$")
           @path name: string,
 
           @minValue(1)

@@ -3,7 +3,7 @@ import { mkdtemp, readdir, rmdir } from "fs/promises";
 import mkdirp from "mkdirp";
 import watch from "node-watch";
 import os from "os";
-import { basename, extname, join, resolve } from "path";
+import { resolve } from "path";
 import url from "url";
 import yargs from "yargs";
 import { loadCadlConfigInDir } from "../config/index.js";
@@ -13,6 +13,7 @@ import { initCadlProject } from "../init/index.js";
 import { compilerAssert, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
 import { installCadlDependencies } from "./install.js";
+import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "./path-utils.js";
 import { Diagnostic } from "./types.js";
 import { cadlVersion, NodeHost } from "./util.js";
 
@@ -199,7 +200,9 @@ function compileInput(
         console.clear();
       }
 
-      currentCompilePromise = compile(path, NodeHost, compilerOptions).then(onCompileFinished);
+      currentCompilePromise = compile(resolve(path), NodeHost, compilerOptions).then(
+        onCompileFinished
+      );
     } else {
       compileRequested = true;
     }
@@ -237,7 +240,8 @@ function compileInput(
         path,
         {
           recursive: true,
-          filter: (f) => [".js", ".cadl"].indexOf(extname(f)) > -1 && !/node_modules/.test(f),
+          filter: (f) =>
+            [".js", ".cadl"].indexOf(getAnyExtensionFromPath(f)) > -1 && !/node_modules/.test(f),
         },
         (e, name) => {
           runCompile();
@@ -276,7 +280,7 @@ async function getCompilerOptions(args: {
   "diagnostic-level": string;
 }): Promise<CompilerOptions> {
   // Ensure output path
-  const outputPath = resolve(args["output-path"]);
+  const outputPath = resolvePath(args["output-path"]);
   await mkdirp(outputPath);
 
   const miscOptions: any = {};
@@ -293,7 +297,7 @@ async function getCompilerOptions(args: {
   return {
     miscOptions,
     outputPath,
-    swaggerOutputFile: resolve(args["output-path"], "openapi.json"),
+    swaggerOutputFile: resolvePath(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
     watchForChanges: args["watch"],
@@ -303,7 +307,7 @@ async function getCompilerOptions(args: {
 
 async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, debug: boolean) {
   // download npm package to temporary directory
-  const temp = await mkdtemp(join(os.tmpdir(), "cadl"));
+  const temp = await mkdtemp(joinPaths(os.tmpdir(), "cadl"));
   const npmArgs = ["install"];
 
   // hide npm output unless --debug was passed to cadl
@@ -326,12 +330,12 @@ async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, 
   run("npm", npmArgs, { cwd: temp, debug });
 
   // locate .vsix
-  const dir = join(temp, "node_modules", pkg);
+  const dir = joinPaths(temp, "node_modules", pkg);
   const files = await readdir(dir);
   let vsixPaths: string[] = [];
   for (const file of files) {
     if (file.endsWith(".vsix")) {
-      vsixPaths.push(join(dir, file));
+      vsixPaths.push(joinPaths(dir, file));
     }
   }
 
@@ -385,7 +389,7 @@ function getVSInstallerPath(relativePath: string) {
     process.exit(1);
   }
 
-  return join(
+  return joinPaths(
     process.env["ProgramFiles(x86)"] ?? "",
     "Microsoft Visual Studio/Installer",
     relativePath
@@ -442,7 +446,7 @@ async function installVSExtension(debug: boolean) {
     "cadl-vs",
     (vsixPaths) => {
       for (const vsix of vsixPaths) {
-        const vsixFilename = basename(vsix);
+        const vsixFilename = getBaseFileName(vsix);
         const entry = versionMap.get(vsixFilename);
         compilerAssert(entry, "Unexpected vsix filename:" + vsix);
         if (entry.installed) {
@@ -513,7 +517,7 @@ function run(command: string, commandArgs: string[], options?: RunOptions) {
     };
   }
 
-  const baseCommandName = basename(command);
+  const baseCommandName = getBaseFileName(command);
   if (process.platform === "win32" && isCmdOnWindows.includes(command)) {
     command += ".cmd";
   }

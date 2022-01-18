@@ -518,6 +518,35 @@ enum Bar {
 `,
       });
     });
+
+    it("seperate members if there is decorators", () => {
+      assertFormat({
+        code: `
+enum      Foo       {   
+  @doc("foo") 
+        A:   "a",    @doc("bar") 
+           B    : "b", 
+
+
+
+      @doc("third")   
+       C    : "c"}
+
+`,
+        expected: `
+enum Foo {
+  @doc("foo")
+  A: "a",
+
+  @doc("bar")
+  B: "b",
+
+  @doc("third")
+  C: "c",
+}
+`,
+      });
+    });
   });
 
   describe("namespaces", () => {

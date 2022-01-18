@@ -1,5 +1,4 @@
 import { readdir, readFile } from "fs/promises";
-import { extname, resolve } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import {
   createSourceFile,
@@ -8,6 +7,7 @@ import {
   logVerboseTestOutput,
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
+import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
 import { NodeHost } from "../core/util.js";
@@ -37,6 +37,10 @@ class TestHostError extends Error {
   }
 }
 
+function resolveVFsPath(path: string) {
+  return resolvePath("/", path);
+}
+
 export async function createTestHost(): Promise<TestHost> {
   const testTypes: Record<string, Type> = {};
   let program: Program = undefined as any; // in practice it will always be initialized
@@ -51,6 +55,7 @@ export async function createTestHost(): Promise<TestHost> {
       return createSourceFile(contents, url);
     },
     async readFile(path: string) {
+      path = resolveVFsPath(path);
       const contents = virtualFs.get(path);
       if (contents === undefined) {
         throw new TestHostError(`File ${path} not found.`, "ENOENT");
@@ -59,11 +64,29 @@ export async function createTestHost(): Promise<TestHost> {
     },
 
     async writeFile(path: string, content: string) {
+      path = resolveVFsPath(path);
       virtualFs.set(path, content);
     },
 
+    async readDir(path: string) {
+      path = resolveVFsPath(path);
+      return [...virtualFs.keys()]
+        .filter((x) => x.startsWith(`${path}/`))
+        .map((x) => x.replace(`${path}/`, ""));
+    },
+
+    async removeDir(path: string) {
+      path = resolveVFsPath(path);
+
+      for (const key of virtualFs.keys()) {
+        if (key.startsWith(`${path}/`)) {
+          virtualFs.delete(key);
+        }
+      }
+    },
+
     getLibDirs() {
-      return [resolve("/.cadl/lib"), resolve("/.cadl/test-lib")];
+      return [resolveVFsPath("/.cadl/lib"), resolveVFsPath("/.cadl/test-lib")];
     },
 
     getExecutionRoot() {
@@ -71,6 +94,7 @@ export async function createTestHost(): Promise<TestHost> {
     },
 
     getJsImport(path) {
+      path = resolveVFsPath(path);
       const module = jsImports.get(path);
       if (module === undefined) {
         throw new TestHostError(`Module ${path} not found`, "ERR_MODULE_NOT_FOUND");
@@ -78,11 +102,9 @@ export async function createTestHost(): Promise<TestHost> {
       return module;
     },
 
-    resolveAbsolutePath(path: string) {
-      return resolve("/", path);
-    },
-
     async stat(path: string) {
+      path = resolveVFsPath(path);
+
       if (virtualFs.has(path)) {
         return {
           isDirectory() {
@@ -124,13 +146,13 @@ export async function createTestHost(): Promise<TestHost> {
     ["../../lib", "/.cadl/dist/lib"],
     ["../../../lib", "/.cadl/lib"],
   ]) {
-    const dir = resolve(fileURLToPath(import.meta.url), relDir);
+    const dir = resolvePath(fileURLToPath(import.meta.url), relDir);
     const entries = await readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
-      const realPath = resolve(dir, entry.name);
-      const virtualPath = resolve(virtualDir, entry.name);
+      const realPath = resolvePath(dir, entry.name);
+      const virtualPath = resolvePath(virtualDir, entry.name);
       if (entry.isFile()) {
-        switch (extname(entry.name)) {
+        switch (getAnyExtensionFromPath(entry.name)) {
           case ".cadl":
             const contents = await readFile(realPath, "utf-8");
             virtualFs.set(virtualPath, contents);
@@ -186,21 +208,21 @@ export async function createTestHost(): Promise<TestHost> {
   };
 
   function addCadlFile(path: string, contents: string) {
-    virtualFs.set(compilerHost.resolveAbsolutePath(path), contents);
+    virtualFs.set(resolveVFsPath(path), contents);
   }
 
   function addJsFile(path: string, contents: any) {
-    const key = compilerHost.resolveAbsolutePath(path);
+    const key = resolveVFsPath(path);
     virtualFs.set(key, ""); // don't need contents
     jsImports.set(key, new Promise((r) => r(contents)));
   }
 
   async function addRealCadlFile(path: string, existingPath: string) {
-    virtualFs.set(compilerHost.resolveAbsolutePath(path), await readFile(existingPath, "utf8"));
+    virtualFs.set(resolveVFsPath(path), await readFile(existingPath, "utf8"));
   }
 
   async function addRealJsFile(path: string, existingPath: string) {
-    const key = compilerHost.resolveAbsolutePath(path);
+    const key = resolveVFsPath(path);
     const exports = await import(pathToFileURL(existingPath).href);
 
     virtualFs.set(key, "");

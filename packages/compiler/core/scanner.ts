@@ -167,7 +167,6 @@ export const enum KeywordLimit {
   // have to change the keyword lookup algorithm in that case.
   MaxLength = 9,
 }
-
 const KeywordMap: ReadonlyMap<number, Token> = new Map(
   Keywords.map((e) => [keywordKey(e[0]), e[1]])
 );
@@ -178,9 +177,16 @@ const KeywordMap: ReadonlyMap<number, Token> = new Map(
 function keywordKey(keyword: string) {
   let key = 0;
   for (let i = 0; i < keyword.length; i++) {
-    key = (key << 5) | (keyword.charCodeAt(i) - CharCode.a);
+    key = updateKeywordKey(key, keyword.charCodeAt(i));
   }
   return key;
+}
+
+function updateKeywordKey(key: number, ch: number) {
+  // Do not simplify this to (key << 5) | (ch - CharCode.a) as JavaScript
+  // bitwise operations truncate to 32-bits, and that will create
+  // collisions.
+  return key * 32 + (ch - CharCode.a);
 }
 
 export interface Scanner {
@@ -830,7 +836,7 @@ export function createScanner(
     while (true) {
       position++;
       count++;
-      key = (key << 5) | (ch - CharCode.a);
+      key = updateKeywordKey(key, ch);
 
       if (eof()) {
         break;

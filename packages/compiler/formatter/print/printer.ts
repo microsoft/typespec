@@ -369,8 +369,10 @@ export function printEnumMember(
   const node = path.getValue();
   const id = path.call(print, "id");
   const value = node.value ? [": ", path.call(print, "value")] : "";
-  const { decorators } = printDecorators(path, options, print, { tryInline: true });
-  return [decorators, id, value];
+  const { decorators, multiline } = printDecorators(path, options, print, { tryInline: true });
+  const propertyIndex = path.stack[path.stack.length - 2];
+  const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
+  return [multiline && isNotFirst ? hardline : "", decorators, id, value];
 }
 
 export function printUnionStatement(
