@@ -124,7 +124,7 @@ export function getOperationParameters(
   const result: HttpOperationParameters = {
     parameters: [],
   };
-  let unAnottedParam: ModelTypeProperty | undefined;
+  let unAnnotatedParam: ModelTypeProperty | undefined;
 
   for (const param of operation.parameters.properties.values()) {
     const queryParam = getQueryParamName(program, param);
@@ -159,8 +159,8 @@ export function getOperationParameters(
         reportDiagnostic(program, { code: "duplicate-body", target: param });
       }
     } else {
-      if (unAnottedParam === undefined) {
-        unAnottedParam = param;
+      if (unAnnotatedParam === undefined) {
+        unAnnotatedParam = param;
       } else {
         reportDiagnostic(program, {
           code: "duplicate-body",
@@ -171,14 +171,14 @@ export function getOperationParameters(
     }
   }
 
-  if (unAnottedParam !== undefined) {
+  if (unAnnotatedParam !== undefined) {
     if (result.body === undefined) {
-      result.body = unAnottedParam;
+      result.body = unAnnotatedParam;
     } else {
       reportDiagnostic(program, {
         code: "duplicate-body",
         messageId: "bodyAndUnannotated",
-        target: unAnottedParam,
+        target: unAnnotatedParam,
       });
     }
   }
