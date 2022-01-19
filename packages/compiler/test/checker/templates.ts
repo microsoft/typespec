@@ -3,7 +3,7 @@ import { getSourceLocation } from "../../core/diagnostics.js";
 import { Diagnostic } from "../../core/types.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe.only("compiler: templates", () => {
+describe("compiler: templates", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
