@@ -50,7 +50,7 @@ export interface Program {
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
   evalCadlScript(cadlScript: string): void;
-  onBuild(cb: (program: Program) => void): Promise<void> | void;
+  onValidate(cb: (program: Program) => void): Promise<void> | void;
   getOption(key: string): string | undefined;
   stateSet(key: Symbol): Set<any>;
   stateMap(key: Symbol): Map<any, any>;
@@ -70,7 +70,7 @@ export async function createProgram(
   mainFile: string,
   options: CompilerOptions = {}
 ): Promise<Program> {
-  const buildCbs: any = [];
+  const validateCbs: any = [];
   const stateMaps = new Map<Symbol, Map<any, any>>();
   const stateSets = new Map<Symbol, Set<any>>();
   const diagnostics: Diagnostic[] = [];
@@ -101,8 +101,8 @@ export async function createProgram(
     hasError() {
       return error;
     },
-    onBuild(cb) {
-      buildCbs.push(cb);
+    onValidate(cb) {
+      validateCbs.push(cb);
     },
   };
 
@@ -132,14 +132,14 @@ export async function createProgram(
   const checker = (program.checker = createChecker(program));
   program.checker.checkProgram();
 
-  for (const cb of buildCbs) {
+  for (const cb of validateCbs) {
     try {
       await cb(program);
     } catch (error: any) {
       if (options.designTimeBuild) {
         program.reportDiagnostic(
           createDiagnostic({
-            code: "on-build-fail",
+            code: "on-validate-fail",
             format: { error: error.stack },
             target: NoTarget,
           })
@@ -220,7 +220,7 @@ export async function createProgram(
   }
 
   /**
-   * Import the Javascript files decorator and onBuild hook.
+   * Import the Javascript files decorator and lifecycle hooks.
    */
   async function importJsFile(path: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
     const { file, alreadyLoaded } = await loadJsFile(path, diagnosticTarget);
@@ -414,7 +414,7 @@ export async function createProgram(
 
   // It's important that we use the compiler version that resolves locally
   // from the input Cadl source location. Otherwise, there will be undefined
-  // runtime behavior when decorators and onBuild handlers expect a
+  // runtime behavior when decorators and handlers expect a
   // different version of cadl than the current one. Abort the compilation
   // with an error if the Cadl entry point resolves to a different local
   // compiler.

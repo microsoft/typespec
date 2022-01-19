@@ -107,8 +107,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         // isn't particularly useful it turns out.
 
         const name = getFunctionName(key);
-        if (name === "onBuild") {
-          program.onBuild(member as any);
+        if (name === "onValidate") {
+          program.onValidate(member as any);
           continue;
         }
 

@@ -362,10 +362,14 @@ const diagnostics = {
       default: paramMessage`duplicate using of "${"usingName"}" namespace`,
     },
   },
-  "on-build-fail": {
+
+  /**
+   * Binder
+   */
+  "on-validate-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`onBuild failed!\n\n${"error"}`,
+      default: paramMessage`onValidate failed with errors. ${"error"}`,
     },
   },
   "emitter-not-found": {
