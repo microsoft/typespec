@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "**Fix** Duplicate @key on model properties will produce diagnostic instead of exception",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
