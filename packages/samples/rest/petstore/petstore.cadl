@@ -1,13 +1,16 @@
 import "@cadl-lang/rest";
 
+@autoRoute
 @serviceTitle("Pet Store Service")
 @serviceVersion("2021-03-25")
 namespace PetStore;
 
+using Cadl.Http;
 using Cadl.Rest;
 using Cadl.Rest.Resource;
 
 model PetStoreError {
+  @statusCode _: "default";
   code: int32;
   message: string;
 }
@@ -22,6 +25,7 @@ model Pet {
   @minValue(0)
   @maxValue(20)
   age: int32;
+  ownerId: int64;
 }
 
 @parentResource(Pet)
@@ -33,9 +37,51 @@ model Toy {
   name: string;
 }
 
+model Owner {
+  @segment("owners")
+  @key("ownerId")
+  id: int64;
+  name: string;
+  age: int32;
+}
+
+model Checkup {
+  @segment("checkups")
+  @key("checkupId")
+  id: int32;
+  vetName: string;
+  notes: string;
+}
+
+@segment("insurance")
+model Insurance {
+  provider: string;
+  premium: int32;
+  deductible: int32;
+}
+
 interface Pets mixes ResourceOperations<Pet, PetStoreError> {}
 
+interface PetCheckups
+  mixes ExtensionResourceCreateOrUpdate<Checkup, Pet, PetStoreError>,
+    ExtensionResourceList<Checkup, Pet, PetStoreError> {}
+
+interface PetInsurance mixes SingletonResourceOperations<Insurance, Pet, PetStoreError> {}
+
 interface Toys mixes ResourceRead<Toy, PetStoreError> {
-  @list(Toy)
-  List(...ParentKeysOf<Toy>, @Cadl.Http.query nameFilter: string): Page<Toy> | PetStoreError;
+  @listsResource(Toy)
+  list(...ParentKeysOf<Toy>, @query nameFilter: string): Page<Toy> | PetStoreError;
 }
+interface ToyInsurance mixes SingletonResourceOperations<Insurance, Toy, PetStoreError> {}
+
+interface Checkups
+  mixes ResourceCreateOrUpdate<Checkup, PetStoreError>,
+    ResourceList<Checkup, PetStoreError> {}
+
+interface Owners mixes ResourceOperations<Owner, PetStoreError> {}
+
+interface OwnerCheckups
+  mixes ExtensionResourceCreateOrUpdate<Checkup, Owner, PetStoreError>,
+    ExtensionResourceList<Checkup, Owner, PetStoreError> {}
+
+interface OwnerInsurance mixes SingletonResourceOperations<Insurance, Owner, PetStoreError> {}

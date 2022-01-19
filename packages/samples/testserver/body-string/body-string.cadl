@@ -1,0 +1,104 @@
+import "@cadl-lang/rest";
+
+using Cadl.Http;
+
+@doc("Error")
+model Error {
+  @statusCode _: "default";
+  status: int32;
+  message: string;
+}
+
+@doc("AutoRest String Test Service")
+@tag("String Operations")
+@route("/string")
+namespace String {
+  @doc("Get null string value")
+  @route("null")
+  @get
+  op getNull(): OkResponse<string | null> | Error;
+
+  @doc("Put null string value")
+  @route("null")
+  @put
+  op putNull(@body value: string | null): OkResponse<{}> | Error;
+
+  @doc("Get empty string value")
+  @route("empty")
+  @get
+  op getEmpty(): OkResponse<""> | Error;
+
+  @doc("Put empty string value")
+  @route("empty")
+  @put
+  op putEmpty(@body value: ""): OkResponse<{}> | Error;
+
+  @doc("Get mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'")
+  @route("mbcs")
+  @get
+  op getMbcs(
+  ): OkResponse<"啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€"> | Error;
+
+  @doc("Put mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'")
+  @route("mbcs")
+  @put
+  op putMbCs(
+    @body
+    value: "啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€"
+  ): OkResponse<{}> | Error;
+
+  @doc("Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'")
+  @route("whitespace")
+  @get
+  op getWhitespace(
+  ): OkResponse<"   Now is the time for all good men to come to the aid of their country    "> | Error;
+
+  @doc("Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'")
+  @route("whitespace")
+  @put
+  op putWhitespace(
+    @body value: "   Now is the time for all good men to come to the aid of their country    "
+  ): OkResponse<{}> | Error;
+
+  @doc("Get value that is base64 encoded")
+  @route("base64Encoding")
+  @get
+  op getBase64Encoding(): OkResponse<bytes> | Error;
+
+  @doc("Put value that is base64 encoded")
+  @route("base64Encoding")
+  @put
+  op putBase64Encoding(@body value: bytes): OkResponse<{}> | Error;
+
+  @route("enum")
+  namespace Enums {
+    @doc("Get non expandable string enum value")
+    @route("empty")
+    @get
+    op getNotExpandable(): OkResponse<Colors> | Error;
+
+    @doc("Put non expandable string enum value")
+    @route("empty")
+    @put
+    op putNotExpandable(@body value: Colors): OkResponse<{}> | Error;
+
+    @doc("Gets value 'green-color' from a constant")
+    @route("constant")
+    @get
+    op getConstant(): OkResponse<Colors> | Error;
+
+    @doc("Sends value 'green-color' from a constant")
+    @route("constant")
+    @put
+    op putConstant(@body value: Colors): OkResponse<{}> | Error;
+  }
+}
+
+// TODO: closed enum https://github.com/Azure/cadl-azure/issues/1036
+enum Colors {
+  "red color",
+  "green-color",
+  "blue-color",
+}
+
+alias RefColorConstant = "green-color";

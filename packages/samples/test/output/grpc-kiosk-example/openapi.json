@@ -12,7 +12,7 @@
   "paths": {
     "/v1/kiosks": {
       "post": {
-        "operationId": "Display_CreateKiosk",
+        "operationId": "Display_createKiosk",
         "summary": "Create a kiosk. This enrolls the kiosk for sign display.",
         "parameters": [],
         "responses": {
@@ -51,7 +51,7 @@
         }
       },
       "get": {
-        "operationId": "Display_ListKiosks",
+        "operationId": "Display_listKiosks",
         "summary": "List active kiosks.",
         "parameters": [],
         "responses": {
@@ -83,7 +83,7 @@
     },
     "/v1/kiosks/{id}": {
       "get": {
-        "operationId": "Display_GetKiosk",
+        "operationId": "Display_getKiosk",
         "summary": "Get a kiosk.",
         "parameters": [
           {
@@ -123,7 +123,7 @@
         ]
       },
       "delete": {
-        "operationId": "Display_DeleteKiosk",
+        "operationId": "Display_deleteKiosk",
         "summary": "Delete a kiosk.",
         "parameters": [
           {
@@ -158,7 +158,7 @@
     },
     "/v1/signs": {
       "post": {
-        "operationId": "Display_CreateSign",
+        "operationId": "Display_createSign",
         "summary": "Create a sign. This enrolls the sign for sign display.",
         "parameters": [],
         "responses": {
@@ -197,7 +197,7 @@
         }
       },
       "get": {
-        "operationId": "Display_ListSigns",
+        "operationId": "Display_listSigns",
         "summary": "List active signs.",
         "parameters": [],
         "responses": {
@@ -219,7 +219,7 @@
     },
     "/v1/signs/{id}": {
       "get": {
-        "operationId": "Display_GetSign",
+        "operationId": "Display_getSign",
         "summary": "Get a sign.",
         "parameters": [
           {
@@ -259,7 +259,7 @@
         ]
       },
       "delete": {
-        "operationId": "Display_DeleteSign",
+        "operationId": "Display_deleteSign",
         "summary": "Delete a sign.",
         "parameters": [
           {
@@ -294,7 +294,7 @@
     },
     "/v1/signs/{sign_id}": {
       "post": {
-        "operationId": "Display_SetSignIdForKioskIds",
+        "operationId": "Display_setSignIdForKioskIds",
         "summary": "Set a sign for display on one or more kiosks.",
         "parameters": [
           {
@@ -323,7 +323,7 @@
     },
     "/v1/kiosks/{kiosk_id}/sign": {
       "get": {
-        "operationId": "Display_GetSignIdForKioskId",
+        "operationId": "Display_getSignIdForKioskId",
         "summary": "Get the sign that should be displayed on a kiosk.",
         "parameters": [
           {
@@ -421,9 +421,9 @@
           "details": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/protobufAny"
+              "$ref": "#/components/schemas/ProtobufAny"
             },
-            "x-cadl-name": "protobufAny[]"
+            "x-cadl-name": "ProtobufAny[]"
           }
         },
         "description": "An unexpected error response."
@@ -547,7 +547,7 @@
           "nanos"
         ]
       },
-      "protobufAny": {
+      "ProtobufAny": {
         "type": "object",
         "properties": {
           "typeUrl": {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add support for discriminator decorator",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

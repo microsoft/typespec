@@ -1,0 +1,33 @@
+import "@cadl-lang/rest";
+
+using Cadl.Http;
+
+model HasBytes {
+  bytes: bytes;
+}
+
+model BytesBody<ContentType> {
+  @body body: bytes;
+  @header contentType: ContentType;
+}
+
+@route("/test")
+namespace BytesMethod {
+  @route("base64")
+  @post
+  op jsonWithBase64(@body body: HasBytes): HasBytes;
+
+  @route("textPlain")
+  @post
+  op textPlain(...BytesBody<"text/plain">): BytesBody<"text/plain">;
+
+  @route("binaryFile")
+  @post
+  op genericBinaryFile(
+    ...BytesBody<"application/octect-stream">
+  ): BytesBody<"application/octect-stream">;
+
+  @route("imagePng")
+  @post
+  op image(...BytesBody<"image/png">): BytesBody<"image/png">;
+}

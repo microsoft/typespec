@@ -9,9 +9,9 @@ namespace Root {
       id: int64;
     }
 
-    @route("/sub/sub/a")
+    @route("subsub")
     namespace SubSubA {
-      op DoSomething(thing: Thing): OkResponse<string>;
+      op doSomething(thing: Thing): OkResponse<string>;
 
       // Doesn't conflict with parent namespace!
       model Thing {
@@ -27,10 +27,10 @@ namespace Root {
       id: int64;
     }
 
-    op DoSomething(thing: Thing): string;
+    op doSomething(thing: Thing): string;
   }
 
   namespace SubC {
-    op AnotherOp(thing: Root.SubA.Thing, thing2: SubA.Thing): string;
+    op anotherOp(thing: Root.SubA.Thing, thing2: SubA.Thing): string;
   }
 }

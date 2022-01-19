@@ -1,6 +1,26 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Thu, 18 Nov 2021 13:58:15 GMT and should not be manually modified.
+This log was last generated on Thu, 16 Dec 2021 08:02:20 GMT and should not be manually modified.
+
+## 0.5.0
+Thu, 16 Dec 2021 08:02:20 GMT
+
+### Minor changes
+
+- Generate anyOf or oneOf schemas for Cadl unions in openapi3
+
+### Patches
+
+- Update openapi3 emitter to consume new Cadl.Rest route generation API
+
+## 0.4.2
+Wed, 01 Dec 2021 22:56:11 GMT
+
+### Patches
+
+- Add support for extension decorator on parameters and tests
+- Add openapi3 support for Cadl safeint
+- Add README
 
 ## 0.4.1
 Thu, 18 Nov 2021 13:58:15 GMT

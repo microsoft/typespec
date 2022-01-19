@@ -1,13 +1,19 @@
-import { dirname, extname, isAbsolute, join, resolve } from "path";
-import resolveModule from "resolve";
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { createSourceFile } from "./diagnostics.js";
+import { createSourceFile, getSourceLocation } from "./diagnostics.js";
 import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
+import { resolveModule } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
+import {
+  getAnyExtensionFromPath,
+  getDirectoryPath,
+  isPathAbsolute,
+  joinPaths,
+  resolvePath,
+} from "./path-utils.js";
 import {
   CadlScriptNode,
   CompilerHost,
@@ -50,8 +56,8 @@ export interface Program {
   stateMap(key: Symbol): Map<any, any>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
-  reportDiagnostics(diagnostics: Diagnostic[]): void;
-  reportDuplicateSymbols(symbols: SymbolTable): void;
+  reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
+  reportDuplicateSymbols(symbols: SymbolTable<Sym> | undefined): void;
 }
 
 interface EmitterRef {
@@ -110,7 +116,10 @@ export async function createProgram(
   // Load additional imports prior to compilation
   if (options.additionalImports) {
     const importScript = options.additionalImports.map((i) => `import "${i}";`).join("\n");
-    const sourceFile = createSourceFile(importScript, `__additional_imports`);
+    const sourceFile = createSourceFile(
+      importScript,
+      joinPaths(getDirectoryPath(mainFile), `__additional_imports`)
+    );
     await loadCadlScript(sourceFile);
   }
 
@@ -124,7 +133,21 @@ export async function createProgram(
   program.checker.checkProgram();
 
   for (const cb of buildCbs) {
-    await cb(program);
+    try {
+      await cb(program);
+    } catch (error: any) {
+      if (options.designTimeBuild) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "on-build-fail",
+            format: { error: error.stack },
+            target: NoTarget,
+          })
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   for (const instance of emitters) {
@@ -140,12 +163,15 @@ export async function createProgram(
   }
 
   async function loadDirectory(dir: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
-    const pkgJsonPath = resolve(dir, "package.json");
+    const pkgJsonPath = resolvePath(dir, "package.json");
     let [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
       diagnosticTarget,
     });
-    const mainFile = resolve(dir, typeof pkg?.cadlMain === "string" ? pkg.cadlMain : "main.cadl");
+    const mainFile = resolvePath(
+      dir,
+      typeof pkg?.cadlMain === "string" ? pkg.cadlMain : "main.cadl"
+    );
     await loadCadlFile(mainFile, diagnosticTarget);
   }
 
@@ -243,18 +269,16 @@ export async function createProgram(
     const cadlScript = loadCadlScriptSync(sourceFile);
     checker.mergeCadlSourceFile(cadlScript);
     checker.setUsingsForFile(cadlScript);
-    reportDuplicateSymbols(cadlScript.locals!);
     for (const ns of cadlScript.namespaces) {
       const mergedNs = checker.getMergedNamespace(ns);
-      reportDuplicateSymbols(mergedNs.locals!);
-      reportDuplicateSymbols(mergedNs.exports!);
+      reportDuplicateSymbols(mergedNs.exports);
     }
-    reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports!);
+    reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports);
   }
 
   async function loadScriptImports(file: CadlScriptNode) {
     // collect imports
-    const basedir = dirname(file.file.path);
+    const basedir = getDirectoryPath(file.file.path);
     await loadImports(
       file.statements.filter(isImportStatement).map((x) => ({ path: x.path.value, target: x })),
       basedir
@@ -269,13 +293,13 @@ export async function createProgram(
     for (const { path, target } of imports) {
       let importFilePath: string;
       if (path.startsWith("./") || path.startsWith("../")) {
-        importFilePath = resolve(relativeTo, path);
-      } else if (isAbsolute(path)) {
+        importFilePath = resolvePath(relativeTo, path);
+      } else if (isPathAbsolute(path)) {
         importFilePath = path;
       } else {
         try {
           // attempt to resolve a node module with this name
-          importFilePath = await resolveModuleSpecifier(path, relativeTo);
+          importFilePath = await resolveCadlLibrary(path, relativeTo);
         } catch (e: any) {
           if (e.code === "MODULE_NOT_FOUND") {
             program.reportDiagnostic(
@@ -288,7 +312,7 @@ export async function createProgram(
         }
       }
 
-      const ext = extname(importFilePath);
+      const ext = getAnyExtensionFromPath(importFilePath);
 
       if (ext === "") {
         await loadDirectory(importFilePath, target);
@@ -309,11 +333,11 @@ export async function createProgram(
   }
 
   async function loadEmitter(mainFile: string, emitterPackage: string, emitterName: string) {
-    const basedir = dirname(mainFile);
+    const basedir = getDirectoryPath(mainFile);
     let module;
     try {
       // attempt to resolve a node module with this name
-      module = await resolveModuleSpecifier(emitterPackage, basedir);
+      module = await resolveCadlLibrary(emitterPackage, basedir);
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
         program.reportDiagnostic(
@@ -359,86 +383,19 @@ export async function createProgram(
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
    * that module, e.g. "/cadl/node_modules/myLib/main.cadl".
    */
-  function resolveModuleSpecifier(
-    specifier: string,
-    basedir: string,
-    useCadlMain = true
-  ): Promise<string> {
-    return new Promise((resolveP, rejectP) => {
-      resolveModule(
-        specifier,
-        {
-          // default node semantics are preserveSymlinks: false
-          // this ensures that we resolve our monorepo referecnes to an actual location
-          // on disk.
-          preserveSymlinks: false,
-          basedir,
-          readFile(path, cb) {
-            host
-              .readFile(path)
-              .then((c) => cb(null, c.text))
-              .catch((e) => cb(e));
-          },
-          isDirectory(path, cb) {
-            host
-              .stat(path)
-              .then((s) => cb(null, s.isDirectory()))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, false);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          isFile(path, cb) {
-            host
-              .stat(path)
-              .then((s) => cb(null, s.isFile()))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, false);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          realpath(path, cb) {
-            host
-              .realpath(path)
-              .then((p) => cb(null, p))
-              .catch((e) => {
-                if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-                  cb(null, path);
-                } else {
-                  cb(e);
-                }
-              });
-          },
-          packageFilter(pkg) {
-            if (useCadlMain) {
-              // this lets us follow node resolve semantics more-or-less exactly
-              // but using cadlMain instead of main.
-              pkg.main = pkg.cadlMain;
-            }
-            return pkg;
-          },
-        },
-        (err, resolved) => {
-          if (err) {
-            rejectP(err);
-          } else if (!resolved) {
-            rejectP(new Error("BUG: Module resolution succeeded but didn't return a value."));
-          } else {
-            resolveP(resolved);
-          }
-        }
-      );
+  function resolveCadlLibrary(specifier: string, baseDir: string): Promise<string> {
+    return resolveModule(host, specifier, {
+      baseDir,
+      resolveMain(pkg) {
+        // this lets us follow node resolve semantics more-or-less exactly
+        // but using cadlMain instead of main.
+        return pkg.cadlMain ?? pkg.main;
+      },
     });
   }
 
   async function loadMain(mainFile: string, options: CompilerOptions) {
-    const mainPath = host.resolveAbsolutePath(mainFile);
+    const mainPath = resolvePath(mainFile);
     const mainStat = await doIO(host.stat, mainPath, program.reportDiagnostic);
     if (!mainStat) {
       return;
@@ -465,10 +422,10 @@ export async function createProgram(
     mainPath: string,
     mainPathIsDirectory: boolean
   ): Promise<boolean> {
-    const basedir = mainPathIsDirectory ? mainPath : dirname(mainPath);
+    const baseDir = mainPathIsDirectory ? mainPath : getDirectoryPath(mainPath);
     let actual: string;
     try {
-      actual = await resolveModuleSpecifier("@cadl-lang/compiler", basedir, false);
+      actual = await resolveModule(host, "@cadl-lang/compiler", { baseDir });
     } catch (err: any) {
       if (err.code === "MODULE_NOT_FOUND") {
         return true; // no local cadl, ok to use any compiler
@@ -476,16 +433,18 @@ export async function createProgram(
       throw err;
     }
 
-    // NOTE: realpath here ensures consistent path normalization with resolveModuleSpecifier below.
-    const expected = await host.realpath(join(fileURLToPath(import.meta.url), "../index.js"));
+    const expected = await host.realpath(
+      resolvePath(fileURLToPath(import.meta.url), "../index.js")
+    );
+
     if (actual !== expected) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server
-      const betterCadlServerPath = resolve(actual, "../../../../../.bin/cadl-server");
+      const betterCadlServerPath = resolvePath(actual, "../../../../../.bin/cadl-server");
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir, betterCadlServerPath },
+          format: { basedir: baseDir, betterCadlServerPath },
           target: NoTarget,
         })
       );
@@ -520,6 +479,8 @@ export async function createProgram(
   }
 
   function reportDiagnostic(diagnostic: Diagnostic): void {
+    getSourceLocation(diagnostic.target);
+
     if (diagnostic.severity === "error") {
       error = true;
     }
@@ -595,7 +556,7 @@ export async function createProgram(
    */
   function findDirectiveSuppressingCode(
     code: string,
-    directives: DirectiveExpressionNode[]
+    directives: readonly DirectiveExpressionNode[]
   ): Directive | undefined {
     for (const directive of directives.map((x) => parseDirective(x))) {
       if (directive.name === "suppress") {
@@ -620,6 +581,10 @@ export async function createProgram(
   }
 
   function getNode(target: Node | Type | Sym): Node | undefined {
+    if (target.kind === "using") {
+      target = target.symbolSource;
+    }
+
     if ("node" in target) {
       return target.node;
     }
@@ -634,17 +599,23 @@ export async function createProgram(
     return target;
   }
 
-  function reportDuplicateSymbols(symbols: SymbolTable) {
-    for (const symbol of symbols.duplicates) {
-      if (!duplicateSymbols.has(symbol)) {
-        duplicateSymbols.add(symbol);
-        reportDiagnostic(
-          createDiagnostic({
-            code: "duplicate-symbol",
-            format: { name: symbol.name },
-            target: symbol,
-          })
-        );
+  function reportDuplicateSymbols(symbols: SymbolTable<Sym> | undefined) {
+    if (!symbols) {
+      return;
+    }
+    for (const set of symbols.duplicates.values()) {
+      for (const symbol of set) {
+        if (!duplicateSymbols.has(symbol)) {
+          duplicateSymbols.add(symbol);
+          const name = symbol.kind === "using" ? symbol.symbolSource.name : symbol.name;
+          reportDiagnostic(
+            createDiagnostic({
+              code: "duplicate-symbol",
+              format: { name },
+              target: symbol,
+            })
+          );
+        }
       }
     }
   }

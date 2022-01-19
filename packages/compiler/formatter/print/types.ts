@@ -1,10 +1,10 @@
-import { Doc, FastPath, ParserOptions } from "prettier";
+import { AstPath, Doc, ParserOptions } from "prettier";
 import { DecoratorExpressionNode, Node } from "../../core/types.js";
 
 export interface CadlPrettierOptions extends ParserOptions {}
 
-export type PrettierChildPrint = (path: FastPath<Node>, index?: number) => Doc;
+export type PrettierChildPrint = (path: AstPath<Node>, index?: number) => Doc;
 
 export interface DecorableNode {
-  decorators: DecoratorExpressionNode[];
+  decorators: readonly DecoratorExpressionNode[];
 }

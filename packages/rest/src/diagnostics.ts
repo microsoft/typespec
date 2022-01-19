@@ -45,6 +45,18 @@ const libDefinition = {
         default: "Cannot copy keys from a non-key type (KeysOf<T> or ParentKeysOf<T>)",
       },
     },
+    "duplicate-key": {
+      severity: "error",
+      messages: {
+        default: paramMessage`More than one key found on model type ${"resourceName"}`,
+      },
+    },
+    "missing-path-param": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
+      },
+    },
   },
 } as const;
 

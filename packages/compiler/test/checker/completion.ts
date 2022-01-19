@@ -132,7 +132,7 @@ describe("compiler: completion", () => {
     testHost.addCadlFile("test.cadl", source);
     await testHost.compileAndDiagnose("test.cadl");
 
-    const path = testHost.program.host.resolveAbsolutePath("test.cadl");
+    const path = "/test.cadl";
     const script = testHost.program.sourceFiles.get(path);
     ok(script, "file added above not found in program.");
     const node = getNodeAtPosition(script, pos);

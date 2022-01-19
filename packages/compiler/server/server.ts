@@ -1,7 +1,7 @@
-import { dirname, isAbsolute, join, normalize } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionItemKind,
   CompletionList,
   CompletionParams,
   Connection,
@@ -26,23 +26,25 @@ import {
 } from "vscode-languageserver/node.js";
 import {
   compilerAssert,
-  computeTargetLocation,
   createSourceFile,
   formatDiagnostic,
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition } from "../core/parser.js";
+import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
 import {
   CompilerHost,
   Diagnostic as CadlDiagnostic,
+  IdentifierNode,
   SourceFile,
   SourceLocation,
   SyntaxKind,
+  Type,
 } from "../core/types.js";
 import { cadlVersion, doIO, loadFile, NodeHost } from "../core/util.js";
-import { getDoc } from "../lib/decorators.js";
+import { getDoc, isIntrinsic } from "../lib/decorators.js";
 
 interface ServerSourceFile extends SourceFile {
   // Keep track of the open doucment (if any) associated with a source file.
@@ -71,7 +73,6 @@ interface CachedError {
 
 const serverHost: CompilerHost = {
   ...NodeHost,
-  resolveAbsolutePath,
   readFile,
   stat,
 };
@@ -209,18 +210,36 @@ async function compile(document: TextDocument): Promise<Program | undefined> {
     return undefined;
   }
 
-  let program = await createProgram(serverHost, mainFile, serverOptions);
-  if (!upToDate(document)) {
-    return undefined;
-  }
+  let program: Program;
+  try {
+    program = await createProgram(serverHost, mainFile, serverOptions);
+    if (!upToDate(document)) {
+      return undefined;
+    }
 
-  if (mainFile !== path && !program.sourceFiles.has(path)) {
-    // If the file that changed wasn't imported by anything from the main
-    // file, retry using the file itself as the main file.
-    program = await createProgram(serverHost, path, serverOptions);
-  }
+    if (mainFile !== path && !program.sourceFiles.has(path)) {
+      // If the file that changed wasn't imported by anything from the main
+      // file, retry using the file itself as the main file.
+      program = await createProgram(serverHost, path, serverOptions);
+    }
 
-  if (!upToDate(document)) {
+    if (!upToDate(document)) {
+      return undefined;
+    }
+  } catch (err: any) {
+    connection.sendDiagnostics({
+      uri: document.uri,
+      diagnostics: [
+        {
+          severity: DiagnosticSeverity.Error,
+          range: Range.create(document.positionAt(0), document.positionAt(0)),
+          message:
+            `Internal compiler error!\nFile issue at https://github.com/microsoft/cadl\n\n` +
+            err.stack,
+        },
+      ],
+    });
+
     return undefined;
   }
 
@@ -251,7 +270,7 @@ async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
   for (const each of program.diagnostics) {
     let document: TextDocument | undefined;
 
-    const location = computeTargetLocation(each.target);
+    const location = getSourceLocation(each.target);
     if (location?.file) {
       document = (location.file as ServerSourceFile).document;
     } else {
@@ -343,20 +362,110 @@ async function complete(params: CompletionParams): Promise<CompletionList> {
   }
 
   const node = getNodeAtPosition(file, document.offsetAt(params.position));
-  if (node?.kind !== SyntaxKind.Identifier) {
-    return completions;
-  }
-
-  for (const [label, sym] of program.checker!.resolveCompletions(node)) {
-    let documentation: string | undefined;
-    if (sym.kind === "type") {
-      const type = program!.checker!.getTypeForNode(sym.node);
-      documentation = getDoc(program, type);
+  if (node === undefined) {
+    addKeywordCompletion("root", completions);
+  } else {
+    switch (node.kind) {
+      case SyntaxKind.NamespaceStatement:
+        addKeywordCompletion("namespace", completions);
+        break;
+      case SyntaxKind.Identifier:
+        addIdentifierCompletion(program, node, completions);
+        break;
     }
-    completions.items.push({ label, documentation });
   }
 
   return completions;
+}
+
+interface KeywordArea {
+  root?: boolean;
+  namespace?: boolean;
+  model?: boolean;
+  identifier?: boolean;
+}
+
+const keywords = [
+  // Root only
+  ["import", { root: true }],
+
+  // Root and namespace
+  ["using", { root: true, namespace: true }],
+  ["model", { root: true, namespace: true }],
+  ["namespace", { root: true, namespace: true }],
+  ["interface", { root: true, namespace: true }],
+  ["union", { root: true, namespace: true }],
+  ["enum", { root: true, namespace: true }],
+  ["alias", { root: true, namespace: true }],
+  ["op", { root: true, namespace: true }],
+
+  // On model `model Foo <keyword> ...`
+  ["extends", { model: true }],
+  ["is", { model: true }],
+
+  // On identifier`
+  ["true", { identifier: true }],
+  ["false", { identifier: true }],
+] as const;
+
+function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
+  const filteredKeywords = keywords.filter(([_, x]) => area in x);
+  for (const [keyword] of filteredKeywords) {
+    completions.items.push({
+      label: keyword,
+      kind: CompletionItemKind.Keyword,
+    });
+  }
+}
+
+/**
+ * Add completion options for an identifier.
+ */
+function addIdentifierCompletion(
+  program: Program,
+  node: IdentifierNode,
+  completions: CompletionList
+) {
+  const result = program.checker!.resolveCompletions(node);
+  if (result.size === 0) {
+    return;
+  }
+  for (const [key, { sym, label }] of result) {
+    let documentation: string | undefined;
+    let kind: CompletionItemKind;
+    if (sym.kind === "type") {
+      const type = program!.checker!.getTypeForNode(sym.node);
+      documentation = getDoc(program, type);
+      kind = getCompletionItemKind(program, type, sym.node.kind);
+    } else {
+      kind = CompletionItemKind.Function;
+    }
+    completions.items.push({
+      label: label ?? key,
+      documentation,
+      kind,
+      insertText: key,
+    });
+  }
+  addKeywordCompletion("identifier", completions);
+}
+
+function getCompletionItemKind(
+  program: Program,
+  target: Type,
+  kind: SyntaxKind
+): CompletionItemKind {
+  switch (kind) {
+    case SyntaxKind.EnumStatement:
+    case SyntaxKind.UnionStatement:
+      return CompletionItemKind.Enum;
+    case SyntaxKind.AliasStatement:
+      return CompletionItemKind.Variable;
+    case SyntaxKind.ModelStatement:
+      return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+    default:
+      return CompletionItemKind.Struct;
+  }
 }
 
 function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
@@ -451,13 +560,13 @@ async function getMainFileForDocument(path: string) {
     return path;
   }
 
-  let dir = dirname(path);
+  let dir = getDirectoryPath(path);
   const options = { allowFileNotFound: true };
 
   while (inWorkspace(dir)) {
     let mainFile = "main.cadl";
     let pkg: any;
-    const pkgPath = join(dir, "package.json");
+    const pkgPath = joinPaths(dir, "package.json");
     const cached = fileSystemCache.get(pkgPath)?.data;
 
     if (cached) {
@@ -471,7 +580,7 @@ async function getMainFileForDocument(path: string) {
       mainFile = pkg.cadlMain;
     }
 
-    const candidate = join(dir, mainFile);
+    const candidate = joinPaths(dir, mainFile);
     const stat = await doIO(
       () => serverHost.stat(candidate),
       candidate,
@@ -483,7 +592,7 @@ async function getMainFileForDocument(path: string) {
       return candidate;
     }
 
-    dir = dirname(dir);
+    dir = getDirectoryPath(dir);
   }
 
   return path;
@@ -523,14 +632,6 @@ function isUntitled(pathOrUrl: string) {
 function getDocument(path: string) {
   const url = getURL(path);
   return url ? documents.get(url) : undefined;
-}
-
-function resolveAbsolutePath(path: string): string {
-  if (isUntitled(path)) {
-    return path;
-  }
-  compilerAssert(isAbsolute(path), "Cannot use relative path in language server");
-  return normalize(path);
 }
 
 async function readFile(path: string): Promise<ServerSourceFile> {

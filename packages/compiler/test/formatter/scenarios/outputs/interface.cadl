@@ -7,6 +7,15 @@ interface Bar mixes ResourceOperations<BarResource> {
   blerp(n: int32): string;
 }
 
-interface Baz mixes ResourceRead<BarResource>, ResourceCreate<BarResource>, ResourceDelete<BarResource> {
+interface Baz
+  mixes ResourceRead<BarResource>,
+    ResourceCreate<BarResource>,
+    ResourceDelete<BarResource> {
   glorp(n: int32): string;
+}
+
+interface WithMultipleOperation {
+  keepSeparation1(): string;
+
+  keepSeperation2(): string;
 }

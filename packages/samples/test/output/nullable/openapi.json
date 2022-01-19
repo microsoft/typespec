@@ -15,7 +15,8 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -48,6 +49,7 @@
           },
           "strOrNull": {
             "type": "string",
+            "nullable": true,
             "x-cadl-name": "Cadl.string | Cadl.null"
           },
           "modelOrNull": {
@@ -61,6 +63,7 @@
             "required": [
               "num"
             ],
+            "nullable": true,
             "x-cadl-name": "AnotherModel | Cadl.null"
           },
           "literalsOrNull": {
@@ -69,10 +72,12 @@
               "one",
               "two"
             ],
+            "nullable": true,
             "x-cadl-name": "one | two | Cadl.null"
           },
           "manyNullsOneString": {
             "type": "string",
+            "nullable": true,
             "x-cadl-name": "Cadl.null | Cadl.null | Cadl.string | Cadl.null"
           },
           "manyNullsSomeValues": {
@@ -81,7 +86,16 @@
               42,
               100
             ],
+            "nullable": true,
             "x-cadl-name": "Cadl.null | 42 | Cadl.null | 100 | Cadl.null"
+          },
+          "arr": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "x-cadl-name": "Cadl.string[] | Cadl.null"
           }
         },
         "required": [
@@ -91,7 +105,8 @@
           "modelOrNull",
           "literalsOrNull",
           "manyNullsOneString",
-          "manyNullsSomeValues"
+          "manyNullsSomeValues",
+          "arr"
         ]
       }
     }
