@@ -79,7 +79,7 @@ export function isStatusCode(program: Program, entity: Type) {
   return program.stateSet(statusCodeKey).has(entity);
 }
 
-export type HttpVerb = "get" | "put" | "post" | "patch" | "delete";
+export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
 const operationVerbsKey = Symbol();
 
@@ -125,6 +125,10 @@ export function $patch(program: Program, entity: Type) {
 
 export function $delete(program: Program, entity: Type) {
   setOperationVerb(program, entity, "delete");
+}
+
+export function $head(program: Program, entity: Type) {
+  setOperationVerb(program, entity, "head");
 }
 
 setDecoratorNamespace(
