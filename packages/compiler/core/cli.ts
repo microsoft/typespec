@@ -308,10 +308,12 @@ async function getCompilerOptions(args: {
 
   const config = await loadCadlConfigInDir(NodeHost, process.cwd());
 
-  logDiagnostics(config.diagnostics, NodeHost.logSink);
-  logDiagnosticCount(config.diagnostics);
-  if (config.diagnostics.some((d) => d.severity === "error")) {
-    process.exit(1);
+  if (config.diagnostics.length > 0) {
+    logDiagnostics(config.diagnostics, NodeHost.logSink);
+    logDiagnosticCount(config.diagnostics);
+    if (config.diagnostics.some((d) => d.severity === "error")) {
+      process.exit(1);
+    }
   }
 
   return {
@@ -322,7 +324,7 @@ async function getCompilerOptions(args: {
     additionalImports: args["import"],
     watchForChanges: args["watch"],
     diagnosticLevel: args["diagnostic-level"] as any,
-    emitters: args.emit ?? config.emitters ? Object.keys(config.emitters) : [],
+    emitters: args.emit ?? (config.emitters ? Object.keys(config.emitters) : []),
   };
 }
 

@@ -193,10 +193,10 @@ export async function createProgram(
   async function loadJsFile(
     path: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
-  ): Promise<{ file: JsSourceFile | undefined; alreadyLoaded: boolean }> {
+  ): Promise<JsSourceFile | undefined> {
     let sourceFile = program.jsSourceFiles.get(path);
     if (sourceFile !== undefined) {
-      return { file: sourceFile, alreadyLoaded: true };
+      return sourceFile;
     }
 
     const file = createSourceFile("", path);
@@ -206,26 +206,27 @@ export async function createProgram(
     });
 
     if (!exports) {
-      return { file: undefined, alreadyLoaded: false };
+      return undefined;
     }
 
-    sourceFile = {
+    return {
       kind: "JsSourceFile",
       esmExports: exports,
       file,
       namespaces: [],
     };
-    program.jsSourceFiles.set(path, sourceFile);
-    return { file: sourceFile, alreadyLoaded: false };
   }
 
   /**
    * Import the Javascript files decorator and lifecycle hooks.
    */
   async function importJsFile(path: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
-    const { file, alreadyLoaded } = await loadJsFile(path, diagnosticTarget);
-    if (file !== undefined && !alreadyLoaded) {
-      binder.bindJsSourceFile(file);
+    const file = await loadJsFile(path, diagnosticTarget);
+    if (file !== undefined) {
+      program.jsSourceFiles.set(path, file);
+      if (file.exports === undefined) {
+        binder.bindJsSourceFile(file);
+      }
     }
   }
 
@@ -352,7 +353,7 @@ export async function createProgram(
         throw e;
       }
     }
-    const { file } = await loadJsFile(module, NoTarget);
+    const file = await loadJsFile(module, NoTarget);
 
     if (file === undefined) {
       program.reportDiagnostic(
