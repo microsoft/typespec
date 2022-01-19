@@ -78,6 +78,7 @@ export async function checkFor(code: string) {
   const result = await host.diagnose("./main.cadl", {
     noEmit: false,
     swaggerOutputFile: outPath,
+    emitters: ["openapi3"],
   });
   return result;
 }
