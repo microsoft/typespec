@@ -80,8 +80,9 @@ async function main() {
           });
       },
       async (args) => {
-        const options = await getCompilerOptions(args);
-        const program = await compileInput(args.path, options);
+        const cliOptions = await getCompilerOptions(args);
+
+        const program = await compileInput(args.path, cliOptions);
         if (program.hasError()) {
           process.exit(1);
         }
@@ -304,6 +305,15 @@ async function getCompilerOptions(args: {
     }
     miscOptions[optionParts[0]] = optionParts[1];
   }
+
+  const config = await loadCadlConfigInDir(NodeHost, process.cwd());
+
+  logDiagnostics(config.diagnostics, NodeHost.logSink);
+  logDiagnosticCount(config.diagnostics);
+  if (config.diagnostics.some((d) => d.severity === "error")) {
+    process.exit(1);
+  }
+
   return {
     miscOptions,
     outputPath,
@@ -312,7 +322,7 @@ async function getCompilerOptions(args: {
     additionalImports: args["import"],
     watchForChanges: args["watch"],
     diagnosticLevel: args["diagnostic-level"] as any,
-    emitters: args.emit,
+    emitters: args.emit ?? config.emitters ? Object.keys(config.emitters) : [],
   };
 }
 

@@ -21,17 +21,8 @@ describe("compiler: config file loading", () => {
     const assertLoadFromFolder = async (folderName: string) => {
       const config = await loadTestConfig(folderName);
       deepStrictEqual(config, {
-        plugins: ["foo"],
         diagnostics: [],
-        emitters: {
-          "foo:openapi": true,
-        },
-        lint: {
-          extends: [],
-          rules: {
-            "some-rule": "on",
-          },
-        },
+        emitters: { openapi: true },
       });
     };
 
@@ -50,13 +41,8 @@ describe("compiler: config file loading", () => {
     it("loads empty config if it can't find any config files", async () => {
       const config = await loadTestConfig("empty");
       deepStrictEqual(config, {
-        plugins: [],
         diagnostics: [],
         emitters: {},
-        lint: {
-          extends: [],
-          rules: {},
-        },
       });
     });
 
@@ -65,47 +51,48 @@ describe("compiler: config file loading", () => {
       await assertLoadFromFolder("yaml-json");
     });
 
-    it("deep clones defaults when not found", async () => {
-      let config = await loadTestConfig("empty");
-      config.plugins.push("x");
-      config.emitters["x"] = true;
-      config.lint.extends.push("x");
-      config.lint.rules["x"] = "off";
+    // TODO: reenable when there is nested config
+    // it("deep clones defaults when not found", async () => {
+    //   let config = await loadTestConfig("empty");
+    //   config.plugins.push("x");
+    //   config.emitters["x"] = true;
+    //   config.lint.extends.push("x");
+    //   config.lint.rules["x"] = "off";
 
-      config = await loadTestConfig("empty");
-      deepStrictEqual(config, {
-        plugins: [],
-        diagnostics: [],
-        emitters: {},
-        lint: {
-          extends: [],
-          rules: {},
-        },
-      });
-    });
+    //   config = await loadTestConfig("empty");
+    //   deepStrictEqual(config, {
+    //     plugins: [],
+    //     diagnostics: [],
+    //     emitters: {},
+    //     lint: {
+    //       extends: [],
+    //       rules: {},
+    //     },
+    //   });
+    // });
 
-    it("deep clones defaults when found", async () => {
-      let config = await loadTestConfig("yaml");
-      config.plugins.push("x");
-      config.emitters["x"] = true;
-      config.lint.extends.push("x");
-      config.lint.rules["x"] = "off";
+    // it("deep clones defaults when found", async () => {
+    //   let config = await loadTestConfig("yaml");
+    //   config.plugins.push("x");
+    //   config.emitters["x"] = true;
+    //   config.lint.extends.push("x");
+    //   config.lint.rules["x"] = "off";
 
-      config = await loadTestConfig("yaml");
-      deepStrictEqual(config, {
-        plugins: ["foo"],
-        diagnostics: [],
-        emitters: {
-          "foo:openapi": true,
-        },
-        lint: {
-          extends: [],
-          rules: {
-            "some-rule": "on",
-          },
-        },
-      });
-    });
+    //   config = await loadTestConfig("yaml");
+    //   deepStrictEqual(config, {
+    //     plugins: ["foo"],
+    //     diagnostics: [],
+    //     emitters: {
+    //       "foo:openapi": true,
+    //     },
+    //     lint: {
+    //       extends: [],
+    //       rules: {
+    //         "some-rule": "on",
+    //       },
+    //     },
+    //   });
+    // });
   });
 
   describe("validation", () => {
@@ -140,7 +127,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("succeeds if config is valid", () => {
-      deepStrictEqual(validate({ lint: { rules: { foo: "on" } } }), []);
+      deepStrictEqual(validate({ emitters: { openapi: true } }), []);
     });
   });
 });

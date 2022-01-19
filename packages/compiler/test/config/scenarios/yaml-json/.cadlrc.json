@@ -1,5 +1,4 @@
 {
-  "plugins": ["otherconfig"],
   "emitters": {
     "foo:other": true
   }

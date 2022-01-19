@@ -7,13 +7,8 @@ import { CadlConfig } from "./types.js";
 
 const configFilenames = [".cadlrc.yaml", ".cadlrc.yml", ".cadlrc.json", "package.json"];
 const defaultConfig: CadlConfig = deepFreeze({
-  plugins: [],
   diagnostics: [],
   emitters: {},
-  lint: {
-    extends: [],
-    rules: {},
-  },
 });
 
 /**

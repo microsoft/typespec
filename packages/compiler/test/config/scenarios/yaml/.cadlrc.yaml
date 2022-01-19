@@ -1,10 +1,3 @@
-plugins:
-  - foo
-
 # This has comments
 emitters:
-  foo:openapi: true
-
-lint:
-  rules:
-    some-rule: on
+  openapi: true

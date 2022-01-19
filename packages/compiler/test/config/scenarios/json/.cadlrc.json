@@ -1,11 +1,5 @@
 {
-  "plugins": ["foo"],
   "emitters": {
-    "foo:openapi": true
-  },
-  "lint": {
-    "rules": {
-      "some-rule": "on"
-    }
+    "openapi": true
   }
 }
