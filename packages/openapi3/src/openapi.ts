@@ -120,25 +120,44 @@ function getOneOf(program: Program, entity: Type): boolean {
 // the emitted OpenAPI document.
 
 const securityDetailsKey = Symbol();
-const securityRequirementsKey = "requirements";
-const securityDefinitionsKey = "definitions";
+interface SecurityDetails {
+  definitions: any;
+  requirements: any[];
+}
 
-function getSecurityRequirements(program: Program) {
+function getSecurityDetails(program: Program, serviceNamespace: NamespaceType): SecurityDetails {
   const definitions = program.stateMap(securityDetailsKey);
-  return definitions?.has(securityRequirementsKey) ? definitions.get(securityRequirementsKey) : [];
+  if (definitions.has(serviceNamespace)) {
+    return definitions.get(serviceNamespace)!;
+  } else {
+    const details = { definitions: {}, requirements: [] };
+    definitions.set(serviceNamespace, details);
+    return details;
+  }
 }
 
-function setSecurityRequirements(program: Program, requirements: any[]) {
-  program.stateMap(securityDetailsKey).set(securityRequirementsKey, requirements);
+function getSecurityRequirements(program: Program, serviceNamespace: NamespaceType) {
+  return getSecurityDetails(program, serviceNamespace).requirements;
 }
 
-function getSecurityDefinitions(program: Program) {
-  const definitions = program.stateMap(securityDetailsKey);
-  return definitions?.has(securityDefinitionsKey) ? definitions.get(securityDefinitionsKey) : {};
+function setSecurityRequirements(
+  program: Program,
+  serviceNamespace: NamespaceType,
+  requirements: any[]
+) {
+  getSecurityDetails(program, serviceNamespace).requirements = requirements;
 }
 
-function setSecurityDefinitions(program: Program, definitions: any) {
-  program.stateMap(securityDetailsKey).set(securityDefinitionsKey, definitions);
+function getSecurityDefinitions(program: Program, serviceNamespace: NamespaceType) {
+  return getSecurityDetails(program, serviceNamespace).definitions;
+}
+
+function setSecurityDefinitions(
+  program: Program,
+  serviceNamespace: NamespaceType,
+  definitions: any
+) {
+  getSecurityDetails(program, serviceNamespace).definitions = definitions;
 }
 
 export function addSecurityRequirement(
@@ -156,9 +175,8 @@ export function addSecurityRequirement(
 
   const req: any = {};
   req[name] = scopes;
-  const requirements = getSecurityRequirements(program);
+  const requirements = getSecurityRequirements(program, namespace);
   requirements.push(req);
-  setSecurityRequirements(program, requirements);
 }
 
 export function addSecurityDefinition(
@@ -175,9 +193,8 @@ export function addSecurityDefinition(
     return;
   }
 
-  const definitions = getSecurityDefinitions(program);
+  const definitions = getSecurityDefinitions(program, namespace);
   definitions[name] = details;
-  setSecurityDefinitions(program, definitions);
 }
 
 const openApiExtensions = new Map<Type, Map<string, any>>();
@@ -259,7 +276,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     const versions = getVersionRecords(program, serviceNs);
     for (const record of versions) {
-      program.enableProjections(record.projections);
+      if (record.version !== undefined) {
+        program.enableProjections(record.projections);
+      }
+
       await emitOpenAPIFromVersion(record.version);
     }
   }
@@ -280,13 +300,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
       if (!program.compilerOptions.noEmit && !program.hasError()) {
         // Write out the OpenAPI document to the output path
+        const outPath = version
+          ? path.resolve(options.outputFile.replace(".json", `.${version}.json`))
+          : path.resolve(options.outputFile);
 
-        await program.host.writeFile(
-          version
-            ? path.resolve(options.outputFile.replace(".json", `.${version}.json`))
-            : path.resolve(options.outputFile),
-          prettierOutput(JSON.stringify(root, null, 2))
-        );
+        await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
       }
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {

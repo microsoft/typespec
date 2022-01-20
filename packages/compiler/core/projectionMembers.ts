@@ -27,7 +27,10 @@ export function createProjectionMembers(checker: Checker): {
         return createLiteralType(base.name);
       },
       projectionSource(base) {
-        return base.projectionSource?.projectionSource || voidType;
+        return base.projectionSource || voidType;
+      },
+      projectionBase(base) {
+        return base.projectionBase || voidType;
       },
       properties(base) {
         return createType({
@@ -129,7 +132,10 @@ export function createProjectionMembers(checker: Checker): {
     },
     Union: {
       projectionSource(base) {
-        return base.projectionSource?.projectionSource || voidType;
+        return base.projectionSource || voidType;
+      },
+      projectionBase(base) {
+        return base.projectionBase || voidType;
       },
       variants(base) {
         return createType({
@@ -215,7 +221,10 @@ export function createProjectionMembers(checker: Checker): {
     },
     Operation: {
       projectionSource(base) {
-        return base.projectionSource?.projectionSource ?? voidType;
+        return base.projectionSource || voidType;
+      },
+      projectionBase(base) {
+        return base.projectionBase || voidType;
       },
       name(base) {
         return createLiteralType(base.name);
@@ -229,7 +238,10 @@ export function createProjectionMembers(checker: Checker): {
     },
     Interface: {
       projectionSource(base) {
-        return base.projectionSource?.projectionSource || voidType;
+        return base.projectionSource || voidType;
+      },
+      projectionBase(base) {
+        return base.projectionBase || voidType;
       },
       operations(base) {
         return createType({
@@ -304,7 +316,10 @@ export function createProjectionMembers(checker: Checker): {
     },
     Enum: {
       projectionSource(base) {
-        return base.projectionSource?.projectionSource ?? voidType;
+        return base.projectionSource ?? voidType;
+      },
+      projectionBase(base) {
+        return base.projectionBase || voidType;
       },
       members(base) {
         return createType({
@@ -328,7 +343,6 @@ export function createProjectionMembers(checker: Checker): {
           type && assertType("enum type", type, "String", "Number");
 
           const name = nameT.value;
-
           const member = base.members.find((member) => member.name === name);
           if (member) {
             throw new ProjectionError(`Enum already has a member named ${name}`);

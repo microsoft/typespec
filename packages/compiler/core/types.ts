@@ -24,6 +24,8 @@ export interface BaseType {
   get projections(): ProjectionStatementNode[];
   projectionsByName(name: string): ProjectionStatementNode[];
   projectionSource?: Type;
+  projectionBase?: Type;
+  projector?: Projector;
 }
 
 export interface DecoratedType {
@@ -84,10 +86,9 @@ export interface ProjectionApplication {
 export interface Projector {
   projections: ProjectionApplication[];
   projectedTypes: Map<Type, Type>;
-  stateMaps: Map<Symbol, Map<any, any>>;
-  stateSets: Map<Symbol, Set<any>>;
   projectType(type: Type): Type;
   projectedStartNode?: Type;
+  projectedGlobalNamespace?: NamespaceType;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -191,6 +192,7 @@ export interface NamespaceType extends BaseType, DecoratedType {
   operations: Map<string, OperationType>;
   namespaces: Map<string, NamespaceType>;
   interfaces: Map<string, InterfaceType>;
+  enums: Map<string, EnumType>;
   unions: Map<string, UnionType>;
 }
 

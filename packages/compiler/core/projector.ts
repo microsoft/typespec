@@ -15,6 +15,8 @@ import {
   UnionType,
 } from "./types.js";
 
+function foo() {}
+foo();
 type DeclScope = NamespaceType | ModelType | InterfaceType | UnionType | EnumType | OperationType;
 
 /**
@@ -45,23 +47,33 @@ export function createProjector(
   startNode?: Type
 ): Projector {
   const projectedTypes = new Map<Type, Type>();
-  const stateSets = new Map();
-  const stateMaps = new Map();
   const checker = program.checker!;
   let scope: Type[] = [];
-
+  console.log("<<< PROJ INIT", projections);
   const projector: Projector = {
-    stateSets,
-    stateMaps,
     projectedTypes,
     projections,
     projectType,
   };
-
   program.currentProjector = projector;
-  projector.projectedStartNode = projectType(
-    startNode ?? program.checker!.getGlobalNamespaceType()
-  );
+  if (startNode) {
+    if (startNode.projector) {
+      projector.projectedGlobalNamespace = projectType(
+        startNode.projector.projectedGlobalNamespace!
+      ) as NamespaceType;
+      projector.projectedStartNode = projectedTypes.get(startNode);
+    } else {
+      projector.projectedGlobalNamespace = projectType(
+        program.checker!.getGlobalNamespaceType()
+      ) as NamespaceType;
+      projector.projectedStartNode = projectedTypes.get(startNode);
+    }
+  } else {
+    projector.projectedGlobalNamespace = projectType(
+      program.checker!.getGlobalNamespaceType()
+    ) as NamespaceType;
+    projector.projectedStartNode = projector.projectedGlobalNamespace;
+  }
 
   return projector;
 
@@ -121,18 +133,19 @@ export function createProjector(
     const childOperations = new Map<string, OperationType>();
     const childInterfaces = new Map<string, InterfaceType>();
     const childUnions = new Map<string, UnionType>();
+    const childEnums = new Map<string, EnumType>();
 
-    let projectedNs: NamespaceType = checker.createAndFinishType({
-      ...ns,
+    let projectedNs = shallowClone(ns, {
       namespaces: childNamespaces,
       models: childModels,
       operations: childOperations,
       interfaces: childInterfaces,
       unions: childUnions,
-      namespace: ns.namespace ? projectedNamespaceScope() : undefined,
+      enums: childEnums,
     });
 
-    projectedTypes.set(ns, projectedNs);
+    // ns run decorators before projecting anything inside them
+    checker.finishType(projectedNs);
 
     for (const [key, childNs] of ns.namespaces) {
       const projected = projectType(childNs);
@@ -172,6 +185,13 @@ export function createProjector(
         childUnions.set(key, projected);
       }
     }
+    for (const [key, childEnum] of ns.enums) {
+      const projected = projectType(childEnum);
+      if (projected.kind === "Enum") {
+        // todo: check for never?
+        childEnums.set(key, projected);
+      }
+    }
 
     return applyProjection(ns, projectedNs);
   }
@@ -180,10 +200,8 @@ export function createProjector(
     const properties = new Map<string, ModelTypeProperty>();
     let templateArguments: Type[] | undefined;
 
-    let projectedModel: ModelType = checker.createType({
-      ...model,
+    let projectedModel = shallowClone(model, {
       properties,
-      namespace: model.namespace ? projectedNamespaceScope() : undefined,
     });
 
     if (model.templateArguments !== undefined) {
@@ -211,8 +229,7 @@ export function createProjector(
       checker.finishType(projectedModel);
     }
     projectedModel.templateArguments = templateArguments;
-    let p = applyProjection(model, projectedModel);
-    return p;
+    return applyProjection(model, projectedModel);
   }
 
   /**
@@ -240,16 +257,15 @@ export function createProjector(
 
     return true;
   }
+
   function projectModelProperty(prop: ModelTypeProperty): Type {
     const projectedType = projectType(prop.type);
     const projectedDecs = projectDecorators(prop.decorators);
 
-    const projectedProp = checker.createType({
-      ...prop,
+    const projectedProp = shallowClone(prop, {
       type: projectedType,
       decorators: projectedDecs,
     });
-    projectedTypes.set(prop, projectedProp);
 
     checker.finishType(projectedProp);
     return projectedProp;
@@ -260,18 +276,18 @@ export function createProjector(
     const returnType = projectType(op.returnType);
     const decorators = projectDecorators(op.decorators);
 
-    let projectedOp: OperationType = checker.createType({
-      ...op,
+    let projectedOp = shallowClone(op, {
       decorators,
       parameters,
       returnType,
     });
-    projectedTypes.set(op, projectedOp);
+
     if (op.interface) {
       projectedOp.interface = projectedInterfaceScope();
     } else if (op.namespace) {
       projectedOp.namespace = projectedNamespaceScope();
     }
+
     checker.finishType(projectedOp);
     return applyProjection(op, projectedOp);
   }
@@ -279,14 +295,11 @@ export function createProjector(
   function projectInterface(iface: InterfaceType): Type {
     const operations = new Map<string, OperationType>();
     const decorators = projectDecorators(iface.decorators);
-    let projectedIface: InterfaceType = checker.createType({
-      ...iface,
+    let projectedIface = shallowClone(iface, {
       decorators,
       operations,
-      namespace: projectedNamespaceScope(),
     });
 
-    projectedTypes.set(iface, projectedIface);
     for (const [key, op] of iface.operations) {
       const projectedOp = projectType(op);
       if (projectedOp.kind === "Operation") {
@@ -303,6 +316,13 @@ export function createProjector(
 
   function projectUnion(union: UnionType) {
     const variants = new Map<string | Symbol, UnionTypeVariant>();
+    const decorators = projectDecorators(union.decorators);
+
+    let projectedUnion = shallowClone(union, {
+      decorators,
+      variants,
+    });
+
     for (const [key, variant] of union.variants) {
       const projectedVariant = projectType(variant);
       if (projectedVariant.kind === "UnionVariant") {
@@ -310,17 +330,6 @@ export function createProjector(
       }
     }
 
-    const decorators = projectDecorators(union.decorators);
-    let projectedUnion: UnionType = checker.createType({
-      ...union,
-      decorators,
-      variants,
-      namespace: union.namespace ? namespaceScope() : undefined,
-      get options() {
-        return Array.from(this.variants.values()).map((v) => v.type);
-      },
-    });
-    projectedTypes.set(union, projectedUnion);
     if (shouldFinishType(union)) {
       checker.finishType(projectedUnion);
     }
@@ -332,12 +341,10 @@ export function createProjector(
     const projectedType = projectType(variant.type);
     const projectedDecs = projectDecorators(variant.decorators);
 
-    const projectedVariant = checker.createType({
-      ...variant,
+    const projectedVariant = shallowClone(variant, {
       type: projectedType,
       decorators: projectedDecs,
     });
-    projectedTypes.set(variant, projectedVariant);
 
     checker.finishType(projectedVariant);
     return projectedVariant;
@@ -346,32 +353,35 @@ export function createProjector(
   function projectArray(array: ArrayType) {
     const projectedType = projectType(array.elementType);
 
-    const projectedArray: ArrayType = checker.createType({
-      ...array,
+    const projectedArray = shallowClone(array, {
       elementType: projectedType,
     });
-    projectedTypes.set(array, projectedArray);
+
     checker.finishType(projectedArray);
     return projectedArray;
   }
 
   function projectTuple(tuple: TupleType) {
     const values: Type[] = [];
+    const projectedTuple = shallowClone(tuple, {
+      values,
+    });
+
     for (const item of tuple.values) {
       values.push(projectType(item));
     }
 
-    const projectedTuple: TupleType = checker.createAndFinishType({
-      ...tuple,
-      values,
-    });
-    projectedTypes.set(tuple, projectedTuple);
     return projectedTuple;
   }
 
   function projectEnum(e: EnumType) {
     const members: EnumMemberType[] = [];
     const decorators = projectDecorators(e.decorators);
+    const projectedEnum = shallowClone(e, {
+      members,
+      decorators,
+    });
+
     for (const member of e.members) {
       const projectedMember = projectType(member);
       if (projectedMember.kind === "EnumMember") {
@@ -379,25 +389,17 @@ export function createProjector(
       }
     }
 
-    const projectedEnum: EnumType = checker.createType({
-      ...e,
-      members,
-      decorators,
-    });
-
-    projectedTypes.set(e, projectedEnum);
     checker.finishType(projectedEnum);
     return applyProjection(e, projectedEnum);
   }
 
   function projectEnumMember(e: EnumMemberType) {
     const decorators = projectDecorators(e.decorators);
-
-    const projectedMember = checker.createType({
-      ...e,
+    const projectedMember = shallowClone(e, {
       decorators,
+      enum: projectedTypes.get(e.enum)! as EnumType,
     });
-    projectedTypes.set(e, projectedMember);
+
     checker.finishType(projectedMember);
     return projectedMember;
   }
@@ -481,7 +483,6 @@ export function createProjector(
   }
 
   function applyProjection(baseType: Type, projectedType: Type): Type {
-    (projectedType as any).__PROJECTED__ = true;
     const inScopeProjections = getInScopeProjections();
     for (const projectionApplication of inScopeProjections) {
       const projectionsByName = baseType.projectionsByName(projectionApplication.projectionName);
@@ -492,14 +493,45 @@ export function createProjector(
           : projectionsByName[0].to!;
       const projected = checker.project(projectedType, targetNode, projectionApplication.arguments);
       if (projected.kind !== baseType.kind) {
+        // override the projected type cache with the returned type
         projectedTypes.set(baseType, projected);
         return projected;
       } else {
         projectedType = projected;
       }
     }
-    projectedTypes.set(baseType, projectedType);
 
     return projectedType;
+  }
+
+  function shallowClone<T extends Type>(type: T, additionalProps: Partial<T>) {
+    const scopeProps: any = {};
+    if ("namespace" in type && type.namespace !== undefined) {
+      scopeProps.namespace = projectedNamespaceScope();
+    }
+    if ("interface" in type && type.interface !== undefined) {
+      scopeProps.namespace = projectedInterfaceScope();
+    }
+
+    const clone = checker.createType({
+      ...type,
+      ...additionalProps,
+      ...scopeProps,
+      projectionSource: type,
+      projectionBase: type.projectionBase ?? type,
+      projector,
+    });
+
+    if (type.kind === "Union") {
+      // create the options getter
+      Object.defineProperty(clone, "options", {
+        get(this: UnionType) {
+          return Array.from(this.variants.values()).map((v) => v.type);
+        },
+      });
+    }
+
+    projectedTypes.set(type, clone);
+    return clone;
   }
 }

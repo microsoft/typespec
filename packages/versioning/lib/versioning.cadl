@@ -43,7 +43,7 @@ projection interface#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
-      self.projectionSource.operations.forEach((operation) => {
+      self.projectionBase.operations.forEach((operation) => {
         if addedAfter(operation, version, self) {
           self.addOperation(operation.name, operation.parameters, operation.returnType);
         } else if removedOnOrBefore(operation, version, self) {
@@ -81,7 +81,7 @@ projection union#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
-      self.projectionSource.variants.forEach((variant) => {
+      self.projectionBase.variants.forEach((variant) => {
         if addedAfter(variant, version, self) {
           self.addVariant(variant.name, variant.type);
         } else if removedOnOrBefore(variant, version, self) {
@@ -127,7 +127,7 @@ projection model#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
-      self.projectionSource.properties.forEach((p) => {
+      self.projectionBase.properties.forEach((p) => {
         if addedAfter(p, version, self) {
           self.addProperty(p.name, p.type);
         };
@@ -177,16 +177,16 @@ projection enum#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
-      self.projectionSource.members.forEach((m) => {
-        if addedAfter(m, version, self) {
+      self.projectionBase.members.forEach((m) => {
+        if addedAfter(m, version, self.projectionBase) {
           self.addMember(m.name, m.type);
         };
         
-        if removedOnOrBefore(m, version, self) {
+        if removedOnOrBefore(m, version, self.projectionBase) {
           self.addMember(m.name, m.type);
         };
 
-        if renamedAfter(m, version, self) {
+        if renamedAfter(m, version, self.projectionBase) {
           self.renameMember(getRenamedFromOldName(m), m.name);
         };
       });

@@ -73,6 +73,7 @@ describe("cadl: projections", () => {
     );
 
     const { Foo } = (await testHost.compile("main.cadl")) as { Foo: ModelType };
+
     let result = getProjectedType(testHost, Foo, "addDocs");
     strictEqual(getDoc(testHost.program, result), "This is a model Foo");
     strictEqual(getDoc(testHost.program, result.properties.get("a")!), "Prop");
@@ -490,37 +491,25 @@ describe("cadl: projections", () => {
   });
 
   describe("operations", () => {
-    const testOp = `
-      @test op Foo(p1: int32): int32;
-    `;
-
-    async function project(code: string, additionalCode = "") {
+    it("can access parameters and return type", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
-        ${testOp}
+        @test op Foo(): void;
         
         #suppress "projections-are-experimental"
-        projection op#addReturnTypeVariant {
+        projection op#test {
           to {
-            self.setReturnType(unionOf(self.returnType, int32));
-            ${code}
-          }
-          from {
-            self.returnType.removeVariantWithType(int32);
+            return { x: self.parameters, y: self.returnType };
           }
         }
-
-        ${additionalCode}
         `
       );
       const { Foo } = (await testHost.compile("main.cadl")) as { Foo: OperationType };
-      return testHost.program.checker!.project(Foo, Foo.projections[0].to!) as OperationType;
-    }
-
-    it("can project parameters");
-    it("can change return type");
-    it("can project return type");
+      const result = testHost.program.checker!.project(Foo, Foo.projections[0].to!) as ModelType;
+      strictEqual(result.properties.get("x")!.type.kind, "Model");
+      strictEqual(result.properties.get("y")!.type.kind, "Intrinsic");
+    });
   });
 
   describe("interfaces", () => {

@@ -27,7 +27,16 @@ export function navigateProgram(
   if (!program.checker) {
     return;
   }
-  navigateNamespaceType(program.checker.getGlobalNamespaceType(), eventEmitter, visited);
+
+  if (program.currentProjector) {
+    navigateNamespaceType(
+      program.currentProjector.projectedGlobalNamespace!,
+      eventEmitter,
+      visited
+    );
+  } else {
+    navigateNamespaceType(program.checker.getGlobalNamespaceType(), eventEmitter, visited);
+  }
 }
 
 function navigateNamespaceType(
@@ -143,7 +152,7 @@ function navigateEnumType(
   if (checkVisited(visited, type)) {
     return;
   }
-  
+
   eventEmitter.emit("enum", type);
 }
 

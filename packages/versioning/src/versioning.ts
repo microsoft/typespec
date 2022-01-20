@@ -12,7 +12,10 @@ export function $added(p: Program, t: Type, v: string) {
     reportDiagnostic(p, { code: "version-must-be-string", target: t });
     return;
   }
-  if (!hasVersion(p, t, v)) {
+  if (
+    ["EnumMember", "ModelProperty", "UnionVariant"].indexOf(t.kind) === -1 &&
+    !hasVersion(p, t, v)
+  ) {
     reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
     return;
   }
@@ -24,7 +27,12 @@ export function $removed(p: Program, t: Type, v: string) {
     reportDiagnostic(p, { code: "version-must-be-string", target: t });
     return;
   }
-  if (!hasVersion(p, t, v)) {
+  // this validation doesn't work for model properties because we can't walk up to
+  // get the container type.
+  if (
+    ["EnumMember", "ModelProperty", "UnionVariant"].indexOf(t.kind) === -1 &&
+    !hasVersion(p, t, v)
+  ) {
     reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
     return;
   }
@@ -35,7 +43,10 @@ export function $renamedFrom(p: Program, t: Type, v: string, oldName: string) {
     reportDiagnostic(p, { code: "version-must-be-string", target: t });
     return;
   }
-  if (!hasVersion(p, t, v)) {
+  if (
+    ["EnumMember", "ModelProperty", "UnionVariant"].indexOf(t.kind) === -1 &&
+    !hasVersion(p, t, v)
+  ) {
     reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
     return;
   }
@@ -48,7 +59,10 @@ export function $madeOptional(p: Program, t: Type, v: string) {
     reportDiagnostic(p, { code: "version-must-be-string", target: t });
     return;
   }
-  if (!hasVersion(p, t, v)) {
+  if (
+    ["EnumMember", "ModelProperty", "UnionVariant"].indexOf(t.kind) === -1 &&
+    !hasVersion(p, t, v)
+  ) {
     reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
     return;
   }
@@ -92,6 +106,10 @@ export function $versioned(p: Program, t: Type, v: Type) {
         }
       }
       break;
+    case undefined:
+      if (typeof v === "number" || typeof v === "string") {
+        versions.push(v);
+      }
   }
 
   p.stateMap(versionsKey).set(t, versions);
@@ -169,7 +187,7 @@ interface VersionRecord {
 
 export function getVersionRecords(program: Program, rootNs: NamespaceType): VersionRecord[] {
   const versions = getVersions(program, rootNs);
-  if (!versions) {
+  if (!versions || versions.length === 0) {
     return [{ version: undefined, projections: [] }];
   }
   const records: VersionRecord[] = [];
@@ -193,16 +211,26 @@ export function getVersionRecords(program: Program, rootNs: NamespaceType): Vers
   return records;
 }
 
+const versionCache = new WeakMap<Type, string[]>();
+function cacheVersion(key: Type, versions: string[]) {
+  versionCache.set(key, versions);
+  return versions;
+}
+
 export function getVersions(p: Program, t: Type): string[] {
+  if (versionCache.has(t)) {
+    return versionCache.get(t)!;
+  }
+
   if (t.kind === "Namespace") {
     const nsVersion = getVersion(p, t);
 
     if (nsVersion !== undefined) {
-      return nsVersion;
+      return cacheVersion(t, nsVersion);
     } else if (t.namespace) {
-      return getVersions(p, t.namespace);
+      return cacheVersion(t, getVersions(p, t.namespace));
     } else {
-      return [];
+      return cacheVersion(t, []);
     }
   } else if (
     t.kind === "Operation" ||
@@ -212,21 +240,14 @@ export function getVersions(p: Program, t: Type): string[] {
     t.kind === "Enum"
   ) {
     if (t.namespace) {
-      return getVersions(p, t.namespace!) || [];
+      return cacheVersion(t, getVersions(p, t.namespace) || []);
     } else if (t.kind === "Operation" && t.interface) {
-      return getVersions(p, t.interface) || [];
+      return cacheVersion(t, getVersions(p, t.interface) || []);
     } else {
-      return [];
+      return cacheVersion(t, []);
     }
-  } else if (t.kind === "ModelProperty" || t.kind === "UnionVariant" || t.kind === "EnumMember") {
-    // attempt to find the parent type by poking into the AST.
-    const parentType = p.checker!.getTypeForNode(t.node!.parent!);
-    return getVersions(
-      p,
-      p.currentProjector ? p.currentProjector!.projectType(parentType) : parentType
-    );
   } else {
-    return [];
+    return cacheVersion(t, []);
   }
 }
 

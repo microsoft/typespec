@@ -43,11 +43,14 @@ export function isIntrinsic(program: Program, target: Type | undefined) {
 }
 
 // Walks the assignmentType chain to find the core intrinsic type, if any
-export function getIntrinsicType(program: Program, target: Type | undefined): string | undefined {
+export function getIntrinsicType(
+  program: Program,
+  target: Type | undefined
+): ModelType | undefined {
   while (target) {
     if (target.kind === "Model") {
       if (isIntrinsic(program, target)) {
-        return target.name;
+        return target;
       }
 
       target = target.baseModel;
@@ -63,7 +66,7 @@ export function getIntrinsicType(program: Program, target: Type | undefined): st
 
 export function isStringType(program: Program, target: Type): boolean {
   const intrinsicType = getIntrinsicType(program, target);
-  return intrinsicType !== undefined && intrinsicType === "string";
+  return intrinsicType !== undefined && intrinsicType.name === "string";
 }
 
 export function isErrorType(type: Type): boolean {
@@ -92,7 +95,7 @@ export function $numeric(program: Program, target: Type) {
     );
     return;
   }
-  program.stateSet(numericTypesKey).add(target.name);
+  program.stateSet(numericTypesKey).add(target);
 }
 
 export function isNumericType(program: Program, target: Type): boolean {
@@ -116,7 +119,7 @@ export function $format(program: Program, target: Type, format: string) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -150,7 +153,7 @@ export function $minLength(program: Program, target: Type, minLength: number) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -184,7 +187,7 @@ export function $maxLength(program: Program, target: Type, maxLength: number) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -280,7 +283,7 @@ export function $secret(program: Program, target: Type) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     createDiagnostic({
       code: "decorator-wrong-target",
       format: { decorator: "@secret", to: "non-string type" },

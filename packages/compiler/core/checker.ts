@@ -1,5 +1,10 @@
 import { createSymbolTable } from "./binder.js";
 import { assertType, compilerAssert, ProjectionError } from "./diagnostics.js";
+import {
+  ProjectionModelExpressionNode,
+  ProjectionModelPropertyNode,
+  ProjectionModelSpreadPropertyNode,
+} from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { hasParseError } from "./parser.js";
 import { Program } from "./program.js";
@@ -329,20 +334,6 @@ export function createChecker(program: Program): Checker {
       name: "inspect",
       value(p: Program, str: Type): Type {
         console.log(str);
-        return voidType;
-      },
-    });
-
-    cadlNamespaceNode!.exports!.set("projectSelf", {
-      kind: "function",
-      name: "projectSelf",
-      value(p: Program, projectionName: string, arg1: Type): Type {
-        let selfType = evalContext!.locals.get("self")!;
-        const projections = selfType.projectionsByName(projectionName);
-        for (const proj of projections) {
-          selfType = project(selfType, proj[currentProjectionDirection!]!, arg1 ? [arg1] : []);
-        }
-        evalContext!.locals.set("self", selfType);
         return voidType;
       },
     });
@@ -828,6 +819,7 @@ export function createChecker(program: Program): Checker {
         namespaces: new Map(),
         interfaces: new Map(),
         unions: new Map(),
+        enums: new Map(),
         decorators,
       });
       namespace?.namespaces.set(name, type);
@@ -1755,15 +1747,15 @@ export function createChecker(program: Program): Checker {
 
     if (!links.type) {
       const decorators = checkDecorators(node);
-      const enumType: EnumType = createType({
+      const enumType: EnumType = (links.type = createType({
         kind: "Enum",
         name: node.id.sv,
         node,
         members: [],
         namespace: getParentNamespaceType(node),
         decorators,
-      });
-
+      }));
+      enumType.namespace?.enums.set(enumType.name!, enumType);
       const memberNames = new Set<string>();
 
       for (const member of node.members) {
@@ -1775,8 +1767,6 @@ export function createChecker(program: Program): Checker {
       }
 
       finishType(enumType);
-
-      links.type = enumType;
     }
 
     return links.type;
@@ -2131,6 +2121,7 @@ export function createChecker(program: Program): Checker {
       namespaces: new Map(),
       interfaces: new Map(),
       unions: new Map(),
+      enums: new Map(),
       decorators: [],
     });
   }
@@ -2334,6 +2325,8 @@ export function createChecker(program: Program): Checker {
         return evalProjectionRelationalExpression(node);
       case SyntaxKind.ProjectionProjectionReference:
         return evalProjectionReferenceExpression(node);
+      case SyntaxKind.ProjectionModelExpression:
+        return evalProjectionModelExpression(node);
       case SyntaxKind.VoidKeyword:
         return voidType;
       case SyntaxKind.NeverKeyword:
@@ -2408,6 +2401,77 @@ export function createChecker(program: Program): Checker {
     }
 
     return evalProjectionStatement(projectionNode[currentProjectionDirection!]!, target, args);
+  }
+
+  function evalProjectionModelExpression(node: ProjectionModelExpressionNode): TypeOrReturnRecord {
+    const modelType: ModelType = createType({
+      kind: "Model",
+      name: "",
+      node: node as any, // todo: probably make the type more expressive, but this could be painful
+      decorators: [],
+      properties: new Map(),
+    });
+
+    for (const propNode of node.properties) {
+      if (propNode.kind === SyntaxKind.ProjectionModelProperty) {
+        const prop = evalProjectionModelProperty(propNode);
+        if (prop.kind === "Return") {
+          return prop;
+        }
+        modelType.properties.set(prop.name, prop);
+      } else {
+        const props = evalProjectionModelSpreadProperty(propNode);
+        if (!Array.isArray(props)) {
+          // return record
+          return props;
+        }
+
+        for (const newProp of props) {
+          modelType.properties.set(newProp.name, newProp);
+        }
+      }
+    }
+
+    return modelType;
+  }
+
+  function evalProjectionModelProperty(
+    node: ProjectionModelPropertyNode
+  ): ModelTypeProperty | ReturnRecord {
+    const type = evalProjectionNode(node.value);
+    if (type.kind === "Return") {
+      return type;
+    }
+
+    return createType({
+      kind: "ModelProperty",
+      name: node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value,
+      node: node as any,
+      decorators: [],
+      optional: node.optional,
+      type,
+    });
+  }
+
+  function evalProjectionModelSpreadProperty(
+    node: ProjectionModelSpreadPropertyNode
+  ): ModelTypeProperty[] | ReturnRecord {
+    const target = evalProjectionNode(node.target);
+    if (target.kind === "Return") {
+      return target;
+    }
+
+    if (target.kind !== "Model") {
+      throw new ProjectionError(`Can only spread models`);
+    }
+    const props = [];
+    // copy each property
+    for (const prop of walkPropertiesInherited(target)) {
+      const newProp = cloneType(prop, { sourceProperty: prop });
+      props.push(newProp);
+    }
+
+    return props;
   }
 
   function evalProjectionRelationalExpression(
