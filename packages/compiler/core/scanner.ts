@@ -603,7 +603,7 @@ export function createScanner(
   function scanMultiLineComment() {
     position = skipMultiLineComment(input, position);
     token = Token.MultiLineComment;
-    return position === input.length ? unterminated(token) : token;
+    return position > input.length ? unterminated(token) : token;
   }
 
   function scanString() {
@@ -948,10 +948,9 @@ function skipMultiLineComment(input: string, position: number): number {
       input.charCodeAt(position) === CharCode.Asterisk &&
       input.charCodeAt(position + 1) === CharCode.Slash
     ) {
-      position += 2;
-      break;
+      return position + 2;
     }
   }
 
-  return position;
+  return input.length + 1;
 }
