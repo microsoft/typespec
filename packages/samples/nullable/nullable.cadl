@@ -22,7 +22,3 @@ namespace NullableMethods {
 model AnotherModel {
   num: int32;
 }
-
-/**
- *
- */
