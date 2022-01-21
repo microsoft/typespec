@@ -1,40 +1,40 @@
 import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
-import { Checker, createChecker } from "./checker.js";
-import { createSourceFile, getSourceLocation } from "./diagnostics.js";
+import { Checker,createChecker } from "./checker.js";
+import { createSourceFile,getSourceLocation } from "./diagnostics.js";
 import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { resolveModule } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
-import { isImportStatement, parse } from "./parser.js";
+import { isImportStatement,parse } from "./parser.js";
 import {
-  getAnyExtensionFromPath,
-  getDirectoryPath,
-  isPathAbsolute,
-  joinPaths,
-  resolvePath,
+getAnyExtensionFromPath,
+getDirectoryPath,
+isPathAbsolute,
+joinPaths,
+resolvePath
 } from "./path-utils.js";
 import {
-  CadlScriptNode,
-  CompilerHost,
-  Diagnostic,
-  DiagnosticTarget,
-  Directive,
-  DirectiveExpressionNode,
-  Emitter,
-  EmitterOptions,
-  JsSourceFile,
-  LiteralType,
-  Logger,
-  Node,
-  NoTarget,
-  SourceFile,
-  Sym,
-  SymbolTable,
-  SyntaxKind,
-  Type,
+CadlScriptNode,
+CompilerHost,
+Diagnostic,
+DiagnosticTarget,
+Directive,
+DirectiveExpressionNode,
+Emitter,
+EmitterOptions,
+JsSourceFile,
+LiteralType,
+Logger,
+Node,
+NoTarget,
+SourceFile,
+Sym,
+SymbolTable,
+SyntaxKind,
+Type
 } from "./types.js";
-import { doIO, loadFile } from "./util.js";
+import { doIO,loadFile } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -296,7 +296,7 @@ export async function createProgram(
       if (path.startsWith("./") || path.startsWith("../")) {
         importFilePath = resolvePath(relativeTo, path);
       } else if (isPathAbsolute(path)) {
-        importFilePath = path;
+        importFilePath = resolvePath(path);
       } else {
         try {
           // attempt to resolve a node module with this name

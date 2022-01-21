@@ -4,15 +4,18 @@ namespace Cadl.Http;
 
 using Private;
 
-@doc("The request has succeeded.")
-model OkResponse<T> {
+@doc("Http response with status code")
+model Response<Status> {
   @doc("The status code.")
   @statusCode
-  _: 200;
+  _: Status;
+}
 
+@doc("The request has succeeded.")
+model OkResponse<Body> is Response<200> {
   @doc("The reponse body.")
   @body
-  body: T;
+  body: Body;
 }
 
 @doc("The Location header.")
@@ -23,61 +26,30 @@ model LocationHeader {
 }
 
 @doc("The request has succeeded and a new resource has been created as a result.")
-model CreatedResponse {
-  @doc("The status code.")
-  @statusCode
-  _: 201;
-}
+model CreatedResponse is Response<201> {}
 
 @doc("The request has been received but not yet acted upon.")
-model AcceptedResponse {
-  @doc("The status code.")
-  @statusCode
-  _: 202;
-}
+model AcceptedResponse is Response<202> {}
 
 @doc("There is no content to send for this request, but the headers may be useful. ")
-model NoContentResponse {
-  @doc("The status code.")
-  @statusCode
-  _: 204;
-}
+model NoContentResponse is Response<204> {}
 
 @doc("The URL of the requested resource has been changed permanently. The new URL is given in the response.")
-model MovedResponse {
-  @doc("The status code.")
-  @statusCode
-  _: 301;
+model MovedResponse is Response<301> {
   ...LocationHeader;
 }
 
 @doc("This is used for caching purposes.")
-model NotModifiedResponse {
-  @doc("The status code.")
-  @statusCode
-  _: 304;
-}
+model NotModifiedResponse is Response<304> {}
 
 @doc("The server could not understand the request due to invalid syntax.")
-model UnauthorizedResponse {
-  @doc("The status code.")
-  @statusCode
-  _: 401;
-}
+model UnauthorizedResponse is Response<401> {}
 
 @doc("The server can not find the requested resource.")
-model NotFoundResponse {
-  @doc("The status code.")
-  @statusCode
-  _: 404;
-}
+model NotFoundResponse is Response<404> {}
 
 @doc("This response is sent when a request conflicts with the current state of the server.")
-model ConflictResponse {
-  @doc("The status code.")
-  @statusCode
-  _: 409;
-}
+model ConflictResponse is Response<409> {}
 
 // Produces a new model with the same properties as T, but with @query,
 // @header, @body, and @path decorators removed from all properties.

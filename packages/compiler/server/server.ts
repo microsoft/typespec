@@ -32,7 +32,12 @@ import {
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition } from "../core/parser.js";
-import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import {
+  ensureTrailingDirectorySeparator,
+  getDirectoryPath,
+  joinPaths,
+  resolvePath,
+} from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
 import {
   CompilerHost,
@@ -52,7 +57,10 @@ interface ServerSourceFile extends SourceFile {
 }
 
 interface ServerWorkspaceFolder extends WorkspaceFolder {
-  // Remember path to URL conversion for workspace folders.
+  // Remember path to URL conversion for workspace folders. This path must
+  // be resolved and normalized as other paths and have a trailing separator
+  // character so that we can test if a path is within a workspace using
+  // startsWith.
   path: string;
 }
 
@@ -143,7 +151,10 @@ function initialize(params: InitializeParams): InitializeResult {
   if (params.capabilities.workspace?.workspaceFolders) {
     clientHasWorkspaceFolderCapability = true;
     workspaceFolders =
-      params.workspaceFolders?.map((w) => ({ ...w, path: fileURLToPath(w.uri) })) ?? [];
+      params.workspaceFolders?.map((w) => ({
+        ...w,
+        path: ensureTrailingDirectorySeparator(resolvePath(fileURLToPath(w.uri))),
+      })) ?? [];
     capabilities.workspace = {
       workspaceFolders: {
         supported: true,
@@ -155,7 +166,7 @@ function initialize(params: InitializeParams): InitializeResult {
       {
         name: "<root>",
         uri: params.rootUri,
-        path: fileURLToPath(params.rootUri),
+        path: ensureTrailingDirectorySeparator(resolvePath(fileURLToPath(params.rootUri))),
       },
     ];
   } else if (params.rootPath) {
@@ -163,7 +174,7 @@ function initialize(params: InitializeParams): InitializeResult {
       {
         name: "<root>",
         uri: pathToFileURL(params.rootPath).href,
-        path: params.rootPath,
+        path: ensureTrailingDirectorySeparator(resolvePath(params.rootPath)),
       },
     ];
   }
@@ -613,7 +624,7 @@ function getPath(document: TextDocument | TextDocumentIdentifier) {
   if (isUntitled(document.uri)) {
     return document.uri;
   }
-  const path = fileURLToPath(document.uri);
+  const path = resolvePath(fileURLToPath(document.uri));
   pathToURLMap.set(path, document.uri);
   return path;
 }

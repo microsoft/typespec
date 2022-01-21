@@ -857,7 +857,7 @@ async function oapiForModel(name: string, modelDef: string) {
     ${modelDef};
     @route("/")
     namespace root {
-      op read(): ${name};
+      op read(): { @body body: ${name} };
     }
   `);
 

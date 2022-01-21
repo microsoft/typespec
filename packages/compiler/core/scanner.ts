@@ -601,9 +601,10 @@ export function createScanner(
   }
 
   function scanMultiLineComment() {
-    position = skipMultiLineComment(input, position);
+    const [newPosition, terminated] = skipMultiLineComment(input, position);
+    position = newPosition;
     token = Token.MultiLineComment;
-    return position === input.length ? unterminated(token) : token;
+    return terminated ? token : unterminated(token);
   }
 
   function scanString() {
@@ -917,7 +918,7 @@ export function skipTrivia(input: string, position: number): number {
           position = skipSingleLineComment(input, position);
           continue;
         case CharCode.Asterisk:
-          position = skipMultiLineComment(input, position);
+          position = skipMultiLineComment(input, position)[0];
           continue;
       }
     }
@@ -940,7 +941,10 @@ function skipSingleLineComment(input: string, position: number): number {
   return position;
 }
 
-function skipMultiLineComment(input: string, position: number): number {
+function skipMultiLineComment(
+  input: string,
+  position: number
+): [position: number, terminated: boolean] {
   position += 2; // consume '/*'
 
   for (; position < input.length; position++) {
@@ -948,10 +952,9 @@ function skipMultiLineComment(input: string, position: number): number {
       input.charCodeAt(position) === CharCode.Asterisk &&
       input.charCodeAt(position + 1) === CharCode.Slash
     ) {
-      position += 2;
-      break;
+      return [position + 2, true];
     }
   }
 
-  return position;
+  return [position, false];
 }
