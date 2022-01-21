@@ -255,7 +255,7 @@ export async function createProgram(
       if (path.startsWith("./") || path.startsWith("../")) {
         target = resolvePath(basedir, path);
       } else if (isPathAbsolute(path)) {
-        target = path;
+        target = resolvePath(path);
       } else {
         try {
           // attempt to resolve a node module with this name
