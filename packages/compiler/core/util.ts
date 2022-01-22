@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL, URL } from "url";
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { createConsoleSink } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
-import { isPathAbsolute, isUrl, joinPaths, resolvePath } from "./path-utils.js";
+import { getDirectoryPath, isPathAbsolute, isUrl, joinPaths, resolvePath } from "./path-utils.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -179,4 +179,33 @@ export function isArray<T>(
   arg: T | {}
 ): arg is T extends readonly any[] ? (unknown extends T ? never : readonly any[]) : any[] {
   return Array.isArray(arg);
+}
+
+/**
+ * Look for the project root by looking up until a `package.json` is found.
+ * @param path Path to start looking
+ * @param lookIn
+ */
+export async function findProjectRoot(
+  host: CompilerHost,
+  path: string
+): Promise<string | undefined> {
+  let current = path;
+  while (true) {
+    const pkgPath = joinPaths(current, "package.json");
+    const stat = await doIO(
+      () => host.stat(pkgPath),
+      pkgPath,
+      () => {}
+    );
+
+    if (stat?.isFile()) {
+      return current;
+    }
+    const parent = getDirectoryPath(current);
+    if (parent === current) {
+      return undefined;
+    }
+    current = parent;
+  }
 }

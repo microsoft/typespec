@@ -1,7 +1,7 @@
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../core/path-utils.js";
 import { SchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
-import { deepClone, deepFreeze, loadFile } from "../core/util.js";
+import { deepClone, deepFreeze, findProjectRoot, loadFile } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
 import { CadlConfig } from "./types.js";
 
@@ -10,6 +10,20 @@ const defaultConfig: CadlConfig = deepFreeze({
   diagnostics: [],
   emitters: {},
 });
+
+/**
+ * Load the cadl configuration for the provided directory
+ * @param host
+ * @param directoryPath
+ */
+export async function loadCadlConfigForPath(
+  host: CompilerHost,
+  directoryPath: string
+): Promise<CadlConfig> {
+  const projectRoot = await findProjectRoot(host, directoryPath);
+  const configDir = projectRoot ?? directoryPath;
+  return loadCadlConfigInDir(host, configDir);
+}
 
 /**
  * Load Cadl Configuration if present.

@@ -6,7 +6,7 @@ import os from "os";
 import { resolve } from "path";
 import url from "url";
 import yargs from "yargs";
-import { loadCadlConfigInDir } from "../config/index.js";
+import { loadCadlConfigForPath } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
@@ -306,7 +306,7 @@ async function getCompilerOptions(args: {
     miscOptions[optionParts[0]] = optionParts[1];
   }
 
-  const config = await loadCadlConfigInDir(NodeHost, process.cwd());
+  const config = await loadCadlConfigForPath(NodeHost, process.cwd());
 
   if (config.diagnostics.length > 0) {
     logDiagnostics(config.diagnostics, NodeHost.logSink);
@@ -498,7 +498,7 @@ async function printInfo() {
   const cwd = process.cwd();
   console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
 
-  const config = await loadCadlConfigInDir(NodeHost, cwd);
+  const config = await loadCadlConfigForPath(NodeHost, cwd);
   const jsyaml = await import("js-yaml");
   const excluded = ["diagnostics", "filename"];
   const replacer = (key: string, value: any) => (excluded.includes(key) ? undefined : value);
