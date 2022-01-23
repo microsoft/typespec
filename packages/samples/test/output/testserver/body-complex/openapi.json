@@ -40,16 +40,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -107,16 +98,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -174,16 +156,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -241,16 +214,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -308,16 +272,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -375,16 +330,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -442,16 +388,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -509,16 +446,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -576,16 +504,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -643,16 +562,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -710,16 +620,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -777,16 +678,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
@@ -844,16 +736,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "The request has succeeded.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {},
-                  "x-cadl-name": "(anonymous model)"
-                }
-              }
-            }
+            "description": "Ok"
           },
           "default": {
             "description": "Error",
