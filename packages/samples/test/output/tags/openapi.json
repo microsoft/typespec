@@ -33,6 +33,30 @@
   "paths": {
     "/foo/{id}": {
       "get": {
+        "operationId": "Foo_read",
+        "summary": "includes namespace tag",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "foo",
+          "tag1"
+        ]
+      },
+      "post": {
         "operationId": "Foo_create",
         "summary": "includes namespace tag and two operations tags",
         "parameters": [
@@ -82,7 +106,7 @@
       }
     },
     "/bar/{id}": {
-      "get": {
+      "post": {
         "operationId": "Bar_create",
         "summary": "one operation tag",
         "parameters": [
@@ -107,7 +131,7 @@
       }
     },
     "/nested/{id}": {
-      "get": {
+      "post": {
         "operationId": "NestedMoreInner_createOther",
         "parameters": [
           {
