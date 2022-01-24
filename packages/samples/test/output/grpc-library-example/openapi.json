@@ -134,7 +134,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No body returned"
           },
           "default": {
             "description": "An unexpected error response.",
@@ -329,7 +329,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No body returned"
           },
           "default": {
             "description": "An unexpected error response.",

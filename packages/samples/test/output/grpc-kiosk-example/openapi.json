@@ -138,7 +138,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No Content"
           },
           "default": {
             "description": "An unexpected error response.",
@@ -274,7 +274,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No Content"
           },
           "default": {
             "description": "An unexpected error response.",
@@ -303,7 +303,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No Content"
           },
           "default": {
             "description": "An unexpected error response.",

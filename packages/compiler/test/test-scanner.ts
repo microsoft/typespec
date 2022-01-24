@@ -283,6 +283,22 @@ describe("compiler: scanner", () => {
     ]);
   });
 
+  // https://github.com/microsoft/cadl/issues/168
+  it("scan file ending with multi-line comment", () => {
+    const multiLineComment = "/* foo\n*bar\n*/";
+    verify(tokens(multiLineComment), [
+      [Token.MultiLineComment, multiLineComment, { pos: 0, line: 0, character: 0 }],
+    ]);
+    verify(tokens(`namespace Bar;\n${multiLineComment}`), [
+      [Token.NamespaceKeyword, "namespace", { pos: 0, line: 0, character: 0 }],
+      [Token.Whitespace, " ", { pos: 9, line: 0, character: 9 }],
+      [Token.Identifier, "Bar", { pos: 10, line: 0, character: 10 }],
+      [Token.Semicolon, ";", { pos: 13, line: 0, character: 13 }],
+      [Token.NewLine, "\n", { pos: 14, line: 0, character: 14 }],
+      [Token.MultiLineComment, multiLineComment, { pos: 15, line: 1, character: 0 }],
+    ]);
+  });
+
   // It's easy to forget to update TokenDisplay or Min/Max ranges...
   it("provides friendly token display and classification", () => {
     const tokenCount = Object.values(Token).filter((v) => typeof v === "number").length;

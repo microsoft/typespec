@@ -61,7 +61,13 @@ export function getResourceTypeKey(program: Program, resourceType: ModelType): R
   resourceType.properties.forEach((p: ModelTypeProperty) => {
     if (isKey(program, p)) {
       if (resourceKey) {
-        throw new Error(`More than one key found on model type ${resourceType.name}`);
+        reportDiagnostic(program, {
+          code: "duplicate-key",
+          format: {
+            resourceName: resourceType.name,
+          },
+          target: p,
+        });
       } else {
         resourceKey = {
           resourceType,
