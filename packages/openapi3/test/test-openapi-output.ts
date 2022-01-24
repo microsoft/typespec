@@ -461,7 +461,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op create(@body body: Cat | Dog): OkResponse<{}>;
+        @post op create(@body body: Cat | Dog): OkResponse<{}>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -479,7 +479,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op create(@body body: Cat | string): OkResponse<{}>;
+        @post op create(@body body: Cat | string): OkResponse<{}>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -500,7 +500,7 @@ describe("openapi3: definitions", () => {
     alias Pet = Cat | Dog;
     @route("/")
     namespace root {
-      op create(@body body: Pet): OkResponse<{}>;
+      @post op create(@body body: Pet): OkResponse<{}>;
     }
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");

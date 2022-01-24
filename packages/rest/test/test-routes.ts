@@ -1,5 +1,5 @@
-import { deepStrictEqual } from "assert";
-import { getRoutesFor } from "./test-host.js";
+import { deepStrictEqual, strictEqual } from "assert";
+import { compileOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   it("finds routes on bare operations", async () => {
@@ -103,7 +103,7 @@ describe("rest: routes", () => {
         @put op ActionTwo(...ThingId): string;
 
         @action
-        op ActionThree(...ThingId, @body bodyParam: string): string;
+        @post op ActionThree(...ThingId, @body bodyParam: string): string;
       }
       `
     );
@@ -168,5 +168,99 @@ describe("rest: routes", () => {
         params: ["thingId", "subthingId"],
       },
     ]);
+  });
+
+  it("emit diagnostics if operation has a body but didn't specify the verb", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        op get(@body body: string): string;
+    `);
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "@cadl-lang/rest/http-verb-missing-with-body");
+    strictEqual(diagnostics[0].message, "Operation get has a body but doesn't specify a verb.");
+  });
+
+  describe("operation parameters", () => {
+    it("emit diagnostic for parameters with multiple http request annotations", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@body body: string, @path @query multiParam: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/operation-param-duplicate-type");
+      strictEqual(diagnostics[0].message, "Param multiParam has multiple types: [query, path]");
+    });
+
+    it("emit diagnostic when there are multiple unannotated parameters", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(param1: string, param2: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-body");
+      strictEqual(
+        diagnostics[0].message,
+        "Operation has multiple unannotated parameters. There can only be one representing the body"
+      );
+    });
+
+    it("emit diagnostic when there is an unannotated parameter and a @body param", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(param1: string, @body param2: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-body");
+      strictEqual(
+        diagnostics[0].message,
+        "Operation has a @body and an unannotated parameter. There can only be one representing the body"
+      );
+    });
+
+    it("emit diagnostic when there are multiple @body param", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@query select: string, @body param1: string, @body param2: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-body");
+      strictEqual(diagnostics[0].message, "Operation has multiple @body parameters declared");
+    });
+
+    it("resolve body when defined with @body", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@query select: string, @body bodyParam: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 0);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test",
+          params: { params: [{ type: "query", name: "select" }], body: "bodyParam" },
+        },
+      ]);
+    });
+
+    it("resolves a single unannotated parameter as request body", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@query select: string, unannotedBodyParam: string): string;
+      `);
+
+      strictEqual(diagnostics.length, 0);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test",
+          params: { params: [{ type: "query", name: "select" }], body: "unannotedBodyParam" },
+        },
+      ]);
+    });
   });
 });

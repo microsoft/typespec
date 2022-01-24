@@ -32,7 +32,14 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
+import {
+  getAllRoutes,
+  getDiscriminator,
+  http,
+  HttpOperationParameter,
+  HttpOperationParameters,
+  OperationDetails,
+} from "@cadl-lang/rest";
 import { reportDiagnostic } from "./lib.js";
 
 const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isHeader, isStatusCode } =
@@ -314,7 +321,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    emitEndpointParameters(op, op.parameters, parameters);
+    emitEndpointParameters(op, op.parameters, parameters.parameters);
     emitRequestBody(op, op.parameters, parameters);
     emitResponses(op.returnType);
   }
@@ -675,27 +682,27 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function emitEndpointParameters(
     op: OperationType,
     parent: ModelType | undefined,
-    methodParams: ModelTypeProperty[]
+    parameters: HttpOperationParameter[]
   ) {
-    for (const param of methodParams) {
+    for (const { type, name, param } of parameters) {
       // If param is a global parameter, just skip it
       if (params.has(param)) {
         currentEndpoint.parameters.push(params.get(param));
         continue;
       }
-      const queryInfo = getQueryParamName(program, param);
-      const pathInfo = getPathParamName(program, param);
-      const headerInfo = getHeaderFieldName(program, param);
-      // Body parameters are handled elsewhere
 
-      if (pathInfo) {
-        emitParameter(parent, param, "path");
-      } else if (queryInfo) {
-        emitParameter(parent, param, "query");
-      } else if (headerInfo) {
-        if (headerInfo !== "content-type") {
-          emitParameter(parent, param, "header");
-        }
+      switch (type) {
+        case "path":
+          emitParameter(parent, param, "path");
+          break;
+        case "query":
+          emitParameter(parent, param, "query");
+          break;
+        case "header":
+          if (name !== "content-type") {
+            emitParameter(parent, param, "header");
+          }
+          break;
       }
     }
   }
@@ -703,16 +710,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function emitRequestBody(
     op: OperationType,
     parent: ModelType | undefined,
-    methodParams: ModelTypeProperty[]
+    parameters: HttpOperationParameters
   ) {
-    const bodyParams = methodParams.filter((p) => isBody(program, p));
-    if (bodyParams.length === 0) {
+    if (parameters.body === undefined) {
       return;
     }
-    if (bodyParams.length > 1) {
-      reportDiagnostic(program, { code: "duplicate-body", target: op });
-    }
-    const bodyParam = bodyParams[0];
+
+    const bodyParam = parameters.body;
     const bodyType = bodyParam.type;
 
     const requestBody: any = {
@@ -720,11 +724,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       content: {},
     };
 
-    const contentTypeParam = methodParams.find(
-      (p) => getHeaderFieldName(program, p) === "content-type"
+    const contentTypeParam = parameters.parameters.find(
+      (p) => p.type === "header" && p.name === "content-type"
     );
     const contentTypes = contentTypeParam
-      ? getContentTypes(contentTypeParam)
+      ? getContentTypes(contentTypeParam.param)
       : ["application/json"];
     for (let contentType of contentTypes) {
       const isBinary = isBinaryPayload(bodyType, contentType);

@@ -1,4 +1,4 @@
-import { ModelTypeProperty, Program, setDecoratorNamespace, Type } from "@cadl-lang/compiler";
+import { Program, setDecoratorNamespace, Type } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 
 const headerFieldsKey = Symbol();
@@ -54,12 +54,8 @@ export function $body(program: Program, entity: Type) {
   program.stateSet(bodyFieldsKey).add(entity);
 }
 
-export function isBody(program: Program, entity: Type) {
+export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(bodyFieldsKey).has(entity);
-}
-
-export function hasBody(program: Program, parameters: ModelTypeProperty[]): boolean {
-  return parameters.find((p) => isBody(program, p)) !== undefined;
 }
 
 const statusCodeKey = Symbol();
