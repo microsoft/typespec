@@ -1,3 +1,4 @@
+import { realpath } from "fs/promises";
 import path from "path";
 import url from "url";
 import { resolveModule } from "../core/module-resolver.js";
@@ -19,7 +20,7 @@ export async function runScript(relativePath: string): Promise<void> {
   } catch (err: any) {
     if (err.code === "MODULE_NOT_FOUND") {
       // Resolution from cwd failed: use current package.
-      packageRoot = path.resolve(url.fileURLToPath(import.meta.url), "../../..");
+      packageRoot = path.resolve(await realpath(url.fileURLToPath(import.meta.url)), "../../..");
     } else {
       throw err;
     }
