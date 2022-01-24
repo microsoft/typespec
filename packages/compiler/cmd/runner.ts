@@ -29,7 +29,6 @@ export async function runScript(relativePath: string): Promise<void> {
   if (packageRoot) {
     const script = path.join(packageRoot, relativePath);
     const scriptUrl = url.pathToFileURL(script).toString();
-    console.error("Will load", scriptUrl);
     import(scriptUrl);
   } else {
     throw new Error(
