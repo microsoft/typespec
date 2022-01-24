@@ -361,7 +361,7 @@ describe("compiler: blockless namespaces", () => {
       `
     );
 
-    await testHost.compile("/");
+    await testHost.compile("./");
   });
 
   it("works with blockful namespaces", async () => {
@@ -383,7 +383,7 @@ describe("compiler: blockless namespaces", () => {
       model X { a: N.M.A }
       `
     );
-    const { N, M } = (await testHost.compile("/")) as {
+    const { N, M } = (await testHost.compile("./")) as {
       N: NamespaceType;
       M: NamespaceType;
     };
@@ -418,7 +418,7 @@ describe("compiler: blockless namespaces", () => {
       model X { a: N.M.O.A }
       `
     );
-    const { M, O } = (await testHost.compile("/")) as {
+    const { M, O } = (await testHost.compile("./")) as {
       M: NamespaceType;
       O: NamespaceType;
     };
@@ -444,7 +444,7 @@ describe("compiler: blockless namespaces", () => {
       `
     );
 
-    await testHost.compile("/a.cadl");
+    await testHost.compile("./a.cadl");
   });
 
   it("accumulates declarations inside of it", async () => {
@@ -458,7 +458,7 @@ describe("compiler: blockless namespaces", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("/a.cadl")) as {
+    const { Foo } = (await testHost.compile("./a.cadl")) as {
       Foo: NamespaceType;
     };
 
@@ -491,7 +491,7 @@ describe("compiler: namespace type name", () => {
       `
     );
 
-    const { Model1, Model2 } = await testHost.compile("/a.cadl");
+    const { Model1, Model2 } = await testHost.compile("./a.cadl");
     strictEqual(testHost.program.checker?.getTypeName(Model1), "Foo.Model1");
     strictEqual(testHost.program.checker?.getTypeName(Model2), "Foo.Other.Bar.Model2");
   });
