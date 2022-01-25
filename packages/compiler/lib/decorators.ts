@@ -100,6 +100,40 @@ export function isNumericType(program: Program, target: Type): boolean {
   return intrinsicType !== undefined && program.stateSet(numericTypesKey).has(intrinsicType);
 }
 
+// -- @format decorator ---------------------
+
+const formatValuesKey = Symbol();
+
+export function $format(program: Program, target: Type, format: string) {
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@format", to: "anything that isn't a Model or ModelProperty" },
+        target,
+      })
+    );
+    return;
+  }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@format", to: "non-string type" },
+        target,
+      })
+    );
+    return;
+  }
+
+  program.stateMap(formatValuesKey).set(target, format);
+}
+
+export function getFormat(program: Program, target: Type): string | undefined {
+  return program.stateMap(formatValuesKey).get(target);
+}
+
 // -- @pattern decorator ---------------------
 
 const patternValuesKey = Symbol();
