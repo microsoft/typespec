@@ -1,4 +1,5 @@
 import "@cadl-lang/rest";
+import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
@@ -24,8 +25,8 @@ model Horse extends Pet {
 }
 
 @doc("Unexpected error")
+@error
 model ErrorResponse {
-  @statusCode _: "default";
   @body body: string;
 }
 

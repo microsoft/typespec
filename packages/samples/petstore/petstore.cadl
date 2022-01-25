@@ -25,8 +25,8 @@ model Toy {
 }
 
 @doc("Error")
+@error
 model Error {
-  @statusCode _: "default";
   code: int32;
   message: string;
 }

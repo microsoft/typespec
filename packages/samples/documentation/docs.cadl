@@ -24,14 +24,14 @@ model RespWithDocs {
   value: int32;
 }
 
+@error
 model Error {
-  @statusCode _: "default";
   code: int32;
 }
 
 @doc("Error from @doc")
+@error
 model ErrorWithDocs {
-  @statusCode _: "default";
   code: int32;
 }
 
