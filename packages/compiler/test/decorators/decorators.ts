@@ -10,7 +10,7 @@ describe("compiler: built-in decorators", () => {
   });
 
   describe("@doc", () => {
-    it.only("applies @doc on model", async () => {
+    it("applies @doc on model", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
