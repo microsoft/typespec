@@ -82,7 +82,7 @@ const libDefinition = {
     "duplicate-operation": {
       severity: "error",
       messages: {
-        default: paramMessage`Duplicate operation routed at "${"verb"} ${"path"}".`,
+        default: paramMessage`Duplicate operation "${"operationName"}" routed at "${"verb"} ${"path"}".`,
       },
     },
   },

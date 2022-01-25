@@ -192,9 +192,9 @@ describe("rest: routes", () => {
     // Has one diagnostic per duplicate operation
     strictEqual(diagnostics.length, 2);
     strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-operation");
-    strictEqual(diagnostics[0].message, `Duplicate operation routed at "get /test".`);
+    strictEqual(diagnostics[0].message, `Duplicate operation "get1" routed at "get /test".`);
     strictEqual(diagnostics[1].code, "@cadl-lang/rest/duplicate-operation");
-    strictEqual(diagnostics[1].message, `Duplicate operation routed at "get /test".`);
+    strictEqual(diagnostics[1].message, `Duplicate operation "get2" routed at "get /test".`);
   });
 
   describe("operation parameters", () => {

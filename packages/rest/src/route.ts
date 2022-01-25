@@ -418,7 +418,7 @@ function validateRouteUnique(program: Program, operations: OperationDetails[]) {
         for (const route of routes) {
           reportDiagnostic(program, {
             code: "duplicate-operation",
-            format: { path, verb },
+            format: { path, verb, operationName: route.operation.name },
             target: route.operation,
           });
         }
