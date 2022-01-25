@@ -10,18 +10,18 @@ describe("compiler: built-in decorators", () => {
   });
 
   describe("@doc", () => {
-    it("applies @doc on model", async () => {
+    it.only("applies @doc on model", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
-      @doc("My Doc")
-      model A { }
-      `
+        @test
+        @doc("My Doc")
+        model A { }
+        `
       );
 
       const { A } = await testHost.compile("./");
-
-      strictEqual(getDoc(testHost.program, A), "My doc");
+      strictEqual(getDoc(testHost.program, A), "My Doc");
     });
 
     it("emit diagnostic if doc is not a string", async () => {
