@@ -16,6 +16,7 @@
             "required": true,
             "schema": {
               "type": "string",
+              "format": "UUID",
               "pattern": "^[a-zA-Z0-9-]{3,24}$"
             }
           },
@@ -62,6 +63,15 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Thing"
+              }
+            }
+          }
         }
       }
     }
@@ -75,6 +85,7 @@
         "description": "Name parameter",
         "schema": {
           "type": "string",
+          "format": "UUID",
           "pattern": "^[a-zA-Z0-9-]{3,24}$"
         }
       }
@@ -85,10 +96,15 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "UUID"
           }
         },
         "required": [
-          "name"
+          "name",
+          "id"
         ]
       }
     }
