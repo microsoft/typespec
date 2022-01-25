@@ -39,7 +39,7 @@ describe("compiler: built-in decorators", () => {
       strictEqual(diagnostics[0].code, "invalid-argument");
       strictEqual(
         diagnostics[0].message,
-        `Argument '[object Object]' of type 'object' is not assignable to parameter of type 'string'`
+        `Argument 'foo | bar' of type 'object' is not assignable to parameter of type 'string'`
       );
     });
   });

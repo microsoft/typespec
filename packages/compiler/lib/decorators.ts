@@ -18,7 +18,7 @@ export function $doc(program: Program, target: Type, text: string) {
     reportDiagnostic(program, {
       code: "invalid-argument",
       format: {
-        value: text,
+        value: program.checker!.getTypeName(text),
         actual: typeof text,
         expected: "string",
       },
