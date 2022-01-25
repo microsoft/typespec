@@ -412,7 +412,6 @@ function validateRouteUnique(program: Program, operations: OperationDetails[]) {
     list.push(operation);
   }
 
-  console.log("Look for dups");
   for (const [path, map] of grouped) {
     for (const [verb, routes] of map) {
       if (routes.length >= 2) {

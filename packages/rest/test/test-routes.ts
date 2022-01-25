@@ -180,6 +180,23 @@ describe("rest: routes", () => {
     strictEqual(diagnostics[0].message, "Operation get has a body but doesn't specify a verb.");
   });
 
+  it("emit diagnostics if 2 operation have the same path and verb", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        op get1(): string;
+
+        @route("/test")
+        op get2(): string;
+    `);
+
+    // Has one diagnostic per duplicate operation
+    strictEqual(diagnostics.length, 2);
+    strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-operation");
+    strictEqual(diagnostics[0].message, `Duplicate operation routed at "get /test".`);
+    strictEqual(diagnostics[1].code, "@cadl-lang/rest/duplicate-operation");
+    strictEqual(diagnostics[1].message, `Duplicate operation routed at "get /test".`);
+  });
+
   describe("operation parameters", () => {
     it("emit diagnostic for parameters with multiple http request annotations", async () => {
       const [_, diagnostics] = await compileOperations(`
