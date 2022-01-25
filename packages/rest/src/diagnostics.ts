@@ -93,6 +93,14 @@ const libDefinition = {
         default: paramMessage`Duplicate operation "${"operationName"}" routed at "${"verb"} ${"path"}".`,
       },
     },
+    "status-code-invalid": {
+      severity: "error",
+      messages: {
+        default:
+          "statusCode value must be a numeric or string literal or union of numeric or string literals",
+        value: "statusCode value must be a three digit code between 100 and 599",
+      },
+    },
   },
 } as const;
 

@@ -74,11 +74,108 @@ export function $statusCode({ program }: DecoratorContext, entity: Type) {
       format: { decorator: "statusCode", entityKind: entity.kind },
       target: entity,
     });
+    return;
   }
+  const codes: string[] = [];
+  if (entity.type.kind === "String") {
+    if (validStatusCode(program, entity.type.value, entity)) {
+      codes.push(entity.type.value);
+    }
+  } else if (entity.type.kind === "Number") {
+    if (validStatusCode(program, String(entity.type.value), entity)) {
+      codes.push(String(entity.type.value));
+    }
+  } else if (entity.type.kind === "Union") {
+    for (const option of entity.type.options) {
+      if (option.kind === "String") {
+        if (validStatusCode(program, option.value, option)) {
+          codes.push(option.value);
+        }
+      } else if (option.kind === "Number") {
+        if (validStatusCode(program, String(option.value), option)) {
+          codes.push(String(option.value));
+        }
+      } else {
+        reportDiagnostic(program, { code: "status-code-invalid", target: entity });
+      }
+    }
+  } else if (entity.type.kind === "TemplateParameter") {
+    // Ignore template parameters
+  } else {
+    reportDiagnostic(program, { code: "status-code-invalid", target: entity });
+  }
+  program.stateMap(statusCodeKey).set(entity, codes);
+}
+
+// Check status code value: 3 digits with first digit in [1-5]
+// Issue a diagnostic if not valid
+function validStatusCode(program: Program, code: string, entity: Type): boolean {
+  const statusCodePatten = /[1-5][0-9][0-9]/;
+  if (code.match(statusCodePatten)) {
+    return true;
+  }
+  reportDiagnostic(program, {
+    code: "status-code-invalid",
+    target: entity,
+    messageId: "value",
+  });
+  return false;
 }
 
 export function isStatusCode(program: Program, entity: Type) {
-  return program.stateSet(statusCodeKey).has(entity);
+  return program.stateMap(statusCodeKey).has(entity);
+}
+
+export function getStatusCodes(program: Program, entity: Type) {
+  return program.stateMap(statusCodeKey).get(entity);
+}
+
+// Note: these descriptions come from https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+export function getStatusCodeDescription(statusCode: string) {
+  switch (statusCode) {
+    case "200":
+      return "Ok";
+    case "201":
+      return "Created";
+    case "202":
+      return "Accepted";
+    case "204":
+      return "No Content";
+    case "301":
+      return "Moved Permanently";
+    case "304":
+      return "Not Modified";
+    case "400":
+      return "Bad Request";
+    case "401":
+      return "Unauthorized";
+    case "403":
+      return "Forbidden";
+    case "404":
+      return "Not Found";
+    case "409":
+      return "Conflict";
+    case "412":
+      return "Precondition Failed";
+    case "503":
+      return "Service Unavailable";
+  }
+
+  switch (statusCode.charAt(0)) {
+    case "1":
+      return "Informational";
+    case "2":
+      return "Successful";
+    case "3":
+      return "Redirection";
+    case "4":
+      return "Client Error";
+    case "5":
+      return "Server Error";
+  }
+
+  // Any valid HTTP status code is covered above.
+  return undefined;
 }
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";

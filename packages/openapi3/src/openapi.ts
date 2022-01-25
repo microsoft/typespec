@@ -38,7 +38,7 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getExtensions, getOperationId } from "@cadl-lang/openapi";
+import { getExtensions, getOperationId, isDefaultResponse } from "@cadl-lang/openapi";
 import {
   getAllRoutes,
   getDiscriminator,
@@ -50,8 +50,16 @@ import {
 import { getVersionRecords } from "@cadl-lang/versioning";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 
-const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isHeader, isStatusCode } =
-  http;
+const {
+  getHeaderFieldName,
+  getPathParamName,
+  getQueryParamName,
+  isBody,
+  isHeader,
+  isStatusCode,
+  getStatusCodes,
+  getStatusCodeDescription,
+} = http;
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
   const options: OpenAPIEmitterOptions = {
@@ -390,7 +398,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     // If there is no explicit status code, set the default
     if (statusCodes.length === 0) {
       if (bodyModel) {
-        const defaultStatusCode = isErrorModel(program, bodyModel) ? "default" : "200";
+        const defaultStatusCode = isErrorModel(program, responseModel) ? "default" : "200";
         statusCodes.push(defaultStatusCode);
       } else {
         statusCodes.push("204");
@@ -450,95 +458,21 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
       for (const prop of responseModel.properties.values()) {
         if (isStatusCode(program, prop)) {
-          if (prop.type.kind === "String") {
-            if (validStatusCode(prop.type.value, prop)) {
-              codes.push(prop.type.value);
-            }
-          } else if (prop.type.kind === "Number") {
-            if (validStatusCode(String(prop.type.value), prop)) {
-              codes.push(String(prop.type.value));
-            }
-          } else if (prop.type.kind === "Union") {
-            for (const option of prop.type.options) {
-              if (option.kind === "String") {
-                if (validStatusCode(option.value, option)) {
-                  codes.push(option.value);
-                }
-              } else if (option.kind === "Number") {
-                if (validStatusCode(String(option.value), option)) {
-                  codes.push(String(option.value));
-                }
-              } else {
-                reportDiagnostic(program, { code: "status-code-invalid", target: prop });
-              }
-            }
-          } else {
-            reportDiagnostic(program, { code: "status-code-invalid", target: prop });
-          }
+          codes.push(...getStatusCodes(program, prop));
         }
       }
     }
+    if (isDefaultResponse(program, responseModel)) {
+      if (codes.length > 0) {
+        reportDiagnostic(program, {
+          code: "status-code-in-default-response",
+          target: responseModel,
+        });
+      } else {
+        codes.push("default");
+      }
+    }
     return codes;
-  }
-
-  // Check status code value: 3 digits, 1 digit + "XX", or default
-  // Issue a diagnostic if not valid
-  function validStatusCode(code: string, entity: Type): boolean {
-    // regex for three character status codes:
-    // - starts with 1-5
-    // - last two digits are numeric or "X"
-    const statusCodePatten = /[1-5][0-9X][0-9X]/;
-    if (code.match(statusCodePatten) || code === "default") {
-      return true;
-    }
-    reportDiagnostic(program, {
-      code: "status-code-invalid",
-      target: entity,
-      messageId: "value",
-    });
-    return false;
-  }
-
-  // Note: these descriptions come from https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-  function getDescriptionForStatusCode(statusCode: string) {
-    switch (statusCode) {
-      case "2XX":
-        return "Successful";
-      case "200":
-        return "Ok";
-      case "201":
-        "Created";
-      case "202":
-        return "Accepted";
-      case "204":
-        return "No Content";
-      case "3XX":
-        return "Redirection";
-      case "301":
-        return "Moved Permanently";
-      case "304":
-        return "Not Modified";
-      case "4XX":
-        return "Client Error";
-      case "400":
-        return "Bad Request";
-      case "401":
-        return "Unauthorized";
-      case "403":
-        return "Forbidden";
-      case "404":
-        return "Not Found";
-      case "409":
-        return "Conflict";
-      case "412":
-        return "Precondition Failed";
-      case "5XX":
-        return "Server Error";
-      case "default":
-        return "An unexpected error response";
-    }
-    // We might want to throw here -- rather than giving some default
-    return "A successful response";
   }
 
   function getResponseDescription(responseModel: Type, statusCode: string) {
@@ -547,7 +481,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return desc;
     }
 
-    return getDescriptionForStatusCode(statusCode);
+    if (statusCode === "default") {
+      return "An unexpected error response";
+    }
+    return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
   // Get explicity defined content-types from response Model
@@ -586,18 +523,24 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   // Get explicity defined response body from response Model
-  // The "outermost" body is used -- so we only look at basemodel if no body is defined
+  // Search inheritance chain and error on any duplicates found
   function getResponseBody(responseModel: Type): Type | undefined {
     if (responseModel.kind === "Model") {
-      const bodyProps = [...responseModel.properties.values()].filter((t) => isBody(program, t));
-      if (bodyProps.length === 0) {
-        return responseModel.baseModel ? getResponseBody(responseModel.baseModel) : undefined;
+      const getAllBodyProps = (m: ModelType): ModelTypeProperty[] => {
+        const bodyProps = [...m.properties.values()].filter((t) => isBody(program, t));
+        if (m.baseModel) {
+          bodyProps.push(...getAllBodyProps(m.baseModel));
+        }
+        return bodyProps;
+      };
+      const bodyProps = getAllBodyProps(responseModel);
+      if (bodyProps.length > 0) {
+        // Report all but first body as duplicate
+        for (const prop of bodyProps.slice(1)) {
+          reportDiagnostic(program, { code: "duplicate-body", target: prop });
+        }
+        return bodyProps[0].type;
       }
-      // Report all but first body as duplicate
-      for (const prop of bodyProps.slice(1)) {
-        reportDiagnostic(program, { code: "duplicate-body", target: prop });
-      }
-      return bodyProps[0].type;
     }
     return undefined;
   }

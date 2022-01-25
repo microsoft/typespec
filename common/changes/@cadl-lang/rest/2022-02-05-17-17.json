@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "refactor status code handling to http library",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
