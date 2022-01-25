@@ -550,3 +550,25 @@ export function getAllTags(
 
   return tags.size > 0 ? Array.from(tags).reverse() : undefined;
 }
+
+/**
+ * Emit diagnostic if the number of arguments passed to decorator is more or less than the expected count.
+ */
+export function validateDecoratorParamCount(
+  program: Program,
+  target: Type,
+  args: unknown[],
+  expected: number
+) {
+  if (args.length !== expected) {
+    reportDiagnostic(program, {
+      code: "invalid-argument-count",
+      format: {
+        actual: args.length.toString(),
+        expected: expected.toString(),
+      },
+      target,
+    });
+    return;
+  }
+}
