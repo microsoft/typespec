@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Expose response template in Http library and refactor",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

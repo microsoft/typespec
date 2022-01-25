@@ -32,7 +32,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Ok",
             "content": {
               "application/json": {
                 "schema": {
@@ -50,12 +50,21 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Ok",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ReadablePerson"
                 }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WritablePerson"
               }
             }
           }
@@ -66,12 +75,21 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Ok",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ReadablePerson"
                 }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WriteableOptionalPerson"
               }
             }
           }
@@ -104,6 +122,39 @@
           "test",
           "create"
         ]
+      },
+      "WritablePerson": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "test": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "secret",
+          "name",
+          "test"
+        ]
+      },
+      "WriteableOptionalPerson": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "test": {
+            "type": "string"
+          }
+        }
       }
     }
   }

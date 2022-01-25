@@ -9,10 +9,28 @@ import {
   Type,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
-import { getOperationVerb, getPathParamName, hasBody, HttpVerb, isPathParam } from "./http.js";
+import {
+  getHeaderFieldName,
+  getOperationVerb,
+  getPathParamName,
+  getQueryParamName,
+  HttpVerb,
+  isBody,
+} from "./http.js";
 import { getResourceOperation, getSegment } from "./rest.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
+
+export interface HttpOperationParameter {
+  type: "query" | "path" | "header";
+  name: string;
+  param: ModelTypeProperty;
+}
+
+export interface HttpOperationParameters {
+  parameters: HttpOperationParameter[];
+  body?: ModelTypeProperty;
+}
 
 export interface OperationDetails {
   path: string;
@@ -20,7 +38,7 @@ export interface OperationDetails {
   verb: HttpVerb;
   groupName: string;
   container: OperationContainer;
-  parameters: ModelTypeProperty[];
+  parameters: HttpOperationParameters;
   operation: OperationType;
 }
 
@@ -99,14 +117,82 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
   }
 }
 
+export function getOperationParameters(
+  program: Program,
+  operation: OperationType
+): HttpOperationParameters {
+  const result: HttpOperationParameters = {
+    parameters: [],
+  };
+  let unAnnotatedParam: ModelTypeProperty | undefined;
+
+  for (const param of operation.parameters.properties.values()) {
+    const queryParam = getQueryParamName(program, param);
+    const pathParam = getPathParamName(program, param);
+    const headerParam = getHeaderFieldName(program, param);
+    const bodyParm = isBody(program, param);
+
+    const defined = [
+      ["query", queryParam],
+      ["path", pathParam],
+      ["header", headerParam],
+      ["body", bodyParm],
+    ].filter((x) => !!x[1]);
+    if (defined.length >= 2) {
+      reportDiagnostic(program, {
+        code: "operation-param-duplicate-type",
+        format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
+        target: param,
+      });
+    }
+
+    if (queryParam) {
+      result.parameters.push({ type: "query", name: queryParam, param });
+    } else if (pathParam) {
+      result.parameters.push({ type: "path", name: pathParam, param });
+    } else if (headerParam) {
+      result.parameters.push({ type: "header", name: headerParam, param });
+    } else if (bodyParm) {
+      if (result.body === undefined) {
+        result.body = param;
+      } else {
+        reportDiagnostic(program, { code: "duplicate-body", target: param });
+      }
+    } else {
+      if (unAnnotatedParam === undefined) {
+        unAnnotatedParam = param;
+      } else {
+        reportDiagnostic(program, {
+          code: "duplicate-body",
+          messageId: "duplicateUnannotated",
+          target: param,
+        });
+      }
+    }
+  }
+
+  if (unAnnotatedParam !== undefined) {
+    if (result.body === undefined) {
+      result.body = unAnnotatedParam;
+    } else {
+      reportDiagnostic(program, {
+        code: "duplicate-body",
+        messageId: "bodyAndUnannotated",
+        target: unAnnotatedParam,
+      });
+    }
+  }
+  return result;
+}
+
 function generatePathFromParameters(
   program: Program,
   operation: OperationType,
   pathFragments: string[],
-  parameters: ModelTypeProperty[]
+  parameters: HttpOperationParameters
 ) {
-  for (const [_, param] of operation.parameters.properties) {
-    if (getPathParamName(program, param)) {
+  for (const { type, param } of parameters.parameters) {
+    if (type === "path") {
       addSegmentFragment(program, param, pathFragments);
 
       // Add the path variable for the parameter
@@ -117,8 +203,6 @@ function generatePathFromParameters(
         pathFragments.push(`/{${param.name}}`);
       }
     }
-
-    parameters.push(param);
   }
 
   // Add the operation's own segment if present
@@ -129,8 +213,9 @@ function getPathForOperation(
   program: Program,
   operation: OperationType,
   routeFragments: string[]
-): { path: string; pathFragment?: string; parameters: ModelTypeProperty[] } {
-  const parameters: ModelTypeProperty[] = [];
+): { path: string; pathFragment?: string; parameters: HttpOperationParameters } {
+  const parameters: HttpOperationParameters = getOperationParameters(program, operation);
+
   const pathFragments = [...routeFragments];
   const routePath = getRoutePath(program, operation);
   if (isAutoRoute(program, operation)) {
@@ -142,12 +227,11 @@ function getPathForOperation(
       pathFragments.push(routePath.path);
     }
 
-    // Gather operation parameters
-    parameters.push(...Array.from(operation.parameters.properties.values()));
-
     // Pull out path parameters to verify what's in the path string
     const paramByName = new Map(
-      parameters.filter((p) => isPathParam(program, p)).map((p) => [p.name, p])
+      parameters.parameters
+        .filter(({ type }) => type === "path")
+        .map(({ param }) => [param.name, param])
     );
 
     // Find path parameter names used in all route fragments
@@ -184,37 +268,28 @@ function getPathForOperation(
   };
 }
 
-function verbForOperationName(name: string): HttpVerb | undefined {
-  switch (name) {
-    case "list":
-      return "get";
-    case "create":
-      return "post";
-    case "read":
-      return "get";
-    case "update":
-      return "patch";
-    case "delete":
-      return "delete";
-    case "deleteAll":
-      return "delete";
-  }
-
-  return undefined;
-}
-
 function getVerbForOperation(
   program: Program,
   operation: OperationType,
-  parameters: ModelTypeProperty[]
+  parameters: HttpOperationParameters
 ): HttpVerb {
   const resourceOperation = getResourceOperation(program, operation);
-  return (
-    (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ||
-    getOperationVerb(program, operation) ||
-    verbForOperationName(operation.name) ||
-    (hasBody(program, parameters) ? "post" : "get")
-  );
+  const verb =
+    (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
+    getOperationVerb(program, operation);
+  if (verb !== undefined) {
+    return verb;
+  }
+
+  if (parameters.body) {
+    reportDiagnostic(program, {
+      code: "http-verb-missing-with-body",
+      format: { operationName: operation.name },
+      target: operation,
+    });
+  }
+
+  return "get";
 }
 
 function buildRoutes(

@@ -461,7 +461,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op create(@body body: Cat | Dog): OkResponse<{}>;
+        @post op create(@body body: Cat | Dog): OkResponse<{}>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -479,7 +479,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op create(@body body: Cat | string): OkResponse<{}>;
+        @post op create(@body body: Cat | string): OkResponse<{}>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -500,7 +500,7 @@ describe("openapi3: definitions", () => {
     alias Pet = Cat | Dog;
     @route("/")
     namespace root {
-      op create(@body body: Pet): OkResponse<{}>;
+      @post op create(@body body: Pet): OkResponse<{}>;
     }
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -751,116 +751,6 @@ describe("openapi3: operations", () => {
   });
 });
 
-describe("openapi3: responses", () => {
-  it("define responses with response headers", async () => {
-    const res = await openApiFor(
-      `
-      model ETagHeader {
-        @header eTag: string;
-      }
-      model Key {
-        key: string;
-      }
-      @route("/")
-      namespace root {
-        @get()
-        op read(): Key & ETagHeader;
-      }
-      `
-    );
-    ok(res.paths["/"].get.responses["200"].headers);
-    ok(res.paths["/"].get.responses["200"].headers["e-tag"]);
-  });
-
-  it("defines responses with primitive types", async () => {
-    const res = await openApiFor(
-      `
-      @route("/")
-      namespace root {
-        @get()
-        op read(): string;
-      }
-      `
-    );
-    ok(res.paths["/"].get.responses["200"]);
-    ok(res.paths["/"].get.responses["200"].content);
-    strictEqual(
-      res.paths["/"].get.responses["200"].content["application/json"].schema.type,
-      "string"
-    );
-  });
-
-  describe("binary responses", () => {
-    it("bytes responses should default to application/json with byte format", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
-        @get op read(): bytes;
-      }
-      `
-      );
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["application/json"].schema.type, "string");
-      strictEqual(response.content["application/json"].schema.format, "byte");
-    });
-
-    it("@body body: bytes responses default to application/json with bytes format", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
-        @get op read(): {@body body: bytes};
-      }
-      `
-      );
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["application/json"].schema.type, "string");
-      strictEqual(response.content["application/json"].schema.format, "byte");
-    });
-
-    it("@header contentType text/plain should keep format to byte", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
-        @get op read(): {@header contentType: "text/plain", @body body: bytes};
-      }
-      `
-      );
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["text/plain"].schema.type, "string");
-      strictEqual(response.content["text/plain"].schema.format, "byte");
-    });
-
-    it("@header contentType not json or text should set format to binary", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
-        @get op read(): {@header contentType: "image/png", @body body: bytes};
-      }
-      `
-      );
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["image/png"].schema.type, "string");
-      strictEqual(response.content["image/png"].schema.format, "binary");
-    });
-  });
-});
-
 describe("openapi3: request", () => {
   describe("binary request", () => {
     it("bytes request should default to application/json byte", async () => {
@@ -998,7 +888,7 @@ async function oapiForModel(name: string, modelDef: string) {
     ${modelDef};
     @route("/")
     namespace root {
-      op read(): ${name};
+      op read(): { @body body: ${name} };
     }
   `);
 

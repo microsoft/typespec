@@ -1,6 +1,6 @@
 import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
 
-const libDef = {
+export const libDef = {
   name: "@cadl-lang/openapi3",
   diagnostics: {
     "decorator-wrong-type": {
@@ -34,23 +34,30 @@ const libDef = {
         default: "Duplicate @body declarations on response type",
       },
     },
-    "duplicate-status-code": {
+    "duplicate-response": {
       severity: "error",
       messages: {
-        default: "Duplicate @statusCode declarations on response type",
+        default: paramMessage`Multiple return types for status code ${"statusCode"}`,
       },
     },
-    "duplicate-body-types": {
-      severity: "error",
+    "content-type-ignored": {
+      severity: "warning",
       messages: {
-        default: "Request has multiple body types",
+        default: "content-type header ignored because return type has no body",
       },
     },
     "content-type-string": {
       severity: "error",
       messages: {
-        default: "contentType parameter must be a string or union of strings",
-        unionOfString: "The contentType property union must contain only string values",
+        default: "contentType parameter must be a string literal or union of string literals",
+      },
+    },
+    "status-code-invalid": {
+      severity: "error",
+      messages: {
+        default:
+          "status-code header must be a numeric or string literal or union of numeric or string literals",
+        value: "status-code value must be a specific code between 100 and 599, or nXX, or default",
       },
     },
     "invalid-schema": {

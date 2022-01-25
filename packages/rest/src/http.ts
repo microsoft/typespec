@@ -1,4 +1,4 @@
-import { ModelTypeProperty, Program, setDecoratorNamespace, Type } from "@cadl-lang/compiler";
+import { Program, setDecoratorNamespace, Type } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 
 const headerFieldsKey = Symbol();
@@ -54,12 +54,8 @@ export function $body(program: Program, entity: Type) {
   program.stateSet(bodyFieldsKey).add(entity);
 }
 
-export function isBody(program: Program, entity: Type) {
+export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(bodyFieldsKey).has(entity);
-}
-
-export function hasBody(program: Program, parameters: ModelTypeProperty[]): boolean {
-  return parameters.find((p) => isBody(program, p)) !== undefined;
 }
 
 const statusCodeKey = Symbol();
@@ -79,7 +75,7 @@ export function isStatusCode(program: Program, entity: Type) {
   return program.stateSet(statusCodeKey).has(entity);
 }
 
-export type HttpVerb = "get" | "put" | "post" | "patch" | "delete";
+export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
 const operationVerbsKey = Symbol();
 
@@ -125,6 +121,10 @@ export function $patch(program: Program, entity: Type) {
 
 export function $delete(program: Program, entity: Type) {
   setOperationVerb(program, entity, "delete");
+}
+
+export function $head(program: Program, entity: Type) {
+  setOperationVerb(program, entity, "head");
 }
 
 setDecoratorNamespace(

@@ -53,6 +53,13 @@
       "name": "dogfood",
       "summary": "(CUSTOM) Globally installs local builds of @cadl-lang/compiler and cadl-vscode.",
       "shellCommand": "node eng/scripts/dogfood.js"
+    },
+    {
+      "commandKind": "global",
+      "safeForSimultaneousRushProcesses": true,
+      "name": "e2e",
+      "summary": "(CUSTOM) Runs the e2e tests",
+      "shellCommand": "node e2e/e2e-tests.js"
     }
   ],
   /**

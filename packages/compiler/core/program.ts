@@ -255,7 +255,7 @@ export async function createProgram(
       if (path.startsWith("./") || path.startsWith("../")) {
         target = resolvePath(basedir, path);
       } else if (isPathAbsolute(path)) {
-        target = path;
+        target = resolvePath(path);
       } else {
         try {
           // attempt to resolve a node module with this name
@@ -344,7 +344,6 @@ export async function createProgram(
       resolvePath(fileURLToPath(import.meta.url), "../index.js")
     );
 
-    console.log("Expected", { expected, actual });
     if (actual !== expected) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server

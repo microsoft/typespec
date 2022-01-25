@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "**Added** `@head` decorator to describe `head` http verb operation",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

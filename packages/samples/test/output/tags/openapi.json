@@ -48,7 +48,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No Content"
           }
         },
         "tags": [
@@ -72,7 +72,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No Content"
           }
         },
         "tags": [
@@ -89,7 +89,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Ok",
             "content": {
               "application/json": {
                 "schema": {
@@ -122,7 +122,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No Content"
           }
         },
         "tags": [
@@ -131,7 +131,7 @@
       }
     },
     "/nested/{id}": {
-      "get": {
+      "post": {
         "operationId": "NestedMoreInner_createOther",
         "parameters": [
           {
@@ -146,7 +146,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No Content"
           }
         },
         "tags": [

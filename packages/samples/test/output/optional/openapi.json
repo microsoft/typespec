@@ -22,12 +22,22 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Ok",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HasOptional"
                 }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int64"
               }
             }
           }
