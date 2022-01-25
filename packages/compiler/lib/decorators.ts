@@ -1,4 +1,4 @@
-import { createDiagnostic } from "../core/messages.js";
+import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
   InterfaceType,
@@ -13,6 +13,19 @@ export const namespace = "Cadl";
 
 const docsKey = Symbol();
 export function $doc(program: Program, target: Type, text: string) {
+  // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
+  if (typeof text !== "string") {
+    reportDiagnostic(program, {
+      code: "invalid-argument",
+      format: {
+        value: text,
+        actual: typeof text,
+        expected: "string",
+      },
+      target,
+    });
+    return;
+  }
   program.stateMap(docsKey).set(target, text);
 }
 

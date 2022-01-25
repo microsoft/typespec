@@ -382,6 +382,12 @@ const diagnostics = {
       operationsOrModelProps: paramMessage`The ${"decorator"} decorator can only be applied to operations or model properties.`,
     },
   },
+  "invalid-argument": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Argument '${"value"}' of type '${"actual"}' is not assignable to parameter of type '${"expected"}'`,
+    },
+  },
 
   /**
    * Service
