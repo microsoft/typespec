@@ -1,10 +1,11 @@
 import "@cadl-lang/rest";
+import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
 @doc("Error")
+@error
 model Error {
-  @statusCode status: "default";
   message: string;
 }
 

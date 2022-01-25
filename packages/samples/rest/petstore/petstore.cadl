@@ -1,4 +1,5 @@
 import "@cadl-lang/rest";
+import "@cadl-lang/openapi";
 
 @autoRoute
 @serviceTitle("Pet Store Service")
@@ -9,8 +10,8 @@ using Cadl.Http;
 using Cadl.Rest;
 using Cadl.Rest.Resource;
 
+@error
 model PetStoreError {
-  @statusCode _: "default";
   code: int32;
   message: string;
 }
