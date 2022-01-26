@@ -95,10 +95,22 @@ function setRoute(program: Program, entity: Type, details: RoutePath) {
   const state = program.stateMap(routesKey);
 
   if (state.has(entity)) {
-    reportDiagnostic(program, {
-      code: "duplicate-route",
-      target: entity,
-    });
+    if (entity.kind === "Operation" || entity.kind === "Interface") {
+      reportDiagnostic(program, {
+        code: "duplicate-route-decorator",
+        messageId: entity.kind === "Operation" ? "operation" : "interface",
+        target: entity,
+      });
+    } else {
+      const existingValue: RoutePath = state.get(entity);
+      if (existingValue.path !== details.path) {
+        reportDiagnostic(program, {
+          code: "duplicate-route-decorator",
+          messageId: "namespace",
+          target: entity,
+        });
+      }
+    }
   } else {
     state.set(entity, details);
   }

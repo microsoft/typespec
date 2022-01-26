@@ -263,4 +263,71 @@ describe("rest: routes", () => {
       ]);
     });
   });
+
+  describe("@route", () => {
+    it("emit diagnostic if specifying route twice on operation", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @route("/test")
+        op get(): string;
+    `);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
+      strictEqual(diagnostics[0].message, "@route was defined twice on this operation.");
+    });
+
+    it("emit diagnostic if specifying route twice on interface", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @route("/test")
+        interface Foo {
+          get(): string
+        }
+    `);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
+      strictEqual(diagnostics[0].message, "@route was defined twice on this interface.");
+    });
+
+    it("emit diagnostic if namespace have route but different values", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test1")
+        namespace Foo {
+          @route("/get1")
+          op get1(): string;
+        }
+
+        @route("/test2")
+        namespace Foo {
+          @route("/get2")
+          op get2(): string;
+        }
+    `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
+      strictEqual(
+        diagnostics[0].message,
+        "@route was defined twice on this namespace and has different values."
+      );
+    });
+
+    it("merge namespace if @route value is the same", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        namespace Foo {
+          @route("/get1")
+          op get1(): string;
+        }
+
+        @route("/test")
+        namespace Foo {
+          @route("/get2")
+          op get2(): string;
+        }
+    `);
+
+      strictEqual(diagnostics.length, 0);
+    });
+  });
 });
