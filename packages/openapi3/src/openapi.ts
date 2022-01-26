@@ -276,6 +276,17 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     const versions = getVersionRecords(program, serviceNs);
     for (const record of versions) {
+      record.projections.push({
+        projectionName: "toTypescript",
+        arguments: [],
+      });
+      if (record.version) {
+        record.projections.push({
+          projectionName: "atVersion",
+          arguments: [record.version],
+        });
+      }
+
       if (record.version !== undefined) {
         program.enableProjections(record.projections);
       }

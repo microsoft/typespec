@@ -49,7 +49,6 @@ export function createProjector(
   const projectedTypes = new Map<Type, Type>();
   const checker = program.checker!;
   let scope: Type[] = [];
-  console.log("<<< PROJ INIT", projections);
   const projector: Projector = {
     projectedTypes,
     projections,
@@ -492,12 +491,10 @@ export function createProjector(
           ? projectionsByName[0].from!
           : projectionsByName[0].to!;
       const projected = checker.project(projectedType, targetNode, projectionApplication.arguments);
-      if (projected.kind !== baseType.kind) {
+      if (projected !== projectedType) {
         // override the projected type cache with the returned type
         projectedTypes.set(baseType, projected);
         return projected;
-      } else {
-        projectedType = projected;
       }
     }
 

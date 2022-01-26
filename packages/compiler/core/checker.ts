@@ -1,5 +1,5 @@
 import { createSymbolTable } from "./binder.js";
-import { assertType, compilerAssert, ProjectionError } from "./diagnostics.js";
+import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
@@ -61,7 +61,6 @@ import {
   ProjectionLambdaExpressionNode,
   ProjectionMemberExpressionNode,
   ProjectionNode,
-  ProjectionReferenceExpressionNode,
   ProjectionRelationalExpressionNode,
   ProjectionStatementItem,
   ProjectionStatementNode,
@@ -2323,8 +2322,6 @@ export function createChecker(program: Program): Checker {
         return evalProjectionUnaryExpression(node);
       case SyntaxKind.ProjectionRelationalExpression:
         return evalProjectionRelationalExpression(node);
-      case SyntaxKind.ProjectionProjectionReference:
-        return evalProjectionReferenceExpression(node);
       case SyntaxKind.ProjectionModelExpression:
         return evalProjectionModelExpression(node);
       case SyntaxKind.VoidKeyword:
@@ -2354,53 +2351,6 @@ export function createChecker(program: Program): Checker {
       kind: "Return",
       value,
     };
-  }
-
-  function evalProjectionReferenceExpression(
-    node: ProjectionReferenceExpressionNode
-  ): TypeOrReturnRecord {
-    const args: Type[] = [];
-    for (const arg of node.arguments) {
-      const argVal = evalProjectionNode(arg);
-      if (argVal.kind === "Return") {
-        return argVal;
-      }
-      args.push(argVal);
-    }
-
-    const target = evalProjectionNode(node.target);
-    if (target.kind === "Return") {
-      return target;
-    }
-    const projection = evalProjectionNode(node.reference);
-    if (projection.kind === "Return") {
-      return projection;
-    }
-    assertType("projection", projection, "Projection");
-    if (
-      target.kind !== "Interface" &&
-      target.kind !== "Model" &&
-      target.kind !== "Operation" &&
-      target.kind !== "Union" &&
-      target.kind !== "Enum"
-    ) {
-      throw new ProjectionError(`Can't project ${target.kind} type.`);
-    }
-
-    let projectionNode =
-      projection.nodeByType.get(target) ?? projection.nodeByKind.get(target.kind);
-
-    if (!projectionNode) {
-      throw new ProjectionError(`Target doesn't have projection`);
-    }
-
-    if (!projectionNode[currentProjectionDirection!]) {
-      throw new ProjectionError(
-        `Target doesn't have a projection in the ${currentProjectionDirection} direction.`
-      );
-    }
-
-    return evalProjectionStatement(projectionNode[currentProjectionDirection!]!, target, args);
   }
 
   function evalProjectionModelExpression(node: ProjectionModelExpressionNode): TypeOrReturnRecord {
@@ -2719,8 +2669,16 @@ export function createChecker(program: Program): Checker {
     const member = node.id.sv;
     const selector = node.selector;
 
-    if (selector === "@") {
+    if (selector === ".") {
       switch (base.kind) {
+        case "Namespace":
+          const sym = base.node.exports!.get(member) as TypeSymbol;
+          if (sym) {
+            const links = getSymbolLinks(sym);
+            return links.declaredType || links.type || errorType;
+          } else {
+            throw new ProjectionError(`Namespace doesn't have member ${member}`);
+          }
         case "Model":
           const prop = base.properties.get(member);
           if (!prop) {
@@ -2740,31 +2698,29 @@ export function createChecker(program: Program): Checker {
           }
           return variant;
         default:
-          throw new ProjectionError(`Can't get members of type ${base.kind}`);
+          throw new ProjectionError(
+            `Can't get member "${member}" of type ${base.kind} because it has no members. Did you mean to use "::" instead of "."?`
+          );
       }
     }
 
     switch (base.kind) {
-      case "Namespace":
-        const sym = base.node.exports!.get(member) as TypeSymbol;
-        if (sym) {
-          const links = getSymbolLinks(sym);
-          return links.declaredType || links.type || errorType;
-        } else {
-          throw new ProjectionError(`Namespace doesn't have member ${member}`);
-        }
       case "Object":
         return base.properties[member] || errorType;
       default:
         const typeOps = projectionMembers[base.kind];
         if (!typeOps) {
-          throw new ProjectionError(`${base.kind} doesn't have a member named ${member}`);
+          throw new ProjectionError(
+            `${base.kind} doesn't have an object model member named ${member}`
+          );
         }
         // any cast needed to ensure we don't get a too complex union error on the call
         // to op further down.
         const op: any = typeOps[member];
         if (!op) {
-          throw new ProjectionError(`${base.kind} doesn't have a member named ${member}`);
+          throw new ProjectionError(
+            `${base.kind} doesn't have an object model member named ${member}`
+          );
         }
 
         return op(base);

@@ -45,12 +45,6 @@ export function createProjectionMembers(checker: Checker): {
           },
         }) as ObjectType;
       },
-      getProperty(base) {
-        return createFunctionType((nameT: Type) => {
-          assertType("property", nameT, "String");
-          return base.properties.get(nameT.value) ?? voidType;
-        });
-      },
       renameProperty(base) {
         return createFunctionType((oldNameT: Type, newNameT: Type) => {
           assertType("current property name", oldNameT, "String");
@@ -191,13 +185,6 @@ export function createProjectionMembers(checker: Checker): {
           const name = nameT.value;
           base.variants.delete(name);
           return voidType;
-        });
-      },
-      getVariant(base) {
-        return createFunctionType((nameT: Type) => {
-          assertType("variant namee", nameT, "String");
-          const name = nameT.value;
-          return base.variants.get(name) ?? voidType;
         });
       },
     },
@@ -348,6 +335,10 @@ export function createProjectionMembers(checker: Checker): {
             throw new ProjectionError(`Enum already has a member named ${name}`);
           }
 
+          if (type !== undefined && type.kind !== "Number" && type.kind !== "String") {
+            throw new ProjectionError(`Enum member types must be string or number`);
+          }
+
           base.members.push(
             createType({
               kind: "EnumMember",
@@ -355,7 +346,7 @@ export function createProjectionMembers(checker: Checker): {
               name,
               decorators: [],
               node: undefined as any,
-              type,
+              value: type ? type.value : undefined,
             })
           );
 

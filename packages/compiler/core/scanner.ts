@@ -59,48 +59,49 @@ export enum Token {
   Bar = 24,
   Question = 25,
   Colon = 26,
-  At = 27,
-  Hash = 28,
-  Star = 29,
-  ForwardSlash = 30,
-  Plus = 31,
-  Hyphen = 32,
-  Exclamation = 33,
-  LessThanEquals = 34,
-  GreaterThanEquals = 35,
-  AmpsersandAmpersand = 36,
-  BarBar = 37,
-  EqualsEquals = 38,
-  ExclamationEquals = 39,
-  EqualsGreaterThan = 40,
+  ColonColon = 27,
+  At = 28,
+  Hash = 29,
+  Star = 30,
+  ForwardSlash = 31,
+  Plus = 32,
+  Hyphen = 33,
+  Exclamation = 34,
+  LessThanEquals = 35,
+  GreaterThanEquals = 36,
+  AmpsersandAmpersand = 37,
+  BarBar = 38,
+  EqualsEquals = 39,
+  ExclamationEquals = 40,
+  EqualsGreaterThan = 41,
   // Update MaxPunctuation if anything is added right above here
 
   // Identifiers
-  Identifier = 41,
+  Identifier = 42,
 
   // Statement Keywords
-  ImportKeyword = 42,
-  ModelKeyword = 43,
-  NamespaceKeyword = 44,
-  UsingKeyword = 45,
-  OpKeyword = 46,
-  EnumKeyword = 47,
-  AliasKeyword = 48,
-  IsKeyword = 49,
-  InterfaceKeyword = 50,
-  UnionKeyword = 51,
-  ProjectionKeyword = 52,
-  ElseKeyword = 53,
-  IfKeyword = 54,
+  ImportKeyword = 43,
+  ModelKeyword = 44,
+  NamespaceKeyword = 45,
+  UsingKeyword = 46,
+  OpKeyword = 47,
+  EnumKeyword = 48,
+  AliasKeyword = 49,
+  IsKeyword = 50,
+  InterfaceKeyword = 51,
+  UnionKeyword = 52,
+  ProjectionKeyword = 53,
+  ElseKeyword = 54,
+  IfKeyword = 55,
   // Update MaxStatementKeyword if anything is added right above here
 
   // Other keywords
-  ExtendsKeyword = 55,
-  TrueKeyword = 56,
-  FalseKeyword = 57,
-  ReturnKeyword = 58,
-  VoidKeyword = 59,
-  NeverKeyword = 60,
+  ExtendsKeyword = 56,
+  TrueKeyword = 57,
+  FalseKeyword = 58,
+  ReturnKeyword = 59,
+  VoidKeyword = 60,
+  NeverKeyword = 61,
   // Update MaxKeyword if anything is added right above here
 }
 
@@ -142,10 +143,11 @@ export const TokenDisplay: readonly string[] = [
   "'|'",
   "'?'",
   "':'",
+  "'::'",
   "'@'",
   "'#'",
-  "'*'",
-  "'/'", // 30
+  "'*'", // 30
+  "'/'",
   "'+'",
   "'-'",
   "'!'",
@@ -154,8 +156,8 @@ export const TokenDisplay: readonly string[] = [
   "'&&'",
   "'||'",
   "'=='",
-  "'!='",
-  "'=>'", // 40
+  "'!='", // 40
+  "'=>'",
   "identifier",
   "'import'",
   "'model'",
@@ -164,8 +166,8 @@ export const TokenDisplay: readonly string[] = [
   "'op'",
   "'enum'",
   "'alias'",
-  "'is'",
-  "'interface'", // 50
+  "'is'", // 50
+  "'interface'",
   "'union'",
   "'projection'",
   "'else'",
@@ -174,8 +176,8 @@ export const TokenDisplay: readonly string[] = [
   "'true'",
   "'false'",
   "'return'",
-  "'void'",
-  "'never'", // 60
+  "'void'", // 60
+  "'never'",
 ];
 
 /** @internal */
@@ -392,7 +394,7 @@ export function createScanner(
           return next(Token.Comma);
 
         case CharCode.Colon:
-          return next(Token.Colon);
+          return lookAhead(1) === CharCode.Colon ? next(Token.ColonColon, 2) : next(Token.Colon);
 
         case CharCode.Semicolon:
           return next(Token.Semicolon);

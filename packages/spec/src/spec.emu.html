@@ -502,21 +502,14 @@ ProjectionMultiplicativeExpression :
     ProjectionMultiplicativeExpression `/` ProjectionUnaryExpression
 
 ProjectionUnaryExpression :
-    ProjectionProjectionReference
-    `!` ProjectionUnaryExpression
-
-ProjectionProjectionReference :
     ProjectionCallExpression
-    ProjectionProjectionReference `#` ProjectionMemberExpression ProjectionProjectionReferenceArguments?
-
-ProjectionProjectionReferenceArguments :
-    `(` ProjectionExpressionList? `)`
+    `!` ProjectionUnaryExpression
 
 ProjectionCallExpression :
     ProjectionDecoratorReferenceExpression
     ProjectionCallExpression ProjectionCallArguments
     ProjectionCallExpression `.` Identifier
-    ProjectionCallExpression `@` Identifier
+    ProjectionCallExpression `::` Identifier
 
 ProjectionCallArguments :
     `(` ProjectionExpressionList? `)`
@@ -528,7 +521,7 @@ ProjectionDecoratorReferenceExpression :
 ProjectionMemberExpression :
     ProjectionPrimaryExpression
     ProjectionMemberExpression `.` Identifier
-    ProjectionMemberExpression `@` Identifier
+    ProjectionMemberExpression `::` Identifier
 
 ProjectionPrimaryExpression :
     `self`

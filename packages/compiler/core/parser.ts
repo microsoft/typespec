@@ -1424,30 +1424,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         ...finishNode(pos),
       };
     }
-    return parseProjectionProjectionReferenceExpressionOrHigher();
-  }
-
-  function parseProjectionProjectionReferenceExpressionOrHigher(): ProjectionExpression {
-    const pos = tokenPos();
-    let expr = parseProjectionCallExpressionOrHigher();
-    while (token() === Token.Hash) {
-      parseExpected(Token.Hash);
-      const reference = parseProjectionIdentifierOrMemberExpression();
-      let args: ProjectionExpression[] = [];
-      if (token() === Token.OpenParen) {
-        args = parseList(ListKind.CallArguments, parseProjectionExpression);
-      }
-
-      expr = {
-        kind: SyntaxKind.ProjectionProjectionReference,
-        target: expr,
-        reference,
-        arguments: args,
-        ...finishNode(pos),
-      };
-    }
-
-    return expr;
+    return parseProjectionCallExpressionOrHigher();
   }
 
   function parseProjectionCallExpressionOrHigher(): ProjectionExpression {
@@ -1516,12 +1493,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           selector: ".",
           ...finishNode(pos),
         };
-      } else if (parseOptional(Token.At)) {
+      } else if (parseOptional(Token.ColonColon)) {
         expr = {
           kind: SyntaxKind.ProjectionMemberExpression,
           base: expr,
           id: parseIdentifier(),
-          selector: "@",
+          selector: "::",
           ...finishNode(pos),
         };
       } else {
@@ -2212,8 +2189,6 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       return visitNode(cb, node.id);
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
-    case SyntaxKind.ProjectionReference:
-      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
     case SyntaxKind.UnionExpression:
@@ -2261,10 +2236,6 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.selector) ||
         visitNode(cb, node.from) ||
         visitNode(cb, node.to)
-      );
-    case SyntaxKind.ProjectionProjectionReference:
-      return (
-        visitNode(cb, node.target) || visitNode(cb, node.reference) || visitEach(cb, node.arguments)
       );
     case SyntaxKind.ProjectionDecoratorReferenceExpression:
       return visitNode(cb, node.target);

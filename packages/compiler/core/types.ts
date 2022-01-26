@@ -379,7 +379,6 @@ export enum SyntaxKind {
   ProjectionSpreadProperty,
   ProjectionTupleExpression,
   ProjectionStatement,
-  ProjectionProjectionReference,
   ProjectionDecoratorReferenceExpression,
   Return,
 }
@@ -408,7 +407,6 @@ export type Node =
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | DirectiveExpressionNode
-  | ProjectionReferenceNode
   | Statement
   | Expression
   | ProjectionStatementItem
@@ -535,7 +533,6 @@ export type ProjectionExpression =
   | ProjectionEqualityExpressionNode
   | ProjectionUnaryExpressionNode
   | ProjectionArithmeticExpressionNode
-  | ProjectionReferenceExpressionNode
   | ProjectionCallExpressionNode
   | ProjectionMemberExpressionNode
   | ProjectionDecoratorReferenceExpressionNode
@@ -804,13 +801,6 @@ export interface ProjectionUnaryExpressionNode extends BaseNode {
   target: ProjectionExpression;
 }
 
-export interface ProjectionReferenceExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionProjectionReference;
-  target: ProjectionExpression;
-  reference: ProjectionMemberExpressionNode | IdentifierNode;
-  arguments: ProjectionExpression[];
-}
-
 export interface ProjectionCallExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionCallExpression;
   callKind: "method" | "template";
@@ -822,7 +812,7 @@ export interface ProjectionMemberExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionMemberExpression;
   base: ProjectionExpression;
   id: IdentifierNode;
-  selector: "." | "@";
+  selector: "." | "::";
 }
 
 export interface ProjectionModelExpressionNode extends BaseNode {
