@@ -73,6 +73,12 @@ const libDefinition = {
           "Operation has a @body and an unannotated parameter. There can only be one representing the body",
       },
     },
+    "duplicate-route": {
+      severity: "error",
+      messages: {
+        default: "@route was defined twice on this type.",
+      },
+    },
     "operation-param-duplicate-type": {
       severity: "error",
       messages: {

@@ -92,7 +92,16 @@ function setRoute(program: Program, entity: Type, details: RoutePath) {
   // Register the container of the operation as one that holds routed operations
   addRouteContainer(program, entity);
 
-  program.stateMap(routesKey).set(entity, details);
+  const state = program.stateMap(routesKey);
+
+  if (state.has(entity)) {
+    reportDiagnostic(program, {
+      code: "duplicate-route",
+      target: entity,
+    });
+  } else {
+    state.set(entity, details);
+  }
 }
 
 export function getRoutePath(
