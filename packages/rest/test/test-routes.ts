@@ -96,6 +96,7 @@ describe("rest: routes", () => {
 
       @autoRoute
       namespace Things {
+        @get
         @action
         op ActionOne(...ThingId): string;
 
@@ -103,7 +104,7 @@ describe("rest: routes", () => {
         @put op ActionTwo(...ThingId): string;
 
         @action
-        @post op ActionThree(...ThingId, @body bodyParam: string): string;
+        op ActionThree(...ThingId, @body bodyParam: string): string;
       }
       `
     );
