@@ -85,7 +85,7 @@ export async function compileOperations(
     `import "rest"; namespace TestNamespace; using Cadl.Rest; using Cadl.Http; ${code}`
   );
 
-  await host.compile("./main.cadl", { noEmit: true });
+  await host.compileAndDiagnose("./main.cadl", { noEmit: true });
   const routes = getAllRoutes(host.program);
   const details = routes.map((r) => {
     return {

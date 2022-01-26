@@ -1,5 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { compileOperations, getRoutesFor } from "./test-host.js";
+import { compileOperations, createRestTestHost, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   it("finds routes on bare operations", async () => {
@@ -96,6 +96,7 @@ describe("rest: routes", () => {
 
       @autoRoute
       namespace Things {
+        @get
         @action
         op ActionOne(...ThingId): string;
 
@@ -103,7 +104,7 @@ describe("rest: routes", () => {
         @put op ActionTwo(...ThingId): string;
 
         @action
-        @post op ActionThree(...ThingId, @body bodyParam: string): string;
+        op ActionThree(...ThingId, @body bodyParam: string): string;
       }
       `
     );
@@ -278,6 +279,96 @@ describe("rest: routes", () => {
           params: { params: [{ type: "query", name: "select" }], body: "unannotedBodyParam" },
         },
       ]);
+    });
+  });
+
+  describe("double @route", () => {
+    it("emit diagnostic if specifying route twice on operation", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @route("/test")
+        op get(): string;
+    `);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
+      strictEqual(diagnostics[0].message, "@route was defined twice on this operation.");
+    });
+
+    it("emit diagnostic if specifying route twice on interface", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        @route("/test")
+        interface Foo {
+          get(): string
+        }
+    `);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
+      strictEqual(diagnostics[0].message, "@route was defined twice on this interface.");
+    });
+
+    it("emit diagnostic if namespace have route but different values", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test1")
+        namespace Foo {
+          @route("/get1")
+          op get1(): string;
+        }
+
+        @route("/test2")
+        namespace Foo {
+          @route("/get2")
+          op get2(): string;
+        }
+    `);
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
+      strictEqual(
+        diagnostics[0].message,
+        "@route was defined twice on this namespace and has different values."
+      );
+    });
+
+    it("merge namespace if @route value is the same", async () => {
+      const [_, diagnostics] = await compileOperations(`
+        @route("/test")
+        namespace Foo {
+          @route("/get1")
+          op get1(): string;
+        }
+
+        @route("/test")
+        namespace Foo {
+          @route("/get2")
+          op get2(): string;
+        }
+    `);
+
+      strictEqual(diagnostics.length, 0);
+    });
+  });
+
+  describe("emit diagnostic if passing arguments to verb decorators", () => {
+    ["get", "post", "put", "patch", "delete", "head"].forEach((verb) => {
+      it(`@${verb}`, async () => {
+        const host = await createRestTestHost();
+        host.addCadlFile(
+          "./main.cadl",
+          `
+          import "rest"; 
+          namespace TestNamespace; 
+          using Cadl.Rest; 
+          using Cadl.Http;
+        
+          @${verb}("/test") op test(): string;
+          `
+        );
+        const [_, diagnostics] = await host.compileAndDiagnose("./main.cadl");
+        strictEqual(diagnostics.length, 1);
+        strictEqual(diagnostics[0].code, "invalid-argument-count");
+        strictEqual(diagnostics[0].message, "Expected 0 arguments, but got 1.");
+      });
     });
   });
 });

@@ -202,7 +202,7 @@ describe("compiler: namespaces with blocks", () => {
     testHost.addCadlFile(
       "main.cadl",
       `
-      @doc(Azure.Foo)
+      @test(Azure.Foo)
       namespace Baz { };
       namespace Azure {
         model Foo { }

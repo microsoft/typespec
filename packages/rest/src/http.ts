@@ -1,4 +1,9 @@
-import { Program, setDecoratorNamespace, Type } from "@cadl-lang/compiler";
+import {
+  Program,
+  setDecoratorNamespace,
+  Type,
+  validateDecoratorParamCount,
+} from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 
 const headerFieldsKey = Symbol();
@@ -103,28 +108,39 @@ export function getOperationVerb(program: Program, entity: Type): HttpVerb | und
   return program.stateMap(operationVerbsKey).get(entity);
 }
 
-export function $get(program: Program, entity: Type) {
+export function $get(program: Program, entity: Type, ...args: unknown[]) {
+  validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "get");
 }
 
-export function $put(program: Program, entity: Type) {
+export function $put(program: Program, entity: Type, ...args: unknown[]) {
+  validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "put");
 }
 
-export function $post(program: Program, entity: Type) {
+export function $post(program: Program, entity: Type, ...args: unknown[]) {
+  validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "post");
 }
 
-export function $patch(program: Program, entity: Type) {
+export function $patch(program: Program, entity: Type, ...args: unknown[]) {
+  validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "patch");
 }
 
-export function $delete(program: Program, entity: Type) {
+export function $delete(program: Program, entity: Type, ...args: unknown[]) {
+  validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "delete");
 }
 
-export function $head(program: Program, entity: Type) {
+export function $head(program: Program, entity: Type, ...args: unknown[]) {
+  validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "head");
+}
+
+// TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
+function validateVerbNoArgs(program: Program, target: Type, args: unknown[]) {
+  validateDecoratorParamCount(program, target, args, 0);
 }
 
 setDecoratorNamespace(

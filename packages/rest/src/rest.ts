@@ -177,11 +177,8 @@ export function $deletesResource(program: Program, entity: Type, resourceType: T
 }
 
 export function $listsResource(program: Program, entity: Type, resourceType: Type) {
-  // Skip this for template parameters passed into the decorator
-  if (resourceType.kind !== "TemplateParameter") {
-    // Add the @list decorator too so that collection routes are generated correctly
-    $list(program, entity, resourceType);
-  }
+  // Add the @list decorator too so that collection routes are generated correctly
+  $list(program, entity, resourceType);
 
   // Add path segment for resource type key
   $segmentOf(program, entity, resourceType);

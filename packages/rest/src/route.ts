@@ -17,7 +17,7 @@ import {
   HttpVerb,
   isBody,
 } from "./http.js";
-import { getResourceOperation, getSegment } from "./rest.js";
+import { getAction, getResourceOperation, getSegment } from "./rest.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
 
@@ -92,7 +92,28 @@ function setRoute(program: Program, entity: Type, details: RoutePath) {
   // Register the container of the operation as one that holds routed operations
   addRouteContainer(program, entity);
 
-  program.stateMap(routesKey).set(entity, details);
+  const state = program.stateMap(routesKey);
+
+  if (state.has(entity)) {
+    if (entity.kind === "Operation" || entity.kind === "Interface") {
+      reportDiagnostic(program, {
+        code: "duplicate-route-decorator",
+        messageId: entity.kind === "Operation" ? "operation" : "interface",
+        target: entity,
+      });
+    } else {
+      const existingValue: RoutePath = state.get(entity);
+      if (existingValue.path !== details.path) {
+        reportDiagnostic(program, {
+          code: "duplicate-route-decorator",
+          messageId: "namespace",
+          target: entity,
+        });
+      }
+    }
+  } else {
+    state.set(entity, details);
+  }
 }
 
 export function getRoutePath(
@@ -276,7 +297,10 @@ function getVerbForOperation(
   const resourceOperation = getResourceOperation(program, operation);
   const verb =
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
-    getOperationVerb(program, operation);
+    getOperationVerb(program, operation) ??
+    // TODO: Enable this verb choice to be customized!
+    (getAction(program, operation) ? "post" : undefined);
+
   if (verb !== undefined) {
     return verb;
   }

@@ -1,7 +1,7 @@
 import { ok } from "assert";
 import { createTestHost, TestHost } from "../test-host.js";
 
-describe("compiler: decorators", () => {
+describe("compiler: checker: decorators", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
