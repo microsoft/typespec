@@ -87,6 +87,12 @@ const libDefinition = {
         default: paramMessage`Param ${"paramName"} has multiple types: [${"types"}]`,
       },
     },
+    "duplicate-operation": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Duplicate operation "${"operationName"}" routed at "${"verb"} ${"path"}".`,
+      },
+    },
   },
 } as const;
 

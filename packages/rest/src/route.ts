@@ -412,7 +412,43 @@ export function getAllRoutes(program: Program): OperationDetails[] {
     operations = [...operations, ...newOps];
   }
 
+  validateRouteUnique(program, operations);
   return operations;
+}
+
+function validateRouteUnique(program: Program, operations: OperationDetails[]) {
+  const grouped = new Map<string, Map<HttpVerb, OperationDetails[]>>();
+
+  for (const operation of operations) {
+    const { verb, path } = operation;
+    let map = grouped.get(path);
+    if (map === undefined) {
+      map = new Map<HttpVerb, OperationDetails[]>();
+      grouped.set(path, map);
+    }
+
+    let list = map.get(verb);
+    if (list === undefined) {
+      list = [];
+      map.set(verb, list);
+    }
+
+    list.push(operation);
+  }
+
+  for (const [path, map] of grouped) {
+    for (const [verb, routes] of map) {
+      if (routes.length >= 2) {
+        for (const route of routes) {
+          reportDiagnostic(program, {
+            code: "duplicate-operation",
+            format: { path, verb, operationName: route.operation.name },
+            target: route.operation,
+          });
+        }
+      }
+    }
+  }
 }
 
 // TODO: Make this overridable by libraries
