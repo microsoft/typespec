@@ -49,7 +49,9 @@ function testBasicLatest(packages) {
   console.log("Installed basic-latest dependencies");
 
   console.log("Running cadl compile .");
-  runCadl(packages["@cadl-lang/compiler"], ["compile", "."], { cwd: basicLatestDir });
+  runCadl(packages["@cadl-lang/compiler"], ["compile", ".", "--emit", "@cadl-lang/openapi3"], {
+    cwd: basicLatestDir,
+  });
   console.log("Completed cadl compile .");
 
   if (existsSync(join(outputDir, "openapi.json"))) {
@@ -84,7 +86,9 @@ function testBasicCurrentTgz(packages) {
   console.log("Installed basic-latest dependencies");
 
   console.log("Running cadl compile .");
-  runCadl(packages["@cadl-lang/compiler"], ["compile", "."], { cwd: basicCurrentDir });
+  runCadl(packages["@cadl-lang/compiler"], ["compile", ".", "--emit", "@cadl-lang/openapi3"], {
+    cwd: basicCurrentDir,
+  });
   console.log("Completed cadl compile .");
 
   if (existsSync(join(outputDir, "openapi.json"))) {

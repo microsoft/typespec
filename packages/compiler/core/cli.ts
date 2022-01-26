@@ -88,7 +88,7 @@ async function main() {
         }
         if (program.emitters.length === 0) {
           console.log(
-            "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter."
+            "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the cadl config."
           );
         }
       }
