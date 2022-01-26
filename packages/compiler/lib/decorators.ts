@@ -1,4 +1,4 @@
-import { createDiagnostic } from "../core/messages.js";
+import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
   InterfaceType,
@@ -12,7 +12,33 @@ import {
 export const namespace = "Cadl";
 
 const docsKey = Symbol();
-export function $doc(program: Program, target: Type, text: string) {
+export function $doc(program: Program, target: Type, text: string, sourceObject: Type) {
+  // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
+  if (typeof text !== "string") {
+    reportDiagnostic(program, {
+      code: "invalid-argument",
+      format: {
+        value: program.checker!.getTypeName(text),
+        actual: typeof text,
+        expected: "string",
+      },
+      target,
+    });
+    return;
+  }
+
+  // If an object was passed in, use it to format the documentation string
+  if (sourceObject) {
+    // Template parameters are not valid source objects, just skip them
+    if (sourceObject.kind === "ModelProperty") {
+      return;
+    }
+
+    text = text.replace(/{(\w+)}/g, (_, propName) => {
+      return (sourceObject as any)[propName];
+    });
+  }
+
   program.stateMap(docsKey).set(target, text);
 }
 
@@ -98,6 +124,40 @@ export function $numeric(program: Program, target: Type) {
 export function isNumericType(program: Program, target: Type): boolean {
   const intrinsicType = getIntrinsicType(program, target);
   return intrinsicType !== undefined && program.stateSet(numericTypesKey).has(intrinsicType);
+}
+
+// -- @format decorator ---------------------
+
+const formatValuesKey = Symbol();
+
+export function $format(program: Program, target: Type, format: string) {
+  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@format", to: "anything that isn't a Model or ModelProperty" },
+        target,
+      })
+    );
+    return;
+  }
+
+  if (getIntrinsicType(program, target) !== "string") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@format", to: "non-string type" },
+        target,
+      })
+    );
+    return;
+  }
+
+  program.stateMap(formatValuesKey).set(target, format);
+}
+
+export function getFormat(program: Program, target: Type): string | undefined {
+  return program.stateMap(formatValuesKey).get(target);
 }
 
 // -- @pattern decorator ---------------------
@@ -426,6 +486,11 @@ export function $list(program: Program, target: Type, listedType?: Type) {
     return;
   }
 
+  if (listedType && listedType.kind == "TemplateParameter") {
+    // Silently return because this is probably being used in a templated interface
+    return;
+  }
+
   if (listedType && listedType.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -502,4 +567,26 @@ export function getAllTags(
   }
 
   return tags.size > 0 ? Array.from(tags).reverse() : undefined;
+}
+
+/**
+ * Emit diagnostic if the number of arguments passed to decorator is more or less than the expected count.
+ */
+export function validateDecoratorParamCount(
+  program: Program,
+  target: Type,
+  args: unknown[],
+  expected: number
+) {
+  if (args.length !== expected) {
+    reportDiagnostic(program, {
+      code: "invalid-argument-count",
+      format: {
+        actual: args.length.toString(),
+        expected: expected.toString(),
+      },
+      target,
+    });
+    return;
+  }
 }

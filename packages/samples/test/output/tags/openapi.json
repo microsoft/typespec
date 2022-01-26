@@ -131,7 +131,7 @@
       }
     },
     "/nested/{id}": {
-      "get": {
+      "post": {
         "operationId": "NestedMoreInner_createOther",
         "parameters": [
           {

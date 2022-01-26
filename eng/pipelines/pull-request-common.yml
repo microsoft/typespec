@@ -32,3 +32,6 @@ steps:
 
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
+
+  - script: node common/scripts/install-run-rush.js e2e
+    displayName: E2E Tests

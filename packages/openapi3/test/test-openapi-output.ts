@@ -461,7 +461,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op create(@body body: Cat | Dog): OkResponse<{}>;
+        @post op create(@body body: Cat | Dog): OkResponse<{}>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -479,7 +479,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op create(@body body: Cat | string): OkResponse<{}>;
+        @post op create(@body body: Cat | string): OkResponse<{}>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -500,7 +500,7 @@ describe("openapi3: definitions", () => {
     alias Pet = Cat | Dog;
     @route("/")
     namespace root {
-      op create(@body body: Pet): OkResponse<{}>;
+      @post op create(@body body: Pet): OkResponse<{}>;
     }
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -724,7 +724,8 @@ describe("openapi3: operations", () => {
       `
       @route("/thing")
       namespace root {
-        @get("{name}")
+        @get
+        @route("{name}")
         op getThing(
           @pattern("^[a-zA-Z0-9-]{3,24}$")
           @path name: string,
@@ -849,6 +850,37 @@ describe("openapi3: extension decorator", () => {
     );
     strictEqual(oapi.components.parameters.PetId.name, "petId");
     strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
+  });
+
+  it("check format and pattern decorator on model", async () => {
+    const oapi = await openApiFor(
+      `
+      model Pet extends PetId {
+        @pattern("^[a-zA-Z0-9-]{3,24}$")
+        name: string;
+      }
+      model PetId {
+        @path
+        @pattern("^[a-zA-Z0-9-]{3,24}$")
+        @format("UUID")
+        petId: string;
+      }
+      @route("/Pets")
+      namespace root {
+        @get()
+        op get(... PetId): Pet;
+      }
+      `
+    );
+    ok(oapi.paths["/Pets/{petId}"].get);
+    strictEqual(
+      oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
+      "#/components/parameters/PetId"
+    );
+    strictEqual(oapi.components.parameters.PetId.name, "petId");
+    strictEqual(oapi.components.schemas.Pet.properties.name.pattern, "^[a-zA-Z0-9-]{3,24}$");
+    strictEqual(oapi.components.parameters.PetId.schema.format, "UUID");
+    strictEqual(oapi.components.parameters.PetId.schema.pattern, "^[a-zA-Z0-9-]{3,24}$");
   });
 });
 

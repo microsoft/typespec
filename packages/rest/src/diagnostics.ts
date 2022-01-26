@@ -27,6 +27,12 @@ const libDefinition = {
         default: paramMessage`Cannot use @${"verb"} on a ${"entityKind"}`,
       },
     },
+    "http-verb-missing-with-body": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Operation ${"operationName"} has a body but doesn't specify a verb.`,
+      },
+    },
     "decorator-wrong-type": {
       severity: "error",
       messages: {
@@ -55,6 +61,36 @@ const libDefinition = {
       severity: "error",
       messages: {
         default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
+      },
+    },
+    "duplicate-body": {
+      severity: "error",
+      messages: {
+        default: "Operation has multiple @body parameters declared",
+        duplicateUnannotated:
+          "Operation has multiple unannotated parameters. There can only be one representing the body",
+        bodyAndUnannotated:
+          "Operation has a @body and an unannotated parameter. There can only be one representing the body",
+      },
+    },
+    "duplicate-route-decorator": {
+      severity: "error",
+      messages: {
+        operation: "@route was defined twice on this operation.",
+        interface: "@route was defined twice on this interface.",
+        namespace: "@route was defined twice on this namespace and has different values.",
+      },
+    },
+    "operation-param-duplicate-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Param ${"paramName"} has multiple types: [${"types"}]`,
+      },
+    },
+    "duplicate-operation": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Duplicate operation "${"operationName"}" routed at "${"verb"} ${"path"}".`,
       },
     },
   },
