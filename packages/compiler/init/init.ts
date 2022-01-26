@@ -231,7 +231,7 @@ async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
   }
   const jsyaml = await import("js-yaml");
   const content = jsyaml.dump(config.config);
-  return host.writeFile(joinPaths(config.directory, ".cadlrc.yml"), content);
+  return host.writeFile(joinPaths(config.directory, ".cadlrc.yaml"), content);
 }
 
 async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
