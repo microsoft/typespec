@@ -42,6 +42,16 @@ export async function createOpenAPITestHost() {
 
   // load openapi
   await host.addRealCadlFile(
+    "./node_modules/openapi/package.json",
+    resolvePath(root, "../openapi/package.json")
+  );
+  await host.addRealJsFile(
+    "./node_modules/openapi/dist/src/index.js",
+    resolvePath(root, "../openapi/dist/src/index.js")
+  );
+
+  // Load openapi3
+  await host.addRealCadlFile(
     "./node_modules/openapi3/package.json",
     resolvePath(root, "../openapi3/package.json")
   );
@@ -58,7 +68,7 @@ export async function openApiFor(code: string) {
   const outPath = resolvePath("/openapi.json");
   host.addCadlFile(
     "./main.cadl",
-    `import "rest"; import "openapi3";using Cadl.Rest;using Cadl.Http;${code}`
+    `import "rest"; import "openapi";import "openapi3";using Cadl.Rest;using Cadl.Http;${code}`
   );
   await host.compile("./main.cadl", { noEmit: false, swaggerOutputFile: outPath });
   return JSON.parse(host.fs.get(outPath)!);
@@ -69,7 +79,7 @@ export async function checkFor(code: string) {
   const outPath = resolvePath("/openapi.json");
   host.addCadlFile(
     "./main.cadl",
-    `import "rest"; import "openapi3";using Cadl.Rest;using Cadl.Http;${code}`
+    `import "rest"; import "openapi";import "openapi3";using Cadl.Rest;using Cadl.Http;${code}`
   );
   const result = await host.diagnose("./main.cadl", {
     noEmit: false,
