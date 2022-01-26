@@ -6,6 +6,7 @@ dependencies:
   '@rush-temp/cadl-vs': file:projects/cadl-vs.tgz
   '@rush-temp/cadl-vscode': file:projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:projects/compiler.tgz
+  '@rush-temp/openapi': file:projects/openapi.tgz
   '@rush-temp/openapi3': file:projects/openapi3.tgz
   '@rush-temp/prettier-plugin-cadl': file:projects/prettier-plugin-cadl.tgz
   '@rush-temp/rest': file:projects/rest.tgz
@@ -21,7 +22,6 @@ dependencies:
   '@types/plist': 3.0.2
   '@types/prettier': 2.4.1
   '@types/prompts': 2.0.14
-  '@types/resolve': 1.20.1
   '@types/vscode': 1.53.0
   '@types/yargs': 17.0.5
   ajv: 8.4.0
@@ -40,7 +40,6 @@ dependencies:
   prettier: 2.4.1
   prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.4.4
   prompts: 2.4.2
-  resolve: 1.20.0
   rollup: 2.41.5
   source-map-support: 0.5.20
   typescript: 4.4.4
@@ -2962,8 +2961,20 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-SOTqrJEuDKycWEDYY5SGKdznKBGvHpUCOhyHFe5Yj8mlj9RxfOJ6UvOPO9kTVB9Mxy1s+b6MKKLAisbsErEDHw==
+      integrity: sha512-pJLFjP2AveipUIoSEwotAqbHVLPsn9iHWvEhavFtwlJGIBgMI51Vz7FHunmw6q/HAcYztjZl0WC62mFliPy7zw==
       tarball: file:projects/compiler.tgz
+    version: 0.0.0
+  file:projects/openapi.tgz:
+    dependencies:
+      '@types/mocha': 7.0.2
+      '@types/node': 14.0.27
+      mocha: 8.3.2
+      typescript: 4.4.4
+    dev: false
+    name: '@rush-temp/openapi'
+    resolution:
+      integrity: sha512-f85lWCwoFoAjssli/B8B18F0m2AYZMSKgp/5og83TX2Q1HKCguJFBJpvuO6VD7LGZCdGREWI7luPivsDWEDG0g==
+      tarball: file:projects/openapi.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
     dependencies:
@@ -3049,6 +3060,7 @@ specifiers:
   '@rush-temp/cadl-vs': file:./projects/cadl-vs.tgz
   '@rush-temp/cadl-vscode': file:./projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:./projects/compiler.tgz
+  '@rush-temp/openapi': file:./projects/openapi.tgz
   '@rush-temp/openapi3': file:./projects/openapi3.tgz
   '@rush-temp/prettier-plugin-cadl': file:./projects/prettier-plugin-cadl.tgz
   '@rush-temp/rest': file:./projects/rest.tgz
@@ -3064,7 +3076,6 @@ specifiers:
   '@types/plist': ~3.0.2
   '@types/prettier': ^2.0.2
   '@types/prompts': ~2.0.14
-  '@types/resolve': ~1.20.0
   '@types/vscode': ~1.53.0
   '@types/yargs': ~17.0.2
   ajv: ~8.4.0
@@ -3083,7 +3094,6 @@ specifiers:
   prettier: ~2.4.1
   prettier-plugin-organize-imports: ~1.1.1
   prompts: ~2.4.1
-  resolve: ~1.20.0
   rollup: ~2.41.4
   source-map-support: ~0.5.19
   typescript: ~4.4.4

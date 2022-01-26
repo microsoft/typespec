@@ -33,6 +33,7 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
+import { getExtensions, getOperationId, getRef } from "@cadl-lang/openapi";
 import {
   getAllRoutes,
   getDiscriminator,
@@ -53,55 +54,6 @@ export async function $onBuild(p: Program) {
 
   const emitter = createOAPIEmitter(p, options);
   await emitter.emitOpenAPI();
-}
-
-const operationIdsKey = Symbol();
-export function $operationId(program: Program, entity: Type, opId: string) {
-  if (entity.kind !== "Operation") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "operationId", entityKind: entity.kind },
-      target: entity,
-    });
-    return;
-  }
-  program.stateMap(operationIdsKey).set(entity, opId);
-}
-
-const pageableOperationsKey = Symbol();
-export function $pageable(program: Program, entity: Type, nextLinkName: string = "nextLink") {
-  if (entity.kind !== "Operation") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "pageable", entityKind: entity.kind },
-      target: entity,
-    });
-    return;
-  }
-  program.stateMap(pageableOperationsKey).set(entity, nextLinkName);
-}
-
-function getPageable(program: Program, entity: Type): string | undefined {
-  return program.stateMap(pageableOperationsKey).get(entity);
-}
-
-const refTargetsKey = Symbol();
-
-export function $useRef(program: Program, entity: Type, refUrl: string): void {
-  if (entity.kind === "Model" || entity.kind === "ModelProperty") {
-    program.stateMap(refTargetsKey).set(entity, refUrl);
-  } else {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      messageId: "modelsOperations",
-      format: { decoratorName: "useRef" },
-      target: entity,
-    });
-  }
-}
-
-function getRef(program: Program, entity: Type): string | undefined {
-  return program.stateMap(refTargetsKey).get(entity);
 }
 
 const oneOfKey = Symbol();
@@ -185,17 +137,6 @@ export function addSecurityDefinition(
   const definitions = getSecurityDefinitions(program);
   definitions[name] = details;
   setSecurityDefinitions(program, definitions);
-}
-
-const openApiExtensions = new Map<Type, Map<string, any>>();
-export function $extension(program: Program, entity: Type, extensionName: string, value: any) {
-  let typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
-  typeExtensions.set(extensionName, value);
-  openApiExtensions.set(entity, typeExtensions);
-}
-
-function getExtensions(entity: Type): Map<string, any> {
-  return openApiExtensions.get(entity) ?? new Map<string, any>();
 }
 
 export interface OpenAPIEmitterOptions {
@@ -300,8 +241,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     currentEndpoint = currentPath[verb];
 
-    if (program.stateMap(operationIdsKey).has(op)) {
-      currentEndpoint.operationId = program.stateMap(operationIdsKey).get(op);
+    const operationId = getOperationId(program, op);
+    if (operationId) {
+      currentEndpoint.operationId = operationId;
     } else {
       // Synthesize an operation ID
       currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
