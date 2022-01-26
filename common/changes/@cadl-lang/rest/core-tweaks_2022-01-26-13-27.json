@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Operations marked with `@action` will now default to `POST` verb unless another verb has been explicitly specified",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
