@@ -92,7 +92,28 @@ function setRoute(program: Program, entity: Type, details: RoutePath) {
   // Register the container of the operation as one that holds routed operations
   addRouteContainer(program, entity);
 
-  program.stateMap(routesKey).set(entity, details);
+  const state = program.stateMap(routesKey);
+
+  if (state.has(entity)) {
+    if (entity.kind === "Operation" || entity.kind === "Interface") {
+      reportDiagnostic(program, {
+        code: "duplicate-route-decorator",
+        messageId: entity.kind === "Operation" ? "operation" : "interface",
+        target: entity,
+      });
+    } else {
+      const existingValue: RoutePath = state.get(entity);
+      if (existingValue.path !== details.path) {
+        reportDiagnostic(program, {
+          code: "duplicate-route-decorator",
+          messageId: "namespace",
+          target: entity,
+        });
+      }
+    }
+  } else {
+    state.set(entity, details);
+  }
 }
 
 export function getRoutePath(
