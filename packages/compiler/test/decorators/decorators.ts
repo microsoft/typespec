@@ -24,6 +24,29 @@ describe("compiler: built-in decorators", () => {
       strictEqual(getDoc(testHost.program, A), "My Doc");
     });
 
+    it("formats @doc string using source object", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @doc("Templated {name}", T)
+        model Template<T>  {
+        }
+
+        @test
+        @doc("Model {name}", A)
+        model A { }
+
+        @test
+        model B is Template<B> {
+        }
+        `
+      );
+
+      const { A, B } = await testHost.compile("./");
+      strictEqual(getDoc(testHost.program, A), "Model A");
+      strictEqual(getDoc(testHost.program, B), "Templated B");
+    });
+
     it("emit diagnostic if doc is not a string", async () => {
       testHost.addCadlFile(
         "main.cadl",

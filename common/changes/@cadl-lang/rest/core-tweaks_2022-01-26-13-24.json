@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Move `@key`, `@parentResource`, and `@copyResourceKeyParameters` decorators into `Cadl.Rest`",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

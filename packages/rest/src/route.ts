@@ -17,7 +17,7 @@ import {
   HttpVerb,
   isBody,
 } from "./http.js";
-import { getResourceOperation, getSegment } from "./rest.js";
+import { getAction, getResourceOperation, getSegment } from "./rest.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
 
@@ -297,7 +297,10 @@ function getVerbForOperation(
   const resourceOperation = getResourceOperation(program, operation);
   const verb =
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
-    getOperationVerb(program, operation);
+    getOperationVerb(program, operation) ??
+    // TODO: Enable this verb choice to be customized!
+    (getAction(program, operation) ? "post" : undefined);
+
   if (verb !== undefined) {
     return verb;
   }

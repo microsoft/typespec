@@ -12,7 +12,7 @@ import {
 export const namespace = "Cadl";
 
 const docsKey = Symbol();
-export function $doc(program: Program, target: Type, text: string) {
+export function $doc(program: Program, target: Type, text: string, sourceObject: Type) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
   if (typeof text !== "string") {
     reportDiagnostic(program, {
@@ -26,6 +26,19 @@ export function $doc(program: Program, target: Type, text: string) {
     });
     return;
   }
+
+  // If an object was passed in, use it to format the documentation string
+  if (sourceObject) {
+    // Template parameters are not valid source objects, just skip them
+    if (sourceObject.kind === "ModelProperty") {
+      return;
+    }
+
+    text = text.replace(/{(\w+)}/g, (_, propName) => {
+      return (sourceObject as any)[propName];
+    });
+  }
+
   program.stateMap(docsKey).set(target, text);
 }
 
@@ -473,6 +486,11 @@ export function $list(program: Program, target: Type, listedType?: Type) {
     return;
   }
 
+  if (listedType && listedType.kind == "TemplateParameter") {
+    // Silently return because this is probably being used in a templated interface
+    return;
+  }
+
   if (listedType && listedType.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -549,4 +567,26 @@ export function getAllTags(
   }
 
   return tags.size > 0 ? Array.from(tags).reverse() : undefined;
+}
+
+/**
+ * Emit diagnostic if the number of arguments passed to decorator is more or less than the expected count.
+ */
+export function validateDecoratorParamCount(
+  program: Program,
+  target: Type,
+  args: unknown[],
+  expected: number
+) {
+  if (args.length !== expected) {
+    reportDiagnostic(program, {
+      code: "invalid-argument-count",
+      format: {
+        actual: args.length.toString(),
+        expected: expected.toString(),
+      },
+      target,
+    });
+    return;
+  }
 }
