@@ -215,6 +215,23 @@ export function getAction(program: Program, operation: OperationType): string | 
   return program.stateMap(actionsKey).get(operation);
 }
 
+const errorKey = Symbol();
+export function $error(program: Program, entity: Type) {
+  if (entity.kind !== "Model") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "error", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(errorKey).set(entity, true);
+}
+
+export function isErrorModel(program: Program, model: ModelType): boolean {
+  return !!program.stateMap(errorKey).get(model);
+}
+
 setDecoratorNamespace(
   "Cadl.Rest",
   $produces,
