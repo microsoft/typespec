@@ -1,4 +1,6 @@
 import { JSONSchemaType } from "ajv";
+import { CadlConfigJsonSchema } from "../config/config-schema.js";
+import { CadlRawConfig } from "../config/types.js";
 
 export interface InitTemplateFile {
   path: string;
@@ -28,6 +30,11 @@ export interface InitTemplate {
   libraries: string[];
 
   /**
+   * Config
+   */
+  config?: CadlRawConfig;
+
+  /**
    * Custom inputs to prompt to the user
    */
   inputs?: Record<string, InitTemplateInput>;
@@ -45,6 +52,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
     title: { type: "string" },
     description: { type: "string" },
     libraries: { type: "array", items: { type: "string" } },
+    config: { nullable: true, ...CadlConfigJsonSchema },
     inputs: {
       type: "object",
       nullable: true,
