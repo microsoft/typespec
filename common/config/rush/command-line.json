@@ -34,7 +34,7 @@
       "safeForSimultaneousRushProcesses": true,
       "name": "merge-coverage",
       "summary": "(CUSTOM) Globally installs local builds of @cadl-lang/compiler and cadl-vscode.",
-      "shellCommand": "npx istanbul report --include **/coverage/**/coverage-final.json cobertura"
+      "shellCommand": "npx istanbul report --include **/coverage/**/coverage-final.json cobertura text"
     },
     {
       "commandKind": "global",
