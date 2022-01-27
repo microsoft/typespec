@@ -7,21 +7,25 @@ using Cadl.Http;
 namespace Foo {
   @tag("tag1")
   @doc("includes namespace tag")
+  @get
   op read(@path id: int32): null;
 
   @tag("tag1")
   @tag("tag2")
   @doc("includes namespace tag and two operations tags")
+  @post
   op create(@path id: int32): null;
 }
 
 @route("/bar")
 namespace Bar {
   @doc("no tags")
+  @get
   op list(): Resp[];
 
   @doc("one operation tag")
   @tag("tag3")
+  @post
   op create(@path id: int32): null;
 }
 
@@ -33,6 +37,7 @@ namespace NestedOuter {
     @tag("moreInner")
     namespace NestedMoreInner {
       @tag("innerOp")
+      @post
       op createOther(@path id: int32): null;
     }
   }

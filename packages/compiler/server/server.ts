@@ -1,4 +1,3 @@
-import { dirname, isAbsolute, join, normalize } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
@@ -33,6 +32,12 @@ import {
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition } from "../core/parser.js";
+import {
+  ensureTrailingDirectorySeparator,
+  getDirectoryPath,
+  joinPaths,
+  resolvePath,
+} from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
 import {
   CompilerHost,
@@ -52,7 +57,10 @@ interface ServerSourceFile extends SourceFile {
 }
 
 interface ServerWorkspaceFolder extends WorkspaceFolder {
-  // Remember path to URL conversion for workspace folders.
+  // Remember path to URL conversion for workspace folders. This path must
+  // be resolved and normalized as other paths and have a trailing separator
+  // character so that we can test if a path is within a workspace using
+  // startsWith.
   path: string;
 }
 
@@ -73,7 +81,6 @@ interface CachedError {
 
 const serverHost: CompilerHost = {
   ...NodeHost,
-  resolveAbsolutePath,
   readFile,
   stat,
 };
@@ -144,7 +151,10 @@ function initialize(params: InitializeParams): InitializeResult {
   if (params.capabilities.workspace?.workspaceFolders) {
     clientHasWorkspaceFolderCapability = true;
     workspaceFolders =
-      params.workspaceFolders?.map((w) => ({ ...w, path: fileURLToPath(w.uri) })) ?? [];
+      params.workspaceFolders?.map((w) => ({
+        ...w,
+        path: ensureTrailingDirectorySeparator(resolvePath(fileURLToPath(w.uri))),
+      })) ?? [];
     capabilities.workspace = {
       workspaceFolders: {
         supported: true,
@@ -156,7 +166,7 @@ function initialize(params: InitializeParams): InitializeResult {
       {
         name: "<root>",
         uri: params.rootUri,
-        path: fileURLToPath(params.rootUri),
+        path: ensureTrailingDirectorySeparator(resolvePath(fileURLToPath(params.rootUri))),
       },
     ];
   } else if (params.rootPath) {
@@ -164,7 +174,7 @@ function initialize(params: InitializeParams): InitializeResult {
       {
         name: "<root>",
         uri: pathToFileURL(params.rootPath).href,
-        path: params.rootPath,
+        path: ensureTrailingDirectorySeparator(resolvePath(params.rootPath)),
       },
     ];
   }
@@ -561,13 +571,13 @@ async function getMainFileForDocument(path: string) {
     return path;
   }
 
-  let dir = dirname(path);
+  let dir = getDirectoryPath(path);
   const options = { allowFileNotFound: true };
 
   while (inWorkspace(dir)) {
     let mainFile = "main.cadl";
     let pkg: any;
-    const pkgPath = join(dir, "package.json");
+    const pkgPath = joinPaths(dir, "package.json");
     const cached = fileSystemCache.get(pkgPath)?.data;
 
     if (cached) {
@@ -581,7 +591,7 @@ async function getMainFileForDocument(path: string) {
       mainFile = pkg.cadlMain;
     }
 
-    const candidate = join(dir, mainFile);
+    const candidate = joinPaths(dir, mainFile);
     const stat = await doIO(
       () => serverHost.stat(candidate),
       candidate,
@@ -593,7 +603,7 @@ async function getMainFileForDocument(path: string) {
       return candidate;
     }
 
-    dir = dirname(dir);
+    dir = getDirectoryPath(dir);
   }
 
   return path;
@@ -614,7 +624,7 @@ function getPath(document: TextDocument | TextDocumentIdentifier) {
   if (isUntitled(document.uri)) {
     return document.uri;
   }
-  const path = fileURLToPath(document.uri);
+  const path = resolvePath(fileURLToPath(document.uri));
   pathToURLMap.set(path, document.uri);
   return path;
 }
@@ -633,14 +643,6 @@ function isUntitled(pathOrUrl: string) {
 function getDocument(path: string) {
   const url = getURL(path);
   return url ? documents.get(url) : undefined;
-}
-
-function resolveAbsolutePath(path: string): string {
-  if (isUntitled(path)) {
-    return path;
-  }
-  compilerAssert(isAbsolute(path), "Cannot use relative path in language server");
-  return normalize(path);
 }
 
 async function readFile(path: string): Promise<ServerSourceFile> {

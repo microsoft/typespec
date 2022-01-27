@@ -22,12 +22,32 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Ok",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HasNullables"
                 }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "num": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                },
+                "required": [
+                  "num"
+                ],
+                "nullable": true,
+                "x-cadl-name": "AnotherModel | Cadl.null"
               }
             }
           }
@@ -88,6 +108,14 @@
             ],
             "nullable": true,
             "x-cadl-name": "Cadl.null | 42 | Cadl.null | 100 | Cadl.null"
+          },
+          "arr": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "x-cadl-name": "Cadl.string[] | Cadl.null"
           }
         },
         "required": [
@@ -97,7 +125,8 @@
           "modelOrNull",
           "literalsOrNull",
           "manyNullsOneString",
-          "manyNullsSomeValues"
+          "manyNullsSomeValues",
+          "arr"
         ]
       }
     }

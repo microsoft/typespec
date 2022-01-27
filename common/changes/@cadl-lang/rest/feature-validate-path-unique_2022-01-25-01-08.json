@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "**Added** Validation for uniquness of operation by verb and path",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

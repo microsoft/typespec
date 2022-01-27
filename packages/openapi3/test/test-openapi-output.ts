@@ -377,6 +377,33 @@ describe("openapi3: definitions", () => {
     });
   });
 
+  it("defines nullable array", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        name: int32[] | null;
+      };
+      `
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          type: "array",
+          items: {
+            type: "integer",
+            format: "int32",
+          },
+          nullable: true,
+          "x-cadl-name": "Cadl.int32[] | Cadl.null",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
   it("defines enums with a nullable variant", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -434,7 +461,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op create(@body body: Cat | Dog): OkResponse<{}>;
+        @post op create(@body body: Cat | Dog): OkResponse<{}>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -452,7 +479,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op create(@body body: Cat | string): OkResponse<{}>;
+        @post op create(@body body: Cat | string): OkResponse<{}>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -473,7 +500,7 @@ describe("openapi3: definitions", () => {
     alias Pet = Cat | Dog;
     @route("/")
     namespace root {
-      op create(@body body: Pet): OkResponse<{}>;
+      @post op create(@body body: Pet): OkResponse<{}>;
     }
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -697,9 +724,10 @@ describe("openapi3: operations", () => {
       `
       @route("/thing")
       namespace root {
-        @get("{name}")
+        @get
+        @route("{name}")
         op getThing(
-          @format("^[a-zA-Z0-9-]{3,24}$")
+          @pattern("^[a-zA-Z0-9-]{3,24}$")
           @path name: string,
 
           @minValue(1)
@@ -721,116 +749,6 @@ describe("openapi3: operations", () => {
     ok(getThing.parameters[1].schema.maximum);
     strictEqual(getThing.parameters[1].schema.minimum, 1);
     strictEqual(getThing.parameters[1].schema.maximum, 10);
-  });
-});
-
-describe("openapi3: responses", () => {
-  it("define responses with response headers", async () => {
-    const res = await openApiFor(
-      `
-      model ETagHeader {
-        @header eTag: string;
-      }
-      model Key {
-        key: string;
-      }
-      @route("/")
-      namespace root {
-        @get()
-        op read(): Key & ETagHeader;
-      }
-      `
-    );
-    ok(res.paths["/"].get.responses["200"].headers);
-    ok(res.paths["/"].get.responses["200"].headers["e-tag"]);
-  });
-
-  it("defines responses with primitive types", async () => {
-    const res = await openApiFor(
-      `
-      @route("/")
-      namespace root {
-        @get()
-        op read(): string;
-      }
-      `
-    );
-    ok(res.paths["/"].get.responses["200"]);
-    ok(res.paths["/"].get.responses["200"].content);
-    strictEqual(
-      res.paths["/"].get.responses["200"].content["application/json"].schema.type,
-      "string"
-    );
-  });
-
-  describe("binary responses", () => {
-    it("bytes responses should default to application/json with byte format", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
-        @get op read(): bytes;
-      }
-      `
-      );
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["application/json"].schema.type, "string");
-      strictEqual(response.content["application/json"].schema.format, "byte");
-    });
-
-    it("@body body: bytes responses default to application/json with bytes format", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
-        @get op read(): {@body body: bytes};
-      }
-      `
-      );
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["application/json"].schema.type, "string");
-      strictEqual(response.content["application/json"].schema.format, "byte");
-    });
-
-    it("@header contentType text/plain should keep format to byte", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
-        @get op read(): {@header contentType: "text/plain", @body body: bytes};
-      }
-      `
-      );
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["text/plain"].schema.type, "string");
-      strictEqual(response.content["text/plain"].schema.format, "byte");
-    });
-
-    it("@header contentType not json or text should set format to binary", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
-        @get op read(): {@header contentType: "image/png", @body body: bytes};
-      }
-      `
-      );
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["image/png"].schema.type, "string");
-      strictEqual(response.content["image/png"].schema.format, "binary");
-    });
   });
 });
 
@@ -933,6 +851,37 @@ describe("openapi3: extension decorator", () => {
     strictEqual(oapi.components.parameters.PetId.name, "petId");
     strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
   });
+
+  it("check format and pattern decorator on model", async () => {
+    const oapi = await openApiFor(
+      `
+      model Pet extends PetId {
+        @pattern("^[a-zA-Z0-9-]{3,24}$")
+        name: string;
+      }
+      model PetId {
+        @path
+        @pattern("^[a-zA-Z0-9-]{3,24}$")
+        @format("UUID")
+        petId: string;
+      }
+      @route("/Pets")
+      namespace root {
+        @get()
+        op get(... PetId): Pet;
+      }
+      `
+    );
+    ok(oapi.paths["/Pets/{petId}"].get);
+    strictEqual(
+      oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
+      "#/components/parameters/PetId"
+    );
+    strictEqual(oapi.components.parameters.PetId.name, "petId");
+    strictEqual(oapi.components.schemas.Pet.properties.name.pattern, "^[a-zA-Z0-9-]{3,24}$");
+    strictEqual(oapi.components.parameters.PetId.schema.format, "UUID");
+    strictEqual(oapi.components.parameters.PetId.schema.pattern, "^[a-zA-Z0-9-]{3,24}$");
+  });
 });
 
 async function oapiForModel(name: string, modelDef: string) {
@@ -940,7 +889,7 @@ async function oapiForModel(name: string, modelDef: string) {
     ${modelDef};
     @route("/")
     namespace root {
-      op read(): ${name};
+      op read(): { @body body: ${name} };
     }
   `);
 

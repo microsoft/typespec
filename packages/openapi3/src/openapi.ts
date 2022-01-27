@@ -11,6 +11,7 @@ import {
   getMaxValue,
   getMinLength,
   getMinValue,
+  getPattern,
   getProperty,
   getServiceHost,
   getServiceNamespace,
@@ -28,20 +29,28 @@ import {
   NamespaceType,
   OperationType,
   Program,
+  resolvePath,
   Type,
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getAllRoutes, getDiscriminator, http, OperationDetails } from "@cadl-lang/rest";
+import {
+  getAllRoutes,
+  getDiscriminator,
+  http,
+  HttpOperationParameter,
+  HttpOperationParameters,
+  OperationDetails,
+} from "@cadl-lang/rest";
 import { getVersionRecords } from "@cadl-lang/versioning";
-import * as path from "path";
 import { reportDiagnostic } from "./lib.js";
 
-const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isStatusCode } = http;
+const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isHeader, isStatusCode } =
+  http;
 
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
-    outputFile: p.compilerOptions.swaggerOutputFile || path.resolve("./openapi.json"),
+    outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
   };
 
   const emitter = createOAPIEmitter(p, options);
@@ -312,8 +321,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       if (!program.compilerOptions.noEmit && !program.hasError()) {
         // Write out the OpenAPI document to the output path
         const outPath = version
-          ? path.resolve(options.outputFile.replace(".json", `.${version}.json`))
-          : path.resolve(options.outputFile);
+          ? resolvePath(options.outputFile.replace(".json", `.${version}.json`))
+          : resolvePath(options.outputFile);
 
         await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
       }
@@ -369,14 +378,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    emitEndpointParameters(op, op.parameters, parameters);
+    emitEndpointParameters(op, op.parameters, parameters.parameters);
     emitRequestBody(op, op.parameters, parameters);
     emitResponses(op.returnType);
   }
 
   function emitResponses(responseType: Type) {
     if (responseType.kind === "Union") {
-      for (const [i, option] of responseType.options.entries()) {
+      for (const option of responseType.options) {
         emitResponseObject(option);
       }
     } else {
@@ -394,95 +403,180 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function emitResponseObject(responseModel: Type) {
-    let statusCode = undefined;
-    let contentType = "application/json";
-    if (
-      responseModel.kind === "Model" &&
-      !responseModel.baseModel &&
-      responseModel.properties.size === 0
-    ) {
-      const isBinary = isBinaryPayload(responseModel, contentType);
-      const schema = isBinary
-        ? { type: "string", format: "binary" }
-        : mapCadlTypeToOpenAPI(responseModel);
-      if (schema) {
-        currentEndpoint.responses["200"] = {
-          description: getResponseDescription(responseModel, "200"),
-          content: {
-            [contentType]: {
-              schema: schema,
-            },
-          },
-        };
+    // Get explicity defined status codes
+    let statusCodes = getResponseStatusCodes(responseModel);
+
+    // Get explicitly defined content types
+    const contentTypes = getResponseContentTypes(responseModel);
+
+    // Get response headers
+    const headers = getResponseHeaders(responseModel);
+
+    // Get explicitly defined body
+    let bodyModel = getResponseBody(responseModel);
+
+    // If there is no explicit body, it should be conjured from the return type
+    // if it is a primitive type or it contains more than just response metadata
+    if (!bodyModel) {
+      if (responseModel.kind === "Model") {
+        if (mapCadlTypeToOpenAPI(responseModel)) {
+          bodyModel = responseModel;
+        } else {
+          const isResponseMetadata = (p: ModelTypeProperty) =>
+            isHeader(program, p) || isStatusCode(program, p);
+          const allProperties = (p: ModelType): ModelTypeProperty[] => {
+            return [...p.properties.values(), ...(p.baseModel ? allProperties(p.baseModel) : [])];
+          };
+          if (allProperties(responseModel).some((p) => !isResponseMetadata(p))) {
+            bodyModel = responseModel;
+          }
+        }
       } else {
-        currentEndpoint.responses["204"] = {
-          description: "No content",
-        };
+        // body is array or possibly something else
+        bodyModel = responseModel;
       }
-
-      return;
     }
 
-    let contentEntry: any = {};
-    let headers: any = {};
+    // If there is no explicit status code, set the default
+    if (statusCodes.length === 0) {
+      const defaultStatusCode = bodyModel ? "200" : "204";
+      statusCodes.push(defaultStatusCode);
+    }
 
-    let bodyModel = responseModel;
+    // If there is a body but no explicit content types, use application/json
+    if (bodyModel && contentTypes.length === 0) {
+      contentTypes.push("application/json");
+    }
+
+    if (!bodyModel && contentTypes.length > 0) {
+      reportDiagnostic(program, {
+        code: "content-type-ignored",
+        target: responseModel,
+      });
+    }
+
+    // Assertion: bodyModel <=> contentTypes.length > 0
+
+    // Put them into currentEndpoint.responses
+
+    for (const statusCode of statusCodes) {
+      if (currentEndpoint.responses[statusCode]) {
+        reportDiagnostic(program, {
+          code: "duplicate-response",
+          format: { statusCode },
+          target: responseModel,
+        });
+        continue;
+      }
+      const response: any = {
+        description: getResponseDescription(responseModel, statusCode),
+      };
+      if (Object.keys(headers).length > 0) {
+        response.headers = headers;
+      }
+
+      for (const contentType of contentTypes) {
+        response.content ??= {};
+        const isBinary = isBinaryPayload(bodyModel!, contentType);
+        const schema = isBinary ? { type: "string", format: "binary" } : getSchemaOrRef(bodyModel!);
+        response.content[contentType] = { schema };
+      }
+      currentEndpoint.responses[statusCode] = response;
+    }
+  }
+
+  // Get explicity defined status codes from response Model
+  // Return is an array of strings, possibly empty, which indicates no explicitly defined status codes.
+  // We do not check for duplicates here -- that will be done by the caller.
+  function getResponseStatusCodes(responseModel: Type): string[] {
+    const codes: string[] = [];
     if (responseModel.kind === "Model") {
+      if (responseModel.baseModel) {
+        codes.push(...getResponseStatusCodes(responseModel.baseModel));
+      }
       for (const prop of responseModel.properties.values()) {
-        if (isBody(program, prop)) {
-          if (bodyModel !== responseModel) {
-            reportDiagnostic(program, { code: "duplicate-body", target: responseModel });
-            continue;
-          }
-
-          bodyModel = prop.type;
-        }
         if (isStatusCode(program, prop)) {
-          if (statusCode) {
-            reportDiagnostic(program, { code: "duplicate-status-code", target: responseModel });
-            continue;
-          }
-          if (prop.type.kind === "Number") {
-            statusCode = String(prop.type.value);
-          } else if (prop.type.kind === "String") {
-            statusCode = prop.type.value;
-          }
-        }
-        const type = prop.type;
-        const headerName = getHeaderFieldName(program, prop);
-        switch (headerName) {
-          case undefined:
-            break;
-          case "content-type":
-            if (type.kind === "String") {
-              contentType = type.value;
+          if (prop.type.kind === "String") {
+            if (validStatusCode(prop.type.value, prop)) {
+              codes.push(prop.type.value);
             }
-            break;
-          default:
-            headers[headerName] = getResponseHeader(prop);
-            break;
+          } else if (prop.type.kind === "Number") {
+            if (validStatusCode(String(prop.type.value), prop)) {
+              codes.push(String(prop.type.value));
+            }
+          } else if (prop.type.kind === "Union") {
+            for (const option of prop.type.options) {
+              if (option.kind === "String") {
+                if (validStatusCode(option.value, option)) {
+                  codes.push(option.value);
+                }
+              } else if (option.kind === "Number") {
+                if (validStatusCode(String(option.value), option)) {
+                  codes.push(String(option.value));
+                }
+              } else {
+                reportDiagnostic(program, { code: "status-code-invalid", target: prop });
+              }
+            }
+          } else {
+            reportDiagnostic(program, { code: "status-code-invalid", target: prop });
+          }
         }
       }
     }
+    return codes;
+  }
 
-    const isBinary = isBinaryPayload(bodyModel, contentType);
-    contentEntry.schema = isBinary
-      ? { type: "string", format: "binary" }
-      : getSchemaOrRef(bodyModel);
-
-    // If no status code was defined in the response model, use 200.
-    statusCode ??= "200";
-
-    const response: any = {
-      description: getResponseDescription(responseModel, statusCode),
-      content: {
-        [contentType ?? "application/json"]: contentEntry,
-      },
-    };
-    if (Object.keys(headers).length > 0) {
-      response.headers = headers;
+  // Check status code value: 3 digits, 1 digit + "XX", or default
+  // Issue a diagnostic if not valid
+  function validStatusCode(code: string, entity: Type): boolean {
+    // regex for three character status codes:
+    // - starts with 1-5
+    // - last two digits are numeric or "X"
+    const statusCodePatten = /[1-5][-09X][0-9X]/;
+    if (code.match(statusCodePatten) || code === "default") {
+      return true;
     }
-    currentEndpoint.responses[statusCode] = response;
+    reportDiagnostic(program, {
+      code: "status-code-invalid",
+      target: entity,
+      messageId: "value",
+    });
+    return false;
+  }
+
+  // Note: these descriptions come from https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+  function getDescriptionForStatusCode(statusCode: string) {
+    switch (statusCode) {
+      case "2XX":
+        return "Successful";
+      case "200":
+        return "Ok";
+      case "201":
+        "Created";
+      case "202":
+        return "Accepted";
+      case "204":
+        return "No Content";
+      case "3XX":
+        return "Redirection";
+      case "4XX":
+        return "Client Error";
+      case "400":
+        return "Bad Request";
+      case "401":
+        return "Unauthorized";
+      case "403":
+        return "Forbidden";
+      case "404":
+        return "Not Found";
+      case "5XX":
+        return "Server Error";
+      case "default":
+        return "An unexpected error response";
+    }
+    // We might want to throw here -- rather than giving some default
+    return "A successful response";
   }
 
   function getResponseDescription(responseModel: Type, statusCode: string) {
@@ -491,10 +585,60 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return desc;
     }
 
-    if (statusCode === "default") {
-      return "An unexpected error response";
+    // We might want to throw here -- rather than giving some default
+    return getDescriptionForStatusCode(statusCode);
+  }
+
+  // Get explicity defined content-types from response Model
+  // Return is an array of strings, possibly empty, which indicates no explicitly defined content-type.
+  // We do not check for duplicates here -- that will be done by the caller.
+  function getResponseContentTypes(responseModel: Type): string[] {
+    const contentTypes: string[] = [];
+    if (responseModel.kind === "Model") {
+      if (responseModel.baseModel) {
+        contentTypes.push(...getResponseContentTypes(responseModel.baseModel));
+      }
+      for (const prop of responseModel.properties.values()) {
+        if (isHeader(program, prop) && getHeaderFieldName(program, prop) === "content-type") {
+          contentTypes.push(...getContentTypes(prop));
+        }
+      }
     }
-    return "A successful response";
+    return contentTypes;
+  }
+
+  // Get response headers from response Model
+  function getResponseHeaders(responseModel: Type) {
+    if (responseModel.kind === "Model") {
+      const responseHeaders: any = responseModel.baseModel
+        ? getResponseHeaders(responseModel.baseModel)
+        : {};
+      for (const prop of responseModel.properties.values()) {
+        const headerName = getHeaderFieldName(program, prop);
+        if (isHeader(program, prop) && headerName !== "content-type") {
+          responseHeaders[headerName] = getResponseHeader(prop);
+        }
+      }
+      return responseHeaders;
+    }
+    return {};
+  }
+
+  // Get explicity defined response body from response Model
+  // The "outermost" body is used -- so we only look at basemodel if no body is defined
+  function getResponseBody(responseModel: Type): Type | undefined {
+    if (responseModel.kind === "Model") {
+      const bodyProps = [...responseModel.properties.values()].filter((t) => isBody(program, t));
+      if (bodyProps.length === 0) {
+        return responseModel.baseModel ? getResponseBody(responseModel.baseModel) : undefined;
+      }
+      // Report all but first body as duplicate
+      for (const prop of bodyProps.slice(1)) {
+        reportDiagnostic(program, { code: "duplicate-body", target: prop });
+      }
+      return bodyProps[0].type;
+    }
+    return undefined;
   }
 
   function getResponseHeader(prop: ModelTypeProperty) {
@@ -595,27 +739,27 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function emitEndpointParameters(
     op: OperationType,
     parent: ModelType | undefined,
-    methodParams: ModelTypeProperty[]
+    parameters: HttpOperationParameter[]
   ) {
-    for (const param of methodParams) {
+    for (const { type, name, param } of parameters) {
       // If param is a global parameter, just skip it
       if (params.has(param)) {
         currentEndpoint.parameters.push(params.get(param));
         continue;
       }
-      const queryInfo = getQueryParamName(program, param);
-      const pathInfo = getPathParamName(program, param);
-      const headerInfo = getHeaderFieldName(program, param);
-      // Body parameters are handled elsewhere
 
-      if (pathInfo) {
-        emitParameter(parent, param, "path");
-      } else if (queryInfo) {
-        emitParameter(parent, param, "query");
-      } else if (headerInfo) {
-        if (headerInfo !== "content-type") {
-          emitParameter(parent, param, "header");
-        }
+      switch (type) {
+        case "path":
+          emitParameter(parent, param, "path");
+          break;
+        case "query":
+          emitParameter(parent, param, "query");
+          break;
+        case "header":
+          if (name !== "content-type") {
+            emitParameter(parent, param, "header");
+          }
+          break;
       }
     }
   }
@@ -623,16 +767,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function emitRequestBody(
     op: OperationType,
     parent: ModelType | undefined,
-    methodParams: ModelTypeProperty[]
+    parameters: HttpOperationParameters
   ) {
-    const bodyParams = methodParams.filter((p) => isBody(program, p));
-    if (bodyParams.length === 0) {
+    if (parameters.body === undefined) {
       return;
     }
-    if (bodyParams.length > 1) {
-      reportDiagnostic(program, { code: "duplicate-body", target: op });
-    }
-    const bodyParam = bodyParams[0];
+
+    const bodyParam = parameters.body;
     const bodyType = bodyParam.type;
 
     const requestBody: any = {
@@ -640,11 +781,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       content: {},
     };
 
-    const contentTypeParam = methodParams.find(
-      (p) => getHeaderFieldName(program, p) === "content-type"
+    const contentTypeParam = parameters.parameters.find(
+      (p) => p.type === "header" && p.name === "content-type"
     );
     const contentTypes = contentTypeParam
-      ? getContentTypes(contentTypeParam)
+      ? getContentTypes(contentTypeParam.param)
       : ["application/json"];
     for (let contentType of contentTypes) {
       const isBinary = isBinaryPayload(bodyType, contentType);
@@ -669,7 +810,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         } else {
           reportDiagnostic(program, {
             code: "content-type-string",
-            messageId: "unionOfString",
             target: param,
           });
           continue;
@@ -857,12 +997,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "UnionVariant":
         type = "model";
         break;
+      case "Array":
+        type = "array";
+        break;
       default:
-        reportUnsupportedUnion();
+        reportUnsupportedUnionType(nonNullOptions[0]);
         return {};
     }
 
-    if (type === "model") {
+    if (type === "model" || type === "array") {
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
         const schema: any = getSchemaForType(nonNullOptions[0]);
@@ -898,6 +1041,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     return schema;
+
+    function reportUnsupportedUnionType(type: Type) {
+      reportDiagnostic(program, {
+        code: "union-unsupported",
+        messageId: "type",
+        format: { kind: type.kind },
+        target: type,
+      });
+    }
 
     function reportUnsupportedUnion() {
       reportDiagnostic(program, { code: "union-unsupported", target: union });
@@ -1176,7 +1328,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function applyIntrinsicDecorators(cadlType: Type, target: any): any {
-    const pattern = getFormat(program, cadlType);
+    const formatStr = getFormat(program, cadlType);
+    if (isStringType(program, cadlType) && !target.format && formatStr) {
+      target = {
+        ...target,
+        format: formatStr,
+      };
+    }
+
+    const pattern = getPattern(program, cadlType);
     if (isStringType(program, cadlType) && !target.pattern && pattern) {
       target = {
         ...target,

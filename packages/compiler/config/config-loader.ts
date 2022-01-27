@@ -1,4 +1,4 @@
-import { basename, extname, join } from "path";
+import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../core/path-utils.js";
 import { SchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
 import { deepClone, deepFreeze, loadFile } from "../core/util.js";
@@ -25,7 +25,7 @@ export async function loadCadlConfigInDir(
   directoryPath: string
 ): Promise<CadlConfig> {
   for (const filename of configFilenames) {
-    const filePath = join(directoryPath, filename);
+    const filePath = joinPaths(directoryPath, filename);
     const config = await loadCadlConfigFile(host, filePath);
     if (config.diagnostics.length === 1 && config.diagnostics[0].code === "file-not-found") {
       continue;
@@ -42,9 +42,9 @@ export async function loadCadlConfigFile(
   host: CompilerHost,
   filePath: string
 ): Promise<CadlConfig> {
-  switch (extname(filePath)) {
+  switch (getAnyExtensionFromPath(filePath)) {
     case ".json":
-      if (basename(filePath) === "package.json") {
+      if (getBaseFileName(filePath) === "package.json") {
         return loadPackageJSONConfigFile(host, filePath);
       }
       return loadJSONConfigFile(host, filePath);

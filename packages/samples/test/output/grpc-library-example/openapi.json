@@ -134,7 +134,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No body returned"
           },
           "default": {
             "description": "An unexpected error response.",
@@ -185,7 +185,17 @@
         },
         "tags": [
           "LibraryService"
-        ]
+        ],
+        "requestBody": {
+          "description": "The name of the shelf we're removing books from and deleting.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/shelf_name"
+              }
+            }
+          }
+        }
       }
     },
     "/v1/shelves/{name}/books": {
@@ -221,7 +231,17 @@
         },
         "tags": [
           "LibraryService"
-        ]
+        ],
+        "requestBody": {
+          "description": "The book to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Book"
+              }
+            }
+          }
+        }
       },
       "get": {
         "operationId": "LibraryService_listBooks",
@@ -309,7 +329,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "No body returned"
           },
           "default": {
             "description": "An unexpected error response.",
@@ -479,6 +499,10 @@
           "shelves"
         ]
       },
+      "shelf_name": {
+        "type": "string",
+        "pattern": "shelves/\\w+"
+      },
       "Book": {
         "type": "object",
         "properties": {
@@ -524,10 +548,6 @@
         "required": [
           "books"
         ]
-      },
-      "shelf_name": {
-        "type": "string",
-        "pattern": "shelves/\\w+"
       },
       "ProtobufAny": {
         "type": "object",

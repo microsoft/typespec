@@ -25,7 +25,6 @@ import {
   EnumStatementNode,
   EnumType,
   ErrorType,
-  Expression,
   FunctionSymbol,
   FunctionType,
   IdentifierNode,
@@ -522,15 +521,12 @@ export function createChecker(program: Program): Checker {
     if (!sym) {
       return errorType;
     }
-    return checkTypeReferenceSymbol(
-      sym,
-      node.kind === SyntaxKind.TypeReference ? node.arguments : []
-    );
+    return checkTypeReferenceSymbol(sym, node);
   }
 
   function checkTypeReferenceSymbol(
     sym: TypeSymbol | DecoratorSymbol | FunctionSymbol | ProjectionSymbol,
-    nodeArgs: readonly Expression[]
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
   ): Type {
     if (sym.kind === "decorator") {
       program.reportDiagnostic(
@@ -550,7 +546,7 @@ export function createChecker(program: Program): Checker {
 
     const symbolLinks = getSymbolLinks(sym);
     let baseType;
-    let args = nodeArgs.map(getTypeForNode);
+    let args = node.kind === SyntaxKind.TypeReference ? node.arguments.map(getTypeForNode) : [];
     if (
       sym.node.kind === SyntaxKind.ModelStatement ||
       sym.node.kind === SyntaxKind.AliasStatement ||
@@ -563,7 +559,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "notTemplate",
-              target: sym,
+              target: node,
             })
           );
         }
@@ -600,7 +596,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "tooFew",
-              target: sym,
+              target: node,
             })
           );
           args = [...args, ...new Array(templateParameters.length - args.length).fill(errorType)];
@@ -609,7 +605,7 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-template-args",
               messageId: "tooMany",
-              target: sym,
+              target: node,
             })
           );
           args = args.slice(0, templateParameters.length);
@@ -624,7 +620,7 @@ export function createChecker(program: Program): Checker {
           createDiagnostic({
             code: "invalid-template-args",
             messageId: "notTemplate",
-            target: sym,
+            target: node,
           })
         );
       }
@@ -1432,7 +1428,7 @@ export function createChecker(program: Program): Checker {
       });
       return undefined;
     }
-    const heritageType = checkTypeReferenceSymbol(target, heritageRef.arguments);
+    const heritageType = checkTypeReferenceSymbol(target, heritageRef);
     pendingResolutions.delete(modelSymId);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
@@ -1466,7 +1462,7 @@ export function createChecker(program: Program): Checker {
       });
       return undefined;
     }
-    const isType = checkTypeReferenceSymbol(target, isExpr.arguments);
+    const isType = checkTypeReferenceSymbol(target, isExpr);
     pendingResolutions.delete(modelSymId);
 
     if (isType.kind !== "Model") {

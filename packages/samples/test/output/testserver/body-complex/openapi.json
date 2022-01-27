@@ -1,0 +1,1121 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "(title)",
+    "version": "0000-00-00"
+  },
+  "tags": [],
+  "paths": {
+    "/complex/basic/valid": {
+      "get": {
+        "operationId": "Complex_getValid",
+        "summary": "Get complex type {id: 2, name: 'abc', color: 'YELLOW'}",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Basic"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putValid",
+        "summary": "Please put {id: 2, name: 'abc', color: 'Magenta'}",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Basic"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/integer": {
+      "get": {
+        "operationId": "Complex_getInt",
+        "summary": "Get complex types with integer properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putInt",
+        "summary": "Put complex types with integer properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/long": {
+      "get": {
+        "operationId": "Complex_getLong",
+        "summary": "Get complex types with long properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LongWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putLong",
+        "summary": "Put complex types with long properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LongWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/float": {
+      "get": {
+        "operationId": "Complex_getFloat",
+        "summary": "Get complex types with float properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FloatWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putFloat",
+        "summary": "Put complex types with float properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FloatWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/double": {
+      "get": {
+        "operationId": "Complex_getDouble",
+        "summary": "Get complex types with double properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoubleWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putDouble",
+        "summary": "Put complex types with double properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DoubleWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/bool": {
+      "get": {
+        "operationId": "Complex_getBool",
+        "summary": "Get complex types with bool properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putBool",
+        "summary": "Put complex types with bool properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BooleanWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/string": {
+      "get": {
+        "operationId": "Complex_getString",
+        "summary": "Get complex types with string properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putString",
+        "summary": "Put complex types with string properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StringWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/date": {
+      "get": {
+        "operationId": "Complex_getPlainDate",
+        "summary": "Get complex types with date properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlainDateWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putPlainDate",
+        "summary": "Put complex types with date properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlainDateWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/datetime": {
+      "get": {
+        "operationId": "Complex_getZonedDateTime",
+        "summary": "Get complex types with DateTime properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DateTimeWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putZonedDateTime",
+        "summary": "Put complex types with DateTime properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateTimeWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/duration": {
+      "get": {
+        "operationId": "Complex_getZonedDuration",
+        "summary": "Get complex types with Duration properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DurationWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putZonedDuration",
+        "summary": "Put complex types with Duration properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DurationWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/primitive/bytes": {
+      "get": {
+        "operationId": "Complex_getBytes",
+        "summary": "Get complex types with bytes properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BytesWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putBytes",
+        "summary": "Put complex types with bytes properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BytesWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/array/valid": {
+      "get": {
+        "operationId": "Complex_getArray",
+        "summary": "Get complex types with array properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArrayWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Complex_putArray",
+        "summary": "Put complex types with array properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArrayWrapper"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex/dictionary/typed/valid": {
+      "get": {
+        "operationId": "Dictionary_getDictionary",
+        "summary": "Get complex types with dictionary property",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DictionaryWrapper"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Dictionary_putArray",
+        "summary": "Put complex types with dictionary property",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-cadl-name": "(anonymous model)"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DictionaryWrapper"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Basic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "x-cadl-name": "Cadl.int32 | Cadl.null",
+            "description": "Basic Id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name property with a very long description that does not fit on a single line and a line break."
+          },
+          "color": {
+            "$ref": "#/components/schemas/CMYKColors"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "color"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "description": "Error",
+        "required": [
+          "message"
+        ]
+      },
+      "IntWrapper": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "field2": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "field1",
+          "field2"
+        ]
+      },
+      "LongWrapper": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "field2": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "field1",
+          "field2"
+        ]
+      },
+      "FloatWrapper": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "number",
+            "format": "float"
+          },
+          "field2": {
+            "type": "number",
+            "format": "float"
+          }
+        },
+        "required": [
+          "field1",
+          "field2"
+        ]
+      },
+      "DoubleWrapper": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "number",
+            "format": "double"
+          },
+          "field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "field1",
+          "field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose"
+        ]
+      },
+      "BooleanWrapper": {
+        "type": "object",
+        "properties": {
+          "field_true": {
+            "type": "boolean"
+          },
+          "field_false": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "field_true",
+          "field_false"
+        ]
+      },
+      "StringWrapper": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "empty": {
+            "type": "string"
+          },
+          "null": {
+            "type": "string",
+            "nullable": true,
+            "x-cadl-name": "Cadl.string | Cadl.null"
+          }
+        },
+        "required": [
+          "field",
+          "empty",
+          "null"
+        ]
+      },
+      "PlainDateWrapper": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "format": "date"
+          },
+          "leap": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "field",
+          "leap"
+        ]
+      },
+      "DateTimeWrapper": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "now": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "field",
+          "now"
+        ]
+      },
+      "DurationWrapper": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "format": "duration"
+          }
+        },
+        "required": [
+          "field"
+        ]
+      },
+      "BytesWrapper": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "required": [
+          "field"
+        ]
+      },
+      "ArrayWrapper": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-cadl-name": "Cadl.string[]"
+          }
+        },
+        "required": [
+          "field"
+        ]
+      },
+      "DictionaryWrapper": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "field"
+        ]
+      },
+      "CMYKColors": {
+        "type": "string",
+        "enum": [
+          "cyan",
+          "Magenta",
+          "YELLOW",
+          "blacK"
+        ]
+      }
+    }
+  }
+}

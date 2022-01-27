@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Internals: switch to internal path manipulatio",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

@@ -1,13 +1,20 @@
 import fs from "fs";
-import { readFile, realpath, stat, writeFile } from "fs/promises";
+import { readdir, readFile, realpath, rmdir, stat, writeFile } from "fs/promises";
 import mkdirp from "mkdirp";
 import fetch from "node-fetch";
-import { isAbsolute, join, resolve } from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { createConsoleSink } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
-import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "./types.js";
+import { isPathAbsolute, isUrl, joinPaths, resolvePath } from "./path-utils.js";
+import {
+  CompilerHost,
+  Diagnostic,
+  DiagnosticTarget,
+  NoTarget,
+  RemoveDirOptions,
+  SourceFile,
+} from "./types.js";
 
 export const cadlVersion = getVersion();
 
@@ -128,12 +135,13 @@ export const NodeHost: CompilerHost = {
   },
   readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
-  resolveAbsolutePath: (path: string) => resolve(path),
-  getExecutionRoot: () => resolve(fileURLToPath(import.meta.url), "../../../"),
+  readDir: (path: string) => readdir(path),
+  removeDir: (path: string, options: RemoveDirOptions) => rmdir(path, options),
+  getExecutionRoot: () => resolvePath(fileURLToPath(import.meta.url), "../../../"),
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {
     const rootDir = this.getExecutionRoot();
-    return [join(rootDir, "lib")];
+    return [joinPaths(rootDir, "lib")];
   },
   stat(path: string) {
     return stat(path);
@@ -155,21 +163,12 @@ export async function readUrlOrPath(host: CompilerHost, pathOrUrl: string): Prom
 export function resolveRelativeUrlOrPath(base: string, relativeOrAbsolute: string): string {
   if (isUrl(relativeOrAbsolute)) {
     return relativeOrAbsolute;
-  } else if (isAbsolute(relativeOrAbsolute)) {
+  } else if (isPathAbsolute(relativeOrAbsolute)) {
     return relativeOrAbsolute;
   } else if (isUrl(base)) {
     return new URL(relativeOrAbsolute, base).href;
   } else {
-    return resolve(base, relativeOrAbsolute);
-  }
-}
-
-function isUrl(url: string) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
+    return resolvePath(base, relativeOrAbsolute);
   }
 }
 

@@ -49,6 +49,7 @@ model PetId {
 @route("/pets")
 namespace Pets {
   @doc("Delete a pet.")
+  @delete
   op delete(...PetId): OkResponse<{}> | Error;
 
   @fancyDoc("List pets.")
@@ -58,7 +59,7 @@ namespace Pets {
   @doc("Returns a pet. Supports eTags.")
   op read(...PetId): OkResponse<Pet> | NotModified<Pet> | Error;
 
-  op create(@body pet: Pet): OkResponse<Pet> | Error;
+  @post op create(@body pet: Pet): OkResponse<Pet> | Error;
 }
 
 @route("/pets/{petId}/toys")

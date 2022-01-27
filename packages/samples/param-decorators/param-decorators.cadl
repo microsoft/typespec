@@ -9,7 +9,8 @@ using Cadl.Http;
 namespace Operations {
   @route("{name}")
   op getThing(
-    @format("^[a-zA-Z0-9-]{3,24}$")
+    @pattern("^[a-zA-Z0-9-]{3,24}$")
+    @format("UUID")
     @path
     name: string,
 
@@ -21,16 +22,20 @@ namespace Operations {
 
   @route("{name}")
   @put
-  op putThing(...NameParameter): OkResponse<Thing>;
+  op putThing(...NameParameter, @body body: Thing): OkResponse<Thing>;
 }
 
 model Thing {
   name: string;
+
+  @format("UUID")
+  id: string;
 }
 
 model NameParameter {
   @doc("Name parameter")
-  @format("^[a-zA-Z0-9-]{3,24}$")
+  @pattern("^[a-zA-Z0-9-]{3,24}$")
+  @format("UUID")
   @path
   name: string;
 }

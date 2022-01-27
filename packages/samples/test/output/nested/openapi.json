@@ -7,7 +7,7 @@
   "tags": [],
   "paths": {
     "/sub/a/subsub": {
-      "get": {
+      "post": {
         "operationId": "SubSubA_doSomething",
         "parameters": [],
         "responses": {
@@ -21,16 +21,25 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Root.SubA.SubSubA.Thing"
+              }
+            }
+          }
         }
       }
     },
     "/sub/b": {
-      "get": {
+      "post": {
         "operationId": "SubB_doSomething",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response",
+            "description": "Ok",
             "content": {
               "application/json": {
                 "schema": {
@@ -39,9 +48,44 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Root.SubB.Thing"
+              }
+            }
+          }
         }
       }
     }
   },
-  "components": {}
+  "components": {
+    "schemas": {
+      "Root.SubA.SubSubA.Thing": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "Root.SubB.Thing": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    }
+  }
 }

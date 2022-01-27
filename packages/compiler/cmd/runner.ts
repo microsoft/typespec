@@ -1,7 +1,8 @@
+import { realpath } from "fs/promises";
 import path from "path";
-import resolveModule from "resolve";
 import url from "url";
-
+import { resolveModule } from "../core/module-resolver.js";
+import { NodeHost } from "../core/util.js";
 /**
  * Run script given by relative path from @cadl-lang/compiler package root.
  * Prefer local install resolved from cwd over current package.
@@ -9,35 +10,29 @@ import url from "url";
  * Prevents loading two conflicting copies of Cadl modules from global and
  * local package locations.
  */
-export function runScript(relativePath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    resolveModule(
-      "@cadl-lang/compiler",
-      {
-        basedir: process.cwd(),
-        preserveSymlinks: false,
-      },
-      (err, resolved) => {
-        let packageRoot: string;
-        if (err) {
-          if ((err as any).code === "MODULE_NOT_FOUND") {
-            // Resolution from cwd failed: use current package.
-            packageRoot = path.resolve(url.fileURLToPath(import.meta.url), "../../..");
-          } else {
-            reject(err);
-            return;
-          }
-        } else if (!resolved) {
-          reject(new Error("BUG: Module resolution succeeded, but didn't return a value."));
-          return;
-        } else {
-          // Resolution succeeded to dist/core/index.js in local package.
-          packageRoot = path.resolve(resolved, "../../..");
-        }
-        const script = path.join(packageRoot, relativePath);
-        const scriptUrl = url.pathToFileURL(script).toString();
-        resolve(import(scriptUrl));
-      }
+export async function runScript(relativePath: string): Promise<void> {
+  let packageRoot;
+  try {
+    const resolved = await resolveModule(NodeHost, "@cadl-lang/compiler", {
+      baseDir: process.cwd(),
+    });
+    packageRoot = path.resolve(resolved, "../../..");
+  } catch (err: any) {
+    if (err.code === "MODULE_NOT_FOUND") {
+      // Resolution from cwd failed: use current package.
+      packageRoot = path.resolve(await realpath(url.fileURLToPath(import.meta.url)), "../../..");
+    } else {
+      throw err;
+    }
+  }
+
+  if (packageRoot) {
+    const script = path.join(packageRoot, relativePath);
+    const scriptUrl = url.pathToFileURL(script).toString();
+    import(scriptUrl);
+  } else {
+    throw new Error(
+      "Couldn't resolve Cadl compiler root. This is unexpected. Please file an issue at https://github.com/Microsoft/cadl."
     );
-  });
+  }
 }
