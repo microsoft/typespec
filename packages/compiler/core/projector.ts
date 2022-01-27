@@ -1,7 +1,8 @@
-import { ArrayType, EnumMemberType, TupleType, UnionTypeVariant } from ".";
 import { Program } from "./program";
 import {
+  ArrayType,
   DecoratorApplication,
+  EnumMemberType,
   EnumType,
   InterfaceType,
   ModelType,
@@ -11,8 +12,10 @@ import {
   ProjectionApplication,
   Projector,
   SyntaxKind,
+  TupleType,
   Type,
   UnionType,
+  UnionTypeVariant,
 } from "./types.js";
 
 function foo() {}
