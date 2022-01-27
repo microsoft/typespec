@@ -48,6 +48,7 @@ export function createProjector(
 ): Projector {
   const projectedTypes = new Map<Type, Type>();
   const checker = program.checker!;
+  const neverType = checker.neverType;
   let scope: Type[] = [];
   const projector: Projector = {
     projectedTypes,
@@ -324,7 +325,7 @@ export function createProjector(
 
     for (const [key, variant] of union.variants) {
       const projectedVariant = projectType(variant);
-      if (projectedVariant.kind === "UnionVariant") {
+      if (projectedVariant.kind === "UnionVariant" && projectedVariant.type !== neverType) {
         variants.set(key, projectedVariant);
       }
     }

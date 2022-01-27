@@ -429,6 +429,27 @@ describe("cadl: projections", () => {
       const result = (await testProjection(code)) as UnionType;
       ok(!result.variants.has("bar_prop"));
     });
+
+    it("removes variants projected to never", async () => {
+      const code = `
+        model Bar { }
+        @test union Foo {
+          a: string;
+          b: Bar;
+        }
+        #suppress "projections-are-experimental"
+        projection Bar#test {
+          to {
+            return never;
+          }
+        }
+      `;
+
+      const result = (await testProjection(code)) as UnionType;
+      strictEqual(result.variants.size, 1);
+      ok(result.variants.has("a"));
+      ok(!result.variants.has("b"));
+    });
   });
 
   describe("operations", () => {
