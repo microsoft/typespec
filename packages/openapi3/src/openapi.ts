@@ -244,12 +244,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   return { emitOpenAPI };
 
-  function initializeEmitter() {
+  function initializeEmitter(version?: string) {
     root = {
       openapi: "3.0.0",
       info: {
         title: getServiceTitle(program),
-        version: getServiceVersion(program),
+        version: version ?? getServiceVersion(program),
       },
       tags: [],
       paths: {},
@@ -305,7 +305,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   async function emitOpenAPIFromVersion(version?: string) {
-    initializeEmitter();
+    initializeEmitter(version);
     try {
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();

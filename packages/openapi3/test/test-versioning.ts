@@ -1,4 +1,4 @@
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, strictEqual } from "assert";
 import { openApiFor } from "./testHost.js";
 
 describe("openapi3: versioning", () => {
@@ -12,6 +12,7 @@ describe("openapi3: versioning", () => {
       @versioned("1" | "2" | "3")
       @versionedDependency(MyLibrary, { "1": "A"; "2": "B"; "3": "C"; })
       @serviceTitle("My Service")
+      @serviceVersion("hi")
       namespace MyService {
         model Test {
           prop1: string;
@@ -37,7 +38,7 @@ describe("openapi3: versioning", () => {
     `,
       ["1", "2", "3"]
     );
-
+    strictEqual(v1.info.version, "1");
     deepStrictEqual(v1.components.schemas.Test, {
       type: "object",
       properties: {
@@ -48,6 +49,7 @@ describe("openapi3: versioning", () => {
       },
       required: ["prop1", "prop3", "prop5", "prop4"],
     });
+
     deepStrictEqual(v1.components.schemas["MyLibrary.Foo"], {
       type: "object",
       properties: {
@@ -55,6 +57,8 @@ describe("openapi3: versioning", () => {
       },
       required: ["prop1"],
     });
+
+    strictEqual(v2.info.version, "2");
     deepStrictEqual(v2.components.schemas.Test, {
       type: "object",
       properties: {
@@ -73,6 +77,8 @@ describe("openapi3: versioning", () => {
       },
       required: ["prop1", "prop2"],
     });
+
+    strictEqual(v3.info.version, "3");
     deepStrictEqual(v3.components.schemas.Test, {
       type: "object",
       properties: {

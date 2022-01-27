@@ -1,0 +1,13 @@
+import "@cadl-lang/versioning";
+
+@versioned(VERSIONS)
+namespace Library;
+
+alias VERSIONS = "1.0" | "1.1";
+
+model PetToy {
+  name: string;
+
+  @added("1.1")
+  material: string;
+}
