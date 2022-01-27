@@ -24,6 +24,12 @@ steps:
   - script: node common/scripts/install-run-rush.js test-official
     displayName: Test
 
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: "Cobertura"
+      summaryFileLocation: $(Build.SourcesDirectory)/packages/**/coverage/cobertura-coverage.xml
+    displayName: Publish code coverage
+
   - script: node common/scripts/install-run-rush.js check-format
     displayName: Check Formatting
 
