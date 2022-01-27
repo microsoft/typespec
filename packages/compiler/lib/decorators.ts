@@ -179,7 +179,7 @@ export function $pattern(program: Program, target: Type, pattern: string) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
