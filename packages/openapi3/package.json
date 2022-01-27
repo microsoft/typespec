@@ -26,7 +26,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "mocha",
-    "test-official": "nyc mocha --forbid-only"
+    "test-official": "c8 mocha --forbid-only"
   },
   "files": [
     "lib/*.cadl",
