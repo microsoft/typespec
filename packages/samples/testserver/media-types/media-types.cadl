@@ -1,4 +1,5 @@
 import "@cadl-lang/rest";
+import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
