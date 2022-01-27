@@ -71,7 +71,7 @@ function testBasicCurrentTgz(packages) {
 
   console.log("Generating package.json for basic-current");
   const packageJson = {
-    name: "basic-latest",
+    name: "current",
     dependencies: {
       "@cadl-lang/compiler": packages["@cadl-lang/compiler"],
       "@cadl-lang/rest": packages["@cadl-lang/rest"],
@@ -82,9 +82,9 @@ function testBasicCurrentTgz(packages) {
   writeFileSync(join(basicCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
   console.log("Generated package.json for basic-current");
 
-  console.log("Installing basic-latest dependencies");
+  console.log("Installing basic-current dependencies");
   runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicCurrentDir });
-  console.log("Installed basic-latest dependencies");
+  console.log("Installed basic-current dependencies");
 
   console.log("Running cadl compile .");
   runCadl(packages["@cadl-lang/compiler"], ["compile", ".", "--emit", "@cadl-lang/openapi3"], {
