@@ -7,7 +7,6 @@ import { createDiagnostic } from "./messages.js";
 import { resolveModule } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse } from "./parser.js";
-import { createProjector } from "./projector.js";
 import {
   getAnyExtensionFromPath,
   getDirectoryPath,
@@ -15,6 +14,7 @@ import {
   joinPaths,
   resolvePath,
 } from "./path-utils.js";
+import { createProjector } from "./projector.js";
 import {
   CadlScriptNode,
   CompilerHost,
