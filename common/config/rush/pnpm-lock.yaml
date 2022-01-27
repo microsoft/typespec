@@ -35,7 +35,6 @@ dependencies:
   mustache: 4.2.0
   node-fetch: 3.1.0
   node-watch: 0.7.2
-  nyc: 15.1.0
   onigasm: 2.2.5
   plist: 3.0.4
   prettier: 2.4.1
@@ -3766,19 +3765,20 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-tPUalJfjdFULaLEEH6//6FiuadvIbOPwB+pVlnBHYDJMwQsUrl2I4IY59JFrZNs+umJ7I+o3Km/cCnerhhGiLg==
+      integrity: sha512-sVJCvOmj86gf3MjITJbuH1kQ4cHiEq6docC+dD+QGUKGO6idUv8XZIFWnjKgBckLSJeZEKLjbkUBBjQJ+/33Mg==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
     dependencies:
       '@types/mocha': 7.0.2
       '@types/node': 14.0.27
+      c8: 7.11.0
       mocha: 8.3.2
       typescript: 4.4.4
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-J2GVtY7i0bqYlu6zD3ZS1HeKVQmjNZDKftDVaNw7Nc5j4wYuY4LVTHlqmY43X4LreBCeLI0AXJJwWmhUT2b32g==
+      integrity: sha512-QSAwyhWz2hnfNPcMjgBypWWGWNsyQQpmVLU9gf2Z1xB0ToXhLdQlE7UZeFwGsrXUD7242Zb7oSk+dgPfMAZ03w==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
@@ -3800,12 +3800,13 @@ packages:
     dependencies:
       '@types/mocha': 7.0.2
       '@types/node': 14.0.27
+      c8: 7.11.0
       mocha: 8.3.2
       typescript: 4.4.4
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-A1rXu6X1Qs3IFebpnmOc3L6yh42V69kth7nvOTxMc7zJWCTWpFUkpjv9oUQBv8rkVBibGlLTdtNGAIEwnfO0WQ==
+      integrity: sha512-Kc9ajCbu0qq0FNOVsOpLhPCP6ivlKIx5XyViSyVD8iwR9/CGVl21ttaq/WgfQvMFh5OwKmsYjPq043S84zHMMA==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -3882,7 +3883,6 @@ specifiers:
   mustache: ~4.2.0
   node-fetch: ~3.1.0
   node-watch: ~0.7.1
-  nyc: ~15.1.0
   onigasm: ~2.2.5
   plist: ~3.0.2
   prettier: ~2.4.1
