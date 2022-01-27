@@ -49,7 +49,8 @@ function testBasicLatest(packages) {
   console.log("Installed basic-latest dependencies");
 
   console.log("Running cadl compile .");
-  runCadl(packages["@cadl-lang/compiler"], ["compile", ".", "--emit", "@cadl-lang/openapi3"], {
+  // TODO after release of new cadl with emitter this will need to be updated with `, "--emit", "@cadl-lang/openapi3"`
+  runCadl(packages["@cadl-lang/compiler"], ["compile", "."], {
     cwd: basicLatestDir,
   });
   console.log("Completed cadl compile .");
