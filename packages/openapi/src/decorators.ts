@@ -18,23 +18,6 @@ export function getOperationId(program: Program, entity: Type): string | undefin
   return program.stateMap(operationIdsKey).get(entity);
 }
 
-const pageableOperationsKey = Symbol();
-export function $pageable(program: Program, entity: Type, nextLinkName: string = "nextLink") {
-  if (entity.kind !== "Operation") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "pageable", entityKind: entity.kind },
-      target: entity,
-    });
-    return;
-  }
-  program.stateMap(pageableOperationsKey).set(entity, nextLinkName);
-}
-
-export function getPageable(program: Program, entity: Type): string | undefined {
-  return program.stateMap(pageableOperationsKey).get(entity);
-}
-
 const refTargetsKey = Symbol();
 export function $useRef(program: Program, entity: Type, refUrl: string): void {
   if (entity.kind === "Model" || entity.kind === "ModelProperty") {
