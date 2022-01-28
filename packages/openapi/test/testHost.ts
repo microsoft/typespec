@@ -1,4 +1,4 @@
-import { resolvePath } from "@cadl-lang/compiler";
+import { formatDiagnostic, resolvePath } from "@cadl-lang/compiler";
 import { createTestHost } from "@cadl-lang/compiler/dist/test/test-host.js";
 import { fileURLToPath } from "url";
 
@@ -60,4 +60,13 @@ export async function compileAndDiagnose(code: string) {
     `import "rest"; import "openapi";using Cadl.Rest;using Cadl.Http;${code}`
   );
   return await host.compileAndDiagnose("./main.cadl");
+}
+
+export async function compile(code: string) {
+  const [result, diagnostics] = await compileAndDiagnose(code);
+  if (diagnostics.length > 0) {
+    let message = "Unexpected diagnostics:\n" + diagnostics.map(formatDiagnostic).join("\n");
+    throw new Error(message);
+  }
+  return result;
 }
