@@ -1,5 +1,5 @@
-import { strictEqual } from "assert";
-import { getDoc, getFriendlyName } from "../../lib/decorators.js";
+import { ok, strictEqual } from "assert";
+import { getDoc, getFriendlyName, isErrorModel } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
 describe("compiler: built-in decorators", () => {
@@ -94,6 +94,38 @@ describe("compiler: built-in decorators", () => {
       strictEqual(getFriendlyName(testHost.program, A), "MyNameIsA");
       strictEqual(getFriendlyName(testHost.program, B), "BModel");
       strictEqual(getFriendlyName(testHost.program, C), "TemplatedB");
+    });
+  });
+
+  describe("@error", () => {
+    it("applies @error on model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test
+        @error
+        model A { }
+        `
+      );
+
+      const { A } = await testHost.compile("./");
+      ok(isErrorModel(testHost.program, A), "isError should be true");
+    });
+
+    it("emit diagnostic if error is not applied to a model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @error
+        enum A { B, C }
+        `
+      );
+
+      const [_, diagnostics] = await testHost.compileAndDiagnose("./");
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "decorator-wrong-target");
+      strictEqual(diagnostics[0].message, `The @error decorator can only be applied to models.`);
     });
   });
 });
