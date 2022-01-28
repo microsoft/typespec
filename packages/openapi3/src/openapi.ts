@@ -7,6 +7,7 @@ import {
   getAllTags,
   getDoc,
   getFormat,
+  getFriendlyName,
   getMaxLength,
   getMaxValue,
   getMinLength,
@@ -1255,8 +1256,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getTypeNameForSchemaProperties(type: Type) {
+    // If there's a friendly name for the type, use that instead
+    let typeName = getFriendlyName(program, type);
+    if (typeName) {
+      return typeName;
+    }
+
     // Try to shorten the type name to exclude the top-level service namespace
-    let typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
+    typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
 
     if (isRefSafeName(typeName)) {
       if (serviceNamespace) {
