@@ -51,7 +51,9 @@ model PetId {
 namespace Pets {
   @doc("Delete a pet.")
   @delete
-  op delete(...PetId): OkResponse<{}> | Error;
+  op delete(...PetId): {
+    ...Response<200>;
+  } | Error;
 
   @fancyDoc("List pets.")
   @pageable
