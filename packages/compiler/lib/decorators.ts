@@ -130,6 +130,30 @@ export function isNumericType(program: Program, target: Type): boolean {
   return intrinsicType !== undefined && program.stateSet(numericTypesKey).has(intrinsicType);
 }
 
+// -- @error decorator ----------------------
+
+const errorKey = Symbol();
+
+export function $error(program: Program, target: Type) {
+  if (target.kind !== "Model") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "model",
+        format: { decorator: "@error" },
+        target,
+      })
+    );
+    return;
+  }
+
+  program.stateSet(errorKey).add(target);
+}
+
+export function isErrorModel(program: Program, target: Type): boolean {
+  return program.stateSet(errorKey).has(target);
+}
+
 // -- @format decorator ---------------------
 
 const formatValuesKey = Symbol();
