@@ -123,10 +123,10 @@ export async function createProgram(
     await loadCadlScript(sourceFile);
   }
 
-  await loadMain(mainFile, options);
+  const resolvedMain = await loadMain(mainFile, options);
 
-  if (options.emitters) {
-    await loadEmitters(mainFile, options.emitters);
+  if (resolvedMain && options.emitters) {
+    await loadEmitters(resolvedMain, options.emitters);
   }
 
   const checker = (program.checker = createChecker(program));
@@ -162,7 +162,10 @@ export async function createProgram(
     }
   }
 
-  async function loadDirectory(dir: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
+  async function loadDirectory(
+    dir: string,
+    diagnosticTarget: DiagnosticTarget | typeof NoTarget
+  ): Promise<string> {
     const pkgJsonPath = resolvePath(dir, "package.json");
     let [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
@@ -173,6 +176,7 @@ export async function createProgram(
       typeof pkg?.cadlMain === "string" ? pkg.cadlMain : "main.cadl"
     );
     await loadCadlFile(mainFile, diagnosticTarget);
+    return mainFile;
   }
 
   async function loadCadlFile(path: string, diagnosticTarget: DiagnosticTarget | typeof NoTarget) {
@@ -395,21 +399,28 @@ export async function createProgram(
     });
   }
 
-  async function loadMain(mainFile: string, options: CompilerOptions) {
-    const mainPath = resolvePath(mainFile);
-    const mainStat = await doIO(host.stat, mainPath, program.reportDiagnostic);
+  /**
+   * Load the main file from the given path
+   * @param mainPath Directory containing main.cadl or filename to load as main.
+   * @param options Compiler options.
+   * @returns
+   */
+  async function loadMain(mainPath: string, options: CompilerOptions): Promise<string | undefined> {
+    const resolvedMainPath = resolvePath(mainPath);
+    const mainStat = await doIO(host.stat, resolvedMainPath, program.reportDiagnostic);
     if (!mainStat) {
-      return;
+      return undefined;
     }
 
-    if (!(await checkForCompilerVersionMismatch(mainPath, mainStat.isDirectory()))) {
-      return;
+    if (!(await checkForCompilerVersionMismatch(resolvedMainPath, mainStat.isDirectory()))) {
+      return undefined;
     }
 
     if (mainStat.isDirectory()) {
-      await loadDirectory(mainPath, NoTarget);
+      return await loadDirectory(resolvedMainPath, NoTarget);
     } else {
-      await loadCadlFile(mainPath, NoTarget);
+      await loadCadlFile(resolvedMainPath, NoTarget);
+      return resolvedMainPath;
     }
   }
 

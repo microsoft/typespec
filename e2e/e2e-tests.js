@@ -7,11 +7,16 @@ const e2eTestDir = join(repoRoot, "e2e");
 const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
 
 function main() {
+  cleanE2EDirectory();
   const packages = packPackages();
   testBasicLatest(packages);
   testBasicCurrentTgz(packages);
 }
 main();
+
+function cleanE2EDirectory() {
+  run("git", ["clean", "-xfd"], { cwd: e2eTestDir });
+}
 
 function packPackages() {
   run("rush", ["publish", "--publish", "--pack", "--include-all"]);
@@ -86,7 +91,7 @@ function testBasicCurrentTgz(packages) {
   runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicCurrentDir });
   console.log("Installed basic-current dependencies");
 
-  console.log("Running cadl compile .");
+  console.log(`Running cadl compile . in "${basicCurrentDir}"`);
   runCadl(packages["@cadl-lang/compiler"], ["compile", ".", "--emit", "@cadl-lang/openapi3"], {
     cwd: basicCurrentDir,
   });
