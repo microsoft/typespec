@@ -11,6 +11,17 @@ import {
 
 export const namespace = "Cadl";
 
+function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
+  // Template parameters are not valid source objects, just skip them
+  if (sourceObject.kind === "TemplateParameter") {
+    return formatString;
+  }
+
+  return formatString.replace(/{(\w+)}/g, (_, propName) => {
+    return (sourceObject as any)[propName];
+  });
+}
+
 const docsKey = Symbol();
 export function $doc(program: Program, target: Type, text: string, sourceObject: Type) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
@@ -29,14 +40,7 @@ export function $doc(program: Program, target: Type, text: string, sourceObject:
 
   // If an object was passed in, use it to format the documentation string
   if (sourceObject) {
-    // Template parameters are not valid source objects, just skip them
-    if (sourceObject.kind === "ModelProperty") {
-      return;
-    }
-
-    text = text.replace(/{(\w+)}/g, (_, propName) => {
-      return (sourceObject as any)[propName];
-    });
+    text = replaceTemplatedStringFromProperties(text, sourceObject);
   }
 
   program.stateMap(docsKey).set(target, text);
@@ -589,4 +593,51 @@ export function validateDecoratorParamCount(
     });
     return;
   }
+}
+
+// -- @friendlyName decorator ---------------------
+
+const friendlyNamesKey = Symbol();
+
+export function $friendlyName(
+  program: Program,
+  target: Type,
+  friendlyName: string,
+  sourceObject: Type | undefined
+) {
+  // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
+  if (typeof friendlyName !== "string") {
+    reportDiagnostic(program, {
+      code: "invalid-argument",
+      format: {
+        value: program.checker!.getTypeName(friendlyName),
+        actual: typeof friendlyName,
+        expected: "string",
+      },
+      target,
+    });
+    return;
+  }
+
+  if (target.kind !== "Model") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@friendlyName", to: "model type" },
+        target,
+      })
+    );
+    return;
+  }
+
+  // If an object was passed in, use it to format the friendly name
+  if (sourceObject) {
+    friendlyName = replaceTemplatedStringFromProperties(friendlyName, sourceObject);
+  }
+
+  program.stateMap(friendlyNamesKey).set(target, friendlyName);
+}
+
+export function getFriendlyName(program: Program, target: Type): string {
+  return program.stateMap(friendlyNamesKey).get(target);
 }

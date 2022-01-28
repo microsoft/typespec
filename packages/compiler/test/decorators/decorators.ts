@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { getDoc } from "../../lib/decorators.js";
+import { getDoc, getFriendlyName } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
 describe("compiler: built-in decorators", () => {
@@ -64,6 +64,36 @@ describe("compiler: built-in decorators", () => {
         diagnostics[0].message,
         `Argument 'foo | bar' of type 'object' is not assignable to parameter of type 'string'`
       );
+    });
+  });
+
+  describe("@friendlyName", () => {
+    it("applies @doc on model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test
+        @friendlyName("MyNameIsA")
+        model A { }
+
+        @test
+        @friendlyName("{name}Model", B)
+        model B { }
+
+        @friendlyName("Templated{name}", T)
+        model Templated<T> {
+          prop: T;
+        }
+
+        @test
+        model C is Templated<B>{};
+        `
+      );
+
+      const { A, B, C } = await testHost.compile("./");
+      strictEqual(getFriendlyName(testHost.program, A), "MyNameIsA");
+      strictEqual(getFriendlyName(testHost.program, B), "BModel");
+      strictEqual(getFriendlyName(testHost.program, C), "TemplatedB");
     });
   });
 });

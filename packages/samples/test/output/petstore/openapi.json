@@ -102,7 +102,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResponsePage_Pet"
+                  "$ref": "#/components/schemas/PetListResults"
                 }
               }
             }
@@ -182,7 +182,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResponsePage_Toy"
+                  "$ref": "#/components/schemas/ToyListResults"
                 }
               }
             }
@@ -231,7 +231,7 @@
           "message"
         ]
       },
-      "ResponsePage_Pet": {
+      "PetListResults": {
         "type": "object",
         "properties": {
           "items": {
@@ -270,7 +270,7 @@
           "age"
         ]
       },
-      "ResponsePage_Toy": {
+      "ToyListResults": {
         "type": "object",
         "properties": {
           "items": {
