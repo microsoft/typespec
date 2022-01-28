@@ -19,6 +19,7 @@ import {
   getServiceTitle,
   getServiceVersion,
   getVisibility,
+  isErrorModel,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -384,8 +385,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     // If there is no explicit status code, set the default
     if (statusCodes.length === 0) {
-      const defaultStatusCode = bodyModel ? "200" : "204";
-      statusCodes.push(defaultStatusCode);
+      if (bodyModel) {
+        const defaultStatusCode = isErrorModel(program, bodyModel) ? "default" : "200";
+        statusCodes.push(defaultStatusCode);
+      } else {
+        statusCodes.push("204");
+      }
     }
 
     // If there is a body but no explicit content types, use application/json
