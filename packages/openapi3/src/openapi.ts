@@ -47,6 +47,23 @@ import { reportDiagnostic } from "./lib.js";
 const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isHeader, isStatusCode } =
   http;
 
+const pageableOperationsKey = Symbol();
+export function $pageable(program: Program, entity: Type, nextLinkName: string = "nextLink") {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "pageable", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(pageableOperationsKey).set(entity, nextLinkName);
+}
+
+function getPageable(program: Program, entity: Type): string | undefined {
+  return program.stateMap(pageableOperationsKey).get(entity);
+}
+
 export async function $onBuild(p: Program) {
   const options: OpenAPIEmitterOptions = {
     outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
