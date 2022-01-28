@@ -33,7 +33,7 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getExtensions, getOperationId, getRef } from "@cadl-lang/openapi";
+import { getExtensions, getOperationId } from "@cadl-lang/openapi";
 import {
   getAllRoutes,
   getDiscriminator,
@@ -71,6 +71,25 @@ export async function $onBuild(p: Program) {
 
   const emitter = createOAPIEmitter(p, options);
   await emitter.emitOpenAPI();
+}
+
+const refTargetsKey = Symbol();
+
+export function $useRef(program: Program, entity: Type, refUrl: string): void {
+  if (entity.kind === "Model" || entity.kind === "ModelProperty") {
+    program.stateMap(refTargetsKey).set(entity, refUrl);
+  } else {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      messageId: "modelsOperations",
+      format: { decoratorName: "useRef" },
+      target: entity,
+    });
+  }
+}
+
+function getRef(program: Program, entity: Type): string | undefined {
+  return program.stateMap(refTargetsKey).get(entity);
 }
 
 const oneOfKey = Symbol();
