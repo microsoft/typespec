@@ -484,6 +484,72 @@ describe("openapi3: return types", () => {
     ok(responses["204"].content === undefined);
   });
 
+  it("defaults status code to default when model has @error decorator", async () => {
+    const res = await openApiFor(
+      `
+      @error
+      model Error {
+        code: string;
+      }
+
+      model Foo {
+        foo: string;
+      }
+
+      @route("/")
+      namespace root {
+        @get
+        op get(): Foo | Error;
+      }
+      `
+    );
+    const responses = res.paths["/"].get.responses;
+    ok(responses["200"]);
+    ok(responses["200"].content);
+    deepStrictEqual(responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Foo",
+    });
+    ok(responses["default"]);
+    ok(responses["default"].content);
+    deepStrictEqual(responses["default"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Error",
+    });
+  });
+
+  it("uses explicit status code when model has @error decorator", async () => {
+    const res = await openApiFor(
+      `
+      @error
+      model Error {
+        @statusCode _: "400";
+        code: string;
+      }
+
+      model Foo {
+        foo: string;
+      }
+
+      @route("/")
+      namespace root {
+        @get
+        op get(): Foo | Error;
+      }
+      `
+    );
+    const responses = res.paths["/"].get.responses;
+    ok(responses["200"]);
+    ok(responses["200"].content);
+    deepStrictEqual(responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Foo",
+    });
+    ok(responses["400"]);
+    ok(responses["400"].content);
+    deepStrictEqual(responses["400"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Error",
+    });
+    ok(responses["default"] === undefined);
+  });
+
   it("defines body schema when explicit body has no content", async () => {
     const res = await openApiFor(
       `
