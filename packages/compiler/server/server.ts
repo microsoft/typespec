@@ -36,30 +36,31 @@ function main() {
     },
   };
 
-  server = createServer(host);
-  server.log(`Cadl language server v${cadlVersion}`);
-  server.log("Module", fileURLToPath(import.meta.url));
-  server.log("Command Line", process.argv);
+  const s = createServer(host);
+  server = s;
+  s.log(`Cadl language server v${cadlVersion}`);
+  s.log("Module", fileURLToPath(import.meta.url));
+  s.log("Command Line", process.argv);
 
   connection.onInitialize((params) => {
     if (params.capabilities.workspace?.workspaceFolders) {
       clientHasWorkspaceFolderCapability = true;
     }
-    return server!.initialize(params);
+    return s.initialize(params);
   });
 
   connection.onInitialized((params) => {
     if (clientHasWorkspaceFolderCapability) {
-      connection.workspace.onDidChangeWorkspaceFolders(server!.workspaceFoldersChanged);
+      connection.workspace.onDidChangeWorkspaceFolders(s.workspaceFoldersChanged);
     }
-    server!.initialized(params);
+    s.initialized(params);
   });
 
-  connection.onDidChangeWatchedFiles(server.watchedFilesChanged);
-  connection.onDefinition(server.gotoDefinition);
-  connection.onCompletion(server.complete);
-  documents.onDidChangeContent(server.checkChange);
-  documents.onDidClose(server.documentClosed);
+  connection.onDidChangeWatchedFiles(s.watchedFilesChanged);
+  connection.onDefinition(s.gotoDefinition);
+  connection.onCompletion(s.complete);
+  documents.onDidChangeContent(s.checkChange);
+  documents.onDidClose(s.documentClosed);
 
   documents.listen(connection);
   connection.listen();

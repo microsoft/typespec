@@ -451,7 +451,7 @@ export function createServer(host: ServerHost): Server {
         sym = sym.symbolSource;
       }
       if (sym.kind === "type") {
-        const type = program!.checker!.getTypeForNode(sym.node);
+        const type = program.checker!.getTypeForNode(sym.node);
         documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type, sym.node.kind);
       } else {
@@ -683,7 +683,7 @@ export function createServer(host: ServerHost): Server {
   async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
     // if we have an open document for the path or a cache entry, then we know
     // it's a file and not a directory and needn't hit the disk.
-    if (getDocument(path) || fileSystemCache.has(path)) {
+    if (getDocument(path) || fileSystemCache.get(path)?.type === "file") {
       return {
         isFile() {
           return true;
