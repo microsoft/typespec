@@ -9,6 +9,9 @@ common/scripts/
 common/changes/
 common/config/rush/pnpm-lock.yaml
 
+# Coverage report directory
+**/coverage/
+
 # These are standard and should not be edited
 SECURITY.md
 CODE_OF_CONDUCT.md

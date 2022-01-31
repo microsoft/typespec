@@ -18,5 +18,7 @@ namespace Time {
 
   @doc("Put time value \"08:07:56\"")
   @put
-  op put(@body value: plainTime): OkResponse<{}> | Error;
+  op put(@body value: plainTime): {
+    ...Response<200>;
+  } | Error;
 }

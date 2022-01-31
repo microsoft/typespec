@@ -37,8 +37,8 @@
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "dogfood": "node scripts/dogfood.js",
-    "test": "mocha --timeout 5000 --require source-map-support/register --ignore 'dist/test/manual/**/*.js' 'dist/test/**/*.js'",
-    "test-official": "mocha --forbid-only --timeout 5000 --require source-map-support/register --ignore 'dist/test/manual/**/*.js' 'dist/test/**/*.js'",
+    "test": "mocha",
+    "test-official": "c8 mocha --forbid-only",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run"
   },
@@ -68,6 +68,7 @@
     "@types/yargs": "~17.0.2",
     "grammarkdown": "~3.1.2",
     "mocha": "~8.3.2",
+    "c8": "~7.11.0",
     "prettier-plugin-organize-imports": "~1.1.1",
     "source-map-support": "~0.5.19",
     "typescript": "~4.4.4"
