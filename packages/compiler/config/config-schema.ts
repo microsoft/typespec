@@ -5,6 +5,10 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
   type: "object",
   additionalProperties: false,
   properties: {
+    extends: {
+      type: "string",
+      nullable: true,
+    },
     emitters: {
       type: "object",
       nullable: true,

@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { CadlConfigJsonSchema } from "../../config/config-schema.js";
-import { CadlRawConfig, loadCadlConfigInDir } from "../../config/index.js";
+import { CadlRawConfig, loadCadlConfigForPath } from "../../config/index.js";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { SchemaValidator } from "../../core/schema-validator.js";
 import { NodeHost } from "../../core/util.js";
@@ -14,28 +14,25 @@ describe("compiler: config file loading", () => {
     const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (folderName: string) => {
       const folderPath = join(scenarioRoot, folderName);
-      const { filename, ...config } = await loadCadlConfigInDir(NodeHost, folderPath);
+      const { filename, ...config } = await loadCadlConfigForPath(NodeHost, folderPath);
       return config;
     };
 
-    const assertLoadFromFolder = async (folderName: string) => {
-      const config = await loadTestConfig(folderName);
+    it("loads yaml config file", async () => {
+      const config = await loadTestConfig("simple");
       deepStrictEqual(config, {
         diagnostics: [],
         emitters: { openapi: true },
       });
-    };
-
-    it("loads yaml config file", async () => {
-      await assertLoadFromFolder("yaml");
     });
 
-    it("loads json config file", async () => {
-      await assertLoadFromFolder("json");
-    });
-
-    it("loads from cadl section in package.json config file", async () => {
-      await assertLoadFromFolder("package-json");
+    it("loads config file with extends", async () => {
+      const config = await loadTestConfig("extends");
+      deepStrictEqual(config, {
+        diagnostics: [],
+        extends: "./cadl-base.yaml",
+        emitters: { openapi: true },
+      });
     });
 
     it("loads empty config if it can't find any config files", async () => {
@@ -46,27 +43,24 @@ describe("compiler: config file loading", () => {
       });
     });
 
-    it("only loads first config file found", async () => {
-      // Should load .cadlrc.yaml and NOT load .cadlrc.json here
-      await assertLoadFromFolder("yaml-json");
-    });
-
     it("deep clones defaults when not found", async () => {
       let config = await loadTestConfig("empty");
       config.emitters["x"] = true;
 
       config = await loadTestConfig("empty");
       deepStrictEqual(config, {
+        diagnostics: [],
         emitters: {},
       });
     });
 
     it("deep clones defaults when found", async () => {
-      let config = await loadTestConfig("yaml");
+      let config = await loadTestConfig("simple");
       config.emitters["x"] = true;
 
-      config = await loadTestConfig("yaml");
+      config = await loadTestConfig("simple");
       deepStrictEqual(config, {
+        diagnostics: [],
         emitters: {
           openapi: true,
         },

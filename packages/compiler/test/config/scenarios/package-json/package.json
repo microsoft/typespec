@@ -1,7 +1,0 @@
-{
-  "cadl": {
-    "emitters": {
-      "openapi": true
-    }
-  }
-}

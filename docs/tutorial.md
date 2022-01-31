@@ -527,7 +527,7 @@ The emitter needs to be referenced either via the cli `--emit` option or configu
 cadl compile . --emit=@cadl-lang/openapi3
 ```
 
-or in the config file `.cadlrc.yaml`
+or in the config file `cadl-project.yaml`
 
 ```yaml
 emitters:
@@ -730,13 +730,8 @@ namespace Pets {
 
 ### CADL Config
 
-Cadl has a configuration file that right now is only used to configure the default emitter to use.
+Cadl has a configuration file `cadl-project.yaml` that right now is only used to configure the default emitter to use.
 The config file needs to be a sibling of the `package.json`. Cadl will look for the following files in that order and pick the 1st one found:
-
-- `.cadlrc.yaml`: Config as yaml
-- `.cadlrc.yml`: Config as yaml
-- `.cadlrc.json`: Config as json
-- `package.json`: Config as json under a `cadl` property.
 
 Configuration schema:
 

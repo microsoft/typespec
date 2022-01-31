@@ -1,6 +1,8 @@
 import { readdir } from "fs/promises";
+import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
+import { CadlConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
 import { getBaseFileName, joinPaths } from "../core/path-utils.js";
@@ -229,9 +231,8 @@ async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
   if (!config.config) {
     return;
   }
-  const jsyaml = await import("js-yaml");
   const content = jsyaml.dump(config.config);
-  return host.writeFile(joinPaths(config.directory, ".cadlrc.yaml"), content);
+  return host.writeFile(joinPaths(config.directory, CadlConfigFilename), content);
 }
 
 async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {

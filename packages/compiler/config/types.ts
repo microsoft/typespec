@@ -14,6 +14,11 @@ export interface CadlConfig {
    */
   diagnostics: Diagnostic[];
 
+  /**
+   * Path to another cadl config to extend.
+   */
+  extends?: string;
+
   emitters: Record<string, boolean>;
 }
 
@@ -23,5 +28,6 @@ export type RuleValue = "on" | "off" | {};
  * Represent the configuration that can be provided in a config file.
  */
 export interface CadlRawConfig {
+  extends?: string;
   emitters?: Record<string, boolean>;
 }

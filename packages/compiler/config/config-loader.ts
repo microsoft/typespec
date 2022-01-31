@@ -1,15 +1,46 @@
-import { getAnyExtensionFromPath, getBaseFileName, joinPaths } from "../core/path-utils.js";
+import jsyaml from "js-yaml";
+import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
 import { SchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
-import { deepClone, deepFreeze, findProjectRoot, loadFile } from "../core/util.js";
+import { deepClone, deepFreeze, doIO, loadFile } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
 import { CadlConfig } from "./types.js";
 
-const configFilenames = [".cadlrc.yaml", ".cadlrc.yml", ".cadlrc.json", "package.json"];
+export const CadlConfigFilename = "cadl-project.yaml";
+
 const defaultConfig: CadlConfig = deepFreeze({
   diagnostics: [],
   emitters: {},
 });
+
+/**
+ * Look for the project root by looking up until a `cadl-project.yaml` is found.
+ * @param path Path to start looking
+ * @param lookIn
+ */
+export async function findCadlConfigPath(
+  host: CompilerHost,
+  path: string
+): Promise<string | undefined> {
+  let current = path;
+  while (true) {
+    const pkgPath = joinPaths(current, CadlConfigFilename);
+    const stat = await doIO(
+      () => host.stat(pkgPath),
+      pkgPath,
+      () => {}
+    );
+
+    if (stat?.isFile()) {
+      return pkgPath;
+    }
+    const parent = getDirectoryPath(current);
+    if (parent === current) {
+      return undefined;
+    }
+    current = parent;
+  }
+}
 
 /**
  * Load the cadl configuration for the provided directory
@@ -20,28 +51,11 @@ export async function loadCadlConfigForPath(
   host: CompilerHost,
   directoryPath: string
 ): Promise<CadlConfig> {
-  const projectRoot = await findProjectRoot(host, directoryPath);
-  const configDir = projectRoot ?? directoryPath;
-  return loadCadlConfigInDir(host, configDir);
-}
-
-/**
- * Load Cadl Configuration if present.
- * @param directoryPath Current working directory where the config should be.
- */
-export async function loadCadlConfigInDir(
-  host: CompilerHost,
-  directoryPath: string
-): Promise<CadlConfig> {
-  for (const filename of configFilenames) {
-    const filePath = joinPaths(directoryPath, filename);
-    const config = await loadCadlConfigFile(host, filePath);
-    if (config.diagnostics.length === 1 && config.diagnostics[0].code === "file-not-found") {
-      continue;
-    }
-    return config;
+  const cadlConfigPath = await findCadlConfigPath(host, directoryPath);
+  if (cadlConfigPath === undefined) {
+    return deepClone(defaultConfig);
   }
-  return deepClone(defaultConfig);
+  return loadCadlConfigFile(host, cadlConfigPath);
 }
 
 /**
@@ -51,45 +65,27 @@ export async function loadCadlConfigFile(
   host: CompilerHost,
   filePath: string
 ): Promise<CadlConfig> {
-  switch (getAnyExtensionFromPath(filePath)) {
-    case ".json":
-      if (getBaseFileName(filePath) === "package.json") {
-        return loadPackageJSONConfigFile(host, filePath);
-      }
-      return loadJSONConfigFile(host, filePath);
+  const config = await loadConfigFile(host, filePath, jsyaml.load);
+  if (config.diagnostics.length === 0 && config.extends) {
+    const extendPath = resolvePath(getDirectoryPath(filePath), config.extends);
+    const parent = await loadCadlConfigFile(host, extendPath);
+    if (parent.diagnostics.length > 0) {
+      return {
+        ...config,
+        diagnostics: parent.diagnostics,
+      };
+    }
 
-    case ".yaml":
-    case ".yml":
-      return loadYAMLConfigFile(host, filePath);
-
-    default:
-      // This is not a diagnostic because the compiler only tries the
-      // well-known config file names.
-      throw new RangeError("Config file must have .yaml, .yml, or .json extension.");
+    return {
+      ...parent,
+      ...config,
+    };
   }
-}
 
-export async function loadPackageJSONConfigFile(
-  host: CompilerHost,
-  filePath: string
-): Promise<CadlConfig> {
-  return await loadConfigFile(host, filePath, (content) => JSON.parse(content).cadl ?? {});
-}
-
-export async function loadJSONConfigFile(
-  host: CompilerHost,
-  filePath: string
-): Promise<CadlConfig> {
-  return await loadConfigFile(host, filePath, JSON.parse);
-}
-
-export async function loadYAMLConfigFile(
-  host: CompilerHost,
-  filePath: string
-): Promise<CadlConfig> {
-  // Lazy load.
-  const jsyaml = await import("js-yaml");
-  return await loadConfigFile(host, filePath, jsyaml.load);
+  return {
+    ...defaultConfig,
+    ...config,
+  };
 }
 
 const configValidator = new SchemaValidator(CadlConfigJsonSchema);
@@ -113,25 +109,9 @@ async function loadConfigFile(
     // config. Otherwise, we may return an object that does not conform to
     // CadlConfig's typing.
     data = deepClone(defaultConfig);
-  } else {
-    mergeDefaults(data, defaultConfig);
   }
 
   data.filename = filePath;
   data.diagnostics = diagnostics;
   return data;
-}
-
-/**
- * Recursively add properties from defaults that are not present in target.
- */
-function mergeDefaults(target: any, defaults: any) {
-  for (const prop in defaults) {
-    const value = target[prop];
-    if (value === undefined) {
-      target[prop] = deepClone(defaults[prop]);
-    } else if (typeof value === "object" && typeof defaults[prop] === "object") {
-      mergeDefaults(value, defaults[prop]);
-    }
-  }
 }
