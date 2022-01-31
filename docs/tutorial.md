@@ -518,7 +518,7 @@ import "@cadl-lang/openapi3";
 
 ```
 
-#### Using emitter library
+#### Using emitter libraries
 
 The emitter needs to be referenced either via the cli `--emit` option or configured in the CADL config file.
 
