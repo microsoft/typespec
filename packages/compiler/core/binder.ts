@@ -1,5 +1,4 @@
 import { compilerAssert } from "./diagnostics.js";
-import { createDiagnostic } from "./messages.js";
 import { NodeFlags, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -18,7 +17,6 @@ import {
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
-  NoTarget,
   OperationStatementNode,
   ProjectionLambdaExpressionNode,
   ProjectionLambdaParameterDeclarationNode,
@@ -121,24 +119,8 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           name = getFunctionName(key);
           kind = "decorator";
           if (name === "onBuild") {
-            try {
-              program.onBuild(member as any);
-              continue;
-            } catch (err: any) {
-              if (program.compilerOptions.designTimeBuild) {
-                // do not exit the language server
-                program.reportDiagnostic(
-                  createDiagnostic({
-                    code: "on-build-fail",
-                    format: { error: err },
-                    target: NoTarget,
-                  })
-                );
-                continue;
-              } else {
-                throw err;
-              }
-            }
+            program.onBuild(member as any);
+            continue;
           }
         } else {
           name = key;
