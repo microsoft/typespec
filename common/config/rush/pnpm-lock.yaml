@@ -38,7 +38,7 @@ dependencies:
   onigasm: 2.2.5
   plist: 3.0.4
   prettier: 2.4.1
-  prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+  prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
   prompts: 2.4.2
   rollup: 2.41.5
   source-map-support: 0.5.20
@@ -2736,16 +2736,16 @@ packages:
       node: '>= 0.8.0'
     resolution:
       integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
-  /prettier-plugin-organize-imports/1.1.1_prettier@2.4.1+typescript@4.5.5:
+  /prettier-plugin-organize-imports/2.3.4_prettier@2.4.1+typescript@4.5.5:
     dependencies:
       prettier: 2.4.1
       typescript: 4.5.5
     dev: false
     peerDependencies:
-      prettier: '>=1.10'
-      typescript: '>=2.8.2'
+      prettier: '>=2.0'
+      typescript: '>=2.9'
     resolution:
-      integrity: sha512-rFA1lnek1FYkMGthm4xBKME41qUKItTovuo24bCGZu/Vu1n3gW71UPLAkIdwewwkZCe29gRVweSOPXvAdckFuw==
+      integrity: sha512-R8o23sf5iVL/U71h9SFUdhdOEPsi3nm42FD/oDYIZ2PQa4TNWWuWecxln6jlIQzpZTDMUeO1NicJP6lLn2TtRw==
   /prettier/2.4.1:
     dev: false
     engines:
@@ -3754,7 +3754,7 @@ packages:
       node-watch: 0.7.2
       nyc: 15.1.0
       prettier: 2.4.1
-      prettier-plugin-organize-imports: 1.1.1_prettier@2.4.1+typescript@4.5.5
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.4.1+typescript@4.5.5
       prompts: 2.4.2
       resolve: 1.20.0
       source-map-support: 0.5.20
@@ -3765,7 +3765,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-FEN6jZ0w+th4Z3fmDpj6lG5grtLpf2xVzaOjM06acU7t1WS4c4RiQRXmogFqz90RyKgqL1gnRyxKdSX8/wtiqA==
+      integrity: sha512-JMKc5OvI7OKDw3RTvsPFsRWoJKrSFUsXWcaqeuxEDhnBHBGGVCI5MBEr8+M6Yfmd8ZK2Q+cvmMLBtUH5/fPAxA==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -3886,7 +3886,7 @@ specifiers:
   onigasm: ~2.2.5
   plist: ~3.0.2
   prettier: ~2.4.1
-  prettier-plugin-organize-imports: ~1.1.1
+  prettier-plugin-organize-imports: ~2.3.4
   prompts: ~2.4.1
   rollup: ~2.41.4
   source-map-support: ~0.5.19
