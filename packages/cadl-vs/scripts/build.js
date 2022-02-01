@@ -1,6 +1,6 @@
-import { repoRoot, run } from "../../../eng/scripts/helpers.js";
-import { join } from "path";
 import { readFileSync } from "fs";
+import { join } from "path";
+import { repoRoot, run } from "../../../eng/scripts/helpers.js";
 
 if (process.platform !== "win32") {
   console.log("Skipping cadl-vs build: not on Windows.");
