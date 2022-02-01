@@ -1,7 +1,7 @@
 // @ts-check
-import { repoRoot, run } from "../eng/scripts/helpers.js";
-import { join } from "path";
 import { existsSync, readdirSync, rmSync, writeFileSync } from "fs";
+import { join } from "path";
+import { repoRoot, run } from "../eng/scripts/helpers.js";
 
 const e2eTestDir = join(repoRoot, "e2e");
 const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";

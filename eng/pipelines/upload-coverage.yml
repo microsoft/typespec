@@ -1,0 +1,9 @@
+steps:
+  - script: node common/scripts/install-run-rush.js merge-coverage
+    displayName: Merge code coverage
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: "Cobertura"
+      summaryFileLocation: $(Build.SourcesDirectory)/coverage/cobertura-coverage.xml
+    displayName: Publish code coverage

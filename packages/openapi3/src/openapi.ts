@@ -7,6 +7,7 @@ import {
   getAllTags,
   getDoc,
   getFormat,
+  getFriendlyName,
   getMaxLength,
   getMaxValue,
   getMinLength,
@@ -19,6 +20,7 @@ import {
   getServiceTitle,
   getServiceVersion,
   getVisibility,
+  isErrorModel,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -424,8 +426,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     // If there is no explicit status code, set the default
     if (statusCodes.length === 0) {
-      const defaultStatusCode = bodyModel ? "200" : "204";
-      statusCodes.push(defaultStatusCode);
+      if (bodyModel) {
+        const defaultStatusCode = isErrorModel(program, bodyModel) ? "default" : "200";
+        statusCodes.push(defaultStatusCode);
+      } else {
+        statusCodes.push("204");
+      }
     }
 
     // If there is a body but no explicit content types, use application/json
@@ -518,7 +524,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     // regex for three character status codes:
     // - starts with 1-5
     // - last two digits are numeric or "X"
-    const statusCodePatten = /[1-5][-09X][0-9X]/;
+    const statusCodePatten = /[1-5][0-9X][0-9X]/;
     if (code.match(statusCodePatten) || code === "default") {
       return true;
     }
@@ -545,6 +551,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return "No Content";
       case "3XX":
         return "Redirection";
+      case "301":
+        return "Moved Permanently";
+      case "304":
+        return "Not Modified";
       case "4XX":
         return "Client Error";
       case "400":
@@ -555,6 +565,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return "Forbidden";
       case "404":
         return "Not Found";
+      case "409":
+        return "Conflict";
+      case "412":
+        return "Precondition Failed";
       case "5XX":
         return "Server Error";
       case "default":
@@ -570,7 +584,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return desc;
     }
 
-    // We might want to throw here -- rather than giving some default
     return getDescriptionForStatusCode(statusCode);
   }
 
@@ -1289,8 +1302,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getTypeNameForSchemaProperties(type: Type) {
+    // If there's a friendly name for the type, use that instead
+    let typeName = getFriendlyName(program, type);
+    if (typeName) {
+      return typeName;
+    }
+
     // Try to shorten the type name to exclude the top-level service namespace
-    let typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
+    typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
 
     if (isRefSafeName(typeName)) {
       if (serviceNamespace) {
