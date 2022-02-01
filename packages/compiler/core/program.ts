@@ -332,8 +332,8 @@ export async function createProgram(
   }
 
   async function loadEmitters(mainFile: string, emitters: string[]) {
-    for (const [emitterPackage, emitterName] of emitters.map((x) => x.split(":"))) {
-      await loadEmitter(mainFile, emitterPackage, emitterName ?? "default");
+    for (const emitterPackage of emitters) {
+      await loadEmitter(mainFile, emitterPackage, "default");
     }
   }
 
