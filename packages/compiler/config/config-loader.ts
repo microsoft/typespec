@@ -83,7 +83,7 @@ export async function loadCadlConfigFile(
   }
 
   return {
-    ...defaultConfig,
+    ...deepClone(defaultConfig),
     ...config,
   };
 }
