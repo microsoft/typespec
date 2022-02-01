@@ -1,3 +1,4 @@
+import { inspect } from "util";
 import { createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
@@ -321,7 +322,7 @@ export function createChecker(program: Program): Checker {
       kind: "function",
       name: "log",
       value(p: Program, str: string): Type {
-        console.log(str);
+        program.logger.log({ level: "debug", message: str });
         return voidType;
       },
     });
@@ -330,8 +331,8 @@ export function createChecker(program: Program): Checker {
     cadlNamespaceNode!.exports!.set("inspect", {
       kind: "function",
       name: "inspect",
-      value(p: Program, str: Type): Type {
-        console.log(str);
+      value(p: Program, arg: Type): Type {
+        program.logger.log({ level: "debug", message: inspect(arg) });
         return voidType;
       },
     });
@@ -2176,7 +2177,7 @@ export function createChecker(program: Program): Checker {
       case "Enum":
         clone = finishType({
           ...type,
-          members: [...type.members.map((v) => cloneType(v))],
+          members: type.members.map((v) => cloneType(v)),
           ...additionalProps,
         });
         break;
@@ -2186,8 +2187,10 @@ export function createChecker(program: Program): Checker {
           ...additionalProps,
         });
     }
-    if (projectionsByType.has(type)) {
-      projectionsByType.set(clone, projectionsByType.get(type)!);
+
+    const projection = projectionsByType.get(type);
+    if (projection) {
+      projectionsByType.set(clone, projection);
     }
 
     return clone;
@@ -2583,7 +2586,6 @@ export function createChecker(program: Program): Checker {
   }
 
   function evalProjectionStatement(node: ProjectionNode, target: Type, args: Type[]): Type {
-    const parentProjection = node.parent! as ProjectionStatementNode;
     let topLevelProjection = false;
     if (!currentProjectionDirection) {
       topLevelProjection = true;

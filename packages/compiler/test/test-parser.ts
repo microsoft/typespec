@@ -544,6 +544,21 @@ describe("compiler: syntax", () => {
       const codes = exprs.map((exp) => `projection foo#tag { to { ${exp}; } }`);
       parseEach(codes);
     });
+
+    describe("recovery", () => {
+      parseErrorEach([
+        [`projection `, [/identifier, 'model', 'op', 'interface', 'union', or 'enum' expected/]],
+        [`projection x `, [/'#' expected/]],
+        [`projection x#`, [/Identifier expected/]],
+        [`projection x#f`, [/'{' expected/]],
+        [`projection x#f {`, [/'}' expected/]],
+        [`projection x#f { asdf`, [/from or to expected/]],
+        [`projection x#f { to (`, [/Identifier expected/]],
+        [`projection x#f { to @`, [/'{' expected/]],
+        [`projection x#f { to {`, [/} expected/]],
+        [`projection x#f { to {}`, [/'}' expected/]],
+      ]);
+    });
   });
 });
 

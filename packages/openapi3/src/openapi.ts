@@ -149,24 +149,8 @@ function getSecurityRequirements(program: Program, serviceNamespace: NamespaceTy
   return getSecurityDetails(program, serviceNamespace).requirements;
 }
 
-function setSecurityRequirements(
-  program: Program,
-  serviceNamespace: NamespaceType,
-  requirements: any[]
-) {
-  getSecurityDetails(program, serviceNamespace).requirements = requirements;
-}
-
 function getSecurityDefinitions(program: Program, serviceNamespace: NamespaceType) {
   return getSecurityDetails(program, serviceNamespace).definitions;
-}
-
-function setSecurityDefinitions(
-  program: Program,
-  serviceNamespace: NamespaceType,
-  definitions: any
-) {
-  getSecurityDetails(program, serviceNamespace).definitions = definitions;
 }
 
 export function addSecurityRequirement(
@@ -270,6 +254,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         },
       ];
     }
+
     serviceNamespace = getServiceNamespaceString(program);
     currentBasePath = "";
     currentPath = root.paths;

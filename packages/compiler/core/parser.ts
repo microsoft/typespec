@@ -1749,9 +1749,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           kind: SyntaxKind.ProjectionEnumSelector,
           ...finishNode(pos),
         };
+      default:
+        // recovery: return a missing identifier to use as the selector
+        // we don't need to emit a diagnostic here as the `expectTokenOneOf` above
+        // will have done so.
+        return createMissingIdentifier();
     }
-
-    throw new Error("Unknown token kind");
   }
 
   // utility functions

@@ -3,7 +3,6 @@ import "@cadl-lang/rest";
 import "./library.cadl";
 
 @serviceTitle("Pet Store Service")
-@serviceVersion("2021-03-25")
 @versioned(VERSIONS)
 @versionedDependency(
   Library,

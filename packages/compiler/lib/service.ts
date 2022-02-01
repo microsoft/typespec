@@ -1,6 +1,6 @@
 import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
-import { NamespaceType, Type } from "../core/types.js";
+import { NamespaceType, Projector, Type } from "../core/types.js";
 
 interface ServiceDetails {
   namespace?: NamespaceType;
@@ -9,12 +9,12 @@ interface ServiceDetails {
   host?: string;
 }
 
-const programServiceDetails = new WeakMap<Program, ServiceDetails>();
+const programServiceDetails = new WeakMap<Program | Projector, ServiceDetails>();
 function getServiceDetails(program: Program) {
-  let serviceDetails = programServiceDetails.get(program);
+  let serviceDetails = programServiceDetails.get(program.currentProjector ?? program);
   if (!serviceDetails) {
     serviceDetails = {};
-    programServiceDetails.set(program, serviceDetails);
+    programServiceDetails.set(program.currentProjector ?? program, serviceDetails);
   }
 
   return serviceDetails;
@@ -23,11 +23,9 @@ function getServiceDetails(program: Program) {
 export function setServiceNamespace(program: Program, namespace: NamespaceType): void {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.namespace && serviceDetails.namespace !== namespace) {
-    /*
     program.reportDiagnostic(
       createDiagnostic({ code: "service-namespace-duplicate", target: namespace })
     );
-    */
   }
 
   serviceDetails.namespace = namespace;
@@ -41,7 +39,6 @@ export function checkIfServiceNamespace(program: Program, namespace: NamespaceTy
 export function $serviceTitle(program: Program, target: Type, title: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.title) {
-    /*
     program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
@@ -49,7 +46,6 @@ export function $serviceTitle(program: Program, target: Type, title: string) {
         target,
       })
     );
-    */
   }
 
   if (target.kind !== "Namespace") {
@@ -75,7 +71,6 @@ export function getServiceTitle(program: Program): string {
 export function $serviceHost(program: Program, target: Type, host: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.version) {
-    /*
     program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
@@ -83,7 +78,6 @@ export function $serviceHost(program: Program, target: Type, host: string) {
         target,
       })
     );
-    */
   }
 
   if (target.kind !== "Namespace") {
@@ -113,9 +107,7 @@ export function setServiceHost(program: Program, host: string) {
 
 export function $serviceVersion(program: Program, target: Type, version: string) {
   const serviceDetails = getServiceDetails(program);
-  // TODO: This will need to change once we support multiple service versions
   if (serviceDetails.version) {
-    /*
     program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
@@ -123,7 +115,6 @@ export function $serviceVersion(program: Program, target: Type, version: string)
         target,
       })
     );
-    */
   }
 
   if (target.kind !== "Namespace") {
