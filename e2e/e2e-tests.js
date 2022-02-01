@@ -30,6 +30,7 @@ function packPackages() {
     "@cadl-lang/compiler": resolvePackage("cadl-lang-compiler-"),
     "@cadl-lang/openapi3": resolvePackage("cadl-lang-openapi3-"),
     "@cadl-lang/rest": resolvePackage("cadl-lang-rest-"),
+    "@cadl-lang/versioning": resolvePackage("cadl-lang-versioning-"),
   };
 }
 
@@ -73,6 +74,7 @@ function testBasicCurrentTgz(packages) {
       "@cadl-lang/compiler": packages["@cadl-lang/compiler"],
       "@cadl-lang/rest": packages["@cadl-lang/rest"],
       "@cadl-lang/openapi3": packages["@cadl-lang/openapi3"],
+      "@cadl-lang/versioning": packages["@cadl-lang/versioning"],
     },
     private: true,
   };

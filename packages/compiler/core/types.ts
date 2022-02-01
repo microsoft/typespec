@@ -21,6 +21,11 @@ export interface BaseType {
   kind: string;
   node?: Node;
   instantiationParameters?: Type[];
+  get projections(): ProjectionStatementNode[];
+  projectionsByName(name: string): ProjectionStatementNode[];
+  projectionSource?: Type;
+  projectionBase?: Type;
+  projector?: Projector;
 }
 
 export interface DecoratedType {
@@ -47,7 +52,44 @@ export type Type =
   | TupleType
   | UnionType
   | UnionTypeVariant
-  | IntrinsicType;
+  | IntrinsicType
+  | FunctionType
+  | ObjectType
+  | ProjectionType;
+
+export type TypeOrReturnRecord = Type | ReturnRecord;
+
+export interface FunctionType extends BaseType {
+  kind: "Function";
+  call(...args: any[]): Type;
+}
+
+export interface ObjectType extends BaseType {
+  kind: "Object";
+  properties: Record<string, Type>;
+}
+
+export interface ProjectionType extends BaseType {
+  kind: "Projection";
+  node: undefined;
+  nodeByKind: Map<string, ProjectionStatementNode>;
+  nodeByType: Map<Type, ProjectionStatementNode>;
+}
+
+export interface ProjectionApplication {
+  scope?: Type;
+  projectionName: string;
+  arguments: DecoratorArgument[];
+  direction?: "from" | "to";
+}
+
+export interface Projector {
+  projections: ProjectionApplication[];
+  projectedTypes: Map<Type, Type>;
+  projectType(type: Type): Type;
+  projectedStartNode?: Type;
+  projectedGlobalNamespace?: NamespaceType;
+}
 
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
@@ -56,6 +98,13 @@ export interface IntrinsicType extends BaseType {
 
 export interface ErrorType extends IntrinsicType {
   name: "ErrorType";
+}
+
+// represents a type that is being returned from the
+// currently executing lambda or projection
+export interface ReturnRecord {
+  kind: "Return";
+  value: Type;
 }
 
 export type IntrinsicModelName =
@@ -82,15 +131,23 @@ export type IntrinsicModelName =
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;
-  node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode;
+  node:
+    | ModelStatementNode
+    | ModelExpressionNode
+    | IntersectionExpressionNode
+    | ProjectionModelExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
   baseModel?: ModelType;
 }
 
-export interface ModelTypeProperty extends DecoratedType {
+export interface ModelTypeProperty extends BaseType, DecoratedType {
   kind: "ModelProperty";
-  node: ModelPropertyNode | ModelSpreadPropertyNode;
+  node:
+    | ModelPropertyNode
+    | ModelSpreadPropertyNode
+    | ProjectionModelPropertyNode
+    | ProjectionModelSpreadPropertyNode;
   name: string;
   type: Type;
   // when spread or intersection operators make new property types,
@@ -124,7 +181,7 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   value?: string | number;
 }
 
-export interface OperationType extends DecoratedType {
+export interface OperationType extends BaseType, DecoratedType {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
@@ -143,6 +200,7 @@ export interface NamespaceType extends BaseType, DecoratedType {
   operations: Map<string, OperationType>;
   namespaces: Map<string, NamespaceType>;
   interfaces: Map<string, InterfaceType>;
+  enums: Map<string, EnumType>;
   unions: Map<string, UnionType>;
 }
 
@@ -150,19 +208,19 @@ export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLitera
 
 export interface StringLiteralType extends BaseType {
   kind: "String";
-  node: StringLiteralNode;
+  node?: StringLiteralNode;
   value: string;
 }
 
 export interface NumericLiteralType extends BaseType {
   kind: "Number";
-  node: NumericLiteralNode;
+  node?: NumericLiteralNode;
   value: number;
 }
 
 export interface BooleanLiteralType extends BaseType {
   kind: "Boolean";
-  node: BooleanLiteralNode;
+  node?: BooleanLiteralNode;
   value: boolean;
 }
 
@@ -183,7 +241,7 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   name?: string;
   node: UnionExpressionNode | UnionStatementNode;
   namespace?: NamespaceType;
-  variants: Map<string | Symbol, Type>;
+  variants: Map<string | Symbol, UnionTypeVariant>;
   expression: boolean;
   readonly options: Type[];
 }
@@ -191,7 +249,7 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
 export interface UnionTypeVariant extends BaseType, DecoratedType {
   kind: "UnionVariant";
   name: string | Symbol;
-  node: UnionVariantNode;
+  node: UnionVariantNode | undefined;
   type: Type;
 }
 
@@ -200,8 +258,15 @@ export interface TemplateParameterType extends BaseType {
   node: TemplateParameterDeclarationNode;
 }
 
-// trying to avoid masking built-in Symbol
-// export type Sym = DecoratorSymbol | TypeSymbol;
+export interface ProjectionSymbol {
+  kind: "projection";
+  name: string;
+  node: ProjectionStatementNode;
+  byKind: Map<string, { to?: ProjectionNode; from?: ProjectionNode }>;
+  byId: Map<TypeReferenceNode, { to?: ProjectionNode; from?: ProjectionNode }>;
+  id?: number;
+  symbolSource?: ProjectionSymbol;
+}
 
 export interface DecoratorSymbol {
   kind: "decorator";
@@ -210,6 +275,12 @@ export interface DecoratorSymbol {
   value: (...args: any[]) => any;
 }
 
+export interface FunctionSymbol {
+  kind: "function";
+  name: string;
+  value: (...args: any[]) => any;
+  symbolSource?: FunctionSymbol;
+}
 export interface TypeSymbol {
   kind: "type";
   node: Node;
@@ -224,8 +295,8 @@ export interface UsingSymbol {
 }
 
 export type LocalSymbol = UsingSymbol | TypeSymbol;
-export type ExportSymbol = TypeSymbol | DecoratorSymbol;
-export type Sym = UsingSymbol | TypeSymbol | DecoratorSymbol;
+export type ExportSymbol = TypeSymbol | DecoratorSymbol | ProjectionSymbol | FunctionSymbol;
+export type Sym = LocalSymbol | ExportSymbol;
 
 export interface SymbolLinks {
   type?: Type;
@@ -282,12 +353,42 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
+  VoidKeyword,
+  NeverKeyword,
   TypeReference,
+  ProjectionReference,
   TemplateParameterDeclaration,
   EmptyStatement,
   InvalidStatement,
   LineComment,
   BlockComment,
+  Projection,
+  ProjectionParameterDeclaration,
+  ProjectionModelSelector,
+  ProjectionOperationSelector,
+  ProjectionUnionSelector,
+  ProjectionInterfaceSelector,
+  ProjectionEnumSelector,
+  ProjectionExpressionStatement,
+  ProjectionIfExpression,
+  ProjectionBlockExpression,
+  ProjectionMemberExpression,
+  ProjectionLogicalExpression,
+  ProjectionEqualityExpression,
+  ProjectionUnaryExpression,
+  ProjectionRelationalExpression,
+  ProjectionArithmeticExpression,
+  ProjectionCallExpression,
+  ProjectionLambdaExpression,
+  ProjectionLambdaParameterDeclaration,
+  ProjectionModelExpression,
+  ProjectionModelProperty,
+  ProjectionModelSpreadProperty,
+  ProjectionSpreadProperty,
+  ProjectionTupleExpression,
+  ProjectionStatement,
+  ProjectionDecoratorReferenceExpression,
+  Return,
 }
 
 export interface BaseNode extends TextRange {
@@ -304,6 +405,8 @@ export interface TemplateDeclarationNode {
 export type Node =
   | CadlScriptNode
   | TemplateParameterDeclarationNode
+  | ProjectionParameterDeclarationNode
+  | ProjectionLambdaParameterDeclarationNode
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
@@ -313,7 +416,18 @@ export type Node =
   | DecoratorExpressionNode
   | DirectiveExpressionNode
   | Statement
-  | Expression;
+  | Expression
+  | ProjectionStatementItem
+  | ProjectionExpression
+  | ProjectionModelSelectorNode
+  | ProjectionInterfaceSelectorNode
+  | ProjectionOperationSelectorNode
+  | ProjectionEnumSelectorNode
+  | ProjectionUnionSelectorNode
+  | ProjectionModelPropertyNode
+  | ProjectionModelSpreadPropertyNode
+  | ProjectionStatementNode
+  | ProjectionNode;
 
 export type Comment = LineComment | BlockComment;
 
@@ -347,10 +461,11 @@ export type Statement =
   | AliasStatementNode
   | OperationStatementNode
   | EmptyStatementNode
-  | InvalidStatementNode;
+  | InvalidStatementNode
+  | ProjectionStatementNode;
 
-export interface DeclarationNode {
-  readonly symbol: TypeSymbol; // tracks the symbol assigned to this declaration
+export interface DeclarationNode<SymbolKind = TypeSymbol> {
+  readonly symbol: SymbolKind; // tracks the symbol assigned to this declaration
   readonly namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
 }
 
@@ -361,6 +476,9 @@ export type Declaration =
   | NamespaceStatementNode
   | OperationStatementNode
   | TemplateParameterDeclarationNode
+  | ProjectionStatementNode
+  | ProjectionParameterDeclarationNode
+  | ProjectionLambdaParameterDeclarationNode
   | EnumStatementNode
   | AliasStatementNode;
 
@@ -369,7 +487,9 @@ export type ScopeNode =
   | ModelStatementNode
   | InterfaceStatementNode
   | AliasStatementNode
-  | CadlScriptNode;
+  | CadlScriptNode
+  | ProjectionLambdaExpressionNode
+  | ProjectionNode;
 
 export interface ImportStatementNode extends BaseNode {
   readonly kind: SyntaxKind.ImportStatement;
@@ -411,7 +531,38 @@ export type Expression =
   | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
-  | BooleanLiteralNode;
+  | BooleanLiteralNode
+  | VoidKeywordNode
+  | NeverKeywordNode;
+
+export type ProjectionExpression =
+  | ProjectionLogicalExpressionNode
+  | ProjectionRelationalExpressionNode
+  | ProjectionEqualityExpressionNode
+  | ProjectionUnaryExpressionNode
+  | ProjectionArithmeticExpressionNode
+  | ProjectionCallExpressionNode
+  | ProjectionMemberExpressionNode
+  | ProjectionDecoratorReferenceExpressionNode
+  | ProjectionTupleExpressionNode
+  | ProjectionModelExpressionNode
+  | ProjectionIfExpressionNode
+  | ProjectionBlockExpressionNode
+  | ProjectionLambdaExpressionNode
+  | StringLiteralNode
+  | NumericLiteralNode
+  | BooleanLiteralNode
+  | IdentifierNode
+  | VoidKeywordNode
+  | NeverKeywordNode
+  | ReturnExpressionNode;
+
+export type ReferenceExpression =
+  | TypeReferenceNode
+  | MemberExpressionNode
+  | IdentifierNode
+  | VoidKeywordNode
+  | NeverKeywordNode;
 
 export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
@@ -548,6 +699,19 @@ export interface BooleanLiteralNode extends BaseNode {
   readonly value: boolean;
 }
 
+export interface VoidKeywordNode extends BaseNode {
+  kind: SyntaxKind.VoidKeyword;
+}
+
+export interface NeverKeywordNode extends BaseNode {
+  kind: SyntaxKind.NeverKeyword;
+}
+
+export interface ReturnExpressionNode extends BaseNode {
+  kind: SyntaxKind.Return;
+  value: ProjectionExpression;
+}
+
 export interface UnionExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.UnionExpression;
   readonly options: readonly Expression[];
@@ -559,7 +723,13 @@ export interface IntersectionExpressionNode extends BaseNode {
 }
 
 export interface TypeReferenceNode extends BaseNode {
-  readonly kind: SyntaxKind.TypeReference;
+  kind: SyntaxKind.TypeReference;
+  target: MemberExpressionNode | IdentifierNode;
+  arguments: Expression[];
+}
+
+export interface ProjectionReferenceNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionReference;
   readonly target: MemberExpressionNode | IdentifierNode;
   readonly arguments: readonly Expression[];
 }
@@ -570,6 +740,198 @@ export interface TemplateParameterDeclarationNode extends BaseNode {
   symbol?: TypeSymbol;
 }
 
+// Projection-related Syntax
+
+export interface ProjectionModelSelectorNode extends BaseNode {
+  kind: SyntaxKind.ProjectionModelSelector;
+}
+
+export interface ProjectionInterfaceSelectorNode extends BaseNode {
+  kind: SyntaxKind.ProjectionInterfaceSelector;
+}
+
+export interface ProjectionOperationSelectorNode extends BaseNode {
+  kind: SyntaxKind.ProjectionOperationSelector;
+}
+
+export interface ProjectionUnionSelectorNode extends BaseNode {
+  kind: SyntaxKind.ProjectionUnionSelector;
+}
+
+export interface ProjectionEnumSelectorNode extends BaseNode {
+  kind: SyntaxKind.ProjectionEnumSelector;
+}
+
+export type ProjectionStatementItem = ProjectionExpressionStatement;
+
+export interface ProjectionParameterDeclarationNode extends BaseNode {
+  kind: SyntaxKind.ProjectionParameterDeclaration;
+  id: IdentifierNode;
+  symbol?: TypeSymbol;
+}
+
+export interface ProjectionExpressionStatement extends BaseNode {
+  kind: SyntaxKind.ProjectionExpressionStatement;
+  expr: ProjectionExpression;
+}
+
+export interface ProjectionLogicalExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionLogicalExpression;
+  op: "||" | "&&";
+  left: ProjectionExpression;
+  right: ProjectionExpression;
+}
+
+export interface ProjectionRelationalExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionRelationalExpression;
+  op: "<=" | "<" | ">" | ">=";
+  left: ProjectionExpression;
+  right: ProjectionExpression;
+}
+
+export interface ProjectionEqualityExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionEqualityExpression;
+  op: "==" | "!=";
+  left: ProjectionExpression;
+  right: ProjectionExpression;
+}
+
+export interface ProjectionArithmeticExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionArithmeticExpression;
+  op: "+" | "-" | "*" | "/";
+  left: ProjectionExpression;
+  right: ProjectionExpression;
+}
+
+export interface ProjectionUnaryExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionUnaryExpression;
+  op: "!";
+  target: ProjectionExpression;
+}
+
+export interface ProjectionCallExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionCallExpression;
+  callKind: "method" | "template";
+  target: ProjectionExpression;
+  arguments: ProjectionExpression[];
+}
+
+export interface ProjectionMemberExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionMemberExpression;
+  base: ProjectionExpression;
+  id: IdentifierNode;
+  selector: "." | "::";
+}
+
+export interface ProjectionModelExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionModelExpression;
+  properties: (ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode)[];
+}
+
+export interface ProjectionTupleExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionTupleExpression;
+  values: ProjectionExpression[];
+}
+
+export interface ProjectionModelPropertyNode extends BaseNode {
+  kind: SyntaxKind.ProjectionModelProperty;
+  id: IdentifierNode | StringLiteralNode;
+  value: ProjectionExpression;
+  decorators: DecoratorExpressionNode[];
+  optional: boolean;
+  default?: ProjectionExpression;
+}
+
+export interface ProjectionModelSpreadPropertyNode extends BaseNode {
+  kind: SyntaxKind.ProjectionModelSpreadProperty;
+  target: ProjectionExpression;
+}
+
+export interface ProjectionIfExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionIfExpression;
+  test: ProjectionExpression;
+  consequent: ProjectionBlockExpressionNode;
+  alternate?: ProjectionBlockExpressionNode | ProjectionIfExpressionNode;
+}
+
+export interface ProjectionBlockExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionBlockExpression;
+  statements: ProjectionStatementItem[];
+}
+
+export interface ProjectionLambdaExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionLambdaExpression;
+  parameters: ProjectionLambdaParameterDeclarationNode[];
+  locals?: SymbolTable<LocalSymbol>;
+  body: ProjectionBlockExpressionNode;
+}
+
+export interface ProjectionLambdaParameterDeclarationNode extends BaseNode {
+  kind: SyntaxKind.ProjectionLambdaParameterDeclaration;
+  id: IdentifierNode;
+  symbol?: TypeSymbol;
+}
+
+export interface ProjectionNode extends BaseNode {
+  kind: SyntaxKind.Projection;
+  direction: "to" | "from";
+  parameters: ProjectionParameterDeclarationNode[];
+  body: ProjectionStatementItem[];
+  locals?: SymbolTable<LocalSymbol>;
+}
+
+export interface ProjectionStatementNode extends BaseNode, DeclarationNode<ProjectionSymbol> {
+  kind: SyntaxKind.ProjectionStatement;
+  id: IdentifierNode;
+  selector:
+    | ProjectionModelSelectorNode
+    | ProjectionInterfaceSelectorNode
+    | ProjectionOperationSelectorNode
+    | ProjectionUnionSelectorNode
+    | ProjectionEnumSelectorNode
+    | MemberExpressionNode
+    | IdentifierNode;
+  to?: ProjectionNode;
+  from?: ProjectionNode;
+}
+
+export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
+  kind: SyntaxKind.ProjectionDecoratorReferenceExpression;
+  target: MemberExpressionNode | IdentifierNode;
+}
+
+export interface ProjectionInstructionBase {
+  op: string;
+}
+
+export interface ProjectionRenamePropertyInstruction extends ProjectionInstructionBase {
+  op: "renameProperty";
+  from: string;
+  to: string;
+}
+
+export interface ProjectionDeletePropertyInstruction extends ProjectionInstructionBase {
+  op: "deleteProperty";
+  name: string;
+}
+
+export interface ProjectionAddPropertyInstruction extends ProjectionInstructionBase {
+  op: "addProperty";
+  name: string;
+  type: Type;
+}
+
+export interface ProjectionProjectPropertyInstruction extends ProjectionInstructionBase {
+  op: "projectProperty";
+  name: string;
+  ops: ProjectionInstruction[];
+}
+
+export type ProjectionInstruction =
+  | ProjectionRenamePropertyInstruction
+  | ProjectionDeletePropertyInstruction
+  | ProjectionAddPropertyInstruction
+  | ProjectionProjectPropertyInstruction;
 /**
  * Identifies the position within a source file by line number and offset from
  * beginning of line.
@@ -601,7 +963,7 @@ export interface JsSourceFile {
   readonly esmExports: any;
 
   /* Exported "global scope" bindings */
-  exports?: SymbolTable<DecoratorSymbol>;
+  exports?: SymbolTable<DecoratorSymbol | FunctionSymbol>;
 
   /* Any namespaces declared by decorators. */
   readonly namespaces: readonly NamespaceStatementNode[];
@@ -748,8 +1110,9 @@ type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (
   ? I
   : never;
 
+type exitListener<T extends string | number | symbol> = T extends string ? `exit${T}` : T;
 type ListenerForType<T extends Type> = T extends Type
-  ? { [k in Uncapitalize<T["kind"]>]?: (context: T) => void }
+  ? { [k in Uncapitalize<T["kind"]> | exitListener<T["kind"]>]?: (context: T) => void }
   : never;
 
 type TypeListeners = UnionToIntersection<ListenerForType<Type>>;

@@ -15,6 +15,7 @@ import {
   getPattern,
   getProperty,
   getServiceHost,
+  getServiceNamespace,
   getServiceNamespaceString,
   getServiceTitle,
   getServiceVersion,
@@ -43,6 +44,7 @@ import {
   HttpOperationParameters,
   OperationDetails,
 } from "@cadl-lang/rest";
+import { getVersionRecords } from "@cadl-lang/versioning";
 import { reportDiagnostic } from "./lib.js";
 
 const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isHeader, isStatusCode } =
@@ -129,25 +131,28 @@ function getOneOf(program: Program, entity: Type): boolean {
 // the emitted OpenAPI document.
 
 const securityDetailsKey = Symbol();
-const securityRequirementsKey = "requirements";
-const securityDefinitionsKey = "definitions";
+interface SecurityDetails {
+  definitions: any;
+  requirements: any[];
+}
 
-function getSecurityRequirements(program: Program) {
+function getSecurityDetails(program: Program, serviceNamespace: NamespaceType): SecurityDetails {
   const definitions = program.stateMap(securityDetailsKey);
-  return definitions?.has(securityRequirementsKey) ? definitions.get(securityRequirementsKey) : [];
+  if (definitions.has(serviceNamespace)) {
+    return definitions.get(serviceNamespace)!;
+  } else {
+    const details = { definitions: {}, requirements: [] };
+    definitions.set(serviceNamespace, details);
+    return details;
+  }
 }
 
-function setSecurityRequirements(program: Program, requirements: any[]) {
-  program.stateMap(securityDetailsKey).set(securityRequirementsKey, requirements);
+function getSecurityRequirements(program: Program, serviceNamespace: NamespaceType) {
+  return getSecurityDetails(program, serviceNamespace).requirements;
 }
 
-function getSecurityDefinitions(program: Program) {
-  const definitions = program.stateMap(securityDetailsKey);
-  return definitions?.has(securityDefinitionsKey) ? definitions.get(securityDefinitionsKey) : {};
-}
-
-function setSecurityDefinitions(program: Program, definitions: any) {
-  program.stateMap(securityDetailsKey).set(securityDefinitionsKey, definitions);
+function getSecurityDefinitions(program: Program, serviceNamespace: NamespaceType) {
+  return getSecurityDetails(program, serviceNamespace).definitions;
 }
 
 export function addSecurityRequirement(
@@ -165,9 +170,8 @@ export function addSecurityRequirement(
 
   const req: any = {};
   req[name] = scopes;
-  const requirements = getSecurityRequirements(program);
+  const requirements = getSecurityRequirements(program, namespace);
   requirements.push(req);
-  setSecurityRequirements(program, requirements);
 }
 
 export function addSecurityDefinition(
@@ -184,9 +188,8 @@ export function addSecurityDefinition(
     return;
   }
 
-  const definitions = getSecurityDefinitions(program);
+  const definitions = getSecurityDefinitions(program, namespace);
   definitions[name] = details;
-  setSecurityDefinitions(program, definitions);
 }
 
 const openApiExtensions = new Map<Type, Map<string, any>>();
@@ -205,54 +208,91 @@ export interface OpenAPIEmitterOptions {
 }
 
 function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
-  const root: any = {
-    openapi: "3.0.0",
-    info: {
-      title: getServiceTitle(program),
-      version: getServiceVersion(program),
-    },
-    tags: [],
-    paths: {},
-    components: {
-      parameters: {},
-      requestBodies: {},
-      responses: {},
-      schemas: {},
-      examples: {},
-      securitySchemes: {},
-    },
-  };
-
-  const host = getServiceHost(program);
-  if (host) {
-    root.servers = [
-      {
-        url: "https://" + host,
-      },
-    ];
-  }
+  let root: any;
+  let host: string | undefined;
 
   // Get the service namespace string for use in name shortening
-  const serviceNamespace: string | undefined = getServiceNamespaceString(program);
-
-  let currentBasePath: string | undefined = "";
-  let currentPath: any = root.paths;
+  let serviceNamespace: string | undefined;
+  let currentBasePath: string | undefined;
+  let currentPath: any;
   let currentEndpoint: any;
 
   // Keep a list of all Types encountered that need schema definitions
-  const schemas = new Set<Type>();
+  let schemas = new Set<Type>();
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
   // this map.
-  const params = new Map<ModelTypeProperty, any>();
+  let params: Map<ModelTypeProperty, any>;
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
-  const tags = new Set<string>();
+  let tags: Set<string>;
 
   return { emitOpenAPI };
 
+  function initializeEmitter(version?: string) {
+    root = {
+      openapi: "3.0.0",
+      info: {
+        title: getServiceTitle(program),
+        version: version ?? getServiceVersion(program),
+      },
+      tags: [],
+      paths: {},
+      components: {
+        parameters: {},
+        requestBodies: {},
+        responses: {},
+        schemas: {},
+        examples: {},
+        securitySchemes: {},
+      },
+    };
+    host = getServiceHost(program);
+    if (host) {
+      root.servers = [
+        {
+          url: "https://" + host,
+        },
+      ];
+    }
+
+    serviceNamespace = getServiceNamespaceString(program);
+    currentBasePath = "";
+    currentPath = root.paths;
+    currentEndpoint = undefined;
+    schemas = new Set();
+    params = new Map();
+    tags = new Set();
+  }
   async function emitOpenAPI() {
+    const serviceNs = getServiceNamespace(program);
+    if (!serviceNs) {
+      return;
+    }
+    const versions = getVersionRecords(program, serviceNs);
+    for (const record of versions) {
+      record.projections.push({
+        projectionName: "toTypescript",
+        arguments: [],
+      });
+      if (record.version) {
+        record.projections.push({
+          projectionName: "atVersion",
+          arguments: [record.version],
+        });
+      }
+
+      if (record.version !== undefined) {
+        program.enableProjections(record.projections);
+      }
+
+      await emitOpenAPIFromVersion(record.version);
+    }
+  }
+
+  async function emitOpenAPIFromVersion(version?: string) {
+    initializeEmitter(version);
     try {
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();
@@ -267,10 +307,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
       if (!program.compilerOptions.noEmit && !program.hasError()) {
         // Write out the OpenAPI document to the output path
-        await program.host.writeFile(
-          resolvePath(options.outputFile),
-          prettierOutput(JSON.stringify(root, null, 2))
-        );
+        const outPath = version
+          ? resolvePath(options.outputFile.replace(".json", `.${version}.json`))
+          : resolvePath(options.outputFile);
+
+        await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
       }
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
