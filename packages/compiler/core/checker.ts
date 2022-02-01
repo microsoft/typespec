@@ -1976,7 +1976,7 @@ export function createChecker(program: Program): Checker {
    * So far, that amounts to setting the prototype to typePrototype which
    * contains the `projections` getter.
    */
-  function createType<T>(typeDef: T): T & typeof typePrototype {
+  function createType<T>(typeDef: T): T & TypePrototype {
     Object.setPrototypeOf(typeDef, typePrototype);
     return typeDef as any;
   }
@@ -2356,7 +2356,7 @@ export function createChecker(program: Program): Checker {
     const modelType: ModelType = createType({
       kind: "Model",
       name: "",
-      node: node as any, // todo: probably make the type more expressive, but this could be painful
+      node: node,
       decorators: [],
       properties: new Map(),
     });
@@ -2395,7 +2395,7 @@ export function createChecker(program: Program): Checker {
     return createType({
       kind: "ModelProperty",
       name: node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value,
-      node: node as any,
+      node: node,
       decorators: [],
       optional: node.optional,
       type,
@@ -2775,7 +2775,6 @@ export function createChecker(program: Program): Checker {
     const type: StringLiteralType | NumericLiteralType | BooleanLiteralType = createType({
       kind,
       value: value as any,
-      node: node as any, // todo: synthesized strings don't have a node...
     });
 
     program.literalTypes.set(value, type);

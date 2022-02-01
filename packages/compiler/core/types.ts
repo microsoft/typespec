@@ -131,7 +131,11 @@ export type IntrinsicModelName =
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;
-  node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode;
+  node:
+    | ModelStatementNode
+    | ModelExpressionNode
+    | IntersectionExpressionNode
+    | ProjectionModelExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
   baseModel?: ModelType;
@@ -139,7 +143,11 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
 
 export interface ModelTypeProperty extends BaseType, DecoratedType {
   kind: "ModelProperty";
-  node: ModelPropertyNode | ModelSpreadPropertyNode;
+  node:
+    | ModelPropertyNode
+    | ModelSpreadPropertyNode
+    | ProjectionModelPropertyNode
+    | ProjectionModelSpreadPropertyNode;
   name: string;
   type: Type;
   // when spread or intersection operators make new property types,
@@ -200,19 +208,19 @@ export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLitera
 
 export interface StringLiteralType extends BaseType {
   kind: "String";
-  node: StringLiteralNode;
+  node?: StringLiteralNode;
   value: string;
 }
 
 export interface NumericLiteralType extends BaseType {
   kind: "Number";
-  node: NumericLiteralNode;
+  node?: NumericLiteralNode;
   value: number;
 }
 
 export interface BooleanLiteralType extends BaseType {
   kind: "Boolean";
-  node: BooleanLiteralNode;
+  node?: BooleanLiteralNode;
   value: boolean;
 }
 

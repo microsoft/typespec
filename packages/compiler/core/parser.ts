@@ -1564,8 +1564,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
       // verify we only have one entry
       for (let i = 1; i < exprs.length; i++) {
-        // TODO: this error is nonsense, want to emit an error on the first comma
-        // but unsure how to get its exact position after we've parsed.
         error({
           code: "token-expected",
           messageId: "unexpected",

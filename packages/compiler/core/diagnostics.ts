@@ -181,7 +181,12 @@ export function getSourceLocation(
 
   const node = "node" in target ? target.node! : target;
 
-  if (node.kind === "Intrinsic") {
+  if (
+    node.kind === "Intrinsic" ||
+    node.kind === "String" ||
+    node.kind === "Number" ||
+    node.kind === "Boolean"
+  ) {
     return createDummySourceLocation();
   }
 

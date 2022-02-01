@@ -643,6 +643,11 @@ export async function createProgram(
       return target.node;
     }
 
+    if (target.kind === "String" || target.kind === "Boolean" || target.kind === "Number") {
+      // if node wasn't in these targets, then they are synthesized types and don't have a node.
+      return undefined;
+    }
+
     if (target.kind === "decorator") {
       return undefined;
     }
