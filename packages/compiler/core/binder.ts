@@ -110,6 +110,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         if (name === "onValidate") {
           program.onValidate(member as any);
           continue;
+        } else if (name === "onEmit") {
+          // nothing to do here this is loaded as emitter.
+          continue;
         }
 
         const memberNs: string = (member as any).namespace;
