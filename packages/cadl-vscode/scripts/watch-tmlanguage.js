@@ -1,7 +1,7 @@
+import { createRequire } from "module";
+import { resolve } from "path";
 import watch from "watch";
 import { runWatch } from "../../../eng/scripts/helpers.js";
-import { resolve } from "path";
-import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
 const script = resolve("dist-dev/tmlanguage.js");

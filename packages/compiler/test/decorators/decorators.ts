@@ -1,5 +1,5 @@
-import { strictEqual } from "assert";
-import { getDoc } from "../../lib/decorators.js";
+import { ok, strictEqual } from "assert";
+import { getDoc, getFriendlyName, isErrorModel } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../test-host.js";
 
 describe("compiler: built-in decorators", () => {
@@ -64,6 +64,68 @@ describe("compiler: built-in decorators", () => {
         diagnostics[0].message,
         `Argument 'foo | bar' of type 'object' is not assignable to parameter of type 'string'`
       );
+    });
+  });
+
+  describe("@friendlyName", () => {
+    it("applies @doc on model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test
+        @friendlyName("MyNameIsA")
+        model A { }
+
+        @test
+        @friendlyName("{name}Model", B)
+        model B { }
+
+        @friendlyName("Templated{name}", T)
+        model Templated<T> {
+          prop: T;
+        }
+
+        @test
+        model C is Templated<B>{};
+        `
+      );
+
+      const { A, B, C } = await testHost.compile("./");
+      strictEqual(getFriendlyName(testHost.program, A), "MyNameIsA");
+      strictEqual(getFriendlyName(testHost.program, B), "BModel");
+      strictEqual(getFriendlyName(testHost.program, C), "TemplatedB");
+    });
+  });
+
+  describe("@error", () => {
+    it("applies @error on model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test
+        @error
+        model A { }
+        `
+      );
+
+      const { A } = await testHost.compile("./");
+      ok(isErrorModel(testHost.program, A), "isError should be true");
+    });
+
+    it("emit diagnostic if error is not applied to a model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @error
+        enum A { B, C }
+        `
+      );
+
+      const [_, diagnostics] = await testHost.compileAndDiagnose("./");
+
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "decorator-wrong-target");
+      strictEqual(diagnostics[0].message, `The @error decorator can only be applied to models.`);
     });
   });
 });

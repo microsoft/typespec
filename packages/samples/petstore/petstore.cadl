@@ -36,6 +36,7 @@ model NotModified<T> {
   @body body: T;
 }
 
+@friendlyName("{name}ListResults", T)
 model ResponsePage<T> {
   items: T[];
   nextLink?: string;
