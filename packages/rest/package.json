@@ -42,6 +42,6 @@
     "@cadl-lang/compiler": "~0.25.0",
     "mocha": "~8.3.2",
     "c8": "~7.11.0",
-    "typescript": "~4.4.4"
+    "typescript": "~4.5.5"
   }
 }
