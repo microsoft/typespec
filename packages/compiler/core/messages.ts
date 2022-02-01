@@ -365,7 +365,8 @@ const diagnostics = {
   "projections-are-experimental": {
     severity: "warning",
     messages: {
-      default: "Projections are experimental - your code WILL be broken.",
+      default:
+        "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
 
