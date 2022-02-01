@@ -1,8 +1,15 @@
+import { inspect } from "util";
 import { createSymbolTable } from "./binder.js";
-import { compilerAssert } from "./diagnostics.js";
+import { compilerAssert, ProjectionError } from "./diagnostics.js";
+import {
+  ProjectionModelExpressionNode,
+  ProjectionModelPropertyNode,
+  ProjectionModelSpreadPropertyNode,
+} from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { hasParseError } from "./parser.js";
 import { Program } from "./program.js";
+import { createProjectionMembers } from "./projectionMembers.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -19,10 +26,13 @@ import {
   EnumStatementNode,
   EnumType,
   ErrorType,
+  FunctionSymbol,
+  FunctionType,
   IdentifierNode,
   InterfaceStatementNode,
   InterfaceType,
   IntersectionExpressionNode,
+  IntrinsicType,
   JsSourceFile,
   LiteralNode,
   LiteralType,
@@ -39,6 +49,26 @@ import {
   NumericLiteralType,
   OperationStatementNode,
   OperationType,
+  ProjectionArithmeticExpressionNode,
+  ProjectionBlockExpressionNode,
+  ProjectionCallExpressionNode,
+  ProjectionDecoratorReferenceExpressionNode,
+  ProjectionEqualityExpressionNode,
+  ProjectionExpression,
+  ProjectionExpressionStatement,
+  ProjectionIfExpressionNode,
+  ProjectionInstruction,
+  ProjectionLambdaExpressionNode,
+  ProjectionMemberExpressionNode,
+  ProjectionNode,
+  ProjectionRelationalExpressionNode,
+  ProjectionStatementItem,
+  ProjectionStatementNode,
+  ProjectionSymbol,
+  ProjectionType,
+  ProjectionUnaryExpressionNode,
+  ReturnExpressionNode,
+  ReturnRecord,
   StringLiteralNode,
   StringLiteralType,
   Sym,
@@ -51,6 +81,7 @@ import {
   TupleType,
   Type,
   TypeInstantiationMap,
+  TypeOrReturnRecord,
   TypeReferenceNode,
   TypeSymbol,
   UnionExpressionNode,
@@ -82,7 +113,45 @@ export interface Checker {
   getTypeName(type: Type): string;
   getNamespaceString(type: NamespaceType | undefined): string;
   cloneType<T extends Type>(type: T): T;
+  evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
+  project(
+    target: Type,
+    projection: ProjectionNode,
+    args?: (Type | string | number | boolean)[]
+  ): Type;
+  getProjectionInstructions(
+    target: Type,
+    projection: ProjectionNode,
+    args?: (Type | string | number | boolean)[]
+  ): ProjectionInstruction[];
   resolveCompletions(node: IdentifierNode): Map<string, CadlCompletionItem>;
+
+  createType<T>(typeDef: T): T & TypePrototype;
+  createAndFinishType<U extends Type extends any ? Omit<Type, keyof TypePrototype> : never>(
+    typeDef: U
+  ): U & TypePrototype;
+  finishType<T extends Type>(typeDef: T): T;
+  createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
+  createLiteralType(value: string, node?: StringLiteralNode): StringLiteralType;
+  createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteralType;
+  createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteralType;
+  createLiteralType(
+    value: string | number | boolean,
+    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+  ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+  createLiteralType(
+    value: string | number | boolean,
+    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+  ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+
+  errorType: IntrinsicType;
+  voidType: IntrinsicType;
+  neverType: IntrinsicType;
+}
+
+interface TypePrototype {
+  projections: ProjectionStatementNode[];
+  projectionsByName(name: string): ProjectionStatementNode[];
 }
 
 export interface CadlCompletionItem {
@@ -141,10 +210,40 @@ export function createChecker(program: Program): Checker {
   let currentSymbolId = 0;
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
+  const typePrototype: TypePrototype = {
+    get projections(): ProjectionStatementNode[] {
+      return (projectionsByTypeKind.get((this as Type).kind) || []).concat(
+        projectionsByType.get(this as Type) || []
+      );
+    },
+    projectionsByName(name: string): ProjectionStatementNode[] {
+      return this.projections.filter((p) => p.id.sv === name);
+    },
+  };
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceType = createGlobalNamespaceType();
   let cadlNamespaceNode: NamespaceStatementNode | undefined;
-  const errorType: ErrorType = { kind: "Intrinsic", name: "ErrorType" };
+
+  const errorType: ErrorType = createType({ kind: "Intrinsic", name: "ErrorType" });
+  const voidType = createType({ kind: "Intrinsic", name: "void" } as const);
+  const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
+
+  const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
+    ["Model", []],
+    ["Union", []],
+    ["Operation", []],
+    ["Interface", []],
+    ["Enum", []],
+  ]);
+  const projectionsByType = new Map<Type, ProjectionStatementNode[]>();
+  // whether we've checked this specific projection statement before
+  // and added it to the various projection maps.
+  const processedProjections = new Set<ProjectionStatementNode>();
+
+  // interpreter state
+  let currentProjectionDirection: "to" | "from" | undefined;
+  let emitInstructions = false;
+  let emittedInstructions: ProjectionInstruction[] = [];
 
   /**
    * Set keeping track of node pending type resolution.
@@ -173,6 +272,7 @@ export function createChecker(program: Program): Checker {
       "expected Cadl to be a namespace"
     );
     cadlNamespaceNode = cadlNamespaceBinding.node;
+    initializeCadlIntrinsics();
     for (const file of program.sourceFiles.values()) {
       for (const [name, binding] of cadlNamespaceNode.exports!) {
         file.locals!.set(name, { kind: "using", symbolSource: binding });
@@ -180,7 +280,9 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  return {
+  let evalContext: EvalContext | undefined = undefined;
+
+  const checker: Checker = {
     getTypeForNode,
     checkProgram,
     checkSourceFile,
@@ -198,7 +300,43 @@ export function createChecker(program: Program): Checker {
     getMergedNamespace,
     cloneType,
     resolveCompletions,
+    evalProjection: evalProjectionStatement,
+    project,
+    getProjectionInstructions,
+    neverType,
+    errorType,
+    voidType,
+    createType,
+    createAndFinishType,
+    createFunctionType,
+    createLiteralType,
+    finishType,
   };
+
+  const projectionMembers = createProjectionMembers(checker);
+  return checker;
+
+  function initializeCadlIntrinsics() {
+    // a utility function to log strings or numbers
+    cadlNamespaceNode!.exports!.set("log", {
+      kind: "function",
+      name: "log",
+      value(p: Program, str: string): Type {
+        program.logger.log({ level: "debug", message: str });
+        return voidType;
+      },
+    });
+
+    // a utility function to dump a type
+    cadlNamespaceNode!.exports!.set("inspect", {
+      kind: "function",
+      name: "inspect",
+      value(p: Program, arg: Type): Type {
+        program.logger.log({ level: "debug", message: inspect(arg) });
+        return voidType;
+      },
+    });
+  }
 
   function mergeJsSourceFile(file: JsSourceFile) {
     mergeSymbolTable(file.exports!, globalNamespaceNode.exports!);
@@ -217,10 +355,9 @@ export function createChecker(program: Program): Checker {
       if (!sym) {
         continue;
       }
-
-      if (sym.kind === "decorator") {
+      if (sym.kind === "decorator" || sym.kind === "function" || sym.kind === "projection") {
         program.reportDiagnostic(
-          createDiagnostic({ code: "using-invalid-ref", messageId: "decorator", target: using })
+          createDiagnostic({ code: "using-invalid-ref", messageId: sym.kind, target: using })
         );
         continue;
       }
@@ -291,8 +428,18 @@ export function createChecker(program: Program): Checker {
         return checkTypeReference(node);
       case SyntaxKind.TemplateParameterDeclaration:
         return checkTemplateParameterDeclaration(node);
+      case SyntaxKind.ProjectionStatement:
+        return checkProjectionDeclaration(node);
+      case SyntaxKind.VoidKeyword:
+        return voidType;
+      case SyntaxKind.NeverKeyword:
+        return neverType;
     }
 
+    // we don't emit an error here as we blindly call this function
+    // with any node type, but some nodes don't produce a type
+    // (e.g. imports). errorType should result in an error if it
+    // bubbles out somewhere its not supposed to be.
     return errorType;
   }
 
@@ -362,13 +509,15 @@ export function createChecker(program: Program): Checker {
       return templateInstantiation[index];
     }
 
-    return createType({
+    return createAndFinishType({
       kind: "TemplateParameter",
       node: node,
     });
   }
 
-  function checkTypeReference(node: TypeReferenceNode): Type {
+  function checkTypeReference(
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
+  ): Type {
     const sym = resolveTypeReference(node);
     if (!sym) {
       return errorType;
@@ -377,8 +526,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTypeReferenceSymbol(
-    sym: TypeSymbol | DecoratorSymbol,
-    node: TypeReferenceNode
+    sym: TypeSymbol | DecoratorSymbol | FunctionSymbol | ProjectionSymbol,
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
   ): Type {
     if (sym.kind === "decorator") {
       program.reportDiagnostic(
@@ -388,9 +537,17 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
-    const symbolLinks = getSymbolLinks(sym);
-    let args = node.arguments.map(getTypeForNode);
+    if (sym.kind === "function") {
+      program.reportDiagnostic(
+        createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: sym })
+      );
 
+      return errorType;
+    }
+
+    const symbolLinks = getSymbolLinks(sym);
+    let baseType;
+    let args = node.kind === SyntaxKind.TypeReference ? node.arguments.map(getTypeForNode) : [];
     if (
       sym.node.kind === SyntaxKind.ModelStatement ||
       sym.node.kind === SyntaxKind.AliasStatement ||
@@ -409,15 +566,17 @@ export function createChecker(program: Program): Checker {
         }
 
         if (symbolLinks.declaredType) {
-          return symbolLinks.declaredType;
+          baseType = symbolLinks.declaredType;
+        } else {
+          baseType =
+            sym.node.kind === SyntaxKind.ModelStatement
+              ? checkModelStatement(sym.node)
+              : sym.node.kind === SyntaxKind.AliasStatement
+              ? checkAlias(sym.node)
+              : sym.node.kind === SyntaxKind.InterfaceStatement
+              ? checkInterface(sym.node)
+              : checkUnion(sym.node);
         }
-        return sym.node.kind === SyntaxKind.ModelStatement
-          ? checkModelStatement(sym.node)
-          : sym.node.kind === SyntaxKind.AliasStatement
-          ? checkAlias(sym.node)
-          : sym.node.kind === SyntaxKind.InterfaceStatement
-          ? checkInterface(sym.node)
-          : checkUnion(sym.node);
       } else {
         // declaration is templated, lets instantiate.
 
@@ -452,35 +611,35 @@ export function createChecker(program: Program): Checker {
           );
           args = args.slice(0, templateParameters.length);
         }
-        return instantiateTemplate(sym.node, args);
+        baseType = instantiateTemplate(sym.node, args);
+      }
+    } else {
+      // some other kind of reference
+
+      if (args.length > 0) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "invalid-template-args",
+            messageId: "notTemplate",
+            target: node,
+          })
+        );
+      }
+
+      if (sym.node.kind === SyntaxKind.TemplateParameterDeclaration) {
+        // TODO: could cache this probably.
+        baseType = checkTemplateParameterDeclaration(sym.node);
+      } else if (symbolLinks.type) {
+        // Have a cached type for non-declarations
+        baseType = symbolLinks.type;
+      } else {
+        // don't have a cached type for this symbol, so go grab it and cache it
+        baseType = getTypeForNode(sym.node);
+        symbolLinks.type = baseType;
       }
     }
-    // some other kind of reference
 
-    if (args.length > 0) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-template-args",
-          messageId: "notTemplate",
-          target: node,
-        })
-      );
-    }
-
-    if (sym.node.kind === SyntaxKind.TemplateParameterDeclaration) {
-      const type = checkTemplateParameterDeclaration(sym.node);
-      // TODO: could cache this probably.
-      return type;
-    }
-    // types for non-templated types
-    if (symbolLinks.type) {
-      return symbolLinks.type;
-    }
-
-    const type = getTypeForNode(sym.node);
-    symbolLinks.type = type;
-
-    return type;
+    return baseType;
   }
 
   /**
@@ -526,26 +685,38 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkUnionExpression(node: UnionExpressionNode): UnionType {
-    const options: [string | Symbol, Type][] = node.options.flatMap((o) => {
+    const variants: [string | Symbol, UnionTypeVariant][] = node.options.flatMap((o) => {
       const type = getTypeForNode(o);
+
+      // The type `A | never` is just `A`
+      if (type === neverType) {
+        return [];
+      }
       if (type.kind === "Union" && type.expression) {
         return Array.from(type.variants.entries());
       }
-      return [[Symbol(), type]];
+      const variant: UnionTypeVariant = createType({
+        kind: "UnionVariant",
+        type,
+        name: Symbol(),
+        decorators: [],
+        node: undefined,
+      });
+
+      return [[variant.name, variant]];
     });
 
-    const type: UnionType = {
+    const type: UnionType = createAndFinishType({
       kind: "Union",
       node,
       get options() {
-        return Array.from(this.variants.values());
+        return Array.from(this.variants.values()).map((v) => v.type);
       },
       expression: true,
-      variants: new Map(options),
+      variants: new Map(variants),
       decorators: [],
-    };
+    });
 
-    createType(type);
     return type;
   }
 
@@ -580,7 +751,7 @@ export function createChecker(program: Program): Checker {
           continue;
         }
 
-        const newPropType = createType({
+        const newPropType = finishType({
           ...prop,
           sourceProperty: prop,
         });
@@ -589,7 +760,7 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    const intersection = createType({
+    const intersection = createAndFinishType({
       kind: "Model",
       node,
       name: "",
@@ -600,8 +771,8 @@ export function createChecker(program: Program): Checker {
     return intersection;
   }
 
-  function checkArrayExpression(node: ArrayExpressionNode) {
-    return createType({
+  function checkArrayExpression(node: ArrayExpressionNode): ArrayType {
+    return createAndFinishType({
       kind: "Array",
       node,
       elementType: getTypeForNode(node.elementType),
@@ -634,7 +805,7 @@ export function createChecker(program: Program): Checker {
       const name = node.name.sv;
       const decorators = checkDecorators(node);
 
-      const type: NamespaceType = createType({
+      const type: NamespaceType = createAndFinishType({
         kind: "Namespace",
         name,
         namespace,
@@ -644,6 +815,7 @@ export function createChecker(program: Program): Checker {
         namespaces: new Map(),
         interfaces: new Map(),
         unions: new Map(),
+        enums: new Map(),
         decorators,
       });
       namespace?.namespaces.set(name, type);
@@ -678,7 +850,17 @@ export function createChecker(program: Program): Checker {
       | UnionStatementNode
   ): NamespaceType | undefined {
     if (node === globalNamespaceType.node) return undefined;
-    if (!node.namespaceSymbol) return globalNamespaceType;
+    // we leave namespaces for interface members as undefined
+    if (!node.namespaceSymbol) {
+      if (
+        node.kind === SyntaxKind.OperationStatement &&
+        node.parent &&
+        node.parent.kind === SyntaxKind.InterfaceStatement
+      ) {
+        return undefined;
+      }
+      return globalNamespaceType;
+    }
 
     const mergedSymbol = getMergedSymbol(node.namespaceSymbol) as TypeSymbol;
     const symbolLinks = getSymbolLinks(mergedSymbol);
@@ -693,11 +875,14 @@ export function createChecker(program: Program): Checker {
     return symbolLinks.type as NamespaceType;
   }
 
-  function checkOperation(node: OperationStatementNode): OperationType {
+  function checkOperation(
+    node: OperationStatementNode,
+    parentInterface?: InterfaceType
+  ): OperationType {
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
     const decorators = checkDecorators(node);
-    const type: OperationType = {
+    const type: OperationType = createType({
       kind: "Operation",
       name,
       namespace,
@@ -705,20 +890,17 @@ export function createChecker(program: Program): Checker {
       parameters: getTypeForNode(node.parameters) as ModelType,
       returnType: getTypeForNode(node.returnType),
       decorators,
-    };
+      interface: parentInterface,
+    });
 
-    if (
-      node.parent!.kind !== SyntaxKind.InterfaceStatement ||
-      shouldCreateTypeForTemplate(node.parent!)
-    ) {
-    }
+    type.parameters.namespace = namespace;
 
     if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
       if (shouldCreateTypeForTemplate(node.parent!)) {
-        createType(type);
+        finishType(type);
       }
     } else {
-      createType(type);
+      finishType(type);
       namespace?.operations.set(name, type);
     }
 
@@ -734,14 +916,14 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTupleExpression(node: TupleExpressionNode): TupleType {
-    return createType({
+    return createAndFinishType({
       kind: "Tuple",
       node: node,
       values: node.values.map((v) => getTypeForNode(v)),
     });
   }
 
-  function getSymbolLinks(s: TypeSymbol): SymbolLinks {
+  function getSymbolLinks(s: TypeSymbol | ProjectionSymbol): SymbolLinks {
     const id = getSymbolId(s);
 
     if (symbolLinks.has(id)) {
@@ -754,7 +936,7 @@ export function createChecker(program: Program): Checker {
     return links;
   }
 
-  function getSymbolId(s: TypeSymbol) {
+  function getSymbolId(s: TypeSymbol | ProjectionSymbol) {
     if (s.id === undefined) {
       s.id = currentSymbolId++;
     }
@@ -790,7 +972,7 @@ export function createChecker(program: Program): Checker {
     const duplicateNames = symbols
       .map((x) => {
         const namespace =
-          x.symbolSource.kind === "type"
+          x.symbolSource.kind == "type" || x.symbolSource.kind === "projection"
             ? getNamespaceString((getTypeForNode(x.symbolSource.node) as any).namespace)
             : (x.symbolSource.value as any).namespace;
         return `${namespace}.${node.sv}`;
@@ -886,7 +1068,8 @@ export function createChecker(program: Program): Checker {
                 continue;
               }
               const namespace =
-                duplicate.symbolSource.kind === "type"
+                duplicate.symbolSource.kind === "type" ||
+                duplicate.symbolSource.kind === "projection"
                   ? getNamespaceString(
                       (getTypeForNode(duplicate.symbolSource.node) as any).namespace
                     )
@@ -969,7 +1152,7 @@ export function createChecker(program: Program): Checker {
   function resolveTypeReference(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     resolveDecorator = false
-  ): DecoratorSymbol | TypeSymbol | undefined {
+  ): DecoratorSymbol | TypeSymbol | ProjectionSymbol | FunctionSymbol | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
       // The parse error is the root cause and will already have been logged.
@@ -1008,6 +1191,17 @@ export function createChecker(program: Program): Checker {
             target: node,
           })
         );
+        return undefined;
+      } else if (base.kind === "function") {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "invalid-ref",
+            messageId: "node",
+            format: { id: node.id.sv, nodeName: "function" },
+            target: node,
+          })
+        );
+
         return undefined;
       } else {
         program.reportDiagnostic(
@@ -1082,14 +1276,15 @@ export function createChecker(program: Program): Checker {
     }
     const decorators: DecoratorApplication[] = [];
 
-    const type: ModelType = {
+    const type: ModelType = createType({
       kind: "Model",
       name: node.id.sv,
       node: node,
       properties: new Map<string, ModelTypeProperty>(),
       namespace: getParentNamespaceType(node),
       decorators,
-    };
+    });
+
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
     }
@@ -1105,7 +1300,7 @@ export function createChecker(program: Program): Checker {
       for (const prop of isBase.properties.values()) {
         type.properties.set(
           prop.name,
-          createType({
+          finishType({
             ...prop,
           })
         );
@@ -1134,7 +1329,7 @@ export function createChecker(program: Program): Checker {
     checkModelProperties(node, type.properties, inheritedPropNames);
 
     if (shouldCreateTypeForTemplate(node)) {
-      createType(type);
+      finishType(type);
     }
 
     return type;
@@ -1153,7 +1348,7 @@ export function createChecker(program: Program): Checker {
   function checkModelExpression(node: ModelExpressionNode) {
     const properties = new Map();
     checkModelProperties(node, properties);
-    const type: ModelType = createType({
+    const type: ModelType = createAndFinishType({
       kind: "Model",
       name: "",
       node: node,
@@ -1314,7 +1509,7 @@ export function createChecker(program: Program): Checker {
     const defaultValue = prop.default && checkDefault(getTypeForNode(prop.default), valueType);
     const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
 
-    let type: ModelTypeProperty = {
+    let type: ModelTypeProperty = createType({
       kind: "ModelProperty",
       name,
       node: prop,
@@ -1322,7 +1517,7 @@ export function createChecker(program: Program): Checker {
       type: valueType,
       decorators,
       default: defaultValue,
-    };
+    });
 
     const parentModel = prop.parent! as
       | ModelStatementNode
@@ -1332,7 +1527,7 @@ export function createChecker(program: Program): Checker {
       parentModel.kind !== SyntaxKind.ModelStatement ||
       shouldCreateTypeForTemplate(parentModel)
     ) {
-      createType(type);
+      finishType(type);
     }
 
     return type;
@@ -1548,15 +1743,15 @@ export function createChecker(program: Program): Checker {
 
     if (!links.type) {
       const decorators = checkDecorators(node);
-      const enumType: EnumType = {
+      const enumType: EnumType = (links.type = createType({
         kind: "Enum",
         name: node.id.sv,
         node,
         members: [],
         namespace: getParentNamespaceType(node),
         decorators,
-      };
-
+      }));
+      enumType.namespace?.enums.set(enumType.name!, enumType);
       const memberNames = new Set<string>();
 
       for (const member of node.members) {
@@ -1567,9 +1762,7 @@ export function createChecker(program: Program): Checker {
         }
       }
 
-      createType(enumType);
-
-      links.type = enumType;
+      finishType(enumType);
     }
 
     return links.type;
@@ -1586,14 +1779,14 @@ export function createChecker(program: Program): Checker {
 
     const decorators = checkDecorators(node);
 
-    const interfaceType: InterfaceType = {
+    const interfaceType: InterfaceType = createType({
       kind: "Interface",
       decorators,
       node,
       namespace: getParentNamespaceType(node),
       operations: new Map(),
       name: node.id.sv,
-    };
+    });
 
     for (const mixinNode of node.mixes) {
       const mixinType = getTypeForNode(mixinNode);
@@ -1622,13 +1815,12 @@ export function createChecker(program: Program): Checker {
 
     const ownMembers = new Map<string, OperationType>();
 
-    checkInterfaceMembers(node, ownMembers);
+    checkInterfaceMembers(node, ownMembers, interfaceType);
 
     for (const [k, v] of ownMembers) {
       // don't do a duplicate check here because interface members can override
       // an member coming from a mixin.
       interfaceType.operations.set(k, v);
-      v.interface = interfaceType;
     }
 
     if (
@@ -1636,7 +1828,7 @@ export function createChecker(program: Program): Checker {
         templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
       node.templateParameters.length === 0
     ) {
-      createType(interfaceType);
+      finishType(interfaceType);
     }
 
     if (!instantiatingThisTemplate) {
@@ -1650,10 +1842,11 @@ export function createChecker(program: Program): Checker {
 
   function checkInterfaceMembers(
     node: InterfaceStatementNode,
-    members: Map<string, OperationType>
+    members: Map<string, OperationType>,
+    interfaceType: InterfaceType
   ) {
     for (const opNode of node.operations) {
-      const opType = checkOperation(opNode);
+      const opType = checkOperation(opNode, interfaceType);
       if (members.has(opType.name)) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -1680,7 +1873,7 @@ export function createChecker(program: Program): Checker {
     const decorators = checkDecorators(node);
     const variants = new Map<string, UnionTypeVariant>();
     checkUnionVariants(node, variants);
-    const unionType: UnionType = {
+    const unionType: UnionType = createType({
       kind: "Union",
       decorators,
       node,
@@ -1688,17 +1881,17 @@ export function createChecker(program: Program): Checker {
       name: node.id.sv,
       variants,
       get options() {
-        return Array.from(this.variants.values());
+        return Array.from(this.variants.values()).map((v) => v.type);
       },
       expression: false,
-    };
+    });
 
     if (
       (instantiatingThisTemplate &&
         templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
       node.templateParameters.length === 0
     ) {
-      createType(unionType);
+      finishType(unionType);
     }
 
     if (!instantiatingThisTemplate) {
@@ -1732,7 +1925,7 @@ export function createChecker(program: Program): Checker {
       variantNode.id.kind === SyntaxKind.Identifier ? variantNode.id.sv : variantNode.id.value;
     const decorators = checkDecorators(variantNode);
     const type = getTypeForNode(variantNode.value);
-    return createType({
+    return createAndFinishType({
       kind: "UnionVariant",
       name,
       node: variantNode,
@@ -1759,7 +1952,7 @@ export function createChecker(program: Program): Checker {
       );
       return;
     }
-    return createType({
+    return createAndFinishType({
       kind: "EnumMember",
       enum: parentEnum,
       name,
@@ -1770,7 +1963,25 @@ export function createChecker(program: Program): Checker {
   }
 
   // the types here aren't ideal and could probably be refactored.
-  function createType<T extends Type>(typeDef: T): T {
+
+  function createAndFinishType<
+    U extends Type extends any ? Omit<Type, keyof typeof typePrototype> : never
+  >(typeDef: U): U & typeof typePrototype {
+    createType(typeDef);
+    return finishType(typeDef as any) as any;
+  }
+
+  /**
+   * Given the own-properties of a type, returns a fully-initialized type.
+   * So far, that amounts to setting the prototype to typePrototype which
+   * contains the `projections` getter.
+   */
+  function createType<T>(typeDef: T): T & TypePrototype {
+    Object.setPrototypeOf(typeDef, typePrototype);
+    return typeDef as any;
+  }
+
+  function finishType<T extends Type>(typeDef: T): T {
     (typeDef as any).templateArguments = templateInstantiation;
 
     if ("decorators" in typeDef) {
@@ -1778,6 +1989,8 @@ export function createChecker(program: Program): Checker {
         applyDecoratorToType(decApp, typeDef);
       }
     }
+
+    Object.setPrototypeOf(typeDef, typePrototype);
 
     return typeDef;
   }
@@ -1815,25 +2028,7 @@ export function createChecker(program: Program): Checker {
   function getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
   function getLiteralType(node: LiteralNode): LiteralType;
   function getLiteralType(node: LiteralNode): LiteralType {
-    let type = program.literalTypes.get(node.value);
-    if (type) {
-      return type;
-    }
-
-    switch (node.kind) {
-      case SyntaxKind.StringLiteral:
-        type = { kind: "String", node, value: node.value };
-        break;
-      case SyntaxKind.NumericLiteral:
-        type = { kind: "Number", node, value: node.value };
-        break;
-      case SyntaxKind.BooleanLiteral:
-        type = { kind: "Boolean", node, value: node.value };
-        break;
-    }
-
-    program.literalTypes.set(node.value, type);
-    return type;
+    return createLiteralType(node.value, node);
   }
 
   function mergeSymbolTable(source: SymbolTable<Sym>, target: SymbolTable<Sym>) {
@@ -1913,7 +2108,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function createGlobalNamespaceType() {
-    return createType({
+    return createAndFinishType({
       kind: "Namespace",
       name: "",
       node: globalNamespaceNode,
@@ -1922,15 +2117,83 @@ export function createChecker(program: Program): Checker {
       namespaces: new Map(),
       interfaces: new Map(),
       unions: new Map(),
+      enums: new Map(),
       decorators: [],
     });
   }
 
+  /**
+   * Clone a type, resulting in an identical type with all the same decorators
+   * applied. Decorators are re-run on the clone to achieve this.
+   *
+   * Care is taken to clone nested data structures that are part of the type.
+   * Any type with e.g. a map or an array property must recreate the map or array
+   * so that clones don't share the same object.
+   *
+   * For types which have sub-types that are part of it, e.g. enums with members,
+   * unions with variants, or models with properties, the sub-types are cloned
+   * as well.
+   *
+   * If the entire type graph needs to be cloned, then cloneType must be called
+   * recursively by the caller.
+   */
   function cloneType<T extends Type>(type: T, additionalProps: { [P in keyof T]?: T[P] } = {}): T {
-    return createType({
-      ...type,
-      ...additionalProps,
-    });
+    // TODO: this needs to handle other types
+    let clone;
+    switch (type.kind) {
+      case "Model":
+        clone = finishType({
+          ...type,
+          properties: additionalProps.hasOwnProperty("properties")
+            ? undefined
+            : new Map(
+                Array.from(type.properties.entries()).map(([key, prop]) => [key, cloneType(prop)])
+              ),
+          ...additionalProps,
+        });
+        break;
+      case "Union":
+        clone = finishType({
+          ...type,
+          variants: new Map<string | Symbol, UnionTypeVariant>(
+            Array.from(type.variants.entries()).map(([key, prop]) => [
+              key,
+              prop.kind === "UnionVariant" ? cloneType(prop) : prop,
+            ])
+          ),
+          get options() {
+            return Array.from(this.variants.values()).map((v: any) => v.type);
+          },
+          ...additionalProps,
+        });
+        break;
+      case "Interface":
+        clone = finishType({
+          ...type,
+          operations: new Map(type.operations.entries()),
+          ...additionalProps,
+        });
+        break;
+      case "Enum":
+        clone = finishType({
+          ...type,
+          members: type.members.map((v) => cloneType(v)),
+          ...additionalProps,
+        });
+        break;
+      default:
+        clone = finishType({
+          ...type,
+          ...additionalProps,
+        });
+    }
+
+    const projection = projectionsByType.get(type);
+    if (projection) {
+      projectionsByType.set(clone, projection);
+    }
+
+    return clone;
   }
 
   /**
@@ -1959,6 +2222,701 @@ export function createChecker(program: Program): Checker {
         dumpScope(sym.node, indent + 1);
       }
     }
+  }
+
+  function checkProjectionDeclaration(node: ProjectionStatementNode): Type {
+    // todo: check for duplicate projection decls on individual types
+    // right now you can declare the same projection on a specific type
+    // this could maybe go in the binder? But right now we don't know
+    // what an identifier resolves to until check time.
+    const links = getSymbolLinks(node.symbol!);
+    if (processedProjections.has(node)) {
+      return links.declaredType!;
+    }
+    processedProjections.add(node);
+    program.reportDiagnostic(
+      createDiagnostic({ code: "projections-are-experimental", target: node })
+    );
+
+    let type;
+
+    if (links.declaredType) {
+      type = links.declaredType as ProjectionType;
+    } else {
+      type = links.declaredType = createType({
+        kind: "Projection",
+        node: undefined,
+        nodeByKind: new Map(),
+        nodeByType: new Map(),
+      });
+    }
+
+    switch (node.selector.kind) {
+      case SyntaxKind.ProjectionModelSelector:
+        projectionsByTypeKind.get("Model")!.push(node);
+        type.nodeByKind.set("Model", node);
+        break;
+      case SyntaxKind.ProjectionOperationSelector:
+        projectionsByTypeKind.get("Operation")!.push(node);
+        type.nodeByKind.set("Operation", node);
+        break;
+      case SyntaxKind.ProjectionUnionSelector:
+        projectionsByTypeKind.get("Union")!.push(node);
+        type.nodeByKind.set("Union", node);
+        break;
+      case SyntaxKind.ProjectionInterfaceSelector:
+        projectionsByTypeKind.get("Interface")!.push(node);
+        type.nodeByKind.set("Interface", node);
+        break;
+      case SyntaxKind.ProjectionEnumSelector:
+        projectionsByTypeKind.get("Enum")!.push(node);
+        type.nodeByKind.set("Enum", node);
+        break;
+      default:
+        const projected = checkTypeReference(node.selector);
+        let current = projectionsByType.get(projected);
+        if (!current) {
+          current = [];
+          projectionsByType.set(projected, current);
+        }
+        current.push(node);
+        type.nodeByType.set(projected, node);
+        break;
+    }
+
+    return type;
+  }
+
+  function evalProjectionNode(
+    node: ProjectionExpression | ProjectionStatementItem
+  ): TypeOrReturnRecord {
+    switch (node.kind) {
+      case SyntaxKind.ProjectionExpressionStatement:
+        return evalProjectionExpressionStatement(node);
+      case SyntaxKind.ProjectionCallExpression:
+        return evalProjectionCallExpression(node);
+      case SyntaxKind.ProjectionMemberExpression:
+        return evalProjectionMemberExpression(node);
+      case SyntaxKind.ProjectionDecoratorReferenceExpression:
+        return evalProjectionDecoratorReference(node);
+      case SyntaxKind.Identifier:
+        return evalProjectionIdentifier(node);
+      case SyntaxKind.ProjectionLambdaExpression:
+        return evalProjectionLambdaExpression(node);
+      case SyntaxKind.StringLiteral:
+        return evalStringLiteral(node);
+      case SyntaxKind.NumericLiteral:
+        return evalNumericLiteral(node);
+      case SyntaxKind.BooleanLiteral:
+        return evalBooleanLiteral(node);
+      case SyntaxKind.ProjectionBlockExpression:
+        return evalProjectionBlockExpression(node);
+      case SyntaxKind.ProjectionArithmeticExpression:
+        return evalProjectionArithmeticExpression(node);
+      case SyntaxKind.ProjectionIfExpression:
+        return evalProjectionIfExpression(node);
+      case SyntaxKind.ProjectionEqualityExpression:
+        return evalProjectionEqualityExpression(node);
+      case SyntaxKind.ProjectionUnaryExpression:
+        return evalProjectionUnaryExpression(node);
+      case SyntaxKind.ProjectionRelationalExpression:
+        return evalProjectionRelationalExpression(node);
+      case SyntaxKind.ProjectionModelExpression:
+        return evalProjectionModelExpression(node);
+      case SyntaxKind.VoidKeyword:
+        return voidType;
+      case SyntaxKind.NeverKeyword:
+        return neverType;
+      case SyntaxKind.Return:
+        return evalReturnKeyword(node);
+      default:
+        compilerAssert(false, `Can't eval the node ${SyntaxKind[node.kind]}`);
+    }
+  }
+
+  interface EvalContext {
+    node: Node;
+    locals: Map<string, Type>;
+    parent?: EvalContext;
+  }
+
+  function evalReturnKeyword(node: ReturnExpressionNode): ReturnRecord {
+    const value = evalProjectionNode(node.value);
+    if (value.kind === "Return") {
+      return value;
+    }
+
+    return {
+      kind: "Return",
+      value,
+    };
+  }
+
+  function evalProjectionModelExpression(node: ProjectionModelExpressionNode): TypeOrReturnRecord {
+    const modelType: ModelType = createType({
+      kind: "Model",
+      name: "",
+      node: node,
+      decorators: [],
+      properties: new Map(),
+    });
+
+    for (const propNode of node.properties) {
+      if (propNode.kind === SyntaxKind.ProjectionModelProperty) {
+        const prop = evalProjectionModelProperty(propNode);
+        if (prop.kind === "Return") {
+          return prop;
+        }
+        modelType.properties.set(prop.name, prop);
+      } else {
+        const props = evalProjectionModelSpreadProperty(propNode);
+        if (!Array.isArray(props)) {
+          // return record
+          return props;
+        }
+
+        for (const newProp of props) {
+          modelType.properties.set(newProp.name, newProp);
+        }
+      }
+    }
+
+    return modelType;
+  }
+
+  function evalProjectionModelProperty(
+    node: ProjectionModelPropertyNode
+  ): ModelTypeProperty | ReturnRecord {
+    const type = evalProjectionNode(node.value);
+    if (type.kind === "Return") {
+      return type;
+    }
+
+    return createType({
+      kind: "ModelProperty",
+      name: node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value,
+      node: node,
+      decorators: [],
+      optional: node.optional,
+      type,
+    });
+  }
+
+  function evalProjectionModelSpreadProperty(
+    node: ProjectionModelSpreadPropertyNode
+  ): ModelTypeProperty[] | ReturnRecord {
+    const target = evalProjectionNode(node.target);
+    if (target.kind === "Return") {
+      return target;
+    }
+
+    if (target.kind !== "Model") {
+      throw new ProjectionError(`Can only spread models`);
+    }
+    const props = [];
+    // copy each property
+    for (const prop of walkPropertiesInherited(target)) {
+      const newProp = cloneType(prop, { sourceProperty: prop });
+      props.push(newProp);
+    }
+
+    return props;
+  }
+
+  function evalProjectionRelationalExpression(
+    node: ProjectionRelationalExpressionNode
+  ): TypeOrReturnRecord {
+    const left = evalProjectionNode(node.left);
+    if (left.kind === "Return") {
+      return left;
+    } else if (left.kind !== "Number" && left.kind !== "String") {
+      throw new ProjectionError("Can only compare numbers or strings");
+    }
+
+    const right = evalProjectionNode(node.right);
+    if (right.kind === "Return") {
+      return right;
+    } else if (right.kind !== "Number" && right.kind !== "String") {
+      throw new ProjectionError("Can only compare numbers or strings");
+    }
+
+    if (left.kind !== right.kind) {
+      throw new ProjectionError("Can't compare numbers and strings");
+    }
+
+    switch (node.op) {
+      case "<":
+        return createLiteralType(left.value < right.value);
+      case "<=":
+        return createLiteralType(left.value <= right.value);
+      case ">":
+        return createLiteralType(left.value > right.value);
+      case ">=":
+        return createLiteralType(left.value >= right.value);
+    }
+  }
+
+  function evalProjectionUnaryExpression(node: ProjectionUnaryExpressionNode): TypeOrReturnRecord {
+    const target = evalProjectionNode(node.target);
+    if (target.kind !== "Boolean") {
+      throw new ProjectionError("Can't negate a non-boolean");
+    }
+
+    switch (node.op) {
+      case "!":
+        return createLiteralType(!target.value);
+    }
+  }
+  function evalProjectionEqualityExpression(
+    node: ProjectionEqualityExpressionNode
+  ): TypeOrReturnRecord {
+    const left = evalProjectionNode(node.left);
+    if (left.kind === "Return") {
+      return left;
+    } else if (left.kind !== "Number" && left.kind !== "String") {
+      throw new ProjectionError("Comparisons must be strings or numbers");
+    }
+
+    const right = evalProjectionNode(node.right);
+    if (right.kind === "Return") {
+      return right;
+    } else if (right.kind !== "Number" && right.kind !== "String") {
+      throw new ProjectionError("Comparisons must be strings or numbers");
+    }
+
+    if (right.kind !== left.kind) {
+      throw new ProjectionError("Can't compare number and string");
+    }
+
+    switch (node.op) {
+      case "==":
+        return createLiteralType(left.value === right.value);
+      case "!=":
+        return createLiteralType(left.value !== right.value);
+    }
+  }
+
+  function evalProjectionIfExpression(node: ProjectionIfExpressionNode): TypeOrReturnRecord {
+    let ifExpr: ProjectionIfExpressionNode | undefined = node;
+    while (ifExpr) {
+      const test = evalProjectionNode(ifExpr.test);
+      if (test.kind === "Return") {
+        return test;
+      }
+
+      if (typeIsTruthy(test)) {
+        return evalProjectionBlockExpression(ifExpr.consequent);
+      } else if (
+        ifExpr.alternate &&
+        ifExpr.alternate.kind === SyntaxKind.ProjectionBlockExpression
+      ) {
+        return evalProjectionBlockExpression(ifExpr.alternate);
+      } else {
+        ifExpr = ifExpr.alternate;
+      }
+    }
+
+    return voidType;
+  }
+
+  function typeIsTruthy(t: Type) {
+    switch (t.kind) {
+      case "Boolean":
+        return t.value;
+      case "Number":
+        return !!t.value;
+      case "String":
+        return !!t.value;
+      default:
+        return true;
+    }
+  }
+
+  function createEvalContext(node: Node, parent?: EvalContext): EvalContext {
+    return {
+      node,
+      locals: new Map(),
+      parent,
+    };
+  }
+
+  function evalProjectionBlockExpression(node: ProjectionBlockExpressionNode): TypeOrReturnRecord {
+    let lastVal: Type = voidType;
+    for (const stmt of node.statements) {
+      let stmtValue = evalProjectionNode(stmt);
+      if (stmtValue.kind === "Return") {
+        return stmtValue;
+      }
+      lastVal = stmtValue;
+    }
+
+    return lastVal;
+  }
+
+  function evalProjectionArithmeticExpression(
+    node: ProjectionArithmeticExpressionNode
+  ): StringLiteralType | NumericLiteralType | ReturnRecord {
+    const lhs = evalProjectionNode(node.left);
+    if (lhs.kind === "Return") {
+      return lhs;
+    }
+
+    if (lhs.kind !== "Number" && lhs.kind !== "String") {
+      throw new ProjectionError(`Operator ${node.op} can only apply to strings or numbers`);
+    }
+    const rhs = evalProjectionNode(node.right);
+    if (rhs.kind === "Return") {
+      return rhs;
+    }
+    if (rhs.kind !== "Number" && rhs.kind !== "String") {
+      throw new ProjectionError(`Operator ${node.op} can only apply to strings or numbers`);
+    }
+
+    if (rhs.kind !== lhs.kind) {
+      throw new ProjectionError(`Operator ${node.op}'s operands need to be the same type`);
+    }
+
+    if (lhs.kind === "String") {
+      return createLiteralType((lhs as StringLiteralType).value + (rhs as StringLiteralType).value);
+    } else {
+      return createLiteralType(
+        (lhs as NumericLiteralType).value + (rhs as NumericLiteralType).value
+      );
+    }
+  }
+
+  function evalProjectionStatement(node: ProjectionNode, target: Type, args: Type[]): Type {
+    let topLevelProjection = false;
+    if (!currentProjectionDirection) {
+      topLevelProjection = true;
+      currentProjectionDirection = node.direction;
+    }
+    if (currentProjectionDirection === "from" && !target.projectionSource) {
+      // this model wasn't projected, so we'll just return the target
+      return target;
+    }
+
+    const originalContext = evalContext;
+    evalContext = createEvalContext(node);
+    for (const [i, param] of node.parameters.entries()) {
+      if (!args[i]) {
+        throw new ProjectionError("need argument for parameter " + node.parameters[i]);
+      }
+
+      let argVal = args[i];
+      let typeVal;
+
+      if (typeof argVal === "number" || typeof argVal === "string" || typeof argVal === "boolean") {
+        typeVal = createLiteralType(argVal);
+      } else {
+        typeVal = argVal;
+      }
+
+      evalContext.locals.set(param.id.sv, typeVal);
+    }
+
+    evalContext.locals.set("self", target);
+    let lastVal: TypeOrReturnRecord = voidType;
+    for (const item of node.body) {
+      lastVal = evalProjectionNode(item);
+      if (lastVal.kind === "Return") {
+        break;
+      }
+    }
+
+    if (topLevelProjection) {
+      currentProjectionDirection = undefined;
+    }
+    const selfResult = evalContext.locals.get("self")!;
+    evalContext = originalContext;
+
+    if (lastVal.kind === "Return") {
+      return lastVal.value;
+    } else {
+      return selfResult;
+    }
+  }
+
+  function evalProjectionExpressionStatement(node: ProjectionExpressionStatement) {
+    return evalProjectionNode(node.expr);
+  }
+
+  function evalProjectionCallExpression(node: ProjectionCallExpressionNode) {
+    const target = evalProjectionNode(node.target);
+
+    if (!target) throw new ProjectionError("target undefined");
+    const args = [];
+    for (const arg of node.arguments) {
+      args.push(evalProjectionNode(arg));
+    }
+
+    if (target.kind !== "Function") {
+      throw new ProjectionError("Can't call non-function, got type " + target.kind);
+    }
+
+    return target.call(...args);
+  }
+
+  function evalProjectionMemberExpression(
+    node: ProjectionMemberExpressionNode
+  ): TypeOrReturnRecord {
+    const base = evalProjectionNode(node.base);
+    if (base.kind === "Return") {
+      return base;
+    }
+    const member = node.id.sv;
+    const selector = node.selector;
+
+    if (selector === ".") {
+      switch (base.kind) {
+        case "Namespace":
+          const sym = base.node.exports!.get(member) as TypeSymbol;
+          if (sym) {
+            const links = getSymbolLinks(sym);
+            return links.declaredType || links.type || errorType;
+          } else {
+            throw new ProjectionError(`Namespace doesn't have member ${member}`);
+          }
+        case "Model":
+          const prop = base.properties.get(member);
+          if (!prop) {
+            throw new ProjectionError(`Model doesn't have property ${member}`);
+          }
+          return prop;
+        case "Enum":
+          const enumMember = base.members.find((v) => v.name === member);
+          if (!enumMember) {
+            throw new ProjectionError(`Enum doesn't have member ${member}`);
+          }
+          return enumMember;
+        case "Union":
+          const variant = base.variants.get(member);
+          if (!variant) {
+            throw new ProjectionError(`Union doesn't have variant ${member}`);
+          }
+          return variant;
+        default:
+          throw new ProjectionError(
+            `Can't get member "${member}" of type ${base.kind} because it has no members. Did you mean to use "::" instead of "."?`
+          );
+      }
+    }
+
+    switch (base.kind) {
+      case "Object":
+        return base.properties[member] || errorType;
+      default:
+        const typeOps = projectionMembers[base.kind];
+        if (!typeOps) {
+          throw new ProjectionError(
+            `${base.kind} doesn't have an object model member named ${member}`
+          );
+        }
+        // any cast needed to ensure we don't get a too complex union error on the call
+        // to op further down.
+        const op: any = typeOps[member];
+        if (!op) {
+          throw new ProjectionError(
+            `${base.kind} doesn't have an object model member named ${member}`
+          );
+        }
+
+        return op(base);
+    }
+  }
+
+  function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
+    return createType({
+      kind: "Function",
+      call: fn,
+    } as const);
+  }
+
+  function isLiteralType(
+    type: Type
+  ): type is StringLiteralType | NumericLiteralType | BooleanLiteralType {
+    switch (type.kind) {
+      case "String":
+      case "Number":
+      case "Boolean":
+        return true;
+      default:
+        return false;
+    }
+  }
+  function literalTypeToValue(type: StringLiteralType): string;
+  function literalTypeToValue(type: NumericLiteralType): number;
+  function literalTypeToValue(type: BooleanLiteralType): boolean;
+  function literalTypeToValue(
+    type: StringLiteralType | NumericLiteralType | BooleanLiteralType
+  ): boolean;
+  function literalTypeToValue(
+    type: StringLiteralType | NumericLiteralType | BooleanLiteralType
+  ): string | number | boolean {
+    return type.value;
+  }
+
+  function createLiteralType(value: string, node?: StringLiteralNode): StringLiteralType;
+  function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteralType;
+  function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteralType;
+  function createLiteralType(
+    value: string | number | boolean,
+    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+  ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+  function createLiteralType(
+    value: string | number | boolean,
+    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+  ): StringLiteralType | NumericLiteralType | BooleanLiteralType {
+    if (program.literalTypes.has(value)) {
+      return program.literalTypes.get(value)!;
+    }
+    const kind =
+      typeof value === "string" ? "String" : typeof value === "number" ? "Number" : "Boolean";
+    const type: StringLiteralType | NumericLiteralType | BooleanLiteralType = createType({
+      kind,
+      value: value as any,
+    });
+
+    program.literalTypes.set(value, type);
+    return type;
+  }
+
+  function evalProjectionDecoratorReference(
+    node: ProjectionDecoratorReferenceExpressionNode
+  ): Type {
+    const ref = resolveTypeReference(node.target, true);
+    if (!ref) throw new ProjectionError("Can't find decorator.");
+    compilerAssert(ref.kind === "decorator", "should only resolve decorator symbols");
+    return createType({
+      kind: "Function",
+      call(...args: Type[]): Type {
+        let retval = ref.value(program, ...marshalProjectionArguments(args));
+        return voidType;
+      },
+    } as const);
+  }
+
+  function evalProjectionIdentifier(node: IdentifierNode): Type {
+    // first check the eval context
+
+    let currentContext = evalContext;
+    while (currentContext) {
+      if (currentContext.locals.has(node.sv)) {
+        return currentContext.locals.get(node.sv)!;
+      }
+      currentContext = currentContext.parent;
+    }
+
+    // next, resolve outside
+    const ref = resolveTypeReference(node);
+    if (!ref) throw new ProjectionError("Unknown identifier " + node.sv);
+
+    switch (ref.kind) {
+      case "decorator":
+        // shouldn't ever resolve a decorator symbol here (without passing
+        // true to resolveTypeReference)
+        return errorType;
+      case "function":
+        // TODO: store this in a symbol link probably?
+        const t: FunctionType = createType({
+          kind: "Function",
+          call(...args: Type[]): Type {
+            let retval = ref.value(program, ...marshalProjectionArguments(args));
+            return marshalProjectionReturn(retval);
+          },
+        } as const);
+        return t;
+      case "type":
+      case "projection":
+        const links = getSymbolLinks(ref);
+        compilerAssert(links.declaredType, "Should have checked all types by now");
+
+        return links.declaredType;
+    }
+  }
+
+  function marshalProjectionArguments(args: Type[]): (Type | number | boolean | string | object)[] {
+    return args.map((arg) => {
+      if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
+        return literalTypeToValue(arg);
+      }
+      return arg;
+    });
+  }
+
+  function marshalProjectionReturn(value: unknown): Type {
+    if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
+      return createLiteralType(value);
+    }
+
+    if (typeof value === "object" && value !== null) {
+      if ("kind" in value) {
+        return value as Type;
+      } else {
+        // this could probably be more robust
+        return createType({
+          kind: "Object",
+          properties: value as any,
+        });
+      }
+    }
+
+    throw new ProjectionError("Can't marshal value returned from JS function into cadl");
+  }
+
+  function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {
+    const type = createType({
+      kind: "Function",
+      call(...args: Type[]): Type {
+        return callLambdaExpression(node, args);
+      },
+    } as const);
+
+    return type;
+  }
+
+  function callLambdaExpression(node: ProjectionLambdaExpressionNode, args: Type[]): Type {
+    const originalContext = evalContext;
+    evalContext = createEvalContext(node, originalContext);
+    for (const [i, param] of node.parameters.entries()) {
+      evalContext.locals.set(param.id.sv, args[i]);
+    }
+    const retval = evalProjectionBlockExpression(node.body);
+    evalContext = originalContext;
+    if (retval.kind === "Return") {
+      return retval.value;
+    }
+    return retval;
+  }
+
+  function evalStringLiteral(node: StringLiteralNode): StringLiteralType {
+    return createLiteralType(node.value, node);
+  }
+
+  function evalNumericLiteral(node: NumericLiteralNode): NumericLiteralType {
+    return createLiteralType(node.value, node);
+  }
+
+  function evalBooleanLiteral(node: BooleanLiteralNode): BooleanLiteralType {
+    return createLiteralType(node.value, node);
+  }
+
+  function project(
+    target: Type,
+    projection: ProjectionNode,
+    args: (Type | boolean | string | number)[] = []
+  ) {
+    return evalProjectionStatement(projection, target, args.map(marshalProjectionReturn));
+  }
+
+  function getProjectionInstructions(target: Type, projection: ProjectionNode, args: Type[] = []) {
+    emitInstructions = true;
+    project(target, projection, args);
+    let instructions = emittedInstructions;
+    emitInstructions = false;
+    emittedInstructions = [];
+
+    return instructions;
   }
 }
 

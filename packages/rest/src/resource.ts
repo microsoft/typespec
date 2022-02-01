@@ -91,7 +91,6 @@ function cloneKeyProperties(program: Program, target: ModelType, resourceType: M
   }
 
   const resourceKey = getResourceTypeKey(program, resourceType);
-
   if (resourceKey) {
     const { keyProperty } = resourceKey;
     const keyName = getKeyName(program, keyProperty);
@@ -102,6 +101,7 @@ function cloneKeyProperties(program: Program, target: ModelType, resourceType: M
       decorator: $path,
       args: [],
     });
+    $path(program, newProp, undefined as any);
 
     target.properties.set(keyName, newProp);
   }

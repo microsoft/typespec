@@ -27,7 +27,16 @@ export function navigateProgram(
   if (!program.checker) {
     return;
   }
-  navigateNamespaceType(program.checker.getGlobalNamespaceType(), eventEmitter, visited);
+
+  if (program.currentProjector) {
+    navigateNamespaceType(
+      program.currentProjector.projectedGlobalNamespace!,
+      eventEmitter,
+      visited
+    );
+  } else {
+    navigateNamespaceType(program.checker.getGlobalNamespaceType(), eventEmitter, visited);
+  }
 }
 
 function navigateNamespaceType(
@@ -93,6 +102,7 @@ function navigateModelType(
   if (model.baseModel) {
     navigateModelType(model.baseModel, eventEmitter, visited);
   }
+  eventEmitter.emit("exitModel", model);
 }
 
 function navigateModelTypeProperty(
@@ -142,6 +152,7 @@ function navigateEnumType(
   if (checkVisited(visited, type)) {
     return;
   }
+
   eventEmitter.emit("enum", type);
 }
 
@@ -224,6 +235,9 @@ function navigateType(
       return navigateTupleType(type, eventEmitter, visited);
     case "TemplateParameter":
       return navigateTemplateParameter(type, eventEmitter, visited);
+    case "Object":
+    case "Projection":
+    case "Function":
     case "Boolean":
     case "EnumMember":
     case "Intrinsic":

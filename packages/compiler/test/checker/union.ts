@@ -94,4 +94,17 @@ describe("compiler: union declarations", () => {
       strictEqual(typeof key, "symbol");
     }
   });
+
+  it("reduces nevers", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @test model Foo { x: int32 | never };
+      `
+    );
+
+    const { Foo } = (await testHost.compile("./")) as { Foo: ModelType };
+    const type = Foo.properties.get("x")!.type as UnionType;
+    strictEqual(type.options.length, 1);
+  });
 });
