@@ -18,7 +18,7 @@ describe("compiler: duplicate declarations", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
 
@@ -31,7 +31,7 @@ describe("compiler: duplicate declarations", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
 
@@ -50,7 +50,7 @@ describe("compiler: duplicate declarations", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
 
     assertDuplicates(diagnostics);
   });
@@ -65,7 +65,7 @@ describe("compiler: duplicate declarations", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
 
@@ -83,7 +83,7 @@ describe("compiler: duplicate declarations", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
 
@@ -101,7 +101,7 @@ describe("compiler: duplicate declarations", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
 
@@ -120,7 +120,7 @@ describe("compiler: duplicate declarations", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
 
@@ -149,7 +149,7 @@ describe("compiler: duplicate declarations", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
 });
