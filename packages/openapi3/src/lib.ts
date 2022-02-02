@@ -7,6 +7,7 @@ export const libDef = {
       severity: "error",
       messages: {
         default: paramMessage`Cannot use @${"decorator"} on a ${"entityKind"}`,
+        modelsOperations: paramMessage`${"decoratorName"} decorator can only be applied to models and operation parameters.`,
       },
     },
     "security-service-namespace": {

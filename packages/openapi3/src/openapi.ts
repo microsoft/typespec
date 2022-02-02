@@ -37,7 +37,7 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getExtensions, getOperationId, getRef } from "@cadl-lang/openapi";
+import { getExtensions, getOperationId } from "@cadl-lang/openapi";
 import {
   getAllRoutes,
   getDiscriminator,
@@ -52,13 +52,49 @@ import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isHeader, isStatusCode } =
   http;
 
+const pageableOperationsKey = Symbol();
+export function $pageable(program: Program, entity: Type, nextLinkName: string = "nextLink") {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "pageable", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(pageableOperationsKey).set(entity, nextLinkName);
+}
+
+function getPageable(program: Program, entity: Type): string | undefined {
+  return program.stateMap(pageableOperationsKey).get(entity);
+}
+
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
-  const options = {
+  const options: OpenAPIEmitterOptions = {
     outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
   };
 
   const emitter = createOAPIEmitter(p, options);
   await emitter.emitOpenAPI();
+}
+
+const refTargetsKey = Symbol();
+
+export function $useRef(program: Program, entity: Type, refUrl: string): void {
+  if (entity.kind === "Model" || entity.kind === "ModelProperty") {
+    program.stateMap(refTargetsKey).set(entity, refUrl);
+  } else {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      messageId: "modelsOperations",
+      format: { decoratorName: "useRef" },
+      target: entity,
+    });
+  }
+}
+
+function getRef(program: Program, entity: Type): string | undefined {
+  return program.stateMap(refTargetsKey).get(entity);
 }
 
 const oneOfKey = Symbol();
