@@ -9,6 +9,7 @@ import {
   DecoratorSymbol,
   EnumStatementNode,
   ExportSymbol,
+  FunctionSymbol,
   IdentifierNode,
   InterfaceStatementNode,
   JsSourceFile,
@@ -17,6 +18,12 @@ import {
   NamespaceStatementNode,
   Node,
   OperationStatementNode,
+  ProjectionLambdaExpressionNode,
+  ProjectionLambdaParameterDeclarationNode,
+  ProjectionNode,
+  ProjectionParameterDeclarationNode,
+  ProjectionStatementNode,
+  ProjectionSymbol,
   ScopeNode,
   Sym,
   SymbolTable,
@@ -102,14 +109,25 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     const rootNs = sourceFile.esmExports["namespace"];
     const namespaces = new Set<NamespaceStatementNode>();
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
-      if (typeof member === "function" && isFunctionName(key)) {
+      let name: string;
+      let kind: "decorator" | "function";
+
+      if (typeof member === "function") {
         // lots of 'any' casts here because control flow narrowing `member` to Function
         // isn't particularly useful it turns out.
-
-        const name = getFunctionName(key);
-        if (name === "onBuild") {
-          program.onBuild(member as any);
-          continue;
+        if (isFunctionName(key)) {
+          name = getFunctionName(key);
+          kind = "decorator";
+          if (name === "onValidate") {
+            program.onValidate(member as any);
+            continue;
+          } else if (name === "onEmit") {
+            // nothing to do here this is loaded as emitter.
+            continue;
+          }
+        } else {
+          name = key;
+          kind = "function";
         }
 
         const memberNs: string = (member as any).namespace;
@@ -149,7 +167,12 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
             scope = nsNode;
           }
         }
-        const sym = createDecoratorSymbol(name, sourceFile.file.path, member);
+        let sym;
+        if (kind === "decorator") {
+          sym = createDecoratorSymbol(name, sourceFile.file.path, member);
+        } else {
+          sym = createFunctionSymbol(name, member as any);
+        }
         scope.exports!.set(sym.name, sym);
       }
     }
@@ -198,6 +221,20 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       case SyntaxKind.UsingStatement:
         bindUsingStatement(node);
         break;
+      case SyntaxKind.Projection:
+        bindProjection(node);
+        break;
+      case SyntaxKind.ProjectionStatement:
+        bindProjectionStatement(node);
+        break;
+      case SyntaxKind.ProjectionParameterDeclaration:
+        bindProjectionParameterDeclaration(node);
+        break;
+      case SyntaxKind.ProjectionLambdaParameterDeclaration:
+        bindProjectionLambdaParameterDeclaration(node);
+        break;
+      case SyntaxKind.ProjectionLambdaExpression:
+        bindProjectionLambdaExpression(node);
     }
 
     const prevParent = parentNode;
@@ -239,6 +276,90 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       default:
         return scope.locals!;
     }
+  }
+
+  function bindProjection(node: ProjectionNode) {
+    node.locals = new SymbolTable();
+  }
+
+  /**
+   * Binding projection statements is interesting because there may be
+   * multiple declarations spread across various source files that all
+   * contribute to the same symbol because they declare the same
+   * projection on different selectors.
+   *
+   * There is presently an issue where we do not check for duplicate
+   * projections when they're applied to a specific type. This could
+   * be done with ease in the checker during evaluation, but could
+   * probably instead be done in a post-bind phase - we just need
+   * all the symbols in place so we know if a projection was declared
+   * multiple times for the same symbol.
+   *
+   */
+  function bindProjectionStatement(node: Writable<ProjectionStatementNode>) {
+    const name = node.id.sv;
+    const table: SymbolTable<Sym> = getContainingSymbolTable();
+    let sym;
+    if (table.has(name)) {
+      sym = table.get(name)!;
+      if (sym.kind !== "projection") {
+        // clashing with some other decl, report duplicate symbol
+        declareSymbol(getContainingSymbolTable(), node, name);
+        return;
+      }
+    } else {
+      sym = {
+        kind: "projection",
+        name,
+        node: node,
+        byId: new Map(),
+        byKind: new Map(),
+      } as ProjectionSymbol;
+      table.set(name, sym);
+    }
+
+    if (fileNamespace.kind !== SyntaxKind.CadlScript) {
+      node.namespaceSymbol = fileNamespace.symbol;
+    }
+    node.symbol = sym;
+
+    if (
+      node.selector.kind !== SyntaxKind.Identifier &&
+      node.selector.kind !== SyntaxKind.MemberExpression
+    ) {
+      const selectorString =
+        node.selector.kind === SyntaxKind.ProjectionModelSelector
+          ? "model"
+          : node.selector.kind === SyntaxKind.ProjectionOperationSelector
+          ? "op"
+          : node.selector.kind === SyntaxKind.ProjectionUnionSelector
+          ? "union"
+          : node.selector.kind === SyntaxKind.ProjectionEnumSelector
+          ? "enum"
+          : "interface";
+
+      if (sym.byKind.has(selectorString)) {
+        // clashing with a like-named decl with this selector, so throw.
+        declareSymbol(getContainingSymbolTable(), node, name);
+        return;
+      }
+
+      sym.byKind.set(selectorString, { to: node.to, from: node.from });
+    }
+  }
+
+  function bindProjectionParameterDeclaration(node: ProjectionParameterDeclarationNode) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+  }
+
+  function bindProjectionLambdaParameterDeclaration(
+    node: ProjectionLambdaParameterDeclarationNode
+  ) {
+    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+  }
+
+  function bindProjectionLambdaExpression(node: ProjectionLambdaExpressionNode) {
+    node.locals = new SymbolTable();
   }
 
   function bindTemplateParameterDeclaration(node: TemplateParameterDeclarationNode) {
@@ -321,16 +442,19 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
     if (scope.kind === SyntaxKind.NamespaceStatement) {
       compilerAssert(
-        node.kind !== SyntaxKind.TemplateParameterDeclaration,
-        "Attempted to declare template parameter in namespace",
+        node.kind !== SyntaxKind.TemplateParameterDeclaration &&
+          node.kind !== SyntaxKind.ProjectionParameterDeclaration &&
+          node.kind !== SyntaxKind.ProjectionLambdaParameterDeclaration,
+        "Attempted to declare parameter in namespace",
         node
       );
-
       node.namespaceSymbol = scope.symbol;
     } else if (scope.kind === SyntaxKind.CadlScript) {
       compilerAssert(
-        node.kind !== SyntaxKind.TemplateParameterDeclaration,
-        "Attempted to declare template parameter in global scope",
+        node.kind !== SyntaxKind.TemplateParameterDeclaration &&
+          node.kind !== SyntaxKind.ProjectionParameterDeclaration &&
+          node.kind !== SyntaxKind.ProjectionLambdaParameterDeclaration,
+        "Attempted to declare parameter in global scope",
         node
       );
 
@@ -356,6 +480,10 @@ function hasScope(node: Node): node is ScopeNode {
       return true;
     case SyntaxKind.UnionStatement:
       return true;
+    case SyntaxKind.Projection:
+      return true;
+    case SyntaxKind.ProjectionLambdaExpression:
+      return true;
     default:
       return false;
   }
@@ -374,6 +502,14 @@ function createDecoratorSymbol(name: string, path: string, value: any): Decorato
     kind: "decorator",
     name: `@` + name,
     path,
+    value,
+  };
+}
+
+function createFunctionSymbol(name: string, value: (...args: any[]) => any): FunctionSymbol {
+  return {
+    kind: "function",
+    name,
     value,
   };
 }

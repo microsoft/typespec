@@ -1,6 +1,6 @@
 import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
-import { NamespaceType, Type } from "../core/types.js";
+import { NamespaceType, Projector, Type } from "../core/types.js";
 
 interface ServiceDetails {
   namespace?: NamespaceType;
@@ -9,12 +9,12 @@ interface ServiceDetails {
   host?: string;
 }
 
-const programServiceDetails = new WeakMap<Program, ServiceDetails>();
+const programServiceDetails = new WeakMap<Program | Projector, ServiceDetails>();
 function getServiceDetails(program: Program) {
-  let serviceDetails = programServiceDetails.get(program);
+  let serviceDetails = programServiceDetails.get(program.currentProjector ?? program);
   if (!serviceDetails) {
     serviceDetails = {};
-    programServiceDetails.set(program, serviceDetails);
+    programServiceDetails.set(program.currentProjector ?? program, serviceDetails);
   }
 
   return serviceDetails;
@@ -107,7 +107,6 @@ export function setServiceHost(program: Program, host: string) {
 
 export function $serviceVersion(program: Program, target: Type, version: string) {
   const serviceDetails = getServiceDetails(program);
-  // TODO: This will need to change once we support multiple service versions
   if (serviceDetails.version) {
     program.reportDiagnostic(
       createDiagnostic({
@@ -140,7 +139,7 @@ export function getServiceVersion(program: Program): string {
 
 export function getServiceNamespace(program: Program): NamespaceType | undefined {
   const serviceDetails = getServiceDetails(program);
-  return serviceDetails.namespace;
+  return serviceDetails.namespace ?? program.checker!.getGlobalNamespaceType();
 }
 
 export function getServiceNamespaceString(program: Program): string | undefined {

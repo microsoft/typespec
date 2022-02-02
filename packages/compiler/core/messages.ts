@@ -128,8 +128,9 @@ const diagnostics = {
     messages: {
       default: paramMessage`${"token"} expected.`,
       unexpected: paramMessage`Unexpected token ${"token"}`,
-      numericOrStringLiteral: "Expected numeric or string literal",
+      numericOrStringLiteral: "Expected numeric or string literal.",
       identifier: "Identifier expected.",
+      projectionDirection: "from or to expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
@@ -166,7 +167,15 @@ const diagnostics = {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
     },
   },
-
+  "invalid-projection": {
+    severity: "error",
+    messages: {
+      default: "Invalid projection",
+      wrongType: "Non-projection can't be used to project",
+      noTo: "Projection missing to projection",
+      projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
+    },
+  },
   /**
    * Checker
    */
@@ -175,6 +184,8 @@ const diagnostics = {
     messages: {
       default: "Using must refer to a namespace",
       decorator: "Can't use a decorator",
+      function: "Can't use a function",
+      projection: "Can't use a projection",
     },
   },
   "invalid-type-ref": {
@@ -182,6 +193,7 @@ const diagnostics = {
     messages: {
       default: "Invalid type reference",
       decorator: "Can't put a decorator in a type",
+      function: "Can't use a function as a type",
     },
   },
   "invalid-template-args": {
@@ -350,6 +362,17 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
+  "projections-are-experimental": {
+    severity: "warning",
+    messages: {
+      default:
+        "Projections are experimental - your code will need to change as this feature evolves.",
+    },
+  },
+
+  /**
+   * Binder
+   */
   "ambiguous-symbol": {
     severity: "error",
     messages: {
@@ -362,10 +385,20 @@ const diagnostics = {
       default: paramMessage`duplicate using of "${"usingName"}" namespace`,
     },
   },
-  "on-build-fail": {
+
+  /**
+   * Binder
+   */
+  "on-validate-fail": {
     severity: "error",
     messages: {
-      default: paramMessage`onBuild failed!\n\n${"error"}`,
+      default: paramMessage`onValidate failed with errors. ${"error"}`,
+    },
+  },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Cannot find emitter with name ${"emitterName"} in ${"emitterPackage"}`,
     },
   },
 

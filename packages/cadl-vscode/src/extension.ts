@@ -16,6 +16,7 @@ export async function activate(context: ExtensionContext) {
     synchronize: {
       fileEvents: [
         workspace.createFileSystemWatcher("**/*.cadl"),
+        workspace.createFileSystemWatcher("**/cadl-project.yaml"),
         workspace.createFileSystemWatcher("**/package.json"),
       ],
     },

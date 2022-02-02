@@ -14,23 +14,20 @@ export interface CadlConfig {
    */
   diagnostics: Diagnostic[];
 
-  plugins: string[];
-  lint: CadlLintConfig;
+  /**
+   * Path to another cadl config to extend.
+   */
+  extends?: string;
+
   emitters: Record<string, boolean>;
 }
 
 export type RuleValue = "on" | "off" | {};
 
-export interface CadlLintConfig {
-  extends: string[];
-  rules: Record<string, RuleValue>;
-}
-
 /**
  * Represent the configuration that can be provided in a config file.
  */
 export interface CadlRawConfig {
-  plugins?: string[];
-  lint?: Partial<CadlLintConfig>;
+  extends?: string;
   emitters?: Record<string, boolean>;
 }

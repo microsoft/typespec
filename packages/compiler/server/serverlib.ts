@@ -21,6 +21,7 @@ import {
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
+import { loadCadlConfigForPath } from "../config/config-loader.js";
 import {
   compilerAssert,
   createSourceFile,
@@ -250,13 +251,18 @@ export function createServer(host: ServerHost): Server {
   async function compile(document: TextDocument): Promise<Program | undefined> {
     const path = getPath(document);
     const mainFile = await getMainFileForDocument(path);
+    const config = await loadCadlConfigForPath(compilerHost, mainFile);
+    const options = {
+      ...serverOptions,
+      emitters: config.emitters ? Object.keys(config.emitters) : [],
+    };
     if (!upToDate(document)) {
       return undefined;
     }
 
     let program: Program;
     try {
-      program = await createProgram(compilerHost, mainFile, serverOptions);
+      program = await createProgram(compilerHost, mainFile, options);
       if (!upToDate(document)) {
         return undefined;
       }
@@ -264,7 +270,7 @@ export function createServer(host: ServerHost): Server {
       if (mainFile !== path && !program.sourceFiles.has(path)) {
         // If the file that changed wasn't imported by anything from the main
         // file, retry using the file itself as the main file.
-        program = await createProgram(compilerHost, path, serverOptions);
+        program = await createProgram(compilerHost, path, options);
       }
 
       if (!upToDate(document)) {

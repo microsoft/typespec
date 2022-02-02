@@ -1,8 +1,8 @@
-import watch from "watch";
 import ecmarkup from "ecmarkup";
 import { readFile, writeFile } from "fs/promises";
-import { runWatch } from "../../../eng/scripts/helpers.js";
 import { resolve } from "path";
+import watch from "watch";
+import { runWatch } from "../../../eng/scripts/helpers.js";
 
 async function build() {
   const infile = resolve("src/spec.emu.html");

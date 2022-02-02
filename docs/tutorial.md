@@ -497,15 +497,17 @@ model WriteDog {
 
 ### Libraries
 
-Cadl libraries are bundles of useful Cadl declarations and decorators into reusable packages. Cadl libraries are actually npm packages under the covers. Official Cadl libraries can be found with the `@azure-tools/cadl-` npm package name prefix.
+Cadl libraries are bundles of useful Cadl declarations and decorators into reusable packages. Cadl libraries are actually npm packages under the covers. Official Cadl libraries can be found with the `@cadl-lang/` or `@azure-tools/cadl-` npm package name prefix. Libraries can be either a language library, an emitter library or both.
 
-#### Using libraries
+#### Setting up Cadl library
 
 The first step in using a library is to install it via `npm`. You can get `npm` and `node` from the [Node.js website](https://nodejs.org).
 
 If you haven't already initialized your Cadl project's package.json file, now would be a good time to do so. The package.json file lets you track the dependencies your project depends on, and is a best practice to check in along with any Cadl files you create. Run `npm init` create your package.json file.
 
 Then, in your Cadl project directory, type `npm install libraryName` to install a library. For example, to install the official Cadl REST API bindings and OpenAPI generator, you would type `npm install @cadl-lang/rest @cadl-lang/openapi3`.
+
+#### Using language libraries
 
 Lastly, you need to import the libraries into your Cadl program. By convention, all external dependencies are imported in your `main.cadl` file, but can be in any Cadl file imported into your program. Importing the two libraries we installed above would look like this:
 
@@ -514,6 +516,22 @@ Lastly, you need to import the libraries into your Cadl program. By convention, 
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
 
+```
+
+#### Using emitter libraries
+
+The emitter needs to be referenced either via the cli `--emit` option or configured in the CADL config file.
+
+```bash
+# Run openapi3 emitter on the spec
+cadl compile . --emit=@cadl-lang/openapi3
+```
+
+or in the config file `cadl-project.yaml`
+
+```yaml
+emitters:
+  "@cadl-lang/openapi3": true
 ```
 
 #### Creating libraries
@@ -708,4 +726,17 @@ namespace Pets {
   op create(@body pet: Pet): OkResponse<{}>;
 }
 
+```
+
+### CADL Config
+
+Cadl has a configuration file `cadl-project.yaml` that right now is only used to configure the default emitter to use.
+The config file needs to be a sibling of the `package.json`. Cadl will look for the following files in that order and pick the 1st one found:
+
+Configuration schema:
+
+```yaml
+# Map of the default emitters to use when not using `--emit`
+emitters:
+  <emitterName>: true
 ```

@@ -43,7 +43,7 @@ namespace Microsoft.Cadl.VisualStudio {
 
     public object? InitializationOptions => null;
     public bool ShowNotificationOnInitializeFailed => true;
-    public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.cadl", "**/package.json" };
+    public IEnumerable<string> FilesToWatch { get; } = new[] { "**/*.cadl", "**/cadl-project.yaml", "**/package.json" };
     public event AsyncEventHandler<EventArgs>? StartAsync;
     public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
 

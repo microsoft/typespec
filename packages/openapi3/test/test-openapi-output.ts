@@ -446,7 +446,7 @@ describe("openapi3: definitions", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await testHost.diagnose("./", { emitters: ["openapi3"], noEmit: false });
     strictEqual(diagnostics.length, 1);
     match(diagnostics[0].message, /Empty unions are not supported for OpenAPI v3/);
   });
@@ -461,7 +461,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        @post op create(@body body: Cat | Dog): OkResponse<{}>;
+        @post op create(@body body: Cat | Dog): { ...Response<200> };
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -479,7 +479,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        @post op create(@body body: Cat | string): OkResponse<{}>;
+        @post op create(@body body: Cat | string): { ...Response<200> };
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -500,7 +500,7 @@ describe("openapi3: definitions", () => {
     alias Pet = Cat | Dog;
     @route("/")
     namespace root {
-      @post op create(@body body: Pet): OkResponse<{}>;
+      @post op create(@body body: Pet): { ...Response<200> };
     }
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");

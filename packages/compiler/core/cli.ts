@@ -6,7 +6,7 @@ import os from "os";
 import { resolve } from "path";
 import url from "url";
 import yargs from "yargs";
-import { loadCadlConfigInDir } from "../config/index.js";
+import { loadCadlConfigForPath } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
@@ -67,6 +67,11 @@ async function main() {
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
+          .option("emit", {
+            type: "array",
+            string: true,
+            describe: "Name of the emitters",
+          })
           .option("diagnostic-level", {
             type: "string",
             default: "info",
@@ -75,10 +80,16 @@ async function main() {
           });
       },
       async (args) => {
-        const options = await getCompilerOptions(args);
-        const program = await compileInput(args.path, options);
+        const cliOptions = await getCompilerOptions(args);
+
+        const program = await compileInput(args.path, cliOptions);
         if (program.hasError()) {
           process.exit(1);
+        }
+        if (program.emitters.length === 0) {
+          console.log(
+            "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the cadl config."
+          );
         }
       }
     )
@@ -277,6 +288,7 @@ async function getCompilerOptions(args: {
   option?: string[];
   import?: string[];
   watch?: boolean;
+  emit?: string[];
   "diagnostic-level": string;
 }): Promise<CompilerOptions> {
   // Ensure output path
@@ -294,6 +306,16 @@ async function getCompilerOptions(args: {
     miscOptions[optionParts[0]] = optionParts[1];
   }
 
+  const config = await loadCadlConfigForPath(NodeHost, process.cwd());
+
+  if (config.diagnostics.length > 0) {
+    logDiagnostics(config.diagnostics, NodeHost.logSink);
+    logDiagnosticCount(config.diagnostics);
+    if (config.diagnostics.some((d) => d.severity === "error")) {
+      process.exit(1);
+    }
+  }
+
   return {
     miscOptions,
     outputPath,
@@ -302,6 +324,7 @@ async function getCompilerOptions(args: {
     additionalImports: args["import"],
     watchForChanges: args["watch"],
     diagnosticLevel: args["diagnostic-level"] as any,
+    emitters: args.emit ?? (config.emitters ? Object.keys(config.emitters) : []),
   };
 }
 
@@ -475,7 +498,7 @@ async function printInfo() {
   const cwd = process.cwd();
   console.log(`Module: ${url.fileURLToPath(import.meta.url)}`);
 
-  const config = await loadCadlConfigInDir(NodeHost, cwd);
+  const config = await loadCadlConfigForPath(NodeHost, cwd);
   const jsyaml = await import("js-yaml");
   const excluded = ["diagnostics", "filename"];
   const replacer = (key: string, value: any) => (excluded.includes(key) ? undefined : value);

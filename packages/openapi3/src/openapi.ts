@@ -1,12 +1,14 @@
 import {
   ArrayType,
   checkIfServiceNamespace,
+  EmitOptionsFor,
   EnumMemberType,
   EnumType,
   findChildModels,
   getAllTags,
   getDoc,
   getFormat,
+  getFriendlyName,
   getMaxLength,
   getMaxValue,
   getMinLength,
@@ -14,10 +16,12 @@ import {
   getPattern,
   getProperty,
   getServiceHost,
+  getServiceNamespace,
   getServiceNamespaceString,
   getServiceTitle,
   getServiceVersion,
   getVisibility,
+  isErrorModel,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -41,13 +45,14 @@ import {
   HttpOperationParameters,
   OperationDetails,
 } from "@cadl-lang/rest";
-import { reportDiagnostic } from "./lib.js";
+import { getVersionRecords } from "@cadl-lang/versioning";
+import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 
 const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isHeader, isStatusCode } =
   http;
 
-export async function $onBuild(p: Program) {
-  const options: OpenAPIEmitterOptions = {
+export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
+  const options = {
     outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
   };
 
@@ -127,25 +132,28 @@ function getOneOf(program: Program, entity: Type): boolean {
 // the emitted OpenAPI document.
 
 const securityDetailsKey = Symbol();
-const securityRequirementsKey = "requirements";
-const securityDefinitionsKey = "definitions";
+interface SecurityDetails {
+  definitions: any;
+  requirements: any[];
+}
 
-function getSecurityRequirements(program: Program) {
+function getSecurityDetails(program: Program, serviceNamespace: NamespaceType): SecurityDetails {
   const definitions = program.stateMap(securityDetailsKey);
-  return definitions?.has(securityRequirementsKey) ? definitions.get(securityRequirementsKey) : [];
+  if (definitions.has(serviceNamespace)) {
+    return definitions.get(serviceNamespace)!;
+  } else {
+    const details = { definitions: {}, requirements: [] };
+    definitions.set(serviceNamespace, details);
+    return details;
+  }
 }
 
-function setSecurityRequirements(program: Program, requirements: any[]) {
-  program.stateMap(securityDetailsKey).set(securityRequirementsKey, requirements);
+function getSecurityRequirements(program: Program, serviceNamespace: NamespaceType) {
+  return getSecurityDetails(program, serviceNamespace).requirements;
 }
 
-function getSecurityDefinitions(program: Program) {
-  const definitions = program.stateMap(securityDetailsKey);
-  return definitions?.has(securityDefinitionsKey) ? definitions.get(securityDefinitionsKey) : {};
-}
-
-function setSecurityDefinitions(program: Program, definitions: any) {
-  program.stateMap(securityDetailsKey).set(securityDefinitionsKey, definitions);
+function getSecurityDefinitions(program: Program, serviceNamespace: NamespaceType) {
+  return getSecurityDetails(program, serviceNamespace).definitions;
 }
 
 export function addSecurityRequirement(
@@ -163,9 +171,8 @@ export function addSecurityRequirement(
 
   const req: any = {};
   req[name] = scopes;
-  const requirements = getSecurityRequirements(program);
+  const requirements = getSecurityRequirements(program, namespace);
   requirements.push(req);
-  setSecurityRequirements(program, requirements);
 }
 
 export function addSecurityDefinition(
@@ -182,9 +189,8 @@ export function addSecurityDefinition(
     return;
   }
 
-  const definitions = getSecurityDefinitions(program);
+  const definitions = getSecurityDefinitions(program, namespace);
   definitions[name] = details;
-  setSecurityDefinitions(program, definitions);
 }
 
 const openApiExtensions = new Map<Type, Map<string, any>>();
@@ -203,54 +209,91 @@ export interface OpenAPIEmitterOptions {
 }
 
 function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
-  const root: any = {
-    openapi: "3.0.0",
-    info: {
-      title: getServiceTitle(program),
-      version: getServiceVersion(program),
-    },
-    tags: [],
-    paths: {},
-    components: {
-      parameters: {},
-      requestBodies: {},
-      responses: {},
-      schemas: {},
-      examples: {},
-      securitySchemes: {},
-    },
-  };
-
-  const host = getServiceHost(program);
-  if (host) {
-    root.servers = [
-      {
-        url: "https://" + host,
-      },
-    ];
-  }
+  let root: any;
+  let host: string | undefined;
 
   // Get the service namespace string for use in name shortening
-  const serviceNamespace: string | undefined = getServiceNamespaceString(program);
-
-  let currentBasePath: string | undefined = "";
-  let currentPath: any = root.paths;
+  let serviceNamespace: string | undefined;
+  let currentBasePath: string | undefined;
+  let currentPath: any;
   let currentEndpoint: any;
 
   // Keep a list of all Types encountered that need schema definitions
-  const schemas = new Set<Type>();
+  let schemas = new Set<Type>();
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
   // this map.
-  const params = new Map<ModelTypeProperty, any>();
+  let params: Map<ModelTypeProperty, any>;
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
-  const tags = new Set<string>();
+  let tags: Set<string>;
 
   return { emitOpenAPI };
 
+  function initializeEmitter(version?: string) {
+    root = {
+      openapi: "3.0.0",
+      info: {
+        title: getServiceTitle(program),
+        version: version ?? getServiceVersion(program),
+      },
+      tags: [],
+      paths: {},
+      components: {
+        parameters: {},
+        requestBodies: {},
+        responses: {},
+        schemas: {},
+        examples: {},
+        securitySchemes: {},
+      },
+    };
+    host = getServiceHost(program);
+    if (host) {
+      root.servers = [
+        {
+          url: "https://" + host,
+        },
+      ];
+    }
+
+    serviceNamespace = getServiceNamespaceString(program);
+    currentBasePath = "";
+    currentPath = root.paths;
+    currentEndpoint = undefined;
+    schemas = new Set();
+    params = new Map();
+    tags = new Set();
+  }
   async function emitOpenAPI() {
+    const serviceNs = getServiceNamespace(program);
+    if (!serviceNs) {
+      return;
+    }
+    const versions = getVersionRecords(program, serviceNs);
+    for (const record of versions) {
+      record.projections.push({
+        projectionName: "toTypescript",
+        arguments: [],
+      });
+      if (record.version) {
+        record.projections.push({
+          projectionName: "atVersion",
+          arguments: [record.version],
+        });
+      }
+
+      if (record.version !== undefined) {
+        program.enableProjections(record.projections);
+      }
+
+      await emitOpenAPIFromVersion(record.version);
+    }
+  }
+
+  async function emitOpenAPIFromVersion(version?: string) {
+    initializeEmitter(version);
     try {
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();
@@ -265,10 +308,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
       if (!program.compilerOptions.noEmit && !program.hasError()) {
         // Write out the OpenAPI document to the output path
-        await program.host.writeFile(
-          resolvePath(options.outputFile),
-          prettierOutput(JSON.stringify(root, null, 2))
-        );
+        const outPath = version
+          ? resolvePath(options.outputFile.replace(".json", `.${version}.json`))
+          : resolvePath(options.outputFile);
+
+        await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
       }
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -383,8 +427,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     // If there is no explicit status code, set the default
     if (statusCodes.length === 0) {
-      const defaultStatusCode = bodyModel ? "200" : "204";
-      statusCodes.push(defaultStatusCode);
+      if (bodyModel) {
+        const defaultStatusCode = isErrorModel(program, bodyModel) ? "default" : "200";
+        statusCodes.push(defaultStatusCode);
+      } else {
+        statusCodes.push("204");
+      }
     }
 
     // If there is a body but no explicit content types, use application/json
@@ -477,7 +525,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     // regex for three character status codes:
     // - starts with 1-5
     // - last two digits are numeric or "X"
-    const statusCodePatten = /[1-5][-09X][0-9X]/;
+    const statusCodePatten = /[1-5][0-9X][0-9X]/;
     if (code.match(statusCodePatten) || code === "default") {
       return true;
     }
@@ -504,6 +552,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return "No Content";
       case "3XX":
         return "Redirection";
+      case "301":
+        return "Moved Permanently";
+      case "304":
+        return "Not Modified";
       case "4XX":
         return "Client Error";
       case "400":
@@ -514,6 +566,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return "Forbidden";
       case "404":
         return "Not Found";
+      case "409":
+        return "Conflict";
+      case "412":
+        return "Precondition Failed";
       case "5XX":
         return "Server Error";
       case "default":
@@ -529,7 +585,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return desc;
     }
 
-    // We might want to throw here -- rather than giving some default
     return getDescriptionForStatusCode(statusCode);
   }
 
@@ -1248,8 +1303,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getTypeNameForSchemaProperties(type: Type) {
+    // If there's a friendly name for the type, use that instead
+    let typeName = getFriendlyName(program, type);
+    if (typeName) {
+      return typeName;
+    }
+
     // Try to shorten the type name to exclude the top-level service namespace
-    let typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
+    typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
 
     if (isRefSafeName(typeName)) {
       if (serviceNamespace) {
