@@ -32,6 +32,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
+    "@cadl-lang/versioning": "0.1.0",
     "@cadl-lang/compiler": "~0.25.0",
     "@cadl-lang/rest": "~0.8.0",
     "@cadl-lang/openapi": "~0.5.0",

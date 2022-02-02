@@ -1,5 +1,5 @@
-import { run } from "../../../eng/scripts/helpers.js";
 import { readFileSync } from "fs";
+import { run } from "../../../eng/scripts/helpers.js";
 
 const version = JSON.parse(readFileSync("package.json")).version;
 const vsix = `cadl-vscode-${version}.vsix`;

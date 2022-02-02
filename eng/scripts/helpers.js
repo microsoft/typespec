@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "child_process";
-import { statSync, readFileSync } from "fs";
+import { readFileSync, statSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 

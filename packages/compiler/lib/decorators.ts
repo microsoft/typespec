@@ -11,6 +11,17 @@ import {
 
 export const namespace = "Cadl";
 
+function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
+  // Template parameters are not valid source objects, just skip them
+  if (sourceObject.kind === "TemplateParameter") {
+    return formatString;
+  }
+
+  return formatString.replace(/{(\w+)}/g, (_, propName) => {
+    return (sourceObject as any)[propName];
+  });
+}
+
 const docsKey = Symbol();
 export function $doc(program: Program, target: Type, text: string, sourceObject: Type) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
@@ -29,14 +40,7 @@ export function $doc(program: Program, target: Type, text: string, sourceObject:
 
   // If an object was passed in, use it to format the documentation string
   if (sourceObject) {
-    // Template parameters are not valid source objects, just skip them
-    if (sourceObject.kind === "ModelProperty") {
-      return;
-    }
-
-    text = text.replace(/{(\w+)}/g, (_, propName) => {
-      return (sourceObject as any)[propName];
-    });
+    text = replaceTemplatedStringFromProperties(text, sourceObject);
   }
 
   program.stateMap(docsKey).set(target, text);
@@ -69,11 +73,14 @@ export function isIntrinsic(program: Program, target: Type | undefined) {
 }
 
 // Walks the assignmentType chain to find the core intrinsic type, if any
-export function getIntrinsicType(program: Program, target: Type | undefined): string | undefined {
+export function getIntrinsicType(
+  program: Program,
+  target: Type | undefined
+): ModelType | undefined {
   while (target) {
     if (target.kind === "Model") {
       if (isIntrinsic(program, target)) {
-        return target.name;
+        return target;
       }
 
       target = target.baseModel;
@@ -89,7 +96,7 @@ export function getIntrinsicType(program: Program, target: Type | undefined): st
 
 export function isStringType(program: Program, target: Type): boolean {
   const intrinsicType = getIntrinsicType(program, target);
-  return intrinsicType !== undefined && intrinsicType === "string";
+  return intrinsicType !== undefined && intrinsicType.name === "string";
 }
 
 export function isErrorType(type: Type): boolean {
@@ -118,12 +125,36 @@ export function $numeric(program: Program, target: Type) {
     );
     return;
   }
-  program.stateSet(numericTypesKey).add(target.name);
+  program.stateSet(numericTypesKey).add(target);
 }
 
 export function isNumericType(program: Program, target: Type): boolean {
   const intrinsicType = getIntrinsicType(program, target);
   return intrinsicType !== undefined && program.stateSet(numericTypesKey).has(intrinsicType);
+}
+
+// -- @error decorator ----------------------
+
+const errorKey = Symbol();
+
+export function $error(program: Program, target: Type) {
+  if (target.kind !== "Model") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        messageId: "model",
+        format: { decorator: "@error" },
+        target,
+      })
+    );
+    return;
+  }
+
+  program.stateSet(errorKey).add(target);
+}
+
+export function isErrorModel(program: Program, target: Type): boolean {
+  return program.stateSet(errorKey).has(target);
 }
 
 // -- @format decorator ---------------------
@@ -142,7 +173,7 @@ export function $format(program: Program, target: Type, format: string) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -176,7 +207,7 @@ export function $pattern(program: Program, target: Type, pattern: string) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -210,7 +241,7 @@ export function $minLength(program: Program, target: Type, minLength: number) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -244,7 +275,7 @@ export function $maxLength(program: Program, target: Type, maxLength: number) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -340,7 +371,7 @@ export function $secret(program: Program, target: Type) {
     return;
   }
 
-  if (getIntrinsicType(program, target) !== "string") {
+  if (getIntrinsicType(program, target)?.name !== "string") {
     createDiagnostic({
       code: "decorator-wrong-target",
       format: { decorator: "@secret", to: "non-string type" },
@@ -589,4 +620,51 @@ export function validateDecoratorParamCount(
     });
     return;
   }
+}
+
+// -- @friendlyName decorator ---------------------
+
+const friendlyNamesKey = Symbol();
+
+export function $friendlyName(
+  program: Program,
+  target: Type,
+  friendlyName: string,
+  sourceObject: Type | undefined
+) {
+  // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
+  if (typeof friendlyName !== "string") {
+    reportDiagnostic(program, {
+      code: "invalid-argument",
+      format: {
+        value: program.checker!.getTypeName(friendlyName),
+        actual: typeof friendlyName,
+        expected: "string",
+      },
+      target,
+    });
+    return;
+  }
+
+  if (target.kind !== "Model") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@friendlyName", to: "model type" },
+        target,
+      })
+    );
+    return;
+  }
+
+  // If an object was passed in, use it to format the friendly name
+  if (sourceObject) {
+    friendlyName = replaceTemplatedStringFromProperties(friendlyName, sourceObject);
+  }
+
+  program.stateMap(friendlyNamesKey).set(target, friendlyName);
+}
+
+export function getFriendlyName(program: Program, target: Type): string {
+  return program.stateMap(friendlyNamesKey).get(target);
 }

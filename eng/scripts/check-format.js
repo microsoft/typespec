@@ -1,4 +1,4 @@
-import { runPrettier, CommandFailedError } from "./helpers.js";
+import { CommandFailedError, runPrettier } from "./helpers.js";
 
 try {
   runPrettier("--list-different");

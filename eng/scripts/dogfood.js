@@ -1,3 +1,3 @@
-import { run, npmForEach } from "./helpers.js";
+import { npmForEach, run } from "./helpers.js";
 run("rush", ["build"]);
 npmForEach("dogfood");

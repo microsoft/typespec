@@ -60,18 +60,50 @@ export async function createOpenAPITestHost() {
     resolvePath(root, "../openapi3/dist/src/openapi.js")
   );
 
+  // load versioning
+  await host.addRealCadlFile(
+    "./node_modules/versioning/package.json",
+    resolvePath(root, "../versioning/package.json")
+  );
+  await host.addRealCadlFile(
+    "./node_modules/versioning/lib/versioning.cadl",
+    resolvePath(root, "../versioning/lib/versioning.cadl")
+  );
+  await host.addRealJsFile(
+    "./node_modules/versioning/dist/src/versioning.js",
+    resolvePath(root, "../versioning/dist/src/versioning.js")
+  );
+
   return host;
 }
 
-export async function openApiFor(code: string) {
+function versionedOutput(path: string, version: string) {
+  return path.replace(".json", "." + version + ".json");
+}
+export async function openApiFor(code: string, versions?: string[]) {
   const host = await createOpenAPITestHost();
   const outPath = resolvePath("/openapi.json");
   host.addCadlFile(
     "./main.cadl",
-    `import "rest"; import "openapi"; import "openapi3"; using Cadl.Rest; using Cadl.Http;${code}`
+    `import "rest"; import "openapi"; import "openapi3"; ${
+      versions ? `import "versioning"; ` : ""
+    }using Cadl.Rest;using Cadl.Http;${code}`
   );
-  await host.compile("./main.cadl", { noEmit: false, swaggerOutputFile: outPath });
-  return JSON.parse(host.fs.get(outPath)!);
+  await host.compile("./main.cadl", {
+    noEmit: false,
+    swaggerOutputFile: outPath,
+    emitters: ["openapi3"],
+  });
+
+  if (!versions) {
+    return JSON.parse(host.fs.get(outPath)!);
+  } else {
+    const output: any = {};
+    for (const version of versions) {
+      output[version] = JSON.parse(host.fs.get(versionedOutput(outPath, version))!);
+    }
+    return output;
+  }
 }
 
 export async function checkFor(code: string) {
@@ -84,6 +116,7 @@ export async function checkFor(code: string) {
   const result = await host.diagnose("./main.cadl", {
     noEmit: false,
     swaggerOutputFile: outPath,
+    emitters: ["openapi3"],
   });
   return result;
 }

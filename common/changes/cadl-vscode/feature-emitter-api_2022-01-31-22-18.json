@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Add cadl project file to list of files watched",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

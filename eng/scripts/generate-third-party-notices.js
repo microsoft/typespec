@@ -1,5 +1,5 @@
-import { join, dirname, basename, resolve } from "path";
-import { readFile, writeFile, readdir, stat } from "fs/promises";
+import { readdir, readFile, stat, writeFile } from "fs/promises";
+import { basename, dirname, join, resolve } from "path";
 
 const skipDirs = new Set(["node_modules", "dist-dev"]);
 main().catch((e) => console.error(e.stack));

@@ -104,5 +104,11 @@ export const libDef = {
       },
     },
   },
+  emitter: {
+    names: ["openapi3"],
+  },
 } as const;
-export const { reportDiagnostic } = createCadlLibrary(libDef);
+const lib = createCadlLibrary(libDef);
+export const { reportDiagnostic } = lib;
+
+export type OpenAPILibrary = typeof lib;

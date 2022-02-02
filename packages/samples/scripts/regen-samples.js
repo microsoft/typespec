@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import mkdirp from "mkdirp";
-import { run } from "../../../eng/scripts/helpers.js";
 import { readdirSync, rmdirSync } from "fs";
-import { fileURLToPath } from "url";
+import mkdirp from "mkdirp";
 import { dirname, join, normalize, resolve } from "path";
+import { fileURLToPath } from "url";
+import { run } from "../../../eng/scripts/helpers.js";
 
 const excludedSamples = [
   // fails compilation by design to demo language server
@@ -39,6 +39,7 @@ function main() {
       inputPath,
       `--output-path=${outputPath}`,
       `--import=@cadl-lang/openapi3`,
+      `--emit=@cadl-lang/openapi3`,
       `--debug`,
     ]);
   }

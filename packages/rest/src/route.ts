@@ -63,7 +63,7 @@ export function $routeReset(program: Program, entity: Type, path: string) {
 
 const routeContainerKey = Symbol();
 function addRouteContainer(program: Program, entity: Type): void {
-  const container = entity.kind === "Operation" ? entity.interface || entity.namespace : entity;
+  let container = entity.kind === "Operation" ? entity.interface || entity.namespace : entity;
   if (!container) {
     // Somehow the entity doesn't have a container.  This should only happen
     // when a type was created manually and not by the checker.

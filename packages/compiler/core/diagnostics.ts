@@ -16,6 +16,7 @@ import {
   SourceFile,
   SourceLocation,
   SyntaxKind,
+  Type,
 } from "./types.js";
 
 /**
@@ -79,6 +80,16 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
     createDiagnostic,
     reportDiagnostic,
   } as any;
+}
+
+/**
+ * Represents a failure while interpreting a projection.
+ */
+export class ProjectionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ProjectionError";
+  }
 }
 
 export type WriteLine = (text?: string) => void;
@@ -164,8 +175,18 @@ export function getSourceLocation(
     return createDummySourceLocation(target.path);
   }
 
+  if (target.kind === "Function" || target.kind === "function" || target.kind === "Object") {
+    return createDummySourceLocation();
+  }
+
   const node = "node" in target ? target.node! : target;
-  if (node.kind === "Intrinsic") {
+
+  if (
+    node.kind === "Intrinsic" ||
+    node.kind === "String" ||
+    node.kind === "Number" ||
+    node.kind === "Boolean"
+  ) {
     return createDummySourceLocation();
   }
 
@@ -312,4 +333,17 @@ function binarySearch(array: readonly number[], value: number) {
   }
 
   return ~low;
+}
+
+/**
+ * Assert that the input type has one of the kinds provided
+ */
+export function assertType<TKind extends Type["kind"][]>(
+  typeDescription: string,
+  t: Type,
+  ...kinds: TKind
+): asserts t is Type & { kind: TKind[number] } {
+  if (kinds.indexOf(t.kind) === -1) {
+    throw new ProjectionError(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
+  }
 }
