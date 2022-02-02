@@ -1,6 +1,6 @@
 import { ModelType, ModelTypeProperty } from "@cadl-lang/compiler";
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { createOpenAPITestHost, openApiFor } from "./testHost.js";
+import { checkFor, openApiFor } from "./testHost.js";
 
 describe("openapi3: discriminated unions", () => {
   it("defines unions with discriminators", async () => {
@@ -289,14 +289,7 @@ describe("openapi3: discriminated unions", () => {
   });
 
   it("issues diagnostics for errors in a discriminated union", async () => {
-    let testHost = await createOpenAPITestHost();
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "rest";
-      import "openapi3";
-      using Cadl.Http;
-
+    const diagnostics = await checkFor(`
       @discriminator("kind")
       model Pet {
         name: string;
@@ -327,9 +320,7 @@ describe("openapi3: discriminated unions", () => {
       namespace root {
         op read(): { @body body: Pet };
       }
-      `
-    );
-    const diagnostics = await testHost.diagnose("./");
+      `);
     strictEqual(diagnostics.length, 6);
     strictEqual((diagnostics[0].target as ModelType).name, "Dog");
     match(diagnostics[0].message, /not defined in a variant of a discriminated union/);
@@ -344,14 +335,7 @@ describe("openapi3: discriminated unions", () => {
   });
 
   it("issues diagnostics for duplicate discriminator values", async () => {
-    let testHost = await createOpenAPITestHost();
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "rest";
-      import "openapi3";
-      using Cadl.Http;
-
+    const diagnostics = await checkFor(`
       @discriminator("kind")
       model Pet {
       }
@@ -372,9 +356,7 @@ describe("openapi3: discriminated unions", () => {
       namespace root {
         op read(): { @body body: Pet };
       }
-      `
-    );
-    const diagnostics = await testHost.diagnose("./");
+      `);
     strictEqual(diagnostics.length, 2);
     match(diagnostics[0].message, /"housepet" defined in two different variants: Cat and Dog/);
     match(diagnostics[1].message, /"dog" defined in two different variants: Dog and Beagle/);

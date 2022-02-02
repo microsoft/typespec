@@ -1,6 +1,8 @@
 import { readdir } from "fs/promises";
+import jsyaml from "js-yaml";
 import Mustache from "mustache";
 import prompts from "prompts";
+import { CadlConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
 import { getBaseFileName, joinPaths } from "../core/path-utils.js";
@@ -114,6 +116,11 @@ const builtInTemplates: Record<string, InitTemplate> = {
     title: "Generic Rest API",
     description: "Create a project representing a generic Rest API",
     libraries: ["@cadl-lang/rest", "@cadl-lang/openapi3"],
+    config: {
+      emitters: {
+        "@cadl-lang/openapi3": true,
+      },
+    },
   },
 };
 
@@ -192,8 +199,11 @@ async function selectLibraries(template: InitTemplate): Promise<string[]> {
 
 export async function scaffoldNewProject(host: CompilerHost, config: ScaffoldingConfig) {
   await writePackageJson(host, config);
+  await writeConfig(host, config);
   await writeMain(host, config);
   await writeFiles(host, config);
+
+  console.log("Cadl init completed. You can run `cadl install` now to install dependencies.");
 }
 
 async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
@@ -215,6 +225,14 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
     joinPaths(config.directory, "package.json"),
     JSON.stringify(packageJson, null, 2)
   );
+}
+
+async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
+  if (!config.config) {
+    return;
+  }
+  const content = jsyaml.dump(config.config);
+  return host.writeFile(joinPaths(config.directory, CadlConfigFilename), content);
 }
 
 async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {

@@ -969,6 +969,9 @@ export interface JsSourceFile {
   readonly namespaces: readonly NamespaceStatementNode[];
 }
 
+export type EmitterOptions = { name?: string } & Record<string, any>;
+export type Emitter = (program: Program, options: EmitterOptions) => void;
+
 export interface SourceFile {
   /** The source code text. */
   readonly text: string;
@@ -1174,7 +1177,10 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
 /**
  * Definition of a cadle library
  */
-export interface CadlLibraryDef<T extends { [code: string]: DiagnosticMessages }> {
+export interface CadlLibraryDef<
+  T extends { [code: string]: DiagnosticMessages },
+  E extends string = string
+> {
   /**
    * Name of the library. Must match the package.json name.
    */
@@ -1184,15 +1190,38 @@ export interface CadlLibraryDef<T extends { [code: string]: DiagnosticMessages }
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
   readonly diagnostics: DiagnosticMap<T>;
+
+  /**
+   * Provide names for emitters if there is multiple.
+   */
+  readonly emitter?: {
+    names?: readonly E[];
+  };
 }
 
-export interface CadlLibrary<T extends { [code: string]: DiagnosticMessages }> {
+export interface CadlLibrary<
+  T extends { [code: string]: DiagnosticMessages },
+  E extends string = string
+> {
   readonly name: string;
   readonly diagnostics: DiagnosticMap<T>;
+  readonly emitter?: {
+    names?: readonly E[];
+  };
+
   reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;
+}
+
+/**
+ * Get the options for the onEmit of this library.
+ */
+export type EmitOptionsFor<C> = C extends CadlLibrary<infer T, infer E> ? EmitOptions<E> : never;
+
+export interface EmitOptions<E extends string> {
+  name?: E;
 }
 
 export type LogLevel = "debug" | "verbose" | "info" | "warning" | "error";

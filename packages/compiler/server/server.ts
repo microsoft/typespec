@@ -24,6 +24,7 @@ import {
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
+import { loadCadlConfigForPath } from "../config/config-loader.js";
 import {
   compilerAssert,
   createSourceFile,
@@ -217,13 +218,18 @@ function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
 async function compile(document: TextDocument): Promise<Program | undefined> {
   const path = getPath(document);
   const mainFile = await getMainFileForDocument(path);
+  const config = await loadCadlConfigForPath(serverHost, mainFile);
+  const options = {
+    ...serverOptions,
+    emitters: config.emitters ? Object.keys(config.emitters) : [],
+  };
   if (!upToDate(document)) {
     return undefined;
   }
 
   let program: Program;
   try {
-    program = await createProgram(serverHost, mainFile, serverOptions);
+    program = await createProgram(serverHost, mainFile, options);
     if (!upToDate(document)) {
       return undefined;
     }
@@ -231,7 +237,7 @@ async function compile(document: TextDocument): Promise<Program | undefined> {
     if (mainFile !== path && !program.sourceFiles.has(path)) {
       // If the file that changed wasn't imported by anything from the main
       // file, retry using the file itself as the main file.
-      program = await createProgram(serverHost, path, serverOptions);
+      program = await createProgram(serverHost, path, options);
     }
 
     if (!upToDate(document)) {
@@ -678,7 +684,7 @@ async function readFile(path: string): Promise<ServerSourceFile> {
 async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
   // if we have an open document for the path or a cache entry, then we know
   // it's a file and not a directory and needn't hit the disk.
-  if (getDocument(path) || fileSystemCache.has(path)) {
+  if (getDocument(path) || fileSystemCache.get(path)?.type === "file") {
     return {
       isFile() {
         return true;

@@ -1,6 +1,7 @@
 import {
   ArrayType,
   checkIfServiceNamespace,
+  EmitOptionsFor,
   EnumMemberType,
   EnumType,
   findChildModels,
@@ -45,13 +46,13 @@ import {
   OperationDetails,
 } from "@cadl-lang/rest";
 import { getVersionRecords } from "@cadl-lang/versioning";
-import { reportDiagnostic } from "./lib.js";
+import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 
 const { getHeaderFieldName, getPathParamName, getQueryParamName, isBody, isHeader, isStatusCode } =
   http;
 
-export async function $onBuild(p: Program) {
-  const options: OpenAPIEmitterOptions = {
+export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
+  const options = {
     outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
   };
 

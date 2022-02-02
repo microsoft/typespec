@@ -79,7 +79,11 @@ export async function openApiFor(code: string, versions?: string[]) {
       versions ? `import "versioning"; ` : ""
     }using Cadl.Rest;using Cadl.Http;${code}`
   );
-  await host.compile("./main.cadl", { noEmit: false, swaggerOutputFile: outPath });
+  await host.compile("./main.cadl", {
+    noEmit: false,
+    swaggerOutputFile: outPath,
+    emitters: ["openapi3"],
+  });
 
   if (!versions) {
     return JSON.parse(host.fs.get(outPath)!);
@@ -102,6 +106,7 @@ export async function checkFor(code: string) {
   const result = await host.diagnose("./main.cadl", {
     noEmit: false,
     swaggerOutputFile: outPath,
+    emitters: ["openapi3"],
   });
   return result;
 }

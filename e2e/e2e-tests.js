@@ -7,11 +7,16 @@ const e2eTestDir = join(repoRoot, "e2e");
 const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
 
 function main() {
+  cleanE2EDirectory();
   const packages = packPackages();
   testBasicLatest(packages);
   testBasicCurrentTgz(packages);
 }
 main();
+
+function cleanE2EDirectory() {
+  run("git", ["clean", "-xfd"], { cwd: e2eTestDir });
+}
 
 function packPackages() {
   run("rush", ["publish", "--publish", "--pack", "--include-all"]);
@@ -50,7 +55,10 @@ function testBasicLatest(packages) {
   console.log("Installed basic-latest dependencies");
 
   console.log("Running cadl compile .");
-  runCadl(packages["@cadl-lang/compiler"], ["compile", "."], { cwd: basicLatestDir });
+  // TODO after release of new cadl with emitter this will need to be updated with `, "--emit", "@cadl-lang/openapi3"`
+  runCadl(packages["@cadl-lang/compiler"], ["compile", "."], {
+    cwd: basicLatestDir,
+  });
   console.log("Completed cadl compile .");
 
   if (existsSync(join(outputDir, "openapi.json"))) {
@@ -69,7 +77,7 @@ function testBasicCurrentTgz(packages) {
 
   console.log("Generating package.json for basic-current");
   const packageJson = {
-    name: "basic-latest",
+    name: "current",
     dependencies: {
       "@cadl-lang/compiler": packages["@cadl-lang/compiler"],
       "@cadl-lang/rest": packages["@cadl-lang/rest"],
@@ -81,12 +89,14 @@ function testBasicCurrentTgz(packages) {
   writeFileSync(join(basicCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
   console.log("Generated package.json for basic-current");
 
-  console.log("Installing basic-latest dependencies");
+  console.log("Installing basic-current dependencies");
   runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicCurrentDir });
-  console.log("Installed basic-latest dependencies");
+  console.log("Installed basic-current dependencies");
 
-  console.log("Running cadl compile .");
-  runCadl(packages["@cadl-lang/compiler"], ["compile", "."], { cwd: basicCurrentDir });
+  console.log(`Running cadl compile . in "${basicCurrentDir}"`);
+  runCadl(packages["@cadl-lang/compiler"], ["compile", ".", "--emit", "@cadl-lang/openapi3"], {
+    cwd: basicCurrentDir,
+  });
   console.log("Completed cadl compile .");
 
   if (existsSync(join(outputDir, "openapi.json"))) {
