@@ -1,10 +1,6 @@
 {
   "extends": "../tsconfig.json",
-  "references": [
-    { "path": "../compiler/tsconfig.json" },
-    { "path": "../rest/tsconfig.json" },
-    { "path": "../openapi/tsconfig.json" }
-  ],
+  "references": [{ "path": "../compiler/tsconfig.json" }, { "path": "../rest/tsconfig.json" }],
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",

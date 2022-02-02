@@ -33,6 +33,7 @@ function packPackages() {
 
   return {
     "@cadl-lang/compiler": resolvePackage("cadl-lang-compiler-"),
+    "@cadl-lang/openapi": resolvePackage("cadl-lang-openapi-"),
     "@cadl-lang/openapi3": resolvePackage("cadl-lang-openapi3-"),
     "@cadl-lang/rest": resolvePackage("cadl-lang-rest-"),
     "@cadl-lang/versioning": resolvePackage("cadl-lang-versioning-"),
@@ -81,6 +82,7 @@ function testBasicCurrentTgz(packages) {
     dependencies: {
       "@cadl-lang/compiler": packages["@cadl-lang/compiler"],
       "@cadl-lang/rest": packages["@cadl-lang/rest"],
+      "@cadl-lang/openapi": packages["@cadl-lang/openapi"],
       "@cadl-lang/openapi3": packages["@cadl-lang/openapi3"],
       "@cadl-lang/versioning": packages["@cadl-lang/versioning"],
     },
