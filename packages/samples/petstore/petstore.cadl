@@ -57,7 +57,6 @@ namespace Pets {
   } | Error;
 
   @fancyDoc("List pets.")
-  @pageable
   op list(@query nextLink?: string): OkResponse<ResponsePage<Pet>> | Error;
 
   @doc("Returns a pet. Supports eTags.")
@@ -68,6 +67,5 @@ namespace Pets {
 
 @route("/pets/{petId}/toys")
 namespace ListPetToysResponse {
-  @pageable
   op list(@path petId: string, @query nameFilter: string): OkResponse<ResponsePage<Toy>> | Error;
 }

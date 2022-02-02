@@ -35,7 +35,6 @@ namespace LibraryService {
 Lists shelves. The order is unspecified but deterministic. Newly created
 shelves will not necessarily be added to the end of this list.
 """)
-  @pageable("next_page_token")
   @route("shelves")
   op listShelves(...ListRequestBase): ListShelvesResponse | RpcStatus;
 
