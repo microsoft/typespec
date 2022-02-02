@@ -25,7 +25,7 @@ describe("compiler: model circular references", () => {
       }
       `
     );
-    const records = await testHost.compile("/");
+    const records = await testHost.compile("./");
 
     const m = records["M"];
     assertModel(m);
@@ -40,7 +40,7 @@ describe("compiler: model circular references", () => {
       }
       `
     );
-    const records = await testHost.compile("/");
+    const records = await testHost.compile("./");
 
     const m = records["M"];
     assertModel(m);
@@ -62,7 +62,7 @@ describe("compiler: model circular references", () => {
       }
       `
     );
-    const records = await testHost.compile("/");
+    const records = await testHost.compile("./");
 
     const parent = records["Parent"];
     const child = records["Child"];
@@ -85,7 +85,7 @@ describe("compiler: model circular references", () => {
       op test(): Templated<string>;
       `
     );
-    const records = await testHost.compile("/");
+    const records = await testHost.compile("./");
     const model = records["Templated"];
     assertModel(model);
     assert(model.properties.get("parent")?.type === model);
@@ -115,7 +115,7 @@ describe("compiler: model circular references", () => {
       `
     );
 
-    const records = await testHost.compile("/");
+    const records = await testHost.compile("./");
 
     const fooSome = records["Some"];
     assertModel(fooSome);

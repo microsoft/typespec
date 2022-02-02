@@ -1,3 +1,4 @@
+import assert from "assert";
 import { readdir, readFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
 import {
@@ -12,23 +13,26 @@ import { createProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
 import { NodeHost } from "../core/util.js";
 
-export interface TestHost {
+export interface TestFileSystem {
+  compilerHost: CompilerHost;
+  fs: Map<string, string>;
+
   addCadlFile(path: string, contents: string): void;
   addJsFile(path: string, contents: any): void;
   addRealCadlFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
+}
+
+export interface TestHost extends TestFileSystem {
+  program: Program;
+  testTypes: Record<string, Type>;
+
   compile(main: string, options?: CompilerOptions): Promise<Record<string, Type>>;
   diagnose(main: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
   compileAndDiagnose(
     main: string,
     options?: CompilerOptions
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
-  testTypes: Record<string, Type>;
-  program: Program;
-  /**
-   * Virtual filesystem used in the tests.
-   */
-  fs: Map<string, string>;
 }
 
 class TestHostError extends Error {
@@ -37,13 +41,15 @@ class TestHostError extends Error {
   }
 }
 
-function resolveVFsPath(path: string) {
-  return resolvePath("/", path);
+export function resolveVirtualPath(path: string, ...paths: string[]) {
+  // NB: We should always resolve an absolute path, and there is no absolute
+  // path that works across OSes. This ensures that we can still rely on API
+  // like pathToFileURL in tests.
+  const rootDir = process.platform === "win32" ? "Z:/test" : "/test";
+  return resolvePath(rootDir, path, ...paths);
 }
 
-export async function createTestHost(): Promise<TestHost> {
-  const testTypes: Record<string, Type> = {};
-  let program: Program = undefined as any; // in practice it will always be initialized
+export async function createTestFileSystem(): Promise<TestFileSystem> {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
   const compilerHost: CompilerHost = {
@@ -55,7 +61,7 @@ export async function createTestHost(): Promise<TestHost> {
       return createSourceFile(contents, url);
     },
     async readFile(path: string) {
-      path = resolveVFsPath(path);
+      path = resolveVirtualPath(path);
       const contents = virtualFs.get(path);
       if (contents === undefined) {
         throw new TestHostError(`File ${path} not found.`, "ENOENT");
@@ -64,19 +70,19 @@ export async function createTestHost(): Promise<TestHost> {
     },
 
     async writeFile(path: string, content: string) {
-      path = resolveVFsPath(path);
+      path = resolveVirtualPath(path);
       virtualFs.set(path, content);
     },
 
     async readDir(path: string) {
-      path = resolveVFsPath(path);
+      path = resolveVirtualPath(path);
       return [...virtualFs.keys()]
         .filter((x) => x.startsWith(`${path}/`))
         .map((x) => x.replace(`${path}/`, ""));
     },
 
     async removeDir(path: string) {
-      path = resolveVFsPath(path);
+      path = resolveVirtualPath(path);
 
       for (const key of virtualFs.keys()) {
         if (key.startsWith(`${path}/`)) {
@@ -86,15 +92,15 @@ export async function createTestHost(): Promise<TestHost> {
     },
 
     getLibDirs() {
-      return [resolveVFsPath("/.cadl/lib"), resolveVFsPath("/.cadl/test-lib")];
+      return [resolveVirtualPath(".cadl/lib"), resolveVirtualPath(".cadl/test-lib")];
     },
 
     getExecutionRoot() {
-      return "/.cadl";
+      return resolveVirtualPath(".cadl");
     },
 
     getJsImport(path) {
-      path = resolveVFsPath(path);
+      path = resolveVirtualPath(path);
       const module = jsImports.get(path);
       if (module === undefined) {
         throw new TestHostError(`Module ${path} not found`, "ERR_MODULE_NOT_FOUND");
@@ -103,7 +109,7 @@ export async function createTestHost(): Promise<TestHost> {
     },
 
     async stat(path: string) {
-      path = resolveVFsPath(path);
+      path = resolveVirtualPath(path);
 
       if (virtualFs.has(path)) {
         return {
@@ -143,14 +149,14 @@ export async function createTestHost(): Promise<TestHost> {
 
   // load standard library into the vfs
   for (const [relDir, virtualDir] of [
-    ["../../lib", "/.cadl/dist/lib"],
-    ["../../../lib", "/.cadl/lib"],
+    ["../../lib", "./.cadl/dist/lib"],
+    ["../../../lib", "./.cadl/lib"],
   ]) {
     const dir = resolvePath(fileURLToPath(import.meta.url), relDir);
     const entries = await readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
       const realPath = resolvePath(dir, entry.name);
-      const virtualPath = resolvePath(virtualDir, entry.name);
+      const virtualPath = resolveVirtualPath(virtualDir, entry.name);
       if (entry.isFile()) {
         switch (getAnyExtensionFromPath(entry.name)) {
           case ".cadl":
@@ -167,9 +173,46 @@ export async function createTestHost(): Promise<TestHost> {
     }
   }
 
+  return {
+    addCadlFile,
+    addJsFile,
+    addRealCadlFile,
+    addRealJsFile,
+    compilerHost,
+    fs: virtualFs,
+  };
+
+  function addCadlFile(path: string, contents: string) {
+    virtualFs.set(resolveVirtualPath(path), contents);
+  }
+
+  function addJsFile(path: string, contents: any) {
+    const key = resolveVirtualPath(path);
+    virtualFs.set(key, ""); // don't need contents
+    jsImports.set(key, new Promise((r) => r(contents)));
+  }
+
+  async function addRealCadlFile(path: string, existingPath: string) {
+    virtualFs.set(resolveVirtualPath(path), await readFile(existingPath, "utf8"));
+  }
+
+  async function addRealJsFile(path: string, existingPath: string) {
+    const key = resolveVirtualPath(path);
+    const exports = await import(pathToFileURL(existingPath).href);
+
+    virtualFs.set(key, "");
+    jsImports.set(key, exports);
+  }
+}
+
+export async function createTestHost(): Promise<TestHost> {
+  let program: Program | undefined;
+  const testTypes: Record<string, Type> = {};
+  const fileSystem = await createTestFileSystem();
+
   // add test decorators
-  addCadlFile("/.cadl/test-lib/main.cadl", 'import "./test.js";');
-  addJsFile("/.cadl/test-lib/test.js", {
+  fileSystem.addCadlFile(".cadl/test-lib/main.cadl", 'import "./test.js";');
+  fileSystem.addJsFile(".cadl/test-lib/test.js", {
     $test(_: any, target: Type, name?: string) {
       if (!name) {
         if (
@@ -193,41 +236,19 @@ export async function createTestHost(): Promise<TestHost> {
   });
 
   return {
-    addCadlFile,
-    addJsFile,
-    addRealCadlFile,
-    addRealJsFile,
+    ...fileSystem,
     compile,
     diagnose,
     compileAndDiagnose,
     testTypes,
     get program() {
+      assert(
+        program,
+        "Program cannot be accessed without calling compile, diagnose, or compileAndDiagnose."
+      );
       return program;
     },
-    fs: virtualFs,
   };
-
-  function addCadlFile(path: string, contents: string) {
-    virtualFs.set(resolveVFsPath(path), contents);
-  }
-
-  function addJsFile(path: string, contents: any) {
-    const key = resolveVFsPath(path);
-    virtualFs.set(key, ""); // don't need contents
-    jsImports.set(key, new Promise((r) => r(contents)));
-  }
-
-  async function addRealCadlFile(path: string, existingPath: string) {
-    virtualFs.set(resolveVFsPath(path), await readFile(existingPath, "utf8"));
-  }
-
-  async function addRealJsFile(path: string, existingPath: string) {
-    const key = resolveVFsPath(path);
-    const exports = await import(pathToFileURL(existingPath).href);
-
-    virtualFs.set(key, "");
-    jsImports.set(key, exports);
-  }
 
   async function compile(main: string, options: CompilerOptions = {}) {
     const [testTypes, diagnostics] = await compileAndDiagnose(main, options);
@@ -251,9 +272,9 @@ export async function createTestHost(): Promise<TestHost> {
       // default for tests is noEmit
       options = { ...options, noEmit: true };
     }
-
-    program = await createProgram(compilerHost, mainFile, options);
-    logVerboseTestOutput((log) => logDiagnostics(program.diagnostics, program.logger));
-    return [testTypes, program.diagnostics];
+    const p = await createProgram(fileSystem.compilerHost, mainFile, options);
+    program = p;
+    logVerboseTestOutput((log) => logDiagnostics(p.diagnostics, p.logger));
+    return [testTypes, p.diagnostics];
   }
 }

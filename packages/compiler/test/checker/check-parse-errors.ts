@@ -17,7 +17,7 @@ describe("compiler: semantic checks on source with parse errors", () => {
       `
     );
 
-    const diagnostics = await testHost.diagnose("/");
+    const diagnostics = await testHost.diagnose("./");
     strictEqual(diagnostics.length, 5);
     match(diagnostics[0].message, /Property expected/);
     match(diagnostics[1].message, /Unknown identifier Q/);

@@ -1,5 +1,5 @@
 import { resolvePath } from "@cadl-lang/compiler";
-import { createTestHost } from "@cadl-lang/compiler/dist/test/test-host.js";
+import { createTestHost, resolveVirtualPath } from "@cadl-lang/compiler/dist/test/test-host.js";
 import { fileURLToPath } from "url";
 
 export async function createOpenAPITestHost() {
@@ -82,7 +82,7 @@ function versionedOutput(path: string, version: string) {
 }
 export async function openApiFor(code: string, versions?: string[]) {
   const host = await createOpenAPITestHost();
-  const outPath = resolvePath("/openapi.json");
+  const outPath = resolveVirtualPath("openapi.json");
   host.addCadlFile(
     "./main.cadl",
     `import "rest"; import "openapi"; import "openapi3"; ${
@@ -108,14 +108,12 @@ export async function openApiFor(code: string, versions?: string[]) {
 
 export async function checkFor(code: string) {
   const host = await createOpenAPITestHost();
-  const outPath = resolvePath("/openapi.json");
   host.addCadlFile(
     "./main.cadl",
     `import "rest"; import "openapi"; import "openapi3"; using Cadl.Rest; using Cadl.Http;${code}`
   );
   const result = await host.diagnose("./main.cadl", {
     noEmit: false,
-    swaggerOutputFile: outPath,
     emitters: ["openapi3"],
   });
   return result;
