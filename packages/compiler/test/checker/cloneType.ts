@@ -1,7 +1,7 @@
 import { deepStrictEqual, ok } from "assert";
 import { Program } from "../../core/program.js";
 import { Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: type cloning", () => {
   let testHost: TestHost;

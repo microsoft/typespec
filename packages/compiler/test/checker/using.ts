@@ -2,7 +2,7 @@ import { match, rejects, strictEqual } from "assert";
 import { getSourceLocation } from "../../core/index.js";
 import { Program } from "../../core/program";
 import { ModelType } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: using statements", () => {
   let testHost: TestHost;

@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { checkFor, openApiFor } from "./testHost.js";
+import { checkFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: return types", () => {
   it("defines responses with response headers", async () => {

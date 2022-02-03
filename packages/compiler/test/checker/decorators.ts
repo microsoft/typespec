@@ -1,5 +1,5 @@
 import { ok } from "assert";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: checker: decorators", () => {
   let testHost: TestHost;

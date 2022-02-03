@@ -1,5 +1,5 @@
 import { match, strictEqual } from "assert";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: semantic checks on source with parse errors", () => {
   let testHost: TestHost;

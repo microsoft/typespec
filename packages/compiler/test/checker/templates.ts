@@ -1,7 +1,7 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
 import { getSourceLocation } from "../../core/diagnostics.js";
 import { Diagnostic } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: templates", () => {
   let testHost: TestHost;

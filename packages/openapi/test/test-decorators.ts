@@ -1,6 +1,6 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { getExtensions } from "../src/decorators.js";
-import { compile, compileAndDiagnose } from "./testHost.js";
+import { compile, compileAndDiagnose } from "./test-host.js";
 
 describe("openapi: decorators", () => {
   describe("@operationId", () => {

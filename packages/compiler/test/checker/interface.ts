@@ -1,6 +1,6 @@
 import { match, ok, strictEqual } from "assert";
 import { InterfaceType, ModelType, Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: interfaces", () => {
   let testHost: TestHost;

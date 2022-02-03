@@ -13,7 +13,7 @@ import {
   UnionType,
 } from "../../core/types.js";
 import { getDoc } from "../../lib/decorators.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("cadl: projections", () => {
   let testHost: TestHost;

@@ -2,7 +2,12 @@ import { pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic } from "vscode-languageserver/node.js";
 import { createServer, Server, ServerHost } from "../../server/serverlib.js";
-import { createTestFileSystem, resolveVirtualPath, TestFileSystem } from "../test-host.js";
+import {
+  createTestFileSystem,
+  resolveVirtualPath,
+  StandardTestLibrary,
+  TestFileSystem,
+} from "../../testing/index.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {
   server: Server;
@@ -18,6 +23,7 @@ export async function createTestServerHost(): Promise<TestServerHost> {
   const diagnostics = new Map<string, Diagnostic[]>();
   const logMessages: string[] = [];
   const fileSystem = await createTestFileSystem();
+  await fileSystem.addCadlLibrary(StandardTestLibrary);
 
   const serverHost: TestServerHost = {
     ...fileSystem,

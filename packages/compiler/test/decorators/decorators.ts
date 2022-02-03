@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { getDoc, getFriendlyName, isErrorModel } from "../../lib/decorators.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: built-in decorators", () => {
   let testHost: TestHost;

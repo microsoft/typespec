@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { IntrinsicType, OperationType } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("cadl: operations", () => {
   let testHost: TestHost;

@@ -1,6 +1,6 @@
 import { match, ok, strictEqual } from "assert";
 import { EnumMemberType, EnumType, ModelType } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: enums", () => {
   let testHost: TestHost;

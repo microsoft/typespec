@@ -7,7 +7,7 @@ import {
 import { reportDiagnostic } from "./diagnostics.js";
 
 const headerFieldsKey = Symbol();
-export function $header(program: Program, entity: Type, headerName: string) {
+export function $header(program: Program, entity: Type, headerName?: string) {
   if (!headerName && entity.kind === "ModelProperty") {
     headerName = entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
   }

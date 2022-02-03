@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from "url";
 import { formatDiagnostic } from "../../core/diagnostics.js";
 import { createProgram } from "../../core/program.js";
 import { NodeHost } from "../../core/util.js";
-import { createTestHost } from "../test-host.js";
+import { createTestHost } from "../../testing/index.js";
 
 const libs = ["simple"];
 

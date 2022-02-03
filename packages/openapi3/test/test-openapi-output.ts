@@ -1,5 +1,5 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { createOpenAPITestHost, openApiFor } from "./testHost.js";
+import { createOpenAPITestHost, openApiFor } from "./test-host.js";
 
 describe("openapi3: definitions", () => {
   it("defines models", async () => {
@@ -433,8 +433,8 @@ describe("openapi3: definitions", () => {
     testHost.addCadlFile(
       "main.cadl",
       `
-      import "rest";
-      import "openapi3";
+      import "@cadl-lang/rest";
+      import "@cadl-lang/openapi3";
       using Cadl.Http;
       enum PetType {
       }
@@ -446,7 +446,10 @@ describe("openapi3: definitions", () => {
     `
     );
 
-    const diagnostics = await testHost.diagnose("./", { emitters: ["openapi3"], noEmit: false });
+    const diagnostics = await testHost.diagnose("./", {
+      emitters: ["@cadl-lang/openapi3"],
+      noEmit: false,
+    });
     strictEqual(diagnostics.length, 1);
     match(diagnostics[0].message, /Empty unions are not supported for OpenAPI v3/);
   });

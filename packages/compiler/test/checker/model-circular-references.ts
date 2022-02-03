@@ -1,6 +1,6 @@
 import { assert } from "console";
 import { ArrayType, ModelType, Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 function assertModel(type: Type): asserts type is ModelType {
   assert(type.kind === "Model");
