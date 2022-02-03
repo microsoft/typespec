@@ -25,16 +25,7 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
 const docsKey = Symbol();
 export function $doc(program: Program, target: Type, text: string, sourceObject: Type) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
-  if (typeof text !== "string") {
-    reportDiagnostic(program, {
-      code: "invalid-argument",
-      format: {
-        value: program.checker!.getTypeName(text),
-        actual: typeof text,
-        expected: "string",
-      },
-      target,
-    });
+  if (!validateDecoratorParamType(program, target, text, "string")) {
     return;
   }
 
@@ -622,6 +613,30 @@ export function validateDecoratorParamCount(
   }
 }
 
+/**
+ * Validate the given
+ */
+export function validateDecoratorParamType(
+  program: Program,
+  target: Type,
+  value: any,
+  expected: string
+): boolean {
+  if (typeof value !== expected) {
+    reportDiagnostic(program, {
+      code: "invalid-argument",
+      format: {
+        value: program.checker!.getTypeName(value),
+        actual: typeof value,
+        expected: expected,
+      },
+      target,
+    });
+    return false;
+  }
+  return true;
+}
+
 // -- @friendlyName decorator ---------------------
 
 const friendlyNamesKey = Symbol();
@@ -633,16 +648,7 @@ export function $friendlyName(
   sourceObject: Type | undefined
 ) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
-  if (typeof friendlyName !== "string") {
-    reportDiagnostic(program, {
-      code: "invalid-argument",
-      format: {
-        value: program.checker!.getTypeName(friendlyName),
-        actual: typeof friendlyName,
-        expected: "string",
-      },
-      target,
-    });
+  if (!validateDecoratorParamType(program, target, friendlyName, "string")) {
     return;
   }
 

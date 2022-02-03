@@ -1,4 +1,4 @@
-import { Program, Type } from "@cadl-lang/compiler";
+import { Program, Type, validateDecoratorParamType } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 
 const operationIdsKey = Symbol();
@@ -18,14 +18,32 @@ export function getOperationId(program: Program, entity: Type): string | undefin
   return program.stateMap(operationIdsKey).get(entity);
 }
 
-const openApiExtensions = new Map<Type, Map<string, any>>();
+export type ExtensionKey = `x-${string}`;
+const openApiExtensionKey = Symbol();
 export function $extension(program: Program, entity: Type, extensionName: string, value: any) {
-  let typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
+  if (!validateDecoratorParamType(program, entity, extensionName, "string")) {
+    return;
+  }
+
+  if (!isOpenAPIExtensionKey(extensionName)) {
+    reportDiagnostic(program, {
+      code: "extension-x",
+      format: { value: extensionName },
+      target: entity,
+    });
+  }
+
+  const openApiExtensions = program.stateMap(openApiExtensionKey);
+  const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
   typeExtensions.set(extensionName, value);
 
   openApiExtensions.set(entity, typeExtensions);
 }
 
-export function getExtensions(entity: Type): ReadonlyMap<string, any> {
-  return openApiExtensions.get(entity) ?? new Map<string, any>();
+export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
+  return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
+}
+
+function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
+  return key.startsWith("x-");
 }
