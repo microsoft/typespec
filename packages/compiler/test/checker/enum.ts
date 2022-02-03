@@ -1,6 +1,6 @@
-import { match, ok, strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { EnumMemberType, EnumType, ModelType } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: enums", () => {
   let testHost: TestHost;
@@ -82,7 +82,9 @@ describe("compiler: enums", () => {
       `
     );
     const diagnostics = await testHost.diagnose("main.cadl");
-    strictEqual(diagnostics.length, 1);
-    match(diagnostics[0].message, /Enum already has a member/);
+    expectDiagnostics(diagnostics, {
+      code: "enum-member-duplicate",
+      message: "Enum already has a member",
+    });
   });
 });

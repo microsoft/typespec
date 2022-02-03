@@ -1,7 +1,7 @@
 import { notStrictEqual } from "assert";
 import { assert } from "console";
 import { ModelType } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: global namespace", () => {
   let testHost: TestHost;

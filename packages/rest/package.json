@@ -19,6 +19,20 @@
   "type": "module",
   "main": "dist/src/lib.js",
   "cadlMain": "lib/rest.cadl",
+  "exports": {
+    ".": "./dist/src/lib.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/src/lib.d.ts"
+      ],
+      "testing": [
+        "./dist/src/testing/index.d.ts"
+      ]
+    }
+  },
   "engines": {
     "node": ">=14.0.0"
   },

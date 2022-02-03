@@ -8,8 +8,9 @@ import {
   Type,
   UnionType,
 } from "@cadl-lang/compiler";
+import { TestHost } from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { createVersioningTestHost, TestHost } from "./testHost.js";
+import { createVersioningTestHost } from "./test-host.js";
 
 describe("cadl: versioning", () => {
   let host: TestHost;
@@ -21,7 +22,7 @@ describe("cadl: versioning", () => {
       host.addCadlFile(
         "main.cadl",
         `
-        import "versioning";
+        import "@cadl-lang/versioning";
         @versioned("1" | "version two" | "3")
         namespace MyService;
 
@@ -184,7 +185,7 @@ describe("cadl: versioning", () => {
       host.addCadlFile(
         "main.cadl",
         `
-      import "versioning";
+      import "@cadl-lang/versioning";
       @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
       namespace MyService;
 
@@ -320,7 +321,7 @@ describe("cadl: versioning", () => {
       host.addCadlFile(
         "main.cadl",
         `
-      import "versioning";
+      import "@cadl-lang/versioning";
       @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
       namespace MyService;
 
@@ -388,7 +389,7 @@ describe("cadl: versioning", () => {
       host.addCadlFile(
         "main.cadl",
         `
-          import "versioning";
+          import "@cadl-lang/versioning";
           @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
           namespace MyService;
 
@@ -494,7 +495,7 @@ describe("cadl: versioning", () => {
       host.addCadlFile(
         "main.cadl",
         `
-          import "versioning";
+          import "@cadl-lang/versioning";
           @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
           namespace MyService;
 
@@ -616,7 +617,7 @@ describe("cadl: versioning", () => {
       host.addCadlFile(
         "main.cadl",
         `
-      import "versioning";
+      import "@cadl-lang/versioning";
       @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
       namespace MyService;
 

@@ -9,7 +9,7 @@ import {
   UnionTypeVariant,
 } from "../core/index.js";
 import { findChildModels, getProperty, navigateProgram } from "../core/semantic-walker.js";
-import { createTestHost, TestHost } from "./test-host.js";
+import { createTestHost, TestHost } from "../testing/index.js";
 
 describe("compiler: semantic walker", () => {
   let host: TestHost;

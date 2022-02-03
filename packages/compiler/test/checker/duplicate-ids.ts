@@ -1,7 +1,7 @@
 import { match, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
 import { Diagnostic } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: duplicate declarations", () => {
   let testHost: TestHost;

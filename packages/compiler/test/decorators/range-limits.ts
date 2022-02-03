@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { ModelType } from "../../core/types.js";
 import { getMaxValue, getMinValue } from "../../lib/decorators.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: range limiting decorators", () => {
   let testHost: TestHost;

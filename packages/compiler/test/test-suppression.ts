@@ -1,6 +1,10 @@
-import { strictEqual } from "assert";
 import { navigateProgram } from "../core/semantic-walker.js";
-import { createTestHost, TestHost } from "./test-host.js";
+import {
+  createTestHost,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  TestHost,
+} from "../testing/index.js";
 
 describe("compiler: suppress", () => {
   let host: TestHost;
@@ -49,8 +53,7 @@ describe("compiler: suppress", () => {
       }
     `);
 
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "no-inline-model");
+    expectDiagnostics(diagnostics, { code: "no-inline-model" });
   });
 
   it("suppress warning diagnostic on item itself", async () => {
@@ -63,7 +66,7 @@ describe("compiler: suppress", () => {
       }
     `);
 
-    strictEqual(diagnostics.length, 0);
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("suppress warning diagnostic on parent node", async () => {
@@ -75,8 +78,7 @@ describe("compiler: suppress", () => {
         };
       }
     `);
-
-    strictEqual(diagnostics.length, 0);
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("error diagnostics cannot be suppressed and emit another error", async () => {
@@ -87,8 +89,6 @@ describe("compiler: suppress", () => {
       }
     `);
 
-    strictEqual(diagnostics.length, 2);
-    strictEqual(diagnostics[0].code, "suppress-error");
-    strictEqual(diagnostics[1].code, "no-id-property");
+    expectDiagnostics(diagnostics, [{ code: "suppress-error" }, { code: "no-id-property" }]);
   });
 });

@@ -1,6 +1,6 @@
 import { match, ok, strictEqual } from "assert";
 import { ModelType, Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
 
 describe("compiler: models", () => {
   let testHost: TestHost;
@@ -153,7 +153,7 @@ describe("compiler: models", () => {
         `
       );
       const diagnostics = await testHost.diagnose("main.cadl");
-      strictEqual(diagnostics.length, 0);
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 
@@ -286,7 +286,7 @@ describe("compiler: models", () => {
         `
       );
       const diagnostics = await testHost.diagnose("main.cadl");
-      strictEqual(diagnostics.length, 0);
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("resolve recursive template types", async () => {

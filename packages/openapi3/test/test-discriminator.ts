@@ -1,6 +1,6 @@
 import { ModelType, ModelTypeProperty } from "@cadl-lang/compiler";
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { checkFor, openApiFor } from "./testHost.js";
+import { checkFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: discriminated unions", () => {
   it("defines unions with discriminators", async () => {

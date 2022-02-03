@@ -2,7 +2,7 @@ import { match, rejects, strictEqual } from "assert";
 import { getSourceLocation } from "../../core/index.js";
 import { Program } from "../../core/program";
 import { ModelType } from "../../core/types.js";
-import { createTestHost, TestHost } from "../test-host.js";
+import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
 
 describe("compiler: using statements", () => {
   let testHost: TestHost;
@@ -132,7 +132,7 @@ describe("compiler: using statements", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 0);
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("throws errors for duplicate imported usings", async () => {
@@ -195,7 +195,7 @@ describe("compiler: using statements", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 0);
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("report ambigous diagnostics when using name present in multiple using", async () => {

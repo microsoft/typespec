@@ -1,26 +1,34 @@
-import { deepStrictEqual, strictEqual } from "assert";
+import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { deepStrictEqual } from "assert";
 import { getExtensions } from "../src/decorators.js";
-import { compile, compileAndDiagnose } from "./testHost.js";
+import { createOpenAPITestRunner } from "./test-host.js";
 
 describe("openapi: decorators", () => {
+  let runner: BasicTestRunner;
+
+  beforeEach(async () => {
+    runner = await createOpenAPITestRunner();
+  });
+
   describe("@operationId", () => {
     it("emit diagnostic if use on non operation", async () => {
-      const [_, diagnostics] = await compileAndDiagnose(`
+      const diagnostics = await runner.diagnose(`
         @operationId("foo")
         model Foo {
           
         }
       `);
 
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/openapi/decorator-wrong-type");
-      strictEqual(diagnostics[0].message, "Cannot use @operationId on a Model");
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/openapi/decorator-wrong-type",
+        message: "Cannot use @operationId on a Model",
+      });
     });
   });
 
   describe("@extension", () => {
     it("apply extension on model", async () => {
-      const { Foo } = await compile(`
+      const { Foo } = await runner.compile(`
         @extension("x-custom", "Bar")
         @test
         model Foo {

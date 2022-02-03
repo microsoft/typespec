@@ -1,5 +1,6 @@
+import { expectDiagnosticEmpty } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { compileOperations, createRestTestHost, getRoutesFor } from "./test-host.js";
+import { compileOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   it("finds routes on bare operations", async () => {
@@ -255,7 +256,7 @@ describe("rest: routes", () => {
         @get op get(@query select: string, @body bodyParam: string): string;
       `);
 
-      strictEqual(diagnostics.length, 0);
+      expectDiagnosticEmpty(diagnostics);
       deepStrictEqual(routes, [
         {
           verb: "get",
@@ -271,7 +272,7 @@ describe("rest: routes", () => {
         @get op get(@query select: string, unannotedBodyParam: string): string;
       `);
 
-      strictEqual(diagnostics.length, 0);
+      expectDiagnosticEmpty(diagnostics);
       deepStrictEqual(routes, [
         {
           verb: "get",
@@ -345,30 +346,7 @@ describe("rest: routes", () => {
         }
     `);
 
-      strictEqual(diagnostics.length, 0);
-    });
-  });
-
-  describe("emit diagnostic if passing arguments to verb decorators", () => {
-    ["get", "post", "put", "patch", "delete", "head"].forEach((verb) => {
-      it(`@${verb}`, async () => {
-        const host = await createRestTestHost();
-        host.addCadlFile(
-          "./main.cadl",
-          `
-          import "rest"; 
-          namespace TestNamespace; 
-          using Cadl.Rest; 
-          using Cadl.Http;
-        
-          @${verb}("/test") op test(): string;
-          `
-        );
-        const [_, diagnostics] = await host.compileAndDiagnose("./main.cadl");
-        strictEqual(diagnostics.length, 1);
-        strictEqual(diagnostics[0].code, "invalid-argument-count");
-        strictEqual(diagnostics[0].message, "Expected 0 arguments, but got 1.");
-      });
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 });

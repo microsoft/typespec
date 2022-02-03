@@ -1,6 +1,7 @@
+import { TestHost } from "@cadl-lang/compiler/testing";
 import { ok } from "assert";
 import { isBody, isHeader, isPathParam, isQueryParam } from "../src/http.js";
-import { createRestTestHost, TestHost } from "./test-host.js";
+import { createRestTestHost } from "./test-host.js";
 
 describe("rest: plain data", () => {
   let testHost: TestHost;
@@ -13,7 +14,7 @@ describe("rest: plain data", () => {
     testHost.addCadlFile(
       "main.cadl",
       `
-      import "rest";
+      import "@cadl-lang/rest";
       using Cadl.Http;
 
       @test
