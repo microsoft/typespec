@@ -1,5 +1,6 @@
-import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { createOpenAPITestHost, openApiFor } from "./test-host.js";
+import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
 describe("openapi3: definitions", () => {
   it("defines models", async () => {
@@ -429,13 +430,9 @@ describe("openapi3: definitions", () => {
   });
 
   it("throws diagnostics for empty enum definitions", async () => {
-    let testHost = await createOpenAPITestHost();
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "@cadl-lang/rest";
-      import "@cadl-lang/openapi3";
-      using Cadl.Http;
+    const runner = await createOpenAPITestRunner();
+
+    const diagnostics = await runner.diagnose(`
       enum PetType {
       }
       model Pet { type: PetType };
@@ -443,15 +440,12 @@ describe("openapi3: definitions", () => {
       namespace root {
         op read(): Pet;
       }
-    `
-    );
+      `);
 
-    const diagnostics = await testHost.diagnose("./", {
-      emitters: ["@cadl-lang/openapi3"],
-      noEmit: false,
+    expectDiagnostics(diagnostics, {
+      code: "@cadl-lang/openapi3/union-unsupported",
+      message: "Empty unions are not supported for OpenAPI v3",
     });
-    strictEqual(diagnostics.length, 1);
-    match(diagnostics[0].message, /Empty unions are not supported for OpenAPI v3/);
   });
 
   it("defines request bodies as unions of models", async () => {

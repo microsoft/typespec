@@ -1,23 +1,11 @@
-import { createTestWrapper, TestRunner } from "@cadl-lang/compiler/testing";
-import { strictEqual } from "assert";
-import { createRestTestHost } from "./test-host.js";
+import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { createRestTestRunner } from "./test-host.js";
 
 describe("rest: http decorators", () => {
-  let runner: TestRunner;
+  let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    const host = await createRestTestHost();
-
-    runner = createTestWrapper(
-      host,
-      (code) => `
-      import "@cadl-lang/rest";
-      namespace TestNamespace; 
-      using Cadl.Http;
-    
-      ${code}
-      `
-    );
+    runner = await createRestTestRunner();
   });
 
   describe("emit diagnostic if passing arguments to verb decorators", () => {
@@ -27,9 +15,10 @@ describe("rest: http decorators", () => {
           @${verb}("/test") op test(): string;
         `);
 
-        strictEqual(diagnostics.length, 1);
-        strictEqual(diagnostics[0].code, "invalid-argument-count");
-        strictEqual(diagnostics[0].message, "Expected 0 arguments, but got 1.");
+        expectDiagnostics(diagnostics, {
+          code: "invalid-argument-count",
+          message: "Expected 0 arguments, but got 1.",
+        });
       });
     });
   });
