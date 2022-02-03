@@ -24,6 +24,9 @@ async function main() {
     .scriptName("cadl")
     .help()
     .strict()
+    .parserConfiguration({
+      "greedy-arrays": false,
+    })
     .option("debug", {
       type: "boolean",
       description: "Output debug log messages.",
