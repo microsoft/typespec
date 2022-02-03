@@ -1,6 +1,6 @@
-import { match, ok, strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { InterfaceType, ModelType, Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: interfaces", () => {
   let testHost: TestHost;
@@ -53,8 +53,10 @@ describe("compiler: interfaces", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 1);
-    match(diagnostics[0].message, /Interface already has a member/);
+    expectDiagnostics(diagnostics, {
+      code: "interface-duplicate",
+      message: "Interface already has a member",
+    });
   });
 
   it("can be templated", async () => {
@@ -190,8 +192,10 @@ describe("compiler: interfaces", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 1);
-    match(diagnostics[0].message, /Interface mixes cannot have duplicate members/);
+    expectDiagnostics(diagnostics, {
+      code: "mixes-interface-duplicate",
+      message: "Interface mixes cannot have duplicate members",
+    });
   });
 
   it("allows overriding mixed interface members", async () => {
@@ -221,8 +225,10 @@ describe("compiler: interfaces", () => {
     );
 
     const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 1);
-    match(diagnostics[0].message, /Interfaces can only mix other interfaces/);
+    expectDiagnostics(diagnostics, {
+      code: "mixes-interface",
+      message: "Interfaces can only mix other interfaces",
+    });
   });
 
   it("doesn't invoke decorators on uninstantiated templates", async () => {

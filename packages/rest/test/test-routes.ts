@@ -1,3 +1,4 @@
+import { expectDiagnosticEmpty } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { compileOperations, getRoutesFor } from "./test-host.js";
 
@@ -255,7 +256,7 @@ describe("rest: routes", () => {
         @get op get(@query select: string, @body bodyParam: string): string;
       `);
 
-      strictEqual(diagnostics.length, 0);
+      expectDiagnosticEmpty(diagnostics);
       deepStrictEqual(routes, [
         {
           verb: "get",
@@ -271,7 +272,7 @@ describe("rest: routes", () => {
         @get op get(@query select: string, unannotedBodyParam: string): string;
       `);
 
-      strictEqual(diagnostics.length, 0);
+      expectDiagnosticEmpty(diagnostics);
       deepStrictEqual(routes, [
         {
           verb: "get",
@@ -345,7 +346,7 @@ describe("rest: routes", () => {
         }
     `);
 
-      strictEqual(diagnostics.length, 0);
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 });

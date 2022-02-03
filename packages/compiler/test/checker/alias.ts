@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { ModelType, UnionType } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: aliases", () => {
   let testHost: TestHost;
@@ -171,8 +171,10 @@ describe("compiler: aliases", () => {
       `
     );
     const diagnostics = await testHost.diagnose("main.cadl");
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].message, "Alias type 'A' recursively references itself.");
+    expectDiagnostics(diagnostics, {
+      code: "circular-alias-type",
+      message: "Alias type 'A' recursively references itself.",
+    });
   });
 
   it("emit diagnostics if reference itself", async () => {
@@ -183,7 +185,9 @@ describe("compiler: aliases", () => {
       `
     );
     const diagnostics = await testHost.diagnose("main.cadl");
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].message, "Alias type 'A' recursively references itself.");
+    expectDiagnostics(diagnostics, {
+      code: "circular-alias-type",
+      message: "Alias type 'A' recursively references itself.",
+    });
   });
 });

@@ -1,17 +1,6 @@
-import { Diagnostic, formatDiagnostic, Type } from "../core/index.js";
+import { Diagnostic, Type } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { TestHost } from "./types.js";
-
-/**
- * Assert there is no diagnostics.
- * @param diagnostics Diagnostics
- */
-export function expectDiagnosticEmpty(diagnostics: readonly Diagnostic[]) {
-  if (diagnostics.length > 0) {
-    let message = "Unexpected diagnostics:\n" + diagnostics.map(formatDiagnostic).join("\n");
-    throw new Error(message);
-  }
-}
 
 export interface TestRunner {
   compile(code: string, options?: CompilerOptions): Promise<Record<string, Type>>;

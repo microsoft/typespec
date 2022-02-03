@@ -8,7 +8,7 @@ import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
 import { NodeHost } from "../core/util.js";
-import { expectDiagnosticEmpty } from "./test-utils.js";
+import { expectDiagnosticEmpty } from "./expect.js";
 import {
   CadlTestLibrary,
   TestFileSystem,
