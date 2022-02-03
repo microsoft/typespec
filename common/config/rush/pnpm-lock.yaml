@@ -43,6 +43,7 @@ dependencies:
   prettier: 2.5.1
   prettier-plugin-organize-imports: 2.3.4_prettier@2.5.1+typescript@4.5.5
   prompts: 2.4.2
+  rimraf: 3.0.2
   rollup: 2.41.5
   source-map-support: 0.5.21
   typescript: 4.5.5
@@ -3108,6 +3109,7 @@ packages:
       '@types/node': 14.0.27
       '@types/vscode': 1.53.0
       mkdirp: 1.0.4
+      rimraf: 3.0.2
       rollup: 2.41.5
       typescript: 4.5.5
       vsce: 1.85.1
@@ -3116,7 +3118,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vscode'
     resolution:
-      integrity: sha512-h21rBIrcE9kwQvzyrOS5fbzjy8mpA5yR/KBfhicyUIBXbieWksOdODP3Jhwg1OkwCuvAwv7uxVfvtQ3SyqHx2w==
+      integrity: sha512-wAdIy0fR7dk6Tvx0D/oIwKMVSh0Gfm6SZ7gRlPNMYvJ5a/6SW/JgurjzrSV6bnBDK6JPYPNZM49bUshg/w88ww==
       tarball: file:projects/cadl-vscode.tgz
     version: 0.0.0
   file:projects/compiler.tgz:
@@ -3144,6 +3146,7 @@ packages:
       prettier: 2.5.1
       prettier-plugin-organize-imports: 2.3.4_prettier@2.5.1+typescript@4.5.5
       prompts: 2.4.2
+      rimraf: 3.0.2
       source-map-support: 0.5.21
       typescript: 4.5.5
       vscode-languageserver: 7.0.0
@@ -3152,7 +3155,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-aqYXRWJD430FlomLZ7cSebQBMaJN/nMUsXDAJuBmfh73dOXyyTC6WqsfKRzCNMOZmOA4nC9rMd/FSws1XLLXkA==
+      integrity: sha512-6O5Qgl68/MFkvJD92AL9yQRTlrtPbe3S0n6xyh/QTttEzMyDVB0ZqprY57hdSLg7aC0sQ+KN1NNhVbATbQ0/gA==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/openapi.tgz:
@@ -3161,11 +3164,12 @@ packages:
       '@types/node': 14.0.27
       c8: 7.11.0
       mocha: 9.1.4
+      rimraf: 3.0.2
       typescript: 4.5.5
     dev: false
     name: '@rush-temp/openapi'
     resolution:
-      integrity: sha512-BOZPG2Cl+gYkUA+DojEdqm+gCYr4gLjLf3zlbjV6fgBmre3gydkaobw81aIUKMeaQr6wl/MWzh4yqKQbJkFT5g==
+      integrity: sha512-mUwwIxLtOjHA8awDwkYpzf2WTQ8Ioz8BR6tFJBU583KlyY9LQGJLXdeGeuuFtfEIU+WNxjOMG9STfQL8R5yR5w==
       tarball: file:projects/openapi.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -3174,11 +3178,12 @@ packages:
       '@types/node': 14.0.27
       c8: 7.11.0
       mocha: 9.1.4
+      rimraf: 3.0.2
       typescript: 4.5.5
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-k8XV/gsbKzbZ6aI4xwcni1fLWIdRPZJwDB4dkRaM6eKEe9jVvqIvTO+hmhR41JIdJCl5r0Ec2rrOKylLrFrcmA==
+      integrity: sha512-RPnYGRG1nY8RcWB9jM1Xh3LPHvxMJLGadmCwkO0pdH63dZ42JmQWWkyW2R37ak58frY4/OyQtxnMh3N1d0/hzQ==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
@@ -3202,11 +3207,12 @@ packages:
       '@types/node': 14.0.27
       c8: 7.11.0
       mocha: 9.1.4
+      rimraf: 3.0.2
       typescript: 4.5.5
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-JRhFn28edjJk+ilnm5dvY3Wh/9ykjVgdwQ0rMq6OnP7d375NI3kLtaa3zqnhMvFhonr1D+A0I55T3dqrIjf38g==
+      integrity: sha512-uOEuBYay5Pg7VA50kYRwCtI8vmC1jlzgPi/JxFEn9//9I3EyAbEgMzrQ06Wi3Th7qGwc9t7tRa+xTmV+g1brxw==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -3251,11 +3257,12 @@ packages:
       '@types/node': 14.0.27
       c8: 7.11.0
       mocha: 9.1.4
+      rimraf: 3.0.2
       typescript: 4.5.5
     dev: false
     name: '@rush-temp/versioning'
     resolution:
-      integrity: sha512-H+8gcZqi4Oz98BOLMDtjLOP7wrQ9PYeri7efalJgf2kWC9CwtldaAGvH8TE555mXUyal+xr1pZWLx7a6NgBEGQ==
+      integrity: sha512-/BNa08NVxHIGlkhWtoQcPme+1usAmqEhtk7vy/uI4JWtdl4eLR6yacVwXWRfMb4o3XdN+qvRd/I7ayjCcauQYA==
       tarball: file:projects/versioning.tgz
     version: 0.0.0
 specifiers:
@@ -3303,6 +3310,7 @@ specifiers:
   prettier: ~2.5.1
   prettier-plugin-organize-imports: ~2.3.4
   prompts: ~2.4.1
+  rimraf: ~3.0.2
   rollup: ~2.41.4
   source-map-support: ~0.5.19
   typescript: ~4.5.5
