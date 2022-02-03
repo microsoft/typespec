@@ -83,7 +83,7 @@
     ]
   },
   "scripts": {
-    "clean": "rimraf ./dist",
+    "clean": "rimraf ./dist ./dist-dev",
     "build": "npm run compile && npm run rollup && npm run generate-tmlanguage && npm run generate-third-party-notices && npm run package-vsix",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
