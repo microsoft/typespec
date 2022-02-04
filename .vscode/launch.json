@@ -67,7 +67,7 @@
       "request": "launch",
       "name": "Compile Scratch",
       "program": "${workspaceRoot}/packages/compiler/dist/core/cli.js",
-      "args": ["compile", "../cadl-samples/scratch", "--output-path=temp/scratch-output"],
+      "args": ["compile", "../samples/scratch", "--output-path=temp/scratch-output"],
       "smartStep": true,
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
@@ -75,7 +75,7 @@
         "${workspaceFolder}/packages/*/dist/**/*.js",
         "${workspaceFolder}/packages/*/dist-dev/**/*.js"
       ],
-      "cwd": "${workspaceRoot}/packages/cadl",
+      "cwd": "${workspaceRoot}/packages/compiler",
       "presentation": {
         "order": 2
       }
@@ -85,12 +85,7 @@
       "request": "launch",
       "name": "Compile Scratch (nostdlib)",
       "program": "${workspaceRoot}/packages/compiler/dist/core/cli.js",
-      "args": [
-        "compile",
-        "../cadl-samples/scratch",
-        "--output-path=temp/scratch-output",
-        "--nostdlib"
-      ],
+      "args": ["compile", "../samples/scratch", "--output-path=temp/scratch-output", "--nostdlib"],
       "smartStep": true,
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],
@@ -98,7 +93,7 @@
         "${workspaceFolder}/packages/*/dist/**/*.js",
         "${workspaceFolder}/packages/*/dist-dev/**/*.js"
       ],
-      "cwd": "${workspaceRoot}/packages/cadl",
+      "cwd": "${workspaceRoot}/packages/compiler",
       "presentation": {
         "order": 2
       }
