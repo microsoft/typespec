@@ -1,0 +1,22 @@
+{
+  "name": "@cadl-lang/versioning",
+  "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@cadl-lang/versioning_v0.2.0",
+      "date": "Fri, 04 Feb 2022 17:53:43 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add versioning framework"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+          }
+        ]
+      }
+    }
+  ]
+}

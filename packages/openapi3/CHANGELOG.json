@@ -2,6 +2,97 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "@cadl-lang/openapi3_v0.6.0",
+      "date": "Fri, 04 Feb 2022 17:53:43 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Support union values for status-code and content-type in responses"
+          },
+          {
+            "comment": "Openapi3 support for discriminated unions"
+          },
+          {
+            "comment": "openapi3 emitter support for @error decorator"
+          },
+          {
+            "comment": "Configure for new emitter syntax"
+          },
+          {
+            "comment": "Internals: switch to internal path manipulation"
+          },
+          {
+            "comment": "Extracted decorators into own library `@cadl-lang/openapi`"
+          },
+          {
+            "comment": "Uptake changes in @cadl-lang/rest library improving operation parameter handling"
+          },
+          {
+            "comment": "Update cadl depdendencies to peerDependencies"
+          },
+          {
+            "comment": "Add support for versioned services"
+          },
+          {
+            "comment": "Add statusCode decorator for http status code"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Adding @format decorator support for openapi3 to emit \"format\" for string types"
+          },
+          {
+            "comment": "**Fix** Added support for nullable array `xzy[] | null`"
+          },
+          {
+            "comment": "**Fix** issue with @body body: bytes producing `type: string, format: bytes` instead of `type: string, format: binary` for requests and responses"
+          },
+          {
+            "comment": "Use assigned @friendlyName on model types when emitting schema definitions and refs"
+          },
+          {
+            "comment": "Refactor and improve openapi3 return type tests"
+          },
+          {
+            "comment": "Fix status code validation and other minor cleanup"
+          },
+          {
+            "comment": "Support nullable in openapi3 emitter"
+          },
+          {
+            "comment": "Renaming @format decorator to @pattern."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.8.0` to `~0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.5.0` to `~0.5.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `0.1.0` to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `0.1.0` to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.8.0` to `~0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.5.0` to `~0.5.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.0",
       "tag": "@cadl-lang/openapi3_v0.5.0",
       "date": "Thu, 16 Dec 2021 08:02:20 GMT",

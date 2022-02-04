@@ -2,6 +2,80 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.26.0",
+      "tag": "@cadl-lang/compiler_v0.26.0",
+      "date": "Fri, 04 Feb 2022 17:53:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Adding @format decorator to compiler and openapi3 emitter"
+          },
+          {
+            "comment": "Add `sourceObject` parameter to `@doc` decorator to aid in producing messages using a context object"
+          },
+          {
+            "comment": "`@list` decorator will now ignore `TemplateParameter` objects"
+          },
+          {
+            "comment": "Init include compiler as dependency in generated package.json"
+          },
+          {
+            "comment": "Allow CLI array options to come before positional arguments"
+          },
+          {
+            "comment": "**Fix** Diagnostic location for invalid use of templated models"
+          },
+          {
+            "comment": "Fix path normalization issue that caused diagnostics from language server to be dropped."
+          },
+          {
+            "comment": "Fix error with file ending with mutline comment"
+          },
+          {
+            "comment": "**Fix** issue when loading cadl using a different casing than the actual casing in a case insenstivie file system"
+          },
+          {
+            "comment": "Add @friendlyName decorator to customize model names for emitters"
+          },
+          {
+            "comment": "Fix issue where identifiers could be confused with keywords when they had common endings."
+          },
+          {
+            "comment": "Renaming @format decorator to @pattern."
+          },
+          {
+            "comment": "Stop offering `true` and `false` completions after `.`"
+          },
+          {
+            "comment": "Fix completion icon for symbols pulled in via using"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Validate for `@doc` decorator argument is a string"
+          },
+          {
+            "comment": "Add @error decorator in core"
+          },
+          {
+            "comment": "**Added** --emit flag to configure the emitter(s) to use and seperate library imports from emitters"
+          },
+          {
+            "comment": "Add directory manipulation to CompilerHost"
+          },
+          {
+            "comment": "Update to syntax tree to be readonly"
+          },
+          {
+            "comment": "Formatter: Separate Enum members with decorator with new lines"
+          },
+          {
+            "comment": "Implement projections and versioning"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.25.0",
       "tag": "@cadl-lang/compiler_v0.25.0",
       "date": "Thu, 16 Dec 2021 08:02:20 GMT",

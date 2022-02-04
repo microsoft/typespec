@@ -1,6 +1,29 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Thu, 16 Dec 2021 08:02:20 GMT and should not be manually modified.
+This log was last generated on Fri, 04 Feb 2022 17:53:43 GMT and should not be manually modified.
+
+## 0.9.0
+Fri, 04 Feb 2022 17:53:43 GMT
+
+### Minor changes
+
+- Add support for discriminator decorator
+- Internals: switch to internal path manipulatio
+- Added shared logic to resolve http operation parameters and validate compatibility(duplicate bodies)
+- **Added** Validation for uniquness of operation by verb and path
+- **Added** `@head` decorator to describe `head` http verb operation
+- Validate http verb decorators(`@get`, `@post`, etc.) do not recieve any argument
+- Expose response template in Http library and refactor
+- Add statusCode decorator for http status code
+- **Validate `@route` decorator is used only once
+- Update cadl depdendencies to peerDependencies
+
+### Patches
+
+- Move `@key`, `@parentResource`, and `@copyResourceKeyParameters` decorators into `Cadl.Rest`
+- Operations marked with `@action` will now default to `POST` verb unless another verb has been explicitly specified
+- Add interfaces for modelling extension and singleton resources
+- **Fix** Duplicate @key on model properties will produce diagnostic instead of exception
 
 ## 0.8.0
 Thu, 16 Dec 2021 08:02:20 GMT

@@ -1,6 +1,13 @@
 # Change Log - cadl-vs
 
-This log was last generated on Thu, 16 Dec 2021 08:02:20 GMT and should not be manually modified.
+This log was last generated on Fri, 04 Feb 2022 17:53:43 GMT and should not be manually modified.
+
+## 0.6.0
+Fri, 04 Feb 2022 17:53:43 GMT
+
+### Minor changes
+
+- Add cadl project file to list of files watched
 
 ## 0.5.0
 Thu, 16 Dec 2021 08:02:20 GMT
