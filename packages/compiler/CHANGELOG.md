@@ -1,6 +1,36 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 16 Dec 2021 16:21:46 GMT and should not be manually modified.
+This log was last generated on Fri, 04 Feb 2022 18:00:18 GMT and should not be manually modified.
+
+## 0.26.0
+Fri, 04 Feb 2022 18:00:18 GMT
+
+### Minor changes
+
+- Validate for `@doc` decorator argument is a string
+- Add @error decorator in core
+- **Added** --emit flag to configure the emitter(s) to use and seperate library imports from emitters
+- Add directory manipulation to CompilerHost
+- Update to syntax tree to be readonly
+- Formatter: Separate Enum members with decorator with new lines
+- Implement projections and versioning
+
+### Patches
+
+- Adding @format decorator to compiler and openapi3 emitter
+- Add `sourceObject` parameter to `@doc` decorator to aid in producing messages using a context object
+- `@list` decorator will now ignore `TemplateParameter` objects
+- Init include compiler as dependency in generated package.json
+- Allow CLI array options to come before positional arguments
+- **Fix** Diagnostic location for invalid use of templated models
+- Fix path normalization issue that caused diagnostics from language server to be dropped.
+- Fix error with file ending with mutline comment
+- **Fix** issue when loading cadl using a different casing than the actual casing in a case insenstivie file system
+- Add @friendlyName decorator to customize model names for emitters
+- Fix issue where identifiers could be confused with keywords when they had common endings.
+- Renaming @format decorator to @pattern.
+- Stop offering `true` and `false` completions after `.`
+- Fix completion icon for symbols pulled in via using
 
 ## 0.25.0
 Thu, 16 Dec 2021 08:02:20 GMT

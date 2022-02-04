@@ -2,6 +2,67 @@
   "name": "@cadl-lang/rest",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "@cadl-lang/rest_v0.9.0",
+      "date": "Fri, 04 Feb 2022 18:00:18 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Move `@key`, `@parentResource`, and `@copyResourceKeyParameters` decorators into `Cadl.Rest`"
+          },
+          {
+            "comment": "Operations marked with `@action` will now default to `POST` verb unless another verb has been explicitly specified"
+          },
+          {
+            "comment": "Add interfaces for modelling extension and singleton resources"
+          },
+          {
+            "comment": "**Fix** Duplicate @key on model properties will produce diagnostic instead of exception"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Add support for discriminator decorator"
+          },
+          {
+            "comment": "Internals: switch to internal path manipulatio"
+          },
+          {
+            "comment": "Added shared logic to resolve http operation parameters and validate compatibility(duplicate bodies)"
+          },
+          {
+            "comment": "**Added** Validation for uniquness of operation by verb and path"
+          },
+          {
+            "comment": "**Added** `@head` decorator to describe `head` http verb operation"
+          },
+          {
+            "comment": "Validate http verb decorators(`@get`, `@post`, etc.) do not recieve any argument"
+          },
+          {
+            "comment": "Expose response template in Http library and refactor"
+          },
+          {
+            "comment": "Add statusCode decorator for http status code"
+          },
+          {
+            "comment": "**Validate `@route` decorator is used only once"
+          },
+          {
+            "comment": "Update cadl depdendencies to peerDependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "@cadl-lang/rest_v0.8.0",
       "date": "Thu, 16 Dec 2021 08:02:20 GMT",
