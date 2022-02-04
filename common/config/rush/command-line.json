@@ -67,6 +67,13 @@
       "name": "e2e",
       "summary": "(CUSTOM) Runs the e2e tests",
       "shellCommand": "node e2e/e2e-tests.js"
+    },
+    {
+      "commandKind": "bulk",
+      "name": "clean",
+      "summary": "(CUSTOM) Run `npm run clean` on all the projects.",
+      "enableParallelism": true,
+      "ignoreMissingScript": true
     }
   ],
   /**
