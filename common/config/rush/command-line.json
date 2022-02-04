@@ -71,7 +71,7 @@
     {
       "commandKind": "bulk",
       "name": "clean",
-      "summary": "Run `npm run clean` on all the projects.",
+      "summary": "(CUSTOM) Run `npm run clean` on all the projects.",
       "enableParallelism": true,
       "ignoreMissingScript": true
     }
