@@ -40,5 +40,36 @@ describe("openapi: decorators", () => {
         "x-custom": "Bar",
       });
     });
+
+    it("emit diagnostics when passing non string extension key", async () => {
+      const diagnostics = await runner.diagnose(`
+        @extension(123, "Bar")
+        @test
+        model Foo {
+          prop: string
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message:
+          "Argument '(unnamed type)' of type 'number' is not assignable to parameter of type 'string'",
+      });
+    });
+
+    it("emit diagnostics when passing extension key not starting with `x-`", async () => {
+      const diagnostics = await runner.diagnose(`
+        @extension("foo", "Bar")
+        @test
+        model Foo {
+          prop: string
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/openapi/invalid-extension-key",
+        message: `OpenAPI extension must start with 'x-' but was 'foo'`,
+      });
+    });
   });
 });

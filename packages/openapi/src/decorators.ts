@@ -27,7 +27,7 @@ export function $extension(program: Program, entity: Type, extensionName: string
 
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(program, {
-      code: "extension-x",
+      code: "invalid-extension-key",
       format: { value: extensionName },
       target: entity,
     });

@@ -9,10 +9,10 @@ export const libDef = {
         default: paramMessage`Cannot use @${"decorator"} on a ${"entityKind"}`,
       },
     },
-    "extension-x": {
+    "invalid-extension-key": {
       severity: "error",
       messages: {
-        default: paramMessage`OpenAPI extension must start with "x-" but was "${"value"}"`,
+        default: paramMessage`OpenAPI extension must start with 'x-' but was '${"value"}'`,
       },
     },
   },
