@@ -313,7 +313,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     // allow operation extensions
-    attachExtensions(op, currentEndpoint);
+    attachExtensions(program, op, currentEndpoint);
     currentEndpoint.summary = getDoc(program, op);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
@@ -822,7 +822,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
-    attachExtensions(param, ph);
+    attachExtensions(program, param, ph);
     ph.schema = schema;
   }
 
@@ -1112,7 +1112,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
 
       // Attach any additional OpenAPI extensions
-      attachExtensions(prop, modelSchema.properties[name]);
+      attachExtensions(program, prop, modelSchema.properties[name]);
     }
 
     // Special case: if a model type extends a single *templated* base type and
@@ -1138,13 +1138,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     // Attach any OpenAPI extensions
-    attachExtensions(model, modelSchema);
+    attachExtensions(program, model, modelSchema);
     return modelSchema;
   }
 
-  function attachExtensions(type: Type, emitObject: any) {
+  function attachExtensions(program: Program, type: Type, emitObject: any) {
     // Attach any OpenAPI extensions
-    const extensions = getExtensions(type);
+    const extensions = getExtensions(program, type);
     if (extensions) {
       for (const key of extensions.keys()) {
         emitObject[key] = extensions.get(key);

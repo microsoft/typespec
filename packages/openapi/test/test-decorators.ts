@@ -36,7 +36,9 @@ describe("openapi: decorators", () => {
         }
       `);
 
-      deepStrictEqual(Object.fromEntries(getExtensions(Foo)), { "x-custom": "Bar" });
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
+        "x-custom": "Bar",
+      });
     });
   });
 });
