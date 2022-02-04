@@ -27,12 +27,12 @@ describe("compiler: prettier formatter", () => {
       code: `
     import   "@cadl-lang/rest";
 import        "@azure-tools/cadl-autorest";
-import "@azure-tools/cadl-rpaas"  ;
+import "@azure-tools/cadl-providerhub"  ;
 `,
       expected: `
 import "@cadl-lang/rest";
 import "@azure-tools/cadl-autorest";
-import "@azure-tools/cadl-rpaas";
+import "@azure-tools/cadl-providerhub";
 `,
     });
   });
