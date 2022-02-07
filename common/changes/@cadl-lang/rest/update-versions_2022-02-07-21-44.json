@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Bump dependency versions",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

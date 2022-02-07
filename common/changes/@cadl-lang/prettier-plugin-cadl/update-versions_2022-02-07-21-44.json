@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/prettier-plugin-cadl",
+      "comment": "Bump dependency versions",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/prettier-plugin-cadl"
+}
