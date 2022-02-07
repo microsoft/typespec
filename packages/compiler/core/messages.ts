@@ -176,6 +176,12 @@ const diagnostics = {
       projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
     },
   },
+  "default-required": {
+    severity: "error",
+    messages: {
+      default: "Required template parameters must not follow optional template parameters",
+    },
+  },
   /**
    * Checker
    */

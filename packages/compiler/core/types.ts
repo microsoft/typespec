@@ -741,6 +741,7 @@ export interface ProjectionReferenceNode extends BaseNode {
 export interface TemplateParameterDeclarationNode extends BaseNode {
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly id: IdentifierNode;
+  readonly default?: Expression;
   symbol?: TypeSymbol;
 }
 
