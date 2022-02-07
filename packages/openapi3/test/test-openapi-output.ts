@@ -444,7 +444,8 @@ describe("openapi3: definitions", () => {
 
     expectDiagnostics(diagnostics, {
       code: "@cadl-lang/openapi3/union-unsupported",
-      message: "Empty unions are not supported for OpenAPI v3",
+      message:
+        "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
     });
   });
 

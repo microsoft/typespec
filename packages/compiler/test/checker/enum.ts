@@ -84,7 +84,7 @@ describe("compiler: enums", () => {
     const diagnostics = await testHost.diagnose("main.cadl");
     expectDiagnostics(diagnostics, {
       code: "enum-member-duplicate",
-      message: "Enum already has a member",
+      message: "Enum already has a member named A",
     });
   });
 });

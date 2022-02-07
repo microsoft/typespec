@@ -9,6 +9,12 @@ export const libDef = {
         default: paramMessage`Cannot use @${"decorator"} on a ${"entityKind"}`,
       },
     },
+    "invalid-extension-key": {
+      severity: "error",
+      messages: {
+        default: paramMessage`OpenAPI extension must start with 'x-' but was '${"value"}'`,
+      },
+    },
   },
 } as const;
 export const { reportDiagnostic } = createCadlLibrary(libDef);

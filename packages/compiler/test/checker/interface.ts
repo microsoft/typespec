@@ -55,7 +55,7 @@ describe("compiler: interfaces", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, {
       code: "interface-duplicate",
-      message: "Interface already has a member",
+      message: "Interface already has a member named bar",
     });
   });
 
@@ -194,7 +194,7 @@ describe("compiler: interfaces", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, {
       code: "mixes-interface-duplicate",
-      message: "Interface mixes cannot have duplicate members",
+      message: "Interface mixes cannot have duplicate members. The duplicate member is named bar",
     });
   });
 

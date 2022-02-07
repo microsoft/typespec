@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Take change in openapi upstream library",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}

@@ -62,14 +62,15 @@ export function expectDiagnostics(
       expectation.code,
       `Diagnostics at index ${i} has non matching code.\n${message}`
     );
-    if (expectation.message) {
+
+    if (expectation.message !== undefined) {
       matchMessage(
-        diagnostic.code,
-        expectation.code,
+        diagnostic.message,
+        expectation.message,
         `Diagnostics at index ${i} has non matching message.\n${message}`
       );
     }
-    if (expectation.severity) {
+    if (expectation.severity !== undefined) {
       strictEqual(
         diagnostic.severity,
         expectation.severity,
