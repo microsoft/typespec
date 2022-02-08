@@ -235,12 +235,15 @@ export function $example(program: Program, entity: Type, pathOrUri: string, titl
     });
     return;
   }
-  program.stateMap(exampleKey).set(entity, {
+  if (!program.stateMap(exampleKey).has(entity)) {
+    program.stateMap(exampleKey).set(entity, []);
+  }
+  program.stateMap(exampleKey).get(entity).push({
     pathOrUri,
     title,
-  } as Example);
+  });
 }
 
-export function getExample(program: Program, entity: Type): Example | undefined {
+export function getExample(program: Program, entity: Type): Example[] | undefined {
   return program.stateMap(exampleKey).get(entity);
 }
