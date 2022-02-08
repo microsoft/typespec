@@ -1,3 +1,4 @@
+import { compilerAssert } from "./diagnostics.js";
 import { Program } from "./program";
 import {
   ArrayType,
@@ -58,25 +59,28 @@ export function createProjector(
     projections,
     projectType,
   };
+  let projectedNamespaces: NamespaceType[] = [];
+
   program.currentProjector = projector;
-  if (startNode) {
-    if (startNode.projector) {
-      projector.projectedGlobalNamespace = projectType(
-        startNode.projector.projectedGlobalNamespace!
-      ) as NamespaceType;
-      projector.projectedStartNode = projectedTypes.get(startNode);
-    } else {
-      projector.projectedGlobalNamespace = projectType(
-        program.checker!.getGlobalNamespaceType()
-      ) as NamespaceType;
-      projector.projectedStartNode = projectedTypes.get(startNode);
-    }
-  } else {
-    projector.projectedGlobalNamespace = projectType(
-      program.checker!.getGlobalNamespaceType()
-    ) as NamespaceType;
-    projector.projectedStartNode = projector.projectedGlobalNamespace;
+
+  const targetGlobalNs = startNode
+    ? startNode.projector
+      ? startNode.projector.projectedGlobalNamespace!
+      : program.checker!.getGlobalNamespaceType()
+    : program.checker!.getGlobalNamespaceType();
+
+  // project all the namespaces first
+  projector.projectedGlobalNamespace = projectNamespace(targetGlobalNs) as NamespaceType;
+
+  // then project all the types
+  for (const ns of projectedNamespaces) {
+    projectNamespaceContents(ns);
   }
+  projectType(targetGlobalNs);
+
+  projector.projectedStartNode = startNode
+    ? projectedTypes.get(startNode)
+    : projector.projectedGlobalNamespace;
 
   return projector;
 
@@ -89,8 +93,7 @@ export function createProjector(
     let projected;
     switch (type.kind) {
       case "Namespace":
-        projected = projectNamespace(type);
-        break;
+        compilerAssert(false, "Namespace should have already been projected.");
       case "Model":
         projected = projectModel(type);
         break;
@@ -137,7 +140,6 @@ export function createProjector(
     const childInterfaces = new Map<string, InterfaceType>();
     const childUnions = new Map<string, UnionType>();
     const childEnums = new Map<string, EnumType>();
-
     let projectedNs = shallowClone(ns, {
       namespaces: childNamespaces,
       models: childModels,
@@ -151,52 +153,65 @@ export function createProjector(
     checker.finishType(projectedNs);
 
     for (const [key, childNs] of ns.namespaces) {
-      const projected = projectType(childNs);
+      const projected = projectNamespace(childNs);
       if (projected.kind === "Namespace") {
         // todo: check for never?
         childNamespaces.set(key, projected);
       }
     }
 
+    projectedNamespaces.push(ns);
+    return applyProjection(ns, projectedNs);
+  }
+
+  /**
+   * Projects the contents of a namespace, but not the namespace itself. The namespace itself
+   * is projected in an earlier phase.
+   */
+  function projectNamespaceContents(ns: NamespaceType): Type {
+    const projectedNs = projectedTypes.get(ns);
+    compilerAssert(projectedNs, "Should have projected namespace by now");
+    if (projectedNs.kind !== "Namespace") {
+      // we projected the namespace to something else so don't do any more work.
+      // this might happen if a namespace itself was added/removed/etc. and is
+      // projected to never.
+      return neverType;
+    }
+
     for (const [key, childModel] of ns.models) {
       const projected = projectType(childModel);
       if (projected.kind === "Model") {
-        // todo: check for never?
-        childModels.set(key, projected);
+        projectedNs.models.set(key, projected);
       }
     }
 
     for (const [key, childOperation] of ns.operations) {
       const projected = projectType(childOperation);
       if (projected.kind === "Operation") {
-        // todo: check for never?
-        childOperations.set(key, projected);
+        projectedNs.operations.set(key, projected);
       }
     }
 
     for (const [key, childInterface] of ns.interfaces) {
       const projected = projectType(childInterface);
       if (projected.kind === "Interface") {
-        // todo: check for never?
-        childInterfaces.set(key, projected);
+        projectedNs.interfaces.set(key, projected);
       }
     }
     for (const [key, childUnion] of ns.unions) {
       const projected = projectType(childUnion);
       if (projected.kind === "Union") {
-        // todo: check for never?
-        childUnions.set(key, projected);
+        projectedNs.unions.set(key, projected);
       }
     }
     for (const [key, childEnum] of ns.enums) {
       const projected = projectType(childEnum);
       if (projected.kind === "Enum") {
-        // todo: check for never?
-        childEnums.set(key, projected);
+        projectedNs.enums.set(key, projected);
       }
     }
 
-    return applyProjection(ns, projectedNs);
+    return projectedNs;
   }
 
   function projectModel(model: ModelType): Type {
