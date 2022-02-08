@@ -131,7 +131,7 @@ Search.prototype.loadBiblio = function () {
 };
 
 Search.prototype.documentKeydown = function (e) {
-  if (e.keyCode === 191) {
+  if (e.key === '/') {
     e.preventDefault();
     e.stopPropagation();
     this.triggerSearch();
@@ -1057,7 +1057,7 @@ function doShortcut(e) {
   if (name === 'textarea' || name === 'input' || name === 'select' || target.isContentEditable) {
     return;
   }
-  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+  if (e.altKey || e.ctrlKey || e.metaKey) {
     return;
   }
   if (e.key === 'm' && usesMultipage) {
@@ -1079,6 +1079,8 @@ function doShortcut(e) {
     }
   } else if (e.key === 'u') {
     document.documentElement.classList.toggle('show-ao-annotations');
+  } else if (e.key === '?') {
+    document.getElementById('shortcuts-help').classList.toggle('active');
   }
 }
 
@@ -1094,8 +1096,11 @@ function init() {
   document.addEventListener(
     'keydown',
     debounce(e => {
-      if (e.code === 'Escape' && Toolbox.active) {
-        Toolbox.deactivate();
+      if (e.code === 'Escape') {
+        if (Toolbox.active) {
+          Toolbox.deactivate();
+        }
+        document.getElementById('shortcuts-help').classList.remove('active');
       }
     })
   );
@@ -2355,7 +2360,54 @@ li.menu-search-result-term:before {
 .clause-attributes-tag a {
   color: #884400;
 }
-</style></head><body><div id="menu-toggle"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; stroke:currentColor" viewBox="0 0 120 120">
+
+/* Shortcuts help dialog */
+
+#shortcuts-help {
+  position: fixed;
+  left: 5%;
+  margin: 0 auto;
+  right: 5%;
+  z-index: 10;
+  top: 10%;
+  top: calc(5vw + 5vh);
+  padding: 30px 90px;
+  max-width: 500px;
+  outline: solid 10000px rgba(255, 255, 255, 0.6);
+  border-radius: 5px;
+  border-width: 1px 1px 0 1px;
+  background-color: #ddd;
+  display: none;
+}
+
+#shortcuts-help.active {
+  display: block;
+}
+
+#shortcuts-help ul {
+  padding: 0;
+}
+
+#shortcuts-help li {
+  display: flex;
+  justify-content: space-between;
+}
+
+#shortcuts-help code {
+  padding: 3px 10px;
+  border-radius: 3px;
+  border-width: 1px 1px 0 1px;
+  border-color: #bbb;
+  background-color: #eee;
+  box-shadow: inset 0 -1px 0 #ccc;
+}
+</style></head><body><div id="shortcuts-help">
+<ul>
+  <li><span>Toggle shortcuts help</span><code>?</code></li>
+  <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+
+  <li><span>Jump to search box</span><code>/</code></li>
+</ul></div><div id="menu-toggle"><svg xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; stroke:currentColor" viewBox="0 0 120 120">
       <title>Menu</title>
       <path stroke-width="10" stroke-linecap="round" d="M30,60 h60  M30,30 m0,5 h60  M30,90 m0,-5 h60"></path>
     </svg></div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#intro" title="Introduction">Introduction</a></li><li><span class="item-toggle-none"></span><a href="#lexical-grammar" title="Lexical Grammar"><span class="secnum">1</span> Lexical Grammar</a></li><li><span class="item-toggle-none"></span><a href="#syntactic-grammar" title="Syntactic Grammar"><span class="secnum">2</span> Syntactic Grammar</a></li></ol></div></div><div id="spec-container">
