@@ -409,10 +409,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
-      model: paramMessage`The ${"decorator"} decorator can only be applied to models.`,
-      operations: paramMessage`The ${"decorator"} decorator can only be applied to operations.`,
-      namespacesInterfacesOrOperations: paramMessage`The ${"decorator"} decorator can only be applied to namespaces, interfaces, or operations.`,
-      operationsOrModelProps: paramMessage`The ${"decorator"} decorator can only be applied to operations or model properties.`,
     },
   },
   "invalid-argument": {

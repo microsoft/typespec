@@ -1,5 +1,6 @@
 export * from "../lib/decorators.js";
 export * from "../lib/service.js";
+export * from "./decorator-utils.js";
 export * from "./diagnostics.js";
 export * from "./library.js";
 export * from "./parser.js";

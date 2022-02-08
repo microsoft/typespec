@@ -5,6 +5,7 @@ import {
   Program,
   setDecoratorNamespace,
   Type,
+  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 import { getResourceTypeKey } from "./resource.js";
@@ -41,12 +42,7 @@ export function getConsumes(program: Program, entity: Type): string[] {
 
 const discriminatorKey = Symbol();
 export function $discriminator(program: Program, entity: Type, propertyName: string) {
-  if (entity.kind !== "Model") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "discriminator", entityKind: entity.kind },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(program, entity, "@discriminator", "Model")) {
     return;
   }
   program.stateMap(discriminatorKey).set(entity, propertyName);
@@ -62,12 +58,9 @@ export function getDiscriminator(program: Program, entity: Type): any | undefine
 
 const segmentsKey = Symbol();
 export function $segment(program: Program, entity: Type, name: string) {
-  if (entity.kind !== "Model" && entity.kind !== "ModelProperty" && entity.kind !== "Operation") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "segment", entityKind: entity.kind },
-      target: entity,
-    });
+  if (
+    !validateDecoratorTarget(program, entity, "@segment", ["Model", "ModelProperty", "Operation"])
+  ) {
     return;
   }
 
@@ -78,12 +71,8 @@ export function $segmentOf(program: Program, entity: Type, resourceType: Type) {
   if (resourceType.kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
     return;
-  } else if (resourceType.kind !== "Model") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "segmentOf", entityKind: entity.kind },
-      target: entity,
-    });
+  }
+  if (!validateDecoratorTarget(program, resourceType, "@segmentOf", "Model")) {
     return;
   }
 
@@ -192,12 +181,7 @@ function lowerCaseFirstChar(str: string): string {
 
 const actionsKey = Symbol();
 export function $action(program: Program, entity: Type, name?: string) {
-  if (entity.kind !== "Operation") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "action", entityKind: entity.kind },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(program, entity, "@action", "Operation")) {
     return;
   }
 

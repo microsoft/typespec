@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix bugs involving merged decorators",
-      "type": "patch"
+      "comment": "Provide reusable decorator validation for target",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/compiler"

@@ -14,14 +14,24 @@ describe("openapi: decorators", () => {
     it("emit diagnostic if use on non operation", async () => {
       const diagnostics = await runner.diagnose(`
         @operationId("foo")
-        model Foo {
-          
-        }
+        model Foo {}
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/openapi/decorator-wrong-type",
-        message: "Cannot use @operationId on a Model",
+        code: "decorator-wrong-target",
+        message: "Cannot apply @operationId decorator to Model",
+      });
+    });
+
+    it("emit diagnostic if operation id is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        @operationId(123)
+        op foo(): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: "Argument '123' of type 'number' is not assignable to parameter of type 'string'",
       });
     });
   });
@@ -52,8 +62,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '(unnamed type)' of type 'number' is not assignable to parameter of type 'string'",
+        message: "Argument '123' of type 'number' is not assignable to parameter of type 'string'",
       });
     });
 

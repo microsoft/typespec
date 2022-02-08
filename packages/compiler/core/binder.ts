@@ -402,11 +402,6 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
       // todo: don't merge exports
       statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
-      if (!existingBinding.merged) {
-        existingBinding.merged = true;
-        existingBinding.nodes = [existingBinding.node];
-      }
-      existingBinding.nodes?.push(statement);
     } else {
       declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
 

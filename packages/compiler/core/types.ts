@@ -285,10 +285,6 @@ export interface TypeSymbol {
   kind: "type";
   node: Node;
   name: string;
-  merged?: boolean;
-  // for merged nodes, this lists all the nodes
-  // that contribute to this symbol.
-  nodes?: Node[];
   id?: number;
 }
 

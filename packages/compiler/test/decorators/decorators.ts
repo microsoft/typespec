@@ -125,7 +125,7 @@ describe("compiler: built-in decorators", () => {
 
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
-      strictEqual(diagnostics[0].message, `The @error decorator can only be applied to models.`);
+      strictEqual(diagnostics[0].message, `Cannot apply @error decorator to Enum`);
     });
   });
 });

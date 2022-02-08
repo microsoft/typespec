@@ -1,8 +1,21 @@
 import { ModelType, ModelTypeProperty } from "@cadl-lang/compiler";
+import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { checkFor, openApiFor } from "./test-host.js";
+import { checkFor, createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
 describe("openapi3: discriminated unions", () => {
+  it("emit diagnostics if not used on model or property", async () => {
+    const runner = await createOpenAPITestRunner();
+    const diagnostics = await runner.diagnose(`
+      @discriminator("kind")
+      namespace Foo {}
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "decorator-wrong-target",
+      message: "Cannot apply @discriminator decorator to Namespace",
+    });
+  });
+
   it("defines unions with discriminators", async () => {
     const openApi = await openApiFor(`
       @discriminator("kind")

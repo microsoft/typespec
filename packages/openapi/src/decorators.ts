@@ -1,14 +1,17 @@
-import { Program, Type, validateDecoratorParamType } from "@cadl-lang/compiler";
+import {
+  Program,
+  Type,
+  validateDecoratorParamType,
+  validateDecoratorTarget,
+} from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 
 const operationIdsKey = Symbol();
 export function $operationId(program: Program, entity: Type, opId: string) {
-  if (entity.kind !== "Operation") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "operationId", entityKind: entity.kind },
-      target: entity,
-    });
+  if (
+    !validateDecoratorTarget(program, entity, "@operationId", "Operation") ||
+    !validateDecoratorParamType(program, entity, opId, "string")
+  ) {
     return;
   }
   program.stateMap(operationIdsKey).set(entity, opId);

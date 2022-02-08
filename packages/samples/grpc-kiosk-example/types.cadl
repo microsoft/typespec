@@ -26,7 +26,6 @@ model LatLng {
   longitude: float64;
 }
 
-@body
 model Empty {}
 
 @doc("An unexpected error response.")

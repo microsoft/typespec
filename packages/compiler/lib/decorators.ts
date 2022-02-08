@@ -1,4 +1,5 @@
-import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
+import { validateDecoratorParamType, validateDecoratorTarget } from "../core/decorator-utils.js";
+import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
   InterfaceType,
@@ -25,6 +26,7 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
 const docsKey = Symbol();
 export function $doc(program: Program, target: Type, text: string, sourceObject: Type) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
+
   if (!validateDecoratorParamType(program, target, text, "string")) {
     return;
   }
@@ -106,14 +108,7 @@ export function $numeric(program: Program, target: Type) {
     );
     return;
   }
-  if (target.kind !== "Model") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@numeric", to: "non-model type" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@numeric", "Model")) {
     return;
   }
   program.stateSet(numericTypesKey).add(target);
@@ -129,15 +124,7 @@ export function isNumericType(program: Program, target: Type): boolean {
 const errorKey = Symbol();
 
 export function $error(program: Program, target: Type) {
-  if (target.kind !== "Model") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        messageId: "model",
-        format: { decorator: "@error" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@error", "Model")) {
     return;
   }
 
@@ -153,14 +140,7 @@ export function isErrorModel(program: Program, target: Type): boolean {
 const formatValuesKey = Symbol();
 
 export function $format(program: Program, target: Type, format: string) {
-  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@format", to: "anything that isn't a Model or ModelProperty" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@format", ["Model", "ModelProperty"])) {
     return;
   }
 
@@ -187,14 +167,7 @@ export function getFormat(program: Program, target: Type): string | undefined {
 const patternValuesKey = Symbol();
 
 export function $pattern(program: Program, target: Type, pattern: string) {
-  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@pattern", to: "anything that isn't a Model or ModelProperty" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@pattern", ["Model", "ModelProperty"])) {
     return;
   }
 
@@ -221,14 +194,7 @@ export function getPattern(program: Program, target: Type): string | undefined {
 const minLengthValuesKey = Symbol();
 
 export function $minLength(program: Program, target: Type, minLength: number) {
-  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@minLength", to: "anything that isn't a Model or ModelProperty" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@minLength", ["Model", "ModelProperty"])) {
     return;
   }
 
@@ -255,14 +221,7 @@ export function getMinLength(program: Program, target: Type): number | undefined
 const maxLengthValuesKey = Symbol();
 
 export function $maxLength(program: Program, target: Type, maxLength: number) {
-  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@maxLength", to: "anything that isn't a Model or ModelProperty" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@maxLength", ["Model", "ModelProperty"])) {
     return;
   }
 
@@ -288,15 +247,10 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 const minValuesKey = Symbol();
 
 export function $minValue(program: Program, target: Type, minValue: number) {
-  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@minValue", to: "anything that isn't a Model or ModelProperty" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@minValue", ["Model", "ModelProperty"])) {
+    return;
   }
+
   if (!isNumericType(program, target)) {
     program.reportDiagnostic(
       createDiagnostic({
@@ -319,16 +273,10 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 const maxValuesKey = Symbol();
 
 export function $maxValue(program: Program, target: Type, maxValue: number) {
-  if (target.kind !== "Model" && target.kind !== "ModelProperty") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@maxValue", to: "anything that isn't a Model or ModelProperty" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@maxValue", ["Model", "ModelProperty"])) {
     return;
   }
+
   if (!isNumericType(program, target)) {
     program.reportDiagnostic(
       createDiagnostic({
@@ -351,14 +299,7 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 const secretTypesKey = Symbol();
 
 export function $secret(program: Program, target: Type) {
-  if (target.kind !== "Model") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@secret", to: "anything that isn't a Model " },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@secret", "Model")) {
     return;
   }
 
@@ -382,16 +323,10 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 const visibilitySettingsKey = Symbol();
 
 export function $visibility(program: Program, target: Type, ...visibilities: string[]) {
-  if (target.kind !== "ModelProperty") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@visibility", to: "anything that isn't a ModelProperty" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@visibility", ["ModelProperty"])) {
     return;
   }
+
   program.stateMap(visibilitySettingsKey).set(target, visibilities);
 }
 
@@ -400,15 +335,7 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
 }
 
 export function $withVisibility(program: Program, target: Type, ...visibilities: string[]) {
-  if (target.kind !== "Model") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        messageId: "model",
-        format: { decorator: "@withVisibility" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@withVisibility", "Model")) {
     return;
   }
 
@@ -434,15 +361,7 @@ function mapFilterOut(
 // -- @withOptionalProperties decorator ---------------------
 
 export function $withOptionalProperties(program: Program, target: Type) {
-  if (target.kind !== "Model") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        messageId: "model",
-        format: { decorator: "@withOptionalProperties" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@withOptionalProperties", "Model")) {
     return;
   }
 
@@ -453,15 +372,7 @@ export function $withOptionalProperties(program: Program, target: Type) {
 // -- @withUpdatableProperties decorator ----------------------
 
 export function $withUpdateableProperties(program: Program, target: Type) {
-  if (target.kind !== "Model") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        messageId: "model",
-        format: { decorator: "@withUpdateableProperties" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@withUpdateableProperties", "Model")) {
     return;
   }
 
@@ -475,15 +386,7 @@ export function $withUpdateableProperties(program: Program, target: Type) {
 // -- @withoutDefaultValues decorator ----------------------
 
 export function $withoutDefaultValues(program: Program, target: Type) {
-  if (target.kind !== "Model") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        messageId: "model",
-        format: { decorator: "@withoutDefaultValues" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@withoutDefaultValues", "Model")) {
     return;
   }
 
@@ -496,15 +399,7 @@ export function $withoutDefaultValues(program: Program, target: Type) {
 const listPropertiesKey = Symbol();
 
 export function $list(program: Program, target: Type, listedType?: Type) {
-  if (target.kind !== "Operation") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        messageId: "operations",
-        format: { decorator: "@list" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@list", "Operation")) {
     return;
   }
 
@@ -541,15 +436,7 @@ const tagPropertiesKey = Symbol();
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
 export function $tag(program: Program, target: Type, tag: string) {
-  if (target.kind !== "Operation" && target.kind !== "Namespace" && target.kind !== "Interface") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        messageId: "namespacesInterfacesOrOperations",
-        format: { decorator: "@tag" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@tag", ["Operation", "Namespace", "Interface"])) {
     return;
   }
   const tags = program.stateMap(tagPropertiesKey).get(target);
@@ -591,52 +478,6 @@ export function getAllTags(
   return tags.size > 0 ? Array.from(tags).reverse() : undefined;
 }
 
-/**
- * Emit diagnostic if the number of arguments passed to decorator is more or less than the expected count.
- */
-export function validateDecoratorParamCount(
-  program: Program,
-  target: Type,
-  args: unknown[],
-  expected: number
-) {
-  if (args.length !== expected) {
-    reportDiagnostic(program, {
-      code: "invalid-argument-count",
-      format: {
-        actual: args.length.toString(),
-        expected: expected.toString(),
-      },
-      target,
-    });
-    return;
-  }
-}
-
-/**
- * Validate the given
- */
-export function validateDecoratorParamType(
-  program: Program,
-  target: Type,
-  value: any,
-  expected: string
-): boolean {
-  if (typeof value !== expected) {
-    reportDiagnostic(program, {
-      code: "invalid-argument",
-      format: {
-        value: program.checker!.getTypeName(value),
-        actual: typeof value,
-        expected: expected,
-      },
-      target,
-    });
-    return false;
-  }
-  return true;
-}
-
 // -- @friendlyName decorator ---------------------
 
 const friendlyNamesKey = Symbol();
@@ -652,14 +493,7 @@ export function $friendlyName(
     return;
   }
 
-  if (target.kind !== "Model") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@friendlyName", to: "model type" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(program, target, "@friendlyName", "Model")) {
     return;
   }
 
