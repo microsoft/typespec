@@ -1,4 +1,11 @@
-import { $list,ModelType,OperationType,Program,setDecoratorNamespace,Type } from "@cadl-lang/compiler";
+import {
+  $list,
+  ModelType,
+  OperationType,
+  Program,
+  setDecoratorNamespace,
+  Type,
+} from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 import { getResourceTypeKey } from "./resource.js";
 
