@@ -1,11 +1,4 @@
-import {
-  $list,
-  ModelType,
-  OperationType,
-  Program,
-  setDecoratorNamespace,
-  Type,
-} from "@cadl-lang/compiler";
+import { $list,ModelType,OperationType,Program,setDecoratorNamespace,Type } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 import { getResourceTypeKey } from "./resource.js";
 
@@ -226,3 +219,28 @@ setDecoratorNamespace(
   $listsResource,
   $action
 );
+
+export interface Example {
+  pathOrUri: string;
+  title: string;
+}
+
+const exampleKey = Symbol();
+export function $example(program: Program, entity: Type, pathOrUri: string, title: string) {
+  if (entity.kind !== "Operation") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "example", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateMap(exampleKey).set(entity, {
+    pathOrUri,
+    title,
+  } as Example);
+}
+
+export function getExample(program: Program, entity: Type): Example | undefined {
+  return program.stateMap(exampleKey).get(entity);
+}
