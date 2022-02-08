@@ -1,6 +1,7 @@
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
+  DecoratorContext,
   InterfaceType,
   ModelType,
   ModelTypeProperty,
@@ -23,7 +24,12 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
 }
 
 const docsKey = Symbol();
-export function $doc(program: Program, target: Type, text: string, sourceObject: Type) {
+export function $doc(
+  { program }: DecoratorContext,
+  target: Type,
+  text: string,
+  sourceObject: Type
+) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
   if (!validateDecoratorParamType(program, target, text, "string")) {
     return;
@@ -52,7 +58,7 @@ export function inspectTypeName(program: Program, target: Type, text: string) {
 }
 
 const intrinsicsKey = Symbol();
-export function $intrinsic(program: Program, target: Type) {
+export function $intrinsic({ program }: DecoratorContext, target: Type) {
   program.stateSet(intrinsicsKey).add(target);
 }
 
@@ -95,7 +101,7 @@ export function isErrorType(type: Type): boolean {
 }
 
 const numericTypesKey = Symbol();
-export function $numeric(program: Program, target: Type) {
+export function $numeric({ program }: DecoratorContext, target: Type) {
   if (!isIntrinsic(program, target)) {
     program.reportDiagnostic(
       createDiagnostic({
@@ -128,7 +134,7 @@ export function isNumericType(program: Program, target: Type): boolean {
 
 const errorKey = Symbol();
 
-export function $error(program: Program, target: Type) {
+export function $error({ program }: DecoratorContext, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -152,7 +158,7 @@ export function isErrorModel(program: Program, target: Type): boolean {
 
 const formatValuesKey = Symbol();
 
-export function $format(program: Program, target: Type, format: string) {
+export function $format({ program }: DecoratorContext, target: Type, format: string) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -186,7 +192,7 @@ export function getFormat(program: Program, target: Type): string | undefined {
 
 const patternValuesKey = Symbol();
 
-export function $pattern(program: Program, target: Type, pattern: string) {
+export function $pattern({ program }: DecoratorContext, target: Type, pattern: string) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -220,7 +226,7 @@ export function getPattern(program: Program, target: Type): string | undefined {
 
 const minLengthValuesKey = Symbol();
 
-export function $minLength(program: Program, target: Type, minLength: number) {
+export function $minLength({ program }: DecoratorContext, target: Type, minLength: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -254,7 +260,7 @@ export function getMinLength(program: Program, target: Type): number | undefined
 
 const maxLengthValuesKey = Symbol();
 
-export function $maxLength(program: Program, target: Type, maxLength: number) {
+export function $maxLength({ program }: DecoratorContext, target: Type, maxLength: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -287,7 +293,7 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 
 const minValuesKey = Symbol();
 
-export function $minValue(program: Program, target: Type, minValue: number) {
+export function $minValue({ program }: DecoratorContext, target: Type, minValue: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -318,7 +324,7 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 
 const maxValuesKey = Symbol();
 
-export function $maxValue(program: Program, target: Type, maxValue: number) {
+export function $maxValue({ program }: DecoratorContext, target: Type, maxValue: number) {
   if (target.kind !== "Model" && target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -350,7 +356,7 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 
 const secretTypesKey = Symbol();
 
-export function $secret(program: Program, target: Type) {
+export function $secret({ program }: DecoratorContext, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -381,7 +387,11 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 
 const visibilitySettingsKey = Symbol();
 
-export function $visibility(program: Program, target: Type, ...visibilities: string[]) {
+export function $visibility(
+  { program }: DecoratorContext,
+  target: Type,
+  ...visibilities: string[]
+) {
   if (target.kind !== "ModelProperty") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -399,7 +409,11 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
   return program.stateMap(visibilitySettingsKey).get(target);
 }
 
-export function $withVisibility(program: Program, target: Type, ...visibilities: string[]) {
+export function $withVisibility(
+  { program }: DecoratorContext,
+  target: Type,
+  ...visibilities: string[]
+) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -433,7 +447,7 @@ function mapFilterOut(
 
 // -- @withOptionalProperties decorator ---------------------
 
-export function $withOptionalProperties(program: Program, target: Type) {
+export function $withOptionalProperties({ program }: DecoratorContext, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -452,7 +466,7 @@ export function $withOptionalProperties(program: Program, target: Type) {
 
 // -- @withUpdatableProperties decorator ----------------------
 
-export function $withUpdateableProperties(program: Program, target: Type) {
+export function $withUpdateableProperties({ program }: DecoratorContext, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -474,7 +488,7 @@ export function $withUpdateableProperties(program: Program, target: Type) {
 
 // -- @withoutDefaultValues decorator ----------------------
 
-export function $withoutDefaultValues(program: Program, target: Type) {
+export function $withoutDefaultValues({ program }: DecoratorContext, target: Type) {
   if (target.kind !== "Model") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -495,7 +509,7 @@ export function $withoutDefaultValues(program: Program, target: Type) {
 
 const listPropertiesKey = Symbol();
 
-export function $list(program: Program, target: Type, listedType?: Type) {
+export function $list({ program }: DecoratorContext, target: Type, listedType?: Type) {
   if (target.kind !== "Operation") {
     program.reportDiagnostic(
       createDiagnostic({
@@ -540,7 +554,7 @@ const tagPropertiesKey = Symbol();
 
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
-export function $tag(program: Program, target: Type, tag: string) {
+export function $tag({ program }: DecoratorContext, target: Type, tag: string) {
   if (target.kind !== "Operation" && target.kind !== "Namespace" && target.kind !== "Interface") {
     program.reportDiagnostic(
       createDiagnostic({

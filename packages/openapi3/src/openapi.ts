@@ -1,6 +1,7 @@
 import {
   ArrayType,
   checkIfServiceNamespace,
+  DecoratorContext,
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
@@ -63,7 +64,7 @@ export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAP
 
 const refTargetsKey = Symbol();
 
-export function $useRef(program: Program, entity: Type, refUrl: string): void {
+export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
   if (entity.kind === "Model" || entity.kind === "ModelProperty") {
     program.stateMap(refTargetsKey).set(entity, refUrl);
   } else {
@@ -81,7 +82,7 @@ function getRef(program: Program, entity: Type): string | undefined {
 }
 
 const oneOfKey = Symbol();
-export function $oneOf(program: Program, entity: Type) {
+export function $oneOf({ program }: DecoratorContext, entity: Type) {
   if (entity.kind !== "Union") {
     reportDiagnostic(program, {
       code: "decorator-wrong-type",
