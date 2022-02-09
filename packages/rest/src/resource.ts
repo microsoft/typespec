@@ -1,4 +1,5 @@
 import {
+  DecoratorContext,
   ModelType,
   ModelTypeProperty,
   Program,
@@ -16,7 +17,7 @@ export interface ResourceKey {
 
 const resourceKeyPropertiesKey = Symbol();
 
-export function $key(program: Program, entity: Type, altName?: string): void {
+export function $key({ program }: DecoratorContext, entity: Type, altName?: string): void {
   if (!validateDecoratorTarget(program, entity, "@key", "ModelProperty")) {
     return;
   }
@@ -79,11 +80,12 @@ export function getResourceTypeKey(program: Program, resourceType: ModelType): R
   return resourceKey;
 }
 
-function cloneKeyProperties(program: Program, target: ModelType, resourceType: ModelType) {
+function cloneKeyProperties(context: DecoratorContext, target: ModelType, resourceType: ModelType) {
+  const { program } = context;
   // Add parent keys first
   const parentType = getParentResource(program, resourceType);
   if (parentType) {
-    cloneKeyProperties(program, target, parentType);
+    cloneKeyProperties(context, target, parentType);
   }
 
   const resourceKey = getResourceTypeKey(program, resourceType);
@@ -97,14 +99,18 @@ function cloneKeyProperties(program: Program, target: ModelType, resourceType: M
       decorator: $path,
       args: [],
     });
-    $path(program, newProp, undefined as any);
+    $path(context, newProp, undefined as any);
 
     target.properties.set(keyName, newProp);
   }
 }
 
-export function $copyResourceKeyParameters(program: Program, entity: Type, filter?: string) {
-  if (!validateDecoratorTarget(program, entity, "@copyResourceKeyParameters", "Model")) {
+export function $copyResourceKeyParameters(
+  context: DecoratorContext,
+  entity: Type,
+  filter?: string
+) {
+  if (!validateDecoratorTarget(context.program, entity, "@copyResourceKeyParameters", "Model")) {
     return;
   }
 
@@ -113,7 +119,7 @@ export function $copyResourceKeyParameters(program: Program, entity: Type, filte
     entity.templateArguments.length !== 1 ||
     entity.templateArguments[0].kind !== "Model"
   ) {
-    reportDiagnostic(program, {
+    reportDiagnostic(context.program, {
       code: "not-key-type",
       target: entity,
     });
@@ -124,13 +130,13 @@ export function $copyResourceKeyParameters(program: Program, entity: Type, filte
 
   if (filter === "parent") {
     // Only copy keys of the parent type if there is one
-    const parentType = getParentResource(program, resourceType);
+    const parentType = getParentResource(context.program, resourceType);
     if (parentType) {
-      cloneKeyProperties(program, entity, parentType);
+      cloneKeyProperties(context, entity, parentType);
     }
   } else {
     // Copy keys of the resource type and all parents
-    cloneKeyProperties(program, entity, resourceType);
+    cloneKeyProperties(context, entity, resourceType);
   }
 }
 
@@ -142,7 +148,7 @@ export function getParentResource(
   return program.stateMap(parentResourceTypesKey).get(resourceType);
 }
 
-export function $parentResource(program: Program, entity: Type, parentType: Type) {
+export function $parentResource({ program }: DecoratorContext, entity: Type, parentType: Type) {
   if (!validateDecoratorTarget(program, parentType, "@parentResource", "Model")) {
     return;
   }

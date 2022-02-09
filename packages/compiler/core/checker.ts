@@ -2,6 +2,7 @@ import { inspect } from "util";
 import { createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
+  DecoratorContext,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
@@ -2006,7 +2007,8 @@ export function createChecker(program: Program): Checker {
 
     try {
       const fn = decApp.decorator;
-      fn(program, target, ...decApp.args);
+      const context: DecoratorContext = { program };
+      fn(context, target, ...decApp.args);
     } catch (error: any) {
       // do not fail the language server for exceptions in decorators
       if (program.compilerOptions.designTimeBuild) {
@@ -2790,7 +2792,7 @@ export function createChecker(program: Program): Checker {
     return createType({
       kind: "Function",
       call(...args: Type[]): Type {
-        let retval = ref.value(program, ...marshalProjectionArguments(args));
+        let retval = ref.value({ program }, ...marshalProjectionArguments(args));
         return voidType;
       },
     } as const);

@@ -13,7 +13,7 @@ export interface DecoratorApplication {
 }
 
 export interface DecoratorFunction {
-  (program: Program, target: Type, ...customArgs: any[]): void;
+  (program: DecoratorContext, target: Type, ...customArgs: any[]): void;
   namespace?: string;
 }
 
@@ -1222,6 +1222,10 @@ export type EmitOptionsFor<C> = C extends CadlLibrary<infer T, infer E> ? EmitOp
 
 export interface EmitOptions<E extends string> {
   name?: E;
+}
+
+export interface DecoratorContext {
+  program: Program;
 }
 
 export type LogLevel = "debug" | "verbose" | "info" | "warning" | "error";

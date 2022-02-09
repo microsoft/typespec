@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Update decorators to take in api change",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}

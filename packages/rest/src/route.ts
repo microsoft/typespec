@@ -1,4 +1,5 @@
 import {
+  DecoratorContext,
   getServiceNamespace,
   InterfaceType,
   ModelTypeProperty,
@@ -48,14 +49,14 @@ export interface RoutePath {
   isReset: boolean;
 }
 
-export function $route(program: Program, entity: Type, path: string) {
+export function $route({ program }: DecoratorContext, entity: Type, path: string) {
   setRoute(program, entity, {
     path,
     isReset: false,
   });
 }
 
-export function $routeReset(program: Program, entity: Type, path: string) {
+export function $routeReset({ program }: DecoratorContext, entity: Type, path: string) {
   setRoute(program, entity, {
     path,
     isReset: true,
@@ -460,7 +461,7 @@ const resourceOperationToVerb: any = {
 };
 
 const autoRouteKey = Symbol();
-export function $autoRoute(program: Program, entity: Type) {
+export function $autoRoute({ program }: DecoratorContext, entity: Type) {
   if (
     !validateDecoratorTarget(program, entity, "@autoRoute", ["Namespace", "Interface", "Operation"])
   ) {

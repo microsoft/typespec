@@ -1,4 +1,5 @@
 import {
+  DecoratorContext,
   Program,
   Type,
   validateDecoratorParamType,
@@ -7,7 +8,7 @@ import {
 import { reportDiagnostic } from "./lib.js";
 
 const operationIdsKey = Symbol();
-export function $operationId(program: Program, entity: Type, opId: string) {
+export function $operationId({ program }: DecoratorContext, entity: Type, opId: string) {
   if (
     !validateDecoratorTarget(program, entity, "@operationId", "Operation") ||
     !validateDecoratorParamType(program, entity, opId, "string")
@@ -23,7 +24,12 @@ export function getOperationId(program: Program, entity: Type): string | undefin
 
 export type ExtensionKey = `x-${string}`;
 const openApiExtensionKey = Symbol();
-export function $extension(program: Program, entity: Type, extensionName: string, value: any) {
+export function $extension(
+  { program }: DecoratorContext,
+  entity: Type,
+  extensionName: string,
+  value: any
+) {
   if (!validateDecoratorParamType(program, entity, extensionName, "string")) {
     return;
   }

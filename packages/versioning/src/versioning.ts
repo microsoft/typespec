@@ -1,4 +1,10 @@
-import { NamespaceType, Program, ProjectionApplication, Type } from "@cadl-lang/compiler";
+import {
+  DecoratorContext,
+  NamespaceType,
+  Program,
+  ProjectionApplication,
+  Type,
+} from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 const addedOnKey = Symbol();
 const removedOnKey = Symbol();
@@ -7,67 +13,67 @@ const versionDependencyKey = Symbol();
 const renamedFromKey = Symbol();
 const madeOptionalKey = Symbol();
 
-export function $added(p: Program, t: Type, v: string) {
+export function $added({ program }: DecoratorContext, t: Type, v: string) {
   if (typeof v !== "string") {
-    reportDiagnostic(p, { code: "version-must-be-string", target: t });
+    reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
   }
   if (
     ["EnumMember", "ModelProperty", "UnionVariant"].indexOf(t.kind) === -1 &&
-    !hasVersion(p, t, v)
+    !hasVersion(program, t, v)
   ) {
-    reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
+    reportDiagnostic(program, { code: "version-not-found", target: t, format: { version: v } });
     return;
   }
 
-  p.stateMap(addedOnKey).set(t, v);
+  program.stateMap(addedOnKey).set(t, v);
 }
-export function $removed(p: Program, t: Type, v: string) {
+export function $removed({ program }: DecoratorContext, t: Type, v: string) {
   if (typeof v !== "string") {
-    reportDiagnostic(p, { code: "version-must-be-string", target: t });
+    reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
   }
   // this validation doesn't work for model properties because we can't walk up to
   // get the container type.
   if (
     ["EnumMember", "ModelProperty", "UnionVariant"].indexOf(t.kind) === -1 &&
-    !hasVersion(p, t, v)
+    !hasVersion(program, t, v)
   ) {
-    reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
+    reportDiagnostic(program, { code: "version-not-found", target: t, format: { version: v } });
     return;
   }
-  p.stateMap(removedOnKey).set(t, v);
+  program.stateMap(removedOnKey).set(t, v);
 }
-export function $renamedFrom(p: Program, t: Type, v: string, oldName: string) {
+export function $renamedFrom({ program }: DecoratorContext, t: Type, v: string, oldName: string) {
   if (typeof v !== "string") {
-    reportDiagnostic(p, { code: "version-must-be-string", target: t });
+    reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
   }
   if (
     ["EnumMember", "ModelProperty", "UnionVariant"].indexOf(t.kind) === -1 &&
-    !hasVersion(p, t, v)
+    !hasVersion(program, t, v)
   ) {
-    reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
+    reportDiagnostic(program, { code: "version-not-found", target: t, format: { version: v } });
     return;
   }
   const record = { v: v, oldName: oldName };
-  p.stateMap(renamedFromKey).set(t, record);
+  program.stateMap(renamedFromKey).set(t, record);
 }
 
-export function $madeOptional(p: Program, t: Type, v: string) {
+export function $madeOptional({ program }: DecoratorContext, t: Type, v: string) {
   if (typeof v !== "string") {
-    reportDiagnostic(p, { code: "version-must-be-string", target: t });
+    reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
   }
   if (
     ["EnumMember", "ModelProperty", "UnionVariant"].indexOf(t.kind) === -1 &&
-    !hasVersion(p, t, v)
+    !hasVersion(program, t, v)
   ) {
-    reportDiagnostic(p, { code: "version-not-found", target: t, format: { version: v } });
+    reportDiagnostic(program, { code: "version-not-found", target: t, format: { version: v } });
     return;
   }
 
-  p.stateMap(madeOptionalKey).set(t, v);
+  program.stateMap(madeOptionalKey).set(t, v);
 }
 
 export function getRenamedFromVersion(p: Program, t: Type) {
@@ -87,9 +93,9 @@ export function getMadeOptionalOn(p: Program, t: Type) {
   return p.stateMap(madeOptionalKey).get(t) ?? -1;
 }
 
-export function $versioned(p: Program, t: Type, v: Type) {
+export function $versioned({ program }: DecoratorContext, t: Type, v: Type) {
   if (t.kind !== "Namespace") {
-    reportDiagnostic(p, { code: "versioned-not-on-namespace", target: t });
+    reportDiagnostic(program, { code: "versioned-not-on-namespace", target: t });
     return;
   }
   const versions = [];
@@ -112,7 +118,7 @@ export function $versioned(p: Program, t: Type, v: Type) {
       }
   }
 
-  p.stateMap(versionsKey).set(t, versions);
+  program.stateMap(versionsKey).set(t, versions);
 }
 
 function getVersion(p: Program, t: Type) {
@@ -120,13 +126,13 @@ function getVersion(p: Program, t: Type) {
 }
 
 export function $versionedDependency(
-  p: Program,
+  { program }: DecoratorContext,
   referenceNamespace: Type,
   targetNamespace: Type,
   versionRecord: Type
 ) {
   if (referenceNamespace.kind !== "Namespace") {
-    reportDiagnostic(p, {
+    reportDiagnostic(program, {
       code: "versioned-dependency-not-on-namespace",
       target: referenceNamespace,
     });
@@ -134,7 +140,7 @@ export function $versionedDependency(
   }
 
   if (targetNamespace.kind !== "Namespace") {
-    reportDiagnostic(p, {
+    reportDiagnostic(program, {
       code: "versioned-dependency-not-to-namespace",
       target: referenceNamespace,
     });
@@ -142,21 +148,21 @@ export function $versionedDependency(
   }
 
   if (versionRecord.kind !== "Model") {
-    reportDiagnostic(p, {
+    reportDiagnostic(program, {
       code: "versioned-dependency-record-not-model",
       target: referenceNamespace,
     });
     return;
   }
 
-  let state = p.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
+  let state = program.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
     NamespaceType,
     Map<string, string>
   >;
 
   if (!state) {
     state = new Map();
-    p.stateMap(versionDependencyKey).set(referenceNamespace, state);
+    program.stateMap(versionDependencyKey).set(referenceNamespace, state);
   }
 
   let versionMap = state.get(targetNamespace);

@@ -1,4 +1,5 @@
 import {
+  DecoratorContext,
   Program,
   setDecoratorNamespace,
   Type,
@@ -9,7 +10,7 @@ import {
 import { reportDiagnostic } from "./diagnostics.js";
 
 const headerFieldsKey = Symbol();
-export function $header(program: Program, entity: Type, headerName?: string) {
+export function $header({ program }: DecoratorContext, entity: Type, headerName?: string) {
   if (!validateDecoratorTarget(program, entity, "@header", "ModelProperty")) {
     return;
   }
@@ -33,7 +34,7 @@ export function isHeader(program: Program, entity: Type) {
 }
 
 const queryFieldsKey = Symbol();
-export function $query(program: Program, entity: Type, queryKey?: string) {
+export function $query({ program }: DecoratorContext, entity: Type, queryKey?: string) {
   if (!validateDecoratorTarget(program, entity, "@query", "ModelProperty")) {
     return;
   }
@@ -57,7 +58,7 @@ export function isQueryParam(program: Program, entity: Type) {
 }
 
 const pathFieldsKey = Symbol();
-export function $path(program: Program, entity: Type, paramName?: string) {
+export function $path({ program }: DecoratorContext, entity: Type, paramName?: string) {
   if (!validateDecoratorTarget(program, entity, "@path", "ModelProperty")) {
     return;
   }
@@ -81,7 +82,7 @@ export function isPathParam(program: Program, entity: Type) {
 }
 
 const bodyFieldsKey = Symbol();
-export function $body(program: Program, entity: Type) {
+export function $body({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@body", "ModelProperty")) {
     return;
   }
@@ -93,7 +94,7 @@ export function isBody(program: Program, entity: Type): boolean {
 }
 
 const statusCodeKey = Symbol();
-export function $statusCode(program: Program, entity: Type) {
+export function $statusCode({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@statusCode", "ModelProperty")) {
     return;
   }
@@ -133,32 +134,32 @@ export function getOperationVerb(program: Program, entity: Type): HttpVerb | und
   return program.stateMap(operationVerbsKey).get(entity);
 }
 
-export function $get(program: Program, entity: Type, ...args: unknown[]) {
+export function $get({ program }: DecoratorContext, entity: Type, ...args: unknown[]) {
   validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "get");
 }
 
-export function $put(program: Program, entity: Type, ...args: unknown[]) {
+export function $put({ program }: DecoratorContext, entity: Type, ...args: unknown[]) {
   validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "put");
 }
 
-export function $post(program: Program, entity: Type, ...args: unknown[]) {
+export function $post({ program }: DecoratorContext, entity: Type, ...args: unknown[]) {
   validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "post");
 }
 
-export function $patch(program: Program, entity: Type, ...args: unknown[]) {
+export function $patch({ program }: DecoratorContext, entity: Type, ...args: unknown[]) {
   validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "patch");
 }
 
-export function $delete(program: Program, entity: Type, ...args: unknown[]) {
+export function $delete({ program }: DecoratorContext, entity: Type, ...args: unknown[]) {
   validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "delete");
 }
 
-export function $head(program: Program, entity: Type, ...args: unknown[]) {
+export function $head({ program }: DecoratorContext, entity: Type, ...args: unknown[]) {
   validateVerbNoArgs(program, entity, args);
   setOperationVerb(program, entity, "head");
 }
@@ -182,7 +183,7 @@ setDecoratorNamespace(
   $statusCode
 );
 
-export function $plainData(program: Program, entity: Type) {
+export function $plainData({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@plainData", "Model")) {
     return;
   }
