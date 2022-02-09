@@ -255,6 +255,7 @@ export function createChecker(program: Program): Checker {
   for (const file of program.jsSourceFiles.values()) {
     mergeJsSourceFile(file);
   }
+
   for (const file of program.sourceFiles.values()) {
     mergeCadlSourceFile(file);
   }
@@ -348,7 +349,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function setUsingsForFile(file: CadlScriptNode) {
-    const usedUsing = new Set<string>();
+    const usedUsing = new Set<Sym>();
 
     for (const using of file.usings) {
       const parentNs = using.parent! as NamespaceStatementNode | CadlScriptNode;
@@ -368,16 +369,16 @@ export function createChecker(program: Program): Checker {
         continue;
       }
 
-      const namespace = getNamespaceString(getTypeForNode(sym.node) as any);
-      if (usedUsing.has(namespace)) {
+      const namespaceSym = getMergedSymbol(sym)!;
+      if (usedUsing.has(namespaceSym)) {
         reportDiagnostic(program, {
           code: "duplicate-using",
-          format: { usingName: namespace },
+          format: { usingName: memberExpressionToString(using.name) },
           target: using,
         });
         continue;
       }
-      usedUsing.add(namespace);
+      usedUsing.add(namespaceSym);
 
       for (const [name, binding] of sym.node.exports!) {
         parentNs.locals!.set(name, { kind: "using", symbolSource: binding });
@@ -798,15 +799,13 @@ export function createChecker(program: Program): Checker {
 
   function initializeTypeForNamespace(node: NamespaceStatementNode) {
     compilerAssert(node.symbol, "Namespace is unbound.", node);
-
-    const symbolLinks = getSymbolLinks(getMergedSymbol(node.symbol) as TypeSymbol);
+    const mergedSymbol = getMergedSymbol(node.symbol) as TypeSymbol;
+    const symbolLinks = getSymbolLinks(mergedSymbol as TypeSymbol);
     if (!symbolLinks.type) {
       // haven't seen this namespace before
       const namespace = getParentNamespaceType(node);
       const name = node.name.sv;
-      const decorators = checkDecorators(node);
-
-      const type: NamespaceType = createAndFinishType({
+      const type: NamespaceType = createType({
         kind: "Namespace",
         name,
         namespace,
@@ -817,25 +816,23 @@ export function createChecker(program: Program): Checker {
         interfaces: new Map(),
         unions: new Map(),
         enums: new Map(),
-        decorators,
+        decorators: [],
       });
-      namespace?.namespaces.set(name, type);
-      symbolLinks.type = type;
-    } else {
-      compilerAssert(
-        symbolLinks.type.kind === "Namespace",
-        "Got non-namespace type when resolving namespace"
-      );
-      // seen it before, need to execute the decorators on this node
-      // against the type we've already made.
-      symbolLinks.type.kind;
-      const newDecorators = checkDecorators(node);
-      symbolLinks.type.decorators.push(...newDecorators);
 
-      for (const dec of newDecorators) {
-        symbolLinks.type.decorators.push(dec);
-        applyDecoratorToType(dec, symbolLinks.type);
+      symbolLinks.type = type;
+      if (mergedSymbol.merged) {
+        for (const sourceNode of mergedSymbol.nodes!) {
+          type.decorators = type.decorators.concat(
+            checkDecorators(sourceNode as NamespaceStatementNode)
+          );
+        }
+      } else {
+        type.decorators = checkDecorators(node);
       }
+
+      finishType(type);
+
+      namespace?.namespaces.set(name, type);
     }
 
     return symbolLinks.type as NamespaceType;
@@ -1243,7 +1240,6 @@ export function createChecker(program: Program): Checker {
     for (const file of program.sourceFiles.values()) {
       for (const ns of file.namespaces) {
         program.reportDuplicateSymbols(ns.exports);
-
         initializeTypeForNamespace(ns);
       }
     }
@@ -1741,7 +1737,6 @@ export function createChecker(program: Program): Checker {
 
   function checkEnum(node: EnumStatementNode): Type {
     const links = getSymbolLinks(node.symbol!);
-
     if (!links.type) {
       const decorators = checkDecorators(node);
       const enumType: EnumType = (links.type = createType({
@@ -2060,6 +2055,8 @@ export function createChecker(program: Program): Checker {
             node: sourceBinding.node,
             name: sourceBinding.name,
             id: sourceBinding.id,
+            merged: sourceBinding.merged,
+            nodes: sourceBinding.nodes,
           };
           target.set(key, existingBinding);
           mergedSymbols.set(sourceBinding, existingBinding);
@@ -2067,7 +2064,13 @@ export function createChecker(program: Program): Checker {
           existingBinding.kind === "type" &&
           existingBinding.node.kind === SyntaxKind.NamespaceStatement
         ) {
+          if (!existingBinding.merged) {
+            // promote the binding to a merged symbol
+            existingBinding.merged = true;
+            existingBinding.nodes = [existingBinding.node];
+          }
           mergedSymbols.set(sourceBinding, existingBinding);
+          existingBinding.nodes!.push(sourceBinding.node);
           // merge the namespaces
           mergeSymbolTable(sourceBinding.node.exports!, existingBinding.node.exports!);
         } else {
@@ -2919,6 +2922,20 @@ export function createChecker(program: Program): Checker {
     emittedInstructions = [];
 
     return instructions;
+  }
+
+  function memberExpressionToString(expr: IdentifierNode | MemberExpressionNode) {
+    let current = expr;
+    const parts = [];
+
+    while (current.kind === SyntaxKind.MemberExpression) {
+      parts.push(current.id.sv);
+      current = current.base;
+    }
+
+    parts.push(current.sv);
+
+    return parts.reverse().join(".");
   }
 }
 
