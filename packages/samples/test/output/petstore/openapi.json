@@ -9,7 +9,7 @@
     "/pets/{petId}": {
       "delete": {
         "operationId": "Pets_delete",
-        "summary": "Delete a pet.",
+        "description": "Delete a pet.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PetId"
@@ -33,7 +33,7 @@
       },
       "get": {
         "operationId": "Pets_read",
-        "summary": "Returns a pet. Supports eTags.",
+        "description": "Returns a pet. Supports eTags.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PetId"
@@ -76,7 +76,7 @@
     "/pets": {
       "get": {
         "operationId": "Pets_list",
-        "summary": "<blink>List pets.</blink>",
+        "description": "<blink>List pets.</blink>",
         "parameters": [
           {
             "name": "nextLink",

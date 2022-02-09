@@ -9,7 +9,7 @@
     "/mediatypes/analyze": {
       "post": {
         "operationId": "AnalyzeBody",
-        "summary": "Analyze body, that could be different media types.",
+        "description": "Analyze body, that could be different media types.",
         "parameters": [],
         "responses": {
           "200": {
@@ -58,7 +58,7 @@
     "/mediatypes/contentTypeWithEncoding": {
       "post": {
         "operationId": "contentTypeWithEncoding",
-        "summary": "Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter",
+        "description": "Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter",
         "parameters": [],
         "responses": {
           "200": {

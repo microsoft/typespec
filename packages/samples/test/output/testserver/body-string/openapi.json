@@ -13,7 +13,7 @@
     "/string/null": {
       "get": {
         "operationId": "String_getNull",
-        "summary": "Get null string value",
+        "description": "Get null string value",
         "parameters": [],
         "responses": {
           "200": {
@@ -45,7 +45,7 @@
       },
       "put": {
         "operationId": "String_putNull",
-        "summary": "Put null string value",
+        "description": "Put null string value",
         "parameters": [],
         "responses": {
           "200": {
@@ -81,7 +81,7 @@
     "/string/empty": {
       "get": {
         "operationId": "String_getEmpty",
-        "summary": "Get empty string value",
+        "description": "Get empty string value",
         "parameters": [],
         "responses": {
           "200": {
@@ -114,7 +114,7 @@
       },
       "put": {
         "operationId": "String_putEmpty",
-        "summary": "Put empty string value",
+        "description": "Put empty string value",
         "parameters": [],
         "responses": {
           "200": {
@@ -151,7 +151,7 @@
     "/string/mbcs": {
       "get": {
         "operationId": "String_getMbcs",
-        "summary": "Get mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'",
+        "description": "Get mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'",
         "parameters": [],
         "responses": {
           "200": {
@@ -184,7 +184,7 @@
       },
       "put": {
         "operationId": "String_putMbCs",
-        "summary": "Put mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'",
+        "description": "Put mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'",
         "parameters": [],
         "responses": {
           "200": {
@@ -221,7 +221,7 @@
     "/string/whitespace": {
       "get": {
         "operationId": "String_getWhitespace",
-        "summary": "Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'",
+        "description": "Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'",
         "parameters": [],
         "responses": {
           "200": {
@@ -254,7 +254,7 @@
       },
       "put": {
         "operationId": "String_putWhitespace",
-        "summary": "Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'",
+        "description": "Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'",
         "parameters": [],
         "responses": {
           "200": {
@@ -291,7 +291,7 @@
     "/string/base64Encoding": {
       "get": {
         "operationId": "String_getBase64Encoding",
-        "summary": "Get value that is base64 encoded",
+        "description": "Get value that is base64 encoded",
         "parameters": [],
         "responses": {
           "200": {
@@ -322,7 +322,7 @@
       },
       "put": {
         "operationId": "String_putBase64Encoding",
-        "summary": "Put value that is base64 encoded",
+        "description": "Put value that is base64 encoded",
         "parameters": [],
         "responses": {
           "200": {
@@ -357,7 +357,7 @@
     "/string/enum/empty": {
       "get": {
         "operationId": "Enums_getNotExpandable",
-        "summary": "Get non expandable string enum value",
+        "description": "Get non expandable string enum value",
         "parameters": [],
         "responses": {
           "200": {
@@ -387,7 +387,7 @@
       },
       "put": {
         "operationId": "Enums_putNotExpandable",
-        "summary": "Put non expandable string enum value",
+        "description": "Put non expandable string enum value",
         "parameters": [],
         "responses": {
           "200": {
@@ -421,7 +421,7 @@
     "/string/enum/constant": {
       "get": {
         "operationId": "Enums_getConstant",
-        "summary": "Gets value 'green-color' from a constant",
+        "description": "Gets value 'green-color' from a constant",
         "parameters": [],
         "responses": {
           "200": {
@@ -451,7 +451,7 @@
       },
       "put": {
         "operationId": "Enums_putConstant",
-        "summary": "Sends value 'green-color' from a constant",
+        "description": "Sends value 'green-color' from a constant",
         "parameters": [],
         "responses": {
           "200": {

@@ -34,7 +34,7 @@
     "/foo/{id}": {
       "get": {
         "operationId": "Foo_read",
-        "summary": "includes namespace tag",
+        "description": "includes namespace tag",
         "parameters": [
           {
             "name": "id",
@@ -58,7 +58,7 @@
       },
       "post": {
         "operationId": "Foo_create",
-        "summary": "includes namespace tag and two operations tags",
+        "description": "includes namespace tag and two operations tags",
         "parameters": [
           {
             "name": "id",
@@ -85,7 +85,7 @@
     "/bar": {
       "get": {
         "operationId": "Bar_list",
-        "summary": "no tags",
+        "description": "no tags",
         "parameters": [],
         "responses": {
           "200": {
@@ -108,7 +108,7 @@
     "/bar/{id}": {
       "post": {
         "operationId": "Bar_create",
-        "summary": "one operation tag",
+        "description": "one operation tag",
         "parameters": [
           {
             "name": "id",

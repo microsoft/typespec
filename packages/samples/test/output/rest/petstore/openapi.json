@@ -9,7 +9,7 @@
     "/pets/{petId}": {
       "get": {
         "operationId": "Pets_get",
-        "summary": "Gets an instance of the resource.",
+        "description": "Gets an instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -40,7 +40,7 @@
       },
       "patch": {
         "operationId": "Pets_update",
-        "summary": "Updates an existing instance of the resource.",
+        "description": "Updates an existing instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -100,7 +100,7 @@
       },
       "delete": {
         "operationId": "Pets_delete",
-        "summary": "Deletes an existing instance of the resource.",
+        "description": "Deletes an existing instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -126,7 +126,7 @@
     "/pets": {
       "post": {
         "operationId": "Pets_create",
-        "summary": "Creates a new instance of the resource.",
+        "description": "Creates a new instance of the resource.",
         "parameters": [],
         "responses": {
           "200": {
@@ -172,7 +172,7 @@
       },
       "get": {
         "operationId": "Pets_list",
-        "summary": "Lists all instances of the resource.",
+        "description": "Lists all instances of the resource.",
         "parameters": [],
         "responses": {
           "200": {
@@ -201,7 +201,7 @@
     "/pets/{petId}/checkups/{checkupId}": {
       "put": {
         "operationId": "PetCheckups_CreateOrUpdate",
-        "summary": "Creates or update a instance of the extension resource.",
+        "description": "Creates or update a instance of the extension resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -256,7 +256,7 @@
     "/pets/{petId}/checkups": {
       "get": {
         "operationId": "PetCheckups_List",
-        "summary": "Lists all instances of the extension resource.",
+        "description": "Lists all instances of the extension resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -289,7 +289,7 @@
     "/pets/{petId}/insurance": {
       "get": {
         "operationId": "PetInsurance_Get",
-        "summary": "Gets the singleton resource.",
+        "description": "Gets the singleton resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -320,7 +320,7 @@
       },
       "patch": {
         "operationId": "PetInsurance_Update",
-        "summary": "Updates the singleton resource.",
+        "description": "Updates the singleton resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pet.petId"
@@ -377,7 +377,7 @@
     "/pets/{petId}/toys/{toyId}": {
       "get": {
         "operationId": "Toys_get",
-        "summary": "Gets an instance of the resource.",
+        "description": "Gets an instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PetStore.Pet.petId"
@@ -453,7 +453,7 @@
     "/pets/{petId}/toys/{toyId}/insurance": {
       "get": {
         "operationId": "ToyInsurance_Get",
-        "summary": "Gets the singleton resource.",
+        "description": "Gets the singleton resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PetStore.Pet.petId"
@@ -487,7 +487,7 @@
       },
       "patch": {
         "operationId": "ToyInsurance_Update",
-        "summary": "Updates the singleton resource.",
+        "description": "Updates the singleton resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PetStore.Pet.petId"
@@ -547,7 +547,7 @@
     "/checkups/{checkupId}": {
       "put": {
         "operationId": "Checkups_createOrUpdate",
-        "summary": "Creates or update a instance of the resource.",
+        "description": "Creates or update a instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Checkup.checkupId"
@@ -599,7 +599,7 @@
     "/checkups": {
       "get": {
         "operationId": "Checkups_list",
-        "summary": "Lists all instances of the resource.",
+        "description": "Lists all instances of the resource.",
         "parameters": [],
         "responses": {
           "200": {
@@ -628,7 +628,7 @@
     "/owners/{ownerId}": {
       "get": {
         "operationId": "Owners_get",
-        "summary": "Gets an instance of the resource.",
+        "description": "Gets an instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Owner.ownerId"
@@ -659,7 +659,7 @@
       },
       "patch": {
         "operationId": "Owners_update",
-        "summary": "Updates an existing instance of the resource.",
+        "description": "Updates an existing instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Owner.ownerId"
@@ -710,7 +710,7 @@
       },
       "delete": {
         "operationId": "Owners_delete",
-        "summary": "Deletes an existing instance of the resource.",
+        "description": "Deletes an existing instance of the resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Owner.ownerId"
@@ -736,7 +736,7 @@
     "/owners": {
       "post": {
         "operationId": "Owners_create",
-        "summary": "Creates a new instance of the resource.",
+        "description": "Creates a new instance of the resource.",
         "parameters": [],
         "responses": {
           "200": {
@@ -782,7 +782,7 @@
       },
       "get": {
         "operationId": "Owners_list",
-        "summary": "Lists all instances of the resource.",
+        "description": "Lists all instances of the resource.",
         "parameters": [],
         "responses": {
           "200": {
@@ -811,7 +811,7 @@
     "/owners/{ownerId}/checkups/{checkupId}": {
       "put": {
         "operationId": "OwnerCheckups_CreateOrUpdate",
-        "summary": "Creates or update a instance of the extension resource.",
+        "description": "Creates or update a instance of the extension resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Owner.ownerId"
@@ -866,7 +866,7 @@
     "/owners/{ownerId}/checkups": {
       "get": {
         "operationId": "OwnerCheckups_List",
-        "summary": "Lists all instances of the extension resource.",
+        "description": "Lists all instances of the extension resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Owner.ownerId"
@@ -899,7 +899,7 @@
     "/owners/{ownerId}/insurance": {
       "get": {
         "operationId": "OwnerInsurance_Get",
-        "summary": "Gets the singleton resource.",
+        "description": "Gets the singleton resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Owner.ownerId"
@@ -930,7 +930,7 @@
       },
       "patch": {
         "operationId": "OwnerInsurance_Update",
-        "summary": "Updates the singleton resource.",
+        "description": "Updates the singleton resource.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Owner.ownerId"
