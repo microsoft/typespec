@@ -2,6 +2,7 @@ import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
 import {
   DecoratorArgument,
+  DecoratorContext,
   EnumType,
   InterfaceType,
   ModelType,
@@ -128,15 +129,20 @@ describe("cadl: projections", () => {
       const removedOnKey = Symbol();
       const renamedFromKey = Symbol();
       testHost.addJsFile("versioning.js", {
-        $added(p: Program, t: Type, v: NumericLiteralType) {
-          p.stateMap(addedOnKey).set(t, v);
+        $added({ program }: DecoratorContext, t: Type, v: NumericLiteralType) {
+          program.stateMap(addedOnKey).set(t, v);
         },
-        $removed(p: Program, t: Type, v: NumericLiteralType) {
-          p.stateMap(removedOnKey).set(t, v);
+        $removed({ program }: DecoratorContext, t: Type, v: NumericLiteralType) {
+          program.stateMap(removedOnKey).set(t, v);
         },
-        $renamedFrom(p: Program, t: Type, v: NumericLiteralType, oldName: StringLiteralType) {
+        $renamedFrom(
+          { program }: DecoratorContext,
+          t: Type,
+          v: NumericLiteralType,
+          oldName: StringLiteralType
+        ) {
           const record = { v, oldName };
-          p.stateMap(renamedFromKey).set(t, record);
+          program.stateMap(renamedFromKey).set(t, record);
         },
         getAddedOn(p: Program, t: Type) {
           return p.stateMap(addedOnKey).get(t) || -1;

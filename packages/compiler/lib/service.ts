@@ -1,6 +1,6 @@
 import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
-import { NamespaceType, Projector, Type } from "../core/types.js";
+import { DecoratorContext, NamespaceType, Projector, Type } from "../core/types.js";
 
 interface ServiceDetails {
   namespace?: NamespaceType;
@@ -36,7 +36,7 @@ export function checkIfServiceNamespace(program: Program, namespace: NamespaceTy
   return serviceDetails.namespace === namespace;
 }
 
-export function $serviceTitle(program: Program, target: Type, title: string) {
+export function $serviceTitle({ program }: DecoratorContext, target: Type, title: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.title) {
     program.reportDiagnostic(
@@ -68,7 +68,7 @@ export function getServiceTitle(program: Program): string {
   return serviceDetails.title || "(title)";
 }
 
-export function $serviceHost(program: Program, target: Type, host: string) {
+export function $serviceHost({ program }: DecoratorContext, target: Type, host: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.version) {
     program.reportDiagnostic(
@@ -105,7 +105,7 @@ export function setServiceHost(program: Program, host: string) {
   serviceDetails.host = host;
 }
 
-export function $serviceVersion(program: Program, target: Type, version: string) {
+export function $serviceVersion({ program }: DecoratorContext, target: Type, version: string) {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.version) {
     program.reportDiagnostic(
