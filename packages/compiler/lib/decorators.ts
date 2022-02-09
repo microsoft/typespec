@@ -656,7 +656,7 @@ export function validateDecoratorParamType(
 const friendlyNamesKey = Symbol();
 
 export function $friendlyName(
-  program: Program,
+  { program }: DecoratorContext,
   target: Type,
   friendlyName: string,
   sourceObject: Type | undefined

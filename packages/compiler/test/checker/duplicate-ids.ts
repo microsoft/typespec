@@ -1,6 +1,5 @@
 import { match, strictEqual } from "assert";
-import { Program } from "../../core/program.js";
-import { Diagnostic } from "../../core/types.js";
+import { DecoratorContext, Diagnostic } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: duplicate declarations", () => {
@@ -37,8 +36,8 @@ describe("compiler: duplicate declarations", () => {
 
   it("reports duplicate model declarations in global scope using eval", async () => {
     testHost.addJsFile("test.js", {
-      $eval(p: Program) {
-        p.evalCadlScript(`model A { }`);
+      $eval({ program }: DecoratorContext) {
+        program.evalCadlScript(`model A { }`);
       },
     });
     testHost.addCadlFile(
@@ -71,8 +70,8 @@ describe("compiler: duplicate declarations", () => {
 
   it("reports duplicate model declarations in a single namespace using eval", async () => {
     testHost.addJsFile("test.js", {
-      $eval(p: Program) {
-        p.evalCadlScript(`namespace Foo; model A { }; model A { };`);
+      $eval({ program }: DecoratorContext) {
+        program.evalCadlScript(`namespace Foo; model A { }; model A { };`);
       },
     });
     testHost.addCadlFile(
@@ -107,8 +106,8 @@ describe("compiler: duplicate declarations", () => {
 
   it("reports duplicate model declarations across multiple namespaces using eval", async () => {
     testHost.addJsFile("test.js", {
-      $eval(p: Program) {
-        p.evalCadlScript(`namespace Foo; model A { }`);
+      $eval({ program }: DecoratorContext) {
+        program.evalCadlScript(`namespace Foo; model A { }`);
       },
     });
     testHost.addCadlFile(

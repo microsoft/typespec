@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
-import { ModelType, NamespaceType, Type } from "../../core/types.js";
+import { DecoratorContext, ModelType, NamespaceType, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
@@ -365,8 +365,8 @@ describe("compiler: blockless namespaces", () => {
 
   it("merges properly with other namespaces using eval", async () => {
     testHost.addJsFile("test.js", {
-      $eval(p: Program) {
-        p.evalCadlScript(`namespace N; @test model Z { ... X, ... Y }`);
+      $eval({ program }: DecoratorContext) {
+        program.evalCadlScript(`namespace N; @test model Z { ... X, ... Y }`);
       },
     });
     testHost.addCadlFile(

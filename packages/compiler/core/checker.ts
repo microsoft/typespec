@@ -2795,7 +2795,7 @@ export function createChecker(program: Program): Checker {
     return createType({
       kind: "Function",
       call(...args: Type[]): Type {
-        let retval = ref.value(program, ...marshalProjectionArguments(args));
+        let retval = ref.value({ program }, ...marshalProjectionArguments(args));
         return voidType;
       },
     } as const);
