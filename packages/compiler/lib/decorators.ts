@@ -344,7 +344,11 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
   return program.stateMap(visibilitySettingsKey).get(target);
 }
 
-export function $withVisibility(program: Program, target: Type, ...visibilities: string[]) {
+export function $withVisibility(
+  { program }: DecoratorContext,
+  target: Type,
+  ...visibilities: string[]
+) {
   if (!validateDecoratorTarget(program, target, "@withVisibility", "Model")) {
     return;
   }
