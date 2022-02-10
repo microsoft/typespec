@@ -503,7 +503,12 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
-    const parentNode = node.parent! as ModelStatementNode;
+    const parentNode = node.parent! as
+      | ModelStatementNode
+      | InterfaceStatementNode
+      | UnionStatementNode
+      | AliasStatementNode;
+
     const defaultType = node.default ? getTypeForNode(node.default) : undefined;
 
     if (instantiatingTemplate === parentNode) {
@@ -524,6 +529,7 @@ export function createChecker(program: Program): Checker {
     if (!sym) {
       return errorType;
     }
+
     return checkTypeReferenceSymbol(sym, node);
   }
 
@@ -597,9 +603,7 @@ export function createChecker(program: Program): Checker {
         if (args.length < templateParameters.length) {
           let tooFew = false;
           for (let i = args.length; i < templateParameters.length; i++) {
-            if (templateParameters[i].default) {
-              args.push(getTypeForNode(templateParameters[i].default!));
-            } else {
+            if (!templateParameters[i].default) {
               tooFew = true;
               args.push(errorType);
             }
@@ -1345,7 +1349,6 @@ export function createChecker(program: Program): Checker {
 
   function shouldCreateTypeForTemplate(node: TemplateDeclarationNode) {
     const instantiatingThisTemplate = instantiatingTemplate === node;
-
     return (
       (instantiatingThisTemplate &&
         templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||

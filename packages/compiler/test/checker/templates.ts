@@ -141,4 +141,44 @@ describe("compiler: templates", () => {
     const diagnostics = await testHost.diagnose("main.cadl");
     expectDiagnostics(diagnostics, { code: "invalid-template-args" });
   });
+
+  it("can reference other parameters", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T, X = T> { a: T, b: X }
+        model B { 
+          foo: A<"bye">
+        };
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const a = A.properties.get("a")!;
+    const b = A.properties.get("b")!;
+    strictEqual(a.type.kind, "String");
+    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual(b.type.kind, "String");
+    strictEqual((b.type as StringLiteralType).value, "bye");
+  });
+
+  it.skip("can only reference parameters prior to itself", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T = U, U = "hi"> { a: T, b: U }
+        model B { 
+          foo: A
+        };
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const a = A.properties.get("a")!;
+    const b = A.properties.get("b")!;
+    strictEqual(a.type.kind, "String");
+    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual(b.type.kind, "String");
+    strictEqual((b.type as StringLiteralType).value, "bye");
+  });
 });
