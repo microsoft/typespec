@@ -1,7 +1,7 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
 import { getSourceLocation } from "../../core/diagnostics.js";
-import { Diagnostic } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { Diagnostic, ModelType, StringLiteralType } from "../../core/types.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: templates", () => {
   let testHost: TestHost;
@@ -80,5 +80,105 @@ describe("compiler: templates", () => {
       line: 3,
       character: 15,
     });
+  });
+
+  it("allows default template parameters", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T, U = "hi"> { a: T, b: U }
+        model B { 
+          foo: A<"bye">
+        };
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const a = A.properties.get("a")!;
+    const b = A.properties.get("b")!;
+    strictEqual(a.type.kind, "String");
+    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual(b.type.kind, "String");
+    strictEqual((b.type as StringLiteralType).value, "hi");
+  });
+
+  it("emits diagnostics when using too few template parameters", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T, U, V = "hi"> { a: T, b: U, c: V }
+        model B { 
+          foo: A<"bye">
+        };
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.cadl");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "invalid-template-args");
+    strictEqual(diagnostics[0].message, "Too few template arguments provided.");
+  });
+
+  it("emits diagnostics when non-defaulted template parameter comes after defaulted one", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T = "hi", U> { a: T, b: U }
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, { code: "default-required" });
+  });
+  it("emits diagnostics for template parameter defaults that are incorrect", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T = Map> { a: T }
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, { code: "invalid-template-args" });
+  });
+
+  it("can reference other parameters", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T, X = T> { a: T, b: X }
+        model B { 
+          foo: A<"bye">
+        };
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const a = A.properties.get("a")!;
+    const b = A.properties.get("b")!;
+    strictEqual(a.type.kind, "String");
+    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual(b.type.kind, "String");
+    strictEqual((b.type as StringLiteralType).value, "bye");
+  });
+
+  it.skip("can only reference parameters prior to itself", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T = U, U = "hi"> { a: T, b: U }
+        model B { 
+          foo: A
+        };
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const a = A.properties.get("a")!;
+    const b = A.properties.get("b")!;
+    strictEqual(a.type.kind, "String");
+    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual(b.type.kind, "String");
+    strictEqual((b.type as StringLiteralType).value, "bye");
   });
 });

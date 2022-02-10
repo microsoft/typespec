@@ -355,7 +355,17 @@ AliasStatement :
     `alias` Identifier TemplateParameters? `=` Expression;
 
 TemplateParameters :
-    `<` IdentifierList `>`
+    `<` TemplateParameterList `>`
+
+TemplateParameterList :
+    TemplateParameter
+    TemplateParameterList `,` TemplateParameter
+
+TemplateParameter :
+    Identifier TemplateParameterDefault?
+
+TemplateParameterDefault :
+    `=` Expression
 
 IdentifierList :
     Identifier

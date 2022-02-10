@@ -504,11 +504,17 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
-    const parentNode = node.parent! as ModelStatementNode;
+    const parentNode = node.parent! as
+      | ModelStatementNode
+      | InterfaceStatementNode
+      | UnionStatementNode
+      | AliasStatementNode;
+
+    const defaultType = node.default ? getTypeForNode(node.default) : undefined;
 
     if (instantiatingTemplate === parentNode) {
       const index = parentNode.templateParameters.findIndex((v) => v === node);
-      return templateInstantiation[index];
+      return templateInstantiation[index] ?? defaultType;
     }
 
     return createAndFinishType({
@@ -524,6 +530,7 @@ export function createChecker(program: Program): Checker {
     if (!sym) {
       return errorType;
     }
+
     return checkTypeReferenceSymbol(sym, node);
   }
 
@@ -595,14 +602,23 @@ export function createChecker(program: Program): Checker {
 
         const templateParameters = sym.node.templateParameters;
         if (args.length < templateParameters.length) {
-          program.reportDiagnostic(
-            createDiagnostic({
-              code: "invalid-template-args",
-              messageId: "tooFew",
-              target: node,
-            })
-          );
-          args = [...args, ...new Array(templateParameters.length - args.length).fill(errorType)];
+          let tooFew = false;
+          for (let i = args.length; i < templateParameters.length; i++) {
+            if (!templateParameters[i].default) {
+              tooFew = true;
+              args.push(errorType);
+            }
+          }
+
+          if (tooFew) {
+            program.reportDiagnostic(
+              createDiagnostic({
+                code: "invalid-template-args",
+                messageId: "tooFew",
+                target: node,
+              })
+            );
+          }
         } else if (args.length > templateParameters.length) {
           program.reportDiagnostic(
             createDiagnostic({
@@ -1334,7 +1350,6 @@ export function createChecker(program: Program): Checker {
 
   function shouldCreateTypeForTemplate(node: TemplateDeclarationNode) {
     const instantiatingThisTemplate = instantiatingTemplate === node;
-
     return (
       (instantiatingThisTemplate &&
         templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||

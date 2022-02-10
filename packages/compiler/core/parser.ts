@@ -512,10 +512,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   ): InterfaceStatementNode {
     parseExpected(Token.InterfaceKeyword);
     const id = parseIdentifier();
-    const templateParameters = parseOptionalList(
-      ListKind.TemplateParameters,
-      parseTemplateParameter
-    );
+    const templateParameters = parseTemplateParameterList();
 
     let mixes: TypeReferenceNode[] = [];
     if (token() === Token.Identifier) {
@@ -539,6 +536,23 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       decorators,
       ...finishNode(pos),
     });
+  }
+
+  function parseTemplateParameterList(): TemplateParameterDeclarationNode[] {
+    const list = parseOptionalList(ListKind.TemplateParameters, parseTemplateParameter);
+    let setDefault = false;
+    for (const item of list) {
+      if (!item.default && setDefault) {
+        error({ code: "default-required", target: item });
+        continue;
+      }
+
+      if (item.default) {
+        setDefault = true;
+      }
+    }
+
+    return list;
   }
 
   function parseInterfaceMember(
@@ -566,10 +580,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   ): UnionStatementNode {
     parseExpected(Token.UnionKeyword);
     const id = parseIdentifier();
-    const templateParameters = parseOptionalList(
-      ListKind.TemplateParameters,
-      parseTemplateParameter
-    );
+    const templateParameters = parseTemplateParameterList();
 
     const options = parseList(ListKind.UnionVariants, parseUnionVariant);
 
@@ -652,10 +663,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   ): ModelStatementNode {
     parseExpected(Token.ModelKeyword);
     const id = parseIdentifier();
-    const templateParameters = parseOptionalList(
-      ListKind.TemplateParameters,
-      parseTemplateParameter
-    );
+    const templateParameters = parseTemplateParameterList();
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
@@ -692,9 +700,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseTemplateParameter(): TemplateParameterDeclarationNode {
     const pos = tokenPos();
     const id = parseIdentifier();
+    let def: Expression | undefined;
+    if (parseOptional(Token.Equals)) {
+      def = parseExpression();
+    }
     return {
       kind: SyntaxKind.TemplateParameterDeclaration,
       id,
+      default: def,
       ...finishNode(pos),
     };
   }
@@ -798,10 +811,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const pos = tokenPos();
     parseExpected(Token.AliasKeyword);
     const id = parseIdentifier();
-    const templateParameters = parseOptionalList(
-      ListKind.TemplateParameters,
-      parseTemplateParameter
-    );
+    const templateParameters = parseTemplateParameterList();
     parseExpected(Token.Equals);
     const value = parseExpression();
     parseExpected(Token.Semicolon);
@@ -2243,11 +2253,12 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.Return:
       return visitNode(cb, node.value);
     // no children for the rest of these.
+    case SyntaxKind.TemplateParameterDeclaration:
+      return visitNode(cb, node.default);
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:
     case SyntaxKind.Identifier:
-    case SyntaxKind.TemplateParameterDeclaration:
     case SyntaxKind.ProjectionParameterDeclaration:
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
     case SyntaxKind.InvalidStatement:
