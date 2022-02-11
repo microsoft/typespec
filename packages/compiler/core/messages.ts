@@ -135,6 +135,7 @@ const diagnostics = {
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
+      mixesNotExtends: "`extends` is unexpected. Did you mean `mixes`?",
     },
   },
   "trailing-token": {

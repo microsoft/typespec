@@ -515,7 +515,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const templateParameters = parseTemplateParameterList();
 
     let mixes: TypeReferenceNode[] = [];
-    if (token() === Token.Identifier) {
+    if (token() === Token.ExtendsKeyword) {
+      // error condition
+      error({ code: "token-expected", messageId: "mixesNotExtends" });
+      parseErrorInNextFinishedNode = false;
+      nextToken();
+      mixes = parseList(ListKind.Heritage, parseReferenceExpression);
+    } else if (token() === Token.Identifier) {
       if (tokenValue() !== "mixes") {
         error({ code: "token-expected", format: { token: "'mixes' or '{'" } });
         nextToken();
