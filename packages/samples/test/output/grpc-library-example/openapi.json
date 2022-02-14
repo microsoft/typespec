@@ -13,7 +13,7 @@
     "/v1/shelves": {
       "post": {
         "operationId": "LibraryService_createShelf",
-        "summary": "Creates a shelf, and returns the new Shelf.",
+        "description": "Creates a shelf, and returns the new Shelf.",
         "parameters": [],
         "responses": {
           "200": {
@@ -53,7 +53,7 @@
       },
       "get": {
         "operationId": "LibraryService_listShelves",
-        "summary": "Lists shelves. The order is unspecified but deterministic. Newly created\nshelves will not necessarily be added to the end of this list.",
+        "description": "Lists shelves. The order is unspecified but deterministic. Newly created\nshelves will not necessarily be added to the end of this list.",
         "parameters": [
           {
             "$ref": "#/components/parameters/ListRequestBase.page_size"
@@ -92,7 +92,7 @@
     "/v1/shelves/{name}": {
       "get": {
         "operationId": "LibraryService_getShelf",
-        "summary": "Gets a shelf. Returns NOT_FOUND if the shelf does not exist.",
+        "description": "Gets a shelf. Returns NOT_FOUND if the shelf does not exist.",
         "parameters": [
           {
             "$ref": "#/components/parameters/GetShelfRequest"
@@ -126,7 +126,7 @@
       },
       "delete": {
         "operationId": "LibraryService_deleteShelf",
-        "summary": "Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.",
+        "description": "Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.",
         "parameters": [
           {
             "$ref": "#/components/parameters/DeleteShelfRequest"
@@ -155,7 +155,7 @@
     "/v1/shelves/{name}:merge": {
       "post": {
         "operationId": "LibraryService_mergeShelves",
-        "summary": "Merges two shelves by adding all books from the shelf named\n`other_shelf_name` to shelf `name`, and deletes\n`other_shelf_name`. Returns the updated shelf.\nThe book ids of the moved books may not be the same as the original books.\nReturns NOT_FOUND if either shelf does not exist.\nThis call is a no-op if the specified shelves are the same.",
+        "description": "Merges two shelves by adding all books from the shelf named\n`other_shelf_name` to shelf `name`, and deletes\n`other_shelf_name`. Returns the updated shelf.\nThe book ids of the moved books may not be the same as the original books.\nReturns NOT_FOUND if either shelf does not exist.\nThis call is a no-op if the specified shelves are the same.",
         "parameters": [
           {
             "$ref": "#/components/parameters/MergeShelvesRequest.name"
@@ -201,7 +201,7 @@
     "/v1/shelves/{name}/books": {
       "post": {
         "operationId": "LibraryService_createBook",
-        "summary": "Creates a book, and returns the new Book.",
+        "description": "Creates a book, and returns the new Book.",
         "parameters": [
           {
             "$ref": "#/components/parameters/CreateBookRequest.name"
@@ -245,7 +245,7 @@
       },
       "get": {
         "operationId": "LibraryService_listBooks",
-        "summary": "Lists books in a shelf. The order is unspecified but deterministic. Newly\ncreated books will not necessarily be added to the end of this list.\nReturns NOT_FOUND if the shelf does not exist.",
+        "description": "Lists books in a shelf. The order is unspecified but deterministic. Newly\ncreated books will not necessarily be added to the end of this list.\nReturns NOT_FOUND if the shelf does not exist.",
         "parameters": [
           {
             "$ref": "#/components/parameters/ListBooksRequest.name"
@@ -287,7 +287,7 @@
     "/v1/shelves/shelf_name/books/{name}": {
       "get": {
         "operationId": "LibraryService_getBook",
-        "summary": "Gets a book. Returns NOT_FOUND if the book does not exist.",
+        "description": "Gets a book. Returns NOT_FOUND if the book does not exist.",
         "parameters": [
           {
             "$ref": "#/components/parameters/GetBookRequest"
@@ -321,7 +321,7 @@
       },
       "delete": {
         "operationId": "LibraryService_deleteBook",
-        "summary": "Deletes a book. Returns NOT_FOUND if the book does not exist.",
+        "description": "Deletes a book. Returns NOT_FOUND if the book does not exist.",
         "parameters": [
           {
             "$ref": "#/components/parameters/DeleteBookRequest"

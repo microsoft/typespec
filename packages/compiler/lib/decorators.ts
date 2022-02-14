@@ -24,9 +24,9 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
   });
 }
 
-const docsKey = Symbol();
-export function $doc(
-  { program }: DecoratorContext,
+function setTemplatedStringProperty(
+  key: symbol,
+  program: Program,
   target: Type,
   text: string,
   sourceObject: Type
@@ -42,10 +42,34 @@ export function $doc(
     text = replaceTemplatedStringFromProperties(text, sourceObject);
   }
 
-  program.stateMap(docsKey).set(target, text);
+  program.stateMap(key).set(target, text);
 }
 
-export function getDoc(program: Program, target: Type): string {
+const summaryKey = Symbol();
+export function $summary(
+  { program }: DecoratorContext,
+  target: Type,
+  text: string,
+  sourceObject: Type
+) {
+  setTemplatedStringProperty(summaryKey, program, target, text, sourceObject);
+}
+
+export function getSummary(program: Program, type: Type): string | undefined {
+  return program.stateMap(summaryKey).get(type);
+}
+
+const docsKey = Symbol();
+export function $doc(
+  { program }: DecoratorContext,
+  target: Type,
+  text: string,
+  sourceObject: Type
+) {
+  setTemplatedStringProperty(docsKey, program, target, text, sourceObject);
+}
+
+export function getDoc(program: Program, target: Type): string | undefined {
   return program.stateMap(docsKey).get(target);
 }
 

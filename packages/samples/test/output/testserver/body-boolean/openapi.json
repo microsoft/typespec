@@ -9,7 +9,7 @@
     "/bool/true": {
       "get": {
         "operationId": "bool_getTrue",
-        "summary": "Get true Boolean value",
+        "description": "Get true Boolean value",
         "parameters": [],
         "responses": {
           "200": {
@@ -39,7 +39,7 @@
       },
       "put": {
         "operationId": "bool_putTrue",
-        "summary": "Set Boolean value true",
+        "description": "Set Boolean value true",
         "parameters": [],
         "responses": {
           "200": {
@@ -73,7 +73,7 @@
     "/bool/false": {
       "get": {
         "operationId": "bool_getFalse",
-        "summary": "Get true Boolean false",
+        "description": "Get true Boolean false",
         "parameters": [],
         "responses": {
           "200": {
@@ -103,7 +103,7 @@
       },
       "put": {
         "operationId": "bool_putFalse",
-        "summary": "Set Boolean value false",
+        "description": "Set Boolean value false",
         "parameters": [],
         "responses": {
           "200": {
@@ -144,7 +144,7 @@
     "/bool/null": {
       "get": {
         "operationId": "bool_getNull",
-        "summary": "Get null Boolean value",
+        "description": "Get null Boolean value",
         "parameters": [],
         "responses": {
           "200": {
@@ -176,7 +176,7 @@
     "/bool/invalid": {
       "get": {
         "operationId": "bool_getInvalid",
-        "summary": "Get invalid Boolean value",
+        "description": "Get invalid Boolean value",
         "parameters": [],
         "responses": {
           "200": {
