@@ -9,7 +9,7 @@
     "/complex/basic/valid": {
       "get": {
         "operationId": "Complex_getValid",
-        "summary": "Get complex type {id: 2, name: 'abc', color: 'YELLOW'}",
+        "description": "Get complex type {id: 2, name: 'abc', color: 'YELLOW'}",
         "parameters": [],
         "responses": {
           "200": {
@@ -36,7 +36,7 @@
       },
       "put": {
         "operationId": "Complex_putValid",
-        "summary": "Please put {id: 2, name: 'abc', color: 'Magenta'}",
+        "description": "Please put {id: 2, name: 'abc', color: 'Magenta'}",
         "parameters": [],
         "responses": {
           "200": {
@@ -67,7 +67,7 @@
     "/complex/primitive/integer": {
       "get": {
         "operationId": "Complex_getInt",
-        "summary": "Get complex types with integer properties",
+        "description": "Get complex types with integer properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -94,7 +94,7 @@
       },
       "put": {
         "operationId": "Complex_putInt",
-        "summary": "Put complex types with integer properties",
+        "description": "Put complex types with integer properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -125,7 +125,7 @@
     "/complex/primitive/long": {
       "get": {
         "operationId": "Complex_getLong",
-        "summary": "Get complex types with long properties",
+        "description": "Get complex types with long properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -152,7 +152,7 @@
       },
       "put": {
         "operationId": "Complex_putLong",
-        "summary": "Put complex types with long properties",
+        "description": "Put complex types with long properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -183,7 +183,7 @@
     "/complex/primitive/float": {
       "get": {
         "operationId": "Complex_getFloat",
-        "summary": "Get complex types with float properties",
+        "description": "Get complex types with float properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -210,7 +210,7 @@
       },
       "put": {
         "operationId": "Complex_putFloat",
-        "summary": "Put complex types with float properties",
+        "description": "Put complex types with float properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -241,7 +241,7 @@
     "/complex/primitive/double": {
       "get": {
         "operationId": "Complex_getDouble",
-        "summary": "Get complex types with double properties",
+        "description": "Get complex types with double properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -268,7 +268,7 @@
       },
       "put": {
         "operationId": "Complex_putDouble",
-        "summary": "Put complex types with double properties",
+        "description": "Put complex types with double properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -299,7 +299,7 @@
     "/complex/primitive/bool": {
       "get": {
         "operationId": "Complex_getBool",
-        "summary": "Get complex types with bool properties",
+        "description": "Get complex types with bool properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -326,7 +326,7 @@
       },
       "put": {
         "operationId": "Complex_putBool",
-        "summary": "Put complex types with bool properties",
+        "description": "Put complex types with bool properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -357,7 +357,7 @@
     "/complex/primitive/string": {
       "get": {
         "operationId": "Complex_getString",
-        "summary": "Get complex types with string properties",
+        "description": "Get complex types with string properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -384,7 +384,7 @@
       },
       "put": {
         "operationId": "Complex_putString",
-        "summary": "Put complex types with string properties",
+        "description": "Put complex types with string properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -415,7 +415,7 @@
     "/complex/primitive/date": {
       "get": {
         "operationId": "Complex_getPlainDate",
-        "summary": "Get complex types with date properties",
+        "description": "Get complex types with date properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -442,7 +442,7 @@
       },
       "put": {
         "operationId": "Complex_putPlainDate",
-        "summary": "Put complex types with date properties",
+        "description": "Put complex types with date properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -473,7 +473,7 @@
     "/complex/primitive/datetime": {
       "get": {
         "operationId": "Complex_getZonedDateTime",
-        "summary": "Get complex types with DateTime properties",
+        "description": "Get complex types with DateTime properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -500,7 +500,7 @@
       },
       "put": {
         "operationId": "Complex_putZonedDateTime",
-        "summary": "Put complex types with DateTime properties",
+        "description": "Put complex types with DateTime properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -531,7 +531,7 @@
     "/complex/primitive/duration": {
       "get": {
         "operationId": "Complex_getZonedDuration",
-        "summary": "Get complex types with Duration properties",
+        "description": "Get complex types with Duration properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -558,7 +558,7 @@
       },
       "put": {
         "operationId": "Complex_putZonedDuration",
-        "summary": "Put complex types with Duration properties",
+        "description": "Put complex types with Duration properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -589,7 +589,7 @@
     "/complex/primitive/bytes": {
       "get": {
         "operationId": "Complex_getBytes",
-        "summary": "Get complex types with bytes properties",
+        "description": "Get complex types with bytes properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -616,7 +616,7 @@
       },
       "put": {
         "operationId": "Complex_putBytes",
-        "summary": "Put complex types with bytes properties",
+        "description": "Put complex types with bytes properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -647,7 +647,7 @@
     "/complex/array/valid": {
       "get": {
         "operationId": "Complex_getArray",
-        "summary": "Get complex types with array properties",
+        "description": "Get complex types with array properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -674,7 +674,7 @@
       },
       "put": {
         "operationId": "Complex_putArray",
-        "summary": "Put complex types with array properties",
+        "description": "Put complex types with array properties",
         "parameters": [],
         "responses": {
           "200": {
@@ -705,7 +705,7 @@
     "/complex/dictionary/typed/valid": {
       "get": {
         "operationId": "Dictionary_getDictionary",
-        "summary": "Get complex types with dictionary property",
+        "description": "Get complex types with dictionary property",
         "parameters": [],
         "responses": {
           "200": {
@@ -732,7 +732,7 @@
       },
       "put": {
         "operationId": "Dictionary_putArray",
-        "summary": "Put complex types with dictionary property",
+        "description": "Put complex types with dictionary property",
         "parameters": [],
         "responses": {
           "200": {
