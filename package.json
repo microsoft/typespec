@@ -1,0 +1,7 @@
+{
+  "name": "cadl-core",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
