@@ -1,5 +1,4 @@
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
-import { SourceFile } from "./types.js";
 
 export interface ResolveModuleOptions {
   baseDir: string;
@@ -9,12 +8,18 @@ export interface ResolveModuleOptions {
 export interface ResolveModuleHost {
   /**
    * Resolve the real path for the current host.
-   * @param path
    */
   realpath(path: string): Promise<string>;
+
+  /**
+   * Get information about the given path
+   */
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
-  // read a utf-8 encoded file
-  readFile(path: string): Promise<SourceFile>;
+
+  /**
+   * Read a utf-8 encoded file.
+   */
+  readFile(path: string): Promise<string>;
 }
 
 type ResolveModuleErrorCode = "MODULE_NOT_FOUND";
@@ -128,8 +133,8 @@ export async function resolveModule(
 }
 
 async function readPackage(host: ResolveModuleHost, pkgfile: string) {
-  const file = await host.readFile(pkgfile);
-  return JSON.parse(file.text);
+  const content = await host.readFile(pkgfile);
+  return JSON.parse(content);
 }
 
 async function isDirectory(host: ResolveModuleHost, path: string) {

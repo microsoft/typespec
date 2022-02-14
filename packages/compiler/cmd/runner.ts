@@ -1,7 +1,6 @@
 import { readFile, realpath, stat } from "fs/promises";
 import path from "path";
 import url from "url";
-import { createSourceFile } from "../core/index.js";
 import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
 /**
  * Run script given by relative path from @cadl-lang/compiler package root.
@@ -15,7 +14,7 @@ export async function runScript(relativePath: string): Promise<void> {
   try {
     const host: ResolveModuleHost = {
       realpath,
-      readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
+      readFile: async (path: string) => await readFile(path, "utf-8"),
       stat,
     };
     const resolved = await resolveModule(host, "@cadl-lang/compiler", {
