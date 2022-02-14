@@ -2,6 +2,28 @@
   "name": "@cadl-lang/versioning",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@cadl-lang/versioning_v0.3.0",
+      "date": "Mon, 14 Feb 2022 03:01:08 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Update decorators to take in api change"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Bump dependency versions"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.26.0` to `~0.27.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@cadl-lang/versioning_v0.2.0",
       "date": "Fri, 04 Feb 2022 18:00:18 GMT",

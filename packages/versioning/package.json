@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/versioning",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for declaring and emitting versioned APIs",
   "homepage": "https://github.com/Azure/adl",
@@ -49,7 +49,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.26.0"
+    "@cadl-lang/compiler": "~0.27.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",

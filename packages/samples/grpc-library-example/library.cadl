@@ -267,8 +267,8 @@ page of results.
 model Empty {}
 
 @doc("An unexpected error response.")
+@error
 model RpcStatus {
-  @statusCode _: "default";
   code?: int32;
   message?: string;
   details?: ProtobufAny[];

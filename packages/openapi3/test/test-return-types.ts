@@ -1,3 +1,4 @@
+import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { checkFor, openApiFor } from "./test-host.js";
 
@@ -60,31 +61,6 @@ describe("openapi3: return types", () => {
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].content["application/json"].schema);
-  });
-
-  it("defines responses with status code range", async () => {
-    const res = await openApiFor(
-      `
-      model SuccessResponse {
-        @statusCode _: "2XX";
-      }
-      model BadRequestResponse {
-        @statusCode _: "4XX";
-        code: string
-      }
-      model Key {
-        key: string;
-      }
-      @route("/")
-      namespace root {
-        @put
-        op create(): SuccessResponse & Key | BadRequestResponse;
-      }
-      `
-    );
-    const responses = res.paths["/"].put.responses;
-    ok(responses["2XX"]);
-    ok(responses["4XX"]);
   });
 
   it("defines responses with headers and status codes", async () => {
@@ -210,8 +186,8 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(
       `
       @doc("Error")
+      @defaultResponse
       model Error {
-        @statusCode _: "default";
         code: int32;
         message: string;
       }
@@ -240,8 +216,8 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(
       `
       @doc("Error")
+      @defaultResponse
       model Error {
-        @statusCode _: "default";
         code: int32;
         message: string;
       }
@@ -286,7 +262,7 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["200"].content["text/csv"]);
   });
 
-  it("returns diagnostics for duplicate body decorator", async () => {
+  it("issues diagnostics for duplicate body decorator", async () => {
     const diagnostics = await checkFor(
       `
       model Foo {
@@ -302,9 +278,7 @@ describe("openapi3: return types", () => {
       }
       `
     );
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "@cadl-lang/openapi3/duplicate-body");
-    strictEqual(diagnostics[0].message, "Duplicate @body declarations on response type");
+    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-body" }]);
   });
 
   it("issues diagnostics for return type with duplicate status code", async () => {
@@ -323,8 +297,7 @@ describe("openapi3: return types", () => {
     }
     `
     );
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "@cadl-lang/openapi3/duplicate-response");
+    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-response" }]);
     strictEqual(diagnostics[0].message, "Multiple return types for status code 200");
   });
 
@@ -352,14 +325,13 @@ describe("openapi3: return types", () => {
       }
     `
     );
-    strictEqual(diagnostics.length, 3);
-    ok(diagnostics.every((e) => e.code === "@cadl-lang/openapi3/status-code-invalid"));
+    expectDiagnostics(diagnostics, [
+      { code: "@cadl-lang/rest/status-code-invalid" },
+      { code: "@cadl-lang/rest/status-code-invalid" },
+      { code: "@cadl-lang/rest/status-code-invalid" },
+    ]);
     ok(diagnostics[0].message.includes("must be a numeric or string literal"));
-    ok(
-      diagnostics[1].message.includes(
-        "must be a specific code between 100 and 599, or nXX, or default"
-      )
-    );
+    ok(diagnostics[1].message.includes("must be a three digit code between 100 and 599"));
     ok(diagnostics[2].message.includes("must be a numeric or string literal"));
   });
 
@@ -387,13 +359,11 @@ describe("openapi3: return types", () => {
       }
     `
     );
-    strictEqual(diagnostics.length, 3);
-    ok(diagnostics.every((e) => e.code === "@cadl-lang/openapi3/content-type-string"));
-    ok(
-      diagnostics.every((e) =>
-        e.message.includes("must be a string literal or union of string literals")
-      )
-    );
+    expectDiagnostics(diagnostics, [
+      { code: "@cadl-lang/openapi3/content-type-string" },
+      { code: "@cadl-lang/openapi3/content-type-string" },
+      { code: "@cadl-lang/openapi3/content-type-string" },
+    ]);
   });
 
   it("defines responses with primitive types", async () => {
@@ -513,6 +483,38 @@ describe("openapi3: return types", () => {
     ok(responses["default"].content);
     deepStrictEqual(responses["default"].content["application/json"].schema, {
       $ref: "#/components/schemas/Error",
+    });
+  });
+
+  it("defaults status code to default when model has @error decorator and explicit body", async () => {
+    const res = await openApiFor(
+      `
+      @error
+      model Error {
+        @body body: string;
+      }
+
+      model Foo {
+        foo: string;
+      }
+
+      @route("/")
+      namespace root {
+        @get
+        op get(): Foo | Error;
+      }
+      `
+    );
+    const responses = res.paths["/"].get.responses;
+    ok(responses["200"]);
+    ok(responses["200"].content);
+    deepStrictEqual(responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Foo",
+    });
+    ok(responses["default"]);
+    ok(responses["default"].content);
+    deepStrictEqual(responses["default"].content["application/json"].schema, {
+      type: "string",
     });
   });
 

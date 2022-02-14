@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Fri, 04 Feb 2022 18:00:18 GMT and should not be manually modified.
+This log was last generated on Mon, 14 Feb 2022 03:01:08 GMT and should not be manually modified.
+
+## 0.10.0
+Mon, 14 Feb 2022 03:01:07 GMT
+
+### Minor changes
+
+- refactor status code handling to http library
+- Update decorators to take in api change
+
+### Patches
+
+- Bump dependency versions
 
 ## 0.9.0
 Fri, 04 Feb 2022 18:00:18 GMT

@@ -45,12 +45,10 @@ export const libDef = {
         default: "contentType parameter must be a string literal or union of string literals",
       },
     },
-    "status-code-invalid": {
+    "status-code-in-default-response": {
       severity: "error",
       messages: {
-        default:
-          "status-code header must be a numeric or string literal or union of numeric or string literals",
-        value: "status-code value must be a specific code between 100 and 599, or nXX, or default",
+        default: "a default response should not have an explicit status code",
       },
     },
     "invalid-schema": {

@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/prettier-plugin-cadl
 
-This log was last generated on Fri, 04 Feb 2022 18:00:18 GMT and should not be manually modified.
+This log was last generated on Mon, 14 Feb 2022 03:01:07 GMT and should not be manually modified.
+
+## 0.5.7
+Mon, 14 Feb 2022 03:01:07 GMT
+
+### Patches
+
+- Bump dependency versions
 
 ## 0.5.6
 Fri, 04 Feb 2022 18:00:18 GMT

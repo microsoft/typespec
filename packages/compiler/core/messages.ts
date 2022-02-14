@@ -135,6 +135,7 @@ const diagnostics = {
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
+      mixesNotExtends: "`extends` is unexpected. Did you mean `mixes`?",
     },
   },
   "trailing-token": {
@@ -174,6 +175,12 @@ const diagnostics = {
       wrongType: "Non-projection can't be used to project",
       noTo: "Projection missing to projection",
       projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
+    },
+  },
+  "default-required": {
+    severity: "error",
+    messages: {
+      default: "Required template parameters must not follow optional template parameters",
     },
   },
   /**

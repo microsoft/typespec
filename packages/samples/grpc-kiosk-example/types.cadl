@@ -1,3 +1,5 @@
+import "@cadl-lang/openapi";
+
 using Cadl.Http;
 
 //
@@ -29,8 +31,8 @@ model LatLng {
 model Empty {}
 
 @doc("An unexpected error response.")
+@error
 model RpcStatus {
-  @statusCode _: "default";
   code?: int32;
   message?: string;
   details?: ProtobufAny[];

@@ -56,3 +56,22 @@ export function getExtensions(program: Program, entity: Type): ReadonlyMap<Exten
 function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
   return key.startsWith("x-");
 }
+
+// The @defaultResponse decorator can be applied to a model. When that model is used
+// as the return type of an operation, this return type will be the default response.
+const defaultResponseKey = Symbol();
+export function $defaultResponse({ program }: DecoratorContext, entity: Type) {
+  if (entity.kind !== "Model") {
+    reportDiagnostic(program, {
+      code: "decorator-wrong-type",
+      format: { decorator: "default", entityKind: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+  program.stateSet(defaultResponseKey).add(entity);
+}
+
+export function isDefaultResponse(program: Program, entity: Type): boolean {
+  return program.stateSet(defaultResponseKey).has(entity);
+}
