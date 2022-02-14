@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/spec",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "author": "Microsoft Corporation",
   "description": "Cadl Language Specification Source Code",
@@ -19,7 +19,6 @@
     "build": "ecmarkup --strict src/spec.emu.html ../../docs/spec.html",
     "watch": "node scripts/watch-spec.js"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/mkdirp": "~1.0.1",
     "@types/node": "~14.0.27",

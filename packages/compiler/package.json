@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/compiler",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "description": "Cadl Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -49,18 +49,18 @@
   },
   "dependencies": {
     "ajv": "~8.9.0",
+    "change-case": "~4.1.2",
     "glob": "~7.1.6",
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",
     "mustache": "~4.2.0",
-    "prettier": "~2.5.1",
     "node-fetch": "~3.2.0",
-    "prompts": "~2.4.1",
-    "vscode-languageserver-textdocument": "~1.0.1",
-    "vscode-languageserver": "~7.0.0",
-    "yargs": "~17.3.1",
     "node-watch": "~0.7.1",
-    "change-case": "~4.1.2"
+    "prettier": "~2.5.1",
+    "prompts": "~2.4.1",
+    "vscode-languageserver": "~7.0.0",
+    "vscode-languageserver-textdocument": "~1.0.1",
+    "yargs": "~17.3.1"
   },
   "devDependencies": {
     "@types/glob": "~7.1.3",
@@ -72,12 +72,12 @@
     "@types/prettier": "^2.0.2",
     "@types/prompts": "~2.0.14",
     "@types/yargs": "~17.0.2",
+    "c8": "~7.11.0",
     "grammarkdown": "~3.1.2",
     "mocha": "~9.2.0",
-    "c8": "~7.11.0",
     "prettier-plugin-organize-imports": "~2.3.4",
-    "source-map-support": "~0.5.19",
     "rimraf": "~3.0.2",
+    "source-map-support": "~0.5.19",
     "typescript": "~4.5.5"
   }
 }
