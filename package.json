@@ -2,6 +2,19 @@
   "name": "cadl-core",
   "private": true,
   "workspaces": [
-    "packages/*"
-  ]
+    "packages/compiler",
+    "packages/tmlanguage-generator",
+    "packages/cadl-vscode",
+    "packages/cadl-vs",
+    "packages/prettier-plugin-cadl",
+    "packages/spec",
+    "packages/rest",
+    "packages/versioning",
+    "packages/openapi",
+    "packages/openapi3",
+    "packages/samples"
+  ],
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
 }

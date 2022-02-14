@@ -24,7 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)src/**/*.cs" LinkBase="src" />
     <Content Include="$(MSBuildThisFileDirectory)LICENSE" />
     <Content Include="$(MSBuildThisFileDirectory)*.pkgdef" />
-    <Content Include="$(MSBuildThisFileDirectory)node_modules/cadl-vscode/dist/cadl.tmLanguage" Link="TextMate/cadl.tmLanguage" />
+    <!-- <Content Include="$(MSBuildThisFileDirectory)node_modules/cadl-vscode/dist/cadl.tmLanguage" Link="TextMate/cadl.tmLanguage" /> -->
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
     <Reference Include="System.ComponentModel.Composition" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
