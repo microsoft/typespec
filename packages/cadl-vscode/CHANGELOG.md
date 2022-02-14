@@ -1,6 +1,13 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Fri, 04 Feb 2022 18:00:18 GMT and should not be manually modified.
+This log was last generated on Mon, 14 Feb 2022 03:01:08 GMT and should not be manually modified.
+
+## 0.12.1
+Mon, 14 Feb 2022 03:01:08 GMT
+
+### Patches
+
+- Bump dependency versions
 
 ## 0.12.0
 Fri, 04 Feb 2022 18:00:18 GMT

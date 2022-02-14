@@ -29,6 +29,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "cadl-vscode": "~0.12.0"
+    "cadl-vscode": "~0.12.1"
   }
 }

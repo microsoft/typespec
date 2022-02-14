@@ -1,6 +1,6 @@
 {
   "name": "cadl-vscode",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "author": "Microsoft Corporation",
   "description": "Cadl Language Support for VS Code",
   "homepage": "https://github.com/Azure/adl",

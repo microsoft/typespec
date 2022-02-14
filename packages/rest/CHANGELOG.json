@@ -2,6 +2,34 @@
   "name": "@cadl-lang/rest",
   "entries": [
     {
+      "version": "0.10.0",
+      "tag": "@cadl-lang/rest_v0.10.0",
+      "date": "Mon, 14 Feb 2022 03:01:07 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "refactor status code handling to http library"
+          },
+          {
+            "comment": "Update decorators to take in api change"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Bump dependency versions"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.26.0` to `~0.27.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.26.0` to `~0.27.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.0",
       "tag": "@cadl-lang/rest_v0.9.0",
       "date": "Fri, 04 Feb 2022 18:00:18 GMT",
