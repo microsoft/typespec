@@ -1,8 +1,8 @@
-import { realpath } from "fs/promises";
+import { readFile, realpath, stat } from "fs/promises";
 import path from "path";
 import url from "url";
-import { resolveModule } from "../core/module-resolver.js";
-import { NodeHost } from "../core/util.js";
+import { createSourceFile } from "../core/index.js";
+import { resolveModule, ResolveModuleHost } from "../core/module-resolver.js";
 /**
  * Run script given by relative path from @cadl-lang/compiler package root.
  * Prefer local install resolved from cwd over current package.
@@ -13,7 +13,12 @@ import { NodeHost } from "../core/util.js";
 export async function runScript(relativePath: string): Promise<void> {
   let packageRoot;
   try {
-    const resolved = await resolveModule(NodeHost, "@cadl-lang/compiler", {
+    const host: ResolveModuleHost = {
+      realpath,
+      readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
+      stat,
+    };
+    const resolved = await resolveModule(host, "@cadl-lang/compiler", {
       baseDir: process.cwd(),
     });
     packageRoot = path.resolve(resolved, "../../..");
