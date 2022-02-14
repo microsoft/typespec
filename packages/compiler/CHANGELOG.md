@@ -1,6 +1,21 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Fri, 04 Feb 2022 18:00:18 GMT and should not be manually modified.
+This log was last generated on Mon, 14 Feb 2022 03:01:07 GMT and should not be manually modified.
+
+## 0.27.0
+Mon, 14 Feb 2022 03:01:07 GMT
+
+### Minor changes
+
+- Provide helper for library to validate parameter
+- Update api for decorator taking `DecoratorContext` instead of `Program`
+
+### Patches
+
+- Fix bugs involving merged decorators
+- Give nice error for using extends keyword in interfaces
+- Implement template parameter defaults
+- Bump dependency versions
 
 ## 0.26.0
 Fri, 04 Feb 2022 18:00:18 GMT
