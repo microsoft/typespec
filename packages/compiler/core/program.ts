@@ -527,14 +527,25 @@ export async function createProgram(
    * that module, e.g. "/cadl/node_modules/myLib/main.cadl".
    */
   function resolveCadlLibrary(specifier: string, baseDir: string): Promise<string> {
-    return resolveModule(host, specifier, {
-      baseDir,
-      resolveMain(pkg) {
-        // this lets us follow node resolve semantics more-or-less exactly
-        // but using cadlMain instead of main.
-        return pkg.cadlMain ?? pkg.main;
+    return resolveModule(
+      {
+        realpath: host.realpath,
+        stat: host.stat,
+        readFile: async (path) => {
+          const file = await host.readFile(path);
+          return file.text;
+        },
       },
-    });
+      specifier,
+      {
+        baseDir,
+        resolveMain(pkg) {
+          // this lets us follow node resolve semantics more-or-less exactly
+          // but using cadlMain instead of main.
+          return pkg.cadlMain ?? pkg.main;
+        },
+      }
+    );
   }
 
   /**
@@ -575,7 +586,18 @@ export async function createProgram(
     const baseDir = mainPathIsDirectory ? mainPath : getDirectoryPath(mainPath);
     let actual: string;
     try {
-      actual = await resolveModule(host, "@cadl-lang/compiler", { baseDir });
+      actual = await resolveModule(
+        {
+          realpath: host.realpath,
+          stat: host.stat,
+          readFile: async (path) => {
+            const file = await host.readFile(path);
+            return file.text;
+          },
+        },
+        "@cadl-lang/compiler",
+        { baseDir }
+      );
     } catch (err: any) {
       if (err.code === "MODULE_NOT_FOUND") {
         return true; // no local cadl, ok to use any compiler

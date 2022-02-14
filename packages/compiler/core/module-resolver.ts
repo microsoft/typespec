@@ -1,9 +1,25 @@
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
-import { CompilerHost } from "./types.js";
 
 export interface ResolveModuleOptions {
   baseDir: string;
   resolveMain?: (pkg: any) => string;
+}
+
+export interface ResolveModuleHost {
+  /**
+   * Resolve the real path for the current host.
+   */
+  realpath(path: string): Promise<string>;
+
+  /**
+   * Get information about the given path
+   */
+  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
+
+  /**
+   * Read a utf-8 encoded file.
+   */
+  readFile(path: string): Promise<string>;
 }
 
 type ResolveModuleErrorCode = "MODULE_NOT_FOUND";
@@ -13,8 +29,15 @@ export class ResolveModuleError extends Error {
   }
 }
 
+/**
+ * Resolve a module
+ * @param host
+ * @param name
+ * @param options
+ * @returns
+ */
 export async function resolveModule(
-  host: CompilerHost,
+  host: ResolveModuleHost,
   name: string,
   options: ResolveModuleOptions
 ) {
@@ -109,12 +132,12 @@ export async function resolveModule(
   }
 }
 
-async function readPackage(host: CompilerHost, pkgfile: string) {
-  const file = await host.readFile(pkgfile);
-  return JSON.parse(file.text);
+async function readPackage(host: ResolveModuleHost, pkgfile: string) {
+  const content = await host.readFile(pkgfile);
+  return JSON.parse(content);
 }
 
-async function isDirectory(host: CompilerHost, path: string) {
+async function isDirectory(host: ResolveModuleHost, path: string) {
   try {
     const stats = await host.stat(path);
     return stats.isDirectory();
@@ -126,7 +149,7 @@ async function isDirectory(host: CompilerHost, path: string) {
   }
 }
 
-async function isFile(host: CompilerHost, path: string) {
+async function isFile(host: ResolveModuleHost, path: string) {
   try {
     const stats = await host.stat(path);
     return stats.isFile();
