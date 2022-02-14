@@ -61,12 +61,7 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
 // as the return type of an operation, this return type will be the default response.
 const defaultResponseKey = Symbol();
 export function $defaultResponse({ program }: DecoratorContext, entity: Type) {
-  if (entity.kind !== "Model") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "default", entityKind: entity.kind },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(program, entity, "@defaultResponse", "Model")) {
     return;
   }
   program.stateSet(defaultResponseKey).add(entity);
