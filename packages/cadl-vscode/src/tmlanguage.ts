@@ -290,7 +290,7 @@ const modelHeritage: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: `((?=\\{)|${universalEndExceptComma})`,
-  patterns: [expression],
+  patterns: [expression, punctuationComma],
 };
 
 const modelStatement: BeginEndRule = {
@@ -437,14 +437,20 @@ const interfaceHeritage: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: `((?=\\{)|${universalEndExceptComma})`,
-  patterns: [expression],
+  patterns: [expression, punctuationComma],
 };
 
 const interfaceBody: BeginEndRule = {
   key: "interface-body",
   scope: meta,
   begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
   end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
   patterns: [token, directive, decorator, interfaceMember],
 };
 
