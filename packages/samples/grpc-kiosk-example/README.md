@@ -106,7 +106,8 @@ model GetKioskRequest {
 }
 
 @doc("Get a kiosk.")
-@get("kiosks/{id}")
+@get
+@route("kiosks/{id}")
 op GetKiosk(... GetKioskRequest): Kiosk | RpcStatus;
 ```
 
@@ -116,7 +117,8 @@ If we wrote the Cadl directly with the id specified in the `op` parameters we ge
 
 ```
 @doc("Get a kiosk.")
-@get("kiosks/{id}")
+@get
+@route("kiosks/{id}")
 op GetKiosk(@path id: int32): Kiosk | RpcStatus;
 ```
 
