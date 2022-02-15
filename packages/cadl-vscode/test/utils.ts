@@ -143,9 +143,17 @@ export const Token = {
     closeParen: createToken(")", "punctuation.parenthesis.close.cadl"),
     semicolon: createToken(";", "punctuation.terminator.statement.cadl"),
 
+    string: {
+      doubleQuote: createToken('"', "string.quoted.double.cadl"),
+    },
     typeParameters: {
       begin: createToken("<", "punctuation.definition.typeparameters.begin.cadl"),
       end: createToken(">", "punctuation.definition.typeparameters.end.cadl"),
     },
+  },
+
+  literals: {
+    numeric: (text: string) => createToken(text, "constant.numeric.cadl"),
+    string: (text: string) => createToken(text, "string.quoted.double.cadl"),
   },
 } as const;

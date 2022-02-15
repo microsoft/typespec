@@ -170,7 +170,7 @@ const parenthesizedExpression: BeginEndRule = {
   endCaptures: {
     "0": { scope: "punctuation.parenthesis.close.cadl" },
   },
-  patterns: [expression],
+  patterns: [expression, punctuationComma],
 };
 
 const decorator: BeginEndRule = {
