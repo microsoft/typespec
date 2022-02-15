@@ -24,8 +24,14 @@ export type CadlScope =
   | "string.quoted.double.cadl"
   | "string.quoted.triple.cadl"
   | "variable.name.cadl"
+  | "keyword.operator.type.annotation.cadl"
+  | "punctuation.comma.cadl"
   | "punctuation.accessor.cadl"
   | "punctuation.terminator.statement.cadl"
+  | "punctuation.definition.typeparameters.begin.cadl"
+  | "punctuation.definition.typeparameters.end.cadl"
+  | "punctuation.squarebracket.open.cadl"
+  | "punctuation.squarebracket.close.cadl"
   | "punctuation.curlybrace.open.cadl"
   | "punctuation.curlybrace.close.cadl";
 
@@ -96,6 +102,11 @@ const tripleQuotedStringLiteral: BeginEndRule = {
   patterns: [escapeChar],
 };
 
+const punctuationComma: MatchRule = {
+  key: "punctuation-comma",
+  scope: "punctuation.comma.cadl",
+  match: ",",
+};
 const punctuationAccessor: MatchRule = {
   key: "punctuation-accessor",
   scope: "punctuation.accessor.cadl",
@@ -171,8 +182,14 @@ const typeArguments: BeginEndRule = {
   key: "type-arguments",
   scope: meta,
   begin: "<",
+  beginCaptures: {
+    "0": { scope: "punctuation.definition.typeparameters.begin.cadl" },
+  },
   end: ">",
-  patterns: [expression],
+  endCaptures: {
+    "0": { scope: "punctuation.definition.typeparameters.end.cadl" },
+  },
+  patterns: [expression, punctuationComma],
 };
 
 const tupleExpression: BeginEndRule = {
@@ -186,7 +203,10 @@ const tupleExpression: BeginEndRule = {
 const typeAnnotation: BeginEndRule = {
   key: "type-annotation",
   scope: meta,
-  begin: "\\s*:",
+  begin: "\\s*(:)",
+  beginCaptures: {
+    "1": { scope: "keyword.operator.type.annotation.cadl" },
+  },
   end: universalEnd,
   patterns: [expression],
 };
@@ -226,7 +246,13 @@ const modelExpression: BeginEndRule = {
   key: "model-expression",
   scope: meta,
   begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
   end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
   patterns: [
     // modelProperty must come before token or quoted property name will be
     // considered an arbitrarily positioned string literal and not match as part
@@ -236,6 +262,7 @@ const modelExpression: BeginEndRule = {
     directive,
     decorator,
     modelSpreadProperty,
+    punctuationSemicolon,
   ],
 };
 

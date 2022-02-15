@@ -112,17 +112,34 @@ function createToken(text: string, type: TokenScope) {
 
 export const Token = {
   keywords: {
+    model: createToken("model", "keyword.other.cadl"),
     namespace: createToken("namespace", "keyword.other.cadl"),
+    extends: createToken("extends", "keyword.other.cadl"),
+    is: createToken("is", "keyword.other.cadl"),
     other: (text: string) => createToken(text, "keyword.other.cadl"),
   },
   meta: (text: string, meta: string) => createToken(text, `meta.${meta}.cadl`),
   identifiers: {
+    variable: (name: string) => createToken(name, "variable.name.cadl"),
     type: (name: string) => createToken(name, "entity.name.type.cadl"),
   },
+
+  operators: {
+    typeAnnotation: createToken(":", "keyword.operator.type.annotation.cadl"),
+  },
+
   punctuation: {
+    comma: createToken(",", "punctuation.comma.cadl"),
     accessor: createToken(".", "punctuation.accessor.cadl"),
+    openBracket: createToken("[", "punctuation.squarebracket.open.cadl"),
+    closeBracket: createToken("]", "punctuation.squarebracket.close.cadl"),
     openBrace: createToken("{", "punctuation.curlybrace.open.cadl"),
     closeBrace: createToken("}", "punctuation.curlybrace.close.cadl"),
     semicolon: createToken(";", "punctuation.terminator.statement.cadl"),
+
+    typeParameters: {
+      begin: createToken("<", "punctuation.definition.typeparameters.begin.cadl"),
+      end: createToken(">", "punctuation.definition.typeparameters.end.cadl"),
+    },
   },
 } as const;

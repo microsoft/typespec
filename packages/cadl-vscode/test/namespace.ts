@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { Token, tokenize } from "./utils";
 
-describe("Namespace", () => {
+describe("vscode: tmlanguage: Namespace", () => {
   it("simple global namespace", async () => {
     const tokens = await tokenize("namespace Foo;");
     deepStrictEqual(tokens, [
