@@ -21,4 +21,18 @@ describe("Namespace", () => {
       Token.identifiers.type("Bar"),
     ]);
   });
+
+  it("simple namespace", async () => {
+    const tokens = await tokenize(`
+    namespace Foo { }`);
+    deepStrictEqual(tokens, [
+      Token.keywords.namespace,
+      Token.meta(" ", "namespace-statement"),
+      Token.identifiers.type("Foo"),
+      Token.meta(" ", "namespace-name"),
+      Token.meta("{", "namespace-body"),
+      Token.meta(" ", "namespace-body"),
+      Token.meta("}", "namespace-body"),
+    ]);
+  });
 });

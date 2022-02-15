@@ -22,7 +22,13 @@ const registry = new Registry({
   },
 });
 
-export interface Token {}
+export interface Token {
+  text: string;
+  type: string;
+}
+
+const excludedTypes = ["source.cadl"];
+
 export async function tokenize(
   input: string | Input,
   excludeTypes: boolean = true
@@ -60,7 +66,9 @@ export async function tokenize(
       const text = line.substring(token.startIndex, token.endIndex);
       const type = token.scopes[token.scopes.length - 1];
 
-      tokens.push(createToken(text, type));
+      if (excludeTypes === false || excludedTypes.indexOf(type) < 0) {
+        tokens.push(createToken(text, type));
+      }
     }
   }
 
