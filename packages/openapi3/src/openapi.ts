@@ -1231,7 +1231,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function applyIntrinsicDecorators(cadlType: Type, target: any): any {
-    const newTarget = target;
+    const newTarget = { ...target };
     const docStr = getDoc(program, cadlType);
     if (isStringType(program, cadlType) && !target.documentation && docStr) {
       newTarget.description = docStr;
