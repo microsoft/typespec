@@ -116,7 +116,9 @@ The http method decorators also accept an explicit path, which is appended to th
 namespace Pets {
   @get op list(): Pet[]; // get on path "/pets"
   @get op read(@path petId: int32): Pet; // get on path "/pets/{petId}"
-  @post("{petId}:walk") op walk(... PetId): ; // post on path "/pets/{petId}:walk"
+  @post
+  @route("{petId}:walk")
+  op walk(... PetId): ; // post on path "/pets/{petId}:walk"
 }
 
 ```

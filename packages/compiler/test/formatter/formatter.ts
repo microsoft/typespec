@@ -826,12 +826,12 @@ namespace MyNamespace {
       assertFormat({
         code: `
 namespace Foo {
-  @get("inline")  op       simple(): string;
+  @route("inline")  op       simple(): string;
 }
       `,
         expected: `
 namespace Foo {
-  @get("inline") op simple(): string;
+  @route("inline") op simple(): string;
 }
       `,
       });
@@ -841,13 +841,13 @@ namespace Foo {
       assertFormat({
         code: `
 namespace Foo {
-  @get("inline")
+  @route("inline")
          op  my(): string;
 }
       `,
         expected: `
 namespace Foo {
-  @get("inline")
+  @route("inline")
   op my(): string;
 }
       `,
@@ -858,12 +858,12 @@ namespace Foo {
       assertFormat({
         code: `
 namespace Foo {
-  @get("inline") @mark @bar op       my(): string;
+  @route("inline") @mark @bar op       my(): string;
 }
       `,
         expected: `
 namespace Foo {
-  @get("inline")
+  @route("inline")
   @mark
   @bar
   op my(): string;

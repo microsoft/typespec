@@ -106,7 +106,8 @@ using Cadl.Http;
 
 @route("/example")
 namespace Example {
-  @get("/message")
+  @get
+  @route("/message")
   op getMessage(): string;
 }
 
