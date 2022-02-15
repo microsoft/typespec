@@ -517,10 +517,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     let mixes: TypeReferenceNode[] = [];
     if (token() === Token.ExtendsKeyword) {
       // error condition
-      error({ code: "token-expected", messageId: "mixesNotExtends" });
-      parseErrorInNextFinishedNode = false;
+      const target = { pos: tokenPos(), end: tokenEnd() };
       nextToken();
       mixes = parseList(ListKind.Heritage, parseReferenceExpression);
+      // issue error *after* parseList so that we flag the interface as having an error, and not the first list element.
+      error({ code: "token-expected", messageId: "mixesNotExtends", target });
     } else if (token() === Token.Identifier) {
       if (tokenValue() !== "mixes") {
         error({ code: "token-expected", format: { token: "'mixes' or '{'" } });
@@ -1331,12 +1332,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     while (token() !== Token.EndOfFile) {
       const pos = expr.pos;
       const tok = token();
-      const value = tokenValue();
       if (tok === Token.EqualsEquals || tok === Token.ExclamationEquals) {
+        const op = tokenValue() as "==" | "!=";
         nextToken();
         expr = {
           kind: SyntaxKind.ProjectionEqualityExpression,
-          op: value as any,
+          op,
           left: expr,
           right: parseProjectionRelationalExpressionOrHigher(),
           ...finishNode(pos),
@@ -1353,21 +1354,19 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     let expr: ProjectionExpression = parseProjectionAdditiveExpressionOrHigher();
 
     while (token() !== Token.EndOfFile) {
-      // I think this is a TS bug? I don't get why
-      // the type assertion is needed here.
       const pos: number = expr.pos;
       const tok = token();
-      const value = tokenValue();
       if (
         tok === Token.LessThan ||
         tok === Token.LessThanEquals ||
         tok === Token.GreaterThan ||
         tok === Token.GreaterThanEquals
       ) {
+        const op = tokenValue() as "<" | "<=" | ">" | ">=";
         nextToken();
         expr = {
           kind: SyntaxKind.ProjectionRelationalExpression,
-          op: value as any,
+          op,
           left: expr,
           right: parseProjectionAdditiveExpressionOrHigher(),
           ...finishNode(pos),
@@ -1383,12 +1382,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseProjectionAdditiveExpressionOrHigher(): ProjectionExpression {
     let expr: ProjectionExpression = parseProjectionMultiplicativeExpressionOrHigher();
     while (token() !== Token.EndOfFile) {
-      // I think this is a TS bug? I don't get why
-      // the type assertion is needed here.
       const pos: number = expr.pos;
       const tok = token();
       if (tok === Token.Plus || tok === Token.Hyphen) {
-        const op = tokenValue() as any;
+        const op = tokenValue() as "+" | "-";
         nextToken();
         expr = {
           kind: SyntaxKind.ProjectionArithmeticExpression,
@@ -1408,15 +1405,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseProjectionMultiplicativeExpressionOrHigher(): ProjectionExpression {
     let expr: ProjectionExpression = parseProjectionUnaryExpressionOrHigher();
     while (token() !== Token.EndOfFile) {
-      // I think this is a TS bug? I don't get why
-      // the type assertion is needed here.
       const pos: number = expr.pos;
       const tok = token();
       if (tok === Token.ForwardSlash || tok === Token.Star) {
+        const op = tokenValue() as "/" | "*";
         nextToken();
         expr = {
-          kind: SyntaxKind.ProjectionRelationalExpression,
-          op: tokenValue() as any,
+          kind: SyntaxKind.ProjectionArithmeticExpression,
+          op,
           left: expr,
           right: parseProjectionUnaryExpressionOrHigher(),
           ...finishNode(pos),
@@ -1435,7 +1431,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       nextToken();
       return {
         kind: SyntaxKind.ProjectionUnaryExpression,
-        op: tokenValue() as any,
+        op: "!",
         target: parseProjectionUnaryExpressionOrHigher(),
         ...finishNode(pos),
       };

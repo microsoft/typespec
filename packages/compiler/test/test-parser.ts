@@ -1,6 +1,6 @@
 import assert from "assert";
 import { CharCode } from "../core/charcode.js";
-import { formatDiagnostic, logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
+import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, NodeFlags, parse, visitChildren } from "../core/parser.js";
 import { CadlScriptNode, Node, SourceFile, SyntaxKind } from "../core/types.js";
 
@@ -139,6 +139,8 @@ describe("compiler: syntax", () => {
       "interface Foo { foo(): int32; }",
       "interface Foo { foo(): int32; bar(): int32; }",
     ]);
+
+    parseErrorEach([["interface Foo<T> extends Bar<T> {}", [/mixes/]]]);
   });
   describe("model expressions", () => {
     parseEach(['model Car { engine: { type: "v8" } }']);
@@ -517,6 +519,7 @@ describe("compiler: syntax", () => {
         `x >= y`,
         `x > y`,
         `x < y`,
+        `!x`,
         `x()`,
         `x(a, b, c)`,
         `x.y`,
@@ -613,7 +616,7 @@ function checkPositioning(node: Node, file: SourceFile) {
   });
 }
 
-function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhitespace = false) {
+function parseErrorEach(cases: [string, RegExp[], Callback?][]) {
   for (const [code, matches, callback] of cases) {
     it(`doesn't parse ${shorten(code)}`, () => {
       logVerboseTestOutput("=== Source ===");
@@ -627,7 +630,11 @@ function parseErrorEach(cases: [string, RegExp[], Callback?][], significantWhite
       dumpAST(astNode);
 
       logVerboseTestOutput("\n=== Diagnostics ===");
-      logVerboseTestOutput((log) => logDiagnostics(astNode.parseDiagnostics, log));
+      logVerboseTestOutput((log) => {
+        for (const each of astNode.parseDiagnostics) {
+          log(formatDiagnostic(each));
+        }
+      });
       assert.notStrictEqual(astNode.parseDiagnostics.length, 0, "no diagnostics reported");
       let i = 0;
       for (const match of matches) {
@@ -656,7 +663,7 @@ function dumpAST(astNode: Node, file?: SourceFile) {
   logVerboseTestOutput((log) => {
     hasParseError(astNode); // force flags to initialize
     const json = JSON.stringify(astNode, replacer, 2);
-    log.log({ level: "info", message: json });
+    log(json);
   });
 
   function replacer(key: string, value: any) {
