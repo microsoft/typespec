@@ -1,6 +1,20 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Mon, 14 Feb 2022 03:01:07 GMT and should not be manually modified.
+This log was last generated on Tue, 15 Feb 2022 22:35:02 GMT and should not be manually modified.
+
+## 0.28.0
+Tue, 15 Feb 2022 22:35:02 GMT
+
+### Minor changes
+
+- Internals: Module resolver not dependent on `CompilerHost`
+- Provide reusable decorator validation for target
+
+### Patches
+
+- Fix parser issue with missing error flag when using `interface extends` instead of `interface mixes`.
+- Fix parser issue with incorrect `op` in various projection expressions, and wrong node type for `/` and `*`.
+- Add support for separate `@summary` from `@doc`
 
 ## 0.27.0
 Mon, 14 Feb 2022 03:01:07 GMT
