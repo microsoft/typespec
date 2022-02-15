@@ -2,6 +2,7 @@ import { readFile } from "fs/promises";
 import * as path from "path";
 import { createOnigScanner, createOnigString, loadWASM } from "vscode-oniguruma";
 import { IOnigLib, parseRawGrammar, Registry, StackElement } from "vscode-textmate";
+import { CadlScope } from "../src/tmlanguage.js";
 
 async function createOnigLib(): Promise<IOnigLib> {
   const onigWasm = await readFile(`${path.dirname(require.resolve("vscode-oniguruma"))}/onig.wasm`);
@@ -22,9 +23,11 @@ const registry = new Registry({
   },
 });
 
+export type MetaScope = `meta.${string}.cadl`;
+export type TokenScope = CadlScope | MetaScope;
 export interface Token {
   text: string;
-  type: string;
+  type: TokenScope;
 }
 
 const excludedTypes = ["source.cadl"];
@@ -64,15 +67,19 @@ export async function tokenize(
       }
 
       const text = line.substring(token.startIndex, token.endIndex);
-      const type = token.scopes[token.scopes.length - 1];
+      const type = token.scopes[token.scopes.length - 1] as TokenScope;
 
-      if (excludeTypes === false || excludedTypes.indexOf(type) < 0) {
+      if (excludeTypes === false || !excludeType(type)) {
         tokens.push(createToken(text, type));
       }
     }
   }
 
   return tokens;
+}
+
+function excludeType(type: TokenScope): type is CadlScope {
+  return excludedTypes.includes(type) || type.startsWith("meta.");
 }
 
 interface Span {
@@ -99,7 +106,7 @@ export class Input {
   }
 }
 
-function createToken(text: string, type: string) {
+function createToken(text: string, type: TokenScope) {
   return { text, type };
 }
 
@@ -114,5 +121,7 @@ export const Token = {
   },
   punctuation: {
     accessor: createToken(".", "punctuation.accessor.cadl"),
+    openBrace: createToken("{", "punctuation.curlybrace.open.cadl"),
+    closeBrace: createToken("}", "punctuation.curlybrace.close.cadl"),
   },
 } as const;

@@ -11,7 +11,7 @@ type BeginEndRule = tm.BeginEndRule<CadlScope>;
 type MatchRule = tm.MatchRule<CadlScope>;
 type Grammar = tm.Grammar<CadlScope>;
 
-type CadlScope =
+export type CadlScope =
   | "comment.block.cadl"
   | "comment.line.double-slash.cadl"
   | "constant.character.escape.cadl"
@@ -24,7 +24,9 @@ type CadlScope =
   | "string.quoted.double.cadl"
   | "string.quoted.triple.cadl"
   | "variable.name.cadl"
-  | "punctuation.accessor.cadl";
+  | "punctuation.accessor.cadl"
+  | "punctuation.curlybrace.open.cadl"
+  | "punctuation.curlybrace.close.cadl";
 
 const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
@@ -301,7 +303,13 @@ const namespaceBody: BeginEndRule = {
   key: "namespace-body",
   scope: meta,
   begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
   end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
   patterns: [statement],
 };
 
