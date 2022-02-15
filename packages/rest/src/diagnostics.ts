@@ -33,12 +33,6 @@ const libDefinition = {
         default: paramMessage`Operation ${"operationName"} has a body but doesn't specify a verb.`,
       },
     },
-    "decorator-wrong-type": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Cannot use @${"decorator"} on a ${"entityKind"}`,
-      },
-    },
     "operation-resource-wrong-type": {
       severity: "error",
       messages: {

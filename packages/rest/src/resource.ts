@@ -5,6 +5,7 @@ import {
   Program,
   setDecoratorNamespace,
   Type,
+  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 import { $path } from "./http.js";
@@ -17,12 +18,7 @@ export interface ResourceKey {
 const resourceKeyPropertiesKey = Symbol();
 
 export function $key({ program }: DecoratorContext, entity: Type, altName?: string): void {
-  if (entity.kind !== "ModelProperty") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "key", entityKind: entity.kind },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(program, entity, "@key", "ModelProperty")) {
     return;
   }
 
@@ -114,12 +110,7 @@ export function $copyResourceKeyParameters(
   entity: Type,
   filter?: string
 ) {
-  if (entity.kind !== "Model") {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "copyResourceKeyParameters", entityKind: entity.kind },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(context.program, entity, "@copyResourceKeyParameters", "Model")) {
     return;
   }
 
@@ -158,12 +149,7 @@ export function getParentResource(
 }
 
 export function $parentResource({ program }: DecoratorContext, entity: Type, parentType: Type) {
-  if (parentType.kind !== "Model") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "parentResource", entityKind: entity.kind },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(program, parentType, "@parentResource", "Model")) {
     return;
   }
 

@@ -38,6 +38,7 @@ import {
   Type,
   UnionType,
   UnionTypeVariant,
+  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { getExtensions, getOperationId, isDefaultResponse } from "@cadl-lang/openapi";
 import {
@@ -74,16 +75,11 @@ export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAP
 const refTargetsKey = Symbol();
 
 export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
-  if (entity.kind === "Model" || entity.kind === "ModelProperty") {
-    program.stateMap(refTargetsKey).set(entity, refUrl);
-  } else {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      messageId: "modelsOperations",
-      format: { decoratorName: "useRef" },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(program, entity, "@useRef", ["Model", "ModelProperty"])) {
+    return;
   }
+
+  program.stateMap(refTargetsKey).set(entity, refUrl);
 }
 
 function getRef(program: Program, entity: Type): string | undefined {
@@ -92,12 +88,7 @@ function getRef(program: Program, entity: Type): string | undefined {
 
 const oneOfKey = Symbol();
 export function $oneOf({ program }: DecoratorContext, entity: Type) {
-  if (entity.kind !== "Union") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "oneOf", entityKind: entity.kind },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(program, entity, "@oneOf", "Union")) {
     return;
   }
   program.stateMap(oneOfKey).set(entity, true);

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add validation to decorators",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

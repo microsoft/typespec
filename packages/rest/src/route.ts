@@ -8,6 +8,7 @@ import {
   Program,
   setDecoratorNamespace,
   Type,
+  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 import {
@@ -81,12 +82,9 @@ function addRouteContainer(program: Program, entity: Type): void {
 
 const routesKey = Symbol();
 function setRoute(program: Program, entity: Type, details: RoutePath) {
-  if (entity.kind !== "Namespace" && entity.kind !== "Interface" && entity.kind !== "Operation") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "route", entityKind: entity.kind },
-      target: entity,
-    });
+  if (
+    !validateDecoratorTarget(program, entity, "@route", ["Namespace", "Interface", "Operation"])
+  ) {
     return;
   }
 
@@ -464,12 +462,9 @@ const resourceOperationToVerb: any = {
 
 const autoRouteKey = Symbol();
 export function $autoRoute({ program }: DecoratorContext, entity: Type) {
-  if (entity.kind !== "Namespace" && entity.kind !== "Interface" && entity.kind !== "Operation") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "route", entityKind: entity.kind },
-      target: entity,
-    });
+  if (
+    !validateDecoratorTarget(program, entity, "@autoRoute", ["Namespace", "Interface", "Operation"])
+  ) {
     return;
   }
 

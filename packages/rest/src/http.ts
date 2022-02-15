@@ -4,12 +4,22 @@ import {
   setDecoratorNamespace,
   Type,
   validateDecoratorParamCount,
+  validateDecoratorParamType,
+  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 
 const headerFieldsKey = Symbol();
 export function $header({ program }: DecoratorContext, entity: Type, headerName?: string) {
-  if (!headerName && entity.kind === "ModelProperty") {
+  if (!validateDecoratorTarget(program, entity, "@header", "ModelProperty")) {
+    return;
+  }
+
+  if (headerName && !validateDecoratorParamType(program, entity, headerName, "string")) {
+    return;
+  }
+
+  if (!headerName) {
     headerName = entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
   }
   program.stateMap(headerFieldsKey).set(entity, headerName);
@@ -24,7 +34,15 @@ export function isHeader(program: Program, entity: Type) {
 }
 
 const queryFieldsKey = Symbol();
-export function $query({ program }: DecoratorContext, entity: Type, queryKey: string) {
+export function $query({ program }: DecoratorContext, entity: Type, queryKey?: string) {
+  if (!validateDecoratorTarget(program, entity, "@query", "ModelProperty")) {
+    return;
+  }
+
+  if (queryKey && !validateDecoratorParamType(program, entity, queryKey, "string")) {
+    return;
+  }
+
   if (!queryKey && entity.kind === "ModelProperty") {
     queryKey = entity.name;
   }
@@ -40,7 +58,15 @@ export function isQueryParam(program: Program, entity: Type) {
 }
 
 const pathFieldsKey = Symbol();
-export function $path({ program }: DecoratorContext, entity: Type, paramName: string) {
+export function $path({ program }: DecoratorContext, entity: Type, paramName?: string) {
+  if (!validateDecoratorTarget(program, entity, "@path", "ModelProperty")) {
+    return;
+  }
+
+  if (paramName && !validateDecoratorParamType(program, entity, paramName, "string")) {
+    return;
+  }
+
   if (!paramName && entity.kind === "ModelProperty") {
     paramName = entity.name;
   }
@@ -57,6 +83,9 @@ export function isPathParam(program: Program, entity: Type) {
 
 const bodyFieldsKey = Symbol();
 export function $body({ program }: DecoratorContext, entity: Type) {
+  if (!validateDecoratorTarget(program, entity, "@body", "ModelProperty")) {
+    return;
+  }
   program.stateSet(bodyFieldsKey).add(entity);
 }
 
@@ -66,16 +95,11 @@ export function isBody(program: Program, entity: Type): boolean {
 
 const statusCodeKey = Symbol();
 export function $statusCode({ program }: DecoratorContext, entity: Type) {
-  if (entity.kind === "ModelProperty") {
-    program.stateSet(statusCodeKey).add(entity);
-  } else {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      format: { decorator: "statusCode", entityKind: entity.kind },
-      target: entity,
-    });
+  if (!validateDecoratorTarget(program, entity, "@statusCode", "ModelProperty")) {
     return;
   }
+  program.stateSet(statusCodeKey).add(entity);
+
   const codes: string[] = [];
   if (entity.type.kind === "String") {
     if (validStatusCode(program, entity.type.value, entity)) {
@@ -256,12 +280,7 @@ setDecoratorNamespace(
 );
 
 export function $plainData({ program }: DecoratorContext, entity: Type) {
-  if (entity.kind !== "Model") {
-    reportDiagnostic(program, {
-      code: "decorator-wrong-type",
-      target: entity,
-      format: { decorator: "plainData", entityKind: entity.kind },
-    });
+  if (!validateDecoratorTarget(program, entity, "@plainData", "Model")) {
     return;
   }
 
