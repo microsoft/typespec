@@ -1231,59 +1231,49 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function applyIntrinsicDecorators(cadlType: Type, target: any): any {
+    const newTarget = target;
+    const docStr = getDoc(program, cadlType);
+    if (isStringType(program, cadlType) && !target.documentation && docStr) {
+      newTarget.description = docStr;
+    }
+
+    const summaryStr = getSummary(program, cadlType);
+    if (isStringType(program, cadlType) && !target.summary && summaryStr) {
+      newTarget.summary = summaryStr;
+    }
+
     const formatStr = getFormat(program, cadlType);
     if (isStringType(program, cadlType) && !target.format && formatStr) {
-      target = {
-        ...target,
-        format: formatStr,
-      };
+      newTarget.format = formatStr;
     }
 
     const pattern = getPattern(program, cadlType);
     if (isStringType(program, cadlType) && !target.pattern && pattern) {
-      target = {
-        ...target,
-        pattern,
-      };
+      newTarget.pattern = pattern;
     }
 
     const minLength = getMinLength(program, cadlType);
     if (isStringType(program, cadlType) && !target.minLength && minLength !== undefined) {
-      target = {
-        ...target,
-        minLength,
-      };
+      newTarget.minLength = minLength;
     }
 
     const maxLength = getMaxLength(program, cadlType);
     if (isStringType(program, cadlType) && !target.maxLength && maxLength !== undefined) {
-      target = {
-        ...target,
-        maxLength,
-      };
+      newTarget.maxLength = maxLength;
     }
 
     const minValue = getMinValue(program, cadlType);
     if (isNumericType(program, cadlType) && !target.minimum && minValue !== undefined) {
-      target = {
-        ...target,
-        minimum: minValue,
-      };
+      newTarget.minimum = minValue;
     }
 
     const maxValue = getMaxValue(program, cadlType);
     if (isNumericType(program, cadlType) && !target.maximum && maxValue !== undefined) {
-      target = {
-        ...target,
-        maximum: maxValue,
-      };
+      newTarget.maximum = maxValue;
     }
 
     if (isSecret(program, cadlType)) {
-      target = {
-        ...target,
-        format: "password",
-      };
+      target.format = "password";
     }
 
     return target;

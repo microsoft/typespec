@@ -54,3 +54,21 @@ export async function checkFor(code: string) {
   const host = await createOpenAPITestRunner();
   return await host.diagnose(code);
 }
+
+export async function oapiForModel(name: string, modelDef: string) {
+  const oapi = await openApiFor(`
+    ${modelDef};
+    @route("/")
+    namespace root {
+      op read(): { @body body: ${name} };
+    }
+  `);
+
+  const useSchema = oapi.paths["/"].get.responses[200].content["application/json"].schema;
+
+  return {
+    isRef: !!useSchema.$ref,
+    useSchema,
+    schemas: oapi.components.schemas || {},
+  };
+}
