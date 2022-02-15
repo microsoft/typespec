@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Mon, 14 Feb 2022 03:01:08 GMT and should not be manually modified.
+This log was last generated on Tue, 15 Feb 2022 22:35:02 GMT and should not be manually modified.
+
+## 0.11.0
+Tue, 15 Feb 2022 22:35:02 GMT
+
+### Minor changes
+
+- Add validation to decorators
 
 ## 0.10.0
 Mon, 14 Feb 2022 03:01:07 GMT
