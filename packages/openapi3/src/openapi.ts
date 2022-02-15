@@ -1273,10 +1273,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     if (isSecret(program, cadlType)) {
-      target.format = "password";
+      newTarget.format = "password";
     }
 
-    return target;
+    return newTarget;
   }
 
   // Map an Cadl type to an OA schema. Returns undefined when the resulting
