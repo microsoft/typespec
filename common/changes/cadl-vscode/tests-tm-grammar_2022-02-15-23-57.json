@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Add punctuation and additional fine grain scopes to grammar",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
