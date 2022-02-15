@@ -172,6 +172,41 @@ describe("rest: routes", () => {
     ]);
   });
 
+  it("autoRoute operations filter out path parameters with a string literal type", async () => {
+    const routes = await getRoutesFor(
+      `
+      model ThingId {
+        @path
+        @segment("things")
+        thingId: string;
+      }
+
+      @autoRoute
+      namespace Things {
+        @get
+        op WithFilteredParam(
+          @path
+          @segment("subscriptions")
+          subscriptionId: string,
+
+          @path
+          @segment("providers")
+          provider: "Microsoft.Things",
+          ...ThingId
+        ): string;
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [
+      {
+        verb: "get",
+        path: "/subscriptions/{subscriptionId}/providers/Microsoft.Things/things/{thingId}",
+        params: ["subscriptionId", "thingId"],
+      },
+    ]);
+  });
+
   it("emit diagnostics if operation has a body but didn't specify the verb", async () => {
     const [_, diagnostics] = await compileOperations(`
         @route("/test")

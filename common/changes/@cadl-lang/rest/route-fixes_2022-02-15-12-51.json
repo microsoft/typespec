@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Filter out string literal typed path parameters when generating routes automatically",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

@@ -211,7 +211,9 @@ function generatePathFromParameters(
   pathFragments: string[],
   parameters: HttpOperationParameters
 ) {
-  for (const { type, param } of parameters.parameters) {
+  const filteredParameters: HttpOperationParameter[] = [];
+  for (const httpParam of parameters.parameters) {
+    const { type, param } = httpParam;
     if (type === "path") {
       addSegmentFragment(program, param, pathFragments);
 
@@ -223,7 +225,13 @@ function generatePathFromParameters(
         pathFragments.push(`/{${param.name}}`);
       }
     }
+
+    // Push all usable parameters to the filtered list
+    filteredParameters.push(httpParam);
   }
+
+  // Replace the original parameters with filtered set
+  parameters.parameters = filteredParameters;
 
   // Add the operation's own segment if present
   addSegmentFragment(program, operation, pathFragments);
