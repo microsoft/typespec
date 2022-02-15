@@ -125,7 +125,9 @@ export const Token = {
   },
 
   operators: {
+    optional: createToken("?", "keyword.operator.optional.cadl"),
     typeAnnotation: createToken(":", "keyword.operator.type.annotation.cadl"),
+    spread: createToken("...", "keyword.operator.spread.cadl"),
   },
 
   punctuation: {

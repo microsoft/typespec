@@ -24,7 +24,11 @@ export type CadlScope =
   | "string.quoted.double.cadl"
   | "string.quoted.triple.cadl"
   | "variable.name.cadl"
+  // Operators
   | "keyword.operator.type.annotation.cadl"
+  | "keyword.operator.optional.cadl"
+  | "keyword.operator.spread.cadl"
+  // Punctuation
   | "punctuation.comma.cadl"
   | "punctuation.accessor.cadl"
   | "punctuation.terminator.statement.cadl"
@@ -203,9 +207,10 @@ const tupleExpression: BeginEndRule = {
 const typeAnnotation: BeginEndRule = {
   key: "type-annotation",
   scope: meta,
-  begin: "\\s*(:)",
+  begin: "\\s*(\\??)\\s*(:)",
   beginCaptures: {
-    "1": { scope: "keyword.operator.type.annotation.cadl" },
+    "1": { scope: "keyword.operator.optional.cadl" },
+    "2": { scope: "keyword.operator.type.annotation.cadl" },
   },
   end: universalEnd,
   patterns: [expression],
@@ -227,6 +232,9 @@ const modelSpreadProperty: BeginEndRule = {
   key: "model-spread-property",
   scope: meta,
   begin: "\\.\\.\\.",
+  beginCaptures: {
+    "0": { scope: "keyword.operator.spread.cadl" },
+  },
   end: universalEnd,
   patterns: [expression],
 };

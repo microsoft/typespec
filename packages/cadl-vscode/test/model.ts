@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { Token, tokenize } from "./utils";
 
-describe.only("vscode: tmlanguage: Models", () => {
+describe("vscode: tmlanguage: Models", () => {
   it("simple model", async () => {
     const tokens = await tokenize("model Foo {}");
     deepStrictEqual(tokens, [
@@ -88,6 +88,24 @@ describe.only("vscode: tmlanguage: Models", () => {
     ]);
   });
 
+  it("model with optional properties", async () => {
+    const tokens = await tokenize(`
+    model Foo {
+      prop1?: string;
+    }`);
+    deepStrictEqual(tokens, [
+      Token.keywords.model,
+      Token.identifiers.type("Foo"),
+      Token.punctuation.openBrace,
+      Token.identifiers.variable("prop1"),
+      Token.operators.optional,
+      Token.operators.typeAnnotation,
+      Token.identifiers.type("string"),
+      Token.punctuation.semicolon,
+      Token.punctuation.closeBrace,
+    ]);
+  });
+
   it("model nested model ", async () => {
     const tokens = await tokenize(`
     model Foo {
@@ -107,6 +125,22 @@ describe.only("vscode: tmlanguage: Models", () => {
       Token.identifiers.type("string"),
       Token.punctuation.semicolon,
       Token.punctuation.closeBrace,
+      Token.punctuation.semicolon,
+      Token.punctuation.closeBrace,
+    ]);
+  });
+
+  it("model with spread property", async () => {
+    const tokens = await tokenize(`
+    model Foo {
+      ...Bar;
+    }`);
+    deepStrictEqual(tokens, [
+      Token.keywords.model,
+      Token.identifiers.type("Foo"),
+      Token.punctuation.openBrace,
+      Token.operators.spread,
+      Token.identifiers.type("Bar"),
       Token.punctuation.semicolon,
       Token.punctuation.closeBrace,
     ]);
