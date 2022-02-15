@@ -92,9 +92,9 @@
         "properties": {
           "source": {
             "type": "string",
+            "description": "File source path.",
             "minLength": 0,
-            "maxLength": 2048,
-            "description": "File source path."
+            "maxLength": 2048
           }
         },
         "description": "Uri or local path to source data.",
