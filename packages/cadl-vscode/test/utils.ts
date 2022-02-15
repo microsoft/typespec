@@ -123,5 +123,6 @@ export const Token = {
     accessor: createToken(".", "punctuation.accessor.cadl"),
     openBrace: createToken("{", "punctuation.curlybrace.open.cadl"),
     closeBrace: createToken("}", "punctuation.curlybrace.close.cadl"),
+    semicolon: createToken(";", "punctuation.terminator.statement.cadl"),
   },
 } as const;

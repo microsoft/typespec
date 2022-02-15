@@ -25,6 +25,7 @@ export type CadlScope =
   | "string.quoted.triple.cadl"
   | "variable.name.cadl"
   | "punctuation.accessor.cadl"
+  | "punctuation.terminator.statement.cadl"
   | "punctuation.curlybrace.open.cadl"
   | "punctuation.curlybrace.close.cadl";
 
@@ -99,6 +100,12 @@ const punctuationAccessor: MatchRule = {
   key: "punctuation-accessor",
   scope: "punctuation.accessor.cadl",
   match: "\\.",
+};
+
+const punctuationSemicolon: MatchRule = {
+  key: "punctuation-semicolon",
+  scope: "punctuation.terminator.statement.cadl",
+  match: ";",
 };
 
 const numericLiteral: MatchRule = {
@@ -459,6 +466,7 @@ statement.patterns = [
   operationStatement,
   importStatement,
   usingStatement,
+  punctuationSemicolon,
 ];
 
 const grammar: Grammar = {
