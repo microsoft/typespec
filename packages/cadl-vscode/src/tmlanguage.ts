@@ -37,7 +37,9 @@ export type CadlScope =
   | "punctuation.squarebracket.open.cadl"
   | "punctuation.squarebracket.close.cadl"
   | "punctuation.curlybrace.open.cadl"
-  | "punctuation.curlybrace.close.cadl";
+  | "punctuation.curlybrace.close.cadl"
+  | "punctuation.parenthesis.open.cadl"
+  | "punctuation.parenthesis.close.cadl";
 
 const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
@@ -161,7 +163,13 @@ const parenthesizedExpression: BeginEndRule = {
   key: "parenthesized-expression",
   scope: meta,
   begin: "\\(",
+  beginCaptures: {
+    "0": { scope: "punctuation.parenthesis.open.cadl" },
+  },
   end: "\\)",
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.cadl" },
+  },
   patterns: [expression],
 };
 
@@ -384,8 +392,14 @@ const operationParameters: BeginEndRule = {
   key: "operation-parameters",
   scope: meta,
   begin: "\\(",
+  beginCaptures: {
+    "0": { scope: "punctuation.parenthesis.open.cadl" },
+  },
   end: "\\)",
-  patterns: [token, decorator, modelProperty, modelSpreadProperty],
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.cadl" },
+  },
+  patterns: [token, decorator, modelProperty, modelSpreadProperty, punctuationComma],
 };
 
 const operationStatement: BeginEndRule = {

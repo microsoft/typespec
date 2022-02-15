@@ -113,6 +113,7 @@ function createToken(text: string, type: TokenScope) {
 export const Token = {
   keywords: {
     model: createToken("model", "keyword.other.cadl"),
+    operation: createToken("op", "keyword.other.cadl"),
     namespace: createToken("namespace", "keyword.other.cadl"),
     extends: createToken("extends", "keyword.other.cadl"),
     is: createToken("is", "keyword.other.cadl"),
@@ -121,6 +122,7 @@ export const Token = {
   meta: (text: string, meta: string) => createToken(text, `meta.${meta}.cadl`),
   identifiers: {
     variable: (name: string) => createToken(name, "variable.name.cadl"),
+    functionName: (name: string) => createToken(name, "entity.name.function.cadl"),
     type: (name: string) => createToken(name, "entity.name.type.cadl"),
   },
 
@@ -137,6 +139,8 @@ export const Token = {
     closeBracket: createToken("]", "punctuation.squarebracket.close.cadl"),
     openBrace: createToken("{", "punctuation.curlybrace.open.cadl"),
     closeBrace: createToken("}", "punctuation.curlybrace.close.cadl"),
+    openParen: createToken("(", "punctuation.parenthesis.open.cadl"),
+    closeParen: createToken(")", "punctuation.parenthesis.close.cadl"),
     semicolon: createToken(";", "punctuation.terminator.statement.cadl"),
 
     typeParameters: {
