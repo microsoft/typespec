@@ -2,6 +2,49 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.8.0",
+      "tag": "@cadl-lang/openapi3_v0.8.0",
+      "date": "Tue, 15 Feb 2022 02:00:49 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add support for separate `@summary` from `@doc`"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Add validation to oneOf decorator"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.27.0` to `~0.28.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.10.0` to `~0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.6.0` to `~0.6.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.3.0` to `~0.3.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.3.0` to `~0.3.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.27.0` to `~0.28.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.10.0` to `~0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.6.0` to `~0.6.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.0",
       "tag": "@cadl-lang/openapi3_v0.7.0",
       "date": "Mon, 14 Feb 2022 03:01:07 GMT",

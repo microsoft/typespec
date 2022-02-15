@@ -2,6 +2,26 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.28.0",
+      "tag": "@cadl-lang/compiler_v0.28.0",
+      "date": "Tue, 15 Feb 2022 02:00:49 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Internals: Module resolver not dependent on `CompilerHost`"
+          },
+          {
+            "comment": "Provide reusable decorator validation for target"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Add support for separate `@summary` from `@doc`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.27.0",
       "tag": "@cadl-lang/compiler_v0.27.0",
       "date": "Mon, 14 Feb 2022 03:01:07 GMT",

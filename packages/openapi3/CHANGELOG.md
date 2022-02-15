@@ -1,6 +1,17 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Mon, 14 Feb 2022 03:01:07 GMT and should not be manually modified.
+This log was last generated on Tue, 15 Feb 2022 02:00:49 GMT and should not be manually modified.
+
+## 0.8.0
+Tue, 15 Feb 2022 02:00:49 GMT
+
+### Minor changes
+
+- Add validation to oneOf decorator
+
+### Patches
+
+- Add support for separate `@summary` from `@doc`
 
 ## 0.7.0
 Mon, 14 Feb 2022 03:01:07 GMT
