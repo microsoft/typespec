@@ -3,9 +3,9 @@ import resolve from "@rollup/plugin-node-resolve";
 import path from "path";
 
 export default {
-  input: "dist-dev/extension.js",
+  input: "dist-dev/src/extension.js",
   output: {
-    file: "dist/extension.js",
+    file: "dist/src/extension.js",
     format: "commonjs",
     sourcemap: true,
     exports: "default",

@@ -17,7 +17,7 @@ describe("Namespace", () => {
       Token.keywords.namespace,
       Token.meta(" ", "namespace-statement"),
       Token.identifiers.type("Foo"),
-      Token.meta(".", "namespace-name"),
+      Token.punctuation.accessor,
       Token.identifiers.type("Bar"),
     ]);
   });

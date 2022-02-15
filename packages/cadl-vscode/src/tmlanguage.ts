@@ -23,7 +23,8 @@ type CadlScope =
   | "keyword.other.cadl"
   | "string.quoted.double.cadl"
   | "string.quoted.triple.cadl"
-  | "variable.name.cadl";
+  | "variable.name.cadl"
+  | "punctuation.accessor.cadl";
 
 const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
@@ -90,6 +91,12 @@ const tripleQuotedStringLiteral: BeginEndRule = {
   begin: '"""',
   end: '"""',
   patterns: [escapeChar],
+};
+
+const punctuationAccessor: MatchRule = {
+  key: "punctuation-accessor",
+  scope: "punctuation.accessor.cadl",
+  match: "\\.",
 };
 
 const numericLiteral: MatchRule = {
@@ -287,7 +294,7 @@ const namespaceName: BeginEndRule = {
   scope: meta,
   begin: beforeIdentifier,
   end: `((?=\\{)|${universalEnd})`,
-  patterns: [token, identifierExpression],
+  patterns: [identifierExpression, punctuationAccessor],
 };
 
 const namespaceBody: BeginEndRule = {

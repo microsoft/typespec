@@ -112,4 +112,7 @@ export const Token = {
   identifiers: {
     type: (name: string) => createToken(name, "entity.name.type.cadl"),
   },
+  punctuation: {
+    accessor: createToken(".", "punctuation.accessor.cadl"),
+  },
 } as const;
