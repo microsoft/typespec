@@ -2,7 +2,7 @@ import { createRequire } from "module";
 import { resolve } from "path";
 
 const require = createRequire(import.meta.url);
-const script = resolve("dist-dev/tmlanguage.js");
+const script = resolve("dist-dev/src/tmlanguage.js");
 
 require(script)
   .main()

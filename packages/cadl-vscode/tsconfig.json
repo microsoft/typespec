@@ -3,8 +3,10 @@
   "references": [{ "path": "../tmlanguage-generator/tsconfig.json" }],
   "compilerOptions": {
     "outDir": "dist-dev",
-    "rootDir": "src",
-    "module": "CommonJS"
+    "rootDir": ".",
+    "module": "CommonJS",
+    "skipLibCheck": true,
+    "types": ["node", "mocha"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }

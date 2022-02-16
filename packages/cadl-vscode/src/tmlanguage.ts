@@ -11,7 +11,7 @@ type BeginEndRule = tm.BeginEndRule<CadlScope>;
 type MatchRule = tm.MatchRule<CadlScope>;
 type Grammar = tm.Grammar<CadlScope>;
 
-type CadlScope =
+export type CadlScope =
   | "comment.block.cadl"
   | "comment.line.double-slash.cadl"
   | "constant.character.escape.cadl"
@@ -23,7 +23,24 @@ type CadlScope =
   | "keyword.other.cadl"
   | "string.quoted.double.cadl"
   | "string.quoted.triple.cadl"
-  | "variable.name.cadl";
+  | "variable.name.cadl"
+  // Operators
+  | "keyword.operator.type.annotation.cadl"
+  | "keyword.operator.assignment.cadl"
+  | "keyword.operator.optional.cadl"
+  | "keyword.operator.spread.cadl"
+  // Punctuation
+  | "punctuation.comma.cadl"
+  | "punctuation.accessor.cadl"
+  | "punctuation.terminator.statement.cadl"
+  | "punctuation.definition.typeparameters.begin.cadl"
+  | "punctuation.definition.typeparameters.end.cadl"
+  | "punctuation.squarebracket.open.cadl"
+  | "punctuation.squarebracket.close.cadl"
+  | "punctuation.curlybrace.open.cadl"
+  | "punctuation.curlybrace.close.cadl"
+  | "punctuation.parenthesis.open.cadl"
+  | "punctuation.parenthesis.close.cadl";
 
 const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
@@ -35,6 +52,11 @@ const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
 const universalEndExceptComma = `(?=;|@|\\)|\\}|${statementKeyword})`;
+
+/**
+ * Universal end with extra end char: `=`
+ */
+const expressionEnd = `(?=,|;|@|\\)|\\}|=|${statementKeyword})`;
 const hexNumber = "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)";
 const binaryNumber = "\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)";
 const decimalNumber =
@@ -92,6 +114,30 @@ const tripleQuotedStringLiteral: BeginEndRule = {
   patterns: [escapeChar],
 };
 
+const punctuationComma: MatchRule = {
+  key: "punctuation-comma",
+  scope: "punctuation.comma.cadl",
+  match: ",",
+};
+
+const punctuationAccessor: MatchRule = {
+  key: "punctuation-accessor",
+  scope: "punctuation.accessor.cadl",
+  match: "\\.",
+};
+
+const punctuationSemicolon: MatchRule = {
+  key: "punctuation-semicolon",
+  scope: "punctuation.terminator.statement.cadl",
+  match: ";",
+};
+
+const operatorAssignment: MatchRule = {
+  key: "operator-assignment",
+  scope: "keyword.operator.assignment.cadl",
+  match: "=",
+};
+
 const numericLiteral: MatchRule = {
   key: "numeric-literal",
   scope: "constant.numeric.cadl",
@@ -130,8 +176,14 @@ const parenthesizedExpression: BeginEndRule = {
   key: "parenthesized-expression",
   scope: meta,
   begin: "\\(",
+  beginCaptures: {
+    "0": { scope: "punctuation.parenthesis.open.cadl" },
+  },
   end: "\\)",
-  patterns: [expression],
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.cadl" },
+  },
+  patterns: [expression, punctuationComma],
 };
 
 const decorator: BeginEndRule = {
@@ -155,8 +207,14 @@ const typeArguments: BeginEndRule = {
   key: "type-arguments",
   scope: meta,
   begin: "<",
+  beginCaptures: {
+    "0": { scope: "punctuation.definition.typeparameters.begin.cadl" },
+  },
   end: ">",
-  patterns: [expression],
+  endCaptures: {
+    "0": { scope: "punctuation.definition.typeparameters.end.cadl" },
+  },
+  patterns: [expression, punctuationComma],
 };
 
 const tupleExpression: BeginEndRule = {
@@ -170,8 +228,12 @@ const tupleExpression: BeginEndRule = {
 const typeAnnotation: BeginEndRule = {
   key: "type-annotation",
   scope: meta,
-  begin: "\\s*:",
-  end: universalEnd,
+  begin: "\\s*(\\??)\\s*(:)",
+  beginCaptures: {
+    "1": { scope: "keyword.operator.optional.cadl" },
+    "2": { scope: "keyword.operator.type.annotation.cadl" },
+  },
+  end: expressionEnd,
   patterns: [expression],
 };
 
@@ -184,13 +246,16 @@ const modelProperty: BeginEndRule = {
     "2": { scope: "string.quoted.double.cadl" },
   },
   end: universalEnd,
-  patterns: [token, typeAnnotation],
+  patterns: [token, typeAnnotation, operatorAssignment, expression],
 };
 
 const modelSpreadProperty: BeginEndRule = {
   key: "model-spread-property",
   scope: meta,
   begin: "\\.\\.\\.",
+  beginCaptures: {
+    "0": { scope: "keyword.operator.spread.cadl" },
+  },
   end: universalEnd,
   patterns: [expression],
 };
@@ -210,7 +275,13 @@ const modelExpression: BeginEndRule = {
   key: "model-expression",
   scope: meta,
   begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
   end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
   patterns: [
     // modelProperty must come before token or quoted property name will be
     // considered an arbitrarily positioned string literal and not match as part
@@ -220,6 +291,7 @@ const modelExpression: BeginEndRule = {
     directive,
     decorator,
     modelSpreadProperty,
+    punctuationSemicolon,
   ],
 };
 
@@ -231,7 +303,7 @@ const modelHeritage: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: `((?=\\{)|${universalEndExceptComma})`,
-  patterns: [expression],
+  patterns: [expression, punctuationComma],
 };
 
 const modelStatement: BeginEndRule = {
@@ -279,7 +351,7 @@ const aliasStatement: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: universalEnd,
-  patterns: [token, expression],
+  patterns: [typeArguments, operatorAssignment, expression],
 };
 
 const namespaceName: BeginEndRule = {
@@ -287,14 +359,20 @@ const namespaceName: BeginEndRule = {
   scope: meta,
   begin: beforeIdentifier,
   end: `((?=\\{)|${universalEnd})`,
-  patterns: [token, identifierExpression],
+  patterns: [identifierExpression, punctuationAccessor],
 };
 
 const namespaceBody: BeginEndRule = {
   key: "namespace-body",
   scope: meta,
   begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
   end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
   patterns: [statement],
 };
 
@@ -327,8 +405,14 @@ const operationParameters: BeginEndRule = {
   key: "operation-parameters",
   scope: meta,
   begin: "\\(",
+  beginCaptures: {
+    "0": { scope: "punctuation.parenthesis.open.cadl" },
+  },
   end: "\\)",
-  patterns: [token, decorator, modelProperty, modelSpreadProperty],
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.cadl" },
+  },
+  patterns: [token, decorator, modelProperty, modelSpreadProperty, punctuationComma],
 };
 
 const operationStatement: BeginEndRule = {
@@ -366,14 +450,20 @@ const interfaceHeritage: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: `((?=\\{)|${universalEndExceptComma})`,
-  patterns: [expression],
+  patterns: [expression, punctuationComma],
 };
 
 const interfaceBody: BeginEndRule = {
   key: "interface-body",
   scope: meta,
   begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
   end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
   patterns: [token, directive, decorator, interfaceMember],
 };
 
@@ -444,6 +534,7 @@ statement.patterns = [
   operationStatement,
   importStatement,
   usingStatement,
+  punctuationSemicolon,
 ];
 
 const grammar: Grammar = {
