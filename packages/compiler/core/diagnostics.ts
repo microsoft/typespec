@@ -1,5 +1,6 @@
 import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
+import { SymbolFlags } from "./index.js";
 import { formatLog } from "./logger.js";
 import { isSynthetic } from "./parser.js";
 import { Program } from "./program.js";
@@ -167,30 +168,27 @@ export function getSourceLocation(
     return target;
   }
 
-  if (target.kind === "using") {
-    target = target.symbolSource;
-  }
+  if (!("kind" in target)) {
+    // symbol
+    if (target.flags & SymbolFlags.Using) {
+      target = target.symbolSource!;
+    }
 
-  if (target.kind === "decorator") {
-    return createDummySourceLocation(target.path);
-  }
+    if (!target.declarations[0]) {
+      return createDummySourceLocation();
+    }
 
-  if (target.kind === "Function" || target.kind === "function" || target.kind === "Object") {
+    return getSourceLocationOfNode(target.declarations[0]);
+  } else if (typeof target.kind === "number") {
+    // node
+    return getSourceLocationOfNode(target as Node);
+  } else {
+    // type
+    if ((target as Type).node) {
+      return getSourceLocationOfNode((target as Type).node!);
+    }
     return createDummySourceLocation();
   }
-
-  const node = "node" in target ? target.node! : target;
-
-  if (
-    node.kind === "Intrinsic" ||
-    node.kind === "String" ||
-    node.kind === "Number" ||
-    node.kind === "Boolean"
-  ) {
-    return createDummySourceLocation();
-  }
-
-  return getSourceLocationOfNode(node);
 }
 
 function createDummySourceLocation(loc = "<unknown location>") {

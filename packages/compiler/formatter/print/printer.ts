@@ -697,7 +697,7 @@ export function printNamespaceStatement(
   print: PrettierChildPrint
 ) {
   const printNested = (currentPath: AstPath<NamespaceStatementNode>, parentNames: Doc[]): Doc => {
-    const names = [...parentNames, currentPath.call(print, "name")];
+    const names = [...parentNames, currentPath.call(print, "id")];
     const currentNode = currentPath.getNode();
 
     if (

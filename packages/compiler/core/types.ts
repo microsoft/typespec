@@ -258,49 +258,46 @@ export interface TemplateParameterType extends BaseType {
   node: TemplateParameterDeclarationNode;
 }
 
-export interface ProjectionSymbol {
-  kind: "projection";
+export interface Sym {
+  flags: SymbolFlags;
+
+  /**
+   * Nodes which contribute to this declaration
+   */
+  declarations: Node[];
+
+  /**
+   * The name of the symbol
+   */
   name: string;
-  node: ProjectionStatementNode;
-  byKind: Map<string, { to?: ProjectionNode; from?: ProjectionNode }>;
-  byId: Map<TypeReferenceNode, { to?: ProjectionNode; from?: ProjectionNode }>;
+
+  /**
+   * A unique identifier for this symbol. Used to look up the symbol links.
+   */
   id?: number;
-  symbolSource?: ProjectionSymbol;
-}
 
-export interface DecoratorSymbol {
-  kind: "decorator";
-  path: string;
-  name: string;
-  value: (...args: any[]) => any;
-}
+  /**
+   * The symbol containing this symbol, if any. E.g. for things declared in
+   * a namespace, this refers to the namespace.
+   */
+  parent?: Sym;
 
-export interface FunctionSymbol {
-  kind: "function";
-  name: string;
-  value: (...args: any[]) => any;
-  symbolSource?: FunctionSymbol;
-}
-export interface TypeSymbol {
-  kind: "type";
-  node: Node;
-  name: string;
-  merged?: boolean;
-  // for merged nodes, this lists all the nodes
-  // that contribute to this symbol.
-  nodes?: Node[];
-  id?: number;
-}
+  /**
+   * Externally visible symbols contained inside this symbol. E.g. all declarations
+   * in a namespace, or members of an enum.
+   */
+  exports?: SymbolTable;
 
-export interface UsingSymbol {
-  kind: "using";
-  symbolSource: ExportSymbol;
-  duplicate?: boolean;
-}
+  /**
+   * For using symbols, this is the used symbol.
+   */
+  symbolSource?: Sym;
 
-export type LocalSymbol = UsingSymbol | TypeSymbol;
-export type ExportSymbol = TypeSymbol | DecoratorSymbol | ProjectionSymbol | FunctionSymbol;
-export type Sym = LocalSymbol | ExportSymbol;
+  /**
+   * For decorator and function symbols, this is the JS function implementation.
+   */
+  value?: (...args: any[]) => any;
+}
 
 export interface SymbolLinks {
   type?: Type;
@@ -311,11 +308,38 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
-export interface SymbolTable<T extends Sym> extends Map<string, T> {
+export interface SymbolTable extends Map<string, Sym> {
   /**
    * Duplicate
    */
-  readonly duplicates: Map<T, Set<T>>;
+  readonly duplicates: Map<Sym, Set<Sym>>;
+}
+
+// prettier-ignore
+export const enum SymbolFlags {
+  None                = 0,
+  Model               = 1 << 1,
+  ModelProperty       = 1 << 2,
+  Operation           = 1 << 3,
+  Enum                = 1 << 4,
+  EnumMember          = 1 << 5,
+  Interface           = 1 << 6,
+  Union               = 1 << 7,
+  UnionVariant        = 1 << 8,
+  Alias               = 1 << 9,
+  Namespace           = 1 << 10,
+  Projection          = 1 << 11,
+  Decorator           = 1 << 12,
+  TemplateParameter   = 1 << 13,
+  ProjectionParameter = 1 << 14,
+  Function            = 1 << 15,
+  FunctionParameter   = 1 << 16,
+  Using               = 1 << 17,
+  DuplicateUsing      = 1 << 18,
+  SourceFile          = 1 << 19,
+
+
+  ExportContainer = Namespace | SourceFile
 }
 
 /**
@@ -331,6 +355,7 @@ export interface TypeInstantiationMap {
  */
 export enum SyntaxKind {
   CadlScript,
+  JsSourceFile,
   ImportStatement,
   Identifier,
   NamedImport,
@@ -399,15 +424,21 @@ export interface BaseNode extends TextRange {
   readonly kind: SyntaxKind;
   parent?: Node;
   readonly directives?: readonly DirectiveExpressionNode[];
+  /**
+   * Could be undefined but making this optional creates a lot of noise. In practice,
+   * you will likely only access symbol in cases where you know the node has a symbol.
+   */
+  symbol: Sym;
 }
 
 export interface TemplateDeclarationNode {
   readonly templateParameters: readonly TemplateParameterDeclarationNode[];
-  locals?: SymbolTable<LocalSymbol>;
+  locals?: SymbolTable;
 }
 
 export type Node =
   | CadlScriptNode
+  | JsSourceFileNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
@@ -442,7 +473,7 @@ export interface BlockComment extends TextRange {
   kind: SyntaxKind.BlockComment;
 }
 
-export interface CadlScriptNode extends ContainerNode, BaseNode {
+export interface CadlScriptNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.CadlScript;
   readonly statements: readonly Statement[];
   readonly file: SourceFile;
@@ -452,6 +483,7 @@ export interface CadlScriptNode extends ContainerNode, BaseNode {
   readonly comments: readonly Comment[];
   readonly parseDiagnostics: readonly Diagnostic[];
   readonly printable: boolean; // If this ast tree can safely be printed/formatted.
+  readonly locals: SymbolTable;
 }
 
 export type Statement =
@@ -468,9 +500,8 @@ export type Statement =
   | InvalidStatementNode
   | ProjectionStatementNode;
 
-export interface DeclarationNode<SymbolKind = TypeSymbol> {
-  readonly symbol: SymbolKind; // tracks the symbol assigned to this declaration
-  readonly namespaceSymbol?: TypeSymbol; // tracks the namespace this declaration is in
+export interface DeclarationNode {
+  id: IdentifierNode;
 }
 
 export type Declaration =
@@ -492,6 +523,7 @@ export type ScopeNode =
   | InterfaceStatementNode
   | AliasStatementNode
   | CadlScriptNode
+  | JsSourceFileNode
   | ProjectionLambdaExpressionNode
   | ProjectionNode;
 
@@ -574,16 +606,12 @@ export interface MemberExpressionNode extends BaseNode {
   readonly base: MemberExpressionNode | IdentifierNode;
 }
 
-export interface ContainerNode {
-  readonly locals?: SymbolTable<LocalSymbol>;
-  readonly exports?: SymbolTable<ExportSymbol>;
-}
-
-export interface NamespaceStatementNode extends BaseNode, DeclarationNode, ContainerNode {
+export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.NamespaceStatement;
-  readonly name: IdentifierNode;
+  readonly id: IdentifierNode;
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
   readonly decorators: DecoratorExpressionNode[];
+  readonly locals?: SymbolTable;
 }
 
 export interface UsingStatementNode extends BaseNode {
@@ -593,7 +621,6 @@ export interface UsingStatementNode extends BaseNode {
 
 export interface OperationStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.OperationStatement;
-  readonly id: IdentifierNode;
   readonly parameters: ModelExpressionNode;
   readonly returnType: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -601,7 +628,6 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode {
 
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ModelStatement;
-  readonly id: IdentifierNode;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
   readonly extends?: TypeReferenceNode;
   readonly is?: TypeReferenceNode;
@@ -610,7 +636,6 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.InterfaceStatement;
-  readonly id: IdentifierNode;
   readonly operations: readonly OperationStatementNode[];
   readonly mixes: readonly TypeReferenceNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -618,7 +643,6 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
 
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionStatement;
-  readonly id: IdentifierNode;
   readonly options: readonly UnionVariantNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
 }
@@ -632,7 +656,6 @@ export interface UnionVariantNode extends BaseNode {
 
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
-  readonly id: IdentifierNode;
   readonly members: readonly EnumMemberNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
 }
@@ -646,7 +669,6 @@ export interface EnumMemberNode extends BaseNode {
 
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.AliasStatement;
-  readonly id: IdentifierNode;
   readonly value: Expression;
 }
 
@@ -738,11 +760,9 @@ export interface ProjectionReferenceNode extends BaseNode {
   readonly arguments: readonly Expression[];
 }
 
-export interface TemplateParameterDeclarationNode extends BaseNode {
+export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
-  readonly id: IdentifierNode;
   readonly default?: Expression;
-  symbol?: TypeSymbol;
 }
 
 // Projection-related Syntax
@@ -769,10 +789,8 @@ export interface ProjectionEnumSelectorNode extends BaseNode {
 
 export type ProjectionStatementItem = ProjectionExpressionStatement;
 
-export interface ProjectionParameterDeclarationNode extends BaseNode {
+export interface ProjectionParameterDeclarationNode extends DeclarationNode, BaseNode {
   kind: SyntaxKind.ProjectionParameterDeclaration;
-  id: IdentifierNode;
-  symbol?: TypeSymbol;
 }
 
 export interface ProjectionExpressionStatement extends BaseNode {
@@ -867,14 +885,12 @@ export interface ProjectionBlockExpressionNode extends BaseNode {
 export interface ProjectionLambdaExpressionNode extends BaseNode {
   kind: SyntaxKind.ProjectionLambdaExpression;
   parameters: ProjectionLambdaParameterDeclarationNode[];
-  locals?: SymbolTable<LocalSymbol>;
+  locals?: SymbolTable;
   body: ProjectionBlockExpressionNode;
 }
 
-export interface ProjectionLambdaParameterDeclarationNode extends BaseNode {
+export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNode, BaseNode {
   kind: SyntaxKind.ProjectionLambdaParameterDeclaration;
-  id: IdentifierNode;
-  symbol?: TypeSymbol;
 }
 
 export interface ProjectionNode extends BaseNode {
@@ -882,12 +898,11 @@ export interface ProjectionNode extends BaseNode {
   direction: "to" | "from";
   parameters: ProjectionParameterDeclarationNode[];
   body: ProjectionStatementItem[];
-  locals?: SymbolTable<LocalSymbol>;
+  locals?: SymbolTable;
 }
 
-export interface ProjectionStatementNode extends BaseNode, DeclarationNode<ProjectionSymbol> {
+export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
   kind: SyntaxKind.ProjectionStatement;
-  id: IdentifierNode;
   selector:
     | ProjectionModelSelectorNode
     | ProjectionInterfaceSelectorNode
@@ -905,38 +920,6 @@ export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
   target: MemberExpressionNode | IdentifierNode;
 }
 
-export interface ProjectionInstructionBase {
-  op: string;
-}
-
-export interface ProjectionRenamePropertyInstruction extends ProjectionInstructionBase {
-  op: "renameProperty";
-  from: string;
-  to: string;
-}
-
-export interface ProjectionDeletePropertyInstruction extends ProjectionInstructionBase {
-  op: "deleteProperty";
-  name: string;
-}
-
-export interface ProjectionAddPropertyInstruction extends ProjectionInstructionBase {
-  op: "addProperty";
-  name: string;
-  type: Type;
-}
-
-export interface ProjectionProjectPropertyInstruction extends ProjectionInstructionBase {
-  op: "projectProperty";
-  name: string;
-  ops: ProjectionInstruction[];
-}
-
-export type ProjectionInstruction =
-  | ProjectionRenamePropertyInstruction
-  | ProjectionDeletePropertyInstruction
-  | ProjectionAddPropertyInstruction
-  | ProjectionProjectPropertyInstruction;
 /**
  * Identifies the position within a source file by line number and offset from
  * beginning of line.
@@ -958,8 +941,8 @@ export interface LineAndCharacter {
   character: number;
 }
 
-export interface JsSourceFile {
-  readonly kind: "JsSourceFile";
+export interface JsSourceFileNode extends DeclarationNode, BaseNode {
+  readonly kind: SyntaxKind.JsSourceFile;
 
   /* A source file with empty contents to represent the file on disk. */
   readonly file: SourceFile;
@@ -967,11 +950,8 @@ export interface JsSourceFile {
   /* The exports object as comes from `import()` */
   readonly esmExports: any;
 
-  /* Exported "global scope" bindings */
-  exports?: SymbolTable<DecoratorSymbol | FunctionSymbol>;
-
   /* Any namespaces declared by decorators. */
-  readonly namespaces: readonly NamespaceStatementNode[];
+  readonly namespaceSymbols: Sym[];
 }
 
 export type EmitterOptions = { name?: string } & Record<string, any>;

@@ -1,19 +1,12 @@
-import { compilerAssert } from "./diagnostics.js";
-import { NodeFlags, visitChildren } from "./parser.js";
+import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
   CadlScriptNode,
-  ContainerNode,
   Declaration,
-  DecoratorSymbol,
   EnumStatementNode,
-  ExportSymbol,
-  FunctionSymbol,
-  IdentifierNode,
   InterfaceStatementNode,
-  JsSourceFile,
-  LocalSymbol,
+  JsSourceFileNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
@@ -23,13 +16,12 @@ import {
   ProjectionNode,
   ProjectionParameterDeclarationNode,
   ProjectionStatementNode,
-  ProjectionSymbol,
   ScopeNode,
   Sym,
+  SymbolFlags,
   SymbolTable,
   SyntaxKind,
   TemplateParameterDeclarationNode,
-  TypeSymbol,
   UnionStatementNode,
   UsingStatementNode,
   Writable,
@@ -39,17 +31,17 @@ import {
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
 
-const SymbolTable = class<T extends Sym> extends Map<string, T> implements SymbolTable<T> {
-  duplicates = new Map<T, Set<T>>();
+const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
+  duplicates = new Map<Sym, Set<Sym>>();
 
   // First set for a given key wins, but record all duplicates for diagnostics.
-  set(key: string, value: T) {
+  set(key: string, value: Sym) {
     const existing = super.get(key);
     if (existing === undefined) {
       super.set(key, value);
     } else {
-      if (existing.kind === "using") {
-        existing.duplicate = true;
+      if (existing.flags & SymbolFlags.Using) {
+        existing.flags |= SymbolFlags.DuplicateUsing;
       }
 
       const duplicateArray = this.duplicates.get(existing);
@@ -65,12 +57,12 @@ const SymbolTable = class<T extends Sym> extends Map<string, T> implements Symbo
 
 export interface Binder {
   bindSourceFile(sourceFile: CadlScriptNode): void;
-  bindJsSourceFile(sourceFile: JsSourceFile): void;
+  bindJsSourceFile(sourceFile: JsSourceFileNode): void;
   bindNode(node: Node): void;
 }
 
-export function createSymbolTable<T extends Sym>(): SymbolTable<T> {
-  return new SymbolTable<T>();
+export function createSymbolTable(): SymbolTable {
+  return new SymbolTable();
 }
 
 export interface BinderOptions {
@@ -82,12 +74,12 @@ export interface BinderOptions {
 export function createBinder(program: Program, options: BinderOptions = {}): Binder {
   let currentFile: CadlScriptNode;
   let parentNode: Node | undefined = options?.initialParentNode;
-  let fileNamespace: NamespaceStatementNode | CadlScriptNode;
-  let currentNamespace: ContainerNode;
-  let isJsFile = false;
+  let fileNamespace: NamespaceStatementNode | undefined;
+  let scope: ScopeNode;
 
-  // Node where locals go.
-  let scope: ScopeNode | JsSourceFile;
+  // tracks which selectors were used with which projection symbols
+  // for reporting duplicates
+  const projectionSymbolSelectors = new Map<Sym, Set<string>>();
 
   return {
     bindSourceFile,
@@ -103,14 +95,15 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     return name.replace(DecoratorFunctionPattern, "");
   }
 
-  function bindJsSourceFile(sourceFile: JsSourceFile) {
-    sourceFile.exports = createSymbolTable();
-    isJsFile = true;
+  function bindJsSourceFile(sourceFile: Writable<JsSourceFileNode>) {
+    fileNamespace = undefined;
+    sourceFile.symbol = createSymbol(sourceFile, sourceFile.file.path, SymbolFlags.SourceFile);
     const rootNs = sourceFile.esmExports["namespace"];
-    const namespaces = new Set<NamespaceStatementNode>();
+
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
       let name: string;
       let kind: "decorator" | "function";
+      let containerSymbol = sourceFile.symbol;
 
       if (typeof member === "function") {
         // lots of 'any' casts here because control flow narrowing `member` to Function
@@ -140,51 +133,45 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           nsParts.push(...memberNs.split("."));
         }
 
-        scope = sourceFile;
         for (const part of nsParts) {
-          const existingBinding = scope.exports!.get(part);
-          if (
-            existingBinding &&
-            existingBinding.kind === "type" &&
-            namespaces.has(existingBinding.node as NamespaceStatementNode)
-          ) {
-            // since the namespace was "declared" as part of this source file,
-            // we can simply re-use it.
-            scope = existingBinding.node as NamespaceStatementNode;
-          } else {
-            // need to synthesize a namespace declaration node
-            // consider creating a "synthetic" node flag if necessary
-            const nsNode = createSyntheticNamespace(part);
-
-            if (existingBinding && existingBinding.kind === "type") {
-              nsNode.symbol = existingBinding;
-              nsNode.exports = (existingBinding.node as NamespaceStatementNode).exports;
+          const existingBinding = containerSymbol.exports!.get(part);
+          if (existingBinding) {
+            if (existingBinding.flags && SymbolFlags.Namespace) {
+              // since the namespace was "declared" as part of this source file,
+              // we can simply re-use it.
+              containerSymbol = existingBinding;
             } else {
-              declareSymbol(scope.exports!, nsNode, part);
+              // we have some conflict, lets report a duplicate binding error.
+              containerSymbol.exports!.set(
+                part,
+                createSymbol(sourceFile, part, SymbolFlags.Namespace, containerSymbol)
+              );
             }
-
-            namespaces.add(nsNode);
-            scope = nsNode;
+          } else {
+            const sym = createSymbol(sourceFile, part, SymbolFlags.Namespace, containerSymbol);
+            sym.exports = createSymbolTable();
+            containerSymbol.exports!.set(part, sym);
+            containerSymbol = sym;
           }
         }
         let sym;
         if (kind === "decorator") {
-          sym = createDecoratorSymbol(name, sourceFile.file.path, member);
+          sym = createSymbol(sourceFile, "@" + name, SymbolFlags.Decorator, containerSymbol);
         } else {
-          sym = createFunctionSymbol(name, member as any);
+          sym = createSymbol(sourceFile, name, SymbolFlags.Function, containerSymbol);
         }
-        scope.exports!.set(sym.name, sym);
+        sym.value = member as any;
+        containerSymbol.exports!.set(sym.name, sym);
       }
     }
-
-    (sourceFile as any).namespaces = Array.from(namespaces);
   }
 
   function bindSourceFile(sourceFile: Writable<CadlScriptNode>) {
-    isJsFile = false;
-    sourceFile.exports = createSymbolTable();
-    fileNamespace = currentFile = sourceFile;
-    currentNamespace = scope = fileNamespace;
+    sourceFile.symbol = createSymbol(sourceFile, sourceFile.file.path, SymbolFlags.SourceFile);
+    sourceFile.symbol.exports = createSymbolTable();
+    fileNamespace = undefined;
+    currentFile = sourceFile;
+    scope = sourceFile;
     bindNode(sourceFile);
   }
 
@@ -243,39 +230,20 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
     if (hasScope(node)) {
       const prevScope = scope;
-      const prevNamespace = currentNamespace;
       scope = node;
-      if (node.kind === SyntaxKind.NamespaceStatement) {
-        currentNamespace = node;
-      }
-
       visitChildren(node, bindNode);
 
-      if (node.kind !== SyntaxKind.NamespaceStatement && node.locals) {
-        program.reportDuplicateSymbols(node.locals!);
+      if ("locals" in node) {
+        program.reportDuplicateSymbols(node.locals);
       }
 
       scope = prevScope;
-      currentNamespace = prevNamespace;
     } else {
       visitChildren(node, bindNode);
     }
 
     // restore parent node
     parentNode = prevParent;
-  }
-
-  function getContainingSymbolTable() {
-    switch (scope.kind) {
-      case SyntaxKind.NamespaceStatement:
-        return scope.exports!;
-      case SyntaxKind.CadlScript:
-        return fileNamespace.exports!;
-      case "JsSourceFile":
-        return scope.exports!;
-      default:
-        return scope.locals!;
-    }
   }
 
   function bindProjection(node: ProjectionNode) {
@@ -298,29 +266,21 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
    */
   function bindProjectionStatement(node: Writable<ProjectionStatementNode>) {
     const name = node.id.sv;
-    const table: SymbolTable<Sym> = getContainingSymbolTable();
-    let sym;
+    const table: SymbolTable = (scope as NamespaceStatementNode | CadlScriptNode).symbol.exports!;
+    let sym: Sym;
     if (table.has(name)) {
       sym = table.get(name)!;
-      if (sym.kind !== "projection") {
+      if (!(sym.flags & SymbolFlags.Projection)) {
         // clashing with some other decl, report duplicate symbol
-        declareSymbol(getContainingSymbolTable(), node, name);
+        declareSymbol(node, SymbolFlags.Projection);
         return;
       }
+      sym.declarations.push(node);
     } else {
-      sym = {
-        kind: "projection",
-        name,
-        node: node,
-        byId: new Map(),
-        byKind: new Map(),
-      } as ProjectionSymbol;
+      sym = createSymbol(node, name, SymbolFlags.Projection, scope.symbol);
       table.set(name, sym);
     }
 
-    if (fileNamespace.kind !== SyntaxKind.CadlScript) {
-      node.namespaceSymbol = fileNamespace.symbol;
-    }
     node.symbol = sym;
 
     if (
@@ -337,25 +297,29 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
           : node.selector.kind === SyntaxKind.ProjectionEnumSelector
           ? "enum"
           : "interface";
-
-      if (sym.byKind.has(selectorString)) {
+      let existingSelectors = projectionSymbolSelectors.get(sym);
+      if (!existingSelectors) {
+        existingSelectors = new Set();
+        projectionSymbolSelectors.set(sym, existingSelectors);
+      }
+      if (existingSelectors.has(selectorString)) {
         // clashing with a like-named decl with this selector, so throw.
-        declareSymbol(getContainingSymbolTable(), node, name);
+        declareSymbol(node, SymbolFlags.Projection);
         return;
       }
 
-      sym.byKind.set(selectorString, { to: node.to, from: node.from });
+      existingSelectors.add(selectorString);
     }
   }
 
   function bindProjectionParameterDeclaration(node: ProjectionParameterDeclarationNode) {
-    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    declareSymbol(node, SymbolFlags.ProjectionParameter);
   }
 
   function bindProjectionLambdaParameterDeclaration(
     node: ProjectionLambdaParameterDeclarationNode
   ) {
-    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    declareSymbol(node, SymbolFlags.FunctionParameter);
   }
 
   function bindProjectionLambdaExpression(node: ProjectionLambdaExpressionNode) {
@@ -363,64 +327,52 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   }
 
   function bindTemplateParameterDeclaration(node: TemplateParameterDeclarationNode) {
-    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    declareSymbol(node, SymbolFlags.TemplateParameter);
   }
 
   function bindModelStatement(node: ModelStatementNode) {
-    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    declareSymbol(node, SymbolFlags.Model);
     // Initialize locals for type parameters
-    node.locals = new SymbolTable<LocalSymbol>();
+    node.locals = new SymbolTable();
   }
 
   function bindInterfaceStatement(node: InterfaceStatementNode) {
-    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
-    node.locals = new SymbolTable<LocalSymbol>();
+    declareSymbol(node, SymbolFlags.Interface);
+    node.locals = new SymbolTable();
   }
 
   function bindUnionStatement(node: UnionStatementNode) {
-    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
-    node.locals = new SymbolTable<LocalSymbol>();
+    declareSymbol(node, SymbolFlags.Union);
+    node.locals = new SymbolTable();
   }
 
   function bindAliasStatement(node: AliasStatementNode) {
-    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    declareSymbol(node, SymbolFlags.Alias);
     // Initialize locals for type parameters
-    node.locals = new SymbolTable<LocalSymbol>();
+    node.locals = new SymbolTable();
   }
 
   function bindEnumStatement(node: EnumStatementNode) {
-    declareSymbol(getContainingSymbolTable(), node, node.id.sv);
+    declareSymbol(node, SymbolFlags.Enum);
   }
 
   function bindNamespaceStatement(statement: Writable<NamespaceStatementNode>) {
     // check if there's an existing symbol for this namespace
-    const existingBinding = currentNamespace.exports!.get(statement.name.sv);
-    if (existingBinding && existingBinding.kind === "type") {
+    const existingBinding = (scope as NamespaceStatementNode).symbol.exports!.get(statement.id.sv);
+    if (existingBinding && existingBinding.flags & SymbolFlags.Namespace) {
       statement.symbol = existingBinding;
       // locals are never shared.
       statement.locals = createSymbolTable();
-
-      // todo: don't merge exports
-      statement.exports = (existingBinding.node as NamespaceStatementNode).exports;
-      if (!existingBinding.merged) {
-        existingBinding.merged = true;
-        existingBinding.nodes = [existingBinding.node];
-      }
-      existingBinding.nodes?.push(statement);
+      existingBinding.declarations.push(statement);
     } else {
-      declareSymbol(getContainingSymbolTable(), statement, statement.name.sv);
-
       // Initialize locals for non-exported symbols
       statement.locals = createSymbolTable();
-
-      // initialize exports for exported symbols
-      statement.exports = new SymbolTable<ExportSymbol>();
+      declareSymbol(statement, SymbolFlags.Namespace);
     }
 
     currentFile.namespaces.push(statement);
 
     if (statement.statements === undefined) {
-      scope = currentNamespace = statement;
       fileNamespace = statement;
       let current: CadlScriptNode | NamespaceStatementNode = statement;
       while (current.kind !== SyntaxKind.CadlScript) {
@@ -436,39 +388,36 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
 
   function bindOperationStatement(statement: OperationStatementNode) {
     if (scope.kind !== SyntaxKind.InterfaceStatement) {
-      declareSymbol(getContainingSymbolTable(), statement, statement.id.sv);
+      declareSymbol(statement, SymbolFlags.Operation);
     }
   }
 
-  function declareSymbol(table: SymbolTable<Sym>, node: Writable<Declaration>, name: string) {
-    compilerAssert(table, "Attempted to declare symbol on non-existent table");
-    const symbol = createTypeSymbol(node, name);
-    node.symbol = symbol;
-
-    if (scope.kind === SyntaxKind.NamespaceStatement) {
-      compilerAssert(
-        node.kind !== SyntaxKind.TemplateParameterDeclaration &&
-          node.kind !== SyntaxKind.ProjectionParameterDeclaration &&
-          node.kind !== SyntaxKind.ProjectionLambdaParameterDeclaration,
-        "Attempted to declare parameter in namespace",
-        node
-      );
-      node.namespaceSymbol = scope.symbol;
-    } else if (scope.kind === SyntaxKind.CadlScript) {
-      compilerAssert(
-        node.kind !== SyntaxKind.TemplateParameterDeclaration &&
-          node.kind !== SyntaxKind.ProjectionParameterDeclaration &&
-          node.kind !== SyntaxKind.ProjectionLambdaParameterDeclaration,
-        "Attempted to declare parameter in global scope",
-        node
-      );
-
-      if (fileNamespace.kind !== SyntaxKind.CadlScript) {
-        node.namespaceSymbol = fileNamespace.symbol;
-      }
+  function declareSymbol(node: Writable<Declaration>, flags: SymbolFlags) {
+    switch (scope.kind) {
+      case SyntaxKind.NamespaceStatement:
+        return declareNamespaceMember(node, flags);
+        break;
+      case SyntaxKind.CadlScript:
+      case SyntaxKind.JsSourceFile:
+        return declareScriptMember(node, flags);
+      default:
+        const symbol = createSymbol(node, node.id.sv, flags, scope.symbol);
+        node.symbol = symbol;
+        scope.locals!.set(node.id.sv, symbol);
+        return symbol.declarations;
     }
+  }
 
-    table.set(name, symbol);
+  function declareNamespaceMember(node: Declaration, flags: SymbolFlags) {
+    const symbol = createSymbol(node, node.id.sv, flags, scope.symbol);
+    node.symbol = symbol;
+    (scope as NamespaceStatementNode).symbol.exports!.set(node.id.sv, symbol);
+  }
+
+  function declareScriptMember(node: Declaration, flags: SymbolFlags) {
+    const symbol = createSymbol(node, node.id.sv, flags, fileNamespace?.symbol);
+    node.symbol = symbol;
+    (fileNamespace || scope).symbol.exports!.set(node.id.sv, symbol);
   }
 }
 
@@ -476,68 +425,36 @@ function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
     case SyntaxKind.AliasStatement:
+    case SyntaxKind.CadlScript:
+    case SyntaxKind.InterfaceStatement:
+    case SyntaxKind.UnionStatement:
+    case SyntaxKind.Projection:
+    case SyntaxKind.ProjectionLambdaExpression:
       return true;
     case SyntaxKind.NamespaceStatement:
       return node.statements !== undefined;
-    case SyntaxKind.CadlScript:
-      return true;
-    case SyntaxKind.InterfaceStatement:
-      return true;
-    case SyntaxKind.UnionStatement:
-      return true;
-    case SyntaxKind.Projection:
-      return true;
-    case SyntaxKind.ProjectionLambdaExpression:
-      return true;
     default:
       return false;
   }
 }
 
-function createTypeSymbol(node: Node, name: string): TypeSymbol {
+export function createSymbol(
+  node: Node,
+  name: string,
+  flags: SymbolFlags,
+  parent?: Sym,
+  value?: any
+): Sym {
+  let exports: SymbolTable | undefined;
+  if (flags & SymbolFlags.ExportContainer) {
+    exports = createSymbolTable();
+  }
   return {
-    kind: "type",
-    node,
+    declarations: [node],
     name,
-  };
-}
-
-function createDecoratorSymbol(name: string, path: string, value: any): DecoratorSymbol {
-  return {
-    kind: "decorator",
-    name: `@` + name,
-    path,
+    exports,
+    flags,
     value,
-  };
-}
-
-function createFunctionSymbol(name: string, value: (...args: any[]) => any): FunctionSymbol {
-  return {
-    kind: "function",
-    name,
-    value,
-  };
-}
-
-function createSyntheticNamespace(
-  name: string
-): Writable<NamespaceStatementNode & { flags: NodeFlags }> {
-  const nsId: IdentifierNode = {
-    kind: SyntaxKind.Identifier,
-    pos: 0,
-    end: 0,
-    sv: name,
-  };
-
-  return {
-    kind: SyntaxKind.NamespaceStatement,
-    decorators: [],
-    pos: 0,
-    end: 0,
-    name: nsId,
-    symbol: undefined as any,
-    locals: createSymbolTable(),
-    exports: createSymbolTable(),
-    flags: NodeFlags.Synthetic,
+    parent,
   };
 }
