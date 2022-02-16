@@ -33,7 +33,7 @@ function setTemplatedStringProperty(
 ) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
 
-  if (!validateDecoratorParamType(program, target, text, "string")) {
+  if (!validateDecoratorParamType(program, target, text, "String")) {
     return;
   }
 
@@ -527,7 +527,7 @@ export function $friendlyName(
   sourceObject: Type | undefined
 ) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
-  if (!validateDecoratorParamType(program, target, friendlyName, "string")) {
+  if (!validateDecoratorParamType(program, target, friendlyName, "String")) {
     return;
   }
 

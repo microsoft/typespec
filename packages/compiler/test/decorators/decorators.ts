@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { getDoc, getFriendlyName, isErrorModel } from "../../lib/decorators.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: built-in decorators", () => {
   let testHost: TestHost;
@@ -56,14 +56,12 @@ describe("compiler: built-in decorators", () => {
       `
       );
 
-      const [_, diagnostics] = await testHost.compileAndDiagnose("./");
+      const diagnostics = await testHost.diagnose("./");
 
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "invalid-argument");
-      strictEqual(
-        diagnostics[0].message,
-        `Argument 'foo | bar' of type 'object' is not assignable to parameter of type 'string'`
-      );
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument 'foo | bar' of type 'Union' is not assignable to parameter of type 'String'`,
+      });
     });
   });
 
