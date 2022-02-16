@@ -52,6 +52,11 @@ const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${statementKeyword})`;
 const universalEndExceptComma = `(?=;|@|\\)|\\}|${statementKeyword})`;
+
+/**
+ * Universal end with extra end char: `=`
+ */
+const expressionEnd = `(?=,|;|@|\\)|\\}|=|${statementKeyword})`;
 const hexNumber = "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)";
 const binaryNumber = "\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)";
 const decimalNumber =
@@ -228,7 +233,7 @@ const typeAnnotation: BeginEndRule = {
     "1": { scope: "keyword.operator.optional.cadl" },
     "2": { scope: "keyword.operator.type.annotation.cadl" },
   },
-  end: universalEnd,
+  end: expressionEnd,
   patterns: [expression],
 };
 
@@ -241,7 +246,7 @@ const modelProperty: BeginEndRule = {
     "2": { scope: "string.quoted.double.cadl" },
   },
   end: universalEnd,
-  patterns: [token, typeAnnotation],
+  patterns: [token, typeAnnotation, operatorAssignment, expression],
 };
 
 const modelSpreadProperty: BeginEndRule = {

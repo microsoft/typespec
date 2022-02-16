@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { Token, tokenize } from "./utils";
 
-describe.only("vscode: tmlanguage: alias", () => {
+describe("vscode: tmlanguage: alias", () => {
   it("simple alias", async () => {
     const tokens = await tokenize("alias Foo = string");
     deepStrictEqual(tokens, [
