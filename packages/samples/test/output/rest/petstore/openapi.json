@@ -380,7 +380,7 @@
         "description": "Gets an instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/PetStore.Pet.petId"
+            "$ref": "#/components/parameters/Pet.petId"
           },
           {
             "$ref": "#/components/parameters/Toy.toyId"
@@ -415,7 +415,7 @@
         "operationId": "Toys_list",
         "parameters": [
           {
-            "$ref": "#/components/parameters/PetStore.Pet.petId"
+            "$ref": "#/components/parameters/Pet.petId"
           },
           {
             "name": "nameFilter",
@@ -456,7 +456,7 @@
         "description": "Gets the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/PetStore.Pet.petId"
+            "$ref": "#/components/parameters/Pet.petId"
           },
           {
             "$ref": "#/components/parameters/Toy.toyId"
@@ -490,7 +490,7 @@
         "description": "Updates the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/PetStore.Pet.petId"
+            "$ref": "#/components/parameters/Pet.petId"
           },
           {
             "$ref": "#/components/parameters/Toy.toyId"
@@ -998,15 +998,6 @@
       },
       "Checkup.checkupId": {
         "name": "checkupId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "integer",
-          "format": "int32"
-        }
-      },
-      "PetStore.Pet.petId": {
-        "name": "petId",
         "in": "path",
         "required": true,
         "schema": {
