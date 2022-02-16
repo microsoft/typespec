@@ -26,6 +26,7 @@ export type CadlScope =
   | "variable.name.cadl"
   // Operators
   | "keyword.operator.type.annotation.cadl"
+  | "keyword.operator.assignment.cadl"
   | "keyword.operator.optional.cadl"
   | "keyword.operator.spread.cadl"
   // Punctuation
@@ -113,6 +114,7 @@ const punctuationComma: MatchRule = {
   scope: "punctuation.comma.cadl",
   match: ",",
 };
+
 const punctuationAccessor: MatchRule = {
   key: "punctuation-accessor",
   scope: "punctuation.accessor.cadl",
@@ -123,6 +125,12 @@ const punctuationSemicolon: MatchRule = {
   key: "punctuation-semicolon",
   scope: "punctuation.terminator.statement.cadl",
   match: ";",
+};
+
+const operatorAssignment: MatchRule = {
+  key: "operator-assignment",
+  scope: "keyword.operator.assignment.cadl",
+  match: "=",
 };
 
 const numericLiteral: MatchRule = {
@@ -338,7 +346,7 @@ const aliasStatement: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: universalEnd,
-  patterns: [token, expression],
+  patterns: [typeArguments, operatorAssignment, expression],
 };
 
 const namespaceName: BeginEndRule = {

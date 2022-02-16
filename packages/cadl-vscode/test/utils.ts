@@ -116,6 +116,7 @@ export const Token = {
     operation: createToken("op", "keyword.other.cadl"),
     namespace: createToken("namespace", "keyword.other.cadl"),
     interface: createToken("interface", "keyword.other.cadl"),
+    alias: createToken("alias", "keyword.other.cadl"),
     extends: createToken("extends", "keyword.other.cadl"),
     is: createToken("is", "keyword.other.cadl"),
     mixes: createToken("mixes", "keyword.other.cadl"),
@@ -129,6 +130,7 @@ export const Token = {
   },
 
   operators: {
+    assignement: createToken("=", "keyword.operator.assignment.cadl"),
     optional: createToken("?", "keyword.operator.optional.cadl"),
     typeAnnotation: createToken(":", "keyword.operator.type.annotation.cadl"),
     spread: createToken("...", "keyword.operator.spread.cadl"),
