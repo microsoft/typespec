@@ -357,6 +357,7 @@
         "description": "The name of the shelf to retrieve.",
         "schema": {
           "type": "string",
+          "description": "The name of the shelf to retrieve.",
           "pattern": "shelves/\\w+"
         }
       },
@@ -376,7 +377,8 @@
         "required": false,
         "description": "A token identifying a page of results the server should return.\nTypically, this is the value of\n[ListShelvesResponse.next_page_token][google.example.library.v1.ListShelvesResponse.next_page_token]\nreturned from the previous call to `ListShelves` method.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "description": "A token identifying a page of results the server should return.\nTypically, this is the value of\n[ListShelvesResponse.next_page_token][google.example.library.v1.ListShelvesResponse.next_page_token]\nreturned from the previous call to `ListShelves` method."
         }
       },
       "DeleteShelfRequest": {
@@ -386,6 +388,7 @@
         "description": "The name of the shelf to delete.",
         "schema": {
           "type": "string",
+          "description": "The name of the shelf to delete.",
           "pattern": "shelves/\\w+"
         }
       },
@@ -396,6 +399,7 @@
         "description": "The name of the shelf we're adding books to.",
         "schema": {
           "type": "string",
+          "description": "The name of the shelf we're adding books to.",
           "pattern": "shelves/\\w+"
         }
       },
@@ -406,6 +410,7 @@
         "description": "The name of the shelf in which the book is created.",
         "schema": {
           "type": "string",
+          "description": "The name of the shelf in which the book is created.",
           "pattern": "shelves/\\w+"
         }
       },
@@ -416,6 +421,7 @@
         "description": "The name of the book to retrieve.",
         "schema": {
           "type": "string",
+          "description": "The name of the book to retrieve.",
           "pattern": "shelves/\\w+/books/\\w+"
         }
       },
@@ -426,6 +432,7 @@
         "description": "The name of the shelf whose books we'd like to list.",
         "schema": {
           "type": "string",
+          "description": "The name of the shelf whose books we'd like to list.",
           "pattern": "shelves/\\w+"
         }
       },
@@ -436,6 +443,7 @@
         "description": "The name of the book to delete.",
         "schema": {
           "type": "string",
+          "description": "The name of the book to delete.",
           "pattern": "shelves/\\w+/books/\\w+"
         }
       }
@@ -501,6 +509,7 @@
       },
       "shelf_name": {
         "type": "string",
+        "description": "The name of a shelf.\nShelf names have the form `shelves/{shelf_id}`.",
         "pattern": "shelves/\\w+"
       },
       "Book": {
@@ -562,6 +571,7 @@
       },
       "book_name": {
         "type": "string",
+        "description": "The name of a book.\nBook names have the form `shelves/{shelf_id}/books/{book_id}`",
         "pattern": "shelves/\\w+/books/\\w+"
       }
     }
