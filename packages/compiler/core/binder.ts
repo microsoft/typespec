@@ -136,7 +136,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         for (const part of nsParts) {
           const existingBinding = containerSymbol.exports!.get(part);
           if (existingBinding) {
-            if (existingBinding.flags && SymbolFlags.Namespace) {
+            if (existingBinding.flags & SymbolFlags.Namespace) {
               // since the namespace was "declared" as part of this source file,
               // we can simply re-use it.
               containerSymbol = existingBinding;
