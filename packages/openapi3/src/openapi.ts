@@ -794,8 +794,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function getParameterKey(property: ModelTypeProperty, param: any) {
     const parent = program.checker!.getTypeForNode(property.node.parent!) as ModelType;
     let key = program.checker!.getTypeName(parent);
+    let isQualifiedParamName = false;
+
     if (parent.properties.size > 1) {
       key += `.${property.name}`;
+      isQualifiedParamName = true;
     }
 
     // Try to shorten the type name to exclude the top-level service namespace
@@ -804,7 +807,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       baseKey = key.substring(serviceNamespace.length + 1);
 
       // If no parameter exists with the shortened name, use it, otherwise use the fully-qualified name
-      if (root.components.parameters[baseKey] === undefined) {
+      if (!root.components.parameters[baseKey] || isQualifiedParamName) {
         key = baseKey;
       }
     }
@@ -1231,62 +1234,52 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function applyIntrinsicDecorators(cadlType: Type, target: any): any {
+    const newTarget = { ...target };
+    const docStr = getDoc(program, cadlType);
+    if (isStringType(program, cadlType) && !target.documentation && docStr) {
+      newTarget.description = docStr;
+    }
+
+    const summaryStr = getSummary(program, cadlType);
+    if (isStringType(program, cadlType) && !target.summary && summaryStr) {
+      newTarget.summary = summaryStr;
+    }
+
     const formatStr = getFormat(program, cadlType);
     if (isStringType(program, cadlType) && !target.format && formatStr) {
-      target = {
-        ...target,
-        format: formatStr,
-      };
+      newTarget.format = formatStr;
     }
 
     const pattern = getPattern(program, cadlType);
     if (isStringType(program, cadlType) && !target.pattern && pattern) {
-      target = {
-        ...target,
-        pattern,
-      };
+      newTarget.pattern = pattern;
     }
 
     const minLength = getMinLength(program, cadlType);
     if (isStringType(program, cadlType) && !target.minLength && minLength !== undefined) {
-      target = {
-        ...target,
-        minLength,
-      };
+      newTarget.minLength = minLength;
     }
 
     const maxLength = getMaxLength(program, cadlType);
     if (isStringType(program, cadlType) && !target.maxLength && maxLength !== undefined) {
-      target = {
-        ...target,
-        maxLength,
-      };
+      newTarget.maxLength = maxLength;
     }
 
     const minValue = getMinValue(program, cadlType);
     if (isNumericType(program, cadlType) && !target.minimum && minValue !== undefined) {
-      target = {
-        ...target,
-        minimum: minValue,
-      };
+      newTarget.minimum = minValue;
     }
 
     const maxValue = getMaxValue(program, cadlType);
     if (isNumericType(program, cadlType) && !target.maximum && maxValue !== undefined) {
-      target = {
-        ...target,
-        maximum: maxValue,
-      };
+      newTarget.maximum = maxValue;
     }
 
     if (isSecret(program, cadlType)) {
-      target = {
-        ...target,
-        format: "password",
-      };
+      newTarget.format = "password";
     }
 
-    return target;
+    return newTarget;
   }
 
   // Map an Cadl type to an OA schema. Returns undefined when the resulting

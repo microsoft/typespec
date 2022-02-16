@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi3",
-      "comment": "Add validation to oneOf decorator",
+      "comment": "@doc and @summary will set the description and summary on extended primitive types",
       "type": "minor"
     }
   ],

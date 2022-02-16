@@ -85,6 +85,7 @@
         "description": "Name parameter",
         "schema": {
           "type": "string",
+          "description": "Name parameter",
           "format": "UUID",
           "pattern": "^[a-zA-Z0-9-]{3,24}$"
         }

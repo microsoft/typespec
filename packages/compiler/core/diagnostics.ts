@@ -232,14 +232,14 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
  * instead of producing the message then passing it here only to be dropped
  * when verbose output is disabled.
  */
-export function logVerboseTestOutput(messageOrCallback: string | ((log: LogSink) => void)) {
+export function logVerboseTestOutput(
+  messageOrCallback: string | ((log: (message: string) => void) => void)
+) {
   if (process.env.CADL_VERBOSE_TEST_OUTPUT) {
     if (typeof messageOrCallback === "string") {
       console.log(messageOrCallback);
     } else {
-      messageOrCallback({
-        log: ({ message }) => console.log(message),
-      });
+      messageOrCallback(console.log);
     }
   }
 }

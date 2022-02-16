@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi3",
-      "comment": "Add support for separate `@summary` from `@doc`",
+      "comment": "Fix duplicate parameter type definitions in OpenAPI 3 output",
       "type": "patch"
     }
   ],

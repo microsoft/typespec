@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { createOpenAPITestRunner, openApiFor } from "./test-host.js";
+import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: definitions", () => {
   it("defines models", async () => {
@@ -273,70 +273,6 @@ describe("openapi3: definitions", () => {
         },
       },
       required: ["x"],
-    });
-  });
-
-  it("defines models extended from primitives", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      model shortString extends string {}
-      model Pet { name: shortString };
-      `
-    );
-
-    ok(res.isRef);
-    ok(res.schemas.shortString, "expected definition named shortString");
-    ok(res.schemas.Pet, "expected definition named Pet");
-    deepStrictEqual(res.schemas.shortString, {
-      type: "string",
-    });
-  });
-
-  it("defines models extended from primitives with attrs", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      @maxLength(10) @minLength(10)
-      model shortString extends string {}
-      model Pet { name: shortString };
-      `
-    );
-
-    ok(res.isRef);
-    ok(res.schemas.shortString, "expected definition named shortString");
-    ok(res.schemas.Pet, "expected definition named Pet");
-    deepStrictEqual(res.schemas.shortString, {
-      type: "string",
-      minLength: 10,
-      maxLength: 10,
-    });
-  });
-
-  it("defines models extended from primitives with new attrs", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      @maxLength(10)
-      model shortString extends string {}
-      @minLength(1)
-      model shortButNotEmptyString extends shortString {};
-      model Pet { name: shortButNotEmptyString, breed: shortString };
-      `
-    );
-    ok(res.isRef);
-    ok(res.schemas.shortString, "expected definition named shortString");
-    ok(res.schemas.shortButNotEmptyString, "expected definition named shortButNotEmptyString");
-    ok(res.schemas.Pet, "expected definition named Pet");
-
-    deepStrictEqual(res.schemas.shortString, {
-      type: "string",
-      maxLength: 10,
-    });
-    deepStrictEqual(res.schemas.shortButNotEmptyString, {
-      type: "string",
-      minLength: 1,
-      maxLength: 10,
     });
   });
 
@@ -881,21 +817,3 @@ describe("openapi3: extension decorator", () => {
     strictEqual(oapi.components.parameters.PetId.schema.pattern, "^[a-zA-Z0-9-]{3,24}$");
   });
 });
-
-async function oapiForModel(name: string, modelDef: string) {
-  const oapi = await openApiFor(`
-    ${modelDef};
-    @route("/")
-    namespace root {
-      op read(): { @body body: ${name} };
-    }
-  `);
-
-  const useSchema = oapi.paths["/"].get.responses[200].content["application/json"].schema;
-
-  return {
-    isRef: !!useSchema.$ref,
-    useSchema,
-    schemas: oapi.components.schemas || {},
-  };
-}
