@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Fix duplicate parameter type definitions in OpenAPI 3 output",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}
