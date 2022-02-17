@@ -14,10 +14,6 @@ steps:
   - script: node packages/cadl-vs/scripts/build.js --restore
     displayName: Restore .NET Dependencies
 
-  - script: node common/scripts/install-run-rush.js change -v
-    condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
-    displayName: Verify Change Files
-
   - script: node common/scripts/install-run-rush.js rebuild --verbose
     displayName: Build
 
