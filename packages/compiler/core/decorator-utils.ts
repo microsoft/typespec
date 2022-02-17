@@ -2,6 +2,15 @@ import { reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import { Type } from "./types.js";
 
+export type CadlValue = Type | string | number | boolean;
+
+// prettier-ignore
+export type InferredCadlValue<K extends Type["kind"]> = 
+  K extends "String" ? string 
+  : K extends "Number" ? number 
+  : K extends "Boolean" ? boolean 
+  : Type & { kind: K };
+
 /**
  * Validate the decorator target is matching the expected value.
  * @param program
@@ -16,11 +25,7 @@ export function validateDecoratorTarget<K extends Type["kind"]>(
   decoratorName: string,
   expectedType: K | K[]
 ): target is Type & { kind: K } {
-  const isCorrectType =
-    typeof expectedType === "string"
-      ? target.kind === expectedType
-      : expectedType.includes(target.kind as any);
-
+  const isCorrectType = isCadlValueTypeOf(target, expectedType);
   if (!isCorrectType) {
     reportDiagnostic(program, {
       code: "decorator-wrong-target",
@@ -34,6 +39,41 @@ export function validateDecoratorTarget<K extends Type["kind"]>(
   }
 
   return true;
+}
+
+/**
+ * Check if the given target is of any of the cadl types.
+ * @param target Target to validate.
+ * @param expectedType One or multiple allowed cadl types.
+ * @returns boolean if the target is of one of the allowed types.
+ */
+export function isCadlValueTypeOf<K extends Type["kind"]>(
+  target: CadlValue,
+  expectedType: K | K[]
+): target is InferredCadlValue<K> {
+  const kind = getTypeKind(target);
+  if (kind === undefined) {
+    return false;
+  }
+
+  return typeof expectedType === "string"
+    ? kind === expectedType
+    : expectedType.includes(kind as any);
+}
+
+function getTypeKind(target: CadlValue): Type["kind"] | undefined {
+  switch (typeof target) {
+    case "object":
+      return target.kind;
+    case "string":
+      return "String";
+    case "number":
+      return "Number";
+    case "boolean":
+      return "Boolean";
+    default:
+      return undefined;
+  }
 }
 
 /**
@@ -59,21 +99,26 @@ export function validateDecoratorParamCount(
 }
 
 /**
- * Validate the given
+ * Validate a decorator parameter has the correct type.
+ * @param program Program
+ * @param target Decorator target
+ * @param value Value of the parameter.
+ * @param expectedType Expected type or list of expected type
+ * @returns true if the value is of one of the type in the list of expected types. If not emit a diagnostic.
  */
-export function validateDecoratorParamType(
+export function validateDecoratorParamType<K extends Type["kind"]>(
   program: Program,
   target: Type,
-  value: unknown,
-  expected: "string" | "number"
-): boolean {
-  if (typeof value !== expected) {
+  value: CadlValue,
+  expectedType: K | K[]
+): value is InferredCadlValue<K> {
+  if (!isCadlValueTypeOf(value, expectedType)) {
     reportDiagnostic(program, {
       code: "invalid-argument",
       format: {
         value: prettyValue(program, value),
-        actual: typeof value,
-        expected: expected,
+        actual: getTypeKind(value)!,
+        expected: typeof expectedType === "string" ? expectedType : expectedType.join(", "),
       },
       target,
     });

@@ -61,7 +61,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'number' is not assignable to parameter of type 'string'",
+        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
       });
     });
 
@@ -110,7 +110,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'number' is not assignable to parameter of type 'string'",
+        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
       });
     });
 
@@ -159,7 +159,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'number' is not assignable to parameter of type 'string'",
+        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
       });
     });
 

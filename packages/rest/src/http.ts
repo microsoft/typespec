@@ -15,7 +15,7 @@ export function $header({ program }: DecoratorContext, entity: Type, headerName?
     return;
   }
 
-  if (headerName && !validateDecoratorParamType(program, entity, headerName, "string")) {
+  if (headerName && !validateDecoratorParamType(program, entity, headerName, "String")) {
     return;
   }
 
@@ -39,7 +39,7 @@ export function $query({ program }: DecoratorContext, entity: Type, queryKey?: s
     return;
   }
 
-  if (queryKey && !validateDecoratorParamType(program, entity, queryKey, "string")) {
+  if (queryKey && !validateDecoratorParamType(program, entity, queryKey, "String")) {
     return;
   }
 
@@ -63,7 +63,7 @@ export function $path({ program }: DecoratorContext, entity: Type, paramName?: s
     return;
   }
 
-  if (paramName && !validateDecoratorParamType(program, entity, paramName, "string")) {
+  if (paramName && !validateDecoratorParamType(program, entity, paramName, "String")) {
     return;
   }
 

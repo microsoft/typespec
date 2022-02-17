@@ -11,7 +11,7 @@ const operationIdsKey = Symbol();
 export function $operationId({ program }: DecoratorContext, entity: Type, opId: string) {
   if (
     !validateDecoratorTarget(program, entity, "@operationId", "Operation") ||
-    !validateDecoratorParamType(program, entity, opId, "string")
+    !validateDecoratorParamType(program, entity, opId, "String")
   ) {
     return;
   }
@@ -30,7 +30,7 @@ export function $extension(
   extensionName: string,
   value: any
 ) {
-  if (!validateDecoratorParamType(program, entity, extensionName, "string")) {
+  if (!validateDecoratorParamType(program, entity, extensionName, "String")) {
     return;
   }
 
