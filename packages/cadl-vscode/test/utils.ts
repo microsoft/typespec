@@ -18,7 +18,7 @@ async function createOnigLib(): Promise<IOnigLib> {
 const registry = new Registry({
   onigLib: createOnigLib(),
   loadGrammar: async (scopeName) => {
-    const data = await readFile("./dist/cadl.tmLanguage");
+    const data = await readFile(path.resolve(__dirname, "../../dist/cadl.tmLanguage"));
     return parseRawGrammar(data.toString());
   },
 });

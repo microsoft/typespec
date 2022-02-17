@@ -89,7 +89,11 @@
   },
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
-  "mochaExplorer.files": ["./packages/*/dist/test/**/*.js", "./packages/*/test/**/*.js"],
+  "mochaExplorer.files": [
+    "./packages/*/dist/test/**/*.js",
+    "./packages/*/dist-dev/test/**/*.js",
+    "./packages/*/test/**/*.js"
+  ],
   "mochaExplorer.ignore": "./packages/*/dist/test/manual/**/*.js",
   "mochaExplorer.mochaPath": "./packages/compiler/node_modules/mocha",
   "mochaExplorer.timeout": 500000,

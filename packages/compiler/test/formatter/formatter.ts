@@ -888,4 +888,19 @@ namespace Foo {
       });
     });
   });
+
+  describe("interfaces", () => {
+    it("removes op prefix", () => {
+      assertFormat({
+        code: `
+interface Foo {
+  op foo(): int32;
+}`,
+        expected: `
+interface Foo {
+  foo(): int32;
+}`,
+      });
+    });
+  });
 });

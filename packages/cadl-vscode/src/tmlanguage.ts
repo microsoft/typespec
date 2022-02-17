@@ -434,9 +434,10 @@ const operationStatement: BeginEndRule = {
 const interfaceMember: BeginEndRule = {
   key: "interface-member",
   scope: meta,
-  begin: `(?:(${identifier}))`,
+  begin: `(?:\\b(op)\\b\\s+)?(${identifier})`,
   beginCaptures: {
-    "1": { scope: "entity.name.function.cadl" },
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "entity.name.function.cadl" },
   },
   end: universalEnd,
   patterns: [token, operationParameters, typeAnnotation],

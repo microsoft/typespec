@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Allow `op` interfaces",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

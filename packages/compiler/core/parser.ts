@@ -566,6 +566,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): OperationStatementNode {
+    parseOptional(Token.OpKeyword);
+
     const id = parseIdentifier();
     const parameters = parseOperationParameters();
     parseExpected(Token.Colon);
