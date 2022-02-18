@@ -781,7 +781,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         value = expr;
       } else if (
         expr.kind === SyntaxKind.TypeReference &&
-        getFlag(expr.target, NodeFlags.ThisNodeHasError)
+        expr.target.flags & NodeFlags.ThisNodeHasError
       ) {
         parseErrorInNextFinishedNode = true;
       } else {
@@ -2368,32 +2368,32 @@ export function getNodeAtPosition(
 }
 
 export function hasParseError(node: Node) {
-  if (getFlag(node, NodeFlags.ThisNodeHasError)) {
+  if (node.flags & NodeFlags.ThisNodeHasError) {
     return true;
   }
 
   checkForDescendantErrors(node);
-  return getFlag(node, NodeFlags.DescendantHasError);
+  return node.flags & NodeFlags.DescendantHasError;
 }
 
-function checkForDescendantErrors(node: Node) {
-  if (getFlag(node, NodeFlags.DescendantErrorsExamined)) {
+function checkForDescendantErrors(node: Writable<Node>) {
+  if (node.flags & NodeFlags.DescendantErrorsExamined) {
     return;
   }
-  setFlag(node, NodeFlags.DescendantErrorsExamined);
+  node.flags |= NodeFlags.DescendantErrorsExamined;
 
-  visitChildren(node, (child) => {
-    if (getFlag(child, NodeFlags.ThisNodeHasError)) {
-      setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
+  visitChildren(node, (child: Writable<Node>) => {
+    if (child.flags & NodeFlags.ThisNodeHasError) {
+      node.flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
       return true;
     }
     checkForDescendantErrors(child);
 
-    if (getFlag(child, NodeFlags.DescendantHasError)) {
-      setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
+    if (child.flags & NodeFlags.DescendantHasError) {
+      node.flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
       return true;
     }
-    setFlag(child, NodeFlags.DescendantErrorsExamined);
+    child.flags |= NodeFlags.DescendantErrorsExamined;
 
     return false;
   });
@@ -2401,14 +2401,6 @@ function checkForDescendantErrors(node: Node) {
 
 export function isImportStatement(node: Node): node is ImportStatementNode {
   return node.kind === SyntaxKind.ImportStatement;
-}
-
-function getFlag(node: Node, flag: NodeFlags) {
-  return ((node as any).flags & flag) !== 0;
-}
-
-function setFlag(node: Node, flag: NodeFlags) {
-  (node as any).flags |= flag;
 }
 
 function isBlocklessNamespace(node: Node) {
