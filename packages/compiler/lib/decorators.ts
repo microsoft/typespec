@@ -1,10 +1,15 @@
-import { validateDecoratorParamType, validateDecoratorTarget } from "../core/decorator-utils.js";
+import {
+  validateDecoratorParamType,
+  validateDecoratorTarget,
+  validateDecoratorTargetIntrinsic,
+} from "../core/decorator-utils.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
   DecoratorContext,
   EnumType,
   InterfaceType,
+  IntrinsicModel,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -89,7 +94,7 @@ export function $intrinsic({ program }: DecoratorContext, target: Type) {
   program.stateSet(intrinsicsKey).add(target);
 }
 
-export function isIntrinsic(program: Program, target: Type | undefined) {
+export function isIntrinsic(program: Program, target: Type | undefined): target is IntrinsicModel {
   if (!target) {
     return false;
   }
@@ -100,7 +105,7 @@ export function isIntrinsic(program: Program, target: Type | undefined) {
 export function getIntrinsicType(
   program: Program,
   target: Type | undefined
-): ModelType | undefined {
+): IntrinsicModel | undefined {
   while (target) {
     if (target.kind === "Model") {
       if (isIntrinsic(program, target)) {
@@ -171,18 +176,10 @@ export function isErrorModel(program: Program, target: Type): boolean {
 const formatValuesKey = Symbol();
 
 export function $format({ program }: DecoratorContext, target: Type, format: string) {
-  if (!validateDecoratorTarget(program, target, "@format", ["Model", "ModelProperty"])) {
-    return;
-  }
-
-  if (getIntrinsicType(program, target)?.name !== "string") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@format", to: "non-string type" },
-        target,
-      })
-    );
+  if (
+    !validateDecoratorTarget(program, target, "@format", ["Model", "ModelProperty"]) ||
+    !validateDecoratorTargetIntrinsic(program, target, "@pattern", "string")
+  ) {
     return;
   }
 
@@ -198,18 +195,10 @@ export function getFormat(program: Program, target: Type): string | undefined {
 const patternValuesKey = Symbol();
 
 export function $pattern({ program }: DecoratorContext, target: Type, pattern: string) {
-  if (!validateDecoratorTarget(program, target, "@pattern", ["Model", "ModelProperty"])) {
-    return;
-  }
-
-  if (getIntrinsicType(program, target)?.name !== "string") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@pattern", to: "non-string type" },
-        target,
-      })
-    );
+  if (
+    !validateDecoratorTarget(program, target, "@pattern", ["Model", "ModelProperty"]) ||
+    !validateDecoratorTargetIntrinsic(program, target, "@pattern", "string")
+  ) {
     return;
   }
 
@@ -225,18 +214,10 @@ export function getPattern(program: Program, target: Type): string | undefined {
 const minLengthValuesKey = Symbol();
 
 export function $minLength({ program }: DecoratorContext, target: Type, minLength: number) {
-  if (!validateDecoratorTarget(program, target, "@minLength", ["Model", "ModelProperty"])) {
-    return;
-  }
-
-  if (getIntrinsicType(program, target)?.name !== "string") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@minLength", to: "non-string type" },
-        target,
-      })
-    );
+  if (
+    !validateDecoratorTarget(program, target, "@minLength", ["Model", "ModelProperty"]) ||
+    !validateDecoratorTargetIntrinsic(program, target, "@minLength", "string")
+  ) {
     return;
   }
 
@@ -252,20 +233,13 @@ export function getMinLength(program: Program, target: Type): number | undefined
 const maxLengthValuesKey = Symbol();
 
 export function $maxLength({ program }: DecoratorContext, target: Type, maxLength: number) {
-  if (!validateDecoratorTarget(program, target, "@maxLength", ["Model", "ModelProperty"])) {
+  if (
+    !validateDecoratorTarget(program, target, "@maxLength", ["Model", "ModelProperty"]) ||
+    !validateDecoratorTargetIntrinsic(program, target, "@maxLength", "string")
+  ) {
     return;
   }
 
-  if (getIntrinsicType(program, target)?.name !== "string") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@maxLength", to: "non-string type" },
-        target,
-      })
-    );
-    return;
-  }
   program.stateMap(maxLengthValuesKey).set(target, maxLength);
 }
 
@@ -330,18 +304,13 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 const secretTypesKey = Symbol();
 
 export function $secret({ program }: DecoratorContext, target: Type) {
-  if (!validateDecoratorTarget(program, target, "@secret", "Model")) {
+  if (
+    !validateDecoratorTarget(program, target, "@secret", "Model") ||
+    !validateDecoratorTargetIntrinsic(program, target, "@pattern", "string")
+  ) {
     return;
   }
 
-  if (getIntrinsicType(program, target)?.name !== "string") {
-    createDiagnostic({
-      code: "decorator-wrong-target",
-      format: { decorator: "@secret", to: "non-string type" },
-      target,
-    });
-    return;
-  }
   program.stateMap(secretTypesKey).set(target, true);
 }
 
@@ -556,8 +525,7 @@ const knownValuesKey = Symbol();
  */
 export function $knownValues(context: DecoratorContext, target: Type, knownValues: Type) {
   if (
-    !validateDecoratorTarget(context.program, target, "@knownValues", "Model") ||
-    !isStringType(context.program, target) ||
+    !validateDecoratorTargetIntrinsic(context.program, target, "@knownValues", "string") ||
     !validateDecoratorParamType(context.program, target, knownValues, "Enum")
   ) {
     return;

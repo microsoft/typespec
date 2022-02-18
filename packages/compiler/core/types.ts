@@ -128,6 +128,10 @@ export type IntrinsicModelName =
   | "boolean"
   | "null";
 
+export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = ModelType & {
+  name: T;
+};
+
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;

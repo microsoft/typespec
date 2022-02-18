@@ -1,4 +1,6 @@
-import { reportDiagnostic } from "./messages.js";
+import { getIntrinsicType } from "../lib/decorators.js";
+import { IntrinsicModelName } from "./index.js";
+import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import { Type } from "./types.js";
 
@@ -41,6 +43,24 @@ export function validateDecoratorTarget<K extends Type["kind"]>(
   return true;
 }
 
+export function validateDecoratorTargetIntrinsic(
+  program: Program,
+  target: Type,
+  decoratorName: string,
+  intrinsicType: IntrinsicModelName
+): boolean {
+  if (getIntrinsicType(program, target)?.name !== "string") {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: decoratorName, to: `non '${intrinsicType}' type` },
+        target,
+      })
+    );
+    return false;
+  }
+  return true;
+}
 /**
  * Check if the given target is of any of the cadl types.
  * @param target Target to validate.
