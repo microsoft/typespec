@@ -10,6 +10,7 @@ import {
   getDoc,
   getFormat,
   getFriendlyName,
+  getKnownValues,
   getMaxLength,
   getMaxValue,
   getMinLength,
@@ -1235,33 +1236,35 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function applyIntrinsicDecorators(cadlType: Type, target: any): any {
     const newTarget = { ...target };
+
+    const isString = isStringType(program, cadlType);
     const docStr = getDoc(program, cadlType);
-    if (isStringType(program, cadlType) && !target.documentation && docStr) {
+    if (isString && !target.documentation && docStr) {
       newTarget.description = docStr;
     }
 
     const summaryStr = getSummary(program, cadlType);
-    if (isStringType(program, cadlType) && !target.summary && summaryStr) {
+    if (isString && !target.summary && summaryStr) {
       newTarget.summary = summaryStr;
     }
 
     const formatStr = getFormat(program, cadlType);
-    if (isStringType(program, cadlType) && !target.format && formatStr) {
+    if (isString && !target.format && formatStr) {
       newTarget.format = formatStr;
     }
 
     const pattern = getPattern(program, cadlType);
-    if (isStringType(program, cadlType) && !target.pattern && pattern) {
+    if (isString && !target.pattern && pattern) {
       newTarget.pattern = pattern;
     }
 
     const minLength = getMinLength(program, cadlType);
-    if (isStringType(program, cadlType) && !target.minLength && minLength !== undefined) {
+    if (isString && !target.minLength && minLength !== undefined) {
       newTarget.minLength = minLength;
     }
 
     const maxLength = getMaxLength(program, cadlType);
-    if (isStringType(program, cadlType) && !target.maxLength && maxLength !== undefined) {
+    if (isString && !target.maxLength && maxLength !== undefined) {
       newTarget.maxLength = maxLength;
     }
 
@@ -1277,6 +1280,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     if (isSecret(program, cadlType)) {
       newTarget.format = "password";
+    }
+
+    if (isString) {
+      const values = getKnownValues(program, cadlType);
+      if (values) {
+        return {
+          oneOf: [newTarget, getSchemaForEnum(values)],
+        };
+      }
     }
 
     return newTarget;

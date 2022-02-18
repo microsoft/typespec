@@ -3,6 +3,7 @@ import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
   DecoratorContext,
+  EnumType,
   InterfaceType,
   ModelType,
   ModelTypeProperty,
@@ -117,7 +118,7 @@ export function getIntrinsicType(
   return undefined;
 }
 
-export function isStringType(program: Program, target: Type): boolean {
+export function isStringType(program: Program, target: Type): target is ModelType {
   const intrinsicType = getIntrinsicType(program, target);
   return intrinsicType !== undefined && intrinsicType.name === "string";
 }
@@ -545,4 +546,26 @@ export function $friendlyName(
 
 export function getFriendlyName(program: Program, target: Type): string {
   return program.stateMap(friendlyNamesKey).get(target);
+}
+
+const knownValuesKey = Symbol();
+/**
+ * Specify the known values for a string type.
+ * @param target Decorator target. Must be a string. (model Foo extends string)
+ * @param knownValues Must be an enum.
+ */
+export function $knownValues(context: DecoratorContext, target: Type, knownValues: Type) {
+  if (
+    !validateDecoratorTarget(context.program, target, "@knownValues", "Model") ||
+    !isStringType(context.program, target) ||
+    !validateDecoratorParamType(context.program, target, knownValues, "Enum")
+  ) {
+    return;
+  }
+
+  context.program.stateMap(knownValuesKey).set(target, knownValues);
+}
+
+export function getKnownValues(program: Program, target: ModelType): EnumType | undefined {
+  return program.stateMap(knownValuesKey).get(target);
 }
