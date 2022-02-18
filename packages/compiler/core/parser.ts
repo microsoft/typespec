@@ -2184,9 +2184,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.name) ||
-        (isArray(node.statements)
-          ? visitEach(cb, node.statements as Statement[])
-          : visitNode(cb, node.statements))
+        (isArray(node.statements) ? visitEach(cb, node.statements) : visitNode(cb, node.statements))
       );
     case SyntaxKind.InterfaceStatement:
       return (
