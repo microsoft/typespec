@@ -198,6 +198,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       info: {
         title: getServiceTitle(program),
         version: version ?? getServiceVersion(program),
+        description: getDoc(program, getServiceNamespace(program)!),
       },
       tags: [],
       paths: {},
@@ -227,6 +228,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     params = new Map();
     tags = new Set();
   }
+
   async function emitOpenAPI() {
     const serviceNs = getServiceNamespace(program);
     if (!serviceNs) {
