@@ -2181,9 +2181,13 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitNode(cb, node.returnType)
       );
     case SyntaxKind.NamespaceStatement:
-      return visitEach(cb, node.decorators) || visitNode(cb, node.name) || isArray(node.statements)
-        ? visitEach(cb, node.statements as Statement[])
-        : visitNode(cb, node.statements);
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.name) ||
+        (isArray(node.statements)
+          ? visitEach(cb, node.statements as Statement[])
+          : visitNode(cb, node.statements))
+      );
     case SyntaxKind.InterfaceStatement:
       return (
         visitEach(cb, node.decorators) ||

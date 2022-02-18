@@ -1,5 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { CompletionItem, CompletionItemKind, CompletionList } from "vscode-languageserver/node.js";
+import { parse } from "../../core/parser.js";
+import { dumpAST } from "../test-parser.js";
 import { createTestServerHost } from "./test-server-host.js";
 
 describe("compiler: server: completion", () => {
@@ -28,12 +30,30 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
-  it("completes decorators", async () => {
+  it("completes decorators on namespaces", async () => {
     const completions = await complete(
       `
-    @┆
-    model M {}
-    `
+      @┆
+      namespace N {}
+      `
+    );
+
+    check(completions, [
+      {
+        label: "doc",
+        insertText: "doc",
+        kind: CompletionItemKind.Function,
+        documentation: undefined,
+      },
+    ]);
+  });
+
+  it("completes decorators on models", async () => {
+    const completions = await complete(
+      `
+      @┆
+      model M {}
+      `
     );
 
     check(completions, [
