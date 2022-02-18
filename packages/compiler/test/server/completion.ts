@@ -28,12 +28,30 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
-  it("completes decorators", async () => {
+  it("completes decorators on namespaces", async () => {
     const completions = await complete(
       `
-    @┆
-    model M {}
-    `
+      @┆
+      namespace N {}
+      `
+    );
+
+    check(completions, [
+      {
+        label: "doc",
+        insertText: "doc",
+        kind: CompletionItemKind.Function,
+        documentation: undefined,
+      },
+    ]);
+  });
+
+  it("completes decorators on models", async () => {
+    const completions = await complete(
+      `
+      @┆
+      model M {}
+      `
     );
 
     check(completions, [
