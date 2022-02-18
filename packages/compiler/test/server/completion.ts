@@ -1,7 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { CompletionItem, CompletionItemKind, CompletionList } from "vscode-languageserver/node.js";
-import { parse } from "../../core/parser.js";
-import { dumpAST } from "../test-parser.js";
 import { createTestServerHost } from "./test-server-host.js";
 
 describe("compiler: server: completion", () => {
