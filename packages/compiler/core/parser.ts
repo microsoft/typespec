@@ -108,6 +108,7 @@ interface ListKind {
   readonly toleratedDelimiterIsValid: boolean;
   readonly trailingDelimiterIsValid: boolean;
   readonly invalidDecoratorTarget?: string;
+  readonly allowedStatementKeyword: Token;
 }
 
 interface SurroundedListKind extends ListKind {
@@ -154,6 +155,7 @@ namespace ListKind {
     allowEmpty: true,
     toleratedDelimiterIsValid: true,
     trailingDelimiterIsValid: true,
+    allowedStatementKeyword: Token.None,
   } as const;
 
   export const OperationParameters = {
@@ -184,6 +186,7 @@ namespace ListKind {
     delimiter: Token.Semicolon,
     toleratedDelimiter: Token.Comma,
     toleratedDelimiterIsValid: false,
+    allowedStatementKeyword: Token.OpKeyword,
   } as const;
 
   export const UnionVariants = {
@@ -206,6 +209,7 @@ namespace ListKind {
     toleratedDelimiterIsValid: false,
     trailingDelimiterIsValid: false,
     invalidDecoratorTarget: "expression",
+    allowedStatementKeyword: Token.None,
   } as const;
 
   export const TemplateParameters = {
@@ -1865,13 +1869,26 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
 
-      let item: Writable<T>;
       if (kind.invalidDecoratorTarget) {
         reportInvalidDecorators(decorators, kind.invalidDecoratorTarget);
+      }
+
+      if (directives.length === 0 && decorators.length === 0 && atEndOfListWithError(kind)) {
+        // Error recovery: end surrounded list at statement keyword or end
+        // of file. Note, however, that we must parse a missing element if
+        // there were directives or decorators as we cannot drop those from
+        // the tree.
+        parseExpected(kind.close);
+        break;
+      }
+
+      let item: Writable<T>;
+      if (kind.invalidDecoratorTarget) {
         item = (parseItem as ParseListItem<UndecoratedListKind, T>)();
       } else {
         item = parseItem(pos, decorators);
       }
+
       items.push(item);
       item.directives = directives;
       const delimiter = token();
@@ -1904,6 +1921,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         // If a list *is* surrounded by punctuation, then the list ends when we
         // reach the close token.
         break;
+      } else if (atEndOfListWithError(kind)) {
+        // Error recovery: If a list *is* surrounded by punctionation, then
+        // the list ends at statement keyword or end-of-file under the
+        // assumption that the closing delimter is missing. This check is
+        // duplicated from above to preempt the parseExpected(delimeter)
+        // below.
+        parseExpected(kind.close);
+        break;
       } else {
         // Error recovery: if a list kind *is* surrounded by punctuation and we
         // find neither a delimiter nor a close token after an item, then we
@@ -1921,11 +1946,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         //
         // Simple repro: `model M { ]` would loop forever without this check.
         //
-        assert(
-          realPositionOfLastError === pos,
-          "Should already have logged an error if we get here."
-        );
+        parseExpected(kind.close);
         nextToken();
+
+        // remove the item that was entirely inserted by error recovery.
+        items.pop();
         break;
       }
     }
@@ -1958,6 +1983,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
 
     return false;
+  }
+
+  function atEndOfListWithError(kind: ListKind) {
+    return (
+      kind.close !== Token.None &&
+      (isStatementKeyword(token()) || token() == Token.EndOfFile) &&
+      token() !== kind.allowedStatementKeyword
+    );
   }
 
   function parseEmptyStatement(): EmptyStatementNode {
@@ -2075,10 +2108,16 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function expectTokenIsOneOf(...args: [option1: Token, ...rest: Token[]]) {
     const tok = token();
-    if (!args.some((expectedToken) => tok === expectedToken)) {
-      errorTokenIsNotOneOf(...args);
+    for (const expected of args) {
+      if (expected === Token.None) {
+        continue;
+      }
+      if (tok === expected) {
+        return tok;
+      }
     }
-    return tok;
+    errorTokenIsNotOneOf(...args);
+    return Token.None;
   }
 
   function parseExpectedOneOf(...args: [option1: Token, ...rest: Token[]]) {
