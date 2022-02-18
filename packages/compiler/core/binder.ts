@@ -246,7 +246,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     parentNode = prevParent;
   }
 
-  function bindProjection(node: ProjectionNode) {
+  function bindProjection(node: Writable<ProjectionNode>) {
     node.locals = new SymbolTable();
   }
 
@@ -322,7 +322,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     declareSymbol(node, SymbolFlags.FunctionParameter);
   }
 
-  function bindProjectionLambdaExpression(node: ProjectionLambdaExpressionNode) {
+  function bindProjectionLambdaExpression(node: Writable<ProjectionLambdaExpressionNode>) {
     node.locals = new SymbolTable();
   }
 
@@ -408,13 +408,13 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     }
   }
 
-  function declareNamespaceMember(node: Declaration, flags: SymbolFlags) {
+  function declareNamespaceMember(node: Writable<Declaration>, flags: SymbolFlags) {
     const symbol = createSymbol(node, node.id.sv, flags, scope.symbol);
     node.symbol = symbol;
     (scope as NamespaceStatementNode).symbol.exports!.set(node.id.sv, symbol);
   }
 
-  function declareScriptMember(node: Declaration, flags: SymbolFlags) {
+  function declareScriptMember(node: Writable<Declaration>, flags: SymbolFlags) {
     const symbol = createSymbol(node, node.id.sv, flags, fileNamespace?.symbol);
     node.symbol = symbol;
     (fileNamespace || scope).symbol.exports!.set(node.id.sv, symbol);

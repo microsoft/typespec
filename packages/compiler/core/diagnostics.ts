@@ -1,8 +1,6 @@
 import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
-import { SymbolFlags } from "./index.js";
 import { formatLog } from "./logger.js";
-import { isSynthetic } from "./parser.js";
 import { Program } from "./program.js";
 import {
   Diagnostic,
@@ -13,9 +11,11 @@ import {
   DiagnosticTarget,
   LogSink,
   Node,
+  NodeFlags,
   NoTarget,
   SourceFile,
   SourceLocation,
+  SymbolFlags,
   SyntaxKind,
   Type,
 } from "./types.js";
@@ -184,9 +184,12 @@ export function getSourceLocation(
     return getSourceLocationOfNode(target as Node);
   } else {
     // type
-    if ((target as Type).node) {
-      return getSourceLocationOfNode((target as Type).node!);
+    const targetNode = (target as Type).node;
+
+    if (targetNode) {
+      return getSourceLocationOfNode(targetNode);
     }
+
     return createDummySourceLocation();
   }
 }
@@ -208,7 +211,7 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
 
   if (root.kind !== SyntaxKind.CadlScript) {
     return createDummySourceLocation(
-      isSynthetic(node)
+      node.flags & NodeFlags.Synthetic
         ? undefined
         : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/cadl>"
     );

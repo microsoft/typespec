@@ -1,12 +1,14 @@
 import { ok, strictEqual } from "assert";
 import { Binder, createBinder } from "../core/binder.js";
+import { createSourceFile } from "../core/diagnostics.js";
+import { parse } from "../core/parser.js";
+import { Program } from "../core/program.js";
 import {
   AliasStatementNode,
-  createSourceFile,
   InterfaceStatementNode,
   JsSourceFileNode,
   ModelStatementNode,
-  parse,
+  NodeFlags,
   ProjectionExpressionStatement,
   ProjectionLambdaExpressionNode,
   ProjectionStatementNode,
@@ -15,8 +17,7 @@ import {
   SymbolTable,
   SyntaxKind,
   UnionStatementNode,
-} from "../core/index.js";
-import { Program } from "../core/program.js";
+} from "../core/types.js";
 
 describe("compiler: binder", () => {
   let binder: Binder;
@@ -440,12 +441,20 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
   const file = createSourceFile("", "path");
   return {
     kind: SyntaxKind.JsSourceFile,
-    id: { kind: SyntaxKind.Identifier, sv: "", pos: 0, end: 0, symbol: undefined as any },
+    id: {
+      kind: SyntaxKind.Identifier,
+      sv: "",
+      pos: 0,
+      end: 0,
+      symbol: undefined as any,
+      flags: NodeFlags.Synthetic,
+    },
     esmExports: exports,
     file,
     namespaceSymbols: [],
     symbol: undefined as any,
     pos: 0,
     end: 0,
+    flags: NodeFlags.None,
   };
 }

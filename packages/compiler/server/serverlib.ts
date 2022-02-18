@@ -457,7 +457,7 @@ export function createServer(host: ServerHost): Server {
       if (sym.flags & SymbolFlags.Using) {
         sym = sym.symbolSource!;
       }
-      if (sym.flags & SymbolFlags.Function) {
+      if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
       } else {
         const type = program.checker!.getTypeForNode(sym.declarations[0]);

@@ -29,6 +29,7 @@ import {
   LiteralType,
   Logger,
   Node,
+  NodeFlags,
   NoTarget,
   ProjectionApplication,
   Projector,
@@ -354,13 +355,21 @@ export async function createProgram(
 
     return {
       kind: SyntaxKind.JsSourceFile,
-      id: { kind: SyntaxKind.Identifier, sv: "", pos: 0, end: 0, symbol: undefined as any },
+      id: {
+        kind: SyntaxKind.Identifier,
+        sv: "",
+        pos: 0,
+        end: 0,
+        symbol: undefined as any,
+        flags: NodeFlags.Synthetic,
+      },
       esmExports: exports,
       file,
       namespaceSymbols: [],
       symbol: undefined as any,
       pos: 0,
       end: 0,
+      flags: NodeFlags.None,
     };
   }
 

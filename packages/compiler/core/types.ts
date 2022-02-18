@@ -420,15 +420,48 @@ export enum SyntaxKind {
   Return,
 }
 
+export const enum NodeFlags {
+  None = 0,
+  /**
+   * If this is set, the DescendantHasError bit can be trusted. If this not set,
+   * children need to be visited still to see if DescendantHasError should be
+   * set.
+   *
+   * Use the parser's `hasParseError` API instead of using this flag directly.
+   */
+  DescendantErrorsExamined = 1 << 0,
+
+  /**
+   * Indicates that a parse error was associated with this specific node.
+   *
+   * Use the parser's `hasParseError` API instead of using this flag directly.
+   */
+  ThisNodeHasError = 1 << 1,
+
+  /**
+   * Indicates that a child of this node (or one of its children,
+   * transitively) has a parse error.
+   *
+   * Use the parser's `hasParseError` API instead of using this flag directly.
+   */
+  DescendantHasError = 1 << 2,
+
+  /**
+   * Indicates that a node was created synthetically and therefore may not be parented.
+   */
+  Synthetic = 1 << 3,
+}
+
 export interface BaseNode extends TextRange {
   readonly kind: SyntaxKind;
   parent?: Node;
   readonly directives?: readonly DirectiveExpressionNode[];
+  readonly flags: NodeFlags;
   /**
    * Could be undefined but making this optional creates a lot of noise. In practice,
    * you will likely only access symbol in cases where you know the node has a symbol.
    */
-  symbol: Sym;
+  readonly symbol: Sym;
 }
 
 export interface TemplateDeclarationNode {
@@ -726,16 +759,16 @@ export interface BooleanLiteralNode extends BaseNode {
 }
 
 export interface VoidKeywordNode extends BaseNode {
-  kind: SyntaxKind.VoidKeyword;
+  readonly kind: SyntaxKind.VoidKeyword;
 }
 
 export interface NeverKeywordNode extends BaseNode {
-  kind: SyntaxKind.NeverKeyword;
+  readonly kind: SyntaxKind.NeverKeyword;
 }
 
 export interface ReturnExpressionNode extends BaseNode {
-  kind: SyntaxKind.Return;
-  value: ProjectionExpression;
+  readonly kind: SyntaxKind.Return;
+  readonly value: ProjectionExpression;
 }
 
 export interface UnionExpressionNode extends BaseNode {
@@ -768,142 +801,142 @@ export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseN
 // Projection-related Syntax
 
 export interface ProjectionModelSelectorNode extends BaseNode {
-  kind: SyntaxKind.ProjectionModelSelector;
+  readonly kind: SyntaxKind.ProjectionModelSelector;
 }
 
 export interface ProjectionInterfaceSelectorNode extends BaseNode {
-  kind: SyntaxKind.ProjectionInterfaceSelector;
+  readonly kind: SyntaxKind.ProjectionInterfaceSelector;
 }
 
 export interface ProjectionOperationSelectorNode extends BaseNode {
-  kind: SyntaxKind.ProjectionOperationSelector;
+  readonly kind: SyntaxKind.ProjectionOperationSelector;
 }
 
 export interface ProjectionUnionSelectorNode extends BaseNode {
-  kind: SyntaxKind.ProjectionUnionSelector;
+  readonly kind: SyntaxKind.ProjectionUnionSelector;
 }
 
 export interface ProjectionEnumSelectorNode extends BaseNode {
-  kind: SyntaxKind.ProjectionEnumSelector;
+  readonly kind: SyntaxKind.ProjectionEnumSelector;
 }
 
 export type ProjectionStatementItem = ProjectionExpressionStatement;
 
 export interface ProjectionParameterDeclarationNode extends DeclarationNode, BaseNode {
-  kind: SyntaxKind.ProjectionParameterDeclaration;
+  readonly kind: SyntaxKind.ProjectionParameterDeclaration;
 }
 
 export interface ProjectionExpressionStatement extends BaseNode {
-  kind: SyntaxKind.ProjectionExpressionStatement;
-  expr: ProjectionExpression;
+  readonly kind: SyntaxKind.ProjectionExpressionStatement;
+  readonly expr: ProjectionExpression;
 }
 
 export interface ProjectionLogicalExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionLogicalExpression;
-  op: "||" | "&&";
-  left: ProjectionExpression;
-  right: ProjectionExpression;
+  readonly kind: SyntaxKind.ProjectionLogicalExpression;
+  readonly op: "||" | "&&";
+  readonly left: ProjectionExpression;
+  readonly right: ProjectionExpression;
 }
 
 export interface ProjectionRelationalExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionRelationalExpression;
-  op: "<=" | "<" | ">" | ">=";
-  left: ProjectionExpression;
-  right: ProjectionExpression;
+  readonly kind: SyntaxKind.ProjectionRelationalExpression;
+  readonly op: "<=" | "<" | ">" | ">=";
+  readonly left: ProjectionExpression;
+  readonly right: ProjectionExpression;
 }
 
 export interface ProjectionEqualityExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionEqualityExpression;
-  op: "==" | "!=";
-  left: ProjectionExpression;
-  right: ProjectionExpression;
+  readonly kind: SyntaxKind.ProjectionEqualityExpression;
+  readonly op: "==" | "!=";
+  readonly left: ProjectionExpression;
+  readonly right: ProjectionExpression;
 }
 
 export interface ProjectionArithmeticExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionArithmeticExpression;
-  op: "+" | "-" | "*" | "/";
-  left: ProjectionExpression;
-  right: ProjectionExpression;
+  readonly kind: SyntaxKind.ProjectionArithmeticExpression;
+  readonly op: "+" | "-" | "*" | "/";
+  readonly left: ProjectionExpression;
+  readonly right: ProjectionExpression;
 }
 
 export interface ProjectionUnaryExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionUnaryExpression;
-  op: "!";
-  target: ProjectionExpression;
+  readonly kind: SyntaxKind.ProjectionUnaryExpression;
+  readonly op: "!";
+  readonly target: ProjectionExpression;
 }
 
 export interface ProjectionCallExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionCallExpression;
-  callKind: "method" | "template";
-  target: ProjectionExpression;
-  arguments: ProjectionExpression[];
+  readonly kind: SyntaxKind.ProjectionCallExpression;
+  readonly callKind: "method" | "template";
+  readonly target: ProjectionExpression;
+  readonly arguments: ProjectionExpression[];
 }
 
 export interface ProjectionMemberExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionMemberExpression;
-  base: ProjectionExpression;
-  id: IdentifierNode;
-  selector: "." | "::";
+  readonly kind: SyntaxKind.ProjectionMemberExpression;
+  readonly base: ProjectionExpression;
+  readonly id: IdentifierNode;
+  readonly selector: "." | "::";
 }
 
 export interface ProjectionModelExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionModelExpression;
-  properties: (ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode)[];
+  readonly kind: SyntaxKind.ProjectionModelExpression;
+  readonly properties: (ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode)[];
 }
 
 export interface ProjectionTupleExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionTupleExpression;
-  values: ProjectionExpression[];
+  readonly kind: SyntaxKind.ProjectionTupleExpression;
+  readonly values: ProjectionExpression[];
 }
 
 export interface ProjectionModelPropertyNode extends BaseNode {
-  kind: SyntaxKind.ProjectionModelProperty;
-  id: IdentifierNode | StringLiteralNode;
-  value: ProjectionExpression;
-  decorators: DecoratorExpressionNode[];
-  optional: boolean;
-  default?: ProjectionExpression;
+  readonly kind: SyntaxKind.ProjectionModelProperty;
+  readonly id: IdentifierNode | StringLiteralNode;
+  readonly value: ProjectionExpression;
+  readonly decorators: DecoratorExpressionNode[];
+  readonly optional: boolean;
+  readonly default?: ProjectionExpression;
 }
 
 export interface ProjectionModelSpreadPropertyNode extends BaseNode {
-  kind: SyntaxKind.ProjectionModelSpreadProperty;
-  target: ProjectionExpression;
+  readonly kind: SyntaxKind.ProjectionModelSpreadProperty;
+  readonly target: ProjectionExpression;
 }
 
 export interface ProjectionIfExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionIfExpression;
-  test: ProjectionExpression;
-  consequent: ProjectionBlockExpressionNode;
-  alternate?: ProjectionBlockExpressionNode | ProjectionIfExpressionNode;
+  readonly kind: SyntaxKind.ProjectionIfExpression;
+  readonly test: ProjectionExpression;
+  readonly consequent: ProjectionBlockExpressionNode;
+  readonly alternate?: ProjectionBlockExpressionNode | ProjectionIfExpressionNode;
 }
 
 export interface ProjectionBlockExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionBlockExpression;
-  statements: ProjectionStatementItem[];
+  readonly kind: SyntaxKind.ProjectionBlockExpression;
+  readonly statements: ProjectionStatementItem[];
 }
 
 export interface ProjectionLambdaExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionLambdaExpression;
-  parameters: ProjectionLambdaParameterDeclarationNode[];
-  locals?: SymbolTable;
-  body: ProjectionBlockExpressionNode;
+  readonly kind: SyntaxKind.ProjectionLambdaExpression;
+  readonly parameters: ProjectionLambdaParameterDeclarationNode[];
+  readonly locals?: SymbolTable;
+  readonly body: ProjectionBlockExpressionNode;
 }
 
 export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNode, BaseNode {
-  kind: SyntaxKind.ProjectionLambdaParameterDeclaration;
+  readonly kind: SyntaxKind.ProjectionLambdaParameterDeclaration;
 }
 
 export interface ProjectionNode extends BaseNode {
-  kind: SyntaxKind.Projection;
-  direction: "to" | "from";
-  parameters: ProjectionParameterDeclarationNode[];
-  body: ProjectionStatementItem[];
-  locals?: SymbolTable;
+  readonly kind: SyntaxKind.Projection;
+  readonly direction: "to" | "from";
+  readonly parameters: ProjectionParameterDeclarationNode[];
+  readonly body: ProjectionStatementItem[];
+  readonly locals?: SymbolTable;
 }
 
 export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
-  kind: SyntaxKind.ProjectionStatement;
-  selector:
+  readonly kind: SyntaxKind.ProjectionStatement;
+  readonly selector:
     | ProjectionModelSelectorNode
     | ProjectionInterfaceSelectorNode
     | ProjectionOperationSelectorNode
@@ -911,13 +944,13 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
     | ProjectionEnumSelectorNode
     | MemberExpressionNode
     | IdentifierNode;
-  to?: ProjectionNode;
-  from?: ProjectionNode;
+  readonly to?: ProjectionNode;
+  readonly from?: ProjectionNode;
 }
 
 export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
-  kind: SyntaxKind.ProjectionDecoratorReferenceExpression;
-  target: MemberExpressionNode | IdentifierNode;
+  readonly kind: SyntaxKind.ProjectionDecoratorReferenceExpression;
+  readonly target: MemberExpressionNode | IdentifierNode;
 }
 
 /**

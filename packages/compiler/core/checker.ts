@@ -44,6 +44,7 @@ import {
   NamespaceStatementNode,
   NamespaceType,
   Node,
+  NodeFlags,
   NumericLiteralNode,
   NumericLiteralType,
   OperationStatementNode,
@@ -85,6 +86,7 @@ import {
   UnionType,
   UnionTypeVariant,
   UnionVariantNode,
+  Writable,
 } from "./types.js";
 import { isArray } from "./util.js";
 
@@ -651,7 +653,7 @@ export function createChecker(program: Program): Checker {
       | UnionStatementNode,
     args: Type[]
   ): Type {
-    const symbolLinks = getSymbolLinks(templateNode.symbol!);
+    const symbolLinks = getSymbolLinks(templateNode.symbol);
     const cached = symbolLinks.instantiations!.get(args) as ModelType;
     if (cached) {
       return cached;
@@ -1216,7 +1218,7 @@ export function createChecker(program: Program): Checker {
 
     if (node.kind === SyntaxKind.Identifier) {
       const sym = resolveIdentifier(node, resolveDecorator);
-      if (!sym) return;
+      if (!sym) return undefined;
 
       return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
     }
@@ -1265,7 +1267,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkModelStatement(node: ModelStatementNode) {
-    const links = getSymbolLinks(node.symbol!);
+    const links = getSymbolLinks(node.symbol);
     const instantiatingThisTemplate = instantiatingTemplate === node;
 
     if (links.declaredType && !instantiatingThisTemplate) {
@@ -1708,7 +1710,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkAlias(node: AliasStatementNode): Type {
-    const links = getSymbolLinks(node.symbol!);
+    const links = getSymbolLinks(node.symbol);
     const instantiatingThisTemplate = instantiatingTemplate === node;
 
     if (links.declaredType && !instantiatingThisTemplate) {
@@ -1737,7 +1739,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkEnum(node: EnumStatementNode): Type {
-    const links = getSymbolLinks(node.symbol!);
+    const links = getSymbolLinks(node.symbol);
     if (!links.type) {
       const decorators = checkDecorators(node);
       const enumType: EnumType = (links.type = createType({
@@ -1766,7 +1768,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkInterface(node: InterfaceStatementNode): InterfaceType {
-    const links = getSymbolLinks(node.symbol!);
+    const links = getSymbolLinks(node.symbol);
     const instantiatingThisTemplate = instantiatingTemplate === node;
 
     if (links.declaredType && !instantiatingThisTemplate) {
@@ -1859,7 +1861,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkUnion(node: UnionStatementNode) {
-    const links = getSymbolLinks(node.symbol!);
+    const links = getSymbolLinks(node.symbol);
     const instantiatingThisTemplate = instantiatingTemplate === node;
 
     if (links.declaredType && !instantiatingThisTemplate) {
@@ -2067,9 +2069,9 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function getMergedSymbol<T extends Sym>(sym: T | undefined): T {
-    if (!sym) return sym as any;
-    return mergedSymbols.get(sym) || (sym as any);
+  function getMergedSymbol(sym: Sym): Sym {
+    if (!sym) return sym;
+    return mergedSymbols.get(sym) || sym;
   }
 
   function createGlobalNamespaceNode(): NamespaceStatementNode {
@@ -2079,9 +2081,10 @@ export function createChecker(program: Program): Checker {
       end: 0,
       sv: "__GLOBAL_NS",
       symbol: undefined as any,
+      flags: NodeFlags.Synthetic,
     };
 
-    const nsNode: NamespaceStatementNode = {
+    const nsNode: Writable<NamespaceStatementNode> = {
       kind: SyntaxKind.NamespaceStatement,
       decorators: [],
       pos: 0,
@@ -2089,6 +2092,7 @@ export function createChecker(program: Program): Checker {
       id: nsId,
       symbol: undefined as any,
       locals: createSymbolTable(),
+      flags: NodeFlags.Synthetic,
     };
     nsNode.symbol = createSymbol(nsNode, "__GLOBAL_NS", SymbolFlags.Namespace);
     return nsNode;
@@ -2188,7 +2192,7 @@ export function createChecker(program: Program): Checker {
     // right now you can declare the same projection on a specific type
     // this could maybe go in the binder? But right now we don't know
     // what an identifier resolves to until check time.
-    const links = getSymbolLinks(node.symbol!);
+    const links = getSymbolLinks(node.symbol);
     if (processedProjections.has(node)) {
       return links.declaredType!;
     }
