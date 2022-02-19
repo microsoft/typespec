@@ -257,7 +257,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const statements = parseCadlScriptItemList();
     return {
       kind: SyntaxKind.CadlScript,
-      ...finishNode(0),
       statements,
       file: scanner.file,
       id: {
@@ -273,6 +272,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       parseDiagnostics,
       comments,
       printable: treePrintable,
+      ...finishNode(0),
     };
   }
 
