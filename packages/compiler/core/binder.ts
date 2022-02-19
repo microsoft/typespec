@@ -396,7 +396,6 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
         return declareNamespaceMember(node, flags);
-        break;
       case SyntaxKind.CadlScript:
       case SyntaxKind.JsSourceFile:
         return declareScriptMember(node, flags);
@@ -409,15 +408,40 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   }
 
   function declareNamespaceMember(node: Writable<Declaration>, flags: SymbolFlags) {
+    if (
+      flags & SymbolFlags.Namespace &&
+      mergeNamespaceDeclarations(node as NamespaceStatementNode, scope)
+    ) {
+      return;
+    }
     const symbol = createSymbol(node, node.id.sv, flags, scope.symbol);
     node.symbol = symbol;
-    (scope as NamespaceStatementNode).symbol.exports!.set(node.id.sv, symbol);
+    scope.symbol.exports!.set(node.id.sv, symbol);
   }
 
   function declareScriptMember(node: Writable<Declaration>, flags: SymbolFlags) {
+    const effectiveScope = fileNamespace ?? scope;
+    if (
+      flags & SymbolFlags.Namespace &&
+      mergeNamespaceDeclarations(node as NamespaceStatementNode, effectiveScope)
+    ) {
+      return;
+    }
     const symbol = createSymbol(node, node.id.sv, flags, fileNamespace?.symbol);
     node.symbol = symbol;
-    (fileNamespace || scope).symbol.exports!.set(node.id.sv, symbol);
+    effectiveScope.symbol.exports!.set(node.id.sv, symbol);
+  }
+
+  function mergeNamespaceDeclarations(node: Writable<NamespaceStatementNode>, scope: ScopeNode) {
+    // we are declaring a namespace in either global scope, or a blockless namespace.
+    const existingBinding = scope.symbol.exports!.get(node.id.sv);
+    if (existingBinding) {
+      // we have an existing binding, so just push this node to its declarations
+      existingBinding!.declarations.push(node);
+      node.symbol = existingBinding;
+      return true;
+    }
+    return false;
   }
 }
 

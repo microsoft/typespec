@@ -80,6 +80,54 @@ describe("compiler: binder", () => {
     });
   });
 
+  it("binds duplicate namespaces declared in the same file", () => {
+    const code = `
+      namespace test;
+      namespace A {
+        namespace B {
+
+        }
+
+        op get1() { }
+      }
+
+      namespace A {
+        namespace B {
+
+        }
+
+        op get2() { }
+      }
+    `;
+    const script = bindCadl(code);
+    strictEqual(script.namespaces.length, 5);
+    assertBindings("root", script.symbol.exports!, {
+      test: {
+        declarations: [SyntaxKind.NamespaceStatement],
+        flags: SymbolFlags.Namespace,
+        exports: {
+          A: {
+            declarations: [SyntaxKind.NamespaceStatement, SyntaxKind.NamespaceStatement],
+            flags: SymbolFlags.Namespace,
+            exports: {
+              B: {
+                declarations: [SyntaxKind.NamespaceStatement, SyntaxKind.NamespaceStatement],
+                flags: SymbolFlags.Namespace,
+                exports: {},
+              },
+              get1: {
+                flags: SymbolFlags.Operation,
+              },
+              get2: {
+                flags: SymbolFlags.Operation,
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
   it("binds models", () => {
     const code = `
       namespace A {
@@ -388,6 +436,7 @@ interface BindingDescriptor {
 }
 
 function assertBindings(path: string, table: SymbolTable, descriptor: BindTest, parent?: Sym) {
+  strictEqual(table.duplicates.size, 0, `no duplicate bindings for ${path}`);
   for (const [key, value] of Object.entries(descriptor)) {
     const subpath = `${path}.${key}`;
     const binding = table.get(key);
