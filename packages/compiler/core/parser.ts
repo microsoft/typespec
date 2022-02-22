@@ -18,8 +18,6 @@ import {
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
-  ContainerNode,
-  DeclarationNode,
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticReport,
@@ -41,6 +39,7 @@ import {
   NamespaceStatementNode,
   NeverKeywordNode,
   Node,
+  NodeFlags,
   NumericLiteralNode,
   OperationStatementNode,
   ProjectionBlockExpressionNode,
@@ -51,7 +50,6 @@ import {
   ProjectionInterfaceSelectorNode,
   ProjectionLambdaExpressionNode,
   ProjectionLambdaParameterDeclarationNode,
-  ProjectionMemberExpressionNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSelectorNode,
@@ -66,6 +64,7 @@ import {
   SourceFile,
   Statement,
   StringLiteralNode,
+  Sym,
   SyntaxKind,
   TemplateParameterDeclarationNode,
   TextRange,
@@ -118,33 +117,6 @@ interface SurroundedListKind extends ListKind {
 
 interface UndecoratedListKind extends ListKind {
   invalidDecoratorTarget: string;
-}
-
-/** @internal */
-export const enum NodeFlags {
-  None = 0,
-  /**
-   * If this is set, the DescendantHasError bit can be trusted. If this not set,
-   * children need to be visited still to see if DescendantHasError should be
-   * set.
-   */
-  DescendantErrorsExamined = 1 << 0,
-
-  /**
-   * Indicates that a parse error was associated with this specific node.
-   */
-  ThisNodeHasError = 1 << 1,
-
-  /**
-   * Indicates that a child of this node (or one of its children,
-   * transitively) has a parse error.
-   */
-  DescendantHasError = 1 << 2,
-
-  /**
-   * Indicates that a node was created synthetically and therefore may not be parented.
-   */
-  Synthetic = 1 << 3,
 }
 
 /**
@@ -287,6 +259,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       kind: SyntaxKind.CadlScript,
       statements,
       file: scanner.file,
+      id: {
+        kind: SyntaxKind.Identifier,
+        sv: scanner.file.path,
+        pos: 0,
+        end: 0,
+        flags: NodeFlags.Synthetic,
+      } as any,
       namespaces: [],
       usings: [],
       locals: createSymbolTable(),
@@ -488,23 +467,23 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       parseExpected(Token.CloseBrace);
     }
 
-    let outerNs: NamespaceStatementNode = createNode({
+    let outerNs: NamespaceStatementNode = {
       kind: SyntaxKind.NamespaceStatement,
       decorators,
-      name: nsSegments[0],
+      id: nsSegments[0],
       statements,
 
       ...finishNode(pos),
-    });
+    };
 
     for (let i = 1; i < nsSegments.length; i++) {
-      outerNs = createNode({
+      outerNs = {
         kind: SyntaxKind.NamespaceStatement,
         decorators: [],
-        name: nsSegments[i],
+        id: nsSegments[i],
         statements: outerNs,
         ...finishNode(pos),
-      });
+      };
     }
 
     return outerNs;
@@ -538,7 +517,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const operations = parseList(ListKind.InterfaceMembers, parseInterfaceMember);
 
-    return createNode({
+    return {
       kind: SyntaxKind.InterfaceStatement,
       id,
       templateParameters,
@@ -546,7 +525,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       mixes,
       decorators,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseTemplateParameterList(): TemplateParameterDeclarationNode[] {
@@ -577,14 +556,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.Colon);
 
     const returnType = parseExpression();
-    return createNode({
+    return {
       kind: SyntaxKind.OperationStatement,
       id,
       parameters,
       returnType,
       decorators,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseUnionStatement(
@@ -597,14 +576,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const options = parseList(ListKind.UnionVariants, parseUnionVariant);
 
-    return createNode({
+    return {
       kind: SyntaxKind.UnionStatement,
       id,
       templateParameters,
       decorators,
       options,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
@@ -626,7 +605,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseUsingStatement(): UsingStatementNode {
     const pos = tokenPos();
     parseExpected(Token.UsingKeyword);
-    const name = parseIdentifierOrMemberExpression();
+    const name = parseIdentifierOrMemberExpression(undefined, true);
     parseExpected(Token.Semicolon);
 
     return {
@@ -649,14 +628,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const returnType = parseExpression();
     parseExpected(Token.Semicolon);
 
-    return createNode({
+    return {
       kind: SyntaxKind.OperationStatement,
       id,
       parameters,
       returnType,
       decorators,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseOperationParameters(): ModelExpressionNode {
@@ -684,7 +663,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
     const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
 
-    return createNode({
+    return {
       kind: SyntaxKind.ModelStatement,
       id,
       extends: optionalExtends,
@@ -693,7 +672,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       decorators,
       properties,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseOptionalModelExtends() {
@@ -752,7 +731,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseModelProperty(
     pos: number,
     decorators: DecoratorExpressionNode[]
-  ): ModelPropertyNode | ModelSpreadPropertyNode {
+  ): ModelPropertyNode {
     const id = token() === Token.StringLiteral ? parseStringLiteral() : parseIdentifier("property");
 
     const optional = parseOptional(Token.Question);
@@ -782,13 +761,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
     const members = parseList(ListKind.EnumMembers, parseEnumMember);
-    return createNode({
+    return {
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
       members,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseEnumMember(pos: number, decorators: DecoratorExpressionNode[]): EnumMemberNode {
@@ -803,7 +782,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         value = expr;
       } else if (
         expr.kind === SyntaxKind.TypeReference &&
-        getFlag(expr.target, NodeFlags.ThisNodeHasError)
+        expr.target.flags & NodeFlags.ThisNodeHasError
       ) {
         parseErrorInNextFinishedNode = true;
       } else {
@@ -828,13 +807,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.Equals);
     const value = parseExpression();
     parseExpected(Token.Semicolon);
-    return createNode({
+    return {
       kind: SyntaxKind.AliasStatement,
       id,
       templateParameters,
       value,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseExpression(): Expression {
@@ -1192,14 +1171,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     parseExpected(Token.CloseBrace);
 
-    return createNode({
+    return {
       kind: SyntaxKind.ProjectionStatement,
       selector,
       from,
       to,
       id,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseProjection(): ProjectionNode {
@@ -1222,13 +1201,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const body: ProjectionStatementItem[] = parseProjectionStatementList();
     parseExpected(Token.CloseBrace);
 
-    return createNode({
+    return {
       kind: SyntaxKind.Projection,
       body,
       direction,
       parameters,
       ...finishNode(pos),
-    });
+    };
   }
 
   function parseProjectionParameter(): ProjectionParameterDeclarationNode {
@@ -1473,7 +1452,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       nextToken();
       return {
         kind: SyntaxKind.ProjectionDecoratorReferenceExpression,
-        target: parseIdentifierOrMemberExpression(),
+        target: parseIdentifierOrMemberExpression(undefined, true),
         ...finishNode(pos),
       };
     }
@@ -1486,16 +1465,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     let expr = parseProjectionPrimaryExpression();
     expr = parseProjectionMemberExpressionRest(expr, pos);
     return expr;
-  }
-
-  function parseProjectionIdentifierOrMemberExpression():
-    | ProjectionMemberExpressionNode
-    | IdentifierNode {
-    const pos = tokenPos();
-    const expr = parseIdentifier();
-    return parseProjectionMemberExpressionRest(expr, pos) as
-      | ProjectionMemberExpressionNode
-      | IdentifierNode;
   }
 
   function parseProjectionMemberExpressionRest(
@@ -1561,12 +1530,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const params: ProjectionLambdaParameterDeclarationNode[] = [];
       for (const expr of exprs) {
         if (expr.kind === SyntaxKind.Identifier) {
-          params.push({
-            kind: SyntaxKind.ProjectionLambdaParameterDeclaration,
-            id: expr,
-            pos: expr.pos,
-            end: expr.end,
-          });
+          params.push(
+            withSymbol({
+              kind: SyntaxKind.ProjectionLambdaParameterDeclaration,
+              id: expr,
+              pos: expr.pos,
+              end: expr.end,
+              flags: NodeFlags.None,
+            })
+          );
         } else {
           error({ code: "token-expected", messageId: "identifier", target: expr });
         }
@@ -1734,7 +1706,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     switch (selectorTok) {
       case Token.Identifier:
-        return parseIdentifierOrMemberExpression();
+        return parseIdentifierOrMemberExpression(undefined, true);
       case Token.ModelKeyword:
         nextToken();
         return {
@@ -1830,10 +1802,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function finishNode(pos: number): TextRange & { flags: NodeFlags } {
+  function finishNode(pos: number): TextRange & { flags: NodeFlags; symbol: Sym } {
     const flags = parseErrorInNextFinishedNode ? NodeFlags.ThisNodeHasError : NodeFlags.None;
     parseErrorInNextFinishedNode = false;
-    return { pos, end: previousTokenEnd, flags };
+    return withSymbol({ pos, end: previousTokenEnd, flags });
+  }
+
+  // pretend to add as symbol property, likely to a node that is being created.
+  function withSymbol<T extends { symbol: Sym }>(obj: Omit<T, "symbol">): T {
+    return obj as any;
   }
 
   /**
@@ -2164,7 +2141,7 @@ type NodeCb<T> = (c: Node) => T;
 export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
   switch (node.kind) {
     case SyntaxKind.CadlScript:
-      return visitEach(cb, node.statements);
+      return visitNode(cb, node.id) || visitEach(cb, node.statements);
     case SyntaxKind.ArrayExpression:
       return visitNode(cb, node.elementType);
     case SyntaxKind.DecoratorExpression:
@@ -2183,7 +2160,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.NamespaceStatement:
       return (
         visitEach(cb, node.decorators) ||
-        visitNode(cb, node.name) ||
+        visitNode(cb, node.id) ||
         (isArray(node.statements) ? visitEach(cb, node.statements) : visitNode(cb, node.statements))
       );
     case SyntaxKind.InterfaceStatement:
@@ -2315,6 +2292,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.ProjectionEnumSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
+    case SyntaxKind.JsSourceFile:
       return;
     default:
       // Dummy const to ensure we handle all node types.
@@ -2391,36 +2369,32 @@ export function getNodeAtPosition(
 }
 
 export function hasParseError(node: Node) {
-  if (getFlag(node, NodeFlags.ThisNodeHasError)) {
+  if (node.flags & NodeFlags.ThisNodeHasError) {
     return true;
   }
 
   checkForDescendantErrors(node);
-  return getFlag(node, NodeFlags.DescendantHasError);
+  return node.flags & NodeFlags.DescendantHasError;
 }
 
-export function isSynthetic(node: Node) {
-  return getFlag(node, NodeFlags.Synthetic);
-}
-
-function checkForDescendantErrors(node: Node) {
-  if (getFlag(node, NodeFlags.DescendantErrorsExamined)) {
+function checkForDescendantErrors(node: Writable<Node>) {
+  if (node.flags & NodeFlags.DescendantErrorsExamined) {
     return;
   }
-  setFlag(node, NodeFlags.DescendantErrorsExamined);
+  node.flags |= NodeFlags.DescendantErrorsExamined;
 
-  visitChildren(node, (child) => {
-    if (getFlag(child, NodeFlags.ThisNodeHasError)) {
-      setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
+  visitChildren(node, (child: Writable<Node>) => {
+    if (child.flags & NodeFlags.ThisNodeHasError) {
+      node.flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
       return true;
     }
     checkForDescendantErrors(child);
 
-    if (getFlag(child, NodeFlags.DescendantHasError)) {
-      setFlag(node, NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined);
+    if (child.flags & NodeFlags.DescendantHasError) {
+      node.flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
       return true;
     }
-    setFlag(child, NodeFlags.DescendantErrorsExamined);
+    child.flags |= NodeFlags.DescendantErrorsExamined;
 
     return false;
   });
@@ -2428,14 +2402,6 @@ function checkForDescendantErrors(node: Node) {
 
 export function isImportStatement(node: Node): node is ImportStatementNode {
   return node.kind === SyntaxKind.ImportStatement;
-}
-
-function getFlag(node: Node, flag: NodeFlags) {
-  return ((node as any).flags & flag) !== 0;
-}
-
-function setFlag(node: Node, flag: NodeFlags) {
-  (node as any).flags |= flag;
 }
 
 function isBlocklessNamespace(node: Node) {
@@ -2447,8 +2413,4 @@ function isBlocklessNamespace(node: Node) {
   }
 
   return node.statements === undefined;
-}
-
-function createNode<T extends Node>(node: Omit<T, keyof DeclarationNode | keyof ContainerNode>): T {
-  return node as any;
 }
