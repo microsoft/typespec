@@ -17,6 +17,7 @@ import {
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
+  NodeFlags,
   NumericLiteralNode,
   OperationStatementNode,
   Statement,
@@ -148,7 +149,12 @@ function printTemplateParameters<T extends Node>(
 
 export function canAttachComment(node: Node): boolean {
   const kind = node.kind as SyntaxKind;
-  return Boolean(kind && kind !== SyntaxKind.LineComment && kind !== SyntaxKind.BlockComment);
+  return Boolean(
+    kind &&
+      kind !== SyntaxKind.LineComment &&
+      kind !== SyntaxKind.BlockComment &&
+      !(node.flags & NodeFlags.Synthetic)
+  );
 }
 
 export function printComment(
@@ -697,7 +703,7 @@ export function printNamespaceStatement(
   print: PrettierChildPrint
 ) {
   const printNested = (currentPath: AstPath<NamespaceStatementNode>, parentNames: Doc[]): Doc => {
-    const names = [...parentNames, currentPath.call(print, "name")];
+    const names = [...parentNames, currentPath.call(print, "id")];
     const currentNode = currentPath.getNode();
 
     if (

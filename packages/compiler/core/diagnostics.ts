@@ -1,7 +1,6 @@
 import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger.js";
-import { isSynthetic } from "./parser.js";
 import { Program } from "./program.js";
 import {
   Diagnostic,
@@ -12,9 +11,11 @@ import {
   DiagnosticTarget,
   LogSink,
   Node,
+  NodeFlags,
   NoTarget,
   SourceFile,
   SourceLocation,
+  SymbolFlags,
   SyntaxKind,
   Type,
 } from "./types.js";
@@ -167,30 +168,30 @@ export function getSourceLocation(
     return target;
   }
 
-  if (target.kind === "using") {
-    target = target.symbolSource;
-  }
+  if (!("kind" in target)) {
+    // symbol
+    if (target.flags & SymbolFlags.Using) {
+      target = target.symbolSource!;
+    }
 
-  if (target.kind === "decorator") {
-    return createDummySourceLocation(target.path);
-  }
+    if (!target.declarations[0]) {
+      return createDummySourceLocation();
+    }
 
-  if (target.kind === "Function" || target.kind === "function" || target.kind === "Object") {
+    return getSourceLocationOfNode(target.declarations[0]);
+  } else if (typeof target.kind === "number") {
+    // node
+    return getSourceLocationOfNode(target as Node);
+  } else {
+    // type
+    const targetNode = (target as Type).node;
+
+    if (targetNode) {
+      return getSourceLocationOfNode(targetNode);
+    }
+
     return createDummySourceLocation();
   }
-
-  const node = "node" in target ? target.node! : target;
-
-  if (
-    node.kind === "Intrinsic" ||
-    node.kind === "String" ||
-    node.kind === "Number" ||
-    node.kind === "Boolean"
-  ) {
-    return createDummySourceLocation();
-  }
-
-  return getSourceLocationOfNode(node);
 }
 
 function createDummySourceLocation(loc = "<unknown location>") {
@@ -210,7 +211,7 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
 
   if (root.kind !== SyntaxKind.CadlScript) {
     return createDummySourceLocation(
-      isSynthetic(node)
+      node.flags & NodeFlags.Synthetic
         ? undefined
         : "<unknown location - cannot obtain source location of unbound node - file bug at https://github.com/microsoft/cadl>"
     );

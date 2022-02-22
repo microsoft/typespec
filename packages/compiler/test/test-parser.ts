@@ -1,8 +1,8 @@
 import assert from "assert";
 import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
-import { hasParseError, NodeFlags, parse, visitChildren } from "../core/parser.js";
-import { CadlScriptNode, Node, SourceFile, SyntaxKind } from "../core/types.js";
+import { hasParseError, parse, visitChildren } from "../core/parser.js";
+import { CadlScriptNode, Node, NodeFlags, SourceFile, SyntaxKind } from "../core/types.js";
 
 describe("compiler: syntax", () => {
   describe("import statements", () => {

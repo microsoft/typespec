@@ -43,6 +43,7 @@ import {
   IdentifierNode,
   SourceFile,
   SourceLocation,
+  SymbolFlags,
   SyntaxKind,
   Type,
 } from "../core/types.js";
@@ -453,15 +454,15 @@ export function createServer(host: ServerHost): Server {
     for (let [key, { sym, label }] of result) {
       let documentation: string | undefined;
       let kind: CompletionItemKind;
-      if (sym.kind === "using") {
-        sym = sym.symbolSource;
+      if (sym.flags & SymbolFlags.Using) {
+        sym = sym.symbolSource!;
       }
-      if (sym.kind === "type") {
-        const type = program.checker!.getTypeForNode(sym.node);
-        documentation = getDoc(program, type);
-        kind = getCompletionItemKind(program, type, sym.node.kind);
-      } else {
+      if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
+      } else {
+        const type = program.checker!.getTypeForNode(sym.declarations[0]);
+        documentation = getDoc(program, type);
+        kind = getCompletionItemKind(program, type, sym.declarations[0].kind);
       }
       completions.items.push({
         label: label ?? key,
