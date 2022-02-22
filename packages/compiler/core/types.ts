@@ -707,6 +707,7 @@ export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface InvalidStatementNode extends BaseNode {
   readonly kind: SyntaxKind.InvalidStatement;
+  readonly decorators: readonly DecoratorExpressionNode[];
 }
 
 export interface EmptyStatementNode extends BaseNode {
@@ -1116,7 +1117,7 @@ export interface CompilerHost {
   getLibDirs(): string[];
 
   // get a promise for the ESM module shape of a JS module
-  getJsImport(path: string): Promise<any>;
+  getJsImport(path: string): Promise<Record<string, any>>;
 
   // get info about a path
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;

@@ -115,7 +115,6 @@ export interface Checker {
     args?: (Type | string | number | boolean)[]
   ): Type;
   resolveCompletions(node: IdentifierNode): Map<string, CadlCompletionItem>;
-
   createType<T>(typeDef: T): T & TypePrototype;
   createAndFinishType<U extends Type extends any ? Omit<Type, keyof TypePrototype> : never>(
     typeDef: U
@@ -442,6 +441,14 @@ export function createChecker(program: Program): Checker {
     if (!type) return "";
     const parent = type.namespace;
     return parent && parent.name !== "" ? `${getNamespaceString(parent)}.${type.name}` : type.name;
+  }
+
+  function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
+    if (!sym) return "";
+    const parent = sym.parent;
+    return parent && parent.name !== ""
+      ? `${getFullyQualifiedSymbolName(parent)}.${sym.name}`
+      : sym.name;
   }
 
   function getEnumName(e: EnumType): string {
@@ -987,17 +994,16 @@ export function createChecker(program: Program): Checker {
 
   function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletionItem> {
     const completions = new Map<string, CadlCompletionItem>();
-
-    // If first non-MemberExpression parent of identifier is a TypeReference
-    // or DecoratorExpression, then we can complete it.
     const parent = findFirstNonMemberExpressionParent(identifier);
+    const resolveType = parent.kind === SyntaxKind.TypeReference;
     const resolveDecorator = parent.kind === SyntaxKind.DecoratorExpression;
-    if (parent.kind !== SyntaxKind.TypeReference && !resolveDecorator) {
+    const resolveUsing = parent.kind === SyntaxKind.UsingStatement;
+    if (!resolveType && !resolveDecorator && !resolveUsing) {
       return completions;
     }
 
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
-      const base = resolveTypeReference(identifier.parent.base, resolveDecorator);
+      const base = resolveTypeReference(identifier.parent.base, false);
       if (base && base.flags & SymbolFlags.Namespace) {
         addCompletions(base.exports);
       }
@@ -1049,36 +1055,50 @@ export function createChecker(program: Program): Checker {
       if (!table) {
         return;
       }
-      for (let [key, sym] of table) {
-        if (resolveDecorator !== key.startsWith("@")) {
-          continue;
-        }
-        if (resolveDecorator) {
-          key = key.slice(1);
-        }
-        if (!completions.has(key)) {
-          // TODO? should complete propose different options and use fqn?
-
-          if (sym.flags & SymbolFlags.DuplicateUsing) {
-            const duplicates = table.duplicates.get(sym)!;
-            for (const duplicate of duplicates) {
-              if (!(duplicate.flags & SymbolFlags.Using)) {
-                continue;
-              }
-              const namespace =
-                duplicate.symbolSource!.flags & (SymbolFlags.Decorator | SymbolFlags.Function)
-                  ? (duplicate.symbolSource!.value as any).namespace
-                  : getNamespaceString(
-                      (getTypeForNode(duplicate.symbolSource!.declarations[0]) as any).namespace
-                    );
-              const fqn = `${namespace}.${key}`;
-              completions.set(fqn, { sym: duplicate });
+      for (const [key, sym] of table) {
+        if (sym.flags & SymbolFlags.DuplicateUsing) {
+          const duplicates = table.duplicates.get(sym)!;
+          for (const duplicate of duplicates) {
+            if (duplicate.flags & SymbolFlags.Using) {
+              const fqn = getFullyQualifiedSymbolName(duplicate.symbolSource);
+              addCompletion(fqn, duplicate);
             }
-          } else {
-            completions.set(key, { sym });
           }
+        } else {
+          addCompletion(key, sym);
         }
       }
+    }
+
+    function addCompletion(key: string, sym: Sym) {
+      if (sym.symbolSource) {
+        sym = sym.symbolSource;
+      }
+      if (!shouldAddCompletion(sym)) {
+        return;
+      }
+      if (key.startsWith("@")) {
+        key = key.slice(1);
+      }
+      if (!completions.has(key)) {
+        completions.set(key, { sym });
+      }
+    }
+
+    function shouldAddCompletion(sym: Sym): boolean {
+      if (resolveDecorator) {
+        // Only return decorators and namespaces when completing decorator
+        return !!(sym.flags & (SymbolFlags.Decorator | SymbolFlags.Namespace));
+      }
+      if (resolveUsing) {
+        // Only return namespaces when completing using
+        return !!(sym.flags & SymbolFlags.Namespace);
+      }
+      if (resolveType) {
+        // Do not return functions when completing types
+        return !(sym.flags & SymbolFlags.Function);
+      }
+      compilerAssert(false, "Unreachable.");
     }
   }
 

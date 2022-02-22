@@ -6,7 +6,7 @@ export interface TestFileSystem {
   fs: Map<string, string>;
 
   addCadlFile(path: string, contents: string): void;
-  addJsFile(path: string, contents: any): void;
+  addJsFile(path: string, contents: Record<string, any>): void;
   addRealCadlFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
   addCadlLibrary(testLibrary: CadlTestLibrary): Promise<void>;

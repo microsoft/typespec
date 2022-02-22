@@ -320,7 +320,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseUsingStatement();
           break;
         case Token.ProjectionKeyword:
-          reportInvalidDecorators(decorators, "project statement");
+          reportInvalidDecorators(decorators, "projection statement");
           item = parseProjectionStatement();
           break;
         case Token.Semicolon:
@@ -328,8 +328,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          reportInvalidDecorators(decorators, "invalid statement");
-          item = parseInvalidStatement();
+          item = parseInvalidStatement(decorators);
           break;
       }
 
@@ -416,8 +415,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          reportInvalidDecorators(decorators, "invalid statement");
-          item = parseInvalidStatement();
+          item = parseInvalidStatement(decorators);
           break;
       }
       item.directives = directives;
@@ -996,7 +994,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       base = {
         kind: SyntaxKind.MemberExpression,
         base,
-        id: parseIdentifier(),
+        // Error recovery: false arg here means don't treat a keyword as an
+        // identifier after `.` in member expression. Otherwise we will
+        // parse `@Outer.<missing identifier> model M{}` as having decorator
+        // `@Outer.model` applied to invalid statement `M {}` instead of
+        // having incomplete decorator `@Outer.` applied to `model M {}`.
+        id: parseIdentifier(undefined, false),
         ...finishNode(pos),
       };
     }
@@ -1977,7 +1980,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return { kind: SyntaxKind.EmptyStatement, ...finishNode(pos) };
   }
 
-  function parseInvalidStatement(): InvalidStatementNode {
+  function parseInvalidStatement(decorators: DecoratorExpressionNode[]): InvalidStatementNode {
     // Error recovery: avoid an avalanche of errors when we get cornered into
     // parsing statements where none exist. Skip until we find a statement
     // keyword or decorator and only report one error for a contiguous range of
@@ -1997,7 +2000,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       messageId: "statement",
       target: { pos, end: previousTokenEnd },
     });
-    return { kind: SyntaxKind.InvalidStatement, ...finishNode(pos) };
+    return { kind: SyntaxKind.InvalidStatement, decorators, ...finishNode(pos) };
   }
 
   function error<
@@ -2276,6 +2279,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.Return:
       return visitNode(cb, node.value);
     // no children for the rest of these.
+    case SyntaxKind.InvalidStatement:
+      return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
       return visitNode(cb, node.default);
     case SyntaxKind.StringLiteral:
@@ -2284,7 +2289,6 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.Identifier:
     case SyntaxKind.ProjectionParameterDeclaration:
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
-    case SyntaxKind.InvalidStatement:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
     case SyntaxKind.ProjectionUnionSelector:
