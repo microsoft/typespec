@@ -1096,7 +1096,7 @@ export function createChecker(program: Program): Checker {
       }
       if (resolveType) {
         // Do not return functions when completing types
-        return !!!(sym.flags & SymbolFlags.Function);
+        return !(sym.flags & SymbolFlags.Function);
       }
       compilerAssert(false, "Unreachable.");
     }
