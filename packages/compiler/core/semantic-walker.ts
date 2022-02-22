@@ -247,7 +247,7 @@ function navigateType(
     default:
       // Dummy const to ensure we handle all types.
       // If you get an error here, add a case for the new type you added
-      const assertNever: never = type;
+      const _assertNever: never = type;
       return;
   }
 }

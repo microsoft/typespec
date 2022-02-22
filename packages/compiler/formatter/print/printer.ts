@@ -33,7 +33,7 @@ import { isArray } from "../../core/util.js";
 import { commentHandler } from "./comment-handler.js";
 import { CadlPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
 
-const { align, breakParent, concat, group, hardline, ifBreak, indent, join, line, softline } =
+const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } =
   prettier.doc.builders;
 
 const { isNextLineEmpty } = prettier.util;

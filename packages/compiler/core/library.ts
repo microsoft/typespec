@@ -1,5 +1,11 @@
 import { createDiagnosticCreator } from "./diagnostics.js";
-import { CadlLibrary, CadlLibraryDef, CallableMessage, DiagnosticMessages } from "./types.js";
+import {
+  CadlLibrary,
+  CadlLibraryDef,
+  CallableMessage,
+  DecoratorFunction,
+  DiagnosticMessages,
+} from "./types.js";
 
 /**
  * Create a new Cadl library definition.
@@ -46,6 +52,6 @@ export function paramMessage<T extends string[]>(
   return template;
 }
 
-export function setDecoratorNamespace(namespace: string, ...decorators: Function[]): void {
+export function setDecoratorNamespace(namespace: string, ...decorators: DecoratorFunction[]): void {
   decorators.forEach((c: any) => (c.namespace = namespace));
 }

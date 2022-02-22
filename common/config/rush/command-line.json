@@ -62,6 +62,20 @@
       "shellCommand": "node eng/scripts/dogfood.js"
     },
     {
+      "commandKind": "bulk",
+      "name": "lint",
+      "summary": "Lint projects. Runs `npm run lint` on all projects.",
+      "enableParallelism": true,
+      "ignoreMissingScript": true
+    },
+    {
+      "commandKind": "bulk",
+      "name": "lint:fix",
+      "summary": "Fix lint issues in projects. Runs `npm run lint:fix` on all projects.",
+      "enableParallelism": true,
+      "ignoreMissingScript": true
+    },
+    {
       "commandKind": "global",
       "safeForSimultaneousRushProcesses": true,
       "name": "e2e",

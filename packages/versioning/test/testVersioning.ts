@@ -165,7 +165,6 @@ describe("cadl: versioning", () => {
 
     it("can make properties optional", async () => {
       const {
-        source,
         projections: [v1, v2],
       } = await versionedModel(
         ["1", "2"],
