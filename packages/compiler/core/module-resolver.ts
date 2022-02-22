@@ -51,7 +51,7 @@ export async function resolveModule(
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
     const res = resolvePath(absoluteStart, name);
-    var m = (await loadAsFile(res)) || (await loadAsDirectory(res));
+    const m = (await loadAsFile(res)) || (await loadAsDirectory(res));
     if (m) return host.realpath(m);
   }
 
@@ -86,7 +86,7 @@ export async function resolveModule(
     const dirs = getPackageCandidates(name, baseDir);
     for (const dir of dirs) {
       if (await isDirectory(host, dir)) {
-        var n = loadAsDirectory(dir);
+        const n = loadAsDirectory(dir);
         if (n) return n;
       }
     }

@@ -261,8 +261,6 @@ export function compilerAssert(
   message: string,
   target?: DiagnosticTarget
 ): asserts condition {
-  let locationError: Error | undefined;
-
   if (condition) {
     return;
   }
@@ -271,9 +269,7 @@ export function compilerAssert(
     let location: SourceLocation | undefined;
     try {
       location = getSourceLocation(target);
-    } catch (err: any) {
-      locationError = err;
-    }
+    } catch (err: any) {}
 
     if (location) {
       const pos = location.file.getLineAndCharacterOfPosition(location.pos);

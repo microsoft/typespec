@@ -176,6 +176,82 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("completes using statements", async () => {
+    const completions = await complete(
+      `
+      namespace A {
+        namespace B {
+          model M  {}
+        }
+      }
+
+      using A.┆;
+      }
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "B",
+          insertText: "B",
+          kind: CompletionItemKind.Module,
+          documentation: undefined,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("completes qualified decorators", async () => {
+    const js = {
+      name: "decorators.js",
+      js: {
+        namespace: "Outer",
+        $innerDecorator: function () {},
+        $outerDecorator: function () {},
+      },
+    };
+    (js.js.$innerDecorator as any).namespace = "Inner";
+
+    const completions = await complete(
+      `
+      import "./decorators.js";
+      namespace A {
+        namespace B {
+          model M  {}
+        }
+      }
+
+      @Outer.┆
+      model M {}
+      `,
+      js
+    );
+    check(
+      completions,
+      [
+        {
+          label: "Inner",
+          insertText: "Inner",
+          kind: CompletionItemKind.Module,
+          documentation: undefined,
+        },
+        {
+          label: "outerDecorator",
+          insertText: "outerDecorator",
+          kind: CompletionItemKind.Function,
+          documentation: undefined,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
   it("deals with trivia before missing identifier", async () => {
     const completions = await complete(
       `
@@ -234,6 +310,7 @@ describe("compiler: server: completion", () => {
 
     for (const expected of expectedItems) {
       const actual = actualMap.get(expected.label);
+      ok(actual, `Expected completion item not found: '${expected.label}'.`);
       deepStrictEqual(actual, expected);
       actualMap.delete(actual.label);
       expectedMap.delete(expected.label);
@@ -248,13 +325,19 @@ describe("compiler: server: completion", () => {
     }
   }
 
-  async function complete(sourceWithCursor: string): Promise<CompletionList> {
+  async function complete(
+    sourceWithCursor: string,
+    jsSourceFile?: { name: string; js: Record<string, any> }
+  ): Promise<CompletionList> {
     const pos = sourceWithCursor.indexOf("┆");
     ok(pos >= 0, "no cursor found");
 
     const source = sourceWithCursor.replace("┆", "");
     const testHost = await createTestServerHost();
-    const textDocument = testHost.addOrUpdateDocument("untitled:test.cadl", source);
+    if (jsSourceFile) {
+      testHost.addJsFile(jsSourceFile.name, jsSourceFile.js);
+    }
+    const textDocument = testHost.addOrUpdateDocument("test.cadl", source);
     return await testHost.server.complete({
       textDocument,
       position: textDocument.positionAt(pos),

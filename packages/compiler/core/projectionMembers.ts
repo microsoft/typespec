@@ -6,15 +6,8 @@ import { ObjectType, Type, UnionTypeVariant } from "./types.js";
 export function createProjectionMembers(checker: Checker): {
   [TKind in Type["kind"]]?: Record<string, (base: Type & { kind: TKind }) => Type>;
 } {
-  const {
-    voidType,
-    neverType,
-    errorType,
-    createType,
-    createFunctionType,
-    createLiteralType,
-    cloneType,
-  } = checker;
+  const { voidType, neverType, createType, createFunctionType, createLiteralType, cloneType } =
+    checker;
 
   return {
     Array: {

@@ -115,7 +115,6 @@ export interface Checker {
     args?: (Type | string | number | boolean)[]
   ): Type;
   resolveCompletions(node: IdentifierNode): Map<string, CadlCompletionItem>;
-
   createType<T>(typeDef: T): T & TypePrototype;
   createAndFinishType<U extends Type extends any ? Omit<Type, keyof TypePrototype> : never>(
     typeDef: U
@@ -444,6 +443,14 @@ export function createChecker(program: Program): Checker {
     return parent && parent.name !== "" ? `${getNamespaceString(parent)}.${type.name}` : type.name;
   }
 
+  function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
+    if (!sym) return "";
+    const parent = sym.parent;
+    return parent && parent.name !== ""
+      ? `${getFullyQualifiedSymbolName(parent)}.${sym.name}`
+      : sym.name;
+  }
+
   function getEnumName(e: EnumType): string {
     const nsName = getNamespaceString(e.namespace);
     return nsName ? `${nsName}.${e.name}` : e.name;
@@ -455,7 +462,7 @@ export function createChecker(program: Program): Checker {
   function getNodeSymId(
     node: ModelStatementNode | AliasStatementNode | InterfaceStatementNode | UnionStatementNode
   ): number {
-    return node.symbol?.id!;
+    return node.symbol!.id!;
   }
 
   function getModelName(model: ModelType) {
@@ -679,7 +686,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkUnionExpression(node: UnionExpressionNode): UnionType {
-    const variants: [string | Symbol, UnionTypeVariant][] = node.options.flatMap((o) => {
+    const variants: [string | symbol, UnionTypeVariant][] = node.options.flatMap((o) => {
       const type = getTypeForNode(o);
 
       // The type `A | never` is just `A`
@@ -987,17 +994,16 @@ export function createChecker(program: Program): Checker {
 
   function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletionItem> {
     const completions = new Map<string, CadlCompletionItem>();
-
-    // If first non-MemberExpression parent of identifier is a TypeReference
-    // or DecoratorExpression, then we can complete it.
     const parent = findFirstNonMemberExpressionParent(identifier);
+    const resolveType = parent.kind === SyntaxKind.TypeReference;
     const resolveDecorator = parent.kind === SyntaxKind.DecoratorExpression;
-    if (parent.kind !== SyntaxKind.TypeReference && !resolveDecorator) {
+    const resolveUsing = parent.kind === SyntaxKind.UsingStatement;
+    if (!resolveType && !resolveDecorator && !resolveUsing) {
       return completions;
     }
 
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
-      const base = resolveTypeReference(identifier.parent.base, resolveDecorator);
+      const base = resolveTypeReference(identifier.parent.base, false);
       if (base && base.flags & SymbolFlags.Namespace) {
         addCompletions(base.exports);
       }
@@ -1049,36 +1055,50 @@ export function createChecker(program: Program): Checker {
       if (!table) {
         return;
       }
-      for (let [key, sym] of table) {
-        if (resolveDecorator !== key.startsWith("@")) {
-          continue;
-        }
-        if (resolveDecorator) {
-          key = key.slice(1);
-        }
-        if (!completions.has(key)) {
-          // TODO? should complete propose different options and use fqn?
-
-          if (sym.flags & SymbolFlags.DuplicateUsing) {
-            const duplicates = table.duplicates.get(sym)!;
-            for (const duplicate of duplicates) {
-              if (!(duplicate.flags & SymbolFlags.Using)) {
-                continue;
-              }
-              const namespace =
-                duplicate.symbolSource!.flags & (SymbolFlags.Decorator | SymbolFlags.Function)
-                  ? (duplicate.symbolSource!.value as any).namespace
-                  : getNamespaceString(
-                      (getTypeForNode(duplicate.symbolSource!.declarations[0]) as any).namespace
-                    );
-              const fqn = `${namespace}.${key}`;
-              completions.set(fqn, { sym: duplicate });
+      for (const [key, sym] of table) {
+        if (sym.flags & SymbolFlags.DuplicateUsing) {
+          const duplicates = table.duplicates.get(sym)!;
+          for (const duplicate of duplicates) {
+            if (duplicate.flags & SymbolFlags.Using) {
+              const fqn = getFullyQualifiedSymbolName(duplicate.symbolSource);
+              addCompletion(fqn, duplicate);
             }
-          } else {
-            completions.set(key, { sym });
           }
+        } else {
+          addCompletion(key, sym);
         }
       }
+    }
+
+    function addCompletion(key: string, sym: Sym) {
+      if (sym.symbolSource) {
+        sym = sym.symbolSource;
+      }
+      if (!shouldAddCompletion(sym)) {
+        return;
+      }
+      if (key.startsWith("@")) {
+        key = key.slice(1);
+      }
+      if (!completions.has(key)) {
+        completions.set(key, { sym });
+      }
+    }
+
+    function shouldAddCompletion(sym: Sym): boolean {
+      if (resolveDecorator) {
+        // Only return decorators and namespaces when completing decorator
+        return !!(sym.flags & (SymbolFlags.Decorator | SymbolFlags.Namespace));
+      }
+      if (resolveUsing) {
+        // Only return namespaces when completing using
+        return !!(sym.flags & SymbolFlags.Namespace);
+      }
+      if (resolveType) {
+        // Do not return functions when completing types
+        return !(sym.flags & SymbolFlags.Function);
+      }
+      compilerAssert(false, "Unreachable.");
     }
   }
 
@@ -1509,7 +1529,7 @@ export function createChecker(program: Program): Checker {
     const defaultValue = prop.default && checkDefault(getTypeForNode(prop.default), valueType);
     const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
 
-    let type: ModelTypeProperty = createType({
+    const type: ModelTypeProperty = createType({
       kind: "ModelProperty",
       name,
       node: prop,
@@ -1561,7 +1581,6 @@ export function createChecker(program: Program): Checker {
         return checkDefaultTypeIsBoolean(defaultType);
       case "int32":
       case "int64":
-      case "int32":
       case "int16":
       case "int8":
       case "uint64":
@@ -1609,10 +1628,12 @@ export function createChecker(program: Program): Checker {
             if (defaultType.value === (option as StringLiteralType).value) {
               return defaultType;
             }
+            break;
           case "Number":
             if (defaultType.value === (option as NumericLiteralType).value) {
               return defaultType;
             }
+            break;
         }
       }
     }
@@ -2135,7 +2156,7 @@ export function createChecker(program: Program): Checker {
       case "Model":
         clone = finishType({
           ...type,
-          properties: additionalProps.hasOwnProperty("properties")
+          properties: Object.prototype.hasOwnProperty.call(additionalProps, "properties")
             ? undefined
             : new Map(
                 Array.from(type.properties.entries()).map(([key, prop]) => [key, cloneType(prop)])
@@ -2146,7 +2167,7 @@ export function createChecker(program: Program): Checker {
       case "Union":
         clone = finishType({
           ...type,
-          variants: new Map<string | Symbol, UnionTypeVariant>(
+          variants: new Map<string | symbol, UnionTypeVariant>(
             Array.from(type.variants.entries()).map(([key, prop]) => [
               key,
               prop.kind === "UnionVariant" ? cloneType(prop) : prop,
@@ -2506,7 +2527,7 @@ export function createChecker(program: Program): Checker {
   function evalProjectionBlockExpression(node: ProjectionBlockExpressionNode): TypeOrReturnRecord {
     let lastVal: Type = voidType;
     for (const stmt of node.statements) {
-      let stmtValue = evalProjectionNode(stmt);
+      const stmtValue = evalProjectionNode(stmt);
       if (stmtValue.kind === "Return") {
         return stmtValue;
       }
@@ -2566,7 +2587,7 @@ export function createChecker(program: Program): Checker {
         throw new ProjectionError("need argument for parameter " + node.parameters[i]);
       }
 
-      let argVal = args[i];
+      const argVal = args[i];
       let typeVal;
 
       if (typeof argVal === "number" || typeof argVal === "string" || typeof argVal === "boolean") {
@@ -2695,18 +2716,6 @@ export function createChecker(program: Program): Checker {
     } as const);
   }
 
-  function isLiteralType(
-    type: Type
-  ): type is StringLiteralType | NumericLiteralType | BooleanLiteralType {
-    switch (type.kind) {
-      case "String":
-      case "Number":
-      case "Boolean":
-        return true;
-      default:
-        return false;
-    }
-  }
   function literalTypeToValue(type: StringLiteralType): string;
   function literalTypeToValue(type: NumericLiteralType): number;
   function literalTypeToValue(type: BooleanLiteralType): boolean;
@@ -2753,7 +2762,7 @@ export function createChecker(program: Program): Checker {
     return createType({
       kind: "Function",
       call(...args: Type[]): Type {
-        let retval = ref.value!({ program }, ...marshalProjectionArguments(args));
+        ref.value!({ program }, ...marshalProjectionArguments(args));
         return voidType;
       },
     } as const);
@@ -2783,7 +2792,7 @@ export function createChecker(program: Program): Checker {
       const t: FunctionType = createType({
         kind: "Function",
         call(...args: Type[]): Type {
-          let retval = ref.value!(program, ...marshalProjectionArguments(args));
+          const retval = ref.value!(program, ...marshalProjectionArguments(args));
           return marshalProjectionReturn(retval);
         },
       } as const);

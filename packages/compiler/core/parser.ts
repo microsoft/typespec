@@ -122,6 +122,7 @@ interface UndecoratedListKind extends ListKind {
 /**
  * The fixed set of options for each of the kinds of delimited lists in Cadl.
  */
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ListKind {
   const PropertiesBase = {
     allowEmpty: true,
@@ -319,7 +320,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseUsingStatement();
           break;
         case Token.ProjectionKeyword:
-          reportInvalidDecorators(decorators, "project statement");
+          reportInvalidDecorators(decorators, "projection statement");
           item = parseProjectionStatement();
           break;
         case Token.Semicolon:
@@ -327,8 +328,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          reportInvalidDecorators(decorators, "invalid statement");
-          item = parseInvalidStatement();
+          item = parseInvalidStatement(decorators);
           break;
       }
 
@@ -415,8 +415,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          reportInvalidDecorators(decorators, "invalid statement");
-          item = parseInvalidStatement();
+          item = parseInvalidStatement(decorators);
           break;
       }
       item.directives = directives;
@@ -823,7 +822,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseUnionExpressionOrHigher(): Expression {
     const pos = tokenPos();
     parseOptional(Token.Bar);
-    let node: Expression = parseIntersectionExpressionOrHigher();
+    const node: Expression = parseIntersectionExpressionOrHigher();
 
     if (token() !== Token.Bar) {
       return node;
@@ -845,7 +844,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseIntersectionExpressionOrHigher(): Expression {
     const pos = tokenPos();
     parseOptional(Token.Ampersand);
-    let node: Expression = parseArrayExpressionOrHigher();
+    const node: Expression = parseArrayExpressionOrHigher();
 
     if (token() !== Token.Ampersand) {
       return node;
@@ -995,7 +994,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       base = {
         kind: SyntaxKind.MemberExpression,
         base,
-        id: parseIdentifier(),
+        // Error recovery: false arg here means don't treat a keyword as an
+        // identifier after `.` in member expression. Otherwise we will
+        // parse `@Outer.<missing identifier> model M{}` as having decorator
+        // `@Outer.model` applied to invalid statement `M {}` instead of
+        // having incomplete decorator `@Outer.` applied to `model M {}`.
+        id: parseIdentifier(undefined, false),
         ...finishNode(pos),
       };
     }
@@ -1976,7 +1980,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return { kind: SyntaxKind.EmptyStatement, ...finishNode(pos) };
   }
 
-  function parseInvalidStatement(): InvalidStatementNode {
+  function parseInvalidStatement(decorators: DecoratorExpressionNode[]): InvalidStatementNode {
     // Error recovery: avoid an avalanche of errors when we get cornered into
     // parsing statements where none exist. Skip until we find a statement
     // keyword or decorator and only report one error for a contiguous range of
@@ -1996,7 +2000,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       messageId: "statement",
       target: { pos, end: previousTokenEnd },
     });
-    return { kind: SyntaxKind.InvalidStatement, ...finishNode(pos) };
+    return { kind: SyntaxKind.InvalidStatement, decorators, ...finishNode(pos) };
   }
 
   function error<
@@ -2024,7 +2028,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     // position. The code path taken by error recovery after logging an error
     // can otherwise produce redundant and less decipherable errors, which this
     // suppresses.
-    let realPos = report.target?.realPos ?? location.pos;
+    const realPos = report.target?.realPos ?? location.pos;
     if (realPositionOfLastError === realPos) {
       return;
     }
@@ -2275,6 +2279,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.Return:
       return visitNode(cb, node.value);
     // no children for the rest of these.
+    case SyntaxKind.InvalidStatement:
+      return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
       return visitNode(cb, node.default);
     case SyntaxKind.StringLiteral:
@@ -2283,7 +2289,6 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.Identifier:
     case SyntaxKind.ProjectionParameterDeclaration:
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
-    case SyntaxKind.InvalidStatement:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
     case SyntaxKind.ProjectionUnionSelector:
@@ -2298,7 +2303,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       // Dummy const to ensure we handle all node types.
       // If you get an error here, add a case for the new node type
       // you added..
-      const assertNever: never = node;
+      const _assertNever: never = node;
       return;
   }
 }

@@ -245,14 +245,14 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   name?: string;
   node: UnionExpressionNode | UnionStatementNode;
   namespace?: NamespaceType;
-  variants: Map<string | Symbol, UnionTypeVariant>;
+  variants: Map<string | symbol, UnionTypeVariant>;
   expression: boolean;
   readonly options: Type[];
 }
 
 export interface UnionTypeVariant extends BaseType, DecoratedType {
   kind: "UnionVariant";
-  name: string | Symbol;
+  name: string | symbol;
   node: UnionVariantNode | undefined;
   type: Type;
 }
@@ -711,6 +711,7 @@ export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface InvalidStatementNode extends BaseNode {
   readonly kind: SyntaxKind.InvalidStatement;
+  readonly decorators: readonly DecoratorExpressionNode[];
 }
 
 export interface EmptyStatementNode extends BaseNode {
@@ -1120,7 +1121,7 @@ export interface CompilerHost {
   getLibDirs(): string[];
 
   // get a promise for the ESM module shape of a JS module
-  getJsImport(path: string): Promise<any>;
+  getJsImport(path: string): Promise<Record<string, any>>;
 
   // get info about a path
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
@@ -1160,7 +1161,9 @@ export type DiagnosticFormat<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
   M extends keyof T[C] = "default"
-> = T[C][M] extends CallableMessage<infer A> ? { format: Record<A[number], string> } : {};
+> = T[C][M] extends CallableMessage<infer A>
+  ? { format: Record<A[number], string> }
+  : Record<string, unknown>;
 
 export interface DiagnosticDefinition<M extends DiagnosticMessages> {
   readonly severity: "warning" | "error";
@@ -1240,7 +1243,7 @@ export interface CadlLibrary<
 /**
  * Get the options for the onEmit of this library.
  */
-export type EmitOptionsFor<C> = C extends CadlLibrary<infer T, infer E> ? EmitOptions<E> : never;
+export type EmitOptionsFor<C> = C extends CadlLibrary<infer _T, infer E> ? EmitOptions<E> : never;
 
 export interface EmitOptions<E extends string> {
   name?: E;

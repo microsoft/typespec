@@ -21,7 +21,7 @@ describe("compiler: libraries", () => {
   it("detects compiler version mismatches", async () => {
     const testHost = await createTestHost();
     testHost.addCadlFile("main.cadl", "");
-    testHost.addJsFile("./node_modules/@cadl-lang/compiler/index.js", "");
+    testHost.addJsFile("./node_modules/@cadl-lang/compiler/index.js", {});
     const diagnostics = await testHost.diagnose("main.cadl");
     expectDiagnostics(diagnostics, {
       code: "compiler-version-mismatch",
