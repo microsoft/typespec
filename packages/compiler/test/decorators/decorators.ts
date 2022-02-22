@@ -106,10 +106,27 @@ describe("compiler: built-in decorators", () => {
   describe("@knownValues", () => {
     it("assign the known values to string model", async () => {
       const { Bar } = (await runner.compile(`
-        enum Foo {one, two}
+        enum Foo {one: 1, two: 2}
         @test
         @knownValues(Foo)
         model Bar extends string {}
+      `)) as { Bar: ModelType };
+
+      ok(Bar.kind);
+      const knownValues = getKnownValues(runner.program, Bar);
+      ok(knownValues);
+      strictEqual(knownValues.kind, "Enum");
+    });
+
+    it("assign the known values to number model", async () => {
+      const { Bar } = (await runner.compile(`
+        enum Foo {
+          one: 1; 
+          two: 2;
+        }
+        @test
+        @knownValues(Foo)
+        model Bar extends int32 {}
       `)) as { Bar: ModelType };
 
       ok(Bar.kind);
@@ -127,7 +144,8 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @knownValues decorator to non 'string' type",
+        message:
+          "Cannot apply @knownValues decorator to type it is not one of: string, int8, int16, int32, int64, float32, float64",
       });
     });
 
@@ -140,7 +158,8 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @knownValues decorator to non 'string' type",
+        message:
+          "Cannot apply @knownValues decorator to type it is not one of: string, int8, int16, int32, int64, float32, float64",
       });
     });
 

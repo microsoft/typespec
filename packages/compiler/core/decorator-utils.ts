@@ -47,13 +47,24 @@ export function validateDecoratorTargetIntrinsic(
   program: Program,
   target: Type,
   decoratorName: string,
-  intrinsicType: IntrinsicModelName
+  expectedType: IntrinsicModelName | IntrinsicModelName[]
 ): boolean {
-  if (getIntrinsicType(program, target)?.name !== "string") {
+  const actualType = getIntrinsicType(program, target)?.name;
+  const isCorrect =
+    actualType &&
+    (typeof expectedType === "string"
+      ? actualType === expectedType
+      : expectedType.includes(actualType));
+  if (!isCorrect) {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        format: { decorator: decoratorName, to: `non '${intrinsicType}' type` },
+        format: {
+          decorator: decoratorName,
+          to: `type it is not one of: ${
+            typeof expectedType === "string" ? expectedType : expectedType.join(", ")
+          }`,
+        },
         target,
       })
     );

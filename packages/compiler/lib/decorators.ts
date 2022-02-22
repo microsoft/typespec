@@ -525,7 +525,15 @@ const knownValuesKey = Symbol();
  */
 export function $knownValues(context: DecoratorContext, target: Type, knownValues: Type) {
   if (
-    !validateDecoratorTargetIntrinsic(context.program, target, "@knownValues", "string") ||
+    !validateDecoratorTargetIntrinsic(context.program, target, "@knownValues", [
+      "string",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "float32",
+      "float64",
+    ]) ||
     !validateDecoratorParamType(context.program, target, knownValues, "Enum")
   ) {
     return;
