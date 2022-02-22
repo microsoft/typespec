@@ -27,7 +27,7 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
 
 function createTestCompilerHost(
   virtualFs: Map<string, string>,
-  jsImports: Map<string, any>
+  jsImports: Map<string, Record<string, any>>
 ): CompilerHost {
   return {
     async readUrl(url: string) {
@@ -76,7 +76,7 @@ function createTestCompilerHost(
       return resolveVirtualPath(".cadl");
     },
 
-    getJsImport(path) {
+    async getJsImport(path) {
       path = resolveVirtualPath(path);
       const module = jsImports.get(path);
       if (module === undefined) {
