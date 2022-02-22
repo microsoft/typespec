@@ -45,10 +45,10 @@ describe("cadl: projections", () => {
       }
     `;
 
-    let result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
     strictEqual(result.properties.size, 1);
 
-    let result2 = (await testProjection(code, [projection("v", 2)])) as ModelType;
+    const result2 = (await testProjection(code, [projection("v", 2)])) as ModelType;
     strictEqual(result2.properties.size, 2);
   });
 
@@ -195,14 +195,14 @@ describe("cadl: projections", () => {
         }
       `;
 
-      let result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+      const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
       strictEqual(result.properties.size, 4);
-      let resultNested = result.properties.get("e")!.type as ModelType;
+      const resultNested = result.properties.get("e")!.type as ModelType;
       strictEqual(resultNested.properties.size, 1);
 
-      let result2 = (await testProjection(code, [projection("v", 2)])) as ModelType;
+      const result2 = (await testProjection(code, [projection("v", 2)])) as ModelType;
       strictEqual(result2.properties.size, 4);
-      let resultNested2 = result2.properties.get("e")!.type as ModelType;
+      const resultNested2 = result2.properties.get("e")!.type as ModelType;
       strictEqual(resultNested2.properties.size, 2);
     });
 

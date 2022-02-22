@@ -186,7 +186,7 @@ function fuzzTest(iterations: number) {
       return contents;
     }
 
-    function repeatBinomial(fn: Function, p: number, opts: { atLeastOnce?: boolean } = {}) {
+    function repeatBinomial(fn: () => any, p: number, opts: { atLeastOnce?: boolean } = {}) {
       if (opts.atLeastOnce) {
         fn();
       }
@@ -196,7 +196,7 @@ function fuzzTest(iterations: number) {
       }
     }
 
-    function roll<T>(opts: Record<keyof T, Function>, weights: Record<keyof T, number>): void {
+    function roll<T>(opts: Record<keyof T, () => any>, weights: Record<keyof T, number>): void {
       let sum = 0;
       for (const w of Object.values<number>(weights)) {
         sum += w;
@@ -217,7 +217,7 @@ function fuzzTest(iterations: number) {
       return arr[index];
     }
 
-    function maybe(fn: Function, p: number) {
+    function maybe(fn: () => any, p: number) {
       if (Math.random() < p) {
         fn();
       }

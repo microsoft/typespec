@@ -25,6 +25,9 @@ steps:
   - script: node common/scripts/install-run-rush.js check-format
     displayName: Check Formatting
 
+  - script: node common/scripts/install-run-rush.js lint
+    displayName: Lint
+
   - script: cd packages/samples && npm run regen-samples
     displayName: Regenerate Samples
 

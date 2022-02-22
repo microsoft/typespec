@@ -10,7 +10,7 @@ describe("compiler: union declarations", () => {
   });
 
   it("can be declared and decorated", async () => {
-    let blues = new WeakSet();
+    const blues = new WeakSet();
     testHost.addJsFile("test.js", {
       $blue(p: any, t: UnionType | UnionTypeVariant) {
         blues.add(t);

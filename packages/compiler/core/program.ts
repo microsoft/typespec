@@ -57,10 +57,10 @@ export interface Program {
   evalCadlScript(cadlScript: string): void;
   onValidate(cb: (program: Program) => void): Promise<void> | void;
   getOption(key: string): string | undefined;
-  stateSet(key: Symbol): Set<Type>;
-  stateSets: Map<Symbol, Set<Type>>;
-  stateMap(key: Symbol): Map<Type, any>;
-  stateMaps: Map<Symbol, Map<Type, any>>;
+  stateSet(key: symbol): Set<Type>;
+  stateSets: Map<symbol, Set<Type>>;
+  stateMap(key: symbol): Map<Type, any>;
+  stateMaps: Map<symbol, Map<Type, any>>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
@@ -77,7 +77,7 @@ interface EmitterRef {
 
 class StateMap<V> implements Map<Type, V> {
   private internalState = new Map<undefined | Projector, Map<Type, V>>();
-  constructor(public program: Program, public key: Symbol) {}
+  constructor(public program: Program, public key: symbol) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -138,7 +138,7 @@ class StateMap<V> implements Map<Type, V> {
 }
 class StateSet implements Set<Type> {
   private internalState = new Map<undefined | Projector, Set<Type>>();
-  constructor(public program: Program, public key: Symbol) {}
+  constructor(public program: Program, public key: symbol) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -200,8 +200,8 @@ export async function createProgram(
   options: CompilerOptions = {}
 ): Promise<Program> {
   const validateCbs: any = [];
-  const stateMaps = new Map<Symbol, StateMap<any>>();
-  const stateSets = new Map<Symbol, StateSet>();
+  const stateMaps = new Map<symbol, StateMap<any>>();
+  const stateSets = new Map<symbol, StateSet>();
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
@@ -307,7 +307,7 @@ export async function createProgram(
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<string> {
     const pkgJsonPath = resolvePath(dir, "package.json");
-    let [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
+    const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
       diagnosticTarget,
     });
@@ -338,7 +338,7 @@ export async function createProgram(
     path: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<JsSourceFileNode | undefined> {
-    let sourceFile = program.jsSourceFiles.get(path);
+    const sourceFile = program.jsSourceFiles.get(path);
     if (sourceFile !== undefined) {
       return sourceFile;
     }
@@ -644,7 +644,7 @@ export async function createProgram(
     return (options.miscOptions || {})[key];
   }
 
-  function stateMap(key: Symbol): StateMap<any> {
+  function stateMap(key: symbol): StateMap<any> {
     let m = stateMaps.get(key);
 
     if (!m) {
@@ -655,7 +655,7 @@ export async function createProgram(
     return m;
   }
 
-  function stateSet(key: Symbol): StateSet {
+  function stateSet(key: symbol): StateSet {
     let s = stateSets.get(key);
 
     if (!s) {
