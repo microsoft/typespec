@@ -2289,7 +2289,6 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.Identifier:
     case SyntaxKind.ProjectionParameterDeclaration:
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
-
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
     case SyntaxKind.ProjectionUnionSelector:
