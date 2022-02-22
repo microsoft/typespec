@@ -264,6 +264,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         sv: scanner.file.path,
         pos: 0,
         end: 0,
+        flags: NodeFlags.Synthetic,
       } as any,
       namespaces: [],
       usings: [],

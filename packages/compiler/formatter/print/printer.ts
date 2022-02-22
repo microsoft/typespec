@@ -17,6 +17,7 @@ import {
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
+  NodeFlags,
   NumericLiteralNode,
   OperationStatementNode,
   Statement,
@@ -148,7 +149,12 @@ function printTemplateParameters<T extends Node>(
 
 export function canAttachComment(node: Node): boolean {
   const kind = node.kind as SyntaxKind;
-  return Boolean(kind && kind !== SyntaxKind.LineComment && kind !== SyntaxKind.BlockComment);
+  return Boolean(
+    kind &&
+      kind !== SyntaxKind.LineComment &&
+      kind !== SyntaxKind.BlockComment &&
+      !(node.flags & NodeFlags.Synthetic)
+  );
 }
 
 export function printComment(
