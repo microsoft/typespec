@@ -545,7 +545,7 @@ export function createScanner(
       return scanWhitespace();
     }
 
-    let cp = input.codePointAt(position)!;
+    const cp = input.codePointAt(position)!;
     if (isNonAsciiIdentifierCharacter(cp)) {
       return scanNonAsciiIdentifier(cp);
     }
@@ -854,7 +854,7 @@ export function createScanner(
     let pos = start;
 
     while (pos < end) {
-      let ch = input.charCodeAt(pos);
+      const ch = input.charCodeAt(pos);
       if (ch !== CharCode.Backslash) {
         pos++;
         continue;
@@ -948,7 +948,7 @@ export function createScanner(
     } while (isAsciiIdentifierContinue((ch = input.charCodeAt(position))));
 
     if (ch > CharCode.MaxAscii) {
-      let cp = input.codePointAt(position)!;
+      const cp = input.codePointAt(position)!;
       if (isNonAsciiIdentifierCharacter(cp)) {
         return scanNonAsciiIdentifier(cp);
       }
@@ -970,7 +970,7 @@ export function createScanner(
 
 export function skipTrivia(input: string, position: number): number {
   while (position < input.length) {
-    let ch = input.charCodeAt(position);
+    const ch = input.charCodeAt(position);
 
     if (isWhiteSpace(ch)) {
       position++;

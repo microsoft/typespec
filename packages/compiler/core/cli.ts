@@ -201,12 +201,12 @@ function compileInput(
   let compileRequested: boolean = false;
   let currentCompilePromise: Promise<Program> | undefined = undefined;
 
-  let log = (message?: any, ...optionalParams: any[]) => {
-    let prefix = compilerOptions.watchForChanges ? `[${new Date().toLocaleTimeString()}] ` : "";
+  const log = (message?: any, ...optionalParams: any[]) => {
+    const prefix = compilerOptions.watchForChanges ? `[${new Date().toLocaleTimeString()}] ` : "";
     console.log(`${prefix}${message}`, ...optionalParams);
   };
 
-  let runCompile = () => {
+  const runCompile = () => {
     // Don't run the compiler if it's already running
     if (!currentCompilePromise) {
       // Clear the console before compiling in watch mode
@@ -224,7 +224,7 @@ function compileInput(
     return currentCompilePromise;
   };
 
-  let onCompileFinished = (program: Program) => {
+  const onCompileFinished = (program: Program) => {
     if (program.diagnostics.length > 0) {
       log("Diagnostics were reported during compilation:\n");
       logDiagnostics(program.diagnostics, NodeHost.logSink);
@@ -358,7 +358,7 @@ async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, 
   // locate .vsix
   const dir = joinPaths(temp, "node_modules", pkg);
   const files = await readdir(dir);
-  let vsixPaths: string[] = [];
+  const vsixPaths: string[] = [];
   for (const file of files) {
     if (file.endsWith(".vsix")) {
       vsixPaths.push(joinPaths(dir, file));

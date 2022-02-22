@@ -175,7 +175,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   // Get the service namespace string for use in name shortening
   let serviceNamespace: string | undefined;
-  let currentBasePath: string | undefined;
   let currentPath: any;
   let currentEndpoint: any;
 
@@ -220,7 +219,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     serviceNamespace = getServiceNamespaceString(program);
-    currentBasePath = "";
     currentPath = root.paths;
     currentEndpoint = undefined;
     schemas = new Set();
@@ -261,7 +259,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       emitTags();
 
       // Clean up empty entries
-      for (let elem of Object.keys(root.components)) {
+      for (const elem of Object.keys(root.components)) {
         if (Object.keys(root.components[elem]).length === 0) {
           delete root.components[elem];
         }
@@ -355,7 +353,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function emitResponseObject(responseModel: Type) {
     // Get explicity defined status codes
-    let statusCodes = getResponseStatusCodes(responseModel);
+    const statusCodes = getResponseStatusCodes(responseModel);
 
     // Get explicitly defined content types
     const contentTypes = getResponseContentTypes(responseModel);
@@ -684,7 +682,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const contentTypes = contentTypeParam
       ? getContentTypes(contentTypeParam.param)
       : ["application/json"];
-    for (let contentType of contentTypes) {
+    for (const contentType of contentTypes) {
       const isBinary = isBinaryPayload(bodyType, contentType);
       const bodySchema = isBinary ? { type: "string", format: "binary" } : getSchemaOrRef(bodyType);
       const contentEntry: any = {
@@ -721,20 +719,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     return [];
   }
 
-  function getModelTypeIfNullable(type: Type): ModelType | undefined {
-    if (type.kind === "Model") {
-      return type;
-    } else if (type.kind === "Union") {
-      // Remove all `null` types and make sure there's a single model type
-      const nonNulls = type.options.filter((o) => !isNullType(o));
-      if (nonNulls.every((t) => t.kind === "Model")) {
-        return nonNulls.length === 1 ? (nonNulls[0] as ModelType) : undefined;
-      }
-    }
-
-    return undefined;
-  }
-
   function emitParameter(parent: ModelType | undefined, param: ModelTypeProperty, kind: string) {
     const ph = getParamPlaceholder(parent, param);
     currentEndpoint.parameters.push(ph);
@@ -752,7 +736,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     ph.description = getDoc(program, param);
 
     // Apply decorators to the schema for the parameter.
-    let schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
+    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
     if (param.type.kind === "Array") {
       schema.items = getSchemaForType(param.type.elementType);
     }
@@ -915,7 +899,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
         return schema;
       } else {
-        const variants = nonNullOptions.map((s) => getSchemaOrRef(s));
         const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
         const schema: any = { [ofType]: nonNullOptions.map((s) => getSchemaOrRef(s)) };
         return schema;
@@ -1010,7 +993,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
 
       // getSchemaOrRef on all children to push them into components.schemas
-      for (let child of childModels) {
+      for (const child of childModels) {
         getSchemaOrRef(child);
       }
 
@@ -1094,13 +1077,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function validateDiscriminator(discriminator: any, childModels: ModelType[]): boolean {
     const { propertyName } = discriminator;
-    var retVals = childModels.map((t) => {
+    const retVals = childModels.map((t) => {
       const prop = getProperty(t, propertyName);
       if (!prop) {
         reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
         return false;
       }
-      var retval = true;
+      let retval = true;
       if (!isOasString(prop.type)) {
         reportDiagnostic(program, { code: "discriminator", messageId: "type", target: prop });
         retval = false;
@@ -1113,7 +1096,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     });
     // Map of discriminator value to the model in which it is declared
     const discriminatorValues = new Map<string, string>();
-    for (let t of childModels) {
+    for (const t of childModels) {
       // Get the discriminator property directly in the child model
       const prop = t.properties?.get(propertyName);
       // Issue warning diagnostic if discriminator property missing or is not a string literal
@@ -1153,7 +1136,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
       return undefined;
     };
-    var mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
+    const mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
     return mappings.length > 0 ? mappings.reduce((a, s) => ({ ...a, ...s }), {}) : undefined;
   }
 
@@ -1211,7 +1194,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     // Try to shorten the type name to exclude the top-level service namespace
-    typeName = program!.checker!.getTypeName(type).replace(/<([\w\.]+)>/, "_$1");
+    typeName = program!.checker!.getTypeName(type).replace(/<([\w.]+)>/, "_$1");
 
     if (isRefSafeName(typeName)) {
       if (serviceNamespace) {
@@ -1222,15 +1205,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     return typeName;
-  }
-
-  function hasSchemaProperties(properties: Map<string, ModelTypeProperty>) {
-    for (const property of properties.values()) {
-      if (isSchemaProperty(property)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   function applyIntrinsicDecorators(cadlType: Type, target: any): any {

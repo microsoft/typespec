@@ -122,6 +122,7 @@ interface UndecoratedListKind extends ListKind {
 /**
  * The fixed set of options for each of the kinds of delimited lists in Cadl.
  */
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ListKind {
   const PropertiesBase = {
     allowEmpty: true,
@@ -823,7 +824,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseUnionExpressionOrHigher(): Expression {
     const pos = tokenPos();
     parseOptional(Token.Bar);
-    let node: Expression = parseIntersectionExpressionOrHigher();
+    const node: Expression = parseIntersectionExpressionOrHigher();
 
     if (token() !== Token.Bar) {
       return node;
@@ -845,7 +846,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseIntersectionExpressionOrHigher(): Expression {
     const pos = tokenPos();
     parseOptional(Token.Ampersand);
-    let node: Expression = parseArrayExpressionOrHigher();
+    const node: Expression = parseArrayExpressionOrHigher();
 
     if (token() !== Token.Ampersand) {
       return node;
@@ -2024,7 +2025,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     // position. The code path taken by error recovery after logging an error
     // can otherwise produce redundant and less decipherable errors, which this
     // suppresses.
-    let realPos = report.target?.realPos ?? location.pos;
+    const realPos = report.target?.realPos ?? location.pos;
     if (realPositionOfLastError === realPos) {
       return;
     }
@@ -2298,7 +2299,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       // Dummy const to ensure we handle all node types.
       // If you get an error here, add a case for the new node type
       // you added..
-      const assertNever: never = node;
+      const _assertNever: never = node;
       return;
   }
 }

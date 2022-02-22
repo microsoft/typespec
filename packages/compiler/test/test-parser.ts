@@ -117,7 +117,7 @@ describe("compiler: syntax", () => {
     ]);
     parseErrorEach([
       ["model foo extends { }", [/Identifier expected/]],
-      ["model foo extends bar, baz { }", [/\'{' expected/]],
+      ["model foo extends bar, baz { }", [/'{' expected/]],
       ["model foo extends = { }", [/Identifier expected/]],
       ["model foo extends bar = { }", [/'{' expected/]],
     ]);
