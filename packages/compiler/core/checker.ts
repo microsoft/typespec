@@ -253,7 +253,7 @@ export function createChecker(program: Program): Checker {
   if (cadlNamespaceBinding) {
     // the cadl namespace binding will be absent if we've passed
     // the no-std-lib option.
-    // the first declaration here is the cadl script.
+    // the first declaration here is the JS file for the cadl script.
     cadlNamespaceNode = cadlNamespaceBinding.declarations[1] as NamespaceStatementNode;
     initializeCadlIntrinsics();
     for (const file of program.sourceFiles.values()) {
@@ -357,7 +357,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (cadlNamespaceNode) {
-      for (const [name, binding] of cadlNamespaceNode.symbol.exports!) {
+      for (const [name, binding] of cadlNamespaceBinding!.exports!) {
         file.locals!.set(name, createUsingSymbol(binding));
       }
     }
