@@ -404,7 +404,7 @@ describe("compiler: blockless namespaces", () => {
     strictEqual(Z.properties.size, 2, "has two properties");
   });
 
-  it.only("can access the cadl namespace using eval", async () => {
+  it("can access the cadl namespace using eval", async () => {
     testHost.addJsFile("test.js", {
       $eval({ program }: DecoratorContext) {
         program.evalCadlScript(`namespace Z; @test model Z { @doc("x") x: int32 }`);
