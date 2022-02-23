@@ -1,56 +1,61 @@
 import {
-  ArrayType,
-  checkIfServiceNamespace,
-  DecoratorContext,
-  EmitOptionsFor,
-  EnumMemberType,
-  EnumType,
-  findChildModels,
-  getAllTags,
-  getDoc,
-  getFormat,
-  getFriendlyName,
-  getMaxLength,
-  getMaxValue,
-  getMinLength,
-  getMinValue,
-  getPattern,
-  getProperty,
-  getServiceHost,
-  getServiceNamespace,
-  getServiceNamespaceString,
-  getServiceTitle,
-  getServiceVersion,
-  getSummary,
-  getVisibility,
-  isErrorModel,
-  isErrorType,
-  isIntrinsic,
-  isNumericType,
-  isSecret,
-  isStringType,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
-  Program,
-  resolvePath,
-  Type,
-  UnionType,
-  UnionTypeVariant,
-  validateDecoratorTarget,
+ArrayType,
+checkIfServiceNamespace,
+DecoratorContext,
+EmitOptionsFor,
+EnumMemberType,
+EnumType,
+findChildModels,
+getAllTags,
+getDoc,
+getFormat,
+getFriendlyName,
+getMaxLength,
+getMaxValue,
+getMinLength,
+getMinValue,
+getPattern,
+getProperty,
+getServiceHost,
+getServiceNamespace,
+getServiceNamespaceString,
+getServiceTitle,
+getServiceVersion,
+getSummary,
+getVisibility,
+isErrorModel,
+isErrorType,
+isIntrinsic,
+isNumericType,
+isSecret,
+isStringType,
+ModelType,
+ModelTypeProperty,
+NamespaceType,
+OperationType,
+Program,
+resolvePath,
+Type,
+UnionType,
+UnionTypeVariant,
+validateDecoratorTarget
 } from "@cadl-lang/compiler";
-import { getExtensions, getOperationId, isDefaultResponse } from "@cadl-lang/openapi";
 import {
-  getAllRoutes,
-  getDiscriminator,
-  http,
-  HttpOperationParameter,
-  HttpOperationParameters,
-  OperationDetails,
+getExtensions,
+getExternalDocs,
+getOperationId,
+isDefaultResponse
+} from "@cadl-lang/openapi";
+import {
+getAllRoutes,
+getDiscriminator,
+http,
+HttpOperationParameter,
+HttpOperationParameters,
+OperationDetails
 } from "@cadl-lang/rest";
 import { getVersionRecords } from "@cadl-lang/versioning";
-import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
+import { OpenAPILibrary,reportDiagnostic } from "./lib.js";
 
 const {
   getHeaderFieldName,
@@ -310,6 +315,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       // Synthesize an operation ID
       currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
     }
+    applyExternalDocs(op, currentEndpoint);
 
     // allow operation extensions
     attachExtensions(program, op, currentEndpoint);
@@ -1005,6 +1011,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       modelSchema.discriminator = discriminator;
     }
 
+    applyExternalDocs(model, modelSchema);
+
     for (const [name, prop] of model.properties) {
       if (!isSchemaProperty(prop)) {
         continue;
@@ -1254,6 +1262,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     return newTarget;
+  }
+
+  function applyExternalDocs(cadlType: Type, target: Record<string, unknown>) {
+    const externalDocs = getExternalDocs(program, cadlType);
+    if (externalDocs) {
+      target.externalDocs = externalDocs;
+    }
   }
 
   // Map an Cadl type to an OA schema. Returns undefined when the resulting
