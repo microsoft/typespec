@@ -2,6 +2,7 @@ import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile, getSourceLocation } from "./diagnostics.js";
+import { SymbolFlags } from "./index.js";
 import { createLogger } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { resolveModule } from "./module-resolver.js";
@@ -24,10 +25,11 @@ import {
   DirectiveExpressionNode,
   Emitter,
   EmitterOptions,
-  JsSourceFile,
+  JsSourceFileNode,
   LiteralType,
   Logger,
   Node,
+  NodeFlags,
   NoTarget,
   ProjectionApplication,
   Projector,
@@ -44,7 +46,7 @@ export interface Program {
   mainFile?: CadlScriptNode;
   /** All source files in the program, keyed by their file path. */
   sourceFiles: Map<string, CadlScriptNode>;
-  jsSourceFiles: Map<string, JsSourceFile>;
+  jsSourceFiles: Map<string, JsSourceFileNode>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   logger: Logger;
@@ -55,14 +57,14 @@ export interface Program {
   evalCadlScript(cadlScript: string): void;
   onValidate(cb: (program: Program) => void): Promise<void> | void;
   getOption(key: string): string | undefined;
-  stateSet(key: Symbol): Set<Type>;
-  stateSets: Map<Symbol, Set<Type>>;
-  stateMap(key: Symbol): Map<Type, any>;
-  stateMaps: Map<Symbol, Map<Type, any>>;
+  stateSet(key: symbol): Set<Type>;
+  stateSets: Map<symbol, Set<Type>>;
+  stateMap(key: symbol): Map<Type, any>;
+  stateMaps: Map<symbol, Map<Type, any>>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
-  reportDuplicateSymbols(symbols: SymbolTable<Sym> | undefined): void;
+  reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
   enableProjections(projections: ProjectionApplication[], startNode?: Type): Projector;
   disableProjections(): void;
   currentProjector?: Projector;
@@ -75,7 +77,7 @@ interface EmitterRef {
 
 class StateMap<V> implements Map<Type, V> {
   private internalState = new Map<undefined | Projector, Map<Type, V>>();
-  constructor(public program: Program, public key: Symbol) {}
+  constructor(public program: Program, public key: symbol) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -136,7 +138,7 @@ class StateMap<V> implements Map<Type, V> {
 }
 class StateSet implements Set<Type> {
   private internalState = new Map<undefined | Projector, Set<Type>>();
-  constructor(public program: Program, public key: Symbol) {}
+  constructor(public program: Program, public key: symbol) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -198,8 +200,8 @@ export async function createProgram(
   options: CompilerOptions = {}
 ): Promise<Program> {
   const validateCbs: any = [];
-  const stateMaps = new Map<Symbol, StateMap<any>>();
-  const stateSets = new Map<Symbol, StateSet>();
+  const stateMaps = new Map<symbol, StateMap<any>>();
+  const stateSets = new Map<symbol, StateSet>();
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
@@ -305,7 +307,7 @@ export async function createProgram(
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<string> {
     const pkgJsonPath = resolvePath(dir, "package.json");
-    let [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
+    const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
       allowFileNotFound: true,
       diagnosticTarget,
     });
@@ -335,8 +337,8 @@ export async function createProgram(
   async function loadJsFile(
     path: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
-  ): Promise<JsSourceFile | undefined> {
-    let sourceFile = program.jsSourceFiles.get(path);
+  ): Promise<JsSourceFileNode | undefined> {
+    const sourceFile = program.jsSourceFiles.get(path);
     if (sourceFile !== undefined) {
       return sourceFile;
     }
@@ -352,10 +354,22 @@ export async function createProgram(
     }
 
     return {
-      kind: "JsSourceFile",
+      kind: SyntaxKind.JsSourceFile,
+      id: {
+        kind: SyntaxKind.Identifier,
+        sv: "",
+        pos: 0,
+        end: 0,
+        symbol: undefined as any,
+        flags: NodeFlags.Synthetic,
+      },
       esmExports: exports,
       file,
-      namespaces: [],
+      namespaceSymbols: [],
+      symbol: undefined as any,
+      pos: 0,
+      end: 0,
+      flags: NodeFlags.None,
     };
   }
 
@@ -366,7 +380,7 @@ export async function createProgram(
     const file = await loadJsFile(path, diagnosticTarget);
     if (file !== undefined) {
       program.jsSourceFiles.set(path, file);
-      if (file.exports === undefined) {
+      if (file.symbol === undefined) {
         binder.bindJsSourceFile(file);
       }
     }
@@ -410,13 +424,13 @@ export async function createProgram(
   function evalCadlScript(script: string): void {
     const sourceFile = createSourceFile(script, `__virtual_file_${++virtualFileCount}`);
     const cadlScript = loadCadlScriptSync(sourceFile);
-    checker.mergeCadlSourceFile(cadlScript);
+    checker.mergeSourceFile(cadlScript);
     checker.setUsingsForFile(cadlScript);
     for (const ns of cadlScript.namespaces) {
-      const mergedNs = checker.getMergedNamespace(ns);
-      reportDuplicateSymbols(mergedNs.exports);
+      const mergedSym = checker.getMergedSymbol(ns.symbol)!;
+      reportDuplicateSymbols(mergedSym.exports);
     }
-    reportDuplicateSymbols(checker.getGlobalNamespaceType().node!.exports);
+    reportDuplicateSymbols(checker.getGlobalNamespaceNode().symbol.exports);
   }
 
   async function loadScriptImports(file: CadlScriptNode) {
@@ -630,7 +644,7 @@ export async function createProgram(
     return (options.miscOptions || {})[key];
   }
 
-  function stateMap(key: Symbol): StateMap<any> {
+  function stateMap(key: symbol): StateMap<any> {
     let m = stateMaps.get(key);
 
     if (!m) {
@@ -641,7 +655,7 @@ export async function createProgram(
     return m;
   }
 
-  function stateSet(key: Symbol): StateSet {
+  function stateSet(key: symbol): StateSet {
     let s = stateSets.get(key);
 
     if (!s) {
@@ -763,35 +777,23 @@ export async function createProgram(
   }
 
   function getNode(target: Node | Type | Sym): Node | undefined {
-    if (target.kind === "using") {
-      target = target.symbolSource;
-    }
+    if (!("kind" in target)) {
+      // symbol
+      if (target.flags & SymbolFlags.Using) {
+        return target.symbolSource!.declarations[0];
+      }
 
-    if ("node" in target) {
-      return target.node;
+      return target.declarations[0]; // handle multiple decls
+    } else if (typeof target.kind === "number") {
+      // node
+      return target as Node;
+    } else {
+      // type
+      return (target as Type).node;
     }
-
-    if (target.kind === "String" || target.kind === "Boolean" || target.kind === "Number") {
-      // if node wasn't in these targets, then they are synthesized types and don't have a node.
-      return undefined;
-    }
-
-    if (target.kind === "decorator") {
-      return undefined;
-    }
-
-    if (target.kind === "Intrinsic") {
-      return undefined;
-    }
-
-    if (target.kind === "function" || target.kind === "Function" || target.kind === "Object") {
-      return undefined;
-    }
-
-    return target;
   }
 
-  function reportDuplicateSymbols(symbols: SymbolTable<Sym> | undefined) {
+  function reportDuplicateSymbols(symbols: SymbolTable | undefined) {
     if (!symbols) {
       return;
     }
@@ -799,7 +801,7 @@ export async function createProgram(
       for (const symbol of set) {
         if (!duplicateSymbols.has(symbol)) {
           duplicateSymbols.add(symbol);
-          const name = symbol.kind === "using" ? symbol.symbolSource.name : symbol.name;
+          const name = symbol.flags & SymbolFlags.Using ? symbol.symbolSource!.name : symbol.name;
           reportDiagnostic(
             createDiagnostic({
               code: "duplicate-symbol",

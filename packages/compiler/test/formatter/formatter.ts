@@ -236,6 +236,18 @@ model Foo {
   });
 
   describe("comments", () => {
+    it("format comment at position 0", () => {
+      assertFormat({
+        code: `// This comment is at position 0.
+model Foo {}
+`,
+        expected: `
+// This comment is at position 0.
+model Foo {}
+`,
+      });
+    });
+
     it("format single line comments", () => {
       assertFormat({
         code: `

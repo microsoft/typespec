@@ -21,7 +21,6 @@ import {
 
 function foo() {}
 foo();
-type DeclScope = NamespaceType | ModelType | InterfaceType | UnionType | EnumType | OperationType;
 
 /**
  * Creates a projector which returns a projected view of either the global namespace or the
@@ -53,13 +52,13 @@ export function createProjector(
   const projectedTypes = new Map<Type, Type>();
   const checker = program.checker!;
   const neverType = checker.neverType;
-  let scope: Type[] = [];
+  const scope: Type[] = [];
   const projector: Projector = {
     projectedTypes,
     projections,
     projectType,
   };
-  let projectedNamespaces: NamespaceType[] = [];
+  const projectedNamespaces: NamespaceType[] = [];
 
   program.currentProjector = projector;
 
@@ -94,6 +93,7 @@ export function createProjector(
     switch (type.kind) {
       case "Namespace":
         compilerAssert(false, "Namespace should have already been projected.");
+        break;
       case "Model":
         projected = projectModel(type);
         break;
@@ -140,7 +140,7 @@ export function createProjector(
     const childInterfaces = new Map<string, InterfaceType>();
     const childUnions = new Map<string, UnionType>();
     const childEnums = new Map<string, EnumType>();
-    let projectedNs = shallowClone(ns, {
+    const projectedNs = shallowClone(ns, {
       namespaces: childNamespaces,
       models: childModels,
       operations: childOperations,
@@ -218,7 +218,7 @@ export function createProjector(
     const properties = new Map<string, ModelTypeProperty>();
     let templateArguments: Type[] | undefined;
 
-    let projectedModel = shallowClone(model, {
+    const projectedModel = shallowClone(model, {
       properties,
     });
 
@@ -294,7 +294,7 @@ export function createProjector(
     const returnType = projectType(op.returnType);
     const decorators = projectDecorators(op.decorators);
 
-    let projectedOp = shallowClone(op, {
+    const projectedOp = shallowClone(op, {
       decorators,
       parameters,
       returnType,
@@ -313,7 +313,7 @@ export function createProjector(
   function projectInterface(iface: InterfaceType): Type {
     const operations = new Map<string, OperationType>();
     const decorators = projectDecorators(iface.decorators);
-    let projectedIface = shallowClone(iface, {
+    const projectedIface = shallowClone(iface, {
       decorators,
       operations,
     });
@@ -333,10 +333,10 @@ export function createProjector(
   }
 
   function projectUnion(union: UnionType) {
-    const variants = new Map<string | Symbol, UnionTypeVariant>();
+    const variants = new Map<string | symbol, UnionTypeVariant>();
     const decorators = projectDecorators(union.decorators);
 
-    let projectedUnion = shallowClone(union, {
+    const projectedUnion = shallowClone(union, {
       decorators,
       variants,
     });
@@ -505,7 +505,7 @@ export function createProjector(
     for (const projectionApplication of inScopeProjections) {
       const projectionsByName = baseType.projectionsByName(projectionApplication.projectionName);
       if (projectionsByName.length === 0) continue;
-      let targetNode =
+      const targetNode =
         projectionApplication.direction === "from"
           ? projectionsByName[0].from!
           : projectionsByName[0].to!;

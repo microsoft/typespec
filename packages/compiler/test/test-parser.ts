@@ -1,8 +1,8 @@
 import assert from "assert";
 import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
-import { hasParseError, NodeFlags, parse, visitChildren } from "../core/parser.js";
-import { CadlScriptNode, Node, SourceFile, SyntaxKind } from "../core/types.js";
+import { hasParseError, parse, visitChildren } from "../core/parser.js";
+import { CadlScriptNode, Node, NodeFlags, SourceFile, SyntaxKind } from "../core/types.js";
 
 describe("compiler: syntax", () => {
   describe("import statements", () => {
@@ -117,7 +117,7 @@ describe("compiler: syntax", () => {
     ]);
     parseErrorEach([
       ["model foo extends { }", [/Identifier expected/]],
-      ["model foo extends bar, baz { }", [/\'{' expected/]],
+      ["model foo extends bar, baz { }", [/'{' expected/]],
       ["model foo extends = { }", [/Identifier expected/]],
       ["model foo extends bar = { }", [/'{' expected/]],
     ]);
@@ -141,8 +141,16 @@ describe("compiler: syntax", () => {
       "interface Foo { op foo(): int32; op bar(): int32; baz(): int32; }",
     ]);
 
-    parseErrorEach([["interface Foo<T> extends Bar<T> {}", [/mixes/]]]);
+    parseErrorEach([
+      ["interface Foo<T> extends Bar<T> {}", [/mixes/]],
+      ["interface X {", [/'}' expected/]],
+      ["interface X { foo(): string; interface Y", [/'}' expected/]],
+      ["interface X { foo(a: string", [/'\)' expected/]],
+      ["interface X { foo(@dec", [/Property expected/]],
+      ["interface X { foo(#suppress x", [/Property expected/]],
+    ]);
   });
+
   describe("model expressions", () => {
     parseEach(['model Car { engine: { type: "v8" } }']);
   });
@@ -557,7 +565,7 @@ describe("compiler: syntax", () => {
         [`projection x#f`, [/'{' expected/]],
         [`projection x#f {`, [/'}' expected/]],
         [`projection x#f { asdf`, [/from or to expected/]],
-        [`projection x#f { to (`, [/Identifier expected/]],
+        [`projection x#f { to (`, [/'\)' expected/]],
         [`projection x#f { to @`, [/'{' expected/]],
         [`projection x#f { to {`, [/} expected/]],
         [`projection x#f { to {}`, [/'}' expected/]],

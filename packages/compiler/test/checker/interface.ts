@@ -232,7 +232,7 @@ describe("compiler: interfaces", () => {
   });
 
   it("doesn't invoke decorators on uninstantiated templates", async () => {
-    let blues = new WeakSet();
+    const blues = new WeakSet();
     let calls = 0;
     testHost.addJsFile("dec.js", {
       $blue(p: any, t: Type) {

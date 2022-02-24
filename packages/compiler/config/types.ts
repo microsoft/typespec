@@ -22,7 +22,7 @@ export interface CadlConfig {
   emitters: Record<string, boolean>;
 }
 
-export type RuleValue = "on" | "off" | {};
+export type RuleValue = "on" | "off" | Record<string, unknown>;
 
 /**
  * Represent the configuration that can be provided in a config file.

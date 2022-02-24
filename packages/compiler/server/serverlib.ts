@@ -43,6 +43,7 @@ import {
   IdentifierNode,
   SourceFile,
   SourceLocation,
+  SymbolFlags,
   SyntaxKind,
   Type,
 } from "../core/types.js";
@@ -450,18 +451,20 @@ export function createServer(host: ServerHost): Server {
     if (result.size === 0) {
       return;
     }
-    for (let [key, { sym, label }] of result) {
+    for (const [key, { sym, label }] of result) {
       let documentation: string | undefined;
       let kind: CompletionItemKind;
-      if (sym.kind === "using") {
-        sym = sym.symbolSource;
-      }
-      if (sym.kind === "type") {
-        const type = program.checker!.getTypeForNode(sym.node);
-        documentation = getDoc(program, type);
-        kind = getCompletionItemKind(program, type, sym.node.kind);
-      } else {
+      if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
+      } else if (
+        sym.flags & SymbolFlags.Namespace &&
+        sym.declarations[0].kind !== SyntaxKind.NamespaceStatement
+      ) {
+        kind = CompletionItemKind.Module;
+      } else {
+        const type = program.checker!.getTypeForNode(sym.declarations[0]);
+        documentation = getDoc(program, type);
+        kind = getCompletionItemKind(program, type);
       }
       completions.items.push({
         label: label ?? key,
@@ -471,17 +474,13 @@ export function createServer(host: ServerHost): Server {
       });
     }
 
-    if (node.parent?.kind !== SyntaxKind.MemberExpression) {
+    if (node.parent?.kind === SyntaxKind.TypeReference) {
       addKeywordCompletion("identifier", completions);
     }
   }
 
-  function getCompletionItemKind(
-    program: Program,
-    target: Type,
-    kind: SyntaxKind
-  ): CompletionItemKind {
-    switch (kind) {
+  function getCompletionItemKind(program: Program, target: Type): CompletionItemKind {
+    switch (target.node?.kind) {
       case SyntaxKind.EnumStatement:
       case SyntaxKind.UnionStatement:
         return CompletionItemKind.Enum;
@@ -489,6 +488,8 @@ export function createServer(host: ServerHost): Server {
         return CompletionItemKind.Variable;
       case SyntaxKind.ModelStatement:
         return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+      case SyntaxKind.NamespaceStatement:
+        return CompletionItemKind.Module;
       default:
         return CompletionItemKind.Struct;
     }
