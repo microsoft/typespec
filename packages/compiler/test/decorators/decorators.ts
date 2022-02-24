@@ -106,7 +106,7 @@ describe("compiler: built-in decorators", () => {
   describe("@knownValues", () => {
     it("assign the known values to string model", async () => {
       const { Bar } = (await runner.compile(`
-        enum Foo {one: 1, two: 2}
+        enum Foo {one: "one", two: "two"}
         @test
         @knownValues(Foo)
         model Bar extends string {}
@@ -146,6 +146,22 @@ describe("compiler: built-in decorators", () => {
         code: "decorator-wrong-target",
         message:
           "Cannot apply @knownValues decorator to type it is not one of: string, int8, int16, int32, int64, float32, float64",
+      });
+    });
+
+    it("emit diagnostics when enum has invalid members", async () => {
+      const diagnostics = await runner.diagnose(`
+         enum Foo {
+          one: 1; 
+          two: 2;
+        }
+        @knownValues(Foo)
+        model Bar extends string {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "known-values-invalid-enum",
+        message: "Enum cannot be used on this type. Member one is not assignable to type string.",
       });
     });
 

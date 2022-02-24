@@ -3,13 +3,15 @@ import {
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
-import { createDiagnostic } from "../core/messages.js";
+import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
   DecoratorContext,
+  EnumMemberType,
   EnumType,
   InterfaceType,
   IntrinsicModel,
+  IntrinsicModelName,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -539,7 +541,43 @@ export function $knownValues(context: DecoratorContext, target: Type, knownValue
     return;
   }
 
+  for (const member of knownValues.members) {
+    const intrinsicType = getIntrinsicType(context.program, target)!.name;
+    if (!isEnumMemberAssignableToType(intrinsicType, member)) {
+      reportDiagnostic(context.program, {
+        code: "known-values-invalid-enum",
+        format: {
+          member: member.name,
+          type: intrinsicType,
+        },
+        target,
+      });
+      return;
+    }
+  }
   context.program.stateMap(knownValuesKey).set(target, knownValues);
+}
+
+function isEnumMemberAssignableToType(typeName: IntrinsicModelName, member: EnumMemberType) {
+  const memberType = member.value !== undefined ? typeof member.value : "string";
+  switch (memberType) {
+    case "string":
+      return typeName === "string";
+    case "number":
+      switch (typeName) {
+        case "int8":
+        case "int16":
+        case "int32":
+        case "int64":
+        case "float32":
+        case "float64":
+          return true;
+        default:
+          return false;
+      }
+    default:
+      return false;
+  }
 }
 
 export function getKnownValues(program: Program, target: ModelType): EnumType | undefined {
