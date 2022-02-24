@@ -404,6 +404,28 @@ describe("compiler: blockless namespaces", () => {
     strictEqual(Z.properties.size, 2, "has two properties");
   });
 
+  it("can access the cadl namespace using eval", async () => {
+    testHost.addJsFile("test.js", {
+      $eval({ program }: DecoratorContext) {
+        program.evalCadlScript(`namespace Z; @test model Z { @doc("x") x: int32 }`);
+      },
+    });
+
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./test.js";
+
+      @test @eval model X { x: int32 }
+      `
+    );
+
+    const { X } = (await testHost.compile("./")) as {
+      X: ModelType;
+    };
+    strictEqual((X.properties.get("x")!.type as ModelType).name, "int32");
+  });
+
   it("does lookup correctly", async () => {
     testHost.addCadlFile(
       "main.cadl",
