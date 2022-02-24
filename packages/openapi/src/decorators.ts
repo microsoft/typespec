@@ -70,3 +70,37 @@ export function $defaultResponse({ program }: DecoratorContext, entity: Type) {
 export function isDefaultResponse(program: Program, entity: Type): boolean {
   return program.stateSet(defaultResponseKey).has(entity);
 }
+
+export interface ExternalDocs {
+  url: string;
+  description?: string;
+}
+const externalDocsKey = Symbol();
+
+/**
+ * Allows referencing an external resource for extended documentation.
+ * @param url The URL for the target documentation. Value MUST be in the format of a URL.
+ * @param @optional description A short description of the target documentation.
+ */
+export function $externalDocs(
+  { program }: DecoratorContext,
+  target: Type,
+  url: string,
+  description?: string
+) {
+  if (!validateDecoratorParamType(program, target, url, "String")) {
+    return;
+  }
+  if (description && !validateDecoratorParamType(program, target, description, "String")) {
+    return;
+  }
+  const doc: ExternalDocs = { url };
+  if (description) {
+    doc.description = description;
+  }
+  program.stateMap(externalDocsKey).set(target, doc);
+}
+
+export function getExternalDocs(program: Program, entity: Type): ExternalDocs | undefined {
+  return program.stateMap(externalDocsKey).get(entity);
+}
