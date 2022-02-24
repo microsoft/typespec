@@ -4,7 +4,6 @@ import { Program } from "../core/program.js";
 import {
   DecoratorContext,
   InterfaceType,
-  IntrinsicModel,
   IntrinsicModelName,
   ModelType,
   ModelTypeProperty,
@@ -90,13 +89,19 @@ export function $intrinsic({ program }: DecoratorContext, target: Type, name: In
   program.stateMap(intrinsicsKey).set(target, name);
 }
 
-export function isIntrinsic(program: Program, target: Type | undefined): target is IntrinsicModel {
+export function isIntrinsic(program: Program, target: Type | undefined): boolean {
   if (!target) {
     return false;
   }
   return program.stateMap(intrinsicsKey).has(target);
 }
 
+/**
+ * The top level name of the intrinsic model.
+ *
+ * string => "string"
+ * model CustomString is string => "string"
+ */
 export function getIntrinsicModelName(program: Program, target: Type): IntrinsicModelName {
   return program.stateMap(intrinsicsKey).get(target);
 }
