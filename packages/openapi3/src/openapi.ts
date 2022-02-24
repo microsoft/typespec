@@ -42,7 +42,12 @@ import {
   UnionTypeVariant,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { getExtensions, getOperationId, isDefaultResponse } from "@cadl-lang/openapi";
+import {
+  getExtensions,
+  getExternalDocs,
+  getOperationId,
+  isDefaultResponse,
+} from "@cadl-lang/openapi";
 import {
   getAllRoutes,
   getDiscriminator,
@@ -193,14 +198,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   return { emitOpenAPI };
 
-  function initializeEmitter(version?: string) {
+  function initializeEmitter(serviceNamespaceType: NamespaceType, version?: string) {
     root = {
       openapi: "3.0.0",
       info: {
         title: getServiceTitle(program),
         version: version ?? getServiceVersion(program),
-        description: getDoc(program, getServiceNamespace(program)!),
+        description: getDoc(program, serviceNamespaceType),
       },
+      externalDocs: getExternalDocs(program, serviceNamespaceType),
       tags: [],
       paths: {},
       components: {
@@ -251,12 +257,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         program.enableProjections(record.projections);
       }
 
-      await emitOpenAPIFromVersion(record.version);
+      await emitOpenAPIFromVersion(serviceNs, record.version);
     }
   }
 
-  async function emitOpenAPIFromVersion(version?: string) {
-    initializeEmitter(version);
+  async function emitOpenAPIFromVersion(serviceNamespace: NamespaceType, version?: string) {
+    initializeEmitter(serviceNamespace, version);
     try {
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();
@@ -314,6 +320,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       // Synthesize an operation ID
       currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
     }
+    applyExternalDocs(op, currentEndpoint);
 
     // allow operation extensions
     attachExtensions(program, op, currentEndpoint);
@@ -1009,6 +1016,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       modelSchema.discriminator = discriminator;
     }
 
+    applyExternalDocs(model, modelSchema);
+
     for (const [name, prop] of model.properties) {
       if (!isSchemaProperty(prop)) {
         continue;
@@ -1261,6 +1270,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     return newTarget;
+  }
+
+  function applyExternalDocs(cadlType: Type, target: Record<string, unknown>) {
+    const externalDocs = getExternalDocs(program, cadlType);
+    if (externalDocs) {
+      target.externalDocs = externalDocs;
+    }
   }
 
   // Map an Cadl type to an OA schema. Returns undefined when the resulting
