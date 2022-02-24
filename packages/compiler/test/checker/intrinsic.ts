@@ -7,7 +7,7 @@ import {
   expectDiagnostics,
 } from "../../testing/index.js";
 
-describe.only("compiler: checker: intrinsic", () => {
+describe("compiler: checker: intrinsic", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
