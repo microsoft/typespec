@@ -4,6 +4,7 @@
   "compilerOptions": {
     "outDir": "dist-dev",
     "rootDir": ".",
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "module": "CommonJS",
     "skipLibCheck": true,
     "types": ["node", "mocha"]
