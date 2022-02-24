@@ -562,6 +562,7 @@ Here's an example that uses these to define a Pet Store service:
 ```cadl
 @serviceTitle("Pet Store Service")
 @serviceVersion("2021-03-25")
+@doc("This is a sample server Petstore server.")
 @Cadl.Rest.produces("application/json", "image/png")
 @Cadl.Rest.consumes("application/json")
 namespace PetStore;
