@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { deepStrictEqual, strictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: info", () => {
@@ -31,5 +31,18 @@ describe("openapi3: info", () => {
       `
     );
     strictEqual(res.info.description, "My service description");
+  });
+  it("set the service externalDocs with @externalDocs", async () => {
+    const res = await openApiFor(
+      `
+      @externalDocs("https://example.com", "more info")
+      @serviceTitle("My Service")
+      namespace Foo {}
+      `
+    );
+    deepStrictEqual(res.externalDocs, {
+      url: "https://example.com",
+      description: "more info",
+    });
   });
 });

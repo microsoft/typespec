@@ -196,14 +196,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   return { emitOpenAPI };
 
-  function initializeEmitter(version?: string) {
+  function initializeEmitter(serviceNamespaceType: NamespaceType, version?: string) {
     root = {
       openapi: "3.0.0",
       info: {
         title: getServiceTitle(program),
         version: version ?? getServiceVersion(program),
-        description: getDoc(program, getServiceNamespace(program)!),
+        description: getDoc(program, serviceNamespaceType),
       },
+      externalDocs: getExternalDocs(program, serviceNamespaceType),
       tags: [],
       paths: {},
       components: {
@@ -254,12 +255,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         program.enableProjections(record.projections);
       }
 
-      await emitOpenAPIFromVersion(record.version);
+      await emitOpenAPIFromVersion(serviceNs, record.version);
     }
   }
 
-  async function emitOpenAPIFromVersion(version?: string) {
-    initializeEmitter(version);
+  async function emitOpenAPIFromVersion(serviceNamespace: NamespaceType, version?: string) {
+    initializeEmitter(serviceNamespace, version);
     try {
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();
