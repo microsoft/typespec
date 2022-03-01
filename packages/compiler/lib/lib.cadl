@@ -1,77 +1,77 @@
 namespace Cadl;
 
-@intrinsic
+@intrinsic("bytes")
 model bytes {}
 
 @numeric
-@intrinsic
+@intrinsic("int64")
 model int64 {}
 
 @numeric
-@intrinsic
+@intrinsic("int32")
 model int32 {}
 
 @numeric
-@intrinsic
+@intrinsic("int16")
 model int16 {}
 
 @numeric
-@intrinsic
+@intrinsic("int8")
 model int8 {}
 
 @numeric
-@intrinsic
+@intrinsic("uint64")
 model uint64 {}
 
 @numeric
-@intrinsic
+@intrinsic("uint32")
 model uint32 {}
 
 @numeric
-@intrinsic
+@intrinsic("uint16")
 model uint16 {}
 
 @numeric
-@intrinsic
+@intrinsic("uint8")
 model uint8 {}
 
 @numeric
-@intrinsic
+@intrinsic("safeint")
 model safeint {}
 
 @numeric
-@intrinsic
+@intrinsic("float32")
 model float32 {}
 
 @numeric
-@intrinsic
+@intrinsic("float64")
 model float64 {}
 
-@intrinsic
+@intrinsic("string")
 model string {}
 
-@intrinsic
+@intrinsic("plainDate")
 model plainDate {}
 
-@intrinsic
+@intrinsic("plainTime")
 model plainTime {}
 
-@intrinsic
+@intrinsic("zonedDateTime")
 model zonedDateTime {}
 
-@intrinsic
+@intrinsic("duration")
 model duration {}
 
-@intrinsic
+@intrinsic("boolean")
 model boolean {}
 
-@intrinsic
+@intrinsic("null")
 model null {}
 
 // want to change this to
 // model<K, V> = [K, V][];
 // but templates aren't supported with model = yet.
-@intrinsic
+@intrinsic("Map")
 model Map<K, V> {
   @doc("the key of the Map.")
   k: K;

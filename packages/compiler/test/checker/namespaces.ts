@@ -617,6 +617,36 @@ describe("compiler: namespace type name", () => {
     strictEqual(testHost.program.checker?.getTypeName(Model1), "Foo.Model1");
     strictEqual(testHost.program.checker?.getTypeName(Model2), "Foo.Other.Bar.Model2");
   });
+
+  it("gets full name in edge case with decorators", async () => {
+    testHost.addJsFile("lib.js", {
+      namespace: "AnotherNamespace",
+      $dec() {},
+    });
+
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./lib.js";
+
+      @AnotherNamespace.dec(AnotherNamespace.AnotherModel)
+      namespace SomeNamespace {
+        @test()
+        model SomeModel {}
+      }
+
+      namespace AnotherNamespace {
+        @test()
+        model AnotherModel {}
+      }
+      `
+    );
+
+    const { SomeModel, AnotherModel } = await testHost.compile("./main.cadl");
+    const checker = testHost.program.checker!;
+    strictEqual(checker.getTypeName(SomeModel), "SomeNamespace.SomeModel");
+    strictEqual(checker.getTypeName(AnotherModel), "AnotherNamespace.AnotherModel");
+  });
 });
 
 describe("compiler: decorators in namespaces", () => {

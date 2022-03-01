@@ -1,5 +1,10 @@
-import { getIntrinsicType } from "../lib/decorators.js";
-import { IntrinsicModelName } from "./index.js";
+import {
+  getIntrinsicModelName,
+  getPropertyType,
+  IntrinsicModelName,
+  ModelType,
+  ModelTypeProperty,
+} from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import { Type } from "./types.js";
@@ -45,11 +50,11 @@ export function validateDecoratorTarget<K extends Type["kind"]>(
 
 export function validateDecoratorTargetIntrinsic(
   program: Program,
-  target: Type,
+  target: ModelType | ModelTypeProperty,
   decoratorName: string,
   expectedType: IntrinsicModelName | IntrinsicModelName[]
 ): boolean {
-  const actualType = getIntrinsicType(program, target)?.name;
+  const actualType = getIntrinsicModelName(program, getPropertyType(target));
   const isCorrect =
     actualType &&
     (typeof expectedType === "string"

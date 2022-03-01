@@ -10,7 +10,6 @@ import {
   EnumMemberType,
   EnumType,
   InterfaceType,
-  IntrinsicModel,
   IntrinsicModelName,
   ModelType,
   ModelTypeProperty,
@@ -92,42 +91,30 @@ export function inspectTypeName(program: Program, target: Type, text: string) {
 }
 
 const intrinsicsKey = Symbol();
-export function $intrinsic({ program }: DecoratorContext, target: Type) {
-  program.stateSet(intrinsicsKey).add(target);
+export function $intrinsic({ program }: DecoratorContext, target: Type, name: IntrinsicModelName) {
+  program.stateMap(intrinsicsKey).set(target, name);
 }
 
-export function isIntrinsic(program: Program, target: Type | undefined): target is IntrinsicModel {
+export function isIntrinsic(program: Program, target: Type | undefined): boolean {
   if (!target) {
     return false;
   }
-  return program.stateSet(intrinsicsKey).has(target);
+  return program.stateMap(intrinsicsKey).has(target);
 }
 
-// Walks the assignmentType chain to find the core intrinsic type, if any
-export function getIntrinsicType(
-  program: Program,
-  target: Type | undefined
-): IntrinsicModel | undefined {
-  while (target) {
-    if (target.kind === "Model") {
-      if (isIntrinsic(program, target)) {
-        return target;
-      }
-
-      target = target.baseModel;
-    } else if (target.kind === "ModelProperty") {
-      return getIntrinsicType(program, target.type);
-    } else {
-      break;
-    }
-  }
-
-  return undefined;
+/**
+ * The top level name of the intrinsic model.
+ *
+ * string => "string"
+ * model CustomString is string => "string"
+ */
+export function getIntrinsicModelName(program: Program, target: Type): IntrinsicModelName {
+  return program.stateMap(intrinsicsKey).get(target);
 }
 
-export function isStringType(program: Program, target: Type): target is ModelType {
-  const intrinsicType = getIntrinsicType(program, target);
-  return intrinsicType !== undefined && intrinsicType.name === "string";
+export function isStringType(program: Program, target: Type): boolean {
+  const intrinsicType = getIntrinsicModelName(program, target);
+  return intrinsicType !== undefined && intrinsicType === "string";
 }
 
 export function isErrorType(type: Type): boolean {
@@ -152,9 +139,19 @@ export function $numeric({ program }: DecoratorContext, target: Type) {
   program.stateSet(numericTypesKey).add(target);
 }
 
+/**
+ * Return the type of the property or the model itself.
+ */
+export function getPropertyType(target: ModelType | ModelTypeProperty): Type {
+  if (target.kind === "ModelProperty") {
+    return target.type;
+  } else {
+    return target;
+  }
+}
+
 export function isNumericType(program: Program, target: Type): boolean {
-  const intrinsicType = getIntrinsicType(program, target);
-  return intrinsicType !== undefined && program.stateSet(numericTypesKey).has(intrinsicType);
+  return isIntrinsic(program, target) && program.stateSet(numericTypesKey).has(target);
 }
 
 // -- @error decorator ----------------------
@@ -258,7 +255,7 @@ export function $minValue({ program }: DecoratorContext, target: Type, minValue:
     return;
   }
 
-  if (!isNumericType(program, target)) {
+  if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -284,7 +281,7 @@ export function $maxValue({ program }: DecoratorContext, target: Type, maxValue:
     return;
   }
 
-  if (!isNumericType(program, target)) {
+  if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -527,6 +524,7 @@ const knownValuesKey = Symbol();
  */
 export function $knownValues(context: DecoratorContext, target: Type, knownValues: Type) {
   if (
+    !validateDecoratorTarget(context.program, target, "@format", ["Model", "ModelProperty"]) ||
     !validateDecoratorTargetIntrinsic(context.program, target, "@knownValues", [
       "string",
       "int8",
@@ -542,7 +540,7 @@ export function $knownValues(context: DecoratorContext, target: Type, knownValue
   }
 
   for (const member of knownValues.members) {
-    const intrinsicType = getIntrinsicType(context.program, target)!.name;
+    const intrinsicType = getIntrinsicModelName(context.program, getPropertyType(target));
     if (!isEnumMemberAssignableToType(intrinsicType, member)) {
       reportDiagnostic(context.program, {
         code: "known-values-invalid-enum",

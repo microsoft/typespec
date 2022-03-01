@@ -269,6 +269,12 @@ const diagnostics = {
       default: "Models must extend other models.",
     },
   },
+  "extend-primitive": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Cannot extend primitive types. Use 'model ${"modelName"} is ${"baseModelName"}' instead.`,
+    },
+  },
   "is-model": {
     severity: "error",
     messages: {

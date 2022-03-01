@@ -10,6 +10,7 @@ import {
   getDoc,
   getFormat,
   getFriendlyName,
+  getIntrinsicModelName,
   getKnownValues,
   getMaxLength,
   getMaxValue,
@@ -17,6 +18,7 @@ import {
   getMinValue,
   getPattern,
   getProperty,
+  getPropertyType,
   getServiceHost,
   getServiceNamespace,
   getServiceNamespaceString,
@@ -563,12 +565,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       };
     }
 
-    if (type.kind === "Model" && !type.baseModel) {
-      // If this is a model that isn't derived from anything, there's a chance
+    if (type.kind === "Model" && type.name === getIntrinsicModelName(program, type)) {
+      // if the model is one of the Cadl Intrinsic type.
       // it's a base Cadl "primitive" that corresponds directly to an OpenAPI
       // primitive. In such cases, we don't want to emit a ref and instead just
       // emit the base type directly.
-      const builtIn = mapCadlTypeToOpenAPI(type);
+      const builtIn = mapCadlIntrinsicModelToOpenAPI(type);
       if (builtIn !== undefined) {
         return builtIn;
       }
@@ -964,7 +966,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function isNullType(type: Type): boolean {
-    return type.kind === "Model" && type.name === "null" && isIntrinsic(program, type);
+    return isIntrinsic(program, type) && getIntrinsicModelName(program, type) === "null";
   }
 
   function getDefaultValue(type: Type): any {
@@ -1219,11 +1221,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     return typeName;
   }
 
-  function applyIntrinsicDecorators(cadlType: Type, target: any): any {
+  function applyIntrinsicDecorators(cadlType: ModelType | ModelTypeProperty, target: any): any {
     const newTarget = { ...target };
 
-    const isString = isStringType(program, cadlType);
     const docStr = getDoc(program, cadlType);
+    const isString = isStringType(program, getPropertyType(cadlType));
+    const isNumeric = isNumericType(program, getPropertyType(cadlType));
+
     if (isString && !target.documentation && docStr) {
       newTarget.description = docStr;
     }
@@ -1254,12 +1258,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     const minValue = getMinValue(program, cadlType);
-    if (isNumericType(program, cadlType) && !target.minimum && minValue !== undefined) {
+    if (isNumeric && !target.minimum && minValue !== undefined) {
       newTarget.minimum = minValue;
     }
 
     const maxValue = getMaxValue(program, cadlType);
-    if (isNumericType(program, cadlType) && !target.maximum && maxValue !== undefined) {
+    if (isNumeric && !target.maximum && maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }
 
@@ -1268,7 +1272,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     if (isString) {
-      const values = getKnownValues(program, cadlType);
+      const values = getKnownValues(program, getPropertyType(cadlType) as ModelType);
       if (values) {
         return {
           oneOf: [newTarget, getSchemaForEnum(values)],
@@ -1297,59 +1301,70 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "Boolean":
         return { type: "boolean", enum: [cadlType.value] };
       case "Model":
-        switch (cadlType.name) {
-          case "bytes":
-            return { type: "string", format: "byte" };
-          case "int8":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int8" });
-          case "int16":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int16" });
-          case "int32":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
-          case "int64":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
-          case "safeint":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
-          case "uint8":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });
-          case "uint16":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint16" });
-          case "uint32":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint32" });
-          case "uint64":
-            return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint64" });
-          case "float64":
-            return applyIntrinsicDecorators(cadlType, { type: "number", format: "double" });
-          case "float32":
-            return applyIntrinsicDecorators(cadlType, { type: "number", format: "float" });
-          case "string":
-            return applyIntrinsicDecorators(cadlType, { type: "string" });
-          case "boolean":
-            return { type: "boolean" };
-          case "plainDate":
-            return { type: "string", format: "date" };
-          case "zonedDateTime":
-            return { type: "string", format: "date-time" };
-          case "plainTime":
-            return { type: "string", format: "time" };
-          case "duration":
-            return { type: "string", format: "duration" };
-          case "Map":
-            // We assert on valType because Map types always have a type
-            const valType = cadlType.properties.get("v");
-            return {
-              type: "object",
-              additionalProperties: getSchemaOrRef(valType!.type),
-            };
-        }
+        return mapCadlIntrinsicModelToOpenAPI(cadlType);
     }
-    // The base model doesn't correspond to a primitive OA type, but it could
-    // derive from one. Let's check.
-    if (cadlType.kind === "Model" && cadlType.baseModel) {
-      const baseSchema = mapCadlTypeToOpenAPI(cadlType.baseModel);
-      if (baseSchema) {
-        return applyIntrinsicDecorators(cadlType, baseSchema);
-      }
+    // // The base model doesn't correspond to a primitive OA type, but it could
+    // // derive from one. Let's check.
+    // if (cadlType.kind === "Model" && cadlType.baseModel) {
+    //   const baseSchema = mapCadlTypeToOpenAPI(cadlType.baseModel);
+    //   if (baseSchema) {
+    //     return applyIntrinsicDecorators(cadlType, baseSchema);
+    //   }
+    // }
+  }
+
+  /**
+   * Map Cadl intrinsic models to open api definitions
+   */
+  function mapCadlIntrinsicModelToOpenAPI(cadlType: ModelType): any | undefined {
+    if (!isIntrinsic(program, cadlType)) {
+      return undefined;
+    }
+    const name = getIntrinsicModelName(program, cadlType);
+    switch (name) {
+      case "bytes":
+        return { type: "string", format: "byte" };
+      case "int8":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int8" });
+      case "int16":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int16" });
+      case "int32":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int32" });
+      case "int64":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+      case "safeint":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "int64" });
+      case "uint8":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint8" });
+      case "uint16":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint16" });
+      case "uint32":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint32" });
+      case "uint64":
+        return applyIntrinsicDecorators(cadlType, { type: "integer", format: "uint64" });
+      case "float64":
+        return applyIntrinsicDecorators(cadlType, { type: "number", format: "double" });
+      case "float32":
+        return applyIntrinsicDecorators(cadlType, { type: "number", format: "float" });
+      case "string":
+        return applyIntrinsicDecorators(cadlType, { type: "string" });
+      case "boolean":
+        return { type: "boolean" };
+      case "plainDate":
+        return { type: "string", format: "date" };
+      case "zonedDateTime":
+        return { type: "string", format: "date-time" };
+      case "plainTime":
+        return { type: "string", format: "time" };
+      case "duration":
+        return { type: "string", format: "duration" };
+      case "Map":
+        // We assert on valType because Map types always have a type
+        const valType = cadlType.properties.get("v");
+        return {
+          type: "object",
+          additionalProperties: getSchemaOrRef(valType!.type),
+        };
     }
   }
 }
