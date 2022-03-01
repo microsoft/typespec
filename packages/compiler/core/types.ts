@@ -126,7 +126,8 @@ export type IntrinsicModelName =
   | "zonedDateTime"
   | "duration"
   | "boolean"
-  | "null";
+  | "null"
+  | "Map";
 
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";

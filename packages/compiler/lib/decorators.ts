@@ -4,6 +4,7 @@ import { Program } from "../core/program.js";
 import {
   DecoratorContext,
   InterfaceType,
+  IntrinsicModelName,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -84,42 +85,30 @@ export function inspectTypeName(program: Program, target: Type, text: string) {
 }
 
 const intrinsicsKey = Symbol();
-export function $intrinsic({ program }: DecoratorContext, target: Type) {
-  program.stateSet(intrinsicsKey).add(target);
+export function $intrinsic({ program }: DecoratorContext, target: Type, name: IntrinsicModelName) {
+  program.stateMap(intrinsicsKey).set(target, name);
 }
 
-export function isIntrinsic(program: Program, target: Type | undefined) {
+export function isIntrinsic(program: Program, target: Type | undefined): boolean {
   if (!target) {
     return false;
   }
-  return program.stateSet(intrinsicsKey).has(target);
+  return program.stateMap(intrinsicsKey).has(target);
 }
 
-// Walks the assignmentType chain to find the core intrinsic type, if any
-export function getIntrinsicType(
-  program: Program,
-  target: Type | undefined
-): ModelType | undefined {
-  while (target) {
-    if (target.kind === "Model") {
-      if (isIntrinsic(program, target)) {
-        return target;
-      }
-
-      target = target.baseModel;
-    } else if (target.kind === "ModelProperty") {
-      return getIntrinsicType(program, target.type);
-    } else {
-      break;
-    }
-  }
-
-  return undefined;
+/**
+ * The top level name of the intrinsic model.
+ *
+ * string => "string"
+ * model CustomString is string => "string"
+ */
+export function getIntrinsicModelName(program: Program, target: Type): IntrinsicModelName {
+  return program.stateMap(intrinsicsKey).get(target);
 }
 
 export function isStringType(program: Program, target: Type): boolean {
-  const intrinsicType = getIntrinsicType(program, target);
-  return intrinsicType !== undefined && intrinsicType.name === "string";
+  const intrinsicType = getIntrinsicModelName(program, target);
+  return intrinsicType !== undefined && intrinsicType === "string";
 }
 
 export function isErrorType(type: Type): boolean {
@@ -144,9 +133,19 @@ export function $numeric({ program }: DecoratorContext, target: Type) {
   program.stateSet(numericTypesKey).add(target);
 }
 
+/**
+ * Return the type of the property or the model itself.
+ */
+export function getPropertyType(target: ModelType | ModelTypeProperty): Type {
+  if (target.kind === "ModelProperty") {
+    return target.type;
+  } else {
+    return target;
+  }
+}
+
 export function isNumericType(program: Program, target: Type): boolean {
-  const intrinsicType = getIntrinsicType(program, target);
-  return intrinsicType !== undefined && program.stateSet(numericTypesKey).has(intrinsicType);
+  return isIntrinsic(program, target) && program.stateSet(numericTypesKey).has(target);
 }
 
 // -- @error decorator ----------------------
@@ -174,7 +173,7 @@ export function $format({ program }: DecoratorContext, target: Type, format: str
     return;
   }
 
-  if (getIntrinsicType(program, target)?.name !== "string") {
+  if (getIntrinsicModelName(program, getPropertyType(target)) !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -201,7 +200,7 @@ export function $pattern({ program }: DecoratorContext, target: Type, pattern: s
     return;
   }
 
-  if (getIntrinsicType(program, target)?.name !== "string") {
+  if (getIntrinsicModelName(program, getPropertyType(target)) !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -228,7 +227,7 @@ export function $minLength({ program }: DecoratorContext, target: Type, minLengt
     return;
   }
 
-  if (getIntrinsicType(program, target)?.name !== "string") {
+  if (getIntrinsicModelName(program, getPropertyType(target)) !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -255,7 +254,7 @@ export function $maxLength({ program }: DecoratorContext, target: Type, maxLengt
     return;
   }
 
-  if (getIntrinsicType(program, target)?.name !== "string") {
+  if (getIntrinsicModelName(program, getPropertyType(target)) !== "string") {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -281,7 +280,7 @@ export function $minValue({ program }: DecoratorContext, target: Type, minValue:
     return;
   }
 
-  if (!isNumericType(program, target)) {
+  if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -307,7 +306,7 @@ export function $maxValue({ program }: DecoratorContext, target: Type, maxValue:
     return;
   }
 
-  if (!isNumericType(program, target)) {
+  if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
@@ -333,7 +332,7 @@ export function $secret({ program }: DecoratorContext, target: Type) {
     return;
   }
 
-  if (getIntrinsicType(program, target)?.name !== "string") {
+  if (getIntrinsicModelName(program, target) !== "string") {
     createDiagnostic({
       code: "decorator-wrong-target",
       format: { decorator: "@secret", to: "non-string type" },

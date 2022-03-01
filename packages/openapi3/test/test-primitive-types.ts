@@ -6,7 +6,7 @@ describe("openapi3: primitives", () => {
     const res = await oapiForModel(
       "Pet",
       `
-      model shortString extends string {}
+      model shortString is string {}
       model Pet { name: shortString };
       `
     );
@@ -24,7 +24,7 @@ describe("openapi3: primitives", () => {
       "shortString",
       `
       @doc("My custom description")
-      model shortString extends string {}
+      model shortString is string {}
       `
     );
 
@@ -41,7 +41,7 @@ describe("openapi3: primitives", () => {
       "Pet",
       `
       @maxLength(10) @minLength(10)
-      model shortString extends string {}
+      model shortString is string {}
       model Pet { name: shortString };
       `
     );
@@ -61,9 +61,9 @@ describe("openapi3: primitives", () => {
       "Pet",
       `
       @maxLength(10)
-      model shortString extends string {}
+      model shortString is string {}
       @minLength(1)
-      model shortButNotEmptyString extends shortString {};
+      model shortButNotEmptyString is shortString {};
       model Pet { name: shortButNotEmptyString, breed: shortString };
       `
     );

@@ -3,6 +3,7 @@ import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   DecoratorContext,
+  isIntrinsic,
   JsSourceFileNode,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
@@ -1461,6 +1462,19 @@ export function createChecker(program: Program): Checker {
     if (heritageType.kind !== "Model") {
       program.reportDiagnostic(createDiagnostic({ code: "extend-model", target: heritageRef }));
       return undefined;
+    }
+
+    if (isIntrinsic(program, heritageType)) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "extend-primitive",
+          target: heritageRef,
+          format: {
+            modelName: model.id.sv,
+            baseModelName: heritageType.name,
+          },
+        })
+      );
     }
 
     return heritageType;
