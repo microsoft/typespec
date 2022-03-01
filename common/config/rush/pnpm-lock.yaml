@@ -4021,11 +4021,12 @@ packages:
       eslint: 8.9.0
       onigasm: 2.2.5
       plist: 3.0.4
+      rimraf: 3.0.2
       typescript: 4.5.5
     dev: false
     name: '@rush-temp/tmlanguage-generator'
     resolution:
-      integrity: sha512-2je3B5fn3fEHMvKgJSbMMCOJPuKA7z1Hib9zlrHB0pUnU5WzpM+w3FS/RZ7RRtPQ5mHef0Uavmd2xq6k+Zo/xA==
+      integrity: sha512-nKdhYEUuUjOleZFdVjXKiIjOuWZ2DqlgoyCDcc6m+4LeDUNhf4M/2KnjaS61OCPkRjrnY5fNgVY2GxnnkV5YvQ==
       tarball: file:projects/tmlanguage-generator.tgz
     version: 0.0.0
   file:projects/versioning.tgz:
