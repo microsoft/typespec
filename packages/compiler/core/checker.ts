@@ -871,9 +871,11 @@ export function createChecker(program: Program): Checker {
       // However, one case where this is not true is when a decorator on a namespace
       // refers to a model in another namespace. In this case, we need to evaluate
       // the namespace here.
-      symbolLinks.type = initializeTypeForNamespace(
-        mergedSymbol.declarations[0] as NamespaceStatementNode
+      const namespaceNode = mergedSymbol.declarations.find(
+        (x): x is NamespaceStatementNode => x.kind === SyntaxKind.NamespaceStatement
       );
+      compilerAssert(namespaceNode, "Can't find namespace declaration node.", node);
+      symbolLinks.type = initializeTypeForNamespace(namespaceNode);
     }
 
     return symbolLinks.type as NamespaceType;
