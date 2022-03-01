@@ -578,6 +578,9 @@ function isEnumMemberAssignableToType(typeName: IntrinsicModelName, member: Enum
   }
 }
 
-export function getKnownValues(program: Program, target: ModelType): EnumType | undefined {
+export function getKnownValues(
+  program: Program,
+  target: ModelType | ModelTypeProperty
+): EnumType | undefined {
   return program.stateMap(knownValuesKey).get(target);
 }

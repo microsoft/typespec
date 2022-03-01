@@ -109,7 +109,7 @@ describe("compiler: built-in decorators", () => {
         enum Foo {one: "one", two: "two"}
         @test
         @knownValues(Foo)
-        model Bar extends string {}
+        model Bar is string {}
       `)) as { Bar: ModelType };
 
       ok(Bar.kind);
@@ -126,7 +126,7 @@ describe("compiler: built-in decorators", () => {
         }
         @test
         @knownValues(Foo)
-        model Bar extends int32 {}
+        model Bar is int32 {}
       `)) as { Bar: ModelType };
 
       ok(Bar.kind);
@@ -144,8 +144,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message:
-          "Cannot apply @knownValues decorator to type it is not one of: string, int8, int16, int32, int64, float32, float64",
+        message: "Cannot apply @format decorator to Enum",
       });
     });
 
@@ -156,7 +155,7 @@ describe("compiler: built-in decorators", () => {
           two: 2;
         }
         @knownValues(Foo)
-        model Bar extends string {}
+        model Bar is string {}
       `);
 
       expectDiagnostics(diagnostics, {
@@ -183,7 +182,7 @@ describe("compiler: built-in decorators", () => {
       const diagnostics = await runner.diagnose(`
         model Foo {}
         @knownValues(Foo)
-        model Bar extends string {}
+        model Bar is string {}
       `);
 
       expectDiagnostics(diagnostics, {

@@ -1272,7 +1272,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     if (isString) {
-      const values = getKnownValues(program, getPropertyType(cadlType) as ModelType);
+      const values = getKnownValues(program, cadlType);
       if (values) {
         return {
           oneOf: [newTarget, getSchemaForEnum(values)],
