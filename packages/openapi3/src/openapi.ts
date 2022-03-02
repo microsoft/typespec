@@ -11,6 +11,7 @@ import {
   getFormat,
   getFriendlyName,
   getIntrinsicModelName,
+  getKnownValues,
   getMaxLength,
   getMaxValue,
   getMinLength,
@@ -1222,6 +1223,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function applyIntrinsicDecorators(cadlType: ModelType | ModelTypeProperty, target: any): any {
     const newTarget = { ...target };
+
     const docStr = getDoc(program, cadlType);
     const isString = isStringType(program, getPropertyType(cadlType));
     const isNumeric = isNumericType(program, getPropertyType(cadlType));
@@ -1267,6 +1269,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     if (isSecret(program, cadlType)) {
       newTarget.format = "password";
+    }
+
+    if (isString) {
+      const values = getKnownValues(program, cadlType);
+      if (values) {
+        return {
+          oneOf: [newTarget, getSchemaForEnum(values)],
+        };
+      }
     }
 
     return newTarget;

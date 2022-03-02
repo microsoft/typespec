@@ -436,6 +436,12 @@ const diagnostics = {
       default: paramMessage`Expected ${"expected"} arguments, but got ${"actual"}.`,
     },
   },
+  "known-values-invalid-enum": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Enum cannot be used on this type. Member ${"member"} is not assignable to type ${"type"}.`,
+    },
+  },
 
   /**
    * Service

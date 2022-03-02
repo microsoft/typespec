@@ -9,6 +9,7 @@ import { createProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
 import { NodeHost } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
+import { BasicTestRunner, createTestWrapper } from "./test-utils.js";
 import {
   CadlTestLibrary,
   TestFileSystem,
@@ -203,6 +204,11 @@ export async function createTestHost(config: TestHostConfig = {}): Promise<TestH
     }
   }
   return testHost;
+}
+
+export async function createTestRunner(): Promise<BasicTestRunner> {
+  const testHost = await createTestHost();
+  return createTestWrapper(testHost, (code) => code);
 }
 
 async function createTestHostInternal(): Promise<TestHost> {
