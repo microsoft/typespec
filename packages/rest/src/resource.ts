@@ -1,5 +1,7 @@
 import {
   DecoratorContext,
+  getKeyName,
+  isKey,
   ModelType,
   ModelTypeProperty,
   Program,
@@ -13,25 +15,6 @@ import { $path } from "./http.js";
 export interface ResourceKey {
   resourceType: ModelType;
   keyProperty: ModelTypeProperty;
-}
-
-const resourceKeyPropertiesKey = Symbol();
-
-export function $key({ program }: DecoratorContext, entity: Type, altName?: string): void {
-  if (!validateDecoratorTarget(program, entity, "@key", "ModelProperty")) {
-    return;
-  }
-
-  // Register the key property
-  program.stateMap(resourceKeyPropertiesKey).set(entity, altName || entity.name);
-}
-
-export function isKey(program: Program, property: ModelTypeProperty) {
-  return program.stateMap(resourceKeyPropertiesKey).has(property);
-}
-
-export function getKeyName(program: Program, property: ModelTypeProperty): string {
-  return program.stateMap(resourceKeyPropertiesKey).get(property);
 }
 
 const resourceKeysKey = Symbol();
@@ -156,4 +139,4 @@ export function $parentResource({ program }: DecoratorContext, entity: Type, par
   program.stateMap(parentResourceTypesKey).set(entity, parentType);
 }
 
-setDecoratorNamespace("Cadl.Rest", $parentResource, $copyResourceKeyParameters, $key);
+setDecoratorNamespace("Cadl.Rest", $parentResource, $copyResourceKeyParameters);
