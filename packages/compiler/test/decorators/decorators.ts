@@ -1,6 +1,12 @@
 import { ok, strictEqual } from "assert";
 import { ModelType } from "../../core/index.js";
-import { getDoc, getFriendlyName, getKnownValues, isErrorModel } from "../../lib/decorators.js";
+import {
+  getDoc,
+  getFriendlyName,
+  getKeyName,
+  getKnownValues,
+  isErrorModel,
+} from "../../lib/decorators.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../testing/index.js";
 
 describe("compiler: built-in decorators", () => {
@@ -189,6 +195,64 @@ describe("compiler: built-in decorators", () => {
         code: "invalid-argument",
         message: "Argument 'Foo' of type 'Model' is not assignable to parameter of type 'Enum'",
       });
+    });
+  });
+
+  describe("@key", async () => {
+    it("emits diagnostic when argument is not a string", async () => {
+      const diagnostics = await runner.diagnose(
+        `model M {
+          @key(4)
+          prop: string;
+        }`
+      );
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument",
+          message: "Argument '4' of type 'Number' is not assignable to parameter of type 'String'",
+        },
+      ]);
+    });
+
+    it("emits diagnostic when not applied to model property", async () => {
+      const diagnostics = await runner.diagnose(
+        `@key
+        model M {}`
+      );
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message: "Cannot apply @key decorator to Model",
+        },
+      ]);
+    });
+
+    it("sets key to property name by default", async () => {
+      const { prop } = await runner.compile(
+        `model M {
+          @test
+          @key
+          prop: string;
+        }`
+      );
+
+      ok(prop.kind === "ModelProperty", "should be a model property");
+      strictEqual(getKeyName(runner.program, prop), "prop");
+    });
+
+    it("sets key to alternate name when provided", async () => {
+      const { prop } = await runner.compile(
+        `model M {
+          @test
+          @key("alternateName")
+          prop: string;
+        }`
+      );
+
+      ok(prop.kind === "ModelProperty", "should be a model property");
+      strictEqual(getKeyName(runner.program, prop), "alternateName");
     });
   });
 });

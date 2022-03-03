@@ -584,3 +584,26 @@ export function getKnownValues(
 ): EnumType | undefined {
   return program.stateMap(knownValuesKey).get(target);
 }
+
+const keyKey = Symbol();
+
+export function $key({ program }: DecoratorContext, entity: Type, altName?: string): void {
+  if (!validateDecoratorTarget(program, entity, "@key", "ModelProperty")) {
+    return;
+  }
+
+  if (altName && !validateDecoratorParamType(program, entity, altName, "String")) {
+    return;
+  }
+
+  // Register the key property
+  program.stateMap(keyKey).set(entity, altName || entity.name);
+}
+
+export function isKey(program: Program, property: ModelTypeProperty) {
+  return program.stateMap(keyKey).has(property);
+}
+
+export function getKeyName(program: Program, property: ModelTypeProperty): string {
+  return program.stateMap(keyKey).get(property);
+}
