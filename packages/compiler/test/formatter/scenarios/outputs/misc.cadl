@@ -1,6 +1,6 @@
 import "@cadl-lang/rest";
-import "@azure-tools/cadl-autorest";
-import "@azure-tools/cadl-rpaas";
+import "@cadl-lang/openapi";
+import "@cadl-lang/openapi3";
 
 alias Bar = "that" | "this";
 
@@ -65,8 +65,8 @@ enum SomeNamedEnum {
 @resource("/operations")
 namespace Operations {
   // Comment here too
-  @get @doc("Abc") op get(@path id: string): ArmResponse<OperationStatusResult>;
+  @get @doc("Abc") op get(@path id: string): OkResponse<OperationStatusResult>;
 
   #suppress "no-list-op" "This is actually needed"
-  @get op list(): ArmResponse<OperationListResult> | ErrorResponse;
+  @get op list(): OkResponse<OperationListResult> | ErrorResponse;
 }
