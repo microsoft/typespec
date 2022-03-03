@@ -25,14 +25,14 @@ describe("compiler: prettier formatter", () => {
   it("format imports", () => {
     assertFormat({
       code: `
-    import   "@cadl-lang/rest";
-import        "@azure-tools/cadl-autorest";
-import "@azure-tools/cadl-rpaas"  ;
+    import   "@scope/package1";
+import        "@scope/package2";
+import "@scope/package3"  ;
 `,
       expected: `
-import "@cadl-lang/rest";
-import "@azure-tools/cadl-autorest";
-import "@azure-tools/cadl-rpaas";
+import "@scope/package1";
+import "@scope/package2";
+import "@scope/package3";
 `,
     });
   });
@@ -54,10 +54,10 @@ op test(): {
   it("format using", () => {
     assertFormat({
       code: `
-using       Azure.Arm  
+using       Some.Namespace  
 `,
       expected: `
-using Azure.Arm;
+using Some.Namespace;
 `,
     });
   });
