@@ -252,17 +252,22 @@ function navigateType(
   }
 }
 
-// Find the immediate children of the given model.
-export function findChildModels(program: Program, parent: ModelType) {
-  const children: ModelType[] = [];
+// Produce a map from models in a program (with children) to their children.
+export function mapChildModels(program: Program): ReadonlyMap<ModelType, readonly ModelType[]> {
+  const map = new Map<ModelType, ModelType[]>();
   navigateProgram(program, {
     model: (model) => {
-      if (model.baseModel === parent) {
-        children.push(model);
+      if (model.baseModel) {
+        const children = map.get(model.baseModel);
+        if (children) {
+          children.push(model);
+        } else {
+          map.set(model.baseModel, [model]);
+        }
       }
     },
   });
-  return children;
+  return map;
 }
 
 // Return property from type, nesting into baseTypes as needed.
