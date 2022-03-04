@@ -227,14 +227,24 @@ function cadlTypeToJsonInternal(
       return [result, []];
     }
     default:
-      const diagnostic = createDiagnostic({
-        code: "invalid-value",
-        format: {
-          kind: cadlType.kind,
-          path: path.join("."),
-        },
-        target,
-      });
+      const diagnostic =
+        path.length === 0
+          ? createDiagnostic({
+              code: "invalid-value",
+              format: {
+                kind: cadlType.kind,
+              },
+              target,
+            })
+          : createDiagnostic({
+              code: "invalid-value",
+              messageId: "atPath",
+              format: {
+                kind: cadlType.kind,
+                path: path.join("."),
+              },
+              target,
+            });
       return [undefined, [diagnostic]];
   }
 }

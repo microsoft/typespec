@@ -445,7 +445,8 @@ const diagnostics = {
   "invalid-value": {
     severity: "error",
     messages: {
-      default: paramMessage`Type '${"kind"}' of '${"path"}' is not a value type.`,
+      default: paramMessage`Type '${"kind"}' is not a value type.`,
+      atPath: paramMessage`Type '${"kind"}' of '${"path"}' is not a value type.`,
     },
   },
   /**

@@ -1,10 +1,10 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { cadlTypeToJson, CadlValue, DecoratorContext } from "../core/index.js";
 import { Type } from "../core/types.js";
-import { createTestHost } from "../testing/index.js";
+import { createTestHost, expectDiagnostics } from "../testing/index.js";
 
 describe("compiler: decorator utils", () => {
-  describe.only("cadlTypeToJson", () => {
+  describe("cadlTypeToJson", () => {
     async function convertDecoratorDataToJson(code: string) {
       const host = await createTestHost();
       let result: any;
@@ -85,6 +85,32 @@ describe("compiler: decorator utils", () => {
 
       deepStrictEqual(data, { string: "string", nested: { foo: "bar" }, bool: true });
       strictEqual(diagnostics.length, 0);
+    });
+
+    it("emit diagnostic if value it not serializable", async () => {
+      const [data, diagnostics] = await convertDecoratorDataToJson(`
+        @jsonData("foo" | "bar")
+        model Foo {}
+      `);
+
+      deepStrictEqual(data, undefined);
+      expectDiagnostics(diagnostics, {
+        code: "invalid-value",
+        message: "Type 'Union' is not a value type.",
+      });
+    });
+
+    it("emit diagnostic if value under model it not serializable", async () => {
+      const [data, diagnostics] = await convertDecoratorDataToJson(`
+        @jsonData({string: "string", some: "foo" | "bar", other: 123})
+        model Foo {}
+      `);
+
+      deepStrictEqual(data, undefined);
+      expectDiagnostics(diagnostics, {
+        code: "invalid-value",
+        message: "Type 'Union' of 'some' is not a value type.",
+      });
     });
   });
 });
