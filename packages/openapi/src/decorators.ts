@@ -1,4 +1,6 @@
 import {
+  cadlTypeToJson,
+  CadlValue,
   DecoratorContext,
   Program,
   Type,
@@ -28,7 +30,7 @@ export function $extension(
   { program }: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: any
+  value: CadlValue
 ) {
   if (!validateDecoratorParamType(program, entity, extensionName, "String")) {
     return;
@@ -42,9 +44,14 @@ export function $extension(
     });
   }
 
+  const [data, diagnostics] = cadlTypeToJson(value, entity);
+  if (diagnostics.length > 0) {
+    program.reportDiagnostics(diagnostics);
+  }
+
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
-  typeExtensions.set(extensionName, value);
+  typeExtensions.set(extensionName, data);
 
   openApiExtensions.set(entity, typeExtensions);
 }
