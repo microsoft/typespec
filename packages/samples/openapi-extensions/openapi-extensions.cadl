@@ -1,0 +1,19 @@
+import "@cadl-lang/rest";
+import "@cadl-lang/openapi";
+
+model Foo {
+  @extension("x-string", "string")
+  @extension("x-number", 123)
+  @extension("x-bool", true)
+  @extension("x-array", ["one", 2])
+  @extension(
+    "x-obj",
+    {
+      foo: 123,
+      bar: "string",
+    }
+  )
+  id: string;
+}
+
+op foo(): Foo;
