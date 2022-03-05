@@ -77,6 +77,17 @@ describe("compiler: decorator utils", () => {
       strictEqual(diagnostics.length, 0);
     });
 
+    it("can convert a named model", async () => {
+      const [data, diagnostics] = await convertDecoratorDataToJson(`
+        model MyModel {string: "string", number: 123, bool: true}
+        @jsonData(MyModel)
+        model Foo {}
+      `);
+
+      deepStrictEqual(data, { string: "string", number: 123, bool: true });
+      strictEqual(diagnostics.length, 0);
+    });
+
     it("can a nested model", async () => {
       const [data, diagnostics] = await convertDecoratorDataToJson(`
         @jsonData({string: "string", nested: {foo: "bar"}, bool: true})

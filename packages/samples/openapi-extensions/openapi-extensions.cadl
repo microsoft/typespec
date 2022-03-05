@@ -1,6 +1,16 @@
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi";
 
+model MyConfig {
+  name: "Foo";
+  age: 12;
+  other: NestedConfig;
+}
+
+model NestedConfig {
+  id: "some";
+}
+
 model Foo {
   @extension("x-string", "string")
   @extension("x-number", 123)
@@ -13,6 +23,7 @@ model Foo {
       bar: "string",
     }
   )
+  @extension("x-model", MyConfig)
   id: string;
 }
 

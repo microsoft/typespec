@@ -32,6 +32,13 @@
         "properties": {
           "id": {
             "type": "string",
+            "x-model": {
+              "name": "Foo",
+              "age": 12,
+              "other": {
+                "id": "some"
+              }
+            },
             "x-obj": {
               "foo": 123,
               "bar": "string"
