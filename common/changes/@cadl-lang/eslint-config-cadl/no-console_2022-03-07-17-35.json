@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/eslint-config-cadl",
-      "comment": "",
-      "type": "none"
+      "comment": "Add `no-console` eslint rule as warning.",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/eslint-config-cadl"
