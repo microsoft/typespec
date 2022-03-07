@@ -1,13 +1,7 @@
-import {
-  getIntrinsicModelName,
-  getPropertyType,
-  IntrinsicModelName,
-  ModelType,
-  ModelTypeProperty,
-} from "./index.js";
+import { getIntrinsicModelName, getPropertyType } from "../lib/decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
-import { Type } from "./types.js";
+import { IntrinsicModelName, ModelType, ModelTypeProperty, Type } from "./types.js";
 
 export type CadlValue = Type | string | number | boolean;
 

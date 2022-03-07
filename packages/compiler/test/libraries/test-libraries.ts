@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from "url";
+import { NodeHost } from "../../core/host.js";
 import { createProgram } from "../../core/program.js";
-import { NodeHost } from "../../core/util.js";
 import { createTestHost, expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
 
 const libs = ["simple"];

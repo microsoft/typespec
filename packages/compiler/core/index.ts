@@ -2,6 +2,7 @@ export * from "../lib/decorators.js";
 export * from "../lib/service.js";
 export * from "./decorator-utils.js";
 export * from "./diagnostics.js";
+export * from "./host.js";
 export * from "./library.js";
 export * from "./parser.js";
 export * from "./path-utils.js";
