@@ -8,6 +8,7 @@ import {
   NamespaceType,
   OperationType,
   SemanticNodeListener,
+  SyntaxKind,
   TemplateParameterType,
   TupleType,
   Type,
@@ -252,12 +253,20 @@ function navigateType(
   }
 }
 
-// Produce a map from models in a program (with children) to their children.
+function isTemplate(model: ModelType) {
+  return (
+    model.node.kind === SyntaxKind.ModelStatement &&
+    model.node.templateParameters.length > 0 &&
+    !model.templateArguments?.length
+  );
+}
+
+// Produce a map from models in a program (with children) to their children. Model templates are not included.
 export function mapChildModels(program: Program): ReadonlyMap<ModelType, readonly ModelType[]> {
   const map = new Map<ModelType, ModelType[]>();
   navigateProgram(program, {
     model: (model) => {
-      if (model.baseModel) {
+      if (model.baseModel && !isTemplate(model) && !isTemplate(model.baseModel)) {
         const children = map.get(model.baseModel);
         if (children) {
           children.push(model);
