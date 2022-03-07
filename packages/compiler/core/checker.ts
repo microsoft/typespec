@@ -12,7 +12,7 @@ import {
   SymbolFlags,
 } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
-import { hasParseError } from "./parser.js";
+import { hasParseError, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import { createProjectionMembers } from "./projectionMembers.js";
 import {
@@ -510,17 +510,24 @@ export function createChecker(program: Program): Checker {
     templateParameters: readonly TemplateParameterDeclarationNode[],
     index: number
   ) {
-    const type = getTypeForNode(nodeDefault);
-    if (type.kind === "TemplateParameter") {
-      for (let i = index; i < templateParameters.length; i++) {
-        if (type.node.symbol === templateParameters[i].symbol) {
-          program.reportDiagnostic(
-            createDiagnostic({ code: "invalid-template-default", target: nodeDefault })
-          );
+    function visit(node: Node) {
+      const type = getTypeForNode(node);
+
+      if (type.kind === "TemplateParameter") {
+        for (let i = index; i < templateParameters.length; i++) {
+          if (type.node.symbol === templateParameters[i].symbol) {
+            program.reportDiagnostic(
+              createDiagnostic({ code: "invalid-template-default", target: node })
+            );
+          }
         }
       }
+      visitChildren(node, (x) => {
+        visit(x);
+      });
+      return type;
     }
-    return type;
+    return visit(nodeDefault);
   }
 
   function checkTypeReference(
