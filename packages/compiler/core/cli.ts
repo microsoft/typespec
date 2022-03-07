@@ -13,10 +13,11 @@ import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
 import { compilerAssert, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
+import { NodeHost } from "./host.js";
 import { installCadlDependencies } from "./install.js";
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "./path-utils.js";
 import { Diagnostic } from "./types.js";
-import { cadlVersion, NodeHost } from "./util.js";
+import { cadlVersion } from "./util.js";
 
 async function main() {
   console.log(`Cadl compiler v${cadlVersion}\n`);
