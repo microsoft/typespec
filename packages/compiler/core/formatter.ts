@@ -41,6 +41,7 @@ export async function formatCadlFiles(patterns: string[], { debug }: { debug?: b
     } catch (e) {
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
+        // eslint-disable-next-line no-console
         console.error(`File '${file}' failed to fromat. ${details}`);
       } else {
         throw e;
@@ -67,6 +68,7 @@ export async function findUnformattedCadlFiles(
     } catch (e) {
       if (e instanceof PrettierParserError) {
         const details = debug ? e.message : "";
+        // eslint-disable-next-line no-console
         console.error(`File '${file}' failed to fromat. ${details}`);
         unformatted.push(file);
       } else {

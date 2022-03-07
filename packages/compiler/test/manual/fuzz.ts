@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { logVerboseTestOutput } from "../../core/diagnostics.js";
 import { parse } from "../../core/parser.js";
 

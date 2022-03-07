@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { spawnSync, SpawnSyncOptionsWithStringEncoding } from "child_process";
 import { mkdtemp, readdir, rmdir } from "fs/promises";
 import mkdirp from "mkdirp";

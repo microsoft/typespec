@@ -81,12 +81,16 @@ export function getDoc(program: Program, target: Type): string | undefined {
 }
 
 export function inspectType(program: Program, target: Type, text: string) {
+  // eslint-disable-next-line no-console
   if (text) console.log(text);
+  // eslint-disable-next-line no-console
   console.dir(target, { depth: 3 });
 }
 
 export function inspectTypeName(program: Program, target: Type, text: string) {
+  // eslint-disable-next-line no-console
   if (text) console.log(text);
+  // eslint-disable-next-line no-console
   console.log(program.checker!.getTypeName(target));
 }
 
