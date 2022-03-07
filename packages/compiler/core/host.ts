@@ -9,7 +9,7 @@ import { CompilerHost, RemoveDirOptions } from "./types.js";
 
 /**
  * Implementation of the @see CompilerHost using the real file system.
- * This is the the CompilerHost used by cadl CLI.
+ * This is the the CompilerHost used by Cadl CLI.
  */
 export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
