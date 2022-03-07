@@ -3,6 +3,7 @@ import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   DecoratorContext,
+  Expression,
   isIntrinsic,
   JsSourceFileNode,
   ProjectionModelExpressionNode,
@@ -490,10 +491,11 @@ export function createChecker(program: Program): Checker {
       | UnionStatementNode
       | AliasStatementNode;
 
-    const defaultType = node.default ? getTypeForNode(node.default) : undefined;
-
+    const index = parentNode.templateParameters.findIndex((v) => v === node);
+    const defaultType = node.default
+      ? checkTemplateParameterDefault(node.default, parentNode.templateParameters, index)
+      : undefined;
     if (instantiatingTemplate === parentNode) {
-      const index = parentNode.templateParameters.findIndex((v) => v === node);
       return templateInstantiation[index] ?? defaultType;
     }
 
@@ -501,6 +503,24 @@ export function createChecker(program: Program): Checker {
       kind: "TemplateParameter",
       node: node,
     });
+  }
+
+  function checkTemplateParameterDefault(
+    nodeDefault: Expression,
+    templateParameters: readonly TemplateParameterDeclarationNode[],
+    index: number
+  ) {
+    const type = getTypeForNode(nodeDefault);
+    if (type.kind === "TemplateParameter") {
+      for (let i = index; i < templateParameters.length; i++) {
+        if (type.node.symbol === templateParameters[i].symbol) {
+          program.reportDiagnostic(
+            createDiagnostic({ code: "invalid-template-default", target: nodeDefault })
+          );
+        }
+      }
+    }
+    return type;
   }
 
   function checkTypeReference(

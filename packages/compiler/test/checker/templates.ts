@@ -130,6 +130,23 @@ describe("compiler: templates", () => {
     const diagnostics = await testHost.diagnose("main.cadl");
     expectDiagnostics(diagnostics, { code: "default-required" });
   });
+
+  it("emits diagnostics when defaulted template use later template parameter", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<A = B, B = "hi"> { a: A, b: B }
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, {
+      code: "invalid-template-default",
+      message:
+        "Template parameter defaults can only reference previously declared type parameters.",
+    });
+  });
+
   it("emits diagnostics for template parameter defaults that are incorrect", async () => {
     testHost.addCadlFile(
       "main.cadl",
