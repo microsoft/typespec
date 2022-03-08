@@ -8,7 +8,7 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "../core/index.js";
-import { findChildModels, getProperty, navigateProgram } from "../core/semantic-walker.js";
+import { getProperty, mapChildModels, navigateProgram } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "../testing/index.js";
 
 describe("compiler: semantic walker", () => {
@@ -158,10 +158,15 @@ describe("compiler: semantic walker", () => {
     `);
 
     assert.strictEqual(result.models.length, 3);
-    assert.strictEqual(result.models[0].name, "Pet");
-    const childModels = findChildModels(host.program, result.models[0]);
-    assert.strictEqual(childModels[0].name, "Cat");
-    assert.strictEqual(childModels[1].name, "Dog");
+    const [Pet, Cat, Dog] = result.models;
+    assert.strictEqual(Pet.name, "Pet");
+    assert.strictEqual(Cat.name, "Cat");
+    assert.strictEqual(Dog.name, "Dog");
+
+    const map = mapChildModels(host.program);
+    const childModels = map.get(Pet);
+    assert.ok(childModels);
+    assert.deepStrictEqual(childModels, [Cat, Dog]);
   });
 
   it("finds owned or inherited properties", async () => {
