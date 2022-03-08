@@ -22,8 +22,8 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./dist-ts ./temp ./cadlContents.json",
-    "build": "tsc -p . && node dist-ts/scripts/preload.js && vite build",
+    "clean": "rimraf ./dist ./dist-dev ./temp ./cadlContents.json",
+    "build": "tsc -p . && node dist-dev/scripts/preload.js && vite build",
     "watch": "vite",
     "test": "echo 'no tests'",
     "test-official": "echo 'no tests'",
