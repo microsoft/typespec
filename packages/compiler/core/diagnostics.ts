@@ -238,8 +238,10 @@ export function logVerboseTestOutput(
 ) {
   if (process.env.CADL_VERBOSE_TEST_OUTPUT) {
     if (typeof messageOrCallback === "string") {
+      // eslint-disable-next-line no-console
       console.log(messageOrCallback);
     } else {
+      // eslint-disable-next-line no-console
       messageOrCallback(console.log);
     }
   }

@@ -1,20 +1,9 @@
 import fs from "fs";
-import { readdir, readFile, realpath, rmdir, stat, writeFile } from "fs/promises";
-import mkdirp from "mkdirp";
-import fetch from "node-fetch";
-import { fileURLToPath, pathToFileURL, URL } from "url";
+import { fileURLToPath, URL } from "url";
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
-import { createConsoleSink } from "./logger.js";
 import { createDiagnostic } from "./messages.js";
 import { getDirectoryPath, isPathAbsolute, isUrl, joinPaths, resolvePath } from "./path-utils.js";
-import {
-  CompilerHost,
-  Diagnostic,
-  DiagnosticTarget,
-  NoTarget,
-  RemoveDirOptions,
-  SourceFile,
-} from "./types.js";
+import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "./types.js";
 
 export const cadlVersion = getVersion();
 
@@ -125,33 +114,6 @@ export async function loadFile<T>(
 
   return [data, file];
 }
-
-export const NodeHost: CompilerHost = {
-  readUrl: async (url: string) => {
-    const response = await fetch(url);
-    const text = await response.text();
-
-    return createSourceFile(text, url);
-  },
-  readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
-  writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
-  readDir: (path: string) => readdir(path),
-  removeDir: (path: string, options: RemoveDirOptions) => rmdir(path, options),
-  getExecutionRoot: () => resolvePath(fileURLToPath(import.meta.url), "../../../"),
-  getJsImport: (path: string) => import(pathToFileURL(path).href),
-  getLibDirs() {
-    const rootDir = this.getExecutionRoot();
-    return [joinPaths(rootDir, "lib")];
-  },
-  stat(path: string) {
-    return stat(path);
-  },
-  realpath(path) {
-    return realpath(path);
-  },
-  logSink: createConsoleSink(),
-  mkdirp: (path: string) => mkdirp(path),
-};
 
 export async function readUrlOrPath(host: CompilerHost, pathOrUrl: string): Promise<SourceFile> {
   if (isUrl(pathOrUrl)) {

@@ -6,7 +6,8 @@ import {
   PublishDiagnosticsParams,
   TextDocuments,
 } from "vscode-languageserver/node.js";
-import { cadlVersion, NodeHost } from "../core/util.js";
+import { NodeHost } from "../core/host.js";
+import { cadlVersion } from "../core/util.js";
 import { createServer, Server, ServerHost } from "./serverlib.js";
 
 let server: Server | undefined = undefined;
@@ -70,8 +71,10 @@ function fatalError(e: any) {
   // If we failed to send any log messages over LSP pipe, send them to
   // stderr before exiting.
   for (const pending of server?.pendingMessages ?? []) {
+    // eslint-disable-next-line no-console
     console.error(pending);
   }
+  // eslint-disable-next-line no-console
   console.error(e);
   process.exit(1);
 }

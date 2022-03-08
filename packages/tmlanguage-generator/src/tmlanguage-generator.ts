@@ -184,7 +184,9 @@ async function processGrammar(grammar: Grammar, options: EmitOptions): Promise<a
       }
       const sourceFile = options.errorSourceFilePath ?? "unknown_file";
       //prettier-ignore
+      // eslint-disable-next-line no-console
       console.error(`${sourceFile}(1,1): error TM0001: Bad regex: ${JSON.stringify({[prop]: regexp})}: ${err.message}`);
+      // eslint-disable-next-line no-console
       console.error(node);
       throw err;
     }

@@ -203,6 +203,7 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writeMain(host, config);
   await writeFiles(host, config);
 
+  // eslint-disable-next-line no-console
   console.log("Cadl init completed. You can run `cadl install` now to install dependencies.");
 }
 

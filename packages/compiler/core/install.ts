@@ -19,10 +19,12 @@ export async function installCadlDependencies(directory: string): Promise<void> 
   return new Promise(() => {
     child.on("error", (error: SpawnError) => {
       if (error.code === "ENOENT") {
+        // eslint-disable-next-line no-console
         console.error(
           "Cannot find `npm` executable. Make sure to have npm installed in your path."
         );
       } else {
+        // eslint-disable-next-line no-console
         console.error("Error", error);
       }
       process.exit(error.errno);
