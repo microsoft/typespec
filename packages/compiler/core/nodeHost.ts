@@ -8,6 +8,10 @@ import { createConsoleSink } from "./logger.js";
 import { joinPaths, resolvePath } from "./path-utils.js";
 import { CompilerHost, RemoveDirOptions } from "./types";
 
+/**
+ * Implementation of the @see CompilerHost using the real file system.
+ * This is the the CompilerHost used by Cadl CLI.
+ */
 export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
     const response = await fetch(url);

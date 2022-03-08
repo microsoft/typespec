@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { CadlConfigJsonSchema } from "../../config/config-schema.js";
 import { CadlRawConfig, loadCadlConfigForPath } from "../../config/index.js";
 import { createSourceFile } from "../../core/diagnostics.js";
-import { NodeHost } from "../../core/host.js";
+import { NodeHost } from "../../core/nodeHost.js";
 import { SchemaValidator } from "../../core/schema-validator.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
