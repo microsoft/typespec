@@ -22,11 +22,11 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp",
+    "clean": "rimraf ./dist ./dist-ts ./temp ./cadlContents.json",
     "build": "tsc -p . && node dist-ts/scripts/preload.js && vite build",
     "watch": "vite",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only",
+    "test": "echo 'no tests'",
+    "test-official": "echo 'no tests'",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
