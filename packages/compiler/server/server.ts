@@ -24,7 +24,7 @@ function main() {
   // Redirect all console stdout output to stderr since LSP pipe uses stdout
   // and writing to stdout for anything other than LSP protocol will break
   // things badly.
-  console = new Console(process.stderr, process.stderr);
+  global.console = new Console(process.stderr, process.stderr);
 
   let clientHasWorkspaceFolderCapability = false;
   const connection = createConnection(ProposedFeatures.all);
