@@ -272,6 +272,9 @@ export async function createProgram(
   const checker = (program.checker = createChecker(program));
   program.checker.checkProgram();
 
+  if (program.hasError()) {
+    return program;
+  }
   for (const cb of validateCbs) {
     try {
       await cb(program);
@@ -288,6 +291,10 @@ export async function createProgram(
         throw error;
       }
     }
+  }
+
+  if (program.hasError()) {
+    return program;
   }
 
   for (const instance of emitters) {

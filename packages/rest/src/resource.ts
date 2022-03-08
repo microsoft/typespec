@@ -1,6 +1,7 @@
 import {
   DecoratorContext,
   getKeyName,
+  isErrorType,
   isKey,
   ModelType,
   ModelTypeProperty,
@@ -97,19 +98,24 @@ export function $copyResourceKeyParameters(
     return;
   }
 
-  if (
-    !entity.templateArguments ||
-    entity.templateArguments.length !== 1 ||
-    entity.templateArguments[0].kind !== "Model"
-  ) {
+  const reportNoKeyError = () =>
     reportDiagnostic(context.program, {
       code: "not-key-type",
       target: entity,
     });
-    return;
+  const templateArguments = entity.templateArguments;
+  if (!templateArguments || templateArguments.length !== 1) {
+    return reportNoKeyError();
   }
 
-  const resourceType = entity.templateArguments![0] as ModelType;
+  if (templateArguments[0].kind !== "Model") {
+    if (isErrorType(templateArguments[0])) {
+      return;
+    }
+    return reportNoKeyError();
+  }
+
+  const resourceType = templateArguments[0] as ModelType;
 
   if (filter === "parent") {
     // Only copy keys of the parent type if there is one
