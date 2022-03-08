@@ -34,6 +34,9 @@ module.exports = {
         destructuring: "all",
       },
     ],
+
+    // Do not want console.log left from debugging or using console.log for logging. Use the program logger.
+    "no-console": "warn",
   },
   ignorePatterns: ["dist/**/*", "dist-dev/**/*"],
   overrides: [
