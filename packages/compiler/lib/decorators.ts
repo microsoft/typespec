@@ -1,3 +1,4 @@
+import { inspect } from "util";
 import {
   validateDecoratorParamType,
   validateDecoratorTarget,
@@ -81,13 +82,17 @@ export function getDoc(program: Program, target: Type): string | undefined {
 }
 
 export function inspectType(program: Program, target: Type, text: string) {
-  if (text) console.log(text);
-  console.dir(target, { depth: 3 });
+  // eslint-disable-next-line no-console
+  if (text) console.error(text);
+  // eslint-disable-next-line no-console
+  console.error(inspect(target, { depth: 3 }));
 }
 
 export function inspectTypeName(program: Program, target: Type, text: string) {
-  if (text) console.log(text);
-  console.log(program.checker!.getTypeName(target));
+  // eslint-disable-next-line no-console
+  if (text) console.error(text);
+  // eslint-disable-next-line no-console
+  console.error(program.checker!.getTypeName(target));
 }
 
 const intrinsicsKey = Symbol();
