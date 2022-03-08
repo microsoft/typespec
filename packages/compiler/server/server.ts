@@ -1,3 +1,4 @@
+import { Console } from "console";
 import { fileURLToPath } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
@@ -20,6 +21,11 @@ try {
 }
 
 function main() {
+  // Redirect all console stdout output to stderr since LSP pipe uses stdout
+  // and writing to stdout for anything other than LSP protocol will break
+  // things badly.
+  global.console = new Console(process.stderr, process.stderr);
+
   let clientHasWorkspaceFolderCapability = false;
   const connection = createConnection(ProposedFeatures.all);
   const documents = new TextDocuments(TextDocument);
