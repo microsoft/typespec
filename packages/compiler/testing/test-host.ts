@@ -123,6 +123,10 @@ function createTestCompilerHost(
 
     logSink: NodeHost.logSink,
     mkdirp: async (path: string) => path,
+    fileURLToPath,
+    pathToFileURL(path: string) {
+      return pathToFileURL(path).href;
+    },
   };
 }
 
@@ -282,7 +286,7 @@ async function createTestHostInternal(): Promise<TestHost> {
   }
 }
 
-async function findFilesFromPattern(directory: string, pattern: string): Promise<string[]> {
+export async function findFilesFromPattern(directory: string, pattern: string): Promise<string[]> {
   return new Promise((resolve, reject) => {
     glob(
       pattern,
