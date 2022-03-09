@@ -1235,7 +1235,7 @@ export interface CadlLibrary<
     names?: readonly E[];
   };
 
-  reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
+  reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;
