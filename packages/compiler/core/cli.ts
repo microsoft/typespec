@@ -14,7 +14,7 @@ import { initCadlProject } from "../init/index.js";
 import { compilerAssert, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
 import { installCadlDependencies } from "./install.js";
-import { NodeHost } from "./nodeHost.js";
+import { NodeHost } from "./node-host.js";
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "./path-utils.js";
 import { Diagnostic } from "./types.js";
 import { cadlVersion } from "./util.js";

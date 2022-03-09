@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import glob from "glob";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile, logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
-import { NodeHost } from "../core/nodeHost.js";
+import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";

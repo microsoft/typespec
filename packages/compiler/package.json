@@ -24,7 +24,7 @@
     "./testing": "./dist/testing/index.js"
   },
   "browser": {
-    "./dist/core/nodeHost.js": "./dist/core/nodeHost.browser.js"
+    "./dist/core/node-host.js": "./dist/core/node-host.browser.js"
   },
   "types": "dist/core/index.d.ts",
   "engines": {

@@ -7,7 +7,7 @@ import {
   PublishDiagnosticsParams,
   TextDocuments,
 } from "vscode-languageserver/node.js";
-import { NodeHost } from "../core/nodeHost.js";
+import { NodeHost } from "../core/node-host.js";
 import { cadlVersion } from "../core/util.js";
 import { createServer, Server, ServerHost } from "./serverlib.js";
 

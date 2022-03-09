@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from "url";
-import { NodeHost } from "../../core/nodeHost.js";
+import { NodeHost } from "../../core/node-host.js";
 import { createProgram } from "../../core/program.js";
 import { createTestHost, expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
 
