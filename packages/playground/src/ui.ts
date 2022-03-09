@@ -43,6 +43,7 @@ export function createUI(host: BrowserHost) {
   window.addEventListener("resize", () => {
     editor.layout();
   });
+
   if (window.location.search.length > 0) {
     const parsed = new URLSearchParams(window.location.search);
     const compressed = parsed.get("c");
@@ -57,7 +58,7 @@ export function createUI(host: BrowserHost) {
   });
 
   document.getElementById("share")?.addEventListener("click", saveCode);
-
+  document.getElementById("newIssue")?.addEventListener("click", newIssue);
   initSamples();
   doCompile();
 
@@ -155,5 +156,12 @@ export function createUI(host: BrowserHost) {
     const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel("", "json", uri);
     model.setValue(contents.text);
     output.setModel(model);
+  }
+
+  function newIssue() {
+    saveCode();
+    const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`)
+    const url = `https://github.com/microsoft/cadl/issues/new?body=${bodyPayload}`;
+    window.open(url, "_blank");
   }
 }
