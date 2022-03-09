@@ -41,7 +41,7 @@ async function load() {
   await addCadlLibrary(VersioningTestLibrary);
   await addCadlLibrary(OpenAPITestLibrary);
   await addCadlLibrary(OpenAPI3TestLibrary);
-  await writeFile("./cadlContents.json", JSON.stringify(staticContents));
+  await writeFile("./dist-dev/cadlContents.json", JSON.stringify(staticContents));
 }
 
 load();

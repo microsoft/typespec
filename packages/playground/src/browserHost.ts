@@ -9,7 +9,7 @@ import * as openapi from "@cadl-lang/openapi";
 import * as openapi3 from "@cadl-lang/openapi3";
 import { http, resource, rest, route } from "@cadl-lang/rest";
 import * as versioning from "@cadl-lang/versioning";
-import cadlContentsString from "../cadlContents.json?raw";
+import cadlContentsString from "../dist-dev/cadlContents.json?raw";
 
 const cadlContents: Record<string, string> = JSON.parse(cadlContentsString);
 
