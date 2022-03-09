@@ -96,7 +96,6 @@ export async function createBrowserHost(): Promise<BrowserHost> {
       path = resolveVirtualPath(path);
       const module = await jsImports.get(path);
       if (module === undefined) {
-        console.log("Failed loading", path);
         const e = new Error(`Module ${path} not found`);
         (e as any).code = "MODULE_NOT_FOUND";
         throw e;

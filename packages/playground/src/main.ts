@@ -5,8 +5,7 @@ import { attachServices } from "./services";
 import "./style.css";
 import { createUI } from "./ui";
 
-// @ts-ignore
-self.MonacoEnvironment = {
+(self as any).MonacoEnvironment = {
   getWorker(_: any, label: string) {
     if (label === "json") {
       return new jsonWorker();

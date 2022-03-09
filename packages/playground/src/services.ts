@@ -24,6 +24,7 @@ export function attachServices(host: BrowserHost) {
       return undefined;
     },
     sendDiagnostics() {},
+    // eslint-disable-next-line no-console
     log: console.log,
   };
   const serverLib = createServer(serverHost);
