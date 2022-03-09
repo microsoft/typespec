@@ -1,6 +1,17 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Tue, 15 Feb 2022 22:35:02 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+
+## 0.12.0
+Wed, 09 Mar 2022 17:42:09 GMT
+
+### Minor changes
+
+- Move @key decorator to core
+
+### Patches
+
+- Filter out string literal typed path parameters when generating routes automatically
 
 ## 0.11.0
 Tue, 15 Feb 2022 22:35:02 GMT
