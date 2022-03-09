@@ -1,6 +1,14 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Mon, 14 Feb 2022 03:01:08 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Mar 2022 17:31:59 GMT and should not be manually modified.
+
+## 0.13.0
+Wed, 09 Mar 2022 17:31:59 GMT
+
+### Minor changes
+
+- Allow `op` interfaces
+- Add punctuation and additional fine grain scopes to grammar
 
 ## 0.12.1
 Mon, 14 Feb 2022 03:01:08 GMT

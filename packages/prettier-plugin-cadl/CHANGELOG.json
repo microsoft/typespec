@@ -2,6 +2,23 @@
   "name": "@cadl-lang/prettier-plugin-cadl",
   "entries": [
     {
+      "version": "0.5.9",
+      "tag": "@cadl-lang/prettier-plugin-cadl_v0.5.9",
+      "date": "Wed, 09 Mar 2022 17:31:59 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Fix** build tree shaking."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.28.0` to `~0.29.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.8",
       "tag": "@cadl-lang/prettier-plugin-cadl_v0.5.8",
       "date": "Tue, 15 Feb 2022 22:35:02 GMT",

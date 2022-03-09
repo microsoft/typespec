@@ -1,6 +1,11 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Tue, 15 Feb 2022 22:35:02 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Mar 2022 17:31:59 GMT and should not be manually modified.
+
+## 0.3.2
+Wed, 09 Mar 2022 17:31:59 GMT
+
+_Version update only_
 
 ## 0.3.1
 Tue, 15 Feb 2022 22:35:02 GMT

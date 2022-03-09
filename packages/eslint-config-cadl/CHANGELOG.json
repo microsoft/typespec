@@ -1,0 +1,17 @@
+{
+  "name": "@cadl-lang/eslint-config-cadl",
+  "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@cadl-lang/eslint-config-cadl_v0.2.0",
+      "date": "Wed, 09 Mar 2022 17:31:59 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add `no-console` eslint rule as warning."
+          }
+        ]
+      }
+    }
+  ]
+}
