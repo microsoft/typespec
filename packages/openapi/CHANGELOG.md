@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/openapi
 
-This log was last generated on Tue, 15 Feb 2022 22:35:02 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+
+## 0.7.0
+Wed, 09 Mar 2022 17:42:09 GMT
+
+### Minor changes
+
+- **Added** `@externalDocs` decorator to specify `externalDocs` OpenAPI field
 
 ## 0.6.1
 Tue, 15 Feb 2022 22:35:02 GMT
