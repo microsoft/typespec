@@ -1,4 +1,3 @@
-import { fileURLToPath, pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CompletionItemKind,
@@ -191,7 +190,7 @@ export function createServer(host: ServerHost): Server {
       workspaceFolders =
         params.workspaceFolders?.map((w) => ({
           ...w,
-          path: ensureTrailingDirectorySeparator(resolvePath(fileURLToPath(w.uri))),
+          path: ensureTrailingDirectorySeparator(resolvePath(compilerHost.fileURLToPath(w.uri))),
         })) ?? [];
       capabilities.workspace = {
         workspaceFolders: {
@@ -204,14 +203,16 @@ export function createServer(host: ServerHost): Server {
         {
           name: "<root>",
           uri: params.rootUri,
-          path: ensureTrailingDirectorySeparator(resolvePath(fileURLToPath(params.rootUri))),
+          path: ensureTrailingDirectorySeparator(
+            resolvePath(compilerHost.fileURLToPath(params.rootUri))
+          ),
         },
       ];
     } else if (params.rootPath) {
       workspaceFolders = [
         {
           name: "<root>",
-          uri: pathToFileURL(params.rootPath).href,
+          uri: compilerHost.pathToFileURL(params.rootPath),
           path: ensureTrailingDirectorySeparator(resolvePath(params.rootPath)),
         },
       ];
@@ -233,7 +234,7 @@ export function createServer(host: ServerHost): Server {
       map.delete(folder.uri);
     }
     for (const folder of e.added) {
-      map.set(folder.uri, { ...folder, path: fileURLToPath(folder.uri) });
+      map.set(folder.uri, { ...folder, path: compilerHost.fileURLToPath(folder.uri) });
     }
     workspaceFolders = Array.from(map.values());
     log("Workspace Folders", workspaceFolders);
@@ -243,7 +244,7 @@ export function createServer(host: ServerHost): Server {
     // remove stale file system cache entries on file change notification
     for (const each of params.changes) {
       if (each.uri.startsWith("file:")) {
-        const path = fileURLToPath(each.uri);
+        const path = compilerHost.fileURLToPath(each.uri);
         fileSystemCache.delete(path);
       }
     }
@@ -377,6 +378,7 @@ export function createServer(host: ServerHost): Server {
       document.offsetAt(params.position),
       (node) => node.kind === SyntaxKind.TypeReference
     );
+
     if (!referringNode) {
       return undefined;
     }
@@ -636,7 +638,7 @@ export function createServer(host: ServerHost): Server {
     if (isUntitled(document.uri)) {
       return document.uri;
     }
-    const path = resolvePath(fileURLToPath(document.uri));
+    const path = resolvePath(compilerHost.fileURLToPath(document.uri));
     pathToURLMap.set(path, document.uri);
     return path;
   }
@@ -645,7 +647,7 @@ export function createServer(host: ServerHost): Server {
     if (isUntitled(path)) {
       return path;
     }
-    return pathToURLMap.get(path) ?? pathToFileURL(path).href;
+    return pathToURLMap.get(path) ?? compilerHost.pathToFileURL(path);
   }
 
   function isUntitled(pathOrUrl: string) {

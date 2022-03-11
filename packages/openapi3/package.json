@@ -18,6 +18,20 @@
   ],
   "type": "module",
   "main": "dist/src/openapi.js",
+  "exports": {
+    ".": "./dist/src/openapi.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/src/openapi.d.ts"
+      ],
+      "testing": [
+        "./dist/src/testing/index.d.ts"
+      ]
+    }
+  },
   "cadlMain": "dist/src/openapi.js",
   "engines": {
     "node": ">=14.0.0"

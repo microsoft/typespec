@@ -23,6 +23,9 @@
     ".": "./dist/core/index.js",
     "./testing": "./dist/testing/index.js"
   },
+  "browser": {
+    "./dist/core/node-host.js": "./dist/core/node-host.browser.js"
+  },
   "types": "dist/core/index.d.ts",
   "engines": {
     "node": ">=14.0.0"

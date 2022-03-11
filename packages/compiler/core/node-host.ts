@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { readdir, readFile, realpath, rmdir, stat, writeFile } from "fs/promises";
 import mkdirp from "mkdirp";
 import fetch from "node-fetch";
@@ -5,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile } from "./diagnostics.js";
 import { createConsoleSink } from "./logger.js";
 import { joinPaths, resolvePath } from "./path-utils.js";
-import { CompilerHost, RemoveDirOptions } from "./types.js";
+import { CompilerHost, RemoveDirOptions } from "./types";
 
 /**
  * Implementation of the @see CompilerHost using the real file system.
@@ -15,7 +16,6 @@ export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
     const response = await fetch(url);
     const text = await response.text();
-
     return createSourceFile(text, url);
   },
   readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
@@ -36,4 +36,16 @@ export const NodeHost: CompilerHost = {
   },
   logSink: createConsoleSink(),
   mkdirp: (path: string) => mkdirp(path),
+  fileURLToPath,
+  pathToFileURL(path: string) {
+    return pathToFileURL(path).href;
+  },
 };
+
+export const cadlVersion = getVersion();
+
+function getVersion(): string {
+  const packageJsonPath = fileURLToPath(new URL("../../package.json", import.meta.url).href);
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+  return packageJson.version;
+}
