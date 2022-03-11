@@ -160,7 +160,7 @@ export function createUI(host: BrowserHost) {
 
   function newIssue() {
     saveCode();
-    const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`)
+    const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
     const url = `https://github.com/microsoft/cadl/issues/new?body=${bodyPayload}`;
     window.open(url, "_blank");
   }
