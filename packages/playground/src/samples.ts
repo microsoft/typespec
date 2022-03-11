@@ -16,12 +16,10 @@ model Widget {
   message: string;
 }
 
-
-@route("")
 interface WidgetService {
-  @route("") @get list(): Widget[] | Error;
+  @get list(): Widget[] | Error;
   @route("widgets/{id}") @get read(@path id: string): Widget | Error;
-  @route("") @post create(@body body: Widget): Widget | Error;
+  @post create(@body body: Widget): Widget | Error;
   @route("customGet") @get customGet(): Widget | Error;
 }`,
   "Rest framework": `import "@cadl-lang/rest";
@@ -43,8 +41,6 @@ model Widget {
   message: string;
 }
 
-
-@route("")
 interface WidgetService mixes Resource.ResourceOperations<Widget, Error> {
   @get @route("customGet") customGet(): Widget;
 }`,
@@ -72,8 +68,6 @@ model Widget {
   message: string;
 }
 
-
-@route("")
 interface WidgetService mixes Resource.ResourceOperations<Widget, Error> {
   @added("v2")
   @get
