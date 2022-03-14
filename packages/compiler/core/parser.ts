@@ -976,6 +976,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           nextToken();
         } while (
           !isStatementKeyword(token()) &&
+          token() != Token.NewLine &&
           token() != Token.At &&
           token() != Token.Semicolon &&
           token() != Token.EndOfFile
@@ -2143,6 +2144,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 type NodeCb<T> = (c: Node) => T;
 
 export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
+  if (node.directives) {
+    visitEach(cb, node.directives);
+  }
   switch (node.kind) {
     case SyntaxKind.CadlScript:
       return visitNode(cb, node.id) || visitEach(cb, node.statements);
