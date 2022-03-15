@@ -1,8 +1,10 @@
+// @ts-check
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import path from "path";
+import { defineConfig } from "rollup";
 
-export default {
+export default defineConfig({
   input: "dist-dev/src/extension.js",
   output: {
     file: "dist/src/extension.js",
