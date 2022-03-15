@@ -290,7 +290,12 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Pet, {
       type: "object",
-      properties: {},
+      properties: {
+        kind: {
+          type: "string",
+          description: "Discriminator property for Pet."
+        }
+      },
       discriminator: {
         propertyName: "kind",
         mapping: {
