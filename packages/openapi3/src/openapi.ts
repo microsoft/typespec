@@ -60,7 +60,7 @@ import {
 } from "@cadl-lang/rest";
 import { getVersionRecords } from "@cadl-lang/versioning";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
-import {  OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
+import { OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
 
 const {
   getHeaderFieldName,
@@ -1014,17 +1014,17 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return {};
       }
 
-      const openApiDiscriminator: OpenAPI3Discriminator = {...discriminator};
+      const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
       const mapping = getDiscriminatorMapping(discriminator, childModels);
-      if(mapping) {
+      if (mapping) {
         openApiDiscriminator.mapping = mapping;
       }
 
       modelSchema.discriminator = openApiDiscriminator;
       modelSchema.properties[discriminator.propertyName] = {
         type: "string",
-        description: `Discriminator property for ${model.name}.`
-      }
+        description: `Discriminator property for ${model.name}.`,
+      };
     }
 
     applyExternalDocs(model, modelSchema);
@@ -1099,7 +1099,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function validateDiscriminator(discriminator: Discriminator, childModels: readonly ModelType[]): boolean {
+  function validateDiscriminator(
+    discriminator: Discriminator,
+    childModels: readonly ModelType[]
+  ): boolean {
     const { propertyName } = discriminator;
     const retVals = childModels.map((t) => {
       const prop = getProperty(t, propertyName);
@@ -1151,7 +1154,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     return retVals.every((v) => v);
   }
 
-  function getDiscriminatorMapping(discriminator: any, childModels: readonly ModelType[]): Record<string, string> | undefined {
+  function getDiscriminatorMapping(
+    discriminator: any,
+    childModels: readonly ModelType[]
+  ): Record<string, string> | undefined {
     const { propertyName } = discriminator;
     const getMapping = (t: ModelType): any => {
       const prop = t.properties?.get(propertyName);

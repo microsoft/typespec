@@ -9,7 +9,7 @@ export interface OpenAPI3Discriminator extends Extensions {
   mapping?: Record<string, string>;
 }
 
-export type JsonType = "array" | "boolean" | "integer" | "number" |  "object" | "string";
+export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "string";
 
 export type OpenAPI3Schema = Extensions & {
   type: JsonType;
@@ -21,4 +21,4 @@ export type OpenAPI3Schema = Extensions & {
   allOf?: any[];
   anyOf?: any[];
   oneOf?: any[];
-}
+};
