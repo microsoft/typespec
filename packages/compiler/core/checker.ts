@@ -710,10 +710,6 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function allModelTypes(types: Type[]): types is ModelType[] {
-    return types.every((t) => t.kind === "Model");
-  }
-
   /**
    * Intersection produces a model type from the properties of its operands.
    * So this doesn't work if we don't have a known set of properties (e.g.
@@ -721,13 +717,16 @@ export function createChecker(program: Program): Checker {
    */
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
-    if (!allModelTypes(optionTypes)) {
-      program.reportDiagnostic(createDiagnostic({ code: "intersect-non-model", target: node }));
-      return errorType;
-    }
 
     const properties = new Map<string, ModelTypeProperty>();
     for (const option of optionTypes) {
+      if (option.kind === "TemplateParameter") {
+        continue;
+      }
+      if (option.kind !== "Model") {
+        program.reportDiagnostic(createDiagnostic({ code: "intersect-non-model", target: option }));
+        continue;
+      }
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
