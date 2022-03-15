@@ -18,7 +18,6 @@ export default defineConfig({
       // filter out warnings about circular dependencies out of our control
       for (const each of ["node_modules/semver"]) {
         if (warning.importer.includes(each)) {
-          console.log("SKIPPP");
           return;
         }
       }
