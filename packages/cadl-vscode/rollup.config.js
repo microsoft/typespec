@@ -25,4 +25,4 @@ export default defineConfig({
     }
     warn(warning);
   },
-};
+});
