@@ -1,6 +1,23 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Tue, 15 Feb 2022 22:35:02 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+
+## 0.9.0
+Wed, 09 Mar 2022 17:42:09 GMT
+
+### Minor changes
+
+- @doc and @summary will set the description and summary on extended primitive types
+- Emit child models to OpenAPI when parent is emitted
+- **Added** support for `@externalDocs` decorator
+- Added support for `@knownValues` decorator
+- @doc on service namespace set openapi description
+- Uptake change to intrinsic types
+- Fix issue where a model name the same as Cadl Intrinsic type would be treated the same.
+
+### Patches
+
+- Fix duplicate parameter type definitions in OpenAPI 3 output
 
 ## 0.8.0
 Tue, 15 Feb 2022 22:35:02 GMT

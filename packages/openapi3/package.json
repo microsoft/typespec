@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/openapi3",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for emitting OpenAPI 3.0 from the Cadl REST protocol binding",
   "homepage": "https://github.com/Azure/adl",
@@ -18,6 +18,20 @@
   ],
   "type": "module",
   "main": "dist/src/openapi.js",
+  "exports": {
+    ".": "./dist/src/openapi.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/src/openapi.d.ts"
+      ],
+      "testing": [
+        "./dist/src/testing/index.d.ts"
+      ]
+    }
+  },
   "cadlMain": "dist/src/openapi.js",
   "engines": {
     "node": ">=14.0.0"
@@ -37,19 +51,19 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/versioning": "~0.3.1",
-    "@cadl-lang/compiler": "~0.28.0",
-    "@cadl-lang/rest": "~0.11.0",
-    "@cadl-lang/openapi": "~0.6.1"
+    "@cadl-lang/versioning": "~0.3.2",
+    "@cadl-lang/compiler": "~0.29.0",
+    "@cadl-lang/rest": "~0.12.0",
+    "@cadl-lang/openapi": "~0.7.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~14.0.27",
-    "@cadl-lang/compiler": "~0.28.0",
-    "@cadl-lang/rest": "~0.11.0",
-    "@cadl-lang/openapi": "~0.6.1",
-    "@cadl-lang/versioning": "~0.3.1",
-    "@cadl-lang/eslint-config-cadl": "~0.1.0",
+    "@cadl-lang/compiler": "~0.29.0",
+    "@cadl-lang/rest": "~0.12.0",
+    "@cadl-lang/openapi": "~0.7.0",
+    "@cadl-lang/versioning": "~0.3.2",
+    "@cadl-lang/eslint-config-cadl": "~0.2.0",
     "eslint": "^8.7.0",
     "mocha": "~9.2.0",
     "c8": "~7.11.0",

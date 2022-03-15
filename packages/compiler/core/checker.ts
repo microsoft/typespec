@@ -1,4 +1,3 @@
-import { inspect } from "util";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
@@ -305,17 +304,6 @@ export function createChecker(program: Program): Checker {
       name: "log",
       value(p: Program, str: string): Type {
         program.logger.log({ level: "debug", message: str });
-        return voidType;
-      },
-      declarations: [],
-    });
-
-    // a utility function to dump a type
-    cadlNamespaceBinding!.exports!.set("inspect", {
-      flags: SymbolFlags.Function,
-      name: "inspect",
-      value(p: Program, arg: Type): Type {
-        program.logger.log({ level: "debug", message: inspect(arg) });
         return voidType;
       },
       declarations: [],

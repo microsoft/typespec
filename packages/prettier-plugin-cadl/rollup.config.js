@@ -14,7 +14,7 @@ export default {
   },
   inlineDynamicImports: true,
   context: "this",
-  external: ["fs/promises", "prettier"],
+  external: ["fs/promises", "prettier", "ajv", "js-yaml"],
   plugins: [
     resolve({ preferBuiltins: true }),
     commonjs(),

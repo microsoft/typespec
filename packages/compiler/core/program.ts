@@ -1,4 +1,3 @@
-import { fileURLToPath } from "url";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile, getSourceLocation } from "./diagnostics.js";
@@ -627,7 +626,7 @@ export async function createProgram(
     }
 
     const expected = await host.realpath(
-      resolvePath(fileURLToPath(import.meta.url), "../index.js")
+      resolvePath(host.fileURLToPath(import.meta.url), "../index.js")
     );
 
     if (actual !== expected) {

@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import glob from "glob";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile, logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
-import { NodeHost } from "../core/host.js";
+import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
@@ -123,6 +123,10 @@ function createTestCompilerHost(
 
     logSink: NodeHost.logSink,
     mkdirp: async (path: string) => path,
+    fileURLToPath,
+    pathToFileURL(path: string) {
+      return pathToFileURL(path).href;
+    },
   };
 }
 
@@ -282,7 +286,7 @@ async function createTestHostInternal(): Promise<TestHost> {
   }
 }
 
-async function findFilesFromPattern(directory: string, pattern: string): Promise<string[]> {
+export async function findFilesFromPattern(directory: string, pattern: string): Promise<string[]> {
   return new Promise((resolve, reject) => {
     glob(
       pattern,

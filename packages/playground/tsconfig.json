@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "references": [
+    { "path": "../compiler/tsconfig.json" },
+    { "path": "../rest/tsconfig.json" },
+    { "path": "../openapi/tsconfig.json" },
+    { "path": "../openapi3/tsconfig.json" }
+  ],
+  "compilerOptions": {
+    "outDir": "dist-dev",
+    "rootDir": ".",
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+    "types": ["node", "mocha"],
+    "skipLibCheck": true
+  },
+  "include": ["scripts/**/*.ts", "src/**/*.ts", "test/**/*.ts"]
+}

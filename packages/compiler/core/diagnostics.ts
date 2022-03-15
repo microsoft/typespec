@@ -1,4 +1,3 @@
-import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger.js";
 import { Program } from "./program.js";
@@ -282,7 +281,7 @@ export function compilerAssert(
     }
   }
 
-  throw new AssertionError({ message });
+  throw new Error(message);
 }
 
 function scanLineStarts(text: string): number[] {
