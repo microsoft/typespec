@@ -7,7 +7,7 @@ import {
   expectDiagnostics,
 } from "../../testing/index.js";
 
-describe.only("compiler: intersections", () => {
+describe("compiler: intersections", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
