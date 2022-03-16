@@ -3,8 +3,9 @@ import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
+import { defineConfig } from "rollup";
 
-export default {
+export default defineConfig({
   input: "src/index.mjs",
   output: {
     file: "dist/index.js",
@@ -14,7 +15,12 @@ export default {
   },
   inlineDynamicImports: true,
   context: "this",
-  external: ["fs/promises", "prettier", "ajv", "js-yaml"],
+  external: ["fs/promises", "prettier"],
+  treeshake: {
+    // Ignore those 2 modules are they aren't used in the code needed for the formatter.
+    // Otherwise rollup think they have side effect and to include a lot of unncessary code in the bundle.
+    moduleSideEffects: ["ajv", "js-yaml"],
+  },
   plugins: [
     resolve({ preferBuiltins: true }),
     commonjs(),
@@ -27,4 +33,4 @@ export default {
       preventAssignment: true,
     }),
   ],
-};
+});
