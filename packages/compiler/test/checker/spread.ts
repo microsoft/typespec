@@ -1,6 +1,11 @@
 import { ok, strictEqual } from "assert";
 import { ModelType, Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import {
+  BasicTestRunner,
+  createTestHost,
+  createTestWrapper,
+  expectDiagnostics,
+} from "../../testing/index.js";
 
 describe("compiler: spread", () => {
   const blues = new WeakSet();
@@ -8,24 +13,26 @@ describe("compiler: spread", () => {
     blues.add(target);
   }
 
-  let testHost: TestHost;
+  let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
-    testHost.addJsFile("blue.js", { $blue });
+    const host = await createTestHost();
+    host.addJsFile("blue.js", { $blue });
+    runner = createTestWrapper(
+      host,
+      (code) => `
+    import "./blue.js";
+    ${code}
+    `
+    );
   });
 
   it("clones decorated properties", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./blue.js";
+    const { C } = (await runner.compile(`
       model A { @blue foo: string }
       model B { @blue bar: string }
       @test model C { ... A, ... B }
-      `
-    );
-    const { C } = (await testHost.compile("./")) as { C: ModelType };
+      `)) as { C: ModelType };
 
     strictEqual(C.kind, "Model");
     strictEqual(C.properties.size, 2);
@@ -33,5 +40,18 @@ describe("compiler: spread", () => {
     for (const [_, prop] of C.properties) {
       ok(blues.has(prop), prop.name + " is blue");
     }
+  });
+
+  it("doesn't emit additional diagnostic if spread reference is unknown-identitfier", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Foo {
+        ...NotDefined
+      }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "unknown-identifier",
+      message: "Unknown identifier NotDefined",
+    });
   });
 });

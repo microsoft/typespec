@@ -1501,7 +1501,7 @@ export function createChecker(program: Program): Checker {
     const props: ModelTypeProperty[] = [];
     const targetType = getTypeForNode(targetNode);
 
-    if (targetType.kind != "TemplateParameter") {
+    if (targetType.kind != "TemplateParameter" && !isErrorType(targetType)) {
       if (targetType.kind !== "Model") {
         program.reportDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
         return props;
@@ -2025,8 +2025,16 @@ export function createChecker(program: Program): Checker {
       target
     );
 
-    // peel `fn` off to avoid setting `this`.
+    for (const arg of decApp.args) {
+      if (typeof arg === "object") {
+        if (isErrorType(arg)) {
+          // If one of the decorator argument is an error don't run it.
+          return;
+        }
+      }
+    }
 
+    // peel `fn` off to avoid setting `this`.
     try {
       const fn = decApp.decorator;
       const context: DecoratorContext = { program };
