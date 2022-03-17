@@ -110,7 +110,7 @@
     "mkdirp": "~1.0.4",
     "mocha": "~9.2.0",
     "rimraf": "~3.0.2",
-    "rollup": "~2.41.4",
+    "rollup": "~2.70.1",
     "tmlanguage-generator": "~0.2.2",
     "typescript": "~4.5.5",
     "vsce": "~2.6.7",

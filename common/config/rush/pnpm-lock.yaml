@@ -1,8 +1,8 @@
 dependencies:
-  '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.5
-  '@rollup/plugin-json': 4.1.0_rollup@2.41.5
-  '@rollup/plugin-node-resolve': 11.2.1_rollup@2.41.5
-  '@rollup/plugin-replace': 2.4.2_rollup@2.41.5
+  '@rollup/plugin-commonjs': 17.1.0_rollup@2.70.1
+  '@rollup/plugin-json': 4.1.0_rollup@2.70.1
+  '@rollup/plugin-node-resolve': 11.2.1_rollup@2.70.1
+  '@rollup/plugin-replace': 2.4.2_rollup@2.70.1
   '@rush-temp/cadl-playground': file:projects/cadl-playground.tgz
   '@rush-temp/cadl-vs': file:projects/cadl-vs.tgz
   '@rush-temp/cadl-vscode': file:projects/cadl-vscode.tgz
@@ -57,7 +57,7 @@ dependencies:
   prettier-plugin-organize-imports: 2.3.4_prettier@2.5.1+typescript@4.5.5
   prompts: 2.4.2
   rimraf: 3.0.2
-  rollup: 2.41.5
+  rollup: 2.70.1
   source-map-support: 0.5.21
   typescript: 4.5.5
   vite: 2.8.6
@@ -244,16 +244,16 @@ packages:
       node: '>= 8'
     resolution:
       integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==
-  /@rollup/plugin-commonjs/17.1.0_rollup@2.41.5:
+  /@rollup/plugin-commonjs/17.1.0_rollup@2.70.1:
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.41.5
+      '@rollup/pluginutils': 3.1.0_rollup@2.70.1
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 7.1.7
       is-reference: 1.2.1
       magic-string: 0.25.7
       resolve: 1.22.0
-      rollup: 2.41.5
+      rollup: 2.70.1
     dev: false
     engines:
       node: '>= 8.0.0'
@@ -261,24 +261,24 @@ packages:
       rollup: ^2.30.0
     resolution:
       integrity: sha512-PoMdXCw0ZyvjpCMT5aV4nkL0QywxP29sODQsSGeDpr/oI49Qq9tRtAsb/LbYbDzFlOydVEqHmmZWFtXJEAX9ew==
-  /@rollup/plugin-json/4.1.0_rollup@2.41.5:
+  /@rollup/plugin-json/4.1.0_rollup@2.70.1:
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.41.5
-      rollup: 2.41.5
+      '@rollup/pluginutils': 3.1.0_rollup@2.70.1
+      rollup: 2.70.1
     dev: false
     peerDependencies:
       rollup: ^1.20.0 || ^2.0.0
     resolution:
       integrity: sha512-yfLbTdNS6amI/2OpmbiBoW12vngr5NW2jCJVZSBEz+H5KfUJZ2M7sDjk0U6GOOdCWFVScShte29o9NezJ53TPw==
-  /@rollup/plugin-node-resolve/11.2.1_rollup@2.41.5:
+  /@rollup/plugin-node-resolve/11.2.1_rollup@2.70.1:
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.41.5
+      '@rollup/pluginutils': 3.1.0_rollup@2.70.1
       '@types/resolve': 1.17.1
       builtin-modules: 3.2.0
       deepmerge: 4.2.2
       is-module: 1.0.0
       resolve: 1.22.0
-      rollup: 2.41.5
+      rollup: 2.70.1
     dev: false
     engines:
       node: '>= 10.0.0'
@@ -286,22 +286,22 @@ packages:
       rollup: ^1.20.0||^2.0.0
     resolution:
       integrity: sha512-yc2n43jcqVyGE2sqV5/YCmocy9ArjVAP/BeXyTtADTBBX6V0e5UMqwO8CdQ0kzjb6zu5P1qMzsScCMRvE9OlVg==
-  /@rollup/plugin-replace/2.4.2_rollup@2.41.5:
+  /@rollup/plugin-replace/2.4.2_rollup@2.70.1:
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.41.5
+      '@rollup/pluginutils': 3.1.0_rollup@2.70.1
       magic-string: 0.25.7
-      rollup: 2.41.5
+      rollup: 2.70.1
     dev: false
     peerDependencies:
       rollup: ^1.20.0 || ^2.0.0
     resolution:
       integrity: sha512-IGcu+cydlUMZ5En85jxHH4qj2hta/11BHq95iHEyb2sbgiN0eCdzvUcHw5gt9pBL5lTi4JDYJ1acCoMGpTvEZg==
-  /@rollup/pluginutils/3.1.0_rollup@2.41.5:
+  /@rollup/pluginutils/3.1.0_rollup@2.70.1:
     dependencies:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
       picomatch: 2.3.1
-      rollup: 2.41.5
+      rollup: 2.70.1
     dev: false
     engines:
       node: '>= 8.0.0'
@@ -3340,15 +3340,6 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==
-  /rollup/2.41.5:
-    dev: false
-    engines:
-      node: '>=10.0.0'
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.2
-    resolution:
-      integrity: sha512-uG+WNNxhOYyeuO7oRt98GA2CNVRgQ67zca75UQVMPzMrLG9FUKzTCgvYVWhtB18TNbV7Uqxo97h+wErAnpFNJw==
   /rollup/2.70.0:
     dev: false
     engines:
@@ -3358,6 +3349,15 @@ packages:
       fsevents: 2.3.2
     resolution:
       integrity: sha512-iEzYw+syFxQ0X9RefVwhr8BA2TNJsTaX8L8dhyeyMECDbmiba+8UQzcu+xZdji0+JQ+s7kouQnw+9Oz5M19XKA==
+  /rollup/2.70.1:
+    dev: false
+    engines:
+      node: '>=10.0.0'
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+    resolution:
+      integrity: sha512-CRYsI5EuzLbXdxC6RnYhOuRdtz4bhejPMSWjsFLfVM/7w/85n2szZv6yExqUXsBdz5KT8eoubeyDUDjhLHEslA==
   /run-parallel/1.2.0:
     dependencies:
       queue-microtask: 1.2.3
@@ -4200,20 +4200,20 @@ packages:
     dev: false
     name: '@rush-temp/cadl-playground'
     resolution:
-      integrity: sha512-h0FSYO38B5DmOMy9PaBeZqet7UK5N5+GxR3t3mybU8tbJ+R/o8SY1Xvsw2q9hzehNlFj8vZiYIyrHSou8QTMow==
+      integrity: sha512-UGZAFHtV4a5YVmt94avBe8sw+b3zfT7vPu41Q0FiGVuVRTAZSef4z/5lmYzWqYH4nYOwJn4QGx+1tDAK5w7zig==
       tarball: file:projects/cadl-playground.tgz
     version: 0.0.0
   file:projects/cadl-vs.tgz:
     dev: false
     name: '@rush-temp/cadl-vs'
     resolution:
-      integrity: sha512-cNCO5VatPZ7e6Oq5rVMiH6dLQp6dWmC7O3H/g+QI0zJT/V5S2nvSOYSd7S59cxJDmRyZ/9RWEJUOg6dAZBq+Zw==
+      integrity: sha512-jFROlpzJXEPwM/Jz0cEtq78/DiS0e5lWLFurp1CNgpjYbCMThWOXkwfqFKpkNlOVozWv73agsMAALQUkXIn0gw==
       tarball: file:projects/cadl-vs.tgz
     version: 0.0.0
   file:projects/cadl-vscode.tgz:
     dependencies:
-      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.5
-      '@rollup/plugin-node-resolve': 11.2.1_rollup@2.41.5
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.70.1
+      '@rollup/plugin-node-resolve': 11.2.1_rollup@2.70.1
       '@types/mkdirp': 1.0.2
       '@types/mocha': 9.1.0
       '@types/node': 14.0.27
@@ -4223,7 +4223,7 @@ packages:
       mkdirp: 1.0.4
       mocha: 9.2.1
       rimraf: 3.0.2
-      rollup: 2.41.5
+      rollup: 2.70.1
       typescript: 4.5.5
       vsce: 2.6.7
       vscode-languageclient: 7.0.0
@@ -4233,7 +4233,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vscode'
     resolution:
-      integrity: sha512-wkC0qua+SLJUeN2aaKJxqEXIbd95oGRF8A1PJOpl813MIG1b5+PPIIhoMpJO2UrSYkaE7z0pFRmEjWGCAtqrTA==
+      integrity: sha512-o1SRBv2SMAA9HASyOuDo+cKYgUfl/tyK8t/2RYWAaEHDtOSNes+qxwV7MxAOXqOprLONlqpKO6iPNau1m17hmQ==
       tarball: file:projects/cadl-vscode.tgz
     version: 0.0.0
   file:projects/compiler.tgz:
@@ -4271,7 +4271,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-/rxLXB7+W3PkBgGSsB4Id3xjhdMD3P9ZDNQB6NGxnvEUW/u2nkJGr8xiped9jlVEU7xUna9AGaRumZ1ueY5mOA==
+      integrity: sha512-W3Ig+HY/eZS2EH5jleYRzp/X6KwK/QgqSQIhlMFIh8kxpQtCvsszre6FZXGsx/QLIOmFVkrixPnl5VIvBoizrg==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/eslint-config-cadl.tgz_prettier@2.5.1:
@@ -4304,7 +4304,7 @@ packages:
     dev: false
     name: '@rush-temp/openapi'
     resolution:
-      integrity: sha512-HRFXDuYpYnQNpMFfq1TQ7zjwylCXrzkof5fet8KMC1M5MQ3pf9x0/h/4wRFcklCHGajQ2d0/vtKb+eB4afT4OQ==
+      integrity: sha512-OWhISfziSsx7yzvaKvgMyE2erNXJ1P6VTUcCMD99Ls8Gn37PSdTLb2EWD2P8Cv16o7L9DAuTQi+DZypfqlucfQ==
       tarball: file:projects/openapi.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -4319,22 +4319,22 @@ packages:
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-ELv4Yz/sAViYSfS07nJNisKIdR+GhJt4jDVFo//vNr+VgX4dABKgz8i9ZLgfbmwckVYEp8uAaWTwvzBW3rOs/A==
+      integrity: sha512-lZhmQx6xq1WVjXiNQidyMF4ufCfNyI0sTXwOk4OHPG4rIB7/l/MsTA04nH4nAAu8FRimvURi9whTZ5WfZQgz7Q==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
     dependencies:
-      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.5
-      '@rollup/plugin-json': 4.1.0_rollup@2.41.5
-      '@rollup/plugin-node-resolve': 11.2.1_rollup@2.41.5
-      '@rollup/plugin-replace': 2.4.2_rollup@2.41.5
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.70.1
+      '@rollup/plugin-json': 4.1.0_rollup@2.70.1
+      '@rollup/plugin-node-resolve': 11.2.1_rollup@2.70.1
+      '@rollup/plugin-replace': 2.4.2_rollup@2.70.1
       mocha: 9.2.1
       prettier: 2.5.1
-      rollup: 2.41.5
+      rollup: 2.70.1
     dev: false
     name: '@rush-temp/prettier-plugin-cadl'
     resolution:
-      integrity: sha512-B1u9tB2ojV7InblhLQxA0ygdWv24lQbR/W3qXxbTmEKegTAjVFzcL+wqO9NWKYXfycd1xb+JMkvH2gQ8Us0gAA==
+      integrity: sha512-XeeKHGD8IjjxV/ONsM08j8GXt9SgLJZy1ZHdVuaOR1ucX3JviM1m+WY3oqhC6V09HCOdYep1CsvsewFltfzF7Q==
       tarball: file:projects/prettier-plugin-cadl.tgz
     version: 0.0.0
   file:projects/rest.tgz:
@@ -4349,7 +4349,7 @@ packages:
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-XObafHBdbl5emNsC5M8SE5FEGKKTSlIcQwQNi+KqNnAz+3xALX8TF3UgJCh7soersQMFc65GGlTe7kM73hrweA==
+      integrity: sha512-zDy60s5k/XEvzDK0/KghCvEZBLBQHIF7bnR1haVsZtarYm5Zn+PMABUY3CcRUHhcAVGYAP63eut/cLJ0ZnI6lg==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -4360,7 +4360,7 @@ packages:
     dev: false
     name: '@rush-temp/samples'
     resolution:
-      integrity: sha512-RVkBNXDmv0ycgohgtkBfdfZGp8dxj20bheCHhBsUf6ZQLFTBd7jaserAmcdHNr+eCCkK8su9CfXOaD/2qrFqAg==
+      integrity: sha512-die3zAZMLP6r8gaEQjxnZZ/MBQNrzLGmrSF3uf4oqSsIKJJFhvOzfSmuYNYHhlSXxsXcyBLozMo8+IiiiEiuog==
       tarball: file:projects/samples.tgz
     version: 0.0.0
   file:projects/spec.tgz:
@@ -4387,7 +4387,7 @@ packages:
     dev: false
     name: '@rush-temp/tmlanguage-generator'
     resolution:
-      integrity: sha512-nKdhYEUuUjOleZFdVjXKiIjOuWZ2DqlgoyCDcc6m+4LeDUNhf4M/2KnjaS61OCPkRjrnY5fNgVY2GxnnkV5YvQ==
+      integrity: sha512-n/Y5imJfQS5BKE8o1Sf+awMHZojdEMsKYlKoaink3TDsOvqB+8GDI2X0EGjY5M6vDE8+PO0nDjdp9GM0UTObXA==
       tarball: file:projects/tmlanguage-generator.tgz
     version: 0.0.0
   file:projects/versioning.tgz:
@@ -4402,7 +4402,7 @@ packages:
     dev: false
     name: '@rush-temp/versioning'
     resolution:
-      integrity: sha512-IVu/pe8eFl0L0aL4LyRPgmK+XPE5/bHIgyg8avm1df4ryPfzPupWUoJ67NQ25o3y54WTZ3lUYq+HMMg5dXSXUQ==
+      integrity: sha512-L15Tt9ZsoSMHjBjeWUqru6C53gNkrEkknFR7SwjlyLwHmkvS76alf24xgGrTw/rz428IPmZjnxp+fs/yq0Zw6w==
       tarball: file:projects/versioning.tgz
     version: 0.0.0
 specifiers:
@@ -4464,7 +4464,7 @@ specifiers:
   prettier-plugin-organize-imports: ~2.3.4
   prompts: ~2.4.1
   rimraf: ~3.0.2
-  rollup: ~2.41.4
+  rollup: ~2.70.1
   source-map-support: ~0.5.19
   typescript: ~4.5.5
   vite: ^2.8.0
