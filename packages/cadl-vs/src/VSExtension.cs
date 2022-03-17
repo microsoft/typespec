@@ -122,14 +122,7 @@ namespace Microsoft.Cadl.VisualStudio {
         return;
       }
 
-      // Normally logging from language server should come through LSP. If something
-      // gets here via stderr (besides the messages from node about the debugger),
-      // there's probably a bug.
       Debugger.Log(0, null, "cadl-server (stderr): " + message);
-      Debug.Assert(
-        message.IndexOf("debugger", StringComparison.OrdinalIgnoreCase) >= 0 ||
-        message.IndexOf("https://nodejs.org/en/docs/inspector", StringComparison.Ordinal) >= 0,
-        "Unexpected output on stderr from cadl-server: " + message);
     }
 
 #if DEBUG

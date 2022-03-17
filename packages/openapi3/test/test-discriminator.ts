@@ -165,9 +165,7 @@ describe("openapi3: discriminated unions", () => {
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
-    // Child models are not pushed out to the emitter if they are not actually referenced in the API.
-    // This is orthogonal to support for discriminators so I'm leaving it alone.
-    //ok(openApi.components.schemas.Beagle, "expected definition named Beagle");
+    ok(openApi.components.schemas.Beagle, "expected definition named Beagle");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
       $ref: "#/components/schemas/Pet",
     });
@@ -185,6 +183,9 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Cat.allOf, [{ $ref: "#/components/schemas/Pet" }]);
     deepStrictEqual(openApi.components.schemas.Dog.allOf, [{ $ref: "#/components/schemas/Pet" }]);
+    deepStrictEqual(openApi.components.schemas.Beagle.allOf, [
+      { $ref: "#/components/schemas/Dog" },
+    ]);
   });
 
   it("defines nested discriminated unions", async () => {

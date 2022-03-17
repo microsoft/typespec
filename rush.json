@@ -125,6 +125,12 @@
       "projectFolder": "packages/versioning",
       "reviewCategory": "production",
       "shouldPublish": true
+    },
+    {
+      "packageName": "cadl-playground",
+      "projectFolder": "packages/playground",
+      "reviewCategory": "production",
+      "shouldPublish": false
     }
   ]
 }

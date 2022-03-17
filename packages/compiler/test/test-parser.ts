@@ -494,6 +494,18 @@ describe("compiler: syntax", () => {
     ]);
   });
 
+  describe("directives", () => {
+    describe("emit single diagnostic when the parameters are not expected types", () => {
+      parseErrorEach(
+        [
+          ["#suppress foo;\nmodel Foo {}", [/Unexpected token Semicolon/]],
+          ["#suppress foo 123\nmodel Foo {}", [/Unexpected token NumericLiteral/]],
+        ],
+        { strict: true }
+      );
+    });
+  });
+
   describe("projections", () => {
     describe("selectors", () => {
       const selectors = ["model", "op", "interface", "union", "someId"];
@@ -625,9 +637,19 @@ function checkPositioning(node: Node, file: SourceFile) {
   });
 }
 
-function parseErrorEach(cases: [string, RegExp[], Callback?][]) {
+/**
+ *
+ * @param cases Test cases
+ * @param options {
+ *   strict: Make sure there is exactly the same amount of diagnostics reported as the number of matches.
+ * }
+ */
+function parseErrorEach(
+  cases: [string, RegExp[], Callback?][],
+  options: { strict?: boolean } = {}
+) {
   for (const [code, matches, callback] of cases) {
-    it(`doesn't parse ${shorten(code)}`, () => {
+    it(`doesn't parse '${shorten(code)}'`, () => {
       logVerboseTestOutput("=== Source ===");
       logVerboseTestOutput(code);
 
@@ -645,6 +667,13 @@ function parseErrorEach(cases: [string, RegExp[], Callback?][]) {
         }
       });
       assert.notStrictEqual(astNode.parseDiagnostics.length, 0, "no diagnostics reported");
+      if (options.strict) {
+        assert.strictEqual(
+          astNode.parseDiagnostics.length,
+          matches.length,
+          "More diagnostics reported than expected."
+        );
+      }
       let i = 0;
       for (const match of matches) {
         assert.match(astNode.parseDiagnostics[i++].message, match);

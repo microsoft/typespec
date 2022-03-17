@@ -7,7 +7,8 @@
     { "path": "packages/openapi3/tsconfig.json" },
     { "path": "packages/cadl-vscode/tsconfig.json" },
     { "path": "packages/tmlanguage-generator/tsconfig.json" },
-    { "path": "packages/openapi3/tsconfig.json" }
+    { "path": "packages/openapi3/tsconfig.json" },
+    { "path": "packages/playground/tsconfig.json" }
   ],
   "files": []
 }

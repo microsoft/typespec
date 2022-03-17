@@ -48,6 +48,7 @@ function processLog(log: LogInfo): ProcessedLog {
 
 export function createConsoleSink(): LogSink {
   function log(data: ProcessedLog) {
+    // eslint-disable-next-line no-console
     console.log(formatLog(data));
   }
 

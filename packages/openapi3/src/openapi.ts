@@ -5,7 +5,6 @@ import {
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
-  findChildModels,
   getAllTags,
   getDoc,
   getFormat,
@@ -32,6 +31,7 @@ import {
   isNumericType,
   isSecret,
   isStringType,
+  mapChildModels,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -197,6 +197,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
+  let childModelMap: ReadonlyMap<ModelType, readonly ModelType[]>;
+
   return { emitOpenAPI };
 
   function initializeEmitter(serviceNamespaceType: NamespaceType, version?: string) {
@@ -234,6 +236,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     schemas = new Set();
     params = new Map();
     tags = new Set();
+    childModelMap = new Map();
   }
 
   async function emitOpenAPI() {
@@ -265,6 +268,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   async function emitOpenAPIFromVersion(serviceNamespace: NamespaceType, version?: string) {
     initializeEmitter(serviceNamespace, version);
     try {
+      childModelMap = mapChildModels(program);
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();
       emitTags();
@@ -994,19 +998,18 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       properties: {},
       description: getDoc(program, model),
     };
+    const childModels = childModelMap.get(model) ?? [];
+
+    // getSchemaOrRef on all children to push them into components.schemas
+    for (const child of childModels) {
+      getSchemaOrRef(child);
+    }
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator) {
-      const childModels = findChildModels(program, model);
-
       if (!validateDiscriminator(discriminator, childModels)) {
         // appropriate diagnostic is generated with the validate function
         return {};
-      }
-
-      // getSchemaOrRef on all children to push them into components.schemas
-      for (const child of childModels) {
-        getSchemaOrRef(child);
       }
 
       const mapping = getDiscriminatorMapping(discriminator, childModels);
@@ -1089,7 +1092,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function validateDiscriminator(discriminator: any, childModels: ModelType[]): boolean {
+  function validateDiscriminator(discriminator: any, childModels: readonly ModelType[]): boolean {
     const { propertyName } = discriminator;
     const retVals = childModels.map((t) => {
       const prop = getProperty(t, propertyName);
@@ -1141,7 +1144,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     return retVals.every((v) => v);
   }
 
-  function getDiscriminatorMapping(discriminator: any, childModels: ModelType[]) {
+  function getDiscriminatorMapping(discriminator: any, childModels: readonly ModelType[]) {
     const { propertyName } = discriminator;
     const getMapping = (t: ModelType): any => {
       const prop = t.properties?.get(propertyName);

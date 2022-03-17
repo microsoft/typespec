@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix using `&` with tempalte parameters",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

@@ -1,4 +1,3 @@
-import { AssertionError } from "assert";
 import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger.js";
 import { Program } from "./program.js";
@@ -238,8 +237,10 @@ export function logVerboseTestOutput(
 ) {
   if (process.env.CADL_VERBOSE_TEST_OUTPUT) {
     if (typeof messageOrCallback === "string") {
+      // eslint-disable-next-line no-console
       console.log(messageOrCallback);
     } else {
+      // eslint-disable-next-line no-console
       messageOrCallback(console.log);
     }
   }
@@ -280,7 +281,7 @@ export function compilerAssert(
     }
   }
 
-  throw new AssertionError({ message });
+  throw new Error(message);
 }
 
 function scanLineStarts(text: string): number[] {

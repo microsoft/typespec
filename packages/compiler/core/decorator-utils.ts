@@ -1,15 +1,14 @@
+import { getIntrinsicModelName, getPropertyType } from "../lib/decorators.js";
+import { createDiagnostic, reportDiagnostic } from "./messages.js";
+import { Program } from "./program.js";
 import {
   Diagnostic,
   DiagnosticTarget,
-  getIntrinsicModelName,
-  getPropertyType,
   IntrinsicModelName,
   ModelType,
   ModelTypeProperty,
-} from "./index.js";
-import { createDiagnostic, reportDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
-import { Type } from "./types.js";
+  Type,
+} from "./types.js";
 
 export type CadlValue = Type | string | number | boolean;
 
