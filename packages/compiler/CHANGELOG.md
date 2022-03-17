@@ -1,6 +1,30 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Tue, 15 Feb 2022 22:35:02 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+
+## 0.29.0
+Wed, 09 Mar 2022 17:42:09 GMT
+
+### Minor changes
+
+- Move @key decorator to core
+- Replace findChildModels with mapChildModels
+- **Exports** `NodeHost` for programmatic usage of Cadl 
+- **Added** `@knownValues` decorator providing set of known options for a string type
+- Using `extends` with intrinsic types will emit diagnostic.
+- Allow `op` in interfaces
+- Complete using statements and qualified decorators.
+- Add back `@inspectType` and `@inspectTypeName` decorators
+- Redirect console.log to stderr in language server
+
+### Patches
+
+- Improve list parsing error recovery
+- Use the proper symbol to use cadl exports in eval
+- Fix issue with missing namespace name in certain cases
+- Fix issue using `is` with intrinsic types.
+- Fix decorator completion on namespaces
+- refactor symbols and other improvements
 
 ## 0.28.0
 Tue, 15 Feb 2022 22:35:02 GMT

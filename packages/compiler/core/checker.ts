@@ -1,4 +1,3 @@
-import { inspect } from "util";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
@@ -306,17 +305,6 @@ export function createChecker(program: Program): Checker {
       name: "log",
       value(p: Program, str: string): Type {
         program.logger.log({ level: "debug", message: str });
-        return voidType;
-      },
-      declarations: [],
-    });
-
-    // a utility function to dump a type
-    cadlNamespaceBinding!.exports!.set("inspect", {
-      flags: SymbolFlags.Function,
-      name: "inspect",
-      value(p: Program, arg: Type): Type {
-        program.logger.log({ level: "debug", message: inspect(arg) });
         return voidType;
       },
       declarations: [],
@@ -749,10 +737,6 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function allModelTypes(types: Type[]): types is ModelType[] {
-    return types.every((t) => t.kind === "Model");
-  }
-
   /**
    * Intersection produces a model type from the properties of its operands.
    * So this doesn't work if we don't have a known set of properties (e.g.
@@ -760,13 +744,16 @@ export function createChecker(program: Program): Checker {
    */
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
-    if (!allModelTypes(optionTypes)) {
-      program.reportDiagnostic(createDiagnostic({ code: "intersect-non-model", target: node }));
-      return errorType;
-    }
 
     const properties = new Map<string, ModelTypeProperty>();
     for (const option of optionTypes) {
+      if (option.kind === "TemplateParameter") {
+        continue;
+      }
+      if (option.kind !== "Model") {
+        program.reportDiagnostic(createDiagnostic({ code: "intersect-non-model", target: option }));
+        continue;
+      }
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -1541,7 +1528,7 @@ export function createChecker(program: Program): Checker {
     const props: ModelTypeProperty[] = [];
     const targetType = getTypeForNode(targetNode);
 
-    if (targetType.kind != "TemplateParameter") {
+    if (targetType.kind != "TemplateParameter" && !isErrorType(targetType)) {
       if (targetType.kind !== "Model") {
         program.reportDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
         return props;
@@ -2065,8 +2052,16 @@ export function createChecker(program: Program): Checker {
       target
     );
 
-    // peel `fn` off to avoid setting `this`.
+    for (const arg of decApp.args) {
+      if (typeof arg === "object") {
+        if (isErrorType(arg)) {
+          // If one of the decorator argument is an error don't run it.
+          return;
+        }
+      }
+    }
 
+    // peel `fn` off to avoid setting `this`.
     try {
       const fn = decApp.decorator;
       const context: DecoratorContext = { program };

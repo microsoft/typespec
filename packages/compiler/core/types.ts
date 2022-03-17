@@ -1130,6 +1130,12 @@ export interface CompilerHost {
   // get the real path of a possibly symlinked path
   realpath(path: string): Promise<string>;
 
+  // convert a file URL to a path in a file system
+  fileURLToPath(url: string): string;
+
+  // convert a file system path to a URL
+  pathToFileURL(path: string): string;
+
   logSink: LogSink;
 }
 
@@ -1235,7 +1241,7 @@ export interface CadlLibrary<
     names?: readonly E[];
   };
 
-  reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
+  reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;

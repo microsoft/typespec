@@ -1,0 +1,75 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: content-box;
+}
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 30px 1fr;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#commandBar {
+  grid-column: 1;
+  grid-row: 1;
+  align-items: center;
+  display: flex;
+}
+
+#commandBar > * {
+  padding: 2px 2px;
+}
+
+#outputTabs {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+#outputTabs a {
+  padding: 0 5px;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-bottom: none;
+  margin: 2px;
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#outputTabs a.active {
+  font-weight: bold;
+  background-color: #eee;
+}
+#editorContainer {
+  grid-column: 1;
+  grid-row: 2;
+  overflow: hidden;
+}
+
+#editor {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#outputContainer {
+  grid-column: 2;
+  grid-row: 2;
+  overflow: hidden;
+}
+#output {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}

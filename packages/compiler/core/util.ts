@@ -1,17 +1,9 @@
-import fs from "fs";
-import { fileURLToPath, URL } from "url";
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
 import { getDirectoryPath, isPathAbsolute, isUrl, joinPaths, resolvePath } from "./path-utils.js";
 import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "./types.js";
 
-export const cadlVersion = getVersion();
-
-function getVersion(): string {
-  const packageJsonPath = fileURLToPath(new URL("../../package.json", import.meta.url));
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
-  return packageJson.version;
-}
+export { cadlVersion, NodeHost } from "./node-host.js";
 
 export function deepFreeze<T>(value: T): T {
   if (Array.isArray(value)) {
