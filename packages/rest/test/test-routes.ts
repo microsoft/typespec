@@ -86,6 +86,31 @@ describe("rest: routes", () => {
     ]);
   });
 
+  it("join empty route segments correctly", async () => {
+    const routes = await getRoutesFor(
+      `
+      @route("")
+      interface Foo {
+        @get @route("") index(): {};
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
+  });
+  it("join / route segments correctly", async () => {
+    const routes = await getRoutesFor(
+      `
+      @route("/")
+      interface Foo {
+        @get @route("/") index(): {};
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
+  });
+
   it("generates action route fragments when @action is applied", async () => {
     const routes = await getRoutesFor(
       `
