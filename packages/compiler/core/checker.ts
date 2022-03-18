@@ -9,6 +9,7 @@ import {
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
   SymbolFlags,
+  TemplateParameterType,
 } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { hasParseError, visitChildren } from "./parser.js";
@@ -478,29 +479,50 @@ export function createChecker(program: Program): Checker {
       | InterfaceStatementNode
       | UnionStatementNode
       | AliasStatementNode;
-
-    const index = parentNode.templateParameters.findIndex((v) => v === node);
+    const links = getSymbolLinks(node.symbol);
     const isInstantiatingThisTemplate = instantiatingTemplate === parentNode;
-    const type = createAndFinishType({
+    if (links.declaredType && !isInstantiatingThisTemplate) {
+      return links.declaredType;
+    }
+    const index = parentNode.templateParameters.findIndex((v) => v === node);
+    const type: TemplateParameterType = createAndFinishType({
       kind: "TemplateParameter",
       node: node,
     });
 
-    // Cache the type to prevent circual reference stack overflows.
     if (!isInstantiatingThisTemplate) {
-      const links = getSymbolLinks(node.symbol);
+      // Cache the type to prevent circual reference stack overflows.
       links.declaredType = type;
-    }
 
-    const defaultType = node.default
-      ? checkTemplateParameterDefault(node.default, parentNode.templateParameters, index)
-      : undefined;
-
-    if (isInstantiatingThisTemplate) {
-      return templateInstantiation[index] ?? defaultType;
+      if (node.default) {
+        type.default = checkTemplateParameterDefault(
+          node.default,
+          parentNode.templateParameters,
+          index
+        );
+      }
+    } else {
+      return (
+        templateInstantiation[index] ??
+        getResolvedTypeParameterDefault(links.declaredType as TemplateParameterType)
+      );
     }
 
     return type;
+  }
+
+  function getResolvedTypeParameterDefault(declaredType: TemplateParameterType): Type | undefined {
+    if (declaredType.default === undefined) {
+      return undefined;
+    }
+    if (isErrorType(declaredType.default)) {
+      return declaredType.default;
+    }
+    if (declaredType.default.kind === "TemplateParameter") {
+      return getTypeForNode(declaredType.default.node);
+    } else {
+      return declaredType.default;
+    }
   }
 
   function checkTemplateParameterDefault(
@@ -510,20 +532,27 @@ export function createChecker(program: Program): Checker {
   ) {
     function visit(node: Node) {
       const type = getTypeForNode(node);
-
+      let hasError = false;
       if (type.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
           if (type.node.symbol === templateParameters[i].symbol) {
             program.reportDiagnostic(
               createDiagnostic({ code: "invalid-template-default", target: node })
             );
+            return errorType;
           }
         }
+        return type;
       }
+
       visitChildren(node, (x) => {
-        visit(x);
+        const visited = visit(x);
+        if (visited === errorType) {
+          hasError = true;
+        }
       });
-      return type;
+
+      return hasError ? errorType : type;
     }
     return visit(nodeDefault);
   }
@@ -652,9 +681,6 @@ export function createChecker(program: Program): Checker {
         );
       }
       if (sym.flags & SymbolFlags.TemplateParameter) {
-        if (symbolLinks.declaredType) {
-          return symbolLinks.declaredType;
-        }
         baseType = checkTemplateParameterDeclaration(
           sym.declarations[0] as TemplateParameterDeclarationNode
         );

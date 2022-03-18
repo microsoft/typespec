@@ -179,14 +179,15 @@ describe("compiler: templates", () => {
     testHost.addCadlFile(
       "main.cadl",
       `
-        @test model A<T, X = T> { a: T, b: X }
-        model B { 
+        model A<T, X = T> { a: T, b: X }
+        @test model B { 
           foo: A<"bye">
         };
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { B } = (await testHost.compile("main.cadl")) as { B: ModelType };
+    const A = B.properties.get("foo")?.type as any as ModelType;
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
@@ -195,7 +196,7 @@ describe("compiler: templates", () => {
     strictEqual((b.type as StringLiteralType).value, "bye");
   });
 
-  it.only("emit diagnostics if referencing itself", async () => {
+  it("emit diagnostics if referencing itself", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -214,7 +215,7 @@ describe("compiler: templates", () => {
     });
   });
 
-  it.only("emit diagnostics if referencing itself nested", async () => {
+  it("emit diagnostics if referencing itself nested", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
