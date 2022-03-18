@@ -183,6 +183,13 @@ const diagnostics = {
       default: "Required template parameters must not follow optional template parameters",
     },
   },
+  "invalid-template-default": {
+    severity: "error",
+    messages: {
+      default:
+        "Template parameter defaults can only reference previously declared type parameters.",
+    },
+  },
   /**
    * Checker
    */
