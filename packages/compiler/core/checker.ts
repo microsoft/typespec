@@ -2,6 +2,7 @@ import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   DecoratorContext,
+  Expression,
   isIntrinsic,
   JsSourceFileNode,
   ProjectionModelExpressionNode,
@@ -10,7 +11,7 @@ import {
   SymbolFlags,
 } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
-import { hasParseError } from "./parser.js";
+import { hasParseError, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import { createProjectionMembers } from "./projectionMembers.js";
 import {
@@ -478,10 +479,11 @@ export function createChecker(program: Program): Checker {
       | UnionStatementNode
       | AliasStatementNode;
 
-    const defaultType = node.default ? getTypeForNode(node.default) : undefined;
-
+    const index = parentNode.templateParameters.findIndex((v) => v === node);
+    const defaultType = node.default
+      ? checkTemplateParameterDefault(node.default, parentNode.templateParameters, index)
+      : undefined;
     if (instantiatingTemplate === parentNode) {
-      const index = parentNode.templateParameters.findIndex((v) => v === node);
       return templateInstantiation[index] ?? defaultType;
     }
 
@@ -489,6 +491,31 @@ export function createChecker(program: Program): Checker {
       kind: "TemplateParameter",
       node: node,
     });
+  }
+
+  function checkTemplateParameterDefault(
+    nodeDefault: Expression,
+    templateParameters: readonly TemplateParameterDeclarationNode[],
+    index: number
+  ) {
+    function visit(node: Node) {
+      const type = getTypeForNode(node);
+
+      if (type.kind === "TemplateParameter") {
+        for (let i = index; i < templateParameters.length; i++) {
+          if (type.node.symbol === templateParameters[i].symbol) {
+            program.reportDiagnostic(
+              createDiagnostic({ code: "invalid-template-default", target: node })
+            );
+          }
+        }
+      }
+      visitChildren(node, (x) => {
+        visit(x);
+      });
+      return type;
+    }
+    return visit(nodeDefault);
   }
 
   function checkTypeReference(
