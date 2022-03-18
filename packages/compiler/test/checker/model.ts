@@ -1,6 +1,11 @@
 import { match, ok, strictEqual } from "assert";
 import { ModelType, Type } from "../../core/types.js";
-import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
+import {
+  createTestHost,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: models", () => {
   let testHost: TestHost;
@@ -241,6 +246,27 @@ describe("compiler: models", () => {
         diagnostics[0].message,
         "Model type 'A' recursively references itself as a base type."
       );
+    });
+
+    it("emit single error when is itself as a templated with mutliple instantiations", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A<T> is A<T> {}
+
+        model Bar {
+          instance1: A<string>;
+          instance2: A<int32>;
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "circular-base-type",
+          message: "Model type 'A' recursively references itself as a base type.",
+        },
+      ]);
     });
 
     it("emit error when 'is' has circular reference", async () => {

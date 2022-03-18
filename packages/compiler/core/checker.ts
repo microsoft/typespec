@@ -1496,11 +1496,13 @@ export function createChecker(program: Program): Checker {
     }
 
     if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
-      reportDiagnostic(program, {
-        code: "circular-base-type",
-        format: { typeName: (target.declarations[0] as any).id.sv },
-        target: target,
-      });
+      if (!instantiatingTemplate) {
+        reportDiagnostic(program, {
+          code: "circular-base-type",
+          format: { typeName: (target.declarations[0] as any).id.sv },
+          target: target,
+        });
+      }
       return undefined;
     }
     const heritageType = checkTypeReferenceSymbol(target, heritageRef);
@@ -1543,11 +1545,13 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
     if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
-      reportDiagnostic(program, {
-        code: "circular-base-type",
-        format: { typeName: (target.declarations[0] as any).id.sv },
-        target: target,
-      });
+      if (!instantiatingTemplate) {
+        reportDiagnostic(program, {
+          code: "circular-base-type",
+          format: { typeName: (target.declarations[0] as any).id.sv },
+          target: target,
+        });
+      }
       return undefined;
     }
     const isType = checkTypeReferenceSymbol(target, isExpr);
