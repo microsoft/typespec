@@ -1223,9 +1223,11 @@ export function createChecker(program: Program): Checker {
       if (binding) return binding.flags & SymbolFlags.DuplicateUsing ? undefined : binding;
     }
 
-    program.reportDiagnostic(
-      createDiagnostic({ code: "unknown-identifier", format: { id: node.sv }, target: node })
-    );
+    if (!isInstantiatingTemplateType()) {
+      program.reportDiagnostic(
+        createDiagnostic({ code: "unknown-identifier", format: { id: node.sv }, target: node })
+      );
+    }
     return undefined;
   }
 

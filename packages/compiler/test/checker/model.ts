@@ -78,6 +78,27 @@ describe("compiler: models", () => {
     strictEqual(calls, 0);
   });
 
+  it("emit single error when there is an invalid ref in a templated type", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        model A<T> {t: T, invalid: notValidType }
+
+        model Bar {
+          instance1: A<string>;
+          instance2: A<int32>;
+        }
+        `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unknown-identifier",
+        message: "Unknown identifier notValidType",
+      },
+    ]);
+  });
+
   describe("doesn't allow a default of different type than the property type", () => {
     const testCases: [string, string, RegExp][] = [
       ["string", "123", /Default must be a string/],

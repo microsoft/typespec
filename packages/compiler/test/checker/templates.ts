@@ -215,6 +215,25 @@ describe("compiler: templates", () => {
     });
   });
 
+  it("emit diagnostics if args reference each other", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T = K, K = T> { a: T }
+        model B { 
+          foo: A
+        };
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, {
+      code: "invalid-template-default",
+      message:
+        "Template parameter defaults can only reference previously declared type parameters.",
+    });
+  });
+
   it("emit diagnostics if referencing itself nested", async () => {
     testHost.addCadlFile(
       "main.cadl",
