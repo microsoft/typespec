@@ -179,15 +179,14 @@ describe("compiler: templates", () => {
     testHost.addCadlFile(
       "main.cadl",
       `
-        model A<T, X = T> { a: T, b: X }
-        @test model B { 
+        @test model A<T, X = T> { a: T, b: X }
+        model B { 
           foo: A<"bye">
         };
       `
     );
 
-    const { B } = (await testHost.compile("main.cadl")) as { B: ModelType };
-    const A = B.properties.get("foo")?.type as any as ModelType;
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
