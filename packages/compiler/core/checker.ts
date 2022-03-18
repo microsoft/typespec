@@ -480,17 +480,27 @@ export function createChecker(program: Program): Checker {
       | AliasStatementNode;
 
     const index = parentNode.templateParameters.findIndex((v) => v === node);
-    const defaultType = node.default
-      ? checkTemplateParameterDefault(node.default, parentNode.templateParameters, index)
-      : undefined;
-    if (instantiatingTemplate === parentNode) {
-      return templateInstantiation[index] ?? defaultType;
-    }
-
-    return createAndFinishType({
+    const isInstantiatingThisTemplate = instantiatingTemplate === parentNode;
+    const type = createAndFinishType({
       kind: "TemplateParameter",
       node: node,
     });
+
+    // Cache the type to prevent circual reference stack overflows.
+    if (!isInstantiatingThisTemplate) {
+      const links = getSymbolLinks(node.symbol);
+      links.declaredType = type;
+    }
+
+    const defaultType = node.default
+      ? checkTemplateParameterDefault(node.default, parentNode.templateParameters, index)
+      : undefined;
+
+    if (isInstantiatingThisTemplate) {
+      return templateInstantiation[index] ?? defaultType;
+    }
+
+    return type;
   }
 
   function checkTemplateParameterDefault(
@@ -642,7 +652,9 @@ export function createChecker(program: Program): Checker {
         );
       }
       if (sym.flags & SymbolFlags.TemplateParameter) {
-        // TODO: could cache this probably.
+        if (symbolLinks.declaredType) {
+          return symbolLinks.declaredType;
+        }
         baseType = checkTemplateParameterDeclaration(
           sym.declarations[0] as TemplateParameterDeclarationNode
         );
@@ -1321,7 +1333,6 @@ export function createChecker(program: Program): Checker {
       namespace: getParentNamespaceType(node),
       decorators,
     });
-
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
     }
