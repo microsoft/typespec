@@ -124,7 +124,10 @@ export function getRoutePath(
 
 function buildPath(pathFragments: string[]) {
   // Join all fragments with leading and trailing slashes trimmed
-  const path = pathFragments.map((r) => r.replace(/(^\/|\/$)/g, "")).join("/");
+  const path = pathFragments
+    .map((r) => r.replace(/(^\/|\/$)/g, ""))
+    .filter((x) => x !== "")
+    .join("/");
   return `/${path}`;
 }
 

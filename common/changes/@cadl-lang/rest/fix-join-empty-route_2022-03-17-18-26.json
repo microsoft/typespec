@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Fix issue with empty routes in namespace/interface and operation causing path with '//'",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
