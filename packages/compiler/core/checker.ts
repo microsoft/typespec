@@ -715,7 +715,19 @@ export function createChecker(program: Program): Checker {
     args: Type[]
   ): Type {
     const symbolLinks = getSymbolLinks(templateNode.symbol);
-    const cached = symbolLinks.instantiations!.get(args) as ModelType;
+    if (symbolLinks.instantiations === undefined) {
+      const type = getTypeForNode(templateNode);
+      if (isErrorType(type)) {
+        return errorType;
+      } else {
+        throw new Error(
+          `Unexpected checker error. symbolLinks.instantiations was not defined for ${
+            SyntaxKind[templateNode.kind]
+          }`
+        );
+      }
+    }
+    const cached = symbolLinks.instantiations.get(args) as ModelType;
     if (cached) {
       return cached;
     }
@@ -1496,7 +1508,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
-      if (!instantiatingTemplate) {
+      if (!isInstantiatingTemplateType()) {
         reportDiagnostic(program, {
           code: "circular-base-type",
           format: { typeName: (target.declarations[0] as any).id.sv },
@@ -1545,7 +1557,7 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
     if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
-      if (!instantiatingTemplate) {
+      if (!isInstantiatingTemplateType()) {
         reportDiagnostic(program, {
           code: "circular-base-type",
           format: { typeName: (target.declarations[0] as any).id.sv },
@@ -1811,11 +1823,14 @@ export function createChecker(program: Program): Checker {
 
     const aliasSymId = getNodeSymId(node);
     if (pendingResolutions.has(aliasSymId)) {
-      reportDiagnostic(program, {
-        code: "circular-alias-type",
-        format: { typeName: node.id.sv },
-        target: node,
-      });
+      if (!isInstantiatingTemplateType()) {
+        reportDiagnostic(program, {
+          code: "circular-alias-type",
+          format: { typeName: node.id.sv },
+          target: node,
+        });
+      }
+      links.declaredType = errorType;
       return errorType;
     }
 
@@ -2786,6 +2801,13 @@ export function createChecker(program: Program): Checker {
 
         return op(base);
     }
+  }
+
+  /**
+   * @returns true if checker is currently instantiating a template type.
+   */
+  function isInstantiatingTemplateType(): boolean {
+    return instantiatingTemplate !== undefined;
   }
 
   function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
