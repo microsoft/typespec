@@ -72,7 +72,7 @@ using the preview.
    - [Instructions for Visual Studio](#installing-visual-studio-extension)
    - [Instructions for Visual Studio Code](#installing-vs-code-extension)
 
-5. Open the folder in your editor and create a new file with a `.cadl` extension
+5. Open the folder in your editor and create a new file `main.cadl`
 
 6. [Follow our tutorial](docs/tutorial.md) to get started writing Cadl!
 
