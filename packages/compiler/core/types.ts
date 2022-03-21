@@ -93,11 +93,19 @@ export interface Projector {
 
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
-  name: string;
+  name: "ErrorType" | "void" | "never";
 }
 
 export interface ErrorType extends IntrinsicType {
   name: "ErrorType";
+}
+
+export interface VoidType extends IntrinsicType {
+  name: "void";
+}
+
+export interface NeverType extends IntrinsicType {
+  name: "never";
 }
 
 // represents a type that is being returned from the
