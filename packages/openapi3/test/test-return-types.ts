@@ -586,6 +586,16 @@ describe("openapi3: return types", () => {
     ok(responses["204"] === undefined);
   });
 
+  it("defaults to 204 no content with void response type", async () => {
+    const res = await openApiFor(`@get op read(): void;`);
+    ok(res.paths["/"].get.responses["204"]);
+  });
+
+  it("defaults to 204 no content with void @body", async () => {
+    const res = await openApiFor(`@get op read(): {@body body: void};`);
+    ok(res.paths["/"].get.responses["204"]);
+  });
+
   describe("binary responses", () => {
     it("bytes responses should default to application/json with byte format", async () => {
       const res = await openApiFor(
