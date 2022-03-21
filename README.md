@@ -64,7 +64,9 @@ using the preview.
 
 2. Create a folder for your new Cadl project
 
-3. In a command prompt, run the following commands:
+3. **Via init command:** Run `npx -p @cadl-lang/compiler cadl init` > Select openapi3 library template.
+
+4. **Alternatively manually:** In a command prompt, run the following commands:
 
    ```
    cd path\to\cadl\project
@@ -75,16 +77,16 @@ using the preview.
 
    This will create a `package.json` file for your Cadl project and add the necessary Cadl dependencies to it.
 
-4. Install the Cadl extension for your editor of choice:
+5. Install the Cadl extension for your editor of choice:
 
    - [Instructions for Visual Studio](#installing-visual-studio-extension)
    - [Instructions for Visual Studio Code](#installing-vs-code-extension)
 
-5. Open the folder in your editor and create a new file `main.cadl`
+6. Open the folder in your editor and create a new file `main.cadl`
 
-6. [Follow our tutorial](docs/tutorial.md) to get started writing Cadl!
+7. [Follow our tutorial](docs/tutorial.md) to get started writing Cadl!
 
-7. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
+8. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
 
    ```
    npx cadl compile . --emit @cadl-lang/openapi3
@@ -92,16 +94,16 @@ using the preview.
 
    This will compile the Cadl files in the project folder into one output file: `.\cadl-output\openapi.json`.
 
-8. Using `--emit` every time can become tedious. You can create a project file to configure the default emitter.
+9. Using `--emit` every time can become tedious. You can create a project file to configure the default emitter.
 
-   Create a `cadl-project.yaml` file next to the `package.json` with this content:
+Create a `cadl-project.yaml` file next to the `package.json` with this content:
 
-   ```yaml
-   emitters:
-     "@cadl-lang/openapi3": true
-   ```
+```yaml
+emitters:
+  "@cadl-lang/openapi3": true
+```
 
-   After you should be able to just run `npx cadl compile .`
+After you should be able to just run `npx cadl compile .`
 
 ## Troubleshooting
 
