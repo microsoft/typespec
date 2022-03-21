@@ -449,7 +449,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         // OpenAPI can't represent different headers per content type.
         // So we merge headers here, and report any duplicates.
         // It may be possible in principle to not error for identically declared
-        // yeaders.
+        // headers.
         for (const [key, value] of Object.entries(headers)) {
           if (response.headers[key]) {
             reportDiagnostic(program, {
