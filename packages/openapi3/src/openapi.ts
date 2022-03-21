@@ -428,7 +428,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       // description for the endpoint. This could probably be improved.
       const response = currentEndpoint.responses[statusCode] ?? {
         description: getResponseDescription(responseModel, statusCode),
-      }
+      };
 
       // check for duplicates
       if (response.content) {
@@ -445,7 +445,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
       if (Object.keys(headers).length > 0) {
         response.headers ??= {};
-        
+
         // OpenAPI can't represent different headers per content type.
         // So we merge headers here, and report any duplicates.
         // It may be possible in principle to not error for identically declared
@@ -455,7 +455,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
             reportDiagnostic(program, {
               code: "duplicate-header",
               format: { header: key },
-              target: responseModel
+              target: responseModel,
             });
             continue;
           }
