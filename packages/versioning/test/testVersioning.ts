@@ -8,22 +8,21 @@ import {
   Type,
   UnionType,
 } from "@cadl-lang/compiler";
-import { TestHost } from "@cadl-lang/compiler/testing";
+import { BasicTestRunner, createTestWrapper } from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { createVersioningTestHost } from "./test-host.js";
 
 describe("cadl: versioning", () => {
-  let host: TestHost;
+  let runner: BasicTestRunner;
+
   beforeEach(async () => {
-    host = await createVersioningTestHost();
+    const host = await createVersioningTestHost();
+    runner = createTestWrapper(host, (code) => `import "@cadl-lang/versioning";\n${code}`);
   });
 
   describe("version compare", () => {
     it("compares arbitrary types in order", async () => {
-      host.addCadlFile(
-        "main.cadl",
-        `
-        import "@cadl-lang/versioning";
+      const { Test } = (await runner.compile(`
         @versioned("1" | "version two" | "3")
         namespace MyService;
 
@@ -32,9 +31,7 @@ describe("cadl: versioning", () => {
           @added("version two") b: 1;
           @added("3") c: 1;
         }
-        `
-      );
-      const { Test } = (await host.compile("./main.cadl")) as { Test: ModelType };
+        `)) as { Test: ModelType };
 
       const v1 = project(Test, "1");
       ok(v1.properties.has("a"), "v1 has a");
@@ -50,6 +47,7 @@ describe("cadl: versioning", () => {
       ok(v3.properties.has("c"));
     });
   });
+
   describe("models", () => {
     it("can add models", async () => {
       const {
@@ -182,18 +180,12 @@ describe("cadl: versioning", () => {
     });
 
     async function versionedModel(versions: string[], model: string) {
-      host.addCadlFile(
-        "main.cadl",
-        `
-      import "@cadl-lang/versioning";
+      const { Test } = (await runner.compile(`
       @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
       namespace MyService;
 
       @test ${model}
-      `
-      );
-
-      const { Test } = (await host.compile("./main.cadl")) as { Test: ModelType };
+      `)) as { Test: ModelType };
 
       return {
         source: Test,
@@ -318,18 +310,13 @@ describe("cadl: versioning", () => {
     });
 
     async function versionedUnion(versions: string[], union: string) {
-      host.addCadlFile(
-        "main.cadl",
-        `
+      const { Test } = (await runner.compile(`
       import "@cadl-lang/versioning";
       @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
       namespace MyService;
 
       @test ${union}
-      `
-      );
-
-      const { Test } = (await host.compile("./main.cadl")) as { Test: UnionType };
+      `)) as { Test: UnionType };
 
       return {
         source: Test,
@@ -386,18 +373,12 @@ describe("cadl: versioning", () => {
     });
 
     async function versionedOperation(versions: string[], operation: string) {
-      host.addCadlFile(
-        "main.cadl",
-        `
-          import "@cadl-lang/versioning";
-          @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
-          namespace MyService;
+      const { Test } = (await runner.compile(`
+        @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+        namespace MyService;
 
-          @test ${operation}
-          `
-      );
-
-      const { Test } = (await host.compile("./main.cadl")) as { Test: OperationType };
+        @test ${operation}
+      `)) as { Test: OperationType };
 
       return {
         source: Test,
@@ -492,18 +473,12 @@ describe("cadl: versioning", () => {
     });
 
     async function versionedInterface(versions: string[], iface: string) {
-      host.addCadlFile(
-        "main.cadl",
-        `
-          import "@cadl-lang/versioning";
-          @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
-          namespace MyService;
+      const { Test } = (await runner.compile(`
+        @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+        namespace MyService;
 
-          @test ${iface}
-          `
-      );
-
-      const { Test } = (await host.compile("./main.cadl")) as { Test: InterfaceType };
+        @test ${iface}
+      `)) as { Test: InterfaceType };
 
       return {
         source: Test,
@@ -614,18 +589,12 @@ describe("cadl: versioning", () => {
     });
 
     async function versionedEnum(versions: string[], enumCode: string) {
-      host.addCadlFile(
-        "main.cadl",
-        `
-      import "@cadl-lang/versioning";
-      @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
-      namespace MyService;
+      const { Test } = (await runner.compile(`
+        @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+        namespace MyService;
 
-      @test ${enumCode}
-      `
-      );
-
-      const { Test } = (await host.compile("./main.cadl")) as { Test: EnumType };
+        @test ${enumCode}
+      `)) as { Test: EnumType };
 
       return {
         source: Test,
@@ -720,7 +689,7 @@ describe("cadl: versioning", () => {
       projectionName: "v",
       direction,
     };
-    const projector = host.program.enableProjections([projection], target);
+    const projector = runner.program.enableProjections([projection], target);
     return projector.projectedTypes.get(target) as T;
   }
 });

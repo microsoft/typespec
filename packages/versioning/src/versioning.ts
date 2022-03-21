@@ -170,6 +170,13 @@ export function $versionedDependency(
   }
 }
 
+export function getVersionDependencies(
+  p: Program,
+  namespace: NamespaceType
+): Map<NamespaceType, Map<string, string> | string> | undefined {
+  return p.stateMap(versionDependencyKey).get(namespace);
+}
+
 export function $onValidate(program: Program) {
   navigateProgram(program, {
     namespace: (namespace) => {
@@ -200,13 +207,6 @@ export function $onValidate(program: Program) {
       }
     },
   });
-}
-
-export function getVersionDependencies(
-  p: Program,
-  namespace: NamespaceType
-): Map<NamespaceType, Map<string, string> | string> | undefined {
-  return p.stateMap(versionDependencyKey).get(namespace);
 }
 
 interface VersionRecord {
