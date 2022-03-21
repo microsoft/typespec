@@ -4,7 +4,7 @@ import { ok, strictEqual } from "assert";
 import { getVersionRecords } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 
-describe.only("cadl: versioning: depdendencies", () => {
+describe("cadl: versioning: depdendencies", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
