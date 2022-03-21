@@ -1,0 +1,11 @@
+import "@cadl-lang/versioning";
+import "@cadl-lang/rest";
+import "./library.cadl";
+
+// Use version 1.0 of the Library
+@serviceTitle("Pet Store Service")
+@versionedDependency(Library, "1.0")
+namespace VersionedApi;
+using Cadl.Http;
+
+op read(): Library.PetToy;

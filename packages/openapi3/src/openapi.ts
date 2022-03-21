@@ -258,7 +258,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         });
       }
 
-      if (record.version !== undefined) {
+      if (record.projections.length > 0) {
         program.enableProjections(record.projections);
       }
 

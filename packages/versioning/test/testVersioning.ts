@@ -17,6 +17,7 @@ describe("cadl: versioning", () => {
   beforeEach(async () => {
     host = await createVersioningTestHost();
   });
+
   describe("version compare", () => {
     it("compares arbitrary types in order", async () => {
       host.addCadlFile(
