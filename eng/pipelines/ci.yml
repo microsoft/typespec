@@ -39,11 +39,11 @@ jobs:
 
       - task: AzureFileCopy@4
         inputs:
-          SourcePath: "packages/playground/dist/**/*"
+          sourcePath: "packages/playground/dist/*"
           azureSubscription: "Azure SDK Playground"
-          Destination: "AzureBlob"
+          destination: "AzureBlob"
           storage: "cadlplayground"
-          ContainerName: "$web"
+          containerName: "$web"
         displayName: "Update playground"
 
   - job: docker
