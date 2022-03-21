@@ -25,6 +25,16 @@ describe.only("cadl: versioning: depdendencies", () => {
     );
   });
 
+  function assertFooV1(foo: ModelType) {
+    ok(foo.properties.has("name"));
+    ok(!foo.properties.has("age"), "Age was added in version 2 and version 1 was selected.");
+  }
+
+  function assertFooV2(Foo: ModelType) {
+    ok(Foo.properties.has("name"));
+    ok(Foo.properties.has("age"), "Age was added in version 2 and version 1 was selected.");
+  }
+
   describe("when project is not-versioned", () => {
     it("use a versioned library given version", async () => {
       const { MyService, Test } = (await runner.compile(`
@@ -41,8 +51,7 @@ describe.only("cadl: versioning: depdendencies", () => {
       const projector = runner.program.enableProjections(versions[0].projections, Test);
       const Foo = (projector.projectedTypes.get(Test) as any).baseModel;
 
-      ok(Foo.properties.has("name"));
-      ok(!Foo.properties.has("age"), "Age was added in version 2 and version 1 was selected.");
+      assertFooV1(Foo);
     });
 
     it("emit diagnostic if passing version mapping", async () => {
@@ -66,8 +75,7 @@ describe.only("cadl: versioning: depdendencies", () => {
         @versioned("v1" | "v2")
         @versionedDependency(VersionedLib, {v1: "1", v2: "2"})
         @test namespace MyService {
-          @test model Test extends VersionedLib.Foo {
-          }
+          @test model Test extends VersionedLib.Foo {}
         } 
     `)) as { MyService: NamespaceType; Test: ModelType };
       const versions = getVersionRecords(runner.program, MyService);
@@ -78,14 +86,11 @@ describe.only("cadl: versioning: depdendencies", () => {
       const projectorV1 = runner.program.enableProjections(versions[0].projections, Test);
       const FooV1 = (projectorV1.projectedTypes.get(Test) as any).baseModel;
 
-      ok(FooV1.properties.has("name"));
-      ok(!FooV1.properties.has("age"), "Age was added in version 2 and version 1 was selected.");
+      assertFooV1(FooV1);
 
       const projectorV2 = runner.program.enableProjections(versions[1].projections, Test);
       const FooV2 = (projectorV2.projectedTypes.get(Test) as any).baseModel;
-
-      ok(FooV2.properties.has("name"));
-      ok(FooV2.properties.has("age"));
+      assertFooV2(FooV2);
     });
 
     it("emit diagnostic if passing a specific version", async () => {
