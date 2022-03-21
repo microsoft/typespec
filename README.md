@@ -92,7 +92,8 @@ using the preview.
 
    This will compile the Cadl files in the project folder into one output file: `.\cadl-output\openapi.json`.
 
-8. Using `--emit` every time can become tedious. You can create a project file to configure the default emitter
+8. Using `--emit` every time can become tedious. You can create a project file to configure the default emitter.
+
    Create a `cadl-project.yaml` file next to the `package.json` with this content:
 
    ```yaml
@@ -122,7 +123,6 @@ Here is a very small Cadl example that uses the `@cadl-lang/openapi3` library to
 
 ```cadl
 import "@cadl-lang/rest";
-import "@cadl-lang/openapi3";
 
 using Cadl.Http;
 
