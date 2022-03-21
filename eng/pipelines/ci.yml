@@ -40,7 +40,7 @@ jobs:
       - task: AzureFileCopy@4
         inputs:
           SourcePath: "packages/playground/dist/"
-          azureSubscription: "Azure SDK Developer Playground(faa080af-c1d8-40ad-9cce-e1a450ca5b57)"
+          azureSubscription: "Azure SDK Playground"
           Destination: "AzureBlob"
           storage: "cadlplayground"
           ContainerName: "$web"
