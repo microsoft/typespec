@@ -298,7 +298,7 @@ describe("openapi3: return types", () => {
     `
     );
     expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-response" }]);
-    strictEqual(diagnostics[0].message, "Multiple return types for status code 200");
+    strictEqual(diagnostics[0].message, "Multiple return types for content type application/json and status code 200");
   });
 
   it("issues diagnostics for invalid status codes", async () => {
@@ -595,6 +595,38 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(`@get op read(): {@body body: void};`);
     ok(res.paths["/"].get.responses["204"]);
   });
+
+  describe("multiple content types", () => {
+    it("handles multiple content types for the same status code", async () => {
+      const res = await openApiFor(
+        `@get op read():
+          | { @body body: {} }
+          | {@header contentType: "text/plain", @body body: string };
+        `);
+      ok(res.paths["/"].get.responses[200].content["application/json"]);
+      ok(res.paths["/"].get.responses[200].content["text/plain"]);
+    });
+
+    it("merges headers from multiple responses", async () => {
+      const res = await openApiFor(
+        `@get op read():
+          | { @body body: {}, @header foo: string }
+          | {@header contentType: "text/plain", @body body: string, @header bar: string };
+        `);
+      ok(res.paths["/"].get.responses[200].headers["foo"]);
+      ok(res.paths["/"].get.responses[200].headers["bar"]);
+    })
+
+    it("issues a diagnostic for duplicate headers across responses", async () => {
+      const diagnostics = await checkFor(
+        `@get op read():
+          | { @body body: {}, @header foo: string }
+          | {@header contentType: "text/plain", @body body: string, @header foo: string };
+        `);
+      expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-header" }]);
+    });
+  });
+
 
   describe("binary responses", () => {
     it("bytes responses should default to application/json with byte format", async () => {
