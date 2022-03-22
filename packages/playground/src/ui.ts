@@ -66,7 +66,7 @@ export function createUI(host: BrowserHost) {
 
   document.getElementById("share")?.addEventListener("click", saveCode);
   document.getElementById("newIssue")?.addEventListener("click", newIssue);
-  document.getElementById("format")?.addEventListener("click", format);
+
   initSamples();
   doCompile();
 
