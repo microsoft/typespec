@@ -621,3 +621,25 @@ export function isKey(program: Program, property: ModelTypeProperty) {
 export function getKeyName(program: Program, property: ModelTypeProperty): string {
   return program.stateMap(keyKey).get(property);
 }
+
+export function $rename({ program }: DecoratorContext, entity: Type, newName: Type) {
+  if (newName.kind === "TemplateParameter") {
+    // Don't execute when this decorator is being applied within a templated type
+    return;
+  }
+
+  if (
+    !validateDecoratorTarget(program, entity, "@rename", ["Model", "ModelProperty", "Operation"])
+  ) {
+    // TODO: Diagnostic
+    return;
+  }
+
+  if (!validateDecoratorParamType(program, entity, newName, "String")) {
+    // TODO: Diagnostic
+    return;
+  }
+
+  // Set the name on any of the supported types
+  (entity as any).name = newName;
+}

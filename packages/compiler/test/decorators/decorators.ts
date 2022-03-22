@@ -255,4 +255,53 @@ describe("compiler: built-in decorators", () => {
       strictEqual(getKeyName(runner.program, prop), "alternateName");
     });
   });
+
+  describe("@rename", async () => {
+    it("renames model types", async () => {
+      const { testOp } = await runner.compile(`
+        @rename(ModelName)
+        model RenamedModel<ModelName> {
+          stuff: string;
+        }
+
+        @test
+        op testOp(renamed: RenamedModel<"NewNameModel">): string;
+      `);
+
+      ok(testOp.kind === "Operation", "should be an operation");
+      const renamedModel = testOp.parameters.properties!.get("renamed")?.type;
+      strictEqual((renamedModel as ModelType).name, "NewNameModel");
+    });
+
+    it("renames model properties", async () => {
+      const { TestModel } = await runner.compile(`
+        model RenamedProperty<PropertyName> {
+          @rename(PropertyName)
+          renameMe: string;
+        }
+
+        @test
+        model TestModel is RenamedProperty<"renamedProperty"> {}
+      `);
+
+      ok(TestModel.kind === "Model", "should be a model");
+      strictEqual(TestModel.properties.get("renamedProperty")?.name, "renamedProperty");
+    });
+
+    it("renames interface operations", async () => {
+      const { UsingIt } = await runner.compile(`
+        interface RenamedOperation<OpName> {
+          @rename(OpName)
+          renameMe(whoa: string): string;
+        }
+
+        @test
+        interface UsingIt mixes RenamedOperation<"theOperationFormerlyKnownAsRenameMe"> {
+        }
+      `);
+
+      ok(UsingIt.kind === "Interface", "should be an interface");
+      strictEqual(UsingIt.operations.has("theOperationFormerlyKnownAsRenameMe"), true);
+    });
+  });
 });
