@@ -359,24 +359,24 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     );
   }
 
-  function emitResponseObject(response: HttpOperationResponse) {
+  function emitResponseObject(response: Readonly<HttpOperationResponse>) {
     const statusCode =
-      response.statusCode ?? isErrorModel(program, response.type) ? "default" : "200";
+      response.statusCode ?? (isErrorModel(program, response.type) ? "default" : "200");
     const openapiResponse = currentEndpoint.responses[statusCode] ?? {
       description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
     };
 
     if (response.headers) {
-      response.headers = {};
+      openapiResponse.headers = {};
 
       for (const [key, value] of Object.entries(response.headers)) {
-        response.headers[key] = getResponseHeader(value);
+        openapiResponse.headers[key] = getResponseHeader(value);
       }
     }
 
     if (response.body !== undefined) {
+      openapiResponse.content = {};
       for (const [contentType, bodyModel] of Object.entries(response.body)) {
-        openapiResponse.content = {};
         const isBinary = isBinaryPayload(bodyModel, contentType);
         const schema = isBinary ? { type: "string", format: "binary" } : getSchemaOrRef(bodyModel!);
         openapiResponse.content[contentType] = { schema };

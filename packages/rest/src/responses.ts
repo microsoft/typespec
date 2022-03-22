@@ -107,10 +107,7 @@ function processResponseType(
     contentTypes.push("application/json");
   }
 
-  // Assertion: bodyModel <=> contentTypes.length > 0
-
   // Put them into currentEndpoint.responses
-
   for (const statusCode of statusCodes) {
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.

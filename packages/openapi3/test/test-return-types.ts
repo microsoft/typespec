@@ -338,37 +338,6 @@ describe("openapi3: return types", () => {
     ok(diagnostics[2].message.includes("must be a numeric or string literal"));
   });
 
-  it("issues diagnostics for invalid content types", async () => {
-    const diagnostics = await checkFor(
-      `
-      model Foo {
-        foo: string;
-      }
-
-      model TextPlain {
-        contentType: "text/plain";
-      }
-
-      namespace root {
-        @route("/test1")
-        @get
-        op test1(): { @header contentType: string, @body body: Foo };
-        @route("/test2")
-        @get
-        op test2(): { @header contentType: 42, @body body: Foo };
-        @route("/test3")
-        @get
-        op test3(): { @header contentType: "application/json" | TextPlain, @body body: Foo };
-      }
-    `
-    );
-    expectDiagnostics(diagnostics, [
-      { code: "@cadl-lang/openapi3/content-type-string" },
-      { code: "@cadl-lang/openapi3/content-type-string" },
-      { code: "@cadl-lang/openapi3/content-type-string" },
-    ]);
-  });
-
   it("defines responses with primitive types", async () => {
     const res = await openApiFor(
       `
@@ -489,7 +458,7 @@ describe("openapi3: return types", () => {
     });
   });
 
-  it("defaults status code to default when model has @error decorator and explicit body", async () => {
+  it.only("defaults status code to default when model has @error decorator and explicit body", async () => {
     const res = await openApiFor(
       `
       @error
