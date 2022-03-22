@@ -316,6 +316,21 @@ describe("openapi3: definitions", () => {
     deepStrictEqual(res.schemas.PetType.enum, ["Dog", "Cat"]);
   });
 
+  it("defines enum types with custom values", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      enum PetType {
+        Dog: 0, Cat: 1
+      }
+      model Pet { type: PetType };
+      `
+    );
+    ok(res.isRef);
+    strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
+    deepStrictEqual(res.schemas.PetType.enum, [0, 1]);
+  });
+
   it("defines known values", async () => {
     const res = await oapiForModel(
       "Pet",
