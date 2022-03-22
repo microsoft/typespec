@@ -1,7 +1,8 @@
-import { compile, getSourceLocation } from "@cadl-lang/compiler";
+import { CadlPrettierPlugin, compile, getSourceLocation } from "@cadl-lang/compiler";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
 import * as monaco from "monaco-editor";
+import prettier from "prettier";
 import { BrowserHost } from "./browserHost";
 import { samples } from "./samples";
 import "./style.css";
@@ -31,6 +32,12 @@ export function createUI(host: BrowserHost) {
     },
   });
 
+  // Add shortcuts
+  // ctrl/cmd+shift+F => format
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, format);
+  // alt+shift+F => format
+  editor.addCommand(monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, format);
+
   const output = monaco.editor.create(document.getElementById("output")!, {
     readOnly: true,
     language: "json",
@@ -59,6 +66,7 @@ export function createUI(host: BrowserHost) {
 
   document.getElementById("share")?.addEventListener("click", saveCode);
   document.getElementById("newIssue")?.addEventListener("click", newIssue);
+  document.getElementById("format")?.addEventListener("click", format);
   initSamples();
   doCompile();
 
@@ -163,5 +171,14 @@ export function createUI(host: BrowserHost) {
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
     const url = `https://github.com/microsoft/cadl/issues/new?body=${bodyPayload}`;
     window.open(url, "_blank");
+  }
+
+  function format() {
+    const code = mainModel.getValue();
+    const output = prettier.format(code, {
+      parser: "cadl",
+      plugins: [CadlPrettierPlugin],
+    });
+    mainModel.setValue(output);
   }
 }
