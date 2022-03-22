@@ -884,7 +884,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         continue;
       }
 
-      values.push(option.value ? option.value : option.name);
+      values.push(option.value ?? option.name);
     }
 
     const schema: any = { type, description: getDoc(program, e) };
@@ -894,8 +894,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     return schema;
     function enumMemberType(member: EnumMemberType) {
-      if (!member.value || typeof member.value === "string") return "string";
-      return "number";
+      if (typeof member.value === "number") {
+        return "number";
+      }
+      return "string";
     }
 
     function reportUnsupportedUnion(messageId: "default" | "empty" = "default") {
