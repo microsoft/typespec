@@ -1,5 +1,6 @@
 import {
   getDoc,
+  isErrorModel,
   isIntrinsic,
   isVoidType,
   ModelType,
@@ -18,15 +19,14 @@ import {
   isStatusCode,
 } from "./http.js";
 
+export type StatusCode = `${number}` | "*";
 export interface HttpOperationResponse {
-  statusCode: string | undefined;
+  statusCode: StatusCode;
   type: Type;
   description?: string;
   headers?: Record<string, ModelTypeProperty>;
   body?: Record<string, Type>;
 }
-
-const NoStatusCode = Symbol("NoStatusCode");
 
 /**
  * Get the responses for a given operation.
@@ -45,23 +45,16 @@ export function getResponsesForOperation(
     processResponseType(program, responses, responseType);
   }
 
-  const result = Object.values(responses);
-  if (responses[NoStatusCode]) {
-    result.push(responses[NoStatusCode]);
-  }
-  return result;
+  return Object.values(responses);
 }
 
 function processResponseType(
   program: Program,
-  responses: Record<string | typeof NoStatusCode, HttpOperationResponse>,
+  responses: Record<string, HttpOperationResponse>,
   responseModel: Type
 ) {
   // Get explicity defined status codes
-  const statusCodes: Array<string | typeof NoStatusCode> = getResponseStatusCodes(
-    program,
-    responseModel
-  );
+  const statusCodes: Array<string> = getResponseStatusCodes(program, responseModel);
 
   // Get explicitly defined content types
   const contentTypes = getResponseContentTypes(program, responseModel);
@@ -97,8 +90,10 @@ function processResponseType(
   if (statusCodes.length === 0) {
     if (bodyModel === undefined || isVoidType(bodyModel)) {
       statusCodes.push("204");
+    } else if (isErrorModel(program, responseModel)) {
+      statusCodes.push("*");
     } else {
-      statusCodes.push(NoStatusCode);
+      statusCodes.push("200");
     }
   }
 
@@ -112,7 +107,7 @@ function processResponseType(
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.
     const response: HttpOperationResponse = responses[statusCode] ?? {
-      statusCode: statusCode === NoStatusCode ? undefined : statusCode,
+      statusCode: statusCode,
       type: responseModel,
       description: getResponseDescription(program, responseModel, statusCode),
     };
@@ -177,6 +172,7 @@ function getResponseStatusCodes(program: Program, responseModel: Type): string[]
     if (responseModel.baseModel) {
       codes.push(...getResponseStatusCodes(program, responseModel.baseModel));
     }
+    codes.push(...getStatusCodes(program, responseModel));
     for (const prop of responseModel.properties.values()) {
       if (isStatusCode(program, prop)) {
         codes.push(...getStatusCodes(program, prop));
@@ -274,14 +270,7 @@ function getResponseBody(program: Program, responseModel: Type): Type | undefine
   return undefined;
 }
 
-function getResponseDescription(
-  program: Program,
-  responseModel: Type,
-  statusCode: string | typeof NoStatusCode
-) {
-  if (statusCode === NoStatusCode) {
-    return undefined;
-  }
+function getResponseDescription(program: Program, responseModel: Type, statusCode: string) {
   const desc = getDoc(program, responseModel);
   if (desc) {
     return desc;

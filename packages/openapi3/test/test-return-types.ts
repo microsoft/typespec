@@ -262,48 +262,6 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["200"].content["text/csv"]);
   });
 
-  it("issues diagnostics for duplicate body decorator", async () => {
-    const diagnostics = await checkFor(
-      `
-      model Foo {
-        foo: string;
-      }
-      model Bar {
-        bar: string;
-      }
-      @route("/")
-      namespace root {
-        @get
-        op read(): { @body body1: Foo, @body body2: Bar };
-      }
-      `
-    );
-    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-body" }]);
-  });
-
-  it("issues diagnostics for return type with duplicate status code", async () => {
-    const diagnostics = await checkFor(
-      `
-    model Foo {
-      foo: string;
-    }
-    model Error {
-      code: string;
-    }
-    @route("/")
-    namespace root {
-      @get
-      op read(): Foo | Error;
-    }
-    `
-    );
-    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-response" }]);
-    strictEqual(
-      diagnostics[0].message,
-      "Multiple return types for content type application/json and status code 200"
-    );
-  });
-
   it("issues diagnostics for invalid status codes", async () => {
     const diagnostics = await checkFor(
       `
@@ -458,7 +416,7 @@ describe("openapi3: return types", () => {
     });
   });
 
-  it.only("defaults status code to default when model has @error decorator and explicit body", async () => {
+  it("defaults status code to default when model has @error decorator and explicit body", async () => {
     const res = await openApiFor(
       `
       @error

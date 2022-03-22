@@ -25,7 +25,6 @@ import {
   getServiceVersion,
   getSummary,
   getVisibility,
-  isErrorModel,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -60,10 +59,7 @@ const {
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
-  isBody,
-  isHeader,
   isStatusCode,
-  getStatusCodes,
   getStatusCodeDescription,
 } = http;
 
@@ -359,9 +355,17 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     );
   }
 
+  function getOpenAPIStatuscode(response: HttpOperationResponse): string {
+    switch (response.statusCode) {
+      case "*":
+        return "default";
+      default:
+        return response.statusCode;
+    }
+  }
+
   function emitResponseObject(response: Readonly<HttpOperationResponse>) {
-    const statusCode =
-      response.statusCode ?? (isErrorModel(program, response.type) ? "default" : "200");
+    const statusCode = getOpenAPIStatuscode(response);
     const openapiResponse = currentEndpoint.responses[statusCode] ?? {
       description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
     };
