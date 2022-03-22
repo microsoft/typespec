@@ -27,24 +27,28 @@ export const libDef = {
         default: "Duplicate @body declarations on response type",
       },
     },
+    // TODO-REMOVE moved to rest lib
     "duplicate-response": {
       severity: "error",
       messages: {
         default: paramMessage`Multiple return types for content type ${"contentType"} and status code ${"statusCode"}`,
       },
     },
+    // TODO-REMOVE moved to rest lib
     "duplicate-header": {
       severity: "error",
       messages: {
         default: paramMessage`The header ${"header"} is defined across multiple content types`,
       },
     },
+    // TODO-REMOVE moved to rest lib
     "content-type-ignored": {
       severity: "warning",
       messages: {
         default: "content-type header ignored because return type has no body",
       },
     },
+    // TODO-REMOVE  moved to rest lib
     "content-type-string": {
       severity: "error",
       messages: {

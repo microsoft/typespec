@@ -95,6 +95,30 @@ const libDefinition = {
         value: "statusCode value must be a three digit code between 100 and 599",
       },
     },
+    "content-type-string": {
+      severity: "error",
+      messages: {
+        default: "contentType parameter must be a string literal or union of string literals",
+      },
+    },
+    "duplicate-response": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple return types for content type ${"contentType"} and status code ${"statusCode"}`,
+      },
+    },
+    "duplicate-header": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The header ${"header"} is defined across multiple content types`,
+      },
+    },
+    "content-type-ignored": {
+      severity: "warning",
+      messages: {
+        default: "content-type header ignored because return type has no body",
+      },
+    },
   },
 } as const;
 

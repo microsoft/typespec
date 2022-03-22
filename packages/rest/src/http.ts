@@ -150,7 +150,7 @@ export function isStatusCode(program: Program, entity: Type) {
   return program.stateMap(statusCodeKey).has(entity);
 }
 
-export function getStatusCodes(program: Program, entity: Type) {
+export function getStatusCodes(program: Program, entity: Type): string[] {
   return program.stateMap(statusCodeKey).get(entity);
 }
 
