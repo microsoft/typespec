@@ -190,7 +190,7 @@ function getResponseContentTypes(program: Program, responseModel: Type): string[
   return contentTypes;
 }
 
-function getContentTypes(program: Program, param: ModelTypeProperty): string[] {
+export function getContentTypes(program: Program, param: ModelTypeProperty): string[] {
   if (param.type.kind === "String") {
     return [param.type.value];
   } else if (param.type.kind === "Union") {

@@ -45,6 +45,7 @@ import {
 import { getExtensions, getExternalDocs, getOperationId } from "@cadl-lang/openapi";
 import {
   getAllRoutes,
+  getContentTypes,
   getDiscriminator,
   http,
   HttpOperationParameter,
@@ -554,7 +555,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       (p) => p.type === "header" && p.name === "content-type"
     );
     const contentTypes = contentTypeParam
-      ? getContentTypes(contentTypeParam.param)
+      ? getContentTypes(program, contentTypeParam.param)
       : ["application/json"];
     for (const contentType of contentTypes) {
       const isBinary = isBinaryPayload(bodyType, contentType);
@@ -566,31 +567,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     currentEndpoint.requestBody = requestBody;
-  }
-
-  function getContentTypes(param: ModelTypeProperty): string[] {
-    if (param.type.kind === "String") {
-      return [param.type.value];
-    } else if (param.type.kind === "Union") {
-      const contentTypes = [];
-      for (const option of param.type.options) {
-        if (option.kind === "String") {
-          contentTypes.push(option.value);
-        } else {
-          reportDiagnostic(program, {
-            code: "content-type-string",
-            target: param,
-          });
-          continue;
-        }
-      }
-
-      return contentTypes;
-    }
-
-    reportDiagnostic(program, { code: "content-type-string", target: param });
-
-    return [];
   }
 
   function emitParameter(parent: ModelType | undefined, param: ModelTypeProperty, kind: string) {

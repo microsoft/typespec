@@ -33,12 +33,6 @@ export const libDef = {
         default: paramMessage`The header ${"header"} is defined across multiple content types`,
       },
     },
-    "content-type-string": {
-      severity: "error",
-      messages: {
-        default: "contentType parameter must be a string literal or union of string literals",
-      },
-    },
     "status-code-in-default-response": {
       severity: "error",
       messages: {
