@@ -370,22 +370,36 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
     };
 
-    if (response.headers) {
-      openapiResponse.headers = {};
+    for (const data of response.responses) {
+      if (data.headers) {
+        openapiResponse.headers ??= {};
+        // OpenAPI can't represent different headers per content type.
+        // So we merge headers here, and report any duplicates.
+        // It may be possible in principle to not error for identically declared
+        // headers.
+        for (const [key, value] of Object.entries(data.headers)) {
+          if (openapiResponse.headers[key]) {
+            reportDiagnostic(program, {
+              code: "duplicate-header",
+              format: { header: key },
+              target: response.type,
+            });
+            continue;
+          }
+          openapiResponse.headers[key] = getResponseHeader(value);
+        }
+      }
 
-      for (const [key, value] of Object.entries(response.headers)) {
-        openapiResponse.headers[key] = getResponseHeader(value);
+      if (data.body !== undefined) {
+        openapiResponse.content ??= {};
+        const isBinary = isBinaryPayload(data.body.type, data.body.contentType);
+        const schema = isBinary
+          ? { type: "string", format: "binary" }
+          : getSchemaOrRef(data.body.type);
+        openapiResponse.content[data.body.contentType] = { schema };
       }
     }
 
-    if (response.body !== undefined) {
-      openapiResponse.content = {};
-      for (const [contentType, bodyModel] of Object.entries(response.body)) {
-        const isBinary = isBinaryPayload(bodyModel, contentType);
-        const schema = isBinary ? { type: "string", format: "binary" } : getSchemaOrRef(bodyModel!);
-        openapiResponse.content[contentType] = { schema };
-      }
-    }
     currentEndpoint.responses[statusCode] = openapiResponse;
   }
 

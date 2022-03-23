@@ -107,12 +107,6 @@ const libDefinition = {
         default: paramMessage`Multiple return types for content type ${"contentType"} and status code ${"statusCode"}`,
       },
     },
-    "duplicate-header": {
-      severity: "error",
-      messages: {
-        default: paramMessage`The header ${"header"} is defined across multiple content types`,
-      },
-    },
     "content-type-ignored": {
       severity: "warning",
       messages: {

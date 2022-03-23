@@ -24,8 +24,17 @@ export interface HttpOperationResponse {
   statusCode: StatusCode;
   type: Type;
   description?: string;
+  responses: HttpOperationResponseContent[];
+}
+
+export interface HttpOperationResponseContent {
   headers?: Record<string, ModelTypeProperty>;
-  body?: Record<string, Type>;
+  body?: HttpOperationBody;
+}
+
+export interface HttpOperationBody {
+  contentType: string;
+  type: Type;
 }
 
 /**
@@ -110,52 +119,31 @@ function processResponseType(
       statusCode: statusCode,
       type: responseModel,
       description: getResponseDescription(program, responseModel, statusCode),
+      responses: [],
     };
 
     // check for duplicates
-    if (response.body) {
-      for (const contentType of contentTypes) {
-        if (response.body[contentType]) {
-          reportDiagnostic(program, {
-            code: "duplicate-response",
-            format: { statusCode: statusCode.toString(), contentType },
-            target: responseModel,
-          });
-        }
-      }
-    }
-
-    if (Object.keys(headers).length > 0) {
-      response.headers ??= {};
-
-      // OpenAPI can't represent different headers per content type.
-      // So we merge headers here, and report any duplicates.
-      // It may be possible in principle to not error for identically declared
-      // headers.
-      for (const [key, value] of Object.entries(headers)) {
-        if (response.headers[key]) {
-          reportDiagnostic(program, {
-            code: "duplicate-header",
-            format: { header: key },
-            target: responseModel,
-          });
-          continue;
-        }
-
-        response.headers[key] = value;
+    for (const contentType of contentTypes) {
+      if (response.responses.find((x) => x.body?.contentType === contentType)) {
+        reportDiagnostic(program, {
+          code: "duplicate-response",
+          format: { statusCode: statusCode.toString(), contentType },
+          target: responseModel,
+        });
       }
     }
 
     if (bodyModel !== undefined) {
       for (const contentType of contentTypes) {
-        response.body ??= {};
-        response.body[contentType] = bodyModel;
+        response.responses.push({ body: { contentType, type: bodyModel }, headers });
       }
     } else if (contentTypes.length > 0) {
       reportDiagnostic(program, {
         code: "content-type-ignored",
         target: responseModel,
       });
+    } else {
+      response.responses = [{ headers }];
     }
     responses[statusCode] = response;
   }

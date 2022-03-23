@@ -18,7 +18,7 @@ describe("cadl: rest: responses", () => {
       }
       `
     );
-    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-body" }]);
+    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/rest/duplicate-body" }]);
   });
 
   it("issues diagnostics for return type with duplicate status code", async () => {
@@ -38,7 +38,7 @@ describe("cadl: rest: responses", () => {
     `
     );
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/openapi3/duplicate-response",
+      code: "@cadl-lang/rest/duplicate-response",
       message: "Multiple return types for content type application/json and status code 200",
     });
   });
