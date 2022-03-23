@@ -372,7 +372,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     };
 
     for (const data of response.responses) {
-      if (data.headers) {
+      if (data.headers && Object.keys(data.headers).length > 0) {
         openapiResponse.headers ??= {};
         // OpenAPI can't represent different headers per content type.
         // So we merge headers here, and report any duplicates.

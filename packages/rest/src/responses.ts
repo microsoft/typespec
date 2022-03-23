@@ -1,5 +1,6 @@
 import {
   getDoc,
+  getIntrinsicModelName,
   isErrorModel,
   isIntrinsic,
   isVoidType,
@@ -48,6 +49,10 @@ export function getResponsesForOperation(
   const responses: Record<string | symbol, HttpOperationResponse> = {};
   if (responseType.kind === "Union") {
     for (const option of responseType.options) {
+      if (isNullType(program, option)) {
+        // TODO how should we treat this?
+        continue;
+      }
       processResponseType(program, responses, option);
     }
   } else {
@@ -55,6 +60,10 @@ export function getResponsesForOperation(
   }
 
   return Object.values(responses);
+}
+
+function isNullType(program: Program, type: Type): boolean {
+  return isIntrinsic(program, type) && getIntrinsicModelName(program, type) === "null";
 }
 
 function processResponseType(
@@ -258,11 +267,15 @@ function getResponseBody(program: Program, responseModel: Type): Type | undefine
   return undefined;
 }
 
-function getResponseDescription(program: Program, responseModel: Type, statusCode: string) {
+function getResponseDescription(
+  program: Program,
+  responseModel: Type,
+  statusCode: string
+): string | undefined {
   const desc = getDoc(program, responseModel);
   if (desc) {
     return desc;
   }
 
-  return getStatusCodeDescription(statusCode) ?? "unknown";
+  return getStatusCodeDescription(statusCode);
 }

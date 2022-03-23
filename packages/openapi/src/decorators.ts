@@ -69,6 +69,10 @@ export function $defaultResponse({ program }: DecoratorContext, entity: Type) {
   program.stateSet(defaultResponseKey).add(entity);
 }
 
+export function isDefaultResponse(program: Program, entity: Type): boolean {
+  return program.stateSet(defaultResponseKey).has(entity);
+}
+
 export interface ExternalDocs {
   url: string;
   description?: string;
