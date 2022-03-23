@@ -47,15 +47,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Ok",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Cadl.null"
-                }
-              }
-            }
+          "204": {
+            "description": "No Content"
           }
         },
         "tags": [
@@ -78,15 +71,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Ok",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Cadl.null"
-                }
-              }
-            }
+          "204": {
+            "description": "No Content"
           }
         },
         "tags": [
@@ -135,15 +121,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Ok",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Cadl.null"
-                }
-              }
-            }
+          "204": {
+            "description": "No Content"
           }
         },
         "tags": [
@@ -166,15 +145,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Ok",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Cadl.null"
-                }
-              }
-            }
+          "204": {
+            "description": "No Content"
           }
         },
         "tags": [
@@ -188,10 +160,6 @@
   },
   "components": {
     "schemas": {
-      "Cadl.null": {
-        "type": "object",
-        "properties": {}
-      },
       "Resp": {
         "type": "object",
         "properties": {

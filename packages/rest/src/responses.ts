@@ -50,7 +50,7 @@ export function getResponsesForOperation(
   if (responseType.kind === "Union") {
     for (const option of responseType.options) {
       if (isNullType(program, option)) {
-        // TODO how should we treat this?
+        // TODO how should we treat this? https://github.com/microsoft/cadl/issues/356
         continue;
       }
       processResponseType(program, responses, option);
