@@ -127,7 +127,7 @@
       "shouldPublish": true
     },
     {
-      "packageName": "cadl-playground",
+      "packageName": "@cadl-lang/playground",
       "projectFolder": "packages/playground",
       "reviewCategory": "production",
       "shouldPublish": false

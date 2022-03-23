@@ -77,7 +77,7 @@ function testBasicCurrentTgz(packages) {
 
   console.log("Generating package.json for basic-current");
   const packageJson = {
-    name: "current",
+    name: "@cadl-lang/e2e-test-basic-current",
     dependencies: {
       "@cadl-lang/compiler": packages["@cadl-lang/compiler"],
       "@cadl-lang/rest": packages["@cadl-lang/rest"],
