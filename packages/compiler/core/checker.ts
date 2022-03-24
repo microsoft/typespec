@@ -720,7 +720,8 @@ export function createChecker(program: Program): Checker {
       if (isErrorType(type)) {
         return errorType;
       } else {
-        throw new Error(
+        compilerAssert(
+          false,
           `Unexpected checker error. symbolLinks.instantiations was not defined for ${
             SyntaxKind[templateNode.kind]
           }`
