@@ -5,10 +5,12 @@ import {
   Expression,
   isIntrinsic,
   JsSourceFileNode,
+  NeverType,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
   SymbolFlags,
+  VoidType,
 } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { hasParseError, visitChildren } from "./parser.js";
@@ -33,7 +35,6 @@ import {
   InterfaceStatementNode,
   InterfaceType,
   IntersectionExpressionNode,
-  IntrinsicType,
   LiteralNode,
   LiteralType,
   MemberExpressionNode,
@@ -134,9 +135,9 @@ export interface Checker {
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
-  errorType: IntrinsicType;
-  voidType: IntrinsicType;
-  neverType: IntrinsicType;
+  errorType: ErrorType;
+  voidType: VoidType;
+  neverType: NeverType;
 }
 
 interface TypePrototype {

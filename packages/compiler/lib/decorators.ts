@@ -14,8 +14,10 @@ import {
   ModelType,
   ModelTypeProperty,
   NamespaceType,
+  NeverType,
   OperationType,
   Type,
+  VoidType,
 } from "../core/types.js";
 
 export const namespace = "Cadl";
@@ -123,6 +125,14 @@ export function isStringType(program: Program, target: Type): boolean {
 
 export function isErrorType(type: Type): boolean {
   return type.kind === "Intrinsic" && type.name === "ErrorType";
+}
+
+export function isVoidType(type: Type): type is VoidType {
+  return type.kind === "Intrinsic" && type.name === "void";
+}
+
+export function isNeverType(type: Type): type is NeverType {
+  return type.kind === "Intrinsic" && type.name === "never";
 }
 
 const numericTypesKey = Symbol();

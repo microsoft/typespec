@@ -18,7 +18,9 @@ using the preview.
 | [@cadl-lang/compiler][compiler_src]             | [Changelog][compiler_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/compiler)](https://www.npmjs.com/package/@cadl-lang/compiler)                         |
 | Cadl Libraries                                  |                              |                                                                                                                                    |
 | [@cadl-lang/rest][rest_src]                     | [Changelog][rest_chg]        | [![](https://img.shields.io/npm/v/@cadl-lang/rest)](https://www.npmjs.com/package/@cadl-lang/rest)                                 |
+| [@cadl-lang/openapi][openapi_src]               | [Changelog][openapi_chg]     | [![](https://img.shields.io/npm/v/@cadl-lang/openapi)](https://www.npmjs.com/package/@cadl-lang/openapi)                           |
 | [@cadl-lang/openapi3][openapi3_src]             | [Changelog][openapi3_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/openapi3)](https://www.npmjs.com/package/@cadl-lang/openapi3)                         |
+| [@cadl-lang/versioning][versioning_src]         | [Changelog][versioning_chg]  | [![](https://img.shields.io/npm/v/@cadl-lang/versioning)](https://www.npmjs.com/package/@cadl-lang/versioning)                     |
 | Cadl Tools                                      |                              |                                                                                                                                    |
 | [@cadl-lang/prettier-plugin-cadl][prettier_src] | [Changelog][prettier_chg]    | [![](https://img.shields.io/npm/v/@cadl-lang/prettier-plugin-cadl)](https://www.npmjs.com/package/@cadl-lang/prettier-plugin-cadl) |
 | [cadl-vs][cadl-vs_src]                          | [Changelog][cadl-vs_chg]     | [![](https://img.shields.io/npm/v/cadl-vs)](https://www.npmjs.com/package/cadl-vs)                                                 |
@@ -29,8 +31,12 @@ using the preview.
 [compiler_chg]: packages/compiler/CHANGELOG.md
 [rest_src]: packages/rest
 [rest_chg]: packages/rest/CHANGELOG.md
+[openapi_src]: packages/openapi
+[openapi_chg]: packages/openapi/CHANGELOG.md
 [openapi3_src]: packages/openapi3
 [openapi3_chg]: packages/openapi3/CHANGELOG.md
+[versioning_src]: packages/versioning
+[versioning_chg]: packages/versioning/CHANGELOG.md
 [prettier_src]: packages/prettier-plugin-cadl
 [prettier_chg]: packages/prettier-plugin-cadl/CHANGELOG.md
 [cadl-vs_src]: packages/cadl-vs
@@ -48,15 +54,19 @@ using the preview.
 
 ### Using Node & Npm
 
-1. Install [Node.js 14 LTS](https://nodejs.org/en/download/) and ensure you are able to run the `npm` command in a command prompt:
+1. Install [Node.js 16 LTS](https://nodejs.org/en/download/) and ensure you are able to run the `npm` command in a command prompt:
 
-   ```
+   ```bash
    npm --version
    ```
 
+   It is recommended to have npm 7+. To update npm run `npm install -g npm`
+
 2. Create a folder for your new Cadl project
 
-3. In a command prompt, run the following commands:
+3. **Via init command:** Run `npx -p @cadl-lang/compiler cadl init` > Select openapi3 library template.
+
+4. **Alternatively manually:** In a command prompt, run the following commands:
 
    ```
    cd path\to\cadl\project
@@ -67,22 +77,37 @@ using the preview.
 
    This will create a `package.json` file for your Cadl project and add the necessary Cadl dependencies to it.
 
-4. Install the Cadl extension for your editor of choice:
+5. Install the Cadl extension for your editor of choice:
 
    - [Instructions for Visual Studio](#installing-visual-studio-extension)
    - [Instructions for Visual Studio Code](#installing-vs-code-extension)
 
-5. Open the folder in your editor and create a new file with a `.cadl` extension
+6. Open the folder in your editor and create a new file `main.cadl`
 
-6. [Follow our tutorial](docs/tutorial.md) to get started writing Cadl!
+7. [Follow our tutorial](docs/tutorial.md) to get started writing Cadl!
 
-7. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
+8. Once you're ready to compile your Cadl to Swagger, save the file and type this at the command prompt in your project folder:
 
    ```
-   npx cadl compile .
+   npx cadl compile . --emit @cadl-lang/openapi3
    ```
 
    This will compile the Cadl files in the project folder into one output file: `.\cadl-output\openapi.json`.
+
+9. Using `--emit` every time can become tedious. You can create a project file to configure the default emitter.
+
+Create a `cadl-project.yaml` file next to the `package.json` with this content:
+
+```yaml
+emitters:
+  "@cadl-lang/openapi3": true
+```
+
+After you should be able to just run `npx cadl compile .`
+
+## Troubleshooting
+
+[See common issues here](./troubleshooting.md)
 
 ## Usage
 
@@ -100,7 +125,6 @@ Here is a very small Cadl example that uses the `@cadl-lang/openapi3` library to
 
 ```cadl
 import "@cadl-lang/rest";
-import "@cadl-lang/openapi3";
 
 using Cadl.Http;
 
@@ -116,7 +140,7 @@ namespace Example {
 You can compile it to OpenAPI 3.0 by using the following command:
 
 ```
-cadl compile sample.cadl
+cadl compile sample.cadl --emit @cadl-lang/openapi3
 ```
 
 Once it compiles, you can find the emitted OpenAPI document in `./cadl-output/openapi.json.

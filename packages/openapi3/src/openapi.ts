@@ -31,6 +31,7 @@ import {
   isNumericType,
   isSecret,
   isStringType,
+  isVoidType,
   mapChildModels,
   ModelType,
   ModelTypeProperty,
@@ -381,7 +382,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     // Get explicitly defined body
     let bodyModel = getResponseBody(responseModel);
-
     // If there is no explicit body, it should be conjured from the return type
     // if it is a primitive type or it contains more than just response metadata
     if (!bodyModel) {
@@ -406,16 +406,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     // If there is no explicit status code, set the default
     if (statusCodes.length === 0) {
-      if (bodyModel) {
-        const defaultStatusCode = isErrorModel(program, responseModel) ? "default" : "200";
-        statusCodes.push(defaultStatusCode);
-      } else {
-        statusCodes.push("204");
-      }
+      statusCodes.push(getDefaultStatusCode(responseModel, bodyModel));
     }
 
     // If there is a body but no explicit content types, use application/json
-    if (bodyModel && contentTypes.length === 0) {
+    if (bodyModel && !isVoidType(bodyModel) && contentTypes.length === 0) {
       contentTypes.push("application/json");
     }
 
@@ -431,19 +426,44 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     // Put them into currentEndpoint.responses
 
     for (const statusCode of statusCodes) {
-      if (currentEndpoint.responses[statusCode]) {
-        reportDiagnostic(program, {
-          code: "duplicate-response",
-          format: { statusCode },
-          target: responseModel,
-        });
-        continue;
-      }
-      const response: any = {
+      // the first model for this statusCode/content type pair carries the
+      // description for the endpoint. This could probably be improved.
+      const response = currentEndpoint.responses[statusCode] ?? {
         description: getResponseDescription(responseModel, statusCode),
       };
+
+      // check for duplicates
+      if (response.content) {
+        for (const contentType of contentTypes) {
+          if (response.content[contentType]) {
+            reportDiagnostic(program, {
+              code: "duplicate-response",
+              format: { statusCode, contentType },
+              target: responseModel,
+            });
+          }
+        }
+      }
+
       if (Object.keys(headers).length > 0) {
-        response.headers = headers;
+        response.headers ??= {};
+
+        // OpenAPI can't represent different headers per content type.
+        // So we merge headers here, and report any duplicates.
+        // It may be possible in principle to not error for identically declared
+        // headers.
+        for (const [key, value] of Object.entries(headers)) {
+          if (response.headers[key]) {
+            reportDiagnostic(program, {
+              code: "duplicate-header",
+              format: { header: key },
+              target: responseModel,
+            });
+            continue;
+          }
+
+          response.headers[key] = value;
+        }
       }
 
       for (const contentType of contentTypes) {
@@ -453,6 +473,18 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         response.content[contentType] = { schema };
       }
       currentEndpoint.responses[statusCode] = response;
+    }
+  }
+
+  /**
+   * Return the default status code for the given response/body
+   * @param model representing the body
+   */
+  function getDefaultStatusCode(responseModel: Type, bodyModel: Type | undefined) {
+    if (bodyModel === undefined || isVoidType(bodyModel)) {
+      return "204";
+    } else {
+      return isErrorModel(program, responseModel) ? "default" : "200";
     }
   }
 
@@ -854,7 +886,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         continue;
       }
 
-      values.push(option.value ? option.value : option.name);
+      values.push(option.value ?? option.name);
     }
 
     const schema: any = { type, description: getDoc(program, e) };
@@ -864,8 +896,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     return schema;
     function enumMemberType(member: EnumMemberType) {
-      if (!member.value || typeof member.value === "string") return "string";
-      return "number";
+      if (typeof member.value === "number") {
+        return "number";
+      }
+      return "string";
     }
 
     function reportUnsupportedUnion(messageId: "default" | "empty" = "default") {
