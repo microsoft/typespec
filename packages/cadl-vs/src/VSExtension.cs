@@ -156,7 +156,7 @@ namespace Microsoft.Cadl.VisualStudio {
       }
 #endif
 
-      var serverPath = settings.Property<string>("cadl.cadl-server.path");
+      var serverPath = settings?.Property<string>("cadl.cadl-server.path");
       if (serverPath == null) {
         return ("cadl-server.cmd", args);
       }
