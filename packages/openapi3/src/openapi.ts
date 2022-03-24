@@ -420,20 +420,46 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     // Put them into currentEndpoint.responses
 
     for (const statusCode of statusCodes) {
-      if (currentEndpoint.responses[statusCode]) {
-        reportDiagnostic(program, {
-          code: "duplicate-response",
-          format: { statusCode },
-          target: responseModel,
-        });
-        continue;
-      }
-      const response: any = {
+      // the first model for this statusCode/content type pair carries the
+      // description for the endpoint. This could probably be improved.
+      const response = currentEndpoint.responses[statusCode] ?? {
         description: getResponseDescription(responseModel, statusCode),
       };
-      if (Object.keys(headers).length > 0) {
-        response.headers = headers;
+
+      // check for duplicates
+      if (response.content) {
+        for (const contentType of contentTypes) {
+          if (response.content[contentType]) {
+            reportDiagnostic(program, {
+              code: "duplicate-response",
+              format: { statusCode, contentType },
+              target: responseModel,
+            });
+          }
+        }
       }
+
+      if (Object.keys(headers).length > 0) {
+        response.headers ??= {};
+
+        // OpenAPI can't represent different headers per content type.
+        // So we merge headers here, and report any duplicates.
+        // It may be possible in principle to not error for identically declared
+        // headers.
+        for (const [key, value] of Object.entries(headers)) {
+          if (response.headers[key]) {
+            reportDiagnostic(program, {
+              code: "duplicate-header",
+              format: { header: key },
+              target: responseModel,
+            });
+            continue;
+          }
+
+          response.headers[key] = value;
+        }
+      }
+
       for (const contentType of contentTypes) {
         response.content ??= {};
         const isBinary = isBinaryPayload(bodyModel!, contentType);
@@ -854,7 +880,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         continue;
       }
 
-      values.push(option.value ? option.value : option.name);
+      values.push(option.value ?? option.name);
     }
 
     const schema: any = { type, description: getDoc(program, e) };
@@ -864,8 +890,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     return schema;
     function enumMemberType(member: EnumMemberType) {
-      if (!member.value || typeof member.value === "string") return "string";
-      return "number";
+      if (typeof member.value === "number") {
+        return "number";
+      }
+      return "string";
     }
 
     function reportUnsupportedUnion(messageId: "default" | "empty" = "default") {
