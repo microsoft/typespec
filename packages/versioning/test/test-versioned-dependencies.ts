@@ -104,7 +104,7 @@ describe("cadl: versioning: depdendencies", () => {
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/versioned-dependency-record-not-model",
         message:
-          "The versionedDependency decorator must provide a model mapping local versions to dependency 'dependency' versions",
+          "The versionedDependency decorator must provide a model mapping local versions to dependency 'VersionedLib' versions",
       });
     });
   });

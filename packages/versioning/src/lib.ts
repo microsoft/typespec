@@ -24,7 +24,7 @@ const libDef = {
     "versioned-dependency-record-not-model": {
       severity: "error",
       messages: {
-        default: `The versionedDependency decorator must provide a model mapping local versions to dependency '${"dependency"}' versions`,
+        default: paramMessage`The versionedDependency decorator must provide a model mapping local versions to dependency '${"dependency"}' versions`,
       },
     },
     "versioned-dependency-not-string": {
