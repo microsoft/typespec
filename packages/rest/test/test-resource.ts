@@ -1,5 +1,6 @@
+import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { getRoutesFor } from "./test-host.js";
+import { compileOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: resources", () => {
   it("resources: generates standard operations for resource types and their children", async () => {
@@ -79,6 +80,45 @@ describe("rest: resources", () => {
         verb: "get",
         path: "/things/{thingId}/subthings",
         params: ["thingId"],
+      },
+    ]);
+  });
+
+  it("resources: resources with parents must not have duplicate their parents' key names", async () => {
+    const [_, diagnostics] = await compileOperations(`
+      using Cadl.Rest.Resource;
+
+      namespace Things {
+        model Thing {
+          @key("thingId")
+          @segment("things")
+          id: string;
+        }
+
+        @parentResource(Thing)
+        model Subthing {
+          @key
+          @segment("subthings")
+          thingId: string;
+        }
+
+        @parentResource(Subthing)
+        model SubSubthing {
+          @key("thingId")
+          @segment("subsubthings")
+          subSubthingId: string;
+        }
+      }
+      `);
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@cadl-lang/rest/duplicate-parent-key",
+        message: `Resource type 'Subthing' has a key property named 'thingId' which is already used by parent type 'Thing'.`,
+      },
+      {
+        code: "@cadl-lang/rest/duplicate-parent-key",
+        message: `Resource type 'SubSubthing' has a key property named 'thingId' which is already used by parent type 'Subthing'.`,
       },
     ]);
   });

@@ -143,6 +143,29 @@ export function $parentResource({ program }: DecoratorContext, entity: Type, par
   }
 
   program.stateMap(parentResourceTypesKey).set(entity, parentType);
+
+  // Ensure that the parent resource type(s) don't have key name conflicts
+  const keyNameSet = new Set<string>();
+  let currentType: ModelType | undefined = entity as ModelType;
+  while (currentType) {
+    const resourceKey = getResourceTypeKey(program, currentType);
+    const keyName = getKeyName(program, resourceKey.keyProperty);
+    if (keyNameSet.has(keyName)) {
+      reportDiagnostic(program, {
+        code: "duplicate-parent-key",
+        format: {
+          resourceName: (entity as ModelType).name,
+          parentName: currentType.name,
+          keyName,
+        },
+        target: resourceKey.keyProperty,
+      });
+      return;
+    }
+
+    keyNameSet.add(keyName);
+    currentType = getParentResource(program, currentType);
+  }
 }
 
 setDecoratorNamespace("Cadl.Rest", $parentResource, $copyResourceKeyParameters);
