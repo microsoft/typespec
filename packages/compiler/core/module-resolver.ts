@@ -86,7 +86,7 @@ export async function resolveModule(
     const dirs = getPackageCandidates(name, baseDir);
     for (const dir of dirs) {
       if (await isDirectory(host, dir)) {
-        const n = loadAsDirectory(dir);
+        const n = await loadAsDirectory(dir);
         if (n) return n;
       }
     }

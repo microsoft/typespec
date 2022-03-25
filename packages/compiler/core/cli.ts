@@ -208,7 +208,7 @@ function compileInput(
     console.log(`${prefix}${message}`, ...optionalParams);
   };
 
-  const runCompile = () => {
+  const runCompilePromise = () => {
     // Don't run the compiler if it's already running
     if (!currentCompilePromise) {
       // Clear the console before compiling in watch mode
@@ -216,15 +216,17 @@ function compileInput(
         console.clear();
       }
 
-      currentCompilePromise = compile(resolve(path), NodeHost, compilerOptions).then(
-        onCompileFinished
-      );
+      currentCompilePromise = compile(resolve(path), NodeHost, compilerOptions)
+        .then(onCompileFinished)
+        .catch(internalCompilerError);
     } else {
       compileRequested = true;
     }
 
     return currentCompilePromise;
   };
+
+  const runCompile = () => void runCompilePromise();
 
   const onCompileFinished = (program: Program) => {
     if (program.diagnostics.length > 0) {
@@ -271,7 +273,7 @@ function compileInput(
       });
     });
   } else {
-    return runCompile();
+    return runCompilePromise();
   }
 }
 
@@ -379,8 +381,8 @@ async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, 
   await rmdir(temp, { recursive: true });
 }
 
-async function runCode(codeArgs: string[], insiders: boolean, debug: boolean) {
-  await run(insiders ? "code-insiders" : "code", codeArgs, {
+function runCode(codeArgs: string[], insiders: boolean, debug: boolean) {
+  run(insiders ? "code-insiders" : "code", codeArgs, {
     // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
     extraEnv: { NODE_NO_WARNINGS: "1" },
     debug,
@@ -585,7 +587,7 @@ function run(command: string, commandArgs: string[], options?: RunOptions) {
   return proc;
 }
 
-function internalCompilerError(error: Error) {
+function internalCompilerError(error: unknown): never {
   // NOTE: An expected error, like one thrown for bad input, shouldn't reach
   // here, but be handled somewhere else. If we reach here, it should be
   // considered a bug and therefore we should not suppress the stack trace as
@@ -597,7 +599,7 @@ function internalCompilerError(error: Error) {
   process.exit(1);
 }
 
-process.on("unhandledRejection", (error: Error) => {
+process.on("unhandledRejection", (error: unknown) => {
   console.error("Unhandled promise rejection!");
   internalCompilerError(error);
 });
