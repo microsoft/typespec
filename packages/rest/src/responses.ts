@@ -144,14 +144,14 @@ function processResponseType(
     }
 
     if (bodyModel !== undefined) {
-      response.responses = [{ body: { contentTypes: contentTypes, type: bodyModel }, headers }];
+      response.responses.push({ body: { contentTypes: contentTypes, type: bodyModel }, headers });
     } else if (contentTypes.length > 0) {
       reportDiagnostic(program, {
         code: "content-type-ignored",
         target: responseModel,
       });
     } else {
-      response.responses = [{ headers }];
+      response.responses.push({ headers });
     }
     responses[statusCode] = response;
   }
