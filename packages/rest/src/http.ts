@@ -1,5 +1,7 @@
 import {
   DecoratorContext,
+  ModelType,
+  ModelTypeProperty,
   Program,
   setDecoratorNamespace,
   Type,
@@ -128,6 +130,14 @@ export function $statusCode({ program }: DecoratorContext, entity: Type) {
   } else {
     reportDiagnostic(program, { code: "status-code-invalid", target: entity });
   }
+  setStatusCode(program, entity, codes);
+}
+
+export function setStatusCode(
+  program: Program,
+  entity: ModelType | ModelTypeProperty,
+  codes: string[]
+) {
   program.stateMap(statusCodeKey).set(entity, codes);
 }
 
@@ -150,8 +160,8 @@ export function isStatusCode(program: Program, entity: Type) {
   return program.stateMap(statusCodeKey).has(entity);
 }
 
-export function getStatusCodes(program: Program, entity: Type) {
-  return program.stateMap(statusCodeKey).get(entity);
+export function getStatusCodes(program: Program, entity: Type): string[] {
+  return program.stateMap(statusCodeKey).get(entity) ?? [];
 }
 
 // Note: these descriptions come from https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html

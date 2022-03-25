@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi",
+      "comment": "`@defaultResponse` set status code for model",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi"
+}

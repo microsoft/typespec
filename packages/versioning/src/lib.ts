@@ -21,22 +21,16 @@ const libDef = {
         default: `The versioned decorator must be applied to a namespace`,
       },
     },
-    "versioned-dependency-not-on-namespace": {
-      severity: "error",
-      messages: {
-        default: `The versionedDependency decorator must be applied to a namespace`,
-      },
-    },
-    "versioned-dependency-not-to-namespace": {
-      severity: "error",
-      messages: {
-        default: `The versionedDependency decorator must specify the dependency namespace`,
-      },
-    },
     "versioned-dependency-record-not-model": {
       severity: "error",
       messages: {
-        default: `The versionedDependency decorator must provide a model mapping local versions to dependency versions`,
+        default: paramMessage`The versionedDependency decorator must provide a model mapping local versions to dependency '${"dependency"}' versions`,
+      },
+    },
+    "versioned-dependency-not-string": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The versionedDependency decorator must provide a version of the dependency '${"dependency"}'.`,
       },
     },
   },

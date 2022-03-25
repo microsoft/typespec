@@ -1,0 +1,61 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "(title)",
+    "version": "0000-00-00"
+  },
+  "tags": [],
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "foo",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Foo"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Foo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-model": {
+              "name": "Foo",
+              "age": 12,
+              "other": {
+                "id": "some"
+              }
+            },
+            "x-obj": {
+              "foo": 123,
+              "bar": "string"
+            },
+            "x-array": [
+              "one",
+              2
+            ],
+            "x-bool": true,
+            "x-number": 123,
+            "x-string": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    }
+  }
+}

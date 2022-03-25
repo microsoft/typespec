@@ -157,9 +157,6 @@
               }
             }
           },
-          "204": {
-            "description": "No Content"
-          },
           "default": {
             "description": "Error",
             "content": {

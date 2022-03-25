@@ -8,13 +8,13 @@ namespace Foo {
   @tag("tag1")
   @doc("includes namespace tag")
   @get
-  op read(@path id: int32): null;
+  op read(@path id: int32): void;
 
   @tag("tag1")
   @tag("tag2")
   @doc("includes namespace tag and two operations tags")
   @post
-  op create(@path id: int32): null;
+  op create(@path id: int32): void;
 }
 
 @route("/bar")
@@ -26,7 +26,7 @@ namespace Bar {
   @doc("one operation tag")
   @tag("tag3")
   @post
-  op create(@path id: int32): null;
+  op create(@path id: int32): void;
 }
 
 @tag("outer")
@@ -38,7 +38,7 @@ namespace NestedOuter {
     namespace NestedMoreInner {
       @tag("innerOp")
       @post
-      op createOther(@path id: int32): null;
+      op createOther(@path id: int32): void;
     }
   }
 }

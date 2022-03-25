@@ -51,6 +51,20 @@ describe("openapi: decorators", () => {
       });
     });
 
+    it("apply extension with complex value", async () => {
+      const { Foo } = await runner.compile(`
+        @extension("x-custom", {foo: 123, bar: "string"})
+        @test
+        model Foo {
+          prop: string
+        }
+      `);
+
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
+        "x-custom": { foo: 123, bar: "string" },
+      });
+    });
+
     it("emit diagnostics when passing non string extension key", async () => {
       const diagnostics = await runner.diagnose(`
         @extension(123, "Bar")
