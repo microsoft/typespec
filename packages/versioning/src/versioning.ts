@@ -1,9 +1,12 @@
 import {
   DecoratorContext,
   NamespaceType,
+  navigateProgram,
   Program,
   ProjectionApplication,
   Type,
+  validateDecoratorParamType,
+  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 const addedOnKey = Symbol();
@@ -129,35 +132,19 @@ export function $versionedDependency(
   { program }: DecoratorContext,
   referenceNamespace: Type,
   targetNamespace: Type,
-  versionRecord: Type
+  versionRecord: string | Type
 ) {
-  if (referenceNamespace.kind !== "Namespace") {
-    reportDiagnostic(program, {
-      code: "versioned-dependency-not-on-namespace",
-      target: referenceNamespace,
-    });
-    return;
-  }
-
-  if (targetNamespace.kind !== "Namespace") {
-    reportDiagnostic(program, {
-      code: "versioned-dependency-not-to-namespace",
-      target: referenceNamespace,
-    });
-    return;
-  }
-
-  if (versionRecord.kind !== "Model") {
-    reportDiagnostic(program, {
-      code: "versioned-dependency-record-not-model",
-      target: referenceNamespace,
-    });
+  if (
+    !validateDecoratorTarget(program, referenceNamespace, "@versionedDependency", "Namespace") ||
+    !validateDecoratorParamType(program, referenceNamespace, targetNamespace, "Namespace") ||
+    !validateDecoratorParamType(program, referenceNamespace, versionRecord, ["Model", "String"])
+  ) {
     return;
   }
 
   let state = program.stateMap(versionDependencyKey).get(referenceNamespace) as Map<
     NamespaceType,
-    Map<string, string>
+    string | Map<string, string>
   >;
 
   if (!state) {
@@ -165,25 +152,61 @@ export function $versionedDependency(
     program.stateMap(versionDependencyKey).set(referenceNamespace, state);
   }
 
-  let versionMap = state.get(targetNamespace);
-  if (!versionMap) {
-    versionMap = new Map();
-    state.set(targetNamespace, versionMap);
-  }
-
-  for (const [name, prop] of versionRecord.properties) {
-    if (prop.type.kind !== "String") {
-      continue;
+  if (typeof versionRecord === "string") {
+    state.set(targetNamespace, versionRecord);
+  } else {
+    let versionMap = state.get(targetNamespace);
+    if (!versionMap || !(versionMap instanceof Map)) {
+      versionMap = new Map();
+      state.set(targetNamespace, versionMap);
     }
-    versionMap.set(name, prop.type.value);
+
+    for (const [name, prop] of versionRecord.properties) {
+      if (prop.type.kind !== "String") {
+        continue;
+      }
+      versionMap.set(name, prop.type.value);
+    }
   }
 }
 
 export function getVersionDependencies(
   p: Program,
   namespace: NamespaceType
-): Map<NamespaceType, Map<string, string>> | undefined {
+): Map<NamespaceType, Map<string, string> | string> | undefined {
   return p.stateMap(versionDependencyKey).get(namespace);
+}
+
+export function $onValidate(program: Program) {
+  navigateProgram(program, {
+    namespace: (namespace) => {
+      const version = getVersion(program, namespace);
+      const dependencies = getVersionDependencies(program, namespace);
+      if (dependencies === undefined) {
+        return;
+      }
+
+      for (const [dependencyNs, value] of dependencies.entries()) {
+        if (version && version.length > 0) {
+          if (!(value instanceof Map)) {
+            reportDiagnostic(program, {
+              code: "versioned-dependency-record-not-model",
+              format: { dependency: program.checker!.getNamespaceString(dependencyNs) },
+              target: namespace,
+            });
+          }
+        } else {
+          if (typeof value !== "string") {
+            reportDiagnostic(program, {
+              code: "versioned-dependency-not-string",
+              format: { dependency: program.checker!.getNamespaceString(dependencyNs) },
+              target: namespace,
+            });
+          }
+        }
+      }
+    },
+  });
 }
 
 interface VersionRecord {
@@ -193,25 +216,57 @@ interface VersionRecord {
 
 export function getVersionRecords(program: Program, rootNs: NamespaceType): VersionRecord[] {
   const versions = getVersions(program, rootNs);
-  if (!versions || versions.length === 0) {
-    return [{ version: undefined, projections: [] }];
-  }
   const records: VersionRecord[] = [];
   const dependencies = getVersionDependencies(program, rootNs) ?? new Map();
-  for (const version of versions) {
-    // TODO: find versioned dependencies
-    const projections = [{ scope: rootNs, projectionName: "v", arguments: [version] }];
 
-    for (const [dependencyNs, versionMap] of dependencies) {
-      if (!versionMap.has(version)) continue;
-      projections.push({
-        scope: dependencyNs,
-        projectionName: "v",
-        arguments: [versionMap.get(version!)],
-      });
+  if (!versions || versions.length === 0) {
+    if (dependencies.size === 0) {
+      return [{ version: undefined, projections: [] }];
+    } else {
+      for (const [dependencyNs, version] of dependencies) {
+        if (typeof version !== "string") {
+          const rootNsName = program.checker!.getNamespaceString(rootNs);
+          const dependencyNsName = program.checker!.getNamespaceString(dependencyNs);
+          throw new Error(
+            `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a string.`
+          );
+        }
+
+        records.push({
+          version: undefined,
+          projections: [
+            {
+              scope: dependencyNs,
+              projectionName: "v",
+              arguments: [version],
+            },
+          ],
+        });
+      }
     }
+  } else {
+    for (const version of versions) {
+      // TODO: find versioned dependencies
+      const projections = [{ scope: rootNs, projectionName: "v", arguments: [version] }];
 
-    records.push({ version: version, projections });
+      for (const [dependencyNs, versionMap] of dependencies) {
+        if (!(versionMap instanceof Map)) {
+          const rootNsName = program.checker!.getNamespaceString(rootNs);
+          const dependencyNsName = program.checker!.getNamespaceString(dependencyNs);
+          throw new Error(
+            `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
+          );
+        }
+        if (!versionMap.has(version)) continue;
+        projections.push({
+          scope: dependencyNs,
+          projectionName: "v",
+          arguments: [versionMap.get(version!)],
+        });
+      }
+
+      records.push({ version: version, projections });
+    }
   }
 
   return records;

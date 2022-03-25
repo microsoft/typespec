@@ -1,7 +1,14 @@
 import { getIntrinsicModelName, getPropertyType } from "../lib/decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
-import { IntrinsicModelName, ModelType, ModelTypeProperty, Type } from "./types.js";
+import {
+  Diagnostic,
+  DiagnosticTarget,
+  IntrinsicModelName,
+  ModelType,
+  ModelTypeProperty,
+  Type,
+} from "./types.js";
 
 export type CadlValue = Type | string | number | boolean;
 
@@ -162,4 +169,81 @@ function prettyValue(program: Program, value: any) {
     return program.checker!.getTypeName(value);
   }
   return value;
+}
+
+/**
+ * Convert a cadl type to a serializable Json object.
+ * Emits diagnostics if the given type is invalid
+ * @param cadlType The type to convert to Json data
+ * @param target The diagnostic target in case of errors.
+ */
+export function cadlTypeToJson<T>(
+  cadlType: CadlValue,
+  target: DiagnosticTarget
+): [T | undefined, Diagnostic[]] {
+  if (typeof cadlType !== "object") {
+    return [cadlType as any, []];
+  }
+  return cadlTypeToJsonInternal(cadlType, target, []);
+}
+
+function cadlTypeToJsonInternal(
+  cadlType: Type,
+  target: DiagnosticTarget,
+  path: string[]
+): [any | undefined, Diagnostic[]] {
+  switch (cadlType.kind) {
+    case "String":
+    case "Boolean":
+    case "Number":
+      return [cadlType.value, []];
+    case "Tuple": {
+      const result = [];
+      for (const [index, type] of cadlType.values.entries()) {
+        const [item, diagnostics] = cadlTypeToJsonInternal(type, target, [
+          ...path,
+          index.toString(),
+        ]);
+        if (diagnostics.length > 0) {
+          return [undefined, diagnostics];
+        }
+        result.push(item);
+      }
+      return [result, []];
+    }
+    case "Model": {
+      const result: Record<string, any> = {};
+      for (const [name, type] of cadlType.properties.entries()) {
+        const [item, diagnostics] = cadlTypeToJsonInternal(type.type, target, [
+          ...path,
+          name.toString(),
+        ]);
+        if (diagnostics.length > 0) {
+          return [undefined, diagnostics];
+        }
+        result[name] = item;
+      }
+      return [result, []];
+    }
+    default:
+      const diagnostic =
+        path.length === 0
+          ? createDiagnostic({
+              code: "invalid-value",
+              format: {
+                kind: cadlType.kind,
+              },
+              target,
+            })
+          : createDiagnostic({
+              code: "invalid-value",
+              messageId: "atPath",
+              format: {
+                kind: cadlType.kind,
+                path: path.join("."),
+              },
+              target,
+            });
+      return [undefined, [diagnostic]];
+  }
 }

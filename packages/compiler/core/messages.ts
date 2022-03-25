@@ -449,7 +449,13 @@ const diagnostics = {
       default: paramMessage`Enum cannot be used on this type. Member ${"member"} is not assignable to type ${"type"}.`,
     },
   },
-
+  "invalid-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type '${"kind"}' is not a value type.`,
+      atPath: paramMessage`Type '${"kind"}' of '${"path"}' is not a value type.`,
+    },
+  },
   /**
    * Service
    */

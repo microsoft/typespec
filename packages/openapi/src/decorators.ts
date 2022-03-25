@@ -1,10 +1,13 @@
 import {
+  cadlTypeToJson,
+  CadlValue,
   DecoratorContext,
   Program,
   Type,
   validateDecoratorParamType,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
+import { http } from "@cadl-lang/rest";
 import { reportDiagnostic } from "./lib.js";
 
 const operationIdsKey = Symbol();
@@ -28,7 +31,7 @@ export function $extension(
   { program }: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: any
+  value: CadlValue
 ) {
   if (!validateDecoratorParamType(program, entity, extensionName, "String")) {
     return;
@@ -42,9 +45,22 @@ export function $extension(
     });
   }
 
+  const [data, diagnostics] = cadlTypeToJson(value, entity);
+  if (diagnostics.length > 0) {
+    program.reportDiagnostics(diagnostics);
+  }
+  setExtension(program, entity, extensionName as ExtensionKey, data);
+}
+
+export function setExtension(
+  program: Program,
+  entity: Type,
+  extensionName: ExtensionKey,
+  data: unknown
+) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
-  typeExtensions.set(extensionName, value);
+  typeExtensions.set(extensionName, data);
 
   openApiExtensions.set(entity, typeExtensions);
 }
@@ -64,6 +80,7 @@ export function $defaultResponse({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@defaultResponse", "Model")) {
     return;
   }
+  http.setStatusCode(program, entity, ["*"]);
   program.stateSet(defaultResponseKey).add(entity);
 }
 

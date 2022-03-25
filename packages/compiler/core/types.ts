@@ -269,6 +269,7 @@ export interface UnionTypeVariant extends BaseType, DecoratedType {
 export interface TemplateParameterType extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
+  default?: Type;
 }
 
 export interface Sym {
