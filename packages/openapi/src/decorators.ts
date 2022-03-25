@@ -49,7 +49,15 @@ export function $extension(
   if (diagnostics.length > 0) {
     program.reportDiagnostics(diagnostics);
   }
+  setExtension(program, entity, extensionName as ExtensionKey, data);
+}
 
+export function setExtension(
+  program: Program,
+  entity: Type,
+  extensionName: ExtensionKey,
+  data: unknown
+) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
   typeExtensions.set(extensionName, data);

@@ -142,8 +142,8 @@ function processResponseType(
       }
     }
 
-    if (bodyModel !== undefined && contentTypes.length > 0) {
-      response.responses.push({ body: { contentTypes: contentTypes, type: bodyModel }, headers });
+    if (bodyModel !== undefined) {
+      response.responses = [{ body: { contentTypes: contentTypes, type: bodyModel }, headers }];
     } else if (contentTypes.length > 0) {
       reportDiagnostic(program, {
         code: "content-type-ignored",
