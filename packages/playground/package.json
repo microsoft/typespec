@@ -1,5 +1,6 @@
 {
-  "name": "cadl-playground",
+  "name": "@cadl-lang/playground",
+  "private": true,
   "version": "1.0.0",
   "author": "Microsoft Corporation",
   "description": "An app to play with CADL in the browser",

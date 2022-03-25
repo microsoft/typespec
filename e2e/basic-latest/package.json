@@ -1,5 +1,5 @@
 {
-  "name": "basic-latest",
+  "name": "@cadl-lang/e2e-test-basic-latest",
   "dependencies": {
     "@cadl-lang/compiler": "latest",
     "@cadl-lang/rest": "latest",
