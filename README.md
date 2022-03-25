@@ -182,3 +182,6 @@ cadl vs install
 ```
 
 This will download and install the latest Visual Studio extension. Use `cadl vs uninstall` to remove it.
+
+## Build Pipelines
+Information on using Cadl within build pipelines [can be found here](docs/buildpipelines.md)
