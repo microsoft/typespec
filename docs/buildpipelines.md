@@ -1,5 +1,5 @@
 # Using Build Pipelines with CADL
-## TOC
+## Table of Contents
 1. [Introduction](#introduction)
 1. [Azure DevOps Pipelines](#azure-devops-pipelines)
 1. [Github Pipelines](#github-pipelines)
