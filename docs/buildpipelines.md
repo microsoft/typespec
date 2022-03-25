@@ -59,7 +59,7 @@ steps:
 - task: CmdLine@2
   inputs:
     script: 'cadl compile .'
-    
+
 - task: PublishPipelineArtifact@1
   displayName: Publish Cadl Output Folder
   inputs:
