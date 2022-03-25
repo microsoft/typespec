@@ -25,13 +25,11 @@ import {
   getServiceVersion,
   getSummary,
   getVisibility,
-  isErrorModel,
   isErrorType,
   isIntrinsic,
   isNumericType,
   isSecret,
   isStringType,
-  isVoidType,
   mapChildModels,
   ModelType,
   ModelTypeProperty,
@@ -44,19 +42,16 @@ import {
   UnionTypeVariant,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import {
-  getExtensions,
-  getExternalDocs,
-  getOperationId,
-  isDefaultResponse,
-} from "@cadl-lang/openapi";
+import { getExtensions, getExternalDocs, getOperationId } from "@cadl-lang/openapi";
 import {
   Discriminator,
   getAllRoutes,
+  getContentTypes,
   getDiscriminator,
   http,
   HttpOperationParameter,
   HttpOperationParameters,
+  HttpOperationResponse,
   OperationDetails,
 } from "@cadl-lang/rest";
 import { getVersionRecords } from "@cadl-lang/versioning";
@@ -67,10 +62,7 @@ const {
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
-  isBody,
-  isHeader,
   isStatusCode,
-  getStatusCodes,
   getStatusCodeDescription,
 } = http;
 
@@ -348,16 +340,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     emitEndpointParameters(op, op.parameters, parameters.parameters);
     emitRequestBody(op, op.parameters, parameters);
-    emitResponses(op.returnType);
+    emitResponses(operation.responses);
   }
 
-  function emitResponses(responseType: Type) {
-    if (responseType.kind === "Union") {
-      for (const option of responseType.options) {
-        emitResponseObject(option);
-      }
-    } else {
-      emitResponseObject(responseType);
+  function emitResponses(responses: HttpOperationResponse[]) {
+    for (const response of responses) {
+      emitResponseObject(response);
     }
   }
 
@@ -370,220 +358,59 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     );
   }
 
-  function emitResponseObject(responseModel: Type) {
-    // Get explicity defined status codes
-    const statusCodes = getResponseStatusCodes(responseModel);
-
-    // Get explicitly defined content types
-    const contentTypes = getResponseContentTypes(responseModel);
-
-    // Get response headers
-    const headers = getResponseHeaders(responseModel);
-
-    // Get explicitly defined body
-    let bodyModel = getResponseBody(responseModel);
-    // If there is no explicit body, it should be conjured from the return type
-    // if it is a primitive type or it contains more than just response metadata
-    if (!bodyModel) {
-      if (responseModel.kind === "Model") {
-        if (mapCadlTypeToOpenAPI(responseModel)) {
-          bodyModel = responseModel;
-        } else {
-          const isResponseMetadata = (p: ModelTypeProperty) =>
-            isHeader(program, p) || isStatusCode(program, p);
-          const allProperties = (p: ModelType): ModelTypeProperty[] => {
-            return [...p.properties.values(), ...(p.baseModel ? allProperties(p.baseModel) : [])];
-          };
-          if (allProperties(responseModel).some((p) => !isResponseMetadata(p))) {
-            bodyModel = responseModel;
-          }
-        }
-      } else {
-        // body is array or possibly something else
-        bodyModel = responseModel;
-      }
+  function getOpenAPIStatuscode(response: HttpOperationResponse): string {
+    switch (response.statusCode) {
+      case "*":
+        return "default";
+      default:
+        return response.statusCode;
     }
+  }
 
-    // If there is no explicit status code, set the default
-    if (statusCodes.length === 0) {
-      statusCodes.push(getDefaultStatusCode(responseModel, bodyModel));
-    }
+  function emitResponseObject(response: Readonly<HttpOperationResponse>) {
+    const statusCode = getOpenAPIStatuscode(response);
+    const openapiResponse = currentEndpoint.responses[statusCode] ?? {
+      description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
+    };
 
-    // If there is a body but no explicit content types, use application/json
-    if (bodyModel && !isVoidType(bodyModel) && contentTypes.length === 0) {
-      contentTypes.push("application/json");
-    }
-
-    if (!bodyModel && contentTypes.length > 0) {
-      reportDiagnostic(program, {
-        code: "content-type-ignored",
-        target: responseModel,
-      });
-    }
-
-    // Assertion: bodyModel <=> contentTypes.length > 0
-
-    // Put them into currentEndpoint.responses
-
-    for (const statusCode of statusCodes) {
-      // the first model for this statusCode/content type pair carries the
-      // description for the endpoint. This could probably be improved.
-      const response = currentEndpoint.responses[statusCode] ?? {
-        description: getResponseDescription(responseModel, statusCode),
-      };
-
-      // check for duplicates
-      if (response.content) {
-        for (const contentType of contentTypes) {
-          if (response.content[contentType]) {
-            reportDiagnostic(program, {
-              code: "duplicate-response",
-              format: { statusCode, contentType },
-              target: responseModel,
-            });
-          }
-        }
-      }
-
-      if (Object.keys(headers).length > 0) {
-        response.headers ??= {};
-
+    for (const data of response.responses) {
+      if (data.headers && Object.keys(data.headers).length > 0) {
+        openapiResponse.headers ??= {};
         // OpenAPI can't represent different headers per content type.
         // So we merge headers here, and report any duplicates.
         // It may be possible in principle to not error for identically declared
         // headers.
-        for (const [key, value] of Object.entries(headers)) {
-          if (response.headers[key]) {
+        for (const [key, value] of Object.entries(data.headers)) {
+          if (openapiResponse.headers[key]) {
             reportDiagnostic(program, {
               code: "duplicate-header",
               format: { header: key },
-              target: responseModel,
+              target: response.type,
             });
             continue;
           }
-
-          response.headers[key] = value;
+          openapiResponse.headers[key] = getResponseHeader(value);
         }
       }
 
-      for (const contentType of contentTypes) {
-        response.content ??= {};
-        const isBinary = isBinaryPayload(bodyModel!, contentType);
-        const schema = isBinary ? { type: "string", format: "binary" } : getSchemaOrRef(bodyModel!);
-        response.content[contentType] = { schema };
+      if (data.body !== undefined) {
+        openapiResponse.content ??= {};
+        const isBinary = isBinaryPayload(data.body.type, data.body.contentType);
+        const schema = isBinary
+          ? { type: "string", format: "binary" }
+          : getSchemaOrRef(data.body.type);
+        openapiResponse.content[data.body.contentType] = { schema };
       }
-      currentEndpoint.responses[statusCode] = response;
     }
+
+    currentEndpoint.responses[statusCode] = openapiResponse;
   }
 
-  /**
-   * Return the default status code for the given response/body
-   * @param model representing the body
-   */
-  function getDefaultStatusCode(responseModel: Type, bodyModel: Type | undefined) {
-    if (bodyModel === undefined || isVoidType(bodyModel)) {
-      return "204";
-    } else {
-      return isErrorModel(program, responseModel) ? "default" : "200";
-    }
-  }
-
-  // Get explicity defined status codes from response Model
-  // Return is an array of strings, possibly empty, which indicates no explicitly defined status codes.
-  // We do not check for duplicates here -- that will be done by the caller.
-  function getResponseStatusCodes(responseModel: Type): string[] {
-    const codes: string[] = [];
-    if (responseModel.kind === "Model") {
-      if (responseModel.baseModel) {
-        codes.push(...getResponseStatusCodes(responseModel.baseModel));
-      }
-      for (const prop of responseModel.properties.values()) {
-        if (isStatusCode(program, prop)) {
-          codes.push(...getStatusCodes(program, prop));
-        }
-      }
-    }
-    if (isDefaultResponse(program, responseModel)) {
-      if (codes.length > 0) {
-        reportDiagnostic(program, {
-          code: "status-code-in-default-response",
-          target: responseModel,
-        });
-      } else {
-        codes.push("default");
-      }
-    }
-    return codes;
-  }
-
-  function getResponseDescription(responseModel: Type, statusCode: string) {
-    const desc = getDoc(program, responseModel);
-    if (desc) {
-      return desc;
-    }
-
+  function getResponseDescriptionForStatusCode(statusCode: string) {
     if (statusCode === "default") {
       return "An unexpected error response";
     }
     return getStatusCodeDescription(statusCode) ?? "unknown";
-  }
-
-  // Get explicity defined content-types from response Model
-  // Return is an array of strings, possibly empty, which indicates no explicitly defined content-type.
-  // We do not check for duplicates here -- that will be done by the caller.
-  function getResponseContentTypes(responseModel: Type): string[] {
-    const contentTypes: string[] = [];
-    if (responseModel.kind === "Model") {
-      if (responseModel.baseModel) {
-        contentTypes.push(...getResponseContentTypes(responseModel.baseModel));
-      }
-      for (const prop of responseModel.properties.values()) {
-        if (isHeader(program, prop) && getHeaderFieldName(program, prop) === "content-type") {
-          contentTypes.push(...getContentTypes(prop));
-        }
-      }
-    }
-    return contentTypes;
-  }
-
-  // Get response headers from response Model
-  function getResponseHeaders(responseModel: Type) {
-    if (responseModel.kind === "Model") {
-      const responseHeaders: any = responseModel.baseModel
-        ? getResponseHeaders(responseModel.baseModel)
-        : {};
-      for (const prop of responseModel.properties.values()) {
-        const headerName = getHeaderFieldName(program, prop);
-        if (isHeader(program, prop) && headerName !== "content-type") {
-          responseHeaders[headerName] = getResponseHeader(prop);
-        }
-      }
-      return responseHeaders;
-    }
-    return {};
-  }
-
-  // Get explicity defined response body from response Model
-  // Search inheritance chain and error on any duplicates found
-  function getResponseBody(responseModel: Type): Type | undefined {
-    if (responseModel.kind === "Model") {
-      const getAllBodyProps = (m: ModelType): ModelTypeProperty[] => {
-        const bodyProps = [...m.properties.values()].filter((t) => isBody(program, t));
-        if (m.baseModel) {
-          bodyProps.push(...getAllBodyProps(m.baseModel));
-        }
-        return bodyProps;
-      };
-      const bodyProps = getAllBodyProps(responseModel);
-      if (bodyProps.length > 0) {
-        // Report all but first body as duplicate
-        for (const prop of bodyProps.slice(1)) {
-          reportDiagnostic(program, { code: "duplicate-body", target: prop });
-        }
-        return bodyProps[0].type;
-      }
-    }
-    return undefined;
   }
 
   function getResponseHeader(prop: ModelTypeProperty) {
@@ -730,7 +557,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       (p) => p.type === "header" && p.name === "content-type"
     );
     const contentTypes = contentTypeParam
-      ? getContentTypes(contentTypeParam.param)
+      ? getContentTypes(program, contentTypeParam.param)
       : ["application/json"];
     for (const contentType of contentTypes) {
       const isBinary = isBinaryPayload(bodyType, contentType);
@@ -742,31 +569,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     currentEndpoint.requestBody = requestBody;
-  }
-
-  function getContentTypes(param: ModelTypeProperty): string[] {
-    if (param.type.kind === "String") {
-      return [param.type.value];
-    } else if (param.type.kind === "Union") {
-      const contentTypes = [];
-      for (const option of param.type.options) {
-        if (option.kind === "String") {
-          contentTypes.push(option.value);
-        } else {
-          reportDiagnostic(program, {
-            code: "content-type-string",
-            target: param,
-          });
-          continue;
-        }
-      }
-
-      return contentTypes;
-    }
-
-    reportDiagnostic(program, { code: "content-type-string", target: param });
-
-    return [];
   }
 
   function emitParameter(parent: ModelType | undefined, param: ModelTypeProperty, kind: string) {
