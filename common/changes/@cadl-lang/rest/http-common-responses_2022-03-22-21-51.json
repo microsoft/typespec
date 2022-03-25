@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add logic to interpret the http responses.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

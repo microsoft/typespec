@@ -5,6 +5,7 @@ import {
   validateDecoratorParamType,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
+import { http } from "@cadl-lang/rest";
 import { reportDiagnostic } from "./lib.js";
 
 const operationIdsKey = Symbol();
@@ -64,6 +65,7 @@ export function $defaultResponse({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@defaultResponse", "Model")) {
     return;
   }
+  http.setStatusCode(program, entity, ["*"]);
   program.stateSet(defaultResponseKey).add(entity);
 }
 
