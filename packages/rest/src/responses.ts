@@ -107,6 +107,7 @@ function processResponseType(
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
     if (bodyModel === undefined || isVoidType(bodyModel)) {
+      bodyModel = undefined;
       statusCodes.push("204");
     } else if (isErrorModel(program, responseModel)) {
       statusCodes.push("*");
@@ -116,7 +117,7 @@ function processResponseType(
   }
 
   // If there is a body but no explicit content types, use application/json
-  if (bodyModel && !isVoidType(bodyModel) && contentTypes.length === 0) {
+  if (bodyModel && contentTypes.length === 0) {
     contentTypes.push("application/json");
   }
 
