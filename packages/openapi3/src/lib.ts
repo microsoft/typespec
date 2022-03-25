@@ -27,28 +27,10 @@ export const libDef = {
         default: "Duplicate @body declarations on response type",
       },
     },
-    "duplicate-response": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Multiple return types for content type ${"contentType"} and status code ${"statusCode"}`,
-      },
-    },
     "duplicate-header": {
       severity: "error",
       messages: {
         default: paramMessage`The header ${"header"} is defined across multiple content types`,
-      },
-    },
-    "content-type-ignored": {
-      severity: "warning",
-      messages: {
-        default: "content-type header ignored because return type has no body",
-      },
-    },
-    "content-type-string": {
-      severity: "error",
-      messages: {
-        default: "contentType parameter must be a string literal or union of string literals",
       },
     },
     "status-code-in-default-response": {

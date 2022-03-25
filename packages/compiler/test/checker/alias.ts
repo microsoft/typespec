@@ -177,6 +177,22 @@ describe("compiler: aliases", () => {
     });
   });
 
+  it("emit single diagnostics if assign itself as generic and is referenced", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      alias A<T> = A<T>;
+
+      model Foo {a: A<string>}
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, {
+      code: "circular-alias-type",
+      message: "Alias type 'A' recursively references itself.",
+    });
+  });
+
   it("emit diagnostics if reference itself", async () => {
     testHost.addCadlFile(
       "main.cadl",

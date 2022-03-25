@@ -1,6 +1,11 @@
 import { match, ok, strictEqual } from "assert";
 import { ModelType, Type } from "../../core/types.js";
-import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
+import {
+  createTestHost,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: models", () => {
   let testHost: TestHost;
@@ -71,6 +76,27 @@ describe("compiler: models", () => {
     );
     await testHost.compile("./");
     strictEqual(calls, 0);
+  });
+
+  it("emit single error when there is an invalid ref in a templated type", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        model A<T> {t: T, invalid: notValidType }
+
+        model Bar {
+          instance1: A<string>;
+          instance2: A<int32>;
+        }
+        `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unknown-identifier",
+        message: "Unknown identifier notValidType",
+      },
+    ]);
   });
 
   describe("doesn't allow a default of different type than the property type", () => {
@@ -241,6 +267,27 @@ describe("compiler: models", () => {
         diagnostics[0].message,
         "Model type 'A' recursively references itself as a base type."
       );
+    });
+
+    it("emit single error when is itself as a templated with mutliple instantiations", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A<T> is A<T> {}
+
+        model Bar {
+          instance1: A<string>;
+          instance2: A<int32>;
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "circular-base-type",
+          message: "Model type 'A' recursively references itself as a base type.",
+        },
+      ]);
     });
 
     it("emit error when 'is' has circular reference", async () => {

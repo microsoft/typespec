@@ -30,6 +30,10 @@
       "Pet": {
         "type": "object",
         "properties": {
+          "kind": {
+            "type": "string",
+            "description": "Discriminator property for Pet."
+          },
           "name": {
             "type": "string"
           },
