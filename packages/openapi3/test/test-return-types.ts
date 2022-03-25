@@ -1,4 +1,4 @@
-import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { checkFor, openApiFor } from "./test-host.js";
 
@@ -557,6 +557,15 @@ describe("openapi3: return types", () => {
         `
       );
       expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-header" }]);
+    });
+
+    it("issues no diagnostic when same response with headers as multiple content types", async () => {
+      const diagnostics = await checkFor(
+        `@get op read():
+           {@header contentType: "text/plain" | "application/json", @body body: string, @header foo: string };
+        `
+      );
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 
