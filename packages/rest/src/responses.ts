@@ -34,7 +34,7 @@ export interface HttpOperationResponseContent {
 }
 
 export interface HttpOperationBody {
-  contentType: string;
+  contentTypes: string[];
   type: Type;
 }
 
@@ -133,7 +133,7 @@ function processResponseType(
 
     // check for duplicates
     for (const contentType of contentTypes) {
-      if (response.responses.find((x) => x.body?.contentType === contentType)) {
+      if (response.responses.find((x) => x.body?.contentTypes.includes(contentType))) {
         reportDiagnostic(program, {
           code: "duplicate-response",
           format: { statusCode: statusCode.toString(), contentType },
@@ -142,10 +142,8 @@ function processResponseType(
       }
     }
 
-    if (bodyModel !== undefined) {
-      for (const contentType of contentTypes) {
-        response.responses.push({ body: { contentType, type: bodyModel }, headers });
-      }
+    if (bodyModel !== undefined && contentTypes.length > 0) {
+      response.responses.push({ body: { contentTypes: contentTypes, type: bodyModel }, headers });
     } else if (contentTypes.length > 0) {
       reportDiagnostic(program, {
         code: "content-type-ignored",
