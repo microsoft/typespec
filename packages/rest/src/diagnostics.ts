@@ -51,6 +51,12 @@ const libDefinition = {
         default: paramMessage`More than one key found on model type ${"resourceName"}`,
       },
     },
+    "duplicate-parent-key": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which is already used by parent type '${"parentName"}'.`,
+      },
+    },
     "missing-path-param": {
       severity: "error",
       messages: {

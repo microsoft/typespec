@@ -42,7 +42,12 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Pet, {
       type: "object",
-      properties: {},
+      properties: {
+        kind: {
+          type: "string",
+          description: "Discriminator property for Pet.",
+        },
+      },
       discriminator: {
         propertyName: "kind",
         mapping: {
@@ -84,7 +89,14 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Pet, {
       type: "object",
-      properties: { name: { type: "string" }, weight: { type: "number", format: "float" } },
+      properties: {
+        kind: {
+          type: "string",
+          description: "Discriminator property for Pet.",
+        },
+        name: { type: "string" },
+        weight: { type: "number", format: "float" },
+      },
       required: ["name"],
       discriminator: {
         propertyName: "kind",
@@ -171,7 +183,14 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Pet, {
       type: "object",
-      properties: { name: { type: "string" }, weight: { type: "number", format: "float" } },
+      properties: {
+        name: { type: "string" },
+        kind: {
+          type: "string",
+          description: "Discriminator property for Pet.",
+        },
+        weight: { type: "number", format: "float" },
+      },
       required: ["name"],
       discriminator: {
         propertyName: "kind",
@@ -228,7 +247,14 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Pet, {
       type: "object",
-      properties: { name: { type: "string" }, weight: { type: "number", format: "float" } },
+      properties: {
+        kind: {
+          type: "string",
+          description: "Discriminator property for Pet.",
+        },
+        name: { type: "string" },
+        weight: { type: "number", format: "float" },
+      },
       required: ["name"],
       discriminator: {
         propertyName: "kind",
@@ -240,7 +266,14 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Dog, {
       type: "object",
-      properties: { kind: { type: "string", enum: ["dog"] }, bark: { type: "string" } },
+      properties: {
+        kind: { type: "string", enum: ["dog"] },
+        breed: {
+          type: "string",
+          description: "Discriminator property for Dog.",
+        },
+        bark: { type: "string" },
+      },
       required: ["kind", "bark"],
       allOf: [{ $ref: "#/components/schemas/Pet" }],
       discriminator: {
@@ -290,7 +323,12 @@ describe("openapi3: discriminated unions", () => {
     });
     deepStrictEqual(openApi.components.schemas.Pet, {
       type: "object",
-      properties: {},
+      properties: {
+        kind: {
+          type: "string",
+          description: "Discriminator property for Pet.",
+        },
+      },
       discriminator: {
         propertyName: "kind",
         mapping: {

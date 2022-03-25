@@ -41,6 +41,10 @@ export function getConsumes(program: Program, entity: Type): string[] {
   return program.stateMap(consumesTypesKey).get(entity) || [];
 }
 
+export interface Discriminator {
+  propertyName: string;
+}
+
 const discriminatorKey = Symbol();
 export function $discriminator({ program }: DecoratorContext, entity: Type, propertyName: string) {
   if (!validateDecoratorTarget(program, entity, "@discriminator", "Model")) {
@@ -49,7 +53,7 @@ export function $discriminator({ program }: DecoratorContext, entity: Type, prop
   program.stateMap(discriminatorKey).set(entity, propertyName);
 }
 
-export function getDiscriminator(program: Program, entity: Type): any | undefined {
+export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
   const propertyName = program.stateMap(discriminatorKey).get(entity);
   if (propertyName) {
     return { propertyName };
