@@ -34,7 +34,7 @@ export interface HttpOperationResponseContent {
 }
 
 export interface HttpOperationBody {
-  contentType: string;
+  contentTypes: string[];
   type: Type;
 }
 
@@ -107,6 +107,7 @@ function processResponseType(
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
     if (bodyModel === undefined || isVoidType(bodyModel)) {
+      bodyModel = undefined;
       statusCodes.push("204");
     } else if (isErrorModel(program, responseModel)) {
       statusCodes.push("*");
@@ -116,7 +117,7 @@ function processResponseType(
   }
 
   // If there is a body but no explicit content types, use application/json
-  if (bodyModel && !isVoidType(bodyModel) && contentTypes.length === 0) {
+  if (bodyModel && contentTypes.length === 0) {
     contentTypes.push("application/json");
   }
 
@@ -133,7 +134,7 @@ function processResponseType(
 
     // check for duplicates
     for (const contentType of contentTypes) {
-      if (response.responses.find((x) => x.body?.contentType === contentType)) {
+      if (response.responses.find((x) => x.body?.contentTypes.includes(contentType))) {
         reportDiagnostic(program, {
           code: "duplicate-response",
           format: { statusCode: statusCode.toString(), contentType },
@@ -143,16 +144,14 @@ function processResponseType(
     }
 
     if (bodyModel !== undefined) {
-      for (const contentType of contentTypes) {
-        response.responses.push({ body: { contentType, type: bodyModel }, headers });
-      }
+      response.responses.push({ body: { contentTypes: contentTypes, type: bodyModel }, headers });
     } else if (contentTypes.length > 0) {
       reportDiagnostic(program, {
         code: "content-type-ignored",
         target: responseModel,
       });
     } else {
-      response.responses = [{ headers }];
+      response.responses.push({ headers });
     }
     responses[statusCode] = response;
   }

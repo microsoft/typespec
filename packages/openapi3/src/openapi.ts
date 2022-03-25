@@ -391,11 +391,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
       if (data.body !== undefined) {
         openapiResponse.content ??= {};
-        const isBinary = isBinaryPayload(data.body.type, data.body.contentType);
-        const schema = isBinary
-          ? { type: "string", format: "binary" }
-          : getSchemaOrRef(data.body.type);
-        openapiResponse.content[data.body.contentType] = { schema };
+        for (const contentType of data.body.contentTypes) {
+          const isBinary = isBinaryPayload(data.body.type, contentType);
+          const schema = isBinary
+            ? { type: "string", format: "binary" }
+            : getSchemaOrRef(data.body.type);
+          openapiResponse.content[contentType] = { schema };
+        }
       }
     }
 
