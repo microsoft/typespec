@@ -27,9 +27,46 @@ The following Azure Devops Pipeline tasks can be modified and added to your pipe
               workingDir: '$(SRCROOT)\path\to\cadl\folder' # This is where package.json lives for your CADL project
 ```
 
-This is sufficient if you are building via a csproj file which triggers the cadl compile and finds the cadl compiler.
+This is sufficient if you are building via a csproj file which triggers the cadl compile and finds the cadl compiler iteself.
 
-You may also need to add additional steps to compile your cadl files separately.
+You may also need to add additional steps to compile your cadl files separately. An example of a basic pipeline is provided below.
+
+## Example Pipeline
+Note: This example assumes that your Cadl folder is at the root of your repository.
+```yaml
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '16.4.2'
+
+- task: Npm@1
+  displayName: Install Cadl Compiler
+  inputs:
+    command: 'custom'
+    customCommand: 'install -g @cadl-lang/compiler'
+
+- task: Npm@1
+  inputs:
+    command: 'install'
+    workingDir: '.'
+
+- task: CmdLine@2
+  inputs:
+    script: 'cadl compile .'
+    
+- task: PublishPipelineArtifact@1
+  displayName: Publish Cadl Output Folder
+  inputs:
+    targetPath: 'cadl-output'
+    artifact: 'cadl-output'
+    publishLocation: 'pipeline'
+```
 
 # Github Pipelines
 <TBD>
