@@ -37,6 +37,15 @@ jobs:
           node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
         displayName: Release
 
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "packages/playground/dist/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlplayground"
+          containerName: "$web"
+        displayName: "Update playground"
+
   - job: docker
     displayName: Docker build and publish
     variables:

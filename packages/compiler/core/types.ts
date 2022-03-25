@@ -93,11 +93,19 @@ export interface Projector {
 
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
-  name: string;
+  name: "ErrorType" | "void" | "never";
 }
 
 export interface ErrorType extends IntrinsicType {
   name: "ErrorType";
+}
+
+export interface VoidType extends IntrinsicType {
+  name: "void";
+}
+
+export interface NeverType extends IntrinsicType {
+  name: "never";
 }
 
 // represents a type that is being returned from the
@@ -261,6 +269,7 @@ export interface UnionTypeVariant extends BaseType, DecoratedType {
 export interface TemplateParameterType extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
+  default?: Type;
 }
 
 export interface Sym {

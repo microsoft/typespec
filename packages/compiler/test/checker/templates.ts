@@ -195,23 +195,60 @@ describe("compiler: templates", () => {
     strictEqual((b.type as StringLiteralType).value, "bye");
   });
 
-  it.skip("can only reference parameters prior to itself", async () => {
+  it("emit diagnostics if referencing itself", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
-        @test model A<T = U, U = "hi"> { a: T, b: U }
+        @test model A<T = T> { a: T }
         model B { 
           foo: A
         };
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
-    const a = A.properties.get("a")!;
-    const b = A.properties.get("b")!;
-    strictEqual(a.type.kind, "String");
-    strictEqual((a.type as StringLiteralType).value, "bye");
-    strictEqual(b.type.kind, "String");
-    strictEqual((b.type as StringLiteralType).value, "bye");
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, {
+      code: "invalid-template-default",
+      message:
+        "Template parameter defaults can only reference previously declared type parameters.",
+    });
+  });
+
+  it("emit diagnostics if args reference each other", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T = K, K = T> { a: T }
+        model B { 
+          foo: A
+        };
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, {
+      code: "invalid-template-default",
+      message:
+        "Template parameter defaults can only reference previously declared type parameters.",
+    });
+  });
+
+  it("emit diagnostics if referencing itself nested", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T = {foo: T}> { a: T }
+        model B { 
+          foo: A
+        };
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, {
+      code: "invalid-template-default",
+      message:
+        "Template parameter defaults can only reference previously declared type parameters.",
+    });
   });
 });

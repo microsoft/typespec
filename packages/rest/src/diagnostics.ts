@@ -51,6 +51,12 @@ const libDefinition = {
         default: paramMessage`More than one key found on model type ${"resourceName"}`,
       },
     },
+    "duplicate-parent-key": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Resource type '${"resourceName"}' has a key property named '${"keyName"}' which is already used by parent type '${"parentName"}'.`,
+      },
+    },
     "missing-path-param": {
       severity: "error",
       messages: {
@@ -93,6 +99,24 @@ const libDefinition = {
         default:
           "statusCode value must be a numeric or string literal or union of numeric or string literals",
         value: "statusCode value must be a three digit code between 100 and 599",
+      },
+    },
+    "content-type-string": {
+      severity: "error",
+      messages: {
+        default: "contentType parameter must be a string literal or union of string literals",
+      },
+    },
+    "duplicate-response": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple return types for content type ${"contentType"} and status code ${"statusCode"}`,
+      },
+    },
+    "content-type-ignored": {
+      severity: "warning",
+      messages: {
+        default: "content-type header ignored because return type has no body",
       },
     },
   },

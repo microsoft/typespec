@@ -9,7 +9,7 @@ export default defineConfig({
     file: "dist/src/extension.js",
     format: "commonjs",
     sourcemap: true,
-    exports: "default",
+    exports: "named",
   },
   external: ["fs/promises", "vscode"],
   plugins: [resolve({ preferBuiltins: true }), commonjs()],

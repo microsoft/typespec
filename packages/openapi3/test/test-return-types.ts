@@ -262,45 +262,6 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["200"].content["text/csv"]);
   });
 
-  it("issues diagnostics for duplicate body decorator", async () => {
-    const diagnostics = await checkFor(
-      `
-      model Foo {
-        foo: string;
-      }
-      model Bar {
-        bar: string;
-      }
-      @route("/")
-      namespace root {
-        @get
-        op read(): { @body body1: Foo, @body body2: Bar };
-      }
-      `
-    );
-    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-body" }]);
-  });
-
-  it("issues diagnostics for return type with duplicate status code", async () => {
-    const diagnostics = await checkFor(
-      `
-    model Foo {
-      foo: string;
-    }
-    model Error {
-      code: string;
-    }
-    @route("/")
-    namespace root {
-      @get
-      op read(): Foo | Error;
-    }
-    `
-    );
-    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-response" }]);
-    strictEqual(diagnostics[0].message, "Multiple return types for status code 200");
-  });
-
   it("issues diagnostics for invalid status codes", async () => {
     const diagnostics = await checkFor(
       `
@@ -333,37 +294,6 @@ describe("openapi3: return types", () => {
     ok(diagnostics[0].message.includes("must be a numeric or string literal"));
     ok(diagnostics[1].message.includes("must be a three digit code between 100 and 599"));
     ok(diagnostics[2].message.includes("must be a numeric or string literal"));
-  });
-
-  it("issues diagnostics for invalid content types", async () => {
-    const diagnostics = await checkFor(
-      `
-      model Foo {
-        foo: string;
-      }
-
-      model TextPlain {
-        contentType: "text/plain";
-      }
-
-      namespace root {
-        @route("/test1")
-        @get
-        op test1(): { @header contentType: string, @body body: Foo };
-        @route("/test2")
-        @get
-        op test2(): { @header contentType: 42, @body body: Foo };
-        @route("/test3")
-        @get
-        op test3(): { @header contentType: "application/json" | TextPlain, @body body: Foo };
-      }
-    `
-    );
-    expectDiagnostics(diagnostics, [
-      { code: "@cadl-lang/openapi3/content-type-string" },
-      { code: "@cadl-lang/openapi3/content-type-string" },
-      { code: "@cadl-lang/openapi3/content-type-string" },
-    ]);
   });
 
   it("defines responses with primitive types", async () => {
@@ -584,6 +514,50 @@ describe("openapi3: return types", () => {
     ok(responses["201"].content === undefined, "response should have no content");
     ok(responses["200"] === undefined);
     ok(responses["204"] === undefined);
+  });
+
+  it("defaults to 204 no content with void response type", async () => {
+    const res = await openApiFor(`@get op read(): void;`);
+    ok(res.paths["/"].get.responses["204"]);
+  });
+
+  it("defaults to 204 no content with void @body", async () => {
+    const res = await openApiFor(`@get op read(): {@body body: void};`);
+    ok(res.paths["/"].get.responses["204"]);
+  });
+
+  describe("multiple content types", () => {
+    it("handles multiple content types for the same status code", async () => {
+      const res = await openApiFor(
+        `@get op read():
+          | { @body body: {} }
+          | {@header contentType: "text/plain", @body body: string };
+        `
+      );
+      ok(res.paths["/"].get.responses[200].content["application/json"]);
+      ok(res.paths["/"].get.responses[200].content["text/plain"]);
+    });
+
+    it("merges headers from multiple responses", async () => {
+      const res = await openApiFor(
+        `@get op read():
+          | { @body body: {}, @header foo: string }
+          | {@header contentType: "text/plain", @body body: string, @header bar: string };
+        `
+      );
+      ok(res.paths["/"].get.responses[200].headers["foo"]);
+      ok(res.paths["/"].get.responses[200].headers["bar"]);
+    });
+
+    it("issues a diagnostic for duplicate headers across responses", async () => {
+      const diagnostics = await checkFor(
+        `@get op read():
+          | { @body body: {}, @header foo: string }
+          | {@header contentType: "text/plain", @body body: string, @header foo: string };
+        `
+      );
+      expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/duplicate-header" }]);
+    });
   });
 
   describe("binary responses", () => {
