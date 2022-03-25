@@ -64,7 +64,7 @@ using the preview.
 
 2. Create a folder for your new Cadl project
 
-3. **Via init command:** Run `npx -p @cadl-lang/compiler cadl init` > Select openapi3 library template.
+3. **Via init command:** Run `npx -p @cadl-lang/compiler cadl init` > Select "Generic Rest API" template.
 
 4. **Alternatively manually:** In a command prompt, run the following commands:
 
