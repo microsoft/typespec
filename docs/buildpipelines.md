@@ -1,5 +1,7 @@
 # Using Build Pipelines with CADL
+
 ## Table of Contents
+
 1. [Introduction](#introduction)
 1. [Azure DevOps Pipelines](#azure-devops-pipelines)
 1. [Github Pipelines](#github-pipelines)
@@ -7,24 +9,27 @@
 # Introduction
 
 ## Dependencies
+
 In order to build Cadl in your build pipeline, you will need to ensure that the following are available or are automatically installed by your project:
+
 1. NodeJS 16.14.2 LTS (Recommended)
 2. Cadl compilation tools (via npm package)
 
 # Azure DevOps Pipelines
+
 Depending on your project, you may need to add NodeJS and install NPM packages for Cadl.
 The following Azure Devops Pipeline tasks can be modified and added to your pipeline yaml file if you do not already utilize NodeJS in your project.
 
 ```yaml
-          - task: NodeTool@0
-            inputs:
-              versionSpec: '16.14.2' # Node 16.14.2 LTS is recommended.
-              checkLatest: false
+- task: NodeTool@0
+  inputs:
+    versionSpec: "16.14.2" # Node 16.14.2 LTS is recommended.
+    checkLatest: false
 
-          - task: Npm@1 # Install the NPM packages required by Cadl.
-            inputs:
-              command: 'install'
-              workingDir: '$(SRCROOT)\path\to\cadl\folder' # This is where package.json lives for your CADL project
+- task: Npm@1 # Install the NPM packages required by Cadl.
+  inputs:
+    command: "install"
+    workingDir: '$(SRCROOT)\path\to\cadl\folder' # This is where package.json lives for your CADL project
 ```
 
 This is sufficient if you are building via a csproj file which triggers the cadl compile and finds the cadl compiler iteself.
@@ -32,41 +37,44 @@ This is sufficient if you are building via a csproj file which triggers the cadl
 You may also need to add additional steps to compile your cadl files separately. An example of a basic pipeline is provided below.
 
 ## Example Pipeline
+
 Note: This example assumes that your Cadl folder is at the root of your repository.
+
 ```yaml
 trigger:
-- main
+  - main
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '16.4.2'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "16.4.2"
 
-- task: Npm@1
-  displayName: Install Cadl Compiler
-  inputs:
-    command: 'custom'
-    customCommand: 'install -g @cadl-lang/compiler'
+  - task: Npm@1
+    displayName: Install Cadl Compiler
+    inputs:
+      command: "custom"
+      customCommand: "install -g @cadl-lang/compiler"
 
-- task: Npm@1
-  inputs:
-    command: 'install'
-    workingDir: '.'
+  - task: Npm@1
+    inputs:
+      command: "install"
+      workingDir: "."
 
-- task: CmdLine@2
-  inputs:
-    script: 'cadl compile .'
+  - task: CmdLine@2
+    inputs:
+      script: "cadl compile ."
 
-- task: PublishPipelineArtifact@1
-  displayName: Publish Cadl Output Folder
-  inputs:
-    targetPath: 'cadl-output'
-    artifact: 'cadl-output'
-    publishLocation: 'pipeline'
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Cadl Output Folder
+    inputs:
+      targetPath: "cadl-output"
+      artifact: "cadl-output"
+      publishLocation: "pipeline"
 ```
 
 # Github Pipelines
+
 <TBD>
