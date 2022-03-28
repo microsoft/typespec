@@ -108,4 +108,45 @@ describe("cadl: versioning: depdendencies", () => {
       });
     });
   });
+
+  describe("when using versioned library without @versionedDependency", () => {
+    it("emit diagnostic when used in extends", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          model Test extends VersionedLib.Foo {}
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specified which versions with @versionedDependency.",
+      });
+    });
+
+    it("emit diagnostic when used in properties", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          model Test {
+            foo: VersionedLib.Foo
+          }
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specified which versions with @versionedDependency.",
+      });
+    });
+
+    it("emit diagnostic when project has no namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Test extends VersionedLib.Foo {}
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/using-versioned-library",
+        message:
+          "Namespace '' is referencing types from versioned namespace 'VersionedLib' but didn't specified which versions with @versionedDependency.",
+      });
+    });
+  });
 });
