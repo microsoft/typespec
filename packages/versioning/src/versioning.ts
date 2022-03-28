@@ -17,7 +17,6 @@ const renamedFromKey = Symbol();
 const madeOptionalKey = Symbol();
 
 export function $added({ program }: DecoratorContext, t: Type, v: string) {
-  console.log("Abc");
   if (typeof v !== "string") {
     reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
