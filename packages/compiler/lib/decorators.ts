@@ -191,7 +191,7 @@ const formatValuesKey = Symbol();
 export function $format({ program }: DecoratorContext, target: Type, format: string) {
   if (
     !validateDecoratorTarget(program, target, "@format", ["Model", "ModelProperty"]) ||
-    !validateDecoratorTargetIntrinsic(program, target, "@pattern", "string")
+    !validateDecoratorTargetIntrinsic(program, target, "@format", ["string","bytes"])
   ) {
     return;
   }
