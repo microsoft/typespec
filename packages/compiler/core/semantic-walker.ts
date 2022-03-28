@@ -279,6 +279,20 @@ export function mapChildModels(program: Program): ReadonlyMap<ModelType, readonl
   return map;
 }
 
+const ChildModelMap = Symbol();
+/**
+ * @returns the mapping of parent model to child model.
+ * Will cache the value so it is computed only once.
+ */
+export function getChildModelMap(program: Program): ReadonlyMap<ModelType, readonly ModelType[]> {
+  let map = program.stateMaps.get(ChildModelMap) as ReadonlyMap<ModelType, readonly ModelType[]>;
+  if (!map) {
+    map = mapChildModels(program);
+    program.stateMaps.set(ChildModelMap, map as any);
+  }
+  return map;
+}
+
 // Return property from type, nesting into baseTypes as needed.
 export function getProperty(type: ModelType, propertyName: string): ModelTypeProperty | undefined {
   while (type.baseModel) {
