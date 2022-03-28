@@ -73,7 +73,7 @@ function main() {
   connection.listen();
 }
 
-function fatalError(e: any) {
+function fatalError(e: unknown) {
   // If we failed to send any log messages over LSP pipe, send them to
   // stderr before exiting.
   for (const pending of server?.pendingMessages ?? []) {

@@ -53,7 +53,7 @@ async function testScenario(name: string) {
   }
 }
 
-describe("compiler: prettier formatter scenarios", async () => {
+describe("compiler: prettier formatter scenarios", () => {
   // describe has to be sync, so using sync readdir here.
   const scenarioFiles = readdirSync(join(__dirname, "../../../../test/formatter/scenarios/inputs"));
 

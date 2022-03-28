@@ -19,6 +19,8 @@ module.exports = {
       "warn",
       { varsIgnorePattern: "^_", argsIgnorePattern: ".*", ignoreRestSiblings: true },
     ],
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-misused-promises": "error",
 
     /**
      * Core

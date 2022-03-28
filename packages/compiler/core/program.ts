@@ -54,7 +54,7 @@ export interface Program {
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
   evalCadlScript(cadlScript: string): void;
-  onValidate(cb: (program: Program) => void): Promise<void> | void;
+  onValidate(cb: (program: Program) => void | Promise<void>): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
   stateSets: Map<symbol, Set<Type>>;

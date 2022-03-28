@@ -7,7 +7,7 @@ import { BrowserHost } from "./browserHost";
 import { samples } from "./samples";
 import "./style.css";
 
-export function createUI(host: BrowserHost) {
+export async function createUI(host: BrowserHost) {
   const tabContainer = document.getElementById("outputTabs")!;
   const mainModel = monaco.editor.createModel(
     "",
@@ -15,11 +15,7 @@ export function createUI(host: BrowserHost) {
     monaco.Uri.parse("inmemory://test/main.cadl")
   );
 
-  mainModel.onDidChangeContent(
-    debounce(() => {
-      doCompile();
-    }, 200)
-  );
+  mainModel.onDidChangeContent(debounce(doCompile, 200));
 
   const editor = monaco.editor.create(document.getElementById("editor")!, {
     model: mainModel,
@@ -60,23 +56,20 @@ export function createUI(host: BrowserHost) {
     }
   }
 
-  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-    saveCode();
-  });
-
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, saveCode);
   document.getElementById("share")?.addEventListener("click", saveCode);
   document.getElementById("newIssue")?.addEventListener("click", newIssue);
 
   initSamples();
-  doCompile();
+  await doCompile();
 
   return;
 
-  function saveCode() {
+  async function saveCode() {
     const contents = mainModel.getValue();
     const compressed = lzutf8.compress(contents, { outputEncoding: "Base64" });
     history.pushState(null, "", window.location.pathname + "?c=" + encodeURIComponent(compressed));
-    navigator.clipboard.writeText(window.location.toString());
+    await navigator.clipboard.writeText(window.location.toString());
   }
 
   function initSamples() {
@@ -109,7 +102,7 @@ export function createUI(host: BrowserHost) {
     }
   }
   async function doCompile() {
-    host.writeFile("main.cadl", mainModel.getValue());
+    await host.writeFile("main.cadl", mainModel.getValue());
     await emptyOutputDir();
     const program = await compile("main.cadl", host, {
       outputPath: "cadl-output",
@@ -148,7 +141,7 @@ export function createUI(host: BrowserHost) {
       link.innerText = file;
       tabContainer.appendChild(link);
       if (first) {
-        loadOutputFile(link, "./cadl-output/" + file);
+        await loadOutputFile(link, "./cadl-output/" + file);
         first = false;
       }
     }
@@ -166,8 +159,8 @@ export function createUI(host: BrowserHost) {
     output.setModel(model);
   }
 
-  function newIssue() {
-    saveCode();
+  async function newIssue() {
+    await saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
     const url = `https://github.com/microsoft/cadl/issues/new?body=${bodyPayload}`;
     window.open(url, "_blank");
