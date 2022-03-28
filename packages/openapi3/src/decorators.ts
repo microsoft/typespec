@@ -31,4 +31,4 @@ export function getOneOf(program: Program, entity: Type): boolean {
   return program.stateMap(oneOfKey).get(entity);
 }
 
-setDecoratorNamespace("Openapi.V3", $useRef, $oneOf);
+setDecoratorNamespace("OpenAPI.V3", $useRef, $oneOf);
