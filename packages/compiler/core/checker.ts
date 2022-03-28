@@ -799,7 +799,7 @@ export function createChecker(program: Program): Checker {
       node,
       name: "",
       properties: properties,
-      decorators: [], // could probably include both sets of decorators here...
+      decorators: [],
     });
 
     for (const option of optionTypes) {
