@@ -196,6 +196,10 @@ export function $onValidate(program: Program) {
 
   navigateProgram(program, {
     model: (model) => {
+      // If this is an instantiated type we don't want to keep the mapping.
+      if (model.templateArguments && model.templateArguments.length > 0) {
+        return;
+      }
       addDependency(model.namespace, model.baseModel);
       for (const prop of model.properties.values()) {
         addDependency(model.namespace, prop.type);
