@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Added utility to cache child model mapping",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
