@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Customize VS output when language server activation fails",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vs"
+}
