@@ -4,7 +4,13 @@ module.exports = {
   extends: "@cadl-lang/eslint-config-cadl",
   parserOptions: { project: "./tsconfig.json" },
   rules: {
-    "@typescript-eslint/no-floating-promises": "off",
-    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        checksVoidReturn: {
+          //arguments: false, // too much noise when adding async event listeners
+        },
+      },
+    ],
   },
 };

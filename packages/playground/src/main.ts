@@ -16,4 +16,4 @@ import { createUI } from "./ui";
 
 const host = await createBrowserHost();
 attachServices(host);
-createUI(host);
+await createUI(host);
