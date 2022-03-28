@@ -8,7 +8,7 @@ module.exports = {
       "error",
       {
         checksVoidReturn: {
-          //arguments: false, // too much noise when adding async event listeners
+          arguments: false, // too much noise when adding async event listeners
         },
       },
     ],
