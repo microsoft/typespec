@@ -626,7 +626,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getParameterKey(property: ModelTypeProperty, param: any) {
-    const parent = program.checker!.getTypeForNode(property.node.parent!) as ModelType;
+    const parent = property.model!;
     let key = program.checker!.getTypeName(parent);
     let isQualifiedParamName = false;
 
