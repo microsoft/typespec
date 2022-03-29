@@ -390,6 +390,36 @@ interface Foo {
 `,
       });
     });
+
+    it("format comment between decorator and namespace statement", () => {
+      assertFormat({
+        code: `
+@foo
+// comment
+namespace Bar;
+`,
+        expected: `
+// comment
+@foo
+namespace Bar;
+`,
+      });
+    });
+
+    it("format comment between decorator and model statement", () => {
+      assertFormat({
+        code: `
+@foo
+// comment
+model Bar {}
+`,
+        expected: `
+// comment
+@foo
+model Bar {}
+`,
+      });
+    });
   });
 
   describe("alias union", () => {
