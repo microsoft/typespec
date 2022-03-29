@@ -31,7 +31,7 @@ In addition, Cadl comes with a standard library for describing REST APIs and gen
 
 Cadl models are used to describe data shapes or schemas. Models have any number of members and can extend and be composed with other models. Members are required by default, but can made optional by appending a "?" to the member name. A default value can also be provided with adding `= <value>` on an optional property.
 
-The following defines a data shape with two members:
+The following defines a data shape with three members:
 
 ```cadl
 model Dog {
