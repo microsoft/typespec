@@ -168,6 +168,7 @@ export interface ModelTypeProperty extends BaseType, DecoratedType {
   sourceProperty?: ModelTypeProperty;
   optional: boolean;
   default?: Type;
+  model?: ModelType;
 }
 
 export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {

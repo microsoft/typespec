@@ -1,5 +1,6 @@
 module.exports = {
   parser: "@typescript-eslint/parser",
+  parserOptions: { project: "./tsconfig.json" },
   plugins: ["@typescript-eslint/eslint-plugin", "prettier"],
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   env: {
@@ -19,6 +20,8 @@ module.exports = {
       "warn",
       { varsIgnorePattern: "^_", argsIgnorePattern: ".*", ignoreRestSiblings: true },
     ],
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-misused-promises": "error",
 
     /**
      * Core

@@ -198,7 +198,7 @@ describe("compiler: built-in decorators", () => {
     });
   });
 
-  describe("@key", async () => {
+  describe("@key", () => {
     it("emits diagnostic when argument is not a string", async () => {
       const diagnostics = await runner.diagnose(
         `model M {

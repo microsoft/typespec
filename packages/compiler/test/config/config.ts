@@ -10,7 +10,7 @@ import { SchemaValidator } from "../../core/schema-validator.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 describe("compiler: config file loading", () => {
-  describe("file discovery", async () => {
+  describe("file discovery", () => {
     const scenarioRoot = resolve(__dirname, "../../../test/config/scenarios");
     const loadTestConfig = async (folderName: string) => {
       const folderPath = join(scenarioRoot, folderName);

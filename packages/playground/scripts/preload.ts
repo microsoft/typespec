@@ -44,4 +44,4 @@ async function load() {
   await writeFile("./dist-dev/cadlContents.json", JSON.stringify(staticContents));
 }
 
-load();
+await load();
