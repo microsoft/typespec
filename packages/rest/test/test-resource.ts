@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { compileOperations, getRoutesFor } from "./test-host.js";
+import { compileOperations, createRestTestRunner, getRoutesFor } from "./test-host.js";
 
 describe("rest: resources", () => {
   it("resources: generates standard operations for resource types and their children", async () => {
@@ -252,5 +252,22 @@ describe("rest: resources", () => {
         params: ["thingId", "subthingId"],
       },
     ]);
+  });
+
+  it("emit diagnostic if missing @key decorator on resource", async () => {
+    const runner = await createRestTestRunner();
+    const diagnostics = await runner.diagnose(
+      `
+      using Cadl.Rest.Resource;
+
+      interface Dogs mixes ResourceOperations<Dog, {}> {}
+
+      model Dog {}
+      `
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@cadl-lang/rest/missing-key",
+      message: "Type 'Dog' is missing but requires one. Use @key to mark the property key.",
+    });
   });
 });
