@@ -29,12 +29,15 @@ In addition, Cadl comes with a standard library for describing REST APIs and gen
 
 ### Models
 
-Cadl models are used to describe data shapes or schemas. Models have any number of members and can extend and be composed with other models. Members are required by default, but can made optional by appending a "?" to the member name. The following defines a data shape with two members:
+Cadl models are used to describe data shapes or schemas. Models have any number of members and can extend and be composed with other models. Members are required by default, but can made optional by appending a "?" to the member name. A default value can also be provided with adding `= <value>` on an optional property.
+
+The following defines a data shape with two members:
 
 ```cadl
 model Dog {
   name: string;
   favoriteToy?: string;
+  bestTreat?: string = "chicken";
 }
 
 ```
@@ -102,7 +105,7 @@ model Dog extends Animal {}
 
 ```
 
-### Is
+#### Is
 
 Sometimes you want to copy all aspects of a type without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It is like spread, but also copies [decorators](#Decorators) in addition to properties. One common use case is to give a better name to a [template](#Templates) instantiation:
 
@@ -165,6 +168,16 @@ model Page<T> {
 
 model DogPage {
   ...Page<Dog>;
+}
+
+```
+
+A template parameter can be given a default value with `= <value>`.
+
+```cadl
+model Page<T = string> {
+  size: number;
+  item: T[];
 }
 
 ```
