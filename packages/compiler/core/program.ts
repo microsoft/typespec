@@ -463,6 +463,9 @@ export async function createProgram(
         try {
           // attempt to resolve a node module with this name
           importFilePath = await resolveCadlLibrary(path, relativeTo);
+          if (importFilePath) {
+            logger.debug(`Loading library "${path}" from "${importFilePath}"`);
+          }
         } catch (e: any) {
           if (e.code === "MODULE_NOT_FOUND") {
             program.reportDiagnostic(
