@@ -3,6 +3,7 @@ import { reportDiagnostic } from "./diagnostics.js";
 import { getResourceTypeKey } from "./resource.js";
 
 const validatedMissingKey = Symbol();
+// Workaround for the lack of tempalte constraints https://github.com/microsoft/cadl/issues/377
 export function $validateHasKey(context: DecoratorContext, target: Type, value: Type) {
   if (!validateDecoratorParamType(context.program, target, value, "Model")) {
     return;
