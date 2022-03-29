@@ -13,7 +13,7 @@ export function $validateHasKey(context: DecoratorContext, target: Type, value: 
   const resourceKey = getResourceTypeKey(context.program, value);
   if (resourceKey === undefined) {
     reportDiagnostic(context.program, {
-      code: "missing-key",
+      code: "resource-missing-key",
       format: { modelName: value.name },
       target: value,
     });

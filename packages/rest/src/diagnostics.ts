@@ -45,10 +45,10 @@ const libDefinition = {
         default: "Cannot copy keys from a non-key type (KeysOf<T> or ParentKeysOf<T>)",
       },
     },
-    "missing-key": {
+    "resource-missing-key": {
       severity: "error",
       messages: {
-        default: paramMessage`Type '${"modelName"}' is missing but requires one. Use @key to mark the property key.`,
+        default: paramMessage`Type '${"modelName"}' is used as a resource and therefore must have a key. Use @key to designate a property as the key.`,
       },
     },
     "duplicate-key": {

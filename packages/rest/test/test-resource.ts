@@ -266,8 +266,9 @@ describe("rest: resources", () => {
       `
     );
     expectDiagnostics(diagnostics, {
-      code: "@cadl-lang/rest/missing-key",
-      message: "Type 'Dog' is missing but requires one. Use @key to mark the property key.",
+      code: "@cadl-lang/rest/resource-missing-key",
+      message:
+        "Type 'Dog' is used as a resource and therefore must have a key. Use @key to designate a property as the key.",
     });
   });
 });
