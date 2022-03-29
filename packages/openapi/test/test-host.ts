@@ -12,6 +12,6 @@ export async function createOpenAPITestRunner() {
   return createTestWrapper(
     host,
     (code) =>
-      `import "@cadl-lang/rest"; import "@cadl-lang/openapi";using Cadl.Rest;using Cadl.Http;${code}`
+      `import "@cadl-lang/rest"; import "@cadl-lang/openapi";using Cadl.Rest;using Cadl.Http;using OpenAPI;${code}`
   );
 }

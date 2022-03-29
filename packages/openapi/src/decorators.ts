@@ -3,12 +3,15 @@ import {
   CadlValue,
   DecoratorContext,
   Program,
+  setDecoratorNamespace,
   Type,
   validateDecoratorParamType,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { http } from "@cadl-lang/rest";
 import { reportDiagnostic } from "./lib.js";
+
+setDecoratorNamespace("OpenAPI", $operationId, $extension, $defaultResponse, $externalDocs);
 
 const operationIdsKey = Symbol();
 export function $operationId({ program }: DecoratorContext, entity: Type, opId: string) {
