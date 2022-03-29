@@ -7,6 +7,7 @@ dependencies:
   '@rush-temp/cadl-vscode': file:projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:projects/compiler.tgz
   '@rush-temp/eslint-config-cadl': file:projects/eslint-config-cadl.tgz_prettier@2.5.1
+  '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/openapi': file:projects/openapi.tgz
   '@rush-temp/openapi3': file:projects/openapi3.tgz
   '@rush-temp/playground': file:projects/playground.tgz
@@ -4270,6 +4271,23 @@ packages:
       integrity: sha512-A0DmwUe9t4sr4lYUQvVss2lf0C6KvOubB1UAcp/bYH7bt7wy5/09mrvWl0V3rNRHedOIM8hKmcHlvLE+qkrx6g==
       tarball: file:projects/eslint-config-cadl.tgz
     version: 0.0.0
+  file:projects/html-program-viewer.tgz:
+    dependencies:
+      '@types/mocha': 9.1.0
+      '@types/node': 14.0.27
+      '@types/prettier': 2.4.4
+      c8: 7.11.0
+      eslint: 8.12.0
+      mocha: 9.2.1
+      prettier: 2.5.1
+      rimraf: 3.0.2
+      typescript: 4.5.5
+    dev: false
+    name: '@rush-temp/html-program-viewer'
+    resolution:
+      integrity: sha512-+dIgeyw5JevYE67Vz/3Pu9D1ZbSdWtvIK7sSE2Xns6QfLllPB5mfbLYW4rmqmZS+wd6i+BvSDp5PcLd92Cc4sQ==
+      tarball: file:projects/html-program-viewer.tgz
+    version: 0.0.0
   file:projects/openapi.tgz:
     dependencies:
       '@types/mocha': 9.1.0
@@ -4416,6 +4434,7 @@ specifiers:
   '@rush-temp/cadl-vscode': file:./projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:./projects/compiler.tgz
   '@rush-temp/eslint-config-cadl': file:./projects/eslint-config-cadl.tgz
+  '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/openapi': file:./projects/openapi.tgz
   '@rush-temp/openapi3': file:./projects/openapi3.tgz
   '@rush-temp/playground': file:./projects/playground.tgz

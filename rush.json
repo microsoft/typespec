@@ -121,6 +121,12 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@cadl-lang/html-program-viewer",
+      "projectFolder": "packages/html-program-viewer",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@cadl-lang/versioning",
       "projectFolder": "packages/versioning",
       "reviewCategory": "production",
