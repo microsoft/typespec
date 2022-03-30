@@ -409,4 +409,34 @@ describe("rest: routes", () => {
       expectDiagnosticEmpty(diagnostics);
     });
   });
+
+  it("allows customization of path parameters in generated routes", async () => {
+    const routes = await getRoutesFor(
+      `
+      @get
+      @autoRoute
+      op TestRoute(
+        @path
+        @segment("things")
+        thingId: string;
+
+        @path
+        @segment("subthings")
+        subThingId: string;
+      ): string;
+      `,
+      {
+        autoRouteOptions: {
+          routeParamFilter: (_, param) => {
+            return {
+              routeParamString: param.name === "subThingId" ? "bar" : "{foo}",
+              excludeFromOperationParams: true,
+            };
+          },
+        },
+      }
+    );
+
+    deepStrictEqual(routes, [{ verb: "get", path: "/things/{foo}/subthings/bar", params: [] }]);
+  });
 });
