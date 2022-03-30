@@ -3,6 +3,7 @@ import "@cadl-lang/rest";
 using Cadl.Http;
 
 model HasOptional {
+  @format("foo")
   optionalNoDefault?: string;
   optionalString?: string = "default string";
   optionalNumber?: int32 = 123;

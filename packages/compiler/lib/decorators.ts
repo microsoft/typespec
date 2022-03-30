@@ -54,7 +54,7 @@ function setTemplatedStringProperty(
   program.stateMap(key).set(target, text);
 }
 
-const summaryKey = Symbol();
+const summaryKey = Symbol("summary");
 export function $summary(
   { program }: DecoratorContext,
   target: Type,
@@ -68,7 +68,7 @@ export function getSummary(program: Program, type: Type): string | undefined {
   return program.stateMap(summaryKey).get(type);
 }
 
-const docsKey = Symbol();
+const docsKey = Symbol("doc");
 export function $doc(
   { program }: DecoratorContext,
   target: Type,
@@ -96,7 +96,7 @@ export function $inspectTypeName(program: Program, target: Type, text: string) {
   console.log(program.checker!.getTypeName(target));
 }
 
-const intrinsicsKey = Symbol();
+const intrinsicsKey = Symbol("intrinsic");
 export function $intrinsic({ program }: DecoratorContext, target: Type, name: IntrinsicModelName) {
   program.stateMap(intrinsicsKey).set(target, name);
 }
@@ -135,7 +135,7 @@ export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
 }
 
-const numericTypesKey = Symbol();
+const numericTypesKey = Symbol("numeric");
 export function $numeric({ program }: DecoratorContext, target: Type) {
   if (!isIntrinsic(program, target)) {
     program.reportDiagnostic(
