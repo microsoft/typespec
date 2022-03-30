@@ -67,6 +67,7 @@ import {
   Sym,
   SyntaxKind,
   TemplateParameterDeclarationNode,
+  TemplateParameterValueNode,
   TextRange,
   TupleExpressionNode,
   TypeReferenceNode,
@@ -703,6 +704,24 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
+  function parseTemplateParameterValue(): TemplateParameterValueNode {
+    const pos = tokenPos();
+    let id;
+    if (token() === Token.Identifier) {
+      id = parseIdentifier();
+      parseExpected(Token.Equals);
+    }
+    if (parseOptional(Token.Equals)) {
+    }
+    const value = parseExpression();
+    return {
+      kind: SyntaxKind.TemplateParameterValue,
+      id,
+      value,
+      ...finishNode(pos),
+    };
+  }
+
   function parseModelPropertyOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
     return token() === Token.Elipsis
       ? parseModelSpreadProperty(pos, decorators)
@@ -885,7 +904,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   ): TypeReferenceNode {
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
-    const args = parseOptionalList(ListKind.TemplateArguments, parseExpression);
+    const args = parseOptionalList(ListKind.TemplateArguments, parseTemplateParameterValue);
 
     return {
       kind: SyntaxKind.TypeReference,
@@ -2287,6 +2306,8 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
       return visitNode(cb, node.default);
+    case SyntaxKind.TemplateParameterValue:
+      return visitNode(cb, node.value);
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:

@@ -402,6 +402,7 @@ export enum SyntaxKind {
   TypeReference,
   ProjectionReference,
   TemplateParameterDeclaration,
+  TemplateParameterValue,
   EmptyStatement,
   InvalidStatement,
   LineComment,
@@ -488,6 +489,7 @@ export type Node =
   | CadlScriptNode
   | JsSourceFileNode
   | TemplateParameterDeclarationNode
+  | TemplateParameterValueNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
   | ModelPropertyNode
@@ -800,7 +802,7 @@ export interface IntersectionExpressionNode extends BaseNode {
 export interface TypeReferenceNode extends BaseNode {
   kind: SyntaxKind.TypeReference;
   target: MemberExpressionNode | IdentifierNode;
-  arguments: Expression[];
+  arguments: TemplateParameterValueNode[];
 }
 
 export interface ProjectionReferenceNode extends BaseNode {
@@ -812,6 +814,20 @@ export interface ProjectionReferenceNode extends BaseNode {
 export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly default?: Expression;
+}
+
+export interface TemplateParameterValueNode extends BaseNode {
+  readonly kind: SyntaxKind.TemplateParameterValue;
+  /**
+   * Template value.
+   * @example a: Foo<"string", B=123> #=> "string", 123
+   */
+  readonly value: Expression;
+  /**
+   * For named parameters, name of the parameter
+   * @example a: Foo<"string", B=123> #=> undefined, B
+   */
+  readonly id?: IdentifierNode;
 }
 
 // Projection-related Syntax
