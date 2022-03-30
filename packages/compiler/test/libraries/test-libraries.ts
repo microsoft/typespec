@@ -46,12 +46,12 @@ describe("compiler: libraries", () => {
       {
         code: "duplicate-symbol",
         message: `Duplicate name: "@dec"`,
-        file: "/test/lib1.js",
+        file: "lib1.js",
       },
       {
         code: "duplicate-symbol",
         message: `Duplicate name: "@dec"`,
-        file: "/test/lib2.js",
+        file: "lib2.js",
       },
     ]);
   });
