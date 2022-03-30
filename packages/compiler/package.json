@@ -4,14 +4,14 @@
   "description": "Cadl Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
-  "homepage": "https://github.com/Azure/adl",
-  "readme": "https://github.com/Azure/adl/blob/master/README.md",
+  "homepage": "https://github.com/Microsoft/cadl",
+  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/adl.git"
+    "url": "git+https://github.com/Microsoft/cadl.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/adl/issues"
+    "url": "https://github.com/Microsoft/cadl/issues"
   },
   "keywords": [
     "cadl",

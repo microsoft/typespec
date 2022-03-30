@@ -3,15 +3,15 @@
   "version": "0.3.2",
   "author": "Microsoft Corporation",
   "description": "Cadl library for declaring and emitting versioned APIs",
-  "homepage": "https://github.com/Azure/adl",
-  "readme": "https://github.com/Azure/adl/blob/master/README.md",
+  "homepage": "https://github.com/Microsoft/cadl",
+  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/adl.git"
+    "url": "git+https://github.com/Microsoft/cadl.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/adl/issues"
+    "url": "https://github.com/Microsoft/cadl/issues"
   },
   "keywords": [
     "cadl"
