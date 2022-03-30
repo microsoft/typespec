@@ -1,15 +1,18 @@
 import {
+  EnumType,
+  InterfaceType,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
   OperationType,
   Program,
   Type,
+  UnionType,
 } from "@cadl-lang/compiler";
 import React, { FunctionComponent, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
 import { inspect } from "util";
-import { Group, Section } from "./common.js";
+import { Group, Literal, Section } from "./common.js";
 
 function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
@@ -54,8 +57,10 @@ const Operation: FunctionComponent<{ operation: OperationType }> = ({ operation 
 };
 
 const Model: FunctionComponent<{ model: ModelType }> = ({ model }) => {
+  const program = useContext(ProgramContext);
+
   return (
-    <Section title={model.name}>
+    <Section title={model.name} id={getIdForType(program, model)}>
       <ModelProperties model={model} />
     </Section>
   );
@@ -82,12 +87,68 @@ const ModelProperty: FunctionComponent<{ property: ModelTypeProperty }> = ({ pro
   return (
     <tr>
       <td> {property.name}</td>
-      <td>{(property.type as any).name}</td>
+      <td>
+        <TypeReference type={property.type} />
+      </td>
       <td>
         <TypeData type={property} />
       </td>
     </tr>
   );
+};
+
+function getIdForType(
+  program: Program,
+  type: NamespaceType | OperationType | ModelType | InterfaceType | EnumType | UnionType
+) {
+  return `${program.checker!.getNamespaceString(type.namespace)}.${type.name}`;
+}
+
+const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
+  const program = useContext(ProgramContext);
+  switch (type.kind) {
+    case "Namespace":
+    case "Operation":
+    case "Interface":
+    case "Enum":
+    case "Model":
+      const id = getIdForType(program, type);
+      const href = `#${id}`;
+      return (
+        <a href={href} title={type.kind + ": " + id}>
+          {type.name}
+        </a>
+      );
+    case "Array":
+      return (
+        <>
+          <TypeReference type={type.elementType} />
+          {"[]"}
+        </>
+      );
+    case "Union":
+      return (
+        <>
+          {type.options.map((x, i) => {
+            return (
+              <span key={i}>
+                <TypeReference type={x} />
+                {i < type.options.length - 1 ? " | " : ""}
+              </span>
+            );
+          })}
+        </>
+      );
+    case "TemplateParameter":
+      return <span>Template Param: {type.node.id.sv}</span>;
+    case "String":
+      return <Literal>"{type.value}"</Literal>;
+    case "Number":
+    case "Boolean":
+      return <>{type.value}</>;
+    default:
+      return null;
+  }
 };
 
 const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
