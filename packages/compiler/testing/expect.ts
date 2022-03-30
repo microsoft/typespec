@@ -1,6 +1,7 @@
 import assert, { fail, match, strictEqual } from "assert";
 import { Diagnostic, formatDiagnostic, getSourceLocation, NoTarget } from "../core/index.js";
 import { isArray } from "../core/util.js";
+import { resolveVirtualPath } from "./test-host.js";
 
 /**
  * Assert there is no diagnostics.
@@ -89,7 +90,9 @@ export function expectDiagnostics(
       const source = getSourceLocation(diagnostic.target);
       matchStrOrRegex(
         source.file.path,
-        expectation.file,
+        typeof expectation.file === "string"
+          ? resolveVirtualPath(expectation.file)
+          : expectation.file,
         `Diagnostics at index ${i} has non matching file.\n${message}`
       );
     }
