@@ -1,6 +1,23 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+This log was last generated on Thu, 31 Mar 2022 17:10:49 GMT and should not be manually modified.
+
+## 0.10.0
+Thu, 31 Mar 2022 17:10:49 GMT
+
+### Minor changes
+
+- Include discriminator property in base schema with a boilerplace description
+- Add support for `void` type
+- Moved http response interpretation to @cadl-lang/rest library.
+- implement multiple response content types
+- Uptake change to allow versioned dependency with unversioned service
+
+### Patches
+
+- Fix bug with number enums that reference `0`.
+- Use parent .model of ModelTypeProperty
+- Support browser builds
 
 ## 0.9.0
 Wed, 09 Mar 2022 17:42:09 GMT

@@ -2,6 +2,18 @@
   "name": "tmlanguage-generator",
   "entries": [
     {
+      "version": "0.2.3",
+      "tag": "tmlanguage-generator_v0.2.3",
+      "date": "Thu, 31 Mar 2022 17:10:49 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.2.0` to `~0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.2",
       "tag": "tmlanguage-generator_v0.2.2",
       "date": "Wed, 09 Mar 2022 17:42:09 GMT",

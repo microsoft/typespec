@@ -2,6 +2,21 @@
   "name": "cadl-vscode",
   "entries": [
     {
+      "version": "0.13.1",
+      "tag": "cadl-vscode_v0.13.1",
+      "date": "Thu, 31 Mar 2022 17:10:49 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.2.0` to `~0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.2.2` to `~0.2.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.0",
       "tag": "cadl-vscode_v0.13.0",
       "date": "Wed, 09 Mar 2022 17:42:09 GMT",

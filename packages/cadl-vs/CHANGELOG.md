@@ -1,6 +1,14 @@
 # Change Log - cadl-vs
 
-This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+This log was last generated on Thu, 31 Mar 2022 17:10:49 GMT and should not be manually modified.
+
+## 0.6.2
+Thu, 31 Mar 2022 17:10:49 GMT
+
+### Patches
+
+- Fix null ref in VS extension activation
+- Customize VS output when language server activation fails
 
 ## 0.6.1
 Wed, 09 Mar 2022 17:42:09 GMT
