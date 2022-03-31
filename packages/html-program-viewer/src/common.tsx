@@ -22,6 +22,18 @@ export const Section: FunctionComponent<SectionProps> = ({ id, title, hide, chil
   );
 };
 
+export const Item: FunctionComponent<SectionProps> = ({ id, title, hide, children }) => {
+  if (hide) {
+    return <div></div>;
+  }
+  return (
+    <div className="item" id={id}>
+      <div className="item-title">{title}</div>
+      <div className="item-content">{children}</div>
+    </div>
+  );
+};
+
 export const Literal: FunctionComponent = ({ children }) => {
   return <div className="literal">{children}</div>;
 };

@@ -7,3 +7,9 @@ op doAlpha(@path id: string): string;
 
 @route("/beta/{id}")
 op doBeta(@path id: string): string;
+
+interface Some {
+  @post
+  @route("/other")
+  other(@query id: string): string;
+}

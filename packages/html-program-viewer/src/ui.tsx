@@ -12,7 +12,7 @@ import {
 import React, { FunctionComponent, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
 import { inspect } from "util";
-import { Group, Literal, Section } from "./common.js";
+import { Item, Literal, Section } from "./common.js";
 
 function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
@@ -42,6 +42,11 @@ const Namespace: FunctionComponent<{ namespace: NamespaceType }> = ({ namespace 
           <Operation operation={v} key={k} />
         ))}
       </Section>
+      <Section title="Interfaces" hide={namespace.interfaces.size === 0}>
+        {[...namespace.interfaces.entries()].map(([k, v]) => (
+          <Interface type={v} key={k} />
+        ))}
+      </Section>
 
       <Section title="Models" hide={namespace.models.size === 0}>
         {[...namespace.models.entries()].map(([k, v]) => (
@@ -52,17 +57,50 @@ const Namespace: FunctionComponent<{ namespace: NamespaceType }> = ({ namespace 
   );
 };
 
+const DataSection: FunctionComponent<{ type: Type }> = ({ type }) => {
+  return (
+    <Section title="Data">
+      <TypeData type={type} />
+    </Section>
+  );
+};
+
+const Interface: FunctionComponent<{ type: InterfaceType }> = ({ type }) => {
+  return (
+    <Item title={type.name}>
+      <DataSection type={type} />
+      <Section title="Operations" hide={type.operations.size === 0}>
+        {[...type.operations.entries()].map(([k, v]) => (
+          <Operation operation={v} key={k} />
+        ))}
+      </Section>
+    </Item>
+  );
+};
+
 const Operation: FunctionComponent<{ operation: OperationType }> = ({ operation }) => {
-  return <Group>{operation.name}</Group>;
+  return (
+    <Item title={operation.name}>
+      <DataSection type={operation} />
+      <Section title="Params">
+        <ModelProperties model={operation.parameters} />
+      </Section>
+      <Section title="Return Type">
+        <TypeReference type={operation.returnType} />
+      </Section>
+    </Item>
+  );
 };
 
 const Model: FunctionComponent<{ model: ModelType }> = ({ model }) => {
   const program = useContext(ProgramContext);
 
   return (
-    <Section title={model.name} id={getIdForType(program, model)}>
+    <Item title={model.name} id={getIdForType(program, model)}>
+      <DataSection type={model} />
+
       <ModelProperties model={model} />
-    </Section>
+    </Item>
   );
 };
 const ModelProperties: FunctionComponent<{ model: ModelType }> = ({ model }) => {

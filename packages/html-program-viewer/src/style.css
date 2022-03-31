@@ -25,11 +25,26 @@ caption {
 
 .section > .section-title {
   border-bottom: 1px solid #c5c5c5;
-  background-color: #dedede;
-  padding: 2px 10px;
+  background-color: #4875ca;
+  color: #f5f5f5;
+  padding: 2px 5px;
 }
 
 .section > .section-content {
+  padding: 1rem;
+}
+
+.item {
+  border: 1px solid #c5c5c5;
+}
+
+.item > .item-title {
+  border-bottom: 1px solid #c5c5c5;
+  background-color: #dedede;
+  padding: 2px 5px;
+}
+
+.item > .item-content {
   padding: 1rem;
 }
 
