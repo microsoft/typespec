@@ -216,6 +216,8 @@ const diagnostics = {
       default: "Invalid template arguments.",
       notTemplate: "Can't pass template arguments to non-templated type",
       positionalAfterNamed: "Cannot use positional parameter after named parameters.",
+      unknownNamedParam: paramMessage`Parameter '${"paramName"}' is not defined on templated type.`,
+      paramPositionalAndNamed: paramMessage`Parameter '${"paramName"}' is both provided at index ${"index"} and with named value.`,
       tooFew: "Too few template arguments provided.",
       tooMany: "Too many template arguments provided.",
     },

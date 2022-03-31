@@ -1,10 +1,9 @@
-model Foo<T = string, K=string> {}
+import "@cadl-lang/rest";
 
-// In theory all type of p1, p2 and p3 should be the exact same also
-model Bar {
-  p1: Foo<string, string>;
-  p2: Foo<K=string>;
-  p3: Foo<T=string>;
-}
+using Cadl.Http;
 
-op foo(): Bar;
+@route("/alpha/{id}")
+op doAlpha(@path id: string): string;
+
+@route("/beta/{id}")
+op doBeta(@path id: string): string;

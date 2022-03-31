@@ -610,19 +610,46 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({ code: "invalid-template-args", messageId: "tooMany", target: node })
       );
     }
+
+    for (const name of Object.keys(args.named)) {
+      if (!declarations.find((x) => x.id.sv === name)) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "invalid-template-args",
+            messageId: "unknownNamedParam",
+            format: { paramName: name },
+            target: node,
+          })
+        );
+      }
+    }
+
     const values: Type[] = [];
     let tooFew = false;
-    for (let i = args.length; i < declarations.length; i++) {
+    for (let i = 0; i < declarations.length; i++) {
       const declaration = declarations[i];
       if (i < args.positional.length) {
         values.push(args.positional[i]);
+
+        if (declaration.id.sv in args.named) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "paramPositionalAndNamed",
+              format: { paramName: declaration.id.sv, index: i.toString() },
+              target: node,
+            })
+          );
+        }
       } else if (args.named[declaration.id.sv]) {
         values.push(args.named[declaration.id.sv]);
       } else {
-        const defaultValue = getResolvedTypeParameterDefault(
-          getTypeForNode(declaration)! as TemplateParameterType
-        );
+        const declaredType = getTypeForNode(declaration)! as TemplateParameterType;
+        console.log("Decl", declaredType);
+        const defaultValue = getResolvedTypeParameterDefault(declaredType);
         if (defaultValue) {
+          console.log("adding default", defaultValue);
+
           values.push(defaultValue);
         } else {
           tooFew = true;
@@ -640,6 +667,11 @@ export function createChecker(program: Program): Checker {
         })
       );
     }
+
+    console.log(
+      "Values",
+      values.map((x: any) => ({ kind: x.kind, name: x.name }))
+    );
     return values;
   }
 
