@@ -1,7 +1,7 @@
 {
   "name": "cadl-vs",
   "author": "Microsoft Corporation",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Cadl Language Support for Visual Studio",
   "homepage": "https://github.com/Microsoft/cadl",
   "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
@@ -29,6 +29,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "cadl-vscode": "~0.13.0"
+    "cadl-vscode": "~0.13.1"
   }
 }
