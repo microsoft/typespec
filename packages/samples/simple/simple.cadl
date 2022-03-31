@@ -2,14 +2,30 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@route("/string")
+op simple(@path id: string): string;
+
 @route("/alpha/{id}")
-op doAlpha(@path id: string): string;
+op doAlpha(@path id: string): NamedUnion;
 
 @route("/beta/{id}")
-op doBeta(@path id: string): string;
+op doBeta(@path id: string): UnamedUnion;
 
 interface Some {
   @post
   @route("/other")
-  other(@query id: string): string;
+  other(@query id: string): Foo;
 }
+
+enum Foo {
+  one,
+  two: "Two",
+  three,
+}
+
+union NamedUnion {
+  one: "one",
+  two: Foo,
+}
+
+alias UnamedUnion = "unamed" | Foo;

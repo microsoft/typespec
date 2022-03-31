@@ -1,4 +1,5 @@
 import {
+  EnumMemberType,
   EnumType,
   InterfaceType,
   ModelType,
@@ -53,6 +54,16 @@ const Namespace: FunctionComponent<{ namespace: NamespaceType }> = ({ namespace 
           <Model model={v} key={k} />
         ))}
       </Section>
+      <Section title="Enums" hide={namespace.enums.size === 0}>
+        {[...namespace.enums.entries()].map(([k, v]) => (
+          <Enum type={v} key={k} />
+        ))}
+      </Section>
+      <Section title="Unions" hide={namespace.unions.size === 0}>
+        {[...namespace.unions.entries()].map(([k, v]) => (
+          <Union type={v} key={k} />
+        ))}
+      </Section>
     </Section>
   );
 };
@@ -103,6 +114,7 @@ const Model: FunctionComponent<{ model: ModelType }> = ({ model }) => {
     </Item>
   );
 };
+
 const ModelProperties: FunctionComponent<{ model: ModelType }> = ({ model }) => {
   if (model.properties.size === 0) {
     return <div></div>;
@@ -132,6 +144,74 @@ const ModelProperty: FunctionComponent<{ property: ModelTypeProperty }> = ({ pro
         <TypeData type={property} />
       </td>
     </tr>
+  );
+};
+
+const Enum: FunctionComponent<{ type: EnumType }> = ({ type }) => {
+  const program = useContext(ProgramContext);
+
+  return (
+    <Item title={type.name} id={getIdForType(program, type)}>
+      <DataSection type={type} />
+
+      <EnumMembers type={type} />
+    </Item>
+  );
+};
+
+const EnumMembers: FunctionComponent<{ type: EnumType }> = ({ type }) => {
+  if (type.members.length === 0) {
+    return <div></div>;
+  }
+  return (
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Value</th>
+        <th>Data</th>
+      </tr>
+      {[...type.members.entries()].map(([k, v]) => (
+        <EnumMember member={v} key={k} />
+      ))}
+    </table>
+  );
+};
+const EnumMember: FunctionComponent<{ member: EnumMemberType }> = ({ member }) => {
+  return (
+    <tr>
+      <td>{member.name}</td>
+      <td>{member.value}</td>
+      <td>
+        <TypeData type={member} />
+      </td>
+    </tr>
+  );
+};
+
+const Union: FunctionComponent<{ type: UnionType }> = ({ type }) => {
+  const program = useContext(ProgramContext);
+
+  return (
+    <Item title={type.name ?? "<unamed union>"} id={getIdForType(program, type)}>
+      <DataSection type={type} />
+
+      <UnionOptions type={type} />
+    </Item>
+  );
+};
+
+const UnionOptions: FunctionComponent<{ type: UnionType }> = ({ type }) => {
+  if (type.options.length === 0) {
+    return <div></div>;
+  }
+  return (
+    <ul>
+      {[...type.options.entries()].map(([k, v]) => (
+        <li key={k}>
+          <TypeReference type={v}  />
+        </li>
+      ))}
+    </ul>
   );
 };
 
