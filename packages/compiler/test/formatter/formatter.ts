@@ -420,6 +420,25 @@ model Bar {}
 `,
       });
     });
+
+    it("format comment between decorator and model property", () => {
+      assertFormat({
+        code: `
+model Bar {
+  @foo
+// comment
+myProp: string;
+}
+`,
+        expected: `
+model Bar {
+  @foo
+  // comment
+  myProp: string;
+}
+`,
+      });
+    });
   });
 
   describe("alias union", () => {
