@@ -498,7 +498,6 @@ export function createChecker(program: Program): Checker {
           parentNode.templateParameters,
           index
         );
-        console.log("Default value is", type.default);
       }
     } else {
       return templateInstantiation[index];
@@ -646,11 +645,8 @@ export function createChecker(program: Program): Checker {
         values.push(args.named[declaration.id.sv]);
       } else {
         const declaredType = getTypeForNode(declaration)! as TemplateParameterType;
-        console.log("Decl", declaredType);
         const defaultValue = getResolvedTypeParameterDefault(declaredType);
         if (defaultValue) {
-          console.log("adding default", defaultValue);
-
           values.push(defaultValue);
         } else {
           tooFew = true;
@@ -669,10 +665,6 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    console.log(
-      "Values",
-      values.map((x: any) => ({ kind: x.kind, name: x.name }))
-    );
     return values;
   }
 

@@ -707,18 +707,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseTemplateParameterValue(): TemplateParameterValueNode {
     const pos = tokenPos();
     let id;
-    let value;
-    if (token() === Token.Identifier) {
-      const first = parseIdentifier();
+    const expr = parseExpression();
+    let value = expr;
+    if (expr.kind === SyntaxKind.TypeReference) {
       if (parseOptional(Token.Equals)) {
-        id = first;
+        id = expr.target as IdentifierNode;
         value = parseExpression();
-      } else {
-        value = first;
       }
-    } else {
-      value = parseExpression();
     }
+
     return {
       kind: SyntaxKind.TemplateParameterValue,
       id,

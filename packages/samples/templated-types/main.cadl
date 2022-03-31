@@ -1,8 +1,25 @@
-model Foo<A = string, B = string, C  = string> {}
+model Foo<A = string, B = string, C  = string> {
+  a: A;
+  b: B;
+  c: C;
+}
 
 model Cases {
   none: Foo;
   all: Foo<string, string, string>;
+  some: Foo<string, string>;
+  firstNamed: Foo<A=string>;
+  lastNamed: Foo<C=string>;
+  mix: Foo<string, C=string>;
+
+  // invalid-template-args: Cannot use positional parameter after named parameters.
+  // positionalAfterNamed: Foo<B=string, string>;
+
+  // invalid-template-args: Parameter 'U' is not defined on templated type.
+  // unknown: Foo<U=string>;
+
+  // invalid-template-args: Parameter 'A' is both provided at index 0 and with named value.
+  // sameParamTwice: Foo<string, A=string>;
 }
 
 op test(): Cases;
