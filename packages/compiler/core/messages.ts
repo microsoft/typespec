@@ -215,6 +215,7 @@ const diagnostics = {
     messages: {
       default: "Invalid template arguments.",
       notTemplate: "Can't pass template arguments to non-templated type",
+      positionalAfterNamed: "Cannot use positional parameter after named parameters.",
       tooFew: "Too few template arguments provided.",
       tooMany: "Too many template arguments provided.",
     },

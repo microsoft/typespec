@@ -273,6 +273,12 @@ export interface TemplateParameterType extends BaseType {
   default?: Type;
 }
 
+export interface TemplateInstantiationArgs {
+  positional: Type[];
+  named: Record<string, Type>;
+  length: number;
+}
+
 export interface Sym {
   flags: SymbolFlags;
 
