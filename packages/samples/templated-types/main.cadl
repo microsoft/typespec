@@ -1,0 +1,8 @@
+model Foo<A = string, B = string, C  = string> {}
+
+model Cases {
+  none: Foo;
+  all: Foo<string, string, string>;
+}
+
+op test(): Cases;

@@ -498,6 +498,7 @@ export function createChecker(program: Program): Checker {
           parentNode.templateParameters,
           index
         );
+        console.log("Default value is", type.default);
       }
     } else {
       return templateInstantiation[index];
@@ -527,29 +528,29 @@ export function createChecker(program: Program): Checker {
   ) {
     function visit(node: Node) {
       const type = getTypeForNode(node);
-      let hasError = false;
       if (type.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
           if (type.node.symbol === templateParameters[i].symbol) {
             program.reportDiagnostic(
               createDiagnostic({ code: "invalid-template-default", target: node })
             );
-            return errorType;
+            return undefined;
           }
         }
         return type;
       }
 
+      let hasError = false;
       visitChildren(node, (x) => {
         const visited = visit(x);
-        if (visited === errorType) {
+        if (visited === undefined) {
           hasError = true;
         }
       });
 
-      return hasError ? errorType : type;
+      return hasError ? undefined : type;
     }
-    return visit(nodeDefault);
+    return visit(nodeDefault) ?? errorType;
   }
 
   function checkTypeReference(
