@@ -61,7 +61,7 @@ enum Color {
 
 ```
 
-You can a use the union operation to define the enum values inline, e.g.:
+Another is to use the union operation to define the enum values inline, e.g.:
 
 ```cadl
 status: "Running" | "Stopped" | "Failed"
