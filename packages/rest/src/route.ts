@@ -65,7 +65,7 @@ export function $routeReset({ program }: DecoratorContext, entity: Type, path: s
   });
 }
 
-const routeContainerKey = Symbol();
+const routeContainerKey = Symbol("routeContainer");
 function addRouteContainer(program: Program, entity: Type): void {
   const container = entity.kind === "Operation" ? entity.interface || entity.namespace : entity;
   if (!container) {
@@ -82,7 +82,7 @@ function addRouteContainer(program: Program, entity: Type): void {
   program.stateSet(routeContainerKey).add(container);
 }
 
-const routesKey = Symbol();
+const routesKey = Symbol("routes");
 function setRoute(program: Program, entity: Type, details: RoutePath) {
   if (
     !validateDecoratorTarget(program, entity, "@route", ["Namespace", "Interface", "Operation"])
@@ -475,7 +475,7 @@ const resourceOperationToVerb: any = {
   list: "get",
 };
 
-const autoRouteKey = Symbol();
+const autoRouteKey = Symbol("autoRoute");
 export function $autoRoute({ program }: DecoratorContext, entity: Type) {
   if (
     !validateDecoratorTarget(program, entity, "@autoRoute", ["Namespace", "Interface", "Operation"])
