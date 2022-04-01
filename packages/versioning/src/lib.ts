@@ -36,7 +36,7 @@ const libDef = {
     "using-versioned-library": {
       severity: "error",
       messages: {
-        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specified which versions with @versionedDependency.`,
+        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @versionedDependency.`,
       },
     },
   },

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Fix: Using versioned lib validation false positive with interfaces and unions",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}
