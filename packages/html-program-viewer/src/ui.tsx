@@ -10,10 +10,10 @@ import {
   Type,
   UnionType,
 } from "@cadl-lang/compiler";
-import React, { FunctionComponent, useContext } from "react";
+import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
 import { inspect } from "util";
-import { Item, Literal, Section } from "./common.js";
+import { Item, Literal } from "./common.js";
 
 function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
@@ -26,166 +26,197 @@ export function renderProgram(program: Program) {
   const namespaces = expandNamespaces(root);
   return ReactDOMServer.renderToString(
     <ProgramContext.Provider value={program}>
-      {namespaces.map((namespace) => (
-        <Namespace namespace={namespace} key={program.checker!.getNamespaceString(namespace)} />
-      ))}
+      <ul>
+        {namespaces.map((namespace) => (
+          <li key={program.checker!.getNamespaceString(namespace)}>
+            <Namespace type={namespace} />
+          </li>
+        ))}
+      </ul>
     </ProgramContext.Provider>
   );
 }
 
-const Namespace: FunctionComponent<{ namespace: NamespaceType }> = ({ namespace }) => {
-  const program = useContext(ProgramContext);
-  const name = program.checker!.getNamespaceString(namespace) || "<root>";
-  return (
-    <Section title={`namespace: ${name}`}>
-      <Section title="Operations" hide={namespace.operations.size === 0}>
-        {[...namespace.operations.entries()].map(([k, v]) => (
-          <Operation operation={v} key={k} />
-        ))}
-      </Section>
-      <Section title="Interfaces" hide={namespace.interfaces.size === 0}>
-        {[...namespace.interfaces.entries()].map(([k, v]) => (
-          <Interface type={v} key={k} />
-        ))}
-      </Section>
+export interface TypeUIProperty {
+  name: string;
+  value: any;
+  description?: string;
+}
+export interface TypeUIProps {
+  type: Type;
+  name: string;
+  /**
+   * Alternate id
+   * @default getIdForType(type)
+   */
+  id?: string;
+  properties: TypeUIProperty[];
+}
 
-      <Section title="Models" hide={namespace.models.size === 0}>
-        {[...namespace.models.entries()].map(([k, v]) => (
-          <Model model={v} key={k} />
-        ))}
-      </Section>
-      <Section title="Enums" hide={namespace.enums.size === 0}>
-        {[...namespace.enums.entries()].map(([k, v]) => (
-          <Enum type={v} key={k} />
-        ))}
-      </Section>
-      <Section title="Unions" hide={namespace.unions.size === 0}>
-        {[...namespace.unions.entries()].map(([k, v]) => (
-          <Union type={v} key={k} />
-        ))}
-      </Section>
-    </Section>
+export const TypeUI: FunctionComponent<TypeUIProps> = (props) => {
+  const program = useContext(ProgramContext);
+  const id = props.id ?? getIdForType(program, props.type);
+  const properties = props.properties.map((prop) => {
+    return (
+      <li key={prop.name} className="prop">
+        <span className="prop-name" title={prop.description}>
+          {prop.name}
+        </span>
+        : <span className="prop-value">{prop.value}</span>
+      </li>
+    );
+  });
+  return (
+    <div>
+      <div id={id}>
+        <span className="type-type">{props.type.kind}</span>
+        <span className="type-name">{props.name}</span>
+      </div>
+      <ul>{properties}</ul>
+    </div>
   );
 };
 
-const DataSection: FunctionComponent<{ type: Type }> = ({ type }) => {
+export interface ItemListProps<T> {
+  items: Map<string, T> | T[];
+  render: (t: T) => ReactElement<any, any> | null;
+}
+
+export const ItemList = <T extends object>(props: ItemListProps<T>) => {
+  if (Array.isArray(props.items)) {
+    if (props.items.length === 0) {
+      return <>{"[]"}</>;
+    }
+  } else {
+    if (props.items.size === 0) {
+      return <>{"{}"}</>;
+    }
+  }
   return (
-    <Section title="Data">
-      <TypeData type={type} />
-    </Section>
+    <ul>
+      {[...props.items.entries()].map(([k, v]) => (
+        <li key={k}>{props.render(v)}</li>
+      ))}
+    </ul>
   );
+};
+
+const Namespace: FunctionComponent<{ type: NamespaceType }> = ({ type }) => {
+  const program = useContext(ProgramContext);
+  const name = program.checker!.getNamespaceString(type) || "<root>";
+
+  const properties = [
+    {
+      name: "enums",
+      value: <ItemList items={type.enums} render={(x) => <Enum type={x} />} />,
+    },
+    {
+      name: "models",
+      value: <ItemList items={type.models} render={(x) => <Model type={x} />} />,
+    },
+    {
+      name: "interfaces",
+      value: <ItemList items={type.interfaces} render={(x) => <Interface type={x} />} />,
+    },
+    {
+      name: "operations",
+      value: <ItemList items={type.operations} render={(x) => <Operation type={x} />} />,
+    },
+    {
+      name: "unions",
+      value: <ItemList items={type.unions} render={(x) => <Union type={x} />} />,
+    },
+  ];
+  return <TypeUI type={type} name={name} properties={properties} />;
 };
 
 const Interface: FunctionComponent<{ type: InterfaceType }> = ({ type }) => {
-  return (
-    <Item title={type.name}>
-      <DataSection type={type} />
-      <Section title="Operations" hide={type.operations.size === 0}>
-        {[...type.operations.entries()].map(([k, v]) => (
-          <Operation operation={v} key={k} />
-        ))}
-      </Section>
-    </Item>
-  );
+  const properties = [
+    {
+      name: "operations",
+      value: <ItemList items={type.operations} render={(x) => <Operation type={x} />} />,
+    },
+    getDataProperty(type),
+  ];
+  return <TypeUI type={type} name={type.name} properties={properties} />;
 };
 
-const Operation: FunctionComponent<{ operation: OperationType }> = ({ operation }) => {
-  return (
-    <Item title={operation.name}>
-      <DataSection type={operation} />
-      <Section title="Params">
-        <ModelProperties model={operation.parameters} />
-      </Section>
-      <Section title="Return Type">
-        <TypeReference type={operation.returnType} />
-      </Section>
-    </Item>
-  );
+const Operation: FunctionComponent<{ type: OperationType }> = ({ type }) => {
+  const properties = [
+    {
+      name: "parameters",
+      value: <Model type={type.parameters} />,
+    },
+    {
+      name: "returnType",
+      value: <TypeReference type={type.returnType} />,
+    },
+    getDataProperty(type),
+  ];
+  return <TypeUI type={type} name={type.name} properties={properties} />;
 };
 
-const Model: FunctionComponent<{ model: ModelType }> = ({ model }) => {
+function getDataProperty(type: Type): TypeUIProperty {
+  return {
+    name: "data",
+    description: "in program.stateMap()",
+    value: <TypeData type={type} />,
+  };
+}
+const Model: FunctionComponent<{ type: ModelType }> = ({ type }) => {
   const program = useContext(ProgramContext);
-
-  return (
-    <Item title={model.name} id={getIdForType(program, model)}>
-      <DataSection type={model} />
-
-      <ModelProperties model={model} />
-    </Item>
-  );
+  const id = getIdForType(program, type);
+  const properties = [
+    {
+      name: "properties",
+      value: <ItemList items={type.properties} render={(x) => <ModelProperty type={x} />} />,
+    },
+    getDataProperty(type),
+  ];
+  return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const ModelProperties: FunctionComponent<{ model: ModelType }> = ({ model }) => {
-  if (model.properties.size === 0) {
-    return <div></div>;
-  }
-  return (
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Data</th>
-      </tr>
-      {[...model.properties.entries()].map(([k, v]) => (
-        <ModelProperty property={v} key={k} />
-      ))}
-    </table>
-  );
-};
-
-const ModelProperty: FunctionComponent<{ property: ModelTypeProperty }> = ({ property }) => {
-  return (
-    <tr>
-      <td> {property.name}</td>
-      <td>
-        <TypeReference type={property.type} />
-      </td>
-      <td>
-        <TypeData type={property} />
-      </td>
-    </tr>
-  );
+const ModelProperty: FunctionComponent<{ type: ModelTypeProperty }> = ({ type }) => {
+  const program = useContext(ProgramContext);
+  const id = getIdForType(program, type);
+  const properties = [
+    {
+      name: "type",
+      value: <TypeReference type={type.type} />,
+    },
+    {
+      name: "optional",
+      value: type.optional,
+    },
+    getDataProperty(type),
+  ];
+  return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
 const Enum: FunctionComponent<{ type: EnumType }> = ({ type }) => {
   const program = useContext(ProgramContext);
-
-  return (
-    <Item title={type.name} id={getIdForType(program, type)}>
-      <DataSection type={type} />
-
-      <EnumMembers type={type} />
-    </Item>
-  );
+  const id = getIdForType(program, type);
+  const properties = [
+    {
+      name: "members",
+      value: <ItemList items={type.members} render={(x) => <EnumMember type={x} />} />,
+    },
+    getDataProperty(type),
+  ];
+  return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const EnumMembers: FunctionComponent<{ type: EnumType }> = ({ type }) => {
-  if (type.members.length === 0) {
-    return <div></div>;
-  }
-  return (
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Value</th>
-        <th>Data</th>
-      </tr>
-      {[...type.members.entries()].map(([k, v]) => (
-        <EnumMember member={v} key={k} />
-      ))}
-    </table>
-  );
-};
-const EnumMember: FunctionComponent<{ member: EnumMemberType }> = ({ member }) => {
-  return (
-    <tr>
-      <td>{member.name}</td>
-      <td>{member.value}</td>
-      <td>
-        <TypeData type={member} />
-      </td>
-    </tr>
-  );
+const EnumMember: FunctionComponent<{ type: EnumMemberType }> = ({ type }) => {
+  const program = useContext(ProgramContext);
+  const id = getIdForType(program, type);
+  const properties = [
+    {
+      name: "value",
+      value: type.value,
+    },
+    getDataProperty(type),
+  ];
+  return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
 const Union: FunctionComponent<{ type: UnionType }> = ({ type }) => {
@@ -193,7 +224,7 @@ const Union: FunctionComponent<{ type: UnionType }> = ({ type }) => {
 
   return (
     <Item title={type.name ?? "<unamed union>"} id={getIdForType(program, type)}>
-      <DataSection type={type} />
+      <TypeData type={type} />
 
       <UnionOptions type={type} />
     </Item>
@@ -208,18 +239,26 @@ const UnionOptions: FunctionComponent<{ type: UnionType }> = ({ type }) => {
     <ul>
       {[...type.options.entries()].map(([k, v]) => (
         <li key={k}>
-          <TypeReference type={v}  />
+          <TypeReference type={v} />
         </li>
       ))}
     </ul>
   );
 };
 
-function getIdForType(
-  program: Program,
-  type: NamespaceType | OperationType | ModelType | InterfaceType | EnumType | UnionType
-) {
-  return `${program.checker!.getNamespaceString(type.namespace)}.${type.name}`;
+function getIdForType(program: Program, type: Type) {
+  switch (type.kind) {
+    case "Namespace":
+      return program.checker!.getNamespaceString(type);
+    case "Model":
+    case "Enum":
+    case "Union":
+    case "Operation":
+    case "Interface":
+      return `${program.checker!.getNamespaceString(type.namespace)}.${type.name}`;
+    default:
+      return undefined;
+  }
 }
 
 const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
@@ -233,7 +272,7 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
       const id = getIdForType(program, type);
       const href = `#${id}`;
       return (
-        <a href={href} title={type.kind + ": " + id}>
+        <a className="type-ref" href={href} title={type.kind + ": " + id}>
           {type.name}
         </a>
       );
@@ -278,17 +317,12 @@ const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
     return null;
   }
   return (
-    <table>
-      <tr>
-        <th>Key</th>
-        <th>Value</th>
-      </tr>
+    <ul>
       {entries.map(([k, v], i) => (
-        <tr key={i}>
-          <td>{k.toString()}</td>
-          <td>{inspect(v, { showHidden: false })}</td>
-        </tr>
+        <li key={i}>
+          {k.toString()}: {inspect(v, { showHidden: false })}
+        </li>
       ))}
-    </table>
+    </ul>
   );
 };

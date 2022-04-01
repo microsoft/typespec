@@ -1,5 +1,6 @@
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: monospace;
+  background-color: #f3f3f3;
 }
 
 table {
@@ -51,4 +52,42 @@ caption {
 .literal {
   color: #5da713;
   display: inline;
+}
+
+ul {
+  margin: 0;
+  padding-left: 20px;
+  overflow: auto;
+}
+
+li {
+  margin: 0;
+  list-style: none;
+  position: relative;
+}
+
+.type-type {
+  display: inline;
+  color: #7A3E9D;
+  margin-right: 5px;
+}
+
+.type-name {
+  display: inline;
+  color: #333333;
+}
+
+.type-ref {
+  color: #268bd2;
+  text-decoration: none;
+}
+
+.type-ref:hover {
+  text-decoration: underline;
+}
+
+.prop {
+}
+.prop .prop-name {
+  color: #9C5D27;
 }
