@@ -115,7 +115,7 @@ export async function createUI(host: BrowserHost) {
     "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"
   > {
     const loc = getSourceLocation(target);
-    if (loc === undefined) {
+    if (loc === undefined || loc.file.path != "/test/main.cadl") {
       return {
         startLineNumber: 1,
         startColumn: 1,
