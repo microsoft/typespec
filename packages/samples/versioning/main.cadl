@@ -1,61 +1,34 @@
-import "@cadl-lang/versioning";
 import "@cadl-lang/rest";
-import "./library.cadl";
+import "@cadl-lang/versioning";
+import "@cadl-lang/openapi3";
 
-@serviceTitle("Pet Store Service")
-@versioned(VERSIONS)
+@versioned("l1" | "l2")
+namespace Lib {
+  model Spread<T> {
+    ...T;
+    spread: boolean;
+  }
+}
+
+@serviceTitle("Repro")
+@versioned("v1" | "v2")
 @versionedDependency(
-  Library,
+  Lib,
   {
-    "v1": "1.0",
-    "v2": "1.1",
+    v1: "l1",
+    v2: "l2",
   }
 )
-namespace VersionedApi;
-using Cadl.Http;
+namespace Repro {
+  // repro
+  op test(): Lib.Spread<{
+    @added("v2") color: string;
+  }>;
 
-alias VERSIONS = "v1" | "v2";
+  // no repro
+  // op test(): Car;
 
-model ApiVersionParam {
-  @header apiVersion: VERSIONS;
-}
-
-model PetBase {
-  name: string;
-  favoriteToys: Library.PetToy[];
-}
-
-model Dog extends PetBase {
-  type: "dog";
-  nextWalkTime: zonedDateTime;
-
-  @madeOptional("v2")
-  walkerName?: string;
-
-  @added("v2")
-  commandList: string[];
-}
-
-@added("v2")
-model Cat extends PetBase {
-  type: "cat";
-  catnipDose: int32;
-}
-
-union Pet {
-  cat: Cat,
-  dog: Dog,
-}
-
-@route("/")
-interface MyService {
-  getPet(...ApiVersionParam): OkResponse<Pet>;
-
-  @added("v2")
-  @post
-  walkDog(...ApiVersionParam): OkResponse<{}>;
-
-  @removed("v2")
-  @post
-  walkCat(...ApiVersionParam): OkResponse<{}>;
+  model Car {
+    @added("v2") color: string;
+  }
 }

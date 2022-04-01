@@ -10,6 +10,7 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
+
 const addedOnKey = Symbol();
 const removedOnKey = Symbol();
 const versionsKey = Symbol();
@@ -366,6 +367,14 @@ export function getVersions(p: Program, t: Type): string[] {
     } else {
       return cacheVersion(t, []);
     }
+  } else if (t.kind === "ModelProperty") {
+    if (t.sourceProperty) {
+      return getVersions(p, t.sourceProperty);
+    } else if (t.model) {
+      return getVersions(p, t.model);
+    } else {
+      return cacheVersion(t, []);
+    }
   } else {
     return cacheVersion(t, []);
   }
@@ -375,6 +384,9 @@ export function getVersions(p: Program, t: Type): string[] {
 // the containing namespace. Model properties, for example.
 export function addedAfter(p: Program, type: Type, version: string, versionSource?: Type) {
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version, versionSource);
+  if (type.kind === "ModelProperty" && type.name === "color") {
+    console.log("Added after?", type.name, version, appliesAt, versionSource);
+  }
   return appliesAt === null ? false : !appliesAt;
 }
 
@@ -405,15 +417,20 @@ function appliesAtVersion(
   versionSource?: Type
 ) {
   const versions = getVersions(p, versionSource ?? type);
+
   if (!versions || versions.length === 0) {
     return null;
   }
+
   const appliedOnVersion = getMetadataFn(p, type);
   const appliedOnVersionIndex = versions.indexOf(appliedOnVersion);
   if (appliedOnVersionIndex === -1) return null;
+
   const testVersionIndex = versions.indexOf(version);
   if (testVersionIndex === -1) return null;
-
+  if ((type.kind === "ModelProperty" && type.name === "color", version === "v1")) {
+    console.log("Applies at", versions, appliedOnVersion, appliedOnVersionIndex, testVersionIndex);
+  }
   return testVersionIndex >= appliedOnVersionIndex;
 }
 
