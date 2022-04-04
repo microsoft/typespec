@@ -125,9 +125,9 @@ describe("cadl: projections", () => {
 
   describe("models", () => {
     it("works for versioning", async () => {
-      const addedOnKey = Symbol();
-      const removedOnKey = Symbol();
-      const renamedFromKey = Symbol();
+      const addedOnKey = Symbol("addedOn");
+      const removedOnKey = Symbol("removedOn");
+      const renamedFromKey = Symbol("renamedFrom");
       testHost.addJsFile("versioning.js", {
         $added({ program }: DecoratorContext, t: Type, v: NumericLiteralType) {
           program.stateMap(addedOnKey).set(t, v);

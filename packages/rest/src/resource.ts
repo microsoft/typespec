@@ -18,7 +18,7 @@ export interface ResourceKey {
   keyProperty: ModelTypeProperty;
 }
 
-const resourceKeysKey = Symbol();
+const resourceKeysKey = Symbol("resourceKeys");
 
 export function setResourceTypeKey(
   program: Program,
@@ -129,7 +129,7 @@ export function $copyResourceKeyParameters(
   }
 }
 
-const parentResourceTypesKey = Symbol();
+const parentResourceTypesKey = Symbol("parentResourceTypes");
 export function getParentResource(
   program: Program,
   resourceType: ModelType

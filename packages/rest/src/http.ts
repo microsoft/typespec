@@ -11,7 +11,7 @@ import {
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 
-const headerFieldsKey = Symbol();
+const headerFieldsKey = Symbol("headerFields");
 export function $header({ program }: DecoratorContext, entity: Type, headerName?: string) {
   if (!validateDecoratorTarget(program, entity, "@header", "ModelProperty")) {
     return;
@@ -35,7 +35,7 @@ export function isHeader(program: Program, entity: Type) {
   return program.stateMap(headerFieldsKey).has(entity);
 }
 
-const queryFieldsKey = Symbol();
+const queryFieldsKey = Symbol("queryFields");
 export function $query({ program }: DecoratorContext, entity: Type, queryKey?: string) {
   if (!validateDecoratorTarget(program, entity, "@query", "ModelProperty")) {
     return;
@@ -59,7 +59,7 @@ export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(queryFieldsKey).has(entity);
 }
 
-const pathFieldsKey = Symbol();
+const pathFieldsKey = Symbol("pathFields");
 export function $path({ program }: DecoratorContext, entity: Type, paramName?: string) {
   if (!validateDecoratorTarget(program, entity, "@path", "ModelProperty")) {
     return;
@@ -83,7 +83,7 @@ export function isPathParam(program: Program, entity: Type) {
   return program.stateMap(pathFieldsKey).has(entity);
 }
 
-const bodyFieldsKey = Symbol();
+const bodyFieldsKey = Symbol("bodyFields");
 export function $body({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@body", "ModelProperty")) {
     return;
@@ -95,7 +95,7 @@ export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(bodyFieldsKey).has(entity);
 }
 
-const statusCodeKey = Symbol();
+const statusCodeKey = Symbol("statusCode");
 export function $statusCode({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@statusCode", "ModelProperty")) {
     return;
@@ -214,7 +214,7 @@ export function getStatusCodeDescription(statusCode: string) {
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
-const operationVerbsKey = Symbol();
+const operationVerbsKey = Symbol("operationVerbs");
 
 function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
   if (entity.kind === "Operation") {
