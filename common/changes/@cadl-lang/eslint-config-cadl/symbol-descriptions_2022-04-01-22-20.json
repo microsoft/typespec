@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/eslint-config-cadl",
-      "comment": "Turn on promise linting",
-      "type": "minor"
+      "comment": "",
+      "type": "none"
     }
   ],
   "packageName": "@cadl-lang/eslint-config-cadl"

@@ -75,7 +75,7 @@ export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAP
   await emitter.emitOpenAPI();
 }
 
-const refTargetsKey = Symbol();
+const refTargetsKey = Symbol("refTargets");
 
 export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
   if (!validateDecoratorTarget(program, entity, "@useRef", ["Model", "ModelProperty"])) {
@@ -89,7 +89,7 @@ function getRef(program: Program, entity: Type): string | undefined {
   return program.stateMap(refTargetsKey).get(entity);
 }
 
-const oneOfKey = Symbol();
+const oneOfKey = Symbol("oneOf");
 export function $oneOf({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@oneOf", "Union")) {
     return;
@@ -106,7 +106,7 @@ function getOneOf(program: Program, entity: Type): boolean {
 // will be inserted into the `security` and `securityDefinitions` sections of
 // the emitted OpenAPI document.
 
-const securityDetailsKey = Symbol();
+const securityDetailsKey = Symbol("securityDetails");
 interface SecurityDetails {
   definitions: any;
   requirements: any[];
@@ -626,7 +626,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getParameterKey(property: ModelTypeProperty, param: any) {
-    const parent = program.checker!.getTypeForNode(property.node.parent!) as ModelType;
+    const parent = property.model!;
     let key = program.checker!.getTypeName(parent);
     let isQualifiedParamName = false;
 
