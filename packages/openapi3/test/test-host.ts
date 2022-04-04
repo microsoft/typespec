@@ -31,7 +31,7 @@ export async function openApiFor(code: string, versions?: string[]) {
     "./main.cadl",
     `import "@cadl-lang/rest"; import "@cadl-lang/openapi"; import "@cadl-lang/openapi3"; ${
       versions ? `import "@cadl-lang/versioning"; ` : ""
-    }using Cadl.Rest;using Cadl.Http;using OpenAPI;using OpenAPI;${code}`
+    }using Cadl.Rest;using Cadl.Http;using OpenAPI;${code}`
   );
   await host.compile("./main.cadl", {
     noEmit: false,
