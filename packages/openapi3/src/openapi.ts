@@ -1,7 +1,6 @@
 import {
   ArrayType,
   checkIfServiceNamespace,
-  DecoratorContext,
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
@@ -40,7 +39,6 @@ import {
   Type,
   UnionType,
   UnionTypeVariant,
-  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { getExtensions, getExternalDocs, getOperationId } from "@cadl-lang/openapi";
 import {
@@ -55,6 +53,7 @@ import {
   OperationDetails,
 } from "@cadl-lang/rest";
 import { getVersionRecords } from "@cadl-lang/versioning";
+import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 import { OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
 
@@ -73,32 +72,6 @@ export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAP
 
   const emitter = createOAPIEmitter(p, options);
   await emitter.emitOpenAPI();
-}
-
-const refTargetsKey = Symbol("refTargets");
-
-export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
-  if (!validateDecoratorTarget(program, entity, "@useRef", ["Model", "ModelProperty"])) {
-    return;
-  }
-
-  program.stateMap(refTargetsKey).set(entity, refUrl);
-}
-
-function getRef(program: Program, entity: Type): string | undefined {
-  return program.stateMap(refTargetsKey).get(entity);
-}
-
-const oneOfKey = Symbol("oneOf");
-export function $oneOf({ program }: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(program, entity, "@oneOf", "Union")) {
-    return;
-  }
-  program.stateMap(oneOfKey).set(entity, true);
-}
-
-function getOneOf(program: Program, entity: Type): boolean {
-  return program.stateMap(oneOfKey).get(entity);
 }
 
 // NOTE: These functions aren't meant to be used directly as decorators but as a
