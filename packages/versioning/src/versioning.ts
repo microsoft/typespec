@@ -10,12 +10,12 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
-const addedOnKey = Symbol();
-const removedOnKey = Symbol();
-const versionsKey = Symbol();
-const versionDependencyKey = Symbol();
-const renamedFromKey = Symbol();
-const madeOptionalKey = Symbol();
+const addedOnKey = Symbol("addedOn");
+const removedOnKey = Symbol("removedOn");
+const versionsKey = Symbol("versions");
+const versionDependencyKey = Symbol("versionDependency");
+const renamedFromKey = Symbol("renamedFrom");
+const madeOptionalKey = Symbol("madeOptional");
 
 export function $added({ program }: DecoratorContext, t: Type, v: string) {
   if (typeof v !== "string") {
@@ -205,14 +205,18 @@ export function $onValidate(program: Program) {
         addDependency(model.namespace, prop.type);
       }
     },
-    union: (model) => {
-      for (const option of model.options.values()) {
-        addDependency(model.namespace, option);
+    union: (union) => {
+      if (union.namespace === undefined) {
+        return;
+      }
+      for (const option of union.options.values()) {
+        addDependency(union.namespace, option);
       }
     },
     operation: (op) => {
-      addDependency(op.namespace, op.parameters);
-      addDependency(op.namespace, op.returnType);
+      const namespace = op.namespace ?? op.interface?.namespace;
+      addDependency(namespace, op.parameters);
+      addDependency(namespace, op.returnType);
     },
     namespace: (namespace) => {
       const version = getVersion(program, namespace);

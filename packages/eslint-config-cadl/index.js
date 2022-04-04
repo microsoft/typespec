@@ -40,6 +40,9 @@ module.exports = {
 
     // Do not want console.log left from debugging or using console.log for logging. Use the program logger.
     "no-console": "warn",
+
+    // Symbols should have a description so it can be serialized.
+    "symbol-description": "warn",
   },
   ignorePatterns: ["dist/**/*", "dist-dev/**/*"],
   overrides: [
