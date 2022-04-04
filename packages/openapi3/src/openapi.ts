@@ -79,7 +79,7 @@ export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAP
 // will be inserted into the `security` and `securityDefinitions` sections of
 // the emitted OpenAPI document.
 
-const securityDetailsKey = Symbol();
+const securityDetailsKey = Symbol("securityDetails");
 interface SecurityDetails {
   definitions: any;
   requirements: any[];
@@ -294,7 +294,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     // allow operation extensions
     attachExtensions(program, op, currentEndpoint);
     currentEndpoint.summary = getSummary(program, op);
-    currentEndpoint.description = getDoc(program, op);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
 

@@ -763,7 +763,7 @@ export function createChecker(program: Program): Checker {
       const variant: UnionTypeVariant = createType({
         kind: "UnionVariant",
         type,
-        name: Symbol(),
+        name: Symbol("name"),
         decorators: [],
         node: undefined,
       });

@@ -6,7 +6,7 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 
-const refTargetsKey = Symbol();
+const refTargetsKey = Symbol("refs");
 export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
   if (!validateDecoratorTarget(program, entity, "@useRef", ["Model", "ModelProperty"])) {
     return;
@@ -19,7 +19,7 @@ export function getRef(program: Program, entity: Type): string | undefined {
   return program.stateMap(refTargetsKey).get(entity);
 }
 
-const oneOfKey = Symbol();
+const oneOfKey = Symbol("oneOf");
 export function $oneOf({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@oneOf", "Union")) {
     return;

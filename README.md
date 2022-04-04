@@ -7,7 +7,7 @@ shapes common among REST, GraphQL, gRPC, and other protocols.
 
 You can try a work-in-progress build of the compiler by following the steps in
 the Getting Started section below. Please feel free to [file
-issues](https://github.com/Azure/adl/issues) for any issues you encounter while
+issues](https://github.com/Microsoft/cadl/issues) for any issues you encounter while
 using the preview.
 
 ## Packages

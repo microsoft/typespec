@@ -2,6 +2,7 @@ import {
   DecoratorContext,
   NamespaceType,
   navigateProgram,
+  NoTarget,
   Program,
   ProjectionApplication,
   Type,
@@ -9,12 +10,12 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
-const addedOnKey = Symbol();
-const removedOnKey = Symbol();
-const versionsKey = Symbol();
-const versionDependencyKey = Symbol();
-const renamedFromKey = Symbol();
-const madeOptionalKey = Symbol();
+const addedOnKey = Symbol("addedOn");
+const removedOnKey = Symbol("removedOn");
+const versionsKey = Symbol("versions");
+const versionDependencyKey = Symbol("versionDependency");
+const renamedFromKey = Symbol("renamedFrom");
+const madeOptionalKey = Symbol("madeOptional");
 
 export function $added({ program }: DecoratorContext, t: Type, v: string) {
   if (typeof v !== "string") {
@@ -178,7 +179,45 @@ export function getVersionDependencies(
 }
 
 export function $onValidate(program: Program) {
+  const namespaceDependencies = new Map();
+  function addDependency(source: NamespaceType | undefined, target: Type | undefined) {
+    if (target === undefined || !("namespace" in target) || target.namespace === undefined) {
+      return;
+    }
+    let set = namespaceDependencies.get(source);
+    if (set === undefined) {
+      set = new Set();
+      namespaceDependencies.set(source, set);
+    }
+    if (target.namespace !== source) {
+      set.add(target.namespace);
+    }
+  }
+
   navigateProgram(program, {
+    model: (model) => {
+      // If this is an instantiated type we don't want to keep the mapping.
+      if (model.templateArguments && model.templateArguments.length > 0) {
+        return;
+      }
+      addDependency(model.namespace, model.baseModel);
+      for (const prop of model.properties.values()) {
+        addDependency(model.namespace, prop.type);
+      }
+    },
+    union: (union) => {
+      if (union.namespace === undefined) {
+        return;
+      }
+      for (const option of union.options.values()) {
+        addDependency(union.namespace, option);
+      }
+    },
+    operation: (op) => {
+      const namespace = op.namespace ?? op.interface?.namespace;
+      addDependency(namespace, op.parameters);
+      addDependency(namespace, op.returnType);
+    },
     namespace: (namespace) => {
       const version = getVersion(program, namespace);
       const dependencies = getVersionDependencies(program, namespace);
@@ -207,6 +246,30 @@ export function $onValidate(program: Program) {
       }
     },
   });
+  validateVersionedNamespaceUsage(program, namespaceDependencies);
+}
+
+function validateVersionedNamespaceUsage(
+  program: Program,
+  namespaceDependencies: Map<NamespaceType | undefined, Set<NamespaceType>>
+) {
+  for (const [source, targets] of namespaceDependencies.entries()) {
+    const dependencies = source && getVersionDependencies(program, source);
+    for (const target of targets) {
+      const targetVersions = getVersion(program, target);
+
+      if (targetVersions !== undefined && dependencies?.get(target) === undefined) {
+        reportDiagnostic(program, {
+          code: "using-versioned-library",
+          format: {
+            sourceNs: program.checker!.getNamespaceString(source),
+            targetNs: program.checker!.getNamespaceString(target),
+          },
+          target: source ?? NoTarget,
+        });
+      }
+    }
+  }
 }
 
 interface VersionRecord {

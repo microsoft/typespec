@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/eslint-config-cadl",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ESLint config for cadl packages",
   "main": "index.js",
   "repository": {

@@ -13,7 +13,7 @@ import { reportDiagnostic } from "./lib.js";
 
 setDecoratorNamespace("OpenAPI", $operationId, $extension, $defaultResponse, $externalDocs);
 
-const operationIdsKey = Symbol();
+const operationIdsKey = Symbol("operationIds");
 export function $operationId({ program }: DecoratorContext, entity: Type, opId: string) {
   if (
     !validateDecoratorTarget(program, entity, "@operationId", "Operation") ||
@@ -29,7 +29,7 @@ export function getOperationId(program: Program, entity: Type): string | undefin
 }
 
 export type ExtensionKey = `x-${string}`;
-const openApiExtensionKey = Symbol();
+const openApiExtensionKey = Symbol("openApiExtension");
 export function $extension(
   { program }: DecoratorContext,
   entity: Type,
@@ -78,7 +78,7 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
 
 // The @defaultResponse decorator can be applied to a model. When that model is used
 // as the return type of an operation, this return type will be the default response.
-const defaultResponseKey = Symbol();
+const defaultResponseKey = Symbol("defaultResponse");
 export function $defaultResponse({ program }: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(program, entity, "@defaultResponse", "Model")) {
     return;
@@ -95,7 +95,7 @@ export interface ExternalDocs {
   url: string;
   description?: string;
 }
-const externalDocsKey = Symbol();
+const externalDocsKey = Symbol("externalDocs");
 
 /**
  * Allows referencing an external resource for extended documentation.
