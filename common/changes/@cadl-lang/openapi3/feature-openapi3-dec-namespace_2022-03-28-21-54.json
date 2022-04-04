@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi3",
-      "comment": "Move decorators to `OpenAPI.V3` namespace",
+      "comment": "Move decorators to `OpenAPI` namespace",
       "type": "minor"
     }
   ],
