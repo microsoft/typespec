@@ -457,6 +457,7 @@ async function installVSExtension(debug: boolean) {
         friendlyVersion: "2022",
         versionRange: "[17.0, 18.0)",
         installed: false,
+        selected: true,
       },
     ],
   ]);
@@ -484,13 +485,16 @@ async function installVSExtension(debug: boolean) {
   } else {
     const choices = Array.from(versionMap.values())
       .filter((x) => x.installed)
-      .map((x) => ({ title: `Visual Studio ${x.friendlyVersion}`, value: x.friendlyVersion }));
+      .map((x) => ({
+        title: `Visual Studio ${x.friendlyVersion}`,
+        value: x.friendlyVersion,
+        selected: x.selected,
+      }));
 
     const response = await prompts({
       type: "multiselect",
       name: "versions",
-      message: `Visual Studio Version`,
-      initial: "2022",
+      message: `Visual Studio Version(s)`,
       choices,
     });
 
