@@ -35,7 +35,7 @@ export async function createBrowserHost(): Promise<BrowserHost> {
   );
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/resource.js", resource);
   addJsImport("/test/node_modules/@cadl-lang/openapi/dist/src/index.js", openapi);
-  addJsImport("/test/node_modules/@cadl-lang/openapi3/dist/src/openapi.js", openapi3);
+  addJsImport("/test/node_modules/@cadl-lang/openapi3/dist/src/index.js", openapi3);
   addJsImport("/test/node_modules/@cadl-lang/versioning/dist/src/versioning.js", versioning);
 
   for (const [key, value] of Object.entries(cadlContents)) {
