@@ -1,3 +1,4 @@
+import { setDecoratorNamespace } from "../core/library.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import { DecoratorContext, NamespaceType, Projector, Type } from "../core/types.js";
@@ -35,6 +36,8 @@ export function checkIfServiceNamespace(program: Program, namespace: NamespaceTy
   const serviceDetails = getServiceDetails(program);
   return serviceDetails.namespace === namespace;
 }
+
+setDecoratorNamespace("Cadl", $serviceTitle, $serviceHost, $serviceVersion);
 
 export function $serviceTitle({ program }: DecoratorContext, target: Type, title: string) {
   const serviceDetails = getServiceDetails(program);

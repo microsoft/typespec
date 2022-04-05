@@ -13,6 +13,8 @@ import { reportDiagnostic } from "./lib.js";
 
 setDecoratorNamespace("OpenAPI", $operationId, $extension, $defaultResponse, $externalDocs);
 
+export function $notinnamespace({ program }: DecoratorContext, entity: Type, opId: string) {}
+
 const operationIdsKey = Symbol("operationIds");
 export function $operationId({ program }: DecoratorContext, entity: Type, opId: string) {
   if (
