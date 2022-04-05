@@ -1,5 +1,6 @@
 import "./http.cadl";
 import "../dist/src/resource.js";
+import "../dist/src/internal-decorators.js";
 
 namespace Cadl.Rest.Resource;
 
@@ -32,6 +33,7 @@ model ResourceCollectionParameters<TResource> {
   ...ParentKeysOf<TResource>;
 }
 
+@validateHasKey(TResource)
 interface ResourceRead<TResource, TError> {
   @autoRoute
   @doc("Gets an instance of the resource.")
@@ -65,6 +67,7 @@ interface ResourceCreate<TResource, TError> {
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }
 
+@validateHasKey(TResource)
 interface ResourceUpdate<TResource, TError> {
   @autoRoute
   @doc("Updates an existing instance of the resource.")
@@ -82,6 +85,7 @@ model ResourceDeletedResponse {
   _: 200;
 }
 
+@validateHasKey(TResource)
 interface ResourceDelete<TResource, TError> {
   @autoRoute
   @doc("Deletes an existing instance of the resource.")
@@ -105,19 +109,23 @@ interface ResourceList<TResource, TError> {
   list(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
 }
 
+@validateHasKey(TResource)
 interface ResourceInstanceOperations<TResource, TError>
   mixes ResourceRead<TResource, TError>,
     ResourceUpdate<TResource, TError>,
     ResourceDelete<TResource, TError> {}
 
+@validateHasKey(TResource)
 interface ResourceCollectionOperations<TResource, TError>
   mixes ResourceCreate<TResource, TError>,
     ResourceList<TResource, TError> {}
 
+@validateHasKey(TResource)
 interface ResourceOperations<TResource, TError>
   mixes ResourceInstanceOperations<TResource, TError>,
     ResourceCollectionOperations<TResource, TError> {}
 
+@validateHasKey(TResource)
 interface SingletonResourceRead<TSingleton, TResource, TError> {
   @autoRoute
   @doc("Gets the singleton resource.")
@@ -126,6 +134,7 @@ interface SingletonResourceRead<TSingleton, TResource, TError> {
   Get(...ResourceParameters<TResource>): TSingleton | TError;
 }
 
+@validateHasKey(TResource)
 interface SingletonResourceUpdate<TSingleton, TResource, TError> {
   @autoRoute
   @doc("Updates the singleton resource.")
@@ -141,6 +150,7 @@ interface SingletonResourceOperations<TSingleton, TResource, TError>
   mixes SingletonResourceRead<TSingleton, TResource, TError>,
     SingletonResourceUpdate<TSingleton, TResource, TError> {}
 
+@validateHasKey(TResource)
 interface ExtensionResourceRead<TExtension, TResource, TError> {
   @autoRoute
   @doc("Gets an instance of the extension resource.")

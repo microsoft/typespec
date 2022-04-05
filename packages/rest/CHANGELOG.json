@@ -2,6 +2,46 @@
   "name": "@cadl-lang/rest",
   "entries": [
     {
+      "version": "0.13.0",
+      "tag": "@cadl-lang/rest_v0.13.0",
+      "date": "Thu, 31 Mar 2022 17:10:49 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Handle error type being passed to `KeyOf` model"
+          },
+          {
+            "comment": "Add validation when using Resource interfaces when missing @key on resource"
+          },
+          {
+            "comment": "Add logic to interpret the http responses."
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix issue with empty routes in namespace/interface and operation causing path with '//'"
+          },
+          {
+            "comment": "Support browser builds"
+          },
+          {
+            "comment": "Raise a diagnostic when a resource type specifies a parent type which holds the same key name."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.29.0` to `~0.30.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.2.0` to `~0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.29.0` to `~0.30.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.0",
       "tag": "@cadl-lang/rest_v0.12.0",
       "date": "Wed, 09 Mar 2022 17:42:09 GMT",

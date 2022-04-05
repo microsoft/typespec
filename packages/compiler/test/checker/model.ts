@@ -123,6 +123,67 @@ describe("compiler: models", () => {
     }
   });
 
+  it("provides parent model of properties", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @test
+      model A {
+        pA: int32;
+      }
+
+      @test
+      model B {
+        pB: int32;
+
+      }
+
+      @test
+      model C {
+        pC: int32;
+      }
+
+      @test
+      model D {
+        ...A,
+        pD: B & C;
+      }
+      `
+    );
+
+    const { A, B, C, D } = await testHost.compile("./");
+
+    ok(A.kind === "Model", "model expected");
+    strictEqual(A.properties.size, 1);
+    const pA = A.properties.get("pA");
+    strictEqual(pA?.model, A);
+
+    ok(B.kind === "Model", "model expected");
+    strictEqual(B.properties.size, 1);
+    const pB = B.properties.get("pB");
+    strictEqual(pB?.model, B);
+
+    ok(C.kind === "Model", "model expected");
+    strictEqual(C.properties.size, 1);
+    const pC = C.properties.get("pC");
+    strictEqual(pC?.model, C);
+
+    ok(D.kind === "Model", "model expected");
+    strictEqual(D.properties.size, 2);
+    const pA_of_D = D.properties.get("pA");
+    const pD = D.properties.get("pD");
+    strictEqual(pA_of_D?.model, D);
+    strictEqual(pD?.model, D);
+
+    const BC = pD.type;
+    ok(BC.kind === "Model", "model expected");
+    strictEqual(BC.properties.size, 2);
+    const pB_of_BC = BC.properties.get("pB");
+    const pC_of_BC = BC.properties.get("pC");
+    strictEqual(pB_of_BC?.model, BC);
+    strictEqual(pC_of_BC?.model, BC);
+  });
+
   describe("with extends", () => {
     it("doesn't allow duplicate properties", async () => {
       testHost.addCadlFile(

@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi",
-      "comment": "`@defaultResponse` set status code for model",
+      "comment": "Move decorators into `OpenAPI` namespace",
       "type": "minor"
     }
   ],

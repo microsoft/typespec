@@ -29,4 +29,30 @@ describe("compiler: libraries", () => {
       message: /Current Cadl compiler conflicts with local version/,
     });
   });
+
+  it("report errors in js files", async () => {
+    const testHost = await createTestHost();
+    testHost.addJsFile("lib1.js", { $dec: () => null });
+    testHost.addJsFile("lib2.js", { $dec: () => null });
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+    import "./lib1.js";
+    import "./lib2.js";
+    `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "duplicate-symbol",
+        message: `Duplicate name: "@dec"`,
+        file: "lib1.js",
+      },
+      {
+        code: "duplicate-symbol",
+        message: `Duplicate name: "@dec"`,
+        file: "lib2.js",
+      },
+    ]);
+  });
 });

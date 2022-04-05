@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix issues with mishandled promises",
+      "comment": "Give a helpful error when code is missing from path",
       "type": "patch"
     }
   ],

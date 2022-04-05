@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Add validation that template params cannot use latter params as default",
-      "type": "minor"
+      "comment": "Don't complete decorator names in type reference position",
+      "type": "patch"
     }
   ],
   "packageName": "@cadl-lang/compiler"

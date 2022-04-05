@@ -64,7 +64,6 @@ export function printNode(
 ): prettier.Doc {
   const node: Node = path.getValue();
   printDirectives(path, options, print);
-
   switch (node.kind) {
     // Root
     case SyntaxKind.CadlScript:

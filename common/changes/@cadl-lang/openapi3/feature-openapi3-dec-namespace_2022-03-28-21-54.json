@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi3",
-      "comment": "Include discriminator property in base schema with a boilerplace description",
+      "comment": "Move decorators to `OpenAPI` namespace",
       "type": "minor"
     }
   ],

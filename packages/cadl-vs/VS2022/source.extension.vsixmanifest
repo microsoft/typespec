@@ -4,7 +4,7 @@
     <Identity Id="88b9492f-c019-492c-8aeb-f325a7e4cf23" Version="|%CurrentProject%;GetPackageVersionForVsixManifest|" Language="en-US" Publisher="Microsoft" />
     <DisplayName>Cadl Language Support</DisplayName>
     <Description>Cadl Language Support for Visual Studio 2022</Description>
-    <MoreInfo>https://github.com/azure/adl</MoreInfo>
+    <MoreInfo>https://github.com/Microsoft/cadl</MoreInfo>
     <License>LICENSE</License>
   </Metadata>
   <Installation>
