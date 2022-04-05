@@ -392,7 +392,7 @@ function runCode(codeArgs: string[], insiders: boolean, debug: boolean) {
   } catch (error: any) {
     if (error.code === "ENOENT") {
       console.error(
-        `error: Couldn't find VSCode 'code' command in PATH. Make sure you have VSCode executable added to the system PATH.`
+        `error: Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.`
       );
       if (process.platform === "darwin") {
         console.log("See instruction for Mac OS here https://code.visualstudio.com/docs/setup/mac");
