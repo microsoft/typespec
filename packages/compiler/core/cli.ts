@@ -299,8 +299,9 @@ async function getCompilerOptions(args: {
   emit?: string[];
   "diagnostic-level": string;
 }): Promise<CompilerOptions> {
-  // Ensure output path
-  const outputPath = resolvePath(args["output-path"]);
+  // Workaround for https://github.com/npm/cli/issues/3680
+  const pathArg = args["output-path"].replace(/\\\\/g, "\\");
+  const outputPath = resolvePath(process.cwd(), pathArg);
   await mkdirp(outputPath);
 
   const miscOptions: any = {};
