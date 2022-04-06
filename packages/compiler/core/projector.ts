@@ -1,3 +1,4 @@
+import { isNeverType } from "../lib/decorators.js";
 import { compilerAssert } from "./diagnostics.js";
 import { Program } from "./program";
 import {
@@ -247,7 +248,19 @@ export function createProjector(
       checker.finishType(projectedModel);
     }
     projectedModel.templateArguments = templateArguments;
-    return applyProjection(model, projectedModel);
+    if (projectedModel.children) {
+      projectedModel.children = [];
+    }
+    const projectedResult = applyProjection(model, projectedModel);
+    if (
+      !isNeverType(projectedResult) &&
+      projectedResult.kind === "Model" &&
+      projectedResult.baseModel
+    ) {
+      projectedResult.baseModel.children ??= [];
+      projectedResult.baseModel.children.push(projectedModel);
+    }
+    return projectedResult;
   }
 
   /**

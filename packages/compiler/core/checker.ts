@@ -1395,6 +1395,11 @@ export function createChecker(program: Program): Checker {
       type.baseModel = checkClassHeritage(node, node.extends);
     }
 
+    if (type.baseModel) {
+      type.baseModel.children ??= [];
+      type.baseModel.children.push(type);
+    }
+
     // Hold on to the model type that's being defined so that it
     // can be referenced
     if (!instantiatingThisTemplate) {
