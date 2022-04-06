@@ -62,6 +62,7 @@ Cadl comes with built-in models for common data types:
 - `plainDate`: A date on a calendar without a time zone, e.g. "April 10th"
 - `plainTime`: A time on a clock without a time zone, e.g. "3:00 am"
 - `zonedDateTime`: A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST"
+- `duration`: A duration/time period. e.g 5s, 10h
 - `boolean`: true or false
 - `null`: the null value found in e.g. JSON.
 - `Map<K, V>`: a map from K to V.

@@ -5,6 +5,7 @@ import mkdirp from "mkdirp";
 import watch from "node-watch";
 import os from "os";
 import { resolve } from "path";
+import prompts from "prompts";
 import url from "url";
 import yargs from "yargs";
 import { loadCadlConfigForPath } from "../config/index.js";
@@ -298,8 +299,9 @@ async function getCompilerOptions(args: {
   emit?: string[];
   "diagnostic-level": string;
 }): Promise<CompilerOptions> {
-  // Ensure output path
-  const outputPath = resolvePath(args["output-path"]);
+  // Workaround for https://github.com/npm/cli/issues/3680
+  const pathArg = args["output-path"].replace(/\\\\/g, "\\");
+  const outputPath = resolvePath(process.cwd(), pathArg);
   await mkdirp(outputPath);
 
   const miscOptions: any = {};
@@ -382,11 +384,27 @@ async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, 
 }
 
 function runCode(codeArgs: string[], insiders: boolean, debug: boolean) {
-  run(insiders ? "code-insiders" : "code", codeArgs, {
-    // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
-    extraEnv: { NODE_NO_WARNINGS: "1" },
-    debug,
-  });
+  try {
+    run(insiders ? "code-insiders" : "code", codeArgs, {
+      // VS Code's CLI emits node warnings that we can't do anything about. Suppress them.
+      extraEnv: { NODE_NO_WARNINGS: "1" },
+      debug,
+      allowNotFound: true,
+    });
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      console.error(
+        `error: Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.`
+      );
+      if (process.platform === "darwin") {
+        console.log("See instruction for Mac OS here https://code.visualstudio.com/docs/setup/mac");
+      }
+      if (debug) {
+        console.log(error.stack);
+      }
+      process.exit(1);
+    }
+  }
 }
 
 async function installVSCodeExtension(insiders: boolean, debug: boolean) {
@@ -456,20 +474,48 @@ async function installVSExtension(debug: boolean) {
         friendlyVersion: "2022",
         versionRange: "[17.0, 18.0)",
         installed: false,
+        selected: true,
       },
     ],
   ]);
 
-  let vsFound = false;
+  let versionsFound = 0;
+  let latestVersionFound: string | undefined;
+  let versionsToInstall: string[] = [];
   for (const entry of versionMap.values()) {
     if (isVSInstalled(entry.versionRange)) {
-      vsFound = entry.installed = true;
+      entry.installed = true;
+      versionsFound++;
+      latestVersionFound = entry.friendlyVersion;
     }
   }
 
-  if (!vsFound) {
+  if (versionsFound == 0) {
     console.error("error: No compatible version of Visual Studio found.");
     process.exit(1);
+  } else if (versionsFound == 1) {
+    compilerAssert(
+      latestVersionFound,
+      "expected latestFoundVersion to be defined if versionsFound == 1"
+    );
+    versionsToInstall = [latestVersionFound];
+  } else {
+    const choices = Array.from(versionMap.values())
+      .filter((x) => x.installed)
+      .map((x) => ({
+        title: `Visual Studio ${x.friendlyVersion}`,
+        value: x.friendlyVersion,
+        selected: x.selected,
+      }));
+
+    const response = await prompts({
+      type: "multiselect",
+      name: "versions",
+      message: `Visual Studio Version(s)`,
+      choices,
+    });
+
+    versionsToInstall = response.versions;
   }
 
   await installVsix(
@@ -479,7 +525,7 @@ async function installVSExtension(debug: boolean) {
         const vsixFilename = getBaseFileName(vsix);
         const entry = versionMap.get(vsixFilename);
         compilerAssert(entry, "Unexpected vsix filename:" + vsix);
-        if (entry.installed) {
+        if (versionsToInstall.includes(entry.friendlyVersion)) {
           console.log(`Installing extension for Visual Studio ${entry?.friendlyVersion}...`);
           run(vsixInstaller, [vsix], {
             allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
