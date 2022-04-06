@@ -16,5 +16,6 @@ const config: PlaywrightTestConfig = {
   use: {
     baseURL: resolve(root, "dist"),
   },
+  testMatch: "*.e2e.js",
 };
 export default config;
