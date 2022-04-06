@@ -7,7 +7,7 @@ import {
   TestHost,
 } from "@cadl-lang/compiler/testing";
 import { HttpVerb } from "../src/http.js";
-import { getAllRoutes, HttpOperationParameter } from "../src/route.js";
+import { getAllRoutes, HttpOperationParameter, RouteOptions } from "../src/route.js";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
@@ -31,8 +31,11 @@ export interface RouteDetails {
   params: string[];
 }
 
-export async function getRoutesFor(code: string): Promise<RouteDetails[]> {
-  const [routes, diagnostics] = await compileOperations(code);
+export async function getRoutesFor(
+  code: string,
+  routeOptions?: RouteOptions
+): Promise<RouteDetails[]> {
+  const [routes, diagnostics] = await compileOperations(code, routeOptions);
   expectDiagnosticEmpty(diagnostics);
   return routes.map((route) => ({
     ...route,
@@ -52,12 +55,13 @@ export interface OperationDetails {
 }
 
 export async function compileOperations(
-  code: string
+  code: string,
+  routeOptions?: RouteOptions
 ): Promise<[OperationDetails[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
 
   await runner.compileAndDiagnose(code, { noEmit: true });
-  const routes = getAllRoutes(runner.program);
+  const routes = getAllRoutes(runner.program, routeOptions);
   const details = routes.map((r) => {
     return {
       verb: r.verb,

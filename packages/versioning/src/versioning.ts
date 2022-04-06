@@ -10,12 +10,12 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
-const addedOnKey = Symbol();
-const removedOnKey = Symbol();
-const versionsKey = Symbol();
-const versionDependencyKey = Symbol();
-const renamedFromKey = Symbol();
-const madeOptionalKey = Symbol();
+const addedOnKey = Symbol("addedOn");
+const removedOnKey = Symbol("removedOn");
+const versionsKey = Symbol("versions");
+const versionDependencyKey = Symbol("versionDependency");
+const renamedFromKey = Symbol("renamedFrom");
+const madeOptionalKey = Symbol("madeOptional");
 
 export function $added({ program }: DecoratorContext, t: Type, v: string) {
   if (typeof v !== "string") {
