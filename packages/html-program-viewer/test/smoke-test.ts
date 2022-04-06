@@ -1,5 +1,5 @@
 import { BasicTestRunner } from "@cadl-lang/compiler/testing";
-import { createViewerTestRunner } from "./test-host";
+import { createViewerTestRunner } from "./test-host.js";
 
 describe("Smoke tests", () => {
   let runner: BasicTestRunner;

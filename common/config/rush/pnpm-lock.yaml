@@ -4247,7 +4247,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vs'
     resolution:
-      integrity: sha512-jFROlpzJXEPwM/Jz0cEtq78/DiS0e5lWLFurp1CNgpjYbCMThWOXkwfqFKpkNlOVozWv73agsMAALQUkXIn0gw==
+      integrity: sha512-stvNkdOmXAPzrfEbOW9zLtgtgEybocatJ+oUVbcwdcLTX0z4dGJ/DgEuhmKwq3qs4y1Xvnutyfty/EYk+W4RUA==
       tarball: file:projects/cadl-vs.tgz
     version: 0.0.0
   file:projects/cadl-vscode.tgz:
@@ -4273,7 +4273,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vscode'
     resolution:
-      integrity: sha512-lOQ6N0f2mn5pgTmvmY0AMq8wEVAM7dO88UJfwEBXDUYAiwqwp0ld9dxBmT/GJFJjAAnDx9pigqYtfwPxhh4msw==
+      integrity: sha512-ftp5IeKYuHG80cst9RIf9xeSOvba3br30djtQbtGLZ3inzWMMDaxNMAsb6/gByCnHbIn31iCPNGNO+zh0yLUhQ==
       tarball: file:projects/cadl-vscode.tgz
     version: 0.0.0
   file:projects/compiler.tgz:
@@ -4311,7 +4311,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-C+9nahppgYtfjgCnWvSnIqtGD2GmtkgAV4L5x6Divgo5XU/Fy6vEq4KKGqpMcAZeA6yWEQrhKYHbINPge0Wyew==
+      integrity: sha512-4qWHBrNphyOjVNXjS8KvX0kylEVNINKjPC8eMsKBIM4muKcP71XqtTsLYMjE5vC0Q9DFenwLLxRTode9jR9cpQ==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/eslint-config-cadl.tgz_prettier@2.5.1:
@@ -4350,7 +4350,7 @@ packages:
     dev: false
     name: '@rush-temp/html-program-viewer'
     resolution:
-      integrity: sha512-Fh/GN6v4ayybMjOTIUTcGEPYmAHPA5Aav9wuyO6nf/QSH5vJapOJEAbRYoWg0CDTvPsZ7XAhXFeaS8Rxi4oGOQ==
+      integrity: sha512-Suhq21HzjJqCIxE1Wf63Jjh71PdgR5M9/14l/K+pYPjC5f+14TBw0qmse2Hl38wxOAbLJAOgGLM88iy8Tlsd5w==
       tarball: file:projects/html-program-viewer.tgz
     version: 0.0.0
   file:projects/openapi.tgz:
@@ -4365,7 +4365,7 @@ packages:
     dev: false
     name: '@rush-temp/openapi'
     resolution:
-      integrity: sha512-zWZ4iMS4Mj/RKmxCM3S4AMZHAJ7taUMNIOb8yutKz1kHVYcVDcuIdKVfUKHtV1UB48Z4JrkUmi682rTWaLj7CQ==
+      integrity: sha512-4u2kP1DX17IUC9I5oNBlfyXK91g8rZ5/y0XBT/yzoH9PibmqMYT2E1j0B6Luw4sYLBMZgp3F4MyrqQoCpeZdug==
       tarball: file:projects/openapi.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
@@ -4380,7 +4380,7 @@ packages:
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-P1HkfrEoPTLXqPgMKAnKtKHgUy6WpKblsozs+09aXT1OYEC0HyKGcLhcqtPL9MZO7gBLKQ+L5+Fzwq0dqGNchw==
+      integrity: sha512-iCP0wuh3lOcxwtI9nK2fwg+nx4PSnVGb5y7P7tfMvET+3pbLArgn/6nm/TIpzkGTaT4toeOhbwCkVfpbvAlUQw==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/playground.tgz:
@@ -4398,13 +4398,14 @@ packages:
       monaco-editor: 0.32.1
       prettier: 2.5.1
       rimraf: 3.0.2
+      source-map-support: 0.5.21
       typescript: 4.5.5
       vite: 2.8.6
       vscode-languageserver-textdocument: 1.0.4
     dev: false
     name: '@rush-temp/playground'
     resolution:
-      integrity: sha512-H+U0Du/9WQBuhogIBvDNajDYcFUoKQMG7LFdtXI+fIKOamFi5XqCynjYlP4O5e37ofClrrlgy8dDUV7SK+XUYg==
+      integrity: sha512-WQolbDv33pTRml7WOuNu/jHFURngfgvxQ8nSMaA+wuLvDg1clT6y/1Q+f7Qqjr4EnhMnTM5QMdhl/EJ9X6uheg==
       tarball: file:projects/playground.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
@@ -4419,7 +4420,7 @@ packages:
     dev: false
     name: '@rush-temp/prettier-plugin-cadl'
     resolution:
-      integrity: sha512-qXCdRK/gg8iAvtiRXneY/6CqhZ1IJSBzqpsx2qLvpH+J+5NKRWVvWvDC1BnQGKpkrZWUqaBXF4k8uuBWafcLRA==
+      integrity: sha512-zDClIgAljOZ8lKKCoeQKEM1NpuNoIh8sgdXbZReAGYUG2oUCm4XCSgi/q0uOPkq5DaPduD11gpqpvumrrqEd8w==
       tarball: file:projects/prettier-plugin-cadl.tgz
     version: 0.0.0
   file:projects/rest.tgz:
@@ -4434,7 +4435,7 @@ packages:
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-7Ncemp9zHkQNQdgLrva+ndfFSUHrY0IBtDo/LLQLwO4Ccdirf2gT/5J3eQKSNaLSlzuZXTo/XrSzGNWK9/Kgqw==
+      integrity: sha512-OnuQF8shyGWBi9UMwBnzE4KXmrb4bVn7WdcSqVT642T5jGAuweMYXGvJbCIkxsX41fdoa4DcUujOQ+M3EI7MBw==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -4445,7 +4446,7 @@ packages:
     dev: false
     name: '@rush-temp/samples'
     resolution:
-      integrity: sha512-lHMRGICdZMyX0Q5lBFK0aR11bnJaiPJwiHliGg6Z2IS7tzSVyqbZNJq6eBD4a5299GpvhkGwGqKwbURxQmeafQ==
+      integrity: sha512-mwu6UW8HYJ1NwTycFJJ1usmQZQy4TMyUl5+8w7LUBNqDhqohVuh/kqxrz12KjmaPlEGNZnQ0cQZBQLvjj5FLgw==
       tarball: file:projects/samples.tgz
     version: 0.0.0
   file:projects/spec.tgz:
@@ -4472,7 +4473,7 @@ packages:
     dev: false
     name: '@rush-temp/tmlanguage-generator'
     resolution:
-      integrity: sha512-f/KWEM1sXCQumxBAyiH6xDTIk+3ECzzPUQtdfAOpqczvv0XPLctMDRVmgiD2RY0frlTDWmWofXVbJZCFViUhMA==
+      integrity: sha512-xSWZ955P20MMVBiWFE/KECUmWOvkkE8++Dtm/pNQlHYMajYZuRPThcx+gKxT4TR4fQZAGqUjvmyHqhD/oLhzzA==
       tarball: file:projects/tmlanguage-generator.tgz
     version: 0.0.0
   file:projects/versioning.tgz:
@@ -4487,7 +4488,7 @@ packages:
     dev: false
     name: '@rush-temp/versioning'
     resolution:
-      integrity: sha512-C0GSBG1/gedVR3A1zaAZwqKN61j2sgPzC9ie6Hm4DitXrvwNP18Toc3SBy6y24aHit1aEQcAufBE38xO0JilPQ==
+      integrity: sha512-54jKH6M2s0MwCsWwA3VfG9+S6HWSnJ3tstVpOwrEg0FTHxq3CCkWh+9ZtgqnO+0dLVYnENV2ihKb2DXsdNYLlg==
       tarball: file:projects/versioning.tgz
     version: 0.0.0
 specifiers:
