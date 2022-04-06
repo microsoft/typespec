@@ -9,6 +9,6 @@ describe("Smoke tests", () => {
   });
 
   it("create html view", async () => {
-    await runner.compile(`op foo(): string`);
+    await runner.compile(`op foo(): string;`);
   });
 });
