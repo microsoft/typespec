@@ -220,10 +220,10 @@ describe("compiler: models", () => {
         Dog: ModelType;
         Cat: ModelType;
       };
-      ok(Pet.children);
-      strictEqual(Pet.children.length, 2);
-      strictEqual(Pet.children[0], Cat);
-      strictEqual(Pet.children[1], Dog);
+      ok(Pet.childModels);
+      strictEqual(Pet.childModels.length, 2);
+      strictEqual(Pet.childModels[0], Cat);
+      strictEqual(Pet.childModels[1], Dog);
     });
 
     it("emit error when extends itself", async () => {
@@ -327,7 +327,7 @@ describe("compiler: models", () => {
       );
       const { A, C } = (await testHost.compile("main.cadl")) as { A: ModelType; C: ModelType };
       strictEqual(C.baseModel, A);
-      strictEqual(A.children![1], C);
+      strictEqual(A.childModels[1], C);
     });
 
     it("doesn't allow duplicate properties", async () => {

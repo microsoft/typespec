@@ -802,7 +802,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       properties: {},
       description: getDoc(program, model),
     };
-    const childModels = model.children ?? [];
+    const childModels = model.childModels;
 
     // getSchemaOrRef on all children to push them into components.schemas
     for (const child of childModels) {

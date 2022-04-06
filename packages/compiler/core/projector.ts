@@ -221,6 +221,7 @@ export function createProjector(
 
     const projectedModel = shallowClone(model, {
       properties,
+      childModels: [],
     });
 
     if (model.templateArguments !== undefined) {
@@ -248,17 +249,14 @@ export function createProjector(
       checker.finishType(projectedModel);
     }
     projectedModel.templateArguments = templateArguments;
-    if (projectedModel.children) {
-      projectedModel.children = [];
-    }
     const projectedResult = applyProjection(model, projectedModel);
     if (
       !isNeverType(projectedResult) &&
       projectedResult.kind === "Model" &&
       projectedResult.baseModel
     ) {
-      projectedResult.baseModel.children ??= [];
-      projectedResult.baseModel.children.push(projectedModel);
+      projectedResult.baseModel.childModels ??= [];
+      projectedResult.baseModel.childModels.push(projectedModel);
     }
     return projectedResult;
   }
