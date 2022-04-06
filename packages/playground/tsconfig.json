@@ -13,5 +13,5 @@
     "types": ["node", "mocha"],
     "skipLibCheck": true
   },
-  "include": ["scripts/**/*.ts", "src/**/*.ts", "test/**/*.ts"]
+  "include": ["scripts/**/*.ts", "src/**/*.ts", "test/**/*.ts", "e2e/**/*.ts"]
 }
