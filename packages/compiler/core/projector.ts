@@ -221,7 +221,7 @@ export function createProjector(
 
     const projectedModel = shallowClone(model, {
       properties,
-      childModels: [],
+      derivedModels: [],
     });
 
     if (model.templateArguments !== undefined) {
@@ -255,8 +255,8 @@ export function createProjector(
       projectedResult.kind === "Model" &&
       projectedResult.baseModel
     ) {
-      projectedResult.baseModel.childModels ??= [];
-      projectedResult.baseModel.childModels.push(projectedModel);
+      projectedResult.baseModel.derivedModels ??= [];
+      projectedResult.baseModel.derivedModels.push(projectedModel);
     }
     return projectedResult;
   }

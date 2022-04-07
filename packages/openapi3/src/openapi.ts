@@ -802,22 +802,21 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       properties: {},
       description: getDoc(program, model),
     };
-    const childModels = model.childModels;
 
     // getSchemaOrRef on all children to push them into components.schemas
-    for (const child of childModels) {
+    for (const child of model.derivedModels) {
       getSchemaOrRef(child);
     }
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator) {
-      if (!validateDiscriminator(discriminator, childModels)) {
+      if (!validateDiscriminator(discriminator, model.derivedModels)) {
         // appropriate diagnostic is generated with the validate function
         return {};
       }
 
       const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
-      const mapping = getDiscriminatorMapping(discriminator, childModels);
+      const mapping = getDiscriminatorMapping(discriminator, model.derivedModels);
       if (mapping) {
         openApiDiscriminator.mapping = mapping;
       }
@@ -958,7 +957,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function getDiscriminatorMapping(
     discriminator: any,
-    childModels: readonly ModelType[]
+    derivedModels: readonly ModelType[]
   ): Record<string, string> | undefined {
     const { propertyName } = discriminator;
     const getMapping = (t: ModelType): any => {
@@ -968,7 +967,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
       return undefined;
     };
-    const mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
+    const mappings = derivedModels.flatMap(getMapping).filter((v) => v); // only defined values
     return mappings.length > 0 ? mappings.reduce((a, s) => ({ ...a, ...s }), {}) : undefined;
   }
 

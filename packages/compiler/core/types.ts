@@ -160,7 +160,7 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   /**
    * Direct children. This is the reverse relation of @see baseModel
    */
-  childModels: ModelType[];
+  derivedModels: ModelType[];
 }
 
 export interface ModelTypeProperty extends BaseType, DecoratedType {
