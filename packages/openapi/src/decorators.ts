@@ -3,7 +3,6 @@ import {
   CadlValue,
   DecoratorContext,
   Program,
-  setDecoratorNamespace,
   Type,
   validateDecoratorParamType,
   validateDecoratorTarget,
@@ -11,7 +10,7 @@ import {
 import { http } from "@cadl-lang/rest";
 import { reportDiagnostic } from "./lib.js";
 
-setDecoratorNamespace("OpenAPI", $operationId, $extension, $defaultResponse, $externalDocs);
+export const namespace = "OpenAPI";
 
 export function $notinnamespace({ program }: DecoratorContext, entity: Type, opId: string) {}
 

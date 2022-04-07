@@ -364,6 +364,12 @@ const diagnostics = {
       default: "Import paths must reference either a directory, a .cadl file, or .js file",
     },
   },
+  "invalid-main": {
+    severity: "error",
+    messages: {
+      default: "Main file must either be a .cadl file or a .js file.",
+    },
+  },
   "library-not-found": {
     severity: "error",
     messages: {
