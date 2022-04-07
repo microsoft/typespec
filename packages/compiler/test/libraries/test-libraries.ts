@@ -10,7 +10,7 @@ const libs = [
 
 describe("compiler: libraries", () => {
   for (const lib of libs) {
-    describe.only(lib, () => {
+    describe(lib, () => {
       it("compiles without error", async () => {
         const mainFile = fileURLToPath(
           new URL(`../../../test/libraries/${lib}/main.cadl`, import.meta.url)
