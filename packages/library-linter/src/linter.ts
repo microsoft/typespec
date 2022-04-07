@@ -3,6 +3,7 @@ import { reportDiagnostic } from "./lib.js";
 
 export function $onValidate(program: Program) {
   const root = program.checker!.getGlobalNamespaceType();
+
   validateNoExportAtRoot(program, root);
 }
 
@@ -30,6 +31,7 @@ function validateNoExportAtRoot(program: Program, root: NamespaceType) {
         target: sym,
       });
     } else if (sym.flags & SymbolFlags.Function) {
+      console.log("A", program.mainFile, sym);
       reportDiagnostic(program, {
         code: "missing-namespace",
         format: { type: "Function", name },

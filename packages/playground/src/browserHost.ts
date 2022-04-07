@@ -24,8 +24,7 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
 export async function createBrowserHost(): Promise<BrowserHost> {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
-  addJsImport("/test/.cadl/dist/lib/decorators.js", decorators);
-  addJsImport("/test/.cadl/dist/lib/service.js", service);
+  addJsImport("/test/.cadl/dist/lib/decorators.js", { ...decorators, ...service });
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/rest.js", rest);
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/route.js", route);
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/http.js", http);
