@@ -3,7 +3,7 @@ import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
 export const libDef = {
   name: "@cadl-lang/library-linter",
   diagnostics: {
-    "no-namespace": {
+    "missing-namespace": {
       severity: "warning",
       messages: {
         default: paramMessage`${"type"} '${"name"}' is not in a namespace. This is bad practice for a published library.`,
