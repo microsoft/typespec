@@ -151,7 +151,16 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
     | ProjectionModelExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
+
+  /**
+   * Model this model extends. This represent inheritance.
+   */
   baseModel?: ModelType;
+
+  /**
+   * Direct children. This is the reverse relation of @see baseModel
+   */
+  derivedModels: ModelType[];
 }
 
 export interface ModelTypeProperty extends BaseType, DecoratedType {

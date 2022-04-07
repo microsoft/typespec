@@ -198,6 +198,34 @@ describe("compiler: models", () => {
       match(diagnostics[0].message, /Model has an inherited property/);
     });
 
+    it("keeps reference of childrens", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test model Pet {
+          name: true;
+        }
+
+        @test model Cat extends Pet {
+          meow: true;
+        }
+
+        @test model Dog extends Pet {
+          bark: true;
+        }
+        `
+      );
+      const { Pet, Dog, Cat } = (await testHost.compile("main.cadl")) as {
+        Pet: ModelType;
+        Dog: ModelType;
+        Cat: ModelType;
+      };
+      ok(Pet.derivedModels);
+      strictEqual(Pet.derivedModels.length, 2);
+      strictEqual(Pet.derivedModels[0], Cat);
+      strictEqual(Pet.derivedModels[1], Dog);
+    });
+
     it("emit error when extends itself", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -299,6 +327,7 @@ describe("compiler: models", () => {
       );
       const { A, C } = (await testHost.compile("main.cadl")) as { A: ModelType; C: ModelType };
       strictEqual(C.baseModel, A);
+      strictEqual(A.derivedModels[1], C);
     });
 
     it("doesn't allow duplicate properties", async () => {
