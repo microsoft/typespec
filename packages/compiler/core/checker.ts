@@ -800,6 +800,7 @@ export function createChecker(program: Program): Checker {
       name: "",
       properties: properties,
       decorators: [],
+      derivedModels: [],
     });
 
     for (const option of optionTypes) {
@@ -1366,6 +1367,7 @@ export function createChecker(program: Program): Checker {
       properties: new Map<string, ModelTypeProperty>(),
       namespace: getParentNamespaceType(node),
       decorators,
+      derivedModels: [],
     });
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
@@ -1393,6 +1395,10 @@ export function createChecker(program: Program): Checker {
       type.baseModel = isBase.baseModel;
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends);
+    }
+
+    if (type.baseModel) {
+      type.baseModel.derivedModels.push(type);
     }
 
     // Hold on to the model type that's being defined so that it
@@ -1434,6 +1440,7 @@ export function createChecker(program: Program): Checker {
       node: node,
       properties,
       decorators: [],
+      derivedModels: [],
     });
     checkModelProperties(node, properties, type);
     return finishType(type);
@@ -2437,6 +2444,7 @@ export function createChecker(program: Program): Checker {
       node: node,
       decorators: [],
       properties: new Map(),
+      derivedModels: [],
     });
 
     for (const propNode of node.properties) {
