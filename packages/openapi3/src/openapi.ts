@@ -29,6 +29,7 @@ import {
   isNumericType,
   isSecret,
   isStringType,
+  isTemplate,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -803,20 +804,21 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       description: getDoc(program, model),
     };
 
+    const derivedModels = model.derivedModels.filter((x) => !isTemplate(x));
     // getSchemaOrRef on all children to push them into components.schemas
-    for (const child of model.derivedModels) {
+    for (const child of derivedModels) {
       getSchemaOrRef(child);
     }
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator) {
-      if (!validateDiscriminator(discriminator, model.derivedModels)) {
+      if (!validateDiscriminator(discriminator, derivedModels)) {
         // appropriate diagnostic is generated with the validate function
         return {};
       }
 
       const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
-      const mapping = getDiscriminatorMapping(discriminator, model.derivedModels);
+      const mapping = getDiscriminatorMapping(discriminator, derivedModels);
       if (mapping) {
         openApiDiscriminator.mapping = mapping;
       }

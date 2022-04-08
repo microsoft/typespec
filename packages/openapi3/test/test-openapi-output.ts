@@ -134,6 +134,44 @@ describe("openapi3: definitions", () => {
     });
   });
 
+  it("ignore uninstantiated template types", async () => {
+    const res = await openApiFor(
+      `
+      model Parent {
+        x?: int32;
+      };
+      model TParent<T> extends Parent {
+        t: T;
+      }
+      model Child extends TParent<string> {
+        y?: int32;
+      }
+      namespace Test {
+        @route("/") op test(): Parent;
+      }
+      `
+    );
+    ok(
+      !("TParent" in res.components.schemas),
+      "Parent templated type shouldn't be includd in OpenAPI"
+    );
+    deepStrictEqual(res.components.schemas.Parent, {
+      type: "object",
+      properties: { x: { type: "integer", format: "int32" } },
+    });
+    deepStrictEqual(res.components.schemas.TParent_string, {
+      type: "object",
+      properties: { t: { type: "string" } },
+      required: ["t"],
+      allOf: [{ $ref: "#/components/schemas/Parent" }],
+    });
+    deepStrictEqual(res.components.schemas.Child, {
+      type: "object",
+      allOf: [{ $ref: "#/components/schemas/TParent_string" }],
+      properties: { y: { type: "integer", format: "int32" } },
+    });
+  });
+
   it("defines models with properties extended from models", async () => {
     const res = await oapiForModel(
       "Bar",
