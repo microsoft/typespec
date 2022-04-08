@@ -8,7 +8,7 @@ import {
   UnionType,
   UnionTypeVariant,
 } from "../core/index.js";
-import { getProperty, mapChildModels, navigateProgram } from "../core/semantic-walker.js";
+import { getProperty, navigateProgram } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "../testing/index.js";
 
 describe("compiler: semantic walker", () => {
@@ -140,33 +140,6 @@ describe("compiler: semantic walker", () => {
     assert.strictEqual(result.interfaces[0].name, "A");
     assert.strictEqual(result.operations.length, 1, "finds operations");
     assert.strictEqual(result.operations[0].name, "a");
-  });
-
-  it("finds child models", async () => {
-    const result = await runNavigator(`
-      model Pet {
-        name: true;
-      }
-
-      model Cat extends Pet {
-        meow: true;
-      }
-
-      model Dog extends Pet {
-        bark: true;
-      }
-    `);
-
-    assert.strictEqual(result.models.length, 3);
-    const [Pet, Cat, Dog] = result.models;
-    assert.strictEqual(Pet.name, "Pet");
-    assert.strictEqual(Cat.name, "Cat");
-    assert.strictEqual(Dog.name, "Dog");
-
-    const map = mapChildModels(host.program);
-    const childModels = map.get(Pet);
-    assert.ok(childModels);
-    assert.deepStrictEqual(childModels, [Cat, Dog]);
   });
 
   it("finds owned or inherited properties", async () => {

@@ -330,7 +330,7 @@ describe("compiler: syntax", () => {
 
   describe("numeric literals", () => {
     const good: [string, number][] = [
-      // Some questions remain here: https://github.com/Azure/adl/issues/506
+      // Some questions remain here: https://github.com/Microsoft/cadl/issues/506
       ["-0", -0],
       ["1e9999", Infinity],
       ["1e-9999", 0],

@@ -1,6 +1,14 @@
 # Change Log - @cadl-lang/openapi
 
-This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+This log was last generated on Thu, 31 Mar 2022 17:10:49 GMT and should not be manually modified.
+
+## 0.8.0
+Thu, 31 Mar 2022 17:10:49 GMT
+
+### Minor changes
+
+- Update `@extension` to allow value to be a complex object or array
+- `@defaultResponse` set status code for model
 
 ## 0.7.0
 Wed, 09 Mar 2022 17:42:09 GMT

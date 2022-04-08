@@ -7,7 +7,12 @@ import {
   TestHost,
 } from "@cadl-lang/compiler/testing";
 import { HttpVerb } from "../src/http.js";
-import { getAllRoutes, HttpOperationParameter, OperationDetails } from "../src/route.js";
+import {
+  getAllRoutes,
+  HttpOperationParameter,
+  OperationDetails,
+  RouteOptions,
+} from "../src/route.js";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
@@ -31,8 +36,11 @@ export interface RouteDetails {
   params: string[];
 }
 
-export async function getRoutesFor(code: string): Promise<RouteDetails[]> {
-  const [routes, diagnostics] = await compileOperations(code);
+export async function getRoutesFor(
+  code: string,
+  routeOptions?: RouteOptions
+): Promise<RouteDetails[]> {
+  const [routes, diagnostics] = await compileOperations(code, routeOptions);
   expectDiagnosticEmpty(diagnostics);
   return routes.map((route) => ({
     ...route,
@@ -52,9 +60,11 @@ export interface SimpleOperationDetails {
 }
 
 export async function compileOperations(
-  code: string
+  code: string,
+  routeOptions?: RouteOptions
 ): Promise<[SimpleOperationDetails[], readonly Diagnostic[]]> {
-  const [routes, diagnostics] = await getOperations(code);
+  const [routes, diagnostics] = await getOperations(code, routeOptions);
+
   const details = routes.map((r) => {
     return {
       verb: r.verb,
@@ -70,10 +80,11 @@ export async function compileOperations(
 }
 
 export async function getOperations(
-  code: string
+  code: string,
+  routeOptions?: RouteOptions
 ): Promise<[OperationDetails[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
   await runner.compileAndDiagnose(code, { noEmit: true });
-  const routes = getAllRoutes(runner.program);
+  const routes = getAllRoutes(runner.program, routeOptions);
   return [routes, runner.program.diagnostics];
 }

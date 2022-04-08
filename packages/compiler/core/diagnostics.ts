@@ -208,7 +208,7 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
     root = root.parent;
   }
 
-  if (root.kind !== SyntaxKind.CadlScript) {
+  if (root.kind !== SyntaxKind.CadlScript && root.kind !== SyntaxKind.JsSourceFile) {
     return createDummySourceLocation(
       node.flags & NodeFlags.Synthetic
         ? undefined

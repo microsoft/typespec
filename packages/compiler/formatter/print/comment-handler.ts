@@ -12,7 +12,10 @@ interface CommentNode {
  * Override the default behavior to attach comments to syntax node.
  */
 export const commentHandler: Printer<Node>["handleComments"] = {
-  ownLine: (comment) => [addEmptyInterfaceComment, addEmptyModelComment].some((x) => x(comment)),
+  ownLine: (comment) =>
+    [addEmptyInterfaceComment, addEmptyModelComment, addStatementDecoratorComment].some((x) =>
+      x(comment)
+    ),
 };
 
 /**
@@ -35,6 +38,34 @@ function addEmptyInterfaceComment(comment: CommentNode) {
     precedingNode.kind === SyntaxKind.Identifier
   ) {
     util.addDanglingComment(enclosingNode, comment, undefined);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * When a comment is in between a decorator and a statement.
+ *
+ * @example
+ *
+ * @foo
+ * // My comment
+ * model Foo {
+ * }
+ */
+function addStatementDecoratorComment(comment: CommentNode) {
+  const { enclosingNode, precedingNode } = comment;
+
+  if (
+    precedingNode &&
+    precedingNode.kind === SyntaxKind.DecoratorExpression &&
+    enclosingNode &&
+    (enclosingNode.kind === SyntaxKind.NamespaceStatement ||
+      enclosingNode.kind === SyntaxKind.ModelStatement ||
+      enclosingNode.kind === SyntaxKind.EnumStatement ||
+      enclosingNode.kind === SyntaxKind.UnionStatement)
+  ) {
+    util.addLeadingComment(enclosingNode, comment);
     return true;
   }
   return false;

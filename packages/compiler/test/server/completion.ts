@@ -46,6 +46,23 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("does not complete functions or decorators in type position", async () => {
+    const completions = await complete(
+      `
+      model M {
+        s: ┆
+      }
+      `
+    );
+
+    deepStrictEqual(
+      [],
+      completions.items.filter(
+        (c) => c.label === "doc" || c.label === "getDoc" || c.kind === CompletionItemKind.Function
+      )
+    );
+  });
+
   it("completes decorators on models", async () => {
     const completions = await complete(
       `

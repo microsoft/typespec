@@ -2,6 +2,67 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.30.0",
+      "tag": "@cadl-lang/compiler_v0.30.0",
+      "date": "Thu, 31 Mar 2022 17:10:49 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "support format in bytes type"
+          },
+          {
+            "comment": "Fix: stack overflow when defining template argument where default reference argument itself. `Foo<T = T>`"
+          },
+          {
+            "comment": "Fix formatting of comment between decorator and statement"
+          },
+          {
+            "comment": "Fix resolving location for diagnostic in js files"
+          },
+          {
+            "comment": "Fix formatting of comment between decorator and property"
+          },
+          {
+            "comment": "Fix using `&` with tempalte parameters"
+          },
+          {
+            "comment": "Support browser builds"
+          },
+          {
+            "comment": "Fix issues with mishandled promises"
+          },
+          {
+            "comment": "Fix cascade of error when having unexpected token in directive"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Add new helper `cadlTypeToJson` to convert cadl type to a Json serializable type"
+          },
+          {
+            "comment": "Add helper methods to detect `void` and `never` types"
+          },
+          {
+            "comment": "Prevent decorators from running if arguments are errors."
+          },
+          {
+            "comment": "Handle unknown identfier/error types used in spread operator."
+          },
+          {
+            "comment": "Add parent .model to ModelTypeProperty"
+          },
+          {
+            "comment": "Add validation that template params cannot use latter params as default"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.2.0` to `~0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.0",
       "tag": "@cadl-lang/compiler_v0.29.0",
       "date": "Wed, 09 Mar 2022 17:42:09 GMT",

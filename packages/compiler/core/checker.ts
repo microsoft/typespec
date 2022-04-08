@@ -98,8 +98,6 @@ export interface Checker {
   setUsingsForFile(file: CadlScriptNode): void;
   checkProgram(): void;
   checkSourceFile(file: CadlScriptNode): void;
-  checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty;
-  checkUnionExpression(node: UnionExpressionNode): UnionType;
   getGlobalNamespaceType(): NamespaceType;
   getGlobalNamespaceNode(): NamespaceStatementNode;
   getMergedSymbol(sym: Sym | undefined): Sym | undefined;
@@ -273,8 +271,6 @@ export function createChecker(program: Program): Checker {
     getTypeForNode,
     checkProgram,
     checkSourceFile,
-    checkModelProperty,
-    checkUnionExpression,
     getLiteralType,
     getTypeName,
     getNamespaceString,
@@ -767,7 +763,7 @@ export function createChecker(program: Program): Checker {
       const variant: UnionTypeVariant = createType({
         kind: "UnionVariant",
         type,
-        name: Symbol(),
+        name: Symbol("name"),
         decorators: [],
         node: undefined,
       });
@@ -796,8 +792,17 @@ export function createChecker(program: Program): Checker {
    */
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const optionTypes = node.options.map(getTypeForNode);
-
     const properties = new Map<string, ModelTypeProperty>();
+
+    const intersection: ModelType = createType({
+      kind: "Model",
+      node,
+      name: "",
+      properties: properties,
+      decorators: [],
+      derivedModels: [],
+    });
+
     for (const option of optionTypes) {
       if (option.kind === "TemplateParameter") {
         continue;
@@ -819,24 +824,12 @@ export function createChecker(program: Program): Checker {
           continue;
         }
 
-        const newPropType = finishType({
-          ...prop,
-          sourceProperty: prop,
-        });
-
+        const newPropType = cloneType(prop, { sourceProperty: prop, model: intersection });
         properties.set(prop.name, newPropType);
       }
     }
 
-    const intersection = createAndFinishType({
-      kind: "Model",
-      node,
-      name: "",
-      properties: properties,
-      decorators: [], // could probably include both sets of decorators here...
-    });
-
-    return intersection;
+    return finishType(intersection);
   }
 
   function checkArrayExpression(node: ArrayExpressionNode): ArrayType {
@@ -1164,8 +1157,8 @@ export function createChecker(program: Program): Checker {
         return !!(sym.flags & SymbolFlags.Namespace);
       }
       if (resolveType) {
-        // Do not return functions when completing types
-        return !(sym.flags & SymbolFlags.Function);
+        // Do not return functions or decorators when completing types
+        return !(sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator));
       }
       compilerAssert(false, "Unreachable.");
     }
@@ -1374,6 +1367,7 @@ export function createChecker(program: Program): Checker {
       properties: new Map<string, ModelTypeProperty>(),
       namespace: getParentNamespaceType(node),
       decorators,
+      derivedModels: [],
     });
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
@@ -1403,6 +1397,10 @@ export function createChecker(program: Program): Checker {
       type.baseModel = checkClassHeritage(node, node.extends);
     }
 
+    if (type.baseModel) {
+      type.baseModel.derivedModels.push(type);
+    }
+
     // Hold on to the model type that's being defined so that it
     // can be referenced
     if (!instantiatingThisTemplate) {
@@ -1416,7 +1414,7 @@ export function createChecker(program: Program): Checker {
     );
 
     // Evaluate the properties after
-    checkModelProperties(node, type.properties, inheritedPropNames);
+    checkModelProperties(node, type.properties, type, inheritedPropNames);
 
     if (shouldCreateTypeForTemplate(node)) {
       finishType(type);
@@ -1436,30 +1434,31 @@ export function createChecker(program: Program): Checker {
 
   function checkModelExpression(node: ModelExpressionNode) {
     const properties = new Map();
-    checkModelProperties(node, properties);
-    const type: ModelType = createAndFinishType({
+    const type: ModelType = createType({
       kind: "Model",
       name: "",
       node: node,
       properties,
       decorators: [],
+      derivedModels: [],
     });
-
-    return type;
+    checkModelProperties(node, properties, type);
+    return finishType(type);
   }
 
   function checkModelProperties(
     node: ModelExpressionNode | ModelStatementNode,
     properties: Map<string, ModelTypeProperty>,
+    parentModel: ModelType,
     inheritedPropertyNames?: Set<string>
   ) {
     for (const prop of node.properties!) {
       if ("id" in prop) {
-        const newProp = getTypeForNode(prop) as ModelTypeProperty;
+        const newProp = checkModelProperty(prop, parentModel);
         defineProperty(properties, newProp, inheritedPropertyNames);
       } else {
         // spread property
-        const newProperties = checkSpreadProperty(prop.target);
+        const newProperties = checkSpreadProperty(prop.target, parentModel);
 
         for (const newProp of newProperties) {
           defineProperty(properties, newProp, inheritedPropertyNames);
@@ -1581,7 +1580,10 @@ export function createChecker(program: Program): Checker {
     return isType;
   }
 
-  function checkSpreadProperty(targetNode: TypeReferenceNode): ModelTypeProperty[] {
+  function checkSpreadProperty(
+    targetNode: TypeReferenceNode,
+    parentModel: ModelType
+  ): ModelTypeProperty[] {
     const props: ModelTypeProperty[] = [];
     const targetType = getTypeForNode(targetNode);
 
@@ -1593,7 +1595,7 @@ export function createChecker(program: Program): Checker {
 
       // copy each property
       for (const prop of walkPropertiesInherited(targetType)) {
-        const newProp = cloneType(prop, { sourceProperty: prop });
+        const newProp = cloneType(prop, { sourceProperty: prop, model: parentModel });
         props.push(newProp);
       }
     }
@@ -1610,7 +1612,7 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkModelProperty(prop: ModelPropertyNode): ModelTypeProperty {
+  function checkModelProperty(prop: ModelPropertyNode, parentModel?: ModelType): ModelTypeProperty {
     const decorators = checkDecorators(prop);
     const valueType = getTypeForNode(prop.value);
     const defaultValue = prop.default && checkDefault(getTypeForNode(prop.default), valueType);
@@ -1624,15 +1626,16 @@ export function createChecker(program: Program): Checker {
       type: valueType,
       decorators,
       default: defaultValue,
+      model: parentModel,
     });
 
-    const parentModel = prop.parent! as
+    const parentModelNode = prop.parent! as
       | ModelStatementNode
       | ModelExpressionNode
       | OperationStatementNode;
     if (
-      parentModel.kind !== SyntaxKind.ModelStatement ||
-      shouldCreateTypeForTemplate(parentModel)
+      parentModelNode.kind !== SyntaxKind.ModelStatement ||
+      shouldCreateTypeForTemplate(parentModelNode)
     ) {
       finishType(type);
     }
@@ -2441,11 +2444,12 @@ export function createChecker(program: Program): Checker {
       node: node,
       decorators: [],
       properties: new Map(),
+      derivedModels: [],
     });
 
     for (const propNode of node.properties) {
       if (propNode.kind === SyntaxKind.ProjectionModelProperty) {
-        const prop = evalProjectionModelProperty(propNode);
+        const prop = evalProjectionModelProperty(propNode, modelType);
         if (prop.kind === "Return") {
           return prop;
         }
@@ -2467,7 +2471,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function evalProjectionModelProperty(
-    node: ProjectionModelPropertyNode
+    node: ProjectionModelPropertyNode,
+    model: ModelType
   ): ModelTypeProperty | ReturnRecord {
     const type = evalProjectionNode(node.value);
     if (type.kind === "Return") {
@@ -2481,6 +2486,7 @@ export function createChecker(program: Program): Checker {
       decorators: [],
       optional: node.optional,
       type,
+      model,
     });
   }
 

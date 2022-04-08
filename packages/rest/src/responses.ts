@@ -1,5 +1,4 @@
 import {
-  getChildModelMap,
   getDoc,
   getIntrinsicModelName,
   isErrorModel,
@@ -95,10 +94,9 @@ function processResponseType(
         const allProperties = (p: ModelType): ModelTypeProperty[] => {
           return [...p.properties.values(), ...(p.baseModel ? allProperties(p.baseModel) : [])];
         };
-        const childMap = getChildModelMap(program);
         if (
           allProperties(responseModel).some((p) => !isResponseMetadata(p)) ||
-          childMap.has(responseModel)
+          responseModel.derivedModels.length > 0
         ) {
           bodyModel = responseModel;
         }

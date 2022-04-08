@@ -8,7 +8,6 @@ import {
   NamespaceType,
   OperationType,
   SemanticNodeListener,
-  SyntaxKind,
   TemplateParameterType,
   TupleType,
   Type,
@@ -251,46 +250,6 @@ function navigateType(
       const _assertNever: never = type;
       return;
   }
-}
-
-function isTemplate(model: ModelType) {
-  return (
-    model.node.kind === SyntaxKind.ModelStatement &&
-    model.node.templateParameters.length > 0 &&
-    !model.templateArguments?.length
-  );
-}
-
-// Produce a map from models in a program (with children) to their children. Model templates are not included.
-export function mapChildModels(program: Program): ReadonlyMap<ModelType, readonly ModelType[]> {
-  const map = new Map<ModelType, ModelType[]>();
-  navigateProgram(program, {
-    model: (model) => {
-      if (model.baseModel && !isTemplate(model) && !isTemplate(model.baseModel)) {
-        const children = map.get(model.baseModel);
-        if (children) {
-          children.push(model);
-        } else {
-          map.set(model.baseModel, [model]);
-        }
-      }
-    },
-  });
-  return map;
-}
-
-const ChildModelMap = Symbol();
-/**
- * @returns the mapping of parent model to child model.
- * Will cache the value so it is computed only once.
- */
-export function getChildModelMap(program: Program): ReadonlyMap<ModelType, readonly ModelType[]> {
-  let map = program.stateMaps.get(ChildModelMap) as ReadonlyMap<ModelType, readonly ModelType[]>;
-  if (!map) {
-    map = mapChildModels(program);
-    program.stateMaps.set(ChildModelMap, map as any);
-  }
-  return map;
 }
 
 // Return property from type, nesting into baseTypes as needed.

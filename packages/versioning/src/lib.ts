@@ -33,6 +33,12 @@ const libDef = {
         default: paramMessage`The versionedDependency decorator must provide a version of the dependency '${"dependency"}'.`,
       },
     },
+    "using-versioned-library": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @versionedDependency.`,
+      },
+    },
   },
 } as const;
 export const { reportDiagnostic } = createCadlLibrary(libDef);
