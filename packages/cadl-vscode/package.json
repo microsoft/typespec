@@ -80,6 +80,13 @@
           "meta.embedded.block.cadl": "cadl"
         }
       }
+    ],
+    "commands": [
+      {
+        "command": "cadl.restartServer",
+        "title": "Restart Cadl server",
+        "category": "Cadl"
+      }
     ]
   },
   "scripts": {
