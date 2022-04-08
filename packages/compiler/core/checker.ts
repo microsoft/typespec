@@ -505,7 +505,10 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function getResolvedTypeParameterDefault(declaredType: TemplateParameterType): Type | undefined {
+  function getResolvedTypeParameterDefault(
+    declaredType: TemplateParameterType,
+    existingValues: Record<string, Type>
+  ): Type | undefined {
     if (declaredType.default === undefined) {
       return undefined;
     }
@@ -513,7 +516,7 @@ export function createChecker(program: Program): Checker {
       return declaredType.default;
     }
     if (declaredType.default.kind === "TemplateParameter") {
-      return getTypeForNode(declaredType.default.node);
+      return existingValues[declaredType.default.node.id.sv];
     } else {
       return declaredType.default;
     }
@@ -571,7 +574,6 @@ export function createChecker(program: Program): Checker {
     }
 
     for (const arg of node.arguments) {
-      args.length++;
       const value = getTypeForNode(arg);
       args.push(value);
     }
@@ -590,16 +592,20 @@ export function createChecker(program: Program): Checker {
     }
 
     const values: Type[] = [];
+    const valueMap: Record<string, Type> = {};
     let tooFew = false;
     for (let i = 0; i < declarations.length; i++) {
       const declaration = declarations[i];
+
       if (i < args.length) {
         values.push(args[i]);
+        valueMap[declaration.id.sv] = args[i];
       } else {
         const declaredType = getTypeForNode(declaration)! as TemplateParameterType;
-        const defaultValue = getResolvedTypeParameterDefault(declaredType);
+        const defaultValue = getResolvedTypeParameterDefault(declaredType, valueMap);
         if (defaultValue) {
           values.push(defaultValue);
+          valueMap[declaration.id.sv] = defaultValue;
         } else {
           tooFew = true;
           values.push(errorType);

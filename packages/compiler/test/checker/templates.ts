@@ -102,6 +102,23 @@ describe("compiler: templates", () => {
     strictEqual((b.type as StringLiteralType).value, "hi");
   });
 
+  it("allows default template parameters that are models", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T = string> { a: T }
+        model B { 
+          foo: A
+        };
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const a = A.properties.get("a")!;
+    strictEqual(a.type.kind, "Model");
+    strictEqual((a.type as ModelType).name, "string");
+  });
+
   it("emits diagnostics when using too few template parameters", async () => {
     testHost.addCadlFile(
       "main.cadl",
