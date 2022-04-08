@@ -797,6 +797,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
+  function includeDerivedModel(model: ModelType): boolean {
+    return (
+      !isTemplate(model) &&
+      (model.templateArguments === undefined ||
+        model.templateArguments?.length === 0 ||
+        model.derivedModels.length > 0)
+    );
+  }
+
   function getSchemaForModel(model: ModelType) {
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
       type: "object",
@@ -804,7 +813,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       description: getDoc(program, model),
     };
 
-    const derivedModels = model.derivedModels.filter((x) => !isTemplate(x));
+    const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
     for (const child of derivedModels) {
       getSchemaOrRef(child);
