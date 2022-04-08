@@ -1644,6 +1644,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDefault(defaultType: Type, type: Type): Type {
+    if (isErrorType(type)) {
+      return errorType;
+    }
     switch (type.kind) {
       case "Model":
         return checkDefaultForModelType(defaultType, type);

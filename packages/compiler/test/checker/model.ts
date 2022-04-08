@@ -1,6 +1,6 @@
-import { match, ok, strictEqual } from "assert";
+import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { isTemplate } from "../../core/semantic-walker.js";
-import { ModelType, Type } from "../../core/types.js";
+import { ModelType, ModelTypeProperty, Type } from "../../core/types.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
@@ -100,6 +100,28 @@ describe("compiler: models", () => {
     ]);
   });
 
+  describe("assign default values", () => {
+    const testCases: [string, string, any][] = [
+      ["boolean", `false`, { kind: "Boolean", value: false }],
+      ["boolean", `true`, { kind: "Boolean", value: true }],
+      ["string", `"foo"`, { kind: "String", value: "foo" }],
+      ["int32", `123`, { kind: "Number", value: 123 }],
+    ];
+
+    for (const [type, defaultValue, expectedValue] of testCases) {
+      it(`foo?: ${type} = ${defaultValue}`, async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+          model A { @test foo?: ${type} = ${defaultValue} }
+          `
+        );
+        const { foo } = (await testHost.compile("main.cadl")) as { foo: ModelTypeProperty };
+        deepStrictEqual({ ...foo.default }, expectedValue);
+      });
+    }
+  });
+
   describe("doesn't allow a default of different type than the property type", () => {
     const testCases: [string, string, RegExp][] = [
       ["string", "123", /Default must be a string/],
@@ -122,6 +144,19 @@ describe("compiler: models", () => {
         match(diagnostics[0].message, errorRegex);
       });
     }
+  });
+
+  it(`doesn't emit unsuported-default diagnostic when type is an error`, async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        model A { foo?: bool = false }
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnostics(diagnostics, [
+      { code: "unknown-identifier", message: "Unknown identifier bool" },
+    ]);
   });
 
   it("provides parent model of properties", async () => {
