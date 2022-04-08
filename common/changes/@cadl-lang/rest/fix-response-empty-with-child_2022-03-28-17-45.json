@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Fix issue where empty response model with children would result in 204\"",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
