@@ -134,7 +134,7 @@ describe("openapi3: definitions", () => {
     });
   });
 
-  it("ignore uninstantied template types", async () => {
+  it("ignore uninstantiated template types", async () => {
     const res = await openApiFor(
       `
       model Parent {
