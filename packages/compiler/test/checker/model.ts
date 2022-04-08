@@ -1,4 +1,5 @@
 import { match, ok, strictEqual } from "assert";
+import { isTemplate } from "../../core/semantic-walker.js";
 import { ModelType, Type } from "../../core/types.js";
 import {
   createTestHost,
@@ -224,6 +225,45 @@ describe("compiler: models", () => {
       strictEqual(Pet.derivedModels.length, 2);
       strictEqual(Pet.derivedModels[0], Cat);
       strictEqual(Pet.derivedModels[1], Dog);
+    });
+
+    it("keeps reference of childrens with templates", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test model Pet {
+          name: true;
+        }
+
+        model TPet<T> extends Pet {
+          t: T;
+        }
+
+        @test model Cat is TPet<string> {
+          meow: true;
+        }
+
+        @test model Dog is TPet<string> {
+          bark: true;
+        }
+        `
+      );
+      const { Pet, Dog, Cat } = (await testHost.compile("main.cadl")) as {
+        Pet: ModelType;
+        Dog: ModelType;
+        Cat: ModelType;
+      };
+      strictEqual(Pet.derivedModels.length, 4);
+      strictEqual(Pet.derivedModels[0].name, "TPet");
+      ok(isTemplate(Pet.derivedModels[0]));
+
+      strictEqual(Pet.derivedModels[1].name, "TPet");
+      ok(Pet.derivedModels[1].templateArguments);
+      strictEqual(Pet.derivedModels[1].templateArguments[0].kind, "Model");
+      strictEqual((Pet.derivedModels[1].templateArguments[0] as ModelType).name, "string");
+
+      strictEqual(Pet.derivedModels[2], Cat);
+      strictEqual(Pet.derivedModels[3], Dog);
     });
 
     it("emit error when extends itself", async () => {
