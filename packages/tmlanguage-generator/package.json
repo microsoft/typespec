@@ -42,6 +42,6 @@
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
     "eslint": "^8.12.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.5.5"
+    "typescript": "~4.6.3"
   }
 }
