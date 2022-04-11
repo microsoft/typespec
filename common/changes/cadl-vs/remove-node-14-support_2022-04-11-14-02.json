@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Remove node 14 support",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vs"
+}

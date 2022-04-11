@@ -34,7 +34,7 @@
     }
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
-    "@types/node": "~16.11.7",
+    "@types/node": "~16.0.3",
     "@cadl-lang/compiler": "~0.30.0",
     "@cadl-lang/rest": "~0.13.0",
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
