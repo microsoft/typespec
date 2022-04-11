@@ -66,13 +66,13 @@ export function createConsoleSink(options: LogSinkOptions = {}): LogSink {
 }
 
 export function formatLog(log: ProcessedLog, options: FormatLogOptions): string {
-  const code = log.code ? ` ${log.code}` : "";
+  const code = color(options, log.code ? ` ${log.code}` : "", chalk.gray);
   const level = formatLevel(options, log.level);
   const content = `${level}${code}: ${log.message}`;
   const location = log.sourceLocation;
   if (location?.file) {
-    const formattedLocation = formatSourceLocation(location);
-    const sourcePreview = formatSourcePreview(location);
+    const formattedLocation = formatSourceLocation(options, location);
+    const sourcePreview = formatSourcePreview(options, location);
     return `${formattedLocation} - ${content}${sourcePreview}`;
   } else {
     return content;
@@ -94,10 +94,12 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
   }
 }
 
-function formatSourceLocation(location: SourceLocation) {
-  const { line, column } = getLineAndColumn(location);
-  const path = location.file.path;
+function formatSourceLocation(options: FormatLogOptions, location: SourceLocation) {
+  const postition = getLineAndColumn(location);
+  const path = color(options, location.file.path, chalk.cyan);
 
+  const line = color(options, postition.line.toString(), chalk.yellow);
+  const column = color(options, postition.column.toString(), chalk.yellow);
   return `${path}:${line}:${column}`;
 }
 
@@ -113,7 +115,10 @@ function formatSourceLocation(location: SourceLocation) {
  *   8 | @route("/beta/{id}")
  *   9 | op doBeta(@path id: string): string;
  */
-function formatSourcePreview(location: SourceLocation) {
+function formatSourcePreview(options: FormatLogOptions, location: SourceLocation) {
+  if (!options.pretty) {
+    return "";
+  }
   const { line, column } = getLineAndColumn(location);
 
   const result = codeFrameColumns(location.file.text, { start: { line, column } });
