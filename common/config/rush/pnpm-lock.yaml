@@ -5410,11 +5410,12 @@ packages:
       rimraf: 3.0.2
       typescript: 4.6.3
       vite: 2.9.1
+      vscode-languageserver: 7.0.0
       vscode-languageserver-textdocument: 1.0.4
     dev: false
     name: '@rush-temp/playground'
     resolution:
-      integrity: sha512-qL/lX3pgET+BhtlUNUmsZU2EpE3fOVcvyLTqAIO8KjFLyjNh+St9mFt8jnOAri8SB9pc0dwTp1hQGHcGue4UNA==
+      integrity: sha512-mRZFubxfZlPe5rV6OtYI66wXApLKYQTv1/n7VBv9ZGYnB38Ne0CMBBF2dKBVxXyOC29H2kOrUsuUZvEQ9DM8cQ==
       tarball: file:projects/playground.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:

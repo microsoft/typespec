@@ -27,6 +27,8 @@ import {
   EnumMemberNode,
   EnumStatementNode,
   Expression,
+  IdentifierContext,
+  IdentifierKind,
   IdentifierNode,
   ImportStatementNode,
   InterfaceStatementNode,
@@ -2141,9 +2143,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 }
 
-type NodeCb<T> = (c: Node) => T;
+export type NodeCallback<T> = (c: Node) => T;
 
-export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
+export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined {
   if (node.directives) {
     visitEach(cb, node.directives);
   }
@@ -2284,7 +2286,7 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
-      return visitNode(cb, node.default);
+      return visitNode(cb, node.id) || visitNode(cb, node.default);
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:
@@ -2310,11 +2312,11 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
   }
 }
 
-function visitNode<T>(cb: NodeCb<T>, node: Node | undefined): T | undefined {
+function visitNode<T>(cb: NodeCallback<T>, node: Node | undefined): T | undefined {
   return node && cb(node);
 }
 
-function visitEach<T>(cb: NodeCb<T>, nodes: readonly Node[] | undefined): T | undefined {
+function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): T | undefined {
   if (!nodes) {
     return;
   }
@@ -2420,4 +2422,43 @@ function isBlocklessNamespace(node: Node) {
   }
 
   return node.statements === undefined;
+}
+
+export function getFirstAncestor(node: Node, test: NodeCallback<boolean>): Node | undefined {
+  for (let n = node.parent; n; n = n.parent) {
+    if (test(n)) {
+      return n;
+    }
+  }
+  return undefined;
+}
+
+export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
+  const node = getFirstAncestor(id, (n) => n.kind !== SyntaxKind.MemberExpression);
+  compilerAssert(node, "Identifier with no non-member-expression ancestor.");
+
+  let kind: IdentifierKind;
+  switch (node.kind) {
+    case SyntaxKind.TypeReference:
+      kind = IdentifierKind.TypeReference;
+      break;
+    case SyntaxKind.DecoratorExpression:
+      kind = IdentifierKind.Decorator;
+      break;
+    case SyntaxKind.UsingStatement:
+      kind = IdentifierKind.Using;
+      break;
+    case SyntaxKind.DirectiveExpression:
+      kind = IdentifierKind.Directive;
+      break;
+    default:
+      compilerAssert(
+        (id.parent as any).id === id,
+        "This identifier does not appear to be a declaration. There is probably a missing switch case above."
+      );
+      kind = IdentifierKind.Declaration;
+      break;
+  }
+
+  return { node, kind };
 }
