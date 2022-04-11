@@ -24,7 +24,7 @@ dependencies:
   '@types/mkdirp': 1.0.2
   '@types/mocha': 9.1.0
   '@types/mustache': 4.1.2
-  '@types/node': 17.0.23
+  '@types/node': 16.11.26
   '@types/plist': 3.0.2
   '@types/prettier': 2.6.0
   '@types/prompts': 2.0.14
@@ -951,10 +951,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-kVrqXhbclHNHGu9ztnAwSncIgJv/FaxmzXJvGXNdcCpV1b8u1/Mi6z6m0vwy0LzKeXFTPLH0NzwmoJ3fNCIq0g==
-  /@types/node/17.0.23:
+  /@types/node/16.11.26:
     dev: false
     resolution:
-      integrity: sha512-UxDxWn7dl97rKVeVS61vErvw086aCYhDLyvRQZ5Rk65rZKepaFdm53GeqXaKBuOhED4e9uWq34IC3TdSdJJ2Gw==
+      integrity: sha512-GZ7bu5A6+4DtG7q9GsoHXy3ALcgeIHP4NnL0Vv2wu0uUB/yQex26v0tf6/na1mm0+bS9Uw+0DFex7aaKr2qawQ==
   /@types/plist/3.0.2:
     dependencies:
       '@types/node': 14.0.27
@@ -5266,7 +5266,7 @@ packages:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/mkdirp': 1.0.2
       '@types/mocha': 9.1.0
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       '@types/vscode': 1.53.0
       c8: 7.11.0
       eslint: 8.13.0
@@ -5283,7 +5283,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vscode'
     resolution:
-      integrity: sha512-Jl02YzbjoHqTgK9W2PB1XAdB8SiAcKw+anuPqDbPWI1DltQ+5epBSmi6OclmdAjZ2nPMPATAq87o2mYPJAdQSg==
+      integrity: sha512-ixqVeW/E6BS261dUhaVqmQiw/eEvAsoIgCEptWAQWHBs9A/ZMjw5J3rMrnlJ2IHRrXLDzdFGqXWsgHE62srZKQ==
       tarball: file:projects/cadl-vscode.tgz
     version: 0.0.0
   file:projects/compiler.tgz:
@@ -5293,7 +5293,7 @@ packages:
       '@types/mkdirp': 1.0.2
       '@types/mocha': 9.1.0
       '@types/mustache': 4.1.2
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       '@types/prettier': 2.6.0
       '@types/prompts': 2.0.14
       '@types/yargs': 17.0.10
@@ -5322,7 +5322,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-SSSv5/UrzzgfhiXsXry0P+s9eaq1bJ0ndD76uQwiNiYxTA4GEASAOXxaWYrGQU0WQRCgvFltoGgzhHvqxL9/ow==
+      integrity: sha512-A0046y0PEVMBdhZtvEMdeoO+wfulzMToo5Ved7CtFp8wlXA+JUWw3JtFefCF31jEvDj4nbxdEJwMCiqZNLKEeg==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/eslint-config-cadl.tgz_prettier@2.6.2:
@@ -5346,7 +5346,7 @@ packages:
   file:projects/openapi.tgz:
     dependencies:
       '@types/mocha': 9.1.0
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       c8: 7.11.0
       eslint: 8.13.0
       mocha: 9.2.2
@@ -5355,13 +5355,13 @@ packages:
     dev: false
     name: '@rush-temp/openapi'
     resolution:
-      integrity: sha512-iWTmhM3Zi0EjykcPq5bEbqNqulN4hsCRy/xqhWZ8kS9IA+AJbCV+F9mi5lOKKPuD0PGhvP+WTAzINOOPKg4+xw==
+      integrity: sha512-hajDdpZZRg1pwtFAPH1+fYDTZFaa91EG29AJ3V6n5IPnCXP3tkG9WcNzZf4o2Inopq7cnTU6tZ1txSnelj3UNg==
       tarball: file:projects/openapi.tgz
     version: 0.0.0
   file:projects/openapi3.tgz:
     dependencies:
       '@types/mocha': 9.1.0
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       c8: 7.11.0
       eslint: 8.13.0
       mocha: 9.2.2
@@ -5370,7 +5370,7 @@ packages:
     dev: false
     name: '@rush-temp/openapi3'
     resolution:
-      integrity: sha512-fSwylabYR4U8p5BOCA0bEPQmaRidtZpooV/ha80aYdmxObBGONQK2o8ru97sHfJ1u/qcQkq27M+O1pdc1opYyg==
+      integrity: sha512-cnrmOWLF4oAFwKZKByv1rn5qpvkhi7/JQY7Us1T4YSQWjTIQTtA5eqv1tM3znQ7X5LDmWk2pTCqVqRmut8/MXQ==
       tarball: file:projects/openapi3.tgz
     version: 0.0.0
   file:projects/playground.tgz:
@@ -5379,7 +5379,7 @@ packages:
       '@types/debounce': 1.2.1
       '@types/lz-string': 1.3.34
       '@types/mocha': 9.1.0
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       '@types/prettier': 2.6.0
       c8: 7.11.0
       cross-env: 7.0.3
@@ -5397,7 +5397,7 @@ packages:
     dev: false
     name: '@rush-temp/playground'
     resolution:
-      integrity: sha512-irTiLsyG2/i9+ud1cBlhznGQM1jBszwAjW3p42nsqzZgOUE/oFRPPW0MUHZ9tj9Xs14/ZbXqx+sUUyAhr/IEgw==
+      integrity: sha512-YrQ5E7rK1QWuzOiGxLxKa+TWLn2l1X5BDXcwWoNuRLoSdeEip7nHMrRZbTrEcI49ptStzrUm5Pv14asWTrxWig==
       tarball: file:projects/playground.tgz
     version: 0.0.0
   file:projects/prettier-plugin-cadl.tgz:
@@ -5418,7 +5418,7 @@ packages:
   file:projects/rest.tgz:
     dependencies:
       '@types/mocha': 9.1.0
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       c8: 7.11.0
       eslint: 8.13.0
       mocha: 9.2.2
@@ -5427,7 +5427,7 @@ packages:
     dev: false
     name: '@rush-temp/rest'
     resolution:
-      integrity: sha512-mx8w4L/FT75ux3T0wG84C1GP5e06p4BKf7+sukbEM9wsDxRHfuP5BYALDnOrYi03VLfywAdCQsDiJIoi+oAjXA==
+      integrity: sha512-2GLkt+YN2Y0gbQNFpfXP5XCEZs1dyn5vRrj2lK+UGXI9HF/a6yB6z522hRpVQw0JR/Msy/uUR8Dgive/j24bSQ==
       tarball: file:projects/rest.tgz
     version: 0.0.0
   file:projects/samples.tgz:
@@ -5444,18 +5444,18 @@ packages:
   file:projects/spec.tgz:
     dependencies:
       '@types/mkdirp': 1.0.2
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       ecmarkup: 9.8.1
       watch: 1.0.2
     dev: false
     name: '@rush-temp/spec'
     resolution:
-      integrity: sha512-bdiY1q8hu9cwmx8J7QMbAZpfZlxwOgfdwLqBKLjdWyk8jg3QNWXxqicxTeO5grR3HjtWwylNiwGgaYJ6XBL0HA==
+      integrity: sha512-t2D6EuOatv6g7hkZgwRley3l9MK5wNl84SkcmaAU4y1fxO8VeMMwamOaMHkqeTqsHEQfgCLAM4RTW+w1yQEVjA==
       tarball: file:projects/spec.tgz
     version: 0.0.0
   file:projects/tmlanguage-generator.tgz:
     dependencies:
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       '@types/plist': 3.0.2
       eslint: 8.13.0
       onigasm: 2.2.5
@@ -5465,13 +5465,13 @@ packages:
     dev: false
     name: '@rush-temp/tmlanguage-generator'
     resolution:
-      integrity: sha512-GFEsjUw3jT8iN7nuTrOqS1yv2RWIomOcWz91MisjUkXCuEY1s/gMmoPNdsSaadCZdDaBf5+Vi204r8xOxpDXuw==
+      integrity: sha512-KlwLCXfQMOdnWPoL6OQknJury8MHumlNF28zY98gtcLIkF2z1OPud3wjK3XOPpM0rPgbzfhDkX1z8QGvpmCSqg==
       tarball: file:projects/tmlanguage-generator.tgz
     version: 0.0.0
   file:projects/versioning.tgz:
     dependencies:
       '@types/mocha': 9.1.0
-      '@types/node': 17.0.23
+      '@types/node': 16.11.26
       c8: 7.11.0
       eslint: 8.13.0
       mocha: 9.2.2
@@ -5480,7 +5480,7 @@ packages:
     dev: false
     name: '@rush-temp/versioning'
     resolution:
-      integrity: sha512-3/Bpk/zDxWmQXl33QtNMFrPBMDSlqzAvfxqqKQNqyU3lamwYdLGSbBC+hH8AVyO/m6f9XtjFXOh1+FMEXDiJ1w==
+      integrity: sha512-xvIXGLVXl2ryNZEzk2auX+R3iHGdwZug1JZAMW2Xe7s/cZWtv7g8gGzQOXKO6ZAlShhoKSzJ9b5n/0Am7lO1DQ==
       tarball: file:projects/versioning.tgz
     version: 0.0.0
 specifiers:
@@ -5509,7 +5509,7 @@ specifiers:
   '@types/mkdirp': ~1.0.1
   '@types/mocha': ~9.1.0
   '@types/mustache': ~4.1.2
-  '@types/node': ~17.0.23
+  '@types/node': ~16.11.7
   '@types/plist': ~3.0.2
   '@types/prettier': ^2.0.2
   '@types/prompts': ~2.0.14

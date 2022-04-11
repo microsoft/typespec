@@ -37,7 +37,7 @@
     "plist": "~3.0.2"
   },
   "devDependencies": {
-    "@types/node": "~17.0.23",
+    "@types/node": "~16.11.7",
     "@types/plist": "~3.0.2",
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
     "eslint": "^8.12.0",
