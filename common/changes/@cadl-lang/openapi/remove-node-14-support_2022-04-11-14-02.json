@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi",
+      "comment": "Remove node 14 support",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi"
+}

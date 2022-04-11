@@ -22,7 +22,7 @@
   "dependencies": {},
   "devDependencies": {
     "@types/mkdirp": "~1.0.1",
-    "@types/node": "~14.0.27",
+    "@types/node": "~16.0.3",
     "ecmarkup": "~9.8.1",
     "watch": "~1.0.2"
   }
