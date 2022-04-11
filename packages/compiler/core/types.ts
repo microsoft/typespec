@@ -382,7 +382,6 @@ export enum SyntaxKind {
   JsSourceFile,
   ImportStatement,
   Identifier,
-  NamedImport,
   DecoratorExpression,
   DirectiveExpression,
   MemberExpression,
@@ -502,7 +501,6 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
-  | NamedImportNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -592,11 +590,6 @@ export interface ImportStatementNode extends BaseNode {
 export interface IdentifierNode extends BaseNode {
   readonly kind: SyntaxKind.Identifier;
   readonly sv: string;
-}
-
-export interface NamedImportNode extends BaseNode {
-  readonly kind: SyntaxKind.NamedImport;
-  readonly id: IdentifierNode;
 }
 
 export interface DecoratorExpressionNode extends BaseNode {
