@@ -55,6 +55,7 @@
   "dependencies": {
     "@babel/code-frame": "~7.16.7",
     "ajv": "~8.9.0",
+    "chalk": "~5.0.1",
     "glob": "~7.1.6",
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",

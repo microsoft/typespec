@@ -1,4 +1,5 @@
 import { codeFrameColumns } from "@babel/code-frame";
+import chalk, { ChalkInstance } from "chalk";
 import { getSourceLocation } from "./diagnostics.js";
 import { Logger, LogInfo, LogLevel, LogSink, ProcessedLog, SourceLocation } from "./types.js";
 
@@ -47,10 +48,16 @@ function processLog(log: LogInfo): ProcessedLog {
   };
 }
 
-export function createConsoleSink(): LogSink {
+export interface FormatLogOptions {
+  pretty?: boolean;
+}
+
+export interface LogSinkOptions extends FormatLogOptions {}
+
+export function createConsoleSink(options: LogSinkOptions = {}): LogSink {
   function log(data: ProcessedLog) {
     // eslint-disable-next-line no-console
-    console.log(formatLog(data));
+    console.log(formatLog(data, options));
   }
 
   return {
@@ -58,9 +65,9 @@ export function createConsoleSink(): LogSink {
   };
 }
 
-export function formatLog(log: ProcessedLog): string {
+export function formatLog(log: ProcessedLog, options: FormatLogOptions): string {
   const code = log.code ? ` ${log.code}` : "";
-  const level = log.level;
+  const level = formatLevel(options, log.level);
   const content = `${level}${code}: ${log.message}`;
   const location = log.sourceLocation;
   if (location?.file) {
@@ -72,7 +79,22 @@ export function formatLog(log: ProcessedLog): string {
   }
 }
 
-export function formatSourceLocation(location: SourceLocation) {
+function color(options: FormatLogOptions, text: string, color: ChalkInstance) {
+  return options.pretty ? color(text) : text;
+}
+
+function formatLevel(options: FormatLogOptions, level: LogLevel) {
+  switch (level) {
+    case "error":
+      return color(options, "error", chalk.red);
+    case "warning":
+      return color(options, "warning", chalk.yellow);
+    default:
+      return level;
+  }
+}
+
+function formatSourceLocation(location: SourceLocation) {
   const { line, column } = getLineAndColumn(location);
   const path = location.file.path;
 
