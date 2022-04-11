@@ -37,7 +37,6 @@ dependencies:
   ajv: 8.9.0
   autorest: 3.3.2
   c8: 7.11.0
-  chalk: 5.0.1
   change-case: 4.1.2
   cross-env: 7.0.3
   debounce: 1.2.1
@@ -56,6 +55,7 @@ dependencies:
   node-fetch: 3.2.3
   node-watch: 0.7.3
   onigasm: 2.2.5
+  picocolors: 1.0.0
   playwright: 1.20.2
   plist: 3.0.5
   prettier: 2.6.2
@@ -5326,6 +5326,7 @@ packages:
       mustache: 4.2.0
       node-fetch: 3.2.3
       node-watch: 0.7.3
+      picocolors: 1.0.0
       prettier: 2.6.2
       prettier-plugin-organize-imports: 2.3.4_prettier@2.6.2+typescript@4.6.3
       prompts: 2.4.2
@@ -5338,7 +5339,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-U28QpjgV49qWQVsAy2QjbfcJuscfnP/PW1ACX8tkXl4HUuz6GOI3VPxlqGFWQD5ITiUu0C8wHwDBMuF1ewlCXQ==
+      integrity: sha512-YVUc2k7uKfa/9do6gY6OmV0YZFav3GKlT0XP7SRRKgQtSINU+0ONPULKq7EFyZck9dD+N19blockvXviRxlWRw==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/eslint-config-cadl.tgz_prettier@2.6.2:
@@ -5538,7 +5539,6 @@ specifiers:
   ajv: ~8.9.0
   autorest: ~3.3.2
   c8: ~7.11.0
-  chalk: ~5.0.1
   change-case: ~4.1.2
   cross-env: ~7.0.3
   debounce: ~1.2.1
@@ -5557,6 +5557,7 @@ specifiers:
   node-fetch: ~3.2.0
   node-watch: ~0.7.1
   onigasm: ~2.2.5
+  picocolors: ~1.0.0
   playwright: ~1.20.2
   plist: ~3.0.2
   prettier: ~2.6.2

@@ -1,5 +1,6 @@
 import { codeFrameColumns } from "@babel/code-frame";
-import chalk, { ChalkInstance } from "chalk";
+import pc from "picocolors";
+import { Formatter } from "picocolors/types";
 import { getSourceLocation } from "./diagnostics.js";
 import { Logger, LogInfo, LogLevel, LogSink, ProcessedLog, SourceLocation } from "./types.js";
 
@@ -66,7 +67,7 @@ export function createConsoleSink(options: LogSinkOptions = {}): LogSink {
 }
 
 export function formatLog(log: ProcessedLog, options: FormatLogOptions): string {
-  const code = color(options, log.code ? ` ${log.code}` : "", chalk.gray);
+  const code = color(options, log.code ? ` ${log.code}` : "", pc.gray);
   const level = formatLevel(options, log.level);
   const content = `${level}${code}: ${log.message}`;
   const location = log.sourceLocation;
@@ -79,16 +80,16 @@ export function formatLog(log: ProcessedLog, options: FormatLogOptions): string 
   }
 }
 
-function color(options: FormatLogOptions, text: string, color: ChalkInstance) {
+function color(options: FormatLogOptions, text: string, color: Formatter) {
   return options.pretty ? color(text) : text;
 }
 
 function formatLevel(options: FormatLogOptions, level: LogLevel) {
   switch (level) {
     case "error":
-      return color(options, "error", chalk.red);
+      return color(options, "error", pc.red);
     case "warning":
-      return color(options, "warning", chalk.yellow);
+      return color(options, "warning", pc.yellow);
     default:
       return level;
   }
@@ -96,10 +97,10 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
 
 function formatSourceLocation(options: FormatLogOptions, location: SourceLocation) {
   const postition = getLineAndColumn(location);
-  const path = color(options, location.file.path, chalk.cyan);
+  const path = color(options, location.file.path, pc.cyan);
 
-  const line = color(options, postition.line.toString(), chalk.yellow);
-  const column = color(options, postition.column.toString(), chalk.yellow);
+  const line = color(options, postition.line.toString(), pc.yellow);
+  const column = color(options, postition.column.toString(), pc.yellow);
   return `${path}:${line}:${column}`;
 }
 
