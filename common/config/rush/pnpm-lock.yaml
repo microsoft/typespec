@@ -1,4 +1,5 @@
 dependencies:
+  '@babel/code-frame': 7.16.7
   '@playwright/test': 1.20.2
   '@rollup/plugin-commonjs': 22.0.0-14_rollup@2.70.1
   '@rollup/plugin-json': 4.1.0_rollup@2.70.1
@@ -18,6 +19,7 @@ dependencies:
   '@rush-temp/tmlanguage-generator': file:projects/tmlanguage-generator.tgz
   '@rush-temp/versioning': file:projects/versioning.tgz
   '@rushstack/eslint-patch': 1.1.0
+  '@types/babel__code-frame': 7.0.3
   '@types/debounce': 1.2.1
   '@types/glob': 7.1.4
   '@types/js-yaml': 4.0.5
@@ -883,6 +885,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
+  /@types/babel__code-frame/7.0.3:
+    dev: false
+    resolution:
+      integrity: sha512-2TN6oiwtNjOezilFVl77zwdNPwQWaDBBCCWWxyo1ctiO3vAtd7H/aB/CBJdw9+kqq3+latD0SXoedIuHySSZWw==
   /@types/debounce/1.2.1:
     dev: false
     resolution:
@@ -5267,6 +5273,8 @@ packages:
     version: 0.0.0
   file:projects/compiler.tgz:
     dependencies:
+      '@babel/code-frame': 7.16.7
+      '@types/babel__code-frame': 7.0.3
       '@types/glob': 7.1.4
       '@types/js-yaml': 4.0.5
       '@types/mkdirp': 1.0.2
@@ -5300,7 +5308,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-TmCio+rngkB5F/XhaTaSX0+AZuNIvTLaLMSE98eUOXR8cUFN9O5980zGfZWoF87cQ8nyDffKmarJ3M46nbtU4A==
+      integrity: sha512-q5sJ3LxGSz41Nd6ZG07H4Zg3c+3EuVAv9ht3dFAk1zcW7iqJjr4SZfCkCz92666QPuKVQKpOE/2FNGuRrVz6CQ==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/eslint-config-cadl.tgz_prettier@2.6.2:
@@ -5462,6 +5470,7 @@ packages:
       tarball: file:projects/versioning.tgz
     version: 0.0.0
 specifiers:
+  '@babel/code-frame': ~7.16.7
   '@playwright/test': ~1.20.2
   '@rollup/plugin-commonjs': ~22.0.0-13
   '@rollup/plugin-json': ~4.1.0
@@ -5481,6 +5490,7 @@ specifiers:
   '@rush-temp/tmlanguage-generator': file:./projects/tmlanguage-generator.tgz
   '@rush-temp/versioning': file:./projects/versioning.tgz
   '@rushstack/eslint-patch': '1.1.0 '
+  '@types/babel__code-frame': ~7.0.3
   '@types/debounce': ~1.2.1
   '@types/glob': ~7.1.3
   '@types/js-yaml': ~4.0.1

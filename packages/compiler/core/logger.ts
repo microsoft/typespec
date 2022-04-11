@@ -1,3 +1,4 @@
+import { codeFrameColumns } from "@babel/code-frame";
 import { getSourceLocation } from "./diagnostics.js";
 import { Logger, LogInfo, LogLevel, LogSink, ProcessedLog, SourceLocation } from "./types.js";
 
@@ -64,16 +65,42 @@ export function formatLog(log: ProcessedLog): string {
   const location = log.sourceLocation;
   if (location?.file) {
     const formattedLocation = formatSourceLocation(location);
-    return `${formattedLocation} - ${content}`;
+    const sourcePreview = formatSourcePreview(location);
+    return `${formattedLocation} - ${content}${sourcePreview}`;
   } else {
     return content;
   }
 }
 
 export function formatSourceLocation(location: SourceLocation) {
+  const { line, column } = getLineAndColumn(location);
+  const path = location.file.path;
+
+  return `${path}:${line}:${column}`;
+}
+
+/**
+ * Create a preview of where the log location is.
+ *
+ * ----------------------------------------------
+ *   4 |
+ *   5 | @route("/alpha/{id}")
+ * > 6 | op doAlpha(@path id: string): abc;
+ *     |                               ^
+ *   7 |
+ *   8 | @route("/beta/{id}")
+ *   9 | op doBeta(@path id: string): string;
+ */
+function formatSourcePreview(location: SourceLocation) {
+  const { line, column } = getLineAndColumn(location);
+
+  const result = codeFrameColumns(location.file.text, { start: { line, column } });
+  return `\n${result}`;
+}
+
+function getLineAndColumn(location: SourceLocation): { line: number; column: number } {
   const pos = location.file.getLineAndCharacterOfPosition(location.pos ?? 0);
   const line = pos.line + 1;
-  const col = pos.character + 1;
-  const path = location.file.path;
-  return `${path}:${line}:${col}`;
+  const column = pos.character + 1;
+  return { line, column };
 }
