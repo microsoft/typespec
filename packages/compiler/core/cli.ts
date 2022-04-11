@@ -156,6 +156,12 @@ async function main() {
             array: true,
             demandOption: true,
           })
+          .option("exclude", {
+            alias: "x",
+            type: "string",
+            array: true,
+            describe: "Pattern to exclude",
+          })
           .option("check", {
             alias: "c",
             type: "boolean",
@@ -165,6 +171,7 @@ async function main() {
       async (args) => {
         if (args["check"]) {
           const unformatted = await findUnformattedCadlFiles(args["include"], {
+            exclude: args["exclude"],
             debug: args.debug,
           });
           if (unformatted.length > 0) {
@@ -175,7 +182,7 @@ async function main() {
             process.exit(1);
           }
         } else {
-          await formatCadlFiles(args["include"], { debug: args.debug });
+          await formatCadlFiles(args["include"], { exclude: args["exclude"], debug: args.debug });
         }
       }
     )
