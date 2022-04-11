@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "tmlanguage-generator",
+      "comment": "Remove node 14 support",
+      "type": "minor"
+    }
+  ],
+  "packageName": "tmlanguage-generator"
+}
