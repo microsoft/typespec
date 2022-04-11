@@ -58,7 +58,7 @@
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",
     "mustache": "~4.2.0",
-    "prettier": "~2.5.1",
+    "prettier": "~2.6.2",
     "node-fetch": "~3.2.0",
     "prompts": "~2.4.1",
     "vscode-languageserver-textdocument": "~1.0.1",
@@ -85,6 +85,6 @@
     "prettier-plugin-organize-imports": "~2.3.4",
     "source-map-support": "~0.5.19",
     "rimraf": "~3.0.2",
-    "typescript": "~4.5.5"
+    "typescript": "~4.6.3"
   }
 }
