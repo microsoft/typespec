@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "ajv": "~8.9.0",
-    "glob": "~7.1.6",
+    "globby": "~13.1.1",
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",
     "mustache": "~4.2.0",
@@ -68,7 +68,6 @@
     "change-case": "~4.1.2"
   },
   "devDependencies": {
-    "@types/glob": "~7.1.3",
     "@types/js-yaml": "~4.0.1",
     "@types/mkdirp": "~1.0.1",
     "@types/mocha": "~9.1.0",
