@@ -99,8 +99,8 @@ function formatSourceLocation(options: FormatLogOptions, location: SourceLocatio
   const postition = getLineAndColumn(location);
   const path = color(options, location.file.path, pc.cyan);
 
-  const line = color(options, postition.line.toString(), pc.yellow);
-  const column = color(options, postition.column.toString(), pc.yellow);
+  const line = color(options, postition.start.line.toString(), pc.yellow);
+  const column = color(options, postition.start.column.toString(), pc.yellow);
   return `${path}:${line}:${column}`;
 }
 
@@ -120,15 +120,25 @@ function formatSourcePreview(options: FormatLogOptions, location: SourceLocation
   if (!options.pretty) {
     return "";
   }
-  const { line, column } = getLineAndColumn(location);
+  const postion = getLineAndColumn(location);
 
-  const result = codeFrameColumns(location.file.text, { start: { line, column } });
+  const result = codeFrameColumns(location.file.text, postion);
   return `\n${result}`;
 }
 
-function getLineAndColumn(location: SourceLocation): { line: number; column: number } {
+interface RealLocation {
+  start: { line: number; column: number };
+  end?: { line: number; column: number };
+}
+
+function getLineAndColumn(location: SourceLocation): RealLocation {
   const pos = location.file.getLineAndCharacterOfPosition(location.pos ?? 0);
-  const line = pos.line + 1;
-  const column = pos.character + 1;
-  return { line, column };
+  const end = location.end ? location.file.getLineAndCharacterOfPosition(location.end) : undefined;
+  const result: RealLocation = {
+    start: { line: pos.line + 1, column: pos.character + 1 },
+  };
+  if (end) {
+    result.end = { line: end.line + 1, column: end.character + 1 };
+  }
+  return result;
 }
