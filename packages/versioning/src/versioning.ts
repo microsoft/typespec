@@ -10,6 +10,7 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
+
 const addedOnKey = Symbol("addedOn");
 const removedOnKey = Symbol("removedOn");
 const versionsKey = Symbol("versions");
@@ -80,21 +81,39 @@ export function $madeOptional({ program }: DecoratorContext, t: Type, v: string)
   program.stateMap(madeOptionalKey).set(t, v);
 }
 
-export function getRenamedFromVersion(p: Program, t: Type) {
-  return p.stateMap(renamedFromKey).get(t)?.v ?? -1;
-}
-export function getRenamedFromOldName(p: Program, t: Type) {
-  return p.stateMap(renamedFromKey).get(t)?.oldName ?? "";
-}
-export function getAddedOn(p: Program, t: Type) {
-  return p.stateMap(addedOnKey).get(t) ?? -1;
-}
-export function getRemovedOn(p: Program, t: Type) {
-  return p.stateMap(removedOnKey).get(t) ?? Infinity;
+/**
+ * @returns version when the given type was added if applicable.
+ */
+export function getRenamedFromVersion(p: Program, t: Type): string | undefined {
+  return p.stateMap(renamedFromKey).get(t)?.v;
 }
 
-export function getMadeOptionalOn(p: Program, t: Type) {
-  return p.stateMap(madeOptionalKey).get(t) ?? -1;
+/**
+ * @returns get old renamed name if applicable.
+ */
+export function getRenamedFromOldName(p: Program, t: Type): string {
+  return p.stateMap(renamedFromKey).get(t)?.oldName ?? "";
+}
+
+/**
+ * @returns version when the given type was added if applicable.
+ */
+export function getAddedOn(p: Program, t: Type): string | undefined {
+  return p.stateMap(addedOnKey).get(t);
+}
+
+/**
+ * @returns version when the given type was removed if applicable.
+ */
+export function getRemovedOn(p: Program, t: Type): string | undefined {
+  return p.stateMap(removedOnKey).get(t);
+}
+
+/**
+ * @returns version when the given type was made optional if applicable.
+ */
+export function getMadeOptionalOn(p: Program, t: Type): string | undefined {
+  return p.stateMap(madeOptionalKey).get(t);
 }
 
 export function $versioned({ program }: DecoratorContext, t: Type, v: Type) {
@@ -402,7 +421,7 @@ export function madeOptionalAfter(p: Program, type: Type, version: string, versi
  * on whether the change is active or not at that particular version
  */
 function appliesAtVersion(
-  getMetadataFn: (p: Program, t: Type) => string,
+  getMetadataFn: (p: Program, t: Type) => string | undefined,
   p: Program,
   type: Type,
   version: string,
@@ -413,6 +432,9 @@ function appliesAtVersion(
     return null;
   }
   const appliedOnVersion = getMetadataFn(p, type);
+  if (appliedOnVersion === undefined) {
+    return null;
+  }
   const appliedOnVersionIndex = versions.indexOf(appliedOnVersion);
   if (appliedOnVersionIndex === -1) return null;
   const testVersionIndex = versions.indexOf(version);
