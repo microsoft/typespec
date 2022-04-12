@@ -122,7 +122,10 @@ function formatSourcePreview(options: FormatLogOptions, location: SourceLocation
   }
   const postion = getLineAndColumn(location);
 
-  const result = codeFrameColumns(location.file.text, postion);
+  const result = codeFrameColumns(location.file.text, postion, {
+    linesAbove: 0,
+    linesBelow: 0,
+  });
   return `\n${result}`;
 }
 
