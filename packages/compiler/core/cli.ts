@@ -40,7 +40,7 @@ async function main() {
     .option("pretty", {
       type: "boolean",
       description:
-        "Enable color and formatting in TypeScript's output to make compiler errors easier to read.",
+        "Enable color and formatting in Cadl's output to make compiler errors easier to read.",
       default: true,
     })
     .command(
