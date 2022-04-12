@@ -24,7 +24,8 @@
     "./testing": "./dist/testing/index.js"
   },
   "browser": {
-    "./dist/core/node-host.js": "./dist/core/node-host.browser.js"
+    "./dist/core/node-host.js": "./dist/core/node-host.browser.js",
+    "./dist/core/logger.js": "./dist/core/logger.browser.js"
   },
   "types": "dist/core/index.d.ts",
   "engines": {
@@ -53,7 +54,9 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
+    "@babel/code-frame": "~7.16.7",
     "ajv": "~8.9.0",
+    "picocolors": "~1.0.0",
     "globby": "~13.1.1",
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",
@@ -68,6 +71,7 @@
     "change-case": "~4.1.2"
   },
   "devDependencies": {
+    "@types/babel__code-frame": "~7.0.3",
     "@types/js-yaml": "~4.0.1",
     "@types/mkdirp": "~1.0.1",
     "@types/mocha": "~9.1.0",
