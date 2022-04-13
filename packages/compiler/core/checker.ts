@@ -967,9 +967,6 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
-    if (!node.symbol) {
-      console.log("Symbol?", SyntaxKind[node.kind], SyntaxKind[node.parent!.kind], node);
-    }
     if (!node.symbol.parent) {
       return globalNamespaceType;
     }
