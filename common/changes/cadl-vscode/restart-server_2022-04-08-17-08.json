@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Add command to restart language server",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

@@ -1,6 +1,7 @@
-import assert, { match, strictEqual } from "assert";
-import { Diagnostic, formatDiagnostic } from "../core/index.js";
+import assert, { fail, match, strictEqual } from "assert";
+import { Diagnostic, formatDiagnostic, getSourceLocation, NoTarget } from "../core/index.js";
 import { isArray } from "../core/util.js";
+import { resolveVirtualPath } from "./test-host.js";
 
 /**
  * Assert there is no diagnostics.
@@ -33,6 +34,11 @@ export interface DiagnosticMatch {
    * Match the severity.
    */
   severity?: "error" | "warning";
+
+  /**
+   * Name of the file for this diagnostic.
+   */
+  file?: string | RegExp;
 }
 
 /**
@@ -64,7 +70,7 @@ export function expectDiagnostics(
     );
 
     if (expectation.message !== undefined) {
-      matchMessage(
+      matchStrOrRegex(
         diagnostic.message,
         expectation.message,
         `Diagnostics at index ${i} has non matching message.\n${message}`
@@ -77,13 +83,26 @@ export function expectDiagnostics(
         `Diagnostics at index ${i} has non matching severity.\n${message}`
       );
     }
+    if (expectation.file !== undefined) {
+      if (diagnostic.target === NoTarget) {
+        fail(`Diagnostics at index ${i} expected to have a target.\n${message}`);
+      }
+      const source = getSourceLocation(diagnostic.target);
+      matchStrOrRegex(
+        source.file.path,
+        typeof expectation.file === "string"
+          ? resolveVirtualPath(expectation.file)
+          : expectation.file,
+        `Diagnostics at index ${i} has non matching file.\n${message}`
+      );
+    }
   }
 }
 
-function matchMessage(message: string, expectation: string | RegExp, assertMessage: string) {
+function matchStrOrRegex(value: string, expectation: string | RegExp, assertMessage: string) {
   if (typeof expectation === "string") {
-    strictEqual(message, expectation, assertMessage);
+    strictEqual(value, expectation, assertMessage);
   } else {
-    match(message, expectation, assertMessage);
+    match(value, expectation, assertMessage);
   }
 }

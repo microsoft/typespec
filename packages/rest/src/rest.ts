@@ -11,7 +11,7 @@ import {
 import { reportDiagnostic } from "./diagnostics.js";
 import { getResourceTypeKey } from "./resource.js";
 
-const producesTypesKey = Symbol();
+const producesTypesKey = Symbol("producesTypes");
 
 export function $produces({ program }: DecoratorContext, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {
@@ -26,7 +26,7 @@ export function getProduces(program: Program, entity: Type): string[] {
   return program.stateMap(producesTypesKey).get(entity) || [];
 }
 
-const consumesTypesKey = Symbol();
+const consumesTypesKey = Symbol("consumesTypes");
 
 export function $consumes({ program }: DecoratorContext, entity: Type, ...contentTypes: string[]) {
   if (entity.kind !== "Namespace") {
@@ -45,7 +45,7 @@ export interface Discriminator {
   propertyName: string;
 }
 
-const discriminatorKey = Symbol();
+const discriminatorKey = Symbol("discriminator");
 export function $discriminator({ program }: DecoratorContext, entity: Type, propertyName: string) {
   if (!validateDecoratorTarget(program, entity, "@discriminator", "Model")) {
     return;
@@ -61,7 +61,7 @@ export function getDiscriminator(program: Program, entity: Type): Discriminator 
   return undefined;
 }
 
-const segmentsKey = Symbol();
+const segmentsKey = Symbol("segments");
 export function $segment({ program }: DecoratorContext, entity: Type, name: string) {
   if (
     !validateDecoratorTarget(program, entity, "@segment", ["Model", "ModelProperty", "Operation"])
@@ -114,7 +114,7 @@ export interface ResourceOperation {
   resourceType: ModelType;
 }
 
-const resourceOperationsKey = Symbol();
+const resourceOperationsKey = Symbol("resourceOperations");
 
 export function setResourceOperation(
   program: Program,
@@ -188,7 +188,7 @@ function lowerCaseFirstChar(str: string): string {
   return str[0].toLocaleLowerCase() + str.substring(1);
 }
 
-const actionsKey = Symbol();
+const actionsKey = Symbol("actions");
 export function $action(context: DecoratorContext, entity: Type, name?: string) {
   if (!validateDecoratorTarget(context.program, entity, "@action", "Operation")) {
     return;

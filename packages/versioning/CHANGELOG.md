@@ -1,6 +1,14 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+This log was last generated on Thu, 31 Mar 2022 17:10:49 GMT and should not be manually modified.
+
+## 0.4.0
+Thu, 31 Mar 2022 17:10:49 GMT
+
+### Minor changes
+
+- Add validation when using versioned library without @versionedDependency
+- Enable ability to pick a specific version for a versioned dependency when service itself isn't versioned
 
 ## 0.3.2
 Wed, 09 Mar 2022 17:42:09 GMT

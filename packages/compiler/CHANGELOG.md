@@ -1,6 +1,30 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+This log was last generated on Thu, 31 Mar 2022 17:10:49 GMT and should not be manually modified.
+
+## 0.30.0
+Thu, 31 Mar 2022 17:10:49 GMT
+
+### Minor changes
+
+- Add new helper `cadlTypeToJson` to convert cadl type to a Json serializable type
+- Add helper methods to detect `void` and `never` types
+- Prevent decorators from running if arguments are errors.
+- Handle unknown identfier/error types used in spread operator.
+- Add parent .model to ModelTypeProperty
+- Add validation that template params cannot use latter params as default
+
+### Patches
+
+- support format in bytes type
+- Fix: stack overflow when defining template argument where default reference argument itself. `Foo<T = T>`
+- Fix formatting of comment between decorator and statement
+- Fix resolving location for diagnostic in js files
+- Fix formatting of comment between decorator and property
+- Fix using `&` with tempalte parameters
+- Support browser builds
+- Fix issues with mishandled promises
+- Fix cascade of error when having unexpected token in directive
 
 ## 0.29.0
 Wed, 09 Mar 2022 17:42:09 GMT
