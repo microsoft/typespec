@@ -107,12 +107,15 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
 }
 
 export function formatDiagnostic(diagnostic: Diagnostic) {
-  return formatLog({
-    code: diagnostic.code,
-    level: diagnostic.severity,
-    message: diagnostic.message,
-    sourceLocation: getSourceLocation(diagnostic.target),
-  });
+  return formatLog(
+    {
+      code: diagnostic.code,
+      level: diagnostic.severity,
+      message: diagnostic.message,
+      sourceLocation: getSourceLocation(diagnostic.target),
+    },
+    { pretty: false }
+  );
 }
 
 export function createSourceFile(text: string, path: string): SourceFile {
@@ -208,7 +211,7 @@ function getSourceLocationOfNode(node: Node): SourceLocation {
     root = root.parent;
   }
 
-  if (root.kind !== SyntaxKind.CadlScript) {
+  if (root.kind !== SyntaxKind.CadlScript && root.kind !== SyntaxKind.JsSourceFile) {
     return createDummySourceLocation(
       node.flags & NodeFlags.Synthetic
         ? undefined

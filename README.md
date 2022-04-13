@@ -7,7 +7,7 @@ shapes common among REST, GraphQL, gRPC, and other protocols.
 
 You can try a work-in-progress build of the compiler by following the steps in
 the Getting Started section below. Please feel free to [file
-issues](https://github.com/Azure/adl/issues) for any issues you encounter while
+issues](https://github.com/Microsoft/cadl/issues) for any issues you encounter while
 using the preview.
 
 ## Packages
@@ -151,12 +151,17 @@ equivalent to passing `main.cadl` in that directory.
 ### Formatting Cadl files
 
 Cadl provides an auto-formatter to keep your specs clean and organized.
+`node_modules` folders are automatically excluded by default
 
 ```bash
 cadl format <patterns...>
 
 # Format all the files in the current directory with the cadl extension.
 cadl format **/*.cadl
+
+# Exclude certain patterns. Either use `!` prefix or pass it via the `--exclude` or `-x` option.
+cadl format **/*.cadl "!mytestfolder/**/*"
+cadl format **/*.cadl --exclude "mytestfolder/**/*"
 ```
 
 ### Installing VS Code Extension

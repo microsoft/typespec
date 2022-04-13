@@ -18,7 +18,8 @@ export interface ResourceKey {
   keyProperty: ModelTypeProperty;
 }
 
-const resourceKeysKey = Symbol();
+const resourceKeysKey = Symbol("resourceKeys");
+const resourceTypeForKeyParamKey = Symbol("resourceTypeForKeyParam");
 
 export function setResourceTypeKey(
   program: Program,
@@ -64,6 +65,25 @@ export function getResourceTypeKey(program: Program, resourceType: ModelType): R
   return resourceKey;
 }
 
+export function $resourceTypeForKeyParam(
+  { program }: DecoratorContext,
+  entity: Type,
+  resourceType: Type
+) {
+  if (!validateDecoratorTarget(program, entity, "@resourceTypeForKeyParam", "ModelProperty")) {
+    return;
+  }
+
+  program.stateMap(resourceTypeForKeyParamKey).set(entity, resourceType);
+}
+
+export function getResourceTypeForKeyParam(
+  program: Program,
+  param: ModelTypeProperty
+): ModelType | undefined {
+  return program.stateMap(resourceTypeForKeyParamKey).get(param);
+}
+
 function cloneKeyProperties(context: DecoratorContext, target: ModelType, resourceType: ModelType) {
   const { program } = context;
   // Add parent keys first
@@ -79,10 +99,16 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
 
     const newProp = program.checker!.cloneType(keyProperty);
     newProp.name = keyName;
-    newProp.decorators.push({
-      decorator: $path,
-      args: [],
-    });
+    newProp.decorators.push(
+      {
+        decorator: $path,
+        args: [],
+      },
+      {
+        decorator: $resourceTypeForKeyParam,
+        args: [resourceType],
+      }
+    );
     $path(context, newProp, undefined as any);
 
     target.properties.set(keyName, newProp);
@@ -129,7 +155,7 @@ export function $copyResourceKeyParameters(
   }
 }
 
-const parentResourceTypesKey = Symbol();
+const parentResourceTypesKey = Symbol("parentResourceTypes");
 export function getParentResource(
   program: Program,
   resourceType: ModelType

@@ -7,7 +7,7 @@ import {
 } from "@cadl-lang/compiler";
 import * as openapi from "@cadl-lang/openapi";
 import * as openapi3 from "@cadl-lang/openapi3";
-import { http, resource, rest, route } from "@cadl-lang/rest";
+import { http, internalDecorators, resource, rest, route } from "@cadl-lang/rest";
 import * as versioning from "@cadl-lang/versioning";
 import cadlContentsString from "../dist-dev/cadlContents.json?raw";
 
@@ -29,9 +29,13 @@ export async function createBrowserHost(): Promise<BrowserHost> {
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/rest.js", rest);
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/route.js", route);
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/http.js", http);
+  addJsImport(
+    "/test/node_modules/@cadl-lang/rest/dist/src/internal-decorators.js",
+    internalDecorators
+  );
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/resource.js", resource);
   addJsImport("/test/node_modules/@cadl-lang/openapi/dist/src/index.js", openapi);
-  addJsImport("/test/node_modules/@cadl-lang/openapi3/dist/src/openapi.js", openapi3);
+  addJsImport("/test/node_modules/@cadl-lang/openapi3/dist/src/index.js", openapi3);
   addJsImport("/test/node_modules/@cadl-lang/versioning/dist/src/versioning.js", versioning);
 
   for (const [key, value] of Object.entries(cadlContents)) {
