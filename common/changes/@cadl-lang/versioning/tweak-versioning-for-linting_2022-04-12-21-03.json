@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Updated versioning data getter to return `undefined` instead of `-1`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}
