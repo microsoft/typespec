@@ -513,9 +513,6 @@ function appliesAtVersion(
 
   const testVersionIndex = versions.indexOf(version);
   if (testVersionIndex === -1) return null;
-  if (type.kind === "ModelProperty" && type.name === "color" && version === "v1") {
-    console.log("Applies at", versions, appliedOnVersion, appliedOnVersionIndex, testVersionIndex);
-  }
   return testVersionIndex >= appliedOnVersionIndex;
 }
 
