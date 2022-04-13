@@ -68,6 +68,7 @@ export async function createUI(host: BrowserHost) {
   document.getElementById("newIssue")?.addEventListener("click", newIssue);
 
   document.getElementById("cadl-version")!.innerHTML = MANIFEST.version;
+  document.getElementById("cadl-commit")!.innerHTML = MANIFEST.commit.slice(0, 6);
 
   initSamples();
   await doCompile();

@@ -8,8 +8,6 @@
   <body>
     <div id="grid">
       <div id="commandBar">
-        <label>Version:</label>
-        <span id="cadl-version"></span>
         <label>
           <button id="share">Share</button>
         </label>
@@ -29,6 +27,10 @@
       </div>
       <div id="outputContainer">
         <div id="output"></div>
+      </div>
+      <div class="footer">
+        <div class="item"><span>Cadl Version </span><span id="cadl-version"></span></div>
+        <div class="item"><span>Commit </span><span id="cadl-commit"></span></div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

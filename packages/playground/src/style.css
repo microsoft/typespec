@@ -18,6 +18,20 @@ body {
   overflow: hidden;
 }
 
+#grid > .footer {
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row: 3;
+  background: #e5e5e5;
+  color: #333333;
+  display: flex;
+}
+
+#grid > .footer > .item {
+  border-right: 1px solid #d5d5d5;
+  padding: 0 5px;
+}
+
 #commandBar {
   grid-column: 1;
   grid-row: 1;
