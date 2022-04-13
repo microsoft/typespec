@@ -1,7 +1,7 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
-describe.only("openapi3: parameters", () => {
+describe("openapi3: parameters", () => {
   it("create a query param", async () => {
     const res = await openApiFor(
       `
