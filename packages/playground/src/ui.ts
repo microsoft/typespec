@@ -3,6 +3,7 @@ import {
   compile,
   DiagnosticTarget,
   getSourceLocation,
+  MANIFEST,
   NoTarget,
 } from "@cadl-lang/compiler";
 import debounce from "debounce";
@@ -65,6 +66,8 @@ export async function createUI(host: BrowserHost) {
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, saveCode);
   document.getElementById("share")?.addEventListener("click", saveCode);
   document.getElementById("newIssue")?.addEventListener("click", newIssue);
+
+  document.getElementById("cadl-version")!.innerHTML = MANIFEST.version;
 
   initSamples();
   await doCompile();
