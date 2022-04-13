@@ -1,4 +1,4 @@
-import { ModelType, NamespaceType } from "@cadl-lang/compiler";
+import { ModelType, NamespaceType, Program } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   createTestWrapper,
@@ -8,8 +8,9 @@ import {
 import { ok, strictEqual } from "assert";
 import { getVersionRecords } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
+import { assertHasProperties } from "./utils.js";
 
-describe("cadl: versioning: depdendencies", () => {
+describe("versioning: reference versioned library", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
@@ -221,3 +222,51 @@ describe("cadl: versioning: depdendencies", () => {
     });
   });
 });
+
+describe("versioning: dependencies", () => {
+  let runner: BasicTestRunner;
+
+  beforeEach(async () => {
+    const host = await createVersioningTestHost();
+    runner = createTestWrapper(
+      host,
+      (code) => `
+      import "@cadl-lang/versioning";
+      ${code}`
+    );
+  });
+
+  it("can spread versioned model from another library", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      @versioned("l1" | "l2")
+      namespace VersionedLib {
+        model Spread<T> {
+          t: string;
+          ...T;
+        }
+      }
+
+      @versioned("1" | "2")
+      @versionedDependency(VersionedLib, {"1": "l1", "2": "l2"})
+      @test namespace MyService {
+        model Spreadable {
+          a: int32;
+          @added("2") b: int32;
+        }
+        @test model Test extends VersionedLib.Spread<Spreadable> {}
+      }
+      `)) as { MyService: NamespaceType; Test: ModelType };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["t", "a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
+  });
+});
+
+function runProjections(program: Program, rootNs: NamespaceType) {
+  const versions = getVersionRecords(program, rootNs);
+  return versions.map((x) => program.enableProjections(x.projections, rootNs));
+}
