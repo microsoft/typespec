@@ -1,61 +1,15 @@
 import { codeFrameColumns } from "@babel/code-frame";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types";
-import { getSourceLocation } from "./diagnostics.js";
-import { Logger, LogInfo, LogLevel, LogSink, ProcessedLog, SourceLocation } from "./types.js";
-
-const LogLevels = {
-  debug: 10,
-  verbose: 20,
-  info: 30,
-  warning: 40,
-  error: 50,
-} as const;
-
-export interface LoggerOptions {
-  sink: LogSink;
-  level?: LogLevel;
-}
-
-const defaultOptions = {
-  level: "info",
-} as const;
-
-export function createLogger(options: LoggerOptions): Logger {
-  const config = { ...defaultOptions, ...options };
-
-  function log(log: LogInfo) {
-    if (LogLevels[config.level] >= LogLevels[log.level]) {
-      config.sink.log(processLog(log));
-    }
-  }
-
-  return {
-    log,
-    debug: (message) => log({ level: "debug", message }),
-    verbose: (message) => log({ level: "verbose", message }),
-    info: (message) => log({ level: "info", message }),
-    warn: (message) => log({ level: "warning", message }),
-    error: (message) => log({ level: "error", message }),
-  };
-}
-
-function processLog(log: LogInfo): ProcessedLog {
-  return {
-    level: log.level,
-    code: log.code,
-    message: log.message,
-    sourceLocation: getSourceLocation(log.target),
-  };
-}
+import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
 
 export interface FormatLogOptions {
   pretty?: boolean;
 }
 
-export interface LogSinkOptions extends FormatLogOptions {}
+export interface ConsoleSinkOptions extends FormatLogOptions {}
 
-export function createConsoleSink(options: LogSinkOptions = {}): LogSink {
+export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
   function log(data: ProcessedLog) {
     // eslint-disable-next-line no-console
     console.log(formatLog(data, options));

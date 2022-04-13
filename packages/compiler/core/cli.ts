@@ -16,7 +16,7 @@ import { compilerAssert, logDiagnostics } from "./diagnostics.js";
 import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
 import { CompilerHost } from "./index.js";
 import { installCadlDependencies } from "./install.js";
-import { createConsoleSink } from "./logger.js";
+import { createConsoleSink } from "./logger/index.js";
 import { NodeHost } from "./node-host.js";
 import { getAnyExtensionFromPath, getBaseFileName, joinPaths, resolvePath } from "./path-utils.js";
 import { Diagnostic } from "./types.js";
