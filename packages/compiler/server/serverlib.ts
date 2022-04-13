@@ -521,6 +521,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   function log(message: string, details: any = undefined) {
+    message = `[${new Date().toLocaleTimeString()}] ${message}`;
     if (details) {
       message += ": " + JSON.stringify(details, undefined, 2);
     }

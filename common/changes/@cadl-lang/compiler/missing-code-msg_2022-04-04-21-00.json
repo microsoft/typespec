@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Give a helpful error when code is missing from path",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

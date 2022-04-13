@@ -24,6 +24,22 @@ import { getAction, getResourceOperation, getSegment } from "./rest.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
 
+export interface FilteredRouteParam {
+  routeParamString?: string;
+  excludeFromOperationParams?: boolean;
+}
+
+export interface AutoRouteOptions {
+  routeParamFilter?: (
+    op: OperationType,
+    param: ModelTypeProperty
+  ) => FilteredRouteParam | undefined;
+}
+
+export interface RouteOptions {
+  autoRouteOptions?: AutoRouteOptions;
+}
+
 export interface HttpOperationParameter {
   type: "query" | "path" | "header";
   name: string;
@@ -65,7 +81,23 @@ export function $routeReset({ program }: DecoratorContext, entity: Type, path: s
   });
 }
 
-const routeContainerKey = Symbol();
+const routeOptionsKey = Symbol("routeOptions");
+export function setRouteOptionsForNamespace(
+  program: Program,
+  namespace: NamespaceType,
+  options: RouteOptions
+) {
+  program.stateMap(routeOptionsKey).set(namespace, options);
+}
+
+function getRouteOptionsForNamespace(
+  program: Program,
+  namespace: NamespaceType
+): RouteOptions | undefined {
+  return program.stateMap(routeOptionsKey).get(namespace);
+}
+
+const routeContainerKey = Symbol("routeContainer");
 function addRouteContainer(program: Program, entity: Type): void {
   const container = entity.kind === "Operation" ? entity.interface || entity.namespace : entity;
   if (!container) {
@@ -82,7 +114,7 @@ function addRouteContainer(program: Program, entity: Type): void {
   program.stateSet(routeContainerKey).add(container);
 }
 
-const routesKey = Symbol();
+const routesKey = Symbol("routes");
 function setRoute(program: Program, entity: Type, details: RoutePath) {
   if (
     !validateDecoratorTarget(program, entity, "@route", ["Namespace", "Interface", "Operation"])
@@ -214,7 +246,8 @@ function generatePathFromParameters(
   program: Program,
   operation: OperationType,
   pathFragments: string[],
-  parameters: HttpOperationParameters
+  parameters: HttpOperationParameters,
+  options: RouteOptions
 ) {
   const filteredParameters: HttpOperationParameter[] = [];
   for (const httpParam of parameters.parameters) {
@@ -222,12 +255,22 @@ function generatePathFromParameters(
     if (type === "path") {
       addSegmentFragment(program, param, pathFragments);
 
-      // Add the path variable for the parameter
-      if (param.type.kind === "String") {
-        pathFragments.push(`/${param.type.value}`);
-        continue; // Skip adding to the parameter list
+      const filteredParam = options.autoRouteOptions?.routeParamFilter?.(operation, param);
+      if (filteredParam?.routeParamString) {
+        pathFragments.push(`/${filteredParam.routeParamString}`);
+
+        if (filteredParam?.excludeFromOperationParams === true) {
+          // Skip the rest of the loop so that we don't add the parameter to the final list
+          continue;
+        }
       } else {
-        pathFragments.push(`/{${param.name}}`);
+        // Add the path variable for the parameter
+        if (param.type.kind === "String") {
+          pathFragments.push(`/${param.type.value}`);
+          continue; // Skip adding to the parameter list
+        } else {
+          pathFragments.push(`/{${param.name}}`);
+        }
       }
     }
 
@@ -245,15 +288,17 @@ function generatePathFromParameters(
 function getPathForOperation(
   program: Program,
   operation: OperationType,
-  routeFragments: string[]
+  routeFragments: string[],
+  options: RouteOptions
 ): { path: string; pathFragment?: string; parameters: HttpOperationParameters } {
   const parameters: HttpOperationParameters = getOperationParameters(program, operation);
 
   const pathFragments = [...routeFragments];
   const routePath = getRoutePath(program, operation);
   if (isAutoRoute(program, operation)) {
-    // The operation exists within an @autoRoute scope, generate the path
-    generatePathFromParameters(program, operation, pathFragments, parameters);
+    // The operation exists within an @autoRoute scope, generate the path.  This
+    // mutates the pathFragments and parameters lists that are passed in!
+    generatePathFromParameters(program, operation, pathFragments, parameters, options);
   } else {
     // Prepend any explicit route path
     if (routePath) {
@@ -332,7 +377,8 @@ function buildRoutes(
   program: Program,
   container: OperationContainer,
   routeFragments: string[],
-  visitedOperations: Set<OperationType>
+  visitedOperations: Set<OperationType>,
+  options: RouteOptions
 ): OperationDetails[] {
   // Get the route info for this container, if any
   const baseRoute = getRoutePath(program, container);
@@ -347,7 +393,7 @@ function buildRoutes(
       continue;
     }
 
-    const route = getPathForOperation(program, op, parentFragments);
+    const route = getPathForOperation(program, op, parentFragments, options);
     const verb = getVerbForOperation(program, op, route.parameters);
     const responses = getResponsesForOperation(program, op);
     operations.push({
@@ -371,7 +417,7 @@ function buildRoutes(
     ];
 
     const childRoutes = children.flatMap((child) =>
-      buildRoutes(program, child, parentFragments, visitedOperations)
+      buildRoutes(program, child, parentFragments, visitedOperations, options)
     );
     for (const child of childRoutes) [operations.push(child)];
   }
@@ -382,9 +428,15 @@ function buildRoutes(
 export function getRoutesForContainer(
   program: Program,
   container: OperationContainer,
-  visitedOperations: Set<OperationType>
+  visitedOperations: Set<OperationType>,
+  options?: RouteOptions
 ): OperationDetails[] {
-  return buildRoutes(program, container, [], visitedOperations);
+  const routeOptions =
+    options ??
+    (container.kind === "Namespace" ? getRouteOptionsForNamespace(program, container) : {}) ??
+    {};
+
+  return buildRoutes(program, container, [], visitedOperations, routeOptions);
 }
 
 function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
@@ -396,7 +448,7 @@ function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
   );
 }
 
-export function getAllRoutes(program: Program): OperationDetails[] {
+export function getAllRoutes(program: Program, options?: RouteOptions): OperationDetails[] {
   let operations: OperationDetails[] = [];
 
   const serviceNamespace = getServiceNamespace(program);
@@ -416,7 +468,8 @@ export function getAllRoutes(program: Program): OperationDetails[] {
     const newOps = getRoutesForContainer(
       program,
       container as OperationContainer,
-      visitedOperations
+      visitedOperations,
+      options
     );
 
     // Make sure we don't visit the same operations again
@@ -475,7 +528,7 @@ const resourceOperationToVerb: any = {
   list: "get",
 };
 
-const autoRouteKey = Symbol();
+const autoRouteKey = Symbol("autoRoute");
 export function $autoRoute({ program }: DecoratorContext, entity: Type) {
   if (
     !validateDecoratorTarget(program, entity, "@autoRoute", ["Namespace", "Interface", "Operation"])

@@ -1,6 +1,8 @@
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi";
 
+using OpenAPI;
+
 model MyConfig {
   name: "Foo";
   age: 12;
