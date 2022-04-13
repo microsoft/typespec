@@ -1,5 +1,5 @@
 import { CharCode } from "./charcode.js";
-import { formatLog } from "./logger.js";
+import { formatLog } from "./logger/index.js";
 import { Program } from "./program.js";
 import {
   Diagnostic,

@@ -4,7 +4,7 @@ import mkdirp from "mkdirp";
 import fetch from "node-fetch";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile } from "./diagnostics.js";
-import { createConsoleSink } from "./logger.js";
+import { createConsoleSink } from "./logger/index.js";
 import { joinPaths, resolvePath } from "./path-utils.js";
 import { CompilerHost, RemoveDirOptions } from "./types";
 

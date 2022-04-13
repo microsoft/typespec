@@ -25,7 +25,7 @@
   },
   "browser": {
     "./dist/core/node-host.js": "./dist/core/node-host.browser.js",
-    "./dist/core/logger.js": "./dist/core/logger.browser.js"
+    "./dist/core/logger/console-sink.js": "./dist/core/logger/console-sink.browser.js"
   },
   "types": "dist/core/index.d.ts",
   "engines": {
