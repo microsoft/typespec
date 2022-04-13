@@ -22,9 +22,10 @@ body {
   grid-column-start: 1;
   grid-column-end: 3;
   grid-row: 3;
-  background: #e5e5e5;
-  color: #333333;
+  background: #007acc;
+  color: #fefefe;
   display: flex;
+  font-size: 12px;
 }
 
 #grid > .footer > .item {
