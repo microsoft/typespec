@@ -1,3 +1,4 @@
+import { inspect } from "util";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
@@ -2749,7 +2750,7 @@ export function createChecker(program: Program): Checker {
     evalContext = createEvalContext(node);
     for (const [i, param] of node.parameters.entries()) {
       if (!args[i]) {
-        throw new ProjectionError("need argument for parameter " + node.parameters[i]);
+        throw new ProjectionError("need argument for parameter " + inspect(node.parameters[i]));
       }
 
       const argVal = args[i];

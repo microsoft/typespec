@@ -3,6 +3,7 @@ import {
   NamespaceType,
   navigateProgram,
   NoTarget,
+  ObjectType,
   Program,
   ProjectionApplication,
   Type,
@@ -144,7 +145,7 @@ export function $versioned({ program }: DecoratorContext, t: Type, v: Type) {
   program.stateMap(versionsKey).set(t, versions);
 }
 
-function getVersion(p: Program, t: Type) {
+function getVersion(p: Program, t: Type): string[] {
   return p.stateMap(versionsKey).get(t);
 }
 
@@ -309,7 +310,7 @@ export interface VersionResolution {
  * @param rootNs Root namespace.
  */
 export function resolveVersions(program: Program, rootNs: NamespaceType): VersionResolution[] {
-  const versions = getVersions(program, rootNs);
+  const [, versions] = getVersions(program, rootNs);
   const dependencies = getVersionDependencies(program, rootNs) ?? new Map();
   if (!versions || versions.length === 0) {
     if (dependencies.size === 0) {
@@ -372,13 +373,13 @@ export function getVersionRecords(program: Program, rootNs: NamespaceType): Vers
   });
 }
 
-const versionCache = new WeakMap<Type, string[]>();
-function cacheVersion(key: Type, versions: string[]) {
+const versionCache = new WeakMap<Type, [NamespaceType, string[]] | []>();
+function cacheVersion(key: Type, versions: [NamespaceType, string[]] | []) {
   versionCache.set(key, versions);
   return versions;
 }
 
-export function getVersions(p: Program, t: Type): string[] {
+export function getVersions(p: Program, t: Type): [NamespaceType, string[]] | [] {
   if (versionCache.has(t)) {
     return versionCache.get(t)!;
   }
@@ -387,11 +388,11 @@ export function getVersions(p: Program, t: Type): string[] {
     const nsVersion = getVersion(p, t);
 
     if (nsVersion !== undefined) {
-      return cacheVersion(t, nsVersion);
+      return cacheVersion(t, [t, nsVersion]);
     } else if (t.namespace) {
       return cacheVersion(t, getVersions(p, t.namespace));
     } else {
-      return cacheVersion(t, []);
+      return cacheVersion(t, [t, []]);
     }
   } else if (
     t.kind === "Operation" ||
@@ -426,13 +427,10 @@ export function addedAfter(
   p: Program,
   type: Type,
   version: string,
-  versionMap: Map<NamespaceType, string>,
+  versionMap: ObjectType,
   versionSource?: Type
 ) {
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version, versionMap, versionSource);
-  if (type.kind === "ModelProperty" && type.name === "color") {
-    console.log("Added after?", type.name, version, appliesAt, versionSource);
-  }
   return appliesAt === null ? false : !appliesAt;
 }
 
@@ -440,7 +438,7 @@ export function removedOnOrBefore(
   p: Program,
   type: Type,
   version: string,
-  versionMap: Map<NamespaceType, string>,
+  versionMap: ObjectType,
   versionSource?: Type
 ) {
   const appliesAt = appliesAtVersion(getRemovedOn, p, type, version, versionMap, versionSource);
@@ -451,7 +449,7 @@ export function renamedAfter(
   p: Program,
   type: Type,
   version: string,
-  versionMap: Map<NamespaceType, string>,
+  versionMap: ObjectType,
   versionSource?: Type
 ) {
   const appliesAt = appliesAtVersion(
@@ -469,7 +467,7 @@ export function madeOptionalAfter(
   p: Program,
   type: Type,
   version: string,
-  versionMap: Map<NamespaceType, string>,
+  versionMap: ObjectType,
   versionSource?: Type
 ) {
   const appliesAt = appliesAtVersion(
@@ -492,12 +490,15 @@ function appliesAtVersion(
   p: Program,
   type: Type,
   version: string,
-  versionMap: Map<NamespaceType, string>,
+  versionMap: ObjectType,
   versionSource?: Type
 ) {
-  const versions = getVersions(p, versionSource ?? type);
-  if (type.kind === "ModelProperty" && type.name === "color") {
-    console.log("Got versions", version, versions);
+  const [namespace, versions] = getVersions(p, versionSource ?? type);
+  if (namespace) {
+    const newVersion = (versionMap.properties as any).get(namespace);
+    if (newVersion) {
+      version = newVersion;
+    }
   }
   if (!versions || versions.length === 0) {
     return null;
@@ -519,7 +520,7 @@ function appliesAtVersion(
 }
 
 export function versionCompare(p: Program, versionSource: Type, v1: string, v2: string): number {
-  const versions = getVersions(p, versionSource);
+  const [, versions] = getVersions(p, versionSource);
   if (!versions || versions.length === 0) {
     return 0;
   }
@@ -532,7 +533,7 @@ export function versionCompare(p: Program, versionSource: Type, v1: string, v2: 
 }
 
 export function hasVersion(p: Program, t: Type, v: string) {
-  const versions = getVersions(p, t);
+  const [, versions] = getVersions(p, t);
   if (!versions) return false;
   return versions.includes(v);
 }

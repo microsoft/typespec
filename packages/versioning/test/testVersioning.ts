@@ -684,8 +684,9 @@ describe("cadl: versioning", () => {
   }
 
   function project<T extends Type>(target: T, version: string, direction: "to" | "from" = "to"): T {
+    const versionMap = new Map();
     const projection: ProjectionApplication = {
-      arguments: [version],
+      arguments: [version, versionMap as any],
       projectionName: "v",
       direction,
     };
