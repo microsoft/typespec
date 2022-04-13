@@ -2,4 +2,8 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
-op MyOperation1(@query @doc("**** my-parameter-annotation ****") arg1: string): string;
+@route("/alpha/{id}")
+op doAlpha(@path id: string): string;
+
+@route("/beta/{id}")
+op doBeta(@path id: string): string;
