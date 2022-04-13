@@ -1,11 +1,12 @@
 // @ts-check
 import { execSync } from "child_process";
-import { readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 
 const root = fileURLToPath(new URL("..", import.meta.url).href);
-const manifestTarget = join(root, "dist/manifest.js");
+const distDir = join(root, "dist");
+const manifestTarget = join(distDir, "manifest.js");
 
 function loadPackageJson() {
   const packageJsonPath = join(root, "package.json");
@@ -23,8 +24,10 @@ function main() {
     version: pkg.version,
     commit: getCommit(),
   };
-  console.log("Manifest is", manifest);
 
+  if (!existsSync(distDir)) {
+    mkdirSync(distDir, { recursive: true });
+  }
   const manifestJs = `export default ${JSON.stringify(manifest, null, 2)};`;
   writeFileSync(manifestTarget, manifestJs);
 }
