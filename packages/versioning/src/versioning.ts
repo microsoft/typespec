@@ -291,20 +291,31 @@ function validateVersionedNamespaceUsage(
   }
 }
 
-interface VersionRecord {
-  version: string | undefined;
-  projections: ProjectionApplication[];
+export interface VersionResolution {
+  /**
+   * Version for the root namespace. `undefined` if not versioned.
+   */
+  rootVersion: string | undefined;
+
+  /**
+   * Resolved version for all the referenced namespaces.
+   */
+  versions: Map<NamespaceType, string>;
 }
 
-export function getVersionRecords(program: Program, rootNs: NamespaceType): VersionRecord[] {
+/**
+ * Resolve the version to use for all namespace for each of the root namespace versions.
+ * @param program
+ * @param rootNs Root namespace.
+ */
+export function resolveVersions(program: Program, rootNs: NamespaceType): VersionResolution[] {
   const versions = getVersions(program, rootNs);
-  const records: VersionRecord[] = [];
   const dependencies = getVersionDependencies(program, rootNs) ?? new Map();
-
   if (!versions || versions.length === 0) {
     if (dependencies.size === 0) {
-      return [{ version: undefined, projections: [] }];
+      return [{ rootVersion: undefined, versions: new Map() }];
     } else {
+      const map = new Map();
       for (const [dependencyNs, version] of dependencies) {
         if (typeof version !== "string") {
           const rootNsName = program.checker!.getNamespaceString(rootNs);
@@ -313,23 +324,16 @@ export function getVersionRecords(program: Program, rootNs: NamespaceType): Vers
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a string.`
           );
         }
-
-        records.push({
-          version: undefined,
-          projections: [
-            {
-              scope: dependencyNs,
-              projectionName: "v",
-              arguments: [version],
-            },
-          ],
-        });
+        map.set(dependencyNs, version);
       }
+      return [{ rootVersion: undefined, versions: map }];
     }
   } else {
-    for (const version of versions) {
-      // TODO: find versioned dependencies
-      const projections = [{ scope: rootNs, projectionName: "v", arguments: [version] }];
+    return versions.map((version) => {
+      const resolution: VersionResolution = {
+        rootVersion: version,
+        versions: new Map<NamespaceType, string>(),
+      };
 
       for (const [dependencyNs, versionMap] of dependencies) {
         if (!(versionMap instanceof Map)) {
@@ -339,19 +343,32 @@ export function getVersionRecords(program: Program, rootNs: NamespaceType): Vers
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
           );
         }
-        if (!versionMap.has(version)) continue;
-        projections.push({
-          scope: dependencyNs,
-          projectionName: "v",
-          arguments: [versionMap.get(version!)],
-        });
+        resolution.versions.set(dependencyNs, versionMap.get(version));
       }
 
-      records.push({ version: version, projections });
-    }
+      return resolution;
+    });
   }
+}
 
-  return records;
+interface VersionRecord {
+  version: string | undefined;
+  projections: ProjectionApplication[];
+}
+
+export function getVersionRecords(program: Program, rootNs: NamespaceType): VersionRecord[] {
+  const resolutions = resolveVersions(program, rootNs);
+
+  return resolutions.map((resolution) => {
+    const projections = [...resolution.versions.entries()].map(([ns, version]) => {
+      return {
+        scope: ns,
+        projectionName: "v",
+        arguments: [version],
+      };
+    });
+    return { version: resolution.rootVersion, projections };
+  });
 }
 
 const versionCache = new WeakMap<Type, string[]>();
@@ -439,7 +456,9 @@ function appliesAtVersion(
   versionSource?: Type
 ) {
   const versions = getVersions(p, versionSource ?? type);
-
+  if (type.kind === "ModelProperty" && type.name === "color") {
+    console.log("Got versions", version, versions);
+  }
   if (!versions || versions.length === 0) {
     return null;
   }
@@ -453,7 +472,7 @@ function appliesAtVersion(
 
   const testVersionIndex = versions.indexOf(version);
   if (testVersionIndex === -1) return null;
-  if ((type.kind === "ModelProperty" && type.name === "color", version === "v1")) {
+  if (type.kind === "ModelProperty" && type.name === "color" && version === "v1") {
     console.log("Applies at", versions, appliedOnVersion, appliedOnVersionIndex, testVersionIndex);
   }
   return testVersionIndex >= appliedOnVersionIndex;
