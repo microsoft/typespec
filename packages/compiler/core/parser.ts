@@ -2247,8 +2247,6 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
         visitEach(cb, node.templateParameters) ||
         visitNode(cb, node.value)
       );
-    case SyntaxKind.NamedImport:
-      return visitNode(cb, node.id);
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.TupleExpression:

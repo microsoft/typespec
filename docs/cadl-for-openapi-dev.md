@@ -50,7 +50,7 @@ For `type: string` data types:
 | `maxLength: value`          | `@maxLength(value)` decorator |       |
 | `pattern: regex`            | `@pattern(regex)` decorator   |       |
 
-There are two ways to define an `enum` data type. One is with the [Cadl `enum` statement(https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#enums)], e.g.:
+There are two ways to define an `enum` data type. One is with the [Cadl `enum` statement](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#enums), e.g.:
 
 ```cadl
 enum Color {
@@ -61,7 +61,7 @@ enum Color {
 
 ```
 
-You can a use the union operation to define the enum values inline, e.g.:
+Another is to use the union operation to define the enum values inline, e.g.:
 
 ```cadl
 status: "Running" | "Stopped" | "Failed"

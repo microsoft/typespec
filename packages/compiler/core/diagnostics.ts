@@ -1,5 +1,5 @@
 import { CharCode } from "./charcode.js";
-import { formatLog } from "./logger.js";
+import { formatLog } from "./logger/index.js";
 import { Program } from "./program.js";
 import {
   Diagnostic,
@@ -107,12 +107,15 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
 }
 
 export function formatDiagnostic(diagnostic: Diagnostic) {
-  return formatLog({
-    code: diagnostic.code,
-    level: diagnostic.severity,
-    message: diagnostic.message,
-    sourceLocation: getSourceLocation(diagnostic.target),
-  });
+  return formatLog(
+    {
+      code: diagnostic.code,
+      level: diagnostic.severity,
+      message: diagnostic.message,
+      sourceLocation: getSourceLocation(diagnostic.target),
+    },
+    { pretty: false }
+  );
 }
 
 export function createSourceFile(text: string, path: string): SourceFile {

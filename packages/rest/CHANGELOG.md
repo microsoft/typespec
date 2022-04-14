@@ -1,6 +1,21 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+This log was last generated on Thu, 31 Mar 2022 17:10:49 GMT and should not be manually modified.
+
+## 0.13.0
+Thu, 31 Mar 2022 17:10:49 GMT
+
+### Minor changes
+
+- Handle error type being passed to `KeyOf` model
+- Add validation when using Resource interfaces when missing @key on resource
+- Add logic to interpret the http responses.
+
+### Patches
+
+- Fix issue with empty routes in namespace/interface and operation causing path with '//'
+- Support browser builds
+- Raise a diagnostic when a resource type specifies a parent type which holds the same key name.
 
 ## 0.12.0
 Wed, 09 Mar 2022 17:42:09 GMT

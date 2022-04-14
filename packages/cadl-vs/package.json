@@ -1,24 +1,24 @@
 {
   "name": "cadl-vs",
   "author": "Microsoft Corporation",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Cadl Language Support for Visual Studio",
-  "homepage": "https://github.com/Azure/adl",
-  "readme": "https://github.com/Azure/adl/blob/master/README.md",
+  "homepage": "https://github.com/Microsoft/cadl",
+  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/adl.git"
+    "url": "git+https://github.com/Microsoft/cadl.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/adl/issues"
+    "url": "https://github.com/Microsoft/cadl/issues"
   },
   "keywords": [
     "cadl"
   ],
   "type": "module",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "files": [
     "Microsoft.Cadl.VS2019.vsix",
@@ -29,6 +29,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "cadl-vscode": "~0.13.0"
+    "cadl-vscode": "~0.13.1"
   }
 }

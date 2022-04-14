@@ -54,7 +54,7 @@ function setTemplatedStringProperty(
   program.stateMap(key).set(target, text);
 }
 
-const summaryKey = Symbol();
+const summaryKey = Symbol("summary");
 export function $summary(
   { program }: DecoratorContext,
   target: Type,
@@ -68,7 +68,7 @@ export function getSummary(program: Program, type: Type): string | undefined {
   return program.stateMap(summaryKey).get(type);
 }
 
-const docsKey = Symbol();
+const docsKey = Symbol("docs");
 export function $doc(
   { program }: DecoratorContext,
   target: Type,
@@ -96,7 +96,7 @@ export function $inspectTypeName(program: Program, target: Type, text: string) {
   console.log(program.checker!.getTypeName(target));
 }
 
-const intrinsicsKey = Symbol();
+const intrinsicsKey = Symbol("intrinsics");
 export function $intrinsic({ program }: DecoratorContext, target: Type, name: IntrinsicModelName) {
   program.stateMap(intrinsicsKey).set(target, name);
 }
@@ -135,7 +135,7 @@ export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
 }
 
-const numericTypesKey = Symbol();
+const numericTypesKey = Symbol("numericTypes");
 export function $numeric({ program }: DecoratorContext, target: Type) {
   if (!isIntrinsic(program, target)) {
     program.reportDiagnostic(
@@ -170,7 +170,7 @@ export function isNumericType(program: Program, target: Type): boolean {
 
 // -- @error decorator ----------------------
 
-const errorKey = Symbol();
+const errorKey = Symbol("error");
 
 export function $error({ program }: DecoratorContext, target: Type) {
   if (!validateDecoratorTarget(program, target, "@error", "Model")) {
@@ -186,7 +186,7 @@ export function isErrorModel(program: Program, target: Type): boolean {
 
 // -- @format decorator ---------------------
 
-const formatValuesKey = Symbol();
+const formatValuesKey = Symbol("formatValues");
 
 export function $format({ program }: DecoratorContext, target: Type, format: string) {
   if (
@@ -205,7 +205,7 @@ export function getFormat(program: Program, target: Type): string | undefined {
 
 // -- @pattern decorator ---------------------
 
-const patternValuesKey = Symbol();
+const patternValuesKey = Symbol("patternValues");
 
 export function $pattern({ program }: DecoratorContext, target: Type, pattern: string) {
   if (
@@ -224,7 +224,7 @@ export function getPattern(program: Program, target: Type): string | undefined {
 
 // -- @minLength decorator ---------------------
 
-const minLengthValuesKey = Symbol();
+const minLengthValuesKey = Symbol("minLengthValues");
 
 export function $minLength({ program }: DecoratorContext, target: Type, minLength: number) {
   if (
@@ -243,7 +243,7 @@ export function getMinLength(program: Program, target: Type): number | undefined
 
 // -- @maxLength decorator ---------------------
 
-const maxLengthValuesKey = Symbol();
+const maxLengthValuesKey = Symbol("maxLengthValues");
 
 export function $maxLength({ program }: DecoratorContext, target: Type, maxLength: number) {
   if (
@@ -262,7 +262,7 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 
 // -- @minValue decorator ---------------------
 
-const minValuesKey = Symbol();
+const minValuesKey = Symbol("minValues");
 
 export function $minValue({ program }: DecoratorContext, target: Type, minValue: number) {
   if (!validateDecoratorTarget(program, target, "@minValue", ["Model", "ModelProperty"])) {
@@ -288,7 +288,7 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 
 // -- @maxValue decorator ---------------------
 
-const maxValuesKey = Symbol();
+const maxValuesKey = Symbol("maxValues");
 
 export function $maxValue({ program }: DecoratorContext, target: Type, maxValue: number) {
   if (!validateDecoratorTarget(program, target, "@maxValue", ["Model", "ModelProperty"])) {
@@ -314,7 +314,7 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 
 // -- @secret decorator ---------------------
 
-const secretTypesKey = Symbol();
+const secretTypesKey = Symbol("secretTypes");
 
 export function $secret({ program }: DecoratorContext, target: Type) {
   if (
@@ -333,7 +333,7 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 
 // -- @visibility decorator ---------------------
 
-const visibilitySettingsKey = Symbol();
+const visibilitySettingsKey = Symbol("visibilitySettings");
 
 export function $visibility(
   { program }: DecoratorContext,
@@ -404,6 +404,42 @@ export function $withUpdateableProperties({ program }: DecoratorContext, target:
   });
 }
 
+// -- @withoutOmittedProperties decorator ----------------------
+
+export function $withoutOmittedProperties(
+  { program }: DecoratorContext,
+  target: Type,
+  omitProperties: Type
+) {
+  if (omitProperties.kind == "TemplateParameter") {
+    // Silently return because this is a templated type
+    return;
+  }
+
+  if (!validateDecoratorTarget(program, target, "@withoutOmittedProperties", "Model")) {
+    return;
+  }
+
+  if (!validateDecoratorParamType(program, target, omitProperties, ["String", "Union"])) {
+    return;
+  }
+
+  // Get the property or properties to omit
+  const omitNames = new Set<string>();
+  if (omitProperties.kind === "Union") {
+    for (const value of omitProperties.options) {
+      if (value.kind === "String") {
+        omitNames.add(value.value);
+      }
+    }
+  } else {
+    omitNames.add(omitProperties);
+  }
+
+  // Remove all properties to be omitted
+  mapFilterOut(target.properties, (key, _) => omitNames.has(key));
+}
+
 // -- @withoutDefaultValues decorator ----------------------
 
 export function $withoutDefaultValues({ program }: DecoratorContext, target: Type) {
@@ -417,7 +453,7 @@ export function $withoutDefaultValues({ program }: DecoratorContext, target: Typ
 
 // -- @list decorator ---------------------
 
-const listPropertiesKey = Symbol();
+const listPropertiesKey = Symbol("listProperties");
 
 export function $list({ program }: DecoratorContext, target: Type, listedType?: Type) {
   if (!validateDecoratorTarget(program, target, "@list", "Operation")) {
@@ -452,7 +488,7 @@ export function isListOperation(program: Program, target: OperationType): boolea
 }
 
 // -- @tag decorator ---------------------
-const tagPropertiesKey = Symbol();
+const tagPropertiesKey = Symbol("tagProperties");
 
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
@@ -501,7 +537,7 @@ export function getAllTags(
 
 // -- @friendlyName decorator ---------------------
 
-const friendlyNamesKey = Symbol();
+const friendlyNamesKey = Symbol("friendlyNames");
 
 export function $friendlyName(
   { program }: DecoratorContext,
@@ -530,7 +566,7 @@ export function getFriendlyName(program: Program, target: Type): string {
   return program.stateMap(friendlyNamesKey).get(target);
 }
 
-const knownValuesKey = Symbol();
+const knownValuesKey = Symbol("knownValues");
 /**
  * Specify the known values for a string type.
  * @param target Decorator target. Must be a string. (model Foo extends string)
@@ -599,7 +635,7 @@ export function getKnownValues(
   return program.stateMap(knownValuesKey).get(target);
 }
 
-const keyKey = Symbol();
+const keyKey = Symbol("key");
 
 export function $key({ program }: DecoratorContext, entity: Type, altName?: string): void {
   if (!validateDecoratorTarget(program, entity, "@key", "ModelProperty")) {

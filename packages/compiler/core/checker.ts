@@ -506,7 +506,10 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function getResolvedTypeParameterDefault(declaredType: TemplateParameterType): Type | undefined {
+  function getResolvedTypeParameterDefault(
+    declaredType: TemplateParameterType,
+    existingValues: Record<string, Type>
+  ): Type | undefined {
     if (declaredType.default === undefined) {
       return undefined;
     }
@@ -514,7 +517,7 @@ export function createChecker(program: Program): Checker {
       return declaredType.default;
     }
     if (declaredType.default.kind === "TemplateParameter") {
-      return getTypeForNode(declaredType.default.node);
+      return existingValues[declaredType.default.node.id.sv];
     } else {
       return declaredType.default;
     }
@@ -625,11 +628,13 @@ export function createChecker(program: Program): Checker {
     }
 
     const values: Type[] = [];
+    const valueMap: Record<string, Type> = {};
     let tooFew = false;
     for (let i = 0; i < declarations.length; i++) {
       const declaration = declarations[i];
       if (i < args.positional.length) {
         values.push(args.positional[i]);
+        valueMap[declaration.id.sv] = args.positional[i];
 
         if (declaration.id.sv in args.named) {
           program.reportDiagnostic(
@@ -643,11 +648,13 @@ export function createChecker(program: Program): Checker {
         }
       } else if (args.named[declaration.id.sv]) {
         values.push(args.named[declaration.id.sv]);
+        valueMap[declaration.id.sv] = args.named[declaration.id.sv];
       } else {
         const declaredType = getTypeForNode(declaration)! as TemplateParameterType;
-        const defaultValue = getResolvedTypeParameterDefault(declaredType);
+        const defaultValue = getResolvedTypeParameterDefault(declaredType, valueMap);
         if (defaultValue) {
           values.push(defaultValue);
+          valueMap[declaration.id.sv] = defaultValue;
         } else {
           tooFew = true;
           values.push(errorType);
@@ -839,7 +846,7 @@ export function createChecker(program: Program): Checker {
       const variant: UnionTypeVariant = createType({
         kind: "UnionVariant",
         type,
-        name: Symbol(),
+        name: Symbol("name"),
         decorators: [],
         node: undefined,
       });
@@ -876,6 +883,7 @@ export function createChecker(program: Program): Checker {
       name: "",
       properties: properties,
       decorators: [],
+      derivedModels: [],
     });
 
     for (const option of optionTypes) {
@@ -1232,8 +1240,8 @@ export function createChecker(program: Program): Checker {
         return !!(sym.flags & SymbolFlags.Namespace);
       }
       if (resolveType) {
-        // Do not return functions when completing types
-        return !(sym.flags & SymbolFlags.Function);
+        // Do not return functions or decorators when completing types
+        return !(sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator));
       }
       compilerAssert(false, "Unreachable.");
     }
@@ -1442,6 +1450,7 @@ export function createChecker(program: Program): Checker {
       properties: new Map<string, ModelTypeProperty>(),
       namespace: getParentNamespaceType(node),
       decorators,
+      derivedModels: [],
     });
     if (!instantiatingThisTemplate) {
       links.declaredType = type;
@@ -1469,6 +1478,10 @@ export function createChecker(program: Program): Checker {
       type.baseModel = isBase.baseModel;
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends);
+    }
+
+    if (type.baseModel) {
+      type.baseModel.derivedModels.push(type);
     }
 
     // Hold on to the model type that's being defined so that it
@@ -1510,6 +1523,7 @@ export function createChecker(program: Program): Checker {
       node: node,
       properties,
       decorators: [],
+      derivedModels: [],
     });
     checkModelProperties(node, properties, type);
     return finishType(type);
@@ -1713,6 +1727,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDefault(defaultType: Type, type: Type): Type {
+    if (isErrorType(type)) {
+      return errorType;
+    }
     switch (type.kind) {
       case "Model":
         return checkDefaultForModelType(defaultType, type);
@@ -2513,6 +2530,7 @@ export function createChecker(program: Program): Checker {
       node: node,
       decorators: [],
       properties: new Map(),
+      derivedModels: [],
     });
 
     for (const propNode of node.properties) {

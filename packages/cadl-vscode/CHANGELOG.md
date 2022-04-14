@@ -1,6 +1,11 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Wed, 09 Mar 2022 17:42:09 GMT and should not be manually modified.
+This log was last generated on Thu, 31 Mar 2022 17:10:49 GMT and should not be manually modified.
+
+## 0.13.1
+Thu, 31 Mar 2022 17:10:49 GMT
+
+_Version update only_
 
 ## 0.13.0
 Wed, 09 Mar 2022 17:42:09 GMT

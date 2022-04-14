@@ -151,7 +151,16 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
     | ProjectionModelExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
+
+  /**
+   * Model this model extends. This represent inheritance.
+   */
   baseModel?: ModelType;
+
+  /**
+   * Direct children. This is the reverse relation of @see baseModel
+   */
+  derivedModels: ModelType[];
 }
 
 export interface ModelTypeProperty extends BaseType, DecoratedType {
@@ -379,7 +388,6 @@ export enum SyntaxKind {
   JsSourceFile,
   ImportStatement,
   Identifier,
-  NamedImport,
   DecoratorExpression,
   DirectiveExpression,
   MemberExpression,
@@ -501,7 +509,6 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
-  | NamedImportNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -591,11 +598,6 @@ export interface ImportStatementNode extends BaseNode {
 export interface IdentifierNode extends BaseNode {
   readonly kind: SyntaxKind.Identifier;
   readonly sv: string;
-}
-
-export interface NamedImportNode extends BaseNode {
-  readonly kind: SyntaxKind.NamedImport;
-  readonly id: IdentifierNode;
 }
 
 export interface DecoratorExpressionNode extends BaseNode {

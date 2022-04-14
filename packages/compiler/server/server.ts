@@ -47,6 +47,7 @@ function main() {
   server = s;
   s.log(`Cadl language server v${cadlVersion}`);
   s.log("Module", fileURLToPath(import.meta.url));
+  s.log("Process ID", process.pid);
   s.log("Command Line", process.argv);
 
   connection.onInitialize((params) => {

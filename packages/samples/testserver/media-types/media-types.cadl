@@ -2,6 +2,7 @@ import "@cadl-lang/rest";
 import "@cadl-lang/openapi";
 
 using Cadl.Http;
+using OpenAPI;
 
 @doc("Uri or local path to source data.")
 model SourcePath {

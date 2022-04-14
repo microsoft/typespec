@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add validation to `Resource` interface to ensure `TError` is an error type",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

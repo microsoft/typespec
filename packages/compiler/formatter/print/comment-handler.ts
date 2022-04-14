@@ -60,8 +60,10 @@ function addStatementDecoratorComment(comment: CommentNode) {
     precedingNode &&
     precedingNode.kind === SyntaxKind.DecoratorExpression &&
     enclosingNode &&
-    "decorators" in enclosingNode &&
-    enclosingNode.decorators.length > 0
+    (enclosingNode.kind === SyntaxKind.NamespaceStatement ||
+      enclosingNode.kind === SyntaxKind.ModelStatement ||
+      enclosingNode.kind === SyntaxKind.EnumStatement ||
+      enclosingNode.kind === SyntaxKind.UnionStatement)
   ) {
     util.addLeadingComment(enclosingNode, comment);
     return true;

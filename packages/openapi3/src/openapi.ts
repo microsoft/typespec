@@ -1,7 +1,6 @@
 import {
   ArrayType,
   checkIfServiceNamespace,
-  DecoratorContext,
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
@@ -30,7 +29,7 @@ import {
   isNumericType,
   isSecret,
   isStringType,
-  mapChildModels,
+  isTemplate,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -40,7 +39,6 @@ import {
   Type,
   UnionType,
   UnionTypeVariant,
-  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { getExtensions, getExternalDocs, getOperationId } from "@cadl-lang/openapi";
 import {
@@ -55,6 +53,7 @@ import {
   OperationDetails,
 } from "@cadl-lang/rest";
 import { getVersionRecords } from "@cadl-lang/versioning";
+import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 import { OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
 
@@ -75,38 +74,12 @@ export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAP
   await emitter.emitOpenAPI();
 }
 
-const refTargetsKey = Symbol();
-
-export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
-  if (!validateDecoratorTarget(program, entity, "@useRef", ["Model", "ModelProperty"])) {
-    return;
-  }
-
-  program.stateMap(refTargetsKey).set(entity, refUrl);
-}
-
-function getRef(program: Program, entity: Type): string | undefined {
-  return program.stateMap(refTargetsKey).get(entity);
-}
-
-const oneOfKey = Symbol();
-export function $oneOf({ program }: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(program, entity, "@oneOf", "Union")) {
-    return;
-  }
-  program.stateMap(oneOfKey).set(entity, true);
-}
-
-function getOneOf(program: Program, entity: Type): boolean {
-  return program.stateMap(oneOfKey).get(entity);
-}
-
 // NOTE: These functions aren't meant to be used directly as decorators but as a
 // helper functions for other decorators.  The security information given here
 // will be inserted into the `security` and `securityDefinitions` sections of
 // the emitted OpenAPI document.
 
-const securityDetailsKey = Symbol();
+const securityDetailsKey = Symbol("securityDetails");
 interface SecurityDetails {
   definitions: any;
   requirements: any[];
@@ -192,8 +165,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
 
-  let childModelMap: ReadonlyMap<ModelType, readonly ModelType[]>;
-
   return { emitOpenAPI };
 
   function initializeEmitter(serviceNamespaceType: NamespaceType, version?: string) {
@@ -231,7 +202,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     schemas = new Set();
     params = new Map();
     tags = new Set();
-    childModelMap = new Map();
   }
 
   async function emitOpenAPI() {
@@ -259,7 +229,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   async function emitOpenAPIFromVersion(serviceNamespace: NamespaceType, version?: string) {
     initializeEmitter(serviceNamespace, version);
     try {
-      childModelMap = mapChildModels(program);
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();
       emitTags();
@@ -828,28 +797,37 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
+  function includeDerivedModel(model: ModelType): boolean {
+    return (
+      !isTemplate(model) &&
+      (model.templateArguments === undefined ||
+        model.templateArguments?.length === 0 ||
+        model.derivedModels.length > 0)
+    );
+  }
+
   function getSchemaForModel(model: ModelType) {
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
       type: "object",
       properties: {},
       description: getDoc(program, model),
     };
-    const childModels = childModelMap.get(model) ?? [];
 
+    const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
-    for (const child of childModels) {
+    for (const child of derivedModels) {
       getSchemaOrRef(child);
     }
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator) {
-      if (!validateDiscriminator(discriminator, childModels)) {
+      if (!validateDiscriminator(discriminator, derivedModels)) {
         // appropriate diagnostic is generated with the validate function
         return {};
       }
 
       const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
-      const mapping = getDiscriminatorMapping(discriminator, childModels);
+      const mapping = getDiscriminatorMapping(discriminator, derivedModels);
       if (mapping) {
         openApiDiscriminator.mapping = mapping;
       }
@@ -990,7 +968,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function getDiscriminatorMapping(
     discriminator: any,
-    childModels: readonly ModelType[]
+    derivedModels: readonly ModelType[]
   ): Record<string, string> | undefined {
     const { propertyName } = discriminator;
     const getMapping = (t: ModelType): any => {
@@ -1000,7 +978,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
       return undefined;
     };
-    const mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
+    const mappings = derivedModels.flatMap(getMapping).filter((v) => v); // only defined values
     return mappings.length > 0 ? mappings.reduce((a, s) => ({ ...a, ...s }), {}) : undefined;
   }
 
