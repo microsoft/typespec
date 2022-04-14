@@ -22,7 +22,7 @@ describe("rest: resources", () => {
           subthingId: string;
         }
 
-        model Error {}
+        @error model Error {}
 
         interface Things mixes ResourceOperations<Thing, Error> {}
         interface Subthings mixes ResourceOperations<Subthing, Error> {}
@@ -140,7 +140,7 @@ describe("rest: resources", () => {
           data: string;
         }
 
-        model Error {}
+        @error model Error {}
 
         interface Things mixes ResourceRead<Thing, Error> {}
         interface ThingsSingleton mixes SingletonResourceOperations<Singleton, Thing, Error> {}
@@ -192,7 +192,7 @@ describe("rest: resources", () => {
           exthingId: string;
         }
 
-        model Error {}
+        @error model Error {}
 
         interface ThingsExtension mixes ExtensionResourceOperations<Exthing, Thing, Error> {}
         interface SubthingsExtension mixes ExtensionResourceOperations<Exthing, Subthing, Error> {}
