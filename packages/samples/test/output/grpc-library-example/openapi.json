@@ -12,6 +12,9 @@
   "paths": {
     "/v1/shelves": {
       "post": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_createShelf",
         "description": "Creates a shelf, and returns the new Shelf.",
         "parameters": [],
@@ -37,9 +40,6 @@
             }
           }
         },
-        "tags": [
-          "LibraryService"
-        ],
         "requestBody": {
           "description": "The shelf to create.",
           "content": {
@@ -52,6 +52,9 @@
         }
       },
       "get": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_listShelves",
         "description": "Lists shelves. The order is unspecified but deterministic. Newly created\nshelves will not necessarily be added to the end of this list.",
         "parameters": [
@@ -83,14 +86,14 @@
               }
             }
           }
-        },
-        "tags": [
-          "LibraryService"
-        ]
+        }
       }
     },
     "/v1/shelves/{name}": {
       "get": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_getShelf",
         "description": "Gets a shelf. Returns NOT_FOUND if the shelf does not exist.",
         "parameters": [
@@ -119,12 +122,12 @@
               }
             }
           }
-        },
-        "tags": [
-          "LibraryService"
-        ]
+        }
       },
       "delete": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_deleteShelf",
         "description": "Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.",
         "parameters": [
@@ -146,14 +149,14 @@
               }
             }
           }
-        },
-        "tags": [
-          "LibraryService"
-        ]
+        }
       }
     },
     "/v1/shelves/{name}:merge": {
       "post": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_mergeShelves",
         "description": "Merges two shelves by adding all books from the shelf named\n`other_shelf_name` to shelf `name`, and deletes\n`other_shelf_name`. Returns the updated shelf.\nThe book ids of the moved books may not be the same as the original books.\nReturns NOT_FOUND if either shelf does not exist.\nThis call is a no-op if the specified shelves are the same.",
         "parameters": [
@@ -183,9 +186,6 @@
             }
           }
         },
-        "tags": [
-          "LibraryService"
-        ],
         "requestBody": {
           "description": "The name of the shelf we're removing books from and deleting.",
           "content": {
@@ -200,6 +200,9 @@
     },
     "/v1/shelves/{name}/books": {
       "post": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_createBook",
         "description": "Creates a book, and returns the new Book.",
         "parameters": [
@@ -229,9 +232,6 @@
             }
           }
         },
-        "tags": [
-          "LibraryService"
-        ],
         "requestBody": {
           "description": "The book to create.",
           "content": {
@@ -244,6 +244,9 @@
         }
       },
       "get": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_listBooks",
         "description": "Lists books in a shelf. The order is unspecified but deterministic. Newly\ncreated books will not necessarily be added to the end of this list.\nReturns NOT_FOUND if the shelf does not exist.",
         "parameters": [
@@ -278,14 +281,14 @@
               }
             }
           }
-        },
-        "tags": [
-          "LibraryService"
-        ]
+        }
       }
     },
     "/v1/shelves/shelf_name/books/{name}": {
       "get": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_getBook",
         "description": "Gets a book. Returns NOT_FOUND if the book does not exist.",
         "parameters": [
@@ -314,12 +317,12 @@
               }
             }
           }
-        },
-        "tags": [
-          "LibraryService"
-        ]
+        }
       },
       "delete": {
+        "tags": [
+          "LibraryService"
+        ],
         "operationId": "LibraryService_deleteBook",
         "description": "Deletes a book. Returns NOT_FOUND if the book does not exist.",
         "parameters": [
@@ -341,10 +344,7 @@
               }
             }
           }
-        },
-        "tags": [
-          "LibraryService"
-        ]
+        }
       }
     }
   },
