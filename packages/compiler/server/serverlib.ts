@@ -449,7 +449,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function rename(params: RenameParams): Promise<WorkspaceEdit> {
-    let changes: Record<string, TextEdit[]> = {};
+    const changes: Record<string, TextEdit[]> = {};
     await compile(params.textDocument, (program, document, file) => {
       const identifiers = findReferenceIdentifiers(
         program,
