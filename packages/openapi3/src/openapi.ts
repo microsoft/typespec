@@ -278,22 +278,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     currentEndpoint = currentPath[verb];
 
-    const operationId = getOperationId(program, op);
-    if (operationId) {
-      currentEndpoint.operationId = operationId;
-    } else {
-      // Synthesize an operation ID
-      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
-    }
-    applyExternalDocs(op, currentEndpoint);
-
-    // allow operation extensions
-    attachExtensions(program, op, currentEndpoint);
-    currentEndpoint.summary = getSummary(program, op);
-    currentEndpoint.description = getDoc(program, op);
-    currentEndpoint.parameters = [];
-    currentEndpoint.responses = {};
-
     const currentTags = getAllTags(program, op);
     if (currentTags) {
       currentEndpoint.tags = currentTags;
@@ -303,9 +287,26 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
+    const operationId = getOperationId(program, op);
+    if (operationId) {
+      currentEndpoint.operationId = operationId;
+    } else {
+      // Synthesize an operation ID
+      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
+    }
+    applyExternalDocs(op, currentEndpoint);
+
+    // Set up basic endpoint fields
+    currentEndpoint.summary = getSummary(program, op);
+    currentEndpoint.description = getDoc(program, op);
+    currentEndpoint.parameters = [];
+    currentEndpoint.responses = {};
+
     emitEndpointParameters(op, op.parameters, parameters.parameters);
     emitRequestBody(op, op.parameters, parameters);
     emitResponses(operation.responses);
+
+    attachExtensions(program, op, currentEndpoint);
   }
 
   function emitResponses(responses: HttpOperationResponse[]) {
