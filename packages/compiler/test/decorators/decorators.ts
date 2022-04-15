@@ -279,12 +279,12 @@ describe("compiler: built-in decorators", () => {
         `
         model OriginalModel {
           removeMe: string;
-          removeMeToo: string;
+          RemoveMeToo: string;
           notMe: string;
         }
 
         @test
-        model TestModel is OmitProperties<OriginalModel, "removeMe" | "removeMeToo"> {
+        model TestModel is OmitProperties<OriginalModel, "removeMe" | "rEmoveMeToo"> {
         }`
       );
 

@@ -429,15 +429,15 @@ export function $withoutOmittedProperties(
   if (omitProperties.kind === "Union") {
     for (const value of omitProperties.options) {
       if (value.kind === "String") {
-        omitNames.add(value.value);
+        omitNames.add(value.value.toLowerCase());
       }
     }
   } else {
-    omitNames.add(omitProperties);
+    omitNames.add((omitProperties as string).toLowerCase());
   }
 
   // Remove all properties to be omitted
-  mapFilterOut(target.properties, (key, _) => omitNames.has(key));
+  mapFilterOut(target.properties, (key, _) => omitNames.has(key.toLowerCase()));
 }
 
 // -- @withoutDefaultValues decorator ----------------------
