@@ -9,26 +9,26 @@ jobs:
       vmImage: windows-latest
 
     steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 16.x
-        displayName: Install Node.js
+      # - task: NodeTool@0
+      #   inputs:
+      #     versionSpec: 16.x
+      #   displayName: Install Node.js
 
-      - script: npx @microsoft/rush install
-        displayName: Install JavaScript Dependencies
+      # - script: npx @microsoft/rush install
+      #   displayName: Install JavaScript Dependencies
 
-      - script: npx @microsoft/rush rebuild --verbose
-        displayName: Build
+      # - script: npx @microsoft/rush rebuild --verbose
+      #   displayName: Build
 
-      - task: AzureFileCopy@4
-        inputs:
-          sourcePath: "packages/playground/dist/*"
-          azureSubscription: "Azure SDK Playground"
-          destination: "AzureBlob"
-          storage: "cadlplayground"
-          blobPrefix: prs/$(System.PullRequest.PullRequestNumber)/
-          containerName: "$web"
-        displayName: "Update playground"
+      # - task: AzureFileCopy@4
+      #   inputs:
+      #     sourcePath: "packages/playground/dist/*"
+      #     azureSubscription: "Azure SDK Playground"
+      #     destination: "AzureBlob"
+      #     storage: "cadlplayground"
+      #     blobPrefix: prs/$(System.PullRequest.PullRequestNumber)/
+      #     containerName: "$web"
+      #   displayName: "Update playground"
 
       - script: |
           USER_ID="azure=pipelines"
@@ -39,10 +39,11 @@ jobs:
             echo "Azure pipelines already made a comment. Skipping"
             echo "##vso[task.setvariable variable=SKIP_COMMENT;]true"
           fi
+        displayName: Check already commented
 
       - task: GitHubComment@0
         inputs:
           gitHubConnection: "Azure"
           repositoryName: "$(Build.Repository.Name)"
           comment: You can try those changes at https://cadlplayground.z22.web.core.windows.net/prs/$(System.PullRequest.PullRequestNumber)/
-        condition: and(succeeded(), $(SKIP_COMMENT))
+        condition: and(succeeded(), ne(variables['SKIP_COMMENT'], 'true'))
