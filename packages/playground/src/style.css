@@ -18,6 +18,21 @@ body {
   overflow: hidden;
 }
 
+#grid > .footer {
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row: 3;
+  background: #007acc;
+  color: #fefefe;
+  display: flex;
+  font-size: 12px;
+}
+
+#grid > .footer > .item {
+  border-right: 1px solid #d5d5d5;
+  padding: 0 5px;
+}
+
 #commandBar {
   grid-column: 1;
   grid-row: 1;

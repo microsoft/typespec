@@ -6,6 +6,7 @@ export * from "../server/serverlib.js";
 export * from "./decorator-utils.js";
 export * from "./diagnostics.js";
 export * from "./library.js";
+export * from "./manifest.js";
 export * from "./node-host.js";
 export * from "./parser.js";
 export * from "./path-utils.js";
