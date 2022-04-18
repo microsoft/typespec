@@ -26,6 +26,6 @@ jobs:
           azureSubscription: "Azure SDK Playground"
           destination: "AzureBlob"
           storage: "cadlplayground"
-          blobPrefix: /prs/$(System.PullRequest.PullRequestId)/
+          blobPrefix: prs/$(System.PullRequest.PullRequestId)/
           containerName: "$web"
         displayName: "Update playground"
