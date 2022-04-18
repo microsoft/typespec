@@ -26,6 +26,13 @@ jobs:
         parameters:
           nodeVersion: $(nodeVersion)
 
+  - job: Docker build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: docker build -f ./docker/Dockerfile .
+        displayName: Docker build
+
   - job: Consistency_Check
     pool:
       vmImage: ubuntu-latest
