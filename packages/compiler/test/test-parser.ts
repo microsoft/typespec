@@ -1,7 +1,7 @@
-import assert, { deepStrictEqual, ok } from "assert";
+import assert, { deepStrictEqual } from "assert";
 import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
-import { getIdentifierContext, hasParseError, parse, visitChildren } from "../core/parser.js";
+import { hasParseError, parse, visitChildren } from "../core/parser.js";
 import { CadlScriptNode, Node, NodeFlags, SourceFile, SyntaxKind } from "../core/types.js";
 
 describe("compiler: syntax", () => {
@@ -673,7 +673,6 @@ function checkPositioning(node: Node, file: SourceFile) {
     checkPositioning(child, file);
   });
 }
-
 
 /**
  *
