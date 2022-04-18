@@ -1099,7 +1099,7 @@ export function createChecker(program: Program): Checker {
       case IdentifierKind.Declaration:
         sym = getMergedSymbol(node.symbol);
         break;
-      case IdentifierKind.Directive:
+      case IdentifierKind.Other:
         return undefined;
       case IdentifierKind.Decorator:
       case IdentifierKind.Using:
@@ -1135,7 +1135,7 @@ export function createChecker(program: Program): Checker {
       case IdentifierKind.Decorator:
       case IdentifierKind.TypeReference:
         break; // supported
-      case IdentifierKind.Directive:
+      case IdentifierKind.Other:
         return completions; // not implemented
       case IdentifierKind.Declaration:
         return completions; // cannot complete, name can be chosen arbitrarily

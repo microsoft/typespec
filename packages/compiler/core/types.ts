@@ -979,8 +979,8 @@ export enum IdentifierKind {
   TypeReference,
   Decorator,
   Using,
-  Directive,
   Declaration,
+  Other,
 }
 
 /**

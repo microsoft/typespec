@@ -18,6 +18,7 @@ import {
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
+  DeclarationNode,
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticReport,
@@ -2287,12 +2288,14 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
       return visitNode(cb, node.id) || visitNode(cb, node.default);
+    case SyntaxKind.ProjectionLambdaParameterDeclaration:
+      return visitNode(cb, node.id);
+    case SyntaxKind.ProjectionParameterDeclaration:
+      return visitNode(cb, node.id);
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:
     case SyntaxKind.Identifier:
-    case SyntaxKind.ProjectionParameterDeclaration:
-    case SyntaxKind.ProjectionLambdaParameterDeclaration:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
     case SyntaxKind.ProjectionUnionSelector:
@@ -2448,15 +2451,11 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
     case SyntaxKind.UsingStatement:
       kind = IdentifierKind.Using;
       break;
-    case SyntaxKind.DirectiveExpression:
-      kind = IdentifierKind.Directive;
-      break;
     default:
-      compilerAssert(
-        (id.parent as any).id === id,
-        "This identifier does not appear to be a declaration. There is probably a missing switch case above."
-      );
-      kind = IdentifierKind.Declaration;
+      kind =
+        (id.parent as DeclarationNode).id === id
+          ? IdentifierKind.Declaration
+          : IdentifierKind.Other;
       break;
   }
 
