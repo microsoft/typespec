@@ -9,26 +9,26 @@ jobs:
       vmImage: windows-latest
 
     steps:
-      # - task: NodeTool@0
-      #   inputs:
-      #     versionSpec: 16.x
-      #   displayName: Install Node.js
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 16.x
+        displayName: Install Node.js
 
-      # - script: npx @microsoft/rush install
-      #   displayName: Install JavaScript Dependencies
+      - script: npx @microsoft/rush install
+        displayName: Install JavaScript Dependencies
 
-      # - script: npx @microsoft/rush rebuild --verbose
-      #   displayName: Build
+      - script: npx @microsoft/rush rebuild --verbose
+        displayName: Build
 
-      # - task: AzureFileCopy@4
-      #   inputs:
-      #     sourcePath: "packages/playground/dist/*"
-      #     azureSubscription: "Azure SDK Playground"
-      #     destination: "AzureBlob"
-      #     storage: "cadlplayground"
-      #     blobPrefix: prs/$(System.PullRequest.PullRequestNumber)/
-      #     containerName: "$web"
-      #   displayName: "Update playground"
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "packages/playground/dist/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlplayground"
+          blobPrefix: prs/$(System.PullRequest.PullRequestNumber)/
+          containerName: "$web"
+        displayName: "Update playground"
 
       - script: node eng/scripts/check-for-tryit-comment.js
         displayName: Check already commented
