@@ -26,7 +26,7 @@ jobs:
         parameters:
           nodeVersion: $(nodeVersion)
 
-  - job: Docker build
+  - job: docker_build
     pool:
       vmImage: ubuntu-latest
     steps:
