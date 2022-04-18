@@ -17,7 +17,8 @@ async function main() {
   const result = await request("GET", url);
   const data = JSON.parse(result);
   const azoComments = data.filter((x) => x.user?.login === AZP_USERID);
-  if (azoComments.length > 1) {
+  console.log(`Found ${azoComments.length} comments from Azure Pipelines.`);
+  if (azoComments.length > 0) {
     console.log("##vso[task.setvariable variable=SKIP_COMMENT;]true");
   }
 }
