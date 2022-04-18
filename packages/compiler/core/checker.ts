@@ -1123,7 +1123,7 @@ export function createChecker(program: Program): Checker {
         compilerAssert(false, "Unreachable");
     }
 
-    return sym?.symbolSource ? sym.symbolSource : sym;
+    return sym?.symbolSource ?? sym;
   }
 
   function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletionItem> {
