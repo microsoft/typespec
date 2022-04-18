@@ -1,4 +1,3 @@
-import { readFileSync } from "fs";
 import { readdir, readFile, realpath, rmdir, stat, writeFile } from "fs/promises";
 import mkdirp from "mkdirp";
 import fetch from "node-fetch";
@@ -41,11 +40,3 @@ export const NodeHost: CompilerHost = {
     return pathToFileURL(path).href;
   },
 };
-
-export const cadlVersion = getVersion();
-
-function getVersion(): string {
-  const packageJsonPath = fileURLToPath(new URL("../../package.json", import.meta.url).href);
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-  return packageJson.version;
-}
