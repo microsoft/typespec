@@ -48,6 +48,7 @@
     "prettier": "~2.6.2",
     "vite": "^2.8.0",
     "vscode-languageserver-textdocument": "~1.0.1",
+    "vscode-languageserver": "~7.0.0",
     "lzutf8": "~0.6.1",
     "debounce": "~1.2.1"
   },

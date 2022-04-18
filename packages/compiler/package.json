@@ -65,8 +65,8 @@
     "prettier": "~2.6.2",
     "node-fetch": "~3.2.0",
     "prompts": "~2.4.1",
-    "vscode-languageserver-textdocument": "~1.0.1",
     "vscode-languageserver": "~7.0.0",
+    "vscode-languageserver-textdocument": "~1.0.1",
     "yargs": "~17.3.1",
     "node-watch": "~0.7.1",
     "change-case": "~4.1.2"
