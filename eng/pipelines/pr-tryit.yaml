@@ -30,15 +30,7 @@ jobs:
       #     containerName: "$web"
       #   displayName: "Update playground"
 
-      - script: |
-          USER_ID="azure=pipelines"
-          COMMENTS_URL=https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/comments?per_page=100
-          echo "Getting comments using $COMMENTS_URL"
-          if curl -s "$LABEL_URL" | grep "\"login\": \"$USER_ID\""
-          then
-            echo "Azure pipelines already made a comment. Skipping"
-            echo "##vso[task.setvariable variable=SKIP_COMMENT;]true"
-          fi
+      - script: node eng/scripts/check-for-tryit-comment.js
         displayName: Check already commented
 
       - task: GitHubComment@0
