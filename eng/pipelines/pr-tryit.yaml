@@ -1,9 +1,10 @@
+title: Cadl Pull Request Try It
 trigger: none
 pr:
   - main
 
 jobs:
-  - job: publish-playground
+  - job: publish_playground
     displayName: Publish playground
     pool:
       vmImage: ubuntu-latest
