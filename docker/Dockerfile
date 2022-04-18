@@ -3,6 +3,7 @@
 # --------------------------------
 FROM node:16-alpine3.12 as builder
 
+RUN apk add --no-cache git
 COPY . /app
 
 WORKDIR /app
