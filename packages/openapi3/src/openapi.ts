@@ -55,7 +55,13 @@ import {
 import { getVersionRecords } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
-import { OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
+import {
+  OpenAPI3Discriminator,
+  OpenAPI3Operation,
+  OpenAPI3Parameter,
+  OpenAPI3ParameterType,
+  OpenAPI3Schema,
+} from "./types.js";
 
 const {
   getHeaderFieldName,
@@ -152,7 +158,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   // Get the service namespace string for use in name shortening
   let serviceNamespace: string | undefined;
   let currentPath: any;
-  let currentEndpoint: any;
+  let currentEndpoint: OpenAPI3Operation;
 
   // Keep a list of all Types encountered that need schema definitions
   let schemas = new Set<Type>();
@@ -198,7 +204,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     serviceNamespace = getServiceNamespaceString(program);
     currentPath = root.paths;
-    currentEndpoint = undefined;
     schemas = new Set();
     params = new Map();
     tags = new Set();
@@ -302,7 +307,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
 
-    emitEndpointParameters(op, op.parameters, parameters.parameters);
+    emitEndpointParameters(parameters.parameters);
     emitRequestBody(op, op.parameters, parameters);
     emitResponses(operation.responses);
 
@@ -383,7 +388,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function getResponseHeader(prop: ModelTypeProperty) {
     const header: any = {};
-    populateParameter(header, prop, undefined);
+    populateParameter(header, prop, "header");
     delete header.in;
     delete header.name;
     delete header.required;
@@ -441,7 +446,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function getParamPlaceholder(parent: ModelType | undefined, property: ModelTypeProperty) {
+  function getParamPlaceholder(property: ModelTypeProperty) {
     let spreadParam = false;
 
     if (property.sourceProperty) {
@@ -476,11 +481,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     return placeholder;
   }
 
-  function emitEndpointParameters(
-    op: OperationType,
-    parent: ModelType | undefined,
-    parameters: HttpOperationParameter[]
-  ) {
+  function emitEndpointParameters(parameters: HttpOperationParameter[]) {
     for (const { type, name, param } of parameters) {
       // If param is a global parameter, just skip it
       if (params.has(param)) {
@@ -490,14 +491,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
       switch (type) {
         case "path":
-          emitParameter(parent, param, "path");
+          emitParameter(param, "path");
           break;
         case "query":
-          emitParameter(parent, param, "query");
+          emitParameter(param, "query");
           break;
         case "header":
           if (name !== "content-type") {
-            emitParameter(parent, param, "header");
+            emitParameter(param, "header");
           }
           break;
       }
@@ -539,8 +540,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentEndpoint.requestBody = requestBody;
   }
 
-  function emitParameter(parent: ModelType | undefined, param: ModelTypeProperty, kind: string) {
-    const ph = getParamPlaceholder(parent, param);
+  function emitParameter(param: ModelTypeProperty, kind: OpenAPI3ParameterType) {
+    const ph = getParamPlaceholder(param);
     currentEndpoint.parameters.push(ph);
 
     // If the parameter already has a $ref, don't bother populating it
@@ -549,7 +550,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function populateParameter(ph: any, param: ModelTypeProperty, kind: string | undefined) {
+  function populateParameter(
+    ph: OpenAPI3Parameter,
+    param: ModelTypeProperty,
+    kind: OpenAPI3ParameterType
+  ) {
     ph.name = param.name;
     ph.in = kind;
     ph.required = !param.optional;
@@ -564,6 +569,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       schema.default = getDefaultValue(param.default);
     }
     attachExtensions(program, param, ph);
+    // Description is already provided in the parameter itself.
+    delete schema.description;
     ph.schema = schema;
   }
 
