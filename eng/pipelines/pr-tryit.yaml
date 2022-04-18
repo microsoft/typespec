@@ -3,7 +3,8 @@ pr:
   - main
 
 jobs:
-  - job: Publish playground
+  - job: publish-playground
+    displayName: Publish playground
     pool:
       vmImage: ubuntu-latest
 
