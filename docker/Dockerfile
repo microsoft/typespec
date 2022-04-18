@@ -3,6 +3,7 @@
 # --------------------------------
 FROM node:16-alpine3.12 as builder
 
+RUN apt-get -y update && apt-get -y install git
 COPY . /app
 
 WORKDIR /app
