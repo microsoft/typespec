@@ -35,7 +35,7 @@ jobs:
 
       - task: GitHubComment@0
         inputs:
-          gitHubConnection: "Azure"
+          gitHubConnection: "internal (1)"
           repositoryName: "$(Build.Repository.Name)"
           comment: "You can try those changes at https://cadlplayground.z22.web.core.windows.net/prs/$(System.PullRequest.PullRequestNumber)/"
         condition: and(succeeded(), ne(variables['SKIP_COMMENT'], 'true'))
