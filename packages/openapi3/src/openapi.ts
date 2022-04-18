@@ -613,9 +613,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     // Try to shorten the type name to exclude the top-level service namespace
-    let baseKey = getRefSafeName(key);
     if (serviceNamespace && key.startsWith(serviceNamespace)) {
-      baseKey = key.substring(serviceNamespace.length + 1);
+      const baseKey = key.substring(serviceNamespace.length + 1);
 
       // If no parameter exists with the shortened name, use it, otherwise use the fully-qualified name
       if (!root.components.parameters[baseKey] || isQualifiedParamName) {
@@ -623,7 +622,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    return key;
+    return getRefSafeName(key);
   }
 
   function getSchemaForType(type: Type) {
@@ -1210,7 +1209,7 @@ function isRefSafeName(name: string) {
 }
 
 function getRefSafeName(name: string) {
-  return name.replace(/^[A-Za-z0-9-_.]/g, "_");
+  return name.replace(/[^A-Za-z0-9-_.]/g, "_");
 }
 
 function prettierOutput(output: string) {

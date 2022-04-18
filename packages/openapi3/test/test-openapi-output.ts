@@ -937,4 +937,29 @@ describe("openapi3: extension decorator", () => {
     strictEqual(oapi.components.parameters.PetId.schema.format, "UUID");
     strictEqual(oapi.components.parameters.PetId.schema.pattern, "^[a-zA-Z0-9-]{3,24}$");
   });
+
+  it("correctly sanitizes parameter names", async () => {
+    const oapi = await openApiFor(
+      `
+      model Pet extends Pet$Id {
+        name: string;
+      }
+      model Pet$Id {
+        @path
+        petId: string;
+      }
+      @route("/Pets")
+      namespace root {
+        @get()
+        op get(... Pet$Id): Pet;
+      }
+      `
+    );
+    ok(oapi.paths["/Pets/{petId}"].get);
+    strictEqual(
+      oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
+      "#/components/parameters/Pet_Id"
+    );
+    strictEqual(oapi.components.parameters.Pet_Id.name, "petId");
+  });
 });
