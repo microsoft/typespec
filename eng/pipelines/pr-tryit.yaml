@@ -1,0 +1,30 @@
+trigger: none
+pr:
+  - main
+
+jobs:
+  - job: Publish playground
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 16.x
+        displayName: Install Node.js
+
+      - script: npx @microsoft/rush install
+        displayName: Install JavaScript Dependencies
+
+      - script: npx @microsoft/rush rebuild --verbose
+        displayName: Build
+
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "packages/playground/dist/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlplayground"
+          blobPrefix: /prs/$(System.PullRequest.PullRequestId)/
+          containerName: "$web"
+        displayName: "Update playground"
