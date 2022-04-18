@@ -3082,7 +3082,7 @@ export function createChecker(program: Program): Checker {
   }
 }
 
-export function isErrorType(type: Type): type is ErrorType {
+function isErrorType(type: Type): type is ErrorType {
   return type.kind === "Intrinsic" && type.name === "ErrorType";
 }
 
