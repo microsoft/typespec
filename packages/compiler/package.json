@@ -25,7 +25,7 @@
   },
   "browser": {
     "./dist/core/node-host.js": "./dist/core/node-host.browser.js",
-    "./dist/core/logger.js": "./dist/core/logger.browser.js"
+    "./dist/core/logger/console-sink.js": "./dist/core/logger/console-sink.browser.js"
   },
   "types": "dist/core/index.d.ts",
   "engines": {
@@ -42,12 +42,13 @@
   ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run compile",
+    "build": "npm run gen-manifest && npm run compile",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "dogfood": "node scripts/dogfood.js",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only",
+    "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run",
     "lint": "eslint . --ext .ts --max-warnings=0",
@@ -64,8 +65,8 @@
     "prettier": "~2.6.2",
     "node-fetch": "~3.2.0",
     "prompts": "~2.4.1",
-    "vscode-languageserver-textdocument": "~1.0.1",
     "vscode-languageserver": "~7.0.0",
+    "vscode-languageserver-textdocument": "~1.0.1",
     "yargs": "~17.3.1",
     "node-watch": "~0.7.1",
     "change-case": "~4.1.2"

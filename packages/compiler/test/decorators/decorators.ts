@@ -1,4 +1,4 @@
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { ModelType } from "../../core/index.js";
 import {
   getDoc,
@@ -253,6 +253,43 @@ describe("compiler: built-in decorators", () => {
 
       ok(prop.kind === "ModelProperty", "should be a model property");
       strictEqual(getKeyName(runner.program, prop), "alternateName");
+    });
+  });
+
+  describe("@withoutOmittedProperties", () => {
+    it("removes a model property when given a string literal", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model OriginalModel {
+          removeMe: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is OmitProperties<OriginalModel, "removeMe"> {
+        }`
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["notMe"]);
+    });
+
+    it("removes model properties when given a union containing strings", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model OriginalModel {
+          removeMe: string;
+          removeMeToo: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is OmitProperties<OriginalModel, "removeMe" | "removeMeToo"> {
+        }`
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["notMe"]);
     });
   });
 });
