@@ -1,6 +1,7 @@
 // @ts-check
 import https from "https";
 
+const AZP_USERID = "azure-pipelines[bot]";
 main().catch((e) => {
   console.error(e);
   // @ts-ignore
@@ -15,7 +16,7 @@ async function main() {
   const url = `https://api.github.com/repos/${repo}/issues/${prNumber}/comments?per_page=100`;
   const result = await request("GET", url);
   const data = JSON.parse(result);
-  const azoComments = data.filter((x) => x.user?.login === "azure-pipelines");
+  const azoComments = data.filter((x) => x.user?.login === AZP_USERID);
   if (azoComments.length > 1) {
     console.log("##vso[task.setvariable variable=SKIP_COMMENT;]true");
   }
