@@ -1,4 +1,3 @@
-title: Cadl Pull Request Try It
 trigger: none
 pr:
   - main
