@@ -776,11 +776,7 @@ export function printModelProperty(
     }
   );
   let id: Doc;
-  if (
-    node.id.kind === SyntaxKind.StringLiteral &&
-    options.quoteProps === "as-needed" &&
-    isStringSafeToUnquote(node.id, options)
-  ) {
+  if (node.id.kind === SyntaxKind.StringLiteral && isStringSafeToUnquote(node.id, options)) {
     id = node.id.value;
   } else {
     id = path.call(print, "id");
