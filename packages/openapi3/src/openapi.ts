@@ -7,7 +7,6 @@ import {
   getAllTags,
   getDoc,
   getFormat,
-  getFriendlyName,
   getIntrinsicModelName,
   getKnownValues,
   getMaxLength,
@@ -37,10 +36,18 @@ import {
   Program,
   resolvePath,
   Type,
+  TypeNameOptions,
   UnionType,
   UnionTypeVariant,
 } from "@cadl-lang/compiler";
-import { getExtensions, getExternalDocs, getOperationId } from "@cadl-lang/openapi";
+import {
+  getExtensions,
+  getExternalDocs,
+  getOperationId,
+  getParameterKey,
+  getTypeName,
+  shouldInline,
+} from "@cadl-lang/openapi";
 import {
   Discriminator,
   getAllRoutes,
@@ -170,6 +177,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
+
+  const typeNameOptions: TypeNameOptions = {
+    // shorten type names by removing Cadl and service namespace
+    namespaceFilter(ns) {
+      const name = program.checker!.getNamespaceString(ns);
+      return name !== "Cadl" && name !== serviceNamespace;
+    },
+  };
 
   return { emitOpenAPI };
 
@@ -418,12 +433,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       // For literal types, we just want to emit them directly as well.
       return mapCadlTypeToOpenAPI(type);
     }
-    const name = getTypeNameForSchemaProperties(type);
-    if (!isRefSafeName(name)) {
-      // Schema's name is not reference-able in OpenAPI so we inline it.
-      // This will usually happen with instantiated/anonymous types, but could also
-      // happen if Cadl identifier uses characters that are problematic for OpenAPI.
-      // Users will have to rename / alias type to have it get ref'ed.
+    const name = getTypeName(program, type, typeNameOptions);
+
+    if (shouldInline(program, type)) {
       const schema = getSchemaForType(type);
 
       if (schema === undefined && isErrorType(type)) {
@@ -439,7 +451,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return schema;
     } else {
       const placeholder = {
-        $ref: "#/components/schemas/" + name,
+        $ref: "#/components/schemas/" + encodeURIComponent(name),
       };
       schemas.add(type);
       return placeholder;
@@ -576,21 +588,26 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function emitReferences() {
     for (const [property, param] of params) {
-      const key = getParameterKey(property, param);
+      let key = getParameterKey(
+        program,
+        property,
+        param,
+        root.components.parameters,
+        typeNameOptions
+      );
 
       root.components.parameters[key] = { ...param };
-
       for (const key of Object.keys(param)) {
         delete param[key];
       }
 
-      param["$ref"] = "#/components/parameters/" + key;
+      param["$ref"] = "#/components/parameters/" + encodeURIComponent(key);
     }
 
     for (const type of schemas) {
-      const name = getTypeNameForSchemaProperties(type);
       const schemaForType = getSchemaForType(type);
       if (schemaForType) {
+        const name = getTypeName(program, type, typeNameOptions, root.components.schemas);
         root.components.schemas[name] = schemaForType;
       }
     }
@@ -600,30 +617,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     for (const tag of tags) {
       root.tags.push({ name: tag });
     }
-  }
-
-  function getParameterKey(property: ModelTypeProperty, param: any) {
-    const parent = property.model!;
-    let key = program.checker!.getTypeName(parent);
-    let isQualifiedParamName = false;
-
-    if (parent.properties.size > 1) {
-      key += `.${property.name}`;
-      isQualifiedParamName = true;
-    }
-
-    // Try to shorten the type name to exclude the top-level service namespace
-    let baseKey = getRefSafeName(key);
-    if (serviceNamespace && key.startsWith(serviceNamespace)) {
-      baseKey = key.substring(serviceNamespace.length + 1);
-
-      // If no parameter exists with the shortened name, use it, otherwise use the fully-qualified name
-      if (!root.components.parameters[baseKey] || isQualifiedParamName) {
-        key = baseKey;
-      }
-    }
-
-    return key;
   }
 
   function getSchemaForType(type: Type) {
@@ -1036,30 +1029,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     return !(headerInfo || queryInfo || pathInfo || statusCodeinfo);
   }
 
-  function getTypeNameForSchemaProperties(type: Type) {
-    // If there's a friendly name for the type, use that instead
-    let typeName = getFriendlyName(program, type);
-    if (typeName) {
-      return typeName;
-    }
-
-    // Try to shorten the type name to exclude the top-level service namespace
-    typeName = program!.checker!.getTypeName(type).replace(/<([\w.]+)>/, "_$1");
-
-    if (isRefSafeName(typeName)) {
-      if (serviceNamespace) {
-        typeName = typeName.replace(RegExp(serviceNamespace + "\\.", "g"), "");
-      }
-      // exclude the Cadl namespace in type names
-      typeName = typeName.replace(/($|_)(Cadl\.)/g, "$1");
-    }
-
-    return typeName;
-  }
-
   function applyIntrinsicDecorators(cadlType: ModelType | ModelTypeProperty, target: any): any {
     const newTarget = { ...target };
-
     const docStr = getDoc(program, cadlType);
     const isString = isStringType(program, getPropertyType(cadlType));
     const isNumeric = isNumericType(program, getPropertyType(cadlType));
@@ -1139,14 +1110,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "Model":
         return mapCadlIntrinsicModelToOpenAPI(cadlType);
     }
-    // // The base model doesn't correspond to a primitive OA type, but it could
-    // // derive from one. Let's check.
-    // if (cadlType.kind === "Model" && cadlType.baseModel) {
-    //   const baseSchema = mapCadlTypeToOpenAPI(cadlType.baseModel);
-    //   if (baseSchema) {
-    //     return applyIntrinsicDecorators(cadlType, baseSchema);
-    //   }
-    // }
   }
 
   /**
@@ -1203,14 +1166,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         };
     }
   }
-}
-
-function isRefSafeName(name: string) {
-  return /^[A-Za-z0-9-_.]+$/.test(name);
-}
-
-function getRefSafeName(name: string) {
-  return name.replace(/^[A-Za-z0-9-_.]/g, "_");
 }
 
 function prettierOutput(output: string) {
