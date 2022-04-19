@@ -17,8 +17,11 @@ async function main() {
   const result = await request("GET", url);
   const data = JSON.parse(result);
   const azoComments = data.filter((x) => x.user?.login === AZP_USERID);
-  console.log(`Found ${azoComments.length} comments from Azure Pipelines.`);
-  if (azoComments.length > 0) {
+  console.log(`Found ${azoComments.length} comment(s) from Azure Pipelines.`);
+
+  const tryItComments = data.filter((x) => x.body.includes("_CADL_TRYIT_COMMENT_"));
+  console.log(`Found ${azoComments.length} Cadl Try It comment(s)`);
+  if (tryItComments.length > 0) {
     console.log("##vso[task.setvariable variable=SKIP_COMMENT;]true");
   }
 }
@@ -37,7 +40,7 @@ async function request(method, url, postData) {
       "User-Agent": "nodejs",
     },
   };
-  console.log("P", params);
+  console.log("Params", params);
 
   return new Promise((resolve, reject) => {
     const req = lib.request(params, (res) => {
