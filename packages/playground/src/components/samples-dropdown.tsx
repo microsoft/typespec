@@ -18,7 +18,7 @@ export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({ onSel
     [onSelectSample]
   );
   return (
-    <select onChange={handleSelected} value={selected}>
+    <select className="sample-dropdown" onChange={handleSelected} value={selected}>
       <option value="" disabled>
         Select sample...
       </option>
