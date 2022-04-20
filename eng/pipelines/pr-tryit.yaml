@@ -37,5 +37,5 @@ jobs:
         inputs:
           gitHubConnection: "internal (1)"
           repositoryName: "$(Build.Repository.Name)"
-          comment: "You can try these changes at https://cadlplayground.z22.web.core.windows.net/prs/$(System.PullRequest.PullRequestNumber)/"
+          comment: "<!-- _CADL_TRYIT_COMMENT_ -->\nYou can try these changes at https://cadlplayground.z22.web.core.windows.net/prs/$(System.PullRequest.PullRequestNumber)/"
         condition: and(succeeded(), ne(variables['SKIP_COMMENT'], 'true'))
