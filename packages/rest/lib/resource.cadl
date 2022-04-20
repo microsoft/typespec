@@ -1,4 +1,5 @@
 import "./http.cadl";
+import "./paging.cadl";
 import "../dist/src/resource.js";
 import "../dist/src/internal-decorators.js";
 
@@ -94,15 +95,6 @@ interface ResourceDelete<TResource, TError> {
   @doc("Deletes an existing instance of the resource.")
   @deletesResource(TResource)
   delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
-}
-
-@doc("Paged response")
-model Page<T> {
-  @doc("The items on this page")
-  value: T[];
-
-  @doc("The link to the next page of items")
-  nextLink?: string;
 }
 
 interface ResourceList<TResource, TError> {

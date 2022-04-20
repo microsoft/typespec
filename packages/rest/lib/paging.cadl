@@ -1,0 +1,13 @@
+import "../dist/src/paging.js";
+
+namespace Cadl.Rest;
+
+@doc("Paged collection of {name} items", T)
+@pagedByProperty("nextLink")
+model Page<T> {
+  @doc("The items on this page")
+  value: T[];
+
+  @doc("The link to the next page of items")
+  nextLink?: string;
+}

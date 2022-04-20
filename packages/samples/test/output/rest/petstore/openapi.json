@@ -176,11 +176,11 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "Paged collection of Pet items",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Cadl.Rest.Resource.Page_Pet"
+                  "$ref": "#/components/schemas/Cadl.Rest.Page_Pet"
                 }
               }
             }
@@ -264,11 +264,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "Paged collection of Checkup items",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Cadl.Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/Cadl.Rest.Page_Checkup"
                 }
               }
             }
@@ -428,11 +428,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "Paged collection of Toy items",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Cadl.Rest.Resource.Page_Toy"
+                  "$ref": "#/components/schemas/Cadl.Rest.Page_Toy"
                 }
               }
             }
@@ -603,11 +603,11 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "Paged collection of Checkup items",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Cadl.Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/Cadl.Rest.Page_Checkup"
                 }
               }
             }
@@ -786,11 +786,11 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "Paged collection of Owner items",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Cadl.Rest.Resource.Page_Owner"
+                  "$ref": "#/components/schemas/Cadl.Rest.Page_Owner"
                 }
               }
             }
@@ -874,11 +874,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "Paged collection of Checkup items",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Cadl.Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/Cadl.Rest.Page_Checkup"
                 }
               }
             }
@@ -1072,7 +1072,7 @@
           "message"
         ]
       },
-      "Cadl.Rest.Resource.Page_Pet": {
+      "Cadl.Rest.Page_Pet": {
         "type": "object",
         "properties": {
           "value": {
@@ -1088,7 +1088,7 @@
             "description": "The link to the next page of items"
           }
         },
-        "description": "Paged response",
+        "description": "Paged collection of Pet items",
         "required": [
           "value"
         ]
@@ -1113,7 +1113,7 @@
           "notes"
         ]
       },
-      "Cadl.Rest.Resource.Page_Checkup": {
+      "Cadl.Rest.Page_Checkup": {
         "type": "object",
         "properties": {
           "value": {
@@ -1129,7 +1129,7 @@
             "description": "The link to the next page of items"
           }
         },
-        "description": "Paged response",
+        "description": "Paged collection of Checkup items",
         "required": [
           "value"
         ]
@@ -1176,7 +1176,7 @@
           "name"
         ]
       },
-      "Cadl.Rest.Resource.Page_Toy": {
+      "Cadl.Rest.Page_Toy": {
         "type": "object",
         "properties": {
           "value": {
@@ -1192,7 +1192,7 @@
             "description": "The link to the next page of items"
           }
         },
-        "description": "Paged response",
+        "description": "Paged collection of Toy items",
         "required": [
           "value"
         ]
@@ -1218,7 +1218,7 @@
           "age"
         ]
       },
-      "Cadl.Rest.Resource.Page_Owner": {
+      "Cadl.Rest.Page_Owner": {
         "type": "object",
         "properties": {
           "value": {
@@ -1234,7 +1234,7 @@
             "description": "The link to the next page of items"
           }
         },
-        "description": "Paged response",
+        "description": "Paged collection of Owner items",
         "required": [
           "value"
         ]

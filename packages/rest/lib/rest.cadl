@@ -1,5 +1,7 @@
 import "../dist/src/rest.js";
 import "../dist/src/route.js";
+import "../dist/src/paging.js";
 
 import "./http.cadl";
 import "./resource.cadl";
+import "./paging.cadl";

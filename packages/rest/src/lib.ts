@@ -7,3 +7,5 @@ export * from "./rest.js";
 export * as rest from "./rest.js";
 export * from "./route.js";
 export * as route from "./route.js";
+export * from "./paging.js";
+export * as paging from "./paging.js";
