@@ -129,7 +129,7 @@ export const App: FunctionComponent = () => {
           <button onClick={saveCode as any}>Share</button>
         </label>
         <label>
-          Load a sample:
+          {"Load a sample: "}
           <SamplesDropdown onSelectSample={updateCadl as any} />
         </label>
         <label>
