@@ -359,7 +359,7 @@ interface VersionRecord {
 
 const versionIndex = new Map<string, Map<NamespaceType, string>>();
 
-function indexVersions(resolution: VersionResolution[]) {
+function indexVersions(resolutions: VersionResolution[]) {
   versionIndex.clear();
   for (const resolution of resolutions) {
     for (const version of resolution.versions.values()) {
@@ -464,9 +464,8 @@ function appliesAtVersion(
   versionSource?: Type
 ) {
   const [namespace, versions] = getVersions(p, versionSource ?? type);
-  const versionMap = versionIndexer.getVersionMap(version);
   if (namespace) {
-    const newVersion = versionMap?.get(namespace);
+    const newVersion = versionIndex.get(version)?.get(namespace);
     if (newVersion) {
       version = newVersion;
     }
