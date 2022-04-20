@@ -233,6 +233,23 @@ model Foo {
 `,
       });
     });
+
+    it("remove unncessary quotes", () => {
+      assertFormat({
+        code: `
+model Foo {
+  "abc": string;
+  "this-needs-quotes": int32;
+}
+`,
+        expected: `
+model Foo {
+  abc: string;
+  "this-needs-quotes": int32;
+}
+`,
+      });
+    });
   });
 
   describe("comments", () => {
