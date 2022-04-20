@@ -2,17 +2,17 @@ import "../dist/src/versioning.js";
 
 #suppress "projections-are-experimental"
 projection op#v {
-  to(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  to(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if removedOnOrBefore(self, version, versionMap) {
+    } else if removedOnOrBefore(self, version) {
       return never;
     };
   }
-  from(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  from(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if removedOnOrBefore(self, version, versionMap) {
+    } else if removedOnOrBefore(self, version) {
       return never;
     };
   }
@@ -20,35 +20,35 @@ projection op#v {
 
 #suppress "projections-are-experimental"
 projection interface#v {
-  to(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  to(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if removedOnOrBefore(self, version, versionMap) {
+    } else if removedOnOrBefore(self, version) {
       return never;
     } else {
       self::operations::forEach((operation) => {
-        if addedAfter(operation, version, versionMap, self) {
+        if addedAfter(operation, version, self) {
           self::deleteOperation(operation::name);
-        } else if removedOnOrBefore(operation, version, versionMap, self) {
+        } else if removedOnOrBefore(operation, version, self) {
           self::deleteOperation(operation::name);
-        } else if renamedAfter(operation, version, versionMap, self) {
+        } else if renamedAfter(operation, version, self) {
           self::renameOperation(operation::name, getRenamedFromOldName(operation));
         };
       });
     };
   }
-  from(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  from(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if (removedOnOrBefore(self, version, versionMap)) {
+    } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self::projectionBase::operations::forEach((operation) => {
-        if addedAfter(operation, version, versionMap, self) {
+        if addedAfter(operation, version, self) {
           self::addOperation(operation::name, operation::parameters, operation::returnType);
-        } else if removedOnOrBefore(operation, version, versionMap, self) {
+        } else if removedOnOrBefore(operation, version, self) {
           self::addOperation(operation::name, operation::parameters, operation::returnType);
-        } else if renamedAfter(operation, version, versionMap, self) {
+        } else if renamedAfter(operation, version, self) {
           self::renameOperation(getRenamedFromOldName(operation), operation::name);
         };
       });
@@ -58,35 +58,35 @@ projection interface#v {
 
 #suppress "projections-are-experimental"
 projection union#v {
-  to(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  to(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if (removedOnOrBefore(self, version, versionMap)) {
+    } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self::variants::forEach((variant) => {
-        if addedAfter(variant, version, versionMap, self) {
+        if addedAfter(variant, version, self) {
           self::deleteVariant(variant::name);
-        } else if removedOnOrBefore(variant, version, versionMap, self) {
+        } else if removedOnOrBefore(variant, version, self) {
           self::deleteVariant(variant::name);
-        } else if renamedAfter(variant, version, versionMap, self) {
+        } else if renamedAfter(variant, version, self) {
           self::renameVariant(variant::name, getRenamedFromOldName(variant));
         };
       });
     };
   }
-  from(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  from(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if (removedOnOrBefore(self, version, versionMap)) {
+    } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self::projectionBase::variants::forEach((variant) => {
-        if addedAfter(variant, version, versionMap, self) {
+        if addedAfter(variant, version, self) {
           self::addVariant(variant::name, variant::type);
-        } else if removedOnOrBefore(variant, version, versionMap, self) {
+        } else if removedOnOrBefore(variant, version, self) {
           self::addVariant(variant::name, variant::type);
-        } else if renamedAfter(variant, version, versionMap, self) {
+        } else if renamedAfter(variant, version, self) {
           self::renameVariant(getRenamedFromOldName(variant), variant::name);
         };
       });
@@ -96,51 +96,51 @@ projection union#v {
 
 #suppress "projections-are-experimental"
 projection model#v {
-  to(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  to(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if (removedOnOrBefore(self, version, versionMap)) {
+    } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self::properties::forEach((p) => {
-        if addedAfter(p, version, versionMap) {
+        if addedAfter(p, version, self) {
           self::deleteProperty(p::name);
         };
         
-        if removedOnOrBefore(p, version, versionMap, self) {
+        if removedOnOrBefore(p, version, self) {
           self::deleteProperty(p::name);
         };
         
-        if renamedAfter(p, version, versionMap, self) {
+        if renamedAfter(p, version, self) {
           self::renameProperty(p::name, getRenamedFromOldName(p));
         };
 
-        if madeOptionalAfter(p, version, versionMap, self) {
+        if madeOptionalAfter(p, version, self) {
           p::setOptional(false);
         };
       });
     };
   }
-  from(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  from(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if (removedOnOrBefore(self, version, versionMap)) {
+    } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self::projectionBase::properties::forEach((p) => {
-        if addedAfter(p, version, versionMap, self) {
+        if addedAfter(p, version, self) {
           self::addProperty(p::name, p::type);
         };
         
-        if removedOnOrBefore(p, version, versionMap, self) {
+        if removedOnOrBefore(p, version, self) {
           self::addProperty(p::name, p::type);
         };
 
-        if renamedAfter(p, version, versionMap, self) {
+        if renamedAfter(p, version, self) {
           self::renameProperty(getRenamedFromOldName(p), p::name);
         };
 
-        if madeOptionalAfter(p, version, versionMap, self) {
+        if madeOptionalAfter(p, version, self) {
           p::setOptional(true);
         };
       });
@@ -150,43 +150,43 @@ projection model#v {
 
 #suppress "projections-are-experimental"
 projection enum#v {
-  to(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  to(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if (removedOnOrBefore(self, version, versionMap)) {
+    } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self::members::forEach((m) => {
-        if addedAfter(m, version, versionMap, self) {
+        if addedAfter(m, version, self) {
           self::deleteMember(m::name);
         };
         
-        if removedOnOrBefore(m, version, versionMap, self) {
+        if removedOnOrBefore(m, version, self) {
           self::deleteMember(m::name);
         };
         
-        if renamedAfter(m, version, versionMap, self) {
+        if renamedAfter(m, version, self) {
           self::renameMember(m::name, getRenamedFromOldName(m));
         };
       });
     };
   }
-  from(version, versionMap) {
-    if addedAfter(self, version, versionMap) {
+  from(version) {
+    if addedAfter(self, version) {
       return never;
-    } else if (removedOnOrBefore(self, version, versionMap)) {
+    } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
       self::projectionBase::members::forEach((m) => {
-        if addedAfter(m, version, versionMap, self::projectionBase) {
+        if addedAfter(m, version, self::projectionBase) {
           self::addMember(m::name, m::type);
         };
         
-        if removedOnOrBefore(m, version, versionMap, self::projectionBase) {
+        if removedOnOrBefore(m, version, self::projectionBase) {
           self::addMember(m::name, m::type);
         };
 
-        if renamedAfter(m, version, versionMap, self::projectionBase) {
+        if renamedAfter(m, version, self::projectionBase) {
           self::renameMember(getRenamedFromOldName(m), m::name);
         };
       });

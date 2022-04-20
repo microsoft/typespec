@@ -3,7 +3,6 @@ import {
   NamespaceType,
   navigateProgram,
   NoTarget,
-  ObjectType,
   Program,
   ProjectionApplication,
   Type,
@@ -358,15 +357,25 @@ interface VersionRecord {
   projections: ProjectionApplication[];
 }
 
+const versionIndex = new Map<string, Map<NamespaceType, string>>();
+
+function indexVersions(resolution: VersionResolution[]) {
+  versionIndex.clear();
+  for (const resolution of resolutions) {
+    for (const version of resolution.versions.values()) {
+      versionIndex.set(version, resolution.versions);
+    }
+  }
+}
 export function getVersionRecords(program: Program, rootNs: NamespaceType): VersionRecord[] {
   const resolutions = resolveVersions(program, rootNs);
-
+  indexVersions(resolutions);
   return resolutions.map((resolution) => {
     const projections = [...resolution.versions.entries()].map(([ns, version]) => {
       return {
         scope: ns,
         projectionName: "v",
-        arguments: [version, resolution.versions as any],
+        arguments: [version],
       };
     });
     return { version: resolution.rootVersion, projections };
@@ -423,61 +432,23 @@ export function getVersions(p: Program, t: Type): [NamespaceType, string[]] | []
 
 // these decorators take a `versionSource` parameter because not all types can walk up to
 // the containing namespace. Model properties, for example.
-export function addedAfter(
-  p: Program,
-  type: Type,
-  version: string,
-  versionMap: ObjectType,
-  versionSource?: Type
-) {
-  const appliesAt = appliesAtVersion(getAddedOn, p, type, version, versionMap, versionSource);
+export function addedAfter(p: Program, type: Type, version: string, versionSource?: Type) {
+  const appliesAt = appliesAtVersion(getAddedOn, p, type, version, versionSource);
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function removedOnOrBefore(
-  p: Program,
-  type: Type,
-  version: string,
-  versionMap: ObjectType,
-  versionSource?: Type
-) {
-  const appliesAt = appliesAtVersion(getRemovedOn, p, type, version, versionMap, versionSource);
+export function removedOnOrBefore(p: Program, type: Type, version: string, versionSource?: Type) {
+  const appliesAt = appliesAtVersion(getRemovedOn, p, type, version, versionSource);
   return appliesAt === null ? false : appliesAt;
 }
 
-export function renamedAfter(
-  p: Program,
-  type: Type,
-  version: string,
-  versionMap: ObjectType,
-  versionSource?: Type
-) {
-  const appliesAt = appliesAtVersion(
-    getRenamedFromVersion,
-    p,
-    type,
-    version,
-    versionMap,
-    versionSource
-  );
+export function renamedAfter(p: Program, type: Type, version: string, versionSource?: Type) {
+  const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version, versionSource);
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function madeOptionalAfter(
-  p: Program,
-  type: Type,
-  version: string,
-  versionMap: ObjectType,
-  versionSource?: Type
-) {
-  const appliesAt = appliesAtVersion(
-    getMadeOptionalOn,
-    p,
-    type,
-    version,
-    versionMap,
-    versionSource
-  );
+export function madeOptionalAfter(p: Program, type: Type, version: string, versionSource?: Type) {
+  const appliesAt = appliesAtVersion(getMadeOptionalOn, p, type, version, versionSource);
   return appliesAt === null ? false : !appliesAt;
 }
 
@@ -490,12 +461,12 @@ function appliesAtVersion(
   p: Program,
   type: Type,
   version: string,
-  versionMap: ObjectType,
   versionSource?: Type
 ) {
   const [namespace, versions] = getVersions(p, versionSource ?? type);
+  const versionMap = versionIndexer.getVersionMap(version);
   if (namespace) {
-    const newVersion = (versionMap.properties as any).get(namespace);
+    const newVersion = versionMap?.get(namespace);
     if (newVersion) {
       version = newVersion;
     }
