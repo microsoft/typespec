@@ -13,7 +13,7 @@ export const libDef = {
       severity: "error",
       messages: {
         default: paramMessage`Duplicate type name: '${"value"}'. Check @friendlyName decorators and overlap with types in Cadl or service namespace.`,
-        parameter: paramMessage`Duplicate parameter key: '${"value"}'. Check @friendlyName decorators and overlap with types in Cadl or service namespace.`
+        parameter: paramMessage`Duplicate parameter key: '${"value"}'. Check @friendlyName decorators and overlap with types in Cadl or service namespace.`,
       },
     },
   },

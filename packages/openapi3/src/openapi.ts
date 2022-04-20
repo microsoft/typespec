@@ -588,7 +588,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function emitReferences() {
     for (const [property, param] of params) {
-      let key = getParameterKey(
+      const key = getParameterKey(
         program,
         property,
         param,
