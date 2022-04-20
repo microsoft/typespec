@@ -6,7 +6,7 @@ import {
   expectDiagnostics,
 } from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { getVersionRecords } from "../src/versioning.js";
+import { buildVersionProjections } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import { assertHasProperties } from "./utils.js";
 
@@ -49,7 +49,7 @@ describe("versioning: reference versioned library", () => {
           @test model Test extends VersionedLib.Foo {}
         } 
     `)) as { MyService: NamespaceType; Test: ModelType };
-      const versions = getVersionRecords(runner.program, MyService);
+      const versions = buildVersionProjections(runner.program, MyService);
       strictEqual(versions.length, 1);
       strictEqual(versions[0].version, undefined);
       strictEqual(versions[0].projections.length, 1);
@@ -84,7 +84,7 @@ describe("versioning: reference versioned library", () => {
           @test model Test extends VersionedLib.Foo {}
         } 
     `)) as { MyService: NamespaceType; Test: ModelType };
-      const versions = getVersionRecords(runner.program, MyService);
+      const versions = buildVersionProjections(runner.program, MyService);
       strictEqual(versions.length, 2);
       strictEqual(versions[0].version, "v1");
       strictEqual(versions[1].version, "v2");
@@ -267,6 +267,6 @@ describe("versioning: dependencies", () => {
 });
 
 function runProjections(program: Program, rootNs: NamespaceType) {
-  const versions = getVersionRecords(program, rootNs);
+  const versions = buildVersionProjections(program, rootNs);
   return versions.map((x) => program.enableProjections(x.projections, rootNs));
 }

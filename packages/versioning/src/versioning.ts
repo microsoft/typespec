@@ -352,7 +352,10 @@ export function resolveVersions(program: Program, rootNs: NamespaceType): Versio
   }
 }
 
-interface VersionRecord {
+/**
+ * Represent the set of projections used to project to that version.
+ */
+interface VersionProjections {
   version: string | undefined;
   projections: ProjectionApplication[];
 }
@@ -367,7 +370,11 @@ function indexVersions(resolutions: VersionResolution[]) {
     }
   }
 }
-export function getVersionRecords(program: Program, rootNs: NamespaceType): VersionRecord[] {
+
+export function buildVersionProjections(
+  program: Program,
+  rootNs: NamespaceType
+): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
   indexVersions(resolutions);
   return resolutions.map((resolution) => {
