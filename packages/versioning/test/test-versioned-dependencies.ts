@@ -264,6 +264,36 @@ describe("versioning: dependencies", () => {
     const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
   });
+
+  // Todo https://github.com/microsoft/cadl/issues/466
+  it.skip("can handle when the versions name are the same across different libraries", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      @versioned("1" | "2")
+      namespace VersionedLib {
+        model Spread<T> {
+          t: string;
+          ...T;
+        }
+      }
+
+      @versioned("1" | "2")
+      @versionedDependency(VersionedLib, {"1": "2", "2": "1"})
+      @test namespace MyService {
+        model Spreadable {
+          a: int32;
+          @added("2") b: int32;
+        }
+        @test model Test extends VersionedLib.Spread<Spreadable> {}
+      }
+      `)) as { MyService: NamespaceType; Test: ModelType };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["t", "a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
+  });
 });
 
 function runProjections(program: Program, rootNs: NamespaceType) {
