@@ -1,7 +1,7 @@
 import { execAsync, run, RunOptions } from "./common.js";
 import { minimumDotnetVersion } from "./constants.js";
 
-export async function runDotnetOrExit(args: string[], options: RunOptions) {
+export async function runDotnetOrExit(args: string[], options: RunOptions = {}) {
   await ensureDotnetVersionOrExit();
   return run("dotnet", args, options);
 }
