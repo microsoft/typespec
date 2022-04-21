@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/eslint-config-cadl",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ESLint config for cadl packages",
   "main": "index.js",
   "repository": {
@@ -14,13 +14,13 @@
     "build": "echo 'No build.'"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.10.0",
-    "@typescript-eslint/parser": "^5.10.0",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
     "@rushstack/eslint-patch": "1.1.0 ",
-    "eslint": "^8.7.0",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint": "^8.12.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "typescript": "~4.5.5"
+    "typescript": "~4.6.3"
   },
   "author": "",
   "license": "ISC"

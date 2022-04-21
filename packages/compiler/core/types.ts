@@ -151,7 +151,16 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
     | ProjectionModelExpressionNode;
   namespace?: NamespaceType;
   properties: Map<string, ModelTypeProperty>;
+
+  /**
+   * Model this model extends. This represent inheritance.
+   */
   baseModel?: ModelType;
+
+  /**
+   * Direct children. This is the reverse relation of @see baseModel
+   */
+  derivedModels: ModelType[];
 }
 
 export interface ModelTypeProperty extends BaseType, DecoratedType {
@@ -168,6 +177,7 @@ export interface ModelTypeProperty extends BaseType, DecoratedType {
   sourceProperty?: ModelTypeProperty;
   optional: boolean;
   default?: Type;
+  model?: ModelType;
 }
 
 export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
@@ -372,7 +382,6 @@ export enum SyntaxKind {
   JsSourceFile,
   ImportStatement,
   Identifier,
-  NamedImport,
   DecoratorExpression,
   DirectiveExpression,
   MemberExpression,
@@ -492,7 +501,6 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
-  | NamedImportNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -584,11 +592,6 @@ export interface IdentifierNode extends BaseNode {
   readonly sv: string;
 }
 
-export interface NamedImportNode extends BaseNode {
-  readonly kind: SyntaxKind.NamedImport;
-  readonly id: IdentifierNode;
-}
-
 export interface DecoratorExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.DecoratorExpression;
   readonly target: IdentifierNode | MemberExpressionNode;
@@ -655,7 +658,6 @@ export interface MemberExpressionNode extends BaseNode {
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.NamespaceStatement;
-  readonly id: IdentifierNode;
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
   readonly decorators: DecoratorExpressionNode[];
   readonly locals?: SymbolTable;
@@ -968,6 +970,19 @@ export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
   readonly target: MemberExpressionNode | IdentifierNode;
 }
 
+export interface IdentifierContext {
+  kind: IdentifierKind;
+  node: Node;
+}
+
+export enum IdentifierKind {
+  TypeReference,
+  Decorator,
+  Using,
+  Declaration,
+  Other,
+}
+
 /**
  * Identifies the position within a source file by line number and offset from
  * beginning of line.
@@ -1048,6 +1063,7 @@ export interface TextRange {
 
 export interface SourceLocation extends TextRange {
   file: SourceFile;
+  isSynthetic?: boolean;
 }
 
 export const NoTarget = Symbol("NoTarget");
@@ -1216,7 +1232,7 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
   : never;
 
 /**
- * Definition of a cadle library
+ * Definition of a Cadl library
  */
 export interface CadlLibraryDef<
   T extends { [code: string]: DiagnosticMessages },

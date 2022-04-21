@@ -2,7 +2,7 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile, getSourceLocation } from "./diagnostics.js";
 import { SymbolFlags } from "./index.js";
-import { createLogger } from "./logger.js";
+import { createLogger } from "./logger/index.js";
 import { createDiagnostic } from "./messages.js";
 import { resolveModule } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
@@ -54,7 +54,7 @@ export interface Program {
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
   evalCadlScript(cadlScript: string): void;
-  onValidate(cb: (program: Program) => void): Promise<void> | void;
+  onValidate(cb: (program: Program) => void | Promise<void>): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
   stateSets: Map<symbol, Set<Type>>;
@@ -463,6 +463,9 @@ export async function createProgram(
         try {
           // attempt to resolve a node module with this name
           importFilePath = await resolveCadlLibrary(path, relativeTo);
+          if (importFilePath) {
+            logger.debug(`Loading library "${path}" from "${importFilePath}"`);
+          }
         } catch (e: any) {
           if (e.code === "MODULE_NOT_FOUND") {
             program.reportDiagnostic(

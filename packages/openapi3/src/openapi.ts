@@ -1,7 +1,6 @@
 import {
   ArrayType,
   checkIfServiceNamespace,
-  DecoratorContext,
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
@@ -30,7 +29,7 @@ import {
   isNumericType,
   isSecret,
   isStringType,
-  mapChildModels,
+  isTemplate,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -40,7 +39,6 @@ import {
   Type,
   UnionType,
   UnionTypeVariant,
-  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { getExtensions, getExternalDocs, getOperationId } from "@cadl-lang/openapi";
 import {
@@ -55,8 +53,15 @@ import {
   OperationDetails,
 } from "@cadl-lang/rest";
 import { getVersionRecords } from "@cadl-lang/versioning";
+import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
-import { OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
+import {
+  OpenAPI3Discriminator,
+  OpenAPI3Operation,
+  OpenAPI3Parameter,
+  OpenAPI3ParameterType,
+  OpenAPI3Schema,
+} from "./types.js";
 
 const {
   getHeaderFieldName,
@@ -75,38 +80,12 @@ export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAP
   await emitter.emitOpenAPI();
 }
 
-const refTargetsKey = Symbol();
-
-export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
-  if (!validateDecoratorTarget(program, entity, "@useRef", ["Model", "ModelProperty"])) {
-    return;
-  }
-
-  program.stateMap(refTargetsKey).set(entity, refUrl);
-}
-
-function getRef(program: Program, entity: Type): string | undefined {
-  return program.stateMap(refTargetsKey).get(entity);
-}
-
-const oneOfKey = Symbol();
-export function $oneOf({ program }: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(program, entity, "@oneOf", "Union")) {
-    return;
-  }
-  program.stateMap(oneOfKey).set(entity, true);
-}
-
-function getOneOf(program: Program, entity: Type): boolean {
-  return program.stateMap(oneOfKey).get(entity);
-}
-
 // NOTE: These functions aren't meant to be used directly as decorators but as a
 // helper functions for other decorators.  The security information given here
 // will be inserted into the `security` and `securityDefinitions` sections of
 // the emitted OpenAPI document.
 
-const securityDetailsKey = Symbol();
+const securityDetailsKey = Symbol("securityDetails");
 interface SecurityDetails {
   definitions: any;
   requirements: any[];
@@ -179,7 +158,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   // Get the service namespace string for use in name shortening
   let serviceNamespace: string | undefined;
   let currentPath: any;
-  let currentEndpoint: any;
+  let currentEndpoint: OpenAPI3Operation;
 
   // Keep a list of all Types encountered that need schema definitions
   let schemas = new Set<Type>();
@@ -191,8 +170,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
-
-  let childModelMap: ReadonlyMap<ModelType, readonly ModelType[]>;
 
   return { emitOpenAPI };
 
@@ -227,11 +204,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     serviceNamespace = getServiceNamespaceString(program);
     currentPath = root.paths;
-    currentEndpoint = undefined;
     schemas = new Set();
     params = new Map();
     tags = new Set();
-    childModelMap = new Map();
   }
 
   async function emitOpenAPI() {
@@ -259,7 +234,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   async function emitOpenAPIFromVersion(serviceNamespace: NamespaceType, version?: string) {
     initializeEmitter(serviceNamespace, version);
     try {
-      childModelMap = mapChildModels(program);
       getAllRoutes(program).forEach(emitOperation);
       emitReferences();
       emitTags();
@@ -309,22 +283,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
     currentEndpoint = currentPath[verb];
 
-    const operationId = getOperationId(program, op);
-    if (operationId) {
-      currentEndpoint.operationId = operationId;
-    } else {
-      // Synthesize an operation ID
-      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
-    }
-    applyExternalDocs(op, currentEndpoint);
-
-    // allow operation extensions
-    attachExtensions(program, op, currentEndpoint);
-    currentEndpoint.summary = getSummary(program, op);
-    currentEndpoint.description = getDoc(program, op);
-    currentEndpoint.parameters = [];
-    currentEndpoint.responses = {};
-
     const currentTags = getAllTags(program, op);
     if (currentTags) {
       currentEndpoint.tags = currentTags;
@@ -334,9 +292,26 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    emitEndpointParameters(op, op.parameters, parameters.parameters);
+    const operationId = getOperationId(program, op);
+    if (operationId) {
+      currentEndpoint.operationId = operationId;
+    } else {
+      // Synthesize an operation ID
+      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
+    }
+    applyExternalDocs(op, currentEndpoint);
+
+    // Set up basic endpoint fields
+    currentEndpoint.summary = getSummary(program, op);
+    currentEndpoint.description = getDoc(program, op);
+    currentEndpoint.parameters = [];
+    currentEndpoint.responses = {};
+
+    emitEndpointParameters(parameters.parameters);
     emitRequestBody(op, op.parameters, parameters);
     emitResponses(operation.responses);
+
+    attachExtensions(program, op, currentEndpoint);
   }
 
   function emitResponses(responses: HttpOperationResponse[]) {
@@ -413,7 +388,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function getResponseHeader(prop: ModelTypeProperty) {
     const header: any = {};
-    populateParameter(header, prop, undefined);
+    populateParameter(header, prop, "header");
     delete header.in;
     delete header.name;
     delete header.required;
@@ -471,7 +446,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function getParamPlaceholder(parent: ModelType | undefined, property: ModelTypeProperty) {
+  function getParamPlaceholder(property: ModelTypeProperty) {
     let spreadParam = false;
 
     if (property.sourceProperty) {
@@ -506,11 +481,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     return placeholder;
   }
 
-  function emitEndpointParameters(
-    op: OperationType,
-    parent: ModelType | undefined,
-    parameters: HttpOperationParameter[]
-  ) {
+  function emitEndpointParameters(parameters: HttpOperationParameter[]) {
     for (const { type, name, param } of parameters) {
       // If param is a global parameter, just skip it
       if (params.has(param)) {
@@ -520,14 +491,14 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
       switch (type) {
         case "path":
-          emitParameter(parent, param, "path");
+          emitParameter(param, "path");
           break;
         case "query":
-          emitParameter(parent, param, "query");
+          emitParameter(param, "query");
           break;
         case "header":
           if (name !== "content-type") {
-            emitParameter(parent, param, "header");
+            emitParameter(param, "header");
           }
           break;
       }
@@ -569,8 +540,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     currentEndpoint.requestBody = requestBody;
   }
 
-  function emitParameter(parent: ModelType | undefined, param: ModelTypeProperty, kind: string) {
-    const ph = getParamPlaceholder(parent, param);
+  function emitParameter(param: ModelTypeProperty, kind: OpenAPI3ParameterType) {
+    const ph = getParamPlaceholder(param);
     currentEndpoint.parameters.push(ph);
 
     // If the parameter already has a $ref, don't bother populating it
@@ -579,7 +550,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function populateParameter(ph: any, param: ModelTypeProperty, kind: string | undefined) {
+  function populateParameter(
+    ph: OpenAPI3Parameter,
+    param: ModelTypeProperty,
+    kind: OpenAPI3ParameterType
+  ) {
     ph.name = param.name;
     ph.in = kind;
     ph.required = !param.optional;
@@ -594,6 +569,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       schema.default = getDefaultValue(param.default);
     }
     attachExtensions(program, param, ph);
+    // Description is already provided in the parameter itself.
+    delete schema.description;
     ph.schema = schema;
   }
 
@@ -626,7 +603,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getParameterKey(property: ModelTypeProperty, param: any) {
-    const parent = program.checker!.getTypeForNode(property.node.parent!) as ModelType;
+    const parent = property.model!;
     let key = program.checker!.getTypeName(parent);
     let isQualifiedParamName = false;
 
@@ -828,28 +805,37 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
+  function includeDerivedModel(model: ModelType): boolean {
+    return (
+      !isTemplate(model) &&
+      (model.templateArguments === undefined ||
+        model.templateArguments?.length === 0 ||
+        model.derivedModels.length > 0)
+    );
+  }
+
   function getSchemaForModel(model: ModelType) {
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
       type: "object",
       properties: {},
       description: getDoc(program, model),
     };
-    const childModels = childModelMap.get(model) ?? [];
 
+    const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
-    for (const child of childModels) {
+    for (const child of derivedModels) {
       getSchemaOrRef(child);
     }
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator) {
-      if (!validateDiscriminator(discriminator, childModels)) {
+      if (!validateDiscriminator(discriminator, derivedModels)) {
         // appropriate diagnostic is generated with the validate function
         return {};
       }
 
       const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
-      const mapping = getDiscriminatorMapping(discriminator, childModels);
+      const mapping = getDiscriminatorMapping(discriminator, derivedModels);
       if (mapping) {
         openApiDiscriminator.mapping = mapping;
       }
@@ -990,7 +976,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function getDiscriminatorMapping(
     discriminator: any,
-    childModels: readonly ModelType[]
+    derivedModels: readonly ModelType[]
   ): Record<string, string> | undefined {
     const { propertyName } = discriminator;
     const getMapping = (t: ModelType): any => {
@@ -1000,7 +986,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
       return undefined;
     };
-    const mappings = childModels.flatMap(getMapping).filter((v) => v); // only defined values
+    const mappings = derivedModels.flatMap(getMapping).filter((v) => v); // only defined values
     return mappings.length > 0 ? mappings.reduce((a, s) => ({ ...a, ...s }), {}) : undefined;
   }
 

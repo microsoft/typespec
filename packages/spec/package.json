@@ -4,15 +4,15 @@
   "private": true,
   "author": "Microsoft Corporation",
   "description": "Cadl Language Specification Source Code",
-  "homepage": "https://github.com/Azure/adl",
-  "readme": "https://github.com/Azure/adl/blob/master/README.md",
+  "homepage": "https://github.com/Microsoft/cadl",
+  "readme": "https://github.com/Microsoft/cadl/blob/master/README.md",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Azure/adl/issues"
+    "url": "https://github.com/Microsoft/cadl/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Azure/adl.git"
+    "url": "git+https://github.com/Microsoft/cadl.git"
   },
   "type": "module",
   "scripts": {
@@ -22,7 +22,7 @@
   "dependencies": {},
   "devDependencies": {
     "@types/mkdirp": "~1.0.1",
-    "@types/node": "~14.0.27",
+    "@types/node": "~16.0.3",
     "ecmarkup": "~9.8.1",
     "watch": "~1.0.2"
   }

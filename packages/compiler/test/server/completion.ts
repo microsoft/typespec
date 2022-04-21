@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { CompletionItem, CompletionItemKind, CompletionList } from "vscode-languageserver/node.js";
-import { createTestServerHost } from "./test-server-host.js";
+import { createTestServerHost, extractCursor } from "./test-server-host.js";
 
 describe("compiler: server: completion", () => {
   it("completes globals", async () => {
@@ -44,6 +44,23 @@ describe("compiler: server: completion", () => {
         documentation: undefined,
       },
     ]);
+  });
+
+  it("does not complete functions or decorators in type position", async () => {
+    const completions = await complete(
+      `
+      model M {
+        s: ┆
+      }
+      `
+    );
+
+    deepStrictEqual(
+      [],
+      completions.items.filter(
+        (c) => c.label === "doc" || c.label === "getDoc" || c.kind === CompletionItemKind.Function
+      )
+    );
   });
 
   it("completes decorators on models", async () => {
@@ -329,10 +346,7 @@ describe("compiler: server: completion", () => {
     sourceWithCursor: string,
     jsSourceFile?: { name: string; js: Record<string, any> }
   ): Promise<CompletionList> {
-    const pos = sourceWithCursor.indexOf("┆");
-    ok(pos >= 0, "no cursor found");
-
-    const source = sourceWithCursor.replace("┆", "");
+    const { source, pos } = extractCursor(sourceWithCursor);
     const testHost = await createTestServerHost();
     if (jsSourceFile) {
       testHost.addJsFile(jsSourceFile.name, jsSourceFile.js);

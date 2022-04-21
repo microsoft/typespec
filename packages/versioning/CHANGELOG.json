@@ -2,6 +2,29 @@
   "name": "@cadl-lang/versioning",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@cadl-lang/versioning_v0.4.0",
+      "date": "Thu, 31 Mar 2022 17:10:49 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add validation when using versioned library without @versionedDependency"
+          },
+          {
+            "comment": "Enable ability to pick a specific version for a versioned dependency when service itself isn't versioned"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.29.0` to `~0.30.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.2.0` to `~0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.2",
       "tag": "@cadl-lang/versioning_v0.3.2",
       "date": "Wed, 09 Mar 2022 17:42:09 GMT",

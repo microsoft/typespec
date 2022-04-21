@@ -1,5 +1,10 @@
 import { ModelType, NamespaceType } from "@cadl-lang/compiler";
-import { BasicTestRunner, createTestWrapper, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import {
+  BasicTestRunner,
+  createTestWrapper,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { getVersionRecords } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
@@ -105,6 +110,113 @@ describe("cadl: versioning: depdendencies", () => {
         code: "@cadl-lang/versioning/versioned-dependency-record-not-model",
         message:
           "The versionedDependency decorator must provide a model mapping local versions to dependency 'VersionedLib' versions",
+      });
+    });
+  });
+
+  describe("when using versioned library without @versionedDependency", () => {
+    it("emit diagnostic when used in extends", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          model Test extends VersionedLib.Foo {}
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @versionedDependency.",
+      });
+    });
+
+    it("emit diagnostic when used in properties", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          model Test {
+            foo: VersionedLib.Foo
+          }
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @versionedDependency.",
+      });
+    });
+
+    it("emit diagnostic when project has no namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Test extends VersionedLib.Foo {}
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/using-versioned-library",
+        message:
+          "Namespace '' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @versionedDependency.",
+      });
+    });
+
+    it("doesn't emit diagnostic when versioned library use templated type from non versioned lib", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace NonVersioned {
+          model Foo<T> {
+            foo: T;
+          }
+        }
+
+        @versioned("v1" | "v2")
+        namespace MyService {
+          model Bar {}
+          model Test extends NonVersioned.Foo<Bar> {}
+        } 
+
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("doesn't emit diagnostic when mixin interface of non versioned lib", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned("v1" | "v2")
+        namespace MyService {
+          model Foo {}
+
+          interface Test {
+            test(): Foo;
+          }
+        } 
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("doesn't emit diagnostic using union in non versioned lib", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned("v1" | "v2")
+        namespace DemoService {
+          model Foo {}
+
+          interface Test mixes NonVersioned.Foo<Foo> {}
+        }
+
+        namespace NonVersioned {
+          interface Foo<T> {
+            foo(): T | {};
+          }
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("emit diagnostic when used in properties of generic type", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace MyService {
+          model Test<T> {
+            t: T;
+            foo: VersionedLib.Foo
+          }
+        } 
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/using-versioned-library",
+        message:
+          "Namespace 'MyService' is referencing types from versioned namespace 'VersionedLib' but didn't specify which versions with @versionedDependency.",
       });
     });
   });

@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert, { deepStrictEqual } from "assert";
 import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../core/parser.js";
@@ -330,7 +330,7 @@ describe("compiler: syntax", () => {
 
   describe("numeric literals", () => {
     const good: [string, number][] = [
-      // Some questions remain here: https://github.com/Azure/adl/issues/506
+      // Some questions remain here: https://github.com/Microsoft/cadl/issues/506
       ["-0", -0],
       ["1e9999", Infinity],
       ["1e-9999", 0],
@@ -619,9 +619,46 @@ function parseEach(cases: (string | [string, Callback])[]) {
 
       assert(astNode.printable, "Parse tree with no errors should be printable");
 
-      checkPositioning(astNode, astNode.file);
+      checkInvariants(astNode);
     });
   }
+}
+
+function checkInvariants(astNode: CadlScriptNode) {
+  checkVisitChildren(astNode, astNode.file);
+  checkPositioning(astNode, astNode.file);
+}
+
+function dynamicVisitChildren(node: Node, cb: (key: string, child: any) => void) {
+  for (const [key, value] of Object.entries(node)) {
+    switch (key) {
+      case "parent":
+      case "parseDiagnostics":
+        return;
+    }
+    if (Array.isArray(value)) {
+      for (const each of value) {
+        cb(key, each);
+      }
+    } else if (typeof value === "object" && "kind" in value) {
+      cb(key, value);
+    }
+  }
+}
+
+function checkVisitChildren(node: Node, file: SourceFile) {
+  const visited = new Map<Node, string>();
+
+  dynamicVisitChildren(node, (key, child) => visited.set(child, key));
+  visitChildren(node, (child) => void visited.delete(child));
+
+  deepStrictEqual(
+    Array.from(visited.values()),
+    [],
+    `Nodes not visited by visitChildren of ${SyntaxKind[node.kind]}`
+  );
+
+  visitChildren(node, (child) => checkVisitChildren(child, file));
 }
 
 function checkPositioning(node: Node, file: SourceFile) {
@@ -689,7 +726,7 @@ function parseErrorEach(
         "parse tree with errors other than missing punctuation should not be printable"
       );
 
-      checkPositioning(astNode, astNode.file);
+      checkInvariants(astNode);
     });
   }
 }
@@ -705,6 +742,9 @@ function dumpAST(astNode: Node, file?: SourceFile) {
   });
 
   function replacer(key: string, value: any) {
+    if (key === "parent") {
+      return undefined; // prevent cycles if run on bound nodes
+    }
     if (key === "kind") {
       // swap numeric kind for readable name
       return SyntaxKind[value];

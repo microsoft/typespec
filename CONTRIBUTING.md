@@ -221,3 +221,14 @@ the command line following the steps above, or build its Release
 configuration in Visual Studio, then you can install it by
 double-clicking on packages/cadl-vs/Microsoft.Cadl.VisualStudio.vsix
 that gets produced.
+
+# Pull request
+
+## Trigger Cadl Playground Try It build
+
+For contributors of the repo the build will trigger automatically but for other's forks it will need a manual trigger from a contributor.
+As a contributor you can run the following command to trigger the build and create a cadl playground link for this PR.
+
+```
+/azp run Cadl Pull Request Try It
+```
