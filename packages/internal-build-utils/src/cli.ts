@@ -14,7 +14,7 @@ async function main() {
     .help()
     .strict()
     .command(
-      "generate-third-party-notice",
+      "generate-third-party-notices",
       "Generate the third party notice",
       () => {},
       () => generateThirdPartyNotice()
