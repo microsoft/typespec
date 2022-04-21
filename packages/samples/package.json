@@ -39,6 +39,7 @@
     "@cadl-lang/openapi3": "~0.10.0"
   },
   "devDependencies": {
+    "@cadl-lang/internal-build-utils": "~0.1.0",
     "@types/mkdirp": "~1.0.1",
     "autorest": "~3.3.2",
     "mkdirp": "~1.0.4"

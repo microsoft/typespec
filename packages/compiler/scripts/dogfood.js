@@ -1,5 +1,6 @@
+// @ts-check
+import { run } from "@cadl-lang/internal-build-utils";
 import { readFileSync } from "fs";
-import { run } from "../../../eng/scripts/helpers.js";
 
 const version = JSON.parse(readFileSync("package.json")).version;
 run("npm", ["pack"]);
