@@ -9,6 +9,7 @@ dependencies:
   '@rush-temp/cadl-vscode': file:projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:projects/compiler.tgz
   '@rush-temp/eslint-config-cadl': file:projects/eslint-config-cadl.tgz_prettier@2.6.2
+  '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
   '@rush-temp/openapi': file:projects/openapi.tgz
   '@rush-temp/openapi3': file:projects/openapi3.tgz
   '@rush-temp/playground': file:projects/playground.tgz
@@ -31,6 +32,7 @@ dependencies:
   '@types/prettier': 2.6.0
   '@types/prompts': 2.0.14
   '@types/vscode': 1.53.0
+  '@types/watch': 1.0.3
   '@types/yargs': 17.0.10
   '@typescript-eslint/eslint-plugin': 5.18.0_0dd9be2ba5ed9805045f3fec8be848f5
   '@typescript-eslint/parser': 5.18.0_eslint@8.13.0+typescript@4.6.3
@@ -993,6 +995,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-XjFWbSPOM0EKIT2XhhYm3D3cx3nn3lshMUcWNy1eqefk+oqRuBq8unVb6BYIZqXy9lQZyeUl7eaBCOZWv+LcXQ==
+  /@types/watch/1.0.3:
+    dependencies:
+      '@types/node': 16.0.3
+    dev: false
+    resolution:
+      integrity: sha512-4YlW05EAjLp6FRATvsWUQK+7kFGKYYz506z68Krfi2oENCOE5DYvF3rYQoCigMwXOdkLGJXf5lWTbY45JPbhoQ==
   /@types/yargs-parser/21.0.0:
     dev: false
     resolution:
@@ -5270,7 +5278,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vs'
     resolution:
-      integrity: sha512-stvNkdOmXAPzrfEbOW9zLtgtgEybocatJ+oUVbcwdcLTX0z4dGJ/DgEuhmKwq3qs4y1Xvnutyfty/EYk+W4RUA==
+      integrity: sha512-hDsP/KLj4HtJbiav0G6Dn/pYO2jpUddeRLwzPhYDqnD7dYBv7yPNIVaLRFxiXOwbP9x8ODZQ5X90B89kPC2H2g==
       tarball: file:projects/cadl-vs.tgz
     version: 0.0.0
   file:projects/cadl-vscode.tgz:
@@ -5296,7 +5304,7 @@ packages:
     dev: false
     name: '@rush-temp/cadl-vscode'
     resolution:
-      integrity: sha512-OZ0W+i2gvC6POGf/RA3hsfTiNpQyJ5KY9zKTt8q3XFfdyu7AjHjKgeqMU/n6+pT80MebYSpj2yQ1umFiUs4phw==
+      integrity: sha512-oYHJYvmTpIuENHYeBAjz7+z0Jpo4xHndO3mZf2b4XBUZhQyjVZTbSYJq6LwQTgXXVSBnvsUSndE3cmJp1ob5BA==
       tarball: file:projects/cadl-vscode.tgz
     version: 0.0.0
   file:projects/compiler.tgz:
@@ -5339,7 +5347,7 @@ packages:
     dev: false
     name: '@rush-temp/compiler'
     resolution:
-      integrity: sha512-YVUc2k7uKfa/9do6gY6OmV0YZFav3GKlT0XP7SRRKgQtSINU+0ONPULKq7EFyZck9dD+N19blockvXviRxlWRw==
+      integrity: sha512-PXoWssmQy5U+E2mPU6rRxL7ic26AKugQkzMdbr1LcJRdFId1FnxsszJJzPie5YSPB0m0i9tfzVFmAOU1f4ds2Q==
       tarball: file:projects/compiler.tgz
     version: 0.0.0
   file:projects/eslint-config-cadl.tgz_prettier@2.6.2:
@@ -5359,6 +5367,25 @@ packages:
     resolution:
       integrity: sha512-8/WXozlTvN92wpJEPRMBLxnn4V4OWad5YmqbR/JVbaxjj/ZBpuS3X0TbHdVz5m0TQjGuBrMNu6eeV+HK1lJGOw==
       tarball: file:projects/eslint-config-cadl.tgz
+    version: 0.0.0
+  file:projects/internal-build-utils.tgz:
+    dependencies:
+      '@types/mocha': 9.1.0
+      '@types/node': 16.0.3
+      '@types/watch': 1.0.3
+      '@types/yargs': 17.0.10
+      c8: 7.11.0
+      eslint: 8.13.0
+      mocha: 9.2.2
+      rimraf: 3.0.2
+      typescript: 4.6.3
+      watch: 1.0.2
+      yargs: 17.3.1
+    dev: false
+    name: '@rush-temp/internal-build-utils'
+    resolution:
+      integrity: sha512-8KClAv3DfS8RwxUVMBvZWHb9N+nVbi8JY5Uyddgw/nO1HPbXO0Q8gvL4HZ4uZA3t1M/ItbrzdkUgjDFlHojYgQ==
+      tarball: file:projects/internal-build-utils.tgz
     version: 0.0.0
   file:projects/openapi.tgz:
     dependencies:
@@ -5468,7 +5495,7 @@ packages:
     dev: false
     name: '@rush-temp/spec'
     resolution:
-      integrity: sha512-3rVMj+xr4kTRowRJAiDMX/Gj97Sy/D+We/h2oXSsxOi7y+VjPfKbFOnoxr9hV7ABeownswYV67/lUrtKDYHDYg==
+      integrity: sha512-HE1Vn4K67ZtbJNHmj/G87VDTiKxH0MpY7tZ6UTz9wtbk6JhMoZdyoI7ZmQtSMxkHKuO6CKsnY6EOLaf/ZbIrOw==
       tarball: file:projects/spec.tgz
     version: 0.0.0
   file:projects/tmlanguage-generator.tgz:
@@ -5512,6 +5539,7 @@ specifiers:
   '@rush-temp/cadl-vscode': file:./projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:./projects/compiler.tgz
   '@rush-temp/eslint-config-cadl': file:./projects/eslint-config-cadl.tgz
+  '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
   '@rush-temp/openapi': file:./projects/openapi.tgz
   '@rush-temp/openapi3': file:./projects/openapi3.tgz
   '@rush-temp/playground': file:./projects/playground.tgz
@@ -5534,6 +5562,7 @@ specifiers:
   '@types/prettier': ^2.0.2
   '@types/prompts': ~2.0.14
   '@types/vscode': ~1.53.0
+  '@types/watch': ~1.0.3
   '@types/yargs': ~17.0.2
   '@typescript-eslint/eslint-plugin': ^5.16.0
   '@typescript-eslint/parser': ^5.16.0
