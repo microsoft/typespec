@@ -34,7 +34,8 @@ jobs:
       - template: ./upload-coverage.yml
 
       - script: |
-          NPM_AUTH_TOKEN=$(azure-sdk-npm-token) npx @microsoft/rush publish --publish --include-all --set-access-level public
+          set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
+          npx @microsoft/rush publish --publish --include-all --set-access-level public
         displayName: Release
 
       - task: AzureFileCopy@4
@@ -74,7 +75,8 @@ jobs:
         displayName: Bump version to prerelease targets
 
       - script: |
-          NPM_AUTH_TOKEN=$(azure-sdk-npm-token) npx @microsoft/rush publish --publish --include-all --set-access-level public --tag next
+          set NPM_AUTH_TOKEN=$(azure-sdk-npm-token) 
+          npx @microsoft/rush publish --publish --include-all --set-access-level public --tag next
         displayName: Release
 
   - job: docker
