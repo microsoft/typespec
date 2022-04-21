@@ -20,7 +20,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Pet"
+                  "$ref": "#/components/schemas/PetBase"
                 }
               }
             }
@@ -67,38 +67,34 @@
       }
     },
     "schemas": {
-      "Pet": {
-        "anyOf": [
-          {
-            "$ref": "#/components/schemas/Cat"
-          },
-          {
-            "$ref": "#/components/schemas/Dog"
-          }
-        ]
-      },
-      "Cat": {
+      "PetBase": {
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "cat"
-            ]
+            "description": "Discriminator property for PetBase."
           },
-          "catnipDose": {
-            "type": "integer",
-            "format": "int32"
+          "name": {
+            "type": "string"
+          },
+          "favoriteToys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Library.PetToy"
+            },
+            "x-cadl-name": "Library.PetToy[]"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "dog": "#/components/schemas/Dog",
+            "cat": "#/components/schemas/Cat"
           }
         },
         "required": [
-          "type",
-          "catnipDose"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/PetBase"
-          }
+          "name",
+          "favoriteToys"
         ]
       },
       "Dog": {
@@ -136,23 +132,28 @@
           }
         ]
       },
-      "PetBase": {
+      "Cat": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string"
+          "type": {
+            "type": "string",
+            "enum": [
+              "cat"
+            ]
           },
-          "favoriteToys": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Library.PetToy"
-            },
-            "x-cadl-name": "Library.PetToy[]"
+          "catnipDose": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "required": [
-          "name",
-          "favoriteToys"
+          "type",
+          "catnipDose"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PetBase"
+          }
         ]
       },
       "Library.PetToy": {
