@@ -433,6 +433,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       // For literal types, we just want to emit them directly as well.
       return mapCadlTypeToOpenAPI(type);
     }
+
+    type = getEffectiveType(type);
     const name = getTypeName(program, type, typeNameOptions);
 
     if (shouldInline(program, type)) {
@@ -456,6 +458,19 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       schemas.add(type);
       return placeholder;
     }
+  }
+
+  function getEffectiveType(type: Type): Type {
+    if (type.kind === "Model" && !type.name) {
+      const filtered = program.checker.filterModelProperties(type, isSchemaProperty);
+      if (filtered !== type) {
+        const effective = program.checker.getEffectiveModelType(filtered);
+        if (effective.name) {
+          return effective;
+        }
+      }
+    }
+    return type;
   }
 
   function getParamPlaceholder(property: ModelTypeProperty) {

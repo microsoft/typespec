@@ -149,7 +149,7 @@ export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = 
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;
-  node:
+  node?:
     | ModelStatementNode
     | ModelExpressionNode
     | IntersectionExpressionNode

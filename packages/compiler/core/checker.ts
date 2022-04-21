@@ -143,6 +143,11 @@ export interface Checker {
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+  getEffectiveModelType(model: ModelType): ModelType;
+  filterModelProperties(
+    model: ModelType,
+    filter: (property: ModelTypeProperty) => boolean
+  ): ModelType;
 
   errorType: ErrorType;
   voidType: VoidType;
@@ -302,6 +307,8 @@ export function createChecker(program: Program): Checker {
     createFunctionType,
     createLiteralType,
     finishType,
+    getEffectiveModelType,
+    filterModelProperties,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -886,7 +893,10 @@ export function createChecker(program: Program): Checker {
           continue;
         }
 
-        const newPropType = cloneType(prop, { sourceProperty: prop, model: intersection });
+        const newPropType = cloneType(prop, {
+          sourceProperty: prop,
+          model: intersection,
+        });
         properties.set(prop.name, newPropType);
       }
     }
@@ -1718,7 +1728,10 @@ export function createChecker(program: Program): Checker {
 
       // copy each property
       for (const prop of walkPropertiesInherited(targetType)) {
-        const newProp = cloneType(prop, { sourceProperty: prop, model: parentModel });
+        const newProp = cloneType(prop, {
+          sourceProperty: prop,
+          model: parentModel,
+        });
         props.push(newProp);
       }
     }
@@ -1733,6 +1746,18 @@ export function createChecker(program: Program): Checker {
       yield* current.properties.values();
       current = current.baseModel;
     }
+  }
+
+  function countPropertiesInherited(model: ModelType) {
+    let current: ModelType | undefined = model;
+    let count = 0;
+
+    while (current) {
+      count += current.properties.size;
+      current = current.baseModel;
+    }
+
+    return count;
   }
 
   function checkModelProperty(prop: ModelPropertyNode, parentModel?: ModelType): ModelTypeProperty {
@@ -3169,6 +3194,99 @@ export function createChecker(program: Program): Checker {
 
     return parts.reverse().join(".");
   }
+
+  function getEffectiveModelType(model: ModelType): ModelType {
+    while (true) {
+      if (model.name) {
+        // named model
+        return model;
+      }
+
+      // We would need to change the algorithm if this doesn't hold. We
+      // assume model has no inherited properties below.
+      compilerAssert(!model.baseModel, "Anonymous model with base model.");
+
+      if (model.properties.size === 0) {
+        // empty model
+        return model;
+      }
+
+      let source: ModelType | undefined;
+
+      for (const property of model.properties.values()) {
+        const propertySource = getRootSourceModel(property);
+        if (!propertySource) {
+          // unsourced property
+          return model;
+        }
+
+        if (!source) {
+          // initialize common source from first sourced property.
+          source = propertySource;
+          continue;
+        }
+
+        if (isDerivedFrom(source, propertySource)) {
+          // OK
+        } else if (isDerivedFrom(propertySource, source)) {
+          // OK, but refine common source to derived type.
+          source = propertySource;
+        } else {
+          // different source
+          return model;
+        }
+      }
+
+      compilerAssert(source, "Should have found a common source to reach here.");
+
+      if (model.properties.size !== countPropertiesInherited(source)) {
+        // source has additional properties.
+        return model;
+      }
+
+      // keep going until we reach a model that cannot be further reduced.
+      model = source;
+    }
+  }
+
+  function filterModelProperties(
+    model: ModelType,
+    filter: (property: ModelTypeProperty) => boolean
+  ): ModelType {
+    let filtered = false;
+    for (const property of walkPropertiesInherited(model)) {
+      if (!filter(property)) {
+        filtered = true;
+        break;
+      }
+    }
+
+    if (!filtered) {
+      return model;
+    }
+
+    const properties = new Map<string, ModelTypeProperty>();
+    const newModel: ModelType = createType({
+      kind: "Model",
+      node: undefined,
+      name: "",
+      properties,
+      decorators: [],
+      derivedModels: [],
+    });
+
+    for (const property of walkPropertiesInherited(model)) {
+      if (filter(property)) {
+        const newProperty = cloneType(property, {
+          sourceProperty: property,
+          model: newModel,
+        });
+        properties.set(property.name, newProperty);
+      }
+    }
+
+    return finishType(newModel);
+  }
 }
 
 function isErrorType(type: Type): type is ErrorType {
@@ -3177,4 +3295,21 @@ function isErrorType(type: Type): type is ErrorType {
 
 function createUsingSymbol(symbolSource: Sym): Sym {
   return { flags: SymbolFlags.Using, declarations: [], name: symbolSource.name, symbolSource };
+}
+
+function isDerivedFrom(derived: ModelType, base: ModelType) {
+  while (derived !== base && derived.baseModel) {
+    derived = derived.baseModel;
+  }
+  return derived === base;
+}
+
+function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined {
+  if (!property.sourceProperty) {
+    return undefined;
+  }
+  while (property.sourceProperty) {
+    property = property.sourceProperty;
+  }
+  return property?.model;
 }

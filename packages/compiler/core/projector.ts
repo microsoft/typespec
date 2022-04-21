@@ -269,8 +269,8 @@ export function createProjector(
    */
   function shouldFinishType(type: ModelType | InterfaceType | UnionType) {
     if (
-      type.node.kind !== SyntaxKind.ModelStatement &&
-      type.node.kind !== SyntaxKind.InterfaceStatement
+      type.node?.kind !== SyntaxKind.ModelStatement &&
+      type.node?.kind !== SyntaxKind.InterfaceStatement
     ) {
       return true;
     }
