@@ -70,7 +70,7 @@ jobs:
       - script: npx @microsoft/rush rebuild --verbose
         displayName: Build
 
-      - script: node ./eng/bump-for-prerelease.js
+      - script: node .\packages\internal-build-utils\cmd\cli.js bump-version-preview .
         displayName: Bump version to prerelease targets
 
       - script: |
