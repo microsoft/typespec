@@ -94,6 +94,10 @@ import {
 } from "./types.js";
 import { isArray } from "./util.js";
 
+export interface TypeNameOptions {
+  namespaceFilter: (ns: NamespaceType) => boolean;
+}
+
 export interface Checker {
   getTypeForNode(node: Node): Type;
   setUsingsForFile(file: CadlScriptNode): void;
@@ -107,8 +111,8 @@ export interface Checker {
   getLiteralType(node: NumericLiteralNode): NumericLiteralType;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
   getLiteralType(node: LiteralNode): LiteralType;
-  getTypeName(type: Type): string;
-  getNamespaceString(type: NamespaceType | undefined): string;
+  getTypeName(type: Type, options?: TypeNameOptions): string;
+  getNamespaceString(type: NamespaceType | undefined, options?: TypeNameOptions): string;
   cloneType<T extends Type>(type: T): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
   project(
@@ -407,18 +411,18 @@ export function createChecker(program: Program): Checker {
     return errorType;
   }
 
-  function getTypeName(type: Type): string {
+  function getTypeName(type: Type, options?: TypeNameOptions): string {
     switch (type.kind) {
       case "Model":
-        return getModelName(type);
+        return getModelName(type, options);
       case "Enum":
-        return getEnumName(type);
+        return getEnumName(type, options);
       case "Union":
-        return type.name || type.options.map(getTypeName).join(" | ");
+        return type.name || type.options.map((x) => getTypeName(x, options)).join(" | ");
       case "UnionVariant":
-        return getTypeName(type.type);
+        return getTypeName(type.type, options);
       case "Array":
-        return getTypeName(type.elementType) + "[]";
+        return getTypeName(type.elementType, options) + "[]";
       case "String":
       case "Number":
       case "Boolean":
@@ -428,10 +432,18 @@ export function createChecker(program: Program): Checker {
     return "(unnamed type)";
   }
 
-  function getNamespaceString(type: NamespaceType | undefined): string {
-    if (!type) return "";
-    const parent = type.namespace;
-    return parent && parent.name !== "" ? `${getNamespaceString(parent)}.${type.name}` : type.name;
+  function getNamespaceString(type: NamespaceType | undefined, options?: TypeNameOptions): string {
+    if (!type || !type.name) {
+      return "";
+    }
+
+    const filter = options?.namespaceFilter;
+    if (filter && !filter(type)) {
+      return "";
+    }
+
+    const parent = getNamespaceString(type.namespace, options);
+    return parent ? `${parent}.${type.name}` : type.name;
   }
 
   function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
@@ -442,8 +454,8 @@ export function createChecker(program: Program): Checker {
       : sym.name;
   }
 
-  function getEnumName(e: EnumType): string {
-    const nsName = getNamespaceString(e.namespace);
+  function getEnumName(e: EnumType, options: TypeNameOptions | undefined): string {
+    const nsName = getNamespaceString(e.namespace, options);
     return nsName ? `${nsName}.${e.name}` : e.name;
   }
 
@@ -456,12 +468,12 @@ export function createChecker(program: Program): Checker {
     return node.symbol!.id!;
   }
 
-  function getModelName(model: ModelType) {
-    const nsName = getNamespaceString(model.namespace);
+  function getModelName(model: ModelType, options: TypeNameOptions | undefined) {
+    const nsName = getNamespaceString(model.namespace, options);
     const modelName = (nsName ? nsName + "." : "") + (model.name || "(anonymous model)");
     if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
-      const args = model.templateArguments.map(getTypeName);
+      const args = model.templateArguments.map((x) => getTypeName(x, options));
       return `${modelName}<${args.join(", ")}>`;
     } else if ((model.node as ModelStatementNode).templateParameters?.length > 0) {
       // template

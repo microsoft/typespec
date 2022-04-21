@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi",
+      "comment": "Add shared helpers for OpenAPI 2 and 3 emit",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi"
+}

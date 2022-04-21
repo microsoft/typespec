@@ -1,5 +1,6 @@
-import { deepStrictEqual, strictEqual } from "assert";
-import { openApiFor } from "./test-host.js";
+import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: parameters", () => {
   it("create a query param", async () => {
@@ -22,5 +23,59 @@ describe("openapi3: parameters", () => {
     );
     strictEqual(res.paths["/"].get.parameters[0].description, "mydoc");
     strictEqual(res.paths["/"].get.parameters[0].schema.description, undefined);
+  });
+
+  it("errors on duplicate parameter keys", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model P {
+        @query id: string;
+      }
+
+      @friendlyName("P")
+      model Q {
+        @header id: string;
+      }
+
+      @route("/test1")
+      op test1(...P): void;
+
+      @route("/test2")
+      op test2(...Q): void;
+      `
+    );
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@cadl-lang/openapi/duplicate-type-name",
+        message: /parameter/,
+      },
+    ]);
+  });
+
+  it("encodes parameter keys in references", async () => {
+    const oapi = await openApiFor(
+      `
+      model Pet extends Pet$Id {
+        name: string;
+      }
+      model Pet$Id {
+        @path
+        petId: string;
+      }
+      @route("/Pets")
+      namespace root {
+        @get()
+        op get(... Pet$Id): Pet;
+      }
+      `
+    );
+
+    ok(oapi.paths["/Pets/{petId}"].get);
+    strictEqual(
+      oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
+      "#/components/parameters/Pet%24Id"
+    );
+    strictEqual(oapi.components.parameters["Pet$Id"].name, "petId");
   });
 });
