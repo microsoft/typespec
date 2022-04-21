@@ -1,9 +1,8 @@
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
-import { createBrowserHost } from "./browserHost";
-import { attachServices } from "./services";
+import { createRoot } from "react-dom/client";
+import { App } from "./app";
 import "./style.css";
-import { createUI } from "./ui";
 
 (self as any).MonacoEnvironment = {
   getWorker(_: any, label: string) {
@@ -14,6 +13,5 @@ import { createUI } from "./ui";
   },
 };
 
-const host = await createBrowserHost();
-attachServices(host);
-await createUI(host);
+const root = createRoot(document.getElementById("root")!);
+root.render(<App />);
