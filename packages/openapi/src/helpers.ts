@@ -54,7 +54,7 @@ export function getTypeName(
   const name =
     getFriendlyName(program, type, options) ?? program.checker!.getTypeName(type, options);
 
-  if (existing && existing[name] !== undefined) {
+  if (existing && existing[name]) {
     reportDiagnostic(program, {
       code: "duplicate-type-name",
       format: {
