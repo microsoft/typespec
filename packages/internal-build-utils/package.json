@@ -39,7 +39,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "yargs": "~17.3.1"
+    "yargs": "~17.3.1",
+    "strip-json-comments": "~4.0.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
