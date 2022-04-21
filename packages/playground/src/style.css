@@ -22,15 +22,25 @@ body {
   grid-column-start: 1;
   grid-column-end: 3;
   grid-row: 3;
-  background: #007acc;
-  color: #fefefe;
+  background-color: #007acc;
   display: flex;
-  font-size: 12px;
+  font-size: 14px;
+}
+#grid > .footer.in-pr {
+  background-color: #cc9600;
 }
 
 #grid > .footer > .item {
+  text-decoration: none;
+  color: #fefefe;
   border-right: 1px solid #d5d5d5;
   padding: 0 5px;
+}
+#grid > .footer > a.item:hover {
+  background-color: #063a5c;
+}
+#grid > .footer.in-pr > a.item:hover {
+  background-color: #7c5e0b;
 }
 
 #commandBar {
