@@ -5,50 +5,50 @@ trigger:
 pr: none
 
 jobs:
-  # - job: npm_stable
-  #   displayName: Npm publish
-  #   pool:
-  #     vmImage: windows-2019
-  #   steps:
-  #     - task: NodeTool@0
-  #       inputs:
-  #         versionSpec: 16.x
-  #       displayName: Install Node.js
+  - job: npm_stable
+    displayName: Npm publish
+    pool:
+      vmImage: windows-2019
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 16.x
+        displayName: Install Node.js
 
-  #     - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
-  #       displayName: Enable official Visual Studio extension build
+      - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
+        displayName: Enable official Visual Studio extension build
 
-  #     - script: npx @microsoft/rush install
-  #       displayName: Install JavaScript Dependencies
+      - script: npx @microsoft/rush install
+        displayName: Install JavaScript Dependencies
 
-  #     - script: dotnet restore
-  #       displayName: Restore .NET Dependencies
-  #       workingDirectory: packages/cadl-vs
+      - script: dotnet restore
+        displayName: Restore .NET Dependencies
+        workingDirectory: packages/cadl-vs
 
-  #     - script: npx @microsoft/rush rebuild --verbose
-  #       displayName: Build
+      - script: npx @microsoft/rush rebuild --verbose
+        displayName: Build
 
-  #     - script: npx @microsoft/rush test-official
-  #       displayName: Test
+      - script: npx @microsoft/rush test-official
+        displayName: Test
 
-  #     - template: ./upload-coverage.yml
+      - template: ./upload-coverage.yml
 
-  #     - script: |
-  #         set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-  #         npx @microsoft/rush publish --publish --include-all --set-access-level public
-  #       displayName: Release
+      - script: |
+          set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
+          npx @microsoft/rush publish --publish --include-all --set-access-level public
+        displayName: Release
 
-  #     - task: AzureFileCopy@4
-  #       inputs:
-  #         sourcePath: "packages/playground/dist/*"
-  #         azureSubscription: "Azure SDK Playground"
-  #         destination: "AzureBlob"
-  #         storage: "cadlplayground"
-  #         containerName: "$web"
-  #       displayName: "Update playground"
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "packages/playground/dist/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlplayground"
+          containerName: "$web"
+        displayName: "Update playground"
 
   - job: npm_dev
-    # dependsOn: npm_stable
+    dependsOn: npm_stable
     displayName: Npm publish dev version
     pool:
       vmImage: windows-2019
