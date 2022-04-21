@@ -2,9 +2,8 @@ import { readdir, readFile, stat, writeFile } from "fs/promises";
 import { basename, dirname, join, resolve } from "path";
 
 const skipDirs = new Set(["node_modules", "dist-dev"]);
-main().catch((e) => console.error(e.stack));
 
-async function main() {
+export async function generateThirdPartyNotice() {
   const root = resolve("./");
   const rootName = basename(root);
   const packages = await findThirdPartyPackages();
@@ -69,7 +68,7 @@ async function findThirdPartyPackages() {
   return packages;
 }
 
-async function* projectSourcemaps(rootPath) {
+async function* projectSourcemaps(rootPath: string): any {
   const files = await readdir(rootPath, { withFileTypes: true });
   for (const file of files) {
     const filepath = join(rootPath, file.name);
@@ -88,13 +87,13 @@ async function* projectSourcemaps(rootPath) {
   }
 }
 
-async function getPackageRoot(filename) {
+async function getPackageRoot(filename: string): Promise<any> {
   const dir = dirname(filename);
   try {
     const pkgPath = join(dir, "package.json");
     await stat(pkgPath);
     return dir;
-  } catch (e) {
+  } catch (e: any) {
     if (e.code === "ENOENT") {
       return getPackageRoot(dir);
     }
@@ -102,7 +101,7 @@ async function getPackageRoot(filename) {
   }
 }
 
-function getUrl(pkg) {
+function getUrl(pkg: any) {
   let url = pkg.repository;
   if (typeof url !== "string") {
     url = pkg.repository?.url;
@@ -116,7 +115,7 @@ function getUrl(pkg) {
   return url;
 }
 
-async function getLicense(packageRoot) {
+async function getLicense(packageRoot: string) {
   for (const licenseName of ["LICENSE", "LICENSE.txt", "LICENSE.md", "LICENSE-MIT"]) {
     const licensePath = join(packageRoot, licenseName);
     try {
@@ -124,7 +123,7 @@ async function getLicense(packageRoot) {
       text = text.replace("&lt;", "<");
       text = text.replace("&gt;", ">");
       return text;
-    } catch (err) {
+    } catch (err: any) {
       if (err.code === "ENOENT") {
         continue;
       }

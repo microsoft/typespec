@@ -1,7 +1,7 @@
+import { runWatch } from "@cadl-lang/internal-build-utils";
 import { createRequire } from "module";
 import { resolve } from "path";
 import watch from "watch";
-import { runWatch } from "../../../eng/scripts/helpers.js";
 
 const require = createRequire(import.meta.url);
 const script = resolve("dist-dev/src/tmlanguage.js");

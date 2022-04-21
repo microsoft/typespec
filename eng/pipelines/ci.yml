@@ -21,8 +21,9 @@ jobs:
       - script: node common/scripts/install-run-rush.js install
         displayName: Install JavaScript Dependencies
 
-      - script: node packages/cadl-vs/scripts/build.js --restore
+      - script: dotnet restore
         displayName: Restore .NET Dependencies
+        workingDirectory: packages/cadl-vs
 
       - script: node common/scripts/install-run-rush.js rebuild --verbose
         displayName: Build
