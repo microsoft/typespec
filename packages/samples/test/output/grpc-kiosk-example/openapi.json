@@ -328,7 +328,7 @@
                   "type": "integer",
                   "format": "int32"
                 },
-                "x-cadl-name": "Cadl.int32[]"
+                "x-cadl-name": "int32[]"
               }
             }
           }
