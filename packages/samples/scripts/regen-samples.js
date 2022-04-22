@@ -20,9 +20,13 @@ const excludedSamples = [
 
 const rootInputPath = resolvePath("../");
 const rootOutputPath = resolvePath("../test/output");
-main();
 
-function main() {
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
+
+async function main() {
   // clear any previous output as otherwise failing to emit anything could
   // escape PR validation. Also ensures we delete output for samples that
   // no longer exist.
@@ -33,7 +37,7 @@ function main() {
     const outputPath = join(rootOutputPath, folderName);
     mkdirp(outputPath);
 
-    run(process.execPath, [
+    await run(process.execPath, [
       "../../packages/compiler/dist/core/cli.js",
       "compile",
       inputPath,
