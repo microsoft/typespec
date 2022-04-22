@@ -153,7 +153,10 @@ export async function bumpVersionsForPrerelease(workspaceRoot: string) {
   // Bumping with rush publish so rush computes from the changes what will be the next non prerelease version.
   console.log("Bumping versions with rush publish");
   execSync(
-    `npx @microsoft/rush publish --apply --prerelease-name="${PRERELEASE_TYPE}" --partial-prerelease`
+    `npx @microsoft/rush publish --apply --prerelease-name="${PRERELEASE_TYPE}" --partial-prerelease`,
+    {
+      cwd: workspaceRoot,
+    }
   );
 
   console.log("Adding prerelease number");
