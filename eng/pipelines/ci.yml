@@ -76,7 +76,7 @@ jobs:
 
       - script: |
           set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          npx @microsoft/rush publish publish --publish --include-all --set-access-level public --tag next
+          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public --tag next
         displayName: Release
 
   - job: docker
