@@ -7,6 +7,7 @@ RUN apk add --no-cache git
 COPY . /app
 
 WORKDIR /app
+ENV CADL_SKIP_VS_BUILD=1
 RUN npm install -g @microsoft/rush
 RUN rush install
 RUN rush rebuild

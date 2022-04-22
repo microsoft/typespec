@@ -17,12 +17,18 @@ function getCommit() {
   return execSync("git rev-parse HEAD").toString().trim();
 }
 
+function getPrNumber() {
+  // Set by Azure DevOps.
+  return process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
+}
+
 function main() {
   const pkg = loadPackageJson();
 
   const manifest = {
     version: pkg.version,
     commit: getCommit(),
+    pr: getPrNumber(),
   };
 
   if (!existsSync(distDir)) {

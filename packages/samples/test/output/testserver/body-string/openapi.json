@@ -26,7 +26,7 @@
                 "schema": {
                   "type": "string",
                   "nullable": true,
-                  "x-cadl-name": "Cadl.string | Cadl.null"
+                  "x-cadl-name": "string | null"
                 }
               }
             }
@@ -71,7 +71,7 @@
               "schema": {
                 "type": "string",
                 "nullable": true,
-                "x-cadl-name": "Cadl.string | Cadl.null"
+                "x-cadl-name": "string | null"
               }
             }
           }
