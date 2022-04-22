@@ -142,22 +142,27 @@ async function addPrereleaseNumber(
   }
 }
 
-export async function bumpVersionsForPrerelease(workspaceRoot: string) {
-  console.log("HEre", workspaceRoot);
-  const changeCounts = await getChangeCountPerPackage(workspaceRoot);
-  console.log("Change counts: ", changeCounts);
+export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
+  let changeCounts = {};
+  let packagePaths = {};
+  for (const workspaceRoot of workspaceRoots) {
+    changeCounts = { ...changeCounts, ...(await getChangeCountPerPackage(workspaceRoot)) };
 
-  const packagePaths = await getPackagesPaths(workspaceRoot);
+    packagePaths = { ...packagePaths, ...(await getPackagesPaths(workspaceRoot)) };
+  }
+  console.log("Change counts: ", changeCounts);
   console.log("Package paths", packagePaths);
 
   // Bumping with rush publish so rush computes from the changes what will be the next non prerelease version.
   console.log("Bumping versions with rush publish");
-  execSync(
-    `npx @microsoft/rush publish --apply --prerelease-name="${PRERELEASE_TYPE}" --partial-prerelease`,
-    {
-      cwd: workspaceRoot,
-    }
-  );
+  for (const workspaceRoot of workspaceRoots) {
+    execSync(
+      `npx @microsoft/rush publish --apply --prerelease-name="${PRERELEASE_TYPE}" --partial-prerelease`,
+      {
+        cwd: workspaceRoot,
+      }
+    );
+  }
 
   console.log("Adding prerelease number");
   await addPrereleaseNumber(changeCounts, packagePaths);
