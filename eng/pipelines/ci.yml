@@ -35,8 +35,7 @@ jobs:
 
       - script: |
           set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          echo "Npm token: $NPM_AUTH_TOKEN"
-          npx @microsoft/rush publish --publish --include-all --set-access-level public
+          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
         displayName: Release
 
       - task: AzureFileCopy@4
@@ -77,7 +76,7 @@ jobs:
 
       - script: |
           set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
+          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public --tag next
         displayName: Release
 
   - job: docker
