@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "Add logic to publish preview package versions",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}
