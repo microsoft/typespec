@@ -20,7 +20,7 @@ async function main() {
       () => generateThirdPartyNotice()
     )
     .command(
-      "bump-version-preview <workspaceRoots>",
+      "bump-version-preview <workspaceRoots...>",
       "Bump all package version for the preview",
       (cmd) =>
         cmd.positional("workspaceRoots", {
