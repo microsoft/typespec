@@ -2,7 +2,7 @@
 import { run } from "@cadl-lang/internal-build-utils";
 import { readFileSync } from "fs";
 
-const version = JSON.parse(readFileSync("package.json").toString()).version;
+const version = JSON.parse(readFileSync("package.json", "utf-8")).version;
 const vsix = `cadl-vscode-${version}.vsix`;
 
 const options = {
@@ -12,5 +12,5 @@ const options = {
 };
 
 for (const command of ["code", "code-insiders"]) {
-  run(command, ["--install-extension", vsix], options);
+  await run(command, ["--install-extension", vsix], options);
 }
