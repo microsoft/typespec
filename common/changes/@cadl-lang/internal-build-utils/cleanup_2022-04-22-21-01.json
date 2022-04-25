@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "Make RunOptions optional",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}

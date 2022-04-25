@@ -85,9 +85,9 @@ export async function findUnformattedCadlFiles(
 }
 
 export async function formatCadlFile(filename: string) {
-  const content = await readFile(filename);
+  const content = await readFile(filename, "utf-8");
   const prettierConfig = await prettier.resolveConfig(filename);
-  const formattedContent = await formatCadl(content.toString(), prettierConfig ?? {});
+  const formattedContent = await formatCadl(content, prettierConfig ?? {});
   await writeFile(filename, formattedContent);
 }
 
@@ -96,9 +96,9 @@ export async function formatCadlFile(filename: string) {
  * @returns true if code is formatted correctly.
  */
 export async function checkFormatCadlFile(filename: string): Promise<boolean> {
-  const content = await readFile(filename);
+  const content = await readFile(filename, "utf-8");
   const prettierConfig = await prettier.resolveConfig(filename);
-  return await checkFormatCadl(content.toString(), prettierConfig ?? {});
+  return await checkFormatCadl(content, prettierConfig ?? {});
 }
 
 async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {

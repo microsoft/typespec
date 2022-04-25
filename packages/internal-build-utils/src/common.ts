@@ -13,7 +13,7 @@ export interface RunOptions extends SpawnOptions {
   throwOnNonZeroExit?: boolean;
 }
 
-export async function run(command: string, args: string[], options: RunOptions) {
+export async function run(command: string, args: string[], options?: RunOptions) {
   if (!options?.silent) {
     // eslint-disable-next-line no-console
     console.log();
