@@ -16,8 +16,8 @@ async function main() {
   }
 
   const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  const file = await readFile(join(pkgRoot, "package.json"));
-  const version = JSON.parse(file.toString()).version;
+  const file = await readFile(join(pkgRoot, "package.json"), "utf-8");
+  const version = JSON.parse(file).version;
 
   const result = await getBuildTool();
   if (result.type === "dotnet") {

@@ -2,7 +2,7 @@
 import { run } from "@cadl-lang/internal-build-utils";
 import { readFileSync } from "fs";
 
-const version = JSON.parse(readFileSync("package.json", { encoding: "utf-8" })).version;
+const version = JSON.parse(readFileSync("package.json", "utf-8")).version;
 const vsix = `cadl-vscode-${version}.vsix`;
 
 const options = {

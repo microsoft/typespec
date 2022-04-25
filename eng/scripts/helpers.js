@@ -24,7 +24,7 @@ export function forEachProject(onEach) {
   for (const each of rush.projects) {
     const packageName = each.packageName;
     const projectFolder = resolve(`${repoRoot}/${each.projectFolder}`);
-    const project = JSON.parse(readFileSync(`${projectFolder}/package.json`));
+    const project = JSON.parse(readFileSync(`${projectFolder}/package.json`, "utf-8"));
     onEach(packageName, projectFolder, project);
   }
 }
