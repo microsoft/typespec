@@ -4,7 +4,7 @@ import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
 function read(filename) {
-  const txt = readFileSync(filename, "utf8")
+  const txt = readFileSync(filename, "utf-8")
     .replace(/\r/gm, "")
     .replace(/\n/gm, "«")
     .replace(/\/\*.*?\*\//gm, "")
