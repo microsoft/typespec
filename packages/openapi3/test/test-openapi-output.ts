@@ -68,7 +68,7 @@ describe("openapi3: definitions", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-cadl-name": "(anonymous model)",
+      "x-cadl-name": "root.(anonymous model)",
     });
   });
 
