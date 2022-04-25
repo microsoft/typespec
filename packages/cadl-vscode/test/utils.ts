@@ -126,6 +126,7 @@ export const Token = {
   identifiers: {
     variable: (name: string) => createToken(name, "variable.name.cadl"),
     functionName: (name: string) => createToken(name, "entity.name.function.cadl"),
+    tag: (name: string) => createToken(name, "entity.name.tag.cadl"),
     type: (name: string) => createToken(name, "entity.name.type.cadl"),
   },
 
