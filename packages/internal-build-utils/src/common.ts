@@ -6,6 +6,15 @@ export class CommandFailedError extends Error {
   }
 }
 
+/**
+ * Return the correct executable name if on unix or windows(with .cmd extension)
+ * @param cmd to run
+ * @returns
+ */
+export function xplatCmd(cmd: string) {
+  return process.platform === "win32" ? `${cmd}.cmd` : cmd;
+}
+
 export interface RunOptions extends SpawnOptions {
   silent?: boolean;
   encoding?: string;
