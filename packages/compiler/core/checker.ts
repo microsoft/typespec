@@ -949,8 +949,28 @@ export function createChecker(program: Program): Checker {
       | EnumStatementNode
       | InterfaceStatementNode
       | UnionStatementNode
+      | ModelExpressionNode
   ): NamespaceType | undefined {
     if (node === globalNamespaceType.node) return undefined;
+
+    if (node.kind === SyntaxKind.ModelExpression) {
+      let parent: Node | undefined = node.parent;
+      while (parent !== undefined) {
+        if (
+          parent.kind === SyntaxKind.ModelStatement ||
+          parent.kind === SyntaxKind.OperationStatement ||
+          parent.kind === SyntaxKind.EnumStatement ||
+          parent.kind === SyntaxKind.InterfaceStatement ||
+          parent.kind === SyntaxKind.UnionStatement ||
+          parent.kind === SyntaxKind.ModelExpression
+        ) {
+          return getParentNamespaceType(parent);
+        } else {
+          parent = parent.parent;
+        }
+      }
+      return undefined;
+    }
 
     // we leave namespaces for interface members as undefined
     if (
@@ -1525,6 +1545,7 @@ export function createChecker(program: Program): Checker {
       name: "",
       node: node,
       properties,
+      namespace: getParentNamespaceType(node),
       decorators: [],
       derivedModels: [],
     });
@@ -2777,7 +2798,9 @@ export function createChecker(program: Program): Checker {
     evalContext = createEvalContext(node);
     for (const [i, param] of node.parameters.entries()) {
       if (!args[i]) {
-        throw new ProjectionError("need argument for parameter " + node.parameters[i]);
+        throw new ProjectionError(
+          "need argument for parameter " + SyntaxKind[node.parameters[i].kind]
+        );
       }
 
       const argVal = args[i];

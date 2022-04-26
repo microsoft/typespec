@@ -119,7 +119,7 @@ async function getLicense(packageRoot: string) {
   for (const licenseName of ["LICENSE", "LICENSE.txt", "LICENSE.md", "LICENSE-MIT"]) {
     const licensePath = join(packageRoot, licenseName);
     try {
-      let text = (await readFile(licensePath)).toString("utf-8");
+      let text = await readFile(licensePath, "utf-8");
       text = text.replace("&lt;", "<");
       text = text.replace("&gt;", ">");
       return text;
