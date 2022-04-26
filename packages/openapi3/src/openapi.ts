@@ -59,7 +59,7 @@ import {
   HttpOperationResponse,
   OperationDetails,
 } from "@cadl-lang/rest";
-import { getVersionRecords } from "@cadl-lang/versioning";
+import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 import {
@@ -229,7 +229,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (!serviceNs) {
       return;
     }
-    const versions = getVersionRecords(program, serviceNs);
+    const versions = buildVersionProjections(program, serviceNs);
     for (const record of versions) {
       if (record.version) {
         record.projections.push({

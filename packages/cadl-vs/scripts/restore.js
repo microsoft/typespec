@@ -5,4 +5,4 @@ import { fileURLToPath } from "url";
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-runDotnetOrExit(["restore", "Microsoft.Cadl.VS.sln"], { cwd: pkgRoot });
+await runDotnetOrExit(["restore", "Microsoft.Cadl.VS.sln"], { cwd: pkgRoot });

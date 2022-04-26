@@ -20,6 +20,7 @@ export type CadlScope =
   | "keyword.directive.name.cadl"
   | "entity.name.type.cadl"
   | "entity.name.function.cadl"
+  | "entity.name.tag.cadl"
   | "keyword.other.cadl"
   | "string.quoted.double.cadl"
   | "string.quoted.triple.cadl"
@@ -189,9 +190,9 @@ const parenthesizedExpression: BeginEndRule = {
 const decorator: BeginEndRule = {
   key: "decorator",
   scope: meta,
-  begin: `@(${qualifiedIdentifier})`,
+  begin: `(@${qualifiedIdentifier})`,
   beginCaptures: {
-    "1": { scope: "entity.name.function.cadl" },
+    "1": { scope: "entity.name.tag.cadl" },
   },
   end: `${beforeIdentifier}|${universalEnd}`,
   patterns: [token, parenthesizedExpression],
