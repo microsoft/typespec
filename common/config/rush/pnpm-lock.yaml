@@ -3843,7 +3843,7 @@ packages:
     dev: false
 
   /strip-json-comments/2.0.1:
-    resolution: {integrity: sha1-PFMZQukIwml8DsNEhYwobHygpgo=}
+    resolution: {integrity: sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==}
     engines: {node: '>=0.10.0'}
     dev: false
 
@@ -4489,7 +4489,7 @@ packages:
     dev: false
 
   file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-fbWb3ZPbNJk+GZr+2ianvI+VYT8TKPNfKLG34o2l6Lu6L1HG5Rfx7VCvzDJD9avXw47/6/AIc6l6rHrWcipshw==, tarball: file:projects/cadl-vscode.tgz}
+    resolution: {integrity: sha512-68kXFqY44huSWrukCumhFMpzpocmdMZ8wIbQ/zbxuf1LdP8+eFRK1oRFeWRvv7YlJTqE6N26H+R68w6Oa/i2Qw==, tarball: file:projects/cadl-vscode.tgz}
     name: '@rush-temp/cadl-vscode'
     version: 0.0.0
     dependencies:
@@ -4515,7 +4515,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-nWe7pOFLS23j2yB9ff6Sy8jXiU9Kit7D/GuFlXY3aTfgOESPRgOQ0iYHUXjJGVqVAXShIbuCK4Le1QHeUBON5g==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-2qKHtYjKAjODqLE5rKLe+2vQdglIzHLuLUTjUyYRmaLaAi/rt1GGe2R7S8LxtWtNdHaNnOrVwcuh/lj3+obs2A==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -4550,6 +4550,8 @@ packages:
       typescript: 4.7.2
       vscode-languageserver: 7.0.0
       vscode-languageserver-textdocument: 1.0.5
+      vscode-oniguruma: 1.6.2
+      vscode-textmate: 6.0.0
       yargs: 17.3.1
     transitivePeerDependencies:
       - supports-color
