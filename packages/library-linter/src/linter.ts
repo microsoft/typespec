@@ -31,7 +31,6 @@ function validateNoExportAtRoot(program: Program, root: NamespaceType) {
         target: sym,
       });
     } else if (sym.flags & SymbolFlags.Function) {
-      console.log("A", program.mainFile, sym);
       reportDiagnostic(program, {
         code: "missing-namespace",
         format: { type: "Function", name },
