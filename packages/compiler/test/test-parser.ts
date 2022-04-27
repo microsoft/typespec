@@ -142,7 +142,6 @@ describe("compiler: syntax", () => {
     ]);
 
     parseErrorEach([
-      ["interface Foo<T> extends Bar<T> {}", [/extends/]],
       ["interface X {", [/'}' expected/]],
       ["interface X { foo(): string; interface Y", [/'}' expected/]],
       ["interface X { foo(a: string", [/'\)' expected/]],
