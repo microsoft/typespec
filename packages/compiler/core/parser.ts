@@ -499,22 +499,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const id = parseIdentifier();
     const templateParameters = parseTemplateParameterList();
 
-    let mixes: TypeReferenceNode[] = [];
+    let extendList: TypeReferenceNode[] = [];
     if (token() === Token.ExtendsKeyword) {
-      // error condition
-      const target = { pos: tokenPos(), end: tokenEnd() };
       nextToken();
-      mixes = parseList(ListKind.Heritage, parseReferenceExpression);
-      // issue error *after* parseList so that we flag the interface as having an error, and not the first list element.
-      error({ code: "token-expected", messageId: "mixesNotExtends", target });
+      extendList = parseList(ListKind.Heritage, parseReferenceExpression);
     } else if (token() === Token.Identifier) {
-      if (tokenValue() !== "mixes") {
-        error({ code: "token-expected", format: { token: "'mixes' or '{'" } });
-        nextToken();
-      } else {
-        nextToken();
-        mixes = parseList(ListKind.Heritage, parseReferenceExpression);
-      }
+      error({ code: "token-expected", format: { token: "'extends' or '{'" } });
+      nextToken();
     }
 
     const operations = parseList(ListKind.InterfaceMembers, parseInterfaceMember);
@@ -524,7 +515,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       id,
       templateParameters,
       operations,
-      mixes,
+      extends: extendList,
       decorators,
       ...finishNode(pos),
     };
@@ -2179,7 +2170,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
-        visitEach(cb, node.mixes) ||
+        visitEach(cb, node.extends) ||
         visitEach(cb, node.operations)
       );
     case SyntaxKind.UsingStatement:

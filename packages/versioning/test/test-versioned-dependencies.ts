@@ -193,7 +193,7 @@ describe("versioning: reference versioned library", () => {
         namespace DemoService {
           model Foo {}
 
-          interface Test mixes NonVersioned.Foo<Foo> {}
+          interface Test extends NonVersioned.Foo<Foo> {}
         }
 
         namespace NonVersioned {

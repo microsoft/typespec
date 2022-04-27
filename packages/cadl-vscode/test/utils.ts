@@ -119,7 +119,6 @@ export const Token = {
     alias: createToken("alias", "keyword.other.cadl"),
     extends: createToken("extends", "keyword.other.cadl"),
     is: createToken("is", "keyword.other.cadl"),
-    mixes: createToken("mixes", "keyword.other.cadl"),
     other: (text: string) => createToken(text, "keyword.other.cadl"),
   },
   meta: (text: string, meta: string) => createToken(text, `meta.${meta}.cadl`),
