@@ -386,10 +386,10 @@ interface B {
 
 ```
 
-And the keyword `mixes` can be used to compose operations from other interfaces into a new interface:
+And the keyword `extends` can be used to compose operations from other interfaces into a new interface:
 
 ```cadl
-interface C mixes A, B {
+interface C extends A, B {
   c(): string;
 }
 

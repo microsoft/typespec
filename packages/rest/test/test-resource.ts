@@ -24,8 +24,8 @@ describe("rest: resources", () => {
 
         @error model Error {}
 
-        interface Things mixes ResourceOperations<Thing, Error> {}
-        interface Subthings mixes ResourceOperations<Subthing, Error> {}
+        interface Things extends ResourceOperations<Thing, Error> {}
+        interface Subthings extends ResourceOperations<Subthing, Error> {}
       }
       `
     );
@@ -142,8 +142,8 @@ describe("rest: resources", () => {
 
         @error model Error {}
 
-        interface Things mixes ResourceRead<Thing, Error> {}
-        interface ThingsSingleton mixes SingletonResourceOperations<Singleton, Thing, Error> {}
+        interface Things extends ResourceRead<Thing, Error> {}
+        interface ThingsSingleton extends SingletonResourceOperations<Singleton, Thing, Error> {}
       }
       `
     );
@@ -194,8 +194,8 @@ describe("rest: resources", () => {
 
         @error model Error {}
 
-        interface ThingsExtension mixes ExtensionResourceOperations<Exthing, Thing, Error> {}
-        interface SubthingsExtension mixes ExtensionResourceOperations<Exthing, Subthing, Error> {}
+        interface ThingsExtension extends ExtensionResourceOperations<Exthing, Thing, Error> {}
+        interface SubthingsExtension extends ExtensionResourceOperations<Exthing, Subthing, Error> {}
       }
       `
     );
@@ -260,7 +260,7 @@ describe("rest: resources", () => {
       `
       using Cadl.Rest.Resource;
 
-      interface Dogs mixes ResourceOperations<Dog, Error> {}
+      interface Dogs extends ResourceOperations<Dog, Error> {}
 
       model Dog {}
       @error model Error {code: string}
@@ -279,7 +279,7 @@ describe("rest: resources", () => {
       `
       using Cadl.Rest.Resource;
 
-      interface Dogs mixes ResourceOperations<Dog, Error> {}
+      interface Dogs extends ResourceOperations<Dog, Error> {}
       
       model Dog {
         @key foo: string

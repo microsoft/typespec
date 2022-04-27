@@ -498,31 +498,31 @@ export function printInterfaceStatement(
   const id = path.call(print, "id");
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
-  const mixes = printInterfaceMixes(path, options, print);
+  const extendList = printInterfaceExtends(path, options, print);
 
   return [
     decorators,
     "interface ",
     id,
     generic,
-    mixes,
+    extendList,
     " ",
     printInterfaceMembers(path, options, print),
   ];
 }
 
-function printInterfaceMixes(
+function printInterfaceExtends(
   path: AstPath<InterfaceStatementNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
   const node = path.getValue();
-  if (node.mixes.length === 0) {
+  if (node.extends.length === 0) {
     return "";
   }
 
-  const keyword = "mixes ";
-  return [group(indent([line, keyword, indent(join([",", line], path.map(print, "mixes")))]))];
+  const keyword = "extends ";
+  return [group(indent([line, keyword, indent(join([",", line], path.map(print, "extends")))]))];
 }
 
 export function printInterfaceMembers(

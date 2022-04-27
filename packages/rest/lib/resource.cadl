@@ -115,20 +115,20 @@ interface ResourceList<TResource, TError> {
 @validateHasKey(TResource)
 @validateIsError(TError)
 interface ResourceInstanceOperations<TResource, TError>
-  mixes ResourceRead<TResource, TError>,
+  extends ResourceRead<TResource, TError>,
     ResourceUpdate<TResource, TError>,
     ResourceDelete<TResource, TError> {}
 
 @validateHasKey(TResource)
 @validateIsError(TError)
 interface ResourceCollectionOperations<TResource, TError>
-  mixes ResourceCreate<TResource, TError>,
+  extends ResourceCreate<TResource, TError>,
     ResourceList<TResource, TError> {}
 
 @validateHasKey(TResource)
 @validateIsError(TError)
 interface ResourceOperations<TResource, TError>
-  mixes ResourceInstanceOperations<TResource, TError>,
+  extends ResourceInstanceOperations<TResource, TError>,
     ResourceCollectionOperations<TResource, TError> {}
 
 @validateHasKey(TResource)
@@ -155,7 +155,7 @@ interface SingletonResourceUpdate<TSingleton, TResource, TError> {
 }
 
 interface SingletonResourceOperations<TSingleton, TResource, TError>
-  mixes SingletonResourceRead<TSingleton, TResource, TError>,
+  extends SingletonResourceRead<TSingleton, TResource, TError>,
     SingletonResourceUpdate<TSingleton, TResource, TError> {}
 
 @validateHasKey(TResource)
@@ -220,14 +220,14 @@ interface ExtensionResourceList<TExtension, TResource, TError> {
 }
 
 interface ExtensionResourceInstanceOperations<TExtension, TResource, TError>
-  mixes ExtensionResourceRead<TExtension, TResource, TError>,
+  extends ExtensionResourceRead<TExtension, TResource, TError>,
     ExtensionResourceUpdate<TExtension, TResource, TError>,
     ExtensionResourceDelete<TExtension, TResource, TError> {}
 
 interface ExtensionResourceCollectionOperations<TExtension, TResource, TError>
-  mixes ExtensionResourceCreate<TExtension, TResource, TError>,
+  extends ExtensionResourceCreate<TExtension, TResource, TError>,
     ExtensionResourceList<TExtension, TResource, TError> {}
 
 interface ExtensionResourceOperations<TExtension, TResource, TError>
-  mixes ExtensionResourceInstanceOperations<TExtension, TResource, TError>,
+  extends ExtensionResourceInstanceOperations<TExtension, TResource, TError>,
     ExtensionResourceCollectionOperations<TExtension, TResource, TError> {}

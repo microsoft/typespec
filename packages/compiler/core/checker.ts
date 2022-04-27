@@ -2011,10 +2011,12 @@ export function createChecker(program: Program): Checker {
       name: node.id.sv,
     });
 
-    for (const mixinNode of node.mixes) {
+    for (const mixinNode of node.extends) {
       const mixinType = getTypeForNode(mixinNode);
       if (mixinType.kind !== "Interface") {
-        program.reportDiagnostic(createDiagnostic({ code: "mixes-interface", target: mixinNode }));
+        program.reportDiagnostic(
+          createDiagnostic({ code: "extends-interface", target: mixinNode })
+        );
         continue;
       }
 
@@ -2022,7 +2024,7 @@ export function createChecker(program: Program): Checker {
         if (interfaceType.operations.has(newMember.name)) {
           program.reportDiagnostic(
             createDiagnostic({
-              code: "mixes-interface-duplicate",
+              code: "extends-interface-duplicate",
               format: { name: newMember.name },
               target: mixinNode,
             })

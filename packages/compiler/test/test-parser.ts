@@ -134,15 +134,14 @@ describe("compiler: syntax", () => {
     parseEach([
       "interface Foo { }",
       "interface Foo<T> { }",
-      "interface Foo<T> mixes Bar<T> { }",
-      "interface Foo mixes Bar, Baz<T> { }",
+      "interface Foo<T> extends Bar<T> { }",
+      "interface Foo extends Bar, Baz<T> { }",
       "interface Foo { foo(): int32; }",
       "interface Foo { foo(): int32; bar(): int32; }",
       "interface Foo { op foo(): int32; op bar(): int32; baz(): int32; }",
     ]);
 
     parseErrorEach([
-      ["interface Foo<T> extends Bar<T> {}", [/mixes/]],
       ["interface X {", [/'}' expected/]],
       ["interface X { foo(): string; interface Y", [/'}' expected/]],
       ["interface X { foo(a: string", [/'\)' expected/]],
