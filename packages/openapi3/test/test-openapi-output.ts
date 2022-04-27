@@ -1,6 +1,11 @@
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.js";
+import {
+  createOpenAPITestRunner,
+  diagnoseOpenApiFor,
+  oapiForModel,
+  openApiFor,
+} from "./test-host.js";
 
 describe("openapi3: definitions", () => {
   it("defines models", async () => {
@@ -21,6 +26,32 @@ describe("openapi3: definitions", () => {
     });
   });
 
+  it("errors on duplicate model names", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model P {
+        propA: string;
+      }
+
+      @friendlyName("P")
+      model Q {
+        propB: string;
+      }
+
+      @route("/test1")
+      @get
+      op test1(p: P): Q;
+      `
+    );
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@cadl-lang/openapi/duplicate-type-name",
+        message: /type/,
+      },
+    ]);
+  });
+
   it("doesn't define anonymous or unconnected models", async () => {
     const res = await oapiForModel(
       "{ ... Foo }",
@@ -37,7 +68,7 @@ describe("openapi3: definitions", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-cadl-name": "(anonymous model)",
+      "x-cadl-name": "root.(anonymous model)",
     });
   });
 
@@ -428,7 +459,7 @@ describe("openapi3: definitions", () => {
         name: {
           type: "string",
           nullable: true,
-          "x-cadl-name": "Cadl.string | Cadl.null",
+          "x-cadl-name": "string | null",
         },
       },
       required: ["name"],
@@ -455,7 +486,7 @@ describe("openapi3: definitions", () => {
             format: "int32",
           },
           nullable: true,
-          "x-cadl-name": "Cadl.int32[] | Cadl.null",
+          "x-cadl-name": "int32[] | null",
         },
       },
       required: ["name"],
@@ -479,7 +510,7 @@ describe("openapi3: definitions", () => {
           type: "string",
           enum: ["cat", "dog"],
           nullable: true,
-          "x-cadl-name": "cat | dog | Cadl.null",
+          "x-cadl-name": "cat | dog | null",
         },
       },
       required: ["type"],
@@ -539,7 +570,7 @@ describe("openapi3: definitions", () => {
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     deepStrictEqual(openApi.paths["/"].post.requestBody.content["application/json"].schema, {
-      "x-cadl-name": "Cat | Cadl.string",
+      "x-cadl-name": "Cat | string",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { type: "string" }],
     });
   });
@@ -599,7 +630,7 @@ describe("openapi3: definitions", () => {
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      "x-cadl-name": "Cat | Cadl.string",
+      "x-cadl-name": "Cat | string",
       anyOf: [{ $ref: "#/components/schemas/Cat" }, { type: "string" }],
     });
   });

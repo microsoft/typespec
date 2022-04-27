@@ -14,6 +14,14 @@ jobs:
           imageName: windows-2019
           nodeVersion: "16.x"
 
+        "Linux - Node 18.x":
+          imageName: ubuntu-latest
+          nodeVersion: "18.x"
+
+        "Windows - Node 18.x":
+          imageName: windows-2019
+          nodeVersion: "18.x"
+
     pool:
       vmImage: $(imageName)
 
@@ -25,6 +33,13 @@ jobs:
       - template: pull-request-common.yml
         parameters:
           nodeVersion: $(nodeVersion)
+
+  - job: docker_build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: docker build -f ./docker/Dockerfile .
+        displayName: Docker build
 
   - job: Consistency_Check
     pool:

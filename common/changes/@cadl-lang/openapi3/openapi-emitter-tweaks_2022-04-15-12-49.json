@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Rearrange some aspects of operation output in the OpenAPI emitter",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}

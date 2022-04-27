@@ -1,0 +1,41 @@
+trigger: none
+pr:
+  - main
+
+jobs:
+  - job: publish_playground
+    displayName: Publish playground
+    pool:
+      vmImage: windows-latest
+
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 16.x
+        displayName: Install Node.js
+
+      - script: npx @microsoft/rush install
+        displayName: Install JavaScript Dependencies
+
+      - script: npx @microsoft/rush rebuild --verbose
+        displayName: Build
+
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "packages/playground/dist/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlplayground"
+          blobPrefix: prs/$(System.PullRequest.PullRequestNumber)/
+          containerName: "$web"
+        displayName: "Update playground"
+
+      - script: node eng/scripts/check-for-tryit-comment.js
+        displayName: Check already commented
+
+      - task: GitHubComment@0
+        inputs:
+          gitHubConnection: "internal (1)"
+          repositoryName: "$(Build.Repository.Name)"
+          comment: "<!-- _CADL_TRYIT_COMMENT_ -->\nYou can try these changes at https://cadlplayground.z22.web.core.windows.net/prs/$(System.PullRequest.PullRequestNumber)/"
+        condition: and(succeeded(), ne(variables['SKIP_COMMENT'], 'true'))

@@ -1,4 +1,5 @@
 import prettier, { AstPath, Doc, Printer } from "prettier";
+import { createScanner, Token } from "../../core/scanner.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -777,14 +778,38 @@ export function printModelProperty(
       tryInline: true,
     }
   );
+  let id: Doc;
+  if (node.id.kind === SyntaxKind.StringLiteral && isStringSafeToUnquote(node.id, options)) {
+    id = node.id.value;
+  } else {
+    id = path.call(print, "id");
+  }
   return [
     multiline && isNotFirst ? hardline : "",
     decorators,
-    path.call(print, "id"),
+    id,
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
     node.default ? [" = ", path.call(print, "default")] : "",
   ];
+}
+
+function isStringSafeToUnquote(id: StringLiteralNode, options: CadlPrettierOptions): boolean {
+  const unquotedRawText = getRawText(id, options).slice(1, -1);
+  if (id.value !== unquotedRawText) {
+    return false;
+  }
+  let hasError = false;
+  const scanner = createScanner(id.value, (d) => (hasError = true));
+  if (scanner.scan() !== Token.Identifier) {
+    return false;
+  }
+
+  if (scanner.scan() !== Token.EndOfFile) {
+    return false;
+  }
+
+  return !hasError;
 }
 
 function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {

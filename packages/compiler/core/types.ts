@@ -666,7 +666,6 @@ export interface MemberExpressionNode extends BaseNode {
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.NamespaceStatement;
-  readonly id: IdentifierNode;
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
   readonly decorators: DecoratorExpressionNode[];
   readonly locals?: SymbolTable;
@@ -993,6 +992,19 @@ export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
   readonly target: MemberExpressionNode | IdentifierNode;
 }
 
+export interface IdentifierContext {
+  kind: IdentifierKind;
+  node: Node;
+}
+
+export enum IdentifierKind {
+  TypeReference,
+  Decorator,
+  Using,
+  Declaration,
+  Other,
+}
+
 /**
  * Identifies the position within a source file by line number and offset from
  * beginning of line.
@@ -1073,6 +1085,7 @@ export interface TextRange {
 
 export interface SourceLocation extends TextRange {
   file: SourceFile;
+  isSynthetic?: boolean;
 }
 
 export const NoTarget = Symbol("NoTarget");
@@ -1241,7 +1254,7 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
   : never;
 
 /**
- * Definition of a cadle library
+ * Definition of a Cadl library
  */
 export interface CadlLibraryDef<
   T extends { [code: string]: DiagnosticMessages },

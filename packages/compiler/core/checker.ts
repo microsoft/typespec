@@ -3,6 +3,7 @@ import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   DecoratorContext,
   Expression,
+  IdentifierKind,
   isIntrinsic,
   JsSourceFileNode,
   NeverType,
@@ -15,7 +16,7 @@ import {
   VoidType,
 } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
-import { hasParseError, visitChildren } from "./parser.js";
+import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import { createProjectionMembers } from "./projectionMembers.js";
 import {
@@ -94,6 +95,10 @@ import {
 } from "./types.js";
 import { isArray } from "./util.js";
 
+export interface TypeNameOptions {
+  namespaceFilter: (ns: NamespaceType) => boolean;
+}
+
 export interface Checker {
   getTypeForNode(node: Node): Type;
   setUsingsForFile(file: CadlScriptNode): void;
@@ -107,8 +112,8 @@ export interface Checker {
   getLiteralType(node: NumericLiteralNode): NumericLiteralType;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
   getLiteralType(node: LiteralNode): LiteralType;
-  getTypeName(type: Type): string;
-  getNamespaceString(type: NamespaceType | undefined): string;
+  getTypeName(type: Type, options?: TypeNameOptions): string;
+  getNamespaceString(type: NamespaceType | undefined, options?: TypeNameOptions): string;
   cloneType<T extends Type>(type: T): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
   project(
@@ -116,6 +121,7 @@ export interface Checker {
     projection: ProjectionNode,
     args?: (Type | string | number | boolean)[]
   ): Type;
+  resolveIdentifier(node: IdentifierNode): Sym | undefined;
   resolveCompletions(node: IdentifierNode): Map<string, CadlCompletionItem>;
   createType<T>(typeDef: T): T & TypePrototype;
   createAndFinishType<U extends Type extends any ? Omit<Type, keyof TypePrototype> : never>(
@@ -281,6 +287,7 @@ export function createChecker(program: Program): Checker {
     getMergedSymbol,
     mergeSourceFile,
     cloneType,
+    resolveIdentifier,
     resolveCompletions,
     evalProjection: evalProjectionStatement,
     project,
@@ -405,18 +412,18 @@ export function createChecker(program: Program): Checker {
     return errorType;
   }
 
-  function getTypeName(type: Type): string {
+  function getTypeName(type: Type, options?: TypeNameOptions): string {
     switch (type.kind) {
       case "Model":
-        return getModelName(type);
+        return getModelName(type, options);
       case "Enum":
-        return getEnumName(type);
+        return getEnumName(type, options);
       case "Union":
-        return type.name || type.options.map(getTypeName).join(" | ");
+        return type.name || type.options.map((x) => getTypeName(x, options)).join(" | ");
       case "UnionVariant":
-        return getTypeName(type.type);
+        return getTypeName(type.type, options);
       case "Array":
-        return getTypeName(type.elementType) + "[]";
+        return getTypeName(type.elementType, options) + "[]";
       case "String":
       case "Number":
       case "Boolean":
@@ -426,10 +433,18 @@ export function createChecker(program: Program): Checker {
     return "(unnamed type)";
   }
 
-  function getNamespaceString(type: NamespaceType | undefined): string {
-    if (!type) return "";
-    const parent = type.namespace;
-    return parent && parent.name !== "" ? `${getNamespaceString(parent)}.${type.name}` : type.name;
+  function getNamespaceString(type: NamespaceType | undefined, options?: TypeNameOptions): string {
+    if (!type || !type.name) {
+      return "";
+    }
+
+    const filter = options?.namespaceFilter;
+    if (filter && !filter(type)) {
+      return "";
+    }
+
+    const parent = getNamespaceString(type.namespace, options);
+    return parent ? `${parent}.${type.name}` : type.name;
   }
 
   function getFullyQualifiedSymbolName(sym: Sym | undefined): string {
@@ -440,8 +455,8 @@ export function createChecker(program: Program): Checker {
       : sym.name;
   }
 
-  function getEnumName(e: EnumType): string {
-    const nsName = getNamespaceString(e.namespace);
+  function getEnumName(e: EnumType, options: TypeNameOptions | undefined): string {
+    const nsName = getNamespaceString(e.namespace, options);
     return nsName ? `${nsName}.${e.name}` : e.name;
   }
 
@@ -454,12 +469,12 @@ export function createChecker(program: Program): Checker {
     return node.symbol!.id!;
   }
 
-  function getModelName(model: ModelType) {
-    const nsName = getNamespaceString(model.namespace);
+  function getModelName(model: ModelType, options: TypeNameOptions | undefined) {
+    const nsName = getNamespaceString(model.namespace, options);
     const modelName = (nsName ? nsName + "." : "") + (model.name || "(anonymous model)");
     if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
-      const args = model.templateArguments.map(getTypeName);
+      const args = model.templateArguments.map((x) => getTypeName(x, options));
       return `${modelName}<${args.join(", ")}>`;
     } else if ((model.node as ModelStatementNode).templateParameters?.length > 0) {
       // template
@@ -983,8 +998,28 @@ export function createChecker(program: Program): Checker {
       | EnumStatementNode
       | InterfaceStatementNode
       | UnionStatementNode
+      | ModelExpressionNode
   ): NamespaceType | undefined {
     if (node === globalNamespaceType.node) return undefined;
+
+    if (node.kind === SyntaxKind.ModelExpression) {
+      let parent: Node | undefined = node.parent;
+      while (parent !== undefined) {
+        if (
+          parent.kind === SyntaxKind.ModelStatement ||
+          parent.kind === SyntaxKind.OperationStatement ||
+          parent.kind === SyntaxKind.EnumStatement ||
+          parent.kind === SyntaxKind.InterfaceStatement ||
+          parent.kind === SyntaxKind.UnionStatement ||
+          parent.kind === SyntaxKind.ModelExpression
+        ) {
+          return getParentNamespaceType(parent);
+        } else {
+          parent = parent.parent;
+        }
+      }
+      return undefined;
+    }
 
     // we leave namespaces for interface members as undefined
     if (
@@ -1137,14 +1172,57 @@ export function createChecker(program: Program): Checker {
     );
   }
 
+  function resolveIdentifier(id: IdentifierNode): Sym | undefined {
+    let sym: Sym | undefined;
+    const { node, kind } = getIdentifierContext(id);
+
+    switch (kind) {
+      case IdentifierKind.Declaration:
+        sym = getMergedSymbol(node.symbol);
+        break;
+      case IdentifierKind.Other:
+        return undefined;
+      case IdentifierKind.Decorator:
+      case IdentifierKind.Using:
+      case IdentifierKind.TypeReference:
+        let ref: MemberExpressionNode | IdentifierNode = id;
+        let resolveDecorator = kind === IdentifierKind.Decorator;
+        if (id.parent?.kind === SyntaxKind.MemberExpression) {
+          if (id.parent.id === id) {
+            // If the identifier is Y in X.Y, then resolve (X.Y).
+            ref = id.parent;
+          } else {
+            // If the identifier is X in X.Y then we are resolving a
+            // namespace, which is never a decorator.
+            resolveDecorator = false;
+          }
+        }
+        sym = resolveTypeReference(ref, resolveDecorator);
+        break;
+      default:
+        const _assertNever: never = kind;
+        compilerAssert(false, "Unreachable");
+    }
+
+    return sym?.symbolSource ?? sym;
+  }
+
   function resolveCompletions(identifier: IdentifierNode): Map<string, CadlCompletionItem> {
     const completions = new Map<string, CadlCompletionItem>();
-    const parent = findFirstNonMemberExpressionParent(identifier);
-    const resolveType = parent.kind === SyntaxKind.TypeReference;
-    const resolveDecorator = parent.kind === SyntaxKind.DecoratorExpression;
-    const resolveUsing = parent.kind === SyntaxKind.UsingStatement;
-    if (!resolveType && !resolveDecorator && !resolveUsing) {
-      return completions;
+    const { kind } = getIdentifierContext(identifier);
+
+    switch (kind) {
+      case IdentifierKind.Using:
+      case IdentifierKind.Decorator:
+      case IdentifierKind.TypeReference:
+        break; // supported
+      case IdentifierKind.Other:
+        return completions; // not implemented
+      case IdentifierKind.Declaration:
+        return completions; // cannot complete, name can be chosen arbitrarily
+      default:
+        const _assertNever: never = kind;
+        compilerAssert(false, "Unreachable");
     }
 
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
@@ -1182,20 +1260,6 @@ export function createChecker(program: Program): Checker {
 
     return completions;
 
-    function findFirstNonMemberExpressionParent(identifier: IdentifierNode) {
-      for (let node = identifier.parent; node; node = node.parent) {
-        if (node.kind !== SyntaxKind.MemberExpression) {
-          return node;
-        }
-      }
-
-      compilerAssert(
-        false,
-        "Shouldn't have an identifier with only member expression parents all the way to the root.",
-        identifier
-      );
-    }
-
     function addCompletions(table: SymbolTable | undefined) {
       if (!table) {
         return;
@@ -1231,23 +1295,31 @@ export function createChecker(program: Program): Checker {
     }
 
     function shouldAddCompletion(sym: Sym): boolean {
-      if (resolveDecorator) {
-        // Only return decorators and namespaces when completing decorator
-        return !!(sym.flags & (SymbolFlags.Decorator | SymbolFlags.Namespace));
+      switch (kind) {
+        case IdentifierKind.Decorator:
+          // Only return decorators and namespaces when completing decorator
+          return !!(sym.flags & (SymbolFlags.Decorator | SymbolFlags.Namespace));
+        case IdentifierKind.Using:
+          // Only return namespaces when completing using
+          return !!(sym.flags & SymbolFlags.Namespace);
+        case IdentifierKind.TypeReference:
+          // Do not return functions or decorators when completing types
+          return !(sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator));
+        default:
+          compilerAssert(false, "We should have bailed up-front on other kinds.");
       }
-      if (resolveUsing) {
-        // Only return namespaces when completing using
-        return !!(sym.flags & SymbolFlags.Namespace);
-      }
-      if (resolveType) {
-        // Do not return functions or decorators when completing types
-        return !(sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator));
-      }
-      compilerAssert(false, "Unreachable.");
     }
   }
 
-  function resolveIdentifier(node: IdentifierNode, resolveDecorator = false): Sym | undefined {
+  function resolveIdentifierInScope(
+    node: IdentifierNode,
+    resolveDecorator = false
+  ): Sym | undefined {
+    compilerAssert(
+      node.parent?.kind !== SyntaxKind.MemberExpression || node.parent.id !== node,
+      "This function should not be used to resolve Y in member expression X.Y. Use resolveIdentifier() to resolve an arbitrary identifier."
+    );
+
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
       // The parse error is the root cause and will already have been logged.
@@ -1384,7 +1456,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.Identifier) {
-      const sym = resolveIdentifier(node, resolveDecorator);
+      const sym = resolveIdentifierInScope(node, resolveDecorator);
       if (!sym) return undefined;
 
       return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
@@ -1522,6 +1594,7 @@ export function createChecker(program: Program): Checker {
       name: "",
       node: node,
       properties,
+      namespace: getParentNamespaceType(node),
       decorators: [],
       derivedModels: [],
     });
@@ -2774,7 +2847,9 @@ export function createChecker(program: Program): Checker {
     evalContext = createEvalContext(node);
     for (const [i, param] of node.parameters.entries()) {
       if (!args[i]) {
-        throw new ProjectionError("need argument for parameter " + node.parameters[i]);
+        throw new ProjectionError(
+          "need argument for parameter " + SyntaxKind[node.parameters[i].kind]
+        );
       }
 
       const argVal = args[i];

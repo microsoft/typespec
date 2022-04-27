@@ -18,6 +18,7 @@ import {
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
+  DeclarationNode,
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticReport,
@@ -27,6 +28,8 @@ import {
   EnumMemberNode,
   EnumStatementNode,
   Expression,
+  IdentifierContext,
+  IdentifierKind,
   IdentifierNode,
   ImportStatementNode,
   InterfaceStatementNode,
@@ -2162,9 +2165,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 }
 
-type NodeCb<T> = (c: Node) => T;
+export type NodeCallback<T> = (c: Node) => T;
 
-export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
+export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined {
   if (node.directives) {
     visitEach(cb, node.directives);
   }
@@ -2305,15 +2308,17 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
-      return visitNode(cb, node.default);
+      return visitNode(cb, node.id) || visitNode(cb, node.default);
     case SyntaxKind.TemplateParameterValue:
       return visitNode(cb, node.value);
+    case SyntaxKind.ProjectionLambdaParameterDeclaration:
+      return visitNode(cb, node.id);
+    case SyntaxKind.ProjectionParameterDeclaration:
+      return visitNode(cb, node.id);
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:
     case SyntaxKind.Identifier:
-    case SyntaxKind.ProjectionParameterDeclaration:
-    case SyntaxKind.ProjectionLambdaParameterDeclaration:
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
     case SyntaxKind.ProjectionUnionSelector:
@@ -2333,11 +2338,11 @@ export function visitChildren<T>(node: Node, cb: NodeCb<T>): T | undefined {
   }
 }
 
-function visitNode<T>(cb: NodeCb<T>, node: Node | undefined): T | undefined {
+function visitNode<T>(cb: NodeCallback<T>, node: Node | undefined): T | undefined {
   return node && cb(node);
 }
 
-function visitEach<T>(cb: NodeCb<T>, nodes: readonly Node[] | undefined): T | undefined {
+function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): T | undefined {
   if (!nodes) {
     return;
   }
@@ -2443,4 +2448,39 @@ function isBlocklessNamespace(node: Node) {
   }
 
   return node.statements === undefined;
+}
+
+export function getFirstAncestor(node: Node, test: NodeCallback<boolean>): Node | undefined {
+  for (let n = node.parent; n; n = n.parent) {
+    if (test(n)) {
+      return n;
+    }
+  }
+  return undefined;
+}
+
+export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
+  const node = getFirstAncestor(id, (n) => n.kind !== SyntaxKind.MemberExpression);
+  compilerAssert(node, "Identifier with no non-member-expression ancestor.");
+
+  let kind: IdentifierKind;
+  switch (node.kind) {
+    case SyntaxKind.TypeReference:
+      kind = IdentifierKind.TypeReference;
+      break;
+    case SyntaxKind.DecoratorExpression:
+      kind = IdentifierKind.Decorator;
+      break;
+    case SyntaxKind.UsingStatement:
+      kind = IdentifierKind.Using;
+      break;
+    default:
+      kind =
+        (id.parent as DeclarationNode).id === id
+          ? IdentifierKind.Declaration
+          : IdentifierKind.Other;
+      break;
+  }
+
+  return { node, kind };
 }
