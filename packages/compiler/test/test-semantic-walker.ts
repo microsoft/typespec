@@ -19,9 +19,9 @@ describe("compiler: semantic walker", () => {
   });
 
   async function runNavigator(cadl: string) {
-    host.addCadlFile("main.adl", cadl);
+    host.addCadlFile("main.cadl", cadl);
 
-    await host.compile("main.adl", { nostdlib: true });
+    await host.compile("main.cadl", { nostdlib: true });
 
     const result = {
       models: [] as ModelType[],
