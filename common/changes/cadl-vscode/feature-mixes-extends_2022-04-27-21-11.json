@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Uptake `mixes` -> `extends` rename",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
