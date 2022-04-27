@@ -135,7 +135,6 @@ const diagnostics = {
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
-      mixesNotExtends: "`extends` is unexpected. Did you mean `mixes`?",
     },
   },
   "trailing-token": {
@@ -312,16 +311,16 @@ const diagnostics = {
       default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
     },
   },
-  "mixes-interface": {
+  "extends-interface": {
     severity: "error",
     messages: {
       default: "Interfaces can only mix other interfaces",
     },
   },
-  "mixes-interface-duplicate": {
+  "extends-interface-duplicate": {
     severity: "error",
     messages: {
-      default: paramMessage`Interface mixes cannot have duplicate members. The duplicate member is named ${"name"}`,
+      default: paramMessage`Interface extends cannot have duplicate members. The duplicate member is named ${"name"}`,
     },
   },
   "interface-duplicate": {

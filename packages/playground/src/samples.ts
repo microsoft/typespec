@@ -41,7 +41,7 @@ model Widget {
   message: string;
 }
 
-interface WidgetService mixes Resource.ResourceOperations<Widget, Error> {
+interface WidgetService extends Resource.ResourceOperations<Widget, Error> {
   @get @route("customGet") customGet(): Widget;
 }`,
   "Versioned Rest Framework": `import "@cadl-lang/rest";
@@ -68,7 +68,7 @@ model Widget {
   message: string;
 }
 
-interface WidgetService mixes Resource.ResourceOperations<Widget, Error> {
+interface WidgetService extends Resource.ResourceOperations<Widget, Error> {
   @added("v2")
   @get
   @route("customGet")

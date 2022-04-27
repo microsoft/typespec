@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "files": [
     "Microsoft.Cadl.VS2019.vsix",
@@ -29,6 +29,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "cadl-vscode": "~0.13.1"
+    "cadl-vscode": "~0.13.1",
+    "@cadl-lang/internal-build-utils": "~0.1.0"
   }
 }

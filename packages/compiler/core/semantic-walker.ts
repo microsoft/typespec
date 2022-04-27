@@ -8,6 +8,7 @@ import {
   NamespaceType,
   OperationType,
   SemanticNodeListener,
+  SyntaxKind,
   TemplateParameterType,
   TupleType,
   Type,
@@ -250,6 +251,17 @@ function navigateType(
       const _assertNever: never = type;
       return;
   }
+}
+
+/**
+ * Resolve if the model is a template type(Non initialized template type).
+ */
+export function isTemplate(model: ModelType): boolean {
+  return (
+    model.node.kind === SyntaxKind.ModelStatement &&
+    model.node.templateParameters.length > 0 &&
+    !model.templateArguments?.length
+  );
 }
 
 // Return property from type, nesting into baseTypes as needed.

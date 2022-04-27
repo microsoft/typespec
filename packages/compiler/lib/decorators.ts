@@ -404,6 +404,42 @@ export function $withUpdateableProperties({ program }: DecoratorContext, target:
   });
 }
 
+// -- @withoutOmittedProperties decorator ----------------------
+
+export function $withoutOmittedProperties(
+  { program }: DecoratorContext,
+  target: Type,
+  omitProperties: Type
+) {
+  if (omitProperties.kind == "TemplateParameter") {
+    // Silently return because this is a templated type
+    return;
+  }
+
+  if (!validateDecoratorTarget(program, target, "@withoutOmittedProperties", "Model")) {
+    return;
+  }
+
+  if (!validateDecoratorParamType(program, target, omitProperties, ["String", "Union"])) {
+    return;
+  }
+
+  // Get the property or properties to omit
+  const omitNames = new Set<string>();
+  if (omitProperties.kind === "Union") {
+    for (const value of omitProperties.options) {
+      if (value.kind === "String") {
+        omitNames.add(value.value);
+      }
+    }
+  } else {
+    omitNames.add(omitProperties);
+  }
+
+  // Remove all properties to be omitted
+  mapFilterOut(target.properties, (key, _) => omitNames.has(key));
+}
+
 // -- @withoutDefaultValues decorator ----------------------
 
 export function $withoutDefaultValues({ program }: DecoratorContext, target: Type) {

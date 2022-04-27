@@ -382,7 +382,6 @@ export enum SyntaxKind {
   JsSourceFile,
   ImportStatement,
   Identifier,
-  NamedImport,
   DecoratorExpression,
   DirectiveExpression,
   MemberExpression,
@@ -502,7 +501,6 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
-  | NamedImportNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -594,11 +592,6 @@ export interface IdentifierNode extends BaseNode {
   readonly sv: string;
 }
 
-export interface NamedImportNode extends BaseNode {
-  readonly kind: SyntaxKind.NamedImport;
-  readonly id: IdentifierNode;
-}
-
 export interface DecoratorExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.DecoratorExpression;
   readonly target: IdentifierNode | MemberExpressionNode;
@@ -665,7 +658,6 @@ export interface MemberExpressionNode extends BaseNode {
 
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.NamespaceStatement;
-  readonly id: IdentifierNode;
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
   readonly decorators: DecoratorExpressionNode[];
   readonly locals?: SymbolTable;
@@ -694,7 +686,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.InterfaceStatement;
   readonly operations: readonly OperationStatementNode[];
-  readonly mixes: readonly TypeReferenceNode[];
+  readonly extends: readonly TypeReferenceNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
@@ -978,6 +970,19 @@ export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
   readonly target: MemberExpressionNode | IdentifierNode;
 }
 
+export interface IdentifierContext {
+  kind: IdentifierKind;
+  node: Node;
+}
+
+export enum IdentifierKind {
+  TypeReference,
+  Decorator,
+  Using,
+  Declaration,
+  Other,
+}
+
 /**
  * Identifies the position within a source file by line number and offset from
  * beginning of line.
@@ -1058,6 +1063,7 @@ export interface TextRange {
 
 export interface SourceLocation extends TextRange {
   file: SourceFile;
+  isSynthetic?: boolean;
 }
 
 export const NoTarget = Symbol("NoTarget");
@@ -1226,7 +1232,7 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
   : never;
 
 /**
- * Definition of a cadle library
+ * Definition of a Cadl library
  */
 export interface CadlLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
