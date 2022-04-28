@@ -17,12 +17,14 @@ using Microsoft.VisualStudio.Utilities;
 using Task = System.Threading.Tasks.Task;
 using System.Linq;
 
-namespace Microsoft.Cadl.VisualStudio {
+namespace Microsoft.Cadl.VisualStudio
+{
   [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
   [Guid("88b9492f-c019-492c-8aeb-f325a7e4cf23")]
   public sealed class Package : AsyncPackage { }
 
-  public sealed class ContentDefinition {
+  public sealed class ContentDefinition
+  {
     [Export]
     [Name("cadl")]
     [BaseDefinition(CodeRemoteContentDefinition.CodeRemoteContentTypeName)]
@@ -36,7 +38,8 @@ namespace Microsoft.Cadl.VisualStudio {
 
   [Export(typeof(ILanguageClient))]
   [ContentType("cadl")]
-  public sealed class LanguageClient : ILanguageClient {
+  public sealed class LanguageClient : ILanguageClient
+  {
 
     public string Name => "Cadl";
     public IEnumerable<string>? ConfigurationSections { get; } = new[] { "cadl" };
@@ -50,11 +53,13 @@ namespace Microsoft.Cadl.VisualStudio {
     private readonly IVsFolderWorkspaceService workspaceService;
 
     [ImportingConstructor]
-    public LanguageClient([Import] IVsFolderWorkspaceService workspaceService) {
+    public LanguageClient([Import] IVsFolderWorkspaceService workspaceService)
+    {
       this.workspaceService = workspaceService;
     }
 
-    public async Task<Connection?> ActivateAsync(CancellationToken token) {
+    public async Task<Connection?> ActivateAsync(CancellationToken token)
+    {
       await Task.Yield();
 
       var workspace = workspaceService.CurrentWorkspace;
@@ -62,7 +67,8 @@ namespace Microsoft.Cadl.VisualStudio {
       var settings = settingsManager?.GetAggregatedSettings(SettingsTypes.Generic);
       var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
       var (serverCommand, serverArgs) = resolveCadlServer(settings);
-      var info = new ProcessStartInfo {
+      var info = new ProcessStartInfo
+      {
         // Use cadl-server on PATH in production
         FileName = serverCommand,
         Arguments = string.Join(" ", serverArgs),
@@ -92,9 +98,11 @@ namespace Microsoft.Cadl.VisualStudio {
         process.StandardInput.BaseStream);
     }
 
-    public async Task OnLoadedAsync() {
+    public async Task OnLoadedAsync()
+    {
       var start = StartAsync;
-      if (start is not null) {
+      if (start is not null)
+      {
         await start.InvokeAsync(this, EventArgs.Empty);
       }
     }
@@ -119,12 +127,15 @@ namespace Microsoft.Cadl.VisualStudio {
     }
 #endif
 
-    public Task OnServerInitializedAsync() {
+    public Task OnServerInitializedAsync()
+    {
       return Task.CompletedTask;
     }
 
-    private void LogStderrMessage(string? message) {
-      if (message is null || message.Length == 0) {
+    private void LogStderrMessage(string? message)
+    {
+      if (message is null || message.Length == 0)
+      {
         return;
       }
 
@@ -150,7 +161,8 @@ namespace Microsoft.Cadl.VisualStudio {
     }
 #endif
 
-    private (string, string[]) resolveCadlServer(IWorkspaceSettings? settings) {
+    private (string, string[]) resolveCadlServer(IWorkspaceSettings? settings)
+    {
       var args = new string[] { "--stdio" };
 
 #if DEBUG
@@ -163,15 +175,20 @@ namespace Microsoft.Cadl.VisualStudio {
 #endif
 
       var serverPath = settings?.Property<string>("cadl.cadl-server.path");
-      if (serverPath == null) {
+      if (serverPath == null)
+      {
         return ("cadl-server.cmd", args);
       }
 
-      if (!serverPath.EndsWith(".js")) {
-        if (File.Exists(serverPath)) {
+      if (!serverPath.EndsWith(".js"))
+      {
+        if (File.Exists(serverPath))
+        {
           var command = serverPath.EndsWith(".cmd") ? serverPath : $"${serverPath}.cmd";
           return (command, args);
-        } else {
+        }
+        else
+        {
           serverPath = Path.Combine(serverPath, "cmd/cadl-server.js");
         }
       }
