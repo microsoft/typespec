@@ -43,6 +43,7 @@ async function main() {
       inputPath,
       `--output-path=${outputPath}`,
       `--emit=@cadl-lang/openapi3`,
+      `--no-warnings`,
       `--debug`,
     ]);
   }
