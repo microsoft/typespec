@@ -64,7 +64,7 @@ export async function ensureDotnetVersionOrExit() {
  */
 export async function runDotnetFormat(...args: string[]) {
   return runDotnetOrExit([
-    "format ",
+    "format",
     "whitespace",
     ".",
     `--exclude`,
