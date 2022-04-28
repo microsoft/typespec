@@ -1,10 +1,4 @@
-import {
-  CompilerHost,
-  createSourceFile,
-  decorators,
-  resolvePath,
-  service,
-} from "@cadl-lang/compiler";
+import { CompilerHost, createSourceFile, decorators, resolvePath } from "@cadl-lang/compiler";
 import * as openapi from "@cadl-lang/openapi";
 import * as openapi3 from "@cadl-lang/openapi3";
 import { http, internalDecorators, resource, rest, route } from "@cadl-lang/rest";
@@ -24,7 +18,7 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
 export async function createBrowserHost(): Promise<BrowserHost> {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
-  addJsImport("/test/.cadl/dist/lib/decorators.js", { ...decorators, ...service });
+  addJsImport("/test/.cadl/dist/lib/decorators.js", { ...decorators });
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/rest.js", rest);
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/route.js", route);
   addJsImport("/test/node_modules/@cadl-lang/rest/dist/src/http.js", http);
