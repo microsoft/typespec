@@ -23,7 +23,3 @@ namespace NullableMethods {
 model AnotherModel {
   num: int32;
 }
-
-projection model#toJson {
-  to {}
-}
