@@ -31,7 +31,6 @@ async function main() {
     .strict()
     .parserConfiguration({
       "greedy-arrays": false,
-      "boolean-negation": false, // Disable `--no-<flagname` conflicting with `--no-warnings`
     })
     .option("debug", {
       type: "boolean",
@@ -93,10 +92,10 @@ async function main() {
             choices: ["error", "warn", "info", "verbose", "debug"],
             describe: "Diagnostics of this level or above will be reported.",
           })
-          .option("no-warnings", {
+          .option("warn-as-error", {
             type: "boolean",
             default: false,
-            describe: "Return non zero exit code if there is any warnings.",
+            describe: "Treat warnings as error and return non-zero exit code if there is any.",
           });
       },
       async (args) => {
@@ -105,9 +104,6 @@ async function main() {
 
         const program = await compileInput(host, args.path, cliOptions);
         if (program.hasError()) {
-          process.exit(1);
-        }
-        if (args["no-warnings"] && program.diagnostics.find((x) => x.severity === "warning")) {
           process.exit(1);
         }
         if (program.emitters.length === 0) {
@@ -329,6 +325,7 @@ async function getCompilerOptions(
     watch?: boolean;
     emit?: string[];
     "diagnostic-level": string;
+    "warn-as-error"?: boolean;
   }
 ): Promise<CompilerOptions> {
   // Workaround for https://github.com/npm/cli/issues/3680
@@ -365,6 +362,7 @@ async function getCompilerOptions(
     additionalImports: args["import"],
     watchForChanges: args["watch"],
     diagnosticLevel: args["diagnostic-level"] as any,
+    warningAsError: args["warn-as-error"],
     emitters: args.emit ?? (config.emitters ? Object.keys(config.emitters) : []),
   };
 }

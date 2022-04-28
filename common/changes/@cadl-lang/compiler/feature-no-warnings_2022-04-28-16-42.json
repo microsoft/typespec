@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Add `no-warnings` flag to cli that will return non zero exit code when there is a warning",
+      "comment": "Add `warn-as-error` flag to cli that will return non zero exit code when there is a warning",
       "type": "minor"
     }
   ],
