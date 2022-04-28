@@ -31,6 +31,7 @@ async function main() {
     .strict()
     .parserConfiguration({
       "greedy-arrays": false,
+      "boolean-negation": false, // Disable `--no-<flagname` conflicting with `--no-warnings`
     })
     .option("debug", {
       type: "boolean",
@@ -91,6 +92,11 @@ async function main() {
             default: "info",
             choices: ["error", "warn", "info", "verbose", "debug"],
             describe: "Diagnostics of this level or above will be reported.",
+          })
+          .option("no-warnings", {
+            type: "boolean",
+            default: false,
+            describe: "Return non zero exit code if there is any warnings.",
           });
       },
       async (args) => {
@@ -99,6 +105,9 @@ async function main() {
 
         const program = await compileInput(host, args.path, cliOptions);
         if (program.hasError()) {
+          process.exit(1);
+        }
+        if (args["no-warnings"] && program.diagnostics.find((x) => x.severity === "warning")) {
           process.exit(1);
         }
         if (program.emitters.length === 0) {
