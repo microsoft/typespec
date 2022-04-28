@@ -91,6 +91,11 @@ async function main() {
             default: "info",
             choices: ["error", "warn", "info", "verbose", "debug"],
             describe: "Diagnostics of this level or above will be reported.",
+          })
+          .option("warn-as-error", {
+            type: "boolean",
+            default: false,
+            describe: "Treat warnings as errors and return non-zero exit code if there are any.",
           });
       },
       async (args) => {
@@ -320,6 +325,7 @@ async function getCompilerOptions(
     watch?: boolean;
     emit?: string[];
     "diagnostic-level": string;
+    "warn-as-error"?: boolean;
   }
 ): Promise<CompilerOptions> {
   // Workaround for https://github.com/npm/cli/issues/3680
@@ -356,6 +362,7 @@ async function getCompilerOptions(
     additionalImports: args["import"],
     watchForChanges: args["watch"],
     diagnosticLevel: args["diagnostic-level"] as any,
+    warningAsError: args["warn-as-error"],
     emitters: args.emit ?? (config.emitters ? Object.keys(config.emitters) : []),
   };
 }
