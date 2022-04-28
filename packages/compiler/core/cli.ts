@@ -95,7 +95,7 @@ async function main() {
           .option("warn-as-error", {
             type: "boolean",
             default: false,
-            describe: "Treat warnings as error and return non-zero exit code if there is any.",
+            describe: "Treat warnings as errors and return non-zero exit code if there are any.",
           });
       },
       async (args) => {
