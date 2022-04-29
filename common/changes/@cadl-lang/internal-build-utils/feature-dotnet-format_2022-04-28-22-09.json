@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "Add new util `runDotnetFormat`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}
