@@ -8,6 +8,10 @@ steps:
       versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
 
+  - task: UseDotNet@2
+    inputs:
+      version: 6.0.x
+
   - script: node common/scripts/install-run-rush.js install
     displayName: Install JavaScript Dependencies
 
