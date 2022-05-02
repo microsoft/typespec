@@ -324,6 +324,7 @@ async function getCompilerOptions(
     import?: string[];
     watch?: boolean;
     emit?: string[];
+    debug?: boolean;
     "diagnostic-level": string;
     "warn-as-error"?: boolean;
   }
@@ -361,7 +362,7 @@ async function getCompilerOptions(
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
     watchForChanges: args["watch"],
-    diagnosticLevel: args["diagnostic-level"] as any,
+    diagnosticLevel: args.debug ? "debug" : (args["diagnostic-level"] as any),
     warningAsError: args["warn-as-error"],
     emitters: args.emit ?? (config.emitters ? Object.keys(config.emitters) : []),
   };
