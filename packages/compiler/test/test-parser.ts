@@ -427,6 +427,7 @@ describe("compiler: syntax", () => {
       ["\u{FDD0}", /Invalid character/], // non-character
       ["\u{244B}", /Invalid character/], // unassigned
       ["\u{009F}", /Invalid character/], // control
+      ["\u{FFFD}", /Invalid character/], // replacement character
       ["#", /Identifier expected/], // directive
       ["42", /Identifier expected/],
       ["true", /Keyword cannot be used as identifier/],
