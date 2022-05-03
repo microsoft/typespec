@@ -194,6 +194,8 @@ alias DogPage = Page<Dog>;
 
 Unlike `model`, `alias` does not create a new entity, and as such will not change generated code in any way. An alias merely describes a source code shorthand to avoid repeating the right-hand side in multiple places.
 
+Because alias does not create a new entity, you cannot specify decorators on an alias.
+
 ### Type Literals
 
 API authors often need to describe API shapes in terms of specific literal values. For example, this operation returns this specific integer status code, or this model member can be one of a few specific string values. It is also often useful to pass specific literal values to decorators. Cadl supports string, number, and boolean literal values to support these cases:
@@ -470,12 +472,44 @@ Dog type: Model
 
 Cadl comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
 
+- @summary - attach a documentation string, typically a short, single-line description.
 - @doc - attach a documentation string. Works great with multi-line string literals.
 - @tag - attach a simple tag to a declaration
 - @secret - mark a string as a secret value that should be treated carefully to avoid exposure
 - @minValue/@maxValue - set the min and max values of number types
 - @minLength/@maxLength - set the min and max lengths for strings
 - @pattern - set the pattern for a string using regular expression syntax
+
+##### @summary
+
+Syntax:
+
+```
+@summary(text [, object])
+```
+
+`@summary` attaches a documentation string. It is typically used to give a short, single-line
+description, and can be used in combination with or instead of `@doc`.
+
+The first argument to `@summary` is a string, which may contain template parameters, enclosed in braces,
+which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
+
+`@summary` can be specified on any language element -- a model, an operation, a namespace, etc.
+
+##### @doc
+
+Syntax:
+
+```
+@doc(text [, object])
+```
+
+`@doc` attaches a documentation string. Works great with multi-line string literals.
+
+The first argument to `@doc` is a string, which may contain template parameters, enclosed in braces,
+which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
+
+`@doc` can be specified on any language element -- a model, an operation, a namespace, etc.
 
 ##### Visibility decorators
 

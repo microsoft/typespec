@@ -56,6 +56,15 @@ function setTemplatedStringProperty(
 }
 
 const summaryKey = Symbol("summary");
+/**
+ * @summary attaches a documentation string. It is typically used to give a short, single-line
+ * description, and can be used in combination with or instead of @doc.
+ *
+ * The first argument to @summary is a string, which may contain template parameters, enclosed in braces,
+ * which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
+ *
+ * @summary can be specified on any language element -- a model, an operation, a namespace, etc.
+ */
 export function $summary(
   { program }: DecoratorContext,
   target: Type,
@@ -70,6 +79,14 @@ export function getSummary(program: Program, type: Type): string | undefined {
 }
 
 const docsKey = Symbol("docs");
+/**
+ * @doc attaches a documentation string. Works great with multi-line string literals.
+ *
+ * The first argument to @doc is a string, which may contain template parameters, enclosed in braces,
+ * which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
+ *
+ * @doc can be specified on any language element -- a model, an operation, a namespace, etc.
+ */
 export function $doc(
   { program }: DecoratorContext,
   target: Type,

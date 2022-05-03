@@ -26,6 +26,7 @@ export const App: FunctionComponent = () => {
       if (compressed) {
         const content = lzutf8.decompress(compressed, { inputEncoding: "Base64" });
         cadlModel.setValue(content);
+        void doCompile(content);
       }
     }
   }, []);
