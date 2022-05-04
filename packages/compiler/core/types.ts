@@ -686,7 +686,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.InterfaceStatement;
   readonly operations: readonly OperationStatementNode[];
-  readonly mixes: readonly TypeReferenceNode[];
+  readonly extends: readonly TypeReferenceNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 

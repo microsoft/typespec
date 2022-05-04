@@ -59,7 +59,7 @@ import {
   HttpOperationResponse,
   OperationDetails,
 } from "@cadl-lang/rest";
-import { getVersionRecords } from "@cadl-lang/versioning";
+import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 import {
@@ -181,7 +181,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing Cadl and service namespace
     namespaceFilter(ns) {
-      const name = program.checker!.getNamespaceString(ns);
+      const name = program.checker.getNamespaceString(ns);
       return name !== "Cadl" && name !== serviceNamespace;
     },
   };
@@ -229,7 +229,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     if (!serviceNs) {
       return;
     }
-    const versions = getVersionRecords(program, serviceNs);
+    const versions = buildVersionProjections(program, serviceNs);
     for (const record of versions) {
       if (record.version) {
         record.projections.push({

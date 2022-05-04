@@ -23,7 +23,7 @@
   "devDependencies": {
     "@types/mkdirp": "~1.0.1",
     "@types/node": "~16.0.3",
-    "ecmarkup": "~9.8.1",
+    "ecmarkup": "~12.0.3",
     "@cadl-lang/internal-build-utils": "~0.1.0"
   }
 }

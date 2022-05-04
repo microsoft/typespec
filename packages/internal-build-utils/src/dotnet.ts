@@ -58,3 +58,18 @@ export async function ensureDotnetVersionOrExit() {
 
   validatedDotnet = true;
 }
+
+/**
+ * Runs the dotnet formatter.
+ */
+export async function runDotnetFormat(...args: string[]) {
+  return runDotnetOrExit([
+    "format",
+    "whitespace",
+    ".",
+    `--exclude`,
+    "**/node_modules/**/*",
+    "--folder",
+    ...args,
+  ]);
+}

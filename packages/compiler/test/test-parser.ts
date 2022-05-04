@@ -134,15 +134,14 @@ describe("compiler: syntax", () => {
     parseEach([
       "interface Foo { }",
       "interface Foo<T> { }",
-      "interface Foo<T> mixes Bar<T> { }",
-      "interface Foo mixes Bar, Baz<T> { }",
+      "interface Foo<T> extends Bar<T> { }",
+      "interface Foo extends Bar, Baz<T> { }",
       "interface Foo { foo(): int32; }",
       "interface Foo { foo(): int32; bar(): int32; }",
       "interface Foo { op foo(): int32; op bar(): int32; baz(): int32; }",
     ]);
 
     parseErrorEach([
-      ["interface Foo<T> extends Bar<T> {}", [/mixes/]],
       ["interface X {", [/'}' expected/]],
       ["interface X { foo(): string; interface Y", [/'}' expected/]],
       ["interface X { foo(a: string", [/'\)' expected/]],
@@ -428,6 +427,7 @@ describe("compiler: syntax", () => {
       ["\u{FDD0}", /Invalid character/], // non-character
       ["\u{244B}", /Invalid character/], // unassigned
       ["\u{009F}", /Invalid character/], // control
+      ["\u{FFFD}", /Invalid character/], // replacement character
       ["#", /Identifier expected/], // directive
       ["42", /Identifier expected/],
       ["true", /Keyword cannot be used as identifier/],

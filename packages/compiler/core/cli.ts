@@ -31,6 +31,7 @@ async function main() {
     .strict()
     .parserConfiguration({
       "greedy-arrays": false,
+      "boolean-negation": false,
     })
     .option("debug", {
       type: "boolean",
@@ -91,6 +92,16 @@ async function main() {
             default: "info",
             choices: ["error", "warn", "info", "verbose", "debug"],
             describe: "Diagnostics of this level or above will be reported.",
+          })
+          .option("warn-as-error", {
+            type: "boolean",
+            default: false,
+            describe: "Treat warnings as errors and return non-zero exit code if there are any.",
+          })
+          .option("no-emit", {
+            type: "boolean",
+            default: false,
+            describe: "Run emitters but do not emit any output.",
           });
       },
       async (args) => {
@@ -101,7 +112,7 @@ async function main() {
         if (program.hasError()) {
           process.exit(1);
         }
-        if (program.emitters.length === 0) {
+        if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
           console.log(
             "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the cadl config."
           );
@@ -310,17 +321,22 @@ function createCLICompilerHost(args: { pretty?: boolean }): CompilerHost {
   return { ...NodeHost, logSink: createConsoleSink({ pretty: args.pretty }) };
 }
 
+interface CompileCliArgs {
+  "output-path": string;
+  nostdlib?: boolean;
+  option?: string[];
+  import?: string[];
+  watch?: boolean;
+  emit?: string[];
+  debug?: boolean;
+  "diagnostic-level": string;
+  "warn-as-error"?: boolean;
+  "no-emit"?: boolean;
+}
+
 async function getCompilerOptions(
   host: CompilerHost,
-  args: {
-    "output-path": string;
-    nostdlib?: boolean;
-    option?: string[];
-    import?: string[];
-    watch?: boolean;
-    emit?: string[];
-    "diagnostic-level": string;
-  }
+  args: CompileCliArgs
 ): Promise<CompilerOptions> {
   // Workaround for https://github.com/npm/cli/issues/3680
   const pathArg = args["output-path"].replace(/\\\\/g, "\\");
@@ -355,7 +371,9 @@ async function getCompilerOptions(
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
     watchForChanges: args["watch"],
-    diagnosticLevel: args["diagnostic-level"] as any,
+    diagnosticLevel: args.debug ? "debug" : (args["diagnostic-level"] as any),
+    warningAsError: args["warn-as-error"],
+    noEmit: args["no-emit"],
     emitters: args.emit ?? (config.emitters ? Object.keys(config.emitters) : []),
   };
 }

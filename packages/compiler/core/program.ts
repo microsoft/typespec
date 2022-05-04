@@ -1,6 +1,6 @@
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { createSourceFile, getSourceLocation } from "./diagnostics.js";
+import { createSourceFile } from "./diagnostics.js";
 import { SymbolFlags } from "./index.js";
 import { createLogger } from "./logger/index.js";
 import { createDiagnostic } from "./messages.js";
@@ -49,7 +49,7 @@ export interface Program {
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   logger: Logger;
-  checker?: Checker;
+  checker: Checker;
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
@@ -211,6 +211,7 @@ export async function createProgram(
   const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
 
   const program: Program = {
+    checker: undefined!,
     compilerOptions: options,
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
@@ -684,14 +685,18 @@ export async function createProgram(
   }
 
   function reportDiagnostic(diagnostic: Diagnostic): void {
-    getSourceLocation(diagnostic.target);
+    if (shouldSuppress(diagnostic)) {
+      return;
+    }
+
+    if (options.warningAsError && diagnostic.severity === "warning") {
+      diagnostic = { ...diagnostic, severity: "error" };
+    }
 
     if (diagnostic.severity === "error") {
       error = true;
     }
-    if (shouldSuppress(diagnostic)) {
-      return;
-    }
+
     diagnostics.push(diagnostic);
   }
 

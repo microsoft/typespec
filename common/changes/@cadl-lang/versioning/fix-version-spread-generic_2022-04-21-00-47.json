@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Fix issues with spreading versioned model",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}

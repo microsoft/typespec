@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Color decorators differently than operations",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

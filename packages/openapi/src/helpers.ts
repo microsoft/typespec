@@ -52,7 +52,7 @@ export function getTypeName(
   existing?: Record<string, any>
 ): string {
   const name =
-    getFriendlyName(program, type, options) ?? program.checker!.getTypeName(type, options);
+    getFriendlyName(program, type, options) ?? program.checker.getTypeName(type, options);
 
   if (existing && existing[name]) {
     reportDiagnostic(program, {
@@ -139,7 +139,7 @@ function getDefaultFriendlyName(
   if (!hasDefaultFriendlyName(program, type)) {
     return undefined;
   }
-  const ns = program.checker!.getNamespaceString(type.namespace, options);
+  const ns = program.checker.getNamespaceString(type.namespace, options);
   const model = (ns ? ns + "." : "") + type.name;
   const args = type.templateArguments.map((arg) => getTypeName(program, arg, options));
   return `${model}_${args.join("_")}`;
