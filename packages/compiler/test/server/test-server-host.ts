@@ -4,7 +4,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../../core/parser.js";
 import { IdentifierNode, SyntaxKind } from "../../core/types.js";
-import { createServer, Server, ServerHost } from "../../server/serverlib.js";
+import { createServer, Server, ServerHost } from "../../server/index.js";
 import {
   createTestFileSystem,
   resolveVirtualPath,
