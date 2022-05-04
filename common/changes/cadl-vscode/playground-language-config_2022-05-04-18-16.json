@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Update `language-configuration.json` to newer format and generate it from cadl language server data",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

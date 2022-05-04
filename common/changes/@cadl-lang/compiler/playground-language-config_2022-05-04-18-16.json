@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Add `CadlLanguageConfiguration` containing the configuration used by editor (vscode, monaco)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
