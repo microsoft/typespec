@@ -181,7 +181,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing Cadl and service namespace
     namespaceFilter(ns) {
-      const name = program.checker!.getNamespaceString(ns);
+      const name = program.checker.getNamespaceString(ns);
       return name !== "Cadl" && name !== serviceNamespace;
     },
   };

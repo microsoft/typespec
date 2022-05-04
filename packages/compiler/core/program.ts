@@ -49,7 +49,7 @@ export interface Program {
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   logger: Logger;
-  checker?: Checker;
+  checker: Checker;
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
@@ -211,6 +211,7 @@ export async function createProgram(
   const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
 
   const program: Program = {
+    checker: undefined!,
     compilerOptions: options,
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),

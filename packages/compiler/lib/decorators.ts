@@ -110,7 +110,7 @@ export function $inspectTypeName(program: Program, target: Type, text: string) {
   // eslint-disable-next-line no-console
   if (text) console.log(text);
   // eslint-disable-next-line no-console
-  console.log(program.checker!.getTypeName(target));
+  console.log(program.checker.getTypeName(target));
 }
 
 const intrinsicsKey = Symbol("intrinsics");
