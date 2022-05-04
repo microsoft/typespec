@@ -97,7 +97,7 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
     const { keyProperty } = resourceKey;
     const keyName = getKeyName(program, keyProperty);
 
-    const newProp = program.checker!.cloneType(keyProperty);
+    const newProp = program.checker.cloneType(keyProperty);
     newProp.name = keyName;
     newProp.decorators.push(
       {

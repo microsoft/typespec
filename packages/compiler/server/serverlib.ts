@@ -404,7 +404,7 @@ export function createServer(host: ServerHost): Server {
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
     const sym = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      return id?.kind == SyntaxKind.Identifier ? program.checker?.resolveIdentifier(id) : undefined;
+      return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
     });
     return getLocations(sym?.declarations);
   }
@@ -482,7 +482,7 @@ export function createServer(host: ServerHost): Server {
       return [];
     }
 
-    const sym = program.checker?.resolveIdentifier(id);
+    const sym = program.checker.resolveIdentifier(id);
     if (!sym) {
       return [id];
     }
@@ -492,7 +492,7 @@ export function createServer(host: ServerHost): Server {
       visitChildren(script, function visit(node) {
         if (
           node.kind === SyntaxKind.Identifier &&
-          program.checker?.resolveIdentifier(node) === sym
+          program.checker.resolveIdentifier(node) === sym
         ) {
           references.push(node);
         }
@@ -521,7 +521,7 @@ export function createServer(host: ServerHost): Server {
     node: IdentifierNode,
     completions: CompletionList
   ) {
-    const result = program.checker!.resolveCompletions(node);
+    const result = program.checker.resolveCompletions(node);
     if (result.size === 0) {
       return;
     }
@@ -536,7 +536,7 @@ export function createServer(host: ServerHost): Server {
       ) {
         kind = CompletionItemKind.Module;
       } else {
-        const type = program.checker!.getTypeForNode(sym.declarations[0]);
+        const type = program.checker.getTypeForNode(sym.declarations[0]);
         documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
       }
