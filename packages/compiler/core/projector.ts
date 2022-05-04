@@ -537,7 +537,7 @@ export function createProjector(
       scopeProps.namespace = projectedNamespaceScope();
     }
     if ("interface" in type && type.interface !== undefined) {
-      scopeProps.namespace = projectedInterfaceScope();
+      scopeProps.interface = projectedInterfaceScope();
     }
 
     const clone = checker.createType({
