@@ -507,6 +507,20 @@ describe("cadl: versioning", () => {
       );
     });
 
+    it("can version parameters", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedInterface(
+        ["1", "2"],
+        `interface Test { 
+          op foo(@added("2") a: string): void;
+        }`
+      );
+
+      assertHasProperties(v1.operations.get("foo")!.parameters, []);
+      assertHasProperties(v2.operations.get("foo")!.parameters, ["a"]);
+    });
+
     async function versionedInterface(versions: string[], iface: string) {
       const { Test } = (await runner.compile(`
         @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
