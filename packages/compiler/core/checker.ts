@@ -972,13 +972,12 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
-    // we leave namespaces for interface members as undefined
     if (
       node.kind === SyntaxKind.OperationStatement &&
       node.parent &&
       node.parent.kind === SyntaxKind.InterfaceStatement
     ) {
-      return undefined;
+      return getParentNamespaceType(node.parent);
     }
 
     if (!node.symbol.parent) {
