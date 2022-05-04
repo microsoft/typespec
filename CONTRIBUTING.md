@@ -9,8 +9,11 @@ npm install -g @microsoft/rush
 
 # Installing NPM dependencies
 
-```
+```bash
 rush update
+
+# To force rush to refetch the correct version of the packages
+rush update --recheck
 ```
 
 This will install all of the npm dependencies of all projects in the
@@ -52,6 +55,22 @@ rushx build
 rush test
 ```
 
+## Start compile on save
+
+Starting this command will rebuild the typescript files on save.
+
+```
+rush watch
+```
+
+## Cleanup
+
+Sometimes there is ghost files left in the dist folder, running this will get a clean state.
+
+```
+rush clean
+```
+
 ## Run tests for an individual package
 
 ```
@@ -63,7 +82,7 @@ rushx test
 
 Tests sometimes log extra info using `logVerboseTestOutput` To see
 this output on the command line, set environment variable
-ADL_VERBOSE_TEST_OUPUT=true.
+CADL_VERBOSE_TEST_OUTPUT=true.
 
 ## Reformat source code
 
