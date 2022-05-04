@@ -482,6 +482,7 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 - @knownValues - mark a string type with an enum that contains all known values
 - @pattern - set the pattern for a string using regular expression syntax
 - @format - specify the data format hint for a string type
+- @error - specify a model is representing an error
 
 ##### @summary
 
@@ -577,6 +578,18 @@ valid values for a string type's format:
 https://swagger.io/specification/#data-types
 
 `@format` can be applied to a type that extends from `string` or a `string`-typed model property.
+
+##### @error
+
+Syntax:
+
+```
+@error
+```
+
+`@format` - specify that this model is an error type
+
+For HTTP API this can be used to represent a failure.
 
 ##### Visibility decorators
 

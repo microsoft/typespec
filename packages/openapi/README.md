@@ -30,10 +30,9 @@ Decorators:
 
 ### `@defaultResponse`
 
-Decorator that can be used on a response model to specify the `default` status code that OpenAPI allow.
+**IMPORTANT This is to be used on `NON-ERROR` responses that cover all the other status codes. If you are looking to represent an error use [`@error`](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#error)**
 
-- This is to be used on **non-error** responses that cover all the other status codes.
-- If you are looking to represent the error use `@error`
+Decorator that can be used on a response model to specify the `default` status code that OpenAPI allow.
 
 ```cadl
 @defaultResponse
