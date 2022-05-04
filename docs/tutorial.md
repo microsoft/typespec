@@ -711,6 +711,46 @@ namespace Pets {
 
 ```
 
+##### Automatic route generation
+
+Instead of manually specifying routes using the `@route` decorator, you automatically generate
+routes from operation parameters by applying the `@autoRoute` decorator to an operation or a namespace
+or interface containing operations.
+
+For this to work, an operation's path parameters (those marked with `@path`) must also be marked with
+the `@segment` decorator to specify what the preceding path segment should be.
+
+This is especially useful when reusing common parameter sets defined as model types.
+
+For example:
+
+```
+model CommonParameters {
+  @path
+  @segment("tenants")
+  tenantId: string;
+
+  @path
+  @segment("users")
+  userName: string;
+}
+
+@autoRoute
+interface UserOperations {
+  @get
+  getUser(...CommonParameters): User | Error;
+
+  @put
+  updateUser(...CommonParameters, user: User): User | Error;
+}
+```
+
+This will result in the following route for both operations
+
+```
+/tenants/{tenantId}/users/{userName}
+```
+
 #### Path and query parameters
 
 Model properties and parameters which should be passed as path and query parameters use the `@path` and `@query` parameters respectively. Let's modify our list operation to support pagination, and add a read operation to our Pets resource:
