@@ -1,4 +1,5 @@
 import {
+  CadlLanguageConfiguration,
   createScanner,
   createServer,
   createSourceFile,
@@ -13,29 +14,7 @@ import "./style.css";
 
 export function attachServices(host: BrowserHost) {
   monaco.languages.register({ id: "cadl" });
-  monaco.languages.setLanguageConfiguration("cadl", {
-    comments: {
-      lineComment: "//",
-      blockComment: ["/*", "*/"],
-    },
-    brackets: [
-      ["{", "}"],
-      ["[", "]"],
-      ["(", ")"],
-    ],
-    autoClosingPairs: [
-      { open: "{", close: "}" },
-      { open: "[", close: "]" },
-      { open: "(", close: ")" },
-      // NOTE: quotes omitted here intentionally for now as they interfere with typing """
-    ],
-    surroundingPairs: [
-      { open: "{", close: "}" },
-      { open: "[", close: "]" },
-      { open: "(", close: ")" },
-      { open: '"', close: '"' },
-    ],
-  });
+  monaco.languages.setLanguageConfiguration("cadl", CadlLanguageConfiguration as any);
 
   const serverHost: ServerHost = {
     compilerHost: host,
