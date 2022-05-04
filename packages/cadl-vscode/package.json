@@ -44,7 +44,7 @@
         "extensions": [
           ".cadl"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./dist/language-configuration.json"
       },
       {
         "id": "markdown-cadl"
