@@ -205,6 +205,19 @@ export function isErrorModel(program: Program, target: Type): boolean {
 
 const formatValuesKey = Symbol("formatValues");
 
+/**
+ * `@format` - specify the data format hint for a string type
+ *
+ * The first argument is a string that identifies the format that the string type expects.  Any string
+ * can be entered here, but a Cadl emitter must know how to interpret
+ *
+ * For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
+ * valid values for a string type's format:
+ *
+ * https://swagger.io/specification/#data-types
+ *
+ * `@format` can be specified on a type that extends from `string` or a `string`-typed model property.
+ */
 export function $format({ program }: DecoratorContext, target: Type, format: string) {
   if (
     !validateDecoratorTarget(program, target, "@format", ["Model", "ModelProperty"]) ||
@@ -585,7 +598,13 @@ export function getFriendlyName(program: Program, target: Type): string {
 
 const knownValuesKey = Symbol("knownValues");
 /**
- * Specify the known values for a string type.
+ * `@knownValues` marks a string type with an enum that contains all known values
+ *
+ * The first parameter is a reference to an enum type that describes all possible values that the
+ * type accepts.
+ *
+ * `@knownValues` can only be applied to model types that extend `string`.
+ *
  * @param target Decorator target. Must be a string. (model Foo extends string)
  * @param knownValues Must be an enum.
  */
@@ -654,6 +673,14 @@ export function getKnownValues(
 
 const keyKey = Symbol("key");
 
+/**
+ * `@key` - mark a model property as the key to identify instances of that type
+ *
+ * The optional first argument accepts an alternate key name which may be used by emitters.
+ * Otherwise, the name of the target property will be used.
+ *
+ * `@key` can only be applied to model properties.
+ */
 export function $key({ program }: DecoratorContext, entity: Type, altName?: string): void {
   if (!validateDecoratorTarget(program, entity, "@key", "ModelProperty")) {
     return;

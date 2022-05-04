@@ -474,11 +474,14 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 
 - @summary - attach a documentation string, typically a short, single-line description.
 - @doc - attach a documentation string. Works great with multi-line string literals.
+- @key - mark a model property as the key to identify instances of that type
 - @tag - attach a simple tag to a declaration
 - @secret - mark a string as a secret value that should be treated carefully to avoid exposure
 - @minValue/@maxValue - set the min and max values of number types
 - @minLength/@maxLength - set the min and max lengths for strings
+- @knownValues - mark a string type with an enum that contains all known values
 - @pattern - set the pattern for a string using regular expression syntax
+- @format - specify the data format hint for a string type
 
 ##### @summary
 
@@ -510,6 +513,70 @@ The first argument to `@doc` is a string, which may contain template parameters,
 which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
 
 `@doc` can be specified on any language element -- a model, an operation, a namespace, etc.
+
+##### @knownValues
+
+Syntax:
+
+```
+@knownValues(enumTypeReference)
+```
+
+`@knownValues` marks a string type with an enum that contains all known values
+
+The first parameter is a reference to an enum type that enumerates all possible values that the
+type accepts.
+
+`@knownValues` can only be applied to model types that extend `string`.
+
+Example:
+
+```
+enum OperationStateValues {
+  Running,
+  Completed,
+  Failed
+}
+
+@knownValues(OperationStateValues)
+model OperationState extends string {
+}
+```
+
+##### @key
+
+Syntax:
+
+```
+@key([keyName])
+```
+
+`@key` - mark a model property as the key to identify instances of that type
+
+The optional first argument accepts an alternate key name which may be used by emitters.
+Otherwise, the name of the target property will be used.
+
+`@key` can only be applied to model properties.
+
+##### @format
+
+Syntax:
+
+```
+@format(formatName)
+```
+
+`@format` - specify the data format hint for a string type
+
+The first argument is a string that identifies the format that the string type expects. Any string
+can be entered here, but a Cadl emitter must know how to interpret
+
+For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
+valid values for a string type's format:
+
+https://swagger.io/specification/#data-types
+
+`@format` can be applied to a type that extends from `string` or a `string`-typed model property.
 
 ##### Visibility decorators
 
