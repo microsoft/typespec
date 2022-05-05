@@ -1,5 +1,5 @@
 // @ts-check
-import { run } from "@cadl-lang/internal-build-utils";
+import { run, xplatCmd } from "@cadl-lang/internal-build-utils";
 import { readFileSync } from "fs";
 
 const version = JSON.parse(readFileSync("package.json", "utf-8")).version;
@@ -12,5 +12,5 @@ const options = {
 };
 
 for (const command of ["code", "code-insiders"]) {
-  await run(command, ["--install-extension", vsix], options);
+  await run(xplatCmd(command), ["--install-extension", vsix], options);
 }
