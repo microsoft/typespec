@@ -23,6 +23,35 @@ describe("cadl: projections", () => {
     testHost = await createTestHost();
   });
 
+  it("projects nested namespaces", async () => {
+    const code = `
+     namespace Bar.Baz;
+     @test model Foo {
+       a: string;
+       b: int32;
+     }
+
+     #suppress "projections-are-experimental"
+     projection Foo#v {
+        to(version) {
+          if version <= 1 {
+            self::deleteProperty("a");
+          };
+
+          if version <= 2 {
+            self::deleteProperty("b");
+          };
+        }
+      }
+     `;
+    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    strictEqual(
+      result.namespace?.namespace?.name,
+      "Bar",
+      "Projections do not preserve Namespace parent relationships."
+    );
+  });
+
   it("takes parameters", async () => {
     const code = `
       @test model Foo {
