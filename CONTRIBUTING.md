@@ -3,7 +3,7 @@
 - Install [Node.js](https://nodejs.org/) 14 LTS or 16 LTS
 - Install [Rush](https://rushjs.io/)
 
-```
+```bash
 npm install -g @microsoft/rush
 ```
 
@@ -27,7 +27,7 @@ using the command line.
 
 ## Rebuild the whole repo
 
-```
+```bash
 rush rebuild
 ```
 
@@ -35,7 +35,7 @@ This will build all projects in the correct dependency order.
 
 ## Build the whole repo incrementally
 
-```
+```bash
 rush build
 ```
 
@@ -44,14 +44,14 @@ dependency order.
 
 ## Build an individual package on the command line
 
-```
+```bash
 cd packages/<project>
 rushx build
 ```
 
 ## Run all tests for the whole repo
 
-```
+```bash
 rush test
 ```
 
@@ -59,21 +59,21 @@ rush test
 
 Starting this command will rebuild the typescript files on save.
 
-```
+```bash
 rush watch
 ```
 
 ## Cleanup
 
-Sometimes there is ghost files left in the dist folder, running this will get a clean state.
+Sometimes there are ghost files left in the dist folder(common when renaming a TypeScript file), running this will get a clean state.
 
-```
+```bash
 rush clean
 ```
 
 ## Run tests for an individual package
 
-```
+```bash
 cd packages/<project>
 rushx test
 ```
@@ -86,7 +86,7 @@ CADL_VERBOSE_TEST_OUTPUT=true.
 
 ## Reformat source code
 
-```
+```bash
 rush format
 ```
 
@@ -98,6 +98,23 @@ reformatting anything using `rush check-format`.
 
 See also below for having this happen automatically in VS Code
 whenever you save.
+
+## Generate changelogs
+
+```bash
+rush change
+```
+
+PR validation enforces every changes to packages have a changelog entry.
+
+Rush change will ask for the following questions for each modified packages:
+
+- message: This should be a good description of what the changes are to this package
+- type:
+  - `major`: For a breaking change. **DO NOT USE All versions remain in 0.x stage until GA.**
+  - `minor`: A new funtionality.
+  - `patch`: A bug fix.
+  - `none`: Not relevant to the consumer of the packages. For example some added tests.
 
 # Using VS Code
 
