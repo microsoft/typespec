@@ -65,7 +65,7 @@ rush watch
 
 ## Cleanup
 
-Sometimes there are ghost files left in the dist folder(common when renaming a TypeScript file), running this will get a clean state.
+Sometimes there are ghost files left in the dist folder (common when renaming or deleting a TypeScript file), running this will get a clean state.
 
 ```bash
 rush clean
