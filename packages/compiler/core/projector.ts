@@ -51,7 +51,7 @@ export function createProjector(
   startNode?: Type
 ): Projector {
   const projectedTypes = new Map<Type, Type>();
-  const checker = program.checker!;
+  const checker = program.checker;
   const neverType = checker.neverType;
   const scope: Type[] = [];
   const projector: Projector = {
@@ -66,8 +66,8 @@ export function createProjector(
   const targetGlobalNs = startNode
     ? startNode.projector
       ? startNode.projector.projectedGlobalNamespace!
-      : program.checker!.getGlobalNamespaceType()
-    : program.checker!.getGlobalNamespaceType();
+      : program.checker.getGlobalNamespaceType()
+    : program.checker.getGlobalNamespaceType();
 
   // project all the namespaces first
   projector.projectedGlobalNamespace = projectNamespace(targetGlobalNs) as NamespaceType;
@@ -537,7 +537,7 @@ export function createProjector(
       scopeProps.namespace = projectedNamespaceScope();
     }
     if ("interface" in type && type.interface !== undefined) {
-      scopeProps.namespace = projectedInterfaceScope();
+      scopeProps.interface = projectedInterfaceScope();
     }
 
     const clone = checker.createType({

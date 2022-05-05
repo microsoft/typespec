@@ -22,7 +22,7 @@ export function createLogger(options: LoggerOptions): Logger {
   const config = { ...defaultOptions, ...options };
 
   function log(log: LogInfo) {
-    if (LogLevels[config.level] >= LogLevels[log.level]) {
+    if (LogLevels[config.level] <= LogLevels[log.level]) {
       config.sink.log(processLog(log));
     }
   }

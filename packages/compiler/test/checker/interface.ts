@@ -30,7 +30,7 @@ describe("compiler: interfaces", () => {
       Foo: InterfaceType;
     };
 
-    strictEqual(Foo.namespace, testHost.program.checker!.getGlobalNamespaceType());
+    strictEqual(Foo.namespace, testHost.program.checker.getGlobalNamespaceType());
     strictEqual(Foo.name, "Foo");
     strictEqual(Foo.operations.size, 1);
     const bar = Foo.operations.get("bar");

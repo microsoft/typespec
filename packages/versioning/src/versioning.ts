@@ -249,7 +249,7 @@ export function $onValidate(program: Program) {
           if (!(value instanceof Map)) {
             reportDiagnostic(program, {
               code: "versioned-dependency-record-not-model",
-              format: { dependency: program.checker!.getNamespaceString(dependencyNs) },
+              format: { dependency: program.checker.getNamespaceString(dependencyNs) },
               target: namespace,
             });
           }
@@ -257,7 +257,7 @@ export function $onValidate(program: Program) {
           if (typeof value !== "string") {
             reportDiagnostic(program, {
               code: "versioned-dependency-not-string",
-              format: { dependency: program.checker!.getNamespaceString(dependencyNs) },
+              format: { dependency: program.checker.getNamespaceString(dependencyNs) },
               target: namespace,
             });
           }
@@ -281,8 +281,8 @@ function validateVersionedNamespaceUsage(
         reportDiagnostic(program, {
           code: "using-versioned-library",
           format: {
-            sourceNs: program.checker!.getNamespaceString(source),
-            targetNs: program.checker!.getNamespaceString(target),
+            sourceNs: program.checker.getNamespaceString(source),
+            targetNs: program.checker.getNamespaceString(target),
           },
           target: source ?? NoTarget,
         });
@@ -318,8 +318,8 @@ export function resolveVersions(program: Program, rootNs: NamespaceType): Versio
       const map = new Map();
       for (const [dependencyNs, version] of dependencies) {
         if (typeof version !== "string") {
-          const rootNsName = program.checker!.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker!.getNamespaceString(dependencyNs);
+          const rootNsName = program.checker.getNamespaceString(rootNs);
+          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a string.`
           );
@@ -338,8 +338,8 @@ export function resolveVersions(program: Program, rootNs: NamespaceType): Versio
 
       for (const [dependencyNs, versionMap] of dependencies) {
         if (!(versionMap instanceof Map)) {
-          const rootNsName = program.checker!.getNamespaceString(rootNs);
-          const dependencyNsName = program.checker!.getNamespaceString(dependencyNs);
+          const rootNsName = program.checker.getNamespaceString(rootNs);
+          const dependencyNsName = program.checker.getNamespaceString(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
           );

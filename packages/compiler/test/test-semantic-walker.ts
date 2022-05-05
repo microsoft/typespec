@@ -91,7 +91,7 @@ describe("compiler: semantic walker", () => {
     `);
 
     assert.deepStrictEqual(
-      result.namespaces.map((x) => host.program.checker!.getNamespaceString(x)),
+      result.namespaces.map((x) => host.program.checker.getNamespaceString(x)),
       ["", "Global", "Global.My", "Global.My.Simple", "Global.My.Parent", "Global.My.Parent.Child"]
     );
   });
