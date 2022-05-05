@@ -249,7 +249,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   async function emitOpenAPIFromVersion(serviceNamespace: NamespaceType, version?: string) {
     initializeEmitter(serviceNamespace, version);
     try {
-      getAllRoutes(program).forEach(emitOperation);
+      const [routes] = getAllRoutes(program);
+      for (const operation of routes) {
+        emitOperation(operation);
+      }
       emitReferences();
       emitTags();
 
@@ -538,7 +541,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       (p) => p.type === "header" && p.name === "content-type"
     );
     const contentTypes = contentTypeParam
-      ? getContentTypes(program, contentTypeParam.param)
+      ? getContentTypes(program, [], contentTypeParam.param)
       : ["application/json"];
     for (const contentType of contentTypes) {
       const isBinary = isBinaryPayload(bodyType, contentType);

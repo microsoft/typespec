@@ -1270,6 +1270,9 @@ export interface CadlLibrary<
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;
+  createDiagnostic<C extends keyof T, M extends keyof T[C]>(
+    diag: DiagnosticReport<T, C, M>
+  ): Diagnostic;
 }
 
 /**

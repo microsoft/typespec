@@ -1,5 +1,6 @@
 import {
   DecoratorContext,
+  Diagnostic,
   getServiceNamespace,
   InterfaceType,
   ModelTypeProperty,
@@ -10,7 +11,7 @@ import {
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./diagnostics.js";
+import { createDiagnostic, reportDiagnostic } from "./diagnostics.js";
 import {
   getHeaderFieldName,
   getOperationVerb,
@@ -186,7 +187,8 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
 export function getOperationParameters(
   program: Program,
   operation: OperationType
-): HttpOperationParameters {
+): [HttpOperationParameters, readonly Diagnostic[]] {
+  const diagnostics: Diagnostic[] = [];
   const result: HttpOperationParameters = {
     parameters: [],
   };
@@ -205,11 +207,13 @@ export function getOperationParameters(
       ["body", bodyParm],
     ].filter((x) => !!x[1]);
     if (defined.length >= 2) {
-      reportDiagnostic(program, {
-        code: "operation-param-duplicate-type",
-        format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
-        target: param,
-      });
+      diagnostics.push(
+        createDiagnostic({
+          code: "operation-param-duplicate-type",
+          format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
+          target: param,
+        })
+      );
     }
 
     if (queryParam) {
@@ -222,17 +226,19 @@ export function getOperationParameters(
       if (result.body === undefined) {
         result.body = param;
       } else {
-        reportDiagnostic(program, { code: "duplicate-body", target: param });
+        diagnostics.push(createDiagnostic({ code: "duplicate-body", target: param }));
       }
     } else {
       if (unAnnotatedParam === undefined) {
         unAnnotatedParam = param;
       } else {
-        reportDiagnostic(program, {
-          code: "duplicate-body",
-          messageId: "duplicateUnannotated",
-          target: param,
-        });
+        diagnostics.push(
+          createDiagnostic({
+            code: "duplicate-body",
+            messageId: "duplicateUnannotated",
+            target: param,
+          })
+        );
       }
     }
   }
@@ -241,14 +247,16 @@ export function getOperationParameters(
     if (result.body === undefined) {
       result.body = unAnnotatedParam;
     } else {
-      reportDiagnostic(program, {
-        code: "duplicate-body",
-        messageId: "bodyAndUnannotated",
-        target: unAnnotatedParam,
-      });
+      diagnostics.push(
+        createDiagnostic({
+          code: "duplicate-body",
+          messageId: "bodyAndUnannotated",
+          target: unAnnotatedParam,
+        })
+      );
     }
   }
-  return result;
+  return [result, diagnostics];
 }
 
 function generatePathFromParameters(
@@ -296,12 +304,13 @@ function generatePathFromParameters(
 
 function getPathForOperation(
   program: Program,
+  diagnostics: Diagnostic[],
   operation: OperationType,
   routeFragments: string[],
   options: RouteOptions
 ): { path: string; pathFragment?: string; parameters: HttpOperationParameters } {
-  const parameters: HttpOperationParameters = getOperationParameters(program, operation);
-
+  const [parameters, parmetersDiagnostics] = getOperationParameters(program, operation);
+  diagnostics.push(...parmetersDiagnostics);
   const pathFragments = [...routeFragments];
   const routePath = getRoutePath(program, operation);
   if (isAutoRoute(program, operation)) {
@@ -331,11 +340,13 @@ function getPathForOperation(
     for (const declaredParam of declaredPathParams) {
       const param = paramByName.get(declaredParam);
       if (!param) {
-        reportDiagnostic(program, {
-          code: "missing-path-param",
-          format: { param: declaredParam },
-          target: operation,
-        });
+        diagnostics.push(
+          createDiagnostic({
+            code: "missing-path-param",
+            format: { param: declaredParam },
+            target: operation,
+          })
+        );
         continue;
       }
 
@@ -357,6 +368,7 @@ function getPathForOperation(
 
 function getVerbForOperation(
   program: Program,
+  diagnostics: Diagnostic[],
   operation: OperationType,
   parameters: HttpOperationParameters
 ): HttpVerb {
@@ -372,11 +384,13 @@ function getVerbForOperation(
   }
 
   if (parameters.body) {
-    reportDiagnostic(program, {
-      code: "http-verb-missing-with-body",
-      format: { operationName: operation.name },
-      target: operation,
-    });
+    diagnostics.push(
+      createDiagnostic({
+        code: "http-verb-missing-with-body",
+        format: { operationName: operation.name },
+        target: operation,
+      })
+    );
   }
 
   return "get";
@@ -384,6 +398,7 @@ function getVerbForOperation(
 
 function buildRoutes(
   program: Program,
+  diagnostics: Diagnostic[],
   container: OperationContainer,
   routeFragments: string[],
   visitedOperations: Set<OperationType>,
@@ -402,9 +417,10 @@ function buildRoutes(
       continue;
     }
 
-    const route = getPathForOperation(program, op, parentFragments, options);
-    const verb = getVerbForOperation(program, op, route.parameters);
-    const responses = getResponsesForOperation(program, op);
+    const route = getPathForOperation(program, diagnostics, op, parentFragments, options);
+    const verb = getVerbForOperation(program, diagnostics, op, route.parameters);
+    const [responses, responseDiagnostics] = getResponsesForOperation(program, op);
+    diagnostics.push(...responseDiagnostics);
     operations.push({
       path: route.path,
       pathFragment: route.pathFragment,
@@ -426,7 +442,7 @@ function buildRoutes(
     ];
 
     const childRoutes = children.flatMap((child) =>
-      buildRoutes(program, child, parentFragments, visitedOperations, options)
+      buildRoutes(program, diagnostics, child, parentFragments, visitedOperations, options)
     );
     for (const child of childRoutes) [operations.push(child)];
   }
@@ -439,13 +455,17 @@ export function getRoutesForContainer(
   container: OperationContainer,
   visitedOperations: Set<OperationType>,
   options?: RouteOptions
-): OperationDetails[] {
+): [OperationDetails[], Diagnostic[]] {
   const routeOptions =
     options ??
     (container.kind === "Namespace" ? getRouteOptionsForNamespace(program, container) : {}) ??
     {};
 
-  return buildRoutes(program, container, [], visitedOperations, routeOptions);
+  const diagnostics: Diagnostic[] = [];
+  return [
+    buildRoutes(program, diagnostics, container, [], visitedOperations, routeOptions),
+    diagnostics,
+  ];
 }
 
 function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
@@ -457,9 +477,12 @@ function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
   );
 }
 
-export function getAllRoutes(program: Program, options?: RouteOptions): OperationDetails[] {
+export function getAllRoutes(
+  program: Program,
+  options?: RouteOptions
+): [OperationDetails[], readonly Diagnostic[]] {
   let operations: OperationDetails[] = [];
-
+  const diagnostics: Diagnostic[] = [];
   const serviceNamespace = getServiceNamespace(program);
   const containers: Type[] = [
     ...(serviceNamespace ? [serviceNamespace] : []),
@@ -474,12 +497,13 @@ export function getAllRoutes(program: Program, options?: RouteOptions): Operatio
       continue;
     }
 
-    const newOps = getRoutesForContainer(
+    const [newOps, containerDiagnostics] = getRoutesForContainer(
       program,
       container as OperationContainer,
       visitedOperations,
       options
     );
+    diagnostics.push(...containerDiagnostics);
 
     // Make sure we don't visit the same operations again
     newOps.forEach((o) => visitedOperations.add(o.operation));
@@ -488,11 +512,11 @@ export function getAllRoutes(program: Program, options?: RouteOptions): Operatio
     operations = [...operations, ...newOps];
   }
 
-  validateRouteUnique(program, operations);
-  return operations;
+  validateRouteUnique(diagnostics, operations);
+  return [operations, diagnostics];
 }
 
-function validateRouteUnique(program: Program, operations: OperationDetails[]) {
+function validateRouteUnique(diagnostics: Diagnostic[], operations: OperationDetails[]) {
   const grouped = new Map<string, Map<HttpVerb, OperationDetails[]>>();
 
   for (const operation of operations) {
@@ -516,11 +540,13 @@ function validateRouteUnique(program: Program, operations: OperationDetails[]) {
     for (const [verb, routes] of map) {
       if (routes.length >= 2) {
         for (const route of routes) {
-          reportDiagnostic(program, {
-            code: "duplicate-operation",
-            format: { path, verb, operationName: route.operation.name },
-            target: route.operation,
-          });
+          diagnostics.push(
+            createDiagnostic({
+              code: "duplicate-operation",
+              format: { path, verb, operationName: route.operation.name },
+              target: route.operation,
+            })
+          );
         }
       }
     }
