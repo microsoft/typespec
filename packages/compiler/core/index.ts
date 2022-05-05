@@ -2,7 +2,7 @@ export * from "../lib/decorators.js";
 export * as decorators from "../lib/decorators.js";
 export * from "../lib/service.js";
 export * as service from "../lib/service.js";
-export * from "../server/serverlib.js";
+export * from "../server/index.js";
 export * from "./checker.js";
 export * from "./decorator-utils.js";
 export * from "./diagnostics.js";

@@ -1,4 +1,5 @@
 import {
+  CadlLanguageConfiguration,
   createScanner,
   createServer,
   createSourceFile,
@@ -13,6 +14,7 @@ import "./style.css";
 
 export function attachServices(host: BrowserHost) {
   monaco.languages.register({ id: "cadl" });
+  monaco.languages.setLanguageConfiguration("cadl", CadlLanguageConfiguration as any);
 
   const serverHost: ServerHost = {
     compilerHost: host,
