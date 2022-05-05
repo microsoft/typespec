@@ -23,6 +23,9 @@ test("save code with ctrl/cmd+S", async ({ page }) => {
   const cadlEditorContainer = page.locator("#editor");
   await cadlEditorContainer.click();
   await cadlEditorContainer.type("op sharedCode(): string;");
-  await page.keyboard.press(`${ctrlOrCmd}+KeyS`);
-  await page.waitForNavigation({ url: `${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7` });
+  await Promise.all([
+    // It is important to call waitForNavigation before click to set up waiting.
+    page.waitForNavigation({ url: `${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7` }),
+    page.keyboard.press(`${ctrlOrCmd}+KeyS`),
+  ]);
 });
