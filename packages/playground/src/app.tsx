@@ -1,8 +1,8 @@
 import { compile, DiagnosticTarget, getSourceLocation, NoTarget } from "@cadl-lang/compiler";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
-import { editor, MarkerSeverity, Uri } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { createBrowserHost } from "./browserHost";
 import { CadlEditor, OutputEditor } from "./components/cadl-editor";
 import { useMonacoModel } from "./components/editor";
@@ -123,6 +123,14 @@ export const App: FunctionComponent = () => {
     };
   }
 
+  const cadlEditorCommands = useMemo(
+    () => [
+      // ctrl/cmd+S => save
+      { binding: KeyMod.CtrlCmd | KeyCode.KeyS, handle: saveCode },
+    ],
+    [saveCode]
+  );
+
   return (
     <div id="grid">
       <div id="commandBar">
@@ -144,7 +152,7 @@ export const App: FunctionComponent = () => {
       />
       <div id="editorContainer">
         <div id="editor">
-          <CadlEditor model={cadlModel} />
+          <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
         </div>
       </div>
       <div id="outputContainer">
