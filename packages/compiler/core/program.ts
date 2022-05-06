@@ -253,17 +253,20 @@ export async function createProgram(
     await loadStandardLibrary(program);
   }
 
+  const resolvedMain = await resolveCadlEntrypoint(mainFile);
   // Load additional imports prior to compilation
-  if (options.additionalImports) {
+  if (resolvedMain && options.additionalImports) {
     const importScript = options.additionalImports.map((i) => `import "${i}";`).join("\n");
     const sourceFile = createSourceFile(
       importScript,
-      joinPaths(getDirectoryPath(mainFile), `__additional_imports`)
+      joinPaths(getDirectoryPath(resolvedMain), `__additional_imports`)
     );
     await loadCadlScript(sourceFile);
   }
 
-  const resolvedMain = await loadMain(mainFile, options);
+  if (resolvedMain) {
+    await loadMain(resolvedMain, options);
+  }
 
   if (resolvedMain && options.emitters) {
     await loadEmitters(resolvedMain, options.emitters);
@@ -313,15 +316,7 @@ export async function createProgram(
     dir: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<string> {
-    const pkgJsonPath = resolvePath(dir, "package.json");
-    const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
-      allowFileNotFound: true,
-      diagnosticTarget,
-    });
-    const mainFile = resolvePath(
-      dir,
-      typeof pkg?.cadlMain === "string" ? pkg.cadlMain : "main.cadl"
-    );
+    const mainFile = await resolveCadlEntrypointForDir(dir);
     await loadCadlFile(mainFile, diagnosticTarget);
     return mainFile;
   }
@@ -573,27 +568,54 @@ export async function createProgram(
   }
 
   /**
-   * Load the main file from the given path
-   * @param mainPath Directory containing main.cadl or filename to load as main.
-   * @param options Compiler options.
-   * @returns
+   * Resolve the path to the main file
+   * @param path path to the entrypoint of the program. Can be the main.cadl, folder containg main.cadl or a project/library root.
+   * @returns Absolute path to the entrypoint.
    */
-  async function loadMain(mainPath: string, options: CompilerOptions): Promise<string | undefined> {
-    const resolvedMainPath = resolvePath(mainPath);
-    const mainStat = await doIO(host.stat, resolvedMainPath, program.reportDiagnostic);
+  async function resolveCadlEntrypoint(path: string): Promise<string | undefined> {
+    const resolvedPath = resolvePath(path);
+    const mainStat = await doIO(host.stat, resolvedPath, program.reportDiagnostic);
     if (!mainStat) {
       return undefined;
     }
 
-    if (!(await checkForCompilerVersionMismatch(resolvedMainPath, mainStat.isDirectory()))) {
-      return undefined;
-    }
-
     if (mainStat.isDirectory()) {
-      return await loadDirectory(resolvedMainPath, NoTarget);
+      return resolveCadlEntrypointForDir(resolvedPath);
     } else {
-      await loadCadlFile(resolvedMainPath, NoTarget);
-      return resolvedMainPath;
+      return resolvedPath;
+    }
+  }
+
+  async function resolveCadlEntrypointForDir(dir: string): Promise<string> {
+    const pkgJsonPath = resolvePath(dir, "package.json");
+    const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, program.reportDiagnostic, {
+      allowFileNotFound: true,
+    });
+    const mainFile = resolvePath(
+      dir,
+      typeof pkg?.cadlMain === "string" ? pkg.cadlMain : "main.cadl"
+    );
+    return mainFile;
+  }
+
+  /**
+   * Load the main file from the given path
+   * @param mainPath Absolute path to the main file.
+   * @param options Compiler options.
+   * @returns
+   */
+  async function loadMain(mainPath: string, options: CompilerOptions): Promise<void> {
+    if (!(await checkForCompilerVersionMismatch(mainPath))) {
+      return;
+    }
+    const ext = getAnyExtensionFromPath(mainPath);
+
+    if (ext === ".js" || ext === ".mjs") {
+      await importJsFile(mainPath, NoTarget);
+    } else if (ext === ".cadl") {
+      await loadCadlFile(mainPath, NoTarget);
+    } else {
+      program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
     }
   }
 
@@ -603,11 +625,8 @@ export async function createProgram(
   // different version of cadl than the current one. Abort the compilation
   // with an error if the Cadl entry point resolves to a different local
   // compiler.
-  async function checkForCompilerVersionMismatch(
-    mainPath: string,
-    mainPathIsDirectory: boolean
-  ): Promise<boolean> {
-    const baseDir = mainPathIsDirectory ? mainPath : getDirectoryPath(mainPath);
+  async function checkForCompilerVersionMismatch(mainPath: string): Promise<boolean> {
+    const baseDir = getDirectoryPath(mainPath);
     let actual: string;
     try {
       actual = await resolveModule(
