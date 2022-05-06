@@ -60,6 +60,7 @@
     "@rollup/plugin-replace": "~2.4.2",
     "@rollup/plugin-multi-entry": "~4.1.0",
     "rollup": "~2.70.1",
+    "vite": "^2.8.0",
     "globby": "~13.1.1"
   },
   "devDependencies": {

@@ -1,3 +1,4 @@
+import { cadlBundlePlugin } from "@cadl-lang/bundler";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -8,11 +9,23 @@ export default defineConfig({
     target: "esnext",
     chunkSizeWarningLimit: 4000,
   },
-  assetsInclude: [/\.cadl$/],
+  // assetsInclude: [/\.cadl$/],
   optimizeDeps: {
     exclude: ["node-fetch"],
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    cadlBundlePlugin({
+      prefix: "/libs/",
+      libraries: [
+        "@cadl-lang/compiler",
+        "@cadl-lang/rest",
+        "@cadl-lang/openapi",
+        "@cadl-lang/versioning",
+        "@cadl-lang/openapi3",
+      ],
+    }),
+  ],
   server: {
     fs: {
       strict: false,

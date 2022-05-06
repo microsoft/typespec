@@ -5022,7 +5022,7 @@ packages:
     dev: false
 
   file:projects/bundler.tgz:
-    resolution: {integrity: sha512-QNTLMadMw8ionkZ7Gl01MRK6A51+FCJfhgSwRJgWvYxUsubSxv7Chj+/8Bs3gbi7L44OPe1LOoaDv71GDvzleA==, tarball: file:projects/bundler.tgz}
+    resolution: {integrity: sha512-0jqHD/ku4d5KsaDtE3/Rr/7Wlvpc0Uutlr2rTPo212u0wfAv2MD1+szoA4PFIg0E9ILr85NsRghDJv1BjujjPA==, tarball: file:projects/bundler.tgz}
     name: '@rush-temp/bundler'
     version: 0.0.0
     dependencies:
@@ -5041,7 +5041,11 @@ packages:
       rimraf: 3.0.2
       rollup: 2.70.1
       typescript: 4.6.3
+      vite: 2.9.1
     transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
       - supports-color
     dev: false
 

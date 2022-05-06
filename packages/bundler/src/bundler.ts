@@ -17,7 +17,7 @@ interface PackageJson {
   dependencies: string[];
 }
 
-export async function bundleCadlLibrary(libraryPath: string, outputFile: string) {
+export async function createCadlBundleFile(libraryPath: string): Promise<string> {
   console.log("Bundling", libraryPath);
   const pkg = await readLibraryPackageJson(libraryPath);
   const jsFiles = await findJSFiles(pkg, libraryPath);
@@ -63,8 +63,13 @@ export async function bundleCadlLibrary(libraryPath: string, outputFile: string)
   });
   bundle.close();
 
+  return output[0].code;
+}
+
+export async function bundleCadlLibrary(libraryPath: string, outputFile: string) {
+  const code = await createCadlBundleFile(libraryPath);
   await mkdir(dirname(outputFile), { recursive: true });
-  await writeFile(outputFile, output[0].code);
+  await writeFile(outputFile, code);
 }
 
 function unixify(path: string): string {
