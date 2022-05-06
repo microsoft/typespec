@@ -74,7 +74,7 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
       for (const [name, bundle] of Object.entries(bundles)) {
         const filename = this.emitFile({
           type: "asset",
-          fileName: `assets/${name}.js`,
+          fileName: `${options.prefix}${name}.js`,
           source: bundle.content,
         });
         console.log("Created as ", { filename, askedName: `assets/${name}.js` });
