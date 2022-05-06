@@ -1,5 +1,5 @@
 import { resolve } from "path";
-import { Plugin } from "vite";
+import type { Plugin } from "vite";
 import { createCadlBundleFile } from "./bundler.js";
 
 export interface CadlBundlePluginOptions {
