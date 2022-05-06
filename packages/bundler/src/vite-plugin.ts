@@ -3,7 +3,7 @@ import type { Plugin } from "vite";
 import { CadlBundle, createCadlBundle } from "./bundler.js";
 
 export interface CadlBundlePluginOptions {
-  prefix: string;
+  folderName: string;
 
   /**
    * Name of libraries to bundle.
@@ -31,8 +31,9 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
           next();
           return;
         }
-        if (id.startsWith(options.prefix) && id.endsWith(".js")) {
-          const pkgId = id.slice(options.prefix.length, -".js".length);
+        const start = `/${options.folderName}/`;
+        if (id.startsWith(start) && id.endsWith(".js")) {
+          const pkgId = id.slice(start.length, -".js".length);
           if (bundles[pkgId]) {
             res.writeHead(200, "Ok", { "Content-Type": "application/javascript" });
             res.write(bundles[pkgId].content);
@@ -74,7 +75,7 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
       for (const [name, bundle] of Object.entries(bundles)) {
         const filename = this.emitFile({
           type: "asset",
-          fileName: `${options.prefix}${name}.js`,
+          fileName: `${options.folderName}/${name}.js`,
           source: bundle.content,
         });
         console.log("Created as ", { filename, askedName: `assets/${name}.js` });

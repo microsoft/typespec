@@ -16,7 +16,7 @@ export default defineConfig({
   plugins: [
     react(),
     cadlBundlePlugin({
-      prefix: "/libs/",
+      folderName: "libs",
       libraries: [
         "@cadl-lang/compiler",
         "@cadl-lang/rest",
