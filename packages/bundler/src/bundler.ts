@@ -70,6 +70,12 @@ export async function createCadlBundle(libraryPath: string): Promise<CadlBundle>
     external: (id) => {
       return !!id.match(/^@cadl-lang\/[a-z\-]+$/);
     },
+    onwarn: (warning, warn) => {
+      if (warning.code === "THIS_IS_UNDEFINED" || warning.code === "CIRCULAR_DEPENDENCY") {
+        return;
+      }
+      warn(warning);
+    },
   });
   const { output } = await bundle.generate({
     file: "lib.js",
