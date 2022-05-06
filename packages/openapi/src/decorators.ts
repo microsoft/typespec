@@ -21,6 +21,12 @@ export function $operationId({ program }: DecoratorContext, entity: Type, opId: 
   ) {
     return;
   }
+  // TODO-remove for testing
+  reportDiagnostic(program, {
+    code: "invalid-extension-key",
+    format: { value: "x-test" },
+    target: entity,
+  });
   program.stateMap(operationIdsKey).set(entity, opId);
 }
 

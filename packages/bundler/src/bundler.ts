@@ -2,7 +2,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import virtual from "@rollup/plugin-virtual";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { globby } from "globby";
 import { dirname, join, relative, resolve } from "path";
 import { rollup } from "rollup";
@@ -17,7 +17,20 @@ interface PackageJson {
   dependencies: string[];
 }
 
-export async function createCadlBundleFile(libraryPath: string): Promise<string> {
+export interface CadlBundle {
+  /**
+   * Bundle content
+   */
+  content: string;
+
+  /**
+   * List of file used
+   */
+  sourceFiles: string[];
+}
+
+export async function createCadlBundle(libraryPath: string): Promise<CadlBundle> {
+  libraryPath = await realpath(libraryPath);
   console.log("Bundling", libraryPath);
   const pkg = await readLibraryPackageJson(libraryPath);
   const jsFiles = await findJSFiles(pkg, libraryPath);
@@ -63,13 +76,16 @@ export async function createCadlBundleFile(libraryPath: string): Promise<string>
   });
   bundle.close();
 
-  return output[0].code;
+  return {
+    content: output[0].code,
+    sourceFiles: [...jsFiles, ...Object.keys(cadlFiles)],
+  };
 }
 
 export async function bundleCadlLibrary(libraryPath: string, outputFile: string) {
-  const code = await createCadlBundleFile(libraryPath);
+  const bundle = await createCadlBundle(libraryPath);
   await mkdir(dirname(outputFile), { recursive: true });
-  await writeFile(outputFile, code);
+  await writeFile(outputFile, bundle.content);
 }
 
 function unixify(path: string): string {
