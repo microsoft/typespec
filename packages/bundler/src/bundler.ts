@@ -1,3 +1,4 @@
+import { createProgram, NodeHost } from "@cadl-lang/compiler";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import nodeResolve from "@rollup/plugin-node-resolve";
@@ -31,10 +32,26 @@ export interface CadlBundle {
 
 export async function createCadlBundle(libraryPath: string): Promise<CadlBundle> {
   libraryPath = await realpath(libraryPath);
+  const program = await createProgram(NodeHost, libraryPath, {
+    nostdlib: true,
+    noEmit: true,
+  });
   console.log("Bundling", libraryPath);
   const pkg = await readLibraryPackageJson(libraryPath);
-  const jsFiles = await findJSFiles(pkg, libraryPath);
-  const cadlFiles = await loadCadlFiles(libraryPath);
+  // const jsFiles = await findJSFiles(pkg, libraryPath);
+  // const cadlFiles = await loadCadlFiles(libraryPath);
+  const jsFiles: string[] = [];
+  for (const [file, source] of program.jsSourceFiles.entries()) {
+    if (file.startsWith(libraryPath)) {
+      jsFiles.push(file);
+    }
+  }
+  const cadlFiles: Record<string, string> = {
+    "package.json": JSON.stringify(pkg),
+  };
+  for (const [filename, sourceFile] of program.sourceFiles) {
+    cadlFiles[unixify(relative(libraryPath, filename))] = sourceFile.file.text;
+  }
   console.log("JS files: for", jsFiles);
   console.log("Content files: ", Object.keys(cadlFiles));
   const content = [

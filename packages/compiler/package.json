@@ -19,6 +19,7 @@
   ],
   "type": "module",
   "main": "dist/core/index.js",
+  "cadlMain": "lib/main.cadl",
   "exports": {
     ".": "./dist/core/index.js",
     "./testing": "./dist/testing/index.js"
