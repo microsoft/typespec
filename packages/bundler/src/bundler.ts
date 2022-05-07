@@ -4,7 +4,6 @@ import json from "@rollup/plugin-json";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import virtual from "@rollup/plugin-virtual";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
-import { globby } from "globby";
 import { dirname, join, relative, resolve } from "path";
 import { rollup } from "rollup";
 
@@ -38,8 +37,6 @@ export async function createCadlBundle(libraryPath: string): Promise<CadlBundle>
   });
   console.log("Bundling", libraryPath);
   const pkg = await readLibraryPackageJson(libraryPath);
-  // const jsFiles = await findJSFiles(pkg, libraryPath);
-  // const cadlFiles = await loadCadlFiles(libraryPath);
   const jsFiles: string[] = [];
   for (const [file, source] of program.jsSourceFiles.entries()) {
     if (file.startsWith(libraryPath)) {
@@ -118,26 +115,4 @@ function unixify(path: string): string {
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));
   return JSON.parse(file.toString());
-}
-
-async function findJSFiles(packageManifest: PackageJson, libraryPath: string) {
-  const patterns = packageManifest.cadlBundler?.jsInclude
-    ? packageManifest.cadlBundler?.jsInclude.map((x) => unixify(resolve(libraryPath, x)))
-    : [unixify(join(libraryPath, "dist/src/**/*.js"))];
-  return await globby([...patterns, "!**/testing/**/*", "!**/dist/test/**/*"]);
-}
-
-async function loadCadlFiles(libraryPath: string) {
-  const files = await findCadlFiles(libraryPath);
-  const fileMap: Record<string, string> = {};
-  for (const file of files) {
-    fileMap[unixify(relative(libraryPath, file))] = (await readFile(file)).toString();
-  }
-  return fileMap;
-}
-
-async function findCadlFiles(libraryPath: string) {
-  const pkgJson = unixify(join(libraryPath, "package.json"));
-  const cadlPattern = unixify(join(libraryPath, "**/*.cadl"));
-  return await globby([pkgJson, cadlPattern, `!${unixify(libraryPath)}/node_modules/**/*`]);
 }
