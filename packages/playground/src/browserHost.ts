@@ -21,9 +21,7 @@ export async function createBrowserHost(): Promise<BrowserHost> {
 
   for (const libName of libsToLoad) {
     const { _CadlLibrary_ } = await import(/* @vite-ignore */ libName);
-    console.log("Lib", libName, _CadlLibrary_);
     for (const [key, value] of Object.entries<any>(_CadlLibrary_.cadlSourceFiles)) {
-      console.log("Loaded file", `/test/node_modules/${libName}/${key}`);
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
     }
     for (const [key, value] of Object.entries<any>(_CadlLibrary_.jsSourceFiles)) {

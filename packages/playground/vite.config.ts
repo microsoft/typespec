@@ -9,7 +9,7 @@ export default defineConfig({
     target: "esnext",
     chunkSizeWarningLimit: 4000,
   },
-  // assetsInclude: [/\.cadl$/],
+  assetsInclude: [/\.cadl$/],
   optimizeDeps: {
     exclude: ["node-fetch"],
   },

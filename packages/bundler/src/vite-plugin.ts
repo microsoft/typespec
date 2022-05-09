@@ -12,7 +12,6 @@ export interface CadlBundlePluginOptions {
 }
 
 export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
-  console.log("Plugin", options);
   let bundles: Record<string, CadlBundle>;
 
   const files = new Map<string, string>();
@@ -20,10 +19,6 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
   return {
     name: "cadl-bundle",
     enforce: "pre",
-    options: (options) => {
-      console.log("Vite options", options);
-      return { ...options, watch: {} };
-    },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const id = req.url;
@@ -52,18 +47,16 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
         const bundle = await bundleLibrary(process.cwd(), library);
         bundles[library] = bundle;
         for (const file of bundle.sourceFiles) {
-          console.log("Watching", file);
           files.set(file, library);
           this.addWatchFile(file);
         }
       }
     },
 
-    handleHotUpdate: async (ctx) => {
+    async handleHotUpdate(ctx) {
       const library = files.get(ctx.file);
       if (library) {
         bundles[library] = await bundleLibrary(process.cwd(), library);
-        console.log("Library changed", library);
         // ctx.server.ws.send({
         //   type: "full-reload",
         // });
@@ -71,14 +64,12 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
     },
 
     generateBundle() {
-      console.log("Build end");
       for (const [name, bundle] of Object.entries(bundles)) {
-        const filename = this.emitFile({
+        this.emitFile({
           type: "asset",
           fileName: `${options.folderName}/${name}.js`,
           source: bundle.content,
         });
-        console.log("Created as ", { filename, askedName: `assets/${name}.js` });
       }
     },
   };
