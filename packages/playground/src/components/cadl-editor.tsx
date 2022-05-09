@@ -2,11 +2,13 @@ import { CadlPrettierPlugin } from "@cadl-lang/compiler";
 import { editor, KeyCode, KeyMod } from "monaco-editor";
 import prettier from "prettier";
 import { FunctionComponent } from "react";
-import { Editor, useMonacoModel } from "./editor";
+import { Editor, EditorCommand, useMonacoModel } from "./editor";
 
 export interface CadlEditorProps {
   model: editor.IModel;
+  commands?: EditorCommand[];
 }
+
 export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
   const options: editor.IStandaloneEditorConstructionOptions = {
     "semanticHighlighting.enabled": true,
@@ -31,6 +33,7 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
     { binding: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyF, handle: format },
     // alt+shift+F => format
     { binding: KeyMod.Alt | KeyMod.Shift | KeyCode.KeyF, handle: format },
+    ...props.commands ?? [],
   ];
   return (
     <Editor

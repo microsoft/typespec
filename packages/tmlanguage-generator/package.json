@@ -1,6 +1,6 @@
 {
   "name": "tmlanguage-generator",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "author": "Microsoft Corporation",
   "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
   "homepage": "https://github.com/Microsoft/cadl/tree/master/packages/tmlanguage-generator",
