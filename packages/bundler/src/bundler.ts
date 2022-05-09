@@ -31,7 +31,7 @@ export interface CadlBundle {
 }
 
 export async function createCadlBundle(libraryPath: string): Promise<CadlBundle> {
-  libraryPath = await realpath(libraryPath);
+  libraryPath = unixify(await realpath(libraryPath));
   const program = await createProgram(NodeHost, libraryPath, {
     nostdlib: true,
     noEmit: true,
@@ -44,7 +44,7 @@ export async function createCadlBundle(libraryPath: string): Promise<CadlBundle>
     }
   }
   const cadlFiles: Record<string, string> = {
-    "package.json": JSON.stringify(pkg),
+    [unixify(join(libraryPath, "package.json"))]: JSON.stringify(pkg),
   };
   for (const [filename, sourceFile] of program.sourceFiles) {
     cadlFiles[filename] = sourceFile.file.text;
