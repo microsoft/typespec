@@ -5,7 +5,7 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import virtual from "@rollup/plugin-virtual";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
-import { rollup } from "rollup";
+import { rollup, RollupBuild, RollupOptions, watch } from "rollup";
 import { relativeTo, unixify } from "./utils.js";
 
 interface PackageJson {
@@ -23,14 +23,9 @@ export interface CadlBundle {
    * Bundle content
    */
   content: string;
-
-  /**
-   * List of file used
-   */
-  sourceFiles: string[];
 }
 
-export async function createCadlBundle(libraryPath: string): Promise<CadlBundle> {
+async function createRollupConfig(libraryPath: string): Promise<RollupOptions> {
   libraryPath = unixify(await realpath(libraryPath));
   const program = await createProgram(NodeHost, libraryPath, {
     nostdlib: true,
@@ -56,7 +51,7 @@ export async function createCadlBundle(libraryPath: string): Promise<CadlBundle>
     cadlSourceFiles: cadlFiles,
   });
 
-  const bundle = await rollup({
+  return {
     input: ["entry.js"],
     output: {
       esModule: true,
@@ -79,16 +74,56 @@ export async function createCadlBundle(libraryPath: string): Promise<CadlBundle>
       }
       warn(warning);
     },
-  });
+  };
+}
+
+export async function createCadlBundle(libraryPath: string): Promise<CadlBundle> {
+  const rollupOptions = await createRollupConfig(libraryPath);
+  const bundle = await rollup(rollupOptions);
+
+  try {
+    return generateCadlBundle(bundle);
+  } finally {
+    await bundle.close();
+  }
+}
+
+async function generateCadlBundle(bundle: RollupBuild): Promise<CadlBundle> {
   const { output } = await bundle.generate({
     file: "lib.js",
   });
-  await bundle.close();
 
   return {
     content: output[0].code,
-    sourceFiles: [...jsFiles, ...Object.keys(cadlFiles)],
   };
+}
+
+export async function watchCadlBundle(libraryPath: string, onBundle: (bundle: CadlBundle) => void) {
+  const rollupOptions = await createRollupConfig(libraryPath);
+  const watcher = watch({
+    ...rollupOptions,
+    watch: {
+      skipWrite: true,
+    },
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  watcher.on("event", async (event) => {
+    switch (event.code) {
+      case "BUNDLE_START":
+        break;
+      case "BUNDLE_END":
+        try {
+          const cadlBundle = await generateCadlBundle(event.result);
+          onBundle(cadlBundle);
+        } finally {
+          await event.result.close();
+        }
+        break;
+      case "ERROR":
+        await event.result?.close();
+    }
+  });
 }
 
 export async function bundleCadlLibrary(libraryPath: string, outputFile: string) {

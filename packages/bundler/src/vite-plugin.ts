@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import type { Plugin } from "vite";
-import { CadlBundle, createCadlBundle } from "./bundler.js";
+import { CadlBundle, createCadlBundle, watchCadlBundle } from "./bundler.js";
 
 export interface CadlBundlePluginOptions {
   folderName: string;
@@ -12,14 +12,20 @@ export interface CadlBundlePluginOptions {
 }
 
 export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
-  let bundles: Record<string, CadlBundle>;
-
-  const files = new Map<string, string>();
-
   return {
     name: "cadl-bundle",
     enforce: "pre",
-    configureServer(server) {
+    async configureServer(server) {
+      const bundles: Record<string, CadlBundle> = {};
+
+      for (const library of options.libraries) {
+        // TODO remove process.cwd() replace with project root.
+        await watchBundleLibrary(process.cwd(), library, (bundle) => {
+          bundles[library] = bundle;
+          server.ws.send({ type: "full-reload" });
+        });
+      }
+
       server.middlewares.use((req, res, next) => {
         const id = req.url;
         if (id === undefined) {
@@ -40,31 +46,9 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
       });
     },
 
-    async buildStart() {
-      bundles = {};
-
-      for (const library of options.libraries) {
-        const bundle = await bundleLibrary(process.cwd(), library);
-        bundles[library] = bundle;
-        for (const file of bundle.sourceFiles) {
-          files.set(file, library);
-          this.addWatchFile(file);
-        }
-      }
-    },
-
-    async handleHotUpdate(ctx) {
-      const library = files.get(ctx.file);
-      if (library) {
-        bundles[library] = await bundleLibrary(process.cwd(), library);
-        // ctx.server.ws.send({
-        //   type: "full-reload",
-        // });
-      }
-    },
-
-    generateBundle() {
-      for (const [name, bundle] of Object.entries(bundles)) {
+    async generateBundle() {
+      for (const name of options.libraries) {
+        const bundle = await bundleLibrary(process.cwd(), name);
         this.emitFile({
           type: "asset",
           fileName: `${options.folderName}/${name}.js`,
@@ -77,4 +61,11 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
 
 async function bundleLibrary(projectRoot: string, name: string) {
   return await createCadlBundle(resolve(projectRoot, "node_modules", name));
+}
+async function watchBundleLibrary(
+  projectRoot: string,
+  name: string,
+  onChange: (bundle: CadlBundle) => void
+) {
+  return await watchCadlBundle(resolve(projectRoot, "node_modules", name), onChange);
 }

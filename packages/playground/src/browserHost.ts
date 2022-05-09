@@ -28,7 +28,7 @@ export async function createBrowserHost(): Promise<BrowserHost> {
       addJsImport(`/test/node_modules/${libName}/${key}`, value);
     }
   }
-  //
+
   function addJsImport(path: string, value: any) {
     virtualFs.set(path, "");
     jsImports.set(path, value);
