@@ -28,11 +28,6 @@
     "./dist/core/node-host.js": "./dist/core/node-host.browser.js",
     "./dist/core/logger/console-sink.js": "./dist/core/logger/console-sink.browser.js"
   },
-  "cadlBundler": {
-    "jsInclude": [
-      "./dist/lib/**/*.js"
-    ]
-  },
   "types": "dist/core/index.d.ts",
   "engines": {
     "node": ">=16.0.0"

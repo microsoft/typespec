@@ -19,20 +19,6 @@
   "type": "module",
   "main": "dist/src/index.js",
   "cadlMain": "dist/src/index.js",
-  "exports": {
-    ".": "./dist/src/index.js",
-    "./testing": "./dist/src/testing/index.js"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/src/index.d.ts"
-      ],
-      "testing": [
-        "./dist/src/testing/index.d.ts"
-      ]
-    }
-  },
   "engines": {
     "node": ">=16.0.0"
   },

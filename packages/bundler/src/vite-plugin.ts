@@ -1,5 +1,5 @@
 import { resolve } from "path";
-import type { Plugin } from "vite";
+import type { Plugin, ResolvedConfig } from "vite";
 import { CadlBundle, createCadlBundle, watchCadlBundle } from "./bundler.js";
 
 export interface CadlBundlePluginOptions {
@@ -12,15 +12,18 @@ export interface CadlBundlePluginOptions {
 }
 
 export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
+  let config: ResolvedConfig;
+
   return {
     name: "cadl-bundle",
     enforce: "pre",
+    async configResolved(c) {
+      config = c;
+    },
     async configureServer(server) {
       const bundles: Record<string, CadlBundle> = {};
-
       for (const library of options.libraries) {
-        // TODO remove process.cwd() replace with project root.
-        await watchBundleLibrary(process.cwd(), library, (bundle) => {
+        await watchBundleLibrary(config.root, library, (bundle) => {
           bundles[library] = bundle;
           server.ws.send({ type: "full-reload" });
         });
@@ -48,7 +51,7 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
 
     async generateBundle() {
       for (const name of options.libraries) {
-        const bundle = await bundleLibrary(process.cwd(), name);
+        const bundle = await bundleLibrary(config.root, name);
         this.emitFile({
           type: "asset",
           fileName: `${options.folderName}/${name}.js`,
