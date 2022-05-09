@@ -39,6 +39,12 @@ const libDef = {
         default: paramMessage`Namespace '${"sourceNs"}' is referencing types from versioned namespace '${"targetNs"}' but didn't specify which versions with @versionedDependency.`,
       },
     },
+    "incompatible-versioned-reference": {
+      severity: "error",
+      messages: {
+        default: paramMessage`'${"sourceName"}' is referencing versioned type '${"targetName"}' but is not versioned itself.`,
+      },
+    },
   },
 } as const;
 export const { reportDiagnostic } = createCadlLibrary(libDef);

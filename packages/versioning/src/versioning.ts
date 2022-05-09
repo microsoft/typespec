@@ -236,6 +236,16 @@ export function $onValidate(program: Program) {
       const namespace = op.namespace ?? op.interface?.namespace;
       addDependency(namespace, op.parameters);
       addDependency(namespace, op.returnType);
+
+      const opAddedOn = getAddedOn(program, op);
+      const returnTypeAddedOn = getAddedOn(program, op.returnType);
+      if (returnTypeAddedOn && !opAddedOn) {
+        reportDiagnostic(program, {
+          code: "incompatible-versioned-reference",
+          format: { sourceName: op.name, targetName: program.checker.getTypeName(op.returnType) },
+          target: op,
+        });
+      }
     },
     namespace: (namespace) => {
       const version = getVersion(program, namespace);
