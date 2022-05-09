@@ -1,5 +1,5 @@
 import { resolve } from "path";
-import type { Plugin, ResolvedConfig } from "vite";
+import type { IndexHtmlTransformContext, Plugin, ResolvedConfig } from "vite";
 import { CadlBundle, createCadlBundle, watchCadlBundle } from "./bundler.js";
 
 export interface CadlBundlePluginOptions {
@@ -13,6 +13,14 @@ export interface CadlBundlePluginOptions {
 
 export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
   let config: ResolvedConfig;
+  const imports: Record<string, string> = {};
+  for (const library of options.libraries) {
+    imports[library] = `./${options.folderName}/${library}.js`;
+  }
+  const importMap = {
+    imports: imports,
+    thisone: true,
+  };
 
   return {
     name: "cadl-bundle",
@@ -58,6 +66,19 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
           source: bundle.content,
         });
       }
+    },
+
+    transformIndexHtml: {
+      enforce: "post",
+      transform: (html: string, ctx: IndexHtmlTransformContext) => {
+        // Inject the importmap before the html script. Cannot just use injectTo:head-prepend as vite will inject its own script before that and cause a failure.
+        const importMapTag = `<script type="importmap">\n${JSON.stringify(
+          importMap,
+          null,
+          2
+        )}\n</script>`;
+        return html.replace("<html", importMapTag + "\n<html");
+      },
     },
   };
 }
