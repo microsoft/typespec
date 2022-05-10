@@ -434,7 +434,7 @@ ModelExpression :
     `{` ModelBody? `}`
 
 TupleExpression :
-    `[` ExpressionList `]`
+    `[` ExpressionList? `]`
 
 ExpressionList :
     Expression
@@ -582,7 +582,7 @@ ProjectionModelSpreadProperty :
     `...` ProjectionExpression
 
 ProjectionTupleExpression :
-    `[` ProjectionExpressionList `]`
+    `[` ProjectionExpressionList? `]`
 
 ProjectionLambdaExpression :
     CoverProjectionParenthesizedExpressionAndLambdaParameterList `=>` ProjectionBlockExpression
