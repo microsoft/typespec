@@ -4,7 +4,7 @@ import { createSourceFile } from "./diagnostics.js";
 import { SymbolFlags } from "./index.js";
 import { createLogger } from "./logger/index.js";
 import { createDiagnostic } from "./messages.js";
-import { resolveModule } from "./module-resolver.js";
+import { resolveModule, ResolveModuleHost } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
 import {
@@ -499,7 +499,7 @@ export async function createProgram(
     let module;
     try {
       // attempt to resolve a node module with this name
-      module = await resolveCadlLibrary(emitterPackage, basedir);
+      module = await resolveJSLibrary(emitterPackage, basedir);
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
         program.reportDiagnostic(
@@ -546,25 +546,33 @@ export async function createProgram(
    * that module, e.g. "/cadl/node_modules/myLib/main.cadl".
    */
   function resolveCadlLibrary(specifier: string, baseDir: string): Promise<string> {
-    return resolveModule(
-      {
-        realpath: host.realpath,
-        stat: host.stat,
-        readFile: async (path) => {
-          const file = await host.readFile(path);
-          return file.text;
-        },
+    return resolveModule(getResolveModuleHost(), specifier, {
+      baseDir,
+      resolveMain(pkg) {
+        // this lets us follow node resolve semantics more-or-less exactly
+        // but using cadlMain instead of main.
+        return pkg.cadlMain ?? pkg.main;
       },
-      specifier,
-      {
-        baseDir,
-        resolveMain(pkg) {
-          // this lets us follow node resolve semantics more-or-less exactly
-          // but using cadlMain instead of main.
-          return pkg.cadlMain ?? pkg.main;
-        },
-      }
-    );
+    });
+  }
+
+  /**
+   * resolves a module specifier like "myLib" to an absolute path where we can find the main of
+   * that module, e.g. "/cadl/node_modules/myLib/dist/lib.js".
+   */
+  function resolveJSLibrary(specifier: string, baseDir: string): Promise<string> {
+    return resolveModule(getResolveModuleHost(), specifier, { baseDir });
+  }
+
+  function getResolveModuleHost(): ResolveModuleHost {
+    return {
+      realpath: host.realpath,
+      stat: host.stat,
+      readFile: async (path) => {
+        const file = await host.readFile(path);
+        return file.text;
+      },
+    };
   }
 
   /**
