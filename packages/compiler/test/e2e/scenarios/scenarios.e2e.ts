@@ -31,7 +31,7 @@ describe("compiler: entrypoints", () => {
       });
     });
 
-    it.only("compile library with Cadl entrypoint and emitter", async () => {
+    it("compile library with Cadl entrypoint and emitter", async () => {
       const program = await compileScenario("emitter-with-cadl", {
         emitters: ["@cadl-lang/test-emitter-with-cadl"],
       });
