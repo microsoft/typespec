@@ -4,7 +4,7 @@ export interface CompilerOptions {
   miscOptions?: any;
   outputPath?: string;
   swaggerOutputFile?: string;
-  emitters?: string[];
+  emitters?: Record<string, Record<string, unknown> | boolean>;
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];

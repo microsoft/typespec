@@ -1,4 +1,17 @@
-import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
+import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
+
+export interface OpenAPIEmitterOptions {
+  outputFile?: string;
+}
+
+const EmiterOptionsSchema: JSONSchemaType<OpenAPIEmitterOptions> = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    outputFile: { type: "string", nullable: true },
+  },
+  required: [],
+};
 
 export const libDef = {
   name: "@cadl-lang/openapi3",
@@ -85,10 +98,11 @@ export const libDef = {
     },
   },
   emitter: {
-    names: ["openapi3"],
+    options: EmiterOptionsSchema as JSONSchemaType<OpenAPIEmitterOptions>,
   },
 } as const;
-const lib = createCadlLibrary(libDef);
-export const { reportDiagnostic } = lib;
 
-export type OpenAPILibrary = typeof lib;
+export const $lib = createCadlLibrary(libDef);
+export const { reportDiagnostic } = $lib;
+
+export type OpenAPILibrary = typeof $lib;

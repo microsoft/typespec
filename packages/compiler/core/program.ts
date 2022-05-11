@@ -269,7 +269,8 @@ export async function createProgram(
   }
 
   if (resolvedMain && options.emitters) {
-    await loadEmitters(resolvedMain, options.emitters);
+    const emitters = computeEmitters(options.emitters);
+    await loadEmitters(resolvedMain, emitters);
   }
 
   const checker = (program.checker = createChecker(program));
@@ -488,13 +489,17 @@ export async function createProgram(
     }
   }
 
-  async function loadEmitters(mainFile: string, emitters: string[]) {
-    for (const emitterPackage of emitters) {
-      await loadEmitter(mainFile, emitterPackage, "default");
+  async function loadEmitters(mainFile: string, emitters: Record<string, Record<string, unknown>>) {
+    for (const [emitterPackage, options] of Object.entries(emitters)) {
+      await loadEmitter(mainFile, emitterPackage, options);
     }
   }
 
-  async function loadEmitter(mainFile: string, emitterPackage: string, emitterName: string) {
+  async function loadEmitter(
+    mainFile: string,
+    emitterPackage: string,
+    options: Record<string, unknown>
+  ) {
     const basedir = getDirectoryPath(mainFile);
     let module;
     try {
@@ -520,7 +525,7 @@ export async function createProgram(
       program.reportDiagnostic(
         createDiagnostic({
           code: "emitter-not-found",
-          format: { emitterPackage, emitterName },
+          format: { emitterPackage },
           target: NoTarget,
         })
       );
@@ -529,12 +534,13 @@ export async function createProgram(
 
     const emitterFunction = file.esmExports.$onEmit;
     if (emitterFunction !== undefined) {
-      emitters.push({ emitter: emitterFunction, options: { name: emitterName } });
+      // todo validate options.
+      emitters.push({ emitter: emitterFunction, options });
     } else {
       program.reportDiagnostic(
         createDiagnostic({
           code: "emitter-not-found",
-          format: { emitterPackage, emitterName },
+          format: { emitterPackage },
           target: NoTarget,
         })
       );
@@ -862,4 +868,19 @@ export async function compile(
   options?: CompilerOptions
 ): Promise<Program> {
   return await createProgram(host, mainFile, options);
+}
+
+function computeEmitters(
+  emitters: Record<string, Record<string, unknown> | boolean>
+): Record<string, Record<string, unknown>> {
+  const processedEmitters: Record<string, Record<string, unknown>> = {};
+
+  for (const [emitter, options] of Object.entries(emitters)) {
+    if (options === false) {
+      continue;
+    }
+    processedEmitters[emitter] = options === true ? {} : options;
+  }
+
+  return processedEmitters;
 }

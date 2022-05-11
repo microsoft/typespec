@@ -8,7 +8,7 @@ import { resolve } from "path";
 import prompts from "prompts";
 import url from "url";
 import yargs from "yargs";
-import { loadCadlConfigForPath } from "../config/index.js";
+import { CadlConfig, loadCadlConfigForPath } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
@@ -33,12 +33,12 @@ async function main() {
       "greedy-arrays": false,
       "boolean-negation": false,
     })
-    .option("debug", {
+    .options("debug", {
       type: "boolean",
       description: "Output debug log messages.",
       default: false,
     })
-    .option("pretty", {
+    .options("pretty", {
       type: "boolean",
       description:
         "Enable color and formatting in Cadl's output to make compiler errors easier to read.",
@@ -54,51 +54,51 @@ async function main() {
             type: "string",
             demandOption: true,
           })
-          .option("output-path", {
+          .options("output-path", {
             type: "string",
             default: "./cadl-output",
             describe:
               "The output path for generated artifacts.  If it does not exist, it will be created.",
           })
-          .option("option", {
+          .options("options", {
             type: "array",
             string: true,
             describe:
-              "Key/value pairs that can be passed to Cadl components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
+              "Key/value pairs that can be passed to Cadl components.  The format is 'emitter=value'.  This parameter can be used multiple times to add more options.",
           })
-          .option("nostdlib", {
+          .options("nostdlib", {
             type: "boolean",
             default: false,
             describe: "Don't load the Cadl standard library.",
           })
-          .option("import", {
+          .options("import", {
             type: "array",
             string: true,
             describe:
               "Additional imports to include.  This parameter can be used multiple times to add more imports.",
           })
-          .option("watch", {
+          .options("watch", {
             type: "boolean",
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
-          .option("emit", {
+          .options("emit", {
             type: "array",
             string: true,
             describe: "Name of the emitters",
           })
-          .option("diagnostic-level", {
+          .options("diagnostic-level", {
             type: "string",
             default: "info",
             choices: ["error", "warn", "info", "verbose", "debug"],
             describe: "Diagnostics of this level or above will be reported.",
           })
-          .option("warn-as-error", {
+          .options("warn-as-error", {
             type: "boolean",
             default: false,
             describe: "Treat warnings as errors and return non-zero exit code if there are any.",
           })
-          .option("no-emit", {
+          .options("no-emit", {
             type: "boolean",
             default: false,
             describe: "Run emitters but do not emit any output.",
@@ -122,7 +122,7 @@ async function main() {
     .command("code", "Manage VS Code Extension.", (cmd) => {
       return cmd
         .demandCommand(1, "No command specified.")
-        .option("insiders", {
+        .options("insiders", {
           type: "boolean",
           description: "Use VS Code Insiders",
           default: false,
@@ -167,13 +167,13 @@ async function main() {
             array: true,
             demandOption: true,
           })
-          .option("exclude", {
+          .options("exclude", {
             alias: "x",
             type: "string",
             array: true,
             describe: "Pattern to exclude",
           })
-          .option("check", {
+          .options("check", {
             alias: "c",
             type: "boolean",
             describe: "Verify the files are formatted.",
@@ -324,7 +324,7 @@ function createCLICompilerHost(args: { pretty?: boolean }): CompilerHost {
 interface CompileCliArgs {
   "output-path": string;
   nostdlib?: boolean;
-  option?: string[];
+  options?: string[];
   import?: string[];
   watch?: boolean;
   emit?: string[];
@@ -344,11 +344,11 @@ async function getCompilerOptions(
   await mkdirp(outputPath);
 
   const miscOptions: any = {};
-  for (const option of args.option || []) {
-    const optionParts = option.split("=");
+  for (const options of args.options || []) {
+    const optionParts = options.split("=");
     if (optionParts.length != 2) {
       throw new Error(
-        `The --option parameter value "${option}" must be in the format: some-option=value`
+        `The --options parameter value "${options}" must be in the format: some-options=value`
       );
     }
     miscOptions[optionParts[0]] = optionParts[1];
@@ -374,8 +374,22 @@ async function getCompilerOptions(
     diagnosticLevel: args.debug ? "debug" : (args["diagnostic-level"] as any),
     warningAsError: args["warn-as-error"],
     noEmit: args["no-emit"],
-    emitters: args.emit ?? (config.emitters ? Object.keys(config.emitters) : []),
+    emitters: resolveEmitters(config, args),
   };
+}
+
+function resolveEmitters(
+  config: CadlConfig,
+  args: CompileCliArgs
+): Record<string, Record<string, unknown> | boolean> {
+  if (args.emit) {
+    const emitters: Record<string, Record<string, unknown> | boolean> = {};
+    for (const emitter of args.emit) {
+      emitters[emitter] = config.emitters[emitter] ?? true;
+    }
+    return emitters;
+  }
+  return config.emitters;
 }
 
 async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, debug: boolean) {
@@ -595,7 +609,8 @@ async function printInfo(host: CompilerHost) {
   const config = await loadCadlConfigForPath(host, cwd);
   const jsyaml = await import("js-yaml");
   const excluded = ["diagnostics", "filename"];
-  const replacer = (key: string, value: any) => (excluded.includes(key) ? undefined : value);
+  const replacer = (emitter: string, value: any) =>
+    excluded.includes(emitter) ? undefined : value;
 
   console.log(`User Config: ${config.filename ?? "No config file found"}`);
   console.log("-----------");

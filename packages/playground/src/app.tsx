@@ -76,7 +76,7 @@ export const App: FunctionComponent = () => {
     const program = await compile("main.cadl", host, {
       outputPath: "cadl-output",
       swaggerOutputFile: "cadl-output/openapi.json",
-      emitters: ["@cadl-lang/openapi3"],
+      emitters: { "@cadl-lang/openapi3": {} },
     });
 
     const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({

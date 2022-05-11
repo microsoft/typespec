@@ -80,7 +80,7 @@ const {
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
   const options: OpenAPIEmitterOptions = {
-    outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
+    outputFile: emitterOptions?.outputFile ?? resolvePath("./openapi.json"),
   };
 
   const emitter = createOAPIEmitter(p, options);

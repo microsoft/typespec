@@ -33,7 +33,7 @@ describe("compiler: entrypoints", () => {
 
     it("compile library with Cadl entrypoint and emitter", async () => {
       const program = await compileScenario("emitter-with-cadl", {
-        emitters: ["@cadl-lang/test-emitter-with-cadl"],
+        emitters: { "@cadl-lang/test-emitter-with-cadl": {} },
       });
       expectDiagnosticEmpty(program.diagnostics);
     });

@@ -27,7 +27,7 @@ import {
  */
 export function createCadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
-  E extends string
+  E extends Record<string, any>
 >(lib: Readonly<CadlLibraryDef<T, E>>): CadlLibrary<T, E> {
   const { reportDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
   return { ...lib, reportDiagnostic };
