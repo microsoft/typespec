@@ -367,7 +367,6 @@ async function getCompilerOptions(
   return {
     miscOptions,
     outputPath,
-    swaggerOutputFile: resolvePath(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
     watchForChanges: args["watch"],

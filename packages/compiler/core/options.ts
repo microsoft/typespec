@@ -3,13 +3,11 @@ import { LogLevel } from "./types";
 export interface CompilerOptions {
   miscOptions?: any;
   outputPath?: string;
-  swaggerOutputFile?: string;
   emitters?: Record<string, Record<string, unknown> | boolean>;
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];
   watchForChanges?: boolean;
-  serviceCodePath?: string;
   diagnosticLevel?: LogLevel;
   warningAsError?: boolean;
 

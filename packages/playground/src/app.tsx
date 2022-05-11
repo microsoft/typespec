@@ -75,7 +75,6 @@ export const App: FunctionComponent = () => {
     await emptyOutputDir();
     const program = await compile("main.cadl", host, {
       outputPath: "cadl-output",
-      swaggerOutputFile: "cadl-output/openapi.json",
       emitters: { "@cadl-lang/openapi3": {} },
     });
 
