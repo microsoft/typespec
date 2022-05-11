@@ -535,9 +535,9 @@ export async function createProgram(
     }
 
     const emitterFunction = file.esmExports.$onEmit;
-    const libDefinition: CadlLibrary<any> = file.esmExports.$lib;
+    const libDefinition: CadlLibrary<any> | undefined = file.esmExports.$lib;
     if (emitterFunction !== undefined) {
-      if (libDefinition.emitter?.options) {
+      if (libDefinition?.emitter?.options) {
         const optionValidator = new SchemaValidator(libDefinition.emitter?.options);
         const diagnostics = optionValidator.validate(options, NoTarget);
         if (diagnostics.length > 0) {
