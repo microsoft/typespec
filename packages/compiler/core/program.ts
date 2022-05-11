@@ -15,7 +15,9 @@ import {
   resolvePath,
 } from "./path-utils.js";
 import { createProjector } from "./projector.js";
+import { SchemaValidator } from "./schema-validator.js";
 import {
+  CadlLibrary,
   CadlScriptNode,
   CompilerHost,
   Diagnostic,
@@ -533,8 +535,16 @@ export async function createProgram(
     }
 
     const emitterFunction = file.esmExports.$onEmit;
+    const libDefinition: CadlLibrary<any> = file.esmExports.$lib;
     if (emitterFunction !== undefined) {
-      // todo validate options.
+      if (libDefinition.emitter?.options) {
+        const optionValidator = new SchemaValidator(libDefinition.emitter?.options);
+        const diagnostics = optionValidator.validate(options, NoTarget);
+        if (diagnostics.length > 0) {
+          program.reportDiagnostics(diagnostics);
+          return;
+        }
+      }
       emitters.push({ emitter: emitterFunction, options });
     } else {
       program.reportDiagnostic(
