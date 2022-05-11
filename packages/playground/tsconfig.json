@@ -14,5 +14,5 @@
     "skipLibCheck": true,
     "jsx": "react-jsx"
   },
-  "include": ["scripts/**/*.ts", "src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "e2e/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "e2e/**/*.ts", "vite.config.ts"]
 }

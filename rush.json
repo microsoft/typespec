@@ -137,6 +137,12 @@
       "projectFolder": "packages/playground",
       "reviewCategory": "production",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/bundler",
+      "projectFolder": "packages/bundler",
+      "reviewCategory": "production",
+      "shouldPublish": false
     }
   ]
 }
