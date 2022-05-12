@@ -289,4 +289,66 @@ describe.only("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
   });
+
+  describe("with versioned dependencies", () => {
+    let runner: BasicTestRunner;
+
+    beforeEach(async () => {
+      const host = await createVersioningTestHost();
+      runner = createTestWrapper(host, (code) => code);
+    });
+
+    it("emit diagnostic when referencing incompatible version via version dependency", async () => {
+      // Here Foo was added in v2 which makes it only available in 1 & 2.
+      const diagnostics = await runner.diagnose(`
+        import "@cadl-lang/versioning";
+
+        @versioned("l1" | "l2")
+        namespace VersionedLib {
+          @added("l2")
+          model Foo {}
+        }
+
+        @versioned("1" | "2" | "3" | "4")
+        @versionedDependency(VersionedLib, {
+          "1": "l1",
+          "2": "l1",
+          "3": "l2",
+          "4": "l2",
+        })
+        namespace TestService {
+          @added("1")
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' was added on version '1' but referencing type 'VersionedLib.Foo' added in version '3'.",
+      });
+    });
+
+    it("emit diagnostic when referencing incompatible version via version dependency", async () => {
+      // Here Foo was added in v2 which makes it only available in 1 & 2.
+      const diagnostics = await runner.diagnose(`
+        import "@cadl-lang/versioning";
+
+        @versioned("l1" | "l2")
+        namespace VersionedLib {
+          @added("l2")
+          model Foo {}
+        }
+
+        @versionedDependency(VersionedLib, "l1")
+        namespace TestService {
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing type 'VersionedLib.Foo' added in version 'l2' but version used is l1.",
+      });
+    });
+  });
 });

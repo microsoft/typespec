@@ -130,12 +130,41 @@ function validateTargetVersionCompatible(
   target: Type,
   validateOptions: IncompatibleVersionValidateOptions = {}
 ) {
-  const targetVersionRange = getResolvedVersionRange(program, target);
+  let targetVersionRange = getResolvedVersionRange(program, target);
   if (targetVersionRange === undefined) {
     return;
   }
 
   const sourceVersionRange = getResolvedVersionRange(program, source);
+
+  const [sourceNamespace, sourceVersions] = getVersions(program, source);
+  const [targetNamespace, targetVersions] = getVersions(program, target);
+  if (sourceNamespace === undefined || sourceVersions === undefined) {
+    return;
+  }
+  if (targetNamespace === undefined || targetNamespace === undefined) {
+    return;
+  }
+
+  if (sourceNamespace !== targetNamespace) {
+    const versionMap = getVersionDependencies(program, (source as any).namespace)?.get(
+      targetNamespace
+    );
+    if (versionMap === undefined) {
+      return;
+    }
+    targetVersionRange = translateVersionRange(
+      program,
+      targetVersionRange,
+      versionMap,
+      targetVersions!,
+      source,
+      target
+    );
+    if (targetVersionRange === undefined) {
+      return;
+    }
+  }
 
   if (sourceVersionRange === undefined) {
     if (!validateOptions.isTargetADependent) {
@@ -149,12 +178,6 @@ function validateTargetVersionCompatible(
         target: source,
       });
     }
-    return;
-  }
-  const [sourceNamespace, sourceVersions] = getVersions(program, source);
-  const [targetNamespace, targetVersions] = getVersions(program, target);
-  if (sourceNamespace !== targetNamespace) {
-    // TODO: resolve version mapping
     return;
   }
 
@@ -183,9 +206,60 @@ interface VersionRange {
   added: string | undefined;
   removed: string | undefined;
 }
+
 interface VersionRangeIndex {
   added: number | undefined;
   removed: number | undefined;
+}
+
+function translateVersionRange(
+  program: Program,
+  range: VersionRange,
+  versionMap: Map<string, string> | string,
+  targetVersions: string[],
+  source: Type,
+  target: Type
+): VersionRange | undefined {
+  if (typeof versionMap === "string") {
+    const rangeIndex = getVersionRangeIndex(targetVersions, range);
+    const selectedVersionIndex = targetVersions.indexOf(versionMap);
+    if (rangeIndex.added !== undefined && rangeIndex.added > selectedVersionIndex) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "versionedDependencyAddedAfter",
+        format: {
+          sourceName: program.checker.getTypeName(source),
+          targetName: program.checker.getTypeName(target),
+          dependencyVersion: versionMap,
+          targetAddedOn: range.added!,
+        },
+        target: source,
+      });
+    }
+    if (rangeIndex.removed !== undefined && rangeIndex.removed < selectedVersionIndex) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "versionedDependencyRemovedBefore",
+        format: {
+          sourceName: program.checker.getTypeName(source),
+          targetName: program.checker.getTypeName(target),
+          dependencyVersion: versionMap,
+          targetAddedOn: range.added!,
+        },
+        target: source,
+      });
+    }
+    return undefined;
+  } else {
+    return {
+      added: range.added ? findVersionMapping(versionMap, range.added) : undefined,
+      removed: range.removed ? findVersionMapping(versionMap, range.removed) : undefined,
+    };
+  }
+}
+
+function findVersionMapping(versionMap: Map<string, string>, version: string): string | undefined {
+  return [...versionMap.entries()].find(([k, v]) => v === version)?.[0];
 }
 
 function getVersionRange(program: Program, type: Type): VersionRange | undefined {
@@ -317,7 +391,7 @@ function validateRangeCompatibleForContains(
         sourceAddedOn: sourceRange.added ?? "<n/a>",
         targetAddedOn: targetRange.added!,
       },
-      target: source,
+      target: target,
     });
   }
   if (
@@ -333,7 +407,7 @@ function validateRangeCompatibleForContains(
         sourceRemovedOn: sourceRange.removed ?? "<n/a>",
         targetRemovedOn: sourceRange.removed!,
       },
-      target: source,
+      target: target,
     });
   }
 }

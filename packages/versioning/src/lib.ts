@@ -47,6 +47,8 @@ const libDef = {
         dependentAddedAfter: paramMessage`'${"sourceName"}' was added on version '${"sourceAddedOn"}' but contains type '${"targetName"}' added in version '${"targetAddedOn"}'.`,
         removedBefore: paramMessage`'${"sourceName"}' was removed on version '${"sourceRemovedOn"}' but referencing type '${"targetName"}' removed in version '${"targetRemovedOn"}'.`,
         dependentRemovedBefore: paramMessage`'${"sourceName"}' was removed on version '${"sourceRemovedOn"}' but contains type '${"targetName"}' removed in version '${"targetRemovedOn"}'.`,
+        versionedDependencyAddedAfter: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' added in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
+        versionedDependencyRemovedBefore: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' added in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
       },
     },
   },
