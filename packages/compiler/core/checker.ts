@@ -417,6 +417,8 @@ export function createChecker(program: Program): Checker {
         return getModelName(type, options);
       case "ModelProperty":
         return getModelPropertyName(type, options);
+      case "Interface":
+        return getInterfaceName(type, options);
       case "Operation":
         return getOperationName(type, options);
       case "Enum":
@@ -494,6 +496,12 @@ export function createChecker(program: Program): Checker {
 
     return `${modelName ?? "(anonymous model)"}.${prop.name}`;
   }
+
+  function getInterfaceName(iface: InterfaceType, options: TypeNameOptions | undefined) {
+    const nsName = getNamespaceString(iface.namespace, options);
+    return (nsName ? nsName + "." : "") + iface.name;
+  }
+
   function getOperationName(op: OperationType, options: TypeNameOptions | undefined) {
     const nsName = getNamespaceString(op.namespace, options);
     return (nsName ? nsName + "." : "") + op.name;

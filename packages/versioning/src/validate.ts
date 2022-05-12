@@ -35,7 +35,7 @@ export function $onValidate(program: Program) {
         addDependency(model.namespace, prop.type);
 
         // Validate model -> property have correct versioning
-        validateTargetVersionCompatible(program, prop, model, { isTargetADependent: true });
+        validateTargetVersionCompatible(program, model, prop, { isTargetADependent: true });
 
         // Validate model property -> type have correct versioning
         validateTargetVersionCompatible(program, prop, prop.type);
@@ -158,15 +158,25 @@ function validateTargetVersionCompatible(
     return;
   }
 
-  validateRangeCompatible(
-    program,
-    sourceVersions!,
-    sourceVersionRange,
-    targetVersionRange,
-    source,
-    target,
-    validateOptions
-  );
+  if (validateOptions.isTargetADependent) {
+    validateRangeCompatibleForContains(
+      program,
+      sourceVersions!,
+      sourceVersionRange,
+      targetVersionRange,
+      source,
+      target
+    );
+  } else {
+    validateRangeCompatibleForRef(
+      program,
+      sourceVersions!,
+      sourceVersionRange,
+      targetVersionRange,
+      source,
+      target
+    );
+  }
 }
 
 interface VersionRange {
@@ -238,14 +248,13 @@ function getVersionRangeIndex(versions: string[], range: VersionRange): VersionR
   };
 }
 
-function validateRangeCompatible(
+function validateRangeCompatibleForRef(
   program: Program,
   versions: string[],
   sourceRange: VersionRange,
   targetRange: VersionRange,
   source: Type,
-  target: Type,
-  validateOptions: IncompatibleVersionValidateOptions
+  target: Type
 ) {
   const sourceRangeIndex = getVersionRangeIndex(versions, sourceRange);
   const targetRangeIndex = getVersionRangeIndex(versions, targetRange);
@@ -256,7 +265,7 @@ function validateRangeCompatible(
   ) {
     reportDiagnostic(program, {
       code: "incompatible-versioned-reference",
-      messageId: validateOptions.isTargetADependent ? "dependentAddedAfter" : "addedAfter",
+      messageId: "addedAfter",
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
@@ -272,7 +281,52 @@ function validateRangeCompatible(
   ) {
     reportDiagnostic(program, {
       code: "incompatible-versioned-reference",
-      messageId: validateOptions.isTargetADependent ? "dependentRemovedBefore" : "removedBefore",
+      messageId: "removedBefore",
+      format: {
+        sourceName: program.checker.getTypeName(source),
+        targetName: program.checker.getTypeName(target),
+        sourceRemovedOn: sourceRange.removed ?? "<n/a>",
+        targetRemovedOn: sourceRange.removed!,
+      },
+      target: source,
+    });
+  }
+}
+
+function validateRangeCompatibleForContains(
+  program: Program,
+  versions: string[],
+  sourceRange: VersionRange,
+  targetRange: VersionRange,
+  source: Type,
+  target: Type
+) {
+  const sourceRangeIndex = getVersionRangeIndex(versions, sourceRange);
+  const targetRangeIndex = getVersionRangeIndex(versions, targetRange);
+
+  if (
+    targetRangeIndex.added !== undefined &&
+    (sourceRangeIndex.added === undefined || targetRangeIndex.added < sourceRangeIndex.added)
+  ) {
+    reportDiagnostic(program, {
+      code: "incompatible-versioned-reference",
+      messageId: "dependentAddedAfter",
+      format: {
+        sourceName: program.checker.getTypeName(source),
+        targetName: program.checker.getTypeName(target),
+        sourceAddedOn: sourceRange.added ?? "<n/a>",
+        targetAddedOn: targetRange.added!,
+      },
+      target: source,
+    });
+  }
+  if (
+    targetRangeIndex.removed !== undefined &&
+    (sourceRangeIndex.removed === undefined || targetRangeIndex.removed > sourceRangeIndex.removed)
+  ) {
+    reportDiagnostic(program, {
+      code: "incompatible-versioned-reference",
+      messageId: "dependentRemovedBefore",
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),

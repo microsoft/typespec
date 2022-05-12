@@ -202,7 +202,7 @@ describe.only("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar.foo' was added on version '2' but contains type 'TestService.Bar' added in version '3'.",
+          "'TestService.Bar' was added on version '3' but contains type 'TestService.Bar.foo' added in version '2'.",
       });
     });
 
@@ -217,7 +217,7 @@ describe.only("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar.foo' was removed on version '3' but contains type 'TestService.Bar' removed in version '3'.",
+          "'TestService.Bar' was removed on version '2' but contains type 'TestService.Bar.foo' removed in version '2'.",
       });
     });
 
@@ -229,6 +229,61 @@ describe.only("versioning: validate incompatible references", () => {
           @added("2")
           @removed("3")
           foo: string;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("interface operations", () => {
+    it("succeed when unversioned interface has versioned operation", async () => {
+      const diagnostics = await runner.diagnose(`
+        interface Bar {
+          @added("2")
+          foo(): string;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("emit diagnostic when model property was added before model itself", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added("3")
+        interface Bar {
+          @added("2")
+          foo(): string;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Bar' was added on version '3' but contains type 'TestService.foo' added in version '2'.",
+      });
+    });
+
+    it("emit diagnostic when op was removed after return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @removed("2")
+        interface Bar {
+          @removed("3")
+          foo(): string;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Bar' was removed on version '2' but contains type 'TestService.foo' removed in version '2'.",
+      });
+    });
+
+    it("succeed if version are compatible", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added("2")
+        @removed("4")
+        interface Bar {
+          @added("2")
+          @removed("3")
+          foo(): string;
         }
       `);
       expectDiagnosticEmpty(diagnostics);
