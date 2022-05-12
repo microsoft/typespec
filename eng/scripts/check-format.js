@@ -4,6 +4,7 @@ import { CommandFailedError, runPrettier } from "./helpers.js";
 
 try {
   runPrettier("--list-different");
+  ensureDotnetVersion({ exitIfError: true });
   runDotnetFormat("--verify-no-changes");
 } catch (err) {
   if (err instanceof CommandFailedError) {
