@@ -33,6 +33,11 @@ export function $onValidate(program: Program) {
       addDependency(model.namespace, model.baseModel);
       for (const prop of model.properties.values()) {
         addDependency(model.namespace, prop.type);
+
+        // Validate model -> property have correct versioning
+        validateTargetVersionCompatible(program, prop, model, { isTargetADependent: true });
+
+        // Validate model property -> type have correct versioning
         validateTargetVersionCompatible(program, prop, prop.type);
       }
     },
@@ -49,6 +54,10 @@ export function $onValidate(program: Program) {
       addDependency(namespace, op.parameters);
       addDependency(namespace, op.returnType);
 
+      if (op.interface) {
+        // Validate model -> property have correct versioning
+        validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
+      }
       validateTargetVersionCompatible(program, op, op.returnType);
     },
     namespace: (namespace) => {
@@ -105,13 +114,22 @@ function validateVersionedNamespaceUsage(
   }
 }
 
+interface IncompatibleVersionValidateOptions {
+  isTargetADependent?: boolean;
+}
+
 /**
  * Validate the target versioning is compatible with the versioning of the soruce.
  * e.g. The target cannot be added after the source was added.
  * @param source Source type referencing the target type.
  * @param target Type being referenced from the source
  */
-function validateTargetVersionCompatible(program: Program, source: Type, target: Type) {
+function validateTargetVersionCompatible(
+  program: Program,
+  source: Type,
+  target: Type,
+  validateOptions: IncompatibleVersionValidateOptions = {}
+) {
   const targetVersionRange = getResolvedVersionRange(program, target);
   if (targetVersionRange === undefined) {
     return;
@@ -120,20 +138,21 @@ function validateTargetVersionCompatible(program: Program, source: Type, target:
   const sourceVersionRange = getResolvedVersionRange(program, source);
 
   if (sourceVersionRange === undefined) {
-    reportDiagnostic(program, {
-      code: "incompatible-versioned-reference",
-      messageId: "default",
-      format: {
-        sourceName: program.checker.getTypeName(source),
-        targetName: program.checker.getTypeName(target),
-      },
-      target: source,
-    });
+    if (!validateOptions.isTargetADependent) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "default",
+        format: {
+          sourceName: program.checker.getTypeName(source),
+          targetName: program.checker.getTypeName(target),
+        },
+        target: source,
+      });
+    }
     return;
   }
   const [sourceNamespace, sourceVersions] = getVersions(program, source);
   const [targetNamespace, targetVersions] = getVersions(program, target);
-
   if (sourceNamespace !== targetNamespace) {
     // TODO: resolve version mapping
     return;
@@ -145,7 +164,8 @@ function validateTargetVersionCompatible(program: Program, source: Type, target:
     sourceVersionRange,
     targetVersionRange,
     source,
-    target
+    target,
+    validateOptions
   );
 }
 
@@ -224,7 +244,8 @@ function validateRangeCompatible(
   sourceRange: VersionRange,
   targetRange: VersionRange,
   source: Type,
-  target: Type
+  target: Type,
+  validateOptions: IncompatibleVersionValidateOptions
 ) {
   const sourceRangeIndex = getVersionRangeIndex(versions, sourceRange);
   const targetRangeIndex = getVersionRangeIndex(versions, targetRange);
@@ -235,7 +256,7 @@ function validateRangeCompatible(
   ) {
     reportDiagnostic(program, {
       code: "incompatible-versioned-reference",
-      messageId: "addedAfter",
+      messageId: validateOptions.isTargetADependent ? "dependentAddedAfter" : "addedAfter",
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
@@ -251,7 +272,7 @@ function validateRangeCompatible(
   ) {
     reportDiagnostic(program, {
       code: "incompatible-versioned-reference",
-      messageId: "removedBefore",
+      messageId: validateOptions.isTargetADependent ? "dependentRemovedBefore" : "removedBefore",
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
