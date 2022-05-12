@@ -96,4 +96,87 @@ describe.only("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
   });
+
+  describe("model property type", () => {
+    it("emit diagnostic when unversioned model property type is a versioned model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added("2")
+        model Foo {}
+
+        model Bar {
+          foo: Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Bar.foo' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when op was added before return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added("3")
+        model Foo {}
+        
+        model Bar {
+          @added("2")
+          foo: Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Bar.foo' was added on version '2' but referencing type 'TestService.Foo' added in version '3'.",
+      });
+    });
+
+    it("emit diagnostic when op was removed after return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @removed("2")
+        model Foo {}
+        
+        model Bar {
+          @removed("3")
+          foo: Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Bar.foo' was removed on version '3' but referencing type 'TestService.Foo' removed in version '3'.",
+      });
+    });
+
+    it("succeed if version are compatible", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added("2")
+        @removed("4")
+        model Foo {}
+        
+       
+        model Bar {
+          @added("2")
+          @removed("3")
+          foo: Foo;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed if version are compatible in interface", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added("2")
+        @removed("4")
+        model Foo {}
+       
+        @added("2")
+        @removed("3")
+        model Bar {
+          foo: Foo;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
 });

@@ -415,6 +415,8 @@ export function createChecker(program: Program): Checker {
     switch (type.kind) {
       case "Model":
         return getModelName(type, options);
+      case "ModelProperty":
+        return getModelPropertyName(type, options);
       case "Operation":
         return getOperationName(type, options);
       case "Enum":
@@ -485,6 +487,12 @@ export function createChecker(program: Program): Checker {
       // regular old model.
       return modelName;
     }
+  }
+
+  function getModelPropertyName(prop: ModelTypeProperty, options: TypeNameOptions | undefined) {
+    const modelName = prop.model ? getModelName(prop.model, options) : undefined;
+
+    return `${modelName ?? "(anonymous model)"}.${prop.name}`;
   }
   function getOperationName(op: OperationType, options: TypeNameOptions | undefined) {
     const nsName = getNamespaceString(op.namespace, options);

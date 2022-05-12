@@ -33,6 +33,7 @@ export function $onValidate(program: Program) {
       addDependency(model.namespace, model.baseModel);
       for (const prop of model.properties.values()) {
         addDependency(model.namespace, prop.type);
+        validateTargetVersionCompatible(program, prop, prop.type);
       }
     },
     union: (union) => {
