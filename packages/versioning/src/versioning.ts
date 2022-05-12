@@ -1,8 +1,6 @@
 import {
   DecoratorContext,
   NamespaceType,
-  navigateProgram,
-  NoTarget,
   Program,
   ProjectionApplication,
   Type,
@@ -144,7 +142,7 @@ export function $versioned({ program }: DecoratorContext, t: Type, v: Type) {
   program.stateMap(versionsKey).set(t, versions);
 }
 
-function getVersion(p: Program, t: Type): string[] {
+export function getVersion(p: Program, t: Type): string[] {
   return p.stateMap(versionsKey).get(t);
 }
 
@@ -195,110 +193,6 @@ export function getVersionDependencies(
   namespace: NamespaceType
 ): Map<NamespaceType, Map<string, string> | string> | undefined {
   return p.stateMap(versionDependencyKey).get(namespace);
-}
-
-export function $onValidate(program: Program) {
-  const namespaceDependencies = new Map();
-  function addDependency(source: NamespaceType | undefined, target: Type | undefined) {
-    if (target === undefined || !("namespace" in target) || target.namespace === undefined) {
-      return;
-    }
-    let set = namespaceDependencies.get(source);
-    if (set === undefined) {
-      set = new Set();
-      namespaceDependencies.set(source, set);
-    }
-    if (target.namespace !== source) {
-      set.add(target.namespace);
-    }
-  }
-
-  navigateProgram(program, {
-    model: (model) => {
-      // If this is an instantiated type we don't want to keep the mapping.
-      if (model.templateArguments && model.templateArguments.length > 0) {
-        return;
-      }
-      addDependency(model.namespace, model.baseModel);
-      for (const prop of model.properties.values()) {
-        addDependency(model.namespace, prop.type);
-      }
-    },
-    union: (union) => {
-      if (union.namespace === undefined) {
-        return;
-      }
-      for (const option of union.options.values()) {
-        addDependency(union.namespace, option);
-      }
-    },
-    operation: (op) => {
-      const namespace = op.namespace ?? op.interface?.namespace;
-      addDependency(namespace, op.parameters);
-      addDependency(namespace, op.returnType);
-
-      const opAddedOn = getAddedOn(program, op);
-      const returnTypeAddedOn = getAddedOn(program, op.returnType);
-      if (returnTypeAddedOn && !opAddedOn) {
-        reportDiagnostic(program, {
-          code: "incompatible-versioned-reference",
-          format: { sourceName: op.name, targetName: program.checker.getTypeName(op.returnType) },
-          target: op,
-        });
-      }
-    },
-    namespace: (namespace) => {
-      const version = getVersion(program, namespace);
-      const dependencies = getVersionDependencies(program, namespace);
-      if (dependencies === undefined) {
-        return;
-      }
-
-      for (const [dependencyNs, value] of dependencies.entries()) {
-        if (version && version.length > 0) {
-          if (!(value instanceof Map)) {
-            reportDiagnostic(program, {
-              code: "versioned-dependency-record-not-model",
-              format: { dependency: program.checker.getNamespaceString(dependencyNs) },
-              target: namespace,
-            });
-          }
-        } else {
-          if (typeof value !== "string") {
-            reportDiagnostic(program, {
-              code: "versioned-dependency-not-string",
-              format: { dependency: program.checker.getNamespaceString(dependencyNs) },
-              target: namespace,
-            });
-          }
-        }
-      }
-    },
-  });
-  validateVersionedNamespaceUsage(program, namespaceDependencies);
-}
-
-function validateVersionedNamespaceUsage(
-  program: Program,
-  namespaceDependencies: Map<NamespaceType | undefined, Set<NamespaceType>>
-) {
-  for (const [source, targets] of namespaceDependencies.entries()) {
-    const dependencies = source && getVersionDependencies(program, source);
-    for (const target of targets) {
-      const targetVersions = getVersion(program, target);
-
-      if (targetVersions !== undefined && dependencies?.get(target) === undefined) {
-        reportDiagnostic(program, {
-          code: "using-versioned-library",
-          format: {
-            sourceNs: program.checker.getNamespaceString(source),
-            targetNs: program.checker.getNamespaceString(target),
-          },
-          target: source ?? NoTarget,
-        });
-      }
-    }
-  }
 }
 
 export interface VersionResolution {
