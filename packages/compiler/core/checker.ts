@@ -415,6 +415,8 @@ export function createChecker(program: Program): Checker {
     switch (type.kind) {
       case "Model":
         return getModelName(type, options);
+      case "Operation":
+        return getOperationName(type, options);
       case "Enum":
         return getEnumName(type, options);
       case "Union":
@@ -483,6 +485,10 @@ export function createChecker(program: Program): Checker {
       // regular old model.
       return modelName;
     }
+  }
+  function getOperationName(op: OperationType, options: TypeNameOptions | undefined) {
+    const nsName = getNamespaceString(op.namespace, options);
+    return (nsName ? nsName + "." : "") + op.name;
   }
 
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {

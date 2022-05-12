@@ -111,16 +111,17 @@ function validateVersionedNamespaceUsage(
  * @param target Type being referenced from the source
  */
 function validateTargetVersionCompatible(program: Program, source: Type, target: Type) {
-  const targetVersionRange = getVersionRange(program, target);
+  const targetVersionRange = getResolvedVersionRange(program, target);
   if (targetVersionRange === undefined) {
     return;
   }
 
-  const sourceVersionRange = getVersionRange(program, source);
+  const sourceVersionRange = getResolvedVersionRange(program, source);
 
   if (sourceVersionRange === undefined) {
     reportDiagnostic(program, {
       code: "incompatible-versioned-reference",
+      messageId: "default",
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
@@ -166,6 +167,47 @@ function getVersionRange(program: Program, type: Type): VersionRange | undefined
   return { added: addedOn, removed: removedOn };
 }
 
+/**
+ * Resolve the version range when the given type is to be included. This include looking up in the parent interface or model for versioning information.
+ * @param program Program
+ * @param type Type to resolve the version range from.
+ * @returns A version range specifying when this type was added and removed.
+ */
+function getResolvedVersionRange(program: Program, type: Type): VersionRange | undefined {
+  const range = getVersionRange(program, type);
+  switch (type.kind) {
+    case "Operation":
+      return mergeRanges(
+        range,
+        type.interface ? getResolvedVersionRange(program, type.interface) : undefined
+      );
+    case "ModelProperty":
+      return mergeRanges(
+        range,
+        type.model ? getResolvedVersionRange(program, type.model) : undefined
+      );
+    default:
+      return range;
+  }
+}
+
+function mergeRanges(
+  base: VersionRange | undefined,
+  parent: VersionRange | undefined
+): VersionRange | undefined {
+  if (parent === undefined) {
+    return base;
+  }
+  if (base === undefined) {
+    return parent;
+  }
+
+  return {
+    added: base.added ?? parent.added,
+    removed: base.removed ?? parent.removed,
+  };
+}
+
 function getVersionRangeIndex(versions: string[], range: VersionRange): VersionRangeIndex {
   const added = range.added ? versions.indexOf(range.added) : -1;
   const removed = range.removed ? versions.indexOf(range.removed) : -1;
@@ -190,26 +232,30 @@ function validateRangeCompatible(
     targetRangeIndex.added !== undefined &&
     (sourceRangeIndex.added === undefined || targetRangeIndex.added > sourceRangeIndex.added)
   ) {
-    console.log("PREtot 1", sourceRange, targetRange);
     reportDiagnostic(program, {
       code: "incompatible-versioned-reference",
+      messageId: "addedAfter",
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
+        sourceAddedOn: sourceRange.added ?? "<n/a>",
+        targetAddedOn: targetRange.added!,
       },
       target: source,
     });
   }
   if (
     targetRangeIndex.removed !== undefined &&
-    (sourceRangeIndex.removed === undefined || targetRangeIndex.removed > sourceRangeIndex.removed)
+    (sourceRangeIndex.removed === undefined || targetRangeIndex.removed < sourceRangeIndex.removed)
   ) {
-    console.log("PREtot 2", sourceRange, targetRange);
     reportDiagnostic(program, {
       code: "incompatible-versioned-reference",
+      messageId: "removedBefore",
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
+        sourceRemovedOn: sourceRange.removed ?? "<n/a>",
+        targetRemovedOn: sourceRange.removed!,
       },
       target: source,
     });

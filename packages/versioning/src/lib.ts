@@ -43,6 +43,8 @@ const libDef = {
       severity: "error",
       messages: {
         default: paramMessage`'${"sourceName"}' is referencing versioned type '${"targetName"}' but is not versioned itself.`,
+        addedAfter: paramMessage`'${"sourceName"}' was added on version '${"sourceAddedOn"}' but referencing type '${"targetName"}' added in version '${"targetAddedOn"}'.`,
+        removedBefore: paramMessage`'${"sourceName"}' was removed on version '${"sourceRemovedOn"}' but referencing type '${"targetName"}' removed in version '${"targetRemovedOn"}'.`,
       },
     },
   },
