@@ -1,5 +1,10 @@
 // @ts-check
-import { getVisualStudioMsBuildPath, run, runDotnetOrExit } from "@cadl-lang/internal-build-utils";
+import {
+  ensureDotnetVersion,
+  getVisualStudioMsBuildPath,
+  run,
+  runDotnet,
+} from "@cadl-lang/internal-build-utils";
 import { readFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -21,7 +26,8 @@ async function main() {
 
   const result = await getBuildTool();
   if (result.type === "dotnet") {
-    await runDotnetOrExit(["build", "--configuration", "Release", `-p:Version=${version}`], {
+    await ensureDotnetVersion({ exitIfError: true });
+    await runDotnet(["build", "--configuration", "Release", `-p:Version=${version}`], {
       cwd: pkgRoot,
     });
   } else {
