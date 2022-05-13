@@ -50,6 +50,12 @@ For `type: string` data types:
 | `maxLength: value`          | `@maxLength(value)` decorator |       |
 | `pattern: regex`            | `@pattern(regex)` decorator   |       |
 
+Use the `@readOnly` decorator to specify that a property of any type should be marked `readOnly: true`:
+
+| OpenAPI/JSON Schema keyword | Cadl construct        | Notes |
+| --------------------------- | --------------------- | ----- |
+| `readOnly: true`            | `@readOnly` decorator |       |
+
 There are two ways to define an `enum` data type. One is with the [Cadl `enum` statement](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#enums), e.g.:
 
 ```cadl

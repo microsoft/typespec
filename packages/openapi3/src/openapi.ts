@@ -22,7 +22,6 @@ import {
   getServiceTitle,
   getServiceVersion,
   getSummary,
-  getVisibility,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -45,6 +44,7 @@ import {
   getExternalDocs,
   getOperationId,
   getParameterKey,
+  getReadOnly,
   getTypeName,
   shouldInline,
 } from "@cadl-lang/openapi";
@@ -866,8 +866,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
 
       // Should the property be marked as readOnly?
-      const vis = getVisibility(program, prop);
-      if (vis && vis.includes("read") && vis.length == 1) {
+      if (getReadOnly(program, prop)) {
         modelSchema.properties[name].readOnly = true;
       }
 

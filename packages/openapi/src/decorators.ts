@@ -91,6 +91,25 @@ export function isDefaultResponse(program: Program, entity: Type): boolean {
   return program.stateSet(defaultResponseKey).has(entity);
 }
 
+const readOnlyKey = Symbol("readOnly");
+/**
+ * @readOnly marks a property to set as "readOnly: true" in an OpenAPI schema.
+ *
+ * @readOnly accepts no arguments.
+ *
+ * @readOnly can be specified on model property. It throws an error when applied to any other language element.
+ */
+export function $readOnly({ program }: DecoratorContext, entity: Type) {
+  if (!validateDecoratorTarget(program, entity, "@readOnly", "ModelProperty")) {
+    return;
+  }
+  program.stateSet(readOnlyKey).add(entity);
+}
+
+export function getReadOnly(program: Program, entity: Type): boolean {
+  return program.stateSet(readOnlyKey).has(entity);
+}
+
 export interface ExternalDocs {
   url: string;
   description?: string;

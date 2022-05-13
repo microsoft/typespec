@@ -443,6 +443,29 @@ describe("openapi3: definitions", () => {
     });
   });
 
+  it("defines readOnly properties", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        @readOnly
+        name: string;
+      };
+      `
+    );
+    ok(res.isRef);
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          readOnly: true,
+        },
+      },
+      required: ["name"],
+    });
+  });
+
   it("defines nullable properties", async () => {
     const res = await oapiForModel(
       "Pet",
