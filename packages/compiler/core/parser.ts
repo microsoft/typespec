@@ -216,7 +216,7 @@ namespace ListKind {
 
   export const Tuple = {
     ...ExpresionsBase,
-    allowEmpty: false,
+    allowEmpty: true,
     open: Token.OpenBracket,
     close: Token.CloseBracket,
   } as const;

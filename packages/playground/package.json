@@ -24,7 +24,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./cadlContents.json",
-    "build": "tsc -p . && node dist-dev/scripts/preload.js && vite build",
+    "build": "tsc -p . && vite build",
     "watch": "vite",
     "e2e": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
     "e2e:headed": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e --headed",
@@ -39,11 +39,11 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/versioning": "~0.4.0",
-    "@cadl-lang/compiler": "~0.30.0",
-    "@cadl-lang/rest": "~0.13.0",
-    "@cadl-lang/openapi3": "~0.10.0",
-    "@cadl-lang/openapi": "~0.8.0",
+    "@cadl-lang/versioning": "~0.5.0",
+    "@cadl-lang/compiler": "~0.31.0",
+    "@cadl-lang/rest": "~0.14.0",
+    "@cadl-lang/openapi3": "~0.11.0",
+    "@cadl-lang/openapi": "~0.9.0",
     "@vitejs/plugin-react": "~1.3.1",
     "monaco-editor": "~0.32.1",
     "prettier": "~2.6.2",
@@ -62,6 +62,7 @@
     "@types/react-dom": "~18.0.1",
     "@types/react": "~18.0.5",
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
+    "@cadl-lang/bundler": "~0.1.0",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
     "c8": "~7.11.0",

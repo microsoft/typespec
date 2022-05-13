@@ -158,6 +158,7 @@ export function createProjector(
       if (projected.kind === "Namespace") {
         // todo: check for never?
         childNamespaces.set(key, projected);
+        projected.namespace = projectedNs;
       }
     }
 
