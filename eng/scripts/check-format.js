@@ -1,5 +1,8 @@
 // @ts-check
-import { runDotnetFormat } from "../../packages/internal-build-utils/dist/src/index.js";
+import {
+  ensureDotnetVersion,
+  runDotnetFormat,
+} from "../../packages/internal-build-utils/dist/src/index.js";
 import { CommandFailedError, runPrettier } from "./helpers.js";
 
 try {
