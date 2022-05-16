@@ -9,8 +9,8 @@ import { useMonacoModel } from "./components/editor";
 import { Footer } from "./components/footer";
 import { OutputTabs } from "./components/output-tabs";
 import { SamplesDropdown } from "./components/samples-dropdown";
+import { PlaygroundManifest } from "./manifest";
 import { attachServices } from "./services";
-
 const host = await createBrowserHost();
 attachServices(host);
 
@@ -75,7 +75,7 @@ export const App: FunctionComponent = () => {
     await emptyOutputDir();
     const program = await compile("main.cadl", host, {
       outputPath: "cadl-output",
-      emitters: { "@cadl-lang/openapi3": {} },
+      emitters: { [PlaygroundManifest.defaultEmitter]: {} },
     });
 
     const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
