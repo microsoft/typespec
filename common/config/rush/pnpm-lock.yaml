@@ -78,7 +78,7 @@ specifiers:
   source-map-support: ~0.5.19
   strip-json-comments: ~4.0.0
   typescript: ~4.6.3
-  vite: ^2.8.0
+  vite: ^2.9.9
   vsce: ~2.6.7
   vscode-languageclient: ~7.0.0
   vscode-languageserver: ~7.0.0
@@ -166,7 +166,7 @@ dependencies:
   source-map-support: 0.5.21
   strip-json-comments: 4.0.0
   typescript: 4.6.3
-  vite: 2.9.1
+  vite: 2.9.9
   vsce: 2.6.7
   vscode-languageclient: 7.0.0
   vscode-languageserver: 7.0.0
@@ -3610,8 +3610,8 @@ packages:
     hasBin: true
     dev: false
 
-  /nanoid/3.3.2:
-    resolution: {integrity: sha512-CuHBogktKwpm5g2sRgv83jEy2ijFzBwMoYA60orPDR7ynsLijJDqgsi4RDGj3OJpy3Ieb+LYwiRmIOGyytgITA==}
+  /nanoid/3.3.4:
+    resolution: {integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
     dev: false
@@ -3930,11 +3930,11 @@ packages:
     engines: {node: '>=12.13.0'}
     dev: false
 
-  /postcss/8.4.12:
-    resolution: {integrity: sha512-lg6eITwYe9v6Hr5CncVbK70SoioNQIq81nsaG86ev5hAidQvmOeETBqs7jm43K2F5/Ley3ytDtriImV6TpNiSg==}
+  /postcss/8.4.13:
+    resolution: {integrity: sha512-jtL6eTBrza5MPzy8oJLFuUscHDXTV5KcLlqAWHl5q5WYRfnNRGSmOZmOZ1T6Gy7A99mOZfqungmZMpMmCVJ8ZA==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
-      nanoid: 3.3.2
+      nanoid: 3.3.4
       picocolors: 1.0.0
       source-map-js: 1.0.2
     dev: false
@@ -4695,8 +4695,8 @@ packages:
       source-map: 0.7.3
     dev: false
 
-  /vite/2.9.1:
-    resolution: {integrity: sha512-vSlsSdOYGcYEJfkQ/NeLXgnRv5zZfpAsdztkIrs7AZHV8RCMZQkwjo4DS5BnrYTqoWqLoUe1Cah4aVO4oNNqCQ==}
+  /vite/2.9.9:
+    resolution: {integrity: sha512-ffaam+NgHfbEmfw/Vuh6BHKKlI/XIAhxE5QSS7gFLIngxg171mg1P3a4LSRME0z2ZU1ScxoKzphkipcYwSD5Ew==}
     engines: {node: '>=12.2.0'}
     hasBin: true
     peerDependencies:
@@ -4712,7 +4712,7 @@ packages:
         optional: true
     dependencies:
       esbuild: 0.14.34
-      postcss: 8.4.12
+      postcss: 8.4.13
       resolve: 1.22.0
       rollup: 2.70.1
     optionalDependencies:
@@ -5022,7 +5022,7 @@ packages:
     dev: false
 
   file:projects/bundler.tgz:
-    resolution: {integrity: sha512-0jqHD/ku4d5KsaDtE3/Rr/7Wlvpc0Uutlr2rTPo212u0wfAv2MD1+szoA4PFIg0E9ILr85NsRghDJv1BjujjPA==, tarball: file:projects/bundler.tgz}
+    resolution: {integrity: sha512-K7knmdrc5Ov34mK2Bz8ou4Sh88v6Vs3EJpXIdaJQDb5VULJGi8jsuErujl3nFoSW+ap6lUbB0ZrsZmxvhhfm0Q==, tarball: file:projects/bundler.tgz}
     name: '@rush-temp/bundler'
     version: 0.0.0
     dependencies:
@@ -5041,7 +5041,7 @@ packages:
       rimraf: 3.0.2
       rollup: 2.70.1
       typescript: 4.6.3
-      vite: 2.9.1
+      vite: 2.9.9
     transitivePeerDependencies:
       - less
       - sass
@@ -5050,13 +5050,13 @@ packages:
     dev: false
 
   file:projects/cadl-vs.tgz:
-    resolution: {integrity: sha512-hDsP/KLj4HtJbiav0G6Dn/pYO2jpUddeRLwzPhYDqnD7dYBv7yPNIVaLRFxiXOwbP9x8ODZQ5X90B89kPC2H2g==, tarball: file:projects/cadl-vs.tgz}
+    resolution: {integrity: sha512-tWrRm61VDOttcxTsyoMJ5z5X2W5b/eY9ofF9TWCYxxiqL3PfjmrY6orLmM56R2YcbiGrw3HlVp8d7f4CarDruA==, tarball: file:projects/cadl-vs.tgz}
     name: '@rush-temp/cadl-vs'
     version: 0.0.0
     dev: false
 
   file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-pU+4iEMeenaKvK08iyXaA5D30F+4UwYkuxGSrINsWTUnXiUSud/5sK/WGPTDrqH+AzpV9xnu3oYUlzC/RSrWdQ==, tarball: file:projects/cadl-vscode.tgz}
+    resolution: {integrity: sha512-i/CxN7CET3Q0OZM20JeMJ2yxA0oxlS3o09CWP3wQPWKANAOaduuXEI+6sMm69hayHZszhqxDpDcjR1grXOvjWQ==, tarball: file:projects/cadl-vscode.tgz}
     name: '@rush-temp/cadl-vscode'
     version: 0.0.0
     dependencies:
@@ -5083,7 +5083,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-PXoWssmQy5U+E2mPU6rRxL7ic26AKugQkzMdbr1LcJRdFId1FnxsszJJzPie5YSPB0m0i9tfzVFmAOU1f4ds2Q==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-VpgDB9ggyVrT91Cd8fVVKCB/1U2X6oiQ1XChuqYwrjr0+FQjNgc678VWYA6foMIS8t/BqEg+cEhUZAE81srVjw==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -5166,7 +5166,7 @@ packages:
     dev: false
 
   file:projects/openapi.tgz:
-    resolution: {integrity: sha512-07CcHQlOPt88kJtAZF3qDPYkftW3h9dOQrxZflM0T2IGdYmvYvErI6APxB7u0Pbjv3095ydPmsVe8rDTd+Ob1A==, tarball: file:projects/openapi.tgz}
+    resolution: {integrity: sha512-/Gql8USvWbvQS6FqmFiZ+7d+f85LvtceogtcFKMhxqWOoQ87TiIrP88E6V59B5iojgeRBm9sjgvOI4/llXnN5Q==, tarball: file:projects/openapi.tgz}
     name: '@rush-temp/openapi'
     version: 0.0.0
     dependencies:
@@ -5182,7 +5182,7 @@ packages:
     dev: false
 
   file:projects/openapi3.tgz:
-    resolution: {integrity: sha512-uwZUTjmCsSC2JhGLleHFK2Zb3JRw3+x+y2njdCE1BiR0hoe4gwTZlJDhjv+9GJXpIMz06u9mUiTufz5p9XGpZw==, tarball: file:projects/openapi3.tgz}
+    resolution: {integrity: sha512-LX5P0uUawLX2pOqWkLjkpwQnzMJmkoay40sHKL1xG8ULx7MPg+kenrbBIWkgaPvJH0+4WocuijvZzA9uOIfQFA==, tarball: file:projects/openapi3.tgz}
     name: '@rush-temp/openapi3'
     version: 0.0.0
     dependencies:
@@ -5198,7 +5198,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz:
-    resolution: {integrity: sha512-uevGP9pr0MEw325fCKpzSSYB03ZiKtdrijBMgTJIs8o2fRAOkynBrQlWXCQlA38RwxYycRTqmexBF8AXRU5fnA==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-s190ghQ7PY3SDiEZuTwmgTXEt1c6amE7JHFvRf1ZalIdapjoHMVGJla+Jc0fJe/E75sIeKmeHHyoWuSekKmrbw==, tarball: file:projects/playground.tgz}
     name: '@rush-temp/playground'
     version: 0.0.0
     dependencies:
@@ -5224,7 +5224,7 @@ packages:
       react-dom: 18.0.0_react@18.0.0
       rimraf: 3.0.2
       typescript: 4.6.3
-      vite: 2.9.1
+      vite: 2.9.9
       vscode-languageserver: 7.0.0
       vscode-languageserver-textdocument: 1.0.4
     transitivePeerDependencies:
@@ -5237,7 +5237,7 @@ packages:
     dev: false
 
   file:projects/prettier-plugin-cadl.tgz:
-    resolution: {integrity: sha512-IEZUutEHDwKSL7VJxPmi35HCLZyxSjbu9b8881G153Z49jn5VnnhgoNZ4X8jZbPQ4ES0Nh8FgHHEpv5gR9e7vQ==, tarball: file:projects/prettier-plugin-cadl.tgz}
+    resolution: {integrity: sha512-1/IdFoYGl2GdMaExxk6HFJffAxTy02SW8edz3cLG6QY6MlRP1t4HWfigYQm6A70Jr4uKdrBbM6iCQkZx6aankw==, tarball: file:projects/prettier-plugin-cadl.tgz}
     name: '@rush-temp/prettier-plugin-cadl'
     version: 0.0.0
     dependencies:
@@ -5251,7 +5251,7 @@ packages:
     dev: false
 
   file:projects/rest.tgz:
-    resolution: {integrity: sha512-jmhUhQ+fjTofVPQKoZQNogzhUr2IOCkYGm6Wl4N+STcf3bxPl7B+WozTCgESQO5BCq0aeCUPyznUyntC7NQ19g==, tarball: file:projects/rest.tgz}
+    resolution: {integrity: sha512-ARz9RaUqhdcU36LK1uibVCDxSUWirMSjb52UUmCeBMWf9aROpzM//Ygu+1xXpARFol3W34zQUMuocMxr8icDAA==, tarball: file:projects/rest.tgz}
     name: '@rush-temp/rest'
     version: 0.0.0
     dependencies:
@@ -5267,7 +5267,7 @@ packages:
     dev: false
 
   file:projects/samples.tgz:
-    resolution: {integrity: sha512-TXJ3HyegirvWdyZWaVoArjxVvV/W6QBE6xRshzrc8w4L2S0EE/zdKVma9tRTHy7Y/SgONCZJe2F4AMrChyx+HQ==, tarball: file:projects/samples.tgz}
+    resolution: {integrity: sha512-9NOTc+iv0CahBj7cjFAHL/uNubrt7X1Lb/0OCF7E7eTeiC3LEInTh2RJ9OjCgXQFg5fmHN29+Dc8YRUhTG+smQ==, tarball: file:projects/samples.tgz}
     name: '@rush-temp/samples'
     version: 0.0.0
     dependencies:
@@ -5277,7 +5277,7 @@ packages:
     dev: false
 
   file:projects/spec.tgz:
-    resolution: {integrity: sha512-qUzYW10+9AJa5RGTlh7PKzTtGsXNJXBLc5CWBTC+mZSP/7XymQainKfZgC/lWuUgqHJM78CjJ9IHgiTeg4GtUQ==, tarball: file:projects/spec.tgz}
+    resolution: {integrity: sha512-65a0VXrYT/fxVqcZHbdEzROmhU8JHsqTgpuNsh9ztjxWOp1bk2VWMfX/9Hko1Df3DUqM0cucfogIL8PDBg8VwQ==, tarball: file:projects/spec.tgz}
     name: '@rush-temp/spec'
     version: 0.0.0
     dependencies:
@@ -5309,7 +5309,7 @@ packages:
     dev: false
 
   file:projects/versioning.tgz:
-    resolution: {integrity: sha512-+i2Y+eTkWammr/qiHYFdxpQYDjEO4Kyuo5oWceQeXG1eo+dnSF9xFzVhApNei7JganLHVnmbIHXEZTe+3oyGaA==, tarball: file:projects/versioning.tgz}
+    resolution: {integrity: sha512-9fYWipWc2kjX+P1hPUSGH+Wp7rghQevttk/H8qgF1wDHB0tPLeszQonFN6GTIpGE6qEuZg0QTyVF28qx7Zem8Q==, tarball: file:projects/versioning.tgz}
     name: '@rush-temp/versioning'
     version: 0.0.0
     dependencies:
