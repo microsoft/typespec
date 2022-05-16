@@ -434,7 +434,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return mapCadlTypeToOpenAPI(type);
     }
 
-    type = getEffectiveType(type);
+    type = getEffectiveSchemaType(type);
     const name = getTypeName(program, type, typeNameOptions);
 
     if (shouldInline(program, type)) {
@@ -460,14 +460,16 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
   }
 
-  function getEffectiveType(type: Type): Type {
+  /**
+   * If type is an anonymous model, tries to find a named model that has the same
+   * set of properties when non-schema properties are excluded.
+   */
+  function getEffectiveSchemaType(type: Type): Type {
     if (type.kind === "Model" && !type.name) {
       const filtered = program.checker.filterModelProperties(type, isSchemaProperty);
-      if (filtered !== type) {
-        const effective = program.checker.getEffectiveModelType(filtered);
-        if (effective.name) {
-          return effective;
-        }
+      const effective = program.checker.getEffectiveModelType(filtered);
+      if (effective.name) {
+        return effective;
       }
     }
     return type;
