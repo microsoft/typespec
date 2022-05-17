@@ -1,8 +1,8 @@
 import { execAsync, run, RunOptions } from "./common.js";
-import { minimumDotnetVersion } from "./constants.js";
+import { MinimumDotnetVersion } from "./constants.js";
 
-export async function runDotnetOrExit(args: string[], options: RunOptions = {}) {
-  await ensureDotnetVersionOrExit();
+export async function runDotnet(args: string[], options: RunOptions = {}) {
+  await ensureDotnetVersion();
   return run("dotnet", args, options);
 }
 
@@ -19,11 +19,11 @@ export async function validateDotnetVersion(): Promise<{ error?: string }> {
     const [major, minor, _patch] = version.split(".").map((x) => parseInt(x, 10));
 
     if (
-      major < minimumDotnetVersion.major ||
-      (major === minimumDotnetVersion.major && minor < minimumDotnetVersion.minor)
+      major < MinimumDotnetVersion.major ||
+      (major === MinimumDotnetVersion.major && minor < MinimumDotnetVersion.minor)
     ) {
       return {
-        error: `dotnet command version "${version}" is not maching minimum requirement of ${minimumDotnetVersion.major}.${minimumDotnetVersion.minor}.x`,
+        error: `dotnet command version "${version}" is not maching minimum requirement of ${MinimumDotnetVersion.major}.${MinimumDotnetVersion.minor}.x`,
       };
     }
     return {};
@@ -37,7 +37,7 @@ export async function validateDotnetVersion(): Promise<{ error?: string }> {
 }
 
 let validatedDotnet = false;
-export async function ensureDotnetVersionOrExit() {
+export async function ensureDotnetVersion(options: { exitIfError?: boolean } = {}) {
   if (validatedDotnet) {
     return;
   }
@@ -45,7 +45,7 @@ export async function ensureDotnetVersionOrExit() {
   const { error } = await validateDotnetVersion();
   if (error) {
     // If running in CI/AzureDevOps fail if dotnet is invalid.
-    if (process.env.CI || process.env.TF_BUILD) {
+    if (process.env.CI || process.env.TF_BUILD || !options.exitIfError) {
       // eslint-disable-next-line no-console
       console.error(`error: ${error}`);
       process.exit(1);
@@ -63,7 +63,7 @@ export async function ensureDotnetVersionOrExit() {
  * Runs the dotnet formatter.
  */
 export async function runDotnetFormat(...args: string[]) {
-  return runDotnetOrExit([
+  return runDotnet([
     "format",
     "whitespace",
     ".",
