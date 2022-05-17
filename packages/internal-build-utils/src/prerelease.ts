@@ -119,15 +119,6 @@ async function addPrereleaseNumber(
         ? packageInfo.version // Use existing version. Bug in rush --partial-prerelease not working
         : `${packageJsonContent.version}.${changeCount}`;
 
-    // if (!packageJsonContent.version.endsWith(`-${PRERELEASE_TYPE}`)) {
-    //   throw new Error(
-    //     [
-    //       `Couldn't add change count to package '${packageName}'. Version ${packageJsonContent.version} should be ending with '-${PRERELEASE_TYPE}'`,
-    //       `This means that the rush publish --apply --publish didn't bump this package version but this script found 1 change. Appending the change count would result in an invalid version.`,
-    //     ].join("\n")
-    //   );
-    // }
-
     console.log(`Setting version for ${packageName} to '${newVersion}'`);
     updatedManifests[packageName] = {
       packageJsonPath,
