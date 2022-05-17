@@ -60,12 +60,19 @@ async function getChangeCountPerPackage(workspaceRoot: string) {
   return changeCounts;
 }
 
-async function getPackagesPaths(workspaceRoot: string): Promise<Record<string, string>> {
+async function getPackages(
+  workspaceRoot: string
+): Promise<Record<string, { path: string; version: string }>> {
   const rushJson = await readJsonFile<RushWorkspace>(join(workspaceRoot, "rush.json"));
 
-  const paths: Record<string, string> = {};
+  const paths: Record<string, { path: string; version: string }> = {};
   for (const project of rushJson.projects) {
-    paths[project.packageName] = join(workspaceRoot, project.projectFolder);
+    const packagePath = join(workspaceRoot, project.projectFolder);
+    const pkg = await readJsonFile<PackageJson>(join(packagePath, "package.json"));
+    paths[project.packageName] = {
+      path: packagePath,
+      version: pkg.version,
+    };
   }
   return paths;
 }
@@ -100,29 +107,26 @@ function updateDependencyVersions(packageManifest: PackageJson, updatedPackages:
 
 async function addPrereleaseNumber(
   changeCounts: Record<string, number>,
-  packagePaths: Record<string, string>
+  packagePaths: Record<string, { path: string; version: string }>
 ) {
   const updatedManifests: Record<string, BumpManifest> = {};
-  const packagesWithChanges = Object.entries(changeCounts).filter(
-    ([_, changeCount]) => changeCount > 0
-  );
-  for (const [packageName, changeCount] of packagesWithChanges) {
-    const projectPath = packagePaths[packageName];
-    if (!projectPath) {
-      throw new Error(`Cannot find package path for '${packageName}'`);
-    }
-    const packageJsonPath = join(projectPath, "package.json");
+  for (const [packageName, packageInfo] of Object.entries(packagePaths)) {
+    const changeCount = changeCounts[packageName] ?? 0;
+    const packageJsonPath = join(packageInfo.path, "package.json");
     const packageJsonContent = await readJsonFile<PackageJson>(packageJsonPath);
-    const newVersion = `${packageJsonContent.version}.${changeCount}`;
+    const newVersion =
+      changeCount === 0
+        ? packageInfo.version // Use existing version. Bug in rush --partial-prerelease not working
+        : `${packageJsonContent.version}.${changeCount}`;
 
-    if (!packageJsonContent.version.endsWith(`-${PRERELEASE_TYPE}`)) {
-      throw new Error(
-        [
-          `Couldn't add change count to package '${packageName}'. Version ${packageJsonContent.version} should be ending with '-${PRERELEASE_TYPE}'`,
-          `This means that the rush publish --apply --publish didn't bump this package version but this script found 1 change. Appending the change count would result in an invalid version.`,
-        ].join("\n")
-      );
-    }
+    // if (!packageJsonContent.version.endsWith(`-${PRERELEASE_TYPE}`)) {
+    //   throw new Error(
+    //     [
+    //       `Couldn't add change count to package '${packageName}'. Version ${packageJsonContent.version} should be ending with '-${PRERELEASE_TYPE}'`,
+    //       `This means that the rush publish --apply --publish didn't bump this package version but this script found 1 change. Appending the change count would result in an invalid version.`,
+    //     ].join("\n")
+    //   );
+    // }
 
     console.log(`Setting version for ${packageName} to '${newVersion}'`);
     updatedManifests[packageName] = {
@@ -144,11 +148,11 @@ async function addPrereleaseNumber(
 
 export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
   let changeCounts = {};
-  let packagePaths = {};
+  let packagePaths: Record<string, { path: string; version: string }> = {};
   for (const workspaceRoot of workspaceRoots) {
     changeCounts = { ...changeCounts, ...(await getChangeCountPerPackage(workspaceRoot)) };
 
-    packagePaths = { ...packagePaths, ...(await getPackagesPaths(workspaceRoot)) };
+    packagePaths = { ...packagePaths, ...(await getPackages(workspaceRoot)) };
   }
   console.log("Change counts: ", changeCounts);
   console.log("Package paths", packagePaths);
@@ -157,7 +161,7 @@ export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
   console.log("Bumping versions with rush publish");
   for (const workspaceRoot of workspaceRoots) {
     execSync(
-      `npx @microsoft/rush publish --apply --prerelease-name="${PRERELEASE_TYPE}" --partial-prerelease`,
+      `npx @microsoft/rush publish --apply --partial-prerelease --prerelease-name="${PRERELEASE_TYPE}"`,
       {
         cwd: workspaceRoot,
       }
