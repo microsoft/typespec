@@ -201,7 +201,7 @@ In the [packages](#packages) section each package has a `@next` tag which show i
 
 To use a `nightly` version of the packages, go over each one of the packages in the `package.json` fie and update it to either the latest published `@next` version or `@latest`, whichever is the newest. (You can also use the tag `latest` or `next` instead of an explicit version)
 
-After updating the packages you can run `npm update --force`. Force is required as there might be some incompatible version requirement.
+After updating the package.json file you can run `npm update --force`. Force is required as there might be some incompatible version requirement.
 
 Example
 
