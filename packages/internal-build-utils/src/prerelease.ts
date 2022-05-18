@@ -107,10 +107,10 @@ function updateDependencyVersions(packageManifest: PackageJson, updatedPackages:
 
 async function addPrereleaseNumber(
   changeCounts: Record<string, number>,
-  packagePaths: Record<string, { path: string; version: string }>
+  packages: Record<string, { path: string; version: string }>
 ) {
   const updatedManifests: Record<string, BumpManifest> = {};
-  for (const [packageName, packageInfo] of Object.entries(packagePaths)) {
+  for (const [packageName, packageInfo] of Object.entries(packages)) {
     const changeCount = changeCounts[packageName] ?? 0;
     const packageJsonPath = join(packageInfo.path, "package.json");
     const packageJsonContent = await readJsonFile<PackageJson>(packageJsonPath);
@@ -139,14 +139,14 @@ async function addPrereleaseNumber(
 
 export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
   let changeCounts = {};
-  let packagePaths: Record<string, { path: string; version: string }> = {};
+  let packages: Record<string, { path: string; version: string }> = {};
   for (const workspaceRoot of workspaceRoots) {
     changeCounts = { ...changeCounts, ...(await getChangeCountPerPackage(workspaceRoot)) };
 
-    packagePaths = { ...packagePaths, ...(await getPackages(workspaceRoot)) };
+    packages = { ...packages, ...(await getPackages(workspaceRoot)) };
   }
   console.log("Change counts: ", changeCounts);
-  console.log("Package paths", packagePaths);
+  console.log("Packages", packages);
 
   // Bumping with rush publish so rush computes from the changes what will be the next non prerelease version.
   console.log("Bumping versions with rush publish");
@@ -160,7 +160,7 @@ export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
   }
 
   console.log("Adding prerelease number");
-  await addPrereleaseNumber(changeCounts, packagePaths);
+  await addPrereleaseNumber(changeCounts, packages);
 }
 
 async function findAllFiles(dir: string): Promise<string[]> {
