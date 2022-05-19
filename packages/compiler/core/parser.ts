@@ -44,6 +44,7 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  OperationInstanceNode,
   OperationStatementNode,
   ProjectionBlockExpressionNode,
   ProjectionEnumSelectorNode,
@@ -552,6 +553,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return {
       kind: SyntaxKind.OperationStatement,
       id,
+      templateParameters: [],
       parameters,
       returnType,
       decorators,
@@ -611,24 +613,44 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseOperationStatement(
     pos: number,
     decorators: DecoratorExpressionNode[]
-  ): OperationStatementNode {
+  ): OperationStatementNode | OperationInstanceNode {
     parseExpected(Token.OpKeyword);
 
     const id = parseIdentifier();
-    const parameters = parseOperationParameters();
-    parseExpected(Token.Colon);
+    const templateParameters = parseTemplateParameterList();
 
-    const returnType = parseExpression();
-    parseExpected(Token.Semicolon);
+    // Check if we're parsing a declaration or reuse of another operation
+    if (token() === Token.OpenParen) {
+      const parameters = parseOperationParameters();
+      parseExpected(Token.Colon);
+      const returnType = parseExpression();
 
-    return {
-      kind: SyntaxKind.OperationStatement,
-      id,
-      parameters,
-      returnType,
-      decorators,
-      ...finishNode(pos),
-    };
+      parseExpected(Token.Semicolon);
+
+      return {
+        kind: SyntaxKind.OperationStatement,
+        id,
+        templateParameters,
+        parameters,
+        returnType,
+        decorators,
+        ...finishNode(pos),
+      };
+    } else {
+      parseExpected(Token.Colon);
+      const opReference = parseReferenceExpression();
+
+      parseExpected(Token.Semicolon);
+
+      return {
+        kind: SyntaxKind.OperationInstance,
+        id,
+        templateParameters,
+        baseOperation: opReference,
+        decorators,
+        ...finishNode(pos),
+      };
+    }
   }
 
   function parseOperationParameters(): ModelExpressionNode {
@@ -2157,7 +2179,14 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitNode(cb, node.parameters) ||
+        visitEach(cb, node.templateParameters) ||
         visitNode(cb, node.returnType)
+      );
+    case SyntaxKind.OperationInstance:
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.baseOperation)
       );
     case SyntaxKind.NamespaceStatement:
       return (

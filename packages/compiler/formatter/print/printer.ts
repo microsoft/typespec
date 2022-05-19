@@ -23,6 +23,7 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  OperationInstanceNode,
   OperationStatementNode,
   Statement,
   StringLiteralNode,
@@ -85,6 +86,8 @@ export function printNode(
       return [`using `, path.call(print, "name"), `;`];
     case SyntaxKind.OperationStatement:
       return printOperationStatement(path as AstPath<OperationStatementNode>, options, print);
+    case SyntaxKind.OperationInstance:
+      return printOperationInstance(path as AstPath<OperationInstanceNode>, options, print);
     case SyntaxKind.NamespaceStatement:
       return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
     case SyntaxKind.ModelStatement:
@@ -871,6 +874,25 @@ export function printOperationStatement(
     path.call(print, "parameters"),
     "): ",
     path.call(print, "returnType"),
+    `;`,
+  ];
+}
+
+export function printOperationInstance(
+  path: AstPath<OperationInstanceNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const inInterface = (path.getParentNode()?.kind as any) === SyntaxKind.InterfaceStatement;
+  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
+    tryInline: true,
+  });
+
+  return [
+    decorators,
+    inInterface ? "" : "op ",
+    path.call(print, "id"),
+    path.call(print, "baseOperation"),
     `;`,
   ];
 }

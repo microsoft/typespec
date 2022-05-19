@@ -10,6 +10,7 @@ import {
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
+  OperationInstanceNode,
   OperationStatementNode,
   ProjectionLambdaExpressionNode,
   ProjectionLambdaParameterDeclarationNode,
@@ -202,6 +203,9 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
       case SyntaxKind.OperationStatement:
         bindOperationStatement(node);
         break;
+      case SyntaxKind.OperationInstance:
+        bindOperationStatement(node);
+        break;
       case SyntaxKind.TemplateParameterDeclaration:
         bindTemplateParameterDeclaration(node);
         break;
@@ -386,7 +390,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     (currentFile.usings as UsingStatementNode[]).push(statement);
   }
 
-  function bindOperationStatement(statement: OperationStatementNode) {
+  function bindOperationStatement(statement: OperationStatementNode | OperationInstanceNode) {
     if (scope.kind !== SyntaxKind.InterfaceStatement) {
       declareSymbol(statement, SymbolFlags.Operation);
     }

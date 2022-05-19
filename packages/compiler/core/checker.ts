@@ -55,6 +55,7 @@ import {
   NodeFlags,
   NumericLiteralNode,
   NumericLiteralType,
+  OperationInstanceNode,
   OperationStatementNode,
   OperationType,
   ProjectionArithmeticExpressionNode,
@@ -382,6 +383,8 @@ export function createChecker(program: Program): Checker {
         return checkNamespace(node);
       case SyntaxKind.OperationStatement:
         return checkOperation(node);
+      case SyntaxKind.OperationInstance:
+        return checkOperation(node);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -467,7 +470,13 @@ export function createChecker(program: Program): Checker {
    * Return a fully qualified id of node
    */
   function getNodeSymId(
-    node: ModelStatementNode | AliasStatementNode | InterfaceStatementNode | UnionStatementNode
+    node:
+      | ModelStatementNode
+      | AliasStatementNode
+      | InterfaceStatementNode
+      | OperationStatementNode
+      | OperationInstanceNode
+      | UnionStatementNode
   ): number {
     return node.symbol!.id!;
   }
@@ -493,6 +502,8 @@ export function createChecker(program: Program): Checker {
     const parentNode = node.parent! as
       | ModelStatementNode
       | InterfaceStatementNode
+      | OperationStatementNode
+      | OperationInstanceNode
       | UnionStatementNode
       | AliasStatementNode;
     const links = getSymbolLinks(node.symbol);
@@ -679,12 +690,18 @@ export function createChecker(program: Program): Checker {
     const args = checkTypeReferenceArgs(node);
     if (
       sym.flags &
-      (SymbolFlags.Model | SymbolFlags.Alias | SymbolFlags.Interface | SymbolFlags.Union)
+      (SymbolFlags.Model |
+        SymbolFlags.Alias |
+        SymbolFlags.Interface |
+        SymbolFlags.Operation |
+        SymbolFlags.Union)
     ) {
       const decl = sym.declarations[0] as
         | ModelStatementNode
         | AliasStatementNode
         | InterfaceStatementNode
+        | OperationStatementNode
+        | OperationInstanceNode
         | UnionStatementNode;
       if (decl.templateParameters.length === 0) {
         if (args.length > 0) {
@@ -707,6 +724,8 @@ export function createChecker(program: Program): Checker {
               ? checkAlias(decl as AliasStatementNode)
               : sym.flags & SymbolFlags.Interface
               ? checkInterface(decl as InterfaceStatementNode)
+              : sym.flags & SymbolFlags.Operation
+              ? checkOperation(decl as OperationStatementNode)
               : checkUnion(decl as UnionStatementNode);
         }
       } else {
@@ -720,6 +739,8 @@ export function createChecker(program: Program): Checker {
             ? checkAlias(decl as AliasStatementNode)
             : sym.flags & SymbolFlags.Interface
             ? checkInterface(decl as InterfaceStatementNode)
+            : sym.flags & SymbolFlags.Operation
+            ? checkOperation(decl as OperationStatementNode)
             : checkUnion(decl as UnionStatementNode);
         }
 
@@ -770,6 +791,8 @@ export function createChecker(program: Program): Checker {
       | ModelStatementNode
       | AliasStatementNode
       | InterfaceStatementNode
+      | OperationStatementNode
+      | OperationInstanceNode
       | UnionStatementNode,
     args: Type[]
   ): Type {
@@ -959,6 +982,7 @@ export function createChecker(program: Program): Checker {
       | ModelStatementNode
       | NamespaceStatementNode
       | OperationStatementNode
+      | OperationInstanceNode
       | EnumStatementNode
       | InterfaceStatementNode
       | UnionStatementNode
@@ -972,6 +996,7 @@ export function createChecker(program: Program): Checker {
         if (
           parent.kind === SyntaxKind.ModelStatement ||
           parent.kind === SyntaxKind.OperationStatement ||
+          parent.kind === SyntaxKind.OperationInstance ||
           parent.kind === SyntaxKind.EnumStatement ||
           parent.kind === SyntaxKind.InterfaceStatement ||
           parent.kind === SyntaxKind.UnionStatement ||
@@ -986,7 +1011,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (
-      node.kind === SyntaxKind.OperationStatement &&
+      (node.kind === SyntaxKind.OperationStatement || node.kind === SyntaxKind.OperationInstance) &&
       node.parent &&
       node.parent.kind === SyntaxKind.InterfaceStatement
     ) {
@@ -1022,35 +1047,130 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkOperation(
-    node: OperationStatementNode,
+    node: OperationStatementNode | OperationInstanceNode,
     parentInterface?: InterfaceType
-  ): OperationType {
+  ): OperationType | ErrorType {
+    const links = getSymbolLinks(node.symbol);
+    const instantiatingThisTemplate = instantiatingTemplate === node;
+    if (links.declaredType && !instantiatingThisTemplate) {
+      // we're not instantiating this operation and we've already checked it
+      return links.declaredType as OperationType;
+    }
+
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
     const decorators = checkDecorators(node);
-    const type: OperationType = createType({
+
+    // Is this a definition or instance?
+    let parameters: ModelType, returnType: Type;
+    if (node.kind === SyntaxKind.OperationInstance) {
+      // Attempt to resolve the operation
+      const baseOperation = checkOperationIs(node, node.baseOperation);
+      if (!baseOperation) {
+        // TODO: Are the proper diagnostics written already?
+        return errorType;
+      }
+
+      // Reference the same return type and create the parameters type
+      returnType = baseOperation.returnType;
+      parameters = createType({
+        kind: "Model",
+        name: "",
+        node: baseOperation.parameters.node, // TODO: This seems bad!
+        properties: new Map<string, ModelTypeProperty>(),
+        namespace: getParentNamespaceType(node),
+        decorators: [],
+        derivedModels: [],
+      });
+
+      // Copy parameters of the base operation
+      for (const prop of baseOperation.parameters.properties.values()) {
+        console.log("copying param:", prop.name, (prop.type as any).kind);
+        // Don't use the same property, clone it and finish it to execute the decorators again
+        parameters.properties.set(
+          prop.name,
+          finishType({
+            ...prop,
+          })
+        );
+      }
+    } else {
+      parameters = getTypeForNode(node.parameters) as ModelType;
+      returnType = getTypeForNode(node.returnType);
+    }
+
+    const operationType: OperationType = createType({
       kind: "Operation",
       name,
       namespace,
       node,
-      parameters: getTypeForNode(node.parameters) as ModelType,
-      returnType: getTypeForNode(node.returnType),
-      decorators,
+      parameters,
+      returnType,
+      decorators, // TODO: Concatenate base operation decorators recursively!
       interface: parentInterface,
     });
 
-    type.parameters.namespace = namespace;
+    operationType.parameters.namespace = namespace;
 
     if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
-      if (shouldCreateTypeForTemplate(node.parent!)) {
-        finishType(type);
+      if (shouldCreateTypeForTemplate(node.parent!) || shouldCreateTypeForTemplate(node)) {
+        finishType(operationType);
       }
     } else {
-      finishType(type);
-      namespace?.operations.set(name, type);
+      if (shouldCreateTypeForTemplate(node)) {
+        finishType(operationType);
+      }
+
+      namespace?.operations.set(name, operationType);
     }
 
-    return type;
+    if (!instantiatingThisTemplate) {
+      links.declaredType = operationType;
+      links.instantiations = new TypeInstantiationMap();
+    }
+
+    return operationType;
+  }
+
+  function checkOperationIs(
+    operation: OperationInstanceNode,
+    opReference: TypeReferenceNode | undefined
+  ): OperationType | undefined {
+    if (!opReference) return undefined;
+
+    // Ensure that we don't end up with a circular reference to the same operation
+    const opSymId = getNodeSymId(operation);
+    pendingResolutions.add(opSymId);
+
+    const target = resolveTypeReference(opReference);
+    if (target === undefined) {
+      return undefined;
+    }
+
+    // Did we encounter a circular operation reference?
+    if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
+      if (!isInstantiatingTemplateType()) {
+        reportDiagnostic(program, {
+          code: "circular-base-type",
+          format: { typeName: (target.declarations[0] as any).id.sv },
+          target: target,
+        });
+      }
+
+      return undefined;
+    }
+
+    // Resolve the base operation type
+    const baseOperation = checkTypeReferenceSymbol(target, opReference);
+    pendingResolutions.delete(opSymId);
+
+    // Was the wrong type referenced?
+    if (baseOperation.kind !== "Operation") {
+      program.reportDiagnostic(createDiagnostic({ code: "is-operation", target: opReference }));
+      return;
+    }
+
+    return baseOperation;
   }
 
   function getGlobalNamespaceType() {
@@ -2070,11 +2190,7 @@ export function createChecker(program: Program): Checker {
       interfaceType.operations.set(k, v);
     }
 
-    if (
-      (instantiatingThisTemplate &&
-        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
-      node.templateParameters.length === 0
-    ) {
+    if (shouldCreateTypeForTemplate(node)) {
       finishType(interfaceType);
     }
 
@@ -2094,17 +2210,19 @@ export function createChecker(program: Program): Checker {
   ) {
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, interfaceType);
-      if (members.has(opType.name)) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "interface-duplicate",
-            format: { name: opType.name },
-            target: opNode,
-          })
-        );
-        continue;
+      if (opType.kind === "Operation") {
+        if (members.has(opType.name)) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "interface-duplicate",
+              format: { name: opType.name },
+              target: opNode,
+            })
+          );
+          continue;
+        }
+        members.set(opType.name, opType);
       }
-      members.set(opType.name, opType);
     }
   }
 
