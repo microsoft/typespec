@@ -14,6 +14,7 @@ import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
 import { ServerStyleSheet } from "styled-components";
 import { Item, Literal, styled } from "./common.js";
+import { inspect } from "./inspect.js";
 
 function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
@@ -37,7 +38,7 @@ export interface CadlProgramViewerProps {
 const ProgramViewerStyle = styled.div`
   font-family: monospace;
   background-color: #f3f3f3;
-  
+
   ul {
     margin: 0;
     padding-left: 20px;
@@ -49,7 +50,6 @@ const ProgramViewerStyle = styled.div`
     list-style: none;
     position: relative;
   }
-
 `;
 
 export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ program }) => {
@@ -363,6 +363,15 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   }
 };
 
+const TypeDataEntry = styled.div`
+  display: flex;
+`;
+const TypeDataKey = styled.div`
+  color: #333;
+  margin-right: 5px;
+`;
+const TypeDataValue = styled.div`
+`;
 const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const entries = [...program.stateMaps.entries()]
@@ -374,9 +383,9 @@ const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   return (
     <ul>
       {entries.map(([k, v], i) => (
-        <li key={i}>
-          {k.toString()}: {JSON.stringify(v)}
-        </li>
+        <TypeDataEntry key={i}>
+          <TypeDataKey>{k.toString()}:</TypeDataKey> <TypeDataValue>{inspect(v)}</TypeDataValue>
+        </TypeDataEntry>
       ))}
     </ul>
   );
