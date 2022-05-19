@@ -1,10 +1,4 @@
-import {
-  DecoratorContext,
-  Program,
-  setDecoratorNamespace,
-  Type,
-  validateDecoratorTarget,
-} from "@cadl-lang/compiler";
+import { DecoratorContext, Program, Type, validateDecoratorTarget } from "@cadl-lang/compiler";
 
 const refTargetsKey = Symbol("refs");
 export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
@@ -30,5 +24,3 @@ export function $oneOf({ program }: DecoratorContext, entity: Type) {
 export function getOneOf(program: Program, entity: Type): boolean {
   return program.stateMap(oneOfKey).get(entity);
 }
-
-setDecoratorNamespace("OpenAPI", $useRef, $oneOf);

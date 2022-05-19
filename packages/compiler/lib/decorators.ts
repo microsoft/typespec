@@ -19,6 +19,7 @@ import {
   Type,
   VoidType,
 } from "../core/types.js";
+export * from "./service.js";
 
 export const namespace = "Cadl";
 

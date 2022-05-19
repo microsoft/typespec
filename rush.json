@@ -121,6 +121,12 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@cadl-lang/library-linter",
+      "projectFolder": "packages/library-linter",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@cadl-lang/openapi3",
       "projectFolder": "packages/openapi3",
       "reviewCategory": "production",
