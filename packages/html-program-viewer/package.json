@@ -32,6 +32,9 @@
       ]
     }
   },
+  "browser": {
+    "./dist/src/emitter.js": "./dist/src/emitter.browser.js"
+  },
   "cadlMain": "dist/src/index.js",
   "engines": {
     "node": ">=14.0.0"
