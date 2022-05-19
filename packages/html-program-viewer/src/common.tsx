@@ -1,6 +1,6 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, PropsWithChildren } from "react";
 
-export const Group: FunctionComponent = ({ children }) => {
+export const Group: FunctionComponent<PropsWithChildren<{}>> = ({ children }) => {
   return <div className="group">{children}</div>;
 };
 
@@ -10,7 +10,12 @@ export interface SectionProps {
   hide?: boolean;
 }
 
-export const Section: FunctionComponent<SectionProps> = ({ id, title, hide, children }) => {
+export const Section: FunctionComponent<PropsWithChildren<SectionProps>> = ({
+  id,
+  title,
+  hide,
+  children,
+}) => {
   if (hide) {
     return <div></div>;
   }
@@ -22,7 +27,12 @@ export const Section: FunctionComponent<SectionProps> = ({ id, title, hide, chil
   );
 };
 
-export const Item: FunctionComponent<SectionProps> = ({ id, title, hide, children }) => {
+export const Item: FunctionComponent<PropsWithChildren<SectionProps>> = ({
+  id,
+  title,
+  hide,
+  children,
+}) => {
   if (hide) {
     return <div></div>;
   }
@@ -34,6 +44,6 @@ export const Item: FunctionComponent<SectionProps> = ({ id, title, hide, childre
   );
 };
 
-export const Literal: FunctionComponent = ({ children }) => {
+export const Literal: FunctionComponent<PropsWithChildren<{}>> = ({ children }) => {
   return <div className="literal">{children}</div>;
 };
