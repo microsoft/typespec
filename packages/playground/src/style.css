@@ -98,3 +98,8 @@ body {
   height: 100%;
   overflow: hidden;
 }
+
+.program-viewer-container {
+  height: 100%;
+  overflow: scroll;
+}

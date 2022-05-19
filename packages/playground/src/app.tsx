@@ -205,7 +205,9 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     viewSelection.type === "file" ? (
       <OutputEditor value={viewSelection.content} />
     ) : (
-      <CadlProgramViewer program={props.program} />
+      <div className="program-viewer-container">
+        <CadlProgramViewer program={props.program} />
+      </div>
     );
   return (
     <>
