@@ -8,7 +8,7 @@ jobs:
   - job: npm_stable
     displayName: Npm publish
     pool:
-      vmImage: windows-2019
+      vmImage: windows-latest
     steps:
       - task: NodeTool@0
         inputs:
@@ -55,7 +55,7 @@ jobs:
     dependsOn: npm_stable
     displayName: Npm publish dev version
     pool:
-      vmImage: windows-2019
+      vmImage: windows-latest
     steps:
       - task: NodeTool@0
         inputs:

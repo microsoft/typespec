@@ -155,7 +155,11 @@ describe("compiler: syntax", () => {
   });
 
   describe("tuple model expressions", () => {
-    parseEach(['namespace A { op b(param: [number, string]): [1, "hi"]; }']);
+    parseEach([
+      'namespace A { op b(param: [number, string]): [1, "hi"]; }',
+      "alias EmptyTuple =  [];",
+      "model Template<T=[]> { }",
+    ]);
   });
 
   describe("array expressions", () => {
@@ -562,6 +566,7 @@ describe("compiler: syntax", () => {
         `{ x: 1 }`,
         `{ x: if 1 { Foo; } else { Bar; } }`,
         `[a, b]`,
+        `[]`,
         `(a)`,
         `(a + 1)`,
       ];
