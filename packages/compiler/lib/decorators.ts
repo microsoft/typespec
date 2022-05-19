@@ -152,7 +152,7 @@ export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
 }
 
-const numericTypesKey = Symbol("numericTypes");
+const numericTypesKey = Symbol("numeric");
 export function $numeric({ program }: DecoratorContext, target: Type) {
   if (!isIntrinsic(program, target)) {
     program.reportDiagnostic(
