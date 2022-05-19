@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/library-linter",
-  "version": "0.10.0",
+  "version": "0.1.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for linting another library.",
   "homepage": "https://github.com/Microsoft/cadl",
