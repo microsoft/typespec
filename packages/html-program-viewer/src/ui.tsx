@@ -12,7 +12,6 @@ import {
 } from "@cadl-lang/compiler";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
-import { inspect } from "util";
 import { Item, Literal } from "./common.js";
 
 function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
@@ -22,9 +21,17 @@ function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
 const ProgramContext = React.createContext<Program>({} as any);
 
 export function renderProgram(program: Program) {
+  return ReactDOMServer.renderToString(<CadlProgramViewer program={program} />);
+}
+
+export interface CadlProgramViewerProps {
+  program: Program;
+}
+
+export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ program }) => {
   const root = program.checker!.getGlobalNamespaceType();
   const namespaces = expandNamespaces(root);
-  return ReactDOMServer.renderToString(
+  return (
     <ProgramContext.Provider value={program}>
       <ul>
         {namespaces.map((namespace) => (
@@ -35,7 +42,7 @@ export function renderProgram(program: Program) {
       </ul>
     </ProgramContext.Provider>
   );
-}
+};
 
 export interface TypeUIProperty {
   name: string;
@@ -320,7 +327,7 @@ const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
     <ul>
       {entries.map(([k, v], i) => (
         <li key={i}>
-          {k.toString()}: {inspect(v, { showHidden: false })}
+          {k.toString()}: {JSON.stringify(v)}
         </li>
       ))}
     </ul>
