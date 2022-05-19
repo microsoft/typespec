@@ -9,6 +9,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+    "skipLibCheck": true,
     "types": ["node", "mocha"],
     "jsx": "react"
   },
