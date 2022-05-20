@@ -1,12 +1,12 @@
 import { DecoratorContext, Program, Type, validateDecoratorTarget } from "@cadl-lang/compiler";
 
 const refTargetsKey = Symbol("refs");
-export function $useRef({ program }: DecoratorContext, entity: Type, refUrl: string): void {
-  if (!validateDecoratorTarget(program, entity, "@useRef", ["Model", "ModelProperty"])) {
+export function $useRef(context: DecoratorContext, entity: Type, refUrl: string): void {
+  if (!validateDecoratorTarget(context, entity, "@useRef", ["Model", "ModelProperty"])) {
     return;
   }
 
-  program.stateMap(refTargetsKey).set(entity, refUrl);
+  context.program.stateMap(refTargetsKey).set(entity, refUrl);
 }
 
 export function getRef(program: Program, entity: Type): string | undefined {
@@ -14,11 +14,11 @@ export function getRef(program: Program, entity: Type): string | undefined {
 }
 
 const oneOfKey = Symbol("oneOf");
-export function $oneOf({ program }: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(program, entity, "@oneOf", "Union")) {
+export function $oneOf(context: DecoratorContext, entity: Type) {
+  if (!validateDecoratorTarget(context, entity, "@oneOf", "Union")) {
     return;
   }
-  program.stateMap(oneOfKey).set(entity, true);
+  context.program.stateMap(oneOfKey).set(entity, true);
 }
 
 export function getOneOf(program: Program, entity: Type): boolean {
