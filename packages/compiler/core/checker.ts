@@ -2284,7 +2284,7 @@ export function createChecker(program: Program): Checker {
       program,
       decoratorTarget: decApp.node!,
       getArgumentTarget: (index: number) => {
-        return decApp.node!;
+        return decApp.args[index]?.node;
       },
       call: (decorator, target, ...args) => {
         return decorator(createPassThruContext(program, decApp), target, ...args);

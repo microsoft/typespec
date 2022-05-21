@@ -491,12 +491,10 @@ export function $list(context: DecoratorContext, target: Type, listedType?: Type
   }
 
   if (listedType && listedType.kind !== "Model") {
-    context.program.reportDiagnostic(
-      createDiagnostic({
-        code: "list-type-not-model",
-        target: context.getArgumentTarget(0),
-      })
-    );
+    reportDiagnostic(context.program, {
+      code: "list-type-not-model",
+      target: context.getArgumentTarget(0)!,
+    });
     return;
   }
 

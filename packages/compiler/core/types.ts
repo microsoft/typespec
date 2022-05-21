@@ -1301,7 +1301,7 @@ export interface DecoratorContext {
    *  getArgumentTarget(0) -> target for arg0
    *  getArgumentTarget(1) -> target for arg1
    */
-  getArgumentTarget(paramIndex: number): DiagnosticTarget;
+  getArgumentTarget(paramIndex: number): DiagnosticTarget | undefined;
 
   /**
    * Helper to call out to another decorator
