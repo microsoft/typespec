@@ -4,6 +4,7 @@ import { Program } from "./program";
 import {
   ArrayType,
   DecoratorApplication,
+  DecoratorArgument,
   EnumMemberType,
   EnumType,
   InterfaceType,
@@ -437,16 +438,16 @@ export function createProjector(
   function projectDecorators(decs: DecoratorApplication[]) {
     const decorators: DecoratorApplication[] = [];
     for (const dec of decs) {
-      const args = [];
+      const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
         // filter out primitive arguments
-        if (typeof arg !== "object") {
+        if (typeof arg.value !== "object") {
           args.push(arg);
           continue;
         }
 
-        const projected = projectType(arg);
-        args.push(projected);
+        const projected = projectType(arg.value);
+        args.push({ ...arg, value: projected });
       }
 
       decorators.push({ ...dec, args });

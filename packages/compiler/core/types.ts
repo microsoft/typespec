@@ -4,7 +4,12 @@ import { Program } from "./program";
  * Type System types
  */
 
-export type DecoratorArgument = Type | number | string | boolean;
+export type DecoratorArgumentValue = Type | number | string | boolean;
+
+export interface DecoratorArgument {
+  value: DecoratorArgumentValue;
+  node: Node;
+}
 
 export interface DecoratorApplication {
   decorator: DecoratorFunction;
@@ -79,7 +84,7 @@ export interface ProjectionType extends BaseType {
 export interface ProjectionApplication {
   scope?: Type;
   projectionName: string;
-  arguments: DecoratorArgument[];
+  arguments: DecoratorArgumentValue[];
   direction?: "from" | "to";
 }
 
@@ -1283,6 +1288,31 @@ export interface EmitOptions<E extends string> {
 
 export interface DecoratorContext {
   program: Program;
+
+  /**
+   * Point to the decorator target
+   */
+  decoratorTarget: DiagnosticTarget;
+
+  /**
+   * Function that can be used to retrieve the target for a parameter at the given index.
+   * @param paramIndex Parameter index in the cadl
+   * @example @foo("bar", 123) -> $foo(context, target, arg0: string, arg1: number);
+   *  getArgumentTarget(0) -> target for arg0
+   *  getArgumentTarget(1) -> target for arg1
+   */
+  getArgumentTarget(paramIndex: number): DiagnosticTarget | undefined;
+
+  /**
+   * Helper to call out to another decorator
+   * @param decorator Other decorator function
+   * @param args Args to pass to other decorator funciton
+   */
+  call<A extends any[], R>(
+    decorator: (context: DecoratorContext, target: Type, ...args: A) => R,
+    target: Type,
+    ...args: A
+  ): R;
 }
 
 export type LogLevel = "debug" | "verbose" | "info" | "warning" | "error";
