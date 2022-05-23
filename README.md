@@ -194,7 +194,7 @@ If `cadl-server` cannot be found on PATH by Visual Studio in your setup, you can
 configure its location by setting up the `cadl.cadl-server.path` entry in `.vs/VSWorkspaceSettings.json`. You may need to restart Visual Studio after changing this.
 This should be the path to the `@cadl-lang/compiler` package. (e.g. `./node_modules/@cadl-lang/compiler`)
 
-### Installing nightly version(@next tag)
+### Installing nightly version
 
 On every commit to the main branch, packages with changes are automatically packaged and published under the `@next` tag under npm.
 In the [packages](#packages) section each package has a `@next` tag which show its current next version.
