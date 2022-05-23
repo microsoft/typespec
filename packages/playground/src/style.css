@@ -99,7 +99,7 @@ body {
   overflow: hidden;
 }
 
-.program-viewer-container {
+.type-graph-container {
   height: 100%;
   overflow: scroll;
 }
