@@ -199,7 +199,7 @@ This should be the path to the `@cadl-lang/compiler` package. (e.g. `./node_modu
 On every commit to the main branch, packages with changes are automatically packaged and published under the `@next` tag under npm.
 The [packages](#packages) section shows which version corresponds to the `next` tag for each package.
 
-To use a `nightly` version of the packages, go over each one of the packages in the `package.json` fie and update it to either the latest published `@next` version or `@latest`, whichever is the newest. (You can also use the tag `latest` or `next` instead of an explicit version)
+To use a `nightly` version of the packages, go over each one of the packages in the `package.json` file and update it to either the latest published `@next` version or `@latest`, whichever is the newest. You can also use the tag `latest` or `next` instead of an explicit version.
 
 After updating the package.json file you can run `npm update --force`. Force is required as there might be some incompatible version requirement.
 
