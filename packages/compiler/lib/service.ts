@@ -1,3 +1,4 @@
+import { validateDecoratorTarget } from "../core/decorator-utils.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import { DecoratorContext, NamespaceType, Projector, Type } from "../core/types.js";
@@ -36,10 +37,10 @@ export function checkIfServiceNamespace(program: Program, namespace: NamespaceTy
   return serviceDetails.namespace === namespace;
 }
 
-export function $serviceTitle({ program }: DecoratorContext, target: Type, title: string) {
-  const serviceDetails = getServiceDetails(program);
+export function $serviceTitle(context: DecoratorContext, target: Type, title: string) {
+  const serviceDetails = getServiceDetails(context.program);
   if (serviceDetails.title) {
-    program.reportDiagnostic(
+    context.program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
         format: { name: "title" },
@@ -48,18 +49,11 @@ export function $serviceTitle({ program }: DecoratorContext, target: Type, title
     );
   }
 
-  if (target.kind !== "Namespace") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "service-decorator-namespace-only",
-        format: { decorator: "@serviceTitle" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(context, target, "@serviceTitle", "Namespace")) {
     return;
   }
 
-  setServiceNamespace(program, target);
+  setServiceNamespace(context.program, target);
   serviceDetails.title = title;
 }
 
@@ -68,10 +62,10 @@ export function getServiceTitle(program: Program): string {
   return serviceDetails.title || "(title)";
 }
 
-export function $serviceHost({ program }: DecoratorContext, target: Type, host: string) {
-  const serviceDetails = getServiceDetails(program);
+export function $serviceHost(context: DecoratorContext, target: Type, host: string) {
+  const serviceDetails = getServiceDetails(context.program);
   if (serviceDetails.version) {
-    program.reportDiagnostic(
+    context.program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
         format: { name: "host" },
@@ -80,18 +74,11 @@ export function $serviceHost({ program }: DecoratorContext, target: Type, host: 
     );
   }
 
-  if (target.kind !== "Namespace") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "service-decorator-namespace-only",
-        format: { decorator: "@serviceHost" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(context, target, "@serviceHost", "Namespace")) {
     return;
   }
 
-  setServiceNamespace(program, target);
+  setServiceNamespace(context.program, target);
   serviceDetails.host = host;
 }
 
@@ -105,10 +92,10 @@ export function setServiceHost(program: Program, host: string) {
   serviceDetails.host = host;
 }
 
-export function $serviceVersion({ program }: DecoratorContext, target: Type, version: string) {
-  const serviceDetails = getServiceDetails(program);
+export function $serviceVersion(context: DecoratorContext, target: Type, version: string) {
+  const serviceDetails = getServiceDetails(context.program);
   if (serviceDetails.version) {
-    program.reportDiagnostic(
+    context.program.reportDiagnostic(
       createDiagnostic({
         code: "service-decorator-duplicate",
         format: { name: "version" },
@@ -117,18 +104,11 @@ export function $serviceVersion({ program }: DecoratorContext, target: Type, ver
     );
   }
 
-  if (target.kind !== "Namespace") {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "service-decorator-namespace-only",
-        format: { decorator: "@serviceVersion" },
-        target,
-      })
-    );
+  if (!validateDecoratorTarget(context, target, "@serviceVersion", "Namespace")) {
     return;
   }
 
-  setServiceNamespace(program, target);
+  setServiceNamespace(context.program, target);
   serviceDetails.version = version;
 }
 
