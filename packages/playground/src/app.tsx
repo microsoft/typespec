@@ -191,12 +191,12 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
           id: x,
         })
       ),
-      { id: "program-viewer", name: "Program", align: "right" },
+      { id: "type-graph", name: "Type Graph", align: "right" },
     ];
   }, [props.outputFiles]);
   const handleTabSelection = useCallback((tabId: string) => {
-    if (tabId === "program-viewer") {
-      setViewSelection({ type: "program-viewer" });
+    if (tabId === "type-graph") {
+      setViewSelection({ type: "type-graph" });
     } else {
       void loadOutputFile(tabId);
     }
@@ -205,7 +205,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     viewSelection.type === "file" ? (
       <OutputEditor value={viewSelection.content} />
     ) : (
-      <div className="program-viewer-container">
+      <div className="type-graph-container">
         <CadlProgramViewer program={props.program} />
       </div>
     );
@@ -213,7 +213,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     <>
       <OutputTabs
         tabs={tabs}
-        selected={viewSelection.type === "file" ? viewSelection.filename : "program-viewer"}
+        selected={viewSelection.type === "file" ? viewSelection.filename : "type-graph"}
         onSelect={handleTabSelection}
       />
       <div id="output">{content}</div>
@@ -223,4 +223,4 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
 
 type ViewSelection =
   | { type: "file"; filename: string; content: string }
-  | { type: "program-viewer" };
+  | { type: "type-graph" };
