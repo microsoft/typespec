@@ -3,18 +3,6 @@ import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
 const libDefinition = {
   name: "@cadl-lang/rest",
   diagnostics: {
-    "produces-namespace-only": {
-      severity: "error",
-      messages: {
-        default: "The @produces decorator can only be applied to namespaces.",
-      },
-    },
-    "consumes-namespace-only": {
-      severity: "error",
-      messages: {
-        default: "The @consumes decorator can only be applied to namespaces.",
-      },
-    },
     "http-verb-duplicate": {
       severity: "error",
       messages: {

@@ -18,7 +18,9 @@ const versionDependencyKey = Symbol("versionDependency");
 const renamedFromKey = Symbol("renamedFrom");
 const madeOptionalKey = Symbol("madeOptional");
 
-export function $added({ program }: DecoratorContext, t: Type, v: string) {
+export function $added(context: DecoratorContext, t: Type, v: string) {
+  const { program } = context;
+
   if (typeof v !== "string") {
     reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
@@ -33,7 +35,9 @@ export function $added({ program }: DecoratorContext, t: Type, v: string) {
 
   program.stateMap(addedOnKey).set(t, v);
 }
-export function $removed({ program }: DecoratorContext, t: Type, v: string) {
+export function $removed(context: DecoratorContext, t: Type, v: string) {
+  const { program } = context;
+
   if (typeof v !== "string") {
     reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
@@ -49,7 +53,9 @@ export function $removed({ program }: DecoratorContext, t: Type, v: string) {
   }
   program.stateMap(removedOnKey).set(t, v);
 }
-export function $renamedFrom({ program }: DecoratorContext, t: Type, v: string, oldName: string) {
+export function $renamedFrom(context: DecoratorContext, t: Type, v: string, oldName: string) {
+  const { program } = context;
+
   if (typeof v !== "string") {
     reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
@@ -65,7 +71,8 @@ export function $renamedFrom({ program }: DecoratorContext, t: Type, v: string, 
   program.stateMap(renamedFromKey).set(t, record);
 }
 
-export function $madeOptional({ program }: DecoratorContext, t: Type, v: string) {
+export function $madeOptional(context: DecoratorContext, t: Type, v: string) {
+  const { program } = context;
   if (typeof v !== "string") {
     reportDiagnostic(program, { code: "version-must-be-string", target: t });
     return;
@@ -116,9 +123,8 @@ export function getMadeOptionalOn(p: Program, t: Type): string | undefined {
   return p.stateMap(madeOptionalKey).get(t);
 }
 
-export function $versioned({ program }: DecoratorContext, t: Type, v: Type) {
-  if (t.kind !== "Namespace") {
-    reportDiagnostic(program, { code: "versioned-not-on-namespace", target: t });
+export function $versioned(context: DecoratorContext, t: Type, v: Type) {
+  if (!validateDecoratorTarget(context, t, "@versioned", "Namespace")) {
     return;
   }
   const versions = [];
@@ -141,7 +147,7 @@ export function $versioned({ program }: DecoratorContext, t: Type, v: Type) {
       }
   }
 
-  program.stateMap(versionsKey).set(t, versions);
+  context.program.stateMap(versionsKey).set(t, versions);
 }
 
 function getVersion(p: Program, t: Type): string[] {
@@ -149,13 +155,14 @@ function getVersion(p: Program, t: Type): string[] {
 }
 
 export function $versionedDependency(
-  { program }: DecoratorContext,
+  context: DecoratorContext,
   referenceNamespace: Type,
   targetNamespace: Type,
   versionRecord: string | Type
 ) {
+  const { program } = context;
   if (
-    !validateDecoratorTarget(program, referenceNamespace, "@versionedDependency", "Namespace") ||
+    !validateDecoratorTarget(context, referenceNamespace, "@versionedDependency", "Namespace") ||
     !validateDecoratorParamType(program, referenceNamespace, targetNamespace, "Namespace") ||
     !validateDecoratorParamType(program, referenceNamespace, versionRecord, ["Model", "String"])
   ) {
@@ -169,7 +176,7 @@ export function $versionedDependency(
 
   if (!state) {
     state = new Map();
-    program.stateMap(versionDependencyKey).set(referenceNamespace, state);
+    context.program.stateMap(versionDependencyKey).set(referenceNamespace, state);
   }
 
   if (typeof versionRecord === "string") {

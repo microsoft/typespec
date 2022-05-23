@@ -12,17 +12,17 @@ import { reportDiagnostic } from "./lib.js";
 
 export const namespace = "OpenAPI";
 
-export function $notinnamespace({ program }: DecoratorContext, entity: Type, opId: string) {}
+export function $notinnamespace(context: DecoratorContext, entity: Type, opId: string) {}
 
 const operationIdsKey = Symbol("operationIds");
-export function $operationId({ program }: DecoratorContext, entity: Type, opId: string) {
+export function $operationId(context: DecoratorContext, entity: Type, opId: string) {
   if (
-    !validateDecoratorTarget(program, entity, "@operationId", "Operation") ||
-    !validateDecoratorParamType(program, entity, opId, "String")
+    !validateDecoratorTarget(context, entity, "@operationId", "Operation") ||
+    !validateDecoratorParamType(context.program, entity, opId, "String")
   ) {
     return;
   }
-  program.stateMap(operationIdsKey).set(entity, opId);
+  context.program.stateMap(operationIdsKey).set(entity, opId);
 }
 
 export function getOperationId(program: Program, entity: Type): string | undefined {
@@ -32,17 +32,17 @@ export function getOperationId(program: Program, entity: Type): string | undefin
 export type ExtensionKey = `x-${string}`;
 const openApiExtensionKey = Symbol("openApiExtension");
 export function $extension(
-  { program }: DecoratorContext,
+  context: DecoratorContext,
   entity: Type,
   extensionName: string,
   value: CadlValue
 ) {
-  if (!validateDecoratorParamType(program, entity, extensionName, "String")) {
+  if (!validateDecoratorParamType(context.program, entity, extensionName, "String")) {
     return;
   }
 
   if (!isOpenAPIExtensionKey(extensionName)) {
-    reportDiagnostic(program, {
+    reportDiagnostic(context.program, {
       code: "invalid-extension-key",
       format: { value: extensionName },
       target: entity,
@@ -51,9 +51,9 @@ export function $extension(
 
   const [data, diagnostics] = cadlTypeToJson(value, entity);
   if (diagnostics.length > 0) {
-    program.reportDiagnostics(diagnostics);
+    context.program.reportDiagnostics(diagnostics);
   }
-  setExtension(program, entity, extensionName as ExtensionKey, data);
+  setExtension(context.program, entity, extensionName as ExtensionKey, data);
 }
 
 export function setExtension(
@@ -80,12 +80,12 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
 // The @defaultResponse decorator can be applied to a model. When that model is used
 // as the return type of an operation, this return type will be the default response.
 const defaultResponseKey = Symbol("defaultResponse");
-export function $defaultResponse({ program }: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(program, entity, "@defaultResponse", "Model")) {
+export function $defaultResponse(context: DecoratorContext, entity: Type) {
+  if (!validateDecoratorTarget(context, entity, "@defaultResponse", "Model")) {
     return;
   }
-  http.setStatusCode(program, entity, ["*"]);
-  program.stateSet(defaultResponseKey).add(entity);
+  http.setStatusCode(context.program, entity, ["*"]);
+  context.program.stateSet(defaultResponseKey).add(entity);
 }
 
 export function isDefaultResponse(program: Program, entity: Type): boolean {
@@ -104,22 +104,22 @@ const externalDocsKey = Symbol("externalDocs");
  * @param @optional description A short description of the target documentation.
  */
 export function $externalDocs(
-  { program }: DecoratorContext,
+  context: DecoratorContext,
   target: Type,
   url: string,
   description?: string
 ) {
-  if (!validateDecoratorParamType(program, target, url, "String")) {
+  if (!validateDecoratorParamType(context.program, target, url, "String")) {
     return;
   }
-  if (description && !validateDecoratorParamType(program, target, description, "String")) {
+  if (description && !validateDecoratorParamType(context.program, target, description, "String")) {
     return;
   }
   const doc: ExternalDocs = { url };
   if (description) {
     doc.description = description;
   }
-  program.stateMap(externalDocsKey).set(target, doc);
+  context.program.stateMap(externalDocsKey).set(target, doc);
 }
 
 export function getExternalDocs(program: Program, entity: Type): ExternalDocs | undefined {

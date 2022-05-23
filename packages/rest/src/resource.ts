@@ -66,15 +66,15 @@ export function getResourceTypeKey(program: Program, resourceType: ModelType): R
 }
 
 export function $resourceTypeForKeyParam(
-  { program }: DecoratorContext,
+  context: DecoratorContext,
   entity: Type,
   resourceType: Type
 ) {
-  if (!validateDecoratorTarget(program, entity, "@resourceTypeForKeyParam", "ModelProperty")) {
+  if (!validateDecoratorTarget(context, entity, "@resourceTypeForKeyParam", "ModelProperty")) {
     return;
   }
 
-  program.stateMap(resourceTypeForKeyParamKey).set(entity, resourceType);
+  context.program.stateMap(resourceTypeForKeyParamKey).set(entity, resourceType);
 }
 
 export function getResourceTypeForKeyParam(
@@ -106,7 +106,7 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
       },
       {
         decorator: $resourceTypeForKeyParam,
-        args: [resourceType],
+        args: [{ node: target.node, value: resourceType }],
       }
     );
     $path(context, newProp, undefined as any);
@@ -120,7 +120,7 @@ export function $copyResourceKeyParameters(
   entity: Type,
   filter?: string
 ) {
-  if (!validateDecoratorTarget(context.program, entity, "@copyResourceKeyParameters", "Model")) {
+  if (!validateDecoratorTarget(context, entity, "@copyResourceKeyParameters", "Model")) {
     return;
   }
 
@@ -172,10 +172,11 @@ export function getParentResource(
  *
  * `@parentResource` can only be applied to models.
  */
-export function $parentResource({ program }: DecoratorContext, entity: Type, parentType: Type) {
-  if (!validateDecoratorTarget(program, parentType, "@parentResource", "Model")) {
+export function $parentResource(context: DecoratorContext, entity: Type, parentType: Type) {
+  if (!validateDecoratorTarget(context, parentType, "@parentResource", "Model")) {
     return;
   }
+  const { program } = context;
 
   program.stateMap(parentResourceTypesKey).set(entity, parentType);
 
