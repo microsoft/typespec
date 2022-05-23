@@ -26,6 +26,7 @@ import {
   BooleanLiteralType,
   CadlScriptNode,
   DecoratorApplication,
+  DecoratorArgument,
   DecoratorExpressionNode,
   EnumMemberNode,
   EnumMemberType,
@@ -1921,7 +1922,7 @@ export function createChecker(program: Program): Checker {
     return decorators;
   }
 
-  function checkDecoratorArguments(decorator: DecoratorExpressionNode) {
+  function checkDecoratorArguments(decorator: DecoratorExpressionNode): DecoratorArgument[] {
     return decorator.arguments.map((argNode) => {
       const type = getTypeForNode(argNode);
       const value =

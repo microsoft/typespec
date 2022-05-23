@@ -479,7 +479,7 @@ const diagnostics = {
   "list-type-not-model": {
     severity: "error",
     messages: {
-      default: "@list decorator's parameter must be a model type reference.",
+      default: "@list decorator's parameter must be a model type.",
     },
   },
 
