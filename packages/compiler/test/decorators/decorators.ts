@@ -392,6 +392,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
+        severity: "warning",
       });
     });
 
@@ -405,6 +406,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
+        severity: "warning",
       });
     });
 
@@ -418,6 +420,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
+        severity: "warning",
       });
     });
 
@@ -431,6 +434,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
+        severity: "warning",
       });
     });
   });
