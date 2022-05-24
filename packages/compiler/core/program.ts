@@ -623,7 +623,11 @@ export async function createProgram(
     } else if (ext === ".cadl") {
       await loadCadlFile(mainPath, NoTarget);
     } else {
-      program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
+      if (options.designTimeBuild) {
+        await loadCadlFile(mainPath, NoTarget);
+      } else {
+        program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
+      }
     }
   }
 
