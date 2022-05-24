@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
 import {
-  DecoratorArgument,
+  DecoratorArgumentValue,
   DecoratorContext,
   EnumType,
   InterfaceType,
@@ -627,7 +627,7 @@ describe("cadl: projections", () => {
 
 function projection(
   projectionName: string,
-  args: DecoratorArgument[] | DecoratorArgument = [],
+  args: DecoratorArgumentValue[] | DecoratorArgumentValue = [],
   direction: "to" | "from" = "to"
 ): ProjectionApplication {
   return {

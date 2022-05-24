@@ -15,12 +15,6 @@ const libDef = {
         default: paramMessage`The provided version ${"version"} wasn't declared on any parent namespaces.`,
       },
     },
-    "versioned-not-on-namespace": {
-      severity: "error",
-      messages: {
-        default: `The versioned decorator must be applied to a namespace`,
-      },
-    },
     "versioned-dependency-record-not-model": {
       severity: "error",
       messages: {

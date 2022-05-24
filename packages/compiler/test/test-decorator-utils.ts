@@ -11,7 +11,7 @@ describe("compiler: decorator utils", () => {
 
       // add test decorators
       host.addJsFile("mapToJson.js", {
-        $jsonData({ program }: DecoratorContext, target: Type, value: CadlValue) {
+        $jsonData(context: DecoratorContext, target: Type, value: CadlValue) {
           result = cadlTypeToJson(value, target);
         },
       });

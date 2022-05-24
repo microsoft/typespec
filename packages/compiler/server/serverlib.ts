@@ -713,6 +713,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   function inWorkspace(path: string) {
+    path = ensureTrailingDirectorySeparator(path);
     return workspaceFolders.some((f) => path.startsWith(f.path));
   }
 
