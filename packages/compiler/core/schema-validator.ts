@@ -3,12 +3,18 @@ import { compilerAssert } from "./diagnostics.js";
 import { NoTarget } from "./index.js";
 import { Diagnostic, SourceFile } from "./types.js";
 
+export interface SchemaValidatorOptions {
+  coerceTypes?: boolean;
+}
 export class SchemaValidator<T> {
-  private ajv = new Ajv({
-    strict: true,
-  });
+  private ajv: Ajv;
 
-  public constructor(private schema: JSONSchemaType<T>) {}
+  public constructor(private schema: JSONSchemaType<T>, options: SchemaValidatorOptions = {}) {
+    this.ajv = new Ajv({
+      strict: true,
+      coerceTypes: options.coerceTypes,
+    });
+  }
 
   /**
    * Validate the config is valid

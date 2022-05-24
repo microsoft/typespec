@@ -64,7 +64,7 @@ async function main() {
             type: "array",
             string: true,
             describe:
-              "Key/value pairs that can be passed to Cadl components.  The format is 'emitter=value'.  This parameter can be used multiple times to add more options.",
+              "Key/value pairs that can be used to set emitter options. The format is '<emitterName>.<key>=<value>'. This parameter can be used multiple times to add more options.",
           })
           .options("nostdlib", {
             type: "boolean",
@@ -343,17 +343,6 @@ async function getCompilerOptions(
   const outputPath = resolvePath(process.cwd(), pathArg);
   await mkdirp(outputPath);
 
-  const miscOptions: any = {};
-  for (const options of args.options || []) {
-    const optionParts = options.split("=");
-    if (optionParts.length != 2) {
-      throw new Error(
-        `The --options parameter value "${options}" must be in the format: some-options=value`
-      );
-    }
-    miscOptions[optionParts[0]] = optionParts[1];
-  }
-
   const config = await loadCadlConfigForPath(host, process.cwd());
 
   if (config.diagnostics.length > 0) {
@@ -365,7 +354,6 @@ async function getCompilerOptions(
   }
 
   return {
-    miscOptions,
     outputPath,
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
@@ -377,13 +365,63 @@ async function getCompilerOptions(
   };
 }
 
+function resolveOptions(args: CompileCliArgs): Record<string, Record<string, unknown>> {
+  const options: Record<string, Record<string, string>> = {};
+  for (const option of args.options ?? []) {
+    const optionParts = option.split("=");
+    if (optionParts.length != 2) {
+      throw new Error(
+        `The --options parameter value "${option}" must be in the format: <emitterName>.some-options=value`
+      );
+    }
+    const optionKeyParts = optionParts[0].split(".");
+    if (optionKeyParts.length != 2) {
+      throw new Error(
+        `The --options parameter value "${option}" must be in the format: <emitterName>.some-options=value`
+      );
+    }
+    const emitterName = optionKeyParts[0];
+    const key = optionKeyParts[1];
+    if (!(emitterName in options)) {
+      options[emitterName] = {};
+    }
+    options[emitterName][key] = optionParts[1];
+  }
+  return options;
+}
+
 function resolveEmitters(
   config: CadlConfig,
   args: CompileCliArgs
 ): Record<string, Record<string, unknown> | boolean> {
-  if (args.emit) {
+  const options = resolveOptions(args);
+  const emitters = resovleSelectedEmittersFromConfig(config, args.emit);
+
+  const configuredEmitters: Record<string, Record<string, unknown> | boolean> = {};
+
+  for (const [emitterName, emitterConfig] of Object.entries(emitters)) {
+    const cliOptionOverride = options[emitterName];
+
+    if (cliOptionOverride) {
+      configuredEmitters[emitterName] = {
+        ...(emitterConfig === true ? {} : emitterConfig),
+        ...cliOptionOverride,
+      };
+    } else {
+      configuredEmitters[emitterName] = emitterConfig;
+    }
+  }
+
+  return configuredEmitters;
+}
+
+function resovleSelectedEmittersFromConfig(
+  config: CadlConfig,
+  selectedEmitters: string[] | undefined
+): Record<string, Record<string, unknown> | boolean> {
+  if (selectedEmitters) {
     const emitters: Record<string, Record<string, unknown> | boolean> = {};
-    for (const emitter of args.emit) {
+    for (const emitter of selectedEmitters) {
       emitters[emitter] = config.emitters[emitter] ?? true;
     }
     return emitters;
