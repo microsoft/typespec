@@ -233,6 +233,38 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("succeed if it was added in the first defined version", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added("1")
+        model Foo {}
+
+        model Bar {
+          foo: Foo;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("model template arguments", () => {
+    it("emit diagnostic when using versioned model as template argument in non versioned property", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added("2")
+        model Versioned {}
+
+        model Foo<T> {t: T}
+
+        model Bar {
+          foo: Foo<Versioned>;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Bar.foo' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
   });
 
   describe("interface operations", () => {
@@ -326,6 +358,31 @@ describe("versioning: validate incompatible references", () => {
         message:
           "'TestService.test' was added on version '1' but referencing type 'VersionedLib.Foo' added in version '3'.",
       });
+    });
+
+    it("doesn't emit diagnostic if all version use the same one", async () => {
+      // Here Foo was added in v2 which makes it only available in 1 & 2.
+      const diagnostics = await runner.diagnose(`
+        import "@cadl-lang/versioning";
+
+        @versioned("l1" | "l2")
+        namespace VersionedLib {
+          @added("l2")
+          model Foo {}
+        }
+
+        @versioned("1" | "2" | "3" | "4")
+        @versionedDependency(VersionedLib, {
+          "1": "l2",
+          "2": "l2",
+          "3": "l2",
+          "4": "l2",
+        })
+        namespace TestService {
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("emit diagnostic when referencing incompatible version via version dependency", async () => {

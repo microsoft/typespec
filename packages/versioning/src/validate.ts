@@ -38,7 +38,7 @@ export function $onValidate(program: Program) {
         validateTargetVersionCompatible(program, model, prop, { isTargetADependent: true });
 
         // Validate model property -> type have correct versioning
-        validateTargetVersionCompatible(program, prop, prop.type);
+        validateReference(program, prop, prop.type);
       }
     },
     union: (union) => {
@@ -119,6 +119,23 @@ interface IncompatibleVersionValidateOptions {
 }
 
 /**
+ * Validate the target reference versioning is compatible with the source versioning.
+ * This will also validate any template arguments used in the reference.
+ * e.g. The target cannot be added after the source was added.
+ * @param source Source type referencing the target type.
+ * @param target Type being referenced from the source
+ */
+function validateReference(program: Program, source: Type, target: Type) {
+  validateTargetVersionCompatible(program, source, target);
+
+  if (target.kind === "Model" && target.templateArguments) {
+    for (const param of target.templateArguments) {
+      validateTargetVersionCompatible(program, source, param);
+    }
+  }
+}
+
+/**
  * Validate the target versioning is compatible with the versioning of the soruce.
  * e.g. The target cannot be added after the source was added.
  * @param source Source type referencing the target type.
@@ -164,21 +181,6 @@ function validateTargetVersionCompatible(
     if (targetVersionRange === undefined) {
       return;
     }
-  }
-
-  if (sourceVersionRange === undefined) {
-    if (!validateOptions.isTargetADependent) {
-      reportDiagnostic(program, {
-        code: "incompatible-versioned-reference",
-        messageId: "default",
-        format: {
-          sourceName: program.checker.getTypeName(source),
-          targetName: program.checker.getTypeName(target),
-        },
-        target: source,
-      });
-    }
-    return;
   }
 
   if (validateOptions.isTargetADependent) {
@@ -325,13 +327,30 @@ function getVersionRangeIndex(versions: string[], range: VersionRange): VersionR
 function validateRangeCompatibleForRef(
   program: Program,
   versions: string[],
-  sourceRange: VersionRange,
+  sourceRange: VersionRange | undefined,
   targetRange: VersionRange,
   source: Type,
   target: Type
 ) {
-  const sourceRangeIndex = getVersionRangeIndex(versions, sourceRange);
   const targetRangeIndex = getVersionRangeIndex(versions, targetRange);
+  if (sourceRange === undefined) {
+    if (
+      (targetRangeIndex.added && targetRangeIndex.added > 0) ||
+      (targetRangeIndex.removed && targetRangeIndex.removed < versions.length)
+    ) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "default",
+        format: {
+          sourceName: program.checker.getTypeName(source),
+          targetName: program.checker.getTypeName(target),
+        },
+        target: source,
+      });
+    }
+    return;
+  }
+  const sourceRangeIndex = getVersionRangeIndex(versions, sourceRange);
 
   if (
     targetRangeIndex.added !== undefined &&
@@ -370,11 +389,15 @@ function validateRangeCompatibleForRef(
 function validateRangeCompatibleForContains(
   program: Program,
   versions: string[],
-  sourceRange: VersionRange,
+  sourceRange: VersionRange | undefined,
   targetRange: VersionRange,
   source: Type,
   target: Type
 ) {
+  if (sourceRange === undefined) {
+    return;
+  }
+
   const sourceRangeIndex = getVersionRangeIndex(versions, sourceRange);
   const targetRangeIndex = getVersionRangeIndex(versions, targetRange);
 
