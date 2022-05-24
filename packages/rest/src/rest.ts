@@ -13,13 +13,13 @@ import { getResourceTypeKey } from "./resource.js";
 
 const producesTypesKey = Symbol("producesTypes");
 
-export function $produces({ program }: DecoratorContext, entity: Type, ...contentTypes: string[]) {
-  if (entity.kind !== "Namespace") {
-    reportDiagnostic(program, { code: "produces-namespace-only", target: entity });
+export function $produces(context: DecoratorContext, entity: Type, ...contentTypes: string[]) {
+  if (!validateDecoratorTarget(context, entity, "@produces", "Namespace")) {
+    return;
   }
 
-  const values = getProduces(program, entity);
-  program.stateMap(producesTypesKey).set(entity, values.concat(contentTypes));
+  const values = getProduces(context.program, entity);
+  context.program.stateMap(producesTypesKey).set(entity, values.concat(contentTypes));
 }
 
 export function getProduces(program: Program, entity: Type): string[] {
@@ -28,13 +28,12 @@ export function getProduces(program: Program, entity: Type): string[] {
 
 const consumesTypesKey = Symbol("consumesTypes");
 
-export function $consumes({ program }: DecoratorContext, entity: Type, ...contentTypes: string[]) {
-  if (entity.kind !== "Namespace") {
-    reportDiagnostic(program, { code: "consumes-namespace-only", target: entity });
+export function $consumes(context: DecoratorContext, entity: Type, ...contentTypes: string[]) {
+  if (!validateDecoratorTarget(context, entity, "@consumes", "Namespace")) {
+    return;
   }
-
-  const values = getConsumes(program, entity);
-  program.stateMap(consumesTypesKey).set(entity, values.concat(contentTypes));
+  const values = getConsumes(context.program, entity);
+  context.program.stateMap(consumesTypesKey).set(entity, values.concat(contentTypes));
 }
 
 export function getConsumes(program: Program, entity: Type): string[] {
@@ -46,11 +45,11 @@ export interface Discriminator {
 }
 
 const discriminatorKey = Symbol("discriminator");
-export function $discriminator({ program }: DecoratorContext, entity: Type, propertyName: string) {
-  if (!validateDecoratorTarget(program, entity, "@discriminator", "Model")) {
+export function $discriminator(context: DecoratorContext, entity: Type, propertyName: string) {
+  if (!validateDecoratorTarget(context, entity, "@discriminator", "Model")) {
     return;
   }
-  program.stateMap(discriminatorKey).set(entity, propertyName);
+  context.program.stateMap(discriminatorKey).set(entity, propertyName);
 }
 
 export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
@@ -71,14 +70,14 @@ const segmentsKey = Symbol("segments");
  *
  * `@segment` can only be applied to model properties or operation parameters.
  */
-export function $segment({ program }: DecoratorContext, entity: Type, name: string) {
+export function $segment(context: DecoratorContext, entity: Type, name: string) {
   if (
-    !validateDecoratorTarget(program, entity, "@segment", ["Model", "ModelProperty", "Operation"])
+    !validateDecoratorTarget(context, entity, "@segment", ["Model", "ModelProperty", "Operation"])
   ) {
     return;
   }
 
-  program.stateMap(segmentsKey).set(entity, name);
+  context.program.stateMap(segmentsKey).set(entity, name);
 }
 
 export function $segmentOf(context: DecoratorContext, entity: Type, resourceType: Type) {
@@ -86,7 +85,7 @@ export function $segmentOf(context: DecoratorContext, entity: Type, resourceType
     // Skip it, this operation is in a templated interface
     return;
   }
-  if (!validateDecoratorTarget(context.program, resourceType, "@segmentOf", "Model")) {
+  if (!validateDecoratorTarget(context, resourceType, "@segmentOf", "Model")) {
     return;
   }
 
@@ -156,8 +155,8 @@ export function getResourceOperation(
   return program.stateMap(resourceOperationsKey).get(cadlOperation);
 }
 
-export function $readsResource({ program }: DecoratorContext, entity: Type, resourceType: Type) {
-  setResourceOperation(program, entity, resourceType, "read");
+export function $readsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
+  setResourceOperation(context.program, entity, resourceType, "read");
 }
 
 export function $createsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
@@ -168,19 +167,19 @@ export function $createsResource(context: DecoratorContext, entity: Type, resour
 }
 
 export function $createsOrUpdatesResource(
-  { program }: DecoratorContext,
+  context: DecoratorContext,
   entity: Type,
   resourceType: Type
 ) {
-  setResourceOperation(program, entity, resourceType, "createOrUpdate");
+  setResourceOperation(context.program, entity, resourceType, "createOrUpdate");
 }
 
-export function $updatesResource({ program }: DecoratorContext, entity: Type, resourceType: Type) {
-  setResourceOperation(program, entity, resourceType, "update");
+export function $updatesResource(context: DecoratorContext, entity: Type, resourceType: Type) {
+  setResourceOperation(context.program, entity, resourceType, "update");
 }
 
-export function $deletesResource({ program }: DecoratorContext, entity: Type, resourceType: Type) {
-  setResourceOperation(program, entity, resourceType, "delete");
+export function $deletesResource(context: DecoratorContext, entity: Type, resourceType: Type) {
+  setResourceOperation(context.program, entity, resourceType, "delete");
 }
 
 export function $listsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
@@ -199,7 +198,7 @@ function lowerCaseFirstChar(str: string): string {
 
 const actionsKey = Symbol("actions");
 export function $action(context: DecoratorContext, entity: Type, name?: string) {
-  if (!validateDecoratorTarget(context.program, entity, "@action", "Operation")) {
+  if (!validateDecoratorTarget(context, entity, "@action", "Operation")) {
     return;
   }
 

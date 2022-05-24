@@ -223,6 +223,7 @@ async function createTestHostInternal(): Promise<TestHost> {
   // add test decorators
   fileSystem.addCadlFile(".cadl/test-lib/main.cadl", 'import "./test.js";');
   fileSystem.addJsFile(".cadl/test-lib/test.js", {
+    namespace: "Cadl",
     $test(_: any, target: Type, name?: string) {
       if (!name) {
         if (

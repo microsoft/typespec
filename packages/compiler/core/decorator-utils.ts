@@ -1,4 +1,5 @@
 import { getIntrinsicModelName, getPropertyType } from "../lib/decorators.js";
+import { DecoratorContext } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
@@ -28,20 +29,20 @@ export type InferredCadlValue<K extends Type["kind"]> =
  * @returns
  */
 export function validateDecoratorTarget<K extends Type["kind"]>(
-  program: Program,
+  context: DecoratorContext,
   target: Type,
   decoratorName: string,
   expectedType: K | K[]
 ): target is Type & { kind: K } {
   const isCorrectType = isCadlValueTypeOf(target, expectedType);
   if (!isCorrectType) {
-    reportDiagnostic(program, {
+    reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       format: {
         decorator: decoratorName,
         to: target.kind,
       },
-      target,
+      target: context.decoratorTarget,
     });
     return false;
   }
@@ -50,19 +51,19 @@ export function validateDecoratorTarget<K extends Type["kind"]>(
 }
 
 export function validateDecoratorTargetIntrinsic(
-  program: Program,
+  context: DecoratorContext,
   target: ModelType | ModelTypeProperty,
   decoratorName: string,
   expectedType: IntrinsicModelName | IntrinsicModelName[]
 ): boolean {
-  const actualType = getIntrinsicModelName(program, getPropertyType(target));
+  const actualType = getIntrinsicModelName(context.program, getPropertyType(target));
   const isCorrect =
     actualType &&
     (typeof expectedType === "string"
       ? actualType === expectedType
       : expectedType.includes(actualType));
   if (!isCorrect) {
-    program.reportDiagnostic(
+    context.program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
         format: {
@@ -71,7 +72,7 @@ export function validateDecoratorTargetIntrinsic(
             typeof expectedType === "string" ? expectedType : expectedType.join(", ")
           }`,
         },
-        target,
+        target: context.decoratorTarget,
       })
     );
     return false;

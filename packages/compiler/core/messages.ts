@@ -470,12 +470,6 @@ const diagnostics = {
       default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
     },
   },
-  "service-decorator-namespace-only": {
-    severity: "error",
-    messages: {
-      default: paramMessage`The ${"decorator"} decorator can only be applied to namespaces.`,
-    },
-  },
   "service-namespace-duplicate": {
     severity: "error",
     messages: {
@@ -485,7 +479,7 @@ const diagnostics = {
   "list-type-not-model": {
     severity: "error",
     messages: {
-      default: "@list decorator's parameter must be a model type reference.",
+      default: "@list decorator's parameter must be a model type.",
     },
   },
 
