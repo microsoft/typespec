@@ -468,6 +468,11 @@ export async function createProgram(
               createDiagnostic({ code: "library-not-found", format: { path }, target })
             );
             continue;
+          } else if (e.code === "INVALID_MAIN") {
+            program.reportDiagnostic(
+              createDiagnostic({ code: "library-invalid", format: { path }, target })
+            );
+            continue;
           } else {
             throw e;
           }
