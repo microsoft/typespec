@@ -3,6 +3,7 @@ import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   DecoratorContext,
+  DiagnosticTarget,
   Expression,
   IdentifierKind,
   isIntrinsic,
@@ -581,14 +582,14 @@ export function createChecker(program: Program): Checker {
     }
 
     const type = checkTypeReferenceSymbol(sym, node);
-    checkDeprecated(type);
+    checkDeprecated(type, node);
     return type;
   }
 
-  function checkDeprecated(type: Type) {
+  function checkDeprecated(type: Type, target: DiagnosticTarget) {
     const deprecated = getDeprecated(program, type);
     if (deprecated) {
-      reportDeprecated(program, deprecated, type);
+      reportDeprecated(program, deprecated, target);
     }
   }
 
@@ -1492,7 +1493,7 @@ export function createChecker(program: Program): Checker {
     const isBase = checkModelIs(node, node.is);
 
     if (isBase) {
-      checkDeprecated(isBase);
+      checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
     }
@@ -1513,10 +1514,12 @@ export function createChecker(program: Program): Checker {
       type.baseModel = isBase.baseModel;
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends);
+      if (type.baseModel) {
+        checkDeprecated(type.baseModel, node.extends);
+      }
     }
 
     if (type.baseModel) {
-      checkDeprecated(type.baseModel);
       type.baseModel.derivedModels.push(type);
     }
 
