@@ -1,3 +1,2 @@
 import "../dist/lib/decorators.js";
-import "../dist/lib/service.js";
 import "./lib.cadl";

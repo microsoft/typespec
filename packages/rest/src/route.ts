@@ -76,15 +76,15 @@ export interface RoutePath {
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  */
-export function $route({ program }: DecoratorContext, entity: Type, path: string) {
-  setRoute(program, entity, {
+export function $route(context: DecoratorContext, entity: Type, path: string) {
+  setRoute(context, entity, {
     path,
     isReset: false,
   });
 }
 
-export function $routeReset({ program }: DecoratorContext, entity: Type, path: string) {
-  setRoute(program, entity, {
+export function $routeReset(context: DecoratorContext, entity: Type, path: string) {
+  setRoute(context, entity, {
     path,
     isReset: true,
   });
@@ -124,21 +124,21 @@ function addRouteContainer(program: Program, entity: Type): void {
 }
 
 const routesKey = Symbol("routes");
-function setRoute(program: Program, entity: Type, details: RoutePath) {
+function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   if (
-    !validateDecoratorTarget(program, entity, "@route", ["Namespace", "Interface", "Operation"])
+    !validateDecoratorTarget(context, entity, "@route", ["Namespace", "Interface", "Operation"])
   ) {
     return;
   }
 
   // Register the container of the operation as one that holds routed operations
-  addRouteContainer(program, entity);
+  addRouteContainer(context.program, entity);
 
-  const state = program.stateMap(routesKey);
+  const state = context.program.stateMap(routesKey);
 
   if (state.has(entity)) {
     if (entity.kind === "Operation" || entity.kind === "Interface") {
-      reportDiagnostic(program, {
+      reportDiagnostic(context.program, {
         code: "duplicate-route-decorator",
         messageId: entity.kind === "Operation" ? "operation" : "interface",
         target: entity,
@@ -146,7 +146,7 @@ function setRoute(program: Program, entity: Type, details: RoutePath) {
     } else {
       const existingValue: RoutePath = state.get(entity);
       if (existingValue.path !== details.path) {
-        reportDiagnostic(program, {
+        reportDiagnostic(context.program, {
           code: "duplicate-route-decorator",
           messageId: "namespace",
           target: entity,
@@ -546,17 +546,17 @@ const autoRouteKey = Symbol("autoRoute");
  * metadata.  When applied to a namespace or interface, it causes all operations under that scope to have
  * auto-generated routes.
  */
-export function $autoRoute({ program }: DecoratorContext, entity: Type) {
+export function $autoRoute(context: DecoratorContext, entity: Type) {
   if (
-    !validateDecoratorTarget(program, entity, "@autoRoute", ["Namespace", "Interface", "Operation"])
+    !validateDecoratorTarget(context, entity, "@autoRoute", ["Namespace", "Interface", "Operation"])
   ) {
     return;
   }
 
   // Register the container of the operation as one that holds routed operations
-  addRouteContainer(program, entity);
+  addRouteContainer(context.program, entity);
 
-  program.stateSet(autoRouteKey).add(entity);
+  context.program.stateSet(autoRouteKey).add(entity);
 }
 
 export function isAutoRoute(
