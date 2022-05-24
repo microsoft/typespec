@@ -679,7 +679,7 @@ export async function createProgram(
         { baseDir }
       );
     } catch (err: any) {
-      if (err.code === "MODULE_NOT_FOUND") {
+      if (err.code === "MODULE_NOT_FOUND" || err.code === "INVALID_MAIN") {
         return true; // no local cadl, ok to use any compiler
       }
       throw err;
