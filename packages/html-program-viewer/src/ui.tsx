@@ -12,8 +12,9 @@ import {
 } from "@cadl-lang/compiler";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
-import { inspect } from "util";
-import { Item, Literal } from "./common.js";
+import { ServerStyleSheet } from "styled-components";
+import { Item, Literal, styled } from "./common.js";
+import { inspect } from "./inspect.js";
 
 function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
@@ -22,20 +23,52 @@ function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
 const ProgramContext = React.createContext<Program>({} as any);
 
 export function renderProgram(program: Program) {
+  const sheet = new ServerStyleSheet();
+  const html = ReactDOMServer.renderToString(
+    sheet.collectStyles(<CadlProgramViewer program={program} />)
+  );
+  const styleTags = sheet.getStyleTags();
+  return styleTags + "\n" + html;
+}
+
+export interface CadlProgramViewerProps {
+  program: Program;
+}
+
+const ProgramViewerStyle = styled.div`
+  font-family: monospace;
+  background-color: #f3f3f3;
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+    overflow: auto;
+  }
+
+  li {
+    margin: 0;
+    list-style: none;
+    position: relative;
+  }
+`;
+
+export const CadlProgramViewer: FunctionComponent<CadlProgramViewerProps> = ({ program }) => {
   const root = program.checker!.getGlobalNamespaceType();
   const namespaces = expandNamespaces(root);
-  return ReactDOMServer.renderToString(
+  return (
     <ProgramContext.Provider value={program}>
-      <ul>
-        {namespaces.map((namespace) => (
-          <li key={program.checker!.getNamespaceString(namespace)}>
-            <Namespace type={namespace} />
-          </li>
-        ))}
-      </ul>
+      <ProgramViewerStyle>
+        <ul>
+          {namespaces.map((namespace) => (
+            <li key={program.checker!.getNamespaceString(namespace)}>
+              <Namespace type={namespace} />
+            </li>
+          ))}
+        </ul>
+      </ProgramViewerStyle>
     </ProgramContext.Provider>
   );
-}
+};
 
 export interface TypeUIProperty {
   name: string;
@@ -53,24 +86,37 @@ export interface TypeUIProps {
   properties: TypeUIProperty[];
 }
 
+const PropName = styled.span`
+  color: #9c5d27;
+`;
+const PropValue = styled.span``;
+
+const TypeType = styled.span`
+  display: inline;
+  color: #7a3e9d;
+  margin-right: 5px;
+`;
+
+const TypeName = styled.span`
+  display: inline;
+  color: #333333;
+`;
 export const TypeUI: FunctionComponent<TypeUIProps> = (props) => {
   const program = useContext(ProgramContext);
   const id = props.id ?? getIdForType(program, props.type);
   const properties = props.properties.map((prop) => {
     return (
-      <li key={prop.name} className="prop">
-        <span className="prop-name" title={prop.description}>
-          {prop.name}
-        </span>
-        : <span className="prop-value">{prop.value}</span>
+      <li key={prop.name}>
+        <PropName title={prop.description}>{prop.name}</PropName>:{" "}
+        <PropValue>{prop.value}</PropValue>
       </li>
     );
   });
   return (
     <div>
       <div id={id}>
-        <span className="type-type">{props.type.kind}</span>
-        <span className="type-name">{props.name}</span>
+        <TypeType>{props.type.kind}</TypeType>
+        <TypeName>{props.name}</TypeName>
       </div>
       <ul>{properties}</ul>
     </div>
@@ -261,6 +307,15 @@ function getIdForType(program: Program, type: Type) {
   }
 }
 
+const TypeRef = styled.a`
+  color: #268bd2;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   const program = useContext(ProgramContext);
   switch (type.kind) {
@@ -272,9 +327,9 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
       const id = getIdForType(program, type);
       const href = `#${id}`;
       return (
-        <a className="type-ref" href={href} title={type.kind + ": " + id}>
+        <TypeRef href={href} title={type.kind + ": " + id}>
           {type.name}
-        </a>
+        </TypeRef>
       );
     case "Array":
       return (
@@ -308,6 +363,15 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   }
 };
 
+const TypeDataEntry = styled.div`
+  display: flex;
+`;
+const TypeDataKey = styled.div`
+  color: #333;
+  margin-right: 5px;
+`;
+const TypeDataValue = styled.div`
+`;
 const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const entries = [...program.stateMaps.entries()]
@@ -319,9 +383,9 @@ const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   return (
     <ul>
       {entries.map(([k, v], i) => (
-        <li key={i}>
-          {k.toString()}: {inspect(v, { showHidden: false })}
-        </li>
+        <TypeDataEntry key={i}>
+          <TypeDataKey>{k.toString()}:</TypeDataKey> <TypeDataValue>{inspect(v)}</TypeDataValue>
+        </TypeDataEntry>
       ))}
     </ul>
   );
