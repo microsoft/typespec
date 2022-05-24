@@ -378,7 +378,8 @@ const diagnostics = {
   "library-invalid": {
     severity: "error",
     messages: {
-      default: paramMessage`Library "${"path"}" has an invalid cadlMain configuration.`,
+      cadlMain: paramMessage`Library "${"path"}" has an invalid cadlMain file.`,
+      default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },
   "compiler-version-mismatch": {
