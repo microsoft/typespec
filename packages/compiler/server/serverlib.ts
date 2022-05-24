@@ -1,5 +1,6 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionItem,
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
@@ -547,13 +548,16 @@ export function createServer(host: ServerHost): Server {
         kind = getCompletionItemKind(program, type);
         deprecated = isDeprecated(program, type);
       }
-      completions.items.push({
+      const item: CompletionItem = {
         label: label ?? key,
         documentation,
         kind,
         insertText: key,
-        tags: deprecated ? [CompletionItemTag.Deprecated] : undefined,
-      });
+      };
+      if (deprecated) {
+        item.tags = [CompletionItemTag.Deprecated];
+      }
+      completions.items.push(item);
     }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
