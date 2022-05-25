@@ -1,0 +1,24 @@
+import "@cadl-lang/rest";
+
+using Cadl.Http;
+
+@error
+model ErrorDetails {
+  code: int32;
+  message: string;
+}
+
+model CodeSignAccount {
+  name: string;
+}
+
+@get
+op ResourceReadBase<TResource, TError>(@path name: string): TResource | TError;
+
+@doc("Reads an instance of the {name} resource.", T)
+op ResourceRead<T>: ResourceReadBase<T, ErrorDetails>;
+
+@route("codeSignAccounts")
+interface CodeSignAccounts {
+  get: ResourceRead<CodeSignAccount>;
+}
