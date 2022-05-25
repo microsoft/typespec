@@ -1,11 +1,14 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionItem,
   CompletionItemKind,
+  CompletionItemTag,
   CompletionList,
   CompletionParams,
   DefinitionParams,
   Diagnostic as VSDiagnostic,
   DiagnosticSeverity,
+  DiagnosticTag,
   DidChangeWatchedFilesParams,
   InitializedParams,
   InitializeParams,
@@ -53,7 +56,7 @@ import {
   Type,
 } from "../core/types.js";
 import { doIO, loadFile } from "../core/util.js";
-import { getDoc, isIntrinsic } from "../lib/decorators.js";
+import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -388,6 +391,9 @@ export function createServer(host: ServerHost): Server {
       const range = Range.create(start, end);
       const severity = convertSeverity(each.severity);
       const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "Cadl");
+      if (each.code === "deprecated") {
+        diagnostic.tags = [DiagnosticTag.Deprecated];
+      }
       const diagnostics = diagnosticMap.get(document);
       compilerAssert(
         diagnostics,
@@ -528,6 +534,7 @@ export function createServer(host: ServerHost): Server {
     for (const [key, { sym, label }] of result) {
       let documentation: string | undefined;
       let kind: CompletionItemKind;
+      let deprecated = false;
       if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
       } else if (
@@ -539,13 +546,18 @@ export function createServer(host: ServerHost): Server {
         const type = program.checker.getTypeForNode(sym.declarations[0]);
         documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
+        deprecated = isDeprecated(program, type);
       }
-      completions.items.push({
+      const item: CompletionItem = {
         label: label ?? key,
         documentation,
         kind,
         insertText: key,
-      });
+      };
+      if (deprecated) {
+        item.tags = [CompletionItemTag.Deprecated];
+      }
+      completions.items.push(item);
     }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
