@@ -15,6 +15,7 @@ const config: PlaywrightTestConfig = {
   },
   use: {
     baseURL: resolve(root, "dist"),
+    trace: "retain-on-failure",
   },
   testMatch: "*.e2e.ts",
 };

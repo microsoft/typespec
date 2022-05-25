@@ -124,7 +124,7 @@ class StateMap<V> implements Map<Type, V> {
     return this.entries();
   }
 
-  [Symbol.toStringTag]: "StateMap";
+  [Symbol.toStringTag] = "StateMap";
 
   dispatch(keyType?: Type): Map<Type, V> {
     const key = keyType ? keyType.projector : this.program.currentProjector;
@@ -181,7 +181,7 @@ class StateSet implements Set<Type> {
     return this.values();
   }
 
-  [Symbol.toStringTag]: "StateSet";
+  [Symbol.toStringTag] = "StateSet";
 
   dispatch(keyType?: Type): Set<Type> {
     const key = keyType ? keyType.projector : this.program.currentProjector;

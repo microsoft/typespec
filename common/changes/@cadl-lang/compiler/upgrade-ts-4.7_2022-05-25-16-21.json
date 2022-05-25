@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Upgrade to TS4.7",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
