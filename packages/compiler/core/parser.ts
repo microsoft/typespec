@@ -44,7 +44,7 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
-  OperationInstanceNode,
+  OperationSignature,
   OperationStatementNode,
   ProjectionBlockExpressionNode,
   ProjectionEnumSelectorNode,
@@ -509,7 +509,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       nextToken();
     }
 
-    const operations = parseList(ListKind.InterfaceMembers, parseInterfaceMember);
+    const operations = parseList(ListKind.InterfaceMembers, (pos, decorators) =>
+      parseOperationStatement(pos, decorators, true)
+    );
 
     return {
       kind: SyntaxKind.InterfaceStatement,
@@ -537,28 +539,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
 
     return list;
-  }
-
-  function parseInterfaceMember(
-    pos: number,
-    decorators: DecoratorExpressionNode[]
-  ): OperationStatementNode {
-    parseOptional(Token.OpKeyword);
-
-    const id = parseIdentifier();
-    const parameters = parseOperationParameters();
-    parseExpected(Token.Colon);
-
-    const returnType = parseExpression();
-    return {
-      kind: SyntaxKind.OperationStatement,
-      id,
-      templateParameters: [],
-      parameters,
-      returnType,
-      decorators,
-      ...finishNode(pos),
-    };
   }
 
   function parseUnionStatement(
@@ -612,45 +592,53 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOperationStatement(
     pos: number,
-    decorators: DecoratorExpressionNode[]
-  ): OperationStatementNode | OperationInstanceNode {
-    parseExpected(Token.OpKeyword);
+    decorators: DecoratorExpressionNode[],
+    inInterface?: boolean
+  ): OperationStatementNode {
+    if (inInterface) {
+      parseOptional(Token.OpKeyword);
+    } else {
+      parseExpected(Token.OpKeyword);
+    }
 
     const id = parseIdentifier();
-    const templateParameters = parseTemplateParameterList();
+    const templateParameters = inInterface ? [] : parseTemplateParameterList();
 
     // Check if we're parsing a declaration or reuse of another operation
+    let signature: OperationSignature;
     if (token() === Token.OpenParen) {
       const parameters = parseOperationParameters();
       parseExpected(Token.Colon);
       const returnType = parseExpression();
 
-      parseExpected(Token.Semicolon);
-
-      return {
-        kind: SyntaxKind.OperationStatement,
-        id,
-        templateParameters,
+      signature = {
+        kind: "OperationDeclaration",
         parameters,
         returnType,
-        decorators,
-        ...finishNode(pos),
       };
     } else {
       parseExpected(Token.Colon);
       const opReference = parseReferenceExpression();
 
-      parseExpected(Token.Semicolon);
-
-      return {
-        kind: SyntaxKind.OperationInstance,
-        id,
-        templateParameters,
+      signature = {
+        kind: "OperationReference",
         baseOperation: opReference,
-        decorators,
-        ...finishNode(pos),
       };
     }
+
+    // The interface parser handles semicolon parsing between statements
+    if (!inInterface) {
+      parseExpected(Token.Semicolon);
+    }
+
+    return {
+      kind: SyntaxKind.OperationStatement,
+      id,
+      templateParameters,
+      signature,
+      decorators,
+      ...finishNode(pos),
+    };
   }
 
   function parseOperationParameters(): ModelExpressionNode {
@@ -2178,15 +2166,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
-        visitNode(cb, node.parameters) ||
         visitEach(cb, node.templateParameters) ||
-        visitNode(cb, node.returnType)
-      );
-    case SyntaxKind.OperationInstance:
-      return (
-        visitEach(cb, node.decorators) ||
-        visitNode(cb, node.id) ||
-        visitNode(cb, node.baseOperation)
+        (node.signature.kind === "OperationDeclaration"
+          ? visitNode(cb, node.signature.parameters) || visitNode(cb, node.signature.returnType)
+          : visitNode(cb, node.signature.baseOperation))
       );
     case SyntaxKind.NamespaceStatement:
       return (

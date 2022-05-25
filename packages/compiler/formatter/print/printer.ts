@@ -23,7 +23,7 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
-  OperationInstanceNode,
+  OperationSignature,
   OperationStatementNode,
   Statement,
   StringLiteralNode,
@@ -86,8 +86,6 @@ export function printNode(
       return [`using `, path.call(print, "name"), `;`];
     case SyntaxKind.OperationStatement:
       return printOperationStatement(path as AstPath<OperationStatementNode>, options, print);
-    case SyntaxKind.OperationInstance:
-      return printOperationInstance(path as AstPath<OperationInstanceNode>, options, print);
     case SyntaxKind.NamespaceStatement:
       return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
     case SyntaxKind.ModelStatement:
@@ -813,10 +811,13 @@ function isStringSafeToUnquote(id: StringLiteralNode, options: CadlPrettierOptio
 }
 
 function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
-  const parent: Node | null = path.getParentNode() as any;
+  // The parent can either be a regular Node or an OperationSignature because
+  // the printer has to walk through `OperationSignatureNode.signature` which
+  // isn't a node itself.
+  const parent: Node | OperationSignature | null = path.getParentNode() as any;
 
   switch (parent?.kind) {
-    case SyntaxKind.OperationStatement:
+    case "OperationDeclaration":
       return parent.parameters !== path.getNode();
     default:
       return true;
@@ -866,35 +867,27 @@ export function printOperationStatement(
     tryInline: true,
   });
 
-  return [
-    decorators,
-    inInterface ? "" : "op ",
-    path.call(print, "id"),
-    "(",
-    path.call(print, "parameters"),
-    "): ",
-    path.call(print, "returnType"),
-    `;`,
-  ];
-}
-
-export function printOperationInstance(
-  path: AstPath<OperationInstanceNode>,
-  options: CadlPrettierOptions,
-  print: PrettierChildPrint
-) {
-  const inInterface = (path.getParentNode()?.kind as any) === SyntaxKind.InterfaceStatement;
-  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
-    tryInline: true,
-  });
-
-  return [
-    decorators,
-    inInterface ? "" : "op ",
-    path.call(print, "id"),
-    path.call(print, "baseOperation"),
-    `;`,
-  ];
+  const opKind = path.getNode()!.signature.kind;
+  if (opKind === "OperationDeclaration") {
+    return [
+      decorators,
+      inInterface ? "" : "op ",
+      path.call(print, "id"),
+      "(",
+      path.call(print, "signature", "parameters"),
+      "): ",
+      path.call(print, "signature", "returnType"),
+      `;`,
+    ];
+  } else {
+    return [
+      decorators,
+      inInterface ? "" : "op ",
+      path.call(print, "id"),
+      path.call(print, "signature", "baseOperation"),
+      `;`,
+    ];
+  }
 }
 
 export function printStatementSequence<T extends Node>(

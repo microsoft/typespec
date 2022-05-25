@@ -211,7 +211,7 @@ export interface EnumMemberType extends BaseType, DecoratedType {
 
 export interface OperationType extends BaseType, DecoratedType, TemplatedType {
   kind: "Operation";
-  node: OperationStatementNode | OperationInstanceNode;
+  node: OperationStatementNode;
   name: string;
   namespace?: NamespaceType;
   interface?: InterfaceType;
@@ -393,7 +393,6 @@ export enum SyntaxKind {
   NamespaceStatement,
   UsingStatement,
   OperationStatement,
-  OperationInstance,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -507,7 +506,6 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
-  | OperationInstanceNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -558,7 +556,6 @@ export type Statement =
   | EnumStatementNode
   | AliasStatementNode
   | OperationStatementNode
-  | OperationInstanceNode
   | EmptyStatementNode
   | InvalidStatementNode
   | ProjectionStatementNode;
@@ -573,7 +570,6 @@ export type Declaration =
   | UnionStatementNode
   | NamespaceStatementNode
   | OperationStatementNode
-  | OperationInstanceNode
   | TemplateParameterDeclarationNode
   | ProjectionStatementNode
   | ProjectionParameterDeclarationNode
@@ -677,16 +673,22 @@ export interface UsingStatementNode extends BaseNode {
   readonly name: IdentifierNode | MemberExpressionNode;
 }
 
-export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
-  readonly kind: SyntaxKind.OperationStatement;
+export interface OperationSignatureDeclaration {
+  readonly kind: "OperationDeclaration";
   readonly parameters: ModelExpressionNode;
   readonly returnType: Expression;
-  readonly decorators: readonly DecoratorExpressionNode[];
 }
 
-export interface OperationInstanceNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
-  readonly kind: SyntaxKind.OperationInstance;
+export interface OperationSignatureReference {
+  readonly kind: "OperationReference";
   readonly baseOperation: TypeReferenceNode;
+}
+
+export type OperationSignature = OperationSignatureDeclaration | OperationSignatureReference;
+
+export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.OperationStatement;
+  readonly signature: OperationSignature;
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 

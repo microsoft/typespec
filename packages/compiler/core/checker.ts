@@ -55,7 +55,6 @@ import {
   NodeFlags,
   NumericLiteralNode,
   NumericLiteralType,
-  OperationInstanceNode,
   OperationStatementNode,
   OperationType,
   ProjectionArithmeticExpressionNode,
@@ -383,8 +382,6 @@ export function createChecker(program: Program): Checker {
         return checkNamespace(node);
       case SyntaxKind.OperationStatement:
         return checkOperation(node);
-      case SyntaxKind.OperationInstance:
-        return checkOperation(node);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -475,7 +472,6 @@ export function createChecker(program: Program): Checker {
       | AliasStatementNode
       | InterfaceStatementNode
       | OperationStatementNode
-      | OperationInstanceNode
       | UnionStatementNode
   ): number {
     return node.symbol!.id!;
@@ -503,7 +499,6 @@ export function createChecker(program: Program): Checker {
       | ModelStatementNode
       | InterfaceStatementNode
       | OperationStatementNode
-      | OperationInstanceNode
       | UnionStatementNode
       | AliasStatementNode;
     const links = getSymbolLinks(node.symbol);
@@ -701,7 +696,6 @@ export function createChecker(program: Program): Checker {
         | AliasStatementNode
         | InterfaceStatementNode
         | OperationStatementNode
-        | OperationInstanceNode
         | UnionStatementNode;
       if (decl.templateParameters.length === 0) {
         if (args.length > 0) {
@@ -792,7 +786,6 @@ export function createChecker(program: Program): Checker {
       | AliasStatementNode
       | InterfaceStatementNode
       | OperationStatementNode
-      | OperationInstanceNode
       | UnionStatementNode,
     args: Type[]
   ): Type {
@@ -982,7 +975,6 @@ export function createChecker(program: Program): Checker {
       | ModelStatementNode
       | NamespaceStatementNode
       | OperationStatementNode
-      | OperationInstanceNode
       | EnumStatementNode
       | InterfaceStatementNode
       | UnionStatementNode
@@ -996,7 +988,6 @@ export function createChecker(program: Program): Checker {
         if (
           parent.kind === SyntaxKind.ModelStatement ||
           parent.kind === SyntaxKind.OperationStatement ||
-          parent.kind === SyntaxKind.OperationInstance ||
           parent.kind === SyntaxKind.EnumStatement ||
           parent.kind === SyntaxKind.InterfaceStatement ||
           parent.kind === SyntaxKind.UnionStatement ||
@@ -1011,7 +1002,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (
-      (node.kind === SyntaxKind.OperationStatement || node.kind === SyntaxKind.OperationInstance) &&
+      node.kind === SyntaxKind.OperationStatement &&
       node.parent &&
       node.parent.kind === SyntaxKind.InterfaceStatement
     ) {
@@ -1047,56 +1038,42 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkOperation(
-    node: OperationStatementNode | OperationInstanceNode,
+    node: OperationStatementNode,
     parentInterface?: InterfaceType
   ): OperationType | ErrorType {
-    const links = getSymbolLinks(node.symbol);
+    // Operations defined in interfaces aren't bound to symbols
+    const links = !parentInterface ? getSymbolLinks(node.symbol) : undefined;
     const instantiatingThisTemplate = instantiatingTemplate === node;
-    if (links.declaredType && !instantiatingThisTemplate) {
-      // we're not instantiating this operation and we've already checked it
-      return links.declaredType as OperationType;
+    if (links) {
+      if (links.declaredType && !instantiatingThisTemplate) {
+        // we're not instantiating this operation and we've already checked it
+        return links.declaredType as OperationType;
+      }
     }
 
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
-    const decorators = checkDecorators(node);
+    let decorators = checkDecorators(node);
 
-    // Is this a definition or instance?
+    // Is this a definition or reference?
     let parameters: ModelType, returnType: Type;
-    if (node.kind === SyntaxKind.OperationInstance) {
+    if (node.signature.kind === "OperationReference") {
       // Attempt to resolve the operation
-      const baseOperation = checkOperationIs(node, node.baseOperation);
+      const baseOperation = checkOperationIs(node, node.signature.baseOperation);
       if (!baseOperation) {
-        // TODO: Are the proper diagnostics written already?
         return errorType;
       }
 
       // Reference the same return type and create the parameters type
+      parameters = cloneType(baseOperation.parameters);
+      parameters.node = { ...parameters.node, parent: node };
       returnType = baseOperation.returnType;
-      parameters = createType({
-        kind: "Model",
-        name: "",
-        node: baseOperation.parameters.node, // TODO: This seems bad!
-        properties: new Map<string, ModelTypeProperty>(),
-        namespace: getParentNamespaceType(node),
-        decorators: [],
-        derivedModels: [],
-      });
 
-      // Copy parameters of the base operation
-      for (const prop of baseOperation.parameters.properties.values()) {
-        console.log("copying param:", prop.name, (prop.type as any).kind);
-        // Don't use the same property, clone it and finish it to execute the decorators again
-        parameters.properties.set(
-          prop.name,
-          finishType({
-            ...prop,
-          })
-        );
-      }
+      // Copy decorators from the base operation, inserting the base decorators first
+      decorators = [...baseOperation.decorators, ...decorators];
     } else {
-      parameters = getTypeForNode(node.parameters) as ModelType;
-      returnType = getTypeForNode(node.returnType);
+      parameters = getTypeForNode(node.signature.parameters) as ModelType;
+      returnType = getTypeForNode(node.signature.returnType);
     }
 
     const operationType: OperationType = createType({
@@ -1106,14 +1083,14 @@ export function createChecker(program: Program): Checker {
       node,
       parameters,
       returnType,
-      decorators, // TODO: Concatenate base operation decorators recursively!
+      decorators,
       interface: parentInterface,
     });
 
     operationType.parameters.namespace = namespace;
 
     if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
-      if (shouldCreateTypeForTemplate(node.parent!) || shouldCreateTypeForTemplate(node)) {
+      if (shouldCreateTypeForTemplate(node.parent!) && shouldCreateTypeForTemplate(node)) {
         finishType(operationType);
       }
     } else {
@@ -1124,7 +1101,7 @@ export function createChecker(program: Program): Checker {
       namespace?.operations.set(name, operationType);
     }
 
-    if (!instantiatingThisTemplate) {
+    if (links && !instantiatingThisTemplate) {
       links.declaredType = operationType;
       links.instantiations = new TypeInstantiationMap();
     }
@@ -1133,14 +1110,16 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkOperationIs(
-    operation: OperationInstanceNode,
+    operation: OperationStatementNode,
     opReference: TypeReferenceNode | undefined
   ): OperationType | undefined {
     if (!opReference) return undefined;
 
     // Ensure that we don't end up with a circular reference to the same operation
-    const opSymId = getNodeSymId(operation);
-    pendingResolutions.add(opSymId);
+    const opSymId = operation.symbol ? getNodeSymId(operation) : undefined;
+    if (opSymId) {
+      pendingResolutions.add(opSymId);
+    }
 
     const target = resolveTypeReference(opReference);
     if (target === undefined) {
@@ -1162,7 +1141,9 @@ export function createChecker(program: Program): Checker {
 
     // Resolve the base operation type
     const baseOperation = checkTypeReferenceSymbol(target, opReference);
-    pendingResolutions.delete(opSymId);
+    if (opSymId) {
+      pendingResolutions.delete(opSymId);
+    }
 
     // Was the wrong type referenced?
     if (baseOperation.kind !== "Operation") {
