@@ -863,6 +863,7 @@ export function printOperationStatement(
   print: PrettierChildPrint
 ) {
   const inInterface = (path.getParentNode()?.kind as any) === SyntaxKind.InterfaceStatement;
+  const templateParams = printTemplateParameters(path, options, print, "templateParameters");
   const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
     tryInline: true,
   });
@@ -873,6 +874,7 @@ export function printOperationStatement(
       decorators,
       inInterface ? "" : "op ",
       path.call(print, "id"),
+      templateParams,
       "(",
       path.call(print, "signature", "parameters"),
       "): ",
@@ -884,6 +886,8 @@ export function printOperationStatement(
       decorators,
       inInterface ? "" : "op ",
       path.call(print, "id"),
+      templateParams,
+      ": ",
       path.call(print, "signature", "baseOperation"),
       `;`,
     ];
