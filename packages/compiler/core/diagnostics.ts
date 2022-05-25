@@ -1,5 +1,6 @@
 import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger/index.js";
+import { reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
   Diagnostic,
@@ -351,4 +352,24 @@ export function assertType<TKind extends Type["kind"][]>(
   if (kinds.indexOf(t.kind) === -1) {
     throw new ProjectionError(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
   }
+}
+
+/**
+ * Report a deprecated diagnostic.
+ * @param program Cadl Program.
+ * @param message Message describing the deprecation.
+ * @param target Target of the deprecation.
+ */
+export function reportDeprecated(
+  program: Program,
+  message: string,
+  target: DiagnosticTarget | typeof NoTarget
+): void {
+  reportDiagnostic(program, {
+    code: "deprecated",
+    format: {
+      message,
+    },
+    target,
+  });
 }

@@ -694,3 +694,37 @@ export function isKey(program: Program, property: ModelTypeProperty) {
 export function getKeyName(program: Program, property: ModelTypeProperty): string {
   return program.stateMap(keyKey).get(property);
 }
+
+/**
+ * Mark a type as deprecated
+ * @param context DecoratorContext
+ * @param target Decorator target
+ * @param message Deprecation target.
+ *
+ * @example
+ * ``` @deprecated("Foo is deprecated, use Bar instead.")
+ *     model Foo {}
+ * ```
+ */
+export function $deprecated(context: DecoratorContext, target: Type, message: string) {
+  return context.program.stateMap(deprecatedKey).set(target, message);
+}
+const deprecatedKey = Symbol("deprecated");
+
+/**
+ * Check if the given type is deprecated
+ * @param program Program
+ * @param type Type
+ */
+export function isDeprecated(program: Program, type: Type): boolean {
+  return program.stateMap(deprecatedKey).has(type);
+}
+
+/**
+ * Return the deprecated message or undefined if not deprecated
+ * @param program Program
+ * @param type Type
+ */
+export function getDeprecated(program: Program, type: Type): string | undefined {
+  return program.stateMap(deprecatedKey).get(type);
+}
