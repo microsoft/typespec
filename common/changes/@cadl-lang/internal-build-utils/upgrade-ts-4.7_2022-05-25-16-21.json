@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "Upgrade to TS4.7",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}
