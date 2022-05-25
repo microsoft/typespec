@@ -48,7 +48,7 @@ describe("cadl: operations", () => {
     testHost.addCadlFile(
       "main.cadl",
       `op foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
-      op newFooBase<TParam>: foo<string, TParam>;
+      op newFooBase<TPayload>: foo<string, TPayload>;
 
       @test
       op newFoo: newFooBase<string>;`
@@ -118,7 +118,7 @@ describe("cadl: operations", () => {
       op foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
 
       @beta
-      op newFooBase<TParam>: foo<string, TParam>;
+      op newFooBase<TPayload>: foo<string, TPayload>;
 
       @test
       @kappa
