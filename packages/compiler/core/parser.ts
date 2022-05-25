@@ -604,10 +604,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const id = parseIdentifier();
     const templateParameters = inInterface ? [] : parseTemplateParameterList();
 
+    // Make sure the next token is one that is expected
+    const token = expectTokenIsOneOf(Token.OpenParen, Token.Colon);
+
     // Check if we're parsing a declaration or reuse of another operation
     let signature: OperationSignature;
     const signaturePos = tokenPos();
-    if (token() === Token.OpenParen) {
+    if (token === Token.OpenParen) {
       const parameters = parseOperationParameters();
       parseExpected(Token.Colon);
       const returnType = parseExpression();

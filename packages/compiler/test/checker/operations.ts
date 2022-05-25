@@ -150,7 +150,7 @@ describe("cadl: operations", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "token-expected",
-        message: `':' expected.`,
+        message: `'(', or ':' expected.`,
       },
       {
         code: "token-expected",
