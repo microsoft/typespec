@@ -13,12 +13,17 @@ model CodeSignAccount {
 }
 
 @get
+@doc("Reads an instance of the {name} resource.", TResource)
 op ResourceReadBase<TResource, TError>(@path name: string): TResource | TError;
+op ResourceRead<TResource>: ResourceReadBase<TResource, ErrorDetails>;
 
-@doc("Reads an instance of the {name} resource.", T)
-op ResourceRead<T>: ResourceReadBase<T, ErrorDetails>;
+@post
+@doc("Reads an instance of the {name} resource.", TResource)
+op ResourceCreateBase<TResource, TError>(@body resource: TResource): TResource | TError;
+op ResourceCreate<TResource>: ResourceCreateBase<TResource, ErrorDetails>;
 
 @route("codeSignAccounts")
 interface CodeSignAccounts {
   get: ResourceRead<CodeSignAccount>;
+  create: ResourceCreate<CodeSignAccount>;
 }

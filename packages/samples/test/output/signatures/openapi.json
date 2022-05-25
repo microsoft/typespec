@@ -43,6 +43,44 @@
           }
         }
       }
+    },
+    "/codeSignAccounts": {
+      "post": {
+        "operationId": "CodeSignAccounts_create",
+        "description": "Reads an instance of the CodeSignAccount resource.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeSignAccount"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDetails"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodeSignAccount"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
