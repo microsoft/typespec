@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "tmlanguage-generator",
+      "comment": "Upgrade to TS4.7",
+      "type": "none"
+    }
+  ],
+  "packageName": "tmlanguage-generator"
+}

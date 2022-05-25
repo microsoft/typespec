@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Upgrade to TS4.7",
+      "type": "none"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
