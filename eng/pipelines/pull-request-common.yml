@@ -26,9 +26,9 @@ steps:
     displayName: Test
 
   - publish: ./packages/playground/test-results
-    artifact: uitestresults
+    artifact: uitestresults-${{ parameters.imageName }-node-${{ parameters.nodeVersion }}.
     displayName: Publish test artifacts
-    condition: always()
+    condition: failed()
 
   - template: ./upload-coverage.yml
 
