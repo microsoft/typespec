@@ -377,11 +377,21 @@ IdentifierList :
     Identifier
     IdentifierList `,` Identifier
 
-NamespaceStatement: 
+NamespaceStatement : 
     DecoratorList? `namespace` IdentifierOrMemberExpression `{` StatementList? `}`
 
+OperationSignatureDeclaration :
+  `(` ModelPropertyList? `)` `:` Expression
+
+OperationSignatureReference :
+  `:` ReferenceExpression
+
+OperationSignature :
+  OperationSignatureDeclaration
+  OperationSignatureReference
+
 OperationStatement :
-    DecoratorList? `op` Identifier `(` ModelPropertyList? `)` `:` Expression `;`
+    DecoratorList? `op` Identifier TemplateArguments? OperationSignature `;`
 
 Expression :
     UnionExpressionOrHigher
