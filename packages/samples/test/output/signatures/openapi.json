@@ -81,6 +81,82 @@
           }
         }
       }
+    },
+    "/accountProfiles/{name}": {
+      "get": {
+        "operationId": "AccountProfiles_get",
+        "description": "Reads an instance of the AccountProfile resource.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProfile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accountProfiles": {
+      "post": {
+        "operationId": "AccountProfiles_create",
+        "description": "Reads an instance of the AccountProfile resource.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProfile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDetails"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountProfile"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -110,6 +186,18 @@
         "required": [
           "code",
           "message"
+        ]
+      },
+      "AccountProfile": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "value"
         ]
       }
     }

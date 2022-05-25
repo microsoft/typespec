@@ -12,6 +12,10 @@ model CodeSignAccount {
   name: string;
 }
 
+model AccountProfile {
+  value: int32;
+}
+
 @get
 @doc("Reads an instance of the {name} resource.", TResource)
 op ResourceReadBase<TResource, TError>(@path name: string): TResource | TError;
@@ -26,4 +30,13 @@ op ResourceCreate<TResource>: ResourceCreateBase<TResource, ErrorDetails>;
 interface CodeSignAccounts {
   get: ResourceRead<CodeSignAccount>;
   create: ResourceCreate<CodeSignAccount>;
+}
+
+interface ResourceOperations<TResource> {
+  get: ResourceRead<TResource>;
+  create: ResourceCreate<TResource>;
+}
+
+@route("accountProfiles")
+interface AccountProfiles extends ResourceOperations<AccountProfile> {
 }
