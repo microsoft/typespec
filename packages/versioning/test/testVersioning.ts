@@ -500,7 +500,6 @@ describe("cadl: versioning", () => {
       assertHasOperations(v1, ["bar"]);
       assertHasOperations(v2, ["foo"]);
 
-      console.log("REvert from -----------");
       assertInterfaceProjectsTo(
         [
           [v1, "1"],

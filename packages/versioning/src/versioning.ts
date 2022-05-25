@@ -99,7 +99,6 @@ export function getRenamedFromVersion(p: Program, t: Type): string | undefined {
  * @returns get old renamed name if applicable.
  */
 export function getRenamedFromOldName(p: Program, t: Type): string {
-  console.log("Get renamed from ", p.stateMap(renamedFromKey).get(t.projectionSource ?? t));
   return p.stateMap(renamedFromKey).get(t.projectionSource ?? t)?.oldName ?? "";
 }
 
@@ -463,9 +462,6 @@ export function removedOnOrBefore(p: Program, type: Type, version: string, versi
 
 export function renamedAfter(p: Program, type: Type, version: string, versionSource?: Type) {
   const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version, versionSource);
-  if (type.kind === "Operation") {
-    console.log("Renamed after", type.name, appliesAt, appliesAt === null ? false : !appliesAt);
-  }
   return appliesAt === null ? false : !appliesAt;
 }
 
@@ -496,13 +492,6 @@ function appliesAtVersion(
     }
   }
   if (!versions || versions.length === 0) {
-    if (
-      type.kind === "Operation" &&
-      type.name === "foo" &&
-      getMetadataFn.toString().includes("rename")
-    ) {
-      console.log("HERER??", type.name, getAddedOn(p, type));
-    }
     return null;
   }
 
