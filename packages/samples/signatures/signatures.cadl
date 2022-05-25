@@ -38,5 +38,4 @@ interface ResourceOperations<TResource> {
 }
 
 @route("accountProfiles")
-interface AccountProfiles extends ResourceOperations<AccountProfile> {
-}
+interface AccountProfiles extends ResourceOperations<AccountProfile> {}
