@@ -606,23 +606,26 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     // Check if we're parsing a declaration or reuse of another operation
     let signature: OperationSignature;
+    const signaturePos = tokenPos();
     if (token() === Token.OpenParen) {
       const parameters = parseOperationParameters();
       parseExpected(Token.Colon);
       const returnType = parseExpression();
 
       signature = {
-        kind: "OperationDeclaration",
+        kind: SyntaxKind.OperationSignatureDeclaration,
         parameters,
         returnType,
+        ...finishNode(signaturePos),
       };
     } else {
       parseExpected(Token.Colon);
       const opReference = parseReferenceExpression();
 
       signature = {
-        kind: "OperationReference",
+        kind: SyntaxKind.OperationSignatureReference,
         baseOperation: opReference,
+        ...finishNode(signaturePos),
       };
     }
 
@@ -2167,10 +2170,12 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
-        (node.signature.kind === "OperationDeclaration"
-          ? visitNode(cb, node.signature.parameters) || visitNode(cb, node.signature.returnType)
-          : visitNode(cb, node.signature.baseOperation))
+        visitNode(cb, node.signature)
       );
+    case SyntaxKind.OperationSignatureDeclaration:
+      return visitNode(cb, node.parameters) || visitNode(cb, node.returnType);
+    case SyntaxKind.OperationSignatureReference:
+      return visitNode(cb, node.baseOperation);
     case SyntaxKind.NamespaceStatement:
       return (
         visitEach(cb, node.decorators) ||

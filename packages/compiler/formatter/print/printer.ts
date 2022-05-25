@@ -23,7 +23,8 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
-  OperationSignature,
+  OperationSignatureDeclarationNode,
+  OperationSignatureReferenceNode,
   OperationStatementNode,
   Statement,
   StringLiteralNode,
@@ -86,6 +87,18 @@ export function printNode(
       return [`using `, path.call(print, "name"), `;`];
     case SyntaxKind.OperationStatement:
       return printOperationStatement(path as AstPath<OperationStatementNode>, options, print);
+    case SyntaxKind.OperationSignatureDeclaration:
+      return printOperationSignatureDeclaration(
+        path as AstPath<OperationSignatureDeclarationNode>,
+        options,
+        print
+      );
+    case SyntaxKind.OperationSignatureReference:
+      return printOperationSignatureReference(
+        path as AstPath<OperationSignatureReferenceNode>,
+        options,
+        print
+      );
     case SyntaxKind.NamespaceStatement:
       return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
     case SyntaxKind.ModelStatement:
@@ -811,13 +824,10 @@ function isStringSafeToUnquote(id: StringLiteralNode, options: CadlPrettierOptio
 }
 
 function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
-  // The parent can either be a regular Node or an OperationSignature because
-  // the printer has to walk through `OperationSignatureNode.signature` which
-  // isn't a node itself.
-  const parent: Node | OperationSignature | null = path.getParentNode() as any;
+  const parent: Node | null = path.getParentNode() as any;
 
   switch (parent?.kind) {
-    case "OperationDeclaration":
+    case SyntaxKind.OperationSignatureDeclaration:
       return parent.parameters !== path.getNode();
     default:
       return true;
@@ -857,6 +867,22 @@ export function printNamespaceStatement(
   return printNested(path, []);
 }
 
+export function printOperationSignatureDeclaration(
+  path: AstPath<OperationSignatureDeclarationNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return ["(", path.call(print, "parameters"), "): ", path.call(print, "returnType")];
+}
+
+export function printOperationSignatureReference(
+  path: AstPath<OperationSignatureReferenceNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return [": ", path.call(print, "baseOperation")];
+}
+
 export function printOperationStatement(
   path: AstPath<OperationStatementNode>,
   options: CadlPrettierOptions,
@@ -868,30 +894,14 @@ export function printOperationStatement(
     tryInline: true,
   });
 
-  const opKind = path.getNode()!.signature.kind;
-  if (opKind === "OperationDeclaration") {
-    return [
-      decorators,
-      inInterface ? "" : "op ",
-      path.call(print, "id"),
-      templateParams,
-      "(",
-      path.call(print, "signature", "parameters"),
-      "): ",
-      path.call(print, "signature", "returnType"),
-      `;`,
-    ];
-  } else {
-    return [
-      decorators,
-      inInterface ? "" : "op ",
-      path.call(print, "id"),
-      templateParams,
-      ": ",
-      path.call(print, "signature", "baseOperation"),
-      `;`,
-    ];
-  }
+  return [
+    decorators,
+    inInterface ? "" : "op ",
+    path.call(print, "id"),
+    templateParams,
+    path.call(print, "signature"),
+    `;`,
+  ];
 }
 
 export function printStatementSequence<T extends Node>(

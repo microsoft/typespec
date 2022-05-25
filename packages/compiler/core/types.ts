@@ -393,6 +393,8 @@ export enum SyntaxKind {
   NamespaceStatement,
   UsingStatement,
   OperationStatement,
+  OperationSignatureDeclaration,
+  OperationSignatureReference,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -506,6 +508,8 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -673,18 +677,20 @@ export interface UsingStatementNode extends BaseNode {
   readonly name: IdentifierNode | MemberExpressionNode;
 }
 
-export interface OperationSignatureDeclaration {
-  readonly kind: "OperationDeclaration";
+export interface OperationSignatureDeclarationNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureDeclaration;
   readonly parameters: ModelExpressionNode;
   readonly returnType: Expression;
 }
 
-export interface OperationSignatureReference {
-  readonly kind: "OperationReference";
+export interface OperationSignatureReferenceNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureReference;
   readonly baseOperation: TypeReferenceNode;
 }
 
-export type OperationSignature = OperationSignatureDeclaration | OperationSignatureReference;
+export type OperationSignature =
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode;
 
 export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.OperationStatement;

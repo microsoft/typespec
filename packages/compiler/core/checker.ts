@@ -1057,7 +1057,7 @@ export function createChecker(program: Program): Checker {
 
     // Is this a definition or reference?
     let parameters: ModelType, returnType: Type;
-    if (node.signature.kind === "OperationReference") {
+    if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
       // Attempt to resolve the operation
       const baseOperation = checkOperationIs(node, node.signature.baseOperation);
       if (!baseOperation) {
