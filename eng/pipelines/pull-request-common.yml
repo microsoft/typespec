@@ -1,6 +1,8 @@
 parameters:
   - name: nodeVersion
     type: string
+  - name: imageName
+    type: string
 
 steps:
   - task: NodeTool@0
