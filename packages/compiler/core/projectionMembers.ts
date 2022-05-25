@@ -242,6 +242,7 @@ export function createProjectionMembers(checker: Checker): {
           assertType("operation name", newNameT, "String");
           const oldName = oldNameT.value;
           const newName = newNameT.value;
+          console.log("Rename operation", oldName, "=>", newName);
 
           const op = base.operations.get(oldName);
           if (!op) {
