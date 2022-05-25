@@ -33,6 +33,7 @@ jobs:
       - template: pull-request-common.yml
         parameters:
           nodeVersion: $(nodeVersion)
+          imageName: $(imageName)
 
   - job: docker_build
     pool:
