@@ -1,5 +1,6 @@
 import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger/index.js";
+import { reportDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
   Diagnostic,
@@ -42,8 +43,9 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
       const codeStr = Object.keys(diagnostics)
         .map((x) => ` - ${x}`)
         .join("\n");
+      const code = String(diagnostic.code);
       throw new Error(
-        `Unexpected diagnostic code '${diagnostic.code}'. ${errorMessage}. Defined codes:\n${codeStr}`
+        `Unexpected diagnostic code '${code}'. ${errorMessage}. Defined codes:\n${codeStr}`
       );
     }
 
@@ -52,15 +54,17 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
       const codeStr = Object.keys(diagnosticDef.messages)
         .map((x) => ` - ${x}`)
         .join("\n");
+      const messageId = String(diagnostic.messageId);
+      const code = String(diagnostic.code);
       throw new Error(
-        `Unexpected message id '${diagnostic.messageId}'. ${errorMessage} for code '${diagnostic.code}'. Defined codes:\n${codeStr}`
+        `Unexpected message id '${messageId}'. ${errorMessage} for code '${code}'. Defined codes:\n${codeStr}`
       );
     }
 
     const messageStr = typeof message === "string" ? message : message((diagnostic as any).format);
 
     return {
-      code: libraryName ? `${libraryName}/${diagnostic.code}` : diagnostic.code.toString(),
+      code: libraryName ? `${libraryName}/${String(diagnostic.code)}` : diagnostic.code.toString(),
       severity: diagnosticDef.severity,
       message: messageStr,
       target: diagnostic.target,
@@ -348,4 +352,24 @@ export function assertType<TKind extends Type["kind"][]>(
   if (kinds.indexOf(t.kind) === -1) {
     throw new ProjectionError(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
   }
+}
+
+/**
+ * Report a deprecated diagnostic.
+ * @param program Cadl Program.
+ * @param message Message describing the deprecation.
+ * @param target Target of the deprecation.
+ */
+export function reportDeprecated(
+  program: Program,
+  message: string,
+  target: DiagnosticTarget | typeof NoTarget
+): void {
+  reportDiagnostic(program, {
+    code: "deprecated",
+    format: {
+      message,
+    },
+    target,
+  });
 }

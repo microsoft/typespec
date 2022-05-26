@@ -1,7 +1,9 @@
+import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   DecoratorContext,
+  DiagnosticTarget,
   Expression,
   IdentifierKind,
   isIntrinsic,
@@ -10,6 +12,7 @@ import {
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
+  reportDeprecated,
   SymbolFlags,
   TemplateParameterType,
   VoidType,
@@ -578,7 +581,16 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
-    return checkTypeReferenceSymbol(sym, node);
+    const type = checkTypeReferenceSymbol(sym, node);
+    checkDeprecated(type, node);
+    return type;
+  }
+
+  function checkDeprecated(type: Type, target: DiagnosticTarget) {
+    const deprecated = getDeprecated(program, type);
+    if (deprecated) {
+      reportDeprecated(program, deprecated, target);
+    }
   }
 
   function checkTypeReferenceArgs(
@@ -1481,6 +1493,7 @@ export function createChecker(program: Program): Checker {
     const isBase = checkModelIs(node, node.is);
 
     if (isBase) {
+      checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
     }
@@ -1501,6 +1514,9 @@ export function createChecker(program: Program): Checker {
       type.baseModel = isBase.baseModel;
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends);
+      if (type.baseModel) {
+        checkDeprecated(type.baseModel, node.extends);
+      }
     }
 
     if (type.baseModel) {

@@ -1,4 +1,11 @@
-import { compile, DiagnosticTarget, getSourceLocation, NoTarget } from "@cadl-lang/compiler";
+import {
+  compile,
+  DiagnosticTarget,
+  getSourceLocation,
+  NoTarget,
+  Program,
+} from "@cadl-lang/compiler";
+import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
@@ -7,7 +14,7 @@ import { createBrowserHost } from "./browserHost";
 import { CadlEditor, OutputEditor } from "./components/cadl-editor";
 import { useMonacoModel } from "./components/editor";
 import { Footer } from "./components/footer";
-import { OutputTabs } from "./components/output-tabs";
+import { OutputTabs, Tab } from "./components/output-tabs";
 import { SamplesDropdown } from "./components/samples-dropdown";
 import { PlaygroundManifest } from "./manifest";
 import { attachServices } from "./services";
@@ -16,8 +23,8 @@ attachServices(host);
 
 export const App: FunctionComponent = () => {
   const cadlModel = useMonacoModel("inmemory://test/main.cadl", "cadl");
-  const [outputValue, setOutputValue] = useState({ filename: "", content: "" });
   const [outputFiles, setOutputFiles] = useState<string[]>([]);
+  const [program, setProgram] = useState<Program>();
 
   useEffect(() => {
     if (window.location.search.length > 0) {
@@ -77,7 +84,7 @@ export const App: FunctionComponent = () => {
       outputPath: "cadl-output",
       emitters: { [PlaygroundManifest.defaultEmitter]: {} },
     });
-
+    setProgram(program);
     const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
       ...getMarkerLocation(diag.target),
       message: diag.message,
@@ -88,16 +95,6 @@ export const App: FunctionComponent = () => {
 
     const outputFiles = await host.readDir("./cadl-output");
     setOutputFiles(outputFiles);
-    if (outputFiles.length > 0) {
-      await loadOutputFile(outputFiles[0]);
-    } else {
-      setOutputValue({ filename: "", content: "" });
-    }
-  }
-
-  async function loadOutputFile(path: string) {
-    const contents = await host.readFile("./cadl-output/" + path);
-    setOutputValue({ filename: path, content: contents.text });
   }
 
   function getMarkerLocation(
@@ -132,34 +129,97 @@ export const App: FunctionComponent = () => {
 
   return (
     <div id="grid">
-      <div id="commandBar">
-        <label>
-          <button onClick={saveCode as any}>Share</button>
-        </label>
-        <label>
-          {"Load a sample: "}
-          <SamplesDropdown onSelectSample={updateCadl as any} />
-        </label>
-        <label>
-          <button onClick={newIssue as any}>Open Issue</button>
-        </label>
-      </div>
-      <OutputTabs
-        files={outputFiles}
-        selected={outputValue.filename}
-        onSelect={(x) => loadOutputFile(x) as any}
-      />
       <div id="editorContainer">
+        <div id="commandBar">
+          <label>
+            <button onClick={saveCode as any}>Share</button>
+          </label>
+          <label>
+            {"Load a sample: "}
+            <SamplesDropdown onSelectSample={updateCadl as any} />
+          </label>
+          <label>
+            <button onClick={newIssue as any}>Open Issue</button>
+          </label>
+        </div>
         <div id="editor">
           <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
         </div>
       </div>
       <div id="outputContainer">
-        <div id="output">
-          <OutputEditor value={outputValue.content} />
-        </div>
+        {program && <OutputView program={program} outputFiles={outputFiles} />}
       </div>
       <Footer />
     </div>
   );
 };
+
+export interface OutputViewProps {
+  outputFiles: string[];
+  program: Program;
+}
+
+export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
+  const [viewSelection, setViewSelection] = useState<ViewSelection>({
+    type: "file",
+    filename: "",
+    content: "",
+  });
+
+  useEffect(() => {
+    if (viewSelection.type === "file") {
+      if (props.outputFiles.length > 0) {
+        void loadOutputFile(props.outputFiles[0]);
+      } else {
+        setViewSelection({ type: "file", filename: "", content: "" });
+      }
+    }
+  }, [props.program, props.outputFiles]);
+
+  async function loadOutputFile(path: string) {
+    const contents = await host.readFile("./cadl-output/" + path);
+    setViewSelection({ type: "file", filename: path, content: contents.text });
+  }
+
+  const tabs: Tab[] = useMemo(() => {
+    return [
+      ...props.outputFiles.map(
+        (x): Tab => ({
+          align: "left",
+          name: x,
+          id: x,
+        })
+      ),
+      { id: "type-graph", name: "Type Graph", align: "right" },
+    ];
+  }, [props.outputFiles]);
+  const handleTabSelection = useCallback((tabId: string) => {
+    if (tabId === "type-graph") {
+      setViewSelection({ type: "type-graph" });
+    } else {
+      void loadOutputFile(tabId);
+    }
+  }, []);
+  const content =
+    viewSelection.type === "file" ? (
+      <OutputEditor value={viewSelection.content} />
+    ) : (
+      <div className="type-graph-container">
+        <CadlProgramViewer program={props.program} />
+      </div>
+    );
+  return (
+    <>
+      <OutputTabs
+        tabs={tabs}
+        selected={viewSelection.type === "file" ? viewSelection.filename : "type-graph"}
+        onSelect={handleTabSelection}
+      />
+      <div id="output">{content}</div>
+    </>
+  );
+};
+
+type ViewSelection =
+  | { type: "file"; filename: string; content: string }
+  | { type: "type-graph" };
