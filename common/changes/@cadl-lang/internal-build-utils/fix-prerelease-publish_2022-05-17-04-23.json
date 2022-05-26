@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "Fix prerelease publishing for packages with no changes.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}

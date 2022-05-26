@@ -13,5 +13,6 @@ export * from "./program.js";
 export * from "./scanner.js";
 export * from "./semantic-walker.js";
 export * from "./types.js";
+export { getSourceFileKindFromExt } from "./util.js";
 import * as formatter from "../formatter/index.js";
 export const CadlPrettierPlugin = formatter;

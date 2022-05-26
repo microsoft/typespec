@@ -1,25 +1,56 @@
 import { FunctionComponent } from "react";
 
+export interface Tab {
+  id: string;
+  name: string;
+  align: "left" | "right";
+}
 export interface OutputTabsProps {
-  files: string[];
+  tabs: Tab[];
   selected: string;
   onSelect: (file: string) => void;
 }
 
-export const OutputTabs: FunctionComponent<OutputTabsProps> = ({ files, selected, onSelect }) => {
+export const OutputTabs: FunctionComponent<OutputTabsProps> = ({ tabs, selected, onSelect }) => {
+  const [leftTabs, rightTabs] = chunk(tabs, (x) => x.align === "left");
   return (
-    <div id="outputTabs">
-      {files.map((file) => {
+    <div className="output-tabs">
+      {leftTabs.map((tab) => {
         return (
-          <a
-            key={file}
-            className={selected === file ? "active" : ""}
-            onClick={() => onSelect(file)}
-          >
-            {file}
-          </a>
+          <OutputTab key={tab.id} tab={tab} selected={selected === tab.id} onSelect={onSelect} />
+        );
+      })}
+      <span className="middle-spacer"></span>
+      {rightTabs.map((tab) => {
+        return (
+          <OutputTab key={tab.id} tab={tab} selected={selected === tab.id} onSelect={onSelect} />
         );
       })}
     </div>
   );
 };
+export interface OutputTabProps {
+  tab: Tab;
+  selected: boolean;
+  onSelect: (id: string) => void;
+}
+export const OutputTab: FunctionComponent<OutputTabProps> = ({ tab, selected, onSelect }) => {
+  return (
+    <a className={selected ? "active" : ""} onClick={() => onSelect(tab.id)}>
+      {tab.name}
+    </a>
+  );
+};
+
+function chunk<T>(items: T[], condition: (item: T) => boolean) {
+  const match = [];
+  const unMatch = [];
+  for (const item of items) {
+    if (condition(item)) {
+      match.push(item);
+    } else {
+      unMatch.push(item);
+    }
+  }
+  return [match, unMatch];
+}

@@ -31,7 +31,7 @@ export interface NodePackage {
   cadlMain?: string;
 }
 
-type ResolveModuleErrorCode = "MODULE_NOT_FOUND";
+type ResolveModuleErrorCode = "MODULE_NOT_FOUND" | "INVALID_MAIN";
 export class ResolveModuleError extends Error {
   public constructor(public code: ResolveModuleErrorCode, message: string) {
     super(message);
@@ -69,7 +69,7 @@ export async function resolveModule(
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
-    `Cannot find module '${name} ' from '${baseDir}'`
+    `Cannot find module '${name}' from '${baseDir}'`
   );
 
   /**
@@ -138,11 +138,21 @@ export async function resolveModule(
     }
 
     const mainFullPath = resolvePath(directory, mainFile);
+    let loaded;
     try {
-      return loadAsFile(mainFullPath) ?? loadAsDirectory(mainFullPath);
+      loaded = (await loadAsFile(mainFullPath)) ?? (await loadAsDirectory(mainFullPath));
     } catch (e) {
       throw new Error(
         `Cannot find module '${mainFullPath}'. Please verify that the package.json has a valid "main" entry`
+      );
+    }
+
+    if (loaded) {
+      return loaded;
+    } else {
+      throw new ResolveModuleError(
+        "INVALID_MAIN",
+        `Package ${pkg.name} main file "${mainFile}" is invalid.`
       );
     }
   }

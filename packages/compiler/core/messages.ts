@@ -375,6 +375,13 @@ const diagnostics = {
       default: paramMessage`Couldn't find library "${"path"}"`,
     },
   },
+  "library-invalid": {
+    severity: "error",
+    messages: {
+      cadlMain: paramMessage`Library "${"path"}" has an invalid cadlMain file.`,
+      default: paramMessage`Library "${"path"}" has an invalid main file.`,
+    },
+  },
   "compiler-version-mismatch": {
     severity: "error",
     messages: {
@@ -461,6 +468,13 @@ const diagnostics = {
       atPath: paramMessage`Type '${"kind"}' of '${"path"}' is not a value type.`,
     },
   },
+  deprecated: {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Deprecated: ${"message"}`,
+    },
+  },
+
   /**
    * Service
    */
