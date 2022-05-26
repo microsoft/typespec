@@ -1157,6 +1157,8 @@ export interface CompilerHost {
   // get info about a path
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
 
+  getSourceFileKind(path: string): SourceFileKind | undefined;
+
   // get the real path of a possibly symlinked path
   realpath(path: string): Promise<string>;
 
@@ -1168,6 +1170,11 @@ export interface CompilerHost {
 
   logSink: LogSink;
 }
+
+/**
+ * Type of the source file that can be loaded via cadl
+ */
+export type SourceFileKind = "cadl" | "js";
 
 type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (k: infer I) => void
   ? I

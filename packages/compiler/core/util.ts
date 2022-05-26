@@ -1,7 +1,21 @@
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
-import { getDirectoryPath, isPathAbsolute, isUrl, joinPaths, resolvePath } from "./path-utils.js";
-import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "./types.js";
+import {
+  getAnyExtensionFromPath,
+  getDirectoryPath,
+  isPathAbsolute,
+  isUrl,
+  joinPaths,
+  resolvePath,
+} from "./path-utils.js";
+import {
+  CompilerHost,
+  Diagnostic,
+  DiagnosticTarget,
+  NoTarget,
+  SourceFile,
+  SourceFileKind,
+} from "./types.js";
 
 export { cadlVersion } from "./manifest.js";
 export { NodeHost } from "./node-host.js";
@@ -163,5 +177,16 @@ export async function findProjectRoot(
       return undefined;
     }
     current = parent;
+  }
+}
+
+export function getSourceFileKindFromExt(path: string): SourceFileKind | undefined {
+  const ext = getAnyExtensionFromPath(path);
+  if (ext === ".js" || ext === ".mjs") {
+    return "js";
+  } else if (ext === ".cadl") {
+    return "cadl";
+  } else {
+    return undefined;
   }
 }

@@ -468,6 +468,13 @@ const diagnostics = {
       atPath: paramMessage`Type '${"kind"}' of '${"path"}' is not a value type.`,
     },
   },
+  deprecated: {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Deprecated: ${"message"}`,
+    },
+  },
+
   /**
    * Service
    */

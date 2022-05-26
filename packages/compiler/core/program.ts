@@ -7,13 +7,7 @@ import { createDiagnostic } from "./messages.js";
 import { resolveModule, ResolveModuleHost } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
-import {
-  getAnyExtensionFromPath,
-  getDirectoryPath,
-  isPathAbsolute,
-  joinPaths,
-  resolvePath,
-} from "./path-utils.js";
+import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   CadlScriptNode,
@@ -124,7 +118,7 @@ class StateMap<V> implements Map<Type, V> {
     return this.entries();
   }
 
-  [Symbol.toStringTag]: "StateMap";
+  [Symbol.toStringTag] = "StateMap";
 
   dispatch(keyType?: Type): Map<Type, V> {
     const key = keyType ? keyType.projector : this.program.currentProjector;
@@ -181,7 +175,7 @@ class StateSet implements Set<Type> {
     return this.values();
   }
 
-  [Symbol.toStringTag]: "StateSet";
+  [Symbol.toStringTag] = "StateSet";
 
   dispatch(keyType?: Type): Set<Type> {
     const key = keyType ? keyType.projector : this.program.currentProjector;
@@ -450,33 +444,44 @@ export async function createProgram(
   ) {
     // collect imports
     for (const { path, target } of imports) {
-      let importFilePath: string;
-      if (path.startsWith("./") || path.startsWith("../")) {
-        importFilePath = resolvePath(relativeTo, path);
-      } else if (isPathAbsolute(path)) {
-        importFilePath = resolvePath(path);
-      } else {
-        // attempt to resolve a node module with this name
-        const libPath = await resolveCadlLibrary(path, relativeTo, target);
-        if (libPath) {
-          importFilePath = libPath;
-          logger.debug(`Loading library "${path}" from "${importFilePath}"`);
-        } else {
-          continue;
-        }
-      }
+      await loadImport(path, target, relativeTo);
+    }
+  }
 
-      const ext = getAnyExtensionFromPath(importFilePath);
-
-      if (ext === "") {
-        await loadDirectory(importFilePath, target);
-      } else if (ext === ".js" || ext === ".mjs") {
-        await importJsFile(importFilePath, target);
-      } else if (ext === ".cadl") {
-        await loadCadlFile(importFilePath, target);
+  async function loadImport(
+    path: string,
+    target: DiagnosticTarget | typeof NoTarget,
+    relativeTo: string
+  ) {
+    let importFilePath: string;
+    if (path.startsWith("./") || path.startsWith("../")) {
+      importFilePath = resolvePath(relativeTo, path);
+    } else if (isPathAbsolute(path)) {
+      importFilePath = resolvePath(path);
+    } else {
+      const libPath = await resolveCadlLibrary(path, relativeTo, target);
+      if (libPath) {
+        importFilePath = libPath;
+        logger.debug(`Loading library "${path}" from "${importFilePath}"`);
       } else {
-        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target: target }));
+        return;
       }
+    }
+
+    const isDirectory = (await host.stat(importFilePath)).isDirectory();
+    if (isDirectory) {
+      return await loadDirectory(importFilePath, target);
+    }
+
+    const sourceFileKind = host.getSourceFileKind(importFilePath);
+
+    switch (sourceFileKind) {
+      case "js":
+        return await importJsFile(importFilePath, target);
+      case "cadl":
+        return await loadCadlFile(importFilePath, target);
+      default:
+        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target }));
     }
   }
 
@@ -645,14 +650,16 @@ export async function createProgram(
     if (!(await checkForCompilerVersionMismatch(mainPath))) {
       return;
     }
-    const ext = getAnyExtensionFromPath(mainPath);
 
-    if (ext === ".js" || ext === ".mjs") {
-      await importJsFile(mainPath, NoTarget);
-    } else if (ext === ".cadl") {
-      await loadCadlFile(mainPath, NoTarget);
-    } else {
-      program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
+    const sourceFileKind = host.getSourceFileKind(mainPath);
+
+    switch (sourceFileKind) {
+      case "js":
+        return await importJsFile(mainPath, NoTarget);
+      case "cadl":
+        return await loadCadlFile(mainPath, NoTarget);
+      default:
+        program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
     }
   }
 

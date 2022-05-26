@@ -1,4 +1,9 @@
-import { CompilerHost, createSourceFile, resolvePath } from "@cadl-lang/compiler";
+import {
+  CompilerHost,
+  createSourceFile,
+  getSourceFileKindFromExt,
+  resolvePath,
+} from "@cadl-lang/compiler";
 import { PlaygroundManifest } from "./manifest";
 
 export interface BrowserHost extends CompilerHost {
@@ -125,6 +130,8 @@ export async function createBrowserHost(): Promise<BrowserHost> {
     async realpath(path) {
       return path;
     },
+
+    getSourceFileKind: getSourceFileKindFromExt,
 
     async unlink(path) {
       path = resolveVirtualPath(path);
