@@ -444,45 +444,53 @@ export async function createProgram(
   ) {
     // collect imports
     for (const { path, target } of imports) {
-      let importFilePath: string;
-      if (path.startsWith("./") || path.startsWith("../")) {
-        importFilePath = resolvePath(relativeTo, path);
-      } else if (isPathAbsolute(path)) {
-        importFilePath = resolvePath(path);
-      } else {
-        try {
-          // attempt to resolve a node module with this name
-          importFilePath = await resolveCadlLibrary(path, relativeTo);
-          if (importFilePath) {
-            logger.debug(`Loading library "${path}" from "${importFilePath}"`);
-          }
-        } catch (e: any) {
-          if (e.code === "MODULE_NOT_FOUND") {
-            program.reportDiagnostic(
-              createDiagnostic({ code: "library-not-found", format: { path }, target })
-            );
-            continue;
-          } else {
-            throw e;
-          }
+      await loadImport(path, target, relativeTo);
+    }
+  }
+
+  async function loadImport(
+    path: string,
+    target: DiagnosticTarget | typeof NoTarget,
+    relativeTo: string
+  ) {
+    let importFilePath: string;
+    if (path.startsWith("./") || path.startsWith("../")) {
+      importFilePath = resolvePath(relativeTo, path);
+    } else if (isPathAbsolute(path)) {
+      importFilePath = resolvePath(path);
+    } else {
+      try {
+        // attempt to resolve a node module with this name
+        importFilePath = await resolveCadlLibrary(path, relativeTo);
+        if (importFilePath) {
+          logger.debug(`Loading library "${path}" from "${importFilePath}"`);
+        }
+      } catch (e: any) {
+        if (e.code === "MODULE_NOT_FOUND") {
+          program.reportDiagnostic(
+            createDiagnostic({ code: "library-not-found", format: { path }, target })
+          );
+          return;
+        } else {
+          throw e;
         }
       }
+    }
 
-      const isDirectory = (await host.stat(importFilePath)).isDirectory();
-      if (isDirectory) {
-        return await loadDirectory(importFilePath, target);
-      }
+    const isDirectory = (await host.stat(importFilePath)).isDirectory();
+    if (isDirectory) {
+      return await loadDirectory(importFilePath, target);
+    }
 
-      const sourceFileKind = host.getSourceFileKind(importFilePath);
+    const sourceFileKind = host.getSourceFileKind(importFilePath);
 
-      switch (sourceFileKind) {
-        case "js":
-          return await importJsFile(importFilePath, target);
-        case "cadl":
-          return await loadCadlFile(importFilePath, target);
-        default:
-          program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target }));
-      }
+    switch (sourceFileKind) {
+      case "js":
+        return await importJsFile(importFilePath, target);
+      case "cadl":
+        return await loadCadlFile(importFilePath, target);
+      default:
+        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target }));
     }
   }
 
