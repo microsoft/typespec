@@ -1,5 +1,10 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { CompletionItem, CompletionItemKind, CompletionList } from "vscode-languageserver/node.js";
+import {
+  CompletionItem,
+  CompletionItemKind,
+  CompletionItemTag,
+  CompletionList,
+} from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "./test-server-host.js";
 
 describe("compiler: server: completion", () => {
@@ -306,6 +311,29 @@ describe("compiler: server: completion", () => {
         allowAdditionalCompletions: false,
       }
     );
+  });
+
+  it("completes deprecated type", async () => {
+    const completions = await complete(
+      `
+      @deprecated("Foo is bad")
+      model Foo {}
+
+      model Bar {
+        prop: ┆
+      }
+      `
+    );
+
+    check(completions, [
+      {
+        label: "Foo",
+        insertText: "Foo",
+        kind: CompletionItemKind.Class,
+        documentation: undefined,
+        tags: [CompletionItemTag.Deprecated],
+      },
+    ]);
   });
 
   function check(
