@@ -38,4 +38,26 @@ describe("compiler: entrypoints", () => {
       expectDiagnosticEmpty(program.diagnostics);
     });
   });
+
+  describe("compile project", () => {
+    it("emit diagnostics if imported library has invalid main", async () => {
+      const program = await compileScenario("import-library-invalid", {
+        additionalImports: ["my-lib"],
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "library-invalid",
+        message: `Library "my-lib" has an invalid cadlMain file.`,
+      });
+    });
+
+    it("emit diagnostics if emitter has invalid main", async () => {
+      const program = await compileScenario("import-library-invalid", {
+        emitters: ["my-lib"],
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "library-invalid",
+        message: `Library "my-lib" has an invalid main file.`,
+      });
+    });
+  });
 });

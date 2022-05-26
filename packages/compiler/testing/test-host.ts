@@ -8,6 +8,7 @@ import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
+import { getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { BasicTestRunner, createTestWrapper } from "./test-utils.js";
 import {
@@ -120,6 +121,7 @@ function createTestCompilerHost(
     async realpath(path) {
       return path;
     },
+    getSourceFileKind: getSourceFileKindFromExt,
 
     logSink: NodeHost.logSink,
     mkdirp: async (path: string) => path,

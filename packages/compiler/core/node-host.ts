@@ -6,6 +6,7 @@ import { createSourceFile } from "./diagnostics.js";
 import { createConsoleSink } from "./logger/index.js";
 import { joinPaths, resolvePath } from "./path-utils.js";
 import { CompilerHost, RemoveDirOptions } from "./types";
+import { getSourceFileKindFromExt } from "./util.js";
 
 /**
  * Implementation of the @see CompilerHost using the real file system.
@@ -33,6 +34,7 @@ export const NodeHost: CompilerHost = {
   realpath(path) {
     return realpath(path);
   },
+  getSourceFileKind: getSourceFileKindFromExt,
   logSink: createConsoleSink(),
   mkdirp: (path: string) => mkdirp(path),
   fileURLToPath,

@@ -7,13 +7,7 @@ import { createDiagnostic } from "./messages.js";
 import { resolveModule, ResolveModuleHost } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
-import {
-  getAnyExtensionFromPath,
-  getDirectoryPath,
-  isPathAbsolute,
-  joinPaths,
-  resolvePath,
-} from "./path-utils.js";
+import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import { SchemaValidator } from "./schema-validator.js";
 import {
@@ -453,41 +447,44 @@ export async function createProgram(
   ) {
     // collect imports
     for (const { path, target } of imports) {
-      let importFilePath: string;
-      if (path.startsWith("./") || path.startsWith("../")) {
-        importFilePath = resolvePath(relativeTo, path);
-      } else if (isPathAbsolute(path)) {
-        importFilePath = resolvePath(path);
-      } else {
-        try {
-          // attempt to resolve a node module with this name
-          importFilePath = await resolveCadlLibrary(path, relativeTo);
-          if (importFilePath) {
-            logger.debug(`Loading library "${path}" from "${importFilePath}"`);
-          }
-        } catch (e: any) {
-          if (e.code === "MODULE_NOT_FOUND") {
-            program.reportDiagnostic(
-              createDiagnostic({ code: "library-not-found", format: { path }, target })
-            );
-            continue;
-          } else {
-            throw e;
-          }
-        }
-      }
+      await loadImport(path, target, relativeTo);
+    }
+  }
 
-      const ext = getAnyExtensionFromPath(importFilePath);
-
-      if (ext === "") {
-        await loadDirectory(importFilePath, target);
-      } else if (ext === ".js" || ext === ".mjs") {
-        await importJsFile(importFilePath, target);
-      } else if (ext === ".cadl") {
-        await loadCadlFile(importFilePath, target);
+  async function loadImport(
+    path: string,
+    target: DiagnosticTarget | typeof NoTarget,
+    relativeTo: string
+  ) {
+    let importFilePath: string;
+    if (path.startsWith("./") || path.startsWith("../")) {
+      importFilePath = resolvePath(relativeTo, path);
+    } else if (isPathAbsolute(path)) {
+      importFilePath = resolvePath(path);
+    } else {
+      const libPath = await resolveCadlLibrary(path, relativeTo, target);
+      if (libPath) {
+        importFilePath = libPath;
+        logger.debug(`Loading library "${path}" from "${importFilePath}"`);
       } else {
-        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target: target }));
+        return;
       }
+    }
+
+    const isDirectory = (await host.stat(importFilePath)).isDirectory();
+    if (isDirectory) {
+      return await loadDirectory(importFilePath, target);
+    }
+
+    const sourceFileKind = host.getSourceFileKind(importFilePath);
+
+    switch (sourceFileKind) {
+      case "js":
+        return await importJsFile(importFilePath, target);
+      case "cadl":
+        return await loadCadlFile(importFilePath, target);
+      default:
+        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target }));
     }
   }
 
@@ -503,24 +500,12 @@ export async function createProgram(
     options: Record<string, unknown>
   ) {
     const basedir = getDirectoryPath(mainFile);
-    let module;
-    try {
-      // attempt to resolve a node module with this name
-      module = await resolveJSLibrary(emitterPackage, basedir);
-    } catch (e: any) {
-      if (e.code === "MODULE_NOT_FOUND") {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "library-not-found",
-            format: { path: emitterPackage },
-            target: NoTarget,
-          })
-        );
-        return;
-      } else {
-        throw e;
-      }
+    // attempt to resolve a node module with this name
+    const module = await resolveJSLibrary(emitterPackage, basedir);
+    if (!module) {
+      return;
     }
+
     const file = await loadJsFile(module, NoTarget);
 
     if (file === undefined) {
@@ -563,23 +548,72 @@ export async function createProgram(
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
    * that module, e.g. "/cadl/node_modules/myLib/main.cadl".
    */
-  function resolveCadlLibrary(specifier: string, baseDir: string): Promise<string> {
-    return resolveModule(getResolveModuleHost(), specifier, {
-      baseDir,
-      resolveMain(pkg) {
-        // this lets us follow node resolve semantics more-or-less exactly
-        // but using cadlMain instead of main.
-        return pkg.cadlMain ?? pkg.main;
-      },
-    });
+  async function resolveCadlLibrary(
+    specifier: string,
+    baseDir: string,
+    target: DiagnosticTarget | typeof NoTarget
+  ): Promise<string | undefined> {
+    try {
+      return await resolveModule(getResolveModuleHost(), specifier, {
+        baseDir,
+        resolveMain(pkg) {
+          // this lets us follow node resolve semantics more-or-less exactly
+          // but using cadlMain instead of main.
+          return pkg.cadlMain ?? pkg.main;
+        },
+      });
+    } catch (e: any) {
+      if (e.code === "MODULE_NOT_FOUND") {
+        program.reportDiagnostic(
+          createDiagnostic({ code: "library-not-found", format: { path: specifier }, target })
+        );
+        return undefined;
+      } else if (e.code === "INVALID_MAIN") {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "library-invalid",
+            format: { path: specifier },
+            messageId: "cadlMain",
+            target,
+          })
+        );
+        return undefined;
+      } else {
+        throw e;
+      }
+    }
   }
 
   /**
    * resolves a module specifier like "myLib" to an absolute path where we can find the main of
    * that module, e.g. "/cadl/node_modules/myLib/dist/lib.js".
    */
-  function resolveJSLibrary(specifier: string, baseDir: string): Promise<string> {
-    return resolveModule(getResolveModuleHost(), specifier, { baseDir });
+  async function resolveJSLibrary(specifier: string, baseDir: string): Promise<string | undefined> {
+    try {
+      return await resolveModule(getResolveModuleHost(), specifier, { baseDir });
+    } catch (e: any) {
+      if (e.code === "MODULE_NOT_FOUND") {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "library-not-found",
+            format: { path: specifier },
+            target: NoTarget,
+          })
+        );
+        return undefined;
+      } else if (e.code === "INVALID_MAIN") {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "library-invalid",
+            format: { path: specifier },
+            target: NoTarget,
+          })
+        );
+        return undefined;
+      } else {
+        throw e;
+      }
+    }
   }
 
   function getResolveModuleHost(): ResolveModuleHost {
@@ -634,14 +668,16 @@ export async function createProgram(
     if (!(await checkForCompilerVersionMismatch(mainPath))) {
       return;
     }
-    const ext = getAnyExtensionFromPath(mainPath);
 
-    if (ext === ".js" || ext === ".mjs") {
-      await importJsFile(mainPath, NoTarget);
-    } else if (ext === ".cadl") {
-      await loadCadlFile(mainPath, NoTarget);
-    } else {
-      program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
+    const sourceFileKind = host.getSourceFileKind(mainPath);
+
+    switch (sourceFileKind) {
+      case "js":
+        return await importJsFile(mainPath, NoTarget);
+      case "cadl":
+        return await loadCadlFile(mainPath, NoTarget);
+      default:
+        program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
     }
   }
 
@@ -668,7 +704,7 @@ export async function createProgram(
         { baseDir }
       );
     } catch (err: any) {
-      if (err.code === "MODULE_NOT_FOUND") {
+      if (err.code === "MODULE_NOT_FOUND" || err.code === "INVALID_MAIN") {
         return true; // no local cadl, ok to use any compiler
       }
       throw err;
