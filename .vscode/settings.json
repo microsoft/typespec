@@ -7,10 +7,10 @@
     "**/CHANGELOG.json": true,
     "**/CHANGELOG.md": true,
     "docs/spec.html": true,
-    "common/config/rush/pnpm-lock.yaml": true
+    "common/config/rush/pnpm-lock.yaml": true,
+    "**/node_modules/**": true
   },
   "files.exclude": {
-    "**/node_modules/**": true,
     "**/common/temp/**": true,
     "**/obj/**": true,
     "**/bin/**": true,
