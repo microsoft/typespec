@@ -52,7 +52,7 @@ describe("compiler: entrypoints", () => {
 
     it("emit diagnostics if emitter has invalid main", async () => {
       const program = await compileScenario("import-library-invalid", {
-        emitters: ["my-lib"],
+        emitters: { "my-lib": {} },
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",
