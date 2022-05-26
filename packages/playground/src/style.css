@@ -12,7 +12,6 @@ body {
 #grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 30px 1fr;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -43,25 +42,15 @@ body {
   background-color: #b46e45;
 }
 
-#commandBar {
-  grid-column: 1;
-  grid-row: 1;
-  align-items: center;
-  display: flex;
-}
-
 #commandBar > * {
   padding: 2px 2px;
 }
 
-#outputTabs {
-  grid-column: 2;
-  grid-row: 1;
+.output-tabs {
   display: flex;
-  overflow: hidden;
 }
 
-#outputTabs a {
+.output-tabs a {
   padding: 0 5px;
   border: 1px solid #ccc;
   border-top: none;
@@ -72,10 +61,15 @@ body {
   cursor: pointer;
 }
 
-#outputTabs a.active {
+.output-tabs a.active {
   font-weight: bold;
   background-color: #eee;
 }
+
+.output-tabs .middle-spacer {
+  flex: 1;
+}
+
 #editorContainer {
   grid-column: 1;
   grid-row: 2;
@@ -103,4 +97,9 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+.type-graph-container {
+  height: 100%;
+  overflow: scroll;
 }
