@@ -7,13 +7,7 @@ import { createDiagnostic } from "./messages.js";
 import { resolveModule, ResolveModuleHost } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
-import {
-  getAnyExtensionFromPath,
-  getDirectoryPath,
-  isPathAbsolute,
-  joinPaths,
-  resolvePath,
-} from "./path-utils.js";
+import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   CadlScriptNode,
@@ -474,16 +468,20 @@ export async function createProgram(
         }
       }
 
-      const ext = getAnyExtensionFromPath(importFilePath);
+      const isDirectory = (await host.stat(importFilePath)).isDirectory();
+      if (isDirectory) {
+        return await loadDirectory(importFilePath, target);
+      }
 
-      if (ext === "") {
-        await loadDirectory(importFilePath, target);
-      } else if (ext === ".js" || ext === ".mjs") {
-        await importJsFile(importFilePath, target);
-      } else if (ext === ".cadl") {
-        await loadCadlFile(importFilePath, target);
-      } else {
-        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target: target }));
+      const sourceFileKind = host.getSourceFileKind(importFilePath);
+
+      switch (sourceFileKind) {
+        case "js":
+          return await importJsFile(importFilePath, target);
+        case "cadl":
+          return await loadCadlFile(importFilePath, target);
+        default:
+          program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target }));
       }
     }
   }
@@ -616,18 +614,16 @@ export async function createProgram(
     if (!(await checkForCompilerVersionMismatch(mainPath))) {
       return;
     }
-    const ext = getAnyExtensionFromPath(mainPath);
 
-    if (ext === ".js" || ext === ".mjs") {
-      await importJsFile(mainPath, NoTarget);
-    } else if (ext === ".cadl") {
-      await loadCadlFile(mainPath, NoTarget);
-    } else {
-      if (options.designTimeBuild) {
-        await loadCadlFile(mainPath, NoTarget);
-      } else {
+    const sourceFileKind = host.getSourceFileKind(mainPath);
+
+    switch (sourceFileKind) {
+      case "js":
+        return await importJsFile(mainPath, NoTarget);
+      case "cadl":
+        return await loadCadlFile(mainPath, NoTarget);
+      default:
         program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
-      }
     }
   }
 

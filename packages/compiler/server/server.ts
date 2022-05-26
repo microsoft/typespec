@@ -72,6 +72,7 @@ function main() {
   connection.onPrepareRename(s.prepareRename);
   documents.onDidChangeContent(s.checkChange);
   documents.onDidClose(s.documentClosed);
+  documents.onDidOpen(s.documentOpen);
 
   documents.listen(connection);
   connection.listen();
