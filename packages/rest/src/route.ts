@@ -190,7 +190,7 @@ export function getOperationParameters(
   program: Program,
   operation: OperationType
 ): [HttpOperationParameters, readonly Diagnostic[]] {
-  const diagCollector = createDiagnosticCollector();
+  const diagnostics = createDiagnosticCollector();
   const result: HttpOperationParameters = {
     parameters: [],
   };
@@ -209,7 +209,7 @@ export function getOperationParameters(
       ["body", bodyParm],
     ].filter((x) => !!x[1]);
     if (defined.length >= 2) {
-      diagCollector.add(
+      diagnostics.add(
         createDiagnostic({
           code: "operation-param-duplicate-type",
           format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
@@ -228,13 +228,13 @@ export function getOperationParameters(
       if (result.body === undefined) {
         result.body = param;
       } else {
-        diagCollector.add(createDiagnostic({ code: "duplicate-body", target: param }));
+        diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
       }
     } else {
       if (unAnnotatedParam === undefined) {
         unAnnotatedParam = param;
       } else {
-        diagCollector.add(
+        diagnostics.add(
           createDiagnostic({
             code: "duplicate-body",
             messageId: "duplicateUnannotated",
@@ -249,7 +249,7 @@ export function getOperationParameters(
     if (result.body === undefined) {
       result.body = unAnnotatedParam;
     } else {
-      diagCollector.add(
+      diagnostics.add(
         createDiagnostic({
           code: "duplicate-body",
           messageId: "bodyAndUnannotated",
@@ -258,7 +258,7 @@ export function getOperationParameters(
       );
     }
   }
-  return [result, diagCollector.diagnostics];
+  return diagnostics.wrap(result);
 }
 
 function generatePathFromParameters(
@@ -306,12 +306,12 @@ function generatePathFromParameters(
 
 function getPathForOperation(
   program: Program,
-  diagCollector: DiagnosticCollector,
+  diagnostics: DiagnosticCollector,
   operation: OperationType,
   routeFragments: string[],
   options: RouteOptions
 ): { path: string; pathFragment?: string; parameters: HttpOperationParameters } {
-  const parameters = diagCollector.pipe(getOperationParameters(program, operation));
+  const parameters = diagnostics.pipe(getOperationParameters(program, operation));
   const pathFragments = [...routeFragments];
   const routePath = getRoutePath(program, operation);
   if (isAutoRoute(program, operation)) {
@@ -341,7 +341,7 @@ function getPathForOperation(
     for (const declaredParam of declaredPathParams) {
       const param = paramByName.get(declaredParam);
       if (!param) {
-        diagCollector.add(
+        diagnostics.add(
           createDiagnostic({
             code: "missing-path-param",
             format: { param: declaredParam },
@@ -369,7 +369,7 @@ function getPathForOperation(
 
 function getVerbForOperation(
   program: Program,
-  diagCollector: DiagnosticCollector,
+  diagnostics: DiagnosticCollector,
   operation: OperationType,
   parameters: HttpOperationParameters
 ): HttpVerb {
@@ -385,7 +385,7 @@ function getVerbForOperation(
   }
 
   if (parameters.body) {
-    diagCollector.add(
+    diagnostics.add(
       createDiagnostic({
         code: "http-verb-missing-with-body",
         format: { operationName: operation.name },
@@ -399,7 +399,7 @@ function getVerbForOperation(
 
 function buildRoutes(
   program: Program,
-  diagCollector: DiagnosticCollector,
+  diagnostics: DiagnosticCollector,
   container: OperationContainer,
   routeFragments: string[],
   visitedOperations: Set<OperationType>,
@@ -418,9 +418,9 @@ function buildRoutes(
       continue;
     }
 
-    const route = getPathForOperation(program, diagCollector, op, parentFragments, options);
-    const verb = getVerbForOperation(program, diagCollector, op, route.parameters);
-    const responses = diagCollector.pipe(getResponsesForOperation(program, op));
+    const route = getPathForOperation(program, diagnostics, op, parentFragments, options);
+    const verb = getVerbForOperation(program, diagnostics, op, route.parameters);
+    const responses = diagnostics.pipe(getResponsesForOperation(program, op));
     operations.push({
       path: route.path,
       pathFragment: route.pathFragment,
@@ -442,7 +442,7 @@ function buildRoutes(
     ];
 
     const childRoutes = children.flatMap((child) =>
-      buildRoutes(program, diagCollector, child, parentFragments, visitedOperations, options)
+      buildRoutes(program, diagnostics, child, parentFragments, visitedOperations, options)
     );
     for (const child of childRoutes) [operations.push(child)];
   }
@@ -460,12 +460,11 @@ export function getRoutesForContainer(
     options ??
     (container.kind === "Namespace" ? getRouteOptionsForNamespace(program, container) : {}) ??
     {};
-  const diagCollector = createDiagnosticCollector();
+  const diagnostics = createDiagnosticCollector();
 
-  return [
-    buildRoutes(program, diagCollector, container, [], visitedOperations, routeOptions),
-    diagCollector.diagnostics,
-  ];
+  return diagnostics.wrap(
+    buildRoutes(program, diagnostics, container, [], visitedOperations, routeOptions)
+  );
 }
 
 function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
@@ -482,7 +481,7 @@ export function getAllRoutes(
   options?: RouteOptions
 ): [OperationDetails[], readonly Diagnostic[]] {
   let operations: OperationDetails[] = [];
-  const diagCollector = createDiagnosticCollector();
+  const diagnostics = createDiagnosticCollector();
   const serviceNamespace = getServiceNamespace(program);
   const containers: Type[] = [
     ...(serviceNamespace ? [serviceNamespace] : []),
@@ -497,7 +496,7 @@ export function getAllRoutes(
       continue;
     }
 
-    const newOps = diagCollector.pipe(
+    const newOps = diagnostics.pipe(
       getRoutesForContainer(program, container as OperationContainer, visitedOperations, options)
     );
 
@@ -508,11 +507,11 @@ export function getAllRoutes(
     operations = [...operations, ...newOps];
   }
 
-  validateRouteUnique(diagCollector, operations);
-  return [operations, diagCollector.diagnostics];
+  validateRouteUnique(diagnostics, operations);
+  return diagnostics.wrap(operations);
 }
 
-function validateRouteUnique(diagCollector: DiagnosticCollector, operations: OperationDetails[]) {
+function validateRouteUnique(diagnostics: DiagnosticCollector, operations: OperationDetails[]) {
   const grouped = new Map<string, Map<HttpVerb, OperationDetails[]>>();
 
   for (const operation of operations) {
@@ -536,7 +535,7 @@ function validateRouteUnique(diagCollector: DiagnosticCollector, operations: Ope
     for (const [verb, routes] of map) {
       if (routes.length >= 2) {
         for (const route of routes) {
-          diagCollector.add(
+          diagnostics.add(
             createDiagnostic({
               code: "duplicate-operation",
               format: { path, verb, operationName: route.operation.name },

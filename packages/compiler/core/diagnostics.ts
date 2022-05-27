@@ -380,8 +380,25 @@ export function reportDeprecated(
  */
 export interface DiagnosticCollector {
   readonly diagnostics: readonly Diagnostic[];
+
+  /**
+   * Add a diagnostic to the collection
+   * @param diagnostic Diagnostic to add.
+   */
   add(diagnostic: Diagnostic): void;
+
+  /**
+   * Unwrap the Diagnostic result, add all the diagnostics and return the data.
+   * @param result Accessor diagnostic result
+   */
   pipe<T>(result: DiagnosticResult<T>): T;
+
+  /**
+   * Wrap the given value in a tuple including the diagnostics following the Cadl accessor pattern.
+   * @param value Accessor value to return
+   * @exmaple return diagnostics.wrap(routes);
+   */
+  wrap<T>(value: T): DiagnosticResult<T>;
 }
 
 /**
@@ -394,18 +411,23 @@ export function createDiagnosticCollector(): DiagnosticCollector {
     diagnostics,
     add,
     pipe,
+    wrap,
   };
 
   function add(diagnostic: Diagnostic) {
     diagnostics.push(diagnostic);
   }
 
-  function pipe<T>(result: [T, Diagnostic[]]): T {
+  function pipe<T>(result: DiagnosticResult<T>): T {
     const [value, diags] = result;
     for (const diag of diags) {
       diagnostics.push(diag);
     }
     return value;
+  }
+
+  function wrap<T>(value: T): DiagnosticResult<T> {
+    return [value, diagnostics];
   }
 }
 
