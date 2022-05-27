@@ -8,6 +8,7 @@ import {
   DiagnosticMap,
   DiagnosticMessages,
   DiagnosticReport,
+  DiagnosticResult,
   DiagnosticTarget,
   LogSink,
   Node,
@@ -383,6 +384,9 @@ export interface DiagnosticCollector {
   pipe<T>(result: DiagnosticResult<T>): T;
 }
 
+/**
+ * Create a new instance of the @see DiagnosticCollector.
+ */
 export function createDiagnosticCollector(): DiagnosticCollector {
   const diagnostics: Diagnostic[] = [];
 
@@ -405,8 +409,11 @@ export function createDiagnosticCollector(): DiagnosticCollector {
   }
 }
 
-export type DiagnosticResult<T> = [T, readonly Diagnostic[]];
-
+/**
+ * Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.
+ * @param result: Accessor pattern tuple result including the actual result and the list of diagnostics.
+ * @returns Actual result.
+ */
 export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
   return result[0];
 }
