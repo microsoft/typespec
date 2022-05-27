@@ -26,6 +26,8 @@ export async function createTestServerHost(): Promise<TestServerHost> {
   const diagnostics = new Map<string, Diagnostic[]>();
   const logMessages: string[] = [];
   const fileSystem = await createTestFileSystem();
+  // We don't add the @test decorator for server tests
+  fileSystem.compilerHost.getLibDirs = () => [".cadl/lib"];
   await fileSystem.addCadlLibrary(StandardTestLibrary);
 
   const serverHost: TestServerHost = {

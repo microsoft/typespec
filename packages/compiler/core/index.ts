@@ -1,7 +1,5 @@
 export * from "../lib/decorators.js";
 export * as decorators from "../lib/decorators.js";
-export * from "../lib/service.js";
-export * as service from "../lib/service.js";
 export * from "../server/index.js";
 export * from "./checker.js";
 export * from "./decorator-utils.js";
@@ -15,5 +13,6 @@ export * from "./program.js";
 export * from "./scanner.js";
 export * from "./semantic-walker.js";
 export * from "./types.js";
+export { getSourceFileKindFromExt } from "./util.js";
 import * as formatter from "../formatter/index.js";
 export const CadlPrettierPlugin = formatter;

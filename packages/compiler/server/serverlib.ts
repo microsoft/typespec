@@ -1,11 +1,14 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionItem,
   CompletionItemKind,
+  CompletionItemTag,
   CompletionList,
   CompletionParams,
   DefinitionParams,
   Diagnostic as VSDiagnostic,
   DiagnosticSeverity,
+  DiagnosticTag,
   DidChangeWatchedFilesParams,
   InitializedParams,
   InitializeParams,
@@ -48,12 +51,13 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   SourceFile,
+  SourceFileKind,
   SymbolFlags,
   SyntaxKind,
   Type,
 } from "../core/types.js";
-import { doIO, loadFile } from "../core/util.js";
-import { getDoc, isIntrinsic } from "../lib/decorators.js";
+import { doIO, getSourceFileKindFromExt, loadFile } from "../core/util.js";
+import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -75,6 +79,7 @@ export interface Server {
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  documentOpen(change: TextDocumentChangeEvent<TextDocument>): void;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -155,11 +160,20 @@ export function createServer(host: ServerHost): Server {
   // hitting the disk. Entries are invalidated when LSP client notifies us of
   // a file change.
   const fileSystemCache = new Map<string, CachedFile | CachedError>();
+  const knownFiles = new Map<string, SourceFileKind | undefined>();
 
   const compilerHost: CompilerHost = {
     ...host.compilerHost,
     readFile,
     stat,
+    getSourceFileKind: (path: string) => {
+      const knownKind = knownFiles.get(path);
+      if (knownKind !== undefined) {
+        return knownKind;
+      }
+
+      return getSourceFileKindFromExt(path);
+    },
   };
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
@@ -178,6 +192,7 @@ export function createServer(host: ServerHost): Server {
     workspaceFoldersChanged,
     watchedFilesChanged,
     gotoDefinition,
+    documentOpen,
     documentClosed,
     complete,
     findReferences,
@@ -388,6 +403,9 @@ export function createServer(host: ServerHost): Server {
       const range = Range.create(start, end);
       const severity = convertSeverity(each.severity);
       const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "Cadl");
+      if (each.code === "deprecated") {
+        diagnostic.tags = [DiagnosticTag.Deprecated];
+      }
       const diagnostics = diagnosticMap.get(document);
       compilerAssert(
         diagnostics,
@@ -528,6 +546,7 @@ export function createServer(host: ServerHost): Server {
     for (const [key, { sym, label }] of result) {
       let documentation: string | undefined;
       let kind: CompletionItemKind;
+      let deprecated = false;
       if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
       } else if (
@@ -539,13 +558,18 @@ export function createServer(host: ServerHost): Server {
         const type = program.checker.getTypeForNode(sym.declarations[0]);
         documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
+        deprecated = isDeprecated(program, type);
       }
-      completions.items.push({
+      const item: CompletionItem = {
         label: label ?? key,
         documentation,
         kind,
         insertText: key,
-      });
+      };
+      if (deprecated) {
+        item.tags = [CompletionItemTag.Deprecated];
+      }
+      completions.items.push(item);
     }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
@@ -569,9 +593,15 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  function documentOpen(change: TextDocumentChangeEvent<TextDocument>) {
+    const kind = change.document.languageId === "cadl" ? "cadl" : undefined;
+    knownFiles.set(change.document.uri, kind);
+  }
+
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
     // clear diagnostics on file close
     sendDiagnostics(change.document, []);
+    knownFiles.delete(change.document.uri);
   }
 
   function getLocations(targets: DiagnosticTarget[] | undefined): Location[] {
@@ -713,6 +743,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   function inWorkspace(path: string) {
+    path = ensureTrailingDirectorySeparator(path);
     return workspaceFolders.some((f) => path.startsWith(f.path));
   }
 

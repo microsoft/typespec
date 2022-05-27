@@ -1,7 +1,9 @@
+import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   DecoratorContext,
+  DiagnosticTarget,
   Expression,
   IdentifierKind,
   isIntrinsic,
@@ -10,6 +12,7 @@ import {
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
+  reportDeprecated,
   SymbolFlags,
   TemplateParameterType,
   VoidType,
@@ -26,6 +29,7 @@ import {
   BooleanLiteralType,
   CadlScriptNode,
   DecoratorApplication,
+  DecoratorArgument,
   DecoratorExpressionNode,
   EnumMemberNode,
   EnumMemberType,
@@ -577,7 +581,16 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
-    return checkTypeReferenceSymbol(sym, node);
+    const type = checkTypeReferenceSymbol(sym, node);
+    checkDeprecated(type, node);
+    return type;
+  }
+
+  function checkDeprecated(type: Type, target: DiagnosticTarget) {
+    const deprecated = getDeprecated(program, type);
+    if (deprecated) {
+      reportDeprecated(program, deprecated, target);
+    }
   }
 
   function checkTypeReferenceArgs(
@@ -1480,6 +1493,7 @@ export function createChecker(program: Program): Checker {
     const isBase = checkModelIs(node, node.is);
 
     if (isBase) {
+      checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
     }
@@ -1500,6 +1514,9 @@ export function createChecker(program: Program): Checker {
       type.baseModel = isBase.baseModel;
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends);
+      if (type.baseModel) {
+        checkDeprecated(type.baseModel, node.extends);
+      }
     }
 
     if (type.baseModel) {
@@ -1911,22 +1928,28 @@ export function createChecker(program: Program): Checker {
         continue;
       }
 
-      const args = decNode.arguments.map(getTypeForNode).map((type) => {
-        if (type.kind === "Number" || type.kind === "String" || type.kind === "Boolean") {
-          return type.value;
-        }
-
-        return type;
-      });
-
       decorators.unshift({
         decorator: sym.value!,
         node: decNode,
-        args,
+        args: checkDecoratorArguments(decNode),
       });
     }
 
     return decorators;
+  }
+
+  function checkDecoratorArguments(decorator: DecoratorExpressionNode): DecoratorArgument[] {
+    return decorator.arguments.map((argNode) => {
+      const type = getTypeForNode(argNode);
+      const value =
+        type.kind === "Number" || type.kind === "String" || type.kind === "Boolean"
+          ? type.value
+          : type;
+      return {
+        value,
+        node: argNode,
+      };
+    });
   }
 
   function checkAlias(node: AliasStatementNode): Type {
@@ -2227,8 +2250,8 @@ export function createChecker(program: Program): Checker {
     );
 
     for (const arg of decApp.args) {
-      if (typeof arg === "object") {
-        if (isErrorType(arg)) {
+      if (typeof arg.value === "object") {
+        if (isErrorType(arg.value)) {
           // If one of the decorator argument is an error don't run it.
           return;
         }
@@ -2238,8 +2261,8 @@ export function createChecker(program: Program): Checker {
     // peel `fn` off to avoid setting `this`.
     try {
       const fn = decApp.decorator;
-      const context: DecoratorContext = { program };
-      fn(context, target, ...decApp.args);
+      const context = createDecoratorContext(program, decApp);
+      fn(context, target, ...decApp.args.map((x) => x.value));
     } catch (error: any) {
       // do not fail the language server for exceptions in decorators
       if (program.compilerOptions.designTimeBuild) {
@@ -2254,6 +2277,36 @@ export function createChecker(program: Program): Checker {
         throw error;
       }
     }
+  }
+
+  function createDecoratorContext(
+    program: Program,
+    decApp: DecoratorApplication
+  ): DecoratorContext {
+    function createPassThruContext(
+      program: Program,
+      decApp: DecoratorApplication
+    ): DecoratorContext {
+      return {
+        program,
+        decoratorTarget: decApp.node!,
+        getArgumentTarget: () => decApp.node!,
+        call: (decorator, target, ...args) => {
+          return decorator(createPassThruContext(program, decApp), target, ...args);
+        },
+      };
+    }
+
+    return {
+      program,
+      decoratorTarget: decApp.node!,
+      getArgumentTarget: (index: number) => {
+        return decApp.args[index]?.node;
+      },
+      call: (decorator, target, ...args) => {
+        return decorator(createPassThruContext(program, decApp), target, ...args);
+      },
+    };
   }
 
   function getLiteralType(node: StringLiteralNode): StringLiteralType;

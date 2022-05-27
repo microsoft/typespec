@@ -1,4 +1,10 @@
-import { CompilerHost, createSourceFile, resolvePath } from "@cadl-lang/compiler";
+import {
+  CompilerHost,
+  createSourceFile,
+  getSourceFileKindFromExt,
+  resolvePath,
+} from "@cadl-lang/compiler";
+import { PlaygroundManifest } from "./manifest";
 
 export interface BrowserHost extends CompilerHost {
   unlink(path: string): Promise<void>;
@@ -11,13 +17,7 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
 export async function createBrowserHost(): Promise<BrowserHost> {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
-  const libsToLoad = [
-    "@cadl-lang/compiler",
-    "@cadl-lang/rest",
-    "@cadl-lang/versioning",
-    "@cadl-lang/openapi",
-    "@cadl-lang/openapi3",
-  ];
+  const libsToLoad = PlaygroundManifest.libraries;
 
   for (const libName of libsToLoad) {
     const { _CadlLibrary_ } = await import(/* @vite-ignore */ libName);
@@ -130,6 +130,8 @@ export async function createBrowserHost(): Promise<BrowserHost> {
     async realpath(path) {
       return path;
     },
+
+    getSourceFileKind: getSourceFileKindFromExt,
 
     async unlink(path) {
       path = resolveVirtualPath(path);

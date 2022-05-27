@@ -375,6 +375,13 @@ const diagnostics = {
       default: paramMessage`Couldn't find library "${"path"}"`,
     },
   },
+  "library-invalid": {
+    severity: "error",
+    messages: {
+      cadlMain: paramMessage`Library "${"path"}" has an invalid cadlMain file.`,
+      default: paramMessage`Library "${"path"}" has an invalid main file.`,
+    },
+  },
   "compiler-version-mismatch": {
     severity: "error",
     messages: {
@@ -461,6 +468,13 @@ const diagnostics = {
       atPath: paramMessage`Type '${"kind"}' of '${"path"}' is not a value type.`,
     },
   },
+  deprecated: {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Deprecated: ${"message"}`,
+    },
+  },
+
   /**
    * Service
    */
@@ -468,12 +482,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
-    },
-  },
-  "service-decorator-namespace-only": {
-    severity: "error",
-    messages: {
-      default: paramMessage`The ${"decorator"} decorator can only be applied to namespaces.`,
     },
   },
   "service-namespace-duplicate": {
@@ -485,7 +493,7 @@ const diagnostics = {
   "list-type-not-model": {
     severity: "error",
     messages: {
-      default: "@list decorator's parameter must be a model type reference.",
+      default: "@list decorator's parameter must be a model type.",
     },
   },
 
