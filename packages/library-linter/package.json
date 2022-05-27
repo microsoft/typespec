@@ -51,7 +51,8 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.31.0"
+    "@cadl-lang/compiler": "~0.31.0",
+    "@cadl-lang/eslint-plugin": "~0.1.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",

@@ -22,8 +22,6 @@ export function $operationId(context: DecoratorContext, entity: Type, opId: stri
   ) {
     return;
   }
-  // TODO remove for testing only
-  $extension(context, entity, "x-abc", "foo");
   context.program.stateMap(operationIdsKey).set(entity, opId);
 }
 
@@ -34,17 +32,17 @@ export function getOperationId(program: Program, entity: Type): string | undefin
 export type ExtensionKey = `x-${string}`;
 const openApiExtensionKey = Symbol("openApiExtension");
 export function $extension(
-  context2: DecoratorContext,
+  context: DecoratorContext,
   entity: Type,
   extensionName: string,
   value: CadlValue
 ) {
-  if (!validateDecoratorParamType(context2.program, entity, extensionName, "String")) {
+  if (!validateDecoratorParamType(context.program, entity, extensionName, "String")) {
     return;
   }
 
   if (!isOpenAPIExtensionKey(extensionName)) {
-    reportDiagnostic(context2.program, {
+    reportDiagnostic(context.program, {
       code: "invalid-extension-key",
       format: { value: extensionName },
       target: entity,
@@ -53,9 +51,9 @@ export function $extension(
 
   const [data, diagnostics] = cadlTypeToJson(value, entity);
   if (diagnostics.length > 0) {
-    context2.program.reportDiagnostics(diagnostics);
+    context.program.reportDiagnostics(diagnostics);
   }
-  setExtension(context2.program, entity, extensionName as ExtensionKey, data);
+  setExtension(context.program, entity, extensionName as ExtensionKey, data);
 }
 
 export function setExtension(
