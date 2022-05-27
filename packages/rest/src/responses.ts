@@ -1,5 +1,6 @@
 import {
   Diagnostic,
+  DiagnosticCollector,
   getDoc,
   getIntrinsicModelName,
   isErrorModel,
@@ -11,6 +12,7 @@ import {
   Program,
   Type,
 } from "@cadl-lang/compiler";
+import { createDiagnosticCollector } from "@cadl-lang/compiler/core";
 import { createDiagnostic } from "./diagnostics.js";
 import {
   getHeaderFieldName,
@@ -45,8 +47,8 @@ export interface HttpOperationBody {
 export function getResponsesForOperation(
   program: Program,
   operation: OperationType
-): [HttpOperationResponse[], Diagnostic[]] {
-  const diagnostics: Diagnostic[] = [];
+): [HttpOperationResponse[], readonly Diagnostic[]] {
+  const diagCollector = createDiagnosticCollector();
   const responseType = operation.returnType;
   const responses: Record<string | symbol, HttpOperationResponse> = {};
   if (responseType.kind === "Union") {
@@ -55,13 +57,13 @@ export function getResponsesForOperation(
         // TODO how should we treat this? https://github.com/microsoft/cadl/issues/356
         continue;
       }
-      processResponseType(program, diagnostics, responses, option);
+      processResponseType(program, diagCollector, responses, option);
     }
   } else {
-    processResponseType(program, diagnostics, responses, responseType);
+    processResponseType(program, diagCollector, responses, responseType);
   }
 
-  return [Object.values(responses), diagnostics];
+  return [Object.values(responses), diagCollector.diagnostics];
 }
 
 function isNullType(program: Program, type: Type): boolean {
@@ -70,7 +72,7 @@ function isNullType(program: Program, type: Type): boolean {
 
 function processResponseType(
   program: Program,
-  diagnostics: Diagnostic[],
+  diagCollector: DiagnosticCollector,
   responses: Record<string, HttpOperationResponse>,
   responseModel: Type
 ) {
@@ -78,13 +80,13 @@ function processResponseType(
   const statusCodes: Array<string> = getResponseStatusCodes(program, responseModel);
 
   // Get explicitly defined content types
-  const contentTypes = getResponseContentTypes(program, diagnostics, responseModel);
+  const contentTypes = getResponseContentTypes(program, diagCollector, responseModel);
 
   // Get response headers
   const headers = getResponseHeaders(program, responseModel);
 
   // Get explicitly defined body
-  let bodyModel = getResponseBody(program, diagnostics, responseModel);
+  let bodyModel = getResponseBody(program, diagCollector, responseModel);
   // If there is no explicit body, it should be conjured from the return type
   // if it is a primitive type or it contains more than just response metadata
   if (!bodyModel) {
@@ -141,7 +143,7 @@ function processResponseType(
     // check for duplicates
     for (const contentType of contentTypes) {
       if (response.responses.find((x) => x.body?.contentTypes.includes(contentType))) {
-        diagnostics.push(
+        diagCollector.add(
           createDiagnostic({
             code: "duplicate-response",
             format: { statusCode: statusCode.toString(), contentType },
@@ -154,7 +156,7 @@ function processResponseType(
     if (bodyModel !== undefined) {
       response.responses.push({ body: { contentTypes: contentTypes, type: bodyModel }, headers });
     } else if (contentTypes.length > 0) {
-      diagnostics.push(
+      diagCollector.add(
         createDiagnostic({
           code: "content-type-ignored",
           target: responseModel,
@@ -195,52 +197,54 @@ function getResponseStatusCodes(program: Program, responseModel: Type): string[]
  */
 function getResponseContentTypes(
   program: Program,
-  diagnostics: Diagnostic[],
+  diagCollector: DiagnosticCollector,
   responseModel: Type
 ): string[] {
   const contentTypes: string[] = [];
   if (responseModel.kind === "Model") {
     if (responseModel.baseModel) {
-      contentTypes.push(...getResponseContentTypes(program, diagnostics, responseModel.baseModel));
+      contentTypes.push(
+        ...getResponseContentTypes(program, diagCollector, responseModel.baseModel)
+      );
     }
     for (const prop of responseModel.properties.values()) {
       if (isHeader(program, prop) && getHeaderFieldName(program, prop) === "content-type") {
-        contentTypes.push(...getContentTypes(program, diagnostics, prop));
+        contentTypes.push(...diagCollector.pipe(getContentTypes(prop)));
       }
     }
   }
   return contentTypes;
 }
 
-export function getContentTypes(
-  program: Program,
-  diagnostics: Diagnostic[],
-  param: ModelTypeProperty
-): string[] {
-  if (param.type.kind === "String") {
-    return [param.type.value];
-  } else if (param.type.kind === "Union") {
+/**
+ * Resolve the content types from a model property by looking at the value.
+ * @property property Model property
+ * @returns List of contnet types and any diagnostics if there was an issue.
+ */
+export function getContentTypes(property: ModelTypeProperty): [string[], readonly Diagnostic[]] {
+  const diagCollector = createDiagnosticCollector();
+  if (property.type.kind === "String") {
+    return [[property.type.value], []];
+  } else if (property.type.kind === "Union") {
     const contentTypes = [];
-    for (const option of param.type.options) {
+    for (const option of property.type.options) {
       if (option.kind === "String") {
         contentTypes.push(option.value);
       } else {
-        diagnostics.push(
+        diagCollector.add(
           createDiagnostic({
             code: "content-type-string",
-            target: param,
+            target: property,
           })
         );
         continue;
       }
     }
 
-    return contentTypes;
+    return [contentTypes, diagCollector.diagnostics];
   }
 
-  diagnostics.push(createDiagnostic({ code: "content-type-string", target: param }));
-
-  return [];
+  return [[], [createDiagnostic({ code: "content-type-string", target: property })]];
 }
 
 /**
@@ -267,7 +271,7 @@ function getResponseHeaders(
 
 function getResponseBody(
   program: Program,
-  diagnostics: Diagnostic[],
+  diagCollector: DiagnosticCollector,
   responseModel: Type
 ): Type | undefined {
   if (responseModel.kind === "Model") {
@@ -282,7 +286,7 @@ function getResponseBody(
     if (bodyProps.length > 0) {
       // Report all but first body as duplicate
       for (const prop of bodyProps.slice(1)) {
-        diagnostics.push(createDiagnostic({ code: "duplicate-body", target: prop }));
+        diagCollector.add(createDiagnostic({ code: "duplicate-body", target: prop }));
       }
       return bodyProps[0].type;
     }

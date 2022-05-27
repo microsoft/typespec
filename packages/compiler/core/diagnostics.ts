@@ -373,3 +373,40 @@ export function reportDeprecated(
     target,
   });
 }
+
+/**
+ * Helper object to collect diagnostics from function following the diagnostics accessor pattern(foo() => [T, Diagnostic[]])
+ */
+export interface DiagnosticCollector {
+  readonly diagnostics: readonly Diagnostic[];
+  add(diagnostic: Diagnostic): void;
+  pipe<T>(result: DiagnosticResult<T>): T;
+}
+
+export function createDiagnosticCollector(): DiagnosticCollector {
+  const diagnostics: Diagnostic[] = [];
+
+  return {
+    diagnostics,
+    add,
+    pipe,
+  };
+
+  function add(diagnostic: Diagnostic) {
+    diagnostics.push(diagnostic);
+  }
+
+  function pipe<T>(result: [T, Diagnostic[]]): T {
+    const [value, diags] = result;
+    for (const diag of diags) {
+      diagnostics.push(diag);
+    }
+    return value;
+  }
+}
+
+export type DiagnosticResult<T> = [T, readonly Diagnostic[]];
+
+export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
+  return result[0];
+}
