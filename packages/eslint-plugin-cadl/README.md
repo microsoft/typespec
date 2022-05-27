@@ -1,24 +1,22 @@
-# Cadl Library Linter
+# Cadl Eslint Plugin
 
 ## Installation
 
 Install the package as a dev dependency.
 
 ```
-npm install -D @cadl-lang/library-linter
+npm install -D @cadl-lang/eslint-plugin
 ```
 
 ## Usage
 
-Compile your library package. Any errors or warnings will be reported as cadl diagnostics.
+Add the following to your eslint config
 
-```bash
-# At the root of your cadl library.
-cadl compile . --import @cadl-lang/library-linter
+```yaml
+plugins: ["@cadl-lang/eslint-plugin"],
+extends: ["plugin:@cadl-lang/eslint-plugin/recommended"],
 ```
 
-## Cadl Library Best rules and best practices
+## Rules
 
-| Rule name           | Description                                                                                                      |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `missing-namespace` | Validate that every exported element from the library(Models, JS functions, operations, etc.) is in a namespace. |
+- [call-decorator](./docs/rules/call-decorator.md)
