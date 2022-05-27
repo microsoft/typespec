@@ -43,7 +43,7 @@
     "lint-cadl-library": "cadl compile . --import @cadl-lang/library-linter",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only",
-    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint": "eslint src/decorators.ts --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "files": [

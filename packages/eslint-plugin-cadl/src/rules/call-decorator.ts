@@ -1,3 +1,5 @@
+import { ESLintUtils, TSESTree } from "@typescript-eslint/utils";
+import * as ts from "typescript";
 import { createRule } from "../utils.js";
 
 const messages = {
@@ -6,14 +8,25 @@ const messages = {
 
 export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   create(context) {
+    const parserServices = ESLintUtils.getParserServices(context);
+    const checker = parserServices.program.getTypeChecker();
     return {
-      FunctionDeclaration(node) {
-        if (node.id != null) {
-          if (/^[a-z]/.test(node.id.name)) {
-            context.report({
-              messageId: "default",
-              node: node.id,
-            });
+      CallExpression(node) {
+        if (node.callee.type === TSESTree.AST_NODE_TYPES.Identifier) {
+          if (node.callee.name.startsWith("$")) {
+            const tsNode = parserServices.esTreeNodeToTSNodeMap.get(node);
+
+            const signature = checker.getResolvedSignature(tsNode);
+            if (signature === undefined) {
+              return;
+            }
+
+            if (isCadlFunctionSignature(checker, signature, tsNode)) {
+              context.report({
+                messageId: "default",
+                node,
+              });
+            }
           }
         }
       },
@@ -32,3 +45,22 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   },
   defaultOptions: [],
 });
+
+function isCadlFunctionSignature(
+  checker: ts.TypeChecker,
+  signature: ts.Signature,
+  tsNode: ts.Node
+): boolean {
+  if (signature.parameters.length < 2) {
+    return false;
+  }
+  const contextParameter = signature.parameters[0];
+  const contextParamType = checker.getTypeOfSymbolAtLocation(contextParameter, tsNode);
+  if (
+    contextParamType.flags & ts.TypeFlags.StructuredType &&
+    contextParamType.symbol.name === "DecoratorContext"
+  ) {
+    return true;
+  }
+  return false;
+}
