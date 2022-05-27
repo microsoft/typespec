@@ -1,4 +1,5 @@
 import {
+  createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
   getDoc,
@@ -12,7 +13,6 @@ import {
   Program,
   Type,
 } from "@cadl-lang/compiler";
-import { createDiagnosticCollector } from "@cadl-lang/compiler/core";
 import { createDiagnostic } from "./diagnostics.js";
 import {
   getHeaderFieldName,
