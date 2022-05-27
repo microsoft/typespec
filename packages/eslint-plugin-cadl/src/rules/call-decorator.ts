@@ -1,10 +1,10 @@
 import { ESLintUtils, TSESLint, TSESTree } from "@typescript-eslint/utils";
-import * as ts from "typescript";
+import ts from "typescript";
 import { createRule } from "../utils.js";
 
 const messages = {
-  default: "Use context.call to call a decorator function.",
-  suggestReplaceWithContextCall: "Replace with context.calll",
+  default: "Use context.call to call a Cadl decorator function.",
+  suggestReplaceWithContextCall: "Replace with context.call",
 };
 
 export const callDecoratorRule = createRule<never[], keyof typeof messages>({
