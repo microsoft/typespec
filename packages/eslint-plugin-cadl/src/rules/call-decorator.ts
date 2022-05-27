@@ -1,9 +1,10 @@
-import { ESLintUtils, TSESTree } from "@typescript-eslint/utils";
+import { ESLintUtils, TSESLint, TSESTree } from "@typescript-eslint/utils";
 import * as ts from "typescript";
 import { createRule } from "../utils.js";
 
 const messages = {
   default: "Use context.call to call a decorator function.",
+  suggestReplaceWithContextCall: "Replace with context.calll",
 };
 
 export const callDecoratorRule = createRule<never[], keyof typeof messages>({
@@ -13,7 +14,8 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
     return {
       CallExpression(node) {
         if (node.callee.type === TSESTree.AST_NODE_TYPES.Identifier) {
-          if (node.callee.name.startsWith("$")) {
+          const functionName = node.callee.name;
+          if (functionName.startsWith("$")) {
             const tsNode = parserServices.esTreeNodeToTSNodeMap.get(node);
 
             const signature = checker.getResolvedSignature(tsNode);
@@ -25,6 +27,17 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
               context.report({
                 messageId: "default",
                 node,
+                suggest: [
+                  {
+                    messageId: "suggestReplaceWithContextCall",
+                    fix: (fixer): TSESLint.RuleFix[] => {
+                      return [
+                        fixer.replaceText(node.callee, `context.call`),
+                        fixer.replaceText(node.arguments[0], functionName),
+                      ];
+                    },
+                  },
+                ],
               });
             }
           }
@@ -38,8 +51,8 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
       description: "Calling a Cadl decorator from JS/TS code should be done with context.call",
       recommended: "warn",
     },
+    hasSuggestions: true,
     messages,
-
     type: "suggestion",
     schema: [],
   },
