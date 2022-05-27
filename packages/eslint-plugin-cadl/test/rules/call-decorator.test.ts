@@ -47,15 +47,31 @@ interface DecoratorContext {}; interface Type {};
 function $foo(context: DecoratorContext, target: Type) {}
 
 function $bar(context: DecoratorContext, target: Type) {
-  $bar(context, target);
+  $foo(context, target);
 }
     `,
       errors: [
         {
           line: 7,
           messageId: "default",
+          suggestions: [
+            {
+              messageId: "suggestReplaceWithContextCall",
+              output: `
+interface DecoratorContext {}; interface Type {};
+
+function $foo(context: DecoratorContext, target: Type) {}
+
+function $bar(context: DecoratorContext, target: Type) {
+  context.call($foo, target);
+}
+    `,
+            },
+          ],
         },
       ],
     },
   ],
 });
+
+ruleTester.run;
