@@ -41,6 +41,7 @@ export interface TemplatedType {
   templateArguments?: Type[];
   templateNode?: Node;
 }
+
 export type Type =
   | ModelType
   | ModelTypeProperty
@@ -121,7 +122,13 @@ export interface ReturnRecord {
 }
 
 export type IntrinsicModelName =
+  | "any"
+  | "object"
+  | "Record"
   | "bytes"
+  | "numeric"
+  | "integer"
+  | "real"
   | "int64"
   | "int32"
   | "int16"
@@ -240,10 +247,17 @@ export interface StringLiteralType extends BaseType {
   value: string;
 }
 
+export enum NumericLiteralFlags {
+  Integer = 1 << 0,
+  Real = 1 << 1,
+
+  Numeric = Integer | Real,
+}
 export interface NumericLiteralType extends BaseType {
   kind: "Number";
   node?: NumericLiteralNode;
   value: number;
+  numericFlags: NumericLiteralFlags;
 }
 
 export interface BooleanLiteralType extends BaseType {

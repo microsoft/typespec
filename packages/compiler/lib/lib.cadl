@@ -1,7 +1,30 @@
 namespace Cadl;
 
+@intrinsic("any")
+model any {}
+
+@intrinsic("object")
+model object {}
+
+@intrinsic("Record")
+model Record<T> {
+  t: T;
+}
+
 @intrinsic("bytes")
 model bytes {}
+
+@numeric
+@intrinsic("numeric")
+model numeric {}
+
+@numeric
+@intrinsic("integer")
+model integer {}
+
+@numeric
+@intrinsic("real")
+model real {}
 
 @numeric
 @intrinsic("int64")

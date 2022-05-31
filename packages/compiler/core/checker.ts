@@ -5,10 +5,14 @@ import {
   DecoratorContext,
   DiagnosticTarget,
   Expression,
+  getIntrinsicModelName,
   IdentifierKind,
   isIntrinsic,
+  isNeverType,
+  isVoidType,
   JsSourceFileNode,
   NeverType,
+  NumericLiteralFlags,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
@@ -144,6 +148,7 @@ export interface Checker {
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
+  isTypeRelatedTo(source: Type, target: Type): boolean;
   errorType: ErrorType;
   voidType: VoidType;
   neverType: NeverType;
@@ -302,6 +307,7 @@ export function createChecker(program: Program): Checker {
     createFunctionType,
     createLiteralType,
     finishType,
+    isTypeRelatedTo,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -3019,15 +3025,29 @@ export function createChecker(program: Program): Checker {
     if (program.literalTypes.has(value)) {
       return program.literalTypes.get(value)!;
     }
-    const kind =
-      typeof value === "string" ? "String" : typeof value === "number" ? "Number" : "Boolean";
-    const type: StringLiteralType | NumericLiteralType | BooleanLiteralType = createType({
-      kind,
-      value: value as any,
-    });
+    let type: StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
+    switch (typeof value) {
+      case "string":
+        type = createType({ kind: "String", value });
+        break;
+      case "boolean":
+        type = createType({ kind: "Boolean", value });
+        break;
+      case "number":
+        type = createType({
+          kind: "Number",
+          value,
+          numericFlags: getNumericFlags(value, node as NumericLiteralNode),
+        });
+        break;
+    }
     program.literalTypes.set(value, type);
     return type;
+  }
+
+  function getNumericFlags(value: number, node?: NumericLiteralNode) {
+    return Number.isInteger(value) ? NumericLiteralFlags.Integer : NumericLiteralFlags.Real;
   }
 
   function evalProjectionDecoratorReference(
@@ -3169,6 +3189,81 @@ export function createChecker(program: Program): Checker {
 
     return parts.reverse().join(".");
   }
+
+  /**
+   * Check if the source type can be assigned to the target type.
+   * @param source Source type
+   * @param target Target type
+   */
+  function isTypeRelatedTo(source: Type, target: Type): boolean {
+    if (isVoidType(target) || isNeverType(target)) return false;
+    const sIntrinsicName = getIntrinsicModelName(program, source);
+    const tIntrinsicName = getIntrinsicModelName(program, target);
+    if (tIntrinsicName) {
+      switch (tIntrinsicName) {
+        case "any":
+          return true;
+        case "string":
+          return sIntrinsicName === "string" || source.kind === "String";
+        case "boolean":
+          return sIntrinsicName === "boolean" || source.kind === "Boolean";
+        case "int64":
+        case "int32":
+        case "int16":
+        case "int8":
+        case "uint64":
+        case "uint32":
+        case "uint16":
+        case "uint8":
+        case "safeint":
+        case "float32":
+        case "float64":
+        case "numeric":
+        case "integer":
+        case "real":
+          return (
+            sIntrinsicName === tIntrinsicName ||
+            (source.kind === "Number" && isNumericLiteralRelatedTo(source, tIntrinsicName))
+          );
+      }
+    }
+
+    if (target.kind === "String") {
+      return source.kind === "String" && target.value === source.value;
+    }
+    if (target.kind === "Number") {
+      return source.kind === "Number" && target.value === source.value;
+    }
+    return false;
+  }
+
+  function isNumericLiteralRelatedTo(
+    source: NumericLiteralType,
+    targetInstrinsicType:
+      | "int64"
+      | "int32"
+      | "int16"
+      | "int8"
+      | "uint64"
+      | "uint32"
+      | "uint16"
+      | "uint8"
+      | "safeint"
+      | "float32"
+      | "float64"
+      | "numeric"
+      | "integer"
+      | "real"
+  ) {
+    if (targetInstrinsicType === "numeric") return true;
+    if (targetInstrinsicType === "integer")
+      return Boolean(source.numericFlags & NumericLiteralFlags.Integer);
+    if (targetInstrinsicType === "real")
+      return Boolean(source.numericFlags & NumericLiteralFlags.Numeric);
+
+    const [low, high, flags] = numericRanges[targetInstrinsicType];
+    return source.value >= low && source.value <= high && Boolean(source.numericFlags & flags);
+  }
 }
 
 function isErrorType(type: Type): type is ErrorType {
@@ -3178,3 +3273,21 @@ function isErrorType(type: Type): type is ErrorType {
 function createUsingSymbol(symbolSource: Sym): Sym {
   return { flags: SymbolFlags.Using, declarations: [], name: symbolSource.name, symbolSource };
 }
+
+const numericRanges = {
+  int64: [
+    BigInt("-9223372036854775807"),
+    BigInt("9223372036854775808"),
+    NumericLiteralFlags.Integer,
+  ],
+  int32: [-2147483648, 2147483647, NumericLiteralFlags.Integer],
+  int16: [-32768, 32767, NumericLiteralFlags.Integer],
+  int8: [-128, 127, NumericLiteralFlags.Integer],
+  uint64: [0, BigInt("18446744073709551615"), NumericLiteralFlags.Integer],
+  uint32: [0, 4294967295, NumericLiteralFlags.Integer],
+  uint16: [0, 65535, NumericLiteralFlags.Integer],
+  uint8: [0, 255, NumericLiteralFlags.Integer],
+  safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, NumericLiteralFlags.Integer],
+  float32: [-3.4e38, 3.4e38, NumericLiteralFlags.Numeric],
+  float64: [Number.MIN_VALUE, Number.MAX_VALUE, NumericLiteralFlags.Numeric],
+} as const;
