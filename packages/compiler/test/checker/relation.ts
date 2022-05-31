@@ -177,22 +177,21 @@ describe.only("compiler: checker: intrinsic", () => {
   });
 
   describe("integer target", () => {
-    it("can assign integer", async () => {
-      await expectTypeRelated("integer", "integer");
-    });
-
-    it("can assign int8", async () => {
-      await expectTypeRelated("int8", "integer");
-    });
-    it("can assign int16", async () => {
-      await expectTypeRelated("int16", "integer");
-    });
-    it("can assign int32", async () => {
-      await expectTypeRelated("int32", "integer");
-    });
-
-    it("can assign int64", async () => {
-      await expectTypeRelated("int64", "integer");
+    [
+      "integer",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "safeint",
+      "uint8",
+      "uint16",
+      "uint32",
+      "uint64",
+    ].forEach((x) => {
+      it(`can assign ${x}`, async () => {
+        await expectTypeRelated(x, "integer");
+      });
     });
 
     it("can assign numeric literal between -2147483648 and 2147483647", async () => {
@@ -202,9 +201,68 @@ describe.only("compiler: checker: intrinsic", () => {
     });
 
     it("emit diagnostic assigning decimal", async () => {
-      await expectTypeNotRelated(`125125125.49`, "int32", {
+      await expectTypeNotRelated(`125125125.49`, "integer", {
         code: "unassignable",
-        message: "Type '125125125.49' is not assignable to type 'Cadl.int32'",
+        message: "Type '125125125.49' is not assignable to type 'Cadl.integer'",
+      });
+    });
+  });
+
+  describe("real target", () => {
+    ["real", "float32", "float64"].forEach((x) => {
+      it(`can assign ${x}`, async () => {
+        await expectTypeRelated(x, "real");
+      });
+    });
+
+    it("can assign decimal literal", async () => {
+      await expectTypeRelated("12.43", "real");
+      await expectTypeRelated("34000.43", "real");
+      await expectTypeRelated("-2147483448.43", "real");
+    });
+
+    it("emit diagnostic assigning other type", async () => {
+      await expectTypeNotRelated(`boolean`, "real", {
+        code: "unassignable",
+        message: "Type 'Cadl.boolean' is not assignable to type 'Cadl.real'",
+      });
+    });
+  });
+
+  describe("numeric target", () => {
+    [
+      "integer",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "safeint",
+      "uint8",
+      "uint16",
+      "uint32",
+      "uint64",
+      "real",
+      "float32",
+      "float64",
+    ].forEach((x) => {
+      it(`can assign ${x}`, async () => {
+        await expectTypeRelated(x, "numeric");
+      });
+    });
+
+    it("can assign numeric literal between -2147483648 and 2147483647", async () => {
+      await expectTypeRelated("123", "numeric");
+      await expectTypeRelated("123.43", "numeric");
+      await expectTypeRelated("34000", "numeric");
+      await expectTypeRelated("34000.43", "numeric");
+      await expectTypeRelated("-2147483448", "numeric");
+      await expectTypeRelated("-2147483448.43", "numeric");
+    });
+
+    it("emit diagnostic assigning other type", async () => {
+      await expectTypeNotRelated(`string`, "numeric", {
+        code: "unassignable",
+        message: "Type 'Cadl.string' is not assignable to type 'Cadl.numeric'",
       });
     });
   });
