@@ -8,6 +8,7 @@ import {
   Expression,
   getIntrinsicModelName,
   IdentifierKind,
+  IntrinsicModelName,
   isIntrinsic,
   isNeverType,
   isVoidType,
@@ -3229,33 +3230,23 @@ export function createChecker(program: Program): Checker {
     if (isVoidType(target) || isNeverType(target)) return false;
     const sIntrinsicName = getIntrinsicModelName(program, source);
     const tIntrinsicName = getIntrinsicModelName(program, target);
+    if (tIntrinsicName === "any") return true;
     if (tIntrinsicName) {
-      switch (tIntrinsicName) {
-        case "any":
-          return true;
-        case "string":
-          return sIntrinsicName === "string" || source.kind === "String";
-        case "boolean":
-          return sIntrinsicName === "boolean" || source.kind === "Boolean";
-        case "int64":
-        case "int32":
-        case "int16":
-        case "int8":
-        case "uint64":
-        case "uint32":
-        case "uint16":
-        case "uint8":
-        case "safeint":
-        case "float32":
-        case "float64":
-        case "numeric":
-        case "integer":
-        case "real":
+      switch (source.kind) {
+        case "Number":
           return (
-            sIntrinsicName === tIntrinsicName ||
-            (source.kind === "Number" && isNumericLiteralRelatedTo(source, tIntrinsicName))
+            IntrinsicTypeRelations.isRelated(tIntrinsicName, "numeric") &&
+            isNumericLiteralRelatedTo(source, tIntrinsicName as any)
           );
+        case "String":
+          return IntrinsicTypeRelations.isRelated("string", tIntrinsicName);
+        case "Boolean":
+          return IntrinsicTypeRelations.isRelated("boolean", tIntrinsicName);
       }
+      if (!sIntrinsicName) {
+        return false;
+      }
+      return IntrinsicTypeRelations.isRelated(sIntrinsicName, tIntrinsicName);
     }
 
     if (target.kind === "String") {
@@ -3321,3 +3312,57 @@ const numericRanges = {
   float32: [-3.4e38, 3.4e38, NumericLiteralFlags.Numeric],
   float64: [Number.MIN_VALUE, Number.MAX_VALUE, NumericLiteralFlags.Numeric],
 } as const;
+
+class IntrinsicTypeRelationTree<
+  T extends Record<IntrinsicModelName, IntrinsicModelName | IntrinsicModelName[] | undefined>
+> {
+  private map = new Map<IntrinsicModelName, Set<IntrinsicModelName>>();
+  public constructor(data: T) {
+    for (const [key, value] of Object.entries(data)) {
+      if (value === undefined) {
+        continue;
+      }
+
+      const parents = Array.isArray(value) ? value : [value];
+      const set = new Set<IntrinsicModelName>([
+        key as IntrinsicModelName,
+        ...parents,
+        ...parents.flatMap((parent) => [...(this.map.get(parent) ?? [])]),
+      ]);
+      this.map.set(key as IntrinsicModelName, set);
+    }
+  }
+
+  public isRelated(source: IntrinsicModelName, target: IntrinsicModelName) {
+    return this.map.get(source)?.has(target);
+  }
+}
+
+const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
+  any: undefined,
+  object: "any",
+  Record: "object",
+  bytes: "any",
+  numeric: "any",
+  integer: "numeric",
+  real: "numeric",
+  int64: "integer",
+  safeint: "int64",
+  int32: "safeint",
+  int16: "int32",
+  int8: "int16",
+  uint64: "integer",
+  uint32: "uint64",
+  uint16: "uint32",
+  uint8: "uint16",
+  float64: "real",
+  float32: "float64",
+  string: "any",
+  plainDate: "any",
+  plainTime: "any",
+  zonedDateTime: "any",
+  duration: "any",
+  boolean: "any",
+  null: "any",
+  Map: "any",
+});
