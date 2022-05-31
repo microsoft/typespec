@@ -3,6 +3,7 @@ import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   DecoratorContext,
+  Diagnostic,
   DiagnosticTarget,
   Expression,
   getIntrinsicModelName,
@@ -148,7 +149,7 @@ export interface Checker {
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
-  isTypeRelatedTo(source: Type, target: Type): boolean;
+  isTypeRelatedTo(source: Type, target: Type): [boolean, Diagnostic[]];
   errorType: ErrorType;
   voidType: VoidType;
   neverType: NeverType;
@@ -3195,7 +3196,36 @@ export function createChecker(program: Program): Checker {
    * @param source Source type
    * @param target Target type
    */
-  function isTypeRelatedTo(source: Type, target: Type): boolean {
+  function isTypeRelatedTo(source: Type, target: Type): [boolean, Diagnostic[]] {
+    const isSimpleTypeRelated = isSimpleTypeRelatedTo(source, target);
+
+    if (isSimpleTypeRelated === true) {
+      return [true, []];
+    } else if (isSimpleTypeRelated === false) {
+      return [
+        false,
+        [
+          createDiagnostic({
+            code: "unassignable",
+            format: { targetType: getTypeName(target), value: getTypeName(source) },
+            target,
+          }),
+        ],
+      ];
+    }
+
+    return [
+      false,
+      [
+        createDiagnostic({
+          code: "unassignable",
+          format: { targetType: getTypeName(target), value: getTypeName(source) },
+          target,
+        }),
+      ],
+    ];
+  }
+  function isSimpleTypeRelatedTo(source: Type, target: Type): boolean | undefined {
     if (isVoidType(target) || isNeverType(target)) return false;
     const sIntrinsicName = getIntrinsicModelName(program, source);
     const tIntrinsicName = getIntrinsicModelName(program, target);

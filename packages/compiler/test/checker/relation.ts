@@ -1,6 +1,13 @@
 import { ok } from "assert";
 import { ModelType } from "../../core/index.js";
-import { BasicTestRunner, createTestHost, createTestWrapper } from "../../testing/index.js";
+import {
+  BasicTestRunner,
+  createTestHost,
+  createTestWrapper,
+  DiagnosticMatch,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../../testing/index.js";
 
 describe.only("compiler: checker: intrinsic", () => {
   let runner: BasicTestRunner;
@@ -20,12 +27,19 @@ describe.only("compiler: checker: intrinsic", () => {
   }
 
   async function expectTypeRelated(source: string, target: string) {
-    const related = await checkTypeRelated(source, target);
+    const [related, diagnostics] = await checkTypeRelated(source, target);
+    expectDiagnosticEmpty(diagnostics);
     ok(related, `Type ${source} should be assignable to ${target}`);
   }
-  async function expectTypeNotRelated(source: string, target: string) {
-    const related = await checkTypeRelated(source, target);
+
+  async function expectTypeNotRelated(
+    source: string,
+    target: string,
+    match: DiagnosticMatch | DiagnosticMatch[]
+  ) {
+    const [related, diagnostics] = await checkTypeRelated(source, target);
     ok(!related, `Type ${source} should NOT be assignable to ${target}`);
+    expectDiagnostics(diagnostics, match);
   }
 
   describe("string target", () => {
@@ -38,7 +52,10 @@ describe.only("compiler: checker: intrinsic", () => {
     });
 
     it("can assign string literal", async () => {
-      await expectTypeNotRelated("123", "string");
+      await expectTypeNotRelated("123", "string", {
+        code: "unassignable",
+        message: "Type '123' is not assignable to type 'Cadl.string'",
+      });
     });
   });
 
@@ -48,11 +65,17 @@ describe.only("compiler: checker: intrinsic", () => {
     });
 
     it("emit diagnostic when passing other literal", async () => {
-      await expectTypeNotRelated(`"bar"`, `"foo"`);
+      await expectTypeNotRelated(`"bar"`, `"foo"`, {
+        code: "unassignable",
+        message: "Type 'bar' is not assignable to type 'foo'",
+      });
     });
 
     it("emit diagnostic when passing string type", async () => {
-      await expectTypeNotRelated(`string`, `"foo"`);
+      await expectTypeNotRelated(`string`, `"foo"`, {
+        code: "unassignable",
+        message: "Type 'Cadl.string' is not assignable to type 'foo'",
+      });
     });
   });
 
@@ -66,7 +89,123 @@ describe.only("compiler: checker: intrinsic", () => {
     });
 
     it("emit diagnostic when numeric literal is out of range large", async () => {
-      await expectTypeNotRelated(`129`, "int8");
+      await expectTypeNotRelated(`129`, "int8", {
+        code: "unassignable",
+        message: "Type '129' is not assignable to type 'Cadl.int8'",
+      });
+    });
+    it("emit diagnostic assigning decimal", async () => {
+      await expectTypeNotRelated(`21.49`, "int8", {
+        code: "unassignable",
+        message: "Type '21.49' is not assignable to type 'Cadl.int8'",
+      });
+    });
+  });
+
+  describe("int16 target", () => {
+    it("can assign int8", async () => {
+      await expectTypeRelated("int16", "int16");
+    });
+
+    it("can assign numeric literal between -32768 and 32767", async () => {
+      await expectTypeRelated("-31489", "int16");
+    });
+
+    it("emit diagnostic when numeric literal is out of range large", async () => {
+      await expectTypeNotRelated(`34000`, "int16", {
+        code: "unassignable",
+        message: "Type '34000' is not assignable to type 'Cadl.int16'",
+      });
+    });
+
+    it("emit diagnostic assigning decimal", async () => {
+      await expectTypeNotRelated(`31489.49`, "int16", {
+        code: "unassignable",
+        message: "Type '31489.49' is not assignable to type 'Cadl.int16'",
+      });
+    });
+  });
+
+  describe("int32 target", () => {
+    it("can assign int32", async () => {
+      await expectTypeRelated("int32", "int32");
+    });
+
+    it("can assign numeric literal between -2147483648 and 2147483647", async () => {
+      await expectTypeRelated("-2147483448", "int32");
+    });
+
+    it("emit diagnostic when numeric literal is out of range large", async () => {
+      await expectTypeNotRelated(`3000000000`, "int32", {
+        code: "unassignable",
+        message: "Type '3000000000' is not assignable to type 'Cadl.int32'",
+      });
+    });
+
+    it("emit diagnostic assigning decimal", async () => {
+      await expectTypeNotRelated(`125125125.49`, "int32", {
+        code: "unassignable",
+        message: "Type '125125125.49' is not assignable to type 'Cadl.int32'",
+      });
+    });
+  });
+
+  // Need to handle bigint in cadl.
+  describe.skip("int64 target", () => {
+    it("can assign int64", async () => {
+      await expectTypeRelated("int64", "int64");
+    });
+
+    it("can assign numeric literal between -9223372036854775807 and 9223372036854775808", async () => {
+      await expectTypeRelated("-9223372036854775807", "int64");
+      await expectTypeRelated("9223372036854775808", "int64");
+    });
+
+    it("emit diagnostic when numeric literal is out of range large", async () => {
+      await expectTypeNotRelated(`109223372036854775808`, "int64", {
+        code: "unassignable",
+        message: "Type '109223372036854775808' is not assignable to type 'Cadl.int64'",
+      });
+    });
+
+    it("emit diagnostic assigning decimal", async () => {
+      await expectTypeNotRelated(`9223372036875808.49`, "int64", {
+        code: "unassignable",
+        message: "Type '9223372036875808.49' is not assignable to type 'Cadl.int64'",
+      });
+    });
+  });
+
+  describe("integer target", () => {
+    it("can assign integer", async () => {
+      await expectTypeRelated("integer", "integer");
+    });
+
+    it("can assign int8", async () => {
+      await expectTypeRelated("int8", "integer");
+    });
+    it("can assign int16", async () => {
+      await expectTypeRelated("int16", "integer");
+    });
+    it("can assign int32", async () => {
+      await expectTypeRelated("int32", "integer");
+    });
+
+    it("can assign int64", async () => {
+      await expectTypeRelated("int64", "integer");
+    });
+
+    it("can assign numeric literal between -2147483648 and 2147483647", async () => {
+      await expectTypeRelated("123", "integer");
+      await expectTypeRelated("34000", "integer");
+      await expectTypeRelated("-2147483448", "integer");
+    });
+
+    it("emit diagnostic assigning decimal", async () => {
+      await expectTypeNotRelated(`125125125.49`, "int32", {
+        code: "unassignable",
+        message: "Type '125125125.49' is not assignable to type 'Cadl.int32'",
+      });
     });
   });
 });
