@@ -3222,6 +3222,8 @@ export function createChecker(program: Program): Checker {
       const recordType = (target as ModelType).properties.get("t")!.type;
       compilerAssert(recordType, "Record should have a t property with the type");
       return isIndexConstraintValid(recordType, source);
+    } else if (target.kind === "Model" && source.kind === "Model") {
+      return isModelRelatedTo(source, target);
     }
 
     return [
@@ -3306,6 +3308,39 @@ export function createChecker(program: Program): Checker {
 
     const [low, high, flags] = numericRanges[targetInstrinsicType];
     return source.value >= low && source.value <= high && Boolean(source.numericFlags & flags);
+  }
+
+  function isModelRelatedTo(source: ModelType, target: ModelType): [boolean, Diagnostic[]] {
+    const diagnostics: Diagnostic[] = [];
+    for (const prop of walkPropertiesInherited(target)) {
+      const sourceProperty = getProperty(source, prop.name);
+      if (sourceProperty === undefined) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "missing-property",
+            format: {
+              propertyName: prop.name,
+              sourceType: getTypeName(source),
+              targetType: getTypeName(target),
+            },
+            target: source,
+          })
+        );
+      } else {
+        const [related, propDiagnostics] = isTypeRelatedTo(sourceProperty.type, prop.type);
+        if (!related) {
+          diagnostics.push(...propDiagnostics);
+        }
+      }
+    }
+    return [diagnostics.length === 0, diagnostics];
+  }
+
+  function getProperty(model: ModelType, name: string): ModelTypeProperty | undefined {
+    return (
+      model.properties.get(name) ??
+      (model.baseModel !== undefined ? getProperty(model.baseModel, name) : undefined)
+    );
   }
 
   /**

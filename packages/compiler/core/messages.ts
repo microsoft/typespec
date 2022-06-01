@@ -311,6 +311,12 @@ const diagnostics = {
       default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
     },
   },
+  "missing-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propertyName"}' is missing on type '${"sourceType"}' but required in '${"targetType"}'`,
+    },
+  },
   "extends-interface": {
     severity: "error",
     messages: {

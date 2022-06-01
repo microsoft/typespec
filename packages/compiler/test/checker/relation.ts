@@ -429,4 +429,40 @@ describe.only("compiler: checker: intrinsic", () => {
       );
     });
   });
+
+  describe("models", () => {
+    it("can assign empty object", async () => {
+      await expectTypeRelated({ source: "{}", target: "{}" });
+    });
+    it("can assign object with the same property", async () => {
+      await expectTypeRelated({ source: "{name: string}", target: "{name: string}" });
+    });
+
+    it("can assign object with the same properties", async () => {
+      await expectTypeRelated({
+        source: "{name: string, age: int32}",
+        target: "{name: string, age: int32}",
+      });
+    });
+
+    it("can assign object with extra properties", async () => {
+      await expectTypeRelated({
+        source: "{name: string, age: int32}",
+        target: "{name: string}",
+      });
+    });
+
+    it("can assign object with properties defined via inheritance", async () => {
+      await expectTypeRelated({
+        source: "Cat",
+        target: "Aging",
+        commonCode: `
+          model Pet { name: string; age: int32 }
+          model Cat extends Pet { moew: boolean }
+
+          model Aging { age: int32 }
+        `,
+      });
+    });
+  });
 });
