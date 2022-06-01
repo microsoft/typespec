@@ -465,4 +465,23 @@ describe.only("compiler: checker: intrinsic", () => {
       });
     });
   });
+  describe("Array target", () => {
+    it("can assign the same array type", async () => {
+      await expectTypeRelated({ source: "string[]", target: "string[]" });
+    });
+
+    it("can assign a record of subtypes", async () => {
+      await expectTypeRelated({ source: "int32[]", target: "numeric[]" });
+    });
+
+    it("emit diagnostic assigning other type", async () => {
+      await expectTypeNotRelated(
+        { source: `string`, target: "string[]" },
+        {
+          code: "unassignable",
+          message: "Type 'Cadl.string' is not assignable to type 'Cadl.string[]'",
+        }
+      );
+    });
+  });
 });

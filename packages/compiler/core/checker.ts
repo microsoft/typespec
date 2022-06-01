@@ -3224,6 +3224,8 @@ export function createChecker(program: Program): Checker {
       return isIndexConstraintValid(recordType, source);
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target);
+    } else if (target.kind === "Array" && source.kind === "Array") {
+      return isTypeRelatedTo(source.elementType, target.elementType);
     }
 
     return [
