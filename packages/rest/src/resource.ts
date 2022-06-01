@@ -109,7 +109,7 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
         args: [{ node: target.node, value: resourceType }],
       }
     );
-    $path(context, newProp, undefined as any);
+    context.call($path, newProp, undefined as any);
 
     target.properties.set(keyName, newProp);
   }

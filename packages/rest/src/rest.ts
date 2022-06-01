@@ -94,13 +94,13 @@ export function $segmentOf(context: DecoratorContext, entity: Type, resourceType
   if (resourceKey) {
     const keySegment = getSegment(context.program, resourceKey.keyProperty);
     if (keySegment) {
-      $segment(context, entity, keySegment);
+      context.call($segment, entity, keySegment);
     }
   } else {
     // Does the model itself have a segment attached?
     const modelSegment = getSegment(context.program, resourceType);
     if (modelSegment) {
-      $segment(context, entity, modelSegment);
+      context.call($segment, entity, modelSegment);
     }
   }
 }
@@ -161,7 +161,7 @@ export function $readsResource(context: DecoratorContext, entity: Type, resource
 
 export function $createsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
   // Add path segment for resource type key
-  $segmentOf(context, entity, resourceType);
+  context.call($segmentOf, entity, resourceType);
 
   setResourceOperation(context.program, entity, resourceType, "create");
 }
@@ -184,10 +184,10 @@ export function $deletesResource(context: DecoratorContext, entity: Type, resour
 
 export function $listsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
   // Add the @list decorator too so that collection routes are generated correctly
-  $list(context, entity, resourceType);
+  context.call($list, entity, resourceType);
 
   // Add path segment for resource type key
-  $segmentOf(context, entity, resourceType);
+  context.call($segmentOf, entity, resourceType);
 
   setResourceOperation(context.program, entity, resourceType, "list");
 }
@@ -204,7 +204,7 @@ export function $action(context: DecoratorContext, entity: Type, name?: string) 
 
   // Generate the action name and add it as an operation path segment
   const action = lowerCaseFirstChar(name || entity.name);
-  $segment(context, entity, action);
+  context.call($segment, entity, action);
 
   context.program.stateMap(actionsKey).set(entity, action);
 }
