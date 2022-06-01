@@ -137,9 +137,7 @@ describe("compiler: effective type", () => {
 
     const propType = Test.properties.get("test")?.type;
     ok(propType?.kind === "Model", "expected model");
-
-    const filtered = testHost.program.checker.filterModelProperties(propType, removeFilter);
-    const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    const effective = testHost.program.checker.getEffectiveModelType(propType, removeFilter);
     strictEqual(effective, Source);
   });
 
@@ -164,8 +162,7 @@ describe("compiler: effective type", () => {
     const propType = Derived.properties.get("test")?.type;
     ok(propType?.kind === "Model", "expected model");
 
-    const filtered = testHost.program.checker.filterModelProperties(Derived, removeFilter);
-    const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    const effective = testHost.program.checker.getEffectiveModelType(Derived, removeFilter);
     strictEqual(effective, Base);
   });
 
@@ -194,8 +191,7 @@ describe("compiler: effective type", () => {
     const propType = Test.properties.get("test")?.type;
     ok(propType?.kind === "Model", "expected model");
 
-    const filtered = testHost.program.checker.filterModelProperties(propType, removeFilter);
-    const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    const effective = testHost.program.checker.getEffectiveModelType(propType, removeFilter);
     strictEqual(effective, Derived);
   });
 
@@ -229,8 +225,7 @@ describe("compiler: effective type", () => {
     // depend on this order.
     propType.properties = new Map(Array.from(propType.properties).reverse());
 
-    const filtered = testHost.program.checker.filterModelProperties(propType, removeFilter);
-    const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    const effective = testHost.program.checker.getEffectiveModelType(propType, removeFilter);
     strictEqual(effective, Derived);
   });
 
@@ -260,8 +255,7 @@ describe("compiler: effective type", () => {
     const propType = Test.properties.get("test")?.type;
     ok(propType?.kind === "Model", "expected model");
 
-    const filtered = testHost.program.checker.filterModelProperties(propType, removeFilter);
-    const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    const effective = testHost.program.checker.getEffectiveModelType(propType, removeFilter);
     strictEqual(effective, Thing);
   });
 
@@ -329,14 +323,14 @@ describe("compiler: effective type", () => {
     const { Test } = await testHost.compile("./");
     ok(Test.kind === "Model", "expected model");
 
-    const propType = Test.properties.get("test")?.type;
-    ok(propType?.kind === "Model", "expected model");
+    const SourceOneAndSourceTwo = Test.properties.get("test")?.type;
+    ok(SourceOneAndSourceTwo?.kind === "Model", "expected model");
 
-    const effective = testHost.program.checker.getEffectiveModelType(propType);
-    strictEqual(effective, propType);
+    const effective = testHost.program.checker.getEffectiveModelType(SourceOneAndSourceTwo);
+    strictEqual(effective, SourceOneAndSourceTwo);
   });
 
-  it("only part of source", async () => {
+  it("only part of source with separate filter", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -357,11 +351,39 @@ describe("compiler: effective type", () => {
     const { Test } = await testHost.compile("./");
     ok(Test.kind === "Model", "expected model");
 
-    const propType = Test.properties.get("test")?.type;
-    ok(propType?.kind === "Model", "expected model");
+    const Source = Test.properties.get("test")?.type;
+    ok(Source?.kind === "Model", "expected model");
 
-    const filtered = testHost.program.checker.filterModelProperties(propType, removeFilter);
+    const filtered = testHost.program.checker.filterModelProperties(Source, removeFilter);
     const effective = testHost.program.checker.getEffectiveModelType(filtered);
     strictEqual(effective, filtered);
+  });
+
+  it("only part of source with filter", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./remove.js";
+
+      model Source {
+        propA: string;
+        @remove
+        propB: string;
+      }
+
+      @test model Test {
+        test: Source;
+      }
+      `
+    );
+
+    const { Test } = await testHost.compile("./");
+    ok(Test.kind === "Model", "expected model");
+
+    const Source = Test.properties.get("test")?.type;
+    ok(Source?.kind === "Model", "expected model");
+
+    const effective = testHost.program.checker.getEffectiveModelType(Source, removeFilter);
+    strictEqual(effective, Source);
   });
 });

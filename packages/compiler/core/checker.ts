@@ -143,7 +143,10 @@ export interface Checker {
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
-  getEffectiveModelType(model: ModelType): ModelType;
+  getEffectiveModelType(
+    model: ModelType,
+    filter?: (property: ModelTypeProperty) => boolean
+  ): ModelType;
   filterModelProperties(
     model: ModelType,
     filter: (property: ModelTypeProperty) => boolean
@@ -1748,15 +1751,16 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function countPropertiesInherited(model: ModelType) {
-    let current: ModelType | undefined = model;
+  function countPropertiesInherited(
+    model: ModelType,
+    filter?: (property: ModelTypeProperty) => boolean
+  ) {
     let count = 0;
-
-    while (current) {
-      count += current.properties.size;
-      current = current.baseModel;
+    for (const each of walkPropertiesInherited(model)) {
+      if (!filter || filter(each)) {
+        count++;
+      }
     }
-
     return count;
   }
 
@@ -3195,7 +3199,13 @@ export function createChecker(program: Program): Checker {
     return parts.reverse().join(".");
   }
 
-  function getEffectiveModelType(model: ModelType): ModelType {
+  function getEffectiveModelType(
+    model: ModelType,
+    filter?: (property: ModelTypeProperty) => boolean
+  ): ModelType {
+    if (filter) {
+      model = filterModelProperties(model, filter);
+    }
     while (true) {
       if (model.name) {
         // named model
@@ -3239,7 +3249,7 @@ export function createChecker(program: Program): Checker {
 
       compilerAssert(source, "Should have found a common source to reach here.");
 
-      if (model.properties.size !== countPropertiesInherited(source)) {
+      if (model.properties.size !== countPropertiesInherited(source, filter)) {
         // source has additional properties.
         return model;
       }

@@ -466,8 +466,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
    */
   function getEffectiveSchemaType(type: Type): Type {
     if (type.kind === "Model" && !type.name) {
-      const filtered = program.checker.filterModelProperties(type, isSchemaProperty);
-      const effective = program.checker.getEffectiveModelType(filtered);
+      const effective = program.checker.getEffectiveModelType(type, isSchemaProperty);
       if (effective.name) {
         return effective;
       }
