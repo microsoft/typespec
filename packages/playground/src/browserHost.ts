@@ -66,7 +66,7 @@ export async function createBrowserHost(): Promise<BrowserHost> {
         .map((x) => x.replace(`${path}/`, ""));
     },
 
-    async removeDir(path: string) {
+    async rm(path: string) {
       path = resolveVirtualPath(path);
 
       for (const key of virtualFs.keys()) {
