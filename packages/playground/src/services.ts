@@ -1,7 +1,6 @@
 import {
   CadlLanguageConfiguration,
   createScanner,
-  createServer,
   createSourceFile,
   ServerHost,
   Token,
@@ -10,9 +9,10 @@ import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { BrowserHost } from "./browserHost";
+import { importCadlCompiler } from "./core";
 import "./style.css";
 
-export function attachServices(host: BrowserHost) {
+export async function attachServices(host: BrowserHost) {
   monaco.languages.register({ id: "cadl" });
   monaco.languages.setLanguageConfiguration("cadl", CadlLanguageConfiguration as any);
 
@@ -27,6 +27,7 @@ export function attachServices(host: BrowserHost) {
     log: console.log,
   };
 
+  const { createServer } = await importCadlCompiler();
   const serverLib = createServer(serverHost);
   const lsConfig = serverLib.initialize({
     capabilities: {},
@@ -148,6 +149,7 @@ export function attachServices(host: BrowserHost) {
           range,
           commitCharacters:
             item.commitCharacters ?? lsConfig.capabilities.completionProvider!.allCommitCharacters,
+          tags: item.tags,
         });
       }
 
