@@ -1,4 +1,4 @@
-import { readdir, readFile, realpath, rmdir, stat, writeFile } from "fs/promises";
+import { readdir, readFile, realpath, rm, stat, writeFile } from "fs/promises";
 import mkdirp from "mkdirp";
 import fetch from "node-fetch";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -21,7 +21,7 @@ export const NodeHost: CompilerHost = {
   readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
   readDir: (path: string) => readdir(path),
-  removeDir: (path: string, options: RemoveDirOptions) => rmdir(path, options),
+  removeDir: (path: string, options: RemoveDirOptions) => rm(path, options),
   getExecutionRoot: () => resolvePath(fileURLToPath(import.meta.url), "../../../"),
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {
