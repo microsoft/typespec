@@ -8,7 +8,7 @@ export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
   value: DecoratorArgumentValue;
-  node: Node;
+  node?: Node;
 }
 
 export interface DecoratorApplication {
