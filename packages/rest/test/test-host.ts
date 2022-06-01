@@ -85,6 +85,6 @@ export async function getOperations(
 ): Promise<[OperationDetails[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
   await runner.compileAndDiagnose(code, { noEmit: true });
-  const routes = getAllRoutes(runner.program, routeOptions);
+  const [routes] = getAllRoutes(runner.program, routeOptions);
   return [routes, runner.program.diagnostics];
 }

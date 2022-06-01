@@ -123,6 +123,6 @@ const libDefinition = {
 } as const;
 
 const restLib = createCadlLibrary(libDefinition);
-const reportDiagnostic = restLib.reportDiagnostic;
+const { reportDiagnostic, createDiagnostic } = restLib;
 
-export { restLib, reportDiagnostic };
+export { restLib, reportDiagnostic, createDiagnostic };

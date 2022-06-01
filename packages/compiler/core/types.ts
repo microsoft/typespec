@@ -1084,6 +1084,14 @@ export interface Diagnostic {
   target: DiagnosticTarget | typeof NoTarget;
 }
 
+/**
+ * Return type of accessor functions in CADL.
+ * Tuple composed of:
+ * - 0: Actual result of an accessor function
+ * - 1: List of diagnostics that were emitted while retrieving the data.
+ */
+export type DiagnosticResult<T> = [T, readonly Diagnostic[]];
+
 export interface DirectiveBase {
   node: DirectiveExpressionNode;
 }
@@ -1282,6 +1290,9 @@ export interface CadlLibrary<
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;
+  createDiagnostic<C extends keyof T, M extends keyof T[C]>(
+    diag: DiagnosticReport<T, C, M>
+  ): Diagnostic;
 }
 
 /**

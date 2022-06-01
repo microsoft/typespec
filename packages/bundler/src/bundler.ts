@@ -24,6 +24,7 @@ interface PackageJson {
   name: string;
   main: string;
   cadlMain?: string;
+  peerDependencies: string[];
   dependencies: string[];
 }
 
@@ -113,7 +114,9 @@ async function createRollupConfig(libraryPath: string): Promise<RollupOptions> {
     ],
     shimMissingExports: true,
     external: (id) => {
-      return !!id.match(/^@cadl-lang\/[a-z-]+$/);
+      return (
+        !!id.match(/^@cadl-lang\/[a-z-]+$/) || (pkg.peerDependencies && id in pkg.peerDependencies)
+      );
     },
     onwarn: (warning, warn) => {
       if (warning.code === "THIS_IS_UNDEFINED" || warning.code === "CIRCULAR_DEPENDENCY") {
