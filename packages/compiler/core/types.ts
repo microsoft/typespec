@@ -1110,7 +1110,7 @@ export interface Dirent {
   isDirectory(): boolean;
 }
 
-export interface RemoveDirOptions {
+export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In
    * recursive mode, errors are not reported if `path` does not exist, and
@@ -1142,10 +1142,10 @@ export interface CompilerHost {
   readDir(dir: string): Promise<string[]>;
 
   /**
-   * Deletes the directory.
-   * @param path Path to the directory.
+   * Deletes a directory or file.
+   * @param path Path to the directory or file.
    */
-  removeDir(dir: string, options?: RemoveDirOptions): Promise<void>;
+  rm(path: string, options?: RmOptions): Promise<void>;
 
   /**
    * create directory recursively.
