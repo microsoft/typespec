@@ -25,10 +25,10 @@ describe("cadl: operations", () => {
   it("can be templated and referenced to define other operations", async () => {
     testHost.addCadlFile(
       "main.cadl",
-      `op foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
+      `op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
 
       @test
-      op newFoo: foo<string, string>;`
+      op newFoo is Foo<string, string>;`
     );
 
     const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
@@ -47,11 +47,11 @@ describe("cadl: operations", () => {
   it("can be defined based on other operation references", async () => {
     testHost.addCadlFile(
       "main.cadl",
-      `op foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
-      op newFooBase<TPayload>: foo<string, TPayload>;
+      `op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
+      op NewFooBase<TPayload> is Foo<string, TPayload>;
 
       @test
-      op newFoo: newFooBase<string>;`
+      op newFoo is NewFooBase<string>;`
     );
 
     const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
@@ -70,11 +70,11 @@ describe("cadl: operations", () => {
   it("can reference an operation when being defined in an interface", async () => {
     testHost.addCadlFile(
       "main.cadl",
-      `op foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
+      `op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
 
       interface Test {
         @test
-        newFoo: foo<string, string>;
+        newFoo is Foo<string, string>;
       }`
     );
 
@@ -94,7 +94,7 @@ describe("cadl: operations", () => {
   it("applies the decorators of the referenced operation and its transitive references", async () => {
     const alphaTargets = new Map<Type, Type>();
     const betaTargets = new Set<Type>();
-    const kappaTargets = new Set<Type>();
+    const gammaTargets = new Set<Type>();
 
     testHost.addJsFile("test.js", {
       $alpha(context: DecoratorContext, target: Type, param: Type) {
@@ -105,8 +105,8 @@ describe("cadl: operations", () => {
         betaTargets.add(target);
       },
 
-      $kappa(context: DecoratorContext, target: Type) {
-        kappaTargets.add(target);
+      $gamma(context: DecoratorContext, target: Type) {
+        gammaTargets.add(target);
       },
     });
 
@@ -115,14 +115,14 @@ describe("cadl: operations", () => {
       `
       import "./test.js";
       @alpha(TPayload)
-      op foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
+      op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
 
       @beta
-      op newFooBase<TPayload>: foo<string, TPayload>;
+      op NewFooBase<TPayload> is Foo<string, TPayload>;
 
       @test
-      @kappa
-      op newFoo: newFooBase<string>;`
+      @gamma
+      op newFoo is NewFooBase<string>;`
     );
 
     const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
@@ -134,7 +134,7 @@ describe("cadl: operations", () => {
     // Check that the decorators were applied correctly to `newFoo`
     strictEqual(alphaTargets.get(newFoo)?.kind, "Model");
     ok(betaTargets.has(newFoo));
-    ok(kappaTargets.has(newFoo));
+    ok(gammaTargets.has(newFoo));
   });
 
   it("prevents the definition of a templated operation in an interface", async () => {
@@ -150,7 +150,7 @@ describe("cadl: operations", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "token-expected",
-        message: `'(', or ':' expected.`,
+        message: `'(', or 'is' expected.`,
       },
       {
         code: "token-expected",

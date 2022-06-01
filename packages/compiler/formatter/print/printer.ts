@@ -880,7 +880,7 @@ export function printOperationSignatureReference(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
-  return [": ", path.call(print, "baseOperation")];
+  return [" is ", path.call(print, "baseOperation")];
 }
 
 export function printOperationStatement(

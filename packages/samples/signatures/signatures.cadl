@@ -19,22 +19,22 @@ model AccountProfile {
 @get
 @doc("Reads an instance of the {name} resource.", TResource)
 op ResourceReadBase<TResource, TError>(@path name: string): TResource | TError;
-op ResourceRead<TResource>: ResourceReadBase<TResource, ErrorDetails>;
+op ResourceRead<TResource> is ResourceReadBase<TResource, ErrorDetails>;
 
 @post
 @doc("Reads an instance of the {name} resource.", TResource)
 op ResourceCreateBase<TResource, TError>(@body resource: TResource): TResource | TError;
-op ResourceCreate<TResource>: ResourceCreateBase<TResource, ErrorDetails>;
+op ResourceCreate<TResource> is ResourceCreateBase<TResource, ErrorDetails>;
 
 @route("codeSignAccounts")
 interface CodeSignAccounts {
-  get: ResourceRead<CodeSignAccount>;
-  create: ResourceCreate<CodeSignAccount>;
+  get is ResourceRead<CodeSignAccount>;
+  create is ResourceCreate<CodeSignAccount>;
 }
 
 interface ResourceOperations<TResource> {
-  get: ResourceRead<TResource>;
-  create: ResourceCreate<TResource>;
+  get is ResourceRead<TResource>;
+  create is ResourceCreate<TResource>;
 }
 
 @route("accountProfiles")

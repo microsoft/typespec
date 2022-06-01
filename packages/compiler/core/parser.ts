@@ -605,7 +605,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const templateParameters = inInterface ? [] : parseTemplateParameterList();
 
     // Make sure the next token is one that is expected
-    const token = expectTokenIsOneOf(Token.OpenParen, Token.Colon);
+    const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
 
     // Check if we're parsing a declaration or reuse of another operation
     let signature: OperationSignature;
@@ -622,7 +622,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         ...finishNode(signaturePos),
       };
     } else {
-      parseExpected(Token.Colon);
+      parseExpected(Token.IsKeyword);
       const opReference = parseReferenceExpression();
 
       signature = {
