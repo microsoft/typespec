@@ -3198,6 +3198,8 @@ export function createChecker(program: Program): Checker {
    * @param target Target type
    */
   function isTypeRelatedTo(source: Type, target: Type): [boolean, Diagnostic[]] {
+    if (source === target) return [true, []];
+
     const isSimpleTypeRelated = isSimpleTypeRelatedTo(source, target);
 
     if (isSimpleTypeRelated === true) {
@@ -3215,6 +3217,13 @@ export function createChecker(program: Program): Checker {
       ];
     }
 
+    const targetIntrinsicName = getIntrinsicModelName(program, target);
+    if (targetIntrinsicName === "Record" && source.kind === "Model") {
+      const recordType = (target as ModelType).properties.get("t")!.type;
+      compilerAssert(recordType, "Record should have a t property with the type");
+      return isIndexConstraintValid(recordType, source);
+    }
+
     return [
       false,
       [
@@ -3226,27 +3235,40 @@ export function createChecker(program: Program): Checker {
       ],
     ];
   }
+
   function isSimpleTypeRelatedTo(source: Type, target: Type): boolean | undefined {
     if (isVoidType(target) || isNeverType(target)) return false;
-    const sIntrinsicName = getIntrinsicModelName(program, source);
-    const tIntrinsicName = getIntrinsicModelName(program, target);
-    if (tIntrinsicName === "any") return true;
-    if (tIntrinsicName) {
+    const sourceIntrinsicName = getIntrinsicModelName(program, source);
+    const targetIntrinsicName = getIntrinsicModelName(program, target);
+    if (targetIntrinsicName === "any") return true;
+    if (targetIntrinsicName) {
       switch (source.kind) {
         case "Number":
           return (
-            IntrinsicTypeRelations.isRelated(tIntrinsicName, "numeric") &&
-            isNumericLiteralRelatedTo(source, tIntrinsicName as any)
+            IntrinsicTypeRelations.isRelated(targetIntrinsicName, "numeric") &&
+            isNumericLiteralRelatedTo(source, targetIntrinsicName as any)
           );
         case "String":
-          return IntrinsicTypeRelations.isRelated("string", tIntrinsicName);
+          return IntrinsicTypeRelations.isRelated("string", targetIntrinsicName);
         case "Boolean":
-          return IntrinsicTypeRelations.isRelated("boolean", tIntrinsicName);
+          return IntrinsicTypeRelations.isRelated("boolean", targetIntrinsicName);
+        case "Model":
+          if (!sourceIntrinsicName) {
+            if (targetIntrinsicName === "object") {
+              return true;
+            } else if (targetIntrinsicName === "Record") {
+              // To be figured out later
+              return undefined;
+            } else {
+              return false;
+            }
+          }
       }
-      if (!sIntrinsicName) {
+
+      if (!sourceIntrinsicName) {
         return false;
       }
-      return IntrinsicTypeRelations.isRelated(sIntrinsicName, tIntrinsicName);
+      return IntrinsicTypeRelations.isRelated(sourceIntrinsicName, targetIntrinsicName);
     }
 
     if (target.kind === "String") {
@@ -3255,7 +3277,7 @@ export function createChecker(program: Program): Checker {
     if (target.kind === "Number") {
       return source.kind === "Number" && target.value === source.value;
     }
-    return false;
+    return undefined;
   }
 
   function isNumericLiteralRelatedTo(
@@ -3284,6 +3306,27 @@ export function createChecker(program: Program): Checker {
 
     const [low, high, flags] = numericRanges[targetInstrinsicType];
     return source.value >= low && source.value <= high && Boolean(source.numericFlags & flags);
+  }
+
+  /**
+   * @param constraintType Type of the constraints(All properties must have this type).
+   * @param type Type of the model that should be respecting the constraint.
+   */
+  function isIndexConstraintValid(constraintType: Type, type: ModelType): [boolean, Diagnostic[]] {
+    for (const prop of type.properties.values()) {
+      const [related, diagnostics] = isTypeRelatedTo(prop.type, constraintType);
+      if (!related) {
+        return [false, diagnostics];
+      }
+    }
+
+    if (type.baseModel) {
+      const [related, diagnostics] = isIndexConstraintValid(constraintType, type.baseModel);
+      if (!related) {
+        return [false, diagnostics];
+      }
+    }
+    return [true, []];
   }
 }
 
