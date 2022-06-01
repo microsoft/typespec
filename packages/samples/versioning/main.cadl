@@ -49,9 +49,11 @@ interface MyService {
 
   @added("v2")
   @post
+  @route("/walkDog")
   walkDog(...ApiVersionParam): OkResponse<{}>;
 
   @removed("v2")
   @post
+  @route("/walkCat")
   walkCat(...ApiVersionParam): OkResponse<{}>;
 }
