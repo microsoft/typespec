@@ -86,4 +86,24 @@ describe("vscode: tmlanguage: interfaces", () => {
       Token.punctuation.closeBrace,
     ]);
   });
+
+  it("interface operation that copies the signature of another operation", async () => {
+    const tokens = await tokenize(`
+    interface Foo {
+      bar is ResourceRead<Widget>
+    }`);
+
+    deepStrictEqual(tokens, [
+      Token.keywords.interface,
+      Token.identifiers.type("Foo"),
+      Token.punctuation.openBrace,
+      Token.identifiers.functionName("bar"),
+      Token.keywords.is,
+      Token.identifiers.type("ResourceRead"),
+      Token.punctuation.typeParameters.begin,
+      Token.identifiers.type("Widget"),
+      Token.punctuation.typeParameters.end,
+      Token.punctuation.closeBrace,
+    ]);
+  });
 });

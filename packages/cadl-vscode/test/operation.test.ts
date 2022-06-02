@@ -89,7 +89,6 @@ describe("vscode: tmlanguage: Operations", () => {
       Token.keywords.operation,
       Token.identifiers.functionName("foo"),
       Token.keywords.is,
-      Token.operators.typeAnnotation,
       Token.identifiers.type("ResourceRead"),
       Token.punctuation.typeParameters.begin,
       Token.identifiers.type("Widget"),
