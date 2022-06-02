@@ -1,25 +1,22 @@
-import {
-  compile,
-  DiagnosticTarget,
-  getSourceLocation,
-  NoTarget,
-  Program,
-} from "@cadl-lang/compiler";
+import { DiagnosticTarget, getSourceLocation, NoTarget, Program } from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import { CompletionItemTag } from "vscode-languageserver";
 import { createBrowserHost } from "./browserHost";
 import { CadlEditor, OutputEditor } from "./components/cadl-editor";
 import { useMonacoModel } from "./components/editor";
 import { Footer } from "./components/footer";
 import { OutputTabs, Tab } from "./components/output-tabs";
 import { SamplesDropdown } from "./components/samples-dropdown";
+import { importCadlCompiler } from "./core";
 import { PlaygroundManifest } from "./manifest";
 import { attachServices } from "./services";
+
 const host = await createBrowserHost();
-attachServices(host);
+await attachServices(host);
 
 export const App: FunctionComponent = () => {
   const cadlModel = useMonacoModel("inmemory://test/main.cadl", "cadl");
@@ -80,6 +77,7 @@ export const App: FunctionComponent = () => {
   async function doCompile(content: string) {
     await host.writeFile("main.cadl", content);
     await emptyOutputDir();
+    const { compile } = await importCadlCompiler();
     const program = await compile("main.cadl", host, {
       outputPath: "cadl-output",
       emitters: { [PlaygroundManifest.defaultEmitter]: {} },
@@ -88,7 +86,8 @@ export const App: FunctionComponent = () => {
     const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
       ...getMarkerLocation(diag.target),
       message: diag.message,
-      severity: MarkerSeverity.Error,
+      severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
+      tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
     }));
 
     editor.setModelMarkers(cadlModel, "owner", markers ?? []);
@@ -220,6 +219,4 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
   );
 };
 
-type ViewSelection =
-  | { type: "file"; filename: string; content: string }
-  | { type: "type-graph" };
+type ViewSelection = { type: "file"; filename: string; content: string } | { type: "type-graph" };

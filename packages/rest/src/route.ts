@@ -1,5 +1,8 @@
 import {
+  createDiagnosticCollector,
   DecoratorContext,
+  Diagnostic,
+  DiagnosticCollector,
   getServiceNamespace,
   InterfaceType,
   ModelTypeProperty,
@@ -10,7 +13,7 @@ import {
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./diagnostics.js";
+import { createDiagnostic, reportDiagnostic } from "./diagnostics.js";
 import {
   getHeaderFieldName,
   getOperationVerb,
@@ -186,7 +189,8 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
 export function getOperationParameters(
   program: Program,
   operation: OperationType
-): HttpOperationParameters {
+): [HttpOperationParameters, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const result: HttpOperationParameters = {
     parameters: [],
   };
@@ -205,11 +209,13 @@ export function getOperationParameters(
       ["body", bodyParm],
     ].filter((x) => !!x[1]);
     if (defined.length >= 2) {
-      reportDiagnostic(program, {
-        code: "operation-param-duplicate-type",
-        format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
-        target: param,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "operation-param-duplicate-type",
+          format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
+          target: param,
+        })
+      );
     }
 
     if (queryParam) {
@@ -222,17 +228,19 @@ export function getOperationParameters(
       if (result.body === undefined) {
         result.body = param;
       } else {
-        reportDiagnostic(program, { code: "duplicate-body", target: param });
+        diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
       }
     } else {
       if (unAnnotatedParam === undefined) {
         unAnnotatedParam = param;
       } else {
-        reportDiagnostic(program, {
-          code: "duplicate-body",
-          messageId: "duplicateUnannotated",
-          target: param,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "duplicate-body",
+            messageId: "duplicateUnannotated",
+            target: param,
+          })
+        );
       }
     }
   }
@@ -241,14 +249,16 @@ export function getOperationParameters(
     if (result.body === undefined) {
       result.body = unAnnotatedParam;
     } else {
-      reportDiagnostic(program, {
-        code: "duplicate-body",
-        messageId: "bodyAndUnannotated",
-        target: unAnnotatedParam,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "duplicate-body",
+          messageId: "bodyAndUnannotated",
+          target: unAnnotatedParam,
+        })
+      );
     }
   }
-  return result;
+  return diagnostics.wrap(result);
 }
 
 function generatePathFromParameters(
@@ -296,12 +306,12 @@ function generatePathFromParameters(
 
 function getPathForOperation(
   program: Program,
+  diagnostics: DiagnosticCollector,
   operation: OperationType,
   routeFragments: string[],
   options: RouteOptions
 ): { path: string; pathFragment?: string; parameters: HttpOperationParameters } {
-  const parameters: HttpOperationParameters = getOperationParameters(program, operation);
-
+  const parameters = diagnostics.pipe(getOperationParameters(program, operation));
   const pathFragments = [...routeFragments];
   const routePath = getRoutePath(program, operation);
   if (isAutoRoute(program, operation)) {
@@ -331,11 +341,13 @@ function getPathForOperation(
     for (const declaredParam of declaredPathParams) {
       const param = paramByName.get(declaredParam);
       if (!param) {
-        reportDiagnostic(program, {
-          code: "missing-path-param",
-          format: { param: declaredParam },
-          target: operation,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "missing-path-param",
+            format: { param: declaredParam },
+            target: operation,
+          })
+        );
         continue;
       }
 
@@ -357,6 +369,7 @@ function getPathForOperation(
 
 function getVerbForOperation(
   program: Program,
+  diagnostics: DiagnosticCollector,
   operation: OperationType,
   parameters: HttpOperationParameters
 ): HttpVerb {
@@ -372,11 +385,13 @@ function getVerbForOperation(
   }
 
   if (parameters.body) {
-    reportDiagnostic(program, {
-      code: "http-verb-missing-with-body",
-      format: { operationName: operation.name },
-      target: operation,
-    });
+    diagnostics.add(
+      createDiagnostic({
+        code: "http-verb-missing-with-body",
+        format: { operationName: operation.name },
+        target: operation,
+      })
+    );
   }
 
   return "get";
@@ -384,6 +399,7 @@ function getVerbForOperation(
 
 function buildRoutes(
   program: Program,
+  diagnostics: DiagnosticCollector,
   container: OperationContainer,
   routeFragments: string[],
   visitedOperations: Set<OperationType>,
@@ -402,9 +418,15 @@ function buildRoutes(
       continue;
     }
 
-    const route = getPathForOperation(program, op, parentFragments, options);
-    const verb = getVerbForOperation(program, op, route.parameters);
-    const responses = getResponsesForOperation(program, op);
+    // Skip templated operations
+    if (op.templateArguments && op.templateArguments.length > 0) {
+      continue;
+    }
+
+    const route = getPathForOperation(program, diagnostics, op, parentFragments, options);
+    const verb = getVerbForOperation(program, diagnostics, op, route.parameters);
+    const responses = diagnostics.pipe(getResponsesForOperation(program, op));
+
     operations.push({
       path: route.path,
       pathFragment: route.pathFragment,
@@ -426,7 +448,7 @@ function buildRoutes(
     ];
 
     const childRoutes = children.flatMap((child) =>
-      buildRoutes(program, child, parentFragments, visitedOperations, options)
+      buildRoutes(program, diagnostics, child, parentFragments, visitedOperations, options)
     );
     for (const child of childRoutes) [operations.push(child)];
   }
@@ -439,13 +461,16 @@ export function getRoutesForContainer(
   container: OperationContainer,
   visitedOperations: Set<OperationType>,
   options?: RouteOptions
-): OperationDetails[] {
+): [OperationDetails[], readonly Diagnostic[]] {
   const routeOptions =
     options ??
     (container.kind === "Namespace" ? getRouteOptionsForNamespace(program, container) : {}) ??
     {};
+  const diagnostics = createDiagnosticCollector();
 
-  return buildRoutes(program, container, [], visitedOperations, routeOptions);
+  return diagnostics.wrap(
+    buildRoutes(program, diagnostics, container, [], visitedOperations, routeOptions)
+  );
 }
 
 function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
@@ -457,9 +482,12 @@ function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
   );
 }
 
-export function getAllRoutes(program: Program, options?: RouteOptions): OperationDetails[] {
+export function getAllRoutes(
+  program: Program,
+  options?: RouteOptions
+): [OperationDetails[], readonly Diagnostic[]] {
   let operations: OperationDetails[] = [];
-
+  const diagnostics = createDiagnosticCollector();
   const serviceNamespace = getServiceNamespace(program);
   const containers: Type[] = [
     ...(serviceNamespace ? [serviceNamespace] : []),
@@ -474,11 +502,8 @@ export function getAllRoutes(program: Program, options?: RouteOptions): Operatio
       continue;
     }
 
-    const newOps = getRoutesForContainer(
-      program,
-      container as OperationContainer,
-      visitedOperations,
-      options
+    const newOps = diagnostics.pipe(
+      getRoutesForContainer(program, container as OperationContainer, visitedOperations, options)
     );
 
     // Make sure we don't visit the same operations again
@@ -488,11 +513,11 @@ export function getAllRoutes(program: Program, options?: RouteOptions): Operatio
     operations = [...operations, ...newOps];
   }
 
-  validateRouteUnique(program, operations);
-  return operations;
+  validateRouteUnique(diagnostics, operations);
+  return diagnostics.wrap(operations);
 }
 
-function validateRouteUnique(program: Program, operations: OperationDetails[]) {
+function validateRouteUnique(diagnostics: DiagnosticCollector, operations: OperationDetails[]) {
   const grouped = new Map<string, Map<HttpVerb, OperationDetails[]>>();
 
   for (const operation of operations) {
@@ -516,11 +541,13 @@ function validateRouteUnique(program: Program, operations: OperationDetails[]) {
     for (const [verb, routes] of map) {
       if (routes.length >= 2) {
         for (const route of routes) {
-          reportDiagnostic(program, {
-            code: "duplicate-operation",
-            format: { path, verb, operationName: route.operation.name },
-            target: route.operation,
-          });
+          diagnostics.add(
+            createDiagnostic({
+              code: "duplicate-operation",
+              format: { path, verb, operationName: route.operation.name },
+              target: route.operation,
+            })
+          );
         }
       }
     }

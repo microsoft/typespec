@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 import { run } from "@cadl-lang/internal-build-utils";
-import { readdirSync, rmdirSync } from "fs";
+import { readdirSync, rmSync } from "fs";
 import mkdirp from "mkdirp";
 import { dirname, join, normalize, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -30,7 +30,7 @@ async function main() {
   // clear any previous output as otherwise failing to emit anything could
   // escape PR validation. Also ensures we delete output for samples that
   // no longer exist.
-  rmdirSync(rootOutputPath, { recursive: true });
+  rmSync(rootOutputPath, { recursive: true });
 
   for (const folderName of getSampleFolders()) {
     const inputPath = join(rootInputPath, folderName);
