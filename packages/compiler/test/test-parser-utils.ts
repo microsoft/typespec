@@ -19,14 +19,6 @@ describe.only("compiler: parser utils", () => {
       return { node: getNodeAtPosition(root, pos), root };
     }
 
-    it("return string literal when in non completed string", async () => {
-      const { node } = await getNodeAtCursor(`
-        import "┆
-      `);
-      ok(node);
-      strictEqual(node.kind, SyntaxKind.StringLiteral);
-    });
-
     it("return namespace when in namespace body", async () => {
       const { node } = await getNodeAtCursor(`
         namespace Foo {
@@ -58,6 +50,24 @@ describe.only("compiler: parser utils", () => {
       ok(node);
       strictEqual(node.kind, SyntaxKind.Identifier);
       strictEqual((node as IdentifierNode).sv, "<missing identifier>1");
+    });
+
+    it("return string literal when in non completed string", async () => {
+      const { node } = await getNodeAtCursor(`
+        import "┆
+      `);
+      ok(node);
+      strictEqual(node.kind, SyntaxKind.StringLiteral);
+    });
+
+    it("return string literal when in non completed multi line string", async () => {
+      const { node } = await getNodeAtCursor(`
+        model Foo {
+          prop: """┆
+        }
+      `);
+      ok(node);
+      strictEqual(node.kind, SyntaxKind.StringLiteral);
     });
   });
 });
