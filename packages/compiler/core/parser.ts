@@ -2351,10 +2351,7 @@ export function getNodeAtPosition(
   filter = (node: Node) => true
 ) {
   const realNode = getNodeAtPositionInternal(script, position, filter);
-  if (realNode === undefined) {
-    return undefined; // todo check this
-  }
-  if (realNode.kind === SyntaxKind.StringLiteral) {
+  if (realNode?.kind === SyntaxKind.StringLiteral) {
     return realNode;
   }
   // If we're not immediately after an identifier character, then advance

@@ -9,7 +9,7 @@ import { getNodeAtPosition, parse } from "../core/parser.js";
 import { Node } from "../core/types.js";
 import { extractCursor } from "./server/test-server-host.js";
 
-describe.only("compiler: parser utils", () => {
+describe("compiler: parser utils", () => {
   describe("getNodeAtPosition", () => {
     async function getNodeAtCursor(
       sourceWithCursor: string
