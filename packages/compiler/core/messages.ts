@@ -287,6 +287,12 @@ const diagnostics = {
       default: "Model `is` must specify another model.",
     },
   },
+  "is-operation": {
+    severity: "error",
+    messages: {
+      default: "Operation can only reuse the signature of another operation.",
+    },
+  },
   "spread-model": {
     severity: "error",
     messages: {

@@ -209,7 +209,7 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   value?: string | number;
 }
 
-export interface OperationType extends BaseType, DecoratedType {
+export interface OperationType extends BaseType, DecoratedType, TemplatedType {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
@@ -393,6 +393,8 @@ export enum SyntaxKind {
   NamespaceStatement,
   UsingStatement,
   OperationStatement,
+  OperationSignatureDeclaration,
+  OperationSignatureReference,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -506,6 +508,8 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -673,10 +677,24 @@ export interface UsingStatementNode extends BaseNode {
   readonly name: IdentifierNode | MemberExpressionNode;
 }
 
-export interface OperationStatementNode extends BaseNode, DeclarationNode {
-  readonly kind: SyntaxKind.OperationStatement;
+export interface OperationSignatureDeclarationNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureDeclaration;
   readonly parameters: ModelExpressionNode;
   readonly returnType: Expression;
+}
+
+export interface OperationSignatureReferenceNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureReference;
+  readonly baseOperation: TypeReferenceNode;
+}
+
+export type OperationSignature =
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode;
+
+export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.OperationStatement;
+  readonly signature: OperationSignature;
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 

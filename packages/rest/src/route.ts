@@ -418,9 +418,15 @@ function buildRoutes(
       continue;
     }
 
+    // Skip templated operations
+    if (op.templateArguments && op.templateArguments.length > 0) {
+      continue;
+    }
+
     const route = getPathForOperation(program, diagnostics, op, parentFragments, options);
     const verb = getVerbForOperation(program, diagnostics, op, route.parameters);
     const responses = diagnostics.pipe(getResponsesForOperation(program, op));
+
     operations.push({
       path: route.path,
       pathFragment: route.pathFragment,
