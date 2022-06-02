@@ -95,4 +95,24 @@ describe("vscode: tmlanguage: Operations", () => {
       Token.punctuation.typeParameters.end,
     ]);
   });
+
+  it("defining a templated operation signature", async () => {
+    const tokens = await tokenize(
+      "op ResourceRead<TResource> is ResourceReadBase<TResource, DefaultOptions>"
+    );
+    deepStrictEqual(tokens, [
+      Token.keywords.operation,
+      Token.identifiers.functionName("ResourceRead"),
+      Token.punctuation.typeParameters.begin,
+      Token.identifiers.type("TResource"),
+      Token.punctuation.typeParameters.end,
+      Token.keywords.is,
+      Token.identifiers.type("ResourceReadBase"),
+      Token.punctuation.typeParameters.begin,
+      Token.identifiers.type("TResource"),
+      Token.punctuation.comma,
+      Token.identifiers.type("DefaultOptions"),
+      Token.punctuation.typeParameters.end,
+    ]);
+  });
 });
