@@ -389,6 +389,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   function bindOperationStatement(statement: OperationStatementNode) {
     if (scope.kind !== SyntaxKind.InterfaceStatement) {
       declareSymbol(statement, SymbolFlags.Operation);
+      statement.locals = new SymbolTable();
     }
   }
 
@@ -451,6 +452,7 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.AliasStatement:
     case SyntaxKind.CadlScript:
     case SyntaxKind.InterfaceStatement:
+    case SyntaxKind.OperationStatement:
     case SyntaxKind.UnionStatement:
     case SyntaxKind.Projection:
     case SyntaxKind.ProjectionLambdaExpression:

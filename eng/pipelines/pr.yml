@@ -16,11 +16,11 @@ jobs:
 
         "Linux - Node 18.x":
           imageName: ubuntu-latest
-          nodeVersion: "18.x"
+          nodeVersion: "18.2.0"
 
         "Windows - Node 18.x":
           imageName: windows-latest
-          nodeVersion: "18.x"
+          nodeVersion: "18.2.0"
 
     pool:
       vmImage: $(imageName)

@@ -44,6 +44,7 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  OperationSignature,
   OperationStatementNode,
   ProjectionBlockExpressionNode,
   ProjectionEnumSelectorNode,
@@ -509,7 +510,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       nextToken();
     }
 
-    const operations = parseList(ListKind.InterfaceMembers, parseInterfaceMember);
+    const operations = parseList(ListKind.InterfaceMembers, (pos, decorators) =>
+      parseOperationStatement(pos, decorators, true)
+    );
 
     return {
       kind: SyntaxKind.InterfaceStatement,
@@ -537,27 +540,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
 
     return list;
-  }
-
-  function parseInterfaceMember(
-    pos: number,
-    decorators: DecoratorExpressionNode[]
-  ): OperationStatementNode {
-    parseOptional(Token.OpKeyword);
-
-    const id = parseIdentifier();
-    const parameters = parseOperationParameters();
-    parseExpected(Token.Colon);
-
-    const returnType = parseExpression();
-    return {
-      kind: SyntaxKind.OperationStatement,
-      id,
-      parameters,
-      returnType,
-      decorators,
-      ...finishNode(pos),
-    };
   }
 
   function parseUnionStatement(
@@ -611,22 +593,56 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOperationStatement(
     pos: number,
-    decorators: DecoratorExpressionNode[]
+    decorators: DecoratorExpressionNode[],
+    inInterface?: boolean
   ): OperationStatementNode {
-    parseExpected(Token.OpKeyword);
+    if (inInterface) {
+      parseOptional(Token.OpKeyword);
+    } else {
+      parseExpected(Token.OpKeyword);
+    }
 
     const id = parseIdentifier();
-    const parameters = parseOperationParameters();
-    parseExpected(Token.Colon);
+    const templateParameters = inInterface ? [] : parseTemplateParameterList();
 
-    const returnType = parseExpression();
-    parseExpected(Token.Semicolon);
+    // Make sure the next token is one that is expected
+    const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
+
+    // Check if we're parsing a declaration or reuse of another operation
+    let signature: OperationSignature;
+    const signaturePos = tokenPos();
+    if (token === Token.OpenParen) {
+      const parameters = parseOperationParameters();
+      parseExpected(Token.Colon);
+      const returnType = parseExpression();
+
+      signature = {
+        kind: SyntaxKind.OperationSignatureDeclaration,
+        parameters,
+        returnType,
+        ...finishNode(signaturePos),
+      };
+    } else {
+      parseExpected(Token.IsKeyword);
+      const opReference = parseReferenceExpression();
+
+      signature = {
+        kind: SyntaxKind.OperationSignatureReference,
+        baseOperation: opReference,
+        ...finishNode(signaturePos),
+      };
+    }
+
+    // The interface parser handles semicolon parsing between statements
+    if (!inInterface) {
+      parseExpected(Token.Semicolon);
+    }
 
     return {
       kind: SyntaxKind.OperationStatement,
       id,
-      parameters,
-      returnType,
+      templateParameters,
+      signature,
       decorators,
       ...finishNode(pos),
     };
@@ -2157,9 +2173,13 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
-        visitNode(cb, node.parameters) ||
-        visitNode(cb, node.returnType)
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.signature)
       );
+    case SyntaxKind.OperationSignatureDeclaration:
+      return visitNode(cb, node.parameters) || visitNode(cb, node.returnType);
+    case SyntaxKind.OperationSignatureReference:
+      return visitNode(cb, node.baseOperation);
     case SyntaxKind.NamespaceStatement:
       return (
         visitEach(cb, node.decorators) ||
