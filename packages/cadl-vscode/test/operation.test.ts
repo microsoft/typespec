@@ -82,4 +82,18 @@ describe("vscode: tmlanguage: Operations", () => {
       Token.identifiers.type("string"),
     ]);
   });
+
+  it("operation that copies the signature of another operation", async () => {
+    const tokens = await tokenize("op foo is ResourceRead<Widget>");
+    deepStrictEqual(tokens, [
+      Token.keywords.operation,
+      Token.identifiers.functionName("foo"),
+      Token.keywords.is,
+      Token.operators.typeAnnotation,
+      Token.identifiers.type("ResourceRead"),
+      Token.punctuation.typeParameters.begin,
+      Token.identifiers.type("Widget"),
+      Token.punctuation.typeParameters.end,
+    ]);
+  });
 });

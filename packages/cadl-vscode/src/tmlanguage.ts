@@ -416,6 +416,28 @@ const operationParameters: BeginEndRule = {
   patterns: [token, decorator, modelProperty, modelSpreadProperty, punctuationComma],
 };
 
+const operationSignatureReference: BeginEndRule = {
+  key: "operation-signature-reference",
+  scope: meta,
+  begin: "\\b(is)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `((?=\\{)|${universalEndExceptComma})`,
+  patterns: [typeAnnotation],
+};
+
+const operationSignatureDeclaration: BeginEndRule = {
+  key: "operation-signature-declaration",
+  scope: meta,
+  begin: "\\b(is)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `((?=\\{)|${universalEndExceptComma})`,
+  patterns: [typeAnnotation],
+};
+
 const operationStatement: BeginEndRule = {
   key: "operation-statement",
   scope: meta,
@@ -426,7 +448,8 @@ const operationStatement: BeginEndRule = {
   end: universalEnd,
   patterns: [
     token,
-    operationName,
+    identifierExpression,
+    typeArguments,
     operationParameters,
     typeAnnotation, // return type
   ],
