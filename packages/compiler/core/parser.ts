@@ -80,6 +80,7 @@ import {
   Writable,
 } from "./types.js";
 import { isArray } from "./util.js";
+
 /**
  * Callback to parse each element in a delimited list
  *
@@ -2329,15 +2330,31 @@ export function getNodeAtPosition(
   position: number,
   filter = (node: Node) => true
 ) {
+  const realNode = getNodeAtPositionInternal(script, position, filter);
+  if (realNode === undefined) {
+    return undefined; // todo check this
+  }
+  if (realNode.kind === SyntaxKind.StringLiteral) {
+    return realNode;
+  }
   // If we're not immediately after an identifier character, then advance
   // the position past any trivia. This is done because a zero-width
   // inserted missing identifier that the user is now trying to complete
   // starts after the trivia following the cursor.
   const cp = codePointBefore(script.file.text, position);
   if (!cp || !isIdentifierContinue(cp)) {
-    position = skipTrivia(script.file.text, position);
+    const newPosition = skipTrivia(script.file.text, position);
+    return getNodeAtPositionInternal(script, newPosition, filter);
+  } else {
+    return realNode;
   }
+}
 
+function getNodeAtPositionInternal(
+  script: CadlScriptNode,
+  position: number,
+  filter = (node: Node) => true
+) {
   return visit(script);
 
   function visit(node: Node): Node | undefined {
