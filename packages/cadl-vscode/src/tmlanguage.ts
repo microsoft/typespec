@@ -416,26 +416,24 @@ const operationParameters: BeginEndRule = {
   patterns: [token, decorator, modelProperty, modelSpreadProperty, punctuationComma],
 };
 
-const operationSignatureReference: BeginEndRule = {
-  key: "operation-signature-reference",
+const operationHeritage: BeginEndRule = {
+  key: "operation-heritage",
   scope: meta,
   begin: "\\b(is)\\b",
   beginCaptures: {
     "1": { scope: "keyword.other.cadl" },
   },
-  end: `((?=\\{)|${universalEndExceptComma})`,
-  patterns: [typeAnnotation],
+  end: universalEnd,
+  patterns: [expression],
 };
 
-const operationSignatureDeclaration: BeginEndRule = {
-  key: "operation-signature-declaration",
-  scope: meta,
-  begin: "\\b(is)\\b",
-  beginCaptures: {
-    "1": { scope: "keyword.other.cadl" },
-  },
-  end: `((?=\\{)|${universalEndExceptComma})`,
-  patterns: [typeAnnotation],
+const operationSignature: IncludeRule = {
+  key: "operation-signature",
+  patterns: [
+    operationHeritage,
+    operationParameters,
+    typeAnnotation, // return type
+  ],
 };
 
 const operationStatement: BeginEndRule = {
@@ -446,13 +444,7 @@ const operationStatement: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: universalEnd,
-  patterns: [
-    token,
-    identifierExpression,
-    typeArguments,
-    operationParameters,
-    typeAnnotation, // return type
-  ],
+  patterns: [token, operationName, operationSignature],
 };
 
 const interfaceMember: BeginEndRule = {
@@ -464,7 +456,7 @@ const interfaceMember: BeginEndRule = {
     "2": { scope: "entity.name.function.cadl" },
   },
   end: universalEnd,
-  patterns: [token, operationParameters, typeAnnotation],
+  patterns: [token, operationSignature],
 };
 
 const interfaceHeritage: BeginEndRule = {
