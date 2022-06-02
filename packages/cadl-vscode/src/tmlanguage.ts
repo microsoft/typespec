@@ -388,20 +388,6 @@ const namespaceStatement: BeginEndRule = {
   patterns: [token, namespaceName, namespaceBody],
 };
 
-const functionName: MatchRule = {
-  key: "function-name",
-  scope: "entity.name.function.cadl",
-  match: identifier,
-};
-
-const operationName: BeginEndRule = {
-  key: "operation-name",
-  scope: meta,
-  begin: beforeIdentifier,
-  end: `((?=\\()|${universalEnd})`,
-  patterns: [token, functionName],
-};
-
 const operationParameters: BeginEndRule = {
   key: "operation-parameters",
   scope: meta,
@@ -416,20 +402,37 @@ const operationParameters: BeginEndRule = {
   patterns: [token, decorator, modelProperty, modelSpreadProperty, punctuationComma],
 };
 
-const operationStatement: BeginEndRule = {
-  key: "operation-statement",
+const operationHeritage: BeginEndRule = {
+  key: "operation-heritage",
   scope: meta,
-  begin: "\\b(op)\\b",
+  begin: "\\b(is)\\b",
   beginCaptures: {
     "1": { scope: "keyword.other.cadl" },
   },
   end: universalEnd,
+  patterns: [expression],
+};
+
+const operationSignature: IncludeRule = {
+  key: "operation-signature",
   patterns: [
-    token,
-    operationName,
+    typeArguments,
+    operationHeritage,
     operationParameters,
     typeAnnotation, // return type
   ],
+};
+
+const operationStatement: BeginEndRule = {
+  key: "operation-statement",
+  scope: meta,
+  begin: `\\b(op)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "entity.name.function.cadl" },
+  },
+  end: universalEnd,
+  patterns: [token, operationSignature],
 };
 
 const interfaceMember: BeginEndRule = {
@@ -441,7 +444,7 @@ const interfaceMember: BeginEndRule = {
     "2": { scope: "entity.name.function.cadl" },
   },
   end: universalEnd,
-  patterns: [token, operationParameters, typeAnnotation],
+  patterns: [token, operationSignature],
 };
 
 const interfaceHeritage: BeginEndRule = {

@@ -127,6 +127,12 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@cadl-lang/eslint-plugin",
+      "projectFolder": "packages/eslint-plugin-cadl",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@cadl-lang/openapi3",
       "projectFolder": "packages/openapi3",
       "reviewCategory": "production",

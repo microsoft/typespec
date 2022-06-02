@@ -473,7 +473,12 @@ export function createChecker(program: Program): Checker {
    * Return a fully qualified id of node
    */
   function getNodeSymId(
-    node: ModelStatementNode | AliasStatementNode | InterfaceStatementNode | UnionStatementNode
+    node:
+      | ModelStatementNode
+      | AliasStatementNode
+      | InterfaceStatementNode
+      | OperationStatementNode
+      | UnionStatementNode
   ): number {
     return node.symbol!.id!;
   }
@@ -515,6 +520,7 @@ export function createChecker(program: Program): Checker {
     const parentNode = node.parent! as
       | ModelStatementNode
       | InterfaceStatementNode
+      | OperationStatementNode
       | UnionStatementNode
       | AliasStatementNode;
     const links = getSymbolLinks(node.symbol);
@@ -701,12 +707,17 @@ export function createChecker(program: Program): Checker {
     const args = checkTypeReferenceArgs(node);
     if (
       sym.flags &
-      (SymbolFlags.Model | SymbolFlags.Alias | SymbolFlags.Interface | SymbolFlags.Union)
+      (SymbolFlags.Model |
+        SymbolFlags.Alias |
+        SymbolFlags.Interface |
+        SymbolFlags.Operation |
+        SymbolFlags.Union)
     ) {
       const decl = sym.declarations[0] as
         | ModelStatementNode
         | AliasStatementNode
         | InterfaceStatementNode
+        | OperationStatementNode
         | UnionStatementNode;
       if (decl.templateParameters.length === 0) {
         if (args.length > 0) {
@@ -729,6 +740,8 @@ export function createChecker(program: Program): Checker {
               ? checkAlias(decl as AliasStatementNode)
               : sym.flags & SymbolFlags.Interface
               ? checkInterface(decl as InterfaceStatementNode)
+              : sym.flags & SymbolFlags.Operation
+              ? checkOperation(decl as OperationStatementNode)
               : checkUnion(decl as UnionStatementNode);
         }
       } else {
@@ -742,6 +755,8 @@ export function createChecker(program: Program): Checker {
             ? checkAlias(decl as AliasStatementNode)
             : sym.flags & SymbolFlags.Interface
             ? checkInterface(decl as InterfaceStatementNode)
+            : sym.flags & SymbolFlags.Operation
+            ? checkOperation(decl as OperationStatementNode)
             : checkUnion(decl as UnionStatementNode);
         }
 
@@ -792,6 +807,7 @@ export function createChecker(program: Program): Checker {
       | ModelStatementNode
       | AliasStatementNode
       | InterfaceStatementNode
+      | OperationStatementNode
       | UnionStatementNode,
     args: Type[]
   ): Type {
@@ -1046,33 +1062,118 @@ export function createChecker(program: Program): Checker {
   function checkOperation(
     node: OperationStatementNode,
     parentInterface?: InterfaceType
-  ): OperationType {
+  ): OperationType | ErrorType {
+    // Operations defined in interfaces aren't bound to symbols
+    const links = !parentInterface ? getSymbolLinks(node.symbol) : undefined;
+    const instantiatingThisTemplate = instantiatingTemplate === node;
+    if (links) {
+      if (links.declaredType && !instantiatingThisTemplate) {
+        // we're not instantiating this operation and we've already checked it
+        return links.declaredType as OperationType;
+      }
+    }
+
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
-    const decorators = checkDecorators(node);
-    const type: OperationType = createType({
+    let decorators = checkDecorators(node);
+
+    // Is this a definition or reference?
+    let parameters: ModelType, returnType: Type;
+    if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
+      // Attempt to resolve the operation
+      const baseOperation = checkOperationIs(node, node.signature.baseOperation);
+      if (!baseOperation) {
+        return errorType;
+      }
+
+      // Reference the same return type and create the parameters type
+      parameters = cloneType(baseOperation.parameters);
+      parameters.node = { ...parameters.node, parent: node };
+      returnType = baseOperation.returnType;
+
+      // Copy decorators from the base operation, inserting the base decorators first
+      decorators = [...baseOperation.decorators, ...decorators];
+    } else {
+      parameters = getTypeForNode(node.signature.parameters) as ModelType;
+      returnType = getTypeForNode(node.signature.returnType);
+    }
+
+    const operationType: OperationType = createType({
       kind: "Operation",
       name,
       namespace,
       node,
-      parameters: getTypeForNode(node.parameters) as ModelType,
-      returnType: getTypeForNode(node.returnType),
+      parameters,
+      returnType,
       decorators,
       interface: parentInterface,
     });
 
-    type.parameters.namespace = namespace;
+    operationType.parameters.namespace = namespace;
 
     if (node.parent!.kind === SyntaxKind.InterfaceStatement) {
-      if (shouldCreateTypeForTemplate(node.parent!)) {
-        finishType(type);
+      if (shouldCreateTypeForTemplate(node.parent!) && shouldCreateTypeForTemplate(node)) {
+        finishType(operationType);
       }
     } else {
-      finishType(type);
-      namespace?.operations.set(name, type);
+      if (shouldCreateTypeForTemplate(node)) {
+        finishType(operationType);
+      }
+
+      namespace?.operations.set(name, operationType);
     }
 
-    return type;
+    if (links && !instantiatingThisTemplate) {
+      links.declaredType = operationType;
+      links.instantiations = new TypeInstantiationMap();
+    }
+
+    return operationType;
+  }
+
+  function checkOperationIs(
+    operation: OperationStatementNode,
+    opReference: TypeReferenceNode | undefined
+  ): OperationType | undefined {
+    if (!opReference) return undefined;
+
+    // Ensure that we don't end up with a circular reference to the same operation
+    const opSymId = operation.symbol ? getNodeSymId(operation) : undefined;
+    if (opSymId) {
+      pendingResolutions.add(opSymId);
+    }
+
+    const target = resolveTypeReference(opReference);
+    if (target === undefined) {
+      return undefined;
+    }
+
+    // Did we encounter a circular operation reference?
+    if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
+      if (!isInstantiatingTemplateType()) {
+        reportDiagnostic(program, {
+          code: "circular-base-type",
+          format: { typeName: (target.declarations[0] as any).id.sv },
+          target: target,
+        });
+      }
+
+      return undefined;
+    }
+
+    // Resolve the base operation type
+    const baseOperation = checkTypeReferenceSymbol(target, opReference);
+    if (opSymId) {
+      pendingResolutions.delete(opSymId);
+    }
+
+    // Was the wrong type referenced?
+    if (baseOperation.kind !== "Operation") {
+      program.reportDiagnostic(createDiagnostic({ code: "is-operation", target: opReference }));
+      return;
+    }
+
+    return baseOperation;
   }
 
   function getGlobalNamespaceType() {
@@ -2092,11 +2193,7 @@ export function createChecker(program: Program): Checker {
       interfaceType.operations.set(k, v);
     }
 
-    if (
-      (instantiatingThisTemplate &&
-        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
-      node.templateParameters.length === 0
-    ) {
+    if (shouldCreateTypeForTemplate(node)) {
       finishType(interfaceType);
     }
 
@@ -2116,17 +2213,19 @@ export function createChecker(program: Program): Checker {
   ) {
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, interfaceType);
-      if (members.has(opType.name)) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "interface-duplicate",
-            format: { name: opType.name },
-            target: opNode,
-          })
-        );
-        continue;
+      if (opType.kind === "Operation") {
+        if (members.has(opType.name)) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "interface-duplicate",
+              format: { name: opType.name },
+              target: opNode,
+            })
+          );
+          continue;
+        }
+        members.set(opType.name, opType);
       }
-      members.set(opType.name, opType);
     }
   }
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Skip templated operations when scanning for operation routes",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

@@ -29,8 +29,8 @@ export function createCadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends string
 >(lib: Readonly<CadlLibraryDef<T, E>>): CadlLibrary<T, E> {
-  const { reportDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
-  return { ...lib, reportDiagnostic };
+  const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
+  return { ...lib, reportDiagnostic, createDiagnostic };
 }
 
 export function paramMessage<T extends string[]>(

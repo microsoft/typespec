@@ -209,7 +209,7 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   value?: string | number;
 }
 
-export interface OperationType extends BaseType, DecoratedType {
+export interface OperationType extends BaseType, DecoratedType, TemplatedType {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
@@ -393,6 +393,8 @@ export enum SyntaxKind {
   NamespaceStatement,
   UsingStatement,
   OperationStatement,
+  OperationSignatureDeclaration,
+  OperationSignatureReference,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -506,6 +508,8 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -673,10 +677,24 @@ export interface UsingStatementNode extends BaseNode {
   readonly name: IdentifierNode | MemberExpressionNode;
 }
 
-export interface OperationStatementNode extends BaseNode, DeclarationNode {
-  readonly kind: SyntaxKind.OperationStatement;
+export interface OperationSignatureDeclarationNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureDeclaration;
   readonly parameters: ModelExpressionNode;
   readonly returnType: Expression;
+}
+
+export interface OperationSignatureReferenceNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureReference;
+  readonly baseOperation: TypeReferenceNode;
+}
+
+export type OperationSignature =
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode;
+
+export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.OperationStatement;
+  readonly signature: OperationSignature;
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
@@ -1084,6 +1102,14 @@ export interface Diagnostic {
   target: DiagnosticTarget | typeof NoTarget;
 }
 
+/**
+ * Return type of accessor functions in CADL.
+ * Tuple composed of:
+ * - 0: Actual result of an accessor function
+ * - 1: List of diagnostics that were emitted while retrieving the data.
+ */
+export type DiagnosticResult<T> = [T, readonly Diagnostic[]];
+
 export interface DirectiveBase {
   node: DirectiveExpressionNode;
 }
@@ -1102,7 +1128,7 @@ export interface Dirent {
   isDirectory(): boolean;
 }
 
-export interface RemoveDirOptions {
+export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In
    * recursive mode, errors are not reported if `path` does not exist, and
@@ -1134,10 +1160,10 @@ export interface CompilerHost {
   readDir(dir: string): Promise<string[]>;
 
   /**
-   * Deletes the directory.
-   * @param path Path to the directory.
+   * Deletes a directory or file.
+   * @param path Path to the directory or file.
    */
-  removeDir(dir: string, options?: RemoveDirOptions): Promise<void>;
+  rm(path: string, options?: RmOptions): Promise<void>;
 
   /**
    * create directory recursively.
@@ -1282,6 +1308,9 @@ export interface CadlLibrary<
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;
+  createDiagnostic<C extends keyof T, M extends keyof T[C]>(
+    diag: DiagnosticReport<T, C, M>
+  ): Diagnostic;
 }
 
 /**
