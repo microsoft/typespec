@@ -2362,9 +2362,8 @@ export function getNodeAtPosition(
   if (!cp || !isIdentifierContinue(cp)) {
     const newPosition = skipTrivia(script.file.text, position);
     return getNodeAtPositionInternal(script, newPosition, filter);
-  } else {
-    return realNode;
   }
+  return realNode;
 }
 
 function getNodeAtPositionInternal(
