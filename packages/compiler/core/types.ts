@@ -9,7 +9,7 @@ export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
   value: DecoratorArgumentValue;
-  node: Node;
+  node?: Node;
 }
 
 export interface DecoratorApplication {
@@ -150,7 +150,7 @@ export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = 
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;
-  node:
+  node?:
     | ModelStatementNode
     | ModelExpressionNode
     | IntersectionExpressionNode
