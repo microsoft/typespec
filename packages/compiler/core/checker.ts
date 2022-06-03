@@ -149,7 +149,7 @@ export interface Checker {
    * are filtered out, then return the input unchanged. Otherwise, return
    * a new anonymous model with only the filtered properties.
    *
-   * @param model The model to filter.
+   * @param model The input model to filter.
    * @param filter The filter to apply. Properties are kept when this returns true.
    */
   filterModelProperties(
@@ -169,8 +169,9 @@ export interface Checker {
    * marked with `@metadata`, the emitter can use this to recover that the
    * best name for the remaining properties is `SomeName`.
    *
-   * @param model The model for which were
-   * @param filter
+   * @param model The input model
+   * @param filter An optional filter to apply to the input model's
+   * properties.
    */
   getEffectiveModelType(
     model: ModelType,
