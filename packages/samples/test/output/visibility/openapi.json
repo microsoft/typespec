@@ -112,7 +112,7 @@
           "test": {
             "type": "string"
           },
-          "create": {
+          "other": {
             "type": "string"
           }
         },
@@ -120,7 +120,7 @@
           "id",
           "name",
           "test",
-          "create"
+          "other"
         ]
       },
       "WritablePerson": {
@@ -134,12 +134,16 @@
           },
           "test": {
             "type": "string"
+          },
+          "create": {
+            "type": "string"
           }
         },
         "required": [
           "secret",
           "name",
-          "test"
+          "test",
+          "create"
         ]
       },
       "WriteableOptionalPerson": {
@@ -152,6 +156,9 @@
             "type": "string"
           },
           "test": {
+            "type": "string"
+          },
+          "create": {
             "type": "string"
           }
         }

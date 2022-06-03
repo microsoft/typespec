@@ -177,6 +177,10 @@ describe("openapi3: definitions", () => {
       }
       `
     );
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify(res, null, 2));
+    // eslint-disable-next-line no-console
+    console.log();
     ok(
       !("TParent" in res.components.schemas),
       "Parent templated type shouldn't be includd in OpenAPI"

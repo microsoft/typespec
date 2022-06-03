@@ -385,21 +385,36 @@ export function $withVisibility(
     return;
   }
 
-  const filter = (_: any, prop: ModelTypeProperty) => {
-    const vis = getVisibility(context.program, prop);
-    return vis !== undefined && visibilities.filter((v) => !vis.includes(v)).length > 0;
-  };
-
-  mapFilterOut(target.properties, filter);
+  filterModelPropertiesInPlace(target, getVisibilityFilter(context.program, visibilities));
 }
 
-function mapFilterOut(
-  map: Map<string, ModelTypeProperty>,
-  pred: (key: string, prop: ModelTypeProperty) => boolean
+export function applyVisibility(
+  program: Program,
+  model: ModelType,
+  visibilities: string[],
+  overrideFilter?: (property: ModelTypeProperty) => boolean
+): ModelType {
+  const visibilityFilter = getVisibilityFilter(program, visibilities);
+  return program.checker.filterModelProperties(
+    model,
+    (p) => visibilityFilter(p) || (!!overrideFilter && overrideFilter(p))
+  );
+}
+
+function getVisibilityFilter(program: Program, visibilities: string[]) {
+  return (property: ModelTypeProperty) => {
+    const propertyVisibilities = getVisibility(program, property);
+    return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));
+  };
+}
+
+function filterModelPropertiesInPlace(
+  model: ModelType,
+  filter: (prop: ModelTypeProperty) => boolean
 ) {
-  for (const [key, prop] of map) {
-    if (pred(key, prop)) {
-      map.delete(key);
+  for (const [key, prop] of model.properties) {
+    if (!filter(prop)) {
+      model.properties.delete(key);
     }
   }
 }
@@ -423,10 +438,7 @@ export function $withUpdateableProperties(context: DecoratorContext, target: Typ
   }
 
   // remove all read-only properties from the target type
-  mapFilterOut(target.properties, (key, value) => {
-    const vis = getVisibility(context.program, value);
-    return vis !== undefined && vis.length > 0 && !vis.includes("update");
-  });
+  filterModelPropertiesInPlace(target, getVisibilityFilter(context.program, ["update"]));
 }
 
 // -- @withoutOmittedProperties decorator ----------------------
@@ -462,7 +474,7 @@ export function $withoutOmittedProperties(
   }
 
   // Remove all properties to be omitted
-  mapFilterOut(target.properties, (key, _) => omitNames.has(key));
+  filterModelPropertiesInPlace(target, (prop) => !omitNames.has(prop.name));
 }
 
 // -- @withoutDefaultValues decorator ----------------------

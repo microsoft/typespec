@@ -49,11 +49,21 @@ export function getTypeName(
   program: Program,
   type: Type,
   options: TypeNameOptions,
-  existing?: Record<string, any>
+  existing?: Record<string, unknown>
 ): string {
   const name =
     getFriendlyName(program, type, options) ?? program.checker.getTypeName(type, options);
 
+  checkDuplicateTypeName(program, type, name, existing);
+  return name;
+}
+
+export function checkDuplicateTypeName(
+  program: Program,
+  type: Type,
+  name: string,
+  existing: Record<string, unknown> | undefined
+) {
   if (existing && existing[name]) {
     reportDiagnostic(program, {
       code: "duplicate-type-name",
@@ -63,8 +73,6 @@ export function getTypeName(
       target: type,
     });
   }
-
-  return name;
 }
 
 /**
