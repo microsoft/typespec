@@ -2,6 +2,7 @@ import {
   DecoratorContext,
   ModelType,
   ModelTypeProperty,
+  NamespaceType,
   Program,
   setDecoratorNamespace,
   Type,
@@ -10,6 +11,7 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
+import { extractParamsFromPath } from "./utils.js";
 
 const headerFieldsKey = Symbol("header");
 export function $header(context: DecoratorContext, entity: Type, headerName?: string) {
@@ -270,9 +272,68 @@ export function $head(context: DecoratorContext, entity: Type, ...args: unknown[
   setOperationVerb(context.program, entity, "head");
 }
 
-// TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
 function validateVerbNoArgs(program: Program, target: Type, args: unknown[]) {
   validateDecoratorParamCount(program, target, args, 0);
+}
+
+export interface HttpServer {
+  url: string;
+  description: string;
+  parameters?: Map<string, ModelTypeProperty>;
+}
+
+const serversKey = Symbol("servers");
+/**
+ * Configure the server url for the service.
+ * @param context Decorator context
+ * @param target Decorator target(Must be a namespace)
+ * @param description Description for this server.
+ * @param parameters @optional Parameters to interpolate in the server url.
+ */
+export function $server(
+  context: DecoratorContext,
+  target: Type,
+  url: string,
+  description: string,
+  parameters?: Type
+): void {
+  if (
+    !validateDecoratorTarget(context, target, "@server", "Namespace") ||
+    !validateDecoratorParamType(context.program, target, url, "String") ||
+    !validateDecoratorParamType(context.program, target, description, "String") ||
+    (parameters && !validateDecoratorParamType(context.program, target, parameters, "Model"))
+  ) {
+    return;
+  }
+
+  const params = extractParamsFromPath(url);
+  const parameterMap = new Map(parameters?.properties ?? []);
+  for (const declaredParam of params) {
+    const param = parameterMap.get(declaredParam);
+    if (!param) {
+      reportDiagnostic(context.program, {
+        code: "missing-server-param",
+        format: { param: declaredParam },
+        target: context.getArgumentTarget(0)!,
+      });
+      parameterMap.delete(declaredParam);
+    }
+  }
+
+  let servers: HttpServer[] = context.program.stateMap(serversKey).get(target);
+  if (servers === undefined) {
+    servers = [];
+    context.program.stateMap(serversKey).set(target, servers);
+  }
+  servers.push({
+    url,
+    description,
+    parameters: parameterMap,
+  });
+}
+
+export function getServers(program: Program, type: NamespaceType): HttpServer[] | undefined {
+  return program.stateMap(serversKey).get(type);
 }
 
 setDecoratorNamespace(
@@ -286,7 +347,8 @@ setDecoratorNamespace(
   $query,
   $path,
   $body,
-  $statusCode
+  $statusCode,
+  $server
 );
 
 export function $plainData(context: DecoratorContext, entity: Type) {
