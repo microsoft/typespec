@@ -54,7 +54,7 @@ describe("compiler: effective type", () => {
       };
 
       @test model Test {
-        test: {...Source}
+        test: {...Spread}
       }
       `
     );
