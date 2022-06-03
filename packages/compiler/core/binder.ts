@@ -467,7 +467,7 @@ function hasScope(node: Node): node is ScopeNode {
 }
 
 export function createSymbol(
-  node: Node,
+  node: Node | undefined,
   name: string,
   flags: SymbolFlags,
   parent?: Sym,
@@ -483,7 +483,7 @@ export function createSymbol(
   }
 
   return {
-    declarations: [node],
+    declarations: node ? [node] : [],
     name,
     exports,
     members,
