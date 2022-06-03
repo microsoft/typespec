@@ -143,13 +143,38 @@ export interface Checker {
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
-  getEffectiveModelType(
-    model: ModelType,
-    filter?: (property: ModelTypeProperty) => boolean
-  ): ModelType;
+
+  /**
+   * Applies a filter to the properties of a given type. If no properties
+   * are filtered out, then return the input unchanged. Otherwise, return
+   * a new anonymous model with only the filtered properties.
+   *
+   * @param model The model to filter.
+   * @param filter The filter to apply. Properties are kept when this returns true.
+   */
   filterModelProperties(
     model: ModelType,
     filter: (property: ModelTypeProperty) => boolean
+  ): ModelType;
+
+  /**
+   * If the input is anonymous (or the provided filter removes properties)
+   * and there exists a named model with the same set of properties
+   * (ignoring filtered properties), then return that named model.
+   * Otherwise, return the input unchanged.
+   *
+   * This can be used by emitters to find a better name for a set of
+   * properties after filtering. For example, given `{ @metadata prop:
+   * string} & SomeName`, and an emitter that wishes to discard properties
+   * marked with `@metadata`, the emitter can use this to recover that the
+   * best name for the remaining properties is `SomeName`.
+   *
+   * @param model The model for which were
+   * @param filter
+   */
+  getEffectiveModelType(
+    model: ModelType,
+    filter?: (property: ModelTypeProperty) => boolean
   ): ModelType;
 
   errorType: ErrorType;
