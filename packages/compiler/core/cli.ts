@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { spawnSync, SpawnSyncOptionsWithStringEncoding } from "child_process";
-import { mkdtemp, readdir, rmdir } from "fs/promises";
+import { mkdtemp, readdir, rm } from "fs/promises";
 import mkdirp from "mkdirp";
 import watch from "node-watch";
 import os from "os";
@@ -421,7 +421,7 @@ async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, 
   install(vsixPaths);
 
   // delete temporary directory
-  await rmdir(temp, { recursive: true });
+  await rm(temp, { recursive: true });
 }
 
 function runCode(codeArgs: string[], insiders: boolean, debug: boolean) {

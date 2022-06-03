@@ -638,6 +638,7 @@ function dynamicVisitChildren(node: Node, cb: (key: string, child: any) => void)
   for (const [key, value] of Object.entries(node)) {
     switch (key) {
       case "parent":
+      case "signature": // OperationStatementNode.signature doesn't have a node type
       case "parseDiagnostics":
         return;
     }
