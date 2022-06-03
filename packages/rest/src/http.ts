@@ -279,7 +279,7 @@ function validateVerbNoArgs(program: Program, target: Type, args: unknown[]) {
 export interface HttpServer {
   url: string;
   description: string;
-  parameters?: Map<string, ModelTypeProperty>;
+  parameters: Map<string, ModelTypeProperty>;
 }
 
 const serversKey = Symbol("servers");

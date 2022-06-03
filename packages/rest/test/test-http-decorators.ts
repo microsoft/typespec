@@ -243,7 +243,7 @@ describe("rest: http decorators", () => {
     });
   });
 
-  describe.only("@server", () => {
+  describe("@server", () => {
     it("emit diagnostics when @server is not used on namespace", async () => {
       const diagnostics = await runner.diagnose(`
           @server("https://example.com", "MyServer") op test(): string;
