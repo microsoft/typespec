@@ -79,7 +79,7 @@
     "@types/mocha": "~9.1.0",
     "@types/mustache": "~4.1.2",
     "@types/node": "~16.0.3",
-    "@types/prettier": "^2.0.2",
+    "@types/prettier": "2.6.0",
     "@types/prompts": "~2.0.14",
     "@types/yargs": "~17.0.2",
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
