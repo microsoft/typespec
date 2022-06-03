@@ -10,13 +10,12 @@ describe("compiler: effective type", () => {
     const removeSymbol = Symbol("remove");
     testHost = await createTestHost();
     testHost.addJsFile("remove.js", {
-      $remove: function ({ program }: DecoratorContext, entity: Type) {
+      $remove: ({ program }: DecoratorContext, entity: Type) => {
         program.stateSet(removeSymbol).add(entity);
       },
     });
-    removeFilter = function (property: ModelTypeProperty) {
-      return !testHost.program.stateSet(removeSymbol).has(property);
-    };
+    removeFilter = (property: ModelTypeProperty) =>
+      !testHost.program.stateSet(removeSymbol).has(property);
   });
 
   it("spread", async () => {
@@ -54,7 +53,7 @@ describe("compiler: effective type", () => {
       };
 
       @test model Test {
-        test: {...Spread}
+        test: {...Spread };
       }
       `
     );
