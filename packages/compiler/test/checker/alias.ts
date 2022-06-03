@@ -163,7 +163,7 @@ describe("compiler: aliases", () => {
     strictEqual(C.properties.get("c")!.type, Test);
   });
 
-  it.only("can be used like any namespace", async () => {
+  it("can be used like any namespace", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `

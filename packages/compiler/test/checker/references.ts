@@ -1,8 +1,8 @@
 import { strictEqual } from "assert";
 import { EnumType, ModelType, OperationType, UnionTypeVariant } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
-describe.only("cadl: references", () => {
+describe("compiler: references", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
@@ -186,7 +186,7 @@ describe.only("cadl: references", () => {
     strictEqual(x, Bar.properties.get("prop")!.type);
   });
 
-  it.only("can reference templated union variants", async () => {
+  it("can reference templated union variants", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -270,5 +270,45 @@ describe.only("cadl: references", () => {
     };
 
     strictEqual(operation, Bar.properties.get("prop")!.type);
+  });
+
+  it("throws proper diagnostics", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      model M { }
+      interface I { }
+      union U { }
+      enum E { }
+
+      model Test {
+        m: M.x;
+        i: I.x;
+        u: U.x;
+        e: E.x;
+      }
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./main.cadl");
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: `Model doesn't have member x`,
+      },
+      {
+        code: "invalid-ref",
+        message: `Interface doesn't have member x`,
+      },
+      {
+        code: "invalid-ref",
+        message: `Union doesn't have member x`,
+      },
+      {
+        code: "invalid-ref",
+        message: `Enum doesn't have member x`,
+      },
+    ]);
   });
 });

@@ -1562,8 +1562,8 @@ export function createChecker(program: Program): Checker {
           program.reportDiagnostic(
             createDiagnostic({
               code: "invalid-ref",
-              messageId: "underNamespace",
-              format: { id: node.id.sv },
+              messageId: "underContainer",
+              format: { kind: type.kind, id: node.id.sv },
               target: node,
             })
           );
@@ -1576,8 +1576,8 @@ export function createChecker(program: Program): Checker {
           program.reportDiagnostic(
             createDiagnostic({
               code: "invalid-ref",
-              messageId: "underNamespace",
-              format: { id: node.id.sv },
+              messageId: "underContainer",
+              format: { kind: type.kind, id: node.id.sv },
               target: node,
             })
           );
