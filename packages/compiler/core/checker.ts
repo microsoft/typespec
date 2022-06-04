@@ -716,6 +716,11 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
+    if (sym.flags & SymbolFlags.LateBound) {
+      compilerAssert(sym.type, "Expected late bound symbol to have type");
+      return sym.type;
+    }
+
     const symbolLinks = getSymbolLinks(sym);
     let baseType;
     const args = checkTypeReferenceArgs(node);
@@ -1499,9 +1504,15 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.MemberExpression) {
-      const base = resolveTypeReference(node.base);
+      let base = resolveTypeReference(node.base);
+
       if (!base) {
         return undefined;
+      }
+
+      // when resolving a type reference based on an alias, unwrap the alias.
+      if (base.flags & SymbolFlags.Alias) {
+        base = getAliasedSymbol(base);
       }
 
       if (base.flags & SymbolFlags.Namespace) {
@@ -1539,6 +1550,40 @@ export function createChecker(program: Program): Checker {
         );
 
         return undefined;
+      } else if (base.flags & SymbolFlags.MemberContainer) {
+        const type =
+          base.flags & SymbolFlags.LateBound ? base.type! : getTypeForNode(base.declarations[0]);
+        if (
+          type.kind !== "Model" &&
+          type.kind !== "Enum" &&
+          type.kind !== "Interface" &&
+          type.kind !== "Union"
+        ) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "underContainer",
+              format: { kind: type.kind, id: node.id.sv },
+              target: node,
+            })
+          );
+          return undefined;
+        }
+
+        lateBindMembers(type, base);
+        const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
+        if (!sym) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "underContainer",
+              format: { kind: type.kind, id: node.id.sv },
+              target: node,
+            })
+          );
+          return undefined;
+        }
+        return sym;
       } else {
         program.reportDiagnostic(
           createDiagnostic({
@@ -1568,6 +1613,30 @@ export function createChecker(program: Program): Checker {
     compilerAssert(false, "Unknown type reference kind", node);
   }
 
+  /**
+   * Return the symbol that is aliased by this alias declaration. If no such symbol is aliased,
+   * return the symbol for the alias instead. For member containers which need to be late bound
+   * (i.e. they contain symbols we don't know until we've instantiated the type and the type is an
+   * instantiation) we late bind the container which creates the symbol that will hold its members.
+   */
+  function getAliasedSymbol(aliasSymbol: Sym): Sym {
+    const aliasType = checkAlias(aliasSymbol.declarations[0] as AliasStatementNode);
+    switch (aliasType.kind) {
+      case "Model":
+      case "Interface":
+      case "Union":
+        if (aliasType.templateArguments) {
+          // this is an alias for some instantiation, so late-bind the instantiation
+          lateBindMemberContainer(aliasType as any);
+          return aliasType.symbol!;
+        }
+      // fallthrough
+      default:
+        // get the symbol from the node aliased type's node, or just return the base
+        // if it doesn't have a symbol (which will likely result in an error later on)
+        return aliasType.node!.symbol ?? aliasSymbol;
+    }
+  }
   function checkStringLiteral(str: StringLiteralNode): StringLiteralType {
     return getLiteralType(str);
   }
@@ -1759,6 +1828,89 @@ export function createChecker(program: Program): Checker {
     }
 
     properties.set(newProp.name, newProp);
+  }
+
+  /**
+   * Initializes a late bound symbol for the type. This is generally necessary when attempting to
+   * access a symbol for a type that is created during the check phase.
+   */
+  function lateBindMemberContainer(type: ModelType | InterfaceType | UnionType) {
+    if (type.symbol) return;
+    switch (type.kind) {
+      case "Model":
+        type.symbol = createSymbol(type.node, type.name, SymbolFlags.Model | SymbolFlags.LateBound);
+        type.symbol.type = type;
+        break;
+      case "Interface":
+        type.symbol = createSymbol(
+          type.node,
+          type.name,
+          SymbolFlags.Interface | SymbolFlags.LateBound
+        );
+        type.symbol.type = type;
+        break;
+      case "Union":
+        if (!type.name) return; // don't make a symbol for anonymous unions
+        type.symbol = createSymbol(type.node, type.name, SymbolFlags.Union | SymbolFlags.LateBound);
+        type.symbol.type = type;
+        break;
+      default:
+        compilerAssert(true, "Fail");
+    }
+  }
+
+  function lateBindMembers(
+    type: EnumType | ModelType | InterfaceType | UnionType,
+    containerSym: Sym
+  ) {
+    switch (type.kind) {
+      case "Model":
+        for (const prop of walkPropertiesInherited(type)) {
+          const sym = createSymbol(
+            prop.node,
+            prop.name,
+            SymbolFlags.ModelProperty | SymbolFlags.LateBound
+          );
+          sym.type = prop;
+          containerSym.members!.set(prop.name, sym);
+        }
+        break;
+      case "Enum":
+        for (const member of type.members) {
+          const sym = createSymbol(
+            member.node,
+            member.name,
+            SymbolFlags.EnumMember | SymbolFlags.LateBound
+          );
+          sym.type = member;
+          containerSym.members!.set(member.name, sym);
+        }
+
+        break;
+      case "Interface":
+        for (const member of type.operations.values()) {
+          const sym = createSymbol(
+            member.node,
+            member.name,
+            SymbolFlags.InterfaceMember | SymbolFlags.LateBound
+          );
+          sym.type = member;
+          containerSym.members!.set(member.name, sym);
+        }
+        break;
+      case "Union":
+        for (const variant of type.variants.values()) {
+          // don't bind anything for union expressions
+          if (!variant.node || typeof variant.name === "symbol") continue;
+          const sym = createSymbol(
+            variant.node,
+            variant.name,
+            SymbolFlags.UnionVariant | SymbolFlags.LateBound
+          );
+          sym.type = variant;
+          containerSym.members!.set(variant.name, sym);
+        }
+    }
   }
 
   function checkClassHeritage(
@@ -2267,8 +2419,8 @@ export function createChecker(program: Program): Checker {
     const instantiatingThisTemplate = instantiatingTemplate === node;
 
     if (links.declaredType && !instantiatingThisTemplate) {
-      // we're not instantiating this interface and we've already checked it
-      return links.declaredType as InterfaceType;
+      // we're not instantiating this union and we've already checked it
+      return links.declaredType as UnionType;
     }
 
     const decorators = checkDecorators(node);
@@ -2287,11 +2439,7 @@ export function createChecker(program: Program): Checker {
       expression: false,
     });
 
-    if (
-      (instantiatingThisTemplate &&
-        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
-      node.templateParameters.length === 0
-    ) {
+    if (shouldCreateTypeForTemplate(node)) {
       finishType(unionType);
     }
 
@@ -2306,7 +2454,7 @@ export function createChecker(program: Program): Checker {
 
   function checkUnionVariants(union: UnionStatementNode, variants: Map<string, UnionTypeVariant>) {
     for (const variantNode of union.options) {
-      const variantType = checkUnionVariant(variantNode);
+      const variantType = checkUnionVariant(union, variantNode);
       if (variants.has(variantType.name as string)) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -2321,18 +2469,27 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkUnionVariant(variantNode: UnionVariantNode): UnionTypeVariant {
+  function checkUnionVariant(
+    union: UnionStatementNode,
+    variantNode: UnionVariantNode
+  ): UnionTypeVariant {
     const name =
       variantNode.id.kind === SyntaxKind.Identifier ? variantNode.id.sv : variantNode.id.value;
     const decorators = checkDecorators(variantNode);
     const type = getTypeForNode(variantNode.value);
-    return createAndFinishType({
+    const variantType: UnionTypeVariant = createType({
       kind: "UnionVariant",
       name,
       node: variantNode,
       decorators,
       type,
     });
+
+    if (shouldCreateTypeForTemplate(union)) {
+      finishType(variantType);
+    }
+
+    return variantType;
   }
 
   function checkEnumMember(

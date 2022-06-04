@@ -59,7 +59,7 @@
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
-    "@types/prettier": "^2.0.2",
+    "@types/prettier": "2.6.0",
     "@types/react-dom": "~18.0.1",
     "@types/react": "~18.0.5",
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
