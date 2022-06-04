@@ -455,6 +455,12 @@ export function createChecker(program: Program): Checker {
     switch (type.kind) {
       case "Model":
         return getModelName(type, options);
+      case "ModelProperty":
+        return getModelPropertyName(type, options);
+      case "Interface":
+        return getInterfaceName(type, options);
+      case "Operation":
+        return getOperationName(type, options);
       case "Enum":
         return getEnumName(type, options);
       case "Union":
@@ -528,6 +534,22 @@ export function createChecker(program: Program): Checker {
       // regular old model.
       return modelName;
     }
+  }
+
+  function getModelPropertyName(prop: ModelTypeProperty, options: TypeNameOptions | undefined) {
+    const modelName = prop.model ? getModelName(prop.model, options) : undefined;
+
+    return `${modelName ?? "(anonymous model)"}.${prop.name}`;
+  }
+
+  function getInterfaceName(iface: InterfaceType, options: TypeNameOptions | undefined) {
+    const nsName = getNamespaceString(iface.namespace, options);
+    return (nsName ? nsName + "." : "") + iface.name;
+  }
+
+  function getOperationName(op: OperationType, options: TypeNameOptions | undefined) {
+    const nsName = getNamespaceString(op.namespace, options);
+    return (nsName ? nsName + "." : "") + op.name;
   }
 
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
