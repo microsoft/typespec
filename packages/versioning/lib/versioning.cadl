@@ -1,4 +1,5 @@
 import "../dist/src/versioning.js";
+import "../dist/src/validate.js";
 
 #suppress "projections-are-experimental"
 projection op#v {
