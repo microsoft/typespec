@@ -2325,7 +2325,6 @@ export function createChecker(program: Program): Checker {
         decorators: [],
       }));
 
-      enumType.namespace?.enums.set(enumType.name!, enumType);
       const memberNames = new Set<string>();
 
       for (const member of node.members) {
@@ -2336,7 +2335,9 @@ export function createChecker(program: Program): Checker {
         }
       }
 
-      enumType.namespace = getParentNamespaceType(node);
+      const namespace = getParentNamespaceType(node);
+      enumType.namespace = namespace;
+      enumType.namespace?.enums.set(enumType.name!, enumType);
       enumType.decorators = checkDecorators(node);
 
       finishType(enumType);

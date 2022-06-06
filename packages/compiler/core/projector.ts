@@ -149,6 +149,7 @@ export function createProjector(
       interfaces: childInterfaces,
       unions: childUnions,
       enums: childEnums,
+      decorators: [],
     });
 
     projectedNs.decorators = projectDecorators(ns.decorators);

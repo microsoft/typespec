@@ -65,7 +65,7 @@ describe("cadl: versioning", () => {
     it("can add models", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedModel(["v1", "v2"], `@added(Versions.v1) model Test {}`);
+      } = await versionedModel(["v1", "v2"], `@added(Versions.v2) model Test {}`);
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
       strictEqual(v2.kind, "Model");
@@ -420,8 +420,10 @@ describe("cadl: versioning", () => {
 
     async function versionedOperation(versions: string[], operation: string) {
       const { Test } = (await runner.compile(`
-        @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+        @versioned(Versions)
         namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
         @test ${operation}
       `)) as { Test: OperationType };
@@ -534,8 +536,10 @@ describe("cadl: versioning", () => {
 
     async function versionedInterface(versions: string[], iface: string) {
       const { Test } = (await runner.compile(`
-        @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+        @versioned(Versions)
         namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
         @test ${iface}
       `)) as { Test: InterfaceType };
@@ -548,6 +552,7 @@ describe("cadl: versioning", () => {
       };
     }
   });
+
   describe("enums", () => {
     it("can add enums", async () => {
       const {
@@ -650,8 +655,10 @@ describe("cadl: versioning", () => {
 
     async function versionedEnum(versions: string[], enumCode: string) {
       const { Test } = (await runner.compile(`
-        @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+        @versioned(Versions)
         namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
         @test ${enumCode}
       `)) as { Test: EnumType };

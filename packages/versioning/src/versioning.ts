@@ -222,7 +222,7 @@ export function $versionedDependency(
         });
         continue;
       }
-      // const sourceVersion = checkIsVersion(program, sourceMember, sourceMember);
+
       const targetVersion = checkIsVersion(program, targetMember, targetMember);
       if (!targetVersion) {
         continue;
@@ -486,22 +486,18 @@ function appliesAtVersion(
   type: Type,
   enumMemberVersion: EnumMemberType
 ) {
+  const [namespace] = getVersions(p, type);
   if (type.kind === "Model" && type.name === "Test") {
+    const vOf = getVersion(p, type.namespace!);
     console.log("Version", type.name);
   }
-  const [namespace, versions] = getVersions(p, type);
   let version = getVersionForEnumMember(p, enumMemberVersion)!;
+  // TODO change to find containg namespace?
   if (namespace) {
     const newVersion = versionIndex.get(version)?.get(namespace);
     if (newVersion) {
       version = newVersion;
     }
-  }
-  if (!versions) {
-    if (type.kind === "Model" && type.name === "Test") {
-      console.log("Version", version);
-    }
-    return null;
   }
 
   const appliedOnVersion = getMetadataFn(p, type);

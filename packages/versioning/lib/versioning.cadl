@@ -179,15 +179,15 @@ projection enum#v {
       return never;
     } else {
       self::projectionBase::members::forEach((m) => {
-        if addedAfter(m, version::projectionBase) {
+        if addedAfter(m, version, self::projectionBase) {
           self::addMember(m::name, m::type);
         };
         
-        if removedOnOrBefore(m, version::projectionBase) {
+        if removedOnOrBefore(m, version, self::projectionBase) {
           self::addMember(m::name, m::type);
         };
 
-        if renamedAfter(m, version::projectionBase) {
+        if renamedAfter(m, version, self::projectionBase) {
           self::renameMember(getRenamedFromOldName(m), m::name);
         };
       });

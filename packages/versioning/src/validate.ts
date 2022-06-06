@@ -79,7 +79,7 @@ export function $onValidate(program: Program) {
             });
           }
         } else {
-          if (typeof value !== "string") {
+          if (value instanceof Map) {
             reportDiagnostic(program, {
               code: "versioned-dependency-not-picked",
               format: { dependency: program.checker.getNamespaceString(dependencyNs) },
