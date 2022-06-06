@@ -2317,15 +2317,14 @@ export function createChecker(program: Program): Checker {
   function checkEnum(node: EnumStatementNode): Type {
     const links = getSymbolLinks(node.symbol);
     if (!links.type) {
-      const decorators = checkDecorators(node);
       const enumType: EnumType = (links.type = createType({
         kind: "Enum",
         name: node.id.sv,
         node,
         members: [],
-        namespace: getParentNamespaceType(node),
-        decorators,
+        decorators: [],
       }));
+
       enumType.namespace?.enums.set(enumType.name!, enumType);
       const memberNames = new Set<string>();
 
@@ -2336,6 +2335,9 @@ export function createChecker(program: Program): Checker {
           enumType.members.push(memberType);
         }
       }
+
+      enumType.namespace = getParentNamespaceType(node);
+      enumType.decorators = checkDecorators(node);
 
       finishType(enumType);
     }

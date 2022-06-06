@@ -442,16 +442,6 @@ export function getVersionForEnumMember(
   member: EnumMemberType
 ): Version | undefined {
   const [, versions] = getVersionsForEnum(program, member);
-  if (versions?.getVersionForEnumMember(member) === undefined) {
-    const v = [...(versions as any).map.entries()];
-    console.trace(
-      "Versions",
-      versions,
-      member.name,
-      v.map((x) => x[0] === member),
-      v.map((x) => x[1].enumMember === member)
-    );
-  }
   return versions?.getVersionForEnumMember(member);
 }
 
