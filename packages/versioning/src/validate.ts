@@ -158,10 +158,10 @@ function validateTargetVersionCompatible(
 
   const [sourceNamespace, sourceVersions] = getVersions(program, source);
   const [targetNamespace, _targetVersions] = getVersions(program, target);
-  if (sourceNamespace === undefined || sourceVersions === undefined) {
+  if (sourceNamespace === undefined) {
     return;
   }
-  if (targetNamespace === undefined || targetNamespace === undefined) {
+  if (targetNamespace === undefined) {
     return;
   }
 
