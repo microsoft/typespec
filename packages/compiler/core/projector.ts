@@ -151,6 +151,8 @@ export function createProjector(
       enums: childEnums,
     });
 
+    projectedNs.decorators = projectDecorators(ns.decorators);
+
     // ns run decorators before projecting anything inside them
     checker.finishType(projectedNs);
 
@@ -417,6 +419,8 @@ export function createProjector(
       const projectedMember = projectType(member);
       if (projectedMember.kind === "EnumMember") {
         members.push(projectedMember);
+        // console.log("HEre priojection", projectedEnum.name, projectedMember.name);
+        // projectedMember.enum = projectedEnum;
       }
     }
 
@@ -428,9 +432,9 @@ export function createProjector(
     const decorators = projectDecorators(e.decorators);
     const projectedMember = shallowClone(e, {
       decorators,
-      enum: projectedTypes.get(e.enum)! as EnumType,
     });
-
+    const parentEnum = projectType(e.enum) as EnumType;
+    projectedMember.enum = parentEnum;
     checker.finishType(projectedMember);
     return projectedMember;
   }
