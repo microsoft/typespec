@@ -9,7 +9,8 @@ import {
   UnionType,
 } from "@cadl-lang/compiler";
 import { BasicTestRunner, createTestWrapper } from "@cadl-lang/compiler/testing";
-import { ok, strictEqual } from "assert";
+import { fail, ok, strictEqual } from "assert";
+import { getVersions } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
@@ -29,13 +30,19 @@ describe("cadl: versioning", () => {
   describe("version compare", () => {
     it("compares arbitrary types in order", async () => {
       const { Test } = (await runner.compile(`
-        @versioned("1" | "version two" | "3")
+        @versioned(Versions)
         namespace MyService;
 
+        enum Versions {
+          v1: "1",
+          v2: "version two",
+          v3: "3"
+        }
+
         @test model Test {
-          @added("1") a: 1;
-          @added("version two") b: 1;
-          @added("3") c: 1;
+          @added(Versions.v1) a: 1;
+          @added(Versions.v2) b: 1;
+          @added(Versions.v3) c: 1;
         }
         `)) as { Test: ModelType };
 
@@ -58,7 +65,7 @@ describe("cadl: versioning", () => {
     it("can add models", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedModel(["1", "2"], `@added("2") model Test {}`);
+      } = await versionedModel(["v1", "v2"], `@added(Versions.v1) model Test {}`);
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
       strictEqual(v2.kind, "Model");
@@ -69,16 +76,16 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedModel(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `model Test {
           a: int32;
-          @added("2") b: int32;
-          @added("3") c: int32;
-          @added("2") nested: Nested;
+          @added(Versions.v2) b: int32;
+          @added(Versions.v3) c: int32;
+          @added(Versions.v2) nested: Nested;
         }
         model Nested {
           d: int32;
-          @added("3") e: int32;
+          @added(Versions.v3) e: int32;
         }
         `
       );
@@ -91,9 +98,9 @@ describe("cadl: versioning", () => {
 
       assertModelProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -102,7 +109,7 @@ describe("cadl: versioning", () => {
     it("can remove models", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedModel(["1", "2"], `@removed("2") model Test {}`);
+      } = await versionedModel(["v1", "v2"], `@removed(Versions.v2) model Test {}`);
 
       strictEqual(v1.kind, "Model");
       strictEqual(v2.kind, "Intrinsic");
@@ -114,16 +121,16 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedModel(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `model Test {
           a: int32;
-          @removed("2") b: int32;
-          @removed("3") c: int32;
-          @removed("3") nested: Nested;
+          @removed(Versions.v2) b: int32;
+          @removed(Versions.v3) c: int32;
+          @removed(Versions.v3) nested: Nested;
         }
         model Nested {
           d: int32;
-          @removed("2") e: int32;
+          @removed(Versions.v2) e: int32;
         }
         `
       );
@@ -134,9 +141,9 @@ describe("cadl: versioning", () => {
       assertHasProperties(v3, ["a"]);
       assertModelProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -147,11 +154,11 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedModel(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `model Test {
           a: int32;
-          @renamedFrom("2", "foo") b: int32;
-          @renamedFrom("3", "bar") c: int32;
+          @renamedFrom(Versions.v2, "foo") b: int32;
+          @renamedFrom(Versions.v3, "bar") c: int32;
         }`
       );
 
@@ -160,9 +167,9 @@ describe("cadl: versioning", () => {
       assertHasProperties(v3, ["a", "b", "c"]);
       assertModelProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -172,10 +179,10 @@ describe("cadl: versioning", () => {
       const {
         projections: [v1, v2],
       } = await versionedModel(
-        ["1", "2"],
+        ["v1", "v2"],
         `model Test {
           a: int32;
-          @madeOptional("2") b?: int32;
+          @madeOptional(Versions.v2) b?: int32;
         }`
       );
 
@@ -190,14 +197,14 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2],
       } = await versionedModel(
-        ["1", "2"],
+        ["v1", "v2"],
         `model Test {
           t: string;
           ...Spreadable
         }
         model Spreadable {
           a: int32;
-          @added("2") b: int32;
+          @added(Versions.v2) b: int32;
         }
         `
       );
@@ -207,8 +214,8 @@ describe("cadl: versioning", () => {
 
       assertModelProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
+          [v1, "v1"],
+          [v2, "v2"],
         ],
         source
       );
@@ -216,8 +223,10 @@ describe("cadl: versioning", () => {
 
     async function versionedModel(versions: string[], model: string) {
       const { Test } = (await runner.compile(`
-      @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+      @versioned(Versions)
       namespace MyService;
+
+      enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
       @test ${model}
       `)) as { Test: ModelType };
@@ -234,7 +243,7 @@ describe("cadl: versioning", () => {
     it("can add unions", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedUnion(["1", "2"], `@added("2") union Test {}`);
+      } = await versionedUnion(["v1", "v2"], `@added(Versions.v2) union Test {}`);
 
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
@@ -246,16 +255,16 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedUnion(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `union Test {
           a: int8;
-          @added("2") b: int16;
-          @added("3") c: int32;
-          @added("2") nested: Nested;
+          @added(Versions.v2) b: int16;
+          @added(Versions.v3) c: int32;
+          @added(Versions.v2) nested: Nested;
         }
         model Nested {
           d: int32;
-          @added("3") e: int32;
+          @added(Versions.v3) e: int32;
         }
         `
       );
@@ -267,9 +276,9 @@ describe("cadl: versioning", () => {
       assertHasProperties(v3.variants.get("nested")!.type as ModelType, ["d", "e"]);
       assertUnionProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -278,7 +287,7 @@ describe("cadl: versioning", () => {
     it("can remove unions", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedUnion(["1", "2"], `@removed("2") union Test {}`);
+      } = await versionedUnion(["v1", "v2"], `@removed(Versions.v2) union Test {}`);
 
       strictEqual(v2.kind, "Intrinsic");
       strictEqual((v2 as any as IntrinsicType).name, "never");
@@ -290,16 +299,16 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedUnion(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `union Test {
           a: int32;
-          @removed("2") b: int32;
-          @removed("3") c: int32;
-          @removed("3") nested: Nested;
+          @removed(Versions.v2) b: int32;
+          @removed(Versions.v3) c: int32;
+          @removed(Versions.v3) nested: Nested;
         }
         model Nested {
           d: int32;
-          @removed("2") e: int32;
+          @removed(Versions.v2) e: int32;
         }
         `
       );
@@ -310,9 +319,9 @@ describe("cadl: versioning", () => {
       assertHasVariants(v3, ["a"]);
       assertUnionProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -323,11 +332,11 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedUnion(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `union Test {
           a: int32;
-          @renamedFrom("2", "foo") b: int32;
-          @renamedFrom("3", "bar") c: int32;
+          @renamedFrom(Versions.v2, "foo") b: int32;
+          @renamedFrom(Versions.v3, "bar") c: int32;
         }`
       );
 
@@ -336,9 +345,9 @@ describe("cadl: versioning", () => {
       assertHasVariants(v3, ["a", "b", "c"]);
       assertUnionProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -347,8 +356,10 @@ describe("cadl: versioning", () => {
     async function versionedUnion(versions: string[], union: string) {
       const { Test } = (await runner.compile(`
       import "@cadl-lang/versioning";
-      @versioned(${versions.map((t) => JSON.stringify(t)).join(" | ")})
+      @versioned(Versions)
       namespace MyService;
+
+      enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
 
       @test ${union}
       `)) as { Test: UnionType };
@@ -366,7 +377,7 @@ describe("cadl: versioning", () => {
     it("can be added", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedOperation(["1", "2"], `@added("2") op Test(): void;`);
+      } = await versionedOperation(["v1", "v2"], `@added(Versions.v2) op Test(): void;`);
 
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
@@ -375,7 +386,7 @@ describe("cadl: versioning", () => {
     it("can be removed", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedOperation(["1", "2"], `@removed("2") op Test(): void;`);
+      } = await versionedOperation(["v1", "v2"], `@removed(Versions.v2) op Test(): void;`);
 
       strictEqual(v2.kind, "Intrinsic");
       strictEqual((v2 as any as IntrinsicType).name, "never");
@@ -384,7 +395,7 @@ describe("cadl: versioning", () => {
     it("can version parameters", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedOperation(["1", "2"], `op Test(@added("2") a: string): void;`);
+      } = await versionedOperation(["v1", "v2"], `op Test(@added(Versions.v2) a: string): void;`);
 
       assertHasProperties(v1.parameters, []);
       assertHasProperties(v2.parameters, ["a"]);
@@ -393,12 +404,12 @@ describe("cadl: versioning", () => {
       const {
         projections: [v1, v2],
       } = await versionedOperation(
-        ["1", "2"],
+        ["v1", "v2"],
         `
         op Test(): ReturnTypes;
         union ReturnTypes {
           a: string;
-          @added("2") b: int32;
+          @added(Versions.v2) b: int32;
         }
         `
       );
@@ -428,7 +439,7 @@ describe("cadl: versioning", () => {
     it("can be added", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedInterface(["1", "2"], `@added("2") interface Test { }`);
+      } = await versionedInterface(["v1", "v2"], `@added(Versions.v2) interface Test { }`);
 
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
@@ -437,7 +448,7 @@ describe("cadl: versioning", () => {
     it("can be removed", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedInterface(["1", "2"], `@removed("2") interface Test { }`);
+      } = await versionedInterface(["v1", "v2"], `@removed(Versions.v2) interface Test { }`);
 
       strictEqual(v2.kind, "Intrinsic");
       strictEqual((v2 as any as IntrinsicType).name, "never");
@@ -448,9 +459,9 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2],
       } = await versionedInterface(
-        ["1", "2"],
+        ["v1", "v2"],
         `interface Test {
-        @added("2") foo(): void;
+        @added(Versions.v2) foo(): void;
       }`
       );
 
@@ -458,8 +469,8 @@ describe("cadl: versioning", () => {
       assertHasOperations(v2, ["foo"]);
       assertInterfaceProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
+          [v1, "v1"],
+          [v2, "v2"],
         ],
         source
       );
@@ -469,9 +480,9 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2],
       } = await versionedInterface(
-        ["1", "2"],
+        ["v1", "v2"],
         `interface Test {
-        @removed("2") foo(): void;
+        @removed(Versions.v2) foo(): void;
       }`
       );
 
@@ -479,8 +490,8 @@ describe("cadl: versioning", () => {
       assertHasOperations(v2, []);
       assertInterfaceProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
+          [v1, "v1"],
+          [v2, "v2"],
         ],
         source
       );
@@ -490,9 +501,9 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2],
       } = await versionedInterface(
-        ["1", "2"],
+        ["v1", "v2"],
         `interface Test {
-          @renamedFrom("2", "bar") foo(): void;
+          @renamedFrom(Versions.v2, "bar") foo(): void;
         }`
       );
 
@@ -500,8 +511,8 @@ describe("cadl: versioning", () => {
       assertHasOperations(v2, ["foo"]);
       assertInterfaceProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
+          [v1, "v1"],
+          [v2, "v2"],
         ],
         source
       );
@@ -511,9 +522,9 @@ describe("cadl: versioning", () => {
       const {
         projections: [v1, v2],
       } = await versionedInterface(
-        ["1", "2"],
+        ["v1", "v2"],
         `interface Test { 
-          op foo(@added("2") a: string): void;
+          op foo(@added(Versions.v2) a: string): void;
         }`
       );
 
@@ -541,7 +552,7 @@ describe("cadl: versioning", () => {
     it("can add enums", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedEnum(["1", "2"], `@added("2") enum Test {}`);
+      } = await versionedEnum(["v1", "v2"], `@added(Versions.v2) enum Test {}`);
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
       strictEqual(v2.kind, "Enum");
@@ -552,11 +563,11 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedEnum(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `enum Test {
           a: 1;
-          @added("2") b: 2;
-          @added("3") c: 3;
+          @added(Versions.v2) b: 2;
+          @added(Versions.v3) c: 3;
         }
         `
       );
@@ -566,9 +577,9 @@ describe("cadl: versioning", () => {
       assertHasMembers(v3, ["a", "b", "c"]);
       assertEnumProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -577,7 +588,7 @@ describe("cadl: versioning", () => {
     it("can remove enums", async () => {
       const {
         projections: [v1, v2],
-      } = await versionedEnum(["1", "2"], `@removed("2") enum Test {}`);
+      } = await versionedEnum(["v1", "v2"], `@removed(Versions.v2) enum Test {}`);
 
       strictEqual(v1.kind, "Enum");
       strictEqual(v2.kind, "Intrinsic");
@@ -589,11 +600,11 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedEnum(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `enum Test {
           a: 1;
-          @removed("2") b: 2;
-          @removed("3") c: 3;
+          @removed(Versions.v2) b: 2;
+          @removed(Versions.v3) c: 3;
         }
         `
       );
@@ -603,9 +614,9 @@ describe("cadl: versioning", () => {
 
       assertEnumProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -616,11 +627,11 @@ describe("cadl: versioning", () => {
         source,
         projections: [v1, v2, v3],
       } = await versionedEnum(
-        ["1", "2", "3"],
+        ["v1", "v2", "v3"],
         `enum Test {
           a: 1;
-          @renamedFrom("2", "foo") b: 2;
-          @renamedFrom("3", "bar") c: 3;
+          @renamedFrom(Versions.v2, "foo") b: 2;
+          @renamedFrom(Versions.v3, "bar") c: 3;
         }`
       );
 
@@ -629,9 +640,9 @@ describe("cadl: versioning", () => {
       assertHasMembers(v3, ["a", "b", "c"]);
       assertEnumProjectsTo(
         [
-          [v1, "1"],
-          [v2, "2"],
-          [v3, "3"],
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
@@ -696,9 +707,15 @@ describe("cadl: versioning", () => {
   }
 
   function project<T extends Type>(target: T, version: string, direction: "to" | "from" = "to"): T {
-    const versionMap = new Map();
+    const [, versions] = getVersions(runner.program, target.projectionBase ?? target);
+    const actualVersion = versions
+      ?.getVersions()
+      .find((x) => x.value === version || x.name === version);
+    if (actualVersion === undefined) {
+      fail(`Should have found the version ${version}`);
+    }
     const projection: ProjectionApplication = {
-      arguments: [version, versionMap as any],
+      arguments: [actualVersion.enumMember],
       projectionName: "v",
       direction,
     };

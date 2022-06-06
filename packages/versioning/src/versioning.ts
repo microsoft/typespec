@@ -133,7 +133,7 @@ export class VersionMap {
     for (const [index, member] of enumType.members.entries()) {
       this.map.set(member, {
         name: member.name,
-        value: member.value?.toString() ?? enumType.name,
+        value: member.value?.toString() ?? member.name,
         enumMember: member,
         index,
         namespace,
@@ -447,6 +447,9 @@ export function getVersions(p: Program, t: Type): [NamespaceType, VersionMap] | 
 // the containing namespace. Model properties, for example.
 export function addedAfter(p: Program, type: Type, version: EnumMemberType) {
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
+  if (type.kind === "Model" && type.name === "Test" && version.name === "v1") {
+    console.log("Version", version);
+  }
   return appliesAt === null ? false : !appliesAt;
 }
 
@@ -483,6 +486,9 @@ function appliesAtVersion(
   type: Type,
   enumMemberVersion: EnumMemberType
 ) {
+  if (type.kind === "Model" && type.name === "Test") {
+    console.log("Version", type.name);
+  }
   const [namespace, versions] = getVersions(p, type);
   let version = getVersionForEnumMember(p, enumMemberVersion)!;
   if (namespace) {
@@ -492,17 +498,29 @@ function appliesAtVersion(
     }
   }
   if (!versions) {
+    if (type.kind === "Model" && type.name === "Test") {
+      console.log("Version", version);
+    }
     return null;
   }
 
   const appliedOnVersion = getMetadataFn(p, type);
   if (appliedOnVersion === undefined) {
+    if (type.kind === "Model" && type.name === "Test") {
+      console.log("Version", version);
+    }
     return null;
   }
   const appliedOnVersionIndex = appliedOnVersion.index;
+  if (type.kind === "Model" && type.name === "Test") {
+    console.log("Version", version);
+  }
   if (appliedOnVersionIndex === -1) return null;
 
   const testVersionIndex = version.index;
+  if (type.kind === "Model" && type.name === "Test") {
+    console.log("Version", version);
+  }
   if (testVersionIndex === -1) return null;
   return testVersionIndex >= appliedOnVersionIndex;
 }

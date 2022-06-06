@@ -419,8 +419,6 @@ export function createProjector(
       const projectedMember = projectType(member);
       if (projectedMember.kind === "EnumMember") {
         members.push(projectedMember);
-        // console.log("HEre priojection", projectedEnum.name, projectedMember.name);
-        // projectedMember.enum = projectedEnum;
       }
     }
 

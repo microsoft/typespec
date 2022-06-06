@@ -9,17 +9,18 @@ describe("openapi3: versioning", () => {
       3: v3,
     } = await openApiFor(
       `
-      @versioned("1" | "2" | "3")
-      @versionedDependency(MyLibrary, { "1": "A"; "2": "B"; "3": "C"; })
+      @versioned(Versions)
+      @versionedDependency(MyLibrary, [[Versions.v1, MyLibrary.Versions.A], [Versions.v2, MyLibrary.Versions.B], [Versions.v3, MyLibrary.Versions.C]])
       @serviceTitle("My Service")
       @serviceVersion("hi")
       namespace MyService {
+        enum Versions {"v1", "v2", "v3"}
         model Test {
           prop1: string;
-          @added("2") prop2: string;
-          @removed("2") prop3: string;
-          @renamedFrom("3", "prop4") prop4new: string;
-          @madeOptional("3") prop5?: string;
+          @added(Versions.v2) prop2: string;
+          @removed(Versions.v2) prop3: string;
+          @renamedFrom(Versions.v3, "prop4") prop4new: string;
+          @madeOptional(Versions.v3) prop5?: string;
         }
 
         @route("/read1")
@@ -29,10 +30,12 @@ describe("openapi3: versioning", () => {
 
       @versioned("A" | "B" | "C")
       namespace MyLibrary {
+        enum Versions {A, B, C}
+
         model Foo {
           prop1: string;
-          @added("B") prop2: string;
-          @added("C") prop3: string;
+          @added(Versions.B) prop2: string;
+          @added(Versions.C) prop3: string;
         }
       }
     `,
