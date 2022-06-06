@@ -485,7 +485,6 @@ function appliesAtVersion(
 ) {
   const [namespace] = getVersions(p, type);
   let version = getVersionForEnumMember(p, enumMemberVersion)!;
-  // TODO change to find containg namespace?
   if (namespace) {
     const newVersion = versionIndex.get(version)?.get(namespace);
     if (newVersion) {
