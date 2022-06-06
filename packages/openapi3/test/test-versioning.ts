@@ -3,14 +3,10 @@ import { openApiFor } from "./test-host.js";
 
 describe("openapi3: versioning", () => {
   it("works with models", async () => {
-    const {
-      1: v1,
-      2: v2,
-      3: v3,
-    } = await openApiFor(
+    const { v1, v2, v3 } = await openApiFor(
       `
       @versioned(Versions)
-      @versionedDependency(MyLibrary, [[Versions.v1, MyLibrary.Versions.A], [Versions.v2, MyLibrary.Versions.B], [Versions.v3, MyLibrary.Versions.C]])
+      @versionedDependency([[Versions.v1, MyLibrary.Versions.A], [Versions.v2, MyLibrary.Versions.B], [Versions.v3, MyLibrary.Versions.C]])
       @serviceTitle("My Service")
       @serviceVersion("hi")
       namespace MyService {
@@ -28,7 +24,7 @@ describe("openapi3: versioning", () => {
         op read2(): OkResponse<MyLibrary.Foo>;
       }
 
-      @versioned("A" | "B" | "C")
+      @versioned(Versions)
       namespace MyLibrary {
         enum Versions {A, B, C}
 
@@ -39,9 +35,9 @@ describe("openapi3: versioning", () => {
         }
       }
     `,
-      ["1", "2", "3"]
+      ["v1", "v2", "v3"]
     );
-    strictEqual(v1.info.version, "1");
+    strictEqual(v1.info.version, "v1");
     deepStrictEqual(v1.components.schemas.Test, {
       type: "object",
       properties: {
@@ -61,7 +57,7 @@ describe("openapi3: versioning", () => {
       required: ["prop1"],
     });
 
-    strictEqual(v2.info.version, "2");
+    strictEqual(v2.info.version, "v2");
     deepStrictEqual(v2.components.schemas.Test, {
       type: "object",
       properties: {
@@ -81,7 +77,7 @@ describe("openapi3: versioning", () => {
       required: ["prop1", "prop2"],
     });
 
-    strictEqual(v3.info.version, "3");
+    strictEqual(v3.info.version, "v3");
     deepStrictEqual(v3.components.schemas.Test, {
       type: "object",
       properties: {
