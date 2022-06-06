@@ -163,7 +163,6 @@ export interface OpenAPIEmitterOptions {
 
 function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   let root: OpenAPI3Document;
-  let host: string | undefined;
 
   // Get the service namespace string for use in name shortening
   let serviceNamespace: string | undefined;
