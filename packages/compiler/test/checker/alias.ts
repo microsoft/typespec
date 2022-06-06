@@ -163,6 +163,28 @@ describe("compiler: aliases", () => {
     strictEqual(C.properties.get("c")!.type, Test);
   });
 
+  it("can be used like any namespace", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      namespace Foo {
+        @test model Bar { }
+      }
+
+      alias AliasFoo = Foo;
+
+      @test model Baz { x: AliasFoo.Bar };
+      `
+    );
+
+    const { Bar, Baz } = (await testHost.compile("./")) as {
+      Bar: ModelType;
+      Baz: ModelType;
+    };
+
+    strictEqual(Baz.properties.get("x")!.type, Bar);
+  });
+
   it("emit diagnostics if assign itself", async () => {
     testHost.addCadlFile(
       "main.cadl",

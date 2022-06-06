@@ -254,6 +254,7 @@ const diagnostics = {
       default: paramMessage`Cannot resolve ${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace doesn't have member ${"id"}`,
+      underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in non-namespace node ${"nodeName"}`,
     },
   },
