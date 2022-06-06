@@ -1308,7 +1308,23 @@ export function createChecker(program: Program): Checker {
 
     switch (kind) {
       case IdentifierKind.Declaration:
-        sym = getMergedSymbol(node.symbol);
+        sym = node.symbol;
+        if (!sym && node.parent) {
+          // handle late binding
+          const containerType = getTypeForNode(node.parent);
+          lateBindMemberContainer(containerType);
+          let container = node.parent.symbol;
+          if (!container && "symbol" in containerType && containerType.symbol) {
+            container = containerType.symbol;
+          }
+          if (container) {
+            lateBindMembers(containerType, container);
+            sym = resolveIdentifierInTable(id, container.exports ?? container.members);
+          }
+        }
+        if (sym) {
+          sym = getMergedSymbol(sym);
+        }
         break;
       case IdentifierKind.Other:
         return undefined;
@@ -1357,8 +1373,11 @@ export function createChecker(program: Program): Checker {
 
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       const base = resolveTypeReference(identifier.parent.base, false);
-      if (base && base.flags & SymbolFlags.Namespace) {
-        addCompletions(base.exports);
+      if (base) {
+        const type = getTypeForNode(base.declarations[0]);
+        lateBindMemberContainer(type);
+        lateBindMembers(type, base);
+        addCompletions(base.exports ?? base.members);
       }
     } else {
       let scope: Node | undefined = identifier.parent;
@@ -1649,7 +1668,7 @@ export function createChecker(program: Program): Checker {
       case "Union":
         if (aliasType.templateArguments) {
           // this is an alias for some instantiation, so late-bind the instantiation
-          lateBindMemberContainer(aliasType as any);
+          lateBindMemberContainer(aliasType);
           return aliasType.symbol!;
         }
       // fallthrough
@@ -1856,8 +1875,8 @@ export function createChecker(program: Program): Checker {
    * Initializes a late bound symbol for the type. This is generally necessary when attempting to
    * access a symbol for a type that is created during the check phase.
    */
-  function lateBindMemberContainer(type: ModelType | InterfaceType | UnionType) {
-    if (type.symbol) return;
+  function lateBindMemberContainer(type: Type) {
+    if ((type as any).symbol) return;
     switch (type.kind) {
       case "Model":
         type.symbol = createSymbol(type.node, type.name, SymbolFlags.Model | SymbolFlags.LateBound);
@@ -1876,15 +1895,10 @@ export function createChecker(program: Program): Checker {
         type.symbol = createSymbol(type.node, type.name, SymbolFlags.Union | SymbolFlags.LateBound);
         type.symbol.type = type;
         break;
-      default:
-        compilerAssert(true, "Fail");
     }
   }
 
-  function lateBindMembers(
-    type: EnumType | ModelType | InterfaceType | UnionType,
-    containerSym: Sym
-  ) {
+  function lateBindMembers(type: Type, containerSym: Sym) {
     switch (type.kind) {
       case "Model":
         for (const prop of walkPropertiesInherited(type)) {
