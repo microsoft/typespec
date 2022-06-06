@@ -1308,26 +1308,34 @@ export function createChecker(program: Program): Checker {
 
     switch (kind) {
       case IdentifierKind.Declaration:
-        sym = node.symbol;
-        if (!sym && node.parent) {
-          // handle late binding
-          const containerType = getTypeForNode(node.parent);
-          lateBindMemberContainer(containerType);
-          let container = node.parent.symbol;
-          if (!container && "symbol" in containerType && containerType.symbol) {
-            container = containerType.symbol;
-          }
-          if (container) {
-            lateBindMembers(containerType, container);
-            sym = resolveIdentifierInTable(id, container.exports ?? container.members);
-          }
+        if (node.symbol) {
+          sym = getMergedSymbol(node.symbol);
+          break;
         }
-        if (sym) {
-          sym = getMergedSymbol(sym);
+
+        compilerAssert(node.parent, "Parent expected.");
+        const containerType = getTypeForNode(node.parent);
+        if (isAnonymous(containerType)) {
+          return undefined; // member of anonymous type cannot be referenced.
         }
+
+        lateBindMemberContainer(containerType);
+        let container = node.parent.symbol;
+        if (!container && "symbol" in containerType && containerType.symbol) {
+          container = containerType.symbol;
+        }
+
+        if (!container) {
+          return undefined;
+        }
+
+        lateBindMembers(containerType, container);
+        sym = resolveIdentifierInTable(id, container.exports ?? container.members);
         break;
+
       case IdentifierKind.Other:
         return undefined;
+
       case IdentifierKind.Decorator:
       case IdentifierKind.Using:
       case IdentifierKind.TypeReference:
@@ -1345,6 +1353,7 @@ export function createChecker(program: Program): Checker {
         }
         sym = resolveTypeReference(ref, resolveDecorator);
         break;
+
       default:
         const _assertNever: never = kind;
         compilerAssert(false, "Unreachable");
@@ -3615,6 +3624,10 @@ export function createChecker(program: Program): Checker {
 
     return finishType(newModel);
   }
+}
+
+function isAnonymous(type: Type) {
+  return !("name" in type) || typeof type.name !== "string" || !type.name;
 }
 
 function isErrorType(type: Type): type is ErrorType {

@@ -71,6 +71,10 @@ describe("compiler: server: rename and find references", () => {
 
   test("model properties", `model A { prop┆/**/: string; } model M { prop: A.prop/**/; }`);
 
+  test("anonymous model properties", `model A { b: { prop┆/**/: string; } }`);
+
+  test("parameters", "op test(param┆/**/:string): void;");
+
   test("interface operations", `interface A { test┆/**/(): void }; model M { prop: A.test/**/;}`);
 
   test(
