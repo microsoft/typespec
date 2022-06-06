@@ -2,10 +2,12 @@ import "@cadl-lang/rest";
 import "@cadl-lang/versioning";
 
 @serviceTitle("Widget Service")
-@versioned(VERSIONS)
 namespace DemoService;
 
-alias VERSIONS = "v1" | "v2";
+enum Versions {
+  "v1",
+  "v2",
+}
 
 using Cadl.Http;
 using Cadl.Rest;
@@ -14,7 +16,7 @@ model Widget {
   @key id: string;
   weight: int32;
   color: "red" | "blue";
-  @added("v2") name: string;
+  @added(Versions.v2) name: string;
 }
 
 @error
@@ -24,7 +26,7 @@ model Error {
 }
 
 interface WidgetService extends Resource.ResourceOperations<Widget, Error> {
-  @added("v2")
+  @added(Versions.v2)
   @get
   @route("customGet")
   customGet(): Widget;
