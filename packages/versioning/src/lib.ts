@@ -36,7 +36,7 @@ const libDef = {
     "version-not-found": {
       severity: "error",
       messages: {
-        default: paramMessage`The provided version ${"version"} wasn't declared on any parent namespaces.`,
+        default: paramMessage`The provided version '${"version"}' from '${"enumName"}' is not declared as a version enum. Use '@versioned(${"enumName"})' on the containing namespace.`,
       },
     },
     "using-versioned-library": {

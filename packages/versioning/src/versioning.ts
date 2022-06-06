@@ -29,7 +29,7 @@ function checkIsVersion(
     reportDiagnostic(program, {
       code: "version-not-found",
       target: diagnosticTarget,
-      format: { version: enumMember.name },
+      format: { version: enumMember.name, enumName: enumMember.enum.name },
     });
   }
   return version;
