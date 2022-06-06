@@ -148,6 +148,10 @@ export class VersionMap {
   public getVersions(): Version[] {
     return [...this.map.values()];
   }
+
+  public get size(): number {
+    return this.map.size;
+  }
 }
 
 export function $versioned(context: DecoratorContext, t: Type, versions: Type) {
@@ -246,10 +250,32 @@ export function $versionedDependency(
 }
 
 export function getVersionDependencies(
-  p: Program,
+  program: Program,
   namespace: NamespaceType
-): Map<NamespaceType, Map<EnumMemberType, Version> | Version> | undefined {
-  return p.stateMap(versionDependencyKey).get(namespace);
+): Map<NamespaceType, Map<Version, Version> | Version> | undefined {
+  const data = program.stateMap(versionDependencyKey).get(namespace);
+  if (data === undefined) {
+    return undefined;
+  }
+  const result = new Map();
+  for (const [key, value] of data) {
+    result.set(key, resolveVersionDependency(program, value));
+  }
+  return result;
+}
+
+function resolveVersionDependency(program: Program, data: Map<EnumMemberType, Version> | Version) {
+  if (!(data instanceof Map)) {
+    return data;
+  }
+  const mapping = new Map<Version, Version>();
+  for (const [key, value] of data) {
+    const sourceVersion = getVersionForEnumMember(program, key);
+    if (sourceVersion !== undefined) {
+      mapping.set(sourceVersion, value);
+    }
+  }
+  return mapping;
 }
 
 export interface VersionResolution {
@@ -271,7 +297,9 @@ export interface VersionResolution {
  */
 export function resolveVersions(program: Program, rootNs: NamespaceType): VersionResolution[] {
   const versions = getVersion(program, rootNs);
-  const dependencies = getVersionDependencies(program, rootNs) ?? new Map();
+  const dependencies =
+    getVersionDependencies(program, rootNs) ??
+    new Map<NamespaceType, Map<Version, Version> | Version>();
   if (!versions) {
     if (dependencies.size === 0) {
       return [{ rootVersion: undefined, versions: new Map() }];
@@ -305,7 +333,7 @@ export function resolveVersions(program: Program, rootNs: NamespaceType): Versio
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
           );
         }
-        resolution.versions.set(dependencyNs, versionMap.get(version.enumMember));
+        resolution.versions.set(dependencyNs, versionMap.get(version)!);
       }
 
       return resolution;
