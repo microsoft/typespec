@@ -287,6 +287,18 @@ describe("rest: http decorators", () => {
       });
     });
 
+    it("emit diagnostics when description is not provided", async () => {
+      const diagnostics = await runner.diagnose(`
+        @server("https://example.com")
+        namespace MyService {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: "Argument '' of type '' is not assignable to parameter of type 'String'",
+      });
+    });
+
     it("emit diagnostics when parameters is not a model", async () => {
       const diagnostics = await runner.diagnose(`
         @server("https://example.com", "My service url", 123)

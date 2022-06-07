@@ -222,10 +222,54 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     tags = new Set();
   }
 
+  // Todo: Should be able to replace with isRelatedTo(prop.type, "string") https://github.com/microsoft/cadl/pull/571
+  function isValidServerVariableType(program: Program, type: Type): boolean {
+    switch (type.kind) {
+      case "String":
+        return true;
+      case "Model":
+        const name = getIntrinsicModelName(program, type);
+        return name === "string";
+      case "Enum":
+        for (const member of type.members) {
+          if (member.value && typeof member.value !== "string") {
+            return false;
+          }
+        }
+        return true;
+      case "Union":
+        for (const option of type.options) {
+          if (!isValidServerVariableType(program, option)) {
+            return false;
+          }
+        }
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  function validateValidServerVariable(program: Program, prop: ModelTypeProperty) {
+    const isValid = isValidServerVariableType(program, prop.type);
+
+    if (!isValid) {
+      reportDiagnostic(program, {
+        code: "invalid-server-variable",
+        format: { propName: prop.name },
+        target: prop,
+      });
+    }
+    return isValid;
+  }
+
   function resolveServers(servers: http.HttpServer[]): OpenAPI3Server[] {
     return servers.map((server) => {
       const variables: Record<string, OpenAPI3ServerVariable> = {};
       for (const [name, prop] of server.parameters) {
+        if (!validateValidServerVariable(program, prop)) {
+          continue;
+        }
+
         const variable: OpenAPI3ServerVariable = {
           default: prop.default ? getDefaultValue(prop.default) : "",
           description: getDoc(program, prop),
@@ -233,6 +277,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
         if (prop.type.kind === "Enum") {
           variable.enum = getSchemaForEnum(prop.type).enum;
+        } else if (prop.type.kind === "Union") {
+          variable.enum = getSchemaForUnion(prop.type).enum;
+        } else if (prop.type.kind === "String") {
+          variable.enum = [prop.type.value];
         }
         variables[name] = variable;
       }
