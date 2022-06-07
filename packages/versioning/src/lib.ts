@@ -18,7 +18,7 @@ const libDef = {
     "versioned-dependency-same-namespace": {
       severity: "error",
       messages: {
-        default: `Versioned dependency mapping must all point to the same namespace but 2 version have different namespaces '${"namespace1"}' and '${"namespace2"}'.`,
+        default: `Versioned dependency mapping must all point to the same namespace but 2 versions have different namespaces '${"namespace1"}' and '${"namespace2"}'.`,
       },
     },
     "versioned-dependency-record-not-mapping": {
