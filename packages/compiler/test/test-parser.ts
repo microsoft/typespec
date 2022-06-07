@@ -12,6 +12,7 @@ describe("compiler: syntax", () => {
       ['namespace Foo { import "x"; }', [/Imports must be top-level/]],
       ['namespace Foo { } import "x";', [/Imports must come prior/]],
       ['model Foo { } import "x";', [/Imports must come prior/]],
+      ['using Bar; import "x";', [/Imports must come prior/]],
     ]);
   });
 
@@ -224,7 +225,13 @@ describe("compiler: syntax", () => {
   });
 
   describe("using statements", () => {
-    parseEach(["using A;", "using A.B;", "namespace Foo { using A; }"]);
+    parseEach([
+      "using A;",
+      "using A.B;",
+      "namespace Foo { using A; }",
+      // Allow using before blockless namespace
+      "using A.B; namespace Foo;",
+    ]);
   });
 
   describe("multiple statements", () => {
