@@ -287,6 +287,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const stmts: Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
+    let seenUsing = false;
     while (token() !== Token.EndOfFile) {
       const pos = tokenPos();
       const directives = parseDirectiveList();
@@ -348,9 +349,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         }
         seenBlocklessNs = true;
       } else if (item.kind === SyntaxKind.ImportStatement) {
-        if (seenDecl || seenBlocklessNs) {
+        if (seenDecl || seenBlocklessNs || seenUsing) {
           error({ code: "import-first" });
         }
+      } else if (item.kind === SyntaxKind.UsingStatement) {
+        seenUsing = true;
       } else {
         seenDecl = true;
       }
