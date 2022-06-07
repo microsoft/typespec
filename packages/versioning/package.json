@@ -17,16 +17,16 @@
     "cadl"
   ],
   "type": "module",
-  "main": "dist/src/versioning.js",
+  "main": "dist/src/index.js",
   "cadlMain": "lib/versioning.cadl",
   "exports": {
-    ".": "./dist/src/versioning.js",
+    ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"
   },
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/src/versioning.d.ts"
+        "./dist/src/index.d.ts"
       ],
       "testing": [
         "./dist/src/testing/index.d.ts"

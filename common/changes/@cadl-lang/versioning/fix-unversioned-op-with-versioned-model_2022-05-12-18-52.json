@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/versioning",
+      "comment": "Add validation for incompatible versioning across references",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/versioning"
+}
