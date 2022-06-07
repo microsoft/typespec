@@ -334,7 +334,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          item = parseInvalidStatement(decorators);
+          item = parseInvalidStatement(pos, decorators);
           break;
       }
 
@@ -423,7 +423,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          item = parseInvalidStatement(decorators);
+          item = parseInvalidStatement(pos, decorators);
           break;
       }
       item.directives = directives;
@@ -1995,12 +1995,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return { kind: SyntaxKind.EmptyStatement, ...finishNode(pos) };
   }
 
-  function parseInvalidStatement(decorators: DecoratorExpressionNode[]): InvalidStatementNode {
+  function parseInvalidStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): InvalidStatementNode {
     // Error recovery: avoid an avalanche of errors when we get cornered into
     // parsing statements where none exist. Skip until we find a statement
     // keyword or decorator and only report one error for a contiguous range of
     // neither.
-    const pos = tokenPos();
     do {
       nextToken();
     } while (
