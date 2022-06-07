@@ -239,7 +239,7 @@ describe("compiler: server: completion", () => {
        namespace N {
         op test(): void;
        }
-       @dec(N.┆
+       @dec(N.┆)
       `
     );
 
