@@ -18,7 +18,7 @@ export interface DecoratorApplication {
 }
 
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: Type, ...customArgs: any[]): void;
+  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
   namespace?: string;
 }
 

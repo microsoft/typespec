@@ -460,6 +460,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Expected ${"expected"} arguments, but got ${"actual"}.`,
+      between: paramMessage`Expected between ${"min"} and ${"max"} arguments, but got ${"actual"}.`,
     },
   },
   "known-values-invalid-enum": {
