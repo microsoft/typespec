@@ -103,6 +103,10 @@ projection model#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
+      if renamedAfter(self, version, self) {
+        self::rename(getRenamedFromOldName(self));
+      };
+
       self::properties::forEach((p) => {
         if addedAfter(p, version) {
           self::deleteProperty(p::name);
