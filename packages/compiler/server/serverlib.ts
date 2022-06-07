@@ -541,7 +541,7 @@ export function createServer(host: ServerHost): Server {
     completions: CompletionList
   ) {
     const new_path = getPath(document);
-    const projectroot = await findProjectRoot(compilerHost, new_path);
+    const projectRoot = await findProjectRoot(compilerHost, new_path);
     const new_file = await loadFile(
       compilerHost,
       resolvePath(projectroot, "package.json"),
