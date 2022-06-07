@@ -38,7 +38,7 @@ describe("rest: plain data", () => {
     const { Before, After, Spread } = await testHost.compile("main.cadl");
     const program = testHost.program;
 
-    strictEqual(Before.kind, "Model" as const);;
+    strictEqual(Before.kind, "Model" as const);
     ok(isHeader(program, Before.properties.get("a")!), "header expected");
     ok(isBody(program, Before.properties.get("d")!), "body expected");
     ok(isQueryParam(testHost.program, Before.properties.get("b")!), "query expected");
