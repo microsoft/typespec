@@ -159,6 +159,159 @@ describe("compiler: server: completion", () => {
     );
   });
 
+  it("completes enum members", async () => {
+    const completions = await complete(
+      `
+      enum Fruit {
+        Orange,
+        Banana
+      }
+
+      model M {
+        f: Fruit.┆
+      }
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "Orange",
+          insertText: "Orange",
+          kind: CompletionItemKind.EnumMember,
+          documentation: undefined,
+        },
+        {
+          label: "Banana",
+          insertText: "Banana",
+          kind: CompletionItemKind.EnumMember,
+          documentation: undefined,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("completes union variants", async () => {
+    const completions = await complete(
+      `
+      model Orange {}
+      model Banana {}
+      union Fruit {
+        orange: Orange,
+        banana: Banana
+      }
+
+      model M {
+        f: Fruit.┆
+      }
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "orange",
+          insertText: "orange",
+          kind: CompletionItemKind.EnumMember,
+          documentation: undefined,
+        },
+        {
+          label: "banana",
+          insertText: "banana",
+          kind: CompletionItemKind.EnumMember,
+          documentation: undefined,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("completes namespace operations", async () => {
+    const completions = await complete(
+      `
+       namespace N {
+        op test(): void;
+       }
+       @dec(N.┆
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "test",
+          insertText: "test",
+          kind: CompletionItemKind.Method,
+          documentation: undefined,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("completes interface operations", async () => {
+    const completions = await complete(
+      `
+       interface I {
+        test(): void;
+       }
+      
+       @dec(I.┆
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "test",
+          insertText: "test",
+          kind: CompletionItemKind.Method,
+          documentation: undefined,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("completes model properties", async () => {
+    const completions = await complete(
+      `
+       model M {
+        test: string;
+       }
+       @dec(M.┆
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "test",
+          insertText: "test",
+          kind: CompletionItemKind.Field,
+          documentation: undefined,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
   it("completes template parameter uses", async () => {
     const completions = await complete(
       `
