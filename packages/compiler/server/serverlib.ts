@@ -508,11 +508,11 @@ export function createServer(host: ServerHost): Server {
     const references: IdentifierNode[] = [];
     for (const script of program.sourceFiles.values() ?? []) {
       visitChildren(script, function visit(node) {
-        if (
-          node.kind === SyntaxKind.Identifier &&
-          program.checker.resolveIdentifier(node) === sym
-        ) {
-          references.push(node);
+        if (node.kind === SyntaxKind.Identifier) {
+          const s = program.checker.resolveIdentifier(node);
+          if (s === sym || (sym.type && s?.type === sym.type)) {
+            references.push(node);
+          }
         }
         visitChildren(node, visit);
       });
@@ -555,7 +555,7 @@ export function createServer(host: ServerHost): Server {
       ) {
         kind = CompletionItemKind.Module;
       } else {
-        const type = program.checker.getTypeForNode(sym.declarations[0]);
+        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
         documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
         deprecated = isDeprecated(program, type);
@@ -582,10 +582,17 @@ export function createServer(host: ServerHost): Server {
       case SyntaxKind.EnumStatement:
       case SyntaxKind.UnionStatement:
         return CompletionItemKind.Enum;
+      case SyntaxKind.EnumMember:
+      case SyntaxKind.UnionVariant:
+        return CompletionItemKind.EnumMember;
       case SyntaxKind.AliasStatement:
         return CompletionItemKind.Variable;
       case SyntaxKind.ModelStatement:
         return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+      case SyntaxKind.ModelProperty:
+        return CompletionItemKind.Field;
+      case SyntaxKind.OperationStatement:
+        return CompletionItemKind.Method;
       case SyntaxKind.NamespaceStatement:
         return CompletionItemKind.Module;
       default:

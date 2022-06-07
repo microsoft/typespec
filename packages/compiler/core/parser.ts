@@ -2361,7 +2361,9 @@ export function getNodeAtPosition(
   const cp = codePointBefore(script.file.text, position);
   if (!cp || !isIdentifierContinue(cp)) {
     const newPosition = skipTrivia(script.file.text, position);
-    return getNodeAtPositionInternal(script, newPosition, filter);
+    if (newPosition !== position) {
+      return getNodeAtPositionInternal(script, newPosition, filter);
+    }
   }
   return realNode;
 }
