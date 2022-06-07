@@ -144,6 +144,40 @@ export interface Checker {
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
+  /**
+   * Applies a filter to the properties of a given type. If no properties
+   * are filtered out, then return the input unchanged. Otherwise, return
+   * a new anonymous model with only the filtered properties.
+   *
+   * @param model The input model to filter.
+   * @param filter The filter to apply. Properties are kept when this returns true.
+   */
+  filterModelProperties(
+    model: ModelType,
+    filter: (property: ModelTypeProperty) => boolean
+  ): ModelType;
+
+  /**
+   * If the input is anonymous (or the provided filter removes properties)
+   * and there exists a named model with the same set of properties
+   * (ignoring filtered properties), then return that named model.
+   * Otherwise, return the input unchanged.
+   *
+   * This can be used by emitters to find a better name for a set of
+   * properties after filtering. For example, given `{ @metadata prop:
+   * string} & SomeName`, and an emitter that wishes to discard properties
+   * marked with `@metadata`, the emitter can use this to recover that the
+   * best name for the remaining properties is `SomeName`.
+   *
+   * @param model The input model
+   * @param filter An optional filter to apply to the input model's
+   * properties.
+   */
+  getEffectiveModelType(
+    model: ModelType,
+    filter?: (property: ModelTypeProperty) => boolean
+  ): ModelType;
+
   errorType: ErrorType;
   voidType: VoidType;
   neverType: NeverType;
@@ -302,6 +336,8 @@ export function createChecker(program: Program): Checker {
     createFunctionType,
     createLiteralType,
     finishType,
+    getEffectiveModelType,
+    filterModelProperties,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -419,6 +455,12 @@ export function createChecker(program: Program): Checker {
     switch (type.kind) {
       case "Model":
         return getModelName(type, options);
+      case "ModelProperty":
+        return getModelPropertyName(type, options);
+      case "Interface":
+        return getInterfaceName(type, options);
+      case "Operation":
+        return getOperationName(type, options);
       case "Enum":
         return getEnumName(type, options);
       case "Union":
@@ -492,6 +534,22 @@ export function createChecker(program: Program): Checker {
       // regular old model.
       return modelName;
     }
+  }
+
+  function getModelPropertyName(prop: ModelTypeProperty, options: TypeNameOptions | undefined) {
+    const modelName = prop.model ? getModelName(prop.model, options) : undefined;
+
+    return `${modelName ?? "(anonymous model)"}.${prop.name}`;
+  }
+
+  function getInterfaceName(iface: InterfaceType, options: TypeNameOptions | undefined) {
+    const nsName = getNamespaceString(iface.namespace, options);
+    return (nsName ? nsName + "." : "") + iface.name;
+  }
+
+  function getOperationName(op: OperationType, options: TypeNameOptions | undefined) {
+    const nsName = getNamespaceString(op.namespace, options);
+    return (nsName ? nsName + "." : "") + op.name;
   }
 
   function checkTemplateParameterDeclaration(node: TemplateParameterDeclarationNode): Type {
@@ -678,6 +736,11 @@ export function createChecker(program: Program): Checker {
       );
 
       return errorType;
+    }
+
+    if (sym.flags & SymbolFlags.LateBound) {
+      compilerAssert(sym.type, "Expected late bound symbol to have type");
+      return sym.type;
     }
 
     const symbolLinks = getSymbolLinks(sym);
@@ -902,7 +965,10 @@ export function createChecker(program: Program): Checker {
           continue;
         }
 
-        const newPropType = cloneType(prop, { sourceProperty: prop, model: intersection });
+        const newPropType = cloneType(prop, {
+          sourceProperty: prop,
+          model: intersection,
+        });
         properties.set(prop.name, newPropType);
       }
     }
@@ -1066,7 +1132,7 @@ export function createChecker(program: Program): Checker {
 
       // Reference the same return type and create the parameters type
       parameters = cloneType(baseOperation.parameters);
-      parameters.node = { ...parameters.node, parent: node };
+      parameters.node = parameters.node ? { ...parameters.node, parent: node } : undefined;
       returnType = baseOperation.returnType;
 
       // Copy decorators from the base operation, inserting the base decorators first
@@ -1460,9 +1526,15 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.MemberExpression) {
-      const base = resolveTypeReference(node.base);
+      let base = resolveTypeReference(node.base);
+
       if (!base) {
         return undefined;
+      }
+
+      // when resolving a type reference based on an alias, unwrap the alias.
+      if (base.flags & SymbolFlags.Alias) {
+        base = getAliasedSymbol(base);
       }
 
       if (base.flags & SymbolFlags.Namespace) {
@@ -1500,6 +1572,40 @@ export function createChecker(program: Program): Checker {
         );
 
         return undefined;
+      } else if (base.flags & SymbolFlags.MemberContainer) {
+        const type =
+          base.flags & SymbolFlags.LateBound ? base.type! : getTypeForNode(base.declarations[0]);
+        if (
+          type.kind !== "Model" &&
+          type.kind !== "Enum" &&
+          type.kind !== "Interface" &&
+          type.kind !== "Union"
+        ) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "underContainer",
+              format: { kind: type.kind, id: node.id.sv },
+              target: node,
+            })
+          );
+          return undefined;
+        }
+
+        lateBindMembers(type, base);
+        const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
+        if (!sym) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "underContainer",
+              format: { kind: type.kind, id: node.id.sv },
+              target: node,
+            })
+          );
+          return undefined;
+        }
+        return sym;
       } else {
         program.reportDiagnostic(
           createDiagnostic({
@@ -1529,6 +1635,30 @@ export function createChecker(program: Program): Checker {
     compilerAssert(false, "Unknown type reference kind", node);
   }
 
+  /**
+   * Return the symbol that is aliased by this alias declaration. If no such symbol is aliased,
+   * return the symbol for the alias instead. For member containers which need to be late bound
+   * (i.e. they contain symbols we don't know until we've instantiated the type and the type is an
+   * instantiation) we late bind the container which creates the symbol that will hold its members.
+   */
+  function getAliasedSymbol(aliasSymbol: Sym): Sym {
+    const aliasType = checkAlias(aliasSymbol.declarations[0] as AliasStatementNode);
+    switch (aliasType.kind) {
+      case "Model":
+      case "Interface":
+      case "Union":
+        if (aliasType.templateArguments) {
+          // this is an alias for some instantiation, so late-bind the instantiation
+          lateBindMemberContainer(aliasType as any);
+          return aliasType.symbol!;
+        }
+      // fallthrough
+      default:
+        // get the symbol from the node aliased type's node, or just return the base
+        // if it doesn't have a symbol (which will likely result in an error later on)
+        return aliasType.node!.symbol ?? aliasSymbol;
+    }
+  }
   function checkStringLiteral(str: StringLiteralNode): StringLiteralType {
     return getLiteralType(str);
   }
@@ -1722,6 +1852,89 @@ export function createChecker(program: Program): Checker {
     properties.set(newProp.name, newProp);
   }
 
+  /**
+   * Initializes a late bound symbol for the type. This is generally necessary when attempting to
+   * access a symbol for a type that is created during the check phase.
+   */
+  function lateBindMemberContainer(type: ModelType | InterfaceType | UnionType) {
+    if (type.symbol) return;
+    switch (type.kind) {
+      case "Model":
+        type.symbol = createSymbol(type.node, type.name, SymbolFlags.Model | SymbolFlags.LateBound);
+        type.symbol.type = type;
+        break;
+      case "Interface":
+        type.symbol = createSymbol(
+          type.node,
+          type.name,
+          SymbolFlags.Interface | SymbolFlags.LateBound
+        );
+        type.symbol.type = type;
+        break;
+      case "Union":
+        if (!type.name) return; // don't make a symbol for anonymous unions
+        type.symbol = createSymbol(type.node, type.name, SymbolFlags.Union | SymbolFlags.LateBound);
+        type.symbol.type = type;
+        break;
+      default:
+        compilerAssert(true, "Fail");
+    }
+  }
+
+  function lateBindMembers(
+    type: EnumType | ModelType | InterfaceType | UnionType,
+    containerSym: Sym
+  ) {
+    switch (type.kind) {
+      case "Model":
+        for (const prop of walkPropertiesInherited(type)) {
+          const sym = createSymbol(
+            prop.node,
+            prop.name,
+            SymbolFlags.ModelProperty | SymbolFlags.LateBound
+          );
+          sym.type = prop;
+          containerSym.members!.set(prop.name, sym);
+        }
+        break;
+      case "Enum":
+        for (const member of type.members) {
+          const sym = createSymbol(
+            member.node,
+            member.name,
+            SymbolFlags.EnumMember | SymbolFlags.LateBound
+          );
+          sym.type = member;
+          containerSym.members!.set(member.name, sym);
+        }
+
+        break;
+      case "Interface":
+        for (const member of type.operations.values()) {
+          const sym = createSymbol(
+            member.node,
+            member.name,
+            SymbolFlags.InterfaceMember | SymbolFlags.LateBound
+          );
+          sym.type = member;
+          containerSym.members!.set(member.name, sym);
+        }
+        break;
+      case "Union":
+        for (const variant of type.variants.values()) {
+          // don't bind anything for union expressions
+          if (!variant.node || typeof variant.name === "symbol") continue;
+          const sym = createSymbol(
+            variant.node,
+            variant.name,
+            SymbolFlags.UnionVariant | SymbolFlags.LateBound
+          );
+          sym.type = variant;
+          containerSym.members!.set(variant.name, sym);
+        }
+    }
+  }
+
   function checkClassHeritage(
     model: ModelStatementNode,
     heritageRef: TypeReferenceNode
@@ -1819,7 +2032,10 @@ export function createChecker(program: Program): Checker {
 
       // copy each property
       for (const prop of walkPropertiesInherited(targetType)) {
-        const newProp = cloneType(prop, { sourceProperty: prop, model: parentModel });
+        const newProp = cloneType(prop, {
+          sourceProperty: prop,
+          model: parentModel,
+        });
         props.push(newProp);
       }
     }
@@ -1834,6 +2050,19 @@ export function createChecker(program: Program): Checker {
       yield* current.properties.values();
       current = current.baseModel;
     }
+  }
+
+  function countPropertiesInherited(
+    model: ModelType,
+    filter?: (property: ModelTypeProperty) => boolean
+  ) {
+    let count = 0;
+    for (const each of walkPropertiesInherited(model)) {
+      if (!filter || filter(each)) {
+        count++;
+      }
+    }
+    return count;
   }
 
   function checkModelProperty(prop: ModelPropertyNode, parentModel?: ModelType): ModelTypeProperty {
@@ -2212,8 +2441,8 @@ export function createChecker(program: Program): Checker {
     const instantiatingThisTemplate = instantiatingTemplate === node;
 
     if (links.declaredType && !instantiatingThisTemplate) {
-      // we're not instantiating this interface and we've already checked it
-      return links.declaredType as InterfaceType;
+      // we're not instantiating this union and we've already checked it
+      return links.declaredType as UnionType;
     }
 
     const decorators = checkDecorators(node);
@@ -2232,11 +2461,7 @@ export function createChecker(program: Program): Checker {
       expression: false,
     });
 
-    if (
-      (instantiatingThisTemplate &&
-        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
-      node.templateParameters.length === 0
-    ) {
+    if (shouldCreateTypeForTemplate(node)) {
       finishType(unionType);
     }
 
@@ -2251,7 +2476,7 @@ export function createChecker(program: Program): Checker {
 
   function checkUnionVariants(union: UnionStatementNode, variants: Map<string, UnionTypeVariant>) {
     for (const variantNode of union.options) {
-      const variantType = checkUnionVariant(variantNode);
+      const variantType = checkUnionVariant(union, variantNode);
       if (variants.has(variantType.name as string)) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -2266,18 +2491,27 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkUnionVariant(variantNode: UnionVariantNode): UnionTypeVariant {
+  function checkUnionVariant(
+    union: UnionStatementNode,
+    variantNode: UnionVariantNode
+  ): UnionTypeVariant {
     const name =
       variantNode.id.kind === SyntaxKind.Identifier ? variantNode.id.sv : variantNode.id.value;
     const decorators = checkDecorators(variantNode);
     const type = getTypeForNode(variantNode.value);
-    return createAndFinishType({
+    const variantType: UnionTypeVariant = createType({
       kind: "UnionVariant",
       name,
       node: variantNode,
       decorators,
       type,
     });
+
+    if (shouldCreateTypeForTemplate(union)) {
+      finishType(variantType);
+    }
+
+    return variantType;
   }
 
   function checkEnumMember(
@@ -3268,6 +3502,105 @@ export function createChecker(program: Program): Checker {
 
     return parts.reverse().join(".");
   }
+
+  function getEffectiveModelType(
+    model: ModelType,
+    filter?: (property: ModelTypeProperty) => boolean
+  ): ModelType {
+    if (filter) {
+      model = filterModelProperties(model, filter);
+    }
+    while (true) {
+      if (model.name) {
+        // named model
+        return model;
+      }
+
+      // We would need to change the algorithm if this doesn't hold. We
+      // assume model has no inherited properties below.
+      compilerAssert(!model.baseModel, "Anonymous model with base model.");
+
+      if (model.properties.size === 0) {
+        // empty model
+        return model;
+      }
+
+      let source: ModelType | undefined;
+
+      for (const property of model.properties.values()) {
+        const propertySource = getRootSourceModel(property);
+        if (!propertySource) {
+          // unsourced property
+          return model;
+        }
+
+        if (!source) {
+          // initialize common source from first sourced property.
+          source = propertySource;
+          continue;
+        }
+
+        if (isDerivedFrom(source, propertySource)) {
+          // OK
+        } else if (isDerivedFrom(propertySource, source)) {
+          // OK, but refine common source to derived type.
+          source = propertySource;
+        } else {
+          // different source
+          return model;
+        }
+      }
+
+      compilerAssert(source, "Should have found a common source to reach here.");
+
+      if (model.properties.size !== countPropertiesInherited(source, filter)) {
+        // source has additional properties.
+        return model;
+      }
+
+      // keep going until we reach a model that cannot be further reduced.
+      model = source;
+    }
+  }
+
+  function filterModelProperties(
+    model: ModelType,
+    filter: (property: ModelTypeProperty) => boolean
+  ): ModelType {
+    let filtered = false;
+    for (const property of walkPropertiesInherited(model)) {
+      if (!filter(property)) {
+        filtered = true;
+        break;
+      }
+    }
+
+    if (!filtered) {
+      return model;
+    }
+
+    const properties = new Map<string, ModelTypeProperty>();
+    const newModel: ModelType = createType({
+      kind: "Model",
+      node: undefined,
+      name: "",
+      properties,
+      decorators: [],
+      derivedModels: [],
+    });
+
+    for (const property of walkPropertiesInherited(model)) {
+      if (filter(property)) {
+        const newProperty = cloneType(property, {
+          sourceProperty: property,
+          model: newModel,
+        });
+        properties.set(property.name, newProperty);
+      }
+    }
+
+    return finishType(newModel);
+  }
 }
 
 function isErrorType(type: Type): type is ErrorType {
@@ -3276,4 +3609,21 @@ function isErrorType(type: Type): type is ErrorType {
 
 function createUsingSymbol(symbolSource: Sym): Sym {
   return { flags: SymbolFlags.Using, declarations: [], name: symbolSource.name, symbolSource };
+}
+
+function isDerivedFrom(derived: ModelType, base: ModelType) {
+  while (derived !== base && derived.baseModel) {
+    derived = derived.baseModel;
+  }
+  return derived === base;
+}
+
+function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined {
+  if (!property.sourceProperty) {
+    return undefined;
+  }
+  while (property.sourceProperty) {
+    property = property.sourceProperty;
+  }
+  return property?.model;
 }

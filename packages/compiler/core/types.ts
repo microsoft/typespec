@@ -8,7 +8,7 @@ export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
   value: DecoratorArgumentValue;
-  node: Node;
+  node?: Node;
 }
 
 export interface DecoratorApplication {
@@ -149,7 +149,7 @@ export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = 
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;
-  node:
+  node?:
     | ModelStatementNode
     | ModelExpressionNode
     | IntersectionExpressionNode
@@ -166,6 +166,12 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
    * Direct children. This is the reverse relation of @see baseModel
    */
   derivedModels: ModelType[];
+
+  /**
+   * Late-bound symbol of this model type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface ModelTypeProperty extends BaseType, DecoratedType {
@@ -191,6 +197,11 @@ export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
   node: InterfaceStatementNode;
   namespace?: NamespaceType;
   operations: Map<string, OperationType>;
+  /**
+   * Late-bound symbol of this interface type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface EnumType extends BaseType, DecoratedType {
@@ -272,6 +283,12 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   variants: Map<string | symbol, UnionTypeVariant>;
   expression: boolean;
   readonly options: Type[];
+
+  /**
+   * Late-bound symbol of this interface type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface UnionTypeVariant extends BaseType, DecoratedType {
@@ -318,9 +335,21 @@ export interface Sym {
   exports?: SymbolTable;
 
   /**
+   * Symbols for members of this symbol which must be referenced off the parent symbol
+   * and cannot be referenced by other means (i.e. by unqualified lookup of the symbol
+   * name).
+   */
+  members?: SymbolTable;
+
+  /**
    * For using symbols, this is the used symbol.
    */
   symbolSource?: Sym;
+
+  /**
+   * For late-bound symbols, this is the type referenced by the symbol.
+   */
+  type?: Type;
 
   /**
    * For decorator and function symbols, this is the JS function implementation.
@@ -346,29 +375,39 @@ export interface SymbolTable extends Map<string, Sym> {
 
 // prettier-ignore
 export const enum SymbolFlags {
-  None                = 0,
-  Model               = 1 << 1,
-  ModelProperty       = 1 << 2,
-  Operation           = 1 << 3,
-  Enum                = 1 << 4,
-  EnumMember          = 1 << 5,
-  Interface           = 1 << 6,
-  Union               = 1 << 7,
-  UnionVariant        = 1 << 8,
-  Alias               = 1 << 9,
-  Namespace           = 1 << 10,
-  Projection          = 1 << 11,
-  Decorator           = 1 << 12,
-  TemplateParameter   = 1 << 13,
-  ProjectionParameter = 1 << 14,
-  Function            = 1 << 15,
-  FunctionParameter   = 1 << 16,
-  Using               = 1 << 17,
-  DuplicateUsing      = 1 << 18,
-  SourceFile          = 1 << 19,
+  None                  = 0,
+  Model                 = 1 << 1,
+  ModelProperty         = 1 << 2,
+  Operation             = 1 << 3,
+  Enum                  = 1 << 4,
+  EnumMember            = 1 << 5,
+  Interface             = 1 << 6,
+  InterfaceMember       = 1 << 7,
+  Union                 = 1 << 8,
+  UnionVariant          = 1 << 9,
+  Alias                 = 1 << 10,
+  Namespace             = 1 << 11,
+  Projection            = 1 << 12,
+  Decorator             = 1 << 13,
+  TemplateParameter     = 1 << 14,
+  ProjectionParameter   = 1 << 15,
+  Function              = 1 << 16,
+  FunctionParameter     = 1 << 17,
+  Using                 = 1 << 18,
+  DuplicateUsing        = 1 << 19,
+  SourceFile            = 1 << 20,
 
+  /**
+   * A symbol which was late-bound, in which case, the type referred to
+   * by this symbol is stored directly in the symbol.
+   */
+  LateBound = 1 << 21,
 
-  ExportContainer = Namespace | SourceFile
+  ExportContainer = Namespace | SourceFile,
+  /**
+   * Symbols whose members will be late bound (and stored on the type)
+   */
+  MemberContainer = Model | Enum | Union | Interface,
 }
 
 /**

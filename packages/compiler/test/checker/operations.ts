@@ -2,7 +2,7 @@ import { ok, strictEqual } from "assert";
 import { DecoratorContext, IntrinsicType, OperationType, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
-describe("cadl: operations", () => {
+describe("compiler: operations", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

@@ -258,7 +258,7 @@ function navigateType(
  */
 export function isTemplate(model: ModelType): boolean {
   return (
-    model.node.kind === SyntaxKind.ModelStatement &&
+    model.node?.kind === SyntaxKind.ModelStatement &&
     model.node.templateParameters.length > 0 &&
     !model.templateArguments?.length
   );
