@@ -6,6 +6,8 @@ import {
   getVersion,
   getVersionDependencies,
   getVersions,
+  Version,
+  VersionMap,
 } from "./versioning.js";
 
 export function $onValidate(program: Program) {
@@ -68,18 +70,18 @@ export function $onValidate(program: Program) {
       }
 
       for (const [dependencyNs, value] of dependencies.entries()) {
-        if (version && version.length > 0) {
+        if (version) {
           if (!(value instanceof Map)) {
             reportDiagnostic(program, {
-              code: "versioned-dependency-record-not-model",
+              code: "versioned-dependency-record-not-mapping",
               format: { dependency: program.checker.getNamespaceString(dependencyNs) },
               target: namespace,
             });
           }
         } else {
-          if (typeof value !== "string") {
+          if (value instanceof Map) {
             reportDiagnostic(program, {
-              code: "versioned-dependency-not-string",
+              code: "versioned-dependency-not-picked",
               format: { dependency: program.checker.getNamespaceString(dependencyNs) },
               target: namespace,
             });
@@ -155,11 +157,11 @@ function validateTargetVersionCompatible(
   const sourceVersionRange = getResolvedVersionRange(program, source);
 
   const [sourceNamespace, sourceVersions] = getVersions(program, source);
-  const [targetNamespace, targetVersions] = getVersions(program, target);
-  if (sourceNamespace === undefined || sourceVersions === undefined) {
+  const [targetNamespace, _targetVersions] = getVersions(program, target);
+  if (sourceNamespace === undefined) {
     return;
   }
-  if (targetNamespace === undefined || targetNamespace === undefined) {
+  if (targetNamespace === undefined) {
     return;
   }
 
@@ -174,7 +176,6 @@ function validateTargetVersionCompatible(
       program,
       targetVersionRange,
       versionMap,
-      targetVersions!,
       source,
       target
     );
@@ -186,7 +187,6 @@ function validateTargetVersionCompatible(
   if (validateOptions.isTargetADependent) {
     validateRangeCompatibleForContains(
       program,
-      sourceVersions!,
       sourceVersionRange,
       targetVersionRange,
       source,
@@ -205,8 +205,8 @@ function validateTargetVersionCompatible(
 }
 
 interface VersionRange {
-  added: string | undefined;
-  removed: string | undefined;
+  added: Version | undefined;
+  removed: Version | undefined;
 }
 
 interface VersionRangeIndex {
@@ -217,14 +217,13 @@ interface VersionRangeIndex {
 function translateVersionRange(
   program: Program,
   range: VersionRange,
-  versionMap: Map<string, string> | string,
-  targetVersions: string[],
+  versionMap: Map<Version, Version> | Version,
   source: Type,
   target: Type
 ): VersionRange | undefined {
-  if (typeof versionMap === "string") {
-    const rangeIndex = getVersionRangeIndex(targetVersions, range);
-    const selectedVersionIndex = targetVersions.indexOf(versionMap);
+  if (!(versionMap instanceof Map)) {
+    const rangeIndex = getVersionRangeIndex(range);
+    const selectedVersionIndex = versionMap.index;
     if (rangeIndex.added !== undefined && rangeIndex.added > selectedVersionIndex) {
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
@@ -232,8 +231,8 @@ function translateVersionRange(
         format: {
           sourceName: program.checker.getTypeName(source),
           targetName: program.checker.getTypeName(target),
-          dependencyVersion: versionMap,
-          targetAddedOn: range.added!,
+          dependencyVersion: prettyVersion(versionMap),
+          targetAddedOn: prettyVersion(range.added),
         },
         target: source,
       });
@@ -245,8 +244,8 @@ function translateVersionRange(
         format: {
           sourceName: program.checker.getTypeName(source),
           targetName: program.checker.getTypeName(target),
-          dependencyVersion: versionMap,
-          targetAddedOn: range.added!,
+          dependencyVersion: prettyVersion(versionMap),
+          targetAddedOn: prettyVersion(range.added),
         },
         target: source,
       });
@@ -260,7 +259,10 @@ function translateVersionRange(
   }
 }
 
-function findVersionMapping(versionMap: Map<string, string>, version: string): string | undefined {
+function findVersionMapping(
+  versionMap: Map<Version, Version>,
+  version: Version
+): Version | undefined {
   return [...versionMap.entries()].find(([k, v]) => v === version)?.[0];
 }
 
@@ -315,9 +317,9 @@ function mergeRanges(
   };
 }
 
-function getVersionRangeIndex(versions: string[], range: VersionRange): VersionRangeIndex {
-  const added = range.added ? versions.indexOf(range.added) : -1;
-  const removed = range.removed ? versions.indexOf(range.removed) : -1;
+function getVersionRangeIndex(range: VersionRange): VersionRangeIndex {
+  const added = range.added ? range.added.index : -1;
+  const removed = range.removed ? range.removed.index : -1;
   return {
     added: added !== -1 ? added : undefined,
     removed: removed !== -1 ? removed : undefined,
@@ -326,17 +328,17 @@ function getVersionRangeIndex(versions: string[], range: VersionRange): VersionR
 
 function validateRangeCompatibleForRef(
   program: Program,
-  versions: string[],
+  versions: VersionMap,
   sourceRange: VersionRange | undefined,
   targetRange: VersionRange,
   source: Type,
   target: Type
 ) {
-  const targetRangeIndex = getVersionRangeIndex(versions, targetRange);
+  const targetRangeIndex = getVersionRangeIndex(targetRange);
   if (sourceRange === undefined) {
     if (
       (targetRangeIndex.added && targetRangeIndex.added > 0) ||
-      (targetRangeIndex.removed && targetRangeIndex.removed < versions.length)
+      (targetRangeIndex.removed && targetRangeIndex.removed < versions.size)
     ) {
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
@@ -350,7 +352,7 @@ function validateRangeCompatibleForRef(
     }
     return;
   }
-  const sourceRangeIndex = getVersionRangeIndex(versions, sourceRange);
+  const sourceRangeIndex = getVersionRangeIndex(sourceRange);
 
   if (
     targetRangeIndex.added !== undefined &&
@@ -362,8 +364,8 @@ function validateRangeCompatibleForRef(
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
-        sourceAddedOn: sourceRange.added ?? "<n/a>",
-        targetAddedOn: targetRange.added!,
+        sourceAddedOn: prettyVersion(sourceRange.added),
+        targetAddedOn: prettyVersion(targetRange.added),
       },
       target: source,
     });
@@ -378,8 +380,8 @@ function validateRangeCompatibleForRef(
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
-        sourceRemovedOn: sourceRange.removed ?? "<n/a>",
-        targetRemovedOn: sourceRange.removed!,
+        sourceRemovedOn: prettyVersion(sourceRange.removed),
+        targetRemovedOn: prettyVersion(targetRange.removed),
       },
       target: source,
     });
@@ -388,7 +390,6 @@ function validateRangeCompatibleForRef(
 
 function validateRangeCompatibleForContains(
   program: Program,
-  versions: string[],
   sourceRange: VersionRange | undefined,
   targetRange: VersionRange,
   source: Type,
@@ -398,8 +399,8 @@ function validateRangeCompatibleForContains(
     return;
   }
 
-  const sourceRangeIndex = getVersionRangeIndex(versions, sourceRange);
-  const targetRangeIndex = getVersionRangeIndex(versions, targetRange);
+  const sourceRangeIndex = getVersionRangeIndex(sourceRange);
+  const targetRangeIndex = getVersionRangeIndex(targetRange);
 
   if (
     targetRangeIndex.added !== undefined &&
@@ -411,8 +412,8 @@ function validateRangeCompatibleForContains(
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
-        sourceAddedOn: sourceRange.added ?? "<n/a>",
-        targetAddedOn: targetRange.added!,
+        sourceAddedOn: prettyVersion(sourceRange.added),
+        targetAddedOn: prettyVersion(targetRange.added),
       },
       target: target,
     });
@@ -427,10 +428,14 @@ function validateRangeCompatibleForContains(
       format: {
         sourceName: program.checker.getTypeName(source),
         targetName: program.checker.getTypeName(target),
-        sourceRemovedOn: sourceRange.removed ?? "<n/a>",
-        targetRemovedOn: sourceRange.removed!,
+        sourceRemovedOn: prettyVersion(sourceRange.removed),
+        targetRemovedOn: prettyVersion(targetRange.removed),
       },
       target: target,
     });
   }
+}
+
+function prettyVersion(version: Version | undefined): string {
+  return version?.value ?? "<n/a>";
 }
