@@ -558,7 +558,7 @@ export function createServer(host: ServerHost): Server {
       const update_projectroot = projectroot + "/node_modules/" + val;
       const lib_fil = await loadFile(
         compilerHost,
-        resolvePath(String(update_projectroot), "package.json"),
+        resolvePath(update_projectroot, "package.json"),
         JSON.parse,
         program.reportDiagnostic
       );
