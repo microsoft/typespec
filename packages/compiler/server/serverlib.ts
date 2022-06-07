@@ -544,7 +544,7 @@ export function createServer(host: ServerHost): Server {
     const projectroot = await findProjectRoot(compilerHost, new_path);
     const new_file = await loadFile(
       compilerHost,
-      resolvePath(String(projectroot), "package.json"),
+      resolvePath(projectroot, "package.json"),
       JSON.parse,
       program.reportDiagnostic
     );
