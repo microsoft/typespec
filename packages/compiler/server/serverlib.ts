@@ -566,7 +566,7 @@ export function createServer(host: ServerHost): Server {
         if (lib_fil_val.cadlMain != undefined) {
           completions.items.push({
             label: val,
-            kind: CompletionItemKind.Keyword,
+            kind: CompletionItemKind.Module,
             detail: "abc",
           });
         }
