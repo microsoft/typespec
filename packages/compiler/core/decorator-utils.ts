@@ -207,8 +207,6 @@ export function createDecoratorDefinition<
           return false;
         }
       } else if (!isCadlValueTypeOf(arg, paramDefinition.kind)) {
-        console.log("Report diagnostic", index, arg, context.getArgumentTarget(index));
-
         reportDiagnostic(context.program, {
           code: "invalid-argument",
           format: {
