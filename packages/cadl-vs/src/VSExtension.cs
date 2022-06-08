@@ -123,8 +123,14 @@ namespace Microsoft.Cadl.VisualStudio
 #if VS2019
         public Task OnServerInitializeFailedAsync(Exception e)
         {
-            var message = e is CadlUserErrorException ? e.Message : e.ToString();
-            Debug.Fail("Failed to initialize cadl-server:\r\n\r\n" + message);
+            if (e is CadlUserErrorException)
+            {
+                Console.WriteLine("Failed to initialize cadl-server:\r\n\r\n" + e.Message);
+            }
+            else
+            {
+                Debug.Fail("Unexpected error initializing cadl-server:\r\n\r\n" + e);
+            }
             return Task.CompletedTask;
         }
 #endif
@@ -135,7 +141,7 @@ namespace Microsoft.Cadl.VisualStudio
       var message = exception is CadlUserErrorException 
         ? exception.Message 
         : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception?.ToString()}";
-      Debug.Fail("Failed to initialize cadl-server:\r\n\r\n" + exception);
+      Debug.Assert(exception is CadlUserErrorException, "Unexpected error initializing cadl-server:\r\n\r\n" + exception);
       return Task.FromResult<InitializationFailureContext?>(
         new InitializationFailureContext {
           FailureMessage = "Failed to activate Cadl language server!\r\n" + message
