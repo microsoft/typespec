@@ -1,13 +1,9 @@
 import { ok, strictEqual } from "assert";
-import {
-  CadlScriptNode,
-  IdentifierNode,
-  NamespaceStatementNode,
-  SyntaxKind,
-} from "../core/index.js";
+import { CadlScriptNode, SyntaxKind } from "../core/index.js";
 import { getNodeAtPosition, parse } from "../core/parser.js";
 import { Node } from "../core/types.js";
 import { extractCursor } from "./server/test-server-host.js";
+import { dumpAST } from "./test-parser.js";
 
 describe("compiler: parser utils", () => {
   describe("getNodeAtPosition", () => {
@@ -16,6 +12,7 @@ describe("compiler: parser utils", () => {
     ): Promise<{ root: CadlScriptNode; node: Node | undefined }> {
       const { source, pos } = extractCursor(sourceWithCursor);
       const root = parse(source);
+      dumpAST(root);
       return { node: getNodeAtPosition(root, pos), root };
     }
 
@@ -26,8 +23,8 @@ describe("compiler: parser utils", () => {
         }
       `);
       ok(node);
-      strictEqual(node.kind, SyntaxKind.NamespaceStatement);
-      strictEqual((node as NamespaceStatementNode).id.sv, "Foo");
+      strictEqual(node.kind, SyntaxKind.NamespaceStatement as const);
+      strictEqual(node.id.sv, "Foo");
     });
 
     it("return identifier for property return type", async () => {
@@ -37,8 +34,8 @@ describe("compiler: parser utils", () => {
         }
       `);
       ok(node);
-      strictEqual(node.kind, SyntaxKind.Identifier);
-      strictEqual((node as IdentifierNode).sv, "string");
+      strictEqual(node.kind, SyntaxKind.Identifier as const);
+      strictEqual(node.sv, "string");
     });
 
     it("return missing identifier node when at the position for model property type", async () => {
@@ -48,8 +45,8 @@ describe("compiler: parser utils", () => {
         }
       `);
       ok(node);
-      strictEqual(node.kind, SyntaxKind.Identifier);
-      strictEqual((node as IdentifierNode).sv, "<missing identifier>1");
+      strictEqual(node.kind, SyntaxKind.Identifier as const);
+      strictEqual(node.sv, "<missing identifier>1");
     });
 
     it("return string literal when in non completed string", async () => {
@@ -68,6 +65,15 @@ describe("compiler: parser utils", () => {
       `);
       ok(node);
       strictEqual(node.kind, SyntaxKind.StringLiteral);
+    });
+
+    it("return missing identifier between dot and close paren", async () => {
+      const { node } = await getNodeAtCursor(`
+        @dec(N.┆)
+      `);
+      ok(node);
+      strictEqual(node.kind, SyntaxKind.Identifier as const);
+      strictEqual(node.sv, "<missing identifier>1");
     });
   });
 });

@@ -596,6 +596,10 @@ describe("compiler: syntax", () => {
       ]);
     });
   });
+
+  describe("invalid statement", () => {
+    parseErrorEach([["@dec(N.)", [/Identifier expected/]]]);
+  });
 });
 
 type Callback = (node: CadlScriptNode) => void;
@@ -744,7 +748,7 @@ function parseErrorEach(
   }
 }
 
-function dumpAST(astNode: Node, file?: SourceFile) {
+export function dumpAST(astNode: Node, file?: SourceFile) {
   if (!file && astNode.kind === SyntaxKind.CadlScript) {
     file = astNode.file;
   }

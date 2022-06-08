@@ -4,7 +4,7 @@ import "./library.cadl";
 
 // Use version 1.0 of the Library
 @serviceTitle("Pet Store Service")
-@versionedDependency(Library, "1.0")
+@versionedDependency(Library.Versions.v1_0)
 namespace VersionedApi;
 using Cadl.Http;
 

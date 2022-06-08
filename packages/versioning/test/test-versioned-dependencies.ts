@@ -20,11 +20,12 @@ describe("versioning: reference versioned library", () => {
       (code) => `
       import "@cadl-lang/versioning";
 
-      @versioned("1" | "2")
+      @versioned(Versions)
       namespace VersionedLib {
+        enum Versions {l1, l2}
         model Foo {
           name: string;
-          @added("2") age: int32;
+          @added(Versions.l2) age: int32;
         }
       }
       ${code}`
@@ -44,7 +45,7 @@ describe("versioning: reference versioned library", () => {
   describe("when project is not-versioned", () => {
     it("use a versioned library given version", async () => {
       const { MyService, Test } = (await runner.compile(`
-        @versionedDependency(VersionedLib, "1")
+        @versionedDependency(VersionedLib.Versions.l1)
         @test namespace MyService {
           @test model Test extends VersionedLib.Foo {}
         } 
@@ -62,13 +63,13 @@ describe("versioning: reference versioned library", () => {
 
     it("emit diagnostic if passing version mapping", async () => {
       const diagnostics = await runner.diagnose(`
-        @versionedDependency(VersionedLib, {v1: "1", v2: "2"})
+        @versionedDependency([[VersionedLib.Versions.l1, VersionedLib.Versions.l1]])
         namespace MyService {
           model Test extends VersionedLib.Foo {}
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/versioned-dependency-not-string",
+        code: "@cadl-lang/versioning/versioned-dependency-not-picked",
         message:
           "The versionedDependency decorator must provide a version of the dependency 'VersionedLib'.",
       });
@@ -78,9 +79,10 @@ describe("versioning: reference versioned library", () => {
   describe("when project is versioned", () => {
     it("use a versioned library given version", async () => {
       const { MyService, Test } = (await runner.compile(`
-        @versioned("v1" | "v2")
-        @versionedDependency(VersionedLib, {v1: "1", v2: "2"})
+        @versioned(Versions)
+        @versionedDependency([[Versions.v1, VersionedLib.Versions.l1], [Versions.v2, VersionedLib.Versions.l2]])
         @test namespace MyService {
+          enum Versions {v1, v2}
           @test model Test extends VersionedLib.Foo {}
         } 
     `)) as { MyService: NamespaceType; Test: ModelType };
@@ -101,14 +103,15 @@ describe("versioning: reference versioned library", () => {
 
     it("emit diagnostic if passing a specific version", async () => {
       const diagnostics = await runner.diagnose(`
-        @versioned("v1" | "v2")
-        @versionedDependency(VersionedLib, "1")
+        @versioned(Versions)
+        @versionedDependency(VersionedLib.Versions.l1)
         namespace MyService {
+          enum Versions {v1, v2}
           model Test extends VersionedLib.Foo {}
         } 
     `);
       expectDiagnostics(diagnostics, {
-        code: "@cadl-lang/versioning/versioned-dependency-record-not-model",
+        code: "@cadl-lang/versioning/versioned-dependency-record-not-mapping",
         message:
           "The versionedDependency decorator must provide a model mapping local versions to dependency 'VersionedLib' versions",
       });
@@ -163,8 +166,10 @@ describe("versioning: reference versioned library", () => {
           }
         }
 
-        @versioned("v1" | "v2")
+        @versioned(Versions)
         namespace MyService {
+          enum Versions {v1, v2}
+          
           model Bar {}
           model Test extends NonVersioned.Foo<Bar> {}
         } 
@@ -175,8 +180,10 @@ describe("versioning: reference versioned library", () => {
 
     it("doesn't emit diagnostic when mixin interface of non versioned lib", async () => {
       const diagnostics = await runner.diagnose(`
-        @versioned("v1" | "v2")
+        @versioned(Versions)
         namespace MyService {
+          enum Versions {v1, v2}
+          
           model Foo {}
 
           interface Test {
@@ -189,8 +196,10 @@ describe("versioning: reference versioned library", () => {
 
     it("doesn't emit diagnostic using union in non versioned lib", async () => {
       const diagnostics = await runner.diagnose(`
-        @versioned("v1" | "v2")
+        @versioned(Versions)
         namespace DemoService {
+          enum Versions {v1, v2}
+          
           model Foo {}
 
           interface Test extends NonVersioned.Foo<Foo> {}
@@ -238,20 +247,23 @@ describe("versioning: dependencies", () => {
 
   it("can spread versioned model from another library", async () => {
     const { MyService, Test } = (await runner.compile(`
-      @versioned("l1" | "l2")
+      @versioned(Versions)
       namespace VersionedLib {
+        enum Versions {l1, l2}
         model Spread<T> {
           t: string;
           ...T;
         }
       }
 
-      @versioned("1" | "2")
-      @versionedDependency(VersionedLib, {"1": "l1", "2": "l2"})
+      @versioned(Versions)
+      @versionedDependency([[Versions.v1, VersionedLib.Versions.l1], [Versions.v2, VersionedLib.Versions.l2]])
       @test namespace MyService {
+        enum Versions {v1, v2}
+
         model Spreadable {
           a: int32;
-          @added("2") b: int32;
+          @added(Versions.v2) b: int32;
         }
         @test model Test extends VersionedLib.Spread<Spreadable> {}
       }
@@ -265,23 +277,25 @@ describe("versioning: dependencies", () => {
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
   });
 
-  // Todo https://github.com/microsoft/cadl/issues/466
-  it.skip("can handle when the versions name are the same across different libraries", async () => {
+  it("can handle when the versions name are the same across different libraries", async () => {
     const { MyService, Test } = (await runner.compile(`
-      @versioned("1" | "2")
+      @versioned(Versions)
       namespace VersionedLib {
+        enum Versions {v1, v2}
         model Spread<T> {
           t: string;
           ...T;
         }
       }
 
-      @versioned("1" | "2")
-      @versionedDependency(VersionedLib, {"1": "2", "2": "1"})
+      @versioned(Versions)
+      @versionedDependency([[Versions.v1, VersionedLib.Versions.v1], [Versions.v2, VersionedLib.Versions.v2]])
       @test namespace MyService {
+        enum Versions {v1, v2}
+
         model Spreadable {
           a: int32;
-          @added("2") b: int32;
+          @added(Versions.v2) b: int32;
         }
         @test model Test extends VersionedLib.Spread<Spreadable> {}
       }
