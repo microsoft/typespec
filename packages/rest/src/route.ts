@@ -419,7 +419,7 @@ function buildRoutes(
     }
 
     // Skip templated operations
-    if (op.templateArguments && op.templateArguments.length > 0) {
+    if (isUninstantiatedTemplateOperation(op)) {
       continue;
     }
 
@@ -480,6 +480,11 @@ function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
     maybeInterface.node.templateParameters.length > 0 &&
     (!maybeInterface.templateArguments || maybeInterface.templateArguments.length === 0)
   );
+}
+
+function isUninstantiatedTemplateOperation(maybeOperation: Type): boolean {
+  // Any operation statement with template parameters is inherently uninstantiated
+  return maybeOperation.kind === "Operation" && maybeOperation.node.templateParameters.length > 0;
 }
 
 export function getAllRoutes(

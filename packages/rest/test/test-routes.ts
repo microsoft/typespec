@@ -439,4 +439,24 @@ describe("rest: routes", () => {
 
     deepStrictEqual(routes, [{ verb: "get", path: "/things/{foo}/subthings/bar", params: [] }]);
   });
+
+  it("skips templated operations", async () => {
+    const routes = await getRoutesFor(
+      `
+      @route("/things")
+      namespace Things {
+        @get op GetThingBase<TResponse>(): TResponse;
+        op GetThing is GetThingBase<string>;
+
+        @route("/{thingId}")
+        @put op CreateThing(@path thingId: string): string;
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [
+      { verb: "get", path: "/things", params: [] },
+      { verb: "put", path: "/things/{thingId}", params: ["thingId"] },
+    ]);
+  });
 });
