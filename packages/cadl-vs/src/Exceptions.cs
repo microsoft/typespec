@@ -25,7 +25,7 @@ public class CadlUserErrorException : Exception
 
 
 [Serializable]
-public class CadlServerNotFound : CadlUserErrorException
+public class CadlServerNotFoundException : CadlUserErrorException
 {
     public CadlServerNotFound() { }
 
