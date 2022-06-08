@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Improve error reporting when cadl-server is not found",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vs"
+}

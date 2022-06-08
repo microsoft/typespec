@@ -87,7 +87,7 @@ specifiers:
   typescript: ~4.7.2
   vite: ^2.9.9
   vsce: ~2.6.7
-  vscode-languageclient: ~7.0.0
+  vscode-languageclient: ~8.0.0
   vscode-languageserver: ~7.0.0
   vscode-languageserver-textdocument: ~1.0.1
   vscode-oniguruma: ~1.6.1
@@ -182,7 +182,7 @@ dependencies:
   typescript: 4.7.2
   vite: 2.9.9
   vsce: 2.6.7
-  vscode-languageclient: 7.0.0
+  vscode-languageclient: 8.0.1
   vscode-languageserver: 7.0.0
   vscode-languageserver-textdocument: 1.0.5
   vscode-oniguruma: 1.6.2
@@ -4169,13 +4169,18 @@ packages:
     engines: {node: '>=8.0.0 || >=10.0.0'}
     dev: false
 
-  /vscode-languageclient/7.0.0:
-    resolution: {integrity: sha512-P9AXdAPlsCgslpP9pRxYPqkNYV7Xq8300/aZDpO35j1fJm/ncize8iGswzYlcvFw5DQUx4eVk+KvfXdL0rehNg==}
-    engines: {vscode: ^1.52.0}
+  /vscode-jsonrpc/8.0.1:
+    resolution: {integrity: sha512-N/WKvghIajmEvXpatSzvTvOIz61ZSmOSa4BRA4pTLi+1+jozquQKP/MkaylP9iB68k73Oua1feLQvH3xQuigiQ==}
+    engines: {node: '>=14.0.0'}
+    dev: false
+
+  /vscode-languageclient/8.0.1:
+    resolution: {integrity: sha512-9XoE+HJfaWvu7Y75H3VmLo5WLCtsbxEgEhrLPqwt7eyoR49lUIyyrjb98Yfa50JCMqF2cePJAEVI6oe2o1sIhw==}
+    engines: {vscode: ^1.67.0}
     dependencies:
       minimatch: 3.1.2
       semver: 7.3.7
-      vscode-languageserver-protocol: 3.16.0
+      vscode-languageserver-protocol: 3.17.1
     dev: false
 
   /vscode-languageserver-protocol/3.16.0:
@@ -4185,12 +4190,23 @@ packages:
       vscode-languageserver-types: 3.16.0
     dev: false
 
+  /vscode-languageserver-protocol/3.17.1:
+    resolution: {integrity: sha512-BNlAYgQoYwlSgDLJhSG+DeA8G1JyECqRzM2YO6tMmMji3Ad9Mw6AW7vnZMti90qlAKb0LqAlJfSVGEdqMMNzKg==}
+    dependencies:
+      vscode-jsonrpc: 8.0.1
+      vscode-languageserver-types: 3.17.1
+    dev: false
+
   /vscode-languageserver-textdocument/1.0.5:
     resolution: {integrity: sha512-1ah7zyQjKBudnMiHbZmxz5bYNM9KKZYz+5VQLj+yr8l+9w3g+WAhCkUkWbhMEdC5u0ub4Ndiye/fDyS8ghIKQg==}
     dev: false
 
   /vscode-languageserver-types/3.16.0:
     resolution: {integrity: sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==}
+    dev: false
+
+  /vscode-languageserver-types/3.17.1:
+    resolution: {integrity: sha512-K3HqVRPElLZVVPtMeKlsyL9aK0GxGQpvtAUTfX4k7+iJ4mc1M+JM+zQwkgGy2LzY0f0IAafe8MKqIkJrxfGGjQ==}
     dev: false
 
   /vscode-languageserver/7.0.0:
@@ -4473,7 +4489,7 @@ packages:
     dev: false
 
   file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-DzSR813DQ0ORT9Ol4kqMv9bS6q6myYvFMaISzoLIa/QVEdYVsv8ykArP3WQSY1IZfgjR51G4U6FYlqGxDfUHqg==, tarball: file:projects/cadl-vscode.tgz}
+    resolution: {integrity: sha512-fbWb3ZPbNJk+GZr+2ianvI+VYT8TKPNfKLG34o2l6Lu6L1HG5Rfx7VCvzDJD9avXw47/6/AIc6l6rHrWcipshw==, tarball: file:projects/cadl-vscode.tgz}
     name: '@rush-temp/cadl-vscode'
     version: 0.0.0
     dependencies:
@@ -4491,7 +4507,7 @@ packages:
       rollup: 2.70.2
       typescript: 4.7.2
       vsce: 2.6.7
-      vscode-languageclient: 7.0.0
+      vscode-languageclient: 8.0.1
       vscode-oniguruma: 1.6.2
       vscode-textmate: 6.0.0
     transitivePeerDependencies:
