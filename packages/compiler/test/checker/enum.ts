@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { EnumMemberType, EnumType, ModelType } from "../../core/types.js";
+import { DecoratorContext, EnumMemberType, EnumType, ModelType, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: enums", () => {
@@ -86,5 +86,41 @@ describe("compiler: enums", () => {
       code: "enum-member-duplicate",
       message: "Enum already has a member named A",
     });
+  });
+
+  // Issue here was the same EnumType was create twice for each decorator on different namespaces causing equality issues when comparing the enum or enum member
+  it("enums can be refernced from decorator on namespace", async () => {
+    let refViaMyService: EnumType | undefined;
+    let refViaMyLib: EnumType | undefined;
+    testHost.addJsFile("lib.js", {
+      $saveMyService(context: DecoratorContext, target: Type, ref: EnumType) {
+        refViaMyService = ref;
+      },
+      $saveMyLib(context: DecoratorContext, target: Type, ref: EnumType) {
+        refViaMyLib = ref;
+      },
+    });
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./lib.js";
+
+      @saveMyService(MyLib.E)
+      namespace MyService {}
+
+      @saveMyLib(E)
+      namespace MyLib{
+        @test enum E {
+          a, b
+        }
+      }
+      `
+    );
+
+    await testHost.compile("./");
+
+    ok(refViaMyService);
+    ok(refViaMyLib);
+    strictEqual(refViaMyService, refViaMyLib);
   });
 });

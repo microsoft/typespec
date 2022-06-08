@@ -1,4 +1,5 @@
 import {
+  createDecoratorDefinition,
   DecoratorContext,
   ModelType,
   ModelTypeProperty,
@@ -13,13 +14,14 @@ import {
 import { reportDiagnostic } from "./diagnostics.js";
 import { extractParamsFromPath } from "./utils.js";
 
+const headerDecorator = createDecoratorDefinition({
+  name: "@header",
+  target: "ModelProperty",
+  args: [{ kind: "String", optional: true }],
+} as const);
 const headerFieldsKey = Symbol("header");
-export function $header(context: DecoratorContext, entity: Type, headerName?: string) {
-  if (!validateDecoratorTarget(context, entity, "@header", "ModelProperty")) {
-    return;
-  }
-
-  if (headerName && !validateDecoratorParamType(context.program, entity, headerName, "String")) {
+export function $header(context: DecoratorContext, entity: ModelTypeProperty, headerName?: string) {
+  if (!headerDecorator.validate(context, entity, [headerName])) {
     return;
   }
 
@@ -124,13 +126,19 @@ export function $statusCode(context: DecoratorContext, entity: Type) {
           codes.push(String(option.value));
         }
       } else {
-        reportDiagnostic(context.program, { code: "status-code-invalid", target: entity });
+        reportDiagnostic(context.program, {
+          code: "status-code-invalid",
+          target: entity,
+        });
       }
     }
   } else if (entity.type.kind === "TemplateParameter") {
     // Ignore template parameters
   } else {
-    reportDiagnostic(context.program, { code: "status-code-invalid", target: entity });
+    reportDiagnostic(context.program, {
+      code: "status-code-invalid",
+      target: entity,
+    });
   }
   setStatusCode(context.program, entity, codes);
 }
@@ -243,37 +251,38 @@ export function getOperationVerb(program: Program, entity: Type): HttpVerb | und
 }
 
 export function $get(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "get");
 }
 
 export function $put(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "put");
 }
 
 export function $post(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "post");
 }
 
 export function $patch(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "patch");
 }
 
 export function $delete(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "delete");
 }
 
 export function $head(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "head");
 }
 
-function validateVerbNoArgs(program: Program, target: Type, args: unknown[]) {
-  validateDecoratorParamCount(program, target, args, 0);
+// TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
+function validateVerbNoArgs(context: DecoratorContext, args: unknown[]) {
+  validateDecoratorParamCount(context, 0, 0, args);
 }
 
 export interface HttpServer {

@@ -287,6 +287,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const stmts: Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
+    let seenUsing = false;
     while (token() !== Token.EndOfFile) {
       const pos = tokenPos();
       const directives = parseDirectiveList();
@@ -333,7 +334,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          item = parseInvalidStatement(decorators);
+          item = parseInvalidStatement(pos, decorators);
           break;
       }
 
@@ -348,9 +349,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         }
         seenBlocklessNs = true;
       } else if (item.kind === SyntaxKind.ImportStatement) {
-        if (seenDecl || seenBlocklessNs) {
+        if (seenDecl || seenBlocklessNs || seenUsing) {
           error({ code: "import-first" });
         }
+      } else if (item.kind === SyntaxKind.UsingStatement) {
+        seenUsing = true;
       } else {
         seenDecl = true;
       }
@@ -420,7 +423,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          item = parseInvalidStatement(decorators);
+          item = parseInvalidStatement(pos, decorators);
           break;
       }
       item.directives = directives;
@@ -1992,12 +1995,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return { kind: SyntaxKind.EmptyStatement, ...finishNode(pos) };
   }
 
-  function parseInvalidStatement(decorators: DecoratorExpressionNode[]): InvalidStatementNode {
+  function parseInvalidStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): InvalidStatementNode {
     // Error recovery: avoid an avalanche of errors when we get cornered into
     // parsing statements where none exist. Skip until we find a statement
     // keyword or decorator and only report one error for a contiguous range of
     // neither.
-    const pos = tokenPos();
     do {
       nextToken();
     } while (
@@ -2361,7 +2366,9 @@ export function getNodeAtPosition(
   const cp = codePointBefore(script.file.text, position);
   if (!cp || !isIdentifierContinue(cp)) {
     const newPosition = skipTrivia(script.file.text, position);
-    return getNodeAtPositionInternal(script, newPosition, filter);
+    if (newPosition !== position) {
+      return getNodeAtPositionInternal(script, newPosition, filter);
+    }
   }
   return realNode;
 }
