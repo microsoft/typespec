@@ -104,7 +104,7 @@ namespace Microsoft.Cadl.VisualStudio
             {
                 if (e.NativeErrorCode == Win32ErrorCodes.ERROR_FILE_NOT_FOUND)
                 {
-                    throw new CadlServerNotFound(info.FileName);
+                    throw new CadlServerNotFoundException(info.FileName);
                 }
                 throw e;
             }
@@ -140,7 +140,7 @@ namespace Microsoft.Cadl.VisualStudio
       var exception = initializationState.InitializationException;
       var message = exception is CadlUserErrorException 
         ? exception.Message 
-        : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception?.ToString()}";
+        : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception}";
       Debug.Assert(exception is CadlUserErrorException, "Unexpected error initializing cadl-server:\r\n\r\n" + exception);
       return Task.FromResult<InitializationFailureContext?>(
         new InitializationFailureContext {
