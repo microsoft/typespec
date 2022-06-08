@@ -535,43 +535,54 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  async function addLibraryImportCompletion(
+    program: Program,
+    document: TextDocument,
+    completions: CompletionList
+  ) {
+    const documentPath = getPath(document);
+    const projectRoot = await findProjectRoot(compilerHost, documentPath);
+    if (projectRoot != undefined) {
+      const [packagejson] = await loadFile(
+        compilerHost,
+        resolvePath(projectRoot, "package.json"),
+        JSON.parse,
+        program.reportDiagnostic
+      );
+      let dependencies: string[] = [];
+      console.error(packagejson);
+      if (packagejson.dependencies != undefined) {
+        dependencies = dependencies.concat(Object.keys(packagejson.dependencies));
+      }
+      if (packagejson.peerDependencies != undefined) {
+        dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
+      }
+      for (const val of dependencies) {
+        const nodeProjectRoot = resolvePath(projectRoot, "node_modules", val);
+        const libFile = await loadFile(
+          compilerHost,
+          resolvePath(nodeProjectRoot, "package.json"),
+          JSON.parse,
+          program.reportDiagnostic
+        );
+        for (const libFileVal of libFile) {
+          if (libFileVal.cadlMain != undefined) {
+            completions.items.push({
+              label: val,
+              kind: CompletionItemKind.Module,
+            });
+          }
+        }
+      }
+    }
+  }
+
   async function addImportCompletion(
     program: Program,
     document: TextDocument,
     completions: CompletionList
   ) {
-    const new_path = getPath(document);
-    const projectroot = await findProjectRoot(compilerHost, new_path);
-    const new_file = await loadFile(
-      compilerHost,
-      resolvePath(String(projectroot), "package.json"),
-      JSON.parse,
-      program.reportDiagnostic
-    );
-    let dep_list: string[] = [];
-    for (const val of new_file) {
-      if (val.dependencies != undefined) {
-        dep_list = dep_list.concat(Object.keys(val.dependencies));
-      }
-    }
-    for (const val of dep_list) {
-      const update_projectroot = projectroot + "/node_modules/" + val;
-      const lib_fil = await loadFile(
-        compilerHost,
-        resolvePath(String(update_projectroot), "package.json"),
-        JSON.parse,
-        program.reportDiagnostic
-      );
-      for (const lib_fil_val of lib_fil) {
-        if (lib_fil_val.cadlMain != undefined) {
-          completions.items.push({
-            label: val,
-            kind: CompletionItemKind.Module,
-            detail: "abc",
-          });
-        }
-      }
-    }
+    await addLibraryImportCompletion(program, document, completions);
   }
 
   /**
