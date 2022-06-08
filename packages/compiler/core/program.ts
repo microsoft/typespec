@@ -776,7 +776,7 @@ export async function createProgram(
       return false;
     }
 
-    if (target === NoTarget) {
+    if (target === NoTarget || target === undefined) {
       return false;
     }
 

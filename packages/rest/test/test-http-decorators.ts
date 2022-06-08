@@ -294,8 +294,8 @@ describe("rest: http decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-        message: "Argument '' of type '' is not assignable to parameter of type 'String'",
+        code: "invalid-argument-count",
+        message: "Expected between 2 and 3 arguments, but got 1.",
       });
     });
 

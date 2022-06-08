@@ -291,6 +291,11 @@ export interface HttpServer {
   parameters: Map<string, ModelTypeProperty>;
 }
 
+const serverDecoratorDefinition = createDecoratorDefinition({
+  name: "@server",
+  target: "Namespace",
+  args: [{ kind: "String" }, { kind: "String" }, { kind: "Model", optional: true }],
+} as const);
 const serversKey = Symbol("servers");
 /**
  * Configure the server url for the service.
@@ -301,17 +306,12 @@ const serversKey = Symbol("servers");
  */
 export function $server(
   context: DecoratorContext,
-  target: Type,
+  target: NamespaceType,
   url: string,
   description: string,
-  parameters?: Type
+  parameters?: ModelType
 ): void {
-  if (
-    !validateDecoratorTarget(context, target, "@server", "Namespace") ||
-    !validateDecoratorParamType(context.program, target, url, "String") ||
-    !validateDecoratorParamType(context.program, target, description, "String") ||
-    (parameters && !validateDecoratorParamType(context.program, target, parameters, "Model"))
-  ) {
+  if (!serverDecoratorDefinition.validate(context, target, [url, description, parameters])) {
     return;
   }
 
