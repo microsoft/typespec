@@ -28,11 +28,11 @@ projection interface#v {
       return never;
     } else {
       self::operations::forEach((operation) => {
-        if addedAfter(operation, version, self) {
+        if addedAfter(operation, version) {
           self::deleteOperation(operation::name);
-        } else if removedOnOrBefore(operation, version, self) {
+        } else if removedOnOrBefore(operation, version) {
           self::deleteOperation(operation::name);
-        } else if renamedAfter(operation, version, self) {
+        } else if renamedAfter(operation, version) {
           self::renameOperation(operation::name, getRenamedFromOldName(operation));
         };
       });
@@ -45,11 +45,11 @@ projection interface#v {
       return never;
     } else {
       self::projectionBase::operations::forEach((operation) => {
-        if addedAfter(operation, version, self) {
+        if addedAfter(operation, version) {
           self::addOperation(operation::name, operation::parameters, operation::returnType);
-        } else if removedOnOrBefore(operation, version, self) {
+        } else if removedOnOrBefore(operation, version) {
           self::addOperation(operation::name, operation::parameters, operation::returnType);
-        } else if renamedAfter(operation, version, self) {
+        } else if renamedAfter(operation, version) {
           self::renameOperation(getRenamedFromOldName(operation), operation::name);
         };
       });
@@ -66,11 +66,11 @@ projection union#v {
       return never;
     } else {
       self::variants::forEach((variant) => {
-        if addedAfter(variant, version, self) {
+        if addedAfter(variant, version) {
           self::deleteVariant(variant::name);
-        } else if removedOnOrBefore(variant, version, self) {
+        } else if removedOnOrBefore(variant, version) {
           self::deleteVariant(variant::name);
-        } else if renamedAfter(variant, version, self) {
+        } else if renamedAfter(variant, version) {
           self::renameVariant(variant::name, getRenamedFromOldName(variant));
         };
       });
@@ -83,11 +83,11 @@ projection union#v {
       return never;
     } else {
       self::projectionBase::variants::forEach((variant) => {
-        if addedAfter(variant, version, self) {
+        if addedAfter(variant, version) {
           self::addVariant(variant::name, variant::type);
-        } else if removedOnOrBefore(variant, version, self) {
+        } else if removedOnOrBefore(variant, version) {
           self::addVariant(variant::name, variant::type);
-        } else if renamedAfter(variant, version, self) {
+        } else if renamedAfter(variant, version) {
           self::renameVariant(getRenamedFromOldName(variant), variant::name);
         };
       });
@@ -108,15 +108,15 @@ projection model#v {
           self::deleteProperty(p::name);
         };
         
-        if removedOnOrBefore(p, version, self) {
+        if removedOnOrBefore(p, version) {
           self::deleteProperty(p::name);
         };
         
-        if renamedAfter(p, version, self) {
+        if renamedAfter(p, version) {
           self::renameProperty(p::name, getRenamedFromOldName(p));
         };
 
-        if madeOptionalAfter(p, version, self) {
+        if madeOptionalAfter(p, version) {
           p::setOptional(false);
         };
       });
@@ -129,19 +129,19 @@ projection model#v {
       return never;
     } else {
       self::projectionBase::properties::forEach((p) => {
-        if addedAfter(p, version, self) {
+        if addedAfter(p, version) {
           self::addProperty(p::name, p::type);
         };
         
-        if removedOnOrBefore(p, version, self) {
+        if removedOnOrBefore(p, version) {
           self::addProperty(p::name, p::type);
         };
 
-        if renamedAfter(p, version, self) {
+        if renamedAfter(p, version) {
           self::renameProperty(getRenamedFromOldName(p), p::name);
         };
 
-        if madeOptionalAfter(p, version, self) {
+        if madeOptionalAfter(p, version) {
           p::setOptional(true);
         };
       });
@@ -158,15 +158,15 @@ projection enum#v {
       return never;
     } else {
       self::members::forEach((m) => {
-        if addedAfter(m, version, self) {
+        if addedAfter(m, version) {
           self::deleteMember(m::name);
         };
         
-        if removedOnOrBefore(m, version, self) {
+        if removedOnOrBefore(m, version) {
           self::deleteMember(m::name);
         };
         
-        if renamedAfter(m, version, self) {
+        if renamedAfter(m, version) {
           self::renameMember(m::name, getRenamedFromOldName(m));
         };
       });

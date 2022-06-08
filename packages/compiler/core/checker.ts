@@ -1572,7 +1572,10 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-ref",
               messageId: "underNamespace",
-              format: { id: node.id.sv },
+              format: {
+                namespace: getFullyQualifiedSymbolName(base),
+                id: node.id.sv,
+              },
               target: node,
             })
           );
@@ -2340,16 +2343,14 @@ export function createChecker(program: Program): Checker {
   function checkEnum(node: EnumStatementNode): Type {
     const links = getSymbolLinks(node.symbol);
     if (!links.type) {
-      const decorators = checkDecorators(node);
       const enumType: EnumType = (links.type = createType({
         kind: "Enum",
         name: node.id.sv,
         node,
         members: [],
-        namespace: getParentNamespaceType(node),
-        decorators,
+        decorators: [],
       }));
-      enumType.namespace?.enums.set(enumType.name!, enumType);
+
       const memberNames = new Set<string>();
 
       for (const member of node.members) {
@@ -2359,6 +2360,11 @@ export function createChecker(program: Program): Checker {
           enumType.members.push(memberType);
         }
       }
+
+      const namespace = getParentNamespaceType(node);
+      enumType.namespace = namespace;
+      enumType.namespace?.enums.set(enumType.name!, enumType);
+      enumType.decorators = checkDecorators(node);
 
       finishType(enumType);
     }
