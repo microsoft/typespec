@@ -550,7 +550,6 @@ export function createServer(host: ServerHost): Server {
         program.reportDiagnostic
       );
       let dependencies: string[] = [];
-      console.error(packagejson);
       if (packagejson.dependencies != undefined) {
         dependencies = dependencies.concat(Object.keys(packagejson.dependencies));
       }
