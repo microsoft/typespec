@@ -134,7 +134,7 @@ namespace Microsoft.Cadl.VisualStudio
       var exception = initializationState.InitializationException;
       var message = exception is CadlUserErrorException 
         ? exception.Message 
-        : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception?.ToString()}";
+        : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception}";
       Debug.Fail("Failed to initialize cadl-server:\r\n\r\n" + exception);
       return Task.FromResult<InitializationFailureContext?>(
         new InitializationFailureContext {
