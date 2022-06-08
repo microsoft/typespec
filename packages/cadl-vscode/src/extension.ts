@@ -1,6 +1,6 @@
 import { stat } from "fs/promises";
 import { join } from "path";
-import { commands, ExtensionContext, workspace } from "vscode";
+import vscode, { commands, ExtensionContext, workspace } from "vscode";
 import {
   Executable,
   ExecutableOptions,
@@ -11,9 +11,30 @@ import {
 let client: LanguageClient | undefined;
 
 export async function activate(context: ExtensionContext) {
+  context.subscriptions.push(commands.registerCommand("cadl.restartServer", restartCadlServer));
+
+  return await vscode.window.withProgress(
+    {
+      title: "Launching Cadl language service...",
+      location: vscode.ProgressLocation.Notification,
+    },
+    async () => launchLanguageClient(context)
+  );
+}
+
+async function restartCadlServer(): Promise<void> {
+  if (client) {
+    await client.stop();
+    await client.start();
+  }
+}
+
+async function launchLanguageClient(context: ExtensionContext) {
   const exe = await resolveCadlServer(context);
   const options: LanguageClientOptions = {
     synchronize: {
+      // Synchronize the setting section 'cadl' to the server
+      configurationSection: "cadl",
       fileEvents: [
         workspace.createFileSystemWatcher("**/*.cadl"),
         workspace.createFileSystemWatcher("**/cadl-project.yaml"),
@@ -26,24 +47,33 @@ export async function activate(context: ExtensionContext) {
     ],
   };
 
-  context.subscriptions.push(commands.registerCommand("cadl.restartServer", restartCadlServer));
-
   const name = "Cadl";
   const id = "cadlLanguageServer";
-  client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
-  client.start();
-}
-
-async function restartCadlServer(): Promise<void> {
-  if (client) {
-    await client.stop();
-    client.start();
+  try {
+    client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
+    await client.start();
+  } catch (e) {
+    if (typeof e === "string" && e.startsWith("Launching server using command")) {
+      client?.error(
+        [
+          `Cadl server exectuable was not found: '${exe.command}' is not found. Make sure either:`,
+          " - cadl is installed globally with `npm install -g @cadl-lang/compiler'.",
+          " - cadl server path is configured with https://github.com/microsoft/cadl#installing-vs-code-extension.",
+        ].join("\n"),
+        undefined,
+        false
+      );
+      throw `Cadl server exectuable was not found: '${exe.command}' is not found.`;
+    } else {
+      throw e;
+    }
   }
 }
 
 async function resolveCadlServer(context: ExtensionContext): Promise<Executable> {
   const nodeOptions = process.env.CADL_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
+
   // In development mode (F5 launch from source), resolve to locally built server.js.
   if (process.env.CADL_DEVELOPMENT_MODE) {
     const script = context.asAbsolutePath("../compiler/dist/server/server.js");
