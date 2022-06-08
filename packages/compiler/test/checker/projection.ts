@@ -3,6 +3,7 @@ import { Program } from "../../core/program.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
+  EnumMemberType,
   EnumType,
   InterfaceType,
   ModelType,
@@ -662,6 +663,23 @@ describe("cadl: projections", () => {
       const result = (await testProjection(code)) as EnumType;
       const newMember = result.members[1];
       strictEqual(newMember.name, "mewtwo");
+    });
+
+    // Issue here happens when an enum member gets referenced before the enum and so gets projected before the enum creating a different projected type as the projected enum.
+    it("project enum correctly when enum memeber is referenced first", async () => {
+      const result = (await testProjection(`
+        @test model Foo {
+          a: Bar.a;
+          bar: Bar;
+        }
+        
+        enum Bar {a, b}
+      
+      `)) as ModelType;
+
+      const a = result.properties.get("a")!.type as EnumMemberType;
+      const Bar = result.properties.get("bar")!.type;
+      strictEqual(a.enum, Bar);
     });
   });
 

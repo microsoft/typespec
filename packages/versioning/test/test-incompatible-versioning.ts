@@ -16,8 +16,9 @@ describe("versioning: validate incompatible references", () => {
       (code) => `
       import "@cadl-lang/versioning";
 
-      @versioned("1" | "2" | "3" | "4")
+      @versioned(Versions)
       namespace TestService {
+        enum Versions {v1, v2, v3, v4}
         ${code}
       }`
     );
@@ -26,7 +27,7 @@ describe("versioning: validate incompatible references", () => {
   describe("operation return type", () => {
     it("emit diagnostic when unversioned op is returning versioned model", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
+        @added(Versions.v2)
         model Foo {}
 
         op test(): Foo;
@@ -40,42 +41,42 @@ describe("versioning: validate incompatible references", () => {
 
     it("emit diagnostic when op was added before return type", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("3")
+        @added(Versions.v3)
         model Foo {}
         
-        @added("2")
+        @added(Versions.v2)
         op test(): Foo;
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' was added on version '2' but referencing type 'TestService.Foo' added in version '3'.",
+          "'TestService.test' was added on version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
       });
     });
 
     it("emit diagnostic when op was removed after return type", async () => {
       const diagnostics = await runner.diagnose(`
-        @removed("2")
+        @removed(Versions.v2)
         model Foo {}
         
-        @removed("3")
+        @removed(Versions.v3)
         op test(): Foo;
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' was removed on version '3' but referencing type 'TestService.Foo' removed in version '3'.",
+          "'TestService.test' was removed on version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
       });
     });
 
     it("succeed if version are compatible", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
-        @removed("4")
+        @added(Versions.v2)
+        @removed(Versions.v4)
         model Foo {}
         
-        @added("2")
-        @removed("3")
+        @added(Versions.v2)
+        @removed(Versions.v3)
         op test(): Foo;
       `);
       expectDiagnosticEmpty(diagnostics);
@@ -83,12 +84,12 @@ describe("versioning: validate incompatible references", () => {
 
     it("succeed if version are compatible in interface", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
-        @removed("4")
+        @added(Versions.v2)
+        @removed(Versions.v4)
         model Foo {}
         
-        @added("2")
-        @removed("3")
+        @added(Versions.v2)
+        @removed(Versions.v3)
         interface TestI {
           op test(): Foo;
         }
@@ -100,7 +101,7 @@ describe("versioning: validate incompatible references", () => {
   describe("model property type", () => {
     it("emit diagnostic when unversioned model property type is a versioned model", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
+        @added(Versions.v2)
         model Foo {}
 
         model Bar {
@@ -116,48 +117,48 @@ describe("versioning: validate incompatible references", () => {
 
     it("emit diagnostic when model property was added before return type", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("3")
+        @added(Versions.v3)
         model Foo {}
         
         model Bar {
-          @added("2")
+          @added(Versions.v2)
           foo: Foo;
         }
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar.foo' was added on version '2' but referencing type 'TestService.Foo' added in version '3'.",
+          "'TestService.Bar.foo' was added on version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
       });
     });
 
     it("emit diagnostic when nodel property was removed after return type", async () => {
       const diagnostics = await runner.diagnose(`
-        @removed("2")
+        @removed(Versions.v2)
         model Foo {}
         
         model Bar {
-          @removed("3")
+          @removed(Versions.v3)
           foo: Foo;
         }
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar.foo' was removed on version '3' but referencing type 'TestService.Foo' removed in version '3'.",
+          "'TestService.Bar.foo' was removed on version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
       });
     });
 
     it("succeed if version are compatible", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
-        @removed("4")
+        @added(Versions.v2)
+        @removed(Versions.v4)
         model Foo {}
         
        
         model Bar {
-          @added("2")
-          @removed("3")
+          @added(Versions.v2)
+          @removed(Versions.v3)
           foo: Foo;
         }
       `);
@@ -166,12 +167,12 @@ describe("versioning: validate incompatible references", () => {
 
     it("succeed if version are compatible in parent model", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
-        @removed("4")
+        @added(Versions.v2)
+        @removed(Versions.v4)
         model Foo {}
        
-        @added("2")
-        @removed("3")
+        @added(Versions.v2)
+        @removed(Versions.v3)
         model Bar {
           foo: Foo;
         }
@@ -184,7 +185,7 @@ describe("versioning: validate incompatible references", () => {
     it("succeed when unversioned model has versioned property", async () => {
       const diagnostics = await runner.diagnose(`
         model Bar {
-          @added("2")
+          @added(Versions.v2)
           foo: string;
         }
       `);
@@ -193,41 +194,41 @@ describe("versioning: validate incompatible references", () => {
 
     it("emit diagnostic when model property was added before model itself", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("3")
+        @added(Versions.v3)
         model Bar {
-          @added("2")
+          @added(Versions.v2)
           foo: string;
         }
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar' was added on version '3' but contains type 'TestService.Bar.foo' added in version '2'.",
+          "'TestService.Bar' was added on version 'v3' but contains type 'TestService.Bar.foo' added in version 'v2'.",
       });
     });
 
     it("emit diagnostic when op was removed after return type", async () => {
       const diagnostics = await runner.diagnose(`
-        @removed("2")
+        @removed(Versions.v2)
         model Bar {
-          @removed("3")
+          @removed(Versions.v3)
           foo: string;
         }
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar' was removed on version '2' but contains type 'TestService.Bar.foo' removed in version '2'.",
+          "'TestService.Bar' was removed on version 'v2' but contains type 'TestService.Bar.foo' removed in version 'v3'.",
       });
     });
 
     it("succeed if version are compatible", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
-        @removed("4")
+        @added(Versions.v2)
+        @removed(Versions.v4)
         model Bar {
-          @added("2")
-          @removed("3")
+          @added(Versions.v2)
+          @removed(Versions.v3)
           foo: string;
         }
       `);
@@ -236,7 +237,7 @@ describe("versioning: validate incompatible references", () => {
 
     it("succeed if it was added in the first defined version", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("1")
+        @added(Versions.v1)
         model Foo {}
 
         model Bar {
@@ -250,7 +251,7 @@ describe("versioning: validate incompatible references", () => {
   describe("model template arguments", () => {
     it("emit diagnostic when using versioned model as template argument in non versioned property", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
+        @added(Versions.v2)
         model Versioned {}
 
         model Foo<T> {t: T}
@@ -271,7 +272,7 @@ describe("versioning: validate incompatible references", () => {
     it("succeed when unversioned interface has versioned operation", async () => {
       const diagnostics = await runner.diagnose(`
         interface Bar {
-          @added("2")
+          @added(Versions.v2)
           foo(): string;
         }
       `);
@@ -280,41 +281,41 @@ describe("versioning: validate incompatible references", () => {
 
     it("emit diagnostic when model property was added before model itself", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("3")
+        @added(Versions.v3)
         interface Bar {
-          @added("2")
+          @added(Versions.v2)
           foo(): string;
         }
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar' was added on version '3' but contains type 'TestService.foo' added in version '2'.",
+          "'TestService.Bar' was added on version 'v3' but contains type 'TestService.foo' added in version 'v2'.",
       });
     });
 
     it("emit diagnostic when op was removed after return type", async () => {
       const diagnostics = await runner.diagnose(`
-        @removed("2")
+        @removed(Versions.v2)
         interface Bar {
-          @removed("3")
+          @removed(Versions.v3)
           foo(): string;
         }
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar' was removed on version '2' but contains type 'TestService.foo' removed in version '2'.",
+          "'TestService.Bar' was removed on version 'v2' but contains type 'TestService.foo' removed in version 'v3'.",
       });
     });
 
     it("succeed if version are compatible", async () => {
       const diagnostics = await runner.diagnose(`
-        @added("2")
-        @removed("4")
+        @added(Versions.v2)
+        @removed(Versions.v4)
         interface Bar {
-          @added("2")
-          @removed("3")
+          @added(Versions.v2)
+          @removed(Versions.v3)
           foo(): string;
         }
       `);
@@ -335,28 +336,31 @@ describe("versioning: validate incompatible references", () => {
       const diagnostics = await runner.diagnose(`
         import "@cadl-lang/versioning";
 
-        @versioned("l1" | "l2")
+        @versioned(Versions)
         namespace VersionedLib {
-          @added("l2")
+          enum Versions {l1, l2}
+          @added(Versions.l2)
           model Foo {}
         }
 
-        @versioned("1" | "2" | "3" | "4")
-        @versionedDependency(VersionedLib, {
-          "1": "l1",
-          "2": "l1",
-          "3": "l2",
-          "4": "l2",
-        })
+        @versioned(Versions)
+        @versionedDependency([
+          [Versions.v1, VersionedLib.Versions.l1],
+          [Versions.v2, VersionedLib.Versions.l1],
+          [Versions.v3, VersionedLib.Versions.l2],
+          [Versions.v4, VersionedLib.Versions.l2]
+        ])
         namespace TestService {
-          @added("1")
+          enum Versions {v1, v2, v3, v4}
+
+          @added(Versions.v1)
           op test(): VersionedLib.Foo;
         }
       `);
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' was added on version '1' but referencing type 'VersionedLib.Foo' added in version '3'.",
+          "'TestService.test' was added on version 'v1' but referencing type 'VersionedLib.Foo' added in version 'v3'.",
       });
     });
 
@@ -365,38 +369,41 @@ describe("versioning: validate incompatible references", () => {
       const diagnostics = await runner.diagnose(`
         import "@cadl-lang/versioning";
 
-        @versioned("l1" | "l2")
+        @versioned(Versions)
         namespace VersionedLib {
-          @added("l2")
+          enum Versions {l1, l2}
+          @added(Versions.l2)
           model Foo {}
         }
 
-        @versioned("1" | "2" | "3" | "4")
-        @versionedDependency(VersionedLib, {
-          "1": "l2",
-          "2": "l2",
-          "3": "l2",
-          "4": "l2",
-        })
+        @versioned(Versions)
+         @versionedDependency([
+          [Versions.v1, VersionedLib.Versions.l2],
+          [Versions.v2, VersionedLib.Versions.l2],
+          [Versions.v3, VersionedLib.Versions.l2],
+          [Versions.v4, VersionedLib.Versions.l2]
+        ])
         namespace TestService {
+          enum Versions {v1, v2, v3, v4}
           op test(): VersionedLib.Foo;
         }
       `);
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("emit diagnostic when referencing incompatible version via version dependency", async () => {
-      // Here Foo was added in v2 which makes it only available in 1 & 2.
+    it("emit diagnostic when using item not available in selected version of library", async () => {
+      // Here Foo was added in v2 but version 1 was selected.
       const diagnostics = await runner.diagnose(`
         import "@cadl-lang/versioning";
 
-        @versioned("l1" | "l2")
+        @versioned(Versions)
         namespace VersionedLib {
-          @added("l2")
+          enum Versions {l1, l2}
+          @added(Versions.l2)
           model Foo {}
         }
 
-        @versionedDependency(VersionedLib, "l1")
+        @versionedDependency(VersionedLib.Versions.l1)
         namespace TestService {
           op test(): VersionedLib.Foo;
         }
