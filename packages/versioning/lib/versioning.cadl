@@ -8,13 +8,18 @@ projection op#v {
       return never;
     } else if removedOnOrBefore(self, version) {
       return never;
+    } else if renamedAfter(self, version) {
+      self::rename(getRenamedFromOldName(self));
     };
   }
   from(version) {
+    
     if addedAfter(self, version) {
       return never;
     } else if removedOnOrBefore(self, version) {
       return never;
+    } else if renamedAfter(self, version) {
+      self::rename(self::projectionBase::name);
     };
   }
 }
@@ -27,13 +32,15 @@ projection interface#v {
     } else if removedOnOrBefore(self, version) {
       return never;
     } else {
+      if renamedAfter(self, version) {
+        self::rename(getRenamedFromOldName(self));
+      };
+
       self::operations::forEach((operation) => {
         if addedAfter(operation, version) {
           self::deleteOperation(operation::name);
         } else if removedOnOrBefore(operation, version) {
           self::deleteOperation(operation::name);
-        } else if renamedAfter(operation, version) {
-          self::renameOperation(operation::name, getRenamedFromOldName(operation));
         };
       });
     };
@@ -44,13 +51,15 @@ projection interface#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
+      if renamedAfter(self, version) {
+        self::rename(self::projectionBase::name);
+      };
+      
       self::projectionBase::operations::forEach((operation) => {
         if addedAfter(operation, version) {
           self::addOperation(operation::name, operation::parameters, operation::returnType);
         } else if removedOnOrBefore(operation, version) {
           self::addOperation(operation::name, operation::parameters, operation::returnType);
-        } else if renamedAfter(operation, version) {
-          self::renameOperation(getRenamedFromOldName(operation), operation::name);
         };
       });
     };
@@ -65,6 +74,10 @@ projection union#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
+      if renamedAfter(self, version) {
+        self::rename(getRenamedFromOldName(self));
+      };
+      
       self::variants::forEach((variant) => {
         if addedAfter(variant, version) {
           self::deleteVariant(variant::name);
@@ -82,6 +95,10 @@ projection union#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
+      if renamedAfter(self, version) {
+        self::rename(self::projectionBase::name);
+      };
+      
       self::projectionBase::variants::forEach((variant) => {
         if addedAfter(variant, version) {
           self::addVariant(variant::name, variant::type);
@@ -103,7 +120,7 @@ projection model#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
-      if renamedAfter(self, version, self) {
+      if renamedAfter(self, version) {
         self::rename(getRenamedFromOldName(self));
       };
 
@@ -132,6 +149,10 @@ projection model#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
+      if renamedAfter(self, version) {
+        self::rename(self::projectionBase::name);
+      };
+      
       self::projectionBase::properties::forEach((p) => {
         if addedAfter(p, version) {
           self::addProperty(p::name, p::type);
@@ -161,6 +182,10 @@ projection enum#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
+      if renamedAfter(self, version) {
+        self::rename(getRenamedFromOldName(self));
+      };
+
       self::members::forEach((m) => {
         if addedAfter(m, version) {
           self::deleteMember(m::name);
@@ -182,6 +207,10 @@ projection enum#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
+      if renamedAfter(self, version) {
+        self::rename(self::projectionBase::name);
+      };
+      
       self::projectionBase::members::forEach((m) => {
         if addedAfter(m, version, self::projectionBase) {
           self::addMember(m::name, m::type);

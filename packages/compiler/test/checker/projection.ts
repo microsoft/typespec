@@ -186,6 +186,9 @@ describe("cadl: projections", () => {
         getRenamedFromOldName(p: Program, t: Type) {
           return p.stateMap(renamedFromKey).get(t)?.oldName || "";
         },
+        getRenamedFromNewName(p: Program, t: Type) {
+          return p.stateMap(renamedFromKey).get(t)?.newName || "";
+        },
       });
 
       const code = `

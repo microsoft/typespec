@@ -334,10 +334,10 @@ export function createProjector(
       operations,
     });
 
-    for (const [key, op] of iface.operations) {
+    for (const op of iface.operations.values()) {
       const projectedOp = projectType(op);
       if (projectedOp.kind === "Operation") {
-        operations.set(key, projectedOp);
+        operations.set(projectedOp.name, projectedOp);
       }
     }
 
