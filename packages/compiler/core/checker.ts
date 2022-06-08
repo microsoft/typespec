@@ -1572,7 +1572,10 @@ export function createChecker(program: Program): Checker {
             createDiagnostic({
               code: "invalid-ref",
               messageId: "underNamespace",
-              format: { id: node.id.sv },
+              format: {
+                namespace: getFullyQualifiedSymbolName(base),
+                id: node.id.sv,
+              },
               target: node,
             })
           );

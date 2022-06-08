@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
 import { DecoratorContext, ModelType, NamespaceType, Type } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
   const blues = new WeakSet();
@@ -715,5 +715,32 @@ describe("compiler: decorators in namespaces", () => {
     await testHost.compile("main.cadl");
     ok(fooCalled);
     ok(barCalled);
+  });
+
+  it("provides full namespace name in error when namespace is missing a member", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./other.cadl";
+      namespace A.B;
+      model M { }
+      model N extends A.B.M {}// There's a A.B.M, but this looks in A.B.A.B for M
+    `
+    );
+    testHost.addCadlFile(
+      "other.cadl",
+      `
+      namespace A.B.A.B;
+      model N {}
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: /A\.B\.A\.B/,
+      },
+    ]);
   });
 });
