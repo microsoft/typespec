@@ -25,7 +25,7 @@ export async function activate(context: ExtensionContext) {
 async function restartCadlServer(): Promise<void> {
   if (client) {
     await client.stop();
-    client.start();
+    await client.start();
   }
 }
 
