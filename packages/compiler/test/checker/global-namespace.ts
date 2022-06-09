@@ -1,5 +1,4 @@
-import { notStrictEqual } from "assert";
-import { assert } from "console";
+import assert, { notStrictEqual } from "assert";
 import { ModelType } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
@@ -71,7 +70,7 @@ describe("compiler: global namespace", () => {
         "Namespace Foo was added to global namespace type"
       );
       assert(
-        globalNamespaceType?.namespaces.get("Base"),
+        globalNamespaceType?.models.get("Base"),
         "Should still reference main file top-level entities"
       );
     });
