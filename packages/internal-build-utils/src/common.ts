@@ -49,7 +49,7 @@ export async function run(command: string, args: string[], options?: RunOptions)
     if (options.ignoreCommandNotFound && e.code === "ENOENT") {
       // eslint-disable-next-line no-console
       console.log(`Skipped: Command \`${command}\` not found.`);
-      return undefined;
+      return { exitCode: 0, stdout: "", stderr: "" };
     } else {
       throw e;
     }

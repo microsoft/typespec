@@ -1,9 +1,24 @@
 import { execAsync, run, RunOptions } from "./common.js";
 import { MinimumDotnetVersion } from "./constants.js";
 
-export async function runDotnet(args: string[], options: RunOptions = {}) {
+export async function runDotnet(
+  args: string[],
+  options: Omit<RunOptions, "stdio" | "throwOnNonZeroExit"> = {}
+) {
   await ensureDotnetVersion();
-  return run("dotnet", args, options);
+  const result = await run("dotnet", args, {
+    ...options,
+    throwOnNonZeroExit: false,
+    stdio: [null, "pipe", "inherit"],
+  });
+
+  if (result.exitCode !== 0) {
+    // rush wants errors on stderr to show them to user without --verbose.
+    console.error(result.stdout);
+    process.exit(result.exitCode);
+  }
+
+  console.log(result.stdout);
 }
 
 export async function validateDotnetVersion(): Promise<{ error?: string }> {
@@ -13,7 +28,7 @@ export async function validateDotnetVersion(): Promise<{ error?: string }> {
     });
 
     if (result.exitCode !== 0 || !result.stdout) {
-      return { error: `Skipping dotnet build: dotnet command was not found found.` };
+      return { error: `dotnet not found.` };
     }
     const version = result.stdout.toString().trim();
     const [major, minor, _patch] = version.split(".").map((x) => parseInt(x, 10));
@@ -23,13 +38,13 @@ export async function validateDotnetVersion(): Promise<{ error?: string }> {
       (major === MinimumDotnetVersion.major && minor < MinimumDotnetVersion.minor)
     ) {
       return {
-        error: `dotnet command version "${version}" is not maching minimum requirement of ${MinimumDotnetVersion.major}.${MinimumDotnetVersion.minor}.x`,
+        error: `dotnet version ${version} does not meet minimum requirement ${MinimumDotnetVersion.major}.${MinimumDotnetVersion.minor}.x`,
       };
     }
     return {};
   } catch (e: any) {
     if (e.code === "ENOENT") {
-      return { error: "dotnet command was not found found." };
+      return { error: "dotnet not found." };
     } else {
       throw e;
     }
@@ -37,7 +52,7 @@ export async function validateDotnetVersion(): Promise<{ error?: string }> {
 }
 
 let validatedDotnet = false;
-export async function ensureDotnetVersion(options: { exitIfError?: boolean } = {}) {
+export async function ensureDotnetVersion(options: { exitWithSuccessInDevBuilds?: boolean } = {}) {
   if (validatedDotnet) {
     return;
   }
@@ -45,13 +60,13 @@ export async function ensureDotnetVersion(options: { exitIfError?: boolean } = {
   const { error } = await validateDotnetVersion();
   if (error) {
     // If running in CI/AzureDevOps fail if dotnet is invalid.
-    if (process.env.CI || process.env.TF_BUILD || !options.exitIfError) {
+    if (process.env.CI || process.env.TF_BUILD || !options.exitWithSuccessInDevBuilds) {
       // eslint-disable-next-line no-console
       console.error(`error: ${error}`);
       process.exit(1);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`Skipping cadl-vs build: ${error}.`);
+      console.log(`Skipping build step: ${error}`);
       process.exit(0);
     }
   }
