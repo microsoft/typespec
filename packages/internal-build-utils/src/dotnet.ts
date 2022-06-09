@@ -14,10 +14,11 @@ export async function runDotnet(
 
   if (result.exitCode !== 0) {
     // rush wants errors on stderr to show them to user without --verbose.
+    // eslint-disable-next-line no-console
     console.error(result.stdout);
     process.exit(result.exitCode);
   }
-
+  // eslint-disable-next-line no-console
   console.log(result.stdout);
 }
 
