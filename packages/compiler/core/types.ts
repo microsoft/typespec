@@ -1385,7 +1385,7 @@ export interface DecoratorContext {
    */
   call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,
-    target: Type,
+    target: T,
     ...args: A
   ): R;
 }
