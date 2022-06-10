@@ -2,7 +2,7 @@ import { ok, strictEqual } from "assert";
 import { CadlScriptNode, SyntaxKind } from "../core/index.js";
 import { getNodeAtPosition, parse } from "../core/parser.js";
 import { Node } from "../core/types.js";
-import { extractCursor } from "./server/test-server-host.js";
+import { extractCursor } from "../testing/test-server-host.js";
 import { dumpAST } from "./test-parser.js";
 
 describe("compiler: parser utils", () => {

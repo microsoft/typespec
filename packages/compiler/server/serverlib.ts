@@ -19,6 +19,10 @@ import {
   Range,
   ReferenceParams,
   RenameParams,
+  SemanticTokens,
+  SemanticTokensBuilder,
+  SemanticTokensLegend,
+  SemanticTokensParams,
   ServerCapabilities,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
@@ -36,7 +40,7 @@ import {
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
-import { getNodeAtPosition, visitChildren } from "../core/parser.js";
+import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
   getDirectoryPath,
@@ -44,12 +48,14 @@ import {
   resolvePath,
 } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
+import { createScanner, isKeyword, isPunctuation, Token } from "../core/scanner.js";
 import {
   CadlScriptNode,
   CompilerHost,
   Diagnostic as CadlDiagnostic,
   DiagnosticTarget,
   IdentifierNode,
+  Node,
   SourceFile,
   SymbolFlags,
   SyntaxKind,
@@ -77,6 +83,8 @@ export interface Server {
   findReferences(params: ReferenceParams): Promise<Location[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
+  getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
+  buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
@@ -93,6 +101,37 @@ export interface ServerWorkspaceFolder extends WorkspaceFolder {
   // character so that we can test if a path is within a workspace using
   // startsWith.
   path: string;
+}
+
+export enum SemanticTokenKind {
+  Namespace,
+  Type,
+  Class,
+  Enum,
+  Interface,
+  Struct,
+  TypeParameter,
+  Parameter,
+  Variable,
+  Property,
+  EnumMember,
+  Event,
+  Function,
+  Method,
+  Macro,
+  Keyword,
+  Modifier,
+  Comment,
+  String,
+  Number,
+  Regexp,
+  Operator,
+}
+
+export interface SemanticToken {
+  kind: SemanticTokenKind;
+  pos: number;
+  end: number;
 }
 
 interface CachedFile {
@@ -187,11 +226,20 @@ export function createServer(host: ServerHost): Server {
     findReferences,
     prepareRename,
     rename,
+    getSemanticTokens,
+    buildSemanticTokens,
     checkChange,
     log,
   };
 
   function initialize(params: InitializeParams): InitializeResult {
+    const tokenLegend: SemanticTokensLegend = {
+      tokenTypes: Object.keys(SemanticTokenKind)
+        .filter((x) => Number.isNaN(Number(x)))
+        .map((x) => x.slice(0, 1).toLocaleLowerCase() + x.slice(1)),
+      tokenModifiers: [],
+    };
+
     const capabilities: ServerCapabilities = {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
@@ -199,6 +247,10 @@ export function createServer(host: ServerHost): Server {
         resolveProvider: false,
         triggerCharacters: [".", "@"],
         allCommitCharacters: [".", ",", ";", "("],
+      },
+      semanticTokensProvider: {
+        full: true,
+        legend: tokenLegend,
       },
       referencesProvider: true,
       renameProvider: {
@@ -587,6 +639,151 @@ export function createServer(host: ServerHost): Server {
       default:
         return CompletionItemKind.Struct;
     }
+  }
+
+  async function getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]> {
+    const ignore = -1;
+    const defer = -2;
+    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const tokens = mapTokens();
+    const ast = parse(file);
+    classifyNode(ast);
+    return Array.from(tokens.values()).filter((t) => t.kind !== undefined);
+
+    function mapTokens() {
+      const tokens = new Map<number, SemanticToken>();
+      const scanner = createScanner(file, () => {});
+
+      while (scanner.scan() !== Token.EndOfFile) {
+        const kind = classifyToken(scanner.token);
+        if (kind === ignore) {
+          continue;
+        }
+        tokens.set(scanner.tokenPosition, {
+          kind: kind === defer ? undefined! : kind,
+          pos: scanner.tokenPosition,
+          end: scanner.position,
+        });
+      }
+      return tokens;
+    }
+
+    function classifyToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
+      switch (token) {
+        case Token.Identifier:
+          return defer;
+        case Token.StringLiteral:
+          return SemanticTokenKind.String;
+        case Token.NumericLiteral:
+          return SemanticTokenKind.Number;
+        case Token.MultiLineComment:
+        case Token.SingleLineComment:
+          return SemanticTokenKind.Comment;
+        default:
+          if (isKeyword(token)) {
+            return SemanticTokenKind.Keyword;
+          }
+          if (isPunctuation(token)) {
+            return SemanticTokenKind.Operator;
+          }
+          return ignore;
+      }
+    }
+
+    function classifyNode(node: Node) {
+      switch (node.kind) {
+        case SyntaxKind.DirectiveExpression:
+          classify(node.target, SemanticTokenKind.Keyword);
+          break;
+        case SyntaxKind.TemplateParameterDeclaration:
+          classify(node.id, SemanticTokenKind.TypeParameter);
+          break;
+        case SyntaxKind.ModelProperty:
+        case SyntaxKind.UnionVariant:
+          classify(node.id, SemanticTokenKind.Property);
+          break;
+        case SyntaxKind.AliasStatement:
+          classify(node.id, SemanticTokenKind.Struct);
+          break;
+        case SyntaxKind.ModelStatement:
+          classify(node.id, SemanticTokenKind.Struct);
+          break;
+        case SyntaxKind.EnumStatement:
+          classify(node.id, SemanticTokenKind.Enum);
+          break;
+        case SyntaxKind.EnumMember:
+          classify(node.id, SemanticTokenKind.EnumMember);
+          break;
+        case SyntaxKind.NamespaceStatement:
+          classify(node.id, SemanticTokenKind.Namespace);
+          break;
+        case SyntaxKind.InterfaceStatement:
+          classify(node.id, SemanticTokenKind.Interface);
+          break;
+        case SyntaxKind.OperationStatement:
+          classify(node.id, SemanticTokenKind.Function);
+          break;
+        case SyntaxKind.DecoratorExpression:
+          classifyReference(node.target, SemanticTokenKind.Macro);
+          break;
+        case SyntaxKind.TypeReference:
+          classifyReference(node.target);
+          break;
+        case SyntaxKind.MemberExpression:
+          classifyReference(node);
+          break;
+      }
+      visitChildren(node, classifyNode);
+    }
+
+    function classify(node: Node, kind: SemanticTokenKind) {
+      const token = tokens.get(node.pos);
+      if (token && token.kind === undefined) {
+        token.kind = kind;
+      }
+    }
+
+    function classifyReference(node: Node, kind = SemanticTokenKind.Type) {
+      switch (node.kind) {
+        case SyntaxKind.MemberExpression:
+          classifyIdentifier(node.base, SemanticTokenKind.Namespace);
+          classifyIdentifier(node.id, kind);
+          break;
+        case SyntaxKind.TypeReference:
+          classifyIdentifier(node.target, kind);
+          break;
+        case SyntaxKind.Identifier:
+          classify(node, kind);
+          break;
+      }
+    }
+
+    function classifyIdentifier(node: Node, kind: SemanticTokenKind) {
+      if (node.kind === SyntaxKind.Identifier) {
+        classify(node, kind);
+      }
+    }
+  }
+
+  async function buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens> {
+    const builder = new SemanticTokensBuilder();
+    const tokens = await getSemanticTokens(params);
+    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const starts = file.getLineStarts();
+
+    for (const token of tokens) {
+      const start = file.getLineAndCharacterOfPosition(token.pos);
+      const end = file.getLineAndCharacterOfPosition(token.end);
+
+      for (let pos = token.pos, line = start.line; line <= end.line; line++) {
+        const endPos = line === end.line ? token.end : starts[line + 1];
+        const character = line === start.line ? start.character : 0;
+        builder.push(line, character, endPos - pos, token.kind, 0);
+        pos = endPos;
+      }
+    }
+
+    return builder.build();
   }
 
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
