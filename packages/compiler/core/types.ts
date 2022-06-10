@@ -1383,8 +1383,8 @@ export interface DecoratorContext {
    * @param decorator Other decorator function
    * @param args Args to pass to other decorator funciton
    */
-  call<A extends any[], R>(
-    decorator: (context: DecoratorContext, target: Type, ...args: A) => R,
+  call<T extends Type, A extends any[], R>(
+    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
     target: Type,
     ...args: A
   ): R;
