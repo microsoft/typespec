@@ -51,7 +51,6 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   SourceFile,
-  SourceFileKind,
   SymbolFlags,
   SyntaxKind,
   Type,
@@ -61,7 +60,7 @@ import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
-  getDocumentByURL(url: string): TextDocument | undefined;
+  getOpenDocumentByURL(url: string): TextDocument | undefined;
   sendDiagnostics(params: PublishDiagnosticsParams): void;
   log(message: string): void;
 }
@@ -79,7 +78,6 @@ export interface Server {
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
-  documentOpen(change: TextDocumentChangeEvent<TextDocument>): void;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -160,20 +158,12 @@ export function createServer(host: ServerHost): Server {
   // hitting the disk. Entries are invalidated when LSP client notifies us of
   // a file change.
   const fileSystemCache = new Map<string, CachedFile | CachedError>();
-  const knownFiles = new Map<string, SourceFileKind | undefined>();
 
   const compilerHost: CompilerHost = {
     ...host.compilerHost,
     readFile,
     stat,
-    getSourceFileKind: (path: string) => {
-      const knownKind = knownFiles.get(path);
-      if (knownKind !== undefined) {
-        return knownKind;
-      }
-
-      return getSourceFileKindFromExt(path);
-    },
+    getSourceFileKind,
   };
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
@@ -192,7 +182,6 @@ export function createServer(host: ServerHost): Server {
     workspaceFoldersChanged,
     watchedFilesChanged,
     gotoDefinition,
-    documentOpen,
     documentClosed,
     complete,
     findReferences,
@@ -331,7 +320,7 @@ export function createServer(host: ServerHost): Server {
       }
 
       if (callback) {
-        const doc = "version" in document ? document : host.getDocumentByURL(document.uri);
+        const doc = "version" in document ? document : host.getOpenDocumentByURL(document.uri);
         compilerAssert(doc, "Failed to get document.");
         const path = getPath(doc);
         const script = program.sourceFiles.get(path);
@@ -600,15 +589,9 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function documentOpen(change: TextDocumentChangeEvent<TextDocument>) {
-    const kind = change.document.languageId === "cadl" ? "cadl" : undefined;
-    knownFiles.set(change.document.uri, kind);
-  }
-
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
     // clear diagnostics on file close
     sendDiagnostics(change.document, []);
-    knownFiles.delete(change.document.uri);
   }
 
   function getLocations(targets: DiagnosticTarget[] | undefined): Location[] {
@@ -675,7 +658,7 @@ export function createServer(host: ServerHost): Server {
     if (!("version" in document)) {
       return true;
     }
-    return document.version === host.getDocumentByURL(document.uri)?.version;
+    return document.version === host.getOpenDocumentByURL(document.uri)?.version;
   }
 
   /**
@@ -774,14 +757,14 @@ export function createServer(host: ServerHost): Server {
     return pathOrUrl.startsWith("untitled:");
   }
 
-  function getDocument(path: string) {
+  function getOpenDocument(path: string) {
     const url = getURL(path);
-    return url ? host.getDocumentByURL(url) : undefined;
+    return url ? host.getOpenDocumentByURL(url) : undefined;
   }
 
   async function readFile(path: string): Promise<ServerSourceFile> {
     // Try open files sent from client over LSP
-    const document = getDocument(path);
+    const document = getOpenDocument(path);
     if (document) {
       return {
         document,
@@ -812,7 +795,7 @@ export function createServer(host: ServerHost): Server {
   async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
     // if we have an open document for the path or a cache entry, then we know
     // it's a file and not a directory and needn't hit the disk.
-    if (getDocument(path) || fileSystemCache.get(path)?.type === "file") {
+    if (getOpenDocument(path) || fileSystemCache.get(path)?.type === "file") {
       return {
         isFile() {
           return true;
@@ -823,5 +806,13 @@ export function createServer(host: ServerHost): Server {
       };
     }
     return await host.compilerHost.stat(path);
+  }
+
+  function getSourceFileKind(path: string) {
+    const document = getOpenDocument(path);
+    if (document?.languageId === "cadl") {
+      return "cadl";
+    }
+    return getSourceFileKindFromExt(path);
   }
 }

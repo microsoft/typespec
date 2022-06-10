@@ -15,7 +15,7 @@ import {
 export interface TestServerHost extends ServerHost, TestFileSystem {
   server: Server;
   logMessages: readonly string[];
-  getDocument(path: string): TextDocument | undefined;
+  getOpenDocument(path: string): TextDocument | undefined;
   addOrUpdateDocument(path: string, content: string): TextDocument;
   getDiagnostics(path: string): readonly Diagnostic[];
   getURL(path: string): string;
@@ -34,11 +34,11 @@ export async function createTestServerHost(): Promise<TestServerHost> {
     ...fileSystem,
     server: undefined!, // initialized later due to cycle
     logMessages,
-    getDocumentByURL(url) {
+    getOpenDocumentByURL(url) {
       return documents.get(url);
     },
-    getDocument(path: string) {
-      return this.getDocumentByURL(this.getURL(path));
+    getOpenDocument(path: string) {
+      return this.getOpenDocumentByURL(this.getURL(path));
     },
     addOrUpdateDocument(path: string, content: string) {
       const url = this.getURL(path);
