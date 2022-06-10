@@ -12,6 +12,8 @@ import {
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
 
+export const namespace = "Cadl.Http";
+
 const headerDecorator = createDecoratorDefinition({
   name: "@header",
   target: "ModelProperty",
@@ -283,20 +285,6 @@ function validateVerbNoArgs(context: DecoratorContext, args: unknown[]) {
   validateDecoratorParamCount(context, 0, 0, args);
 }
 
-setDecoratorNamespace(
-  "Cadl.Http",
-  $get,
-  $put,
-  $post,
-  $delete,
-  $patch,
-  $header,
-  $query,
-  $path,
-  $body,
-  $statusCode
-);
-
 export function $plainData(context: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(context, entity, "@plainData", "Model")) {
     return;
@@ -328,4 +316,4 @@ export function $plainData(context: DecoratorContext, entity: Type) {
   }
 }
 
-setDecoratorNamespace("Cadl.Http.Private", $plainData);
+setDecoratorNamespace("Private", $plainData);

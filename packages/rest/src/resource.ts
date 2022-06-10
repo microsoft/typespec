@@ -6,7 +6,6 @@ import {
   ModelType,
   ModelTypeProperty,
   Program,
-  setDecoratorNamespace,
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
@@ -203,5 +202,3 @@ export function $parentResource(context: DecoratorContext, entity: Type, parentT
     currentType = getParentResource(program, currentType);
   }
 }
-
-setDecoratorNamespace("Cadl.Rest", $parentResource, $copyResourceKeyParameters);

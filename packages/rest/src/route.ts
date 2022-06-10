@@ -9,7 +9,6 @@ import {
   NamespaceType,
   OperationType,
   Program,
-  setDecoratorNamespace,
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
@@ -614,4 +613,8 @@ export function isAutoRoute(
   return false;
 }
 
-setDecoratorNamespace("Cadl.Http", $route, $routeReset, $autoRoute);
+setNamespaceForFile("Cadl.Http");
+
+function setNamespaceForFile(namespace: string) {
+  console.log("Caller", setNamespaceForFile.caller);
+}
