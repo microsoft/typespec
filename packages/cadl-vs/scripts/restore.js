@@ -5,5 +5,5 @@ import { fileURLToPath } from "url";
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-await ensureDotnetVersion({ exitIfError: true });
+await ensureDotnetVersion({ exitWithSuccessInDevBuilds: true });
 await runDotnet(["restore", "Microsoft.Cadl.VS.sln"], { cwd: pkgRoot });
