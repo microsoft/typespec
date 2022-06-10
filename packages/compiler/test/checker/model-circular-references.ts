@@ -1,9 +1,9 @@
-import { assert } from "console";
+import assert from "assert";
 import { ArrayType, ModelType, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
-function assertModel(type: Type): asserts type is ModelType {
-  assert(type.kind === "Model");
+function assertModel(type?: Type): asserts type is ModelType {
+  assert(type?.kind === "Model");
 }
 
 function assertArray(type: Type): asserts type is ArrayType {
@@ -88,7 +88,9 @@ describe("compiler: model circular references", () => {
     const records = await testHost.compile("./");
     const model = records["Templated"];
     assertModel(model);
-    assert(model.properties.get("parent")?.type === model);
+    const parentType = model.properties.get("parent")?.type;
+    assertModel(parentType);
+    assert(parentType.templateNode === model.node);
   });
 
   it("models can reference each other in different namespace with the same name", async () => {
