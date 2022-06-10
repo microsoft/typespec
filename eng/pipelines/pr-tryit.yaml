@@ -14,7 +14,7 @@ jobs:
 
       - task: NodeTool@0
         inputs:
-          versionSpec: 16.x
+          versionSpec: 16.14.2
         displayName: Install Node.js
 
       - script: npx @microsoft/rush install
