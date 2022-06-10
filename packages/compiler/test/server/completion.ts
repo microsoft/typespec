@@ -62,7 +62,7 @@ describe("compiler: server: completion", () => {
     );
   });
 
-  it("fails to import complete without package.json", async () => {
+  it("doesn't include imports when there is no project package.json", async () => {
     const completions = await complete(` import "┆ `);
 
     check(completions, [], {
