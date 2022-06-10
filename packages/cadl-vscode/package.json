@@ -87,22 +87,31 @@
         "title": "Restart Cadl server",
         "category": "Cadl"
       }
+    ],
+    "semanticTokenScopes": [
+      {
+        "scopes": {
+          "keyword": [
+            "keyword.other.cadl"
+          ],
+          "macro": [
+            "entity.name.tag.cadl"
+          ]
+        }
+      }
     ]
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp",
-    "build": "npm run compile && npm run rollup && npm run generate-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
+    "build": "npm run compile && npm run rollup && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
     "dogfood": "node scripts/dogfood.js",
-    "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
+    "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "cadl-build-tool generate-third-party-notices",
     "rollup": "rollup --config --failAfterWarnings 2>&1",
-    "package-vsix": "vsce package --yarn",
-    "test": "mocha",
-    "test-official": "mocha --forbid-only"
+    "package-vsix": "vsce package --yarn"
   },
   "dependencies": {},
   "devDependencies": {
@@ -121,11 +130,8 @@
     "mocha": "~9.2.0",
     "rimraf": "~3.0.2",
     "rollup": "~2.70.1",
-    "tmlanguage-generator": "~0.3.0",
     "typescript": "~4.7.2",
     "vsce": "~2.6.7",
-    "vscode-languageclient": "~8.0.0",
-    "vscode-oniguruma": "~1.6.1",
-    "vscode-textmate": "~6.0.0"
+    "vscode-languageclient": "~8.0.0"
   }
 }

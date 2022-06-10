@@ -43,9 +43,11 @@
   ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-manifest && npm run compile",
+    "build": "npm run gen-manifest && npm run compile && npm run generate-tmlanguage",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
+    "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
+    "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
     "dogfood": "node scripts/dogfood.js",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only",
@@ -91,6 +93,9 @@
     "prettier-plugin-organize-imports": "~2.3.4",
     "source-map-support": "~0.5.19",
     "rimraf": "~3.0.2",
-    "typescript": "~4.7.2"
+    "tmlanguage-generator": "~0.3.0",
+    "typescript": "~4.7.2",
+    "vscode-oniguruma": "~1.6.1",
+    "vscode-textmate": "~6.0.0"
   }
 }

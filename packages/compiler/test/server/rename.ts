@@ -1,6 +1,10 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { Range } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor, getTestIdentifiers } from "./test-server-host.js";
+import {
+  createTestServerHost,
+  extractCursor,
+  getTestIdentifiers,
+} from "../../testing/test-server-host.js";
 
 describe("compiler: server: rename and find references", () => {
   // `┆` marks where the cursor is positioned

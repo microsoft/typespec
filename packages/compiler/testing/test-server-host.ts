@@ -2,20 +2,16 @@ import { ok } from "assert";
 import { pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic } from "vscode-languageserver/node.js";
-import { parse, visitChildren } from "../../core/parser.js";
-import { IdentifierNode, SyntaxKind } from "../../core/types.js";
-import { createServer, Server, ServerHost } from "../../server/index.js";
-import {
-  createTestFileSystem,
-  resolveVirtualPath,
-  StandardTestLibrary,
-  TestFileSystem,
-} from "../../testing/index.js";
+import { parse, visitChildren } from "../core/parser.js";
+import { IdentifierNode, SyntaxKind } from "../core/types.js";
+import { createServer, Server, ServerHost } from "../server/index.js";
+import { createTestFileSystem, resolveVirtualPath, StandardTestLibrary } from "./test-host.js";
+import { TestFileSystem } from "./types.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {
   server: Server;
   logMessages: readonly string[];
-  getDocument(path: string): TextDocument | undefined;
+  getOpenDocument(path: string): TextDocument | undefined;
   addOrUpdateDocument(path: string, content: string): TextDocument;
   getDiagnostics(path: string): readonly Diagnostic[];
   getURL(path: string): string;
@@ -34,11 +30,11 @@ export async function createTestServerHost(): Promise<TestServerHost> {
     ...fileSystem,
     server: undefined!, // initialized later due to cycle
     logMessages,
-    getDocumentByURL(url) {
+    getOpenDocumentByURL(url) {
       return documents.get(url);
     },
-    getDocument(path: string) {
-      return this.getDocumentByURL(this.getURL(path));
+    getOpenDocument(path: string) {
+      return this.getOpenDocumentByURL(this.getURL(path));
     },
     addOrUpdateDocument(path: string, content: string) {
       const url = this.getURL(path);

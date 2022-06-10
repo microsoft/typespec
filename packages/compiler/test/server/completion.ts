@@ -5,7 +5,7 @@ import {
   CompletionItemTag,
   CompletionList,
 } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor } from "./test-server-host.js";
+import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
 
 describe("compiler: server: completion", () => {
   it("completes globals", async () => {
