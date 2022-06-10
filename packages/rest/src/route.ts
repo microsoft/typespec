@@ -24,6 +24,7 @@ import {
 } from "./http.js";
 import { getResponsesForOperation, HttpOperationResponse } from "./responses.js";
 import { getAction, getResourceOperation, getSegment } from "./rest.js";
+import { extractParamsFromPath } from "./utils.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
 
@@ -332,9 +333,7 @@ function getPathForOperation(
     );
 
     // Find path parameter names used in all route fragments
-    const declaredPathParams = pathFragments.flatMap(
-      (f) => f.match(/\{\w+\}/g)?.map((s) => s.slice(1, -1)) ?? []
-    );
+    const declaredPathParams = pathFragments.flatMap(extractParamsFromPath);
 
     // For each param in the declared path parameters (e.g. /foo/{id} has one, id),
     // delete it because it doesn't need to be added to the path.

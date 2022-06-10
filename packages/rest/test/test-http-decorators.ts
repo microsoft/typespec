@@ -1,9 +1,11 @@
+import { ModelTypeProperty, NamespaceType } from "@cadl-lang/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
+  getServers,
   isBody,
   isHeader,
   isPathParam,
@@ -238,6 +240,119 @@ describe("rest: http decorators", () => {
         `);
 
       ok(isStatusCode(runner.program, code));
+    });
+  });
+
+  describe("@server", () => {
+    it("emit diagnostics when @server is not used on namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+          @server("https://example.com", "MyServer") op test(): string;
+
+          @server("https://example.com", "MyServer") model Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message: "Cannot apply @server decorator to Operation",
+        },
+        {
+          code: "decorator-wrong-target",
+          message: "Cannot apply @server decorator to Model",
+        },
+      ]);
+    });
+
+    it("emit diagnostics when url is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+          @server(123, "MyServer")
+          namespace MyService {}
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+      });
+    });
+
+    it("emit diagnostics when description is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        @server("https://example.com", 123)
+        namespace MyService {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+      });
+    });
+
+    it("emit diagnostics when description is not provided", async () => {
+      const diagnostics = await runner.diagnose(`
+        @server("https://example.com")
+        namespace MyService {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument-count",
+        message: "Expected between 2 and 3 arguments, but got 1.",
+      });
+    });
+
+    it("emit diagnostics when parameters is not a model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @server("https://example.com", "My service url", 123)
+        namespace MyService {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'Model'",
+      });
+    });
+
+    it("emit diagnostics if url has parameters that is not specified in model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @server("https://example.com/{name}/foo", "My service url", {other: string})
+        namespace MyService {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/missing-server-param",
+        message: "Server url contains parameter 'name' but wasn't found in given parameters",
+      });
+    });
+
+    it("define a simple server with a fixed url", async () => {
+      const { MyService } = (await runner.compile(`
+        @server("https://example.com", "My service url")
+        @test namespace MyService {}
+      `)) as { MyService: NamespaceType };
+
+      const servers = getServers(runner.program, MyService);
+      deepStrictEqual(servers, [
+        {
+          description: "My service url",
+          parameters: new Map(),
+          url: "https://example.com",
+        },
+      ]);
+    });
+
+    it("define a server with parameters", async () => {
+      const { MyService, NameParam } = (await runner.compile(`
+        @server("https://example.com/{name}/foo", "My service url", {@test("NameParam") name: string })
+        @test namespace MyService {}
+      `)) as { MyService: NamespaceType; NameParam: ModelTypeProperty };
+
+      const servers = getServers(runner.program, MyService);
+      deepStrictEqual(servers, [
+        {
+          description: "My service url",
+          parameters: new Map<string, ModelTypeProperty>([["name", NameParam]]),
+          url: "https://example.com/{name}/foo",
+        },
+      ]);
     });
   });
 });

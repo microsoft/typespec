@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": " Added `@server` decorator to specify namespace endpoints",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

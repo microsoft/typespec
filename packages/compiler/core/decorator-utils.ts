@@ -240,12 +240,21 @@ export function validateDecoratorParamCount(
   max: number,
   parameters: unknown[]
 ): boolean {
-  if (parameters.length < min || parameters.length > max) {
+  let missing = 0;
+  for (let i = parameters.length - 1; i >= 0; i--) {
+    if (parameters[i] === undefined) {
+      missing++;
+    } else {
+      break;
+    }
+  }
+  const parameterCount = parameters.length - missing;
+  if (parameterCount < min || parameterCount > max) {
     if (min === max) {
       reportDiagnostic(context.program, {
         code: "invalid-argument-count",
         format: {
-          actual: parameters.length.toString(),
+          actual: parameterCount.toString(),
           expected: min.toString(),
         },
         target: context.decoratorTarget,
@@ -255,7 +264,7 @@ export function validateDecoratorParamCount(
         code: "invalid-argument-count",
         messageId: "between",
         format: {
-          actual: parameters.length.toString(),
+          actual: parameterCount.toString(),
           min: min.toString(),
           max: max.toString(),
         },

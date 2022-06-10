@@ -62,36 +62,6 @@ export function getServiceTitle(program: Program): string {
   return serviceDetails.title || "(title)";
 }
 
-export function $serviceHost(context: DecoratorContext, target: Type, host: string) {
-  const serviceDetails = getServiceDetails(context.program);
-  if (serviceDetails.version) {
-    context.program.reportDiagnostic(
-      createDiagnostic({
-        code: "service-decorator-duplicate",
-        format: { name: "host" },
-        target,
-      })
-    );
-  }
-
-  if (!validateDecoratorTarget(context, target, "@serviceHost", "Namespace")) {
-    return;
-  }
-
-  setServiceNamespace(context.program, target);
-  serviceDetails.host = host;
-}
-
-export function getServiceHost(program: Program): string | undefined {
-  const serviceDetails = getServiceDetails(program);
-  return serviceDetails.host;
-}
-
-export function setServiceHost(program: Program, host: string) {
-  const serviceDetails = getServiceDetails(program);
-  serviceDetails.host = host;
-}
-
 export function $serviceVersion(context: DecoratorContext, target: Type, version: string) {
   const serviceDetails = getServiceDetails(context.program);
   if (serviceDetails.version) {
