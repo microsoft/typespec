@@ -9,6 +9,26 @@ export function createProjectionMembers(checker: Checker): {
   const { voidType, neverType, createType, createFunctionType, createLiteralType, cloneType } =
     checker;
 
+  function createBaseMembers<T extends Type>() {
+    return {
+      projectionSource: (base: T) => base.projectionSource ?? voidType,
+      projectionBase: (base: T) => base.projectionBase ?? voidType,
+    };
+  }
+  function createNameableMembers<T extends Type & { name?: string }>() {
+    return {
+      name: (base: T) => (base.name ? createLiteralType(base.name) : voidType),
+      rename: (base: T) => {
+        return createFunctionType((newName: Type) => {
+          assertType("new name", newName, "String");
+
+          base.name = newName.value;
+          return voidType;
+        });
+      },
+    };
+  }
+
   return {
     Array: {
       elementType(base) {
@@ -16,15 +36,8 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     Model: {
-      name(base) {
-        return createLiteralType(base.name);
-      },
-      projectionSource(base) {
-        return base.projectionSource || voidType;
-      },
-      projectionBase(base) {
-        return base.projectionBase || voidType;
-      },
+      ...createBaseMembers(),
+      ...createNameableMembers(),
       properties(base) {
         return createType({
           kind: "Object",
@@ -118,12 +131,8 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     Union: {
-      projectionSource(base) {
-        return base.projectionSource || voidType;
-      },
-      projectionBase(base) {
-        return base.projectionBase || voidType;
-      },
+      ...createBaseMembers(),
+      ...createNameableMembers(),
       variants(base) {
         return createType({
           kind: "Object",
@@ -200,15 +209,8 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     Operation: {
-      projectionSource(base) {
-        return base.projectionSource || voidType;
-      },
-      projectionBase(base) {
-        return base.projectionBase || voidType;
-      },
-      name(base) {
-        return createLiteralType(base.name);
-      },
+      ...createBaseMembers(),
+      ...createNameableMembers(),
       parameters(base) {
         return base.parameters;
       },
@@ -217,12 +219,8 @@ export function createProjectionMembers(checker: Checker): {
       },
     },
     Interface: {
-      projectionSource(base) {
-        return base.projectionSource || voidType;
-      },
-      projectionBase(base) {
-        return base.projectionBase || voidType;
-      },
+      ...createBaseMembers(),
+      ...createNameableMembers(),
       operations(base) {
         return createType({
           kind: "Object",
@@ -301,6 +299,7 @@ export function createProjectionMembers(checker: Checker): {
       projectionBase(base) {
         return base.projectionBase || voidType;
       },
+      ...createNameableMembers(),
       members(base) {
         return createType({
           kind: "Object",
