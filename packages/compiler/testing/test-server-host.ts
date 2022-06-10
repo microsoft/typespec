@@ -2,15 +2,11 @@ import { ok } from "assert";
 import { pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic } from "vscode-languageserver/node.js";
-import { parse, visitChildren } from "../../core/parser.js";
-import { IdentifierNode, SyntaxKind } from "../../core/types.js";
-import { createServer, Server, ServerHost } from "../../server/index.js";
-import {
-  createTestFileSystem,
-  resolveVirtualPath,
-  StandardTestLibrary,
-  TestFileSystem,
-} from "../../testing/index.js";
+import { parse, visitChildren } from "../core/parser.js";
+import { IdentifierNode, SyntaxKind } from "../core/types.js";
+import { createServer, Server, ServerHost } from "../server/index.js";
+import { createTestFileSystem, resolveVirtualPath, StandardTestLibrary } from "./test-host.js";
+import { TestFileSystem } from "./types.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {
   server: Server;
