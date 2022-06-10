@@ -33,6 +33,53 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("completes imports", async () => {
+    const completions = await complete(` import "┆ `, undefined, {
+      "package.json": JSON.stringify({
+        dependencies: {
+          "@cadl-lang/library1": "~0.1.0",
+          noncadllibrary: "~0.1.0",
+          nonPackageJsonLibrary: "~0.1.0",
+        },
+      }),
+      "node_modules/@cadl-lang/library1/package.json": JSON.stringify({
+        cadlMain: "main.cadl",
+      }),
+      "node_modules/noncadllibrary/package.json": JSON.stringify({}),
+    });
+
+    check(
+      completions,
+      [
+        {
+          label: "@cadl-lang/library1",
+          kind: CompletionItemKind.Module,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("fails to import complete without package.json", async () => {
+    const completions = await complete(` import "┆ `);
+
+    check(completions, [], {
+      allowAdditionalCompletions: false,
+    });
+  });
+
+  it("completes imports without any dependencies", async () => {
+    const completions = await complete(` import "┆ `, undefined, {
+      "package.json": JSON.stringify({}),
+    });
+
+    check(completions, [], {
+      allowAdditionalCompletions: false,
+    });
+  });
+
   it("completes decorators on namespaces", async () => {
     const completions = await complete(
       `
@@ -372,12 +419,18 @@ describe("compiler: server: completion", () => {
 
   async function complete(
     sourceWithCursor: string,
-    jsSourceFile?: { name: string; js: Record<string, any> }
+    jsSourceFile?: { name: string; js: Record<string, any> },
+    additionalFiles?: Record<string, string>
   ): Promise<CompletionList> {
     const { source, pos } = extractCursor(sourceWithCursor);
     const testHost = await createTestServerHost();
     if (jsSourceFile) {
       testHost.addJsFile(jsSourceFile.name, jsSourceFile.js);
+    }
+    if (additionalFiles) {
+      for (const [key, value] of Object.entries(additionalFiles)) {
+        testHost.addCadlFile(key, value);
+      }
     }
     const textDocument = testHost.addOrUpdateDocument("test.cadl", source);
     return await testHost.server.complete({
