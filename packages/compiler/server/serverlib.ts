@@ -556,7 +556,7 @@ export function createServer(host: ServerHost): Server {
       if (packagejson.peerDependencies != undefined) {
         dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
       }
-      for (const val of dependencies) {
+      for (const dependency of dependencies) {
         const nodeProjectRoot = resolvePath(projectRoot, "node_modules", val);
         const libFile = await loadFile(
           compilerHost,
