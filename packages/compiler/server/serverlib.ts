@@ -557,20 +557,18 @@ export function createServer(host: ServerHost): Server {
         dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
       }
       for (const dependency of dependencies) {
-        const nodeProjectRoot = resolvePath(projectRoot, "node_modules", val);
-        const libFile = await loadFile(
+        const nodeProjectRoot = resolvePath(projectRoot, "node_modules", dependency);
+        const [libPackageJson] = await loadFile(
           compilerHost,
           resolvePath(nodeProjectRoot, "package.json"),
           JSON.parse,
           program.reportDiagnostic
         );
-        for (const libFileVal of libFile) {
-          if (libFileVal.cadlMain != undefined) {
-            completions.items.push({
-              label: val,
-              kind: CompletionItemKind.Module,
-            });
-          }
+        if (libPackageJson.cadlMain != undefined) {
+          completions.items.push({
+            label: dependency,
+            kind: CompletionItemKind.Module,
+          });
         }
       }
     }

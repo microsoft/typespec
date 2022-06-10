@@ -39,13 +39,18 @@ describe("compiler: server: completion", () => {
         dependencies: {
           "@cadl-lang/library1": "~0.1.0",
           noncadllibrary: "~0.1.0",
-          nonPackageJsonLibrary: "~0.1.0",
+        },
+        peerDependencies: {
+          "@cadl-lang/library2": "~0.1.0",
         },
       }),
       "node_modules/@cadl-lang/library1/package.json": JSON.stringify({
-        cadlMain: "main.cadl",
+        cadlMain: "./foo.js",
       }),
       "node_modules/noncadllibrary/package.json": JSON.stringify({}),
+      "node_modules/@cadl-lang/library2/package.json": JSON.stringify({
+        cadlMain: "./foo.js",
+      }),
     });
 
     check(
@@ -53,6 +58,10 @@ describe("compiler: server: completion", () => {
       [
         {
           label: "@cadl-lang/library1",
+          kind: CompletionItemKind.Module,
+        },
+        {
+          label: "@cadl-lang/library2",
           kind: CompletionItemKind.Module,
         },
       ],
