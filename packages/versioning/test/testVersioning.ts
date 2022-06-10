@@ -62,6 +62,28 @@ describe("cadl: versioning", () => {
   });
 
   describe("models", () => {
+    it("can rename itself", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedModel(
+        ["v1", "v2"],
+        `
+        @renamedFrom(Versions.v2, "OldTest")
+        model Test { a: int32; }`
+      );
+
+      strictEqual(v1.name, "OldTest");
+      strictEqual(v2.name, "Test");
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+        ],
+        source
+      );
+    });
+
     it("can add models", async () => {
       const {
         projections: [v1, v2],
@@ -239,7 +261,29 @@ describe("cadl: versioning", () => {
       };
     }
   });
+
   describe("unions", () => {
+    it("can rename itself", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedUnion(
+        ["v1", "v2"],
+        `
+        @renamedFrom(Versions.v2, "OldTest")
+        union Test {}`
+      );
+
+      strictEqual(v1.name, "OldTest");
+      strictEqual(v2.name, "Test");
+      assertUnionProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+        ],
+        source
+      );
+    });
     it("can add unions", async () => {
       const {
         projections: [v1, v2],
@@ -374,6 +418,20 @@ describe("cadl: versioning", () => {
   });
 
   describe("operations", () => {
+    it("can rename itself", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        ["v1", "v2"],
+        `
+        @renamedFrom(Versions.v2, "OldTest")
+        op Test(): void;`
+      );
+
+      strictEqual(v1.name, "OldTest");
+      strictEqual(v2.name, "Test");
+    });
+
     it("can be added", async () => {
       const {
         projections: [v1, v2],
@@ -438,6 +496,28 @@ describe("cadl: versioning", () => {
   });
 
   describe("interfaces", () => {
+    it("can rename itself", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedInterface(
+        ["v1", "v2"],
+        `
+        @renamedFrom(Versions.v2, "OldTest")
+        interface Test { }`
+      );
+
+      strictEqual(v1.name, "OldTest");
+      strictEqual(v2.name, "Test");
+      assertInterfaceProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+        ],
+        source
+      );
+    });
+
     it("can be added", async () => {
       const {
         projections: [v1, v2],
@@ -498,6 +578,7 @@ describe("cadl: versioning", () => {
         source
       );
     });
+
     it("can rename members", async () => {
       const {
         source,
@@ -554,6 +635,28 @@ describe("cadl: versioning", () => {
   });
 
   describe("enums", () => {
+    it("can rename itself", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedEnum(
+        ["v1", "v2"],
+        `
+        @renamedFrom(Versions.v2, "OldTest")
+        enum Test { }`
+      );
+
+      strictEqual(v1.name, "OldTest");
+      strictEqual(v2.name, "Test");
+      assertEnumProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+        ],
+        source
+      );
+    });
+
     it("can add enums", async () => {
       const {
         projections: [v1, v2],
@@ -696,7 +799,7 @@ describe("cadl: versioning", () => {
       const projection = project(m, version, "from");
       strictEqual(projection.operations.size, target.operations.size);
       for (const prop of projection.operations.values()) {
-        ok(target.operations.has(prop.name), "interface should have operation " + prop.name);
+        ok(target.operations.has(prop.name), "source interface should have operation " + prop.name);
       }
     });
   }
