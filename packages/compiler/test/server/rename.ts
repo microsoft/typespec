@@ -1,6 +1,10 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { Range } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor, getTestIdentifiers } from "./test-server-host.js";
+import {
+  createTestServerHost,
+  extractCursor,
+  getTestIdentifiers,
+} from "../../testing/test-server-host.js";
 
 describe("compiler: server: rename and find references", () => {
   // `┆` marks where the cursor is positioned
@@ -66,6 +70,23 @@ describe("compiler: server: rename and find references", () => {
     `alias Alias┆/**/ = string;
     op foo(): Alias/**/;`
   );
+
+  test("enum members", `enum A { B┆/**/, C, D }; model M { prop: A.B/**/;}`);
+
+  test("model properties", `model A { prop┆/**/: string; } model M { prop: A.prop/**/; }`);
+
+  test("anonymous model properties", `model A { b: { prop┆/**/: string; } }`);
+
+  test("parameters", "op test(param┆/**/:string): void;");
+
+  test("interface operations", `interface A { test┆/**/(): void }; model M { prop: A.test/**/;}`);
+
+  test(
+    "namespace operations",
+    `namespace A { op test┆/**/(): void }; model M { prop: A.test/**/;}`
+  );
+
+  test("union variants", `union A { b┆/**/: B, c: C, d: D }; model M { prop: A.b/**/;}`);
 });
 
 function test(things: string, sourceWithCursor: string) {

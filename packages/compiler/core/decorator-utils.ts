@@ -115,34 +115,13 @@ function getTypeKind(target: CadlValue): Type["kind"] | undefined {
 }
 
 /**
- * Emit diagnostic if the number of arguments passed to decorator is more or less than the expected count.
- */
-export function validateDecoratorParamCount(
-  program: Program,
-  target: Type,
-  args: unknown[],
-  expected: number
-) {
-  if (args.length !== expected) {
-    reportDiagnostic(program, {
-      code: "invalid-argument-count",
-      format: {
-        actual: args.length.toString(),
-        expected: expected.toString(),
-      },
-      target,
-    });
-    return;
-  }
-}
-
-/**
  * Validate a decorator parameter has the correct type.
  * @param program Program
  * @param target Decorator target
  * @param value Value of the parameter.
  * @param expectedType Expected type or list of expected type
  * @returns true if the value is of one of the type in the list of expected types. If not emit a diagnostic.
+ * @deprecated use @see createDecoratorDefinition#validate instead.
  */
 export function validateDecoratorParamType<K extends Type["kind"]>(
   program: Program,
@@ -160,6 +139,129 @@ export function validateDecoratorParamType<K extends Type["kind"]>(
       },
       target,
     });
+    return false;
+  }
+  return true;
+}
+
+export interface DecoratorDefinition<
+  T extends Type["kind"],
+  P extends readonly DecoratorParamDefinition<any>[]
+> {
+  readonly name: string;
+  readonly target: T | T[];
+  readonly args: P;
+}
+
+export interface DecoratorParamDefinition<K extends Type["kind"]> {
+  readonly kind: K | K[];
+  readonly optional?: boolean;
+}
+
+type InferParameters<P extends readonly DecoratorParamDefinition<any>[]> = {
+  [K in keyof P]: InferParameter<P[K]>;
+};
+type InferParameter<P extends DecoratorParamDefinition<any>> = P["optional"] extends true
+  ? InferredCadlValue<P["kind"]> | undefined
+  : InferredCadlValue<P["kind"]>;
+
+export interface DecoratorValidator<
+  T extends Type["kind"],
+  P extends readonly DecoratorParamDefinition<any>[]
+> {
+  validate(
+    context: DecoratorContext,
+    target: InferredCadlValue<T>,
+    parameters: InferParameters<P>
+  ): boolean;
+}
+
+export function createDecoratorDefinition<
+  T extends Type["kind"],
+  P extends readonly DecoratorParamDefinition<any>[]
+>(definition: DecoratorDefinition<T, P>): DecoratorValidator<T, P> {
+  const minParams = definition.args.filter((x) => !x.optional).length;
+  const maxParams = definition.args.length;
+
+  function validate(context: DecoratorContext, target: Type, args: CadlValue[]) {
+    if (
+      !validateDecoratorTarget(context, target, definition.name, definition.target) ||
+      !validateDecoratorParamCount(context, minParams, maxParams, args)
+    ) {
+      return false;
+    }
+
+    for (const [index, arg] of args.entries()) {
+      const paramDefinition = definition.args[index];
+      if (arg === undefined) {
+        if (!paramDefinition.optional) {
+          reportDiagnostic(context.program, {
+            code: "invalid-argument",
+            format: {
+              value: "undefined",
+              actual: "undefined",
+              expected: expectedTypeList(paramDefinition.kind),
+            },
+            target: context.getArgumentTarget(index)!,
+          });
+          return false;
+        }
+      } else if (!isCadlValueTypeOf(arg, paramDefinition.kind)) {
+        reportDiagnostic(context.program, {
+          code: "invalid-argument",
+          format: {
+            value: prettyValue(context.program, arg),
+            actual: getTypeKind(arg)!,
+            expected: expectedTypeList(paramDefinition.kind),
+          },
+          target: context.getArgumentTarget(index)!,
+        });
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  return {
+    validate(context: DecoratorContext, target, parameters) {
+      return validate(context, target as any, parameters as any);
+    },
+  };
+}
+
+function expectedTypeList(expectedType: Type["kind"] | Type["kind"][]) {
+  return typeof expectedType === "string" ? expectedType : expectedType.join(", ");
+}
+
+export function validateDecoratorParamCount(
+  context: DecoratorContext,
+  min: number,
+  max: number,
+  parameters: unknown[]
+): boolean {
+  if (parameters.length < min || parameters.length > max) {
+    if (min === max) {
+      reportDiagnostic(context.program, {
+        code: "invalid-argument-count",
+        format: {
+          actual: parameters.length.toString(),
+          expected: min.toString(),
+        },
+        target: context.decoratorTarget,
+      });
+    } else {
+      reportDiagnostic(context.program, {
+        code: "invalid-argument-count",
+        messageId: "between",
+        format: {
+          actual: parameters.length.toString(),
+          min: min.toString(),
+          max: max.toString(),
+        },
+        target: context.decoratorTarget,
+      });
+    }
     return false;
   }
   return true;

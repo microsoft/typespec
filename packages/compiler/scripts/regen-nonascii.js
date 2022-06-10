@@ -1,6 +1,6 @@
 // Regenerate the table used to scan non-ASCII identifiers.
 
-import { assert } from "console";
+import assert from "assert";
 import { writeFileSync } from "fs";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
