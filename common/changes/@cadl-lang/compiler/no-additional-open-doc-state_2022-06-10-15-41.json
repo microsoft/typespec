@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Improve tracking of open documents in language server",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
