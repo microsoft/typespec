@@ -38,7 +38,7 @@ function main() {
     log(message: string) {
       connection.console.log(message);
     },
-    getDocumentByURL(url: string) {
+    getOpenDocumentByURL(url: string) {
       return documents.get(url);
     },
   };
@@ -74,7 +74,6 @@ function main() {
 
   documents.onDidChangeContent(s.checkChange);
   documents.onDidClose(s.documentClosed);
-  documents.onDidOpen(s.documentOpen);
 
   documents.listen(connection);
   connection.listen();

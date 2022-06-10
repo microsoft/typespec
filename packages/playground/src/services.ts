@@ -12,7 +12,7 @@ export async function attachServices(host: BrowserHost) {
 
   const serverHost: ServerHost = {
     compilerHost: host,
-    getDocumentByURL(url: string) {
+    getOpenDocumentByURL(url: string) {
       const model = monaco.editor.getModel(monaco.Uri.parse(url));
       return model ? textDocumentForModel(model) : undefined;
     },
