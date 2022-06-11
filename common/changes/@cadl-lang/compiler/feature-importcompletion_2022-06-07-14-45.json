@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "?",
+      "comment": "Add completion support for import of libraries",
       "type": "minor"
     }
   ],
