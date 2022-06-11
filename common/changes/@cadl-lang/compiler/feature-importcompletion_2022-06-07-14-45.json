@@ -3,7 +3,7 @@
     {
       "packageName": "@cadl-lang/compiler",
       "comment": "?",
-      "type": "patch"
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/compiler"
