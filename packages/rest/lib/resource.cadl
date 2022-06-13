@@ -1,5 +1,5 @@
 import "./http.cadl";
-import "../dist/src/resource.js";
+import "../dist/src/index.js";
 import "../dist/src/internal-decorators.js";
 
 namespace Cadl.Rest.Resource;

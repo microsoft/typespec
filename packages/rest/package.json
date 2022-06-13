@@ -21,12 +21,16 @@
   "cadlMain": "lib/rest.cadl",
   "exports": {
     ".": "./dist/src/index.js",
+    "./http": "./dist/src/http/index.js",
     "./testing": "./dist/src/testing/index.js"
   },
   "typesVersions": {
     "*": {
       "*": [
         "./dist/src/index.d.ts"
+      ],
+      "http": [
+        "./dist/src/http/index.d.ts"
       ],
       "testing": [
         "./dist/src/testing/index.d.ts"
@@ -40,7 +44,7 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p . && npm run lint-cadl-library",
     "watch": "tsc -p . --watch",
-    "lint-cadl-library": "cadl compile . --warn-as-error --import @cadl-lang/library-linter",
+    "lint-cadl-library": "cadl compile . --warn-as-error --import @cadl-lang/library-linter --no-emit",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only",
     "lint": "eslint . --ext .ts --max-warnings=0",

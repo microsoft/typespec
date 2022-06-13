@@ -10,7 +10,7 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
-import { $path } from "./http.js";
+import { $path } from "./http/decorators.js";
 
 export interface ResourceKey {
   resourceType: ModelType;

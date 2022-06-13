@@ -12,7 +12,10 @@ import {
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { createDiagnostic, reportDiagnostic } from "./diagnostics.js";
+import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
+import { getResponsesForOperation, HttpOperationResponse } from "../responses.js";
+import { getAction, getResourceOperation, getSegment, getSegmentSeparator } from "../rest.js";
+import { extractParamsFromPath } from "../utils.js";
 import {
   getHeaderFieldName,
   getOperationVerb,
@@ -20,10 +23,7 @@ import {
   getQueryParamName,
   HttpVerb,
   isBody,
-} from "./http.js";
-import { getResponsesForOperation, HttpOperationResponse } from "./responses.js";
-import { getAction, getResourceOperation, getSegment, getSegmentSeparator } from "./rest.js";
-import { extractParamsFromPath } from "./utils.js";
+} from "./decorators.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
 
@@ -629,10 +629,4 @@ export function isAutoRoute(
   }
 
   return false;
-}
-
-setNamespaceForFile("Cadl.Http");
-
-function setNamespaceForFile(namespace: string) {
-  console.log("Caller", setNamespaceForFile.caller);
 }

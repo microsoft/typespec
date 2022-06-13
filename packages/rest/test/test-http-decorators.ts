@@ -11,7 +11,7 @@ import {
   isPathParam,
   isQueryParam,
   isStatusCode,
-} from "../src/http.js";
+} from "../src/http/decorators.js";
 import { createRestTestRunner } from "./test-host.js";
 
 describe("rest: http decorators", () => {

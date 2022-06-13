@@ -21,7 +21,7 @@ import {
   isBody,
   isHeader,
   isStatusCode,
-} from "./http.js";
+} from "./http/decorators.js";
 
 export type StatusCode = `${number}` | "*";
 export interface HttpOperationResponse {
