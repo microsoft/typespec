@@ -1,4 +1,4 @@
-export const vsMinimumVersion = "16.9";
+export const vsMinimumVersion = "17.0";
 
 export const MinimumDotnetVersion = {
   major: 6,
