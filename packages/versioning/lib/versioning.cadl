@@ -1,6 +1,8 @@
 import "../dist/src/versioning.js";
 import "../dist/src/validate.js";
 
+using Cadl.Versioning;
+
 #suppress "projections-are-experimental"
 projection op#v {
   to(version) {
