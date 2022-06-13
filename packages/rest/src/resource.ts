@@ -6,12 +6,11 @@ import {
   ModelType,
   ModelTypeProperty,
   Program,
-  setDecoratorNamespace,
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
-import { $path } from "./http.js";
+import { $path } from "./http/decorators.js";
 
 export interface ResourceKey {
   resourceType: ModelType;
@@ -203,5 +202,3 @@ export function $parentResource(context: DecoratorContext, entity: Type, parentT
     currentType = getParentResource(program, currentType);
   }
 }
-
-setDecoratorNamespace("Cadl.Rest", $parentResource, $copyResourceKeyParameters);

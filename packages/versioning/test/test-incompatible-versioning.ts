@@ -16,6 +16,8 @@ describe("versioning: validate incompatible references", () => {
       (code) => `
       import "@cadl-lang/versioning";
 
+      using Cadl.Versioning;
+      
       @versioned(Versions)
       namespace TestService {
         enum Versions {v1, v2, v3, v4}
@@ -328,14 +330,18 @@ describe("versioning: validate incompatible references", () => {
 
     beforeEach(async () => {
       const host = await createVersioningTestHost();
-      runner = createTestWrapper(host, (code) => code);
+      runner = createTestWrapper(
+        host,
+        (code) => `
+        import "@cadl-lang/versioning";
+        using Cadl.Versioning;
+        ${code}`
+      );
     });
 
     it("emit diagnostic when referencing incompatible version via version dependency", async () => {
       // Here Foo was added in v2 which makes it only available in 1 & 2.
       const diagnostics = await runner.diagnose(`
-        import "@cadl-lang/versioning";
-
         @versioned(Versions)
         namespace VersionedLib {
           enum Versions {l1, l2}
@@ -367,8 +373,6 @@ describe("versioning: validate incompatible references", () => {
     it("doesn't emit diagnostic if all version use the same one", async () => {
       // Here Foo was added in v2 which makes it only available in 1 & 2.
       const diagnostics = await runner.diagnose(`
-        import "@cadl-lang/versioning";
-
         @versioned(Versions)
         namespace VersionedLib {
           enum Versions {l1, l2}
@@ -394,8 +398,6 @@ describe("versioning: validate incompatible references", () => {
     it("emit diagnostic when using item not available in selected version of library", async () => {
       // Here Foo was added in v2 but version 1 was selected.
       const diagnostics = await runner.diagnose(`
-        import "@cadl-lang/versioning";
-
         @versioned(Versions)
         namespace VersionedLib {
           enum Versions {l1, l2}

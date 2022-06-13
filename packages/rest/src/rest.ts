@@ -4,7 +4,6 @@ import {
   ModelType,
   OperationType,
   Program,
-  setDecoratorNamespace,
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
@@ -237,18 +236,3 @@ export function $action(context: DecoratorContext, entity: Type, name?: string) 
 export function getAction(program: Program, operation: OperationType): string | null | undefined {
   return program.stateMap(actionsKey).get(operation);
 }
-
-setDecoratorNamespace(
-  "Cadl.Rest",
-  $produces,
-  $consumes,
-  $segment,
-  $segmentOf,
-  $readsResource,
-  $createsResource,
-  $createsOrUpdatesResource,
-  $updatesResource,
-  $deletesResource,
-  $listsResource,
-  $action
-);

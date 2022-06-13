@@ -1,6 +1,6 @@
 import { TestHost } from "@cadl-lang/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { isBody, isHeader, isPathParam, isQueryParam } from "../src/http.js";
+import { isBody, isHeader, isPathParam, isQueryParam } from "../src/http/decorators.js";
 import { createRestTestHost } from "./test-host.js";
 
 describe("rest: plain data", () => {

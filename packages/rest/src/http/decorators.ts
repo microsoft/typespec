@@ -5,14 +5,16 @@ import {
   ModelTypeProperty,
   NamespaceType,
   Program,
-  setDecoratorNamespace,
+  setCadlNamespace,
   Type,
   validateDecoratorParamCount,
   validateDecoratorParamType,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./diagnostics.js";
-import { extractParamsFromPath } from "./utils.js";
+import { reportDiagnostic } from "../diagnostics.js";
+import { extractParamsFromPath } from "../utils.js";
+
+export const namespace = "Cadl.Http";
 
 const headerDecorator = createDecoratorDefinition({
   name: "@header",
@@ -345,21 +347,6 @@ export function getServers(program: Program, type: NamespaceType): HttpServer[] 
   return program.stateMap(serversKey).get(type);
 }
 
-setDecoratorNamespace(
-  "Cadl.Http",
-  $get,
-  $put,
-  $post,
-  $delete,
-  $patch,
-  $header,
-  $query,
-  $path,
-  $body,
-  $statusCode,
-  $server
-);
-
 export function $plainData(context: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(context, entity, "@plainData", "Model")) {
     return;
@@ -391,4 +378,4 @@ export function $plainData(context: DecoratorContext, entity: Type) {
   }
 }
 
-setDecoratorNamespace("Cadl.Http.Private", $plainData);
+setCadlNamespace("Private", $plainData);

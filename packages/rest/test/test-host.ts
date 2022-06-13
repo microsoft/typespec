@@ -6,13 +6,13 @@ import {
   expectDiagnosticEmpty,
   TestHost,
 } from "@cadl-lang/compiler/testing";
-import { HttpVerb } from "../src/http.js";
+import { HttpVerb } from "../src/http/decorators.js";
 import {
   getAllRoutes,
   HttpOperationParameter,
   OperationDetails,
   RouteOptions,
-} from "../src/route.js";
+} from "../src/http/route.js";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
