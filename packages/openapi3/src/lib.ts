@@ -3,6 +3,12 @@ import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
 export const libDef = {
   name: "@cadl-lang/openapi3",
   diagnostics: {
+    "invalid-server-variable": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
+      },
+    },
     "security-service-namespace": {
       severity: "error",
       messages: {

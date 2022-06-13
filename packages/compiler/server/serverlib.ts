@@ -61,7 +61,7 @@ import {
   SyntaxKind,
   Type,
 } from "../core/types.js";
-import { doIO, getSourceFileKindFromExt, loadFile } from "../core/util.js";
+import { doIO, findProjectRoot, getSourceFileKindFromExt, loadFile } from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 
 export interface ServerHost {
@@ -473,8 +473,7 @@ export function createServer(host: ServerHost): Server {
       isIncomplete: false,
       items: [],
     };
-
-    await compile(params.textDocument, (program, document, file) => {
+    await compile(params.textDocument, async (program, document, file) => {
       const node = getNodeAtPosition(file, document.offsetAt(params.position));
       if (node === undefined) {
         addKeywordCompletion("root", completions);
@@ -485,6 +484,11 @@ export function createServer(host: ServerHost): Server {
             break;
           case SyntaxKind.Identifier:
             addIdentifierCompletion(program, node, completions);
+            break;
+          case SyntaxKind.StringLiteral:
+            if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
+              await addImportCompletion(program, document, completions);
+            }
             break;
         }
       }
@@ -570,6 +574,53 @@ export function createServer(host: ServerHost): Server {
         kind: CompletionItemKind.Keyword,
       });
     }
+  }
+
+  async function addLibraryImportCompletion(
+    program: Program,
+    document: TextDocument,
+    completions: CompletionList
+  ) {
+    const documentPath = getPath(document);
+    const projectRoot = await findProjectRoot(compilerHost, documentPath);
+    if (projectRoot != undefined) {
+      const [packagejson] = await loadFile(
+        compilerHost,
+        resolvePath(projectRoot, "package.json"),
+        JSON.parse,
+        program.reportDiagnostic
+      );
+      let dependencies: string[] = [];
+      if (packagejson.dependencies != undefined) {
+        dependencies = dependencies.concat(Object.keys(packagejson.dependencies));
+      }
+      if (packagejson.peerDependencies != undefined) {
+        dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
+      }
+      for (const dependency of dependencies) {
+        const nodeProjectRoot = resolvePath(projectRoot, "node_modules", dependency);
+        const [libPackageJson] = await loadFile(
+          compilerHost,
+          resolvePath(nodeProjectRoot, "package.json"),
+          JSON.parse,
+          program.reportDiagnostic
+        );
+        if (libPackageJson.cadlMain != undefined) {
+          completions.items.push({
+            label: dependency,
+            kind: CompletionItemKind.Module,
+          });
+        }
+      }
+    }
+  }
+
+  async function addImportCompletion(
+    program: Program,
+    document: TextDocument,
+    completions: CompletionList
+  ) {
+    await addLibraryImportCompletion(program, document, completions);
   }
 
   /**

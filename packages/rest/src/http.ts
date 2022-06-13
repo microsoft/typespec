@@ -3,6 +3,7 @@ import {
   DecoratorContext,
   ModelType,
   ModelTypeProperty,
+  NamespaceType,
   Program,
   setDecoratorNamespace,
   Type,
@@ -11,6 +12,7 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
+import { extractParamsFromPath } from "./utils.js";
 
 export const namespace = "Cadl.Http";
 
@@ -284,6 +286,81 @@ export function $head(context: DecoratorContext, entity: Type, ...args: unknown[
 function validateVerbNoArgs(context: DecoratorContext, args: unknown[]) {
   validateDecoratorParamCount(context, 0, 0, args);
 }
+
+export interface HttpServer {
+  url: string;
+  description: string;
+  parameters: Map<string, ModelTypeProperty>;
+}
+
+const serverDecoratorDefinition = createDecoratorDefinition({
+  name: "@server",
+  target: "Namespace",
+  args: [{ kind: "String" }, { kind: "String" }, { kind: "Model", optional: true }],
+} as const);
+const serversKey = Symbol("servers");
+/**
+ * Configure the server url for the service.
+ * @param context Decorator context
+ * @param target Decorator target(Must be a namespace)
+ * @param description Description for this server.
+ * @param parameters @optional Parameters to interpolate in the server url.
+ */
+export function $server(
+  context: DecoratorContext,
+  target: NamespaceType,
+  url: string,
+  description: string,
+  parameters?: ModelType
+): void {
+  if (!serverDecoratorDefinition.validate(context, target, [url, description, parameters])) {
+    return;
+  }
+
+  const params = extractParamsFromPath(url);
+  const parameterMap = new Map(parameters?.properties ?? []);
+  for (const declaredParam of params) {
+    const param = parameterMap.get(declaredParam);
+    if (!param) {
+      reportDiagnostic(context.program, {
+        code: "missing-server-param",
+        format: { param: declaredParam },
+        target: context.getArgumentTarget(0)!,
+      });
+      parameterMap.delete(declaredParam);
+    }
+  }
+
+  let servers: HttpServer[] = context.program.stateMap(serversKey).get(target);
+  if (servers === undefined) {
+    servers = [];
+    context.program.stateMap(serversKey).set(target, servers);
+  }
+  servers.push({
+    url,
+    description,
+    parameters: parameterMap,
+  });
+}
+
+export function getServers(program: Program, type: NamespaceType): HttpServer[] | undefined {
+  return program.stateMap(serversKey).get(type);
+}
+
+setDecoratorNamespace(
+  "Cadl.Http",
+  $get,
+  $put,
+  $post,
+  $delete,
+  $patch,
+  $header,
+  $query,
+  $path,
+  $body,
+  $statusCode,
+  $server
+);
 
 export function $plainData(context: DecoratorContext, entity: Type) {
   if (!validateDecoratorTarget(context, entity, "@plainData", "Model")) {
