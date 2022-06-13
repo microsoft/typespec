@@ -20,6 +20,8 @@ describe("versioning: reference versioned library", () => {
       (code) => `
       import "@cadl-lang/versioning";
 
+      using Cadl.Versioning;
+
       @versioned(Versions)
       namespace VersionedLib {
         enum Versions {l1, l2}
@@ -241,6 +243,7 @@ describe("versioning: dependencies", () => {
       host,
       (code) => `
       import "@cadl-lang/versioning";
+      using Cadl.Versioning;
       ${code}`
     );
   });

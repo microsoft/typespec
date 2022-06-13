@@ -402,7 +402,6 @@ describe("cadl: versioning", () => {
 
     async function versionedUnion(versions: string[], union: string) {
       const { Test } = (await runner.compile(`
-      import "@cadl-lang/versioning";
       @versioned(Versions)
       namespace MyService;
 
