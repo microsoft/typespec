@@ -22,7 +22,7 @@ import {
   isBody,
 } from "./http.js";
 import { getResponsesForOperation, HttpOperationResponse } from "./responses.js";
-import { getAction, getResourceOperation, getSegment } from "./rest.js";
+import { getAction, getResourceOperation, getSegment, getSegmentSeparator } from "./rest.js";
 import { extractParamsFromPath } from "./utils.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
@@ -168,21 +168,40 @@ export function getRoutePath(
   return program.stateMap(routesKey).get(entity);
 }
 
+// The set of allowed segment separator characters
+const AllowedSegmentSeparators = ["/", ":"];
+
+function normalizeFragment(fragment: string) {
+  if (fragment.length > 0 && AllowedSegmentSeparators.indexOf(fragment[0]) < 0) {
+    // Insert the default separator
+    fragment = `/${fragment}`;
+  }
+
+  // Trim any trailing slash
+  return fragment.replace(/\/$/g, "");
+}
+
 function buildPath(pathFragments: string[]) {
   // Join all fragments with leading and trailing slashes trimmed
-  const path = pathFragments
-    .map((r) => r.replace(/(^\/|\/$)/g, ""))
-    .filter((x) => x !== "")
-    .join("/");
-  return `/${path}`;
+  const path =
+    pathFragments.length === 0
+      ? "/"
+      : pathFragments
+          .map(normalizeFragment)
+          .filter((x) => x !== "")
+          .join("");
+
+  // The final path must start with a '/'
+  return path.length > 0 && path[0] === "/" ? path : `/${path}`;
 }
 
 function addSegmentFragment(program: Program, target: Type, pathFragments: string[]) {
   // Don't add the segment prefix if it is meant to be excluded
   // (empty string means exclude the segment)
   const segment = getSegment(program, target);
+  const separator = getSegmentSeparator(program, target);
   if (segment && segment !== "") {
-    pathFragments.push(`/${segment}`);
+    pathFragments.push(`${separator ?? "/"}${segment}`);
   }
 }
 

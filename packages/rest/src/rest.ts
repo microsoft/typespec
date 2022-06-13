@@ -67,7 +67,7 @@ const segmentsKey = Symbol("segments");
  * The first argument should be a string that will be inserted into the operation route before the
  * path parameter's name field.
  *
- * `@segment` can only be applied to model properties or operation parameters.
+ * `@segment` can only be applied to model properties, operation parameters, or operations.
  */
 export function $segment(context: DecoratorContext, entity: Type, name: string) {
   if (
@@ -106,6 +106,31 @@ export function $segmentOf(context: DecoratorContext, entity: Type, resourceType
 
 export function getSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentsKey).get(entity);
+}
+
+const segmentSeparatorsKey = Symbol("segmentSeparators");
+
+/**
+ * `@segmentSeparator` defines the separator string that is inserted between the target's
+ * `@segment` and the preceding route path in auto-generated routes.
+ *
+ * The first argument should be a string that will be inserted into the operation route before the
+ * target's `@segment` value.  Can be a string of any length.  Defaults to `/`.
+ *
+ * `@segmentSeparator` can only be applied to model properties, operation parameters, or operations.
+ */
+export function $segmentSeparator(context: DecoratorContext, entity: Type, separator: string) {
+  if (
+    !validateDecoratorTarget(context, entity, "@segment", ["Model", "ModelProperty", "Operation"])
+  ) {
+    return;
+  }
+
+  context.program.stateMap(segmentSeparatorsKey).set(entity, separator);
+}
+
+export function getSegmentSeparator(program: Program, entity: Type): string | undefined {
+  return program.stateMap(segmentSeparatorsKey).get(entity);
 }
 
 export type ResourceOperations =
