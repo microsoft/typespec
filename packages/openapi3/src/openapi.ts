@@ -48,17 +48,18 @@ import {
   getTypeName,
   shouldInline,
 } from "@cadl-lang/openapi";
-import {
-  Discriminator,
-  getContentTypes,
-  getDiscriminator,
-  http,
-  HttpOperationResponse,
-} from "@cadl-lang/rest";
+import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
 import {
   getAllRoutes,
+  getContentTypes,
+  getHeaderFieldName,
+  getPathParamName,
+  getQueryParamName,
+  getStatusCodeDescription,
   HttpOperationParameter,
   HttpOperationParameters,
+  HttpOperationResponse,
+  isStatusCode,
   OperationDetails,
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
@@ -74,14 +75,6 @@ import {
   OpenAPI3Server,
   OpenAPI3ServerVariable,
 } from "./types.js";
-
-const {
-  getHeaderFieldName,
-  getPathParamName,
-  getQueryParamName,
-  isStatusCode,
-  getStatusCodeDescription,
-} = http;
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
   const options: OpenAPIEmitterOptions = {

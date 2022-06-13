@@ -13,7 +13,6 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
-import { getResponsesForOperation, HttpOperationResponse } from "../responses.js";
 import { getAction, getResourceOperation, getSegment, getSegmentSeparator } from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";
 import {
@@ -24,6 +23,7 @@ import {
   HttpVerb,
   isBody,
 } from "./decorators.js";
+import { getResponsesForOperation, HttpOperationResponse } from "./responses.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
 

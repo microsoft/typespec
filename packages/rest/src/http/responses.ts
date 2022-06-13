@@ -13,7 +13,7 @@ import {
   Program,
   Type,
 } from "@cadl-lang/compiler";
-import { createDiagnostic } from "./diagnostics.js";
+import { createDiagnostic } from "../diagnostics.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
@@ -21,7 +21,7 @@ import {
   isBody,
   isHeader,
   isStatusCode,
-} from "./http/decorators.js";
+} from "./decorators.js";
 
 export type StatusCode = `${number}` | "*";
 export interface HttpOperationResponse {
