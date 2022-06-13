@@ -50,15 +50,17 @@ import {
 } from "@cadl-lang/openapi";
 import {
   Discriminator,
-  getAllRoutes,
   getContentTypes,
   getDiscriminator,
   http,
+  HttpOperationResponse,
+} from "@cadl-lang/rest";
+import {
+  getAllRoutes,
   HttpOperationParameter,
   HttpOperationParameters,
-  HttpOperationResponse,
   OperationDetails,
-} from "@cadl-lang/rest";
+} from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
