@@ -24,7 +24,10 @@ describe("cadl: versioning", () => {
 
   beforeEach(async () => {
     const host = await createVersioningTestHost();
-    runner = createTestWrapper(host, (code) => `import "@cadl-lang/versioning";\n${code}`);
+    runner = createTestWrapper(
+      host,
+      (code) => `import "@cadl-lang/versioning";using Cadl.Versioning;\n${code}`
+    );
   });
 
   describe("version compare", () => {
