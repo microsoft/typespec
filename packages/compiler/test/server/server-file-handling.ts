@@ -1,5 +1,5 @@
 import { deepStrictEqual } from "assert";
-import { createTestServerHost } from "./test-server-host.js";
+import { createTestServerHost } from "../../testing/test-server-host.js";
 
 describe("compiler: server: main file", () => {
   it("finds the main file", async () => {

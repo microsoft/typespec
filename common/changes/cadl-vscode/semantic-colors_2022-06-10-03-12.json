@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Add semantic colorization",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

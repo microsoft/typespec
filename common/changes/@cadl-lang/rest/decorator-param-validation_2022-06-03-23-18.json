@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Uptake changes to compiler with decorator validator helpers",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

@@ -5,7 +5,7 @@ import {
   CompletionItemTag,
   CompletionList,
 } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor } from "./test-server-host.js";
+import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
 
 describe("compiler: server: completion", () => {
   it("completes globals", async () => {
@@ -31,6 +31,62 @@ describe("compiler: server: completion", () => {
         documentation: undefined,
       },
     ]);
+  });
+
+  it("completes imports", async () => {
+    const completions = await complete(` import "┆ `, undefined, {
+      "package.json": JSON.stringify({
+        dependencies: {
+          "@cadl-lang/library1": "~0.1.0",
+          noncadllibrary: "~0.1.0",
+        },
+        peerDependencies: {
+          "@cadl-lang/library2": "~0.1.0",
+        },
+      }),
+      "node_modules/@cadl-lang/library1/package.json": JSON.stringify({
+        cadlMain: "./foo.js",
+      }),
+      "node_modules/noncadllibrary/package.json": JSON.stringify({}),
+      "node_modules/@cadl-lang/library2/package.json": JSON.stringify({
+        cadlMain: "./foo.js",
+      }),
+    });
+
+    check(
+      completions,
+      [
+        {
+          label: "@cadl-lang/library1",
+          kind: CompletionItemKind.Module,
+        },
+        {
+          label: "@cadl-lang/library2",
+          kind: CompletionItemKind.Module,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("doesn't include imports when there is no project package.json", async () => {
+    const completions = await complete(` import "┆ `);
+
+    check(completions, [], {
+      allowAdditionalCompletions: false,
+    });
+  });
+
+  it("completes imports without any dependencies", async () => {
+    const completions = await complete(` import "┆ `, undefined, {
+      "package.json": JSON.stringify({}),
+    });
+
+    check(completions, [], {
+      allowAdditionalCompletions: false,
+    });
   });
 
   it("completes decorators on namespaces", async () => {
@@ -239,7 +295,7 @@ describe("compiler: server: completion", () => {
        namespace N {
         op test(): void;
        }
-       @dec(N.┆
+       @dec(N.┆)
       `
     );
 
@@ -525,12 +581,18 @@ describe("compiler: server: completion", () => {
 
   async function complete(
     sourceWithCursor: string,
-    jsSourceFile?: { name: string; js: Record<string, any> }
+    jsSourceFile?: { name: string; js: Record<string, any> },
+    additionalFiles?: Record<string, string>
   ): Promise<CompletionList> {
     const { source, pos } = extractCursor(sourceWithCursor);
     const testHost = await createTestServerHost();
     if (jsSourceFile) {
       testHost.addJsFile(jsSourceFile.name, jsSourceFile.js);
+    }
+    if (additionalFiles) {
+      for (const [key, value] of Object.entries(additionalFiles)) {
+        testHost.addCadlFile(key, value);
+      }
     }
     const textDocument = testHost.addOrUpdateDocument("test.cadl", source);
     return await testHost.server.complete({

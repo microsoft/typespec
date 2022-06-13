@@ -3,6 +3,7 @@ import { Program } from "../../core/program.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
+  EnumMemberType,
   EnumType,
   InterfaceType,
   ModelType,
@@ -185,6 +186,9 @@ describe("cadl: projections", () => {
         getRenamedFromOldName(p: Program, t: Type) {
           return p.stateMap(renamedFromKey).get(t)?.oldName || "";
         },
+        getRenamedFromNewName(p: Program, t: Type) {
+          return p.stateMap(renamedFromKey).get(t)?.newName || "";
+        },
       });
 
       const code = `
@@ -274,6 +278,25 @@ describe("cadl: projections", () => {
       ok(prop_one, "has prop_one");
       const nested_prop = (prop_one.type as ModelType).properties.get("nested_prop")!;
       ok(nested_prop, "has nested_prop");
+    });
+
+    it("can rename itself", async () => {
+      const code = `
+        @test model Foo {
+          prop: string;
+        }
+        
+        #suppress "projections-are-experimental"
+        projection Foo#test {
+          to {
+            self::rename("Bar");
+          }
+        }`;
+
+      const result = (await testProjection(code)) as ModelType;
+      strictEqual(result.kind, "Model");
+      strictEqual(result.name, "Bar");
+      strictEqual(result.namespace!.models.get("Bar"), result);
     });
 
     it("can replace itself", async () => {
@@ -431,6 +454,22 @@ describe("cadl: projections", () => {
       strictEqual((variant.type as ModelType).name, typeName);
     }
 
+    it("can rename itself", async () => {
+      const code = `
+       ${unionCode}
+        
+        #suppress "projections-are-experimental"
+        projection Foo#test {
+          to {
+            self::rename("Bar");
+          }
+        }`;
+
+      const result = (await testProjection(code)) as ModelType;
+      strictEqual(result.kind, "Union");
+      strictEqual(result.name, "Bar");
+      strictEqual(result.namespace!.unions.get("Bar"), result);
+    });
     it("can rename variants", async () => {
       const code = defaultCode(`
         self::variants::forEach((v) => {
@@ -507,6 +546,23 @@ describe("cadl: projections", () => {
       strictEqual(result.properties.get("x")!.type.kind, "Model");
       strictEqual(result.properties.get("y")!.type.kind, "Intrinsic");
     });
+
+    it("can rename itself", async () => {
+      const code = `
+        @test op Foo(): string;
+        
+        #suppress "projections-are-experimental"
+        projection Foo#test {
+          to {
+            self::rename("Bar");
+          }
+        }`;
+
+      const result = (await testProjection(code)) as ModelType;
+      strictEqual(result.kind, "Operation");
+      strictEqual(result.name, "Bar");
+      strictEqual(result.namespace!.operations.get("Bar"), result);
+    });
   });
 
   describe("interfaces", () => {
@@ -520,6 +576,23 @@ describe("cadl: projections", () => {
       ${interfaceCode}
       ${projectionCode(body)}
     `;
+
+    it("can rename itself", async () => {
+      const code = `
+        ${interfaceCode}
+        
+        #suppress "projections-are-experimental"
+        projection Foo#test {
+          to {
+            self::rename("Bar");
+          }
+        }`;
+
+      const result = (await testProjection(code)) as ModelType;
+      strictEqual(result.kind, "Interface");
+      strictEqual(result.name, "Bar");
+      strictEqual(result.namespace!.interfaces.get("Bar"), result);
+    });
 
     it("can add members", async () => {
       const code = defaultCode(`self::addOperation("bar", {param: string}, void);`);
@@ -558,6 +631,23 @@ describe("cadl: projections", () => {
       ${projectionCode(body)}
     `;
 
+    it("can rename itself", async () => {
+      const code = `
+        ${enumCode}
+        
+        #suppress "projections-are-experimental"
+        projection Foo#test {
+          to {
+            self::rename("Bar");
+          }
+        }`;
+
+      const result = (await testProjection(code)) as ModelType;
+      strictEqual(result.kind, "Enum");
+      strictEqual(result.name, "Bar");
+      strictEqual(result.namespace!.enums.get("Bar"), result);
+    });
+
     it("can add members", async () => {
       const code = defaultCode(`self::addMember("three", 3);`);
       const result = (await testProjection(code)) as EnumType;
@@ -576,6 +666,23 @@ describe("cadl: projections", () => {
       const result = (await testProjection(code)) as EnumType;
       const newMember = result.members[1];
       strictEqual(newMember.name, "mewtwo");
+    });
+
+    // Issue here happens when an enum member gets referenced before the enum and so gets projected before the enum creating a different projected type as the projected enum.
+    it("project enum correctly when enum memeber is referenced first", async () => {
+      const result = (await testProjection(`
+        @test model Foo {
+          a: Bar.a;
+          bar: Bar;
+        }
+        
+        enum Bar {a, b}
+      
+      `)) as ModelType;
+
+      const a = result.properties.get("a")!.type as EnumMemberType;
+      const Bar = result.properties.get("bar")!.type;
+      strictEqual(a.enum, Bar);
     });
   });
 

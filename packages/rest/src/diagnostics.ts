@@ -63,6 +63,12 @@ const libDefinition = {
         default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
       },
     },
+    "missing-server-param": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Server url contains parameter '${"param"}' but wasn't found in given parameters`,
+      },
+    },
     "duplicate-body": {
       severity: "error",
       messages: {

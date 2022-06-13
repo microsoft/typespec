@@ -2,22 +2,19 @@ import "@cadl-lang/versioning";
 import "@cadl-lang/rest";
 import "./library.cadl";
 
+@versionedDependency([[Versions.v1, Library.Versions.v1_0], [Versions.v2, Library.Versions.v1_1]])
 @serviceTitle("Pet Store Service")
-@versioned(VERSIONS)
-@versionedDependency(
-  Library,
-  {
-    v1: "1.0",
-    v2: "1.1",
-  }
-)
+@versioned(Versions)
 namespace VersionedApi;
 using Cadl.Http;
 
-alias VERSIONS = "v1" | "v2";
+enum Versions {
+  v1,
+  v2,
+}
 
 model ApiVersionParam {
-  @header apiVersion: VERSIONS;
+  @header apiVersion: Versions;
 }
 
 @discriminator("type")
@@ -30,14 +27,14 @@ model Dog extends PetBase {
   type: "dog";
   nextWalkTime: zonedDateTime;
 
-  @madeOptional("v2")
+  @madeOptional(Versions.v2)
   walkerName?: string;
 
-  @added("v2")
+  @added(Versions.v2)
   commandList: string[];
 }
 
-@added("v2")
+@added(Versions.v2)
 model Cat extends PetBase {
   type: "cat";
   catnipDose: int32;
@@ -47,12 +44,12 @@ model Cat extends PetBase {
 interface MyService {
   getPet(...ApiVersionParam): OkResponse<PetBase>;
 
-  @added("v2")
+  @added(Versions.v2)
   @post
   @route("/walkDog")
   walkDog(...ApiVersionParam): OkResponse<{}>;
 
-  @removed("v2")
+  @removed(Versions.v2)
   @post
   @route("/walkCat")
   walkCat(...ApiVersionParam): OkResponse<{}>;

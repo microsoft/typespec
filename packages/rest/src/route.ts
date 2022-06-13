@@ -24,6 +24,7 @@ import {
 } from "./http.js";
 import { getResponsesForOperation, HttpOperationResponse } from "./responses.js";
 import { getAction, getResourceOperation, getSegment } from "./rest.js";
+import { extractParamsFromPath } from "./utils.js";
 
 export type OperationContainer = NamespaceType | InterfaceType;
 
@@ -332,9 +333,7 @@ function getPathForOperation(
     );
 
     // Find path parameter names used in all route fragments
-    const declaredPathParams = pathFragments.flatMap(
-      (f) => f.match(/\{\w+\}/g)?.map((s) => s.slice(1, -1)) ?? []
-    );
+    const declaredPathParams = pathFragments.flatMap(extractParamsFromPath);
 
     // For each param in the declared path parameters (e.g. /foo/{id} has one, id),
     // delete it because it doesn't need to be added to the path.
@@ -419,7 +418,7 @@ function buildRoutes(
     }
 
     // Skip templated operations
-    if (op.templateArguments && op.templateArguments.length > 0) {
+    if (isUninstantiatedTemplateOperation(op)) {
       continue;
     }
 
@@ -480,6 +479,11 @@ function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
     maybeInterface.node.templateParameters.length > 0 &&
     (!maybeInterface.templateArguments || maybeInterface.templateArguments.length === 0)
   );
+}
+
+function isUninstantiatedTemplateOperation(maybeOperation: Type): boolean {
+  // Any operation statement with template parameters is inherently uninstantiated
+  return maybeOperation.kind === "Operation" && maybeOperation.node.templateParameters.length > 0;
 }
 
 export function getAllRoutes(

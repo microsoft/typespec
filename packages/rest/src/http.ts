@@ -1,7 +1,9 @@
 import {
+  createDecoratorDefinition,
   DecoratorContext,
   ModelType,
   ModelTypeProperty,
+  NamespaceType,
   Program,
   setDecoratorNamespace,
   Type,
@@ -10,14 +12,16 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
+import { extractParamsFromPath } from "./utils.js";
 
+const headerDecorator = createDecoratorDefinition({
+  name: "@header",
+  target: "ModelProperty",
+  args: [{ kind: "String", optional: true }],
+} as const);
 const headerFieldsKey = Symbol("header");
-export function $header(context: DecoratorContext, entity: Type, headerName?: string) {
-  if (!validateDecoratorTarget(context, entity, "@header", "ModelProperty")) {
-    return;
-  }
-
-  if (headerName && !validateDecoratorParamType(context.program, entity, headerName, "String")) {
+export function $header(context: DecoratorContext, entity: ModelTypeProperty, headerName?: string) {
+  if (!headerDecorator.validate(context, entity, [headerName])) {
     return;
   }
 
@@ -122,13 +126,19 @@ export function $statusCode(context: DecoratorContext, entity: Type) {
           codes.push(String(option.value));
         }
       } else {
-        reportDiagnostic(context.program, { code: "status-code-invalid", target: entity });
+        reportDiagnostic(context.program, {
+          code: "status-code-invalid",
+          target: entity,
+        });
       }
     }
   } else if (entity.type.kind === "TemplateParameter") {
     // Ignore template parameters
   } else {
-    reportDiagnostic(context.program, { code: "status-code-invalid", target: entity });
+    reportDiagnostic(context.program, {
+      code: "status-code-invalid",
+      target: entity,
+    });
   }
   setStatusCode(context.program, entity, codes);
 }
@@ -241,38 +251,98 @@ export function getOperationVerb(program: Program, entity: Type): HttpVerb | und
 }
 
 export function $get(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "get");
 }
 
 export function $put(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "put");
 }
 
 export function $post(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "post");
 }
 
 export function $patch(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "patch");
 }
 
 export function $delete(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "delete");
 }
 
 export function $head(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context.program, entity, args);
+  validateVerbNoArgs(context, args);
   setOperationVerb(context.program, entity, "head");
 }
 
 // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
-function validateVerbNoArgs(program: Program, target: Type, args: unknown[]) {
-  validateDecoratorParamCount(program, target, args, 0);
+function validateVerbNoArgs(context: DecoratorContext, args: unknown[]) {
+  validateDecoratorParamCount(context, 0, 0, args);
+}
+
+export interface HttpServer {
+  url: string;
+  description: string;
+  parameters: Map<string, ModelTypeProperty>;
+}
+
+const serverDecoratorDefinition = createDecoratorDefinition({
+  name: "@server",
+  target: "Namespace",
+  args: [{ kind: "String" }, { kind: "String" }, { kind: "Model", optional: true }],
+} as const);
+const serversKey = Symbol("servers");
+/**
+ * Configure the server url for the service.
+ * @param context Decorator context
+ * @param target Decorator target(Must be a namespace)
+ * @param description Description for this server.
+ * @param parameters @optional Parameters to interpolate in the server url.
+ */
+export function $server(
+  context: DecoratorContext,
+  target: NamespaceType,
+  url: string,
+  description: string,
+  parameters?: ModelType
+): void {
+  if (!serverDecoratorDefinition.validate(context, target, [url, description, parameters])) {
+    return;
+  }
+
+  const params = extractParamsFromPath(url);
+  const parameterMap = new Map(parameters?.properties ?? []);
+  for (const declaredParam of params) {
+    const param = parameterMap.get(declaredParam);
+    if (!param) {
+      reportDiagnostic(context.program, {
+        code: "missing-server-param",
+        format: { param: declaredParam },
+        target: context.getArgumentTarget(0)!,
+      });
+      parameterMap.delete(declaredParam);
+    }
+  }
+
+  let servers: HttpServer[] = context.program.stateMap(serversKey).get(target);
+  if (servers === undefined) {
+    servers = [];
+    context.program.stateMap(serversKey).set(target, servers);
+  }
+  servers.push({
+    url,
+    description,
+    parameters: parameterMap,
+  });
+}
+
+export function getServers(program: Program, type: NamespaceType): HttpServer[] | undefined {
+  return program.stateMap(serversKey).get(type);
 }
 
 setDecoratorNamespace(
@@ -286,7 +356,8 @@ setDecoratorNamespace(
   $query,
   $path,
   $body,
-  $statusCode
+  $statusCode,
+  $server
 );
 
 export function $plainData(context: DecoratorContext, entity: Type) {

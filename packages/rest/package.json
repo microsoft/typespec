@@ -17,16 +17,16 @@
     "cadl"
   ],
   "type": "module",
-  "main": "dist/src/lib.js",
+  "main": "dist/src/index.js",
   "cadlMain": "lib/rest.cadl",
   "exports": {
-    ".": "./dist/src/lib.js",
+    ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"
   },
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/src/lib.d.ts"
+        "./dist/src/index.d.ts"
       ],
       "testing": [
         "./dist/src/testing/index.d.ts"
