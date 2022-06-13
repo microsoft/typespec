@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Enable customization of route segment separators in autoRoutes",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

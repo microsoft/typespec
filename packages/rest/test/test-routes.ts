@@ -98,6 +98,7 @@ describe("rest: routes", () => {
 
     deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
   });
+
   it("join / route segments correctly", async () => {
     const routes = await getRoutesFor(
       `
@@ -109,6 +110,27 @@ describe("rest: routes", () => {
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
+  });
+
+  it("always produces a route starting with /", async () => {
+    const routes = await getRoutesFor(
+      `
+      @get
+      @route(":action")
+      op colonRoute(): {};
+
+      @get
+      @autoRoute
+      @segment("actionTwo")
+      @segmentSeparator(":")
+      op separatorRoute(): {};
+      `
+    );
+
+    deepStrictEqual(routes, [
+      { verb: "get", path: "/:action", params: [] },
+      { verb: "get", path: "/:actionTwo", params: [] },
+    ]);
   });
 
   it("generates action route fragments when @action is applied", async () => {
@@ -438,6 +460,42 @@ describe("rest: routes", () => {
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/things/{foo}/subthings/bar", params: [] }]);
+  });
+
+  it("allows customization of segment separators", async () => {
+    const routes = await getRoutesFor(
+      `
+      @autoRoute
+      namespace Things {
+        @action
+        @segmentSeparator(":")
+        @put op customAction(
+          @segment("things")
+          @path thingId: string
+        ): string;
+
+        @get op getAccount(
+          @segment("subscriptions")
+          @path subscriptionId: string;
+
+          // Is it useful for ARM modelling?
+          @path
+          @segment("accounts")
+          @segmentSeparator("Microsoft.Accounts/")
+          accountName: string;
+        ): string;
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [
+      { verb: "put", path: "/things/{thingId}:customAction", params: ["thingId"] },
+      {
+        verb: "get",
+        path: "/subscriptions/{subscriptionId}/Microsoft.Accounts/accounts/{accountName}",
+        params: ["subscriptionId", "accountName"],
+      },
+    ]);
   });
 
   it("skips templated operations", async () => {
