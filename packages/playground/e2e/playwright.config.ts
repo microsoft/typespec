@@ -7,8 +7,6 @@ const root = resolve(__dirname, "..");
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
-  // Increase timeout from 30s => 120s due to issue https://github.com/microsoft/playwright/issues/14037
-  timeout: 120 * 1000,
   webServer: {
     command: "npm run watch",
     port: 3000,

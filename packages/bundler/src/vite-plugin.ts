@@ -15,14 +15,22 @@ export interface CadlBundlePluginOptions {
 export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
   let config: ResolvedConfig;
   const definitions: Record<string, CadlBundleDefinition> = {};
+  const bundles: Record<string, CadlBundle> = {};
+
   return {
     name: "cadl-bundle",
     enforce: "pre",
     async configResolved(c) {
       config = c;
     },
+    async buildStart() {
+      for (const name of options.libraries) {
+        const bundle = await bundleLibrary(config.root, name);
+        bundles[name] = bundle;
+        definitions[name] = bundle.definition;
+      }
+    },
     async configureServer(server) {
-      const bundles: Record<string, CadlBundle> = {};
       for (const library of options.libraries) {
         await watchBundleLibrary(config.root, library, (bundle) => {
           bundles[library] = bundle;
@@ -76,10 +84,7 @@ export function cadlBundlePlugin(options: CadlBundlePluginOptions): Plugin {
 
     async generateBundle() {
       for (const name of options.libraries) {
-        const bundle = await bundleLibrary(config.root, name);
-        definitions[name] = bundle.definition;
-
-        for (const file of bundle.files) {
+        for (const file of bundles[name].files) {
           this.emitFile({
             type: "asset",
             fileName: `${options.folderName}/${name}/${file.filename}`,
