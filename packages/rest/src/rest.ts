@@ -100,7 +100,15 @@ export function $segment(
   context.program.stateMap(segmentsKey).set(entity, name);
 }
 
-export function $segmentOf(context: DecoratorContext, entity: OperationType, resourceType: Type) {
+function getResourceSegment(program: Program, resourceType: ModelType): string | undefined {
+  // Add path segment for resource type key (if it has one)
+  const resourceKey = getResourceTypeKey(program, resourceType);
+  return resourceKey
+    ? getSegment(program, resourceKey.keyProperty)
+    : getSegment(program, resourceType);
+}
+
+export function $segmentOf(context: DecoratorContext, entity: Type, resourceType: Type) {
   if (resourceType.kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
     return;
@@ -110,18 +118,9 @@ export function $segmentOf(context: DecoratorContext, entity: OperationType, res
   }
 
   // Add path segment for resource type key (if it has one)
-  const resourceKey = getResourceTypeKey(context.program, resourceType);
-  if (resourceKey) {
-    const keySegment = getSegment(context.program, resourceKey.keyProperty);
-    if (keySegment) {
-      context.call($segment, entity, keySegment);
-    }
-  } else {
-    // Does the model itself have a segment attached?
-    const modelSegment = getSegment(context.program, resourceType);
-    if (modelSegment) {
-      context.call($segment, entity, modelSegment);
-    }
+  const segment = getResourceSegment(context.program, resourceType);
+  if (segment) {
+    context.call($segment, entity, segment);
   }
 }
 
@@ -142,7 +141,11 @@ const segmentSeparatorsKey = Symbol("segmentSeparators");
  */
 export function $segmentSeparator(context: DecoratorContext, entity: Type, separator: string) {
   if (
-    !validateDecoratorTarget(context, entity, "@segment", ["Model", "ModelProperty", "Operation"])
+    !validateDecoratorTarget(context, entity, "@segmentSeparator", [
+      "Model",
+      "ModelProperty",
+      "Operation",
+    ])
   ) {
     return;
   }
@@ -249,6 +252,10 @@ function lowerCaseFirstChar(str: string): string {
   return str[0].toLocaleLowerCase() + str.substring(1);
 }
 
+function makeActionName(op: OperationType, name: string | undefined): string {
+  return lowerCaseFirstChar(name || op.name);
+}
+
 const actionsKey = Symbol("actions");
 export function $action(context: DecoratorContext, entity: Type, name?: string) {
   if (!validateDecoratorTarget(context, entity, "@action", "Operation")) {
@@ -256,7 +263,7 @@ export function $action(context: DecoratorContext, entity: Type, name?: string) 
   }
 
   // Generate the action name and add it as an operation path segment
-  const action = lowerCaseFirstChar(name || entity.name);
+  const action = makeActionName(entity, name);
   context.call($segment, entity, action);
 
   context.program.stateMap(actionsKey).set(entity, action);
@@ -264,4 +271,46 @@ export function $action(context: DecoratorContext, entity: Type, name?: string) 
 
 export function getAction(program: Program, operation: OperationType): string | null | undefined {
   return program.stateMap(actionsKey).get(operation);
+}
+
+const collectionActionsKey = Symbol("collectionActions");
+
+const collectionActionDecorator = createDecoratorDefinition({
+  name: "@collectionAction",
+  target: "Operation",
+  args: [{ kind: "Model" }, { kind: "String", optional: true }],
+} as const);
+
+export function $collectionAction(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType,
+  name?: string
+) {
+  if ((resourceType as Type).kind === "TemplateParameter") {
+    // Skip it, this operation is in a templated interface
+    return;
+  }
+
+  if (!collectionActionDecorator.validate(context, entity, [resourceType, name])) {
+    return;
+  }
+
+  // Generate the segment for the collection combined with the action's name
+  const segment = getResourceSegment(context.program, resourceType);
+  const segmentSeparator = getSegmentSeparator(context.program, entity) ?? "/";
+  const action = `${segment}${segmentSeparator}${makeActionName(entity, name)}`;
+  context.call($segment, entity, action);
+
+  // Replace the previous segment separator with slash so that it doesn't get repeated
+  context.call($segmentSeparator, entity, "/");
+
+  context.program.stateMap(collectionActionsKey).set(entity, action);
+}
+
+export function getCollectionAction(
+  program: Program,
+  operation: OperationType
+): string | null | undefined {
+  return program.stateMap(collectionActionsKey).get(operation);
 }

@@ -13,7 +13,13 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
-import { getAction, getResourceOperation, getSegment, getSegmentSeparator } from "../rest.js";
+import {
+  getAction,
+  getCollectionAction,
+  getResourceOperation,
+  getSegment,
+  getSegmentSeparator,
+} from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";
 import {
   getHeaderFieldName,
@@ -395,7 +401,7 @@ function getVerbForOperation(
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
     getOperationVerb(program, operation) ??
     // TODO: Enable this verb choice to be customized!
-    (getAction(program, operation) ? "post" : undefined);
+    (getAction(program, operation) || getCollectionAction(program, operation) ? "post" : undefined);
 
   if (verb !== undefined) {
     return verb;
