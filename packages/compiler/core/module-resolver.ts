@@ -2,7 +2,18 @@ import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 
 export interface ResolveModuleOptions {
   baseDir: string;
+
+  /**
+   * When resolution reach package.json returns the path to the file relative to it.
+   * @default pkg.main
+   */
   resolveMain?: (pkg: any) => string;
+
+  /**
+   * When resolution reach a directory without package.json look for those files to load in order.
+   * @default ["index.mjs", "index.js"]
+   */
+  directoryIndexFiles?: string[];
 }
 
 export interface ResolveModuleHost {
@@ -37,6 +48,8 @@ export class ResolveModuleError extends Error {
     super(message);
   }
 }
+
+const defaultDirectoryIndexFiles = ["index.mjs", "index.js"];
 
 /**
  * Resolve a module
@@ -127,8 +140,13 @@ export async function resolveModule(
       return loadPackage(directory, pkg);
     }
 
-    // Try to load index file
-    return loadAsFile(joinPaths(directory, "index"));
+    for (const file of options.directoryIndexFiles ?? defaultDirectoryIndexFiles) {
+      const resolvedFile = await loadAsFile(joinPaths(directory, file));
+      if (resolvedFile) {
+        return resolvedFile;
+      }
+    }
+    return undefined;
   }
 
   async function loadPackage(directory: string, pkg: NodePackage): Promise<string | undefined> {
@@ -162,7 +180,7 @@ export async function resolveModule(
       return file;
     }
 
-    const extensions = [".js"];
+    const extensions = [".mjs", ".js"];
     for (const ext of extensions) {
       const fileWithExtension = file + ext;
       if (await isFile(host, fileWithExtension)) {
