@@ -3600,7 +3600,9 @@ export function createChecker(program: Program): Checker {
         return [true, []];
       }
     } else if (target.kind === "Tuple" && source.kind === "Tuple") {
-      return isTupleAssignableTo(source, target);
+      return isTupleAssignableToTuple(source, target);
+    } else if (target.kind === "Union") {
+      return isAssignableToUnion(source, target);
     }
 
     return [
@@ -3613,34 +3615,6 @@ export function createChecker(program: Program): Checker {
         }),
       ],
     ];
-  }
-
-  function isTupleAssignableTo(source: TupleType, target: TupleType): [boolean, Diagnostic[]] {
-    if (source.values.length !== target.values.length) {
-      return [
-        false,
-        [
-          createDiagnostic({
-            code: "unassignable",
-            messageId: "withDetails",
-            format: {
-              sourceType: getTypeName(source),
-              targetType: getTypeName(target),
-              details: `Source has ${source.values.length} element(s) but target requires ${target.values.length}.`,
-            },
-            target: source,
-          }),
-        ],
-      ];
-    }
-    for (const [index, sourceItem] of source.values.entries()) {
-      const targetItem = target.values[index];
-      const [related, diagnostics] = isTypeRelatedTo(sourceItem, targetItem);
-      if (!related) {
-        return [false, diagnostics];
-      }
-    }
-    return [true, []];
   }
 
   function isSimpleTypeRelatedTo(source: Type, target: Type): boolean | undefined {
@@ -3768,6 +3742,54 @@ export function createChecker(program: Program): Checker {
     }
     return [true, []];
   }
+
+  function isTupleAssignableToTuple(source: TupleType, target: TupleType): [boolean, Diagnostic[]] {
+    if (source.values.length !== target.values.length) {
+      return [
+        false,
+        [
+          createDiagnostic({
+            code: "unassignable",
+            messageId: "withDetails",
+            format: {
+              sourceType: getTypeName(source),
+              targetType: getTypeName(target),
+              details: `Source has ${source.values.length} element(s) but target requires ${target.values.length}.`,
+            },
+            target: source,
+          }),
+        ],
+      ];
+    }
+    for (const [index, sourceItem] of source.values.entries()) {
+      const targetItem = target.values[index];
+      const [related, diagnostics] = isTypeRelatedTo(sourceItem, targetItem);
+      if (!related) {
+        return [false, diagnostics];
+      }
+    }
+    return [true, []];
+  }
+
+  function isAssignableToUnion(source: Type, target: UnionType): [boolean, Diagnostic[]] {
+    for (const option of target.options) {
+      const [related] = isTypeRelatedTo(source, option);
+      if (related) {
+        return [true, []];
+      }
+    }
+    return [
+      false,
+      [
+        createDiagnostic({
+          code: "unassignable",
+          format: { targetType: getTypeName(target), value: getTypeName(source) },
+          target,
+        }),
+      ],
+    ];
+  }
+
   function getEffectiveModelType(
     model: ModelType,
     filter?: (property: ModelTypeProperty) => boolean

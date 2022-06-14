@@ -523,4 +523,24 @@ describe.only("compiler: checker: intrinsic", () => {
       );
     });
   });
+
+  describe("Union target", () => {
+    it("can assign any of the options", async () => {
+      await expectTypeRelated({ source: "string", target: "string | int32" });
+    });
+
+    it("can a subtype of any of the options", async () => {
+      await expectTypeRelated({ source: "int32", target: "string | numeric | object" });
+    });
+
+    it("emit diagnostic when assigning tuple of different length", async () => {
+      await expectTypeNotRelated(
+        { source: `true`, target: "string | int32" },
+        {
+          code: "unassignable",
+          message: "Type 'true' is not assignable to type 'Cadl.string | Cadl.int32'",
+        }
+      );
+    });
+  });
 });
