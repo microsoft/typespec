@@ -3,7 +3,7 @@ import { CadlScriptNode, SyntaxKind } from "../core/index.js";
 import { getNodeAtPosition, parse } from "../core/parser.js";
 import { Node } from "../core/types.js";
 import { extractCursor } from "../testing/test-server-host.js";
-import { dumpAST } from "./test-parser.js";
+import { dumpAST } from "./parser.test.js";
 
 describe("compiler: parser utils", () => {
   describe("getNodeAtPosition", () => {
