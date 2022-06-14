@@ -15,7 +15,7 @@ interface RelatedTypeOptions {
   commonCode?: string;
 }
 
-describe.only("compiler: checker: intrinsic", () => {
+describe("compiler: checker: intrinsic", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
     runner = createTestWrapper(await createTestHost(), (x) => x);
