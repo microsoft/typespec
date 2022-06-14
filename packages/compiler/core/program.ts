@@ -687,9 +687,7 @@ export async function createProgram(
       throw err;
     }
 
-    const expected = await host.realpath(
-      resolvePath(host.fileURLToPath(import.meta.url), "../index.js")
-    );
+    const expected = resolvePath(host.fileURLToPath(import.meta.url), "../index.js");
 
     if (actual !== expected) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get

@@ -125,9 +125,8 @@ async function createRollupConfig(definition: CadlBundleDefinition): Promise<Rol
   });
   const jsFiles: string[] = [];
   for (const file of program.jsSourceFiles.keys()) {
-    const normalizedName = normalizePath(file);
-    if (normalizedName.startsWith(libraryPath)) {
-      jsFiles.push(normalizedName);
+    if (file.startsWith(libraryPath)) {
+      jsFiles.push(file);
     }
   }
   const cadlFiles: Record<string, string> = {

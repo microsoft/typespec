@@ -63,8 +63,10 @@ export async function resolveModule(
   name: string,
   options: ResolveModuleOptions
 ) {
+  const realpath = async (x: string) => resolvePath(await host.realpath(x));
+
   const { baseDir } = options;
-  const absoluteStart = baseDir === "" ? "." : await host.realpath(resolvePath(baseDir));
+  const absoluteStart = baseDir === "" ? "." : await realpath(resolvePath(baseDir));
 
   if (!(await isDirectory(host, absoluteStart))) {
     throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
@@ -74,11 +76,11 @@ export async function resolveModule(
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
     const res = resolvePath(absoluteStart, name);
     const m = (await loadAsFile(res)) || (await loadAsDirectory(res));
-    if (m) return host.realpath(m);
+    if (m) return realpath(m);
   }
 
   const module = await findAsNodeModule(name, absoluteStart);
-  if (module) return host.realpath(module);
+  if (module) return realpath(module);
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
