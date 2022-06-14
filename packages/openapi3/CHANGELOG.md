@@ -1,6 +1,17 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Fri, 06 May 2022 17:19:57 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+
+## 0.12.0
+Mon, 13 Jun 2022 23:42:28 GMT
+
+### Minor changes
+
+- Uptake changes to @cadl-lang/rest libraries around accessor
+- Uptake changes to decorator context
+- Add support for new @server decorator used to specify api endpoints.
+- Find good names where possible for anonymous models that differ from named models only by properties that are not part of the schema
+- Uptake changes to versioning library using enums for version
 
 ## 0.11.0
 Fri, 06 May 2022 17:19:57 GMT
