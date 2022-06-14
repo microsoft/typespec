@@ -2,6 +2,43 @@
   "name": "@cadl-lang/versioning",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "@cadl-lang/versioning_v0.6.0",
+      "date": "Mon, 13 Jun 2022 23:42:28 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake changes to decorator context"
+          },
+          {
+            "comment": "Add ability to use @renamedFrom on Models, Operations, Interface, Unions and Enums."
+          },
+          {
+            "comment": "Add validation for incompatible versioning across references"
+          },
+          {
+            "comment": "Moved all decorators and functions to `Cadl.Versioning` namespace"
+          },
+          {
+            "comment": "**Breaking Change** Version must be defined using an enum and referenced using enums"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Upgrade to TS4.7"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.31.0` to `~0.32.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.0` to `~0.1.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.0",
       "tag": "@cadl-lang/versioning_v0.5.0",
       "date": "Fri, 06 May 2022 17:19:57 GMT",
