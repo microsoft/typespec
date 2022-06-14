@@ -4,7 +4,8 @@
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>true</EmbedAllSources>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <LangVersion>Latest</LangVersion>
+    <!-- NOTE: LangVersion=9 because this project needs to build in VS 2019 so we can debug the VS 2019 version of the extension easily with F5 in VS 2019. -->
+    <LangVersion>9</LangVersion>
     <Nullable>Enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>5</WarningLevel>
