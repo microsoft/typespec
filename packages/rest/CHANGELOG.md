@@ -1,6 +1,23 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Fri, 06 May 2022 17:19:57 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+
+## 0.15.0
+Mon, 13 Jun 2022 23:42:28 GMT
+
+### Minor changes
+
+- Uptake changes to compiler with decorator validator helpers
+- Update accessor functions `getAllRoutes`, `getContentTypes`, etc. to follow the new Accessor pattern which return any encountered diagnostics along with the expected value
+- Uptake changes to decorator context
+-  Added `@server` decorator to specify namespace endpoints
+- Fix decorator and functions not belonging to a namespace
+
+### Patches
+
+- Properly exclude operation templates when scanning for routes
+- Skip templated operations when scanning for operation routes
+- Enable customization of route segment separators in autoRoutes
 
 ## 0.14.0
 Fri, 06 May 2022 17:19:57 GMT
