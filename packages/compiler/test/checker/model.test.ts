@@ -1,6 +1,6 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { isTemplate } from "../../core/semantic-walker.js";
-import { ModelType, ModelTypeProperty, Type } from "../../core/types.js";
+import { ModelType, ModelTypeProperty, NumericLiteralFlags, Type } from "../../core/types.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
@@ -105,7 +105,7 @@ describe("compiler: models", () => {
       ["boolean", `false`, { kind: "Boolean", value: false }],
       ["boolean", `true`, { kind: "Boolean", value: true }],
       ["string", `"foo"`, { kind: "String", value: "foo" }],
-      ["int32", `123`, { kind: "Number", value: 123 }],
+      ["int32", `123`, { kind: "Number", value: 123, numericFlags: NumericLiteralFlags.Integer }],
     ];
 
     for (const [type, defaultValue, expectedValue] of testCases) {
