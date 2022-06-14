@@ -478,6 +478,8 @@ export function createChecker(program: Program): Checker {
         return getTypeName(type.type, options);
       case "Array":
         return getTypeName(type.elementType, options) + "[]";
+      case "Tuple":
+        return "[" + type.values.map((x) => getTypeName(x, options)).join(", ") + "]";
       case "String":
       case "Number":
       case "Boolean":
@@ -3589,6 +3591,16 @@ export function createChecker(program: Program): Checker {
       return isModelRelatedTo(source, target);
     } else if (target.kind === "Array" && source.kind === "Array") {
       return isTypeRelatedTo(source.elementType, target.elementType);
+    } else if (target.kind === "Array" && source.kind === "Tuple") {
+      for (const item of source.values) {
+        const [related, diagnostics] = isTypeRelatedTo(item, target.elementType);
+        if (!related) {
+          return [false, diagnostics];
+        }
+        return [true, []];
+      }
+    } else if (target.kind === "Tuple" && source.kind === "Tuple") {
+      return isTupleAssignableTo(source, target);
     }
 
     return [
@@ -3601,6 +3613,34 @@ export function createChecker(program: Program): Checker {
         }),
       ],
     ];
+  }
+
+  function isTupleAssignableTo(source: TupleType, target: TupleType): [boolean, Diagnostic[]] {
+    if (source.values.length !== target.values.length) {
+      return [
+        false,
+        [
+          createDiagnostic({
+            code: "unassignable",
+            messageId: "withDetails",
+            format: {
+              sourceType: getTypeName(source),
+              targetType: getTypeName(target),
+              details: `Source has ${source.values.length} element(s) but target requires ${target.values.length}.`,
+            },
+            target: source,
+          }),
+        ],
+      ];
+    }
+    for (const [index, sourceItem] of source.values.entries()) {
+      const targetItem = target.values[index];
+      const [related, diagnostics] = isTypeRelatedTo(sourceItem, targetItem);
+      if (!related) {
+        return [false, diagnostics];
+      }
+    }
+    return [true, []];
   }
 
   function isSimpleTypeRelatedTo(source: Type, target: Type): boolean | undefined {

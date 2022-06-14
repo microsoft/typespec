@@ -465,6 +465,7 @@ describe.only("compiler: checker: intrinsic", () => {
       });
     });
   });
+
   describe("Array target", () => {
     it("can assign the same array type", async () => {
       await expectTypeRelated({ source: "string[]", target: "string[]" });
@@ -474,12 +475,50 @@ describe.only("compiler: checker: intrinsic", () => {
       await expectTypeRelated({ source: "int32[]", target: "numeric[]" });
     });
 
+    it("can assign a tuple of the same type", async () => {
+      await expectTypeRelated({ source: "[int32, int32]", target: "int32[]" });
+    });
+
+    it("can assign a tuple of subtype", async () => {
+      await expectTypeRelated({ source: "[int32, int32, int32]", target: "numeric[]" });
+    });
+
     it("emit diagnostic assigning other type", async () => {
       await expectTypeNotRelated(
         { source: `string`, target: "string[]" },
         {
           code: "unassignable",
           message: "Type 'Cadl.string' is not assignable to type 'Cadl.string[]'",
+        }
+      );
+    });
+  });
+
+  describe("Tuple target", () => {
+    it("can assign the same tuple type", async () => {
+      await expectTypeRelated({ source: "[string, string]", target: "[string, string]" });
+    });
+
+    it("can assign a tuple of subtypes", async () => {
+      await expectTypeRelated({ source: "[int32, int32]", target: "[numeric, numeric]" });
+    });
+
+    it("can assign a tuple of different subtypes", async () => {
+      await expectTypeRelated({
+        source: "[int64, int32, uint8]",
+        target: "[numeric, numeric, numeric]",
+      });
+    });
+
+    it("emit diagnostic when assigning tuple of different length", async () => {
+      await expectTypeNotRelated(
+        { source: `[string]`, target: "[string, string]" },
+        {
+          code: "unassignable",
+          message: [
+            "Type '[Cadl.string]' is not assignable to type '[Cadl.string, Cadl.string]'",
+            "  Source has 1 element(s) but target requires 2.",
+          ].join("\n"),
         }
       );
     });
