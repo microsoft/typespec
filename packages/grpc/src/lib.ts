@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
 
 const { reportDiagnostic } = createCadlLibrary({
