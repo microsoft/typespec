@@ -150,7 +150,7 @@ export interface Checker {
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
-  isTypeRelatedTo(source: Type, target: Type): [boolean, Diagnostic[]];
+  isTypeAssignableTo(source: Type, target: Type): [boolean, Diagnostic[]];
 
   /**
    * Applies a filter to the properties of a given type. If no properties
@@ -344,7 +344,7 @@ export function createChecker(program: Program): Checker {
     createFunctionType,
     createLiteralType,
     finishType,
-    isTypeRelatedTo: isTypeAssignableTo,
+    isTypeAssignableTo,
     getEffectiveModelType,
     filterModelProperties,
   };
