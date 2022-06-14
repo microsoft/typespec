@@ -1,33 +1,63 @@
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import { ok } from "assert";
+import {
+  createTestHost,
+  expectDiagnostics,
+  resolveVirtualPath,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: imports", () => {
-  let testHost: TestHost;
+  let host: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    host = await createTestHost();
   });
 
+  function expectFileLoaded(files: { cadl?: string[]; js?: string[] }) {
+    const expectFileIn = (file: string, map: Map<string, unknown>) => {
+      const vFile = resolveVirtualPath(file);
+      ok(
+        map.has(vFile),
+        [
+          `Expected ${vFile} to have been loaded but not present in:`,
+          ...[...map.keys()].map((x) => ` - ${x}`),
+        ].join("\n")
+      );
+    };
+    if (files.cadl) {
+      for (const file of files.cadl) {
+        expectFileIn(file, host.program.sourceFiles);
+      }
+    }
+    if (files.js) {
+      for (const file of files.js) {
+        expectFileIn(file, host.program.jsSourceFiles);
+      }
+    }
+  }
+
   it("import relative cadl file", async () => {
-    testHost.addJsFile("blue.js", { $blue() {} });
-    testHost.addCadlFile(
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addCadlFile(
       "main.cadl",
       `
       import "./b.cadl";
       model A extends B { }
       `
     );
-    testHost.addCadlFile(
+    host.addCadlFile(
       "b.cadl",
       `
       model B { }
       `
     );
-    await testHost.compile("main.cadl");
+    await host.compile("main.cadl");
+    expectFileLoaded({ cadl: ["main.cadl", "b.cadl"] });
   });
 
   it("import relative JS file", async () => {
-    testHost.addJsFile("blue.js", { $blue() {} });
-    testHost.addCadlFile(
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addCadlFile(
       "main.cadl",
       `
       import "./blue.js";
@@ -36,12 +66,13 @@ describe("compiler: imports", () => {
       model A  {}
       `
     );
-    await testHost.compile("main.cadl");
+    await host.compile("main.cadl");
+    expectFileLoaded({ cadl: ["main.cadl"], js: ["blue.js"] });
   });
 
   it("import relative JS file in parent folder", async () => {
-    testHost.addJsFile("blue.js", { $blue() {} });
-    testHost.addCadlFile(
+    host.addJsFile("blue.js", { $blue() {} });
+    host.addCadlFile(
       "proj/main.cadl",
       `
       import "../blue.js";
@@ -50,11 +81,12 @@ describe("compiler: imports", () => {
       model A  {}
       `
     );
-    await testHost.compile("proj/main.cadl");
+    await host.compile("proj/main.cadl");
+    expectFileLoaded({ cadl: ["proj/main.cadl"], js: ["blue.js"] });
   });
 
   it("import directory with main.cadl", async () => {
-    testHost.addCadlFile(
+    host.addCadlFile(
       "main.cadl",
       `
       import "./test";
@@ -62,18 +94,19 @@ describe("compiler: imports", () => {
       model A { x: C }
       `
     );
-    testHost.addCadlFile(
+    host.addCadlFile(
       "test/main.cadl",
       `
       model C { }
       `
     );
 
-    await testHost.compile("main.cadl");
+    await host.compile("main.cadl");
+    expectFileLoaded({ cadl: ["main.cadl", "test/main.cadl"] });
   });
 
   it("import library", async () => {
-    testHost.addCadlFile(
+    host.addCadlFile(
       "main.cadl",
       `
       import "my-lib";
@@ -81,31 +114,32 @@ describe("compiler: imports", () => {
       model A { x: C }
       `
     );
-    testHost.addCadlFile(
+    host.addCadlFile(
       "node_modules/my-lib/package.json",
       JSON.stringify({
         cadlMain: "./main.cadl",
       })
     );
-    testHost.addCadlFile(
+    host.addCadlFile(
       "node_modules/my-lib/main.cadl",
       `
       model C { }
       `
     );
 
-    await testHost.compile("main.cadl");
+    await host.compile("main.cadl");
+    expectFileLoaded({ cadl: ["main.cadl", "node_modules/my-lib/main.cadl"] });
   });
 
   it("emit diagnostic when trying to load invalid relative file", async () => {
-    testHost.addCadlFile(
+    host.addCadlFile(
       "main.cadl",
       `
       import "./doesnotexists";
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await host.diagnose("main.cadl");
     expectDiagnostics(diagnostics, {
       code: "import-not-found",
       message: `Couldn't resolve import "./doesnotexists"`,
@@ -113,14 +147,14 @@ describe("compiler: imports", () => {
   });
 
   it("emit diagnostic when trying to load invalid library", async () => {
-    testHost.addCadlFile(
+    host.addCadlFile(
       "main.cadl",
       `
       import "@cadl-lang/doesnotexists";
       `
     );
 
-    const diagnostics = await testHost.diagnose("main.cadl");
+    const diagnostics = await host.diagnose("main.cadl");
     expectDiagnostics(diagnostics, {
       code: "import-not-found",
       message: `Couldn't resolve import "@cadl-lang/doesnotexists"`,
