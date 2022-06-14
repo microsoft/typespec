@@ -1,0 +1,566 @@
+{
+  "name": "@cadl-lang/openapi3",
+  "entries": [
+    {
+      "version": "0.11.0",
+      "tag": "@cadl-lang/openapi3_v0.11.0",
+      "date": "Fri, 06 May 2022 17:19:57 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake change in compiler with children references"
+          },
+          {
+            "comment": "Move decorators to `OpenAPI` namespace"
+          },
+          {
+            "comment": "Uptake change to versioning library"
+          },
+          {
+            "comment": "Remove node 14 support"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix issue not excluding template models from derived models causing crash"
+          },
+          {
+            "comment": "Fix duplicate `description` in parameters"
+          },
+          {
+            "comment": "Rearrange some aspects of operation output in the OpenAPI emitter"
+          },
+          {
+            "comment": "URI-encode refs"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.30.0` to `~0.31.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.13.0` to `~0.14.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.8.0` to `~0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.4.0` to `~0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.4.0` to `~0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.30.0` to `~0.31.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.13.0` to `~0.14.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.8.0` to `~0.9.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.0",
+      "tag": "@cadl-lang/openapi3_v0.10.0",
+      "date": "Thu, 31 Mar 2022 17:10:49 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Include discriminator property in base schema with a boilerplace description"
+          },
+          {
+            "comment": "Add support for `void` type"
+          },
+          {
+            "comment": "Moved http response interpretation to @cadl-lang/rest library."
+          },
+          {
+            "comment": "implement multiple response content types"
+          },
+          {
+            "comment": "Uptake change to allow versioned dependency with unversioned service"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix bug with number enums that reference `0`."
+          },
+          {
+            "comment": "Use parent .model of ModelTypeProperty"
+          },
+          {
+            "comment": "Support browser builds"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.29.0` to `~0.30.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.12.0` to `~0.13.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.7.0` to `~0.8.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.3.2` to `~0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.2.0` to `~0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.3.2` to `~0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.29.0` to `~0.30.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.12.0` to `~0.13.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.7.0` to `~0.8.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.9.0",
+      "tag": "@cadl-lang/openapi3_v0.9.0",
+      "date": "Wed, 09 Mar 2022 17:42:09 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "@doc and @summary will set the description and summary on extended primitive types"
+          },
+          {
+            "comment": "Emit child models to OpenAPI when parent is emitted"
+          },
+          {
+            "comment": "**Added** support for `@externalDocs` decorator"
+          },
+          {
+            "comment": "Added support for `@knownValues` decorator"
+          },
+          {
+            "comment": "@doc on service namespace set openapi description"
+          },
+          {
+            "comment": "Uptake change to intrinsic types"
+          },
+          {
+            "comment": "Fix issue where a model name the same as Cadl Intrinsic type would be treated the same."
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix duplicate parameter type definitions in OpenAPI 3 output"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.28.0` to `~0.29.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.11.0` to `~0.12.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.6.1` to `~0.7.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.3.1` to `~0.3.2`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.1.0` to `~0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.3.1` to `~0.3.2`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.28.0` to `~0.29.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.11.0` to `~0.12.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.6.1` to `~0.7.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.8.0",
+      "tag": "@cadl-lang/openapi3_v0.8.0",
+      "date": "Tue, 15 Feb 2022 22:35:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add support for separate `@summary` from `@doc`"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Add validation to oneOf decorator"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.27.0` to `~0.28.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.10.0` to `~0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.6.0` to `~0.6.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.3.0` to `~0.3.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.3.0` to `~0.3.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.27.0` to `~0.28.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.10.0` to `~0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.6.0` to `~0.6.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.0",
+      "tag": "@cadl-lang/openapi3_v0.7.0",
+      "date": "Mon, 14 Feb 2022 03:01:07 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "refactor status code handling to http library"
+          },
+          {
+            "comment": "Take change in openapi upstream library"
+          },
+          {
+            "comment": "Update decorators to take in api change"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Bump dependency versions"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.26.0` to `~0.27.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.9.0` to `~0.10.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.5.1` to `~0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.2.0` to `~0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.2.0` to `~0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.26.0` to `~0.27.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.9.0` to `~0.10.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.5.1` to `~0.6.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.6.0",
+      "tag": "@cadl-lang/openapi3_v0.6.0",
+      "date": "Fri, 04 Feb 2022 18:00:18 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Support union values for status-code and content-type in responses"
+          },
+          {
+            "comment": "Openapi3 support for discriminated unions"
+          },
+          {
+            "comment": "openapi3 emitter support for @error decorator"
+          },
+          {
+            "comment": "Configure for new emitter syntax"
+          },
+          {
+            "comment": "Internals: switch to internal path manipulation"
+          },
+          {
+            "comment": "Extracted decorators into own library `@cadl-lang/openapi`"
+          },
+          {
+            "comment": "Uptake changes in @cadl-lang/rest library improving operation parameter handling"
+          },
+          {
+            "comment": "Update cadl depdendencies to peerDependencies"
+          },
+          {
+            "comment": "Add support for versioned services"
+          },
+          {
+            "comment": "Add statusCode decorator for http status code"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Adding @format decorator support for openapi3 to emit \"format\" for string types"
+          },
+          {
+            "comment": "**Fix** Added support for nullable array `xzy[] | null`"
+          },
+          {
+            "comment": "**Fix** issue with @body body: bytes producing `type: string, format: bytes` instead of `type: string, format: binary` for requests and responses"
+          },
+          {
+            "comment": "Use assigned @friendlyName on model types when emitting schema definitions and refs"
+          },
+          {
+            "comment": "Refactor and improve openapi3 return type tests"
+          },
+          {
+            "comment": "Fix status code validation and other minor cleanup"
+          },
+          {
+            "comment": "Support nullable in openapi3 emitter"
+          },
+          {
+            "comment": "Renaming @format decorator to @pattern."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.8.0` to `~0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.5.0` to `~0.5.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `0.1.0` to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `0.1.0` to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.25.0` to `~0.26.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.8.0` to `~0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.5.0` to `~0.5.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.5.0",
+      "tag": "@cadl-lang/openapi3_v0.5.0",
+      "date": "Thu, 16 Dec 2021 08:02:20 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Update openapi3 emitter to consume new Cadl.Rest route generation API"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Generate anyOf or oneOf schemas for Cadl unions in openapi3"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.24.1` to `0.25.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.7.1` to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.2",
+      "tag": "@cadl-lang/openapi3_v0.4.2",
+      "date": "Wed, 01 Dec 2021 22:56:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add support for extension decorator on parameters and tests"
+          },
+          {
+            "comment": "Add openapi3 support for Cadl safeint"
+          },
+          {
+            "comment": "Add README"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.24.0` to `0.24.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.7.0` to `0.7.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.1",
+      "tag": "@cadl-lang/openapi3_v0.4.1",
+      "date": "Thu, 18 Nov 2021 13:58:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Enable operation generation from interfaces"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.23.0` to `0.24.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.4` to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.0",
+      "tag": "@cadl-lang/openapi3_v0.4.0",
+      "date": "Thu, 11 Nov 2021 21:46:21 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** Support for duration type"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.22.0` to `0.23.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.3` to `0.6.4`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.1",
+      "tag": "@cadl-lang/openapi3_v0.3.1",
+      "date": "Thu, 28 Oct 2021 21:17:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Use strict diagnostics"
+          },
+          {
+            "comment": "Fix crash on empty enum in openapi3 emitter"
+          },
+          {
+            "comment": "Set shared param definitions in components.parameters"
+          },
+          {
+            "comment": "Fix param default to be in schema"
+          },
+          {
+            "comment": "Fix handling of decorators on parameters in openapi3"
+          },
+          {
+            "comment": "Fix generation of openapi3 response headers"
+          },
+          {
+            "comment": "Define response body for primitive response type"
+          },
+          {
+            "comment": "Remove management.azure.com service host default"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.21.0` to `0.22.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.2` to `0.6.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.0",
+      "tag": "@cadl-lang/openapi3_v0.3.0",
+      "date": "Fri, 15 Oct 2021 21:33:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "**Added** Support for server default"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.20.0` to `0.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.1` to `0.6.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.0",
+      "tag": "@cadl-lang/openapi3_v0.2.0",
+      "date": "Fri, 17 Sep 2021 00:49:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add emitter for OpenAPI 3.0"
+          },
+          {
+            "comment": "Remove support for multiple inheritance"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Adding changelog for openapi3 package"
+          },
+          {
+            "comment": "Updates for cadl namespace addition"
+          },
+          {
+            "comment": "This is a test"
+          },
+          {
+            "comment": "Support for emitting `bytes` and new number types"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `0.19.0` to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `0.6.0` to `0.6.1`"
+          }
+        ]
+      }
+    }
+  ]
+}

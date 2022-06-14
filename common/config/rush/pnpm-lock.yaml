@@ -15,6 +15,7 @@ specifiers:
   '@rush-temp/compiler': file:./projects/compiler.tgz
   '@rush-temp/eslint-config-cadl': file:./projects/eslint-config-cadl.tgz
   '@rush-temp/eslint-plugin': file:./projects/eslint-plugin.tgz
+  '@rush-temp/grpc': file:./projects/grpc.tgz
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
   '@rush-temp/library-linter': file:./projects/library-linter.tgz
@@ -110,6 +111,7 @@ dependencies:
   '@rush-temp/compiler': file:projects/compiler.tgz
   '@rush-temp/eslint-config-cadl': file:projects/eslint-config-cadl.tgz_prettier@2.6.2
   '@rush-temp/eslint-plugin': file:projects/eslint-plugin.tgz
+  '@rush-temp/grpc': file:projects/grpc.tgz
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
   '@rush-temp/library-linter': file:projects/library-linter.tgz
@@ -4489,7 +4491,7 @@ packages:
     dev: false
 
   file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-68kXFqY44huSWrukCumhFMpzpocmdMZ8wIbQ/zbxuf1LdP8+eFRK1oRFeWRvv7YlJTqE6N26H+R68w6Oa/i2Qw==, tarball: file:projects/cadl-vscode.tgz}
+    resolution: {integrity: sha512-hDslhVK07IwiqiKCxNTbTSBlXbycph+EqO/b1YD2xm68Yr/uAcDYOKXXYYC5278DdUIECHO/M5+pknjXYqP86Q==, tarball: file:projects/cadl-vscode.tgz}
     name: '@rush-temp/cadl-vscode'
     version: 0.0.0
     dependencies:
@@ -4515,7 +4517,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-2qKHtYjKAjODqLE5rKLe+2vQdglIzHLuLUTjUyYRmaLaAi/rt1GGe2R7S8LxtWtNdHaNnOrVwcuh/lj3+obs2A==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-e452DNSSiMG5TRQbUtCeFZmL0Wkt0GrgSv/KGLSZFauXo1mdLuqBceUSYgJT2svMmD6rPqBhSf+Ns5bup5q2iw==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -4583,6 +4585,22 @@ packages:
       '@types/mocha': 9.1.1
       '@types/node': 16.0.3
       '@typescript-eslint/utils': 5.26.0_eslint@8.16.0+typescript@4.7.2
+      c8: 7.11.3
+      eslint: 8.16.0
+      mocha: 9.2.2
+      rimraf: 3.0.2
+      typescript: 4.7.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  file:projects/grpc.tgz:
+    resolution: {integrity: sha512-cZxw8AU0va1CFX9dAfibid5SadMXzGurOpj3KaQjIW1nsKdcy9MTmLK/Q9WV0CFeRo8kr2x0ro8DIQ9NvTbDaQ==, tarball: file:projects/grpc.tgz}
+    name: '@rush-temp/grpc'
+    version: 0.0.0
+    dependencies:
+      '@types/mocha': 9.1.1
+      '@types/node': 16.0.3
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
