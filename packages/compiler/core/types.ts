@@ -8,7 +8,7 @@ export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
   value: DecoratorArgumentValue;
-  node: Node;
+  node?: Node;
 }
 
 export interface DecoratorApplication {
@@ -18,7 +18,7 @@ export interface DecoratorApplication {
 }
 
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: Type, ...customArgs: any[]): void;
+  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
   namespace?: string;
 }
 
@@ -156,7 +156,7 @@ export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = 
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;
-  node:
+  node?:
     | ModelStatementNode
     | ModelExpressionNode
     | IntersectionExpressionNode
@@ -173,6 +173,12 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
    * Direct children. This is the reverse relation of @see baseModel
    */
   derivedModels: ModelType[];
+
+  /**
+   * Late-bound symbol of this model type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface ModelTypeProperty extends BaseType, DecoratedType {
@@ -198,6 +204,11 @@ export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
   node: InterfaceStatementNode;
   namespace?: NamespaceType;
   operations: Map<string, OperationType>;
+  /**
+   * Late-bound symbol of this interface type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface EnumType extends BaseType, DecoratedType {
@@ -216,7 +227,7 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   value?: string | number;
 }
 
-export interface OperationType extends BaseType, DecoratedType {
+export interface OperationType extends BaseType, DecoratedType, TemplatedType {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
@@ -286,6 +297,12 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   variants: Map<string | symbol, UnionTypeVariant>;
   expression: boolean;
   readonly options: Type[];
+
+  /**
+   * Late-bound symbol of this interface type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface UnionTypeVariant extends BaseType, DecoratedType {
@@ -332,9 +349,21 @@ export interface Sym {
   exports?: SymbolTable;
 
   /**
+   * Symbols for members of this symbol which must be referenced off the parent symbol
+   * and cannot be referenced by other means (i.e. by unqualified lookup of the symbol
+   * name).
+   */
+  members?: SymbolTable;
+
+  /**
    * For using symbols, this is the used symbol.
    */
   symbolSource?: Sym;
+
+  /**
+   * For late-bound symbols, this is the type referenced by the symbol.
+   */
+  type?: Type;
 
   /**
    * For decorator and function symbols, this is the JS function implementation.
@@ -360,29 +389,39 @@ export interface SymbolTable extends Map<string, Sym> {
 
 // prettier-ignore
 export const enum SymbolFlags {
-  None                = 0,
-  Model               = 1 << 1,
-  ModelProperty       = 1 << 2,
-  Operation           = 1 << 3,
-  Enum                = 1 << 4,
-  EnumMember          = 1 << 5,
-  Interface           = 1 << 6,
-  Union               = 1 << 7,
-  UnionVariant        = 1 << 8,
-  Alias               = 1 << 9,
-  Namespace           = 1 << 10,
-  Projection          = 1 << 11,
-  Decorator           = 1 << 12,
-  TemplateParameter   = 1 << 13,
-  ProjectionParameter = 1 << 14,
-  Function            = 1 << 15,
-  FunctionParameter   = 1 << 16,
-  Using               = 1 << 17,
-  DuplicateUsing      = 1 << 18,
-  SourceFile          = 1 << 19,
+  None                  = 0,
+  Model                 = 1 << 1,
+  ModelProperty         = 1 << 2,
+  Operation             = 1 << 3,
+  Enum                  = 1 << 4,
+  EnumMember            = 1 << 5,
+  Interface             = 1 << 6,
+  InterfaceMember       = 1 << 7,
+  Union                 = 1 << 8,
+  UnionVariant          = 1 << 9,
+  Alias                 = 1 << 10,
+  Namespace             = 1 << 11,
+  Projection            = 1 << 12,
+  Decorator             = 1 << 13,
+  TemplateParameter     = 1 << 14,
+  ProjectionParameter   = 1 << 15,
+  Function              = 1 << 16,
+  FunctionParameter     = 1 << 17,
+  Using                 = 1 << 18,
+  DuplicateUsing        = 1 << 19,
+  SourceFile            = 1 << 20,
 
+  /**
+   * A symbol which was late-bound, in which case, the type referred to
+   * by this symbol is stored directly in the symbol.
+   */
+  LateBound = 1 << 21,
 
-  ExportContainer = Namespace | SourceFile
+  ExportContainer = Namespace | SourceFile,
+  /**
+   * Symbols whose members will be late bound (and stored on the type)
+   */
+  MemberContainer = Model | Enum | Union | Interface,
 }
 
 /**
@@ -407,6 +446,8 @@ export enum SyntaxKind {
   NamespaceStatement,
   UsingStatement,
   OperationStatement,
+  OperationSignatureDeclaration,
+  OperationSignatureReference,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -520,6 +561,8 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode
   | EnumMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
@@ -687,10 +730,24 @@ export interface UsingStatementNode extends BaseNode {
   readonly name: IdentifierNode | MemberExpressionNode;
 }
 
-export interface OperationStatementNode extends BaseNode, DeclarationNode {
-  readonly kind: SyntaxKind.OperationStatement;
+export interface OperationSignatureDeclarationNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureDeclaration;
   readonly parameters: ModelExpressionNode;
   readonly returnType: Expression;
+}
+
+export interface OperationSignatureReferenceNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureReference;
+  readonly baseOperation: TypeReferenceNode;
+}
+
+export type OperationSignature =
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode;
+
+export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.OperationStatement;
+  readonly signature: OperationSignature;
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
@@ -1098,6 +1155,14 @@ export interface Diagnostic {
   target: DiagnosticTarget | typeof NoTarget;
 }
 
+/**
+ * Return type of accessor functions in CADL.
+ * Tuple composed of:
+ * - 0: Actual result of an accessor function
+ * - 1: List of diagnostics that were emitted while retrieving the data.
+ */
+export type DiagnosticResult<T> = [T, readonly Diagnostic[]];
+
 export interface DirectiveBase {
   node: DirectiveExpressionNode;
 }
@@ -1116,7 +1181,7 @@ export interface Dirent {
   isDirectory(): boolean;
 }
 
-export interface RemoveDirOptions {
+export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In
    * recursive mode, errors are not reported if `path` does not exist, and
@@ -1148,10 +1213,10 @@ export interface CompilerHost {
   readDir(dir: string): Promise<string[]>;
 
   /**
-   * Deletes the directory.
-   * @param path Path to the directory.
+   * Deletes a directory or file.
+   * @param path Path to the directory or file.
    */
-  removeDir(dir: string, options?: RemoveDirOptions): Promise<void>;
+  rm(path: string, options?: RmOptions): Promise<void>;
 
   /**
    * create directory recursively.
@@ -1296,6 +1361,9 @@ export interface CadlLibrary<
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;
+  createDiagnostic<C extends keyof T, M extends keyof T[C]>(
+    diag: DiagnosticReport<T, C, M>
+  ): Diagnostic;
 }
 
 /**
@@ -1329,9 +1397,9 @@ export interface DecoratorContext {
    * @param decorator Other decorator function
    * @param args Args to pass to other decorator funciton
    */
-  call<A extends any[], R>(
-    decorator: (context: DecoratorContext, target: Type, ...args: A) => R,
-    target: Type,
+  call<T extends Type, A extends any[], R>(
+    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
+    target: T,
     ...args: A
   ): R;
 }

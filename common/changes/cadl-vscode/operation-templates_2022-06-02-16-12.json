@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Update tmLanguage grammar for operation signature support",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}

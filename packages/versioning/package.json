@@ -17,16 +17,16 @@
     "cadl"
   ],
   "type": "module",
-  "main": "dist/src/versioning.js",
+  "main": "dist/src/index.js",
   "cadlMain": "lib/versioning.cadl",
   "exports": {
-    ".": "./dist/src/versioning.js",
+    ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"
   },
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/src/versioning.d.ts"
+        "./dist/src/index.d.ts"
       ],
       "testing": [
         "./dist/src/testing/index.d.ts"
@@ -40,7 +40,7 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p . && npm run lint-cadl-library",
     "watch": "tsc -p . --watch",
-    "lint-cadl-library": "cadl compile . --import @cadl-lang/library-linter",
+    "lint-cadl-library": "cadl compile . --warn-as-error --import @cadl-lang/library-linter --no-emit",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only",
     "lint": "eslint . --ext .ts --max-warnings=0",

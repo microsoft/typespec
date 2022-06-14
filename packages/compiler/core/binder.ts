@@ -389,6 +389,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
   function bindOperationStatement(statement: OperationStatementNode) {
     if (scope.kind !== SyntaxKind.InterfaceStatement) {
       declareSymbol(statement, SymbolFlags.Operation);
+      statement.locals = new SymbolTable();
     }
   }
 
@@ -403,7 +404,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
         const symbol = createSymbol(node, node.id.sv, flags, scope.symbol);
         node.symbol = symbol;
         scope.locals!.set(node.id.sv, symbol);
-        return symbol.declarations;
+        return symbol;
     }
   }
 
@@ -417,6 +418,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     const symbol = createSymbol(node, node.id.sv, flags, scope.symbol);
     node.symbol = symbol;
     scope.symbol.exports!.set(node.id.sv, symbol);
+    return symbol;
   }
 
   function declareScriptMember(node: Writable<Declaration>, flags: SymbolFlags) {
@@ -430,6 +432,7 @@ export function createBinder(program: Program, options: BinderOptions = {}): Bin
     const symbol = createSymbol(node, node.id.sv, flags, fileNamespace?.symbol);
     node.symbol = symbol;
     effectiveScope.symbol.exports!.set(node.id.sv, symbol);
+    return symbol;
   }
 
   function mergeNamespaceDeclarations(node: Writable<NamespaceStatementNode>, scope: ScopeNode) {
@@ -451,6 +454,7 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.AliasStatement:
     case SyntaxKind.CadlScript:
     case SyntaxKind.InterfaceStatement:
+    case SyntaxKind.OperationStatement:
     case SyntaxKind.UnionStatement:
     case SyntaxKind.Projection:
     case SyntaxKind.ProjectionLambdaExpression:
@@ -463,7 +467,7 @@ function hasScope(node: Node): node is ScopeNode {
 }
 
 export function createSymbol(
-  node: Node,
+  node: Node | undefined,
   name: string,
   flags: SymbolFlags,
   parent?: Sym,
@@ -473,10 +477,16 @@ export function createSymbol(
   if (flags & SymbolFlags.ExportContainer) {
     exports = createSymbolTable();
   }
+  let members: SymbolTable | undefined;
+  if (flags & SymbolFlags.MemberContainer) {
+    members = createSymbolTable();
+  }
+
   return {
-    declarations: [node],
+    declarations: node ? [node] : [],
     name,
     exports,
+    members,
     flags,
     value,
     parent,

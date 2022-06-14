@@ -317,7 +317,7 @@ describe("compiler: built-in decorators", () => {
         }`
       );
 
-      ok(prop.kind === "ModelProperty", "should be a model property");
+      strictEqual(prop.kind, "ModelProperty" as const);
       strictEqual(getKeyName(runner.program, prop), "prop");
     });
 
@@ -330,7 +330,7 @@ describe("compiler: built-in decorators", () => {
         }`
       );
 
-      ok(prop.kind === "ModelProperty", "should be a model property");
+      strictEqual(prop.kind, "ModelProperty" as const);
       strictEqual(getKeyName(runner.program, prop), "alternateName");
     });
   });

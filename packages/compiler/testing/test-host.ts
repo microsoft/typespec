@@ -1,4 +1,5 @@
 import assert from "assert";
+import { RmOptions } from "fs";
 import { readFile } from "fs/promises";
 import { globby } from "globby";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -60,13 +61,17 @@ function createTestCompilerHost(
         .map((x) => x.replace(`${path}/`, ""));
     },
 
-    async removeDir(path: string) {
+    async rm(path: string, options: RmOptions) {
       path = resolveVirtualPath(path);
 
-      for (const key of virtualFs.keys()) {
-        if (key.startsWith(`${path}/`)) {
-          virtualFs.delete(key);
+      if (options.recursive && !virtualFs.has(path)) {
+        for (const key of virtualFs.keys()) {
+          if (key.startsWith(`${path}/`)) {
+            virtualFs.delete(key);
+          }
         }
+      } else {
+        virtualFs.delete(path);
       }
     },
 

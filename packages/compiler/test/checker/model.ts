@@ -189,22 +189,22 @@ describe("compiler: models", () => {
 
     const { A, B, C, D } = await testHost.compile("./");
 
-    ok(A.kind === "Model", "model expected");
+    strictEqual(A.kind, "Model" as const);
     strictEqual(A.properties.size, 1);
     const pA = A.properties.get("pA");
     strictEqual(pA?.model, A);
 
-    ok(B.kind === "Model", "model expected");
+    strictEqual(B.kind, "Model" as const);
     strictEqual(B.properties.size, 1);
     const pB = B.properties.get("pB");
     strictEqual(pB?.model, B);
 
-    ok(C.kind === "Model", "model expected");
+    strictEqual(C.kind, "Model" as const);
     strictEqual(C.properties.size, 1);
     const pC = C.properties.get("pC");
     strictEqual(pC?.model, C);
 
-    ok(D.kind === "Model", "model expected");
+    strictEqual(D.kind, "Model" as const);
     strictEqual(D.properties.size, 2);
     const pA_of_D = D.properties.get("pA");
     const pD = D.properties.get("pD");
@@ -212,7 +212,7 @@ describe("compiler: models", () => {
     strictEqual(pD?.model, D);
 
     const BC = pD.type;
-    ok(BC.kind === "Model", "model expected");
+    strictEqual(BC.kind, "Model" as const);
     strictEqual(BC.properties.size, 2);
     const pB_of_BC = BC.properties.get("pB");
     const pC_of_BC = BC.properties.get("pC");

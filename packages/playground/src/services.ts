@@ -1,24 +1,18 @@
-import {
-  CadlLanguageConfiguration,
-  createScanner,
-  createServer,
-  createSourceFile,
-  ServerHost,
-  Token,
-} from "@cadl-lang/compiler";
+import { CadlLanguageConfiguration, ServerHost } from "@cadl-lang/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { BrowserHost } from "./browserHost";
+import { importCadlCompiler } from "./core";
 import "./style.css";
 
-export function attachServices(host: BrowserHost) {
+export async function attachServices(host: BrowserHost) {
   monaco.languages.register({ id: "cadl" });
   monaco.languages.setLanguageConfiguration("cadl", CadlLanguageConfiguration as any);
 
   const serverHost: ServerHost = {
     compilerHost: host,
-    getDocumentByURL(url: string) {
+    getOpenDocumentByURL(url: string) {
       const model = monaco.editor.getModel(monaco.Uri.parse(url));
       return model ? textDocumentForModel(model) : undefined;
     },
@@ -27,6 +21,7 @@ export function attachServices(host: BrowserHost) {
     log: console.log,
   };
 
+  const { createServer } = await importCadlCompiler();
   const serverLib = createServer(serverHost);
   const lsConfig = serverLib.initialize({
     capabilities: {},
@@ -45,9 +40,15 @@ export function attachServices(host: BrowserHost) {
     );
   }
 
-  function lspArgs(model: monaco.editor.ITextModel, pos: monaco.Position) {
+  function lspDocumentArgs(model: monaco.editor.ITextModel) {
     return {
       textDocument: textDocumentForModel(model),
+    };
+  }
+
+  function lspArgs(model: monaco.editor.ITextModel, pos: monaco.Position) {
+    return {
+      ...lspDocumentArgs(model),
       position: lspPosition(pos),
     };
   }
@@ -148,6 +149,7 @@ export function attachServices(host: BrowserHost) {
           range,
           commitCharacters:
             item.commitCharacters ?? lsConfig.capabilities.completionProvider!.allCommitCharacters,
+          tags: item.tags,
         });
       }
 
@@ -155,86 +157,45 @@ export function attachServices(host: BrowserHost) {
     },
   });
 
-  const tokenTypes = [
-    "comment",
-    "string",
-    "number",
-    "keyword",
-    "namespace",
-    "variable",
-    "type",
-    "function",
-    "operator",
-    "source",
-  ];
+  monaco.editor.defineTheme("cadl", {
+    base: "vs",
+    inherit: true,
+    colors: {},
+    rules: [
+      { token: "macro", foreground: "#800000" },
+      { token: "function", foreground: "#795E26" },
+    ],
+  });
+  monaco.editor.setTheme("cadl");
 
-  function mapToken(tok: Token) {
-    switch (tok) {
-      case Token.SingleLineComment:
-      case Token.MultiLineComment:
-        return 0;
-      case Token.StringLiteral:
-        return 1;
-      case Token.NumericLiteral:
-        return 2;
-      case Token.TrueKeyword:
-      case Token.FalseKeyword:
-      case Token.IfKeyword:
-      case Token.IsKeyword:
-      case Token.AliasKeyword:
-      case Token.OpKeyword:
-      case Token.ElseKeyword:
-      case Token.EnumKeyword:
-      case Token.VoidKeyword:
-      case Token.ModelKeyword:
-      case Token.NeverKeyword:
-      case Token.UnionKeyword:
-      case Token.UsingKeyword:
-      case Token.ImportKeyword:
-      case Token.ReturnKeyword:
-      case Token.ExtendsKeyword:
-      case Token.InterfaceKeyword:
-      case Token.NamespaceKeyword:
-      case Token.ProjectionKeyword:
-        return 3;
-      default:
-        return 9;
-    }
-  }
   monaco.languages.registerDocumentSemanticTokensProvider("cadl", {
     getLegend() {
+      const legend = lsConfig.capabilities.semanticTokensProvider!.legend;
       return {
-        tokenTypes,
-        tokenModifiers: [],
+        tokenModifiers: legend.tokenModifiers,
+        tokenTypes: legend.tokenTypes.map((entry) => {
+          switch (entry) {
+            case "namespace":
+            case "class":
+            case "enum":
+            case "typeParameter":
+            case "struct":
+            case "interface":
+              return "type";
+            case "property":
+            case "enumMember":
+              return "variable";
+            default:
+              return entry;
+          }
+        }),
       };
     },
-    provideDocumentSemanticTokens(model) {
-      const content = model.getValue();
-      const file = createSourceFile(content, "");
-      const scanner = createScanner(file, () => {});
-      const tokens = [];
-      let prevLine = 0;
-      let prevChar = 0;
-
-      let tok = scanner.scan();
-      while (tok !== Token.EndOfFile) {
-        const pos = file.getLineAndCharacterOfPosition(scanner.tokenPosition);
-
-        tokens.push(
-          pos.line - prevLine,
-          prevLine === pos.line ? pos.character - prevChar : pos.character,
-          scanner.position - scanner.tokenPosition,
-          mapToken(tok),
-          0
-        );
-        prevLine = pos.line;
-        prevChar = pos.character;
-
-        tok = scanner.scan();
-      }
-
+    async provideDocumentSemanticTokens(model) {
+      const result = await serverLib.buildSemanticTokens(lspDocumentArgs(model));
       return {
-        data: new Uint32Array(tokens),
+        resultId: result.resultId,
+        data: new Uint32Array(result.data),
       };
     },
     releaseDocumentSemanticTokens() {},

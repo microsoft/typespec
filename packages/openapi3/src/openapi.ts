@@ -16,13 +16,13 @@ import {
   getPattern,
   getProperty,
   getPropertyType,
-  getServiceHost,
   getServiceNamespace,
   getServiceNamespaceString,
   getServiceTitle,
   getServiceVersion,
   getSummary,
   getVisibility,
+  ignoreDiagnostics,
   isErrorType,
   isIntrinsic,
   isNumericType,
@@ -48,35 +48,33 @@ import {
   getTypeName,
   shouldInline,
 } from "@cadl-lang/openapi";
+import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
 import {
-  Discriminator,
   getAllRoutes,
   getContentTypes,
-  getDiscriminator,
-  http,
+  getHeaderFieldName,
+  getPathParamName,
+  getQueryParamName,
+  getStatusCodeDescription,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationResponse,
+  isStatusCode,
   OperationDetails,
-} from "@cadl-lang/rest";
+} from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
 import {
   OpenAPI3Discriminator,
+  OpenAPI3Document,
   OpenAPI3Operation,
   OpenAPI3Parameter,
   OpenAPI3ParameterType,
   OpenAPI3Schema,
+  OpenAPI3Server,
+  OpenAPI3ServerVariable,
 } from "./types.js";
-
-const {
-  getHeaderFieldName,
-  getPathParamName,
-  getQueryParamName,
-  isStatusCode,
-  getStatusCodeDescription,
-} = http;
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
   const options: OpenAPIEmitterOptions = {
@@ -159,8 +157,7 @@ export interface OpenAPIEmitterOptions {
 }
 
 function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
-  let root: any;
-  let host: string | undefined;
+  let root: OpenAPI3Document;
 
   // Get the service namespace string for use in name shortening
   let serviceNamespace: string | undefined;
@@ -208,13 +205,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         securitySchemes: {},
       },
     };
-    host = getServiceHost(program);
-    if (host) {
-      root.servers = [
-        {
-          url: "https://" + host,
-        },
-      ];
+    const servers = http.getServers(program, serviceNamespaceType);
+    if (servers) {
+      root.servers = resolveServers(servers);
     }
 
     serviceNamespace = getServiceNamespaceString(program);
@@ -222,6 +215,76 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     schemas = new Set();
     params = new Map();
     tags = new Set();
+  }
+
+  // Todo: Should be able to replace with isRelatedTo(prop.type, "string") https://github.com/microsoft/cadl/pull/571
+  function isValidServerVariableType(program: Program, type: Type): boolean {
+    switch (type.kind) {
+      case "String":
+        return true;
+      case "Model":
+        const name = getIntrinsicModelName(program, type);
+        return name === "string";
+      case "Enum":
+        for (const member of type.members) {
+          if (member.value && typeof member.value !== "string") {
+            return false;
+          }
+        }
+        return true;
+      case "Union":
+        for (const option of type.options) {
+          if (!isValidServerVariableType(program, option)) {
+            return false;
+          }
+        }
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  function validateValidServerVariable(program: Program, prop: ModelTypeProperty) {
+    const isValid = isValidServerVariableType(program, prop.type);
+
+    if (!isValid) {
+      reportDiagnostic(program, {
+        code: "invalid-server-variable",
+        format: { propName: prop.name },
+        target: prop,
+      });
+    }
+    return isValid;
+  }
+
+  function resolveServers(servers: http.HttpServer[]): OpenAPI3Server[] {
+    return servers.map((server) => {
+      const variables: Record<string, OpenAPI3ServerVariable> = {};
+      for (const [name, prop] of server.parameters) {
+        if (!validateValidServerVariable(program, prop)) {
+          continue;
+        }
+
+        const variable: OpenAPI3ServerVariable = {
+          default: prop.default ? getDefaultValue(prop.default) : "",
+          description: getDoc(program, prop),
+        };
+
+        if (prop.type.kind === "Enum") {
+          variable.enum = getSchemaForEnum(prop.type).enum;
+        } else if (prop.type.kind === "Union") {
+          variable.enum = getSchemaForUnion(prop.type).enum;
+        } else if (prop.type.kind === "String") {
+          variable.enum = [prop.type.value];
+        }
+        variables[name] = variable;
+      }
+      return {
+        url: server.url,
+        description: server.description,
+        variables,
+      };
+    });
   }
 
   async function emitOpenAPI() {
@@ -249,7 +312,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   async function emitOpenAPIFromVersion(serviceNamespace: NamespaceType, version?: string) {
     initializeEmitter(serviceNamespace, version);
     try {
-      getAllRoutes(program).forEach(emitOperation);
+      const [routes] = getAllRoutes(program);
+      for (const operation of routes) {
+        emitOperation(operation);
+      }
       emitReferences();
       emitTags();
 
@@ -433,6 +499,8 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       // For literal types, we just want to emit them directly as well.
       return mapCadlTypeToOpenAPI(type);
     }
+
+    type = getEffectiveSchemaType(type);
     const name = getTypeName(program, type, typeNameOptions);
 
     if (shouldInline(program, type)) {
@@ -456,6 +524,20 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       schemas.add(type);
       return placeholder;
     }
+  }
+
+  /**
+   * If type is an anonymous model, tries to find a named model that has the same
+   * set of properties when non-schema properties are excluded.
+   */
+  function getEffectiveSchemaType(type: Type): Type {
+    if (type.kind === "Model" && !type.name) {
+      const effective = program.checker.getEffectiveModelType(type, isSchemaProperty);
+      if (effective.name) {
+        return effective;
+      }
+    }
+    return type;
   }
 
   function getParamPlaceholder(property: ModelTypeProperty) {
@@ -538,7 +620,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       (p) => p.type === "header" && p.name === "content-type"
     );
     const contentTypes = contentTypeParam
-      ? getContentTypes(program, contentTypeParam.param)
+      ? ignoreDiagnostics(getContentTypes(contentTypeParam.param))
       : ["application/json"];
     for (const contentType of contentTypes) {
       const isBinary = isBinaryPayload(bodyType, contentType);
@@ -615,7 +697,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
   function emitTags() {
     for (const tag of tags) {
-      root.tags.push({ name: tag });
+      root.tags!.push({ name: tag });
     }
   }
 

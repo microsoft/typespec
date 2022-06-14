@@ -253,7 +253,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`Cannot resolve ${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
-      underNamespace: paramMessage`Namespace doesn't have member ${"id"}`,
+      underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
+      underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in non-namespace node ${"nodeName"}`,
     },
   },
@@ -285,6 +286,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Model `is` must specify another model.",
+    },
+  },
+  "is-operation": {
+    severity: "error",
+    messages: {
+      default: "Operation can only reuse the signature of another operation.",
     },
   },
   "spread-model": {
@@ -459,6 +466,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Expected ${"expected"} arguments, but got ${"actual"}.`,
+      between: paramMessage`Expected between ${"min"} and ${"max"} arguments, but got ${"actual"}.`,
     },
   },
   "known-values-invalid-enum": {

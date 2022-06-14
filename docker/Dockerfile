@@ -1,7 +1,7 @@
 # --------------------------------
 #  Build compiler
 # --------------------------------
-FROM node:16-alpine3.12 as builder
+FROM mcr.microsoft.com/mirror/docker/library/node:18-alpine as builder
 
 RUN apk add --no-cache git
 COPY . /app
@@ -18,7 +18,7 @@ RUN npm pack
 # --------------------------------
 #  Setup final image
 # --------------------------------
-FROM node:16-alpine3.12
+FROM mcr.microsoft.com/mirror/docker/library/node:18-alpine
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 

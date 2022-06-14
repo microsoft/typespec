@@ -8,6 +8,7 @@ import {
   DiagnosticMap,
   DiagnosticMessages,
   DiagnosticReport,
+  DiagnosticResult,
   DiagnosticTarget,
   LogSink,
   Node,
@@ -372,4 +373,69 @@ export function reportDeprecated(
     },
     target,
   });
+}
+
+/**
+ * Helper object to collect diagnostics from function following the diagnostics accessor pattern(foo() => [T, Diagnostic[]])
+ */
+export interface DiagnosticCollector {
+  readonly diagnostics: readonly Diagnostic[];
+
+  /**
+   * Add a diagnostic to the collection
+   * @param diagnostic Diagnostic to add.
+   */
+  add(diagnostic: Diagnostic): void;
+
+  /**
+   * Unwrap the Diagnostic result, add all the diagnostics and return the data.
+   * @param result Accessor diagnostic result
+   */
+  pipe<T>(result: DiagnosticResult<T>): T;
+
+  /**
+   * Wrap the given value in a tuple including the diagnostics following the Cadl accessor pattern.
+   * @param value Accessor value to return
+   * @exmaple return diagnostics.wrap(routes);
+   */
+  wrap<T>(value: T): DiagnosticResult<T>;
+}
+
+/**
+ * Create a new instance of the @see DiagnosticCollector.
+ */
+export function createDiagnosticCollector(): DiagnosticCollector {
+  const diagnostics: Diagnostic[] = [];
+
+  return {
+    diagnostics,
+    add,
+    pipe,
+    wrap,
+  };
+
+  function add(diagnostic: Diagnostic) {
+    diagnostics.push(diagnostic);
+  }
+
+  function pipe<T>(result: DiagnosticResult<T>): T {
+    const [value, diags] = result;
+    for (const diag of diags) {
+      diagnostics.push(diag);
+    }
+    return value;
+  }
+
+  function wrap<T>(value: T): DiagnosticResult<T> {
+    return [value, diagnostics];
+  }
+}
+
+/**
+ * Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.
+ * @param result: Accessor pattern tuple result including the actual result and the list of diagnostics.
+ * @returns Actual result.
+ */
+export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
+  return result[0];
 }

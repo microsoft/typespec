@@ -52,13 +52,8 @@ describe("openapi3: definitions", () => {
     ]);
   });
 
-  it("doesn't define anonymous or unconnected models", async () => {
-    const res = await oapiForModel(
-      "{ ... Foo }",
-      `model Foo {
-        x: int32;
-      };`
-    );
+  it("doesn't define anonymous models", async () => {
+    const res = await oapiForModel("{ x: int32 }", "");
 
     ok(!res.isRef);
     strictEqual(Object.keys(res.schemas).length, 0);

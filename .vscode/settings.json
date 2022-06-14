@@ -19,7 +19,7 @@
   },
   "[javascript]": {
     "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
+    "editor.formatOnPaste": false, // work around https://github.com/simonhaenisch/prettier-plugin-organize-imports/issues/53
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
@@ -27,7 +27,7 @@
   },
   "[typescript]": {
     "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
+    "editor.formatOnPaste": false, // work around https://github.com/simonhaenisch/prettier-plugin-organize-imports/issues/53
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "editor.detectIndentation": false,

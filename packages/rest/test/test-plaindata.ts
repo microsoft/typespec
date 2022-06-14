@@ -1,6 +1,6 @@
 import { TestHost } from "@cadl-lang/compiler/testing";
-import { ok } from "assert";
-import { isBody, isHeader, isPathParam, isQueryParam } from "../src/http.js";
+import { ok, strictEqual } from "assert";
+import { isBody, isHeader, isPathParam, isQueryParam } from "../src/http/decorators.js";
 import { createRestTestHost } from "./test-host.js";
 
 describe("rest: plain data", () => {
@@ -38,14 +38,14 @@ describe("rest: plain data", () => {
     const { Before, After, Spread } = await testHost.compile("main.cadl");
     const program = testHost.program;
 
-    ok(Before.kind === "Model", "Model expected");
+    strictEqual(Before.kind, "Model" as const);
     ok(isHeader(program, Before.properties.get("a")!), "header expected");
     ok(isBody(program, Before.properties.get("d")!), "body expected");
     ok(isQueryParam(testHost.program, Before.properties.get("b")!), "query expected");
     ok(isPathParam(testHost.program, Before.properties.get("c")!), "path expected");
 
     for (const model of [After, Spread]) {
-      ok(model.kind === "Model", "Model expected");
+      strictEqual(model.kind, "Model" as const);
       ok(!isHeader(program, model.properties.get("a")!), `header not expected in ${model.name}`);
       ok(!isBody(program, model.properties.get("d")!), `body not expected in ${model.name}`);
       ok(
