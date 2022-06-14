@@ -39,6 +39,20 @@ describe("compiler: imports", () => {
     await testHost.compile("main.cadl");
   });
 
+  it("import relative JS file in parent folder", async () => {
+    testHost.addJsFile("blue.js", { $blue() {} });
+    testHost.addCadlFile(
+      "proj/main.cadl",
+      `
+      import "../blue.js";
+
+      @blue
+      model A  {}
+      `
+    );
+    await testHost.compile("proj/main.cadl");
+  });
+
   it("import directory with main.cadl", async () => {
     testHost.addCadlFile(
       "main.cadl",
