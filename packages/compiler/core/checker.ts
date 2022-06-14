@@ -26,7 +26,7 @@ import {
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
-import { createProjectionMembers } from "./projectionMembers.js";
+import { createProjectionMembers } from "./projection-members.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
