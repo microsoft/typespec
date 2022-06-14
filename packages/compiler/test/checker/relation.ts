@@ -543,4 +543,30 @@ describe.only("compiler: checker: intrinsic", () => {
       );
     });
   });
+
+  describe("Union target", () => {
+    it("can assign same enum", async () => {
+      await expectTypeRelated({ source: "Foo", target: "Foo", commonCode: `enum Foo {a, b, c}` });
+    });
+
+    it("can a memeber of the enum", async () => {
+      await expectTypeRelated({ source: "Foo.a", target: "Foo", commonCode: `enum Foo {a, b, c}` });
+    });
+
+    it("emit diagnostic when assigning member of different enum", async () => {
+      await expectTypeNotRelated(
+        {
+          source: `Bar.a`,
+          target: "Foo",
+          commonCode: `
+            enum Foo {a, b, c};
+            enum Bar {a, b, c}`,
+        },
+        {
+          code: "unassignable",
+          message: "Type 'Bar.a' is not assignable to type 'Foo'",
+        }
+      );
+    });
+  });
 });

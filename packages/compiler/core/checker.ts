@@ -344,7 +344,7 @@ export function createChecker(program: Program): Checker {
     createFunctionType,
     createLiteralType,
     finishType,
-    isTypeRelatedTo,
+    isTypeRelatedTo: isTypeAssignableTo,
     getEffectiveModelType,
     filterModelProperties,
   };
@@ -472,6 +472,8 @@ export function createChecker(program: Program): Checker {
         return getOperationName(type, options);
       case "Enum":
         return getEnumName(type, options);
+      case "EnumMember":
+        return `${getEnumName(type.enum, options)}.${type.name}`;
       case "Union":
         return type.name || type.options.map((x) => getTypeName(x, options)).join(" | ");
       case "UnionVariant":
@@ -3562,10 +3564,10 @@ export function createChecker(program: Program): Checker {
    * @param source Source type
    * @param target Target type
    */
-  function isTypeRelatedTo(source: Type, target: Type): [boolean, Diagnostic[]] {
+  function isTypeAssignableTo(source: Type, target: Type): [boolean, Diagnostic[]] {
     if (source === target) return [true, []];
 
-    const isSimpleTypeRelated = isSimpleTypeRelatedTo(source, target);
+    const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
 
     if (isSimpleTypeRelated === true) {
       return [true, []];
@@ -3590,10 +3592,10 @@ export function createChecker(program: Program): Checker {
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target);
     } else if (target.kind === "Array" && source.kind === "Array") {
-      return isTypeRelatedTo(source.elementType, target.elementType);
+      return isTypeAssignableTo(source.elementType, target.elementType);
     } else if (target.kind === "Array" && source.kind === "Tuple") {
       for (const item of source.values) {
-        const [related, diagnostics] = isTypeRelatedTo(item, target.elementType);
+        const [related, diagnostics] = isTypeAssignableTo(item, target.elementType);
         if (!related) {
           return [false, diagnostics];
         }
@@ -3603,21 +3605,14 @@ export function createChecker(program: Program): Checker {
       return isTupleAssignableToTuple(source, target);
     } else if (target.kind === "Union") {
       return isAssignableToUnion(source, target);
+    } else if (target.kind === "Enum") {
+      return isAssignableToEnum(source, target);
     }
 
-    return [
-      false,
-      [
-        createDiagnostic({
-          code: "unassignable",
-          format: { targetType: getTypeName(target), value: getTypeName(source) },
-          target,
-        }),
-      ],
-    ];
+    return [false, [createUnassignableDiagnostic(source, target)]];
   }
 
-  function isSimpleTypeRelatedTo(source: Type, target: Type): boolean | undefined {
+  function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
     if (isVoidType(target) || isNeverType(target)) return false;
     const sourceIntrinsicName = getIntrinsicModelName(program, source);
     const targetIntrinsicName = getIntrinsicModelName(program, target);
@@ -3626,13 +3621,13 @@ export function createChecker(program: Program): Checker {
       switch (source.kind) {
         case "Number":
           return (
-            IntrinsicTypeRelations.isRelated(targetIntrinsicName, "numeric") &&
+            IntrinsicTypeRelations.isAssignable(targetIntrinsicName, "numeric") &&
             isNumericLiteralRelatedTo(source, targetIntrinsicName as any)
           );
         case "String":
-          return IntrinsicTypeRelations.isRelated("string", targetIntrinsicName);
+          return IntrinsicTypeRelations.isAssignable("string", targetIntrinsicName);
         case "Boolean":
-          return IntrinsicTypeRelations.isRelated("boolean", targetIntrinsicName);
+          return IntrinsicTypeRelations.isAssignable("boolean", targetIntrinsicName);
         case "Model":
           if (!sourceIntrinsicName) {
             if (targetIntrinsicName === "object") {
@@ -3649,7 +3644,7 @@ export function createChecker(program: Program): Checker {
       if (!sourceIntrinsicName) {
         return false;
       }
-      return IntrinsicTypeRelations.isRelated(sourceIntrinsicName, targetIntrinsicName);
+      return IntrinsicTypeRelations.isAssignable(sourceIntrinsicName, targetIntrinsicName);
     }
 
     if (target.kind === "String") {
@@ -3706,7 +3701,7 @@ export function createChecker(program: Program): Checker {
           })
         );
       } else {
-        const [related, propDiagnostics] = isTypeRelatedTo(sourceProperty.type, prop.type);
+        const [related, propDiagnostics] = isTypeAssignableTo(sourceProperty.type, prop.type);
         if (!related) {
           diagnostics.push(...propDiagnostics);
         }
@@ -3728,7 +3723,7 @@ export function createChecker(program: Program): Checker {
    */
   function isIndexConstraintValid(constraintType: Type, type: ModelType): [boolean, Diagnostic[]] {
     for (const prop of type.properties.values()) {
-      const [related, diagnostics] = isTypeRelatedTo(prop.type, constraintType);
+      const [related, diagnostics] = isTypeAssignableTo(prop.type, constraintType);
       if (!related) {
         return [false, diagnostics];
       }
@@ -3763,7 +3758,7 @@ export function createChecker(program: Program): Checker {
     }
     for (const [index, sourceItem] of source.values.entries()) {
       const targetItem = target.values[index];
-      const [related, diagnostics] = isTypeRelatedTo(sourceItem, targetItem);
+      const [related, diagnostics] = isTypeAssignableTo(sourceItem, targetItem);
       if (!related) {
         return [false, diagnostics];
       }
@@ -3773,21 +3768,39 @@ export function createChecker(program: Program): Checker {
 
   function isAssignableToUnion(source: Type, target: UnionType): [boolean, Diagnostic[]] {
     for (const option of target.options) {
-      const [related] = isTypeRelatedTo(source, option);
+      const [related] = isTypeAssignableTo(source, option);
       if (related) {
         return [true, []];
       }
     }
-    return [
-      false,
-      [
-        createDiagnostic({
-          code: "unassignable",
-          format: { targetType: getTypeName(target), value: getTypeName(source) },
-          target,
-        }),
-      ],
-    ];
+    return [false, [createUnassignableDiagnostic(source, target)]];
+  }
+
+  function isAssignableToEnum(source: Type, target: EnumType): [boolean, Diagnostic[]] {
+    switch (source.kind) {
+      case "Enum":
+        if (source === target) {
+          return [true, []];
+        } else {
+          return [false, [createUnassignableDiagnostic(source, target)]];
+        }
+      case "EnumMember":
+        if (source.enum === target) {
+          return [true, []];
+        } else {
+          return [false, [createUnassignableDiagnostic(source, target)]];
+        }
+      default:
+        return [false, [createUnassignableDiagnostic(source, target)]];
+    }
+  }
+
+  function createUnassignableDiagnostic(source: Type, target: Type) {
+    return createDiagnostic({
+      code: "unassignable",
+      format: { targetType: getTypeName(target), value: getTypeName(source) },
+      target,
+    });
   }
 
   function getEffectiveModelType(
@@ -3940,7 +3953,7 @@ class IntrinsicTypeRelationTree<
     }
   }
 
-  public isRelated(source: IntrinsicModelName, target: IntrinsicModelName) {
+  public isAssignable(source: IntrinsicModelName, target: IntrinsicModelName) {
     return this.map.get(source)?.has(target);
   }
 }
