@@ -225,7 +225,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         align: "right",
       },
     ];
-  }, [props.outputFiles]);
+  }, [props.outputFiles, diagnostics, props.internalCompilerError]);
   const handleTabSelection = useCallback((tabId: string) => {
     if (tabId === "type-graph") {
       setViewSelection({ type: "type-graph" });
@@ -266,7 +266,7 @@ const ErrorTabLabel: FunctionComponent<{
   internalCompilerError?: any;
   diagnostics?: readonly Diagnostic[];
 }> = ({ internalCompilerError, diagnostics }) => {
-  const errorCount = (internalCompilerError ? 1 : 0) + (diagnostics ? diagnostics?.length : 0);
+  const errorCount = (internalCompilerError ? 1 : 0) + (diagnostics ? diagnostics.length : 0);
   return (
     <div>Errors {errorCount > 0 ? <span className="error-tab-count">{errorCount}</span> : ""}</div>
   );
