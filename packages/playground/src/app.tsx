@@ -249,7 +249,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     <>
       <OutputTabs
         tabs={tabs}
-        selected={viewSelection.type === "file" ? viewSelection.filename : "type-graph"}
+        selected={viewSelection.type === "file" ? viewSelection.filename : viewSelection.type}
         onSelect={handleTabSelection}
       />
       <div id="output">{content}</div>
