@@ -1,4 +1,4 @@
-import { DiagnosticTarget, getSourceLocation, NoTarget, Program } from "@cadl-lang/compiler";
+import { DiagnosticTarget, getSourceLocation, NoTarget, Program, Diagnostic } from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
@@ -7,6 +7,7 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "re
 import { CompletionItemTag } from "vscode-languageserver";
 import { createBrowserHost } from "./browser-host";
 import { CadlEditor, OutputEditor } from "./components/cadl-editor";
+import { DiagnosticList } from "./components/diagnostic-list";
 import { useMonacoModel } from "./components/editor";
 import { Footer } from "./components/footer";
 import { OutputTabs, Tab } from "./components/output-tabs";
@@ -181,6 +182,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     setViewSelection({ type: "file", filename: path, content: contents.text });
   }
 
+  const { diagnostics } = props.program;
   const tabs: Tab[] = useMemo(() => {
     return [
       ...props.outputFiles.map(
@@ -191,11 +193,18 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         })
       ),
       { id: "type-graph", name: "Type Graph", align: "right" },
+      {
+        id: "errors",
+        name: <ErrorTabLabel diagnostics={diagnostics} />,
+        align: "right",
+      },
     ];
   }, [props.outputFiles]);
   const handleTabSelection = useCallback((tabId: string) => {
     if (tabId === "type-graph") {
       setViewSelection({ type: "type-graph" });
+    } else if (tabId === "errors") {
+      setViewSelection({ type: "errors" });
     } else {
       void loadOutputFile(tabId);
     }
@@ -203,6 +212,8 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
   const content =
     viewSelection.type === "file" ? (
       <OutputEditor value={viewSelection.content} />
+    ) : viewSelection.type === "errors" ? (
+      <DiagnosticList diagnostics={diagnostics} />
     ) : (
       <div className="type-graph-container">
         <CadlProgramViewer program={props.program} />
@@ -220,4 +231,13 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
   );
 };
 
-type ViewSelection = { type: "file"; filename: string; content: string } | { type: "type-graph" };
+type ViewSelection =
+  | { type: "file"; filename: string; content: string }
+  | { type: "type-graph" }
+  | { type: "errors" };
+
+const ErrorTabLabel: FunctionComponent<{ diagnostics: readonly Diagnostic[] }> = ({
+  diagnostics,
+}) => {
+  return <div>Errors {diagnostics.length > 0 ? <span className="error-tab-count">{diagnostics.length}</span> : ""}</div>;
+};
