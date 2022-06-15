@@ -5,10 +5,13 @@ export interface DiagnosticListProps {
   readonly diagnostics: readonly Diagnostic[];
 }
 
-export const DiagnosticList: FunctionComponent<DiagnosticListProps> = (props) => {
+export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({ diagnostics }) => {
+  if (diagnostics.length === 0) {
+    return <div className="center">No errors</div>;
+  }
   return (
     <div>
-      {props.diagnostics.map((x, i) => {
+      {diagnostics.map((x, i) => {
         return <DiagnosticItem key={i} diagnostic={x} />;
       })}
     </div>

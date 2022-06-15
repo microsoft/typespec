@@ -1,4 +1,10 @@
-import { DiagnosticTarget, getSourceLocation, NoTarget, Program, Diagnostic } from "@cadl-lang/compiler";
+import {
+  Diagnostic,
+  DiagnosticTarget,
+  getSourceLocation,
+  NoTarget,
+  Program,
+} from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
@@ -7,8 +13,8 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "re
 import { CompletionItemTag } from "vscode-languageserver";
 import { createBrowserHost } from "./browser-host";
 import { CadlEditor, OutputEditor } from "./components/cadl-editor";
-import { DiagnosticList } from "./components/diagnostic-list";
 import { useMonacoModel } from "./components/editor";
+import { ErrorTab } from "./components/error-tab";
 import { Footer } from "./components/footer";
 import { OutputTabs, Tab } from "./components/output-tabs";
 import { SamplesDropdown } from "./components/samples-dropdown";
@@ -23,6 +29,7 @@ export const App: FunctionComponent = () => {
   const cadlModel = useMonacoModel("inmemory://test/main.cadl", "cadl");
   const [outputFiles, setOutputFiles] = useState<string[]>([]);
   const [program, setProgram] = useState<Program>();
+  const [internalCompilerError, setInternalCompilerError] = useState<any>();
 
   useEffect(() => {
     if (window.location.search.length > 0) {
@@ -79,23 +86,32 @@ export const App: FunctionComponent = () => {
     await host.writeFile("main.cadl", content);
     await emptyOutputDir();
     const { compile } = await importCadlCompiler();
-    const program = await compile("main.cadl", host, {
-      outputPath: "cadl-output",
-      swaggerOutputFile: "cadl-output/openapi.json",
-      emitters: [PlaygroundManifest.defaultEmitter],
-    });
-    setProgram(program);
-    const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
-      ...getMarkerLocation(diag.target),
-      message: diag.message,
-      severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
-      tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
-    }));
+    try {
+      const program = await compile("main.cadl", host, {
+        outputPath: "cadl-output",
+        swaggerOutputFile: "cadl-output/openapi.json",
+        emitters: [PlaygroundManifest.defaultEmitter],
+      });
+      setInternalCompilerError(undefined);
+      setProgram(program);
+      const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
+        ...getMarkerLocation(diag.target),
+        message: diag.message,
+        severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
+        tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
+      }));
 
-    editor.setModelMarkers(cadlModel, "owner", markers ?? []);
+      editor.setModelMarkers(cadlModel, "owner", markers ?? []);
 
-    const outputFiles = await host.readDir("./cadl-output");
-    setOutputFiles(outputFiles);
+      const outputFiles = await host.readDir("./cadl-output");
+      setOutputFiles(outputFiles);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Internal compiler error", error);
+      editor.setModelMarkers(cadlModel, "owner", []);
+      setProgram(undefined);
+      setInternalCompilerError(error);
+    }
   }
 
   function getMarkerLocation(
@@ -148,7 +164,11 @@ export const App: FunctionComponent = () => {
         </div>
       </div>
       <div id="outputContainer">
-        {program && <OutputView program={program} outputFiles={outputFiles} />}
+        <OutputView
+          program={program}
+          outputFiles={outputFiles}
+          internalCompilerError={internalCompilerError}
+        />
       </div>
       <Footer />
     </div>
@@ -157,7 +177,8 @@ export const App: FunctionComponent = () => {
 
 export interface OutputViewProps {
   outputFiles: string[];
-  program: Program;
+  internalCompilerError?: any;
+  program: Program | undefined;
 }
 
 export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
@@ -182,7 +203,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     setViewSelection({ type: "file", filename: path, content: contents.text });
   }
 
-  const { diagnostics } = props.program;
+  const diagnostics = props.program?.diagnostics;
   const tabs: Tab[] = useMemo(() => {
     return [
       ...props.outputFiles.map(
@@ -195,7 +216,12 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
       { id: "type-graph", name: "Type Graph", align: "right" },
       {
         id: "errors",
-        name: <ErrorTabLabel diagnostics={diagnostics} />,
+        name: (
+          <ErrorTabLabel
+            internalCompilerError={props.internalCompilerError}
+            diagnostics={diagnostics}
+          />
+        ),
         align: "right",
       },
     ];
@@ -213,10 +239,10 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     viewSelection.type === "file" ? (
       <OutputEditor value={viewSelection.content} />
     ) : viewSelection.type === "errors" ? (
-      <DiagnosticList diagnostics={diagnostics} />
+      <ErrorTab internalCompilerError={props.internalCompilerError} diagnostics={diagnostics} />
     ) : (
       <div className="type-graph-container">
-        <CadlProgramViewer program={props.program} />
+        {props.program && <CadlProgramViewer program={props.program} />}
       </div>
     );
   return (
@@ -236,8 +262,12 @@ type ViewSelection =
   | { type: "type-graph" }
   | { type: "errors" };
 
-const ErrorTabLabel: FunctionComponent<{ diagnostics: readonly Diagnostic[] }> = ({
-  diagnostics,
-}) => {
-  return <div>Errors {diagnostics.length > 0 ? <span className="error-tab-count">{diagnostics.length}</span> : ""}</div>;
+const ErrorTabLabel: FunctionComponent<{
+  internalCompilerError?: any;
+  diagnostics?: readonly Diagnostic[];
+}> = ({ internalCompilerError, diagnostics }) => {
+  const errorCount = (internalCompilerError ? 1 : 0) + (diagnostics ? diagnostics?.length : 0);
+  return (
+    <div>Errors {errorCount > 0 ? <span className="error-tab-count">{errorCount}</span> : ""}</div>
+  );
 };

@@ -131,3 +131,16 @@ body {
 .diagnostic-item-message {
   padding: 0 5px;
 }
+
+.center {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.internal-server-error {
+  border: 1px solid #cc2222;
+  padding: 10px;
+  margin: 20px;
+}
