@@ -10,7 +10,7 @@ export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({ diagnos
     return <div className="center">No errors</div>;
   }
   return (
-    <div>
+    <div className="diagnostic-list">
       {diagnostics.map((x, i) => {
         return <DiagnosticItem key={i} diagnostic={x} />;
       })}

@@ -25,6 +25,7 @@ body {
   display: flex;
   font-size: 14px;
 }
+
 #grid > .footer.in-pr {
   background-color: #ce662a;
 }
@@ -46,7 +47,6 @@ body {
   padding: 2px 2px;
 }
 
-
 #editorContainer {
   grid-column: 1;
   grid-row: 2;
@@ -63,6 +63,8 @@ body {
   grid-column: 2;
   grid-row: 2;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   border-left: 1px solid #c5c5c5;
 }
 
@@ -114,6 +116,11 @@ body {
   color: #f5f5f5;
   padding: 0 5px;
   border-radius: 20px;
+}
+
+.diagnostic-list {
+  height: 100%;
+  overflow: auto;
 }
 
 .diagnostic-item {
