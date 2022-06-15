@@ -163,7 +163,7 @@ export const App: FunctionComponent = () => {
           <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
         </div>
       </div>
-      <div id="outputContainer">
+      <div className="output-panel">
         <OutputView
           program={program}
           outputFiles={outputFiles}
@@ -252,7 +252,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         selected={viewSelection.type === "file" ? viewSelection.filename : viewSelection.type}
         onSelect={handleTabSelection}
       />
-      <div id="output">{content}</div>
+      <div className="output-content">{content}</div>
     </>
   );
 };

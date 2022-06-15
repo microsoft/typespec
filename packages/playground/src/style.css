@@ -46,29 +46,6 @@ body {
   padding: 2px 2px;
 }
 
-.output-tabs {
-  display: flex;
-}
-
-.output-tabs a {
-  padding: 0 5px;
-  border: 1px solid #ccc;
-  border-top: none;
-  border-bottom: none;
-  margin: 2px;
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.output-tabs a.active {
-  font-weight: bold;
-  background-color: #eee;
-}
-
-.output-tabs .middle-spacer {
-  flex: 1;
-}
 
 #editorContainer {
   grid-column: 1;
@@ -82,16 +59,43 @@ body {
   overflow: hidden;
 }
 
-#outputContainer {
+.output-panel {
   grid-column: 2;
   grid-row: 2;
   overflow: hidden;
+  border-left: 1px solid #c5c5c5;
 }
-#output {
+
+.output-tabs {
+  display: flex;
+  border-bottom: 1px solid #c5c5c5;
+}
+
+.output-tabs a {
+  height: 26px;
+  padding: 0 5px;
+  border-right: 1px solid #ccc;
+  border-top: none;
+  border-bottom: none;
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.output-tabs a.active {
+  font-weight: bold;
+  background-color: #eee;
+}
+
+.output-tabs .middle-spacer {
+  flex: 1;
+  border-right: 1px solid #ccc;
+}
+
+.output-content {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-left: 1px solid #c5c5c5;
 }
 
 .monaco-editor-container {

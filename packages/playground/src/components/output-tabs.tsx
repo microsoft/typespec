@@ -13,7 +13,6 @@ export interface OutputTabsProps {
 
 export const OutputTabs: FunctionComponent<OutputTabsProps> = ({ tabs, selected, onSelect }) => {
   const [leftTabs, rightTabs] = chunk(tabs, (x) => x.align === "left");
-  console.log("Selected", selected);
   return (
     <div className="output-tabs">
       {leftTabs.map((tab) => {
