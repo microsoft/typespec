@@ -687,7 +687,10 @@ export async function createProgram(
       throw err;
     }
 
-    const expected = resolvePath(host.fileURLToPath(import.meta.url), "../index.js");
+    const expected = resolvePath(
+      await host.realpath(host.fileURLToPath(import.meta.url)),
+      "../index.js"
+    );
 
     if (actual !== expected) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
@@ -696,7 +699,7 @@ export async function createProgram(
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir: baseDir, betterCadlServerPath },
+          format: { basedir: baseDir, betterCadlServerPath, actual, expected },
           target: NoTarget,
         })
       );
