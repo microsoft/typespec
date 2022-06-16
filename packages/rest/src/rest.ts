@@ -1,7 +1,10 @@
 import {
   $list,
+  createDecoratorDefinition,
   DecoratorContext,
   ModelType,
+  ModelTypeProperty,
+  NamespaceType,
   OperationType,
   Program,
   Type,
@@ -26,11 +29,23 @@ export function getProduces(program: Program, entity: Type): string[] {
 }
 
 const consumesTypesKey = Symbol("consumesTypes");
-
-export function $consumes(context: DecoratorContext, entity: Type, ...contentTypes: string[]) {
-  if (!validateDecoratorTarget(context, entity, "@consumes", "Namespace")) {
+const consumeDefinition = createDecoratorDefinition({
+  name: "@consumes",
+  target: "Namespace",
+  args: [],
+  spreadArgs: {
+    kind: "String",
+  },
+} as const);
+export function $consumes(
+  context: DecoratorContext,
+  entity: NamespaceType,
+  ...contentTypes: string[]
+) {
+  if (!consumeDefinition.validate(context, entity, contentTypes)) {
     return;
   }
+
   const values = getConsumes(context.program, entity);
   context.program.stateMap(consumesTypesKey).set(entity, values.concat(contentTypes));
 }
@@ -60,7 +75,11 @@ export function getDiscriminator(program: Program, entity: Type): Discriminator 
 }
 
 const segmentsKey = Symbol("segments");
-
+const segmentDecorator = createDecoratorDefinition({
+  name: "@segment",
+  target: ["Model", "ModelProperty", "Operation"],
+  args: [{ kind: "String" }],
+} as const);
 /**
  * `@segment` defines the preceding path segment for a `@path` parameter in auto-generated routes
  *
@@ -69,17 +88,19 @@ const segmentsKey = Symbol("segments");
  *
  * `@segment` can only be applied to model properties, operation parameters, or operations.
  */
-export function $segment(context: DecoratorContext, entity: Type, name: string) {
-  if (
-    !validateDecoratorTarget(context, entity, "@segment", ["Model", "ModelProperty", "Operation"])
-  ) {
+export function $segment(
+  context: DecoratorContext,
+  entity: ModelType | ModelTypeProperty | OperationType,
+  name: string
+) {
+  if (!segmentDecorator.validate(context, entity, [name])) {
     return;
   }
 
   context.program.stateMap(segmentsKey).set(entity, name);
 }
 
-export function $segmentOf(context: DecoratorContext, entity: Type, resourceType: Type) {
+export function $segmentOf(context: DecoratorContext, entity: OperationType, resourceType: Type) {
   if (resourceType.kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
     return;
@@ -183,7 +204,11 @@ export function $readsResource(context: DecoratorContext, entity: Type, resource
   setResourceOperation(context.program, entity, resourceType, "read");
 }
 
-export function $createsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
+export function $createsResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: Type
+) {
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
 
@@ -206,7 +231,11 @@ export function $deletesResource(context: DecoratorContext, entity: Type, resour
   setResourceOperation(context.program, entity, resourceType, "delete");
 }
 
-export function $listsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
+export function $listsResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: Type
+) {
   // Add the @list decorator too so that collection routes are generated correctly
   context.call($list, entity, resourceType);
 
