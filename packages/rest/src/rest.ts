@@ -1,7 +1,9 @@
 import {
   $list,
+  createDecoratorDefinition,
   DecoratorContext,
   ModelType,
+  NamespaceType,
   OperationType,
   Program,
   Type,
@@ -26,11 +28,23 @@ export function getProduces(program: Program, entity: Type): string[] {
 }
 
 const consumesTypesKey = Symbol("consumesTypes");
-
-export function $consumes(context: DecoratorContext, entity: Type, ...contentTypes: string[]) {
-  if (!validateDecoratorTarget(context, entity, "@consumes", "Namespace")) {
+const consumeDefinition = createDecoratorDefinition({
+  name: "@consumes",
+  target: "Namespace",
+  args: [],
+  spreadArgs: {
+    kind: "String",
+  },
+} as const);
+export function $consumes(
+  context: DecoratorContext,
+  entity: NamespaceType,
+  ...contentTypes: string[]
+) {
+  if (!consumeDefinition.validate(context, entity, contentTypes)) {
     return;
   }
+
   const values = getConsumes(context.program, entity);
   context.program.stateMap(consumesTypesKey).set(entity, values.concat(contentTypes));
 }
