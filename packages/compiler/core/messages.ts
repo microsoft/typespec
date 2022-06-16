@@ -383,10 +383,10 @@ const diagnostics = {
       default: "Main file must either be a .cadl file or a .js file.",
     },
   },
-  "library-not-found": {
+  "import-not-found": {
     severity: "error",
     messages: {
-      default: paramMessage`Couldn't find library "${"path"}"`,
+      default: paramMessage`Couldn't resolve import "${"path"}"`,
     },
   },
   "library-invalid": {
