@@ -32,7 +32,7 @@ export function validateDecoratorTarget<K extends Type["kind"]>(
   context: DecoratorContext,
   target: Type,
   decoratorName: string,
-  expectedType: K | K[]
+  expectedType: K | readonly K[]
 ): target is Type & { kind: K } {
   const isCorrectType = isCadlValueTypeOf(target, expectedType);
   if (!isCorrectType) {
@@ -87,7 +87,7 @@ export function validateDecoratorTargetIntrinsic(
  */
 export function isCadlValueTypeOf<K extends Type["kind"]>(
   target: CadlValue,
-  expectedType: K | K[]
+  expectedType: K | readonly K[]
 ): target is InferredCadlValue<K> {
   const kind = getTypeKind(target);
   if (kind === undefined) {
@@ -157,7 +157,7 @@ export interface DecoratorDefinition<
   /**
    * Decorator target.
    */
-  readonly target: T | T[];
+  readonly target: T | readonly T[];
 
   /**
    * List of positional arguments in the function.
@@ -174,7 +174,7 @@ export interface DecoratorParamDefinition<K extends Type["kind"]> {
   /**
    * Kind of the parameter
    */
-  readonly kind: K | K[];
+  readonly kind: K | readonly K[];
 
   /**
    * Is the parameter optional.
