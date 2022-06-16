@@ -93,7 +93,7 @@ export function $segment(
   entity: ModelType | ModelTypeProperty | OperationType,
   name: string
 ) {
-  if (segmentDecorator.validate(context, entity, [name])) {
+  if (!segmentDecorator.validate(context, entity, [name])) {
     return;
   }
 
