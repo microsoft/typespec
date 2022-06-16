@@ -209,8 +209,7 @@ export interface ResourceOperation {
 
 const resourceOperationsKey = Symbol("resourceOperations");
 
-interface ResourceOperationValidator
-  extends DecoratorValidator<"Operation", [{ kind: "Model" }], any> {}
+interface ResourceOperationValidator extends DecoratorValidator<"Operation", [{ kind: "Model" }]> {}
 
 export function setResourceOperation(
   context: DecoratorContext,
