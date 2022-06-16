@@ -693,7 +693,6 @@ export async function createProgram(
     );
 
     if (actual !== expected) {
-      console.error("Exoected", { actual, expected, import: import.meta.url });
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server
       const betterCadlServerPath = resolvePath(actual, "../../../../../.bin/cadl-server");
