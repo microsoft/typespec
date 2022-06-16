@@ -146,40 +146,76 @@ export function validateDecoratorParamType<K extends Type["kind"]>(
 
 export interface DecoratorDefinition<
   T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<any>[]
+  P extends readonly DecoratorParamDefinition<any>[],
+  S extends DecoratorParamDefinition<any>
 > {
+  /**
+   * Name of the decorator.
+   */
   readonly name: string;
+
+  /**
+   * Decorator target.
+   */
   readonly target: T | T[];
+
+  /**
+   * List of positional arguments in the function.
+   */
   readonly args: P;
+
+  /**
+   * @optional Type of the spread args at the end of the function if applicable.
+   */
+  readonly spreadArgs?: S;
 }
 
 export interface DecoratorParamDefinition<K extends Type["kind"]> {
+  /**
+   * Kind of the parameter
+   */
   readonly kind: K | K[];
+
+  /**
+   * Is the parameter optional.
+   */
   readonly optional?: boolean;
 }
 
-type InferParameters<P extends readonly DecoratorParamDefinition<any>[]> = {
+type InferParameters<
+  P extends readonly DecoratorParamDefinition<any>[],
+  S extends DecoratorParamDefinition<any> | undefined
+> = [...InferPosParameters<P>, ...InferSpreadParameter<S>];
+
+type InferSpreadParameter<S extends DecoratorParamDefinition<any> | undefined> =
+  S extends DecoratorParamDefinition<any> ? InferParameter<S>[] : never;
+
+type InferPosParameters<P extends readonly DecoratorParamDefinition<any>[]> = {
   [K in keyof P]: InferParameter<P[K]>;
 };
-type InferParameter<P extends DecoratorParamDefinition<any>> = P["optional"] extends true
-  ? InferredCadlValue<P["kind"]> | undefined
+
+// prettier-ignore
+type InferParameter<P extends DecoratorParamDefinition<any>> =
+    P["optional"] extends true    ? InferredCadlValue<P["kind"]> | undefined
   : InferredCadlValue<P["kind"]>;
 
 export interface DecoratorValidator<
   T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<any>[]
+  P extends readonly DecoratorParamDefinition<any>[],
+  S extends DecoratorParamDefinition<any> | undefined
 > {
   validate(
     context: DecoratorContext,
     target: InferredCadlValue<T>,
-    parameters: InferParameters<P>
+    parameters: InferParameters<P, S>
   ): boolean;
 }
 
 export function createDecoratorDefinition<
   T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<any>[]
->(definition: DecoratorDefinition<T, P>): DecoratorValidator<T, P> {
+  P extends readonly DecoratorParamDefinition<any>[],
+  S extends DecoratorParamDefinition<any>
+>(definition: DecoratorDefinition<T, P, S>): DecoratorValidator<T, P, S> {
   const minParams = definition.args.filter((x) => !x.optional).length;
   const maxParams = definition.args.length;
 
