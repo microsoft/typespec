@@ -5,7 +5,7 @@ import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
-import { createBrowserHost } from "./browserHost";
+import { createBrowserHost } from "./browser-host";
 import { CadlEditor, OutputEditor } from "./components/cadl-editor";
 import { useMonacoModel } from "./components/editor";
 import { Footer } from "./components/footer";

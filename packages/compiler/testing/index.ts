@@ -1,4 +1,3 @@
-export * from "../test/server/test-colorization.js";
 export * from "./expect.js";
 export * from "./test-host.js";
 export * from "./test-server-host.js";

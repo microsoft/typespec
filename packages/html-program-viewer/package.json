@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/html-program-viewer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for emitting an html view of the program.",
   "homepage": "https://github.com/Azure/cadl",
@@ -51,10 +51,10 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.30.0"
+    "@cadl-lang/compiler": "~0.32.0"
   },
   "dependencies": {
-    "prettier": "~2.6.2",
+    "prettier": "~2.7.1",
     "react": "~18.0.0",
     "react-dom": "~18.0.0",
     "react-is": "~18.1.0",
@@ -66,7 +66,7 @@
     "@types/prettier": "2.6.0",
     "@types/react": "~18.0.5",
     "@types/react-dom": "~18.0.1",
-    "@cadl-lang/compiler": "~0.31.0",
+    "@cadl-lang/compiler": "~0.32.0",
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
     "@types/styled-components": "~5.1.25",
     "eslint": "^8.12.0",

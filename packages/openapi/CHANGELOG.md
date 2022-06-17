@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/openapi
 
-This log was last generated on Fri, 06 May 2022 17:19:57 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+
+## 0.10.0
+Mon, 13 Jun 2022 23:42:28 GMT
+
+### Minor changes
+
+- Uptake changes to decorator context
 
 ## 0.9.0
 Fri, 06 May 2022 17:19:57 GMT

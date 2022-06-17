@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add `@collectionAction` decorator for defining collection-level resource actions",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

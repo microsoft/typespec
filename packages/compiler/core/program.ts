@@ -7,7 +7,7 @@ import { createDiagnostic } from "./messages.js";
 import { resolveModule, ResolveModuleHost } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
-import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "./path-utils.js";
+import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import { SchemaValidator } from "./schema-validator.js";
 import {
@@ -457,18 +457,12 @@ export async function createProgram(
     relativeTo: string
   ) {
     let importFilePath: string;
-    if (path.startsWith("./") || path.startsWith("../")) {
-      importFilePath = resolvePath(relativeTo, path);
-    } else if (isPathAbsolute(path)) {
-      importFilePath = resolvePath(path);
+    const libPath = await resolveCadlLibrary(path, relativeTo, target);
+    if (libPath) {
+      importFilePath = libPath;
+      logger.debug(`Loading library "${path}" from "${importFilePath}"`);
     } else {
-      const libPath = await resolveCadlLibrary(path, relativeTo, target);
-      if (libPath) {
-        importFilePath = libPath;
-        logger.debug(`Loading library "${path}" from "${importFilePath}"`);
-      } else {
-        return;
-      }
+      return;
     }
 
     const isDirectory = (await host.stat(importFilePath)).isDirectory();
@@ -556,6 +550,7 @@ export async function createProgram(
     try {
       return await resolveModule(getResolveModuleHost(), specifier, {
         baseDir,
+        directoryIndexFiles: ["main.cadl", "index.mjs", "index.js"],
         resolveMain(pkg) {
           // this lets us follow node resolve semantics more-or-less exactly
           // but using cadlMain instead of main.
@@ -565,7 +560,7 @@ export async function createProgram(
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
         program.reportDiagnostic(
-          createDiagnostic({ code: "library-not-found", format: { path: specifier }, target })
+          createDiagnostic({ code: "import-not-found", format: { path: specifier }, target })
         );
         return undefined;
       } else if (e.code === "INVALID_MAIN") {
@@ -595,7 +590,7 @@ export async function createProgram(
       if (e.code === "MODULE_NOT_FOUND") {
         program.reportDiagnostic(
           createDiagnostic({
-            code: "library-not-found",
+            code: "import-not-found",
             format: { path: specifier },
             target: NoTarget,
           })
@@ -710,8 +705,9 @@ export async function createProgram(
       throw err;
     }
 
-    const expected = await host.realpath(
-      resolvePath(host.fileURLToPath(import.meta.url), "../index.js")
+    const expected = resolvePath(
+      await host.realpath(host.fileURLToPath(import.meta.url)),
+      "../index.js"
     );
 
     if (actual !== expected) {
@@ -721,7 +717,7 @@ export async function createProgram(
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir: baseDir, betterCadlServerPath },
+          format: { basedir: baseDir, betterCadlServerPath, actual, expected },
           target: NoTarget,
         })
       );

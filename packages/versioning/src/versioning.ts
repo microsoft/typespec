@@ -19,6 +19,8 @@ const versionDependencyKey = Symbol("versionDependency");
 const renamedFromKey = Symbol("renamedFrom");
 const madeOptionalKey = Symbol("madeOptional");
 
+export const namespace = "Cadl.Versioning";
+
 function checkIsVersion(
   program: Program,
   enumMember: EnumMemberType,
@@ -34,6 +36,7 @@ function checkIsVersion(
   }
   return version;
 }
+
 export function $added(context: DecoratorContext, t: Type, v: EnumMemberType) {
   const { program } = context;
 
