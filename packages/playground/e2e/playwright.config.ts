@@ -7,6 +7,7 @@ const root = resolve(__dirname, "..");
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
+  timeout: 120 * 1000,
   webServer: {
     command: "npm run watch",
     port: 3000,
