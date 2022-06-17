@@ -33,12 +33,12 @@ async function main() {
       "greedy-arrays": false,
       "boolean-negation": false,
     })
-    .options("debug", {
+    .option("debug", {
       type: "boolean",
       description: "Output debug log messages.",
       default: false,
     })
-    .options("pretty", {
+    .option("pretty", {
       type: "boolean",
       description:
         "Enable color and formatting in Cadl's output to make compiler errors easier to read.",
@@ -54,51 +54,52 @@ async function main() {
             type: "string",
             demandOption: true,
           })
-          .options("output-path", {
+          .option("output-path", {
             type: "string",
             default: "./cadl-output",
             describe:
               "The output path for generated artifacts.  If it does not exist, it will be created.",
           })
-          .options("options", {
+          .option("options", {
             type: "array",
+            alias: "option",
             string: true,
             describe:
               "Key/value pairs that can be used to set emitter options. The format is '<emitterName>.<key>=<value>'. This parameter can be used multiple times to add more options.",
           })
-          .options("nostdlib", {
+          .option("nostdlib", {
             type: "boolean",
             default: false,
             describe: "Don't load the Cadl standard library.",
           })
-          .options("import", {
+          .option("import", {
             type: "array",
             string: true,
             describe:
               "Additional imports to include.  This parameter can be used multiple times to add more imports.",
           })
-          .options("watch", {
+          .option("watch", {
             type: "boolean",
             default: false,
             describe: "Watch project files for changes and recompile.",
           })
-          .options("emit", {
+          .option("emit", {
             type: "array",
             string: true,
             describe: "Name of the emitters",
           })
-          .options("diagnostic-level", {
+          .option("diagnostic-level", {
             type: "string",
             default: "info",
             choices: ["error", "warn", "info", "verbose", "debug"],
             describe: "Diagnostics of this level or above will be reported.",
           })
-          .options("warn-as-error", {
+          .option("warn-as-error", {
             type: "boolean",
             default: false,
             describe: "Treat warnings as errors and return non-zero exit code if there are any.",
           })
-          .options("no-emit", {
+          .option("no-emit", {
             type: "boolean",
             default: false,
             describe: "Run emitters but do not emit any output.",
@@ -122,7 +123,7 @@ async function main() {
     .command("code", "Manage VS Code Extension.", (cmd) => {
       return cmd
         .demandCommand(1, "No command specified.")
-        .options("insiders", {
+        .option("insiders", {
           type: "boolean",
           description: "Use VS Code Insiders",
           default: false,
@@ -167,13 +168,13 @@ async function main() {
             array: true,
             demandOption: true,
           })
-          .options("exclude", {
+          .option("exclude", {
             alias: "x",
             type: "string",
             array: true,
             describe: "Pattern to exclude",
           })
-          .options("check", {
+          .option("check", {
             alias: "c",
             type: "boolean",
             describe: "Verify the files are formatted.",
