@@ -354,6 +354,7 @@ async function getCompilerOptions(
     }
   }
 
+  const cliOptions = resolveOptions(args);
   return {
     outputPath,
     nostdlib: args["nostdlib"],
@@ -362,23 +363,32 @@ async function getCompilerOptions(
     diagnosticLevel: args.debug ? "debug" : (args["diagnostic-level"] as any),
     warningAsError: args["warn-as-error"],
     noEmit: args["no-emit"],
-    emitters: resolveEmitters(config, args),
+    miscOptions: cliOptions.miscOptions,
+    emitters: resolveEmitters(config, cliOptions, args),
   };
 }
 
-function resolveOptions(args: CompileCliArgs): Record<string, Record<string, unknown>> {
+function resolveOptions(
+  args: CompileCliArgs
+): Record<string | "miscOptions", Record<string, unknown>> {
   const options: Record<string, Record<string, string>> = {};
   for (const option of args.options ?? []) {
     const optionParts = option.split("=");
     if (optionParts.length != 2) {
       throw new Error(
-        `The --options parameter value "${option}" must be in the format: <emitterName>.some-options=value`
+        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
       );
     }
     const optionKeyParts = optionParts[0].split(".");
-    if (optionKeyParts.length != 2) {
+    if (optionKeyParts.length === 1) {
+      const key = optionKeyParts[0];
+      if (!("miscOptions" in options)) {
+        options.miscOptions = {};
+      }
+      options.miscOptions[key] = optionParts[1];
+    } else if (optionKeyParts.length > 2) {
       throw new Error(
-        `The --options parameter value "${option}" must be in the format: <emitterName>.some-options=value`
+        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
       );
     }
     const emitterName = optionKeyParts[0];
@@ -393,9 +403,9 @@ function resolveOptions(args: CompileCliArgs): Record<string, Record<string, unk
 
 function resolveEmitters(
   config: CadlConfig,
+  options: Record<string | "miscOptions", Record<string, unknown>>,
   args: CompileCliArgs
 ): Record<string, Record<string, unknown> | boolean> {
-  const options = resolveOptions(args);
   const emitters = resovleSelectedEmittersFromConfig(config, args.emit);
 
   const configuredEmitters: Record<string, Record<string, unknown> | boolean> = {};
