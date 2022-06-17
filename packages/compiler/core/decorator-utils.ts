@@ -224,7 +224,7 @@ export function createDecoratorDefinition<
   S extends DecoratorParamDefinition<Type["kind"]> | undefined
 >(definition: DecoratorDefinition<T, P, S>): DecoratorValidator<T, P, S> {
   const minParams = definition.args.filter((x) => !x.optional).length;
-  const maxParams = definition.args.length;
+  const maxParams = definition.spreadArgs ? undefined : definition.args.length;
 
   function validate(context: DecoratorContext, target: Type, args: CadlValue[]) {
     if (
@@ -235,7 +235,7 @@ export function createDecoratorDefinition<
     }
 
     for (const [index, arg] of args.entries()) {
-      const paramDefinition = definition.args[index];
+      const paramDefinition = definition.args[index] ?? definition.spreadArgs;
       if (arg === undefined) {
         if (!paramDefinition.optional) {
           reportDiagnostic(context.program, {
@@ -280,7 +280,7 @@ function expectedTypeList(expectedType: Type["kind"] | Type["kind"][]) {
 export function validateDecoratorParamCount(
   context: DecoratorContext,
   min: number,
-  max: number,
+  max: number | undefined,
   parameters: unknown[]
 ): boolean {
   let missing = 0;
@@ -292,7 +292,7 @@ export function validateDecoratorParamCount(
     }
   }
   const parameterCount = parameters.length - missing;
-  if (parameterCount < min || parameterCount > max) {
+  if (parameterCount < min || (max !== undefined && parameterCount > max)) {
     if (min === max) {
       reportDiagnostic(context.program, {
         code: "invalid-argument-count",
@@ -309,7 +309,7 @@ export function validateDecoratorParamCount(
         format: {
           actual: parameterCount.toString(),
           min: min.toString(),
-          max: max.toString(),
+          max: max === undefined ? "infinity" : max.toString(),
         },
         target: context.decoratorTarget,
       });
