@@ -1,8 +1,8 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, ReactElement } from "react";
 
 export interface Tab {
   id: string;
-  name: string;
+  name: string | ReactElement<any, any>;
   align: "left" | "right";
 }
 export interface OutputTabsProps {
