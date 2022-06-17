@@ -186,7 +186,9 @@ export interface DecoratorParamDefinition<K extends Type["kind"]> {
 type InferParameters<
   P extends readonly DecoratorParamDefinition<Type["kind"]>[],
   S extends DecoratorParamDefinition<Type["kind"]> | undefined
-> = [...InferPosParameters<P>, ...InferSpreadParameter<S>];
+> = S extends undefined
+  ? InferPosParameters<P>
+  : [...InferPosParameters<P>, ...InferSpreadParameter<S>];
 
 type InferSpreadParameter<S extends DecoratorParamDefinition<Type["kind"]> | undefined> =
   S extends DecoratorParamDefinition<Type["kind"]> ? InferParameter<S>[] : never;
@@ -207,7 +209,7 @@ type InferParameterKind<P extends Type["kind"] | readonly Type["kind"][]> =
 export interface DecoratorValidator<
   T extends Type["kind"],
   P extends readonly DecoratorParamDefinition<Type["kind"]>[],
-  S extends DecoratorParamDefinition<Type["kind"]> | undefined
+  S extends DecoratorParamDefinition<Type["kind"]> | undefined = undefined
 > {
   validate(
     context: DecoratorContext,
