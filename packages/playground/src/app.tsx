@@ -89,8 +89,7 @@ export const App: FunctionComponent = () => {
     try {
       const program = await compile("main.cadl", host, {
         outputPath: "cadl-output",
-        swaggerOutputFile: "cadl-output/openapi.json",
-        emitters: [PlaygroundManifest.defaultEmitter],
+        emitters: { [PlaygroundManifest.defaultEmitter]: {} },
       });
       setInternalCompilerError(undefined);
       setProgram(program);

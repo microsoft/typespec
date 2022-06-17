@@ -76,9 +76,17 @@ import {
   OpenAPI3ServerVariable,
 } from "./types.js";
 
+const defaultOptions = {
+  outputFile: "openapi.json",
+};
+
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
+  const resolvedOptions = { ...defaultOptions, ...emitterOptions };
   const options: OpenAPIEmitterOptions = {
-    outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
+    outputFile: resolvePath(
+      p.compilerOptions.outputPath ?? "./cadl-output",
+      resolvedOptions.outputFile
+    ),
   };
 
   const emitter = createOAPIEmitter(p, options);

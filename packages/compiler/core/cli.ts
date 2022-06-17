@@ -8,7 +8,7 @@ import { resolve } from "path";
 import prompts from "prompts";
 import url from "url";
 import yargs from "yargs";
-import { loadCadlConfigForPath } from "../config/index.js";
+import { CadlConfig, loadCadlConfigForPath } from "../config/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
@@ -60,11 +60,12 @@ async function main() {
             describe:
               "The output path for generated artifacts.  If it does not exist, it will be created.",
           })
-          .option("option", {
+          .option("options", {
             type: "array",
+            alias: "option",
             string: true,
             describe:
-              "Key/value pairs that can be passed to Cadl components.  The format is 'key=value'.  This parameter can be used multiple times to add more options.",
+              "Key/value pairs that can be used to set emitter options. The format is '<emitterName>.<key>=<value>'. This parameter can be used multiple times to add more options.",
           })
           .option("nostdlib", {
             type: "boolean",
@@ -324,7 +325,7 @@ function createCLICompilerHost(args: { pretty?: boolean }): CompilerHost {
 interface CompileCliArgs {
   "output-path": string;
   nostdlib?: boolean;
-  option?: string[];
+  options?: string[];
   import?: string[];
   watch?: boolean;
   emit?: string[];
@@ -343,17 +344,6 @@ async function getCompilerOptions(
   const outputPath = resolvePath(process.cwd(), pathArg);
   await mkdirp(outputPath);
 
-  const miscOptions: any = {};
-  for (const option of args.option || []) {
-    const optionParts = option.split("=");
-    if (optionParts.length != 2) {
-      throw new Error(
-        `The --option parameter value "${option}" must be in the format: some-option=value`
-      );
-    }
-    miscOptions[optionParts[0]] = optionParts[1];
-  }
-
   const config = await loadCadlConfigForPath(host, process.cwd());
 
   if (config.diagnostics.length > 0) {
@@ -364,18 +354,90 @@ async function getCompilerOptions(
     }
   }
 
+  const cliOptions = resolveOptions(args);
   return {
-    miscOptions,
     outputPath,
-    swaggerOutputFile: resolvePath(args["output-path"], "openapi.json"),
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
     watchForChanges: args["watch"],
     diagnosticLevel: args.debug ? "debug" : (args["diagnostic-level"] as any),
     warningAsError: args["warn-as-error"],
     noEmit: args["no-emit"],
-    emitters: args.emit ?? (config.emitters ? Object.keys(config.emitters) : []),
+    miscOptions: cliOptions.miscOptions,
+    emitters: resolveEmitters(config, cliOptions, args),
   };
+}
+
+function resolveOptions(
+  args: CompileCliArgs
+): Record<string | "miscOptions", Record<string, unknown>> {
+  const options: Record<string, Record<string, string>> = {};
+  for (const option of args.options ?? []) {
+    const optionParts = option.split("=");
+    if (optionParts.length != 2) {
+      throw new Error(
+        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
+      );
+    }
+    const optionKeyParts = optionParts[0].split(".");
+    if (optionKeyParts.length === 1) {
+      const key = optionKeyParts[0];
+      if (!("miscOptions" in options)) {
+        options.miscOptions = {};
+      }
+      options.miscOptions[key] = optionParts[1];
+    } else if (optionKeyParts.length > 2) {
+      throw new Error(
+        `The --option parameter value "${option}" must be in the format: <emitterName>.some-options=value`
+      );
+    }
+    const emitterName = optionKeyParts[0];
+    const key = optionKeyParts[1];
+    if (!(emitterName in options)) {
+      options[emitterName] = {};
+    }
+    options[emitterName][key] = optionParts[1];
+  }
+  return options;
+}
+
+function resolveEmitters(
+  config: CadlConfig,
+  options: Record<string | "miscOptions", Record<string, unknown>>,
+  args: CompileCliArgs
+): Record<string, Record<string, unknown> | boolean> {
+  const emitters = resovleSelectedEmittersFromConfig(config, args.emit);
+
+  const configuredEmitters: Record<string, Record<string, unknown> | boolean> = {};
+
+  for (const [emitterName, emitterConfig] of Object.entries(emitters)) {
+    const cliOptionOverride = options[emitterName];
+
+    if (cliOptionOverride) {
+      configuredEmitters[emitterName] = {
+        ...(emitterConfig === true ? {} : emitterConfig),
+        ...cliOptionOverride,
+      };
+    } else {
+      configuredEmitters[emitterName] = emitterConfig;
+    }
+  }
+
+  return configuredEmitters;
+}
+
+function resovleSelectedEmittersFromConfig(
+  config: CadlConfig,
+  selectedEmitters: string[] | undefined
+): Record<string, Record<string, unknown> | boolean> {
+  if (selectedEmitters) {
+    const emitters: Record<string, Record<string, unknown> | boolean> = {};
+    for (const emitter of selectedEmitters) {
+      emitters[emitter] = config.emitters[emitter] ?? true;
+    }
+    return emitters;
+  }
+  return config.emitters;
 }
 
 async function installVsix(pkg: string, install: (vsixPaths: string[]) => void, debug: boolean) {
@@ -595,7 +657,8 @@ async function printInfo(host: CompilerHost) {
   const config = await loadCadlConfigForPath(host, cwd);
   const jsyaml = await import("js-yaml");
   const excluded = ["diagnostics", "filename"];
-  const replacer = (key: string, value: any) => (excluded.includes(key) ? undefined : value);
+  const replacer = (emitter: string, value: any) =>
+    excluded.includes(emitter) ? undefined : value;
 
   console.log(`User Config: ${config.filename ?? "No config file found"}`);
   console.log("-----------");
