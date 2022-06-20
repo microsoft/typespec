@@ -7,14 +7,14 @@ test("compiled http sample", async ({ page }) => {
   await page.goto(host);
   const samplesDropDown = page.locator("select.sample-dropdown");
   await samplesDropDown.selectOption({ label: "Http" });
-  const outputContainer = page.locator("#output");
+  const outputContainer = page.locator(".output-content");
   await expect(outputContainer).toContainText(`"title": "Widget Service"`);
 });
 
 test("shared link works", async ({ page }) => {
   // Pass code "op sharedCode(): string;"
   await page.goto(`${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7`);
-  const outputContainer = page.locator("#output");
+  const outputContainer = page.locator(".output-content");
   await expect(outputContainer).toContainText(`"operationId": "sharedCode"`);
 });
 

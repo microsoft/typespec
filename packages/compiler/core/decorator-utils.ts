@@ -15,7 +15,8 @@ export type CadlValue = Type | string | number | boolean;
 
 // prettier-ignore
 export type InferredCadlValue<K extends Type["kind"]> = 
-  K extends "String" ? string 
+  K extends (infer T extends Type["kind"])[] ? InferredCadlValue<T>
+  : K extends "String" ? string 
   : K extends "Number" ? number 
   : K extends "Boolean" ? boolean 
   : Type & { kind: K };
@@ -32,7 +33,7 @@ export function validateDecoratorTarget<K extends Type["kind"]>(
   context: DecoratorContext,
   target: Type,
   decoratorName: string,
-  expectedType: K | K[]
+  expectedType: K | readonly K[]
 ): target is Type & { kind: K } {
   const isCorrectType = isCadlValueTypeOf(target, expectedType);
   if (!isCorrectType) {
@@ -87,7 +88,7 @@ export function validateDecoratorTargetIntrinsic(
  */
 export function isCadlValueTypeOf<K extends Type["kind"]>(
   target: CadlValue,
-  expectedType: K | K[]
+  expectedType: K | readonly K[]
 ): target is InferredCadlValue<K> {
   const kind = getTypeKind(target);
   if (kind === undefined) {
@@ -146,8 +147,8 @@ export function validateDecoratorParamType<K extends Type["kind"]>(
 
 export interface DecoratorDefinition<
   T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<any>[],
-  S extends DecoratorParamDefinition<any>
+  P extends readonly DecoratorParamDefinition<Type["kind"]>[],
+  S extends DecoratorParamDefinition<Type["kind"]> | undefined = undefined
 > {
   /**
    * Name of the decorator.
@@ -157,7 +158,7 @@ export interface DecoratorDefinition<
   /**
    * Decorator target.
    */
-  readonly target: T | T[];
+  readonly target: T | readonly T[];
 
   /**
    * List of positional arguments in the function.
@@ -174,7 +175,7 @@ export interface DecoratorParamDefinition<K extends Type["kind"]> {
   /**
    * Kind of the parameter
    */
-  readonly kind: K | K[];
+  readonly kind: K | readonly K[];
 
   /**
    * Is the parameter optional.
@@ -183,26 +184,32 @@ export interface DecoratorParamDefinition<K extends Type["kind"]> {
 }
 
 type InferParameters<
-  P extends readonly DecoratorParamDefinition<any>[],
-  S extends DecoratorParamDefinition<any> | undefined
-> = [...InferPosParameters<P>, ...InferSpreadParameter<S>];
+  P extends readonly DecoratorParamDefinition<Type["kind"]>[],
+  S extends DecoratorParamDefinition<Type["kind"]> | undefined
+> = S extends undefined
+  ? InferPosParameters<P>
+  : [...InferPosParameters<P>, ...InferSpreadParameter<S>];
 
-type InferSpreadParameter<S extends DecoratorParamDefinition<any> | undefined> =
-  S extends DecoratorParamDefinition<any> ? InferParameter<S>[] : never;
+type InferSpreadParameter<S extends DecoratorParamDefinition<Type["kind"]> | undefined> =
+  S extends DecoratorParamDefinition<Type["kind"]> ? InferParameter<S>[] : never;
 
-type InferPosParameters<P extends readonly DecoratorParamDefinition<any>[]> = {
+type InferPosParameters<P extends readonly DecoratorParamDefinition<Type["kind"]>[]> = {
   [K in keyof P]: InferParameter<P[K]>;
 };
 
+type InferParameter<P extends DecoratorParamDefinition<Type["kind"]>> = P["optional"] extends true
+  ? InferParameterKind<P["kind"]> | undefined
+  : InferParameterKind<P["kind"]>;
+
 // prettier-ignore
-type InferParameter<P extends DecoratorParamDefinition<any>> =
-    P["optional"] extends true    ? InferredCadlValue<P["kind"]> | undefined
-  : InferredCadlValue<P["kind"]>;
+type InferParameterKind<P extends Type["kind"] | readonly Type["kind"][]> =
+  P extends readonly (infer T extends Type["kind"])[] ? InferredCadlValue<T> 
+  : P extends Type["kind"] ? InferredCadlValue<P> : never
 
 export interface DecoratorValidator<
   T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<any>[],
-  S extends DecoratorParamDefinition<any> | undefined
+  P extends readonly DecoratorParamDefinition<Type["kind"]>[],
+  S extends DecoratorParamDefinition<Type["kind"]> | undefined = undefined
 > {
   validate(
     context: DecoratorContext,
@@ -213,11 +220,11 @@ export interface DecoratorValidator<
 
 export function createDecoratorDefinition<
   T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<any>[],
-  S extends DecoratorParamDefinition<any>
+  P extends readonly DecoratorParamDefinition<Type["kind"]>[],
+  S extends DecoratorParamDefinition<Type["kind"]> | undefined
 >(definition: DecoratorDefinition<T, P, S>): DecoratorValidator<T, P, S> {
   const minParams = definition.args.filter((x) => !x.optional).length;
-  const maxParams = definition.args.length;
+  const maxParams = definition.spreadArgs ? undefined : definition.args.length;
 
   function validate(context: DecoratorContext, target: Type, args: CadlValue[]) {
     if (
@@ -228,7 +235,7 @@ export function createDecoratorDefinition<
     }
 
     for (const [index, arg] of args.entries()) {
-      const paramDefinition = definition.args[index];
+      const paramDefinition = definition.args[index] ?? definition.spreadArgs;
       if (arg === undefined) {
         if (!paramDefinition.optional) {
           reportDiagnostic(context.program, {
@@ -236,7 +243,7 @@ export function createDecoratorDefinition<
             format: {
               value: "undefined",
               actual: "undefined",
-              expected: expectedTypeList(paramDefinition.kind),
+              expected: expectedTypeList(paramDefinition.kind as any),
             },
             target: context.getArgumentTarget(index)!,
           });
@@ -248,7 +255,7 @@ export function createDecoratorDefinition<
           format: {
             value: prettyValue(context.program, arg),
             actual: getTypeKind(arg)!,
-            expected: expectedTypeList(paramDefinition.kind),
+            expected: expectedTypeList(paramDefinition.kind as any),
           },
           target: context.getArgumentTarget(index)!,
         });
@@ -273,7 +280,7 @@ function expectedTypeList(expectedType: Type["kind"] | Type["kind"][]) {
 export function validateDecoratorParamCount(
   context: DecoratorContext,
   min: number,
-  max: number,
+  max: number | undefined,
   parameters: unknown[]
 ): boolean {
   let missing = 0;
@@ -285,7 +292,7 @@ export function validateDecoratorParamCount(
     }
   }
   const parameterCount = parameters.length - missing;
-  if (parameterCount < min || parameterCount > max) {
+  if (parameterCount < min || (max !== undefined && parameterCount > max)) {
     if (min === max) {
       reportDiagnostic(context.program, {
         code: "invalid-argument-count",
@@ -302,7 +309,7 @@ export function validateDecoratorParamCount(
         format: {
           actual: parameterCount.toString(),
           min: min.toString(),
-          max: max.toString(),
+          max: max === undefined ? "infinity" : max.toString(),
         },
         target: context.decoratorTarget,
       });
