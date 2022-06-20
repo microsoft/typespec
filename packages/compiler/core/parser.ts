@@ -16,6 +16,7 @@ import {
 import {
   AliasStatementNode,
   AnyKeywordNode,
+  ArrayExpressionNode,
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
@@ -698,7 +699,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOptionalModelIs() {
     if (parseOptional(Token.IsKeyword)) {
-      return parseReferenceExpression();
+      return parseArrayOrReferenceExpression();
     }
     return;
   }
@@ -881,6 +882,23 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseArrayExpressionOrHigher(): Expression {
     const pos = tokenPos();
     let expr = parsePrimaryExpression();
+
+    while (parseOptional(Token.OpenBracket)) {
+      parseExpected(Token.CloseBracket);
+
+      expr = {
+        kind: SyntaxKind.ArrayExpression,
+        elementType: expr,
+        ...finishNode(pos),
+      };
+    }
+
+    return expr;
+  }
+
+  function parseArrayOrReferenceExpression(): ArrayExpressionNode | TypeReferenceNode {
+    const pos = tokenPos();
+    let expr: ArrayExpressionNode | TypeReferenceNode = parseReferenceExpression();
 
     while (parseOptional(Token.OpenBracket)) {
       parseExpected(Token.CloseBracket);

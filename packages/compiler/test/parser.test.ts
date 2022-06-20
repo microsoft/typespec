@@ -93,6 +93,8 @@ describe("compiler: syntax", () => {
       "model Car { ... A.B, ... C<D> }",
 
       "model Car is Vehicle { }",
+
+      "model Names is string[] { }",
     ]);
 
     parseErrorEach([

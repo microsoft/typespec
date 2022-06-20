@@ -761,7 +761,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly kind: SyntaxKind.ModelStatement;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
   readonly extends?: TypeReferenceNode;
-  readonly is?: TypeReferenceNode;
+  readonly is?: TypeReferenceNode | ArrayExpressionNode;
   readonly decorators: DecoratorExpressionNode[];
 }
 

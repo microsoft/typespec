@@ -31,8 +31,8 @@ export function shouldInline(program: Program, type: Type): boolean {
       return (
         !type.name ||
         hasTemplateArguments(type) ||
-        isArrayModelType(program, type) ||
-        isRecordModelType(program, type)
+        program.checker.isStdType(type, "Array") ||
+        program.checker.isStdType(type, "Record")
       );
     case "Enum":
     case "Union":

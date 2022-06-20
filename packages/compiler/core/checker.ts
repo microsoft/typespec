@@ -152,7 +152,20 @@ export interface Checker {
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
   ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
 
+  /**
+   * Check if the source type can be assigned to the target type.
+   * @param source Source type, should be assignable to the target.
+   * @param target Target type
+   * @returns [related, list of diagnostics]
+   */
   isTypeAssignableTo(source: Type, target: Type): [boolean, Diagnostic[]];
+
+  /**
+   * Check if the given type is one of the built-in standard Cadl Types.
+   * @param type Type to check
+   * @param stdType If provided check is that standard type
+   */
+  isStdType(type: Type, stdType?: IntrinsicModelName | "Array" | "Record"): boolean;
 
   /**
    * Applies a filter to the properties of a given type. If no properties
@@ -253,7 +266,10 @@ export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
-  let arrayType: ModelType;
+  const stdTypes: {
+    record: ModelType;
+    array: ModelType;
+  } = {} as any;
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
   const typePrototype: TypePrototype = {
@@ -351,6 +367,7 @@ export function createChecker(program: Program): Checker {
     createLiteralType,
     finishType,
     isTypeAssignableTo,
+    isStdType,
     getEffectiveModelType,
     filterModelProperties,
   };
@@ -1048,10 +1065,10 @@ export function createChecker(program: Program): Checker {
   function checkArrayExpression(node: ArrayExpressionNode): ModelType {
     const type = getTypeForNode(node.elementType);
     compilerAssert(
-      arrayType,
+      stdTypes.array,
       "Cadl built-in array type should have been initalized before using array syntax."
     );
-    return instantiateTemplate(arrayType.node as any, [type]) as ModelType;
+    return instantiateTemplate(stdTypes.array.node as any, [type]) as ModelType;
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
@@ -1876,7 +1893,9 @@ export function createChecker(program: Program): Checker {
 
     const indexer = getIndexer(program, type);
     if (type.name === "Array" && isInCadlNamespace(type)) {
-      arrayType = type;
+      stdTypes.array = type;
+    } else if (type.name === "Record" && isInCadlNamespace(type)) {
+      stdTypes.record = type;
     }
     if (indexer) {
       type.indexer = indexer;
@@ -2096,26 +2115,32 @@ export function createChecker(program: Program): Checker {
 
   function checkModelIs(
     model: ModelStatementNode,
-    isExpr: TypeReferenceNode | undefined
+    isExpr: TypeReferenceNode | ArrayExpressionNode | undefined
   ): ModelType | undefined {
     if (!isExpr) return undefined;
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
-    const target = resolveTypeReference(isExpr);
-    if (target === undefined) {
-      return undefined;
-    }
-    if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
-      if (!isInstantiatingTemplateType()) {
-        reportDiagnostic(program, {
-          code: "circular-base-type",
-          format: { typeName: (target.declarations[0] as any).id.sv },
-          target: target,
-        });
+    let isType;
+    if (isExpr.kind === SyntaxKind.ArrayExpression) {
+      isType = checkArrayExpression(isExpr);
+    } else {
+      const target = resolveTypeReference(isExpr);
+      if (target === undefined) {
+        return undefined;
       }
-      return undefined;
+      if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
+        if (!isInstantiatingTemplateType()) {
+          reportDiagnostic(program, {
+            code: "circular-base-type",
+            format: { typeName: (target.declarations[0] as any).id.sv },
+            target: target,
+          });
+        }
+        return undefined;
+      }
+      isType = checkTypeReferenceSymbol(target, isExpr);
     }
-    const isType = checkTypeReferenceSymbol(target, isExpr);
+
     pendingResolutions.delete(modelSymId);
 
     if (isType.kind !== "Model") {
@@ -3759,6 +3784,14 @@ export function createChecker(program: Program): Checker {
       format: { targetType: getTypeName(target), value: getTypeName(source) },
       target,
     });
+  }
+
+  function isStdType(type: Type, stdType?: IntrinsicModelName | "Array"): boolean {
+    if (type.kind !== "Model") return false;
+    const intrinsicModelName = getIntrinsicModelName(program, type);
+    if (intrinsicModelName) return stdType === undefined || stdType === intrinsicModelName;
+    if (stdType === "Array" && type === stdTypes.array) return true;
+    return false;
   }
 
   function getEffectiveModelType(
