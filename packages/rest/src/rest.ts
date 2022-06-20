@@ -1,19 +1,34 @@
 import {
   $list,
+  createDecoratorDefinition,
   DecoratorContext,
+  DecoratorValidator,
   ModelType,
+  ModelTypeProperty,
+  NamespaceType,
   OperationType,
   Program,
   Type,
-  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./diagnostics.js";
 import { getResourceTypeKey } from "./resource.js";
 
 const producesTypesKey = Symbol("producesTypes");
 
-export function $produces(context: DecoratorContext, entity: Type, ...contentTypes: string[]) {
-  if (!validateDecoratorTarget(context, entity, "@produces", "Namespace")) {
+const producesDecorator = createDecoratorDefinition({
+  name: "@produces",
+  target: "Namespace",
+  args: [],
+  spreadArgs: {
+    kind: "String",
+  },
+} as const);
+
+export function $produces(
+  context: DecoratorContext,
+  entity: NamespaceType,
+  ...contentTypes: string[]
+) {
+  if (!producesDecorator.validate(context, entity, contentTypes)) {
     return;
   }
 
@@ -26,11 +41,23 @@ export function getProduces(program: Program, entity: Type): string[] {
 }
 
 const consumesTypesKey = Symbol("consumesTypes");
-
-export function $consumes(context: DecoratorContext, entity: Type, ...contentTypes: string[]) {
-  if (!validateDecoratorTarget(context, entity, "@consumes", "Namespace")) {
+const consumeDefinition = createDecoratorDefinition({
+  name: "@consumes",
+  target: "Namespace",
+  args: [],
+  spreadArgs: {
+    kind: "String",
+  },
+} as const);
+export function $consumes(
+  context: DecoratorContext,
+  entity: NamespaceType,
+  ...contentTypes: string[]
+) {
+  if (!consumeDefinition.validate(context, entity, contentTypes)) {
     return;
   }
+
   const values = getConsumes(context.program, entity);
   context.program.stateMap(consumesTypesKey).set(entity, values.concat(contentTypes));
 }
@@ -44,10 +71,18 @@ export interface Discriminator {
 }
 
 const discriminatorKey = Symbol("discriminator");
-export function $discriminator(context: DecoratorContext, entity: Type, propertyName: string) {
-  if (!validateDecoratorTarget(context, entity, "@discriminator", "Model")) {
+
+const discriminatorDecorator = createDecoratorDefinition({
+  name: "@discriminator",
+  target: "Model",
+  args: [{ kind: "String" }],
+} as const);
+
+export function $discriminator(context: DecoratorContext, entity: ModelType, propertyName: string) {
+  if (!discriminatorDecorator.validate(context, entity, [propertyName])) {
     return;
   }
+
   context.program.stateMap(discriminatorKey).set(entity, propertyName);
 }
 
@@ -59,6 +94,12 @@ export function getDiscriminator(program: Program, entity: Type): Discriminator 
   return undefined;
 }
 
+const segmentDecorator = createDecoratorDefinition({
+  name: "@segment",
+  target: ["Model", "ModelProperty", "Operation"],
+  args: [{ kind: "String" }],
+} as const);
+
 const segmentsKey = Symbol("segments");
 
 /**
@@ -69,38 +110,50 @@ const segmentsKey = Symbol("segments");
  *
  * `@segment` can only be applied to model properties, operation parameters, or operations.
  */
-export function $segment(context: DecoratorContext, entity: Type, name: string) {
-  if (
-    !validateDecoratorTarget(context, entity, "@segment", ["Model", "ModelProperty", "Operation"])
-  ) {
+export function $segment(
+  context: DecoratorContext,
+  entity: ModelType | ModelTypeProperty | OperationType,
+  name: string
+) {
+  if (!segmentDecorator.validate(context, entity, [name])) {
     return;
   }
 
   context.program.stateMap(segmentsKey).set(entity, name);
 }
 
-export function $segmentOf(context: DecoratorContext, entity: Type, resourceType: Type) {
-  if (resourceType.kind === "TemplateParameter") {
+function getResourceSegment(program: Program, resourceType: ModelType): string | undefined {
+  // Add path segment for resource type key (if it has one)
+  const resourceKey = getResourceTypeKey(program, resourceType);
+  return resourceKey
+    ? getSegment(program, resourceKey.keyProperty)
+    : getSegment(program, resourceType);
+}
+
+const segmentOfDecorator = createDecoratorDefinition({
+  name: "@segmentOf",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $segmentOf(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType
+) {
+  if ((resourceType.kind as any) === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
     return;
   }
-  if (!validateDecoratorTarget(context, resourceType, "@segmentOf", "Model")) {
+
+  if (!segmentOfDecorator.validate(context, entity, [resourceType])) {
     return;
   }
 
   // Add path segment for resource type key (if it has one)
-  const resourceKey = getResourceTypeKey(context.program, resourceType);
-  if (resourceKey) {
-    const keySegment = getSegment(context.program, resourceKey.keyProperty);
-    if (keySegment) {
-      context.call($segment, entity, keySegment);
-    }
-  } else {
-    // Does the model itself have a segment attached?
-    const modelSegment = getSegment(context.program, resourceType);
-    if (modelSegment) {
-      context.call($segment, entity, modelSegment);
-    }
+  const segment = getResourceSegment(context.program, resourceType);
+  if (segment) {
+    context.call($segment, entity, segment);
   }
 }
 
@@ -109,6 +162,12 @@ export function getSegment(program: Program, entity: Type): string | undefined {
 }
 
 const segmentSeparatorsKey = Symbol("segmentSeparators");
+
+const segmentSeparatorDecorator = createDecoratorDefinition({
+  name: "@segmentSeparator",
+  target: ["Model", "ModelProperty", "Operation"],
+  args: [{ kind: "String" }],
+} as const);
 
 /**
  * `@segmentSeparator` defines the separator string that is inserted between the target's
@@ -119,10 +178,12 @@ const segmentSeparatorsKey = Symbol("segmentSeparators");
  *
  * `@segmentSeparator` can only be applied to model properties, operation parameters, or operations.
  */
-export function $segmentSeparator(context: DecoratorContext, entity: Type, separator: string) {
-  if (
-    !validateDecoratorTarget(context, entity, "@segment", ["Model", "ModelProperty", "Operation"])
-  ) {
+export function $segmentSeparator(
+  context: DecoratorContext,
+  entity: ModelType | ModelTypeProperty | OperationType,
+  separator: string
+) {
+  if (!segmentSeparatorDecorator.validate(context, entity, [separator])) {
     return;
   }
 
@@ -148,28 +209,28 @@ export interface ResourceOperation {
 
 const resourceOperationsKey = Symbol("resourceOperations");
 
+interface ResourceOperationValidator extends DecoratorValidator<"Operation", [{ kind: "Model" }]> {}
+
 export function setResourceOperation(
-  program: Program,
-  entity: Type,
-  resourceType: Type,
-  operation: ResourceOperations
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType,
+  operation: ResourceOperations,
+  decorator: ResourceOperationValidator
 ) {
-  if (resourceType.kind !== "Model" && resourceType.kind !== "TemplateParameter") {
-    reportDiagnostic(program, {
-      code: "operation-resource-wrong-type",
-      format: { operation, kind: resourceType.kind },
-      target: entity,
-    });
+  if ((resourceType as any).kind === "TemplateParameter") {
+    // Skip it, this operation is in a templated interface
     return;
   }
 
-  // Only register operations when applied to real model types
-  if (resourceType.kind === "Model") {
-    program.stateMap(resourceOperationsKey).set(entity, {
-      operation,
-      resourceType,
-    });
+  if (!decorator.validate(context, entity, [resourceType])) {
+    return;
   }
+
+  context.program.stateMap(resourceOperationsKey).set(entity, {
+    operation,
+    resourceType,
+  });
 }
 
 export function getResourceOperation(
@@ -179,55 +240,127 @@ export function getResourceOperation(
   return program.stateMap(resourceOperationsKey).get(cadlOperation);
 }
 
-export function $readsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
-  setResourceOperation(context.program, entity, resourceType, "read");
+const readsResourceDecorator = createDecoratorDefinition({
+  name: "@readsResource",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $readsResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType
+) {
+  setResourceOperation(context, entity, resourceType, "read", readsResourceDecorator);
 }
 
-export function $createsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
+const createsResourceDecorator = createDecoratorDefinition({
+  name: "@createsResource",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $createsResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType
+) {
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
 
-  setResourceOperation(context.program, entity, resourceType, "create");
+  setResourceOperation(context, entity, resourceType, "create", createsResourceDecorator);
 }
+
+const createsOrUpdatesResourceDecorator = createDecoratorDefinition({
+  name: "@createsOrUpdatesResource",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
 
 export function $createsOrUpdatesResource(
   context: DecoratorContext,
-  entity: Type,
-  resourceType: Type
+  entity: OperationType,
+  resourceType: ModelType
 ) {
-  setResourceOperation(context.program, entity, resourceType, "createOrUpdate");
+  setResourceOperation(
+    context,
+    entity,
+    resourceType,
+    "createOrUpdate",
+    createsOrUpdatesResourceDecorator
+  );
 }
 
-export function $updatesResource(context: DecoratorContext, entity: Type, resourceType: Type) {
-  setResourceOperation(context.program, entity, resourceType, "update");
+const updatesResourceDecorator = createDecoratorDefinition({
+  name: "@updatesResource",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $updatesResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType
+) {
+  setResourceOperation(context, entity, resourceType, "update", updatesResourceDecorator);
 }
 
-export function $deletesResource(context: DecoratorContext, entity: Type, resourceType: Type) {
-  setResourceOperation(context.program, entity, resourceType, "delete");
+const deletesResourceDecorator = createDecoratorDefinition({
+  name: "@deletesResource",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $deletesResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType
+) {
+  setResourceOperation(context, entity, resourceType, "delete", deletesResourceDecorator);
 }
 
-export function $listsResource(context: DecoratorContext, entity: Type, resourceType: Type) {
+const listsResourceDecorator = createDecoratorDefinition({
+  name: "@listsResource",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $listsResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType
+) {
   // Add the @list decorator too so that collection routes are generated correctly
   context.call($list, entity, resourceType);
 
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
 
-  setResourceOperation(context.program, entity, resourceType, "list");
+  setResourceOperation(context, entity, resourceType, "list", listsResourceDecorator);
 }
 
 function lowerCaseFirstChar(str: string): string {
   return str[0].toLocaleLowerCase() + str.substring(1);
 }
 
+function makeActionName(op: OperationType, name: string | undefined): string {
+  return lowerCaseFirstChar(name || op.name);
+}
+
+const actionDecorator = createDecoratorDefinition({
+  name: "@action",
+  target: "Operation",
+  args: [{ kind: "String", optional: true }],
+} as const);
+
 const actionsKey = Symbol("actions");
-export function $action(context: DecoratorContext, entity: Type, name?: string) {
-  if (!validateDecoratorTarget(context, entity, "@action", "Operation")) {
+export function $action(context: DecoratorContext, entity: OperationType, name?: string) {
+  if (!actionDecorator.validate(context, entity, [name])) {
     return;
   }
 
   // Generate the action name and add it as an operation path segment
-  const action = lowerCaseFirstChar(name || entity.name);
+  const action = makeActionName(entity, name);
   context.call($segment, entity, action);
 
   context.program.stateMap(actionsKey).set(entity, action);
@@ -235,4 +368,46 @@ export function $action(context: DecoratorContext, entity: Type, name?: string) 
 
 export function getAction(program: Program, operation: OperationType): string | null | undefined {
   return program.stateMap(actionsKey).get(operation);
+}
+
+const collectionActionsKey = Symbol("collectionActions");
+
+const collectionActionDecorator = createDecoratorDefinition({
+  name: "@collectionAction",
+  target: "Operation",
+  args: [{ kind: "Model" }, { kind: "String", optional: true }],
+} as const);
+
+export function $collectionAction(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType,
+  name?: string
+) {
+  if ((resourceType as Type).kind === "TemplateParameter") {
+    // Skip it, this operation is in a templated interface
+    return;
+  }
+
+  if (!collectionActionDecorator.validate(context, entity, [resourceType, name])) {
+    return;
+  }
+
+  // Generate the segment for the collection combined with the action's name
+  const segment = getResourceSegment(context.program, resourceType);
+  const segmentSeparator = getSegmentSeparator(context.program, entity) ?? "/";
+  const action = `${segment}${segmentSeparator}${makeActionName(entity, name)}`;
+  context.call($segment, entity, action);
+
+  // Replace the previous segment separator with slash so that it doesn't get repeated
+  context.call($segmentSeparator, entity, "/");
+
+  context.program.stateMap(collectionActionsKey).set(entity, action);
+}
+
+export function getCollectionAction(
+  program: Program,
+  operation: OperationType
+): string | null | undefined {
+  return program.stateMap(collectionActionsKey).get(operation);
 }
