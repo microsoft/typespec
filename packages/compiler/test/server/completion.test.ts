@@ -103,6 +103,36 @@ describe("compiler: server: completion", () => {
     );
   });
 
+  it("complete import for relative path excludes node_modules", async () => {
+    const completions = await complete(` import "./┆ `, undefined, {
+      "test/node_modules/test.cadl": "",
+      "test/main/node_modules/test.cadl": "",
+      "test/node_modules/foo/test.cadl": "",
+    });
+    check(
+      completions,
+      [
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("complete import for relative path excludes the file evaluated", async () => {
+    const completions = await complete(` import "./┆ `, undefined, {
+      "test/test.cadl": "",
+    });
+    check(
+      completions,
+      [
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
   it("doesn't include imports when there is no project package.json", async () => {
     const completions = await complete(` import "┆ `);
 

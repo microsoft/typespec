@@ -1,3 +1,5 @@
+import { dirname } from "path";
+import { getFileInfo } from "prettier";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CompletionItem,
@@ -44,6 +46,7 @@ import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
   getAnyExtensionFromPath,
+  getBaseFileName,
   getDirectoryPath,
   joinPaths,
   resolvePath,
@@ -638,11 +641,18 @@ export function createServer(host: ServerHost): Server {
     node: StringLiteralNode
   ) {
     const documentPath = getPath(document);
+    const documentFile = getBaseFileName(documentPath);
     const documentDir = getDirectoryPath(documentPath);
+    if (documentDir.indexOf('node_modules') !== -1){
+      return;
+    }
     const nodevalueDir = getDirectoryPath(node.value);
     const maincadl = resolvePath(documentDir, nodevalueDir);
-    const listFiles = await program.host.readDir(maincadl);
+    const listFiles = (await program.host.readDir(maincadl)).filter(x => x !== documentFile);
     for (const file of listFiles) {
+      if (file === "node_modules"){
+        break;
+      }
       const extention = getAnyExtensionFromPath(file);
       switch (extention) {
         case ".cadl":
