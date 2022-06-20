@@ -35,7 +35,7 @@ describe("compiler: server: completion", () => {
 
   it("completes imports", async () => {
     const completions = await complete(` import "┆ `, undefined, {
-      "package.json": JSON.stringify({
+      "test/package.json": JSON.stringify({
         dependencies: {
           "@cadl-lang/library1": "~0.1.0",
           noncadllibrary: "~0.1.0",
@@ -44,25 +44,57 @@ describe("compiler: server: completion", () => {
           "@cadl-lang/library2": "~0.1.0",
         },
       }),
-      "node_modules/@cadl-lang/library1/package.json": JSON.stringify({
+      "test/node_modules/@cadl-lang/library1/package.json": JSON.stringify({
         cadlMain: "./foo.js",
       }),
-      "node_modules/noncadllibrary/package.json": JSON.stringify({}),
-      "node_modules/@cadl-lang/library2/package.json": JSON.stringify({
+      "test/node_modules/noncadllibrary/package.json": JSON.stringify({}),
+      "test/node_modules/@cadl-lang/library2/package.json": JSON.stringify({
         cadlMain: "./foo.js",
       }),
     });
-
     check(
       completions,
       [
         {
           label: "@cadl-lang/library1",
+          commitCharacters: [],
           kind: CompletionItemKind.Module,
         },
         {
           label: "@cadl-lang/library2",
+          commitCharacters: [],
           kind: CompletionItemKind.Module,
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("complete import for relative path", async () => {
+    const completions = await complete(` import "./┆ `, undefined, {
+      "test/bar.cadl": "",
+      "test/foo.cadl": "",
+      "test/foo/test.cadl": "",
+    });
+    check(
+      completions,
+      [
+        {
+          label: "bar.cadl",
+          commitCharacters: [],
+          kind: CompletionItemKind.File,
+        },
+        {
+          label: "foo.cadl",
+          commitCharacters: [],
+          kind: CompletionItemKind.File,
+        },
+        {
+          label: "foo",
+          commitCharacters: [],
+          kind: CompletionItemKind.Folder,
         },
       ],
       {
@@ -81,7 +113,7 @@ describe("compiler: server: completion", () => {
 
   it("completes imports without any dependencies", async () => {
     const completions = await complete(` import "┆ `, undefined, {
-      "package.json": JSON.stringify({}),
+      "test/package.json": JSON.stringify({}),
     });
 
     check(completions, [], {
@@ -96,7 +128,6 @@ describe("compiler: server: completion", () => {
       namespace N {}
       `
     );
-
     check(completions, [
       {
         label: "doc",
@@ -439,7 +470,7 @@ describe("compiler: server: completion", () => {
 
   it("completes qualified decorators", async () => {
     const js = {
-      name: "decorators.js",
+      name: "test/decorators.js",
       js: {
         namespace: "Outer",
         $innerDecorator: function () {},
@@ -594,7 +625,8 @@ describe("compiler: server: completion", () => {
         testHost.addCadlFile(key, value);
       }
     }
-    const textDocument = testHost.addOrUpdateDocument("test.cadl", source);
+    testHost.addCadlFile("main.cadl", 'import "./test/test.cadl";');
+    const textDocument = testHost.addOrUpdateDocument("test/test.cadl", source);
     return await testHost.server.complete({
       textDocument,
       position: textDocument.positionAt(pos),
