@@ -14,7 +14,6 @@ import {
   isVoidType,
   JsSourceFileNode,
   NeverType,
-  NumericLiteralFlags,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
@@ -3407,16 +3406,11 @@ export function createChecker(program: Program): Checker {
         type = createType({
           kind: "Number",
           value,
-          numericFlags: getNumericFlags(value, node as NumericLiteralNode),
         });
         break;
     }
     program.literalTypes.set(value, type);
     return type;
-  }
-
-  function getNumericFlags(value: number, node?: NumericLiteralNode) {
-    return Number.isInteger(value) ? NumericLiteralFlags.Integer : NumericLiteralFlags.Real;
   }
 
   function evalProjectionDecoratorReference(
@@ -3675,13 +3669,12 @@ export function createChecker(program: Program): Checker {
       | "real"
   ) {
     if (targetInstrinsicType === "numeric") return true;
-    if (targetInstrinsicType === "integer")
-      return Boolean(source.numericFlags & NumericLiteralFlags.Integer);
-    if (targetInstrinsicType === "real")
-      return Boolean(source.numericFlags & NumericLiteralFlags.Numeric);
+    const isInt = Number.isInteger(source.value);
+    if (targetInstrinsicType === "integer") return isInt;
+    if (targetInstrinsicType === "real") return true;
 
-    const [low, high, flags] = numericRanges[targetInstrinsicType];
-    return source.value >= low && source.value <= high && Boolean(source.numericFlags & flags);
+    const [low, high, options] = numericRanges[targetInstrinsicType];
+    return source.value >= low && source.value <= high && (!options.int || isInt);
   }
 
   function isModelRelatedTo(source: ModelType, target: ModelType): [boolean, Diagnostic[]] {
@@ -3915,22 +3908,25 @@ function createUsingSymbol(symbolSource: Sym): Sym {
   return { flags: SymbolFlags.Using, declarations: [], name: symbolSource.name, symbolSource };
 }
 
+enum NumericLiteralFlags {
+  Integer = 1 << 0,
+  Real = 1 << 1,
+
+  Numeric = Integer | Real,
+}
+
 const numericRanges = {
-  int64: [
-    BigInt("-9223372036854775807"),
-    BigInt("9223372036854775808"),
-    NumericLiteralFlags.Integer,
-  ],
-  int32: [-2147483648, 2147483647, NumericLiteralFlags.Integer],
-  int16: [-32768, 32767, NumericLiteralFlags.Integer],
-  int8: [-128, 127, NumericLiteralFlags.Integer],
-  uint64: [0, BigInt("18446744073709551615"), NumericLiteralFlags.Integer],
-  uint32: [0, 4294967295, NumericLiteralFlags.Integer],
-  uint16: [0, 65535, NumericLiteralFlags.Integer],
-  uint8: [0, 255, NumericLiteralFlags.Integer],
-  safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, NumericLiteralFlags.Integer],
-  float32: [-3.4e38, 3.4e38, NumericLiteralFlags.Numeric],
-  float64: [Number.MIN_VALUE, Number.MAX_VALUE, NumericLiteralFlags.Numeric],
+  int64: [BigInt("-9223372036854775807"), BigInt("9223372036854775808"), { int: true }],
+  int32: [-2147483648, 2147483647, { int: true }],
+  int16: [-32768, 32767, { int: true }],
+  int8: [-128, 127, { int: true }],
+  uint64: [0, BigInt("18446744073709551615"), { int: true }],
+  uint32: [0, 4294967295, { int: true }],
+  uint16: [0, 65535, { int: true }],
+  uint8: [0, 255, { int: true }],
+  safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, { int: true }],
+  float32: [-3.4e38, 3.4e38, { int: false }],
+  float64: [Number.MIN_VALUE, Number.MAX_VALUE, { int: false }],
 } as const;
 
 class IntrinsicTypeRelationTree<

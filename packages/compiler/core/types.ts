@@ -258,17 +258,10 @@ export interface StringLiteralType extends BaseType {
   value: string;
 }
 
-export enum NumericLiteralFlags {
-  Integer = 1 << 0,
-  Real = 1 << 1,
-
-  Numeric = Integer | Real,
-}
 export interface NumericLiteralType extends BaseType {
   kind: "Number";
   node?: NumericLiteralNode;
   value: number;
-  numericFlags: NumericLiteralFlags;
 }
 
 export interface BooleanLiteralType extends BaseType {
