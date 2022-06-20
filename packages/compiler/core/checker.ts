@@ -33,7 +33,6 @@ import { createProjectionMembers } from "./projection-members.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
-  ArrayType,
   BooleanLiteralNode,
   BooleanLiteralType,
   CadlScriptNode,
@@ -254,6 +253,7 @@ export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
+  let arrayType: ModelType;
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
   const typePrototype: TypePrototype = {
@@ -486,8 +486,6 @@ export function createChecker(program: Program): Checker {
         return type.name || type.options.map((x) => getTypeName(x, options)).join(" | ");
       case "UnionVariant":
         return getTypeName(type.type, options);
-      case "Array":
-        return getTypeName(type.elementType, options) + "[]";
       case "Tuple":
         return "[" + type.values.map((x) => getTypeName(x, options)).join(", ") + "]";
       case "String":
@@ -540,11 +538,33 @@ export function createChecker(program: Program): Checker {
     return node.symbol!.id!;
   }
 
+  /**
+   * Check if the given namespace is the standard library `Cadl` namespace.
+   */
+  function isCadlNamespace(
+    namespace: NamespaceType
+  ): namespace is NamespaceType & { name: "Cadl"; namespace: NamespaceType } {
+    return namespace.name === "Cadl" && namespace.namespace === globalNamespaceType;
+  }
+
+  /**
+   * Check if the given type is defined right in the Cadl namespace.
+   */
+  function isInCadlNamespace(type: Type & { namespace?: NamespaceType }): boolean {
+    return Boolean(type.namespace && isCadlNamespace(type.namespace));
+  }
+
   function getModelName(model: ModelType, options: TypeNameOptions | undefined) {
     const nsName = getNamespaceString(model.namespace, options);
     if (model.name === "" && model.properties.size === 0) {
       return "{}";
     }
+    if (model.indexer && model.indexer.key.kind === "Model") {
+      if (model.name === "Array" && isInCadlNamespace(model)) {
+        return `${getTypeName(model.indexer.value!, options)}[]`;
+      }
+    }
+
     const modelName = (nsName ? nsName + "." : "") + (model.name || "(anonymous model)");
     if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
@@ -1025,12 +1045,13 @@ export function createChecker(program: Program): Checker {
     return indexer1Key === indexer2Key || indexer1Key === undefined || indexer2Key === undefined;
   }
 
-  function checkArrayExpression(node: ArrayExpressionNode): ArrayType {
-    return createAndFinishType({
-      kind: "Array",
-      node,
-      elementType: getTypeForNode(node.elementType),
-    });
+  function checkArrayExpression(node: ArrayExpressionNode): ModelType {
+    const type = getTypeForNode(node.elementType);
+    compilerAssert(
+      arrayType,
+      "Cadl built-in array type should have been initalized before using array syntax."
+    );
+    return instantiateTemplate(arrayType.node as any, [type]) as ModelType;
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
@@ -1854,6 +1875,9 @@ export function createChecker(program: Program): Checker {
     }
 
     const indexer = getIndexer(program, type);
+    if (type.name === "Array" && isInCadlNamespace(type)) {
+      arrayType = type;
+    }
     if (indexer) {
       type.indexer = indexer;
     } else {
@@ -3521,11 +3545,9 @@ export function createChecker(program: Program): Checker {
       return isIndexerValid(source, target as ModelType & { indexer: ModelIndexer });
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target);
-    } else if (target.kind === "Array" && source.kind === "Array") {
-      return isTypeAssignableTo(source.elementType, target.elementType);
-    } else if (target.kind === "Array" && source.kind === "Tuple") {
+    } else if (target.kind === "Model" && target.indexer && source.kind === "Tuple") {
       for (const item of source.values) {
-        const [related, diagnostics] = isTypeAssignableTo(item, target.elementType);
+        const [related, diagnostics] = isTypeAssignableTo(item, target.indexer.value!);
         if (!related) {
           return [false, diagnostics];
         }

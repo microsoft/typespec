@@ -44,7 +44,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {},
-                  "x-cadl-name": "(anonymous model)"
+                  "x-cadl-name": "{}"
                 }
               }
             }
@@ -84,7 +84,7 @@
             "items": {
               "$ref": "#/components/schemas/Library.PetToy"
             },
-            "x-cadl-name": "Library.PetToy[]"
+            "x-cadl-name": "Array<Library.PetToy>"
           }
         },
         "discriminator": {
@@ -131,10 +131,14 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "material": {
+            "type": "string"
           }
         },
         "required": [
-          "name"
+          "name",
+          "material"
         ]
       }
     }

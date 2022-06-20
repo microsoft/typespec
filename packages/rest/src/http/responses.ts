@@ -4,6 +4,7 @@ import {
   DiagnosticCollector,
   getDoc,
   getIntrinsicModelName,
+  isArrayModelType,
   isErrorModel,
   isIntrinsic,
   isVoidType,
@@ -91,7 +92,7 @@ function processResponseType(
   // if it is a primitive type or it contains more than just response metadata
   if (!bodyModel) {
     if (responseModel.kind === "Model") {
-      if (isIntrinsic(program, responseModel)) {
+      if (isIntrinsic(program, responseModel) || isArrayModelType(program, responseModel)) {
         bodyModel = responseModel;
       } else {
         const isResponseMetadata = (p: ModelTypeProperty) =>
@@ -273,6 +274,9 @@ function getResponseBody(
   responseModel: Type
 ): Type | undefined {
   if (responseModel.kind === "Model") {
+    if (isArrayModelType(program, responseModel)) {
+      return undefined;
+    }
     const getAllBodyProps = (m: ModelType): ModelTypeProperty[] => {
       const bodyProps = [...m.properties.values()].filter((t) => isBody(program, t));
       if (m.baseModel) {

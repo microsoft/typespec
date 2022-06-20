@@ -7,6 +7,7 @@ import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
   AnyType,
+  ArrayModelType,
   DecoratorContext,
   EnumMemberType,
   EnumType,
@@ -123,7 +124,7 @@ export function isIntrinsic(program: Program, target: Type | undefined): boolean
   return program.stateMap(intrinsicsKey).has(target);
 }
 
-const indexTypeKey = Symbol("indexType");
+const indexTypeKey = Symbol("index");
 export function $indexer(context: DecoratorContext, target: Type, key: ModelType, value: Type) {
   const indexer: ModelIndexer = { key, value };
   context.program.stateMap(indexTypeKey).set(target, indexer);
@@ -162,6 +163,22 @@ export function isNeverType(type: Type): type is NeverType {
 
 export function isAnyType(type: Type): type is AnyType {
   return type.kind === "Intrinsic" && type.name === "any";
+}
+
+/**
+ * Check if a model is an array type.
+ * @param type Model type
+ */
+export function isArrayModelType(program: Program, type: ModelType): type is ArrayModelType {
+  return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "integer");
+}
+
+/**
+ * Check if a model is an array type.
+ * @param type Model type
+ */
+export function isRecordModelType(program: Program, type: ModelType): type is ArrayModelType {
+  return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "string");
 }
 
 const numericTypesKey = Symbol("numeric");

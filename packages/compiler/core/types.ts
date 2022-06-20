@@ -55,7 +55,6 @@ export type Type =
   | StringLiteralType
   | NumericLiteralType
   | BooleanLiteralType
-  | ArrayType
   | TupleType
   | UnionType
   | UnionTypeVariant
@@ -160,6 +159,14 @@ export type ModelIndexer =
       value: Type;
     }
   | { key: NeverType; value: undefined };
+
+export interface ArrayModelType extends ModelType {
+  indexer: { key: ModelType; value: Type };
+}
+
+export interface RecordModelType extends ModelType {
+  indexer: { key: ModelType; value: Type };
+}
 
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
@@ -277,12 +284,6 @@ export interface BooleanLiteralType extends BaseType {
   kind: "Boolean";
   node?: BooleanLiteralNode;
   value: boolean;
-}
-
-export interface ArrayType extends BaseType {
-  kind: "Array";
-  node: ArrayExpressionNode;
-  elementType: Type;
 }
 
 export interface TupleType extends BaseType {

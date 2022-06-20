@@ -2,7 +2,6 @@ import { isNeverType } from "../lib/decorators.js";
 import { compilerAssert } from "./diagnostics.js";
 import { Program } from "./program";
 import {
-  ArrayType,
   DecoratorApplication,
   DecoratorArgument,
   EnumMemberType,
@@ -113,9 +112,6 @@ export function createProjector(
         break;
       case "UnionVariant":
         projected = projectUnionVariant(type);
-        break;
-      case "Array":
-        projected = projectArray(type);
         break;
       case "Tuple":
         projected = projectTuple(type);
@@ -382,17 +378,6 @@ export function createProjector(
 
     checker.finishType(projectedVariant);
     return projectedVariant;
-  }
-
-  function projectArray(array: ArrayType) {
-    const projectedType = projectType(array.elementType);
-
-    const projectedArray = shallowClone(array, {
-      elementType: projectedType,
-    });
-
-    checker.finishType(projectedArray);
-    return projectedArray;
   }
 
   function projectTuple(tuple: TupleType) {

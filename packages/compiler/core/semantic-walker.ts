@@ -1,6 +1,5 @@
 import { Program } from "./program.js";
 import {
-  ArrayType,
   EnumType,
   InterfaceType,
   ModelType,
@@ -88,6 +87,7 @@ function navigateOperationType(
   navigateType(operation.returnType, eventEmitter, visited);
 }
 
+// TODO-TIM navigate indexer
 function navigateModelType(
   model: ModelType,
   eventEmitter: EventEmitter<SemanticNodeListener>,
@@ -131,18 +131,6 @@ function navigateInterfaceType(
   for (const op of type.operations.values()) {
     navigateType(op, eventEmitter, visited);
   }
-}
-
-function navigateArrayType(
-  array: ArrayType,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, array)) {
-    return;
-  }
-  eventEmitter.emit("array", array);
-  navigateType(array.elementType, eventEmitter, visited);
 }
 
 function navigateEnumType(
@@ -222,8 +210,6 @@ function navigateType(
       return navigateNamespaceType(type, eventEmitter, visited);
     case "Interface":
       return navigateInterfaceType(type, eventEmitter, visited);
-    case "Array":
-      return navigateArrayType(type, eventEmitter, visited);
     case "Enum":
       return navigateEnumType(type, eventEmitter, visited);
     case "Operation":

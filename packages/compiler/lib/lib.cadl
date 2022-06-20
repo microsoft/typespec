@@ -2,6 +2,9 @@ namespace Cadl;
 
 model object {}
 
+@indexer(integer, T)
+model Array<T> {}
+
 @indexer(string, T)
 model Record<T> {}
 

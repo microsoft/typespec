@@ -1,5 +1,7 @@
 import {
   getFriendlyName as getAssignedFriendlyName,
+  isArrayModelType,
+  isRecordModelType,
   ModelType,
   ModelTypeProperty,
   Program,
@@ -26,7 +28,12 @@ export function shouldInline(program: Program, type: Type): boolean {
 
   switch (type.kind) {
     case "Model":
-      return !type.name || hasTemplateArguments(type);
+      return (
+        !type.name ||
+        hasTemplateArguments(type) ||
+        isArrayModelType(program, type) ||
+        isRecordModelType(program, type)
+      );
     case "Enum":
     case "Union":
       return !type.name;
@@ -122,6 +129,8 @@ function hasDefaultFriendlyName(
   return (
     type.kind === "Model" &&
     !!type.name &&
+    !isArrayModelType(program, type) &&
+    !isRecordModelType(program, type) &&
     hasTemplateArguments(type) &&
     !type.templateArguments.some((arg) => hasTemplateArguments(arg) || shouldInline(program, arg))
   );
