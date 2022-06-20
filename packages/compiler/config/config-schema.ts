@@ -14,7 +14,7 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
       nullable: true,
       required: [],
       additionalProperties: {
-        type: "boolean",
+        oneOf: [{ type: "boolean" }, { type: "object" }],
       },
     },
   },

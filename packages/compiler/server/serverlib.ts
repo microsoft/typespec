@@ -347,7 +347,7 @@ export function createServer(host: ServerHost): Server {
 
     const options = {
       ...serverOptions,
-      emitters: config.emitters ? Object.keys(config.emitters) : [],
+      emitters: config.emitters,
     };
 
     if (!upToDate(document)) {

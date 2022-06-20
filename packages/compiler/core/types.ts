@@ -1,3 +1,4 @@
+import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { Program } from "./program";
 
 /**
@@ -1327,7 +1328,7 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
  */
 export interface CadlLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
-  E extends string = string
+  E extends Record<string, any> = Record<string, never>
 > {
   /**
    * Name of the library. Must match the package.json name.
@@ -1343,18 +1344,20 @@ export interface CadlLibraryDef<
    * Provide names for emitters if there is multiple.
    */
   readonly emitter?: {
-    names?: readonly E[];
+    options?: JSONSchemaType<E>;
   };
 }
 
+export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
+
 export interface CadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
-  E extends string = string
+  E extends Record<string, any> = Record<string, never>
 > {
   readonly name: string;
   readonly diagnostics: DiagnosticMap<T>;
   readonly emitter?: {
-    names?: readonly E[];
+    options?: JSONSchemaType<E>;
   };
 
   reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
@@ -1369,11 +1372,7 @@ export interface CadlLibrary<
 /**
  * Get the options for the onEmit of this library.
  */
-export type EmitOptionsFor<C> = C extends CadlLibrary<infer _T, infer E> ? EmitOptions<E> : never;
-
-export interface EmitOptions<E extends string> {
-  name?: E;
-}
+export type EmitOptionsFor<C> = C extends CadlLibrary<infer _T, infer E> ? E : never;
 
 export interface DecoratorContext {
   program: Program;
