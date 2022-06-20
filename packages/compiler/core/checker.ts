@@ -2,6 +2,7 @@ import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
+  AnyType,
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
@@ -9,6 +10,7 @@ import {
   getIntrinsicModelName,
   IdentifierKind,
   IntrinsicModelName,
+  isAnyType,
   isIntrinsic,
   isNeverType,
   isVoidType,
@@ -188,6 +190,7 @@ export interface Checker {
   errorType: ErrorType;
   voidType: VoidType;
   neverType: NeverType;
+  anyType: AnyType;
 }
 
 interface TypePrototype {
@@ -268,6 +271,7 @@ export function createChecker(program: Program): Checker {
   const errorType: ErrorType = createType({ kind: "Intrinsic", name: "ErrorType" });
   const voidType = createType({ kind: "Intrinsic", name: "void" } as const);
   const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
+  const anyType = createType({ kind: "Intrinsic", name: "any" } as const);
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
@@ -337,6 +341,7 @@ export function createChecker(program: Program): Checker {
     project,
     neverType,
     errorType,
+    anyType,
     voidType,
     createType,
     createAndFinishType,
@@ -450,6 +455,8 @@ export function createChecker(program: Program): Checker {
         return voidType;
       case SyntaxKind.NeverKeyword:
         return neverType;
+      case SyntaxKind.AnyKeyword:
+        return anyType;
     }
 
     // we don't emit an error here as we blindly call this function
@@ -533,6 +540,9 @@ export function createChecker(program: Program): Checker {
 
   function getModelName(model: ModelType, options: TypeNameOptions | undefined) {
     const nsName = getNamespaceString(model.namespace, options);
+    if (model.name === "" && model.properties.size === 0) {
+      return "{}";
+    }
     const modelName = (nsName ? nsName + "." : "") + (model.name || "(anonymous model)");
     if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
@@ -2950,6 +2960,8 @@ export function createChecker(program: Program): Checker {
         return voidType;
       case SyntaxKind.NeverKeyword:
         return neverType;
+      case SyntaxKind.AnyKeyword:
+        return anyType;
       case SyntaxKind.Return:
         return evalReturnKeyword(node);
       default:
@@ -3608,9 +3620,9 @@ export function createChecker(program: Program): Checker {
 
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
     if (isVoidType(target) || isNeverType(target)) return false;
+    if (isAnyType(target)) return true;
     const sourceIntrinsicName = getIntrinsicModelName(program, source);
     const targetIntrinsicName = getIntrinsicModelName(program, target);
-    if (targetIntrinsicName === "any") return true;
     if (targetIntrinsicName) {
       switch (source.kind) {
         case "Number":
@@ -3624,9 +3636,7 @@ export function createChecker(program: Program): Checker {
           return IntrinsicTypeRelations.isAssignable("boolean", targetIntrinsicName);
         case "Model":
           if (!sourceIntrinsicName) {
-            if (targetIntrinsicName === "object") {
-              return true;
-            } else if (targetIntrinsicName === "Record") {
+            if (targetIntrinsicName === "Record") {
               // To be figured out later
               return undefined;
             } else {
@@ -3641,6 +3651,9 @@ export function createChecker(program: Program): Checker {
       return IntrinsicTypeRelations.isAssignable(sourceIntrinsicName, targetIntrinsicName);
     }
 
+    if (sourceIntrinsicName && sourceIntrinsicName !== "Record" && target.kind === "Model") {
+      return false;
+    }
     if (target.kind === "String") {
       return source.kind === "String" && target.value === source.value;
     }
@@ -3930,9 +3943,9 @@ const numericRanges = {
 } as const;
 
 class IntrinsicTypeRelationTree<
-  T extends Record<IntrinsicModelName, IntrinsicModelName | IntrinsicModelName[] | undefined>
+  T extends Record<IntrinsicModelName, IntrinsicModelName | IntrinsicModelName[] | "any">
 > {
-  private map = new Map<IntrinsicModelName, Set<IntrinsicModelName>>();
+  private map = new Map<IntrinsicModelName, Set<IntrinsicModelName | "any">>();
   public constructor(data: T) {
     for (const [key, value] of Object.entries(data)) {
       if (value === undefined) {
@@ -3940,10 +3953,10 @@ class IntrinsicTypeRelationTree<
       }
 
       const parents = Array.isArray(value) ? value : [value];
-      const set = new Set<IntrinsicModelName>([
+      const set = new Set<IntrinsicModelName | "any">([
         key as IntrinsicModelName,
         ...parents,
-        ...parents.flatMap((parent) => [...(this.map.get(parent) ?? [])]),
+        ...parents.flatMap((parent) => [...(this.map.get(parent as any) ?? [])]),
       ]);
       this.map.set(key as IntrinsicModelName, set);
     }
@@ -3955,9 +3968,7 @@ class IntrinsicTypeRelationTree<
 }
 
 const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
-  any: undefined,
-  object: "any",
-  Record: "object",
+  Record: "any",
   bytes: "any",
   numeric: "any",
   integer: "numeric",

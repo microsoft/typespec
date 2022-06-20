@@ -15,6 +15,7 @@ import {
 } from "./scanner.js";
 import {
   AliasStatementNode,
+  AnyKeywordNode,
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
@@ -1052,6 +1053,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           return parseVoidKeyword();
         case Token.NeverKeyword:
           return parseNeverKeyword();
+        case Token.AnyKeyword:
+          return parseAnyKeyword();
         default:
           return parseReferenceExpression("expression");
       }
@@ -1072,6 +1075,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.NeverKeyword);
     return {
       kind: SyntaxKind.NeverKeyword,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseAnyKeyword(): AnyKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.AnyKeyword);
+    return {
+      kind: SyntaxKind.AnyKeyword,
       ...finishNode(pos),
     };
   }
@@ -1536,6 +1548,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         return parseVoidKeyword();
       case Token.NeverKeyword:
         return parseNeverKeyword();
+      case Token.AnyKeyword:
+        return parseAnyKeyword();
       default:
         return parseIdentifier("expression");
     }
@@ -2321,6 +2335,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ProjectionEnumSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
+    case SyntaxKind.AnyKeyword:
     case SyntaxKind.JsSourceFile:
       return;
     default:

@@ -6,6 +6,7 @@ import {
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
+  AnyType,
   DecoratorContext,
   EnumMemberType,
   EnumType,
@@ -146,6 +147,10 @@ export function isVoidType(type: Type): type is VoidType {
 
 export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
+}
+
+export function isAnyType(type: Type): type is AnyType {
+  return type.kind === "Intrinsic" && type.name === "any";
 }
 
 const numericTypesKey = Symbol("numeric");

@@ -331,6 +331,16 @@ describe.only("compiler: checker: intrinsic", () => {
       await expectTypeAssignable({ source: "{foo: string}", target: "object" });
     });
 
+    it("emit diagnostic assigning to model expression", async () => {
+      await expectTypeNotAssignable(
+        { source: `string`, target: "{}" },
+        {
+          code: "unassignable",
+          message: "Type 'Cadl.string' is not assignable to type '{}'",
+        }
+      );
+    });
+
     it("emit diagnostic assigning other type", async () => {
       await expectTypeNotAssignable(
         { source: `string`, target: "object" },

@@ -100,7 +100,7 @@ export interface Projector {
 
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
-  name: "ErrorType" | "void" | "never";
+  name: "ErrorType" | "void" | "never" | "any";
 }
 
 export interface ErrorType extends IntrinsicType {
@@ -115,6 +115,10 @@ export interface NeverType extends IntrinsicType {
   name: "never";
 }
 
+export interface AnyType extends IntrinsicType {
+  name: "any";
+}
+
 // represents a type that is being returned from the
 // currently executing lambda or projection
 export interface ReturnRecord {
@@ -123,8 +127,6 @@ export interface ReturnRecord {
 }
 
 export type IntrinsicModelName =
-  | "any"
-  | "object"
   | "Record"
   | "bytes"
   | "numeric"
@@ -461,6 +463,7 @@ export enum SyntaxKind {
   BooleanLiteral,
   VoidKeyword,
   NeverKeyword,
+  AnyKeyword,
   TypeReference,
   ProjectionReference,
   TemplateParameterDeclaration,
@@ -675,7 +678,8 @@ export type Expression =
   | NumericLiteralNode
   | BooleanLiteralNode
   | VoidKeywordNode
-  | NeverKeywordNode;
+  | NeverKeywordNode
+  | AnyKeywordNode;
 
 export type ProjectionExpression =
   | ProjectionLogicalExpressionNode
@@ -697,6 +701,7 @@ export type ProjectionExpression =
   | IdentifierNode
   | VoidKeywordNode
   | NeverKeywordNode
+  | AnyKeywordNode
   | ReturnExpressionNode;
 
 export type ReferenceExpression =
@@ -851,6 +856,10 @@ export interface VoidKeywordNode extends BaseNode {
 
 export interface NeverKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.NeverKeyword;
+}
+
+export interface AnyKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.AnyKeyword;
 }
 
 export interface ReturnExpressionNode extends BaseNode {

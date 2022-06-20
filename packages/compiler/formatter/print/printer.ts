@@ -156,6 +156,8 @@ export function printNode(
       return "void";
     case SyntaxKind.NeverKeyword:
       return "never";
+    case SyntaxKind.AnyKeyword:
+      return "any";
     // TODO: projection formatting
     case SyntaxKind.Projection:
     case SyntaxKind.ProjectionParameterDeclaration:

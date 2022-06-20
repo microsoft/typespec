@@ -1,9 +1,5 @@
 namespace Cadl;
 
-@intrinsic("any")
-model any {}
-
-@intrinsic("object")
 model object {}
 
 @intrinsic("Record")
