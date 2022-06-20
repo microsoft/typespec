@@ -12,6 +12,7 @@ import {
   EnumType,
   InterfaceType,
   IntrinsicModelName,
+  ModelIndexer,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -120,6 +121,16 @@ export function isIntrinsic(program: Program, target: Type | undefined): boolean
     return false;
   }
   return program.stateMap(intrinsicsKey).has(target);
+}
+
+const indexTypeKey = Symbol("indexType");
+export function $indexer(context: DecoratorContext, target: Type, key: ModelType, value: Type) {
+  const indexer: ModelIndexer = { key, value };
+  context.program.stateMap(indexTypeKey).set(target, indexer);
+}
+
+export function getIndexer(program: Program, target: Type): ModelIndexer | undefined {
+  return program.stateMap(indexTypeKey).get(target);
 }
 
 /**

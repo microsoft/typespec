@@ -2,10 +2,8 @@ namespace Cadl;
 
 model object {}
 
-@intrinsic("Record")
-model Record<T> {
-  t: T;
-}
+@indexer(string, T)
+model Record<T> {}
 
 @intrinsic("bytes")
 model bytes {}

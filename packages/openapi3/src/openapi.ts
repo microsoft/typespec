@@ -25,6 +25,7 @@ import {
   ignoreDiagnostics,
   isErrorType,
   isIntrinsic,
+  isNeverType,
   isNumericType,
   isSecret,
   isStringType,
@@ -1247,13 +1248,12 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
-      case "Record":
-        // We assert on valType because Map types always have a type
-        const valType = cadlType.properties.get("t");
-        return {
-          type: "object",
-          additionalProperties: getSchemaOrRef(valType!.type),
-        };
+    }
+    if (cadlType.indexer && !isNeverType(cadlType.indexer.key)) {
+      return {
+        type: "object",
+        additionalProperties: getSchemaOrRef(cadlType.indexer.value!),
+      };
     }
   }
 }

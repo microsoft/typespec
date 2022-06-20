@@ -7,6 +7,7 @@ import {
   Diagnostic,
   DiagnosticTarget,
   Expression,
+  getIndexer,
   getIntrinsicModelName,
   IdentifierKind,
   IntrinsicModelName,
@@ -15,6 +16,7 @@ import {
   isNeverType,
   isVoidType,
   JsSourceFileNode,
+  ModelIndexer,
   NeverType,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
@@ -966,6 +968,7 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
     });
 
+    let indexer: ModelIndexer | undefined;
     for (const option of optionTypes) {
       if (option.kind === "TemplateParameter") {
         continue;
@@ -974,6 +977,19 @@ export function createChecker(program: Program): Checker {
         program.reportDiagnostic(createDiagnostic({ code: "intersect-non-model", target: option }));
         continue;
       }
+      if (!areCompatibleIndexers(indexer, option.indexer)) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "intersect-invalid-index",
+            target: option,
+            format: {
+              indexer1: indexer?.key.name ?? "(none)",
+              indexer2: option.indexer?.key.name ?? "(none)",
+            },
+          })
+        );
+      }
+      indexer = option.indexer;
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -996,6 +1012,17 @@ export function createChecker(program: Program): Checker {
     }
 
     return finishType(intersection);
+  }
+
+  function areCompatibleIndexers(
+    indexer1: ModelIndexer | undefined,
+    indexer2: ModelIndexer | undefined
+  ) {
+    const indexer1Key = indexer1?.key;
+    const indexer2Key = indexer2?.key;
+    // Cannot intersect model with a never index.
+    if (indexer1Key === neverType || indexer2Key === neverType) return false;
+    return indexer1Key === indexer2Key || indexer1Key === undefined || indexer2Key === undefined;
   }
 
   function checkArrayExpression(node: ArrayExpressionNode): ArrayType {
@@ -1826,6 +1853,15 @@ export function createChecker(program: Program): Checker {
       finishType(type);
     }
 
+    const indexer = getIndexer(program, type);
+    if (indexer) {
+      type.indexer = indexer;
+    } else {
+      const intrinsicModelName = getIntrinsicModelName(program, type);
+      if (intrinsicModelName) {
+        type.indexer = { key: neverType, value: undefined };
+      }
+    }
     return type;
   }
 
@@ -1845,6 +1881,7 @@ export function createChecker(program: Program): Checker {
       name: "",
       node: node,
       properties,
+      indexer: undefined,
       namespace: getParentNamespaceType(node),
       decorators: [],
       derivedModels: [],
@@ -3590,11 +3627,8 @@ export function createChecker(program: Program): Checker {
       ];
     }
 
-    const targetIntrinsicName = getIntrinsicModelName(program, target);
-    if (targetIntrinsicName === "Record" && source.kind === "Model") {
-      const recordType = (target as ModelType).properties.get("t")!.type;
-      compilerAssert(recordType, "Record should have a t property with the type");
-      return isIndexConstraintValid(recordType, source);
+    if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
+      return isIndexerValid(source, target as ModelType & { indexer: ModelIndexer });
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target);
     } else if (target.kind === "Array" && source.kind === "Array") {
@@ -3636,12 +3670,7 @@ export function createChecker(program: Program): Checker {
           return IntrinsicTypeRelations.isAssignable("boolean", targetIntrinsicName);
         case "Model":
           if (!sourceIntrinsicName) {
-            if (targetIntrinsicName === "Record") {
-              // To be figured out later
-              return undefined;
-            } else {
-              return false;
-            }
+            return false;
           }
       }
 
@@ -3651,7 +3680,7 @@ export function createChecker(program: Program): Checker {
       return IntrinsicTypeRelations.isAssignable(sourceIntrinsicName, targetIntrinsicName);
     }
 
-    if (sourceIntrinsicName && sourceIntrinsicName !== "Record" && target.kind === "Model") {
+    if (sourceIntrinsicName && target.kind === "Model") {
       return false;
     }
     if (target.kind === "String") {
@@ -3723,6 +3752,17 @@ export function createChecker(program: Program): Checker {
     );
   }
 
+  function isIndexerValid(
+    source: ModelType,
+    target: ModelType & { indexer: ModelIndexer }
+  ): [boolean, Diagnostic[]] {
+    if (isNeverType(target.indexer.key)) {
+      // TODO better error here saying that you cannot assign to
+      return [false, [createUnassignableDiagnostic(source, target)]];
+    }
+
+    return isIndexConstraintValid(target.indexer.value!, source);
+  }
   /**
    * @param constraintType Type of the constraints(All properties must have this type).
    * @param type Type of the model that should be respecting the constraint.
@@ -3890,6 +3930,7 @@ export function createChecker(program: Program): Checker {
       kind: "Model",
       node: undefined,
       name: "",
+      indexer: undefined,
       properties,
       decorators: [],
       derivedModels: [],

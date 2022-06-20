@@ -224,6 +224,12 @@ const diagnostics = {
       default: "Cannot intersect non-model types (including union types).",
     },
   },
+  "intersect-invalid-index": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Cannot intersect model types with different index types('${"indexer1"}' and  '${"indexer2"}').`,
+    },
+  },
   "intersect-duplicate-property": {
     severity: "error",
     messages: {

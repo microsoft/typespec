@@ -127,7 +127,6 @@ export interface ReturnRecord {
 }
 
 export type IntrinsicModelName =
-  | "Record"
   | "bytes"
   | "numeric"
   | "integer"
@@ -155,6 +154,13 @@ export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = 
   name: T;
 };
 
+export type ModelIndexer =
+  | {
+      key: ModelType;
+      value: Type;
+    }
+  | { key: NeverType; value: undefined };
+
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;
@@ -164,6 +170,7 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
     | IntersectionExpressionNode
     | ProjectionModelExpressionNode;
   namespace?: NamespaceType;
+  indexer?: ModelIndexer;
   properties: Map<string, ModelTypeProperty>;
 
   /**
