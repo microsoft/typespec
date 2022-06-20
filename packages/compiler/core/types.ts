@@ -149,8 +149,7 @@ export type IntrinsicModelName =
   | "zonedDateTime"
   | "duration"
   | "boolean"
-  | "null"
-  | "Map";
+  | "null";
 
 export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = ModelType & {
   name: T;

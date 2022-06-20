@@ -179,6 +179,7 @@ export const TokenDisplay: readonly string[] = [
   "'return'",
   "'void'", // 60
   "'never'",
+  "'any'",
 ];
 
 /** @internal */

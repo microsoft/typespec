@@ -3921,13 +3921,6 @@ function createUsingSymbol(symbolSource: Sym): Sym {
   return { flags: SymbolFlags.Using, declarations: [], name: symbolSource.name, symbolSource };
 }
 
-enum NumericLiteralFlags {
-  Integer = 1 << 0,
-  Real = 1 << 1,
-
-  Numeric = Integer | Real,
-}
-
 const numericRanges = {
   int64: [BigInt("-9223372036854775807"), BigInt("9223372036854775808"), { int: true }],
   int32: [-2147483648, 2147483647, { int: true }],
