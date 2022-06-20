@@ -2181,142 +2181,32 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
+  function isValueType(type: Type): boolean {
+    const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
+    return valueTypes.has(type.kind);
+  }
+
   function checkDefault(defaultType: Type, type: Type): Type {
     if (isErrorType(type)) {
       return errorType;
     }
-    switch (type.kind) {
-      case "Model":
-        return checkDefaultForModelType(defaultType, type);
-      case "Array":
-        return checkDefaultForArrayType(defaultType, type);
-      case "Union":
-        return checkDefaultForUnionType(defaultType, type);
-      default:
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "unsupported-default",
-            format: { type: type.kind },
-            target: defaultType,
-          })
-        );
+    if (!isValueType(defaultType)) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "unsupported-default",
+          format: { type: type.kind },
+          target: defaultType,
+        })
+      );
+      return errorType;
     }
-    return errorType;
-  }
-
-  function checkDefaultForModelType(defaultType: Type, type: ModelType): Type {
-    switch (type.name) {
-      case "string":
-        return checkDefaultTypeIsString(defaultType);
-      case "boolean":
-        return checkDefaultTypeIsBoolean(defaultType);
-      case "int32":
-      case "int64":
-      case "int16":
-      case "int8":
-      case "uint64":
-      case "uint32":
-      case "uint16":
-      case "uint8":
-      case "safeint":
-      case "float32":
-      case "float64":
-        return checkDefaultTypeIsNumeric(defaultType);
-      default:
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "unsupported-default",
-            format: { type: type.name },
-            target: defaultType,
-          })
-        );
-    }
-    return errorType;
-  }
-
-  function checkDefaultForArrayType(defaultType: Type, type: ArrayType): Type {
-    if (defaultType.kind === "Tuple") {
-      for (const item of defaultType.values) {
-        checkDefault(item, type.elementType);
-      }
+    const [related, diagnostics] = isTypeAssignableTo(defaultType, type);
+    if (!related) {
+      program.reportDiagnostics(diagnostics);
+      return errorType;
     } else {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-default-type",
-          format: { type: "tuple" },
-          target: defaultType,
-        })
-      );
+      return defaultType;
     }
-    return defaultType;
-  }
-
-  function checkDefaultForUnionType(defaultType: Type, type: UnionType): Type {
-    for (const option of type.options) {
-      if (option.kind === defaultType.kind) {
-        switch (defaultType.kind) {
-          case "String":
-            if (defaultType.value === (option as StringLiteralType).value) {
-              return defaultType;
-            }
-            break;
-          case "Number":
-            if (defaultType.value === (option as NumericLiteralType).value) {
-              return defaultType;
-            }
-            break;
-        }
-      }
-    }
-
-    // Didn't find any compatible options
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "unassignable",
-        format: { value: getTypeName(defaultType), targetType: getTypeName(type) },
-        target: defaultType,
-      })
-    );
-    return defaultType;
-  }
-
-  function checkDefaultTypeIsString(defaultType: Type): Type {
-    if (defaultType.kind !== "String") {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-default-type",
-          format: { type: "string" },
-          target: defaultType,
-        })
-      );
-    }
-    return defaultType;
-  }
-
-  function checkDefaultTypeIsNumeric(defaultType: Type): Type {
-    if (defaultType.kind !== "Number") {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-default-type",
-          format: { type: "number" },
-          target: defaultType,
-        })
-      );
-    }
-    return defaultType;
-  }
-
-  function checkDefaultTypeIsBoolean(defaultType: Type): Type {
-    if (defaultType.kind !== "Boolean") {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-default-type",
-          format: { type: "boolean" },
-          target: defaultType,
-        })
-      );
-    }
-    return defaultType;
   }
 
   function checkDecorators(node: { decorators: readonly DecoratorExpressionNode[] }) {
@@ -3639,8 +3529,8 @@ export function createChecker(program: Program): Checker {
         if (!related) {
           return [false, diagnostics];
         }
-        return [true, []];
       }
+      return [true, []];
     } else if (target.kind === "Tuple" && source.kind === "Tuple") {
       return isTupleAssignableToTuple(source, target);
     } else if (target.kind === "Union") {

@@ -505,6 +505,16 @@ describe("compiler: checker: intrinsic", () => {
         }
       );
     });
+
+    it("emit diagnostic assigning tuple with different type", async () => {
+      await expectTypeNotAssignable(
+        { source: `["abc", 123]`, target: "string[]" },
+        {
+          code: "unassignable",
+          message: "Type '123' is not assignable to type 'Cadl.string'",
+        }
+      );
+    });
   });
 
   describe("Tuple target", () => {

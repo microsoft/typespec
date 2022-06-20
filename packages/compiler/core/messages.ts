@@ -309,13 +309,7 @@ const diagnostics = {
   "unsupported-default": {
     severity: "error",
     messages: {
-      default: paramMessage`Default values are not supported for '${"type"}' type`,
-    },
-  },
-  "invalid-default-type": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Default must be a ${"type"}`,
+      default: paramMessage`Default must be a value type but was a '${"type"}' type`,
     },
   },
   unassignable: {

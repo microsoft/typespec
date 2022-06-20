@@ -123,15 +123,15 @@ describe("compiler: models", () => {
   });
 
   describe("doesn't allow a default of different type than the property type", () => {
-    const testCases: [string, string, RegExp][] = [
-      ["string", "123", /Default must be a string/],
-      ["int32", `"foo"`, /Default must be a number/],
-      ["boolean", `"foo"`, /Default must be a boolean/],
-      ["string[]", `["foo", 123]`, /Default must be a string/],
-      [`"foo" | "bar"`, `"foo1"`, /Type 'foo1' is not assignable to type 'foo | bar'/],
+    const testCases: [string, string, string][] = [
+      ["string", "123", "Type '123' is not assignable to type 'Cadl.string'"],
+      ["int32", `"foo"`, "Type 'foo' is not assignable to type 'Cadl.int32'"],
+      ["boolean", `"foo"`, "Type 'foo' is not assignable to type 'Cadl.boolean'"],
+      ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'Cadl.string'`],
+      [`"foo" | "bar"`, `"foo1"`, "Type 'foo1' is not assignable to type 'foo | bar'"],
     ];
 
-    for (const [type, defaultValue, errorRegex] of testCases) {
+    for (const [type, defaultValue, errorMessage] of testCases) {
       it(`foo?: ${type} = ${defaultValue}`, async () => {
         testHost.addCadlFile(
           "main.cadl",
@@ -140,8 +140,10 @@ describe("compiler: models", () => {
           `
         );
         const diagnostics = await testHost.diagnose("main.cadl");
-        strictEqual(diagnostics.length, 1);
-        match(diagnostics[0].message, errorRegex);
+        expectDiagnostics(diagnostics, {
+          code: "unassignable",
+          message: errorMessage,
+        });
       });
     }
   });
