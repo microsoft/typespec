@@ -1,7 +1,7 @@
 import { deepStrictEqual, ok } from "assert";
 import { oapiForModel } from "./test-host.js";
 
-describe.only("openapi3: Record", () => {
+describe("openapi3: Record", () => {
   it("defines record inline", async () => {
     const res = await oapiForModel(
       "Pet",
