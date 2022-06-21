@@ -84,6 +84,45 @@ describe("rest: resources", () => {
     ]);
   });
 
+  it("resources: collection action paths are generated correctly", async () => {
+    const routes = await getRoutesFor(
+      `
+      using Cadl.Rest.Resource;
+
+      @autoRoute
+      namespace Things {
+        model Thing {
+          @key
+          @segment("things")
+          thingId: string;
+        }
+
+        @post
+        @collectionAction(Thing, "export")
+        op exportThing(): {};
+
+        @post
+        @collectionAction(Thing, "export")
+        @segmentSeparator(":")
+        op exportThingWithColon(): {};
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [
+      {
+        verb: "post",
+        path: "/things/export",
+        params: [],
+      },
+      {
+        verb: "post",
+        path: "/things:export",
+        params: [],
+      },
+    ]);
+  });
+
   it("resources: resources with parents must not have duplicate their parents' key names", async () => {
     const [_, diagnostics] = await compileOperations(`
       using Cadl.Rest.Resource;

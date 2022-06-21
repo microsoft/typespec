@@ -33,7 +33,7 @@ describe("compiler: entrypoints", () => {
 
     it("compile library with Cadl entrypoint and emitter", async () => {
       const program = await compileScenario("emitter-with-cadl", {
-        emitters: ["@cadl-lang/test-emitter-with-cadl"],
+        emitters: { "@cadl-lang/test-emitter-with-cadl": {} },
       });
       expectDiagnosticEmpty(program.diagnostics);
     });
@@ -52,7 +52,7 @@ describe("compiler: entrypoints", () => {
 
     it("emit diagnostics if emitter has invalid main", async () => {
       const program = await compileScenario("import-library-invalid", {
-        emitters: ["my-lib"],
+        emitters: { "my-lib": {} },
       });
       expectDiagnostics(program.diagnostics, {
         code: "library-invalid",

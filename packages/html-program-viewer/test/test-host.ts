@@ -9,5 +9,7 @@ export async function createOpenAPITestHost() {
 
 export async function createViewerTestRunner() {
   const host = await createOpenAPITestHost();
-  return createTestWrapper(host, (code) => code, { emitters: ["@cadl-lang/html-program-viewer"] });
+  return createTestWrapper(host, (code) => code, {
+    emitters: { "@cadl-lang/html-program-viewer": {} },
+  });
 }

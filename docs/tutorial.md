@@ -662,6 +662,32 @@ emitters:
   "@cadl-lang/openapi3": true
 ```
 
+##### Configuring emitter libraries
+
+Emitters might provide some options to configure the generated output. Those options can be set either via the config `cadl-project.yaml` or the cli
+
+- Via config
+
+```yaml
+emitters:
+  <emitterName>:
+    <optionName>: <value>
+
+# For example
+emitters:
+ "@cadl-lang/openapi3":
+    outputFile: my-custom-file.json
+```
+
+- Via cli
+
+```yaml
+--option "<emitterName>.<optionName>=<value>"
+
+# For example
+--option "@cadl-lang/openapi3.outputFile=my-custom-file.json"
+```
+
 #### Creating libraries
 
 Creating an Cadl library is essentially the same as creating any NPM library. [Consult the official documentation for more info](https://docs.npmjs.com/creating-node-js-modules). `main` should refer to a JS file that exports all your library's decorators and helper utilities.

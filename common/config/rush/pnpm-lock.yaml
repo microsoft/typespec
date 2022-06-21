@@ -74,7 +74,7 @@ specifiers:
   picocolors: ~1.0.0
   playwright: ~1.22.2
   plist: ~3.0.2
-  prettier: ~2.6.2
+  prettier: ~2.7.1
   prettier-plugin-organize-imports: ~2.3.4
   prompts: ~2.4.1
   react: ~18.0.0
@@ -109,7 +109,7 @@ dependencies:
   '@rush-temp/cadl-vs': file:projects/cadl-vs.tgz
   '@rush-temp/cadl-vscode': file:projects/cadl-vscode.tgz
   '@rush-temp/compiler': file:projects/compiler.tgz
-  '@rush-temp/eslint-config-cadl': file:projects/eslint-config-cadl.tgz_prettier@2.6.2
+  '@rush-temp/eslint-config-cadl': file:projects/eslint-config-cadl.tgz_prettier@2.7.1
   '@rush-temp/eslint-plugin': file:projects/eslint-plugin.tgz
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
@@ -154,7 +154,7 @@ dependencies:
   ecmarkup: 12.0.3
   eslint: 8.16.0
   eslint-config-prettier: 8.5.0_eslint@8.16.0
-  eslint-plugin-prettier: 4.0.0_4fe3201cd09a8826bbd8050f2348cb2f
+  eslint-plugin-prettier: 4.0.0_f107880aaccee60d102dfc61a6b71e12
   eslint-plugin-unicorn: 42.0.0_eslint@8.16.0
   globby: 13.1.1
   grammarkdown: 3.1.2
@@ -170,8 +170,8 @@ dependencies:
   picocolors: 1.0.0
   playwright: 1.22.2
   plist: 3.0.5
-  prettier: 2.6.2
-  prettier-plugin-organize-imports: 2.3.4_prettier@2.6.2+typescript@4.7.2
+  prettier: 2.7.1
+  prettier-plugin-organize-imports: 2.3.4_prettier@2.7.1+typescript@4.7.2
   prompts: 2.4.2
   react: 18.0.0
   react-dom: 18.0.0_react@18.0.0
@@ -2145,7 +2145,7 @@ packages:
       chalk: 4.1.2
     dev: false
 
-  /eslint-plugin-prettier/4.0.0_4fe3201cd09a8826bbd8050f2348cb2f:
+  /eslint-plugin-prettier/4.0.0_f107880aaccee60d102dfc61a6b71e12:
     resolution: {integrity: sha512-98MqmCJ7vJodoQK359bqQWaxOE0CS8paAz/GgjaZLyex4TTk3g9HugoO89EqWCrFiOqn9EVvcoo7gZzONCWVwQ==}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -2158,7 +2158,7 @@ packages:
     dependencies:
       eslint: 8.16.0
       eslint-config-prettier: 8.5.0_eslint@8.16.0
-      prettier: 2.6.2
+      prettier: 2.7.1
       prettier-linter-helpers: 1.0.0
     dev: false
 
@@ -3577,18 +3577,18 @@ packages:
       fast-diff: 1.2.0
     dev: false
 
-  /prettier-plugin-organize-imports/2.3.4_prettier@2.6.2+typescript@4.7.2:
+  /prettier-plugin-organize-imports/2.3.4_prettier@2.7.1+typescript@4.7.2:
     resolution: {integrity: sha512-R8o23sf5iVL/U71h9SFUdhdOEPsi3nm42FD/oDYIZ2PQa4TNWWuWecxln6jlIQzpZTDMUeO1NicJP6lLn2TtRw==}
     peerDependencies:
       prettier: '>=2.0'
       typescript: '>=2.9'
     dependencies:
-      prettier: 2.6.2
+      prettier: 2.7.1
       typescript: 4.7.2
     dev: false
 
-  /prettier/2.6.2:
-    resolution: {integrity: sha512-PkUpF+qoXTqhOeWL9fu7As8LXsIUZ1WYaJiY/a7McAQzxjk82OF0tibkFXVCDImZtWxbvojFjerkiLb0/q8mew==}
+  /prettier/2.7.1:
+    resolution: {integrity: sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: false
@@ -4669,7 +4669,7 @@ packages:
     dev: false
 
   file:projects/bundler.tgz:
-    resolution: {integrity: sha512-hjMMWIfjVJmDfIdRCjcshkwGmK7XB7SaeGTsV5jbw0w7QnMuF1Px7Vt1u8ywbwqLRJwCxQX731Uhj/lcoDrGYQ==, tarball: file:projects/bundler.tgz}
+    resolution: {integrity: sha512-6Xj6e8vZeMd2gDLdmxH9dnkwf6M214aJWWJ59lFql4gWCm5U348Aa4SCCjG76+Gi4VdKFtpczZS39zYFJ/wc5A==, tarball: file:projects/bundler.tgz}
     name: '@rush-temp/bundler'
     version: 0.0.0
     dependencies:
@@ -4696,13 +4696,13 @@ packages:
     dev: false
 
   file:projects/cadl-vs.tgz:
-    resolution: {integrity: sha512-tWrRm61VDOttcxTsyoMJ5z5X2W5b/eY9ofF9TWCYxxiqL3PfjmrY6orLmM56R2YcbiGrw3HlVp8d7f4CarDruA==, tarball: file:projects/cadl-vs.tgz}
+    resolution: {integrity: sha512-+zW7T5ObpDxBIe1hONZ5bB6SctqOp3deexApHUYqBAWqjstqfs5/kqTgpxMNkj7TgvoFWA8eP4wyke8WGgERMA==, tarball: file:projects/cadl-vs.tgz}
     name: '@rush-temp/cadl-vs'
     version: 0.0.0
     dev: false
 
   file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-hDslhVK07IwiqiKCxNTbTSBlXbycph+EqO/b1YD2xm68Yr/uAcDYOKXXYYC5278DdUIECHO/M5+pknjXYqP86Q==, tarball: file:projects/cadl-vscode.tgz}
+    resolution: {integrity: sha512-5x2VrGfySzRkRldqa95jeI5JM7ntgRT8GcT9iPdo8506Df7EDo5xIKUQI0dHLV98OF89m1rhblkBGpv2NY+PHw==, tarball: file:projects/cadl-vscode.tgz}
     name: '@rush-temp/cadl-vscode'
     version: 0.0.0
     dependencies:
@@ -4728,7 +4728,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-e452DNSSiMG5TRQbUtCeFZmL0Wkt0GrgSv/KGLSZFauXo1mdLuqBceUSYgJT2svMmD6rPqBhSf+Ns5bup5q2iw==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-353t1ixEquBA6ddA8jGY4hfgbS5bisBIf8mxFejvRdoeKqVu/qdZOvFslZp15HIBMgfHtn+2f2Pqj0ubhGtXTQ==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -4755,8 +4755,8 @@ packages:
       node-fetch: 3.2.5
       node-watch: 0.7.3
       picocolors: 1.0.0
-      prettier: 2.6.2
-      prettier-plugin-organize-imports: 2.3.4_prettier@2.6.2+typescript@4.7.2
+      prettier: 2.7.1
+      prettier-plugin-organize-imports: 2.3.4_prettier@2.7.1+typescript@4.7.2
       prompts: 2.4.2
       rimraf: 3.0.2
       source-map-support: 0.5.21
@@ -4770,7 +4770,7 @@ packages:
       - supports-color
     dev: false
 
-  file:projects/eslint-config-cadl.tgz_prettier@2.6.2:
+  file:projects/eslint-config-cadl.tgz_prettier@2.7.1:
     resolution: {integrity: sha512-WEIJlADwx96agRbpV2kL/qaMXP946Rz3PCy2/Zt6/Y9VobFv1/Pgtr/kc7MaqkM1GaRa81XDxMSUkS6sR/yf8g==, tarball: file:projects/eslint-config-cadl.tgz}
     id: file:projects/eslint-config-cadl.tgz
     name: '@rush-temp/eslint-config-cadl'
@@ -4781,7 +4781,7 @@ packages:
       '@typescript-eslint/parser': 5.27.0_eslint@8.16.0+typescript@4.7.2
       eslint: 8.16.0
       eslint-config-prettier: 8.5.0_eslint@8.16.0
-      eslint-plugin-prettier: 4.0.0_4fe3201cd09a8826bbd8050f2348cb2f
+      eslint-plugin-prettier: 4.0.0_f107880aaccee60d102dfc61a6b71e12
       eslint-plugin-unicorn: 42.0.0_eslint@8.16.0
       typescript: 4.7.2
     transitivePeerDependencies:
@@ -4807,7 +4807,7 @@ packages:
     dev: false
 
   file:projects/html-program-viewer.tgz:
-    resolution: {integrity: sha512-/xNk/C0RWDUNz4muSwJWZY7+u4/snpP+UB11elzlVHAYm7Cr2SILH9mLypzsJc60Al4PC9DNty0HgXx09daUhA==, tarball: file:projects/html-program-viewer.tgz}
+    resolution: {integrity: sha512-1HpIfSIf+xiig3Dkour2yUFnsjkBBuv81wdxlDT4OST2PjL/f54QeE68bFbyX5d9bJc3QPTc0hE5YvSjIwdD4g==, tarball: file:projects/html-program-viewer.tgz}
     name: '@rush-temp/html-program-viewer'
     version: 0.0.0
     dependencies:
@@ -4820,7 +4820,7 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
-      prettier: 2.6.2
+      prettier: 2.7.1
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       react-is: 18.1.0
@@ -4853,7 +4853,7 @@ packages:
     dev: false
 
   file:projects/library-linter.tgz:
-    resolution: {integrity: sha512-EVbtfA+Uzyq0dj0VgCC6aNTpbdMDFoDnhEkfOF63soVViI/EOp5hz9cUtLuNjipQJujgd0Cp7j07Qloe7mcS7w==, tarball: file:projects/library-linter.tgz}
+    resolution: {integrity: sha512-XZC5V9lo+oMpALW3JLPOeD5J3T6HzaTiy6pgcBP12qw2fcJxFop0XxsibVZGToAndoG8sj4JpXr8cjpHCBOwEg==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
     version: 0.0.0
     dependencies:
@@ -4869,7 +4869,7 @@ packages:
     dev: false
 
   file:projects/openapi.tgz:
-    resolution: {integrity: sha512-auwIgX/qWTj1y2fA9qn//s4ztICelBKa5Z1A7YeqnngMqosX6GwRot7bfg1MIJCsvQ+0uj4eH3Vn7+iNsS4xhw==, tarball: file:projects/openapi.tgz}
+    resolution: {integrity: sha512-p3YLDV96L9lbbTLPd7CIgbTs0ExV+cmhnou6xLg5IWBhPDEp1Gv2kppmQVX0DMTxv/9Cysh3eA8WcBdcesKvIg==, tarball: file:projects/openapi.tgz}
     name: '@rush-temp/openapi'
     version: 0.0.0
     dependencies:
@@ -4885,7 +4885,7 @@ packages:
     dev: false
 
   file:projects/openapi3.tgz:
-    resolution: {integrity: sha512-mJ0LEy6WF6uYdpuoderW/MPnT86jkyoIHc8HiDt9uHtLcb+Jbq8ASf4pz96IHPSAXCO9o5eF4DLrFPLtoPcS5g==, tarball: file:projects/openapi3.tgz}
+    resolution: {integrity: sha512-9KsVyu1FhSDTlYVmR0/hvikQfD6GlT1AQXZjpMQNtAwDIM9nAByrLM4qvPbWDrH0ePd4t76O0fb/QjvyHfICJg==, tarball: file:projects/openapi3.tgz}
     name: '@rush-temp/openapi3'
     version: 0.0.0
     dependencies:
@@ -4901,7 +4901,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz:
-    resolution: {integrity: sha512-SPO+lA7VxS/N7+kap1QYjnKhpuN1QBO2YrEDk8RGT5S3gw+5cqucwLmk/gBiXi4702lFMU/jK8/PzUmz8AIcEg==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-m7w5zGepAP53NGPoGpVySbXM1Aljief/FRYNSRtRYnKPx9zKr2eYUurvBkfCoyvTp+MDM0K5yu92BJNYwshy5g==, tarball: file:projects/playground.tgz}
     name: '@rush-temp/playground'
     version: 0.0.0
     dependencies:
@@ -4922,7 +4922,7 @@ packages:
       mocha: 9.2.2
       monaco-editor: 0.32.1
       playwright: 1.22.2
-      prettier: 2.6.2
+      prettier: 2.7.1
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       rimraf: 3.0.2
@@ -4938,7 +4938,7 @@ packages:
     dev: false
 
   file:projects/prettier-plugin-cadl.tgz:
-    resolution: {integrity: sha512-1/IdFoYGl2GdMaExxk6HFJffAxTy02SW8edz3cLG6QY6MlRP1t4HWfigYQm6A70Jr4uKdrBbM6iCQkZx6aankw==, tarball: file:projects/prettier-plugin-cadl.tgz}
+    resolution: {integrity: sha512-waPS+Q9N9Uc9ftH2l84wWtUGQUVA/nPGAX2lCsk5Y0A7fFO9ciGJ4FzY8n9scdlpDk5qscDhw05Yj58JGUezNw==, tarball: file:projects/prettier-plugin-cadl.tgz}
     name: '@rush-temp/prettier-plugin-cadl'
     version: 0.0.0
     dependencies:
@@ -4947,12 +4947,12 @@ packages:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.2
       '@rollup/plugin-replace': 2.4.2_rollup@2.70.2
       mocha: 9.2.2
-      prettier: 2.6.2
+      prettier: 2.7.1
       rollup: 2.70.2
     dev: false
 
   file:projects/rest.tgz:
-    resolution: {integrity: sha512-exC4stu9gaiL/akWqlXvZMJQamIUG9eQCnG2yV9YmsPSF0tlC2vzr2KyKxpgabrSdRLkXKMsozl4wsaoBwqFHA==, tarball: file:projects/rest.tgz}
+    resolution: {integrity: sha512-bJeUgwtQC/e8zrUZUVzLGb3YWBo06Aw1/ZUl193BixiDR2AcDiE3rjN6lA9yk4PjFw1dvfjOYCVEGDF3q0eM9w==, tarball: file:projects/rest.tgz}
     name: '@rush-temp/rest'
     version: 0.0.0
     dependencies:
@@ -4968,7 +4968,7 @@ packages:
     dev: false
 
   file:projects/samples.tgz:
-    resolution: {integrity: sha512-l8VhAvdoml3anddwhZvTspcIQIgY8Io1umiPAhzzl1jbLgI66IZyQONwz5KCvtAQMstajoV9Lbbczv/DpM+rEg==, tarball: file:projects/samples.tgz}
+    resolution: {integrity: sha512-AFP7ZyyWQJmNJHKHCzLvhYzRU2dukRZ9yHC8b9MOZAY3fLXNfUbJ/Ld6InI7J0+WN8ozHiBLlZprcWS0aDpZyA==, tarball: file:projects/samples.tgz}
     name: '@rush-temp/samples'
     version: 0.0.0
     dependencies:
@@ -4978,7 +4978,7 @@ packages:
     dev: false
 
   file:projects/spec.tgz:
-    resolution: {integrity: sha512-65a0VXrYT/fxVqcZHbdEzROmhU8JHsqTgpuNsh9ztjxWOp1bk2VWMfX/9Hko1Df3DUqM0cucfogIL8PDBg8VwQ==, tarball: file:projects/spec.tgz}
+    resolution: {integrity: sha512-+Sc2hHE3K1rNUePy2yL5E0lzUfBbgLs8d2x1voBxLjc/HaIaIGqOj3Xhiv7C4GOJtXOZPje6pQ92Oots4T1L4w==, tarball: file:projects/spec.tgz}
     name: '@rush-temp/spec'
     version: 0.0.0
     dependencies:
@@ -5009,7 +5009,7 @@ packages:
     dev: false
 
   file:projects/versioning.tgz:
-    resolution: {integrity: sha512-WBCL3VVaW3MmANuyJ0G8YKfujnrqohkZFlTo8Yk9p7iIV/5XJY+epfQZEQmqeL5JkNgSO3QhyOhVvhCInaMXsQ==, tarball: file:projects/versioning.tgz}
+    resolution: {integrity: sha512-xESQIdvMbm8EDaNF5+P66GXtG0KdkxXzvI+KIr3Cy20j4gssoiI4RPXPhPsyczYacu2r2GtBkIN6maEMzVjA6g==, tarball: file:projects/versioning.tgz}
     name: '@rush-temp/versioning'
     version: 0.0.0
     dependencies:
