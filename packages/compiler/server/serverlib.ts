@@ -1,5 +1,3 @@
-import { dirname } from "path";
-import { getFileInfo } from "prettier";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CompletionItem,
@@ -643,14 +641,14 @@ export function createServer(host: ServerHost): Server {
     const documentPath = getPath(document);
     const documentFile = getBaseFileName(documentPath);
     const documentDir = getDirectoryPath(documentPath);
-    if (documentDir.indexOf('node_modules') !== -1){
+    if (documentDir.indexOf("node_modules") !== -1) {
       return;
     }
     const nodevalueDir = getDirectoryPath(node.value);
     const maincadl = resolvePath(documentDir, nodevalueDir);
-    const listFiles = (await program.host.readDir(maincadl)).filter(x => x !== documentFile);
+    const listFiles = (await program.host.readDir(maincadl)).filter((x) => x !== documentFile);
     for (const file of listFiles) {
-      if (file === "node_modules"){
+      if (file === "node_modules") {
         break;
       }
       const extention = getAnyExtensionFromPath(file);
