@@ -102,7 +102,7 @@ function* writeService(decl: ProtoServiceDeclaration): Iterable<string> {
 }
 
 function writeMethod(decl: ProtoMethodDeclaration): string {
-  return `rpc ${decl.name} (${writeType(decl.input)}) returns (${writeType(decl.returns)});`;
+  return `rpc ${decl.name}(${writeType(decl.input)}) returns (${writeType(decl.returns)});`;
 }
 
 function* writeOneOf(decl: ProtoOneOfDeclaration): Iterable<string> {

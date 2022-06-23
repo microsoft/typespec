@@ -14,5 +14,5 @@ message Output {
 }
 
 service Service {
-  rpc foo (Input) returns (Output);
+  rpc Foo(Input) returns (Output);
 }

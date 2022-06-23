@@ -158,7 +158,7 @@ function cadlToProto(program: Program): ProtoFile[] {
     function toMethodFromOperation(operation: OperationType): ProtoMethodDeclaration {
       return {
         kind: "method",
-        name: operation.name,
+        name: capitalize(operation.name),
         input: addInputParams(operation.parameters, operation.name),
         returns: addReturnType(operation.returnType, operation.name),
       };

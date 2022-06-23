@@ -14,5 +14,5 @@ message FooResponse {
 }
 
 service Service {
-  rpc foo (FooRequest) returns (FooResponse);
+  rpc Foo(FooRequest) returns (FooResponse);
 }
