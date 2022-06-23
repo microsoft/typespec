@@ -51,6 +51,8 @@ export function $package(ctx: DecoratorContext, target: NamespaceType, name: str
     return;
   }
 
+  // TODO: validate package name is acceptable
+
   ctx.program.stateMap(packageKey).set(target, name);
 }
 

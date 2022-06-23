@@ -62,6 +62,12 @@ export const CadlGrpcLibrary = createCadlLibrary({
         "recursive-map": "a protobuf map's 'value' type may not refer to another map",
       },
     },
+    "namespace-collision": {
+      severity: "error",
+      messages: {
+        default: paramMessage`the package name ${"name"} has already been used`,
+      },
+    },
   },
   emitter: { options: EmitterOptionsSchema },
 });

@@ -121,6 +121,9 @@ function* writeOneOf(decl: ProtoOneOfDeclaration): Iterable<string> {
 
 function* writeEnum(decl: ProtoEnumDeclaration): Iterable<string> {
   yield `enum ${decl.name} {`;
+  if (decl.allowAlias) {
+    yield "  option allow_alias = true;";
+  }
   yield* indent(flatMap(decl.variants, ([name, idx]) => `${name} = ${idx};`));
   yield "}";
 }

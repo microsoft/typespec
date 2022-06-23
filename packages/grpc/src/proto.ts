@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { NamespaceType } from "@cadl-lang/compiler";
+
 /**
  * This module describes an AST for Protobuf.
  */
@@ -24,6 +26,11 @@ export interface ProtoFile {
    * Only `service` and `message` declarations may exist at the root of the file.
    */
   declarations: Array<ProtoServiceDeclaration | ProtoMessageDeclaration>;
+
+  /**
+   * The original namespace node from which this ProtoFile originated.
+   */
+  source: NamespaceType;
 }
 
 /**
@@ -181,7 +188,9 @@ export interface ProtoMethodDeclaration {
 export interface ProtoMessageDeclaration {
   kind: "message";
   name: string;
-  declarations: Array<ProtoFieldDeclaration | ProtoMessageDeclaration | ProtoOneOfDeclaration>;
+  declarations: Array<
+    ProtoFieldDeclaration | ProtoMessageDeclaration | ProtoOneOfDeclaration | ProtoEnumDeclaration
+  >;
   reservations?: Array<string | number | [number, number]>;
 }
 
@@ -219,10 +228,6 @@ export interface ProtoOneOfDeclaration {
 
 /**
  * An `enum` declaration.
- *
- * TODO: this node type is currently disconnected from the proto AST. Can this
- * appear anywhere other than messages? Do we need to emit it _directly_ before
- * it's used?
  */
 export interface ProtoEnumDeclaration {
   kind: "enum";

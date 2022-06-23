@@ -57,7 +57,9 @@ export function createGrpcEmitter(
       for (const file of files) {
         // If the file has a package, emit it to a path that is shaped like the package name. Otherwise emit to
         // main.proto
-        // TODO: What do we do if there are multiple files without packages, or multiple files with the same package?
+
+        // Collisions have already been detected.
+
         const packageSlug = file.package?.split(".") ?? ["main"];
         const filePath = resolvePath(outDir, ...packageSlug.slice(0, -1));
 
@@ -80,14 +82,19 @@ function cadlToProto(program: Program): ProtoFile[] {
   const packages = program.stateMap(packageKey) as Map<NamespaceType, string>;
 
   // Emit a file per package.
-  return [...packages].map(
+  const files = [...packages].map(
     ([namespace, packageName]) =>
       ({
         package: packageName,
         options: {},
         declarations: declarationsFromNamespace(namespace),
+        source: namespace,
       } as ProtoFile)
   );
+
+  checkForNamespaceCollisions(files);
+
+  return files;
 
   /**
    * Recursively searches a namespace for declarations that should be reified as Protobuf.
@@ -194,13 +201,14 @@ function cadlToProto(program: Program): ProtoFile[] {
      * @returns a reference to the model's message
      */
     function addReturnType(t: Type, operationName: string): ProtoRef {
-      /* TODO: need to support importing google/protobuf/empty.proto and others
-         This is also very important for handling datetime values.
+      // TODO: need to support importing google/protobuf/empty.proto and others
+      // https://github.com/microsoft/cadl/issues/630
 
-      if (t.kind === "Intrinsic" && t.name === "void") {
-        return ref("google.protobuf.Empty");
-      }
-      */
+      // This is also very important for handling datetime values.
+
+      // if (t.kind === "Intrinsic" && t.name === "void") {
+      //  return ref("google.protobuf.Empty");
+      // }
 
       switch (t.kind) {
         case "Model":
@@ -363,6 +371,22 @@ function cadlToProto(program: Program): ProtoFile[] {
       return effectiveModel;
     }
     // #endregion
+  }
+
+  function checkForNamespaceCollisions(files: ProtoFile[]) {
+    const namespaces = new Set<string | undefined>();
+
+    for (const file of files) {
+      if (namespaces.has(file.package)) {
+        reportDiagnostic(program, {
+          code: "namespace-collision",
+          format: {
+            name: `"${file.package}"` ?? "<empty>",
+          },
+          target: file.source,
+        });
+      }
+    }
   }
 }
 
