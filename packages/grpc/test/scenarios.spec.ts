@@ -5,6 +5,7 @@ import url from "url";
 
 import micromatch from "micromatch";
 
+import { formatDiagnostic } from "@cadl-lang/compiler";
 import { CadlTestLibrary, createTestHost, resolveVirtualPath } from "@cadl-lang/compiler/testing";
 
 const SCENARIOS_DIRECTORY = url.fileURLToPath(new url.URL("../../test/scenarios", import.meta.url));
@@ -35,29 +36,63 @@ describe("gRPC scenarios", function () {
 
     it(scenarioName, async function () {
       const inputFiles = await readdirRecursive(path.join(scenario, "input"));
-      const outputFiles = await doEmit(inputFiles);
+      const emitResult = await doEmit(inputFiles);
 
       const shouldRecord = micromatch.isMatch(scenarioName, patternsToRecord);
 
       const expectationDirectory = path.resolve(scenario, "output");
+      const diagnosticsExpectationPath = path.resolve(scenario, "diagnostics.txt");
 
       if (shouldRecord) {
         // Write new output to the scenario's output folder.
 
-        await writeExpectationDirectory(expectationDirectory, outputFiles);
+        await writeExpectationDirectory(expectationDirectory, emitResult.files);
+
+        if (emitResult.diagnostics.length > 0) {
+          const diagnostics = emitResult.diagnostics.join("\n");
+
+          await fs.promises.writeFile(diagnosticsExpectationPath, diagnostics);
+        }
       } else {
         // It's an error if any file in the expected files is missing, if any file in the output files doesn't have a
         // corresponding expectation, or if any file in the output files doesn't match its corresponding output file
         // character for character.
-        const expectedFiles = await readdirRecursive(expectationDirectory);
 
-        assertFilesAsExpected(outputFiles, expectedFiles);
+        // `throwIfNoEntry` is not supported with promisified fs.promises.stat.
+        if (!fs.statSync(expectationDirectory, { throwIfNoEntry: false })) {
+          assert.strictEqual(
+            Object.entries(emitResult.files).length,
+            0,
+            "no expectations exist, but output files were generated"
+          );
+        } else {
+          const expectedFiles = await readdirRecursive(expectationDirectory);
+
+          assertFilesAsExpected(emitResult.files, expectedFiles);
+        }
+
+        if (emitResult.diagnostics.length > 0) {
+          // Check the diagnostics.
+
+          const diagnostics = emitResult.diagnostics.join("\n");
+
+          const expectedDiagnostics = await (
+            await fs.promises.readFile(diagnosticsExpectationPath)
+          ).toString("utf-8");
+
+          assert.strictEqual(diagnostics, expectedDiagnostics);
+        }
       }
     });
   }
 });
 
-async function doEmit(files: Record<string, string>): Promise<Record<string, string>> {
+interface EmitResult {
+  files: Record<string, string>;
+  diagnostics: string[];
+}
+
+async function doEmit(files: Record<string, string>): Promise<EmitResult> {
   const baseOutputPath = resolveVirtualPath("test-output/");
 
   const host = await createTestHost({
@@ -68,7 +103,7 @@ async function doEmit(files: Record<string, string>): Promise<Record<string, str
     host.addCadlFile(fileName, content);
   }
 
-  await host.compile("main.cadl", {
+  const [, diagnostics] = await host.compileAndDiagnose("main.cadl", {
     outputPath: baseOutputPath,
     noEmit: false,
     emitters: {
@@ -78,11 +113,14 @@ async function doEmit(files: Record<string, string>): Promise<Record<string, str
     },
   });
 
-  return Object.fromEntries(
-    [...host.fs.entries()]
-      .filter(([name]) => name.startsWith(baseOutputPath))
-      .map(([name, value]) => [name.replace(baseOutputPath, ""), value])
-  );
+  return {
+    files: Object.fromEntries(
+      [...host.fs.entries()]
+        .filter(([name]) => name.startsWith(baseOutputPath))
+        .map(([name, value]) => [name.replace(baseOutputPath, ""), value])
+    ),
+    diagnostics: diagnostics.map(formatDiagnostic),
+  };
 }
 
 function assertFilesAsExpected(
@@ -109,11 +147,18 @@ async function writeExpectationDirectory(
   expectationDirectory: string,
   outputFiles: Record<string, string>
 ) {
+  const fileEntries = Object.entries(outputFiles);
+
+  // It'll be annoying to fiddle with .gitkeep files, so let's omit the `output` directory if it's empty.
+  if (fileEntries.length === 0) {
+    return;
+  }
+
   await fs.promises.rm(expectationDirectory, { recursive: true, force: true });
 
   await fs.promises.mkdir(expectationDirectory);
 
-  for (const [fn, content] of Object.entries(outputFiles)) {
+  for (const [fn, content] of fileEntries) {
     const fullPath = path.join(expectationDirectory, fn);
     await fs.promises.mkdir(path.dirname(fullPath), { recursive: true });
     await fs.promises.writeFile(fullPath, content);
