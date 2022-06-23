@@ -43,66 +43,78 @@ describe("gRPC scenarios", function () {
 
       if (shouldRecord) {
         // Write new output to the scenario's output folder.
-        console.log("Should record :)");
 
-        await fs.promises.rm(expectationDirectory, { recursive: true, force: true });
-
-        await fs.promises.mkdir(expectationDirectory);
-
-        for (const [fn, content] of Object.entries(outputFiles)) {
-          const fullPath = path.join(expectationDirectory, fn);
-          await fs.promises.writeFile(fullPath, content);
-        }
+        await writeExpectationDirectory(expectationDirectory, outputFiles);
       } else {
         // It's an error if any file in the expected files is missing, if any file in the output files doesn't have a
         // corresponding expectation, or if any file in the output files doesn't match its corresponding output file
         // character for character.
         const expectedFiles = await readdirRecursive(expectationDirectory);
 
-        for (const fn of Object.keys(expectedFiles)) {
-          assert.ok(
-            Object.prototype.hasOwnProperty.call(outputFiles, fn),
-            `expected file ${fn} was not produced`
-          );
-        }
-
-        for (const [fn, content] of Object.entries(outputFiles)) {
-          const expectedContent = expectedFiles[fn];
-
-          assert.ok(expectedContent, `output file ${fn} has no corresponding expectation`);
-
-          assert.strictEqual(content, expectedContent);
-        }
+        assertFilesAsExpected(outputFiles, expectedFiles);
       }
     });
   }
-
-  async function doEmit(files: Record<string, string>): Promise<Record<string, string>> {
-    const baseOutputPath = resolveVirtualPath("test-output/");
-
-    const host = await createTestHost({
-      libraries: [CadlGrpcTestLibrary],
-    });
-
-    for (const [fileName, content] of Object.entries(files)) {
-      host.addCadlFile(fileName, content);
-    }
-
-    await host.compile("main.cadl", {
-      outputPath: baseOutputPath,
-      noEmit: false,
-      emitters: ["@cadl-lang/grpc"],
-    });
-
-    return Object.fromEntries(
-      [...host.fs.entries()]
-        .filter(([name]) => name.startsWith(baseOutputPath))
-        .map(([name, value]) => [name.replace(baseOutputPath, ""), value])
-    );
-  }
 });
 
-// #region readdir recursive
+async function doEmit(files: Record<string, string>): Promise<Record<string, string>> {
+  const baseOutputPath = resolveVirtualPath("test-output/");
+
+  const host = await createTestHost({
+    libraries: [CadlGrpcTestLibrary],
+  });
+
+  for (const [fileName, content] of Object.entries(files)) {
+    host.addCadlFile(fileName, content);
+  }
+
+  await host.compile("main.cadl", {
+    outputPath: baseOutputPath,
+    noEmit: false,
+    emitters: ["@cadl-lang/grpc"],
+  });
+
+  return Object.fromEntries(
+    [...host.fs.entries()]
+      .filter(([name]) => name.startsWith(baseOutputPath))
+      .map(([name, value]) => [name.replace(baseOutputPath, ""), value])
+  );
+}
+
+function assertFilesAsExpected(
+  outputFiles: Record<string, string>,
+  expectedFiles: Record<string, string>
+) {
+  for (const fn of Object.keys(expectedFiles)) {
+    assert.ok(
+      Object.prototype.hasOwnProperty.call(outputFiles, fn),
+      `expected file ${fn} was not produced`
+    );
+  }
+
+  for (const [fn, content] of Object.entries(outputFiles)) {
+    const expectedContent = expectedFiles[fn];
+
+    assert.ok(expectedContent, `output file ${fn} has no corresponding expectation`);
+
+    assert.strictEqual(content, expectedContent);
+  }
+}
+
+async function writeExpectationDirectory(
+  expectationDirectory: string,
+  outputFiles: Record<string, string>
+) {
+  await fs.promises.rm(expectationDirectory, { recursive: true, force: true });
+
+  await fs.promises.mkdir(expectationDirectory);
+
+  for (const [fn, content] of Object.entries(outputFiles)) {
+    const fullPath = path.join(expectationDirectory, fn);
+    await fs.promises.mkdir(path.dirname(fullPath), { recursive: true });
+    await fs.promises.writeFile(fullPath, content);
+  }
+}
 
 async function readdirRecursive(dir: string, base: string = dir): Promise<Record<string, string>> {
   const res: Record<string, string> = {};
@@ -125,5 +137,3 @@ async function readdirRecursive(dir: string, base: string = dir): Promise<Record
 
   return res;
 }
-
-// #endregion
