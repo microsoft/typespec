@@ -29,7 +29,7 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
-    "@cadl-lang/compiler": "~0.31.0"
+    "@cadl-lang/compiler": "~0.32.0"
   },
   "devDependencies": {
     "@cadl-lang/eslint-config-cadl": "~0.3.0",

@@ -1,5 +1,5 @@
 import { Program } from "@cadl-lang/compiler";
-import { getAllRoutes } from "./route.js";
+import { getAllRoutes } from "./http/route.js";
 
 export function $onValidate(program: Program) {
   const [, diagnostics] = getAllRoutes(program);

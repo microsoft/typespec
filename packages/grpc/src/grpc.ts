@@ -4,6 +4,7 @@
 import {
   createDecoratorDefinition,
   DecoratorContext,
+  EmitOptionsFor,
   ModelTypeProperty,
   NamespaceType,
   Program,
@@ -11,7 +12,7 @@ import {
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 
-import { fieldIndexKey, packageKey, reportDiagnostic, serviceKey } from "./lib.js";
+import { CadlGrpcLibrary, fieldIndexKey, packageKey, reportDiagnostic, serviceKey } from "./lib.js";
 import { createGrpcEmitter } from "./transform.js";
 
 /**
@@ -135,12 +136,14 @@ export function $field(ctx: DecoratorContext, target: ModelTypeProperty, fieldIn
  *
  * @param program - the program to emit
  */
-export async function $onEmit(program: Program) {
+export async function $onEmit(program: Program, options?: EmitOptionsFor<CadlGrpcLibrary>) {
   const emitter = createGrpcEmitter(program);
 
   await emitter({
-    outDir: program.compilerOptions.outputPath,
+    outputDirectory: options?.outputDirectory,
   });
 }
 
 export const namespace = "Cadl.Grpc";
+
+export { CadlGrpcLibrary as $lib };

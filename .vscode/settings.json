@@ -90,9 +90,9 @@
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
   "mochaExplorer.files": [
-    "./packages/*/dist/test/**/*.js",
-    "./packages/*/dist-dev/test/**/*.js",
-    "./packages/*/test/**/*.js"
+    "./packages/*/dist/test/**/*.test.js",
+    "./packages/*/dist-dev/test/**/*.test.js",
+    "./packages/*/test/**/*.test.js"
   ],
   "mochaExplorer.ignore": "./packages/*/dist/test/manual/**/*.js",
   "mochaExplorer.mochaPath": "./packages/compiler/node_modules/mocha",

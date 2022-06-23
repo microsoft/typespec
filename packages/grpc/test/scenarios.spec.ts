@@ -71,7 +71,11 @@ async function doEmit(files: Record<string, string>): Promise<Record<string, str
   await host.compile("main.cadl", {
     outputPath: baseOutputPath,
     noEmit: false,
-    emitters: ["@cadl-lang/grpc"],
+    emitters: {
+      "@cadl-lang/grpc": {
+        outputDirectory: baseOutputPath,
+      },
+    },
   });
 
   return Object.fromEntries(

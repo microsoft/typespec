@@ -2,6 +2,8 @@ import "@cadl-lang/versioning";
 import "@cadl-lang/rest";
 import "./library.cadl";
 
+using Cadl.Versioning;
+
 // Use version 1.0 of the Library
 @serviceTitle("Pet Store Service")
 @versionedDependency(Library.Versions.v1_0)

@@ -1,6 +1,8 @@
 import "@cadl-lang/rest";
 import "@cadl-lang/versioning";
 
+using Cadl.Versioning;
+
 @versioned(Versions)
 @serviceTitle("Widget Service")
 namespace DemoService;

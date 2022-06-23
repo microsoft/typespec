@@ -13,7 +13,13 @@ import {
   resolvePath,
   Type,
 } from "@cadl-lang/compiler";
-import { fieldIndexKey, packageKey, reportDiagnostic, serviceKey } from "./lib.js";
+import {
+  fieldIndexKey,
+  GrpcEmitterOptions,
+  packageKey,
+  reportDiagnostic,
+  serviceKey,
+} from "./lib.js";
 import {
   map,
   ProtoFieldDeclaration,
@@ -30,35 +36,19 @@ import {
 } from "./proto.js";
 import { writeProtoFile } from "./write.js";
 
-/**
- * Options that the gRPC emitter accepts.
- */
-interface GrpcEmitterOptions {
-  /**
-   * The directory where the emitter will write the Protobuf output tree.
-   */
-  outDir: string;
-}
-
 // Default options
-const DEFAULT_GRPC_EMITTER_OPTIONS: GrpcEmitterOptions = {
-  // TODO: shouldn't this be configured by default?
-  outDir: "./cadl-output/",
-};
+const DEFAULT_OPTIONS = {
+  outputDirectory: "./cadl-output/",
+} as const;
 
 /**
  * Create a worker function that converts the CADL program to Protobuf and writes it to the file system.
  */
 export function createGrpcEmitter(
   program: Program
-): (emitterOptions?: Partial<GrpcEmitterOptions>) => Promise<void> {
-  return async function doEmit(emitterOptions) {
-    const options = {
-      ...DEFAULT_GRPC_EMITTER_OPTIONS,
-      ...emitterOptions,
-    };
-
-    const outDir = resolvePath(options.outDir);
+): (options?: GrpcEmitterOptions) => Promise<void> {
+  return async function doEmit(options) {
+    const outDir = resolvePath(options?.outputDirectory ?? DEFAULT_OPTIONS.outputDirectory);
 
     // Convert the program to a set of proto files.
     const files = cadlToProto(program);
@@ -130,7 +120,6 @@ function cadlToProto(program: Program): ProtoFile[] {
      * @param model - the model type to consider
      */
     function visitType(model: ModelType) {
-      // TODO: when can the node be undefined?
       if (!visitedTypes.has(model)) {
         visitedTypes.add(model);
         declarations.push(toMessage(model));
@@ -151,11 +140,17 @@ function cadlToProto(program: Program): ProtoFile[] {
 
     return declarations;
 
+    // #region inline helpers
+
     /**
      * @param operation - the operation to convert
      * @returns a corresponding method declaration
      */
     function toMethodFromOperation(operation: OperationType): ProtoMethodDeclaration {
+      // TODO: add support for cross-package type references
+      // https://github.com/microsoft/cadl/issues/632
+
+      // TODO: until then, reject cross-package references
       return {
         kind: "method",
         name: capitalize(operation.name),
@@ -234,7 +229,8 @@ function cadlToProto(program: Program): ProtoFile[] {
       // We will handle all intrinsics separately, including maps.
       if (isIntrinsic(program, t)) return intrinsicToProto(getIntrinsicModelName(program, t), t);
 
-      // TODO: streams.
+      // TODO: streams
+      // https://github.com/microsoft/cadl/issues/633
 
       // TODO: reject anonymous models at this stage
 
@@ -286,7 +282,8 @@ function cadlToProto(program: Program): ProtoFile[] {
         return map(keyProto[1] as "string" | ScalarIntegralName, valueProto);
       }
 
-      // TODO: there are way more scalars in proto than this. How do we expose those knobs to the API writer?
+      // TODO: expose control over integer encodings.
+      // https://github.com/microsoft/cadl/issues/631
       const protoType = {
         bytes: scalar("bytes"),
         boolean: scalar("bool"),
@@ -365,6 +362,7 @@ function cadlToProto(program: Program): ProtoFile[] {
 
       return effectiveModel;
     }
+    // #endregion
   }
 }
 

@@ -48,17 +48,20 @@ import {
   getTypeName,
   shouldInline,
 } from "@cadl-lang/openapi";
+import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
 import {
-  Discriminator,
   getAllRoutes,
   getContentTypes,
-  getDiscriminator,
-  http,
+  getHeaderFieldName,
+  getPathParamName,
+  getQueryParamName,
+  getStatusCodeDescription,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationResponse,
+  isStatusCode,
   OperationDetails,
-} from "@cadl-lang/rest";
+} from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
@@ -73,17 +76,17 @@ import {
   OpenAPI3ServerVariable,
 } from "./types.js";
 
-const {
-  getHeaderFieldName,
-  getPathParamName,
-  getQueryParamName,
-  isStatusCode,
-  getStatusCodeDescription,
-} = http;
+const defaultOptions = {
+  outputFile: "openapi.json",
+};
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
+  const resolvedOptions = { ...defaultOptions, ...emitterOptions };
   const options: OpenAPIEmitterOptions = {
-    outputFile: p.compilerOptions.swaggerOutputFile || resolvePath("./openapi.json"),
+    outputFile: resolvePath(
+      p.compilerOptions.outputPath ?? "./cadl-output",
+      resolvedOptions.outputFile
+    ),
   };
 
   const emitter = createOAPIEmitter(p, options);

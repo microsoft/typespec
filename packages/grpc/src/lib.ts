@@ -1,9 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
+import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
 
-const { reportDiagnostic } = createCadlLibrary({
+/**
+ * Options that the gRPC emitter accepts.
+ */
+export interface GrpcEmitterOptions {
+  /**
+   * The directory where the emitter will write the Protobuf output tree.
+   */
+  outputDirectory?: string;
+}
+
+const EmitterOptionsSchema: JSONSchemaType<GrpcEmitterOptions> = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    outputDirectory: { type: "string", nullable: true },
+  },
+  required: [],
+};
+
+export const CadlGrpcLibrary = createCadlLibrary({
   name: "cadl-grpc",
   diagnostics: {
     "field-index": {
@@ -44,10 +63,12 @@ const { reportDiagnostic } = createCadlLibrary({
       },
     },
   },
-  emitter: { names: ["grpc"] },
+  emitter: { options: EmitterOptionsSchema },
 });
 
-export { reportDiagnostic };
+export const { reportDiagnostic } = CadlGrpcLibrary;
+
+export type CadlGrpcLibrary = typeof CadlGrpcLibrary;
 
 // Decorator state keys
 export const fieldIndexKey = Symbol("cadl-grpc::fields");

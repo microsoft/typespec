@@ -1,6 +1,19 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Fri, 06 May 2022 17:19:57 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+
+## 0.15.0
+Mon, 13 Jun 2022 23:42:28 GMT
+
+### Minor changes
+
+- Update tmLanguage grammar for operation signature support
+- Add semantic colorization
+
+### Patches
+
+- Improve error reporting when cadl-server is not found
+- Resolve issue with `language-configuration.json` being excluded from extension
 
 ## 0.14.0
 Fri, 06 May 2022 17:19:57 GMT

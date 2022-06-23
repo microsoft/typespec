@@ -1,5 +1,7 @@
 import "@cadl-lang/versioning";
 
+using Cadl.Versioning;
+
 @versioned(Versions)
 namespace Library;
 

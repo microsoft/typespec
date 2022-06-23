@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "$consumes decorator better validation",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

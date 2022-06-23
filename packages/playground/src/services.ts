@@ -2,7 +2,7 @@ import { CadlLanguageConfiguration, ServerHost } from "@cadl-lang/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { BrowserHost } from "./browserHost";
+import { BrowserHost } from "./browser-host";
 import { importCadlCompiler } from "./core";
 import "./style.css";
 

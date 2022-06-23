@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/rest",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "author": "Microsoft Corporation",
   "description": "Cadl REST protocol binding",
   "homepage": "https://github.com/Microsoft/cadl",
@@ -21,12 +21,16 @@
   "cadlMain": "lib/rest.cadl",
   "exports": {
     ".": "./dist/src/index.js",
+    "./http": "./dist/src/http/index.js",
     "./testing": "./dist/src/testing/index.js"
   },
   "typesVersions": {
     "*": {
       "*": [
         "./dist/src/index.d.ts"
+      ],
+      "http": [
+        "./dist/src/http/index.d.ts"
       ],
       "testing": [
         "./dist/src/testing/index.d.ts"
@@ -40,7 +44,7 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p . && npm run lint-cadl-library",
     "watch": "tsc -p . --watch",
-    "lint-cadl-library": "cadl compile . --import @cadl-lang/library-linter",
+    "lint-cadl-library": "cadl compile . --warn-as-error --import @cadl-lang/library-linter --no-emit",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only",
     "lint": "eslint . --ext .ts --max-warnings=0",
@@ -52,14 +56,14 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.31.0"
+    "@cadl-lang/compiler": "~0.32.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
-    "@cadl-lang/compiler": "~0.31.0",
+    "@cadl-lang/compiler": "~0.32.0",
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
-    "@cadl-lang/library-linter": "~0.1.0",
+    "@cadl-lang/library-linter": "~0.1.1",
     "@cadl-lang/eslint-plugin": "~0.1.0",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
