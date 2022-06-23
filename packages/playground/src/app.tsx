@@ -68,6 +68,11 @@ export const App: FunctionComponent = () => {
     window.open(url, "_blank");
   }, [saveCode, cadlModel]);
 
+  const cadlDocs = useCallback(async () => {
+    const url = `https://github.com/microsoft/cadl/blob/main/docs/tutorial.md`;
+    window.open(url, "_blank");
+  }, [cadlModel]);
+
   async function emptyOutputDir() {
     // empty output directory
     const dirs = await host.readDir("./cadl-output");
@@ -156,6 +161,9 @@ export const App: FunctionComponent = () => {
           </label>
           <label>
             <button onClick={newIssue as any}>Open Issue</button>
+          </label>
+          <label>
+            <button onClick={cadlDocs as any}>Show Cadl Tutorial</button>
           </label>
         </div>
         <div id="editor">
