@@ -340,7 +340,7 @@ function cadlToProto(program: Program): ProtoFile[] {
 
       let effectiveModel = program.checker.getEffectiveModelType(model);
 
-      if (model.name === "") {
+      if (effectiveModel.name === "") {
         // Name the model automatically if it is anonymous
         effectiveModel = program.checker.createAndFinishType({
           ...model,
