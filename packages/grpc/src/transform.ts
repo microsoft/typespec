@@ -8,11 +8,9 @@ import {
   ModelType,
   ModelTypeProperty,
   NamespaceType,
-  Node,
   OperationType,
   Program,
   resolvePath,
-  SyntaxKind,
   Type,
 } from "@cadl-lang/compiler";
 import { fieldIndexKey, packageKey, reportDiagnostic, serviceKey } from "./lib.js";
@@ -124,7 +122,7 @@ function cadlToProto(program: Program): ProtoFile[] {
     })(namespace);
 
     const declarations: ProtoFile["declarations"] = [];
-    const visitedTypes = new Set<Node>();
+    const visitedTypes = new Set<ModelType>();
 
     /**
      * Visits a model type, converting it into a message definition and adding it if it has not already been visited.
@@ -132,24 +130,13 @@ function cadlToProto(program: Program): ProtoFile[] {
      */
     function visitType(model: ModelType) {
       // TODO: when can the node be undefined?
-      if (model.node && !visitedTypes.has(model.node)) {
-        visitedTypes.add(model.node);
+      if (!visitedTypes.has(model)) {
+        visitedTypes.add(model);
         declarations.push(toMessage(model));
       }
     }
 
-    function visitSynthetic(model: SyntheticModel) {
-      if (!visitedTypes.has(model.trueModelNode)) {
-        visitedTypes.add(model.trueModelNode);
-        declarations.push({
-          kind: "message",
-          name: model.name,
-          declarations: model.properties.map(toField),
-        });
-      }
-    }
-
-    const effectiveModelTypeCache = new Map<ModelType, SyntheticModel | undefined>();
+    const effectiveModelTypeCache = new Map<ModelType, ModelType | undefined>();
 
     // Each interface will be reified as a `service` declaration.
     for (const iface of serviceInterfaces) {
@@ -347,70 +334,27 @@ function cadlToProto(program: Program): ProtoFile[] {
 
     function getEffectiveModelType(
       model: ModelType,
-      anonymousModelName?: string
-    ): SyntheticModel | undefined {
+      anonymousModelName: string
+    ): ModelType | undefined {
       if (effectiveModelTypeCache.has(model)) return effectiveModelTypeCache.get(model);
 
-      const properties = [...model.properties.values()];
+      let effectiveModel = program.checker.getEffectiveModelType(model);
 
-      const source = properties[0]?.sourceProperty?.node.parent;
-
-      if (
-        source &&
-        source.kind === SyntaxKind.ModelStatement &&
-        properties.length > 0 &&
-        properties.every((p) => p.sourceProperty?.node.parent === source)
-      ) {
-        // TODO: horrible hack: id.sv?
-        const messageLike: SyntheticModel = {
-          name: (source as any).id.sv,
-          properties,
-          trueModelNode: source,
-        };
-
-        effectiveModelTypeCache.set(model, messageLike);
-
-        visitSynthetic(messageLike);
-        return messageLike;
-      } else if (model.node && model.name === "" && anonymousModelName) {
-        const messageLike: SyntheticModel = {
+      if (model.name === "") {
+        // Name the model automatically if it is anonymous
+        effectiveModel = program.checker.createAndFinishType({
+          ...model,
           name: anonymousModelName,
-          properties,
-          trueModelNode: model.node,
-        };
-
-        effectiveModelTypeCache.set(model, messageLike);
-
-        visitSynthetic(messageLike);
-        return messageLike;
+        });
       }
 
-      effectiveModelTypeCache.set(model, undefined);
-      return undefined;
+      visitType(effectiveModel);
+
+      effectiveModelTypeCache.set(model, effectiveModel);
+
+      return effectiveModel;
     }
   }
-}
-
-/**
- * A synthetic (created ad-hoc during transformation) model for conversion to a gRPC message.
- *
- * A synthetic model is named, whereas the underlying model may not be.
- */
-interface SyntheticModel {
-  /**
-   * The message's model name.
-   */
-  name: string;
-
-  /**
-   * The property entries in the messag
-   */
-  properties: ModelTypeProperty[];
-
-  /**
-   * The AST Node that this model is tied to (used for deduplication).
-   */
-  trueModelNode: Node;
 }
 
 /**

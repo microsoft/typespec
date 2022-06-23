@@ -7,7 +7,6 @@ import {
   ModelTypeProperty,
   NamespaceType,
   Program,
-  setDecoratorNamespace,
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
@@ -139,7 +138,9 @@ export function $field(ctx: DecoratorContext, target: ModelTypeProperty, fieldIn
 export async function $onEmit(program: Program) {
   const emitter = createGrpcEmitter(program);
 
-  await emitter(/* TODO: options? */);
+  await emitter({
+    outDir: program.compilerOptions.outputPath,
+  });
 }
 
-setDecoratorNamespace("Cadl.Grpc", $field, $package, $service);
+export const namespace = "Cadl.Grpc";

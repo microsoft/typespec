@@ -16,9 +16,9 @@
   "keywords": [
     "cadl"
   ],
-  "main": "dist/lib.js",
+  "main": "dist/src/grpc.js",
   "type": "module",
-  "cadlMain": "dist/grpc.js",
+  "cadlMain": "dist/src/grpc.js",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
@@ -40,6 +40,8 @@
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.7.2"
+    "typescript": "~4.7.2",
+    "micromatch": "~4.0.5",
+    "@types/micromatch": "~4.0.2"
   }
 }
