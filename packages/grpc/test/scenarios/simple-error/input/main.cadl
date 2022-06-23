@@ -2,19 +2,11 @@ import "@cadl-lang/grpc";
 
 using Cadl.Grpc;
 
-@package("com.azure.test")
+@package
 namespace Test;
 
 @service
 interface Service {
-  foo(...Input): Output;
-}
-
-model Input {
-  @field(0) testInputField: string;
-}
-
-model Output {
-  @field(1) testOutputField: int32;
-  @field(2) secondField: string;
+  // invalid field index
+  foo(@field(0) testInputField: string): {};
 }
