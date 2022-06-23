@@ -133,12 +133,25 @@ function writeType(type: ProtoType): string {
 
 // #region utils
 
+/**
+ * Indents an iterable of strings by prepending an amount of spaces to each item
+ * in the iterable.
+ *
+ * @param it - the string iterable to indent
+ * @param depth - the indentation depth in spaces, defaults to 2
+ */
 function* indent(it: Iterable<string>, depth: number = 2): Iterable<string> {
   for (const value of it) {
     yield " ".repeat(depth) + value;
   }
 }
 
+/**
+ * A version of flatMap that works with generic iterables.
+ *
+ * @param it - the iterable to flatten and map
+ * @param f - the function to run on the items of `it`
+ */
 function* flatMap<T1, T2>(it: Iterable<T1>, f: (v: T1) => T2 | Iterable<T2>): Iterable<T2> {
   for (const value of it) {
     const result = f(value);
@@ -150,14 +163,25 @@ function* flatMap<T1, T2>(it: Iterable<T1>, f: (v: T1) => T2 | Iterable<T2>): It
   }
 }
 
+/**
+ * Collects an iterable into an array. Having this as a callable function is useful for writing functional combinations.
+ *
+ * @param it - the iterable to collect
+ * @returns an array with all the items in the iterable
+ */
 function collect<T>(it: Iterable<T>): T[] {
-  const result = [];
-
-  for (const value of it) result.push(value);
-
-  return result;
+  return [...it];
 }
 
+/**
+ * A helper function that allows categorizing items from an iterable into groups and running a different map function
+ * for each group.
+ *
+ * @param source - the iterable to apply the selection and mapping to
+ * @param select - a function that is applied to each item and produces a selector
+ * @param delegates - a record of selectors to mapping functions
+ * @returns a record of selectors to arrays of results produced by each delegate
+ */
 function selectMap<TIn, Delegates extends { [k: string]: (input: TIn) => unknown }>(
   source: Iterable<TIn>,
   select: (v: TIn) => keyof Delegates,

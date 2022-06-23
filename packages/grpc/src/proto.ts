@@ -70,10 +70,10 @@ export type ScalarIntegerName = `${"u" | "s" | ""}int${"32" | "64"}`;
 export type ScalarFixedName = `${"s" | ""}fixed${"32" | "64"}`;
 
 // Symbols for type destructuring
-export const $scalar = Symbol("$scalar");
-export const $ref = Symbol("$ref");
-export const $map = Symbol("$map");
-export const $unreachable = Symbol("$unreachable");
+const $scalar = Symbol("$scalar");
+const $ref = Symbol("$ref");
+const $map = Symbol("$map");
+const $unreachable = Symbol("$unreachable");
 
 /**
  * A map type. Map keys can be any integral or string type (any scalar except float, double, and bytes).
@@ -135,23 +135,24 @@ export interface ProtoTypeMatchPattern<T> {
  * A helper function that matches and delegates a Protobuf type to a handler per type.
  *
  * @param type - the Protobuf type to match and delegate
- * @param pat
+ * @param pattern - the matching pattern of delegates to apply
  * @returns
  */
-export function matchType<Result>(type: ProtoType, pat: ProtoTypeMatchPattern<Result>): Result {
+export function matchType<Result>(type: ProtoType, pattern: ProtoTypeMatchPattern<Result>): Result {
   switch (type[0]) {
     case $ref:
-      return pat.ref(type[1]);
+      return pattern.ref(type[1]);
     case $scalar:
-      return pat.scalar(type[1]);
+      return pattern.scalar(type[1]);
     case $map:
-      return pat.map(type[1], type[2] as Exclude<ProtoType, ProtoMap>);
+      return pattern.map(type[1], type[2] as Exclude<ProtoType, ProtoMap>);
     default:
       const __exhaust: never = type[0];
       if (type[0] === $unreachable) {
+        // This might happen if we produce an `$unreachable`-tagged type without preventing emit.
         throw new Error(`Unreachable: ${type[1]}`);
       }
-      throw new Error(`Unreachable: matchType variant ${__exhaust}`); // unreachable
+      throw new Error(`Unreachable: matchType variant ${__exhaust}`);
   }
 }
 
