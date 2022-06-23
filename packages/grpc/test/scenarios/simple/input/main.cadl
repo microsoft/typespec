@@ -7,7 +7,11 @@ namespace Test;
 
 @service
 interface Service {
-  foo(@field(1) testField: string): Output;
+  foo(...Input): Output;
+}
+
+model Input {
+  @field(1) testInputField: string;
 }
 
 model Output {

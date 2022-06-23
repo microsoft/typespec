@@ -4,8 +4,8 @@ syntax = "proto3";
 
 package com.azure.test;
 
-message FooRequest {
-  string testField = 1;
+message Input {
+  string testInputField = 1;
 }
 
 message Output {
@@ -14,5 +14,5 @@ message Output {
 }
 
 service Service {
-  rpc foo (FooRequest) returns (Output);
+  rpc foo (Input) returns (Output);
 }
