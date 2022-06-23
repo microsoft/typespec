@@ -73,6 +73,7 @@ export type ScalarFixedName = `${"s" | ""}fixed${"32" | "64"}`;
 export const $scalar = Symbol("$scalar");
 export const $ref = Symbol("$ref");
 export const $map = Symbol("$map");
+export const $unreachable = Symbol("$unreachable");
 
 /**
  * A map type. Map keys can be any integral or string type (any scalar except float, double, and bytes).
@@ -117,6 +118,10 @@ export function map(k: ScalarIntegralName | "string", v: Exclude<ProtoType, Prot
   return [$map, k, v];
 }
 
+export function unreachable(message: string) {
+  return [$unreachable, message] as never;
+}
+
 /**
  * A "pattern" object with variants for each Protobuf type.
  */
@@ -143,6 +148,9 @@ export function matchType<Result>(type: ProtoType, pat: ProtoTypeMatchPattern<Re
       return pat.map(type[1], type[2] as Exclude<ProtoType, ProtoMap>);
     default:
       const __exhaust: never = type[0];
+      if (type[0] === $unreachable) {
+        throw new Error(`Unreachable: ${type[1]}`);
+      }
       throw new Error(`Unreachable: matchType variant ${__exhaust}`); // unreachable
   }
 }

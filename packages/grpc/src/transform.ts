@@ -26,6 +26,7 @@ import {
   ref,
   scalar,
   ScalarIntegralName,
+  unreachable,
 } from "./proto.js";
 import { writeProtoFile } from "./write.js";
 
@@ -159,7 +160,7 @@ function cadlToProto(program: Program): ProtoFile[] {
         kind: "method",
         name: operation.name,
         input: addInputParams(operation.parameters, operation.name),
-        returns: addReturnType(operation.returnType),
+        returns: addReturnType(operation.returnType, operation.name),
       };
     }
 
@@ -171,10 +172,13 @@ function cadlToProto(program: Program): ProtoFile[] {
      * @returns a reference to the model's message
      */
     function addInputParams(paramsModel: ModelType, operationName: string): ProtoRef {
-      const messageLike = getEffectiveModelType(paramsModel, capitalize(operationName) + "Request");
+      const effectiveModel = getEffectiveModelType(
+        paramsModel,
+        capitalize(operationName) + "Request"
+      );
 
-      if (messageLike) {
-        return ref(messageLike.name);
+      if (effectiveModel) {
+        return ref(effectiveModel.name);
       }
 
       reportDiagnostic(program, {
@@ -183,7 +187,7 @@ function cadlToProto(program: Program): ProtoFile[] {
         target: paramsModel,
       });
 
-      return ref("<unreachable>");
+      return unreachable("unsupported input type");
     }
 
     /**
@@ -191,9 +195,10 @@ function cadlToProto(program: Program): ProtoFile[] {
      * a reference to its name.
      *
      * @param t - the model to add
+     * @param operationName - the name of the originating operation, used to compute a synthetic model name if required
      * @returns a reference to the model's message
      */
-    function addReturnType(t: Type): ProtoRef {
+    function addReturnType(t: Type, operationName: string): ProtoRef {
       /* TODO: need to support importing google/protobuf/empty.proto and others
          This is also very important for handling datetime values.
 
@@ -204,14 +209,18 @@ function cadlToProto(program: Program): ProtoFile[] {
 
       switch (t.kind) {
         case "Model":
-          visitType(t);
-          return ref(t.name);
+          const effectiveModel = getEffectiveModelType(t, capitalize(operationName) + "Response");
+          if (effectiveModel) {
+            return ref(effectiveModel.name);
+          }
+        // eslint-disable-next-line no-fallthrough
         default:
           reportDiagnostic(program, {
             code: "unsupported-return-type",
             target: t,
           });
-          return ref("<unreachable>");
+
+          return unreachable("unsupported return type");
       }
     }
 
@@ -246,7 +255,7 @@ function cadlToProto(program: Program): ProtoFile[] {
             },
             target: t,
           });
-          return ref("<unreachable>");
+          return unreachable("unsupported field type");
       }
     }
 
@@ -257,7 +266,7 @@ function cadlToProto(program: Program): ProtoFile[] {
         const [keyType, valueType] = t.templateArguments ?? [];
 
         // This is a core compile error.
-        if (!keyType || !valueType) return ref("<unreachable>");
+        if (!keyType || !valueType) return unreachable("nonexistent map key or value type");
 
         const keyProto = addType(keyType);
         const valueProto = addType(valueType);
@@ -269,7 +278,7 @@ function cadlToProto(program: Program): ProtoFile[] {
             messageId: "recursive-map",
             target: valueType,
           });
-          return ref("<unreachable>");
+          return unreachable("recursive map");
         }
 
         return map(keyProto[1] as "string" | ScalarIntegralName, valueProto);
@@ -297,7 +306,7 @@ function cadlToProto(program: Program): ProtoFile[] {
           },
           target: t,
         });
-        return ref("<unreachable>");
+        return unreachable("unknown intrinsic");
       }
 
       return protoType;
