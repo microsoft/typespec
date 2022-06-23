@@ -15,13 +15,13 @@ import {
 } from "@cadl-lang/compiler";
 import { fieldIndexKey, packageKey, reportDiagnostic, serviceKey } from "./lib.js";
 import {
-  $map,
   map,
   ProtoFieldDeclaration,
   ProtoFile,
   ProtoMessageDeclaration,
   ProtoMethodDeclaration,
   ProtoRef,
+  ProtoScalar,
   ProtoType,
   ref,
   scalar,
@@ -236,6 +236,8 @@ function cadlToProto(program: Program): ProtoFile[] {
 
       // TODO: streams.
 
+      // TODO: reject anonymous models at this stage
+
       switch (t.kind) {
         case "Model":
           visitType(t);
@@ -261,18 +263,12 @@ function cadlToProto(program: Program): ProtoFile[] {
 
     function intrinsicToProto(name: string, t: Type): ProtoType {
       // Maps are considered intrinsics, so we check if the type is an instance of Cadl.Map
-      if (t.kind === "Model" && t.name === "Map" && t.namespace?.name === "Cadl") {
+      if (isMap(t)) {
         // Intrinsic map.
-        const [keyType, valueType] = t.templateArguments ?? [];
-
-        // This is a core compile error.
-        if (!keyType || !valueType) return unreachable("nonexistent map key or value type");
-
-        const keyProto = addType(keyType);
-        const valueProto = addType(valueType);
+        const [keyType, valueType] = (t as ModelType).templateArguments ?? [];
 
         // A map's value cannot be another map.
-        if (valueProto[0] === $map) {
+        if (isMap(valueType)) {
           reportDiagnostic(program, {
             code: "unsupported-field-type",
             messageId: "recursive-map",
@@ -280,6 +276,12 @@ function cadlToProto(program: Program): ProtoFile[] {
           });
           return unreachable("recursive map");
         }
+
+        // This is a core compile error.
+        if (!keyType || !valueType) return unreachable("nonexistent map key or value type");
+
+        const keyProto = addType(keyType);
+        const valueProto = addType(valueType) as ProtoRef | ProtoScalar;
 
         return map(keyProto[1] as "string" | ScalarIntegralName, valueProto);
       }
@@ -364,6 +366,10 @@ function cadlToProto(program: Program): ProtoFile[] {
       return effectiveModel;
     }
   }
+}
+
+function isMap(t: Type) {
+  return t.kind === "Model" && t.name === "Map" && t.namespace?.name === "Cadl";
 }
 
 /**
