@@ -73,23 +73,28 @@ function* writeMessage(decl: ProtoMessageDeclaration): Iterable<string> {
   const tail = "}";
 
   if (decl.declarations.length > 0 || decl.reservations?.length) {
-    const { reservedNumbers, reservedNames } = selectMap(
-      decl.reservations ?? [],
-      (v) => (typeof v === "number" || Array.isArray(v) ? "reservedNumbers" : "reservedNames"),
-      {
-        reservedNumbers: (v) => (Array.isArray(v) ? v[0] + " to " + v[1] : v.toString()),
-        reservedNames: (v) => `"${v.toString()}"`,
-      }
-    );
     yield head;
-    if (reservedNumbers.length + reservedNames.length > 0) {
-      if (reservedNumbers.length > 0) yield `  reserved ${reservedNumbers.join(", ")};`;
-      if (reservedNames.length > 0) yield `  reserved ${reservedNames.join(", ")};`;
-      yield "";
-    }
+    yield* indent(writeReservations(decl));
     yield* indent(flatMap(decl.declarations, writeDeclaration));
     yield tail;
   } else yield head + tail;
+}
+
+function* writeReservations(decl: ProtoMessageDeclaration): Iterable<string> {
+  const { reservedNumbers, reservedNames } = selectMap(
+    decl.reservations ?? [],
+    (v) => (typeof v === "number" || Array.isArray(v) ? "reservedNumbers" : "reservedNames"),
+    {
+      reservedNumbers: (v) => (Array.isArray(v) ? v[0] + " to " + v[1] : v.toString()),
+      reservedNames: (v) => `"${v.toString()}"`,
+    }
+  );
+
+  if (reservedNumbers.length + reservedNames.length > 0) {
+    if (reservedNumbers.length > 0) yield `reserved ${reservedNumbers.join(", ")};`;
+    if (reservedNames.length > 0) yield `reserved ${reservedNames.join(", ")};`;
+    yield "";
+  }
 }
 
 function* writeService(decl: ProtoServiceDeclaration): Iterable<string> {
@@ -144,7 +149,9 @@ function writeType(type: ProtoType): string {
  */
 function* indent(it: Iterable<string>, depth: number = 2): Iterable<string> {
   for (const value of it) {
-    yield " ".repeat(depth) + value;
+    if (value !== "") {
+      yield " ".repeat(depth) + value;
+    } else yield value;
   }
 }
 
