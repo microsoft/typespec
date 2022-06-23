@@ -206,8 +206,11 @@ function getResponseContentTypes(
       contentTypes.push(...getResponseContentTypes(program, diagnostics, responseModel.baseModel));
     }
     for (const prop of responseModel.properties.values()) {
-      if (isHeader(program, prop) && getHeaderFieldName(program, prop) === "content-type") {
-        contentTypes.push(...diagnostics.pipe(getContentTypes(prop)));
+      if (isHeader(program, prop)) {
+        const headerName = getHeaderFieldName(program, prop);
+        if (headerName && headerName.toLowerCase() === "content-type") {
+          contentTypes.push(...diagnostics.pipe(getContentTypes(prop)));
+        }
       }
     }
   }
