@@ -64,6 +64,7 @@ specifiers:
   grammarkdown: ~3.1.2
   js-yaml: ~4.1.0
   lzutf8: ~0.6.1
+  micromatch: ~4.0.5
   mkdirp: ~1.0.4
   mocha: ~9.2.0
   monaco-editor: ~0.32.1
@@ -160,6 +161,7 @@ dependencies:
   grammarkdown: 3.1.2
   js-yaml: 4.1.0
   lzutf8: 0.6.2
+  micromatch: 4.0.5
   mkdirp: 1.0.4
   mocha: 9.2.2
   monaco-editor: 0.32.1
@@ -768,6 +770,10 @@ packages:
     resolution: {integrity: sha512-2TN6oiwtNjOezilFVl77zwdNPwQWaDBBCCWWxyo1ctiO3vAtd7H/aB/CBJdw9+kqq3+latD0SXoedIuHySSZWw==}
     dev: false
 
+  /@types/braces/3.0.1:
+    resolution: {integrity: sha512-+euflG6ygo4bn0JHtn4pYqcXwRtLvElQ7/nnjDu7iYG56H0+OhCd7d6Ug0IE3WcFpZozBKW2+80FUbv5QGk5AQ==}
+    dev: false
+
   /@types/debounce/1.2.1:
     resolution: {integrity: sha512-epMsEE85fi4lfmJUH/89/iV/LI+F5CvNIvmgs5g5jYFPfhO2S/ae8WSsLOKWdwtoaZw9Q2IhJ4tQ5tFCcS/4HA==}
     dev: false
@@ -778,6 +784,13 @@ packages:
 
   /@types/estree/0.0.51:
     resolution: {integrity: sha512-CuPgU6f3eT/XgKKPqKd/gLZV1Xmvf1a2R5POBOGQa6uv82xpls89HU5zKeVoyR8XzHd1RGNOlQlvUe3CFkjWNQ==}
+    dev: false
+
+  /@types/glob/7.2.0:
+    resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
+    dependencies:
+      '@types/minimatch': 3.0.5
+      '@types/node': 16.0.3
     dev: false
 
   /@types/hoist-non-react-statics/3.3.1:
@@ -801,6 +814,16 @@ packages:
 
   /@types/lz-string/1.3.34:
     resolution: {integrity: sha512-j6G1e8DULJx3ONf6NdR5JiR2ZY3K3PaaqiEuKYkLQO0Czfi1AzrtjfnfCROyWGeDd5IVMKCwsgSmMip9OWijow==}
+    dev: false
+
+  /@types/micromatch/4.0.2:
+    resolution: {integrity: sha512-oqXqVb0ci19GtH0vOA/U2TmHTcRY9kuZl4mqUxe0QmJAlIW13kzhuK5pi1i9+ngav8FjpSb9FVS/GE00GLX1VA==}
+    dependencies:
+      '@types/braces': 3.0.1
+    dev: false
+
+  /@types/minimatch/3.0.5:
+    resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
     dev: false
 
   /@types/mkdirp/1.0.2:
@@ -1301,6 +1324,12 @@ packages:
     dependencies:
       balanced-match: 1.0.2
       concat-map: 0.0.1
+    dev: false
+
+  /brace-expansion/2.0.1:
+    resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
+    dependencies:
+      balanced-match: 1.0.2
     dev: false
 
   /braces/3.0.2:
@@ -2496,6 +2525,17 @@ packages:
       path-is-absolute: 1.0.1
     dev: false
 
+  /glob/8.0.3:
+    resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      fs.realpath: 1.0.0
+      inflight: 1.0.6
+      inherits: 2.0.4
+      minimatch: 5.1.0
+      once: 1.4.0
+    dev: false
+
   /globals/11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
     engines: {node: '>=4'}
@@ -3064,6 +3104,13 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 1.1.11
+    dev: false
+
+  /minimatch/5.1.0:
+    resolution: {integrity: sha512-9TPBGGak4nHfGZsPBohm9AWg6NoT7QTCehS3BIJABslyZbzxfV78QM2Y6+i741OPZIafFAaiiEMh5OyIrJPgtg==}
+    engines: {node: '>=10'}
+    dependencies:
+      brace-expansion: 2.0.1
     dev: false
 
   /minimist/1.2.6:
@@ -4595,14 +4642,18 @@ packages:
     dev: false
 
   file:projects/grpc.tgz:
-    resolution: {integrity: sha512-cZxw8AU0va1CFX9dAfibid5SadMXzGurOpj3KaQjIW1nsKdcy9MTmLK/Q9WV0CFeRo8kr2x0ro8DIQ9NvTbDaQ==, tarball: file:projects/grpc.tgz}
+    resolution: {integrity: sha512-h1JixUmZBjCL7geOOpLJylYZG8VPAmqzNgLV3n7tjK4LNzT3eYEjd7V+qMYeUZPH/E9buQl2qy/4tSzIYSORpQ==, tarball: file:projects/grpc.tgz}
     name: '@rush-temp/grpc'
     version: 0.0.0
     dependencies:
+      '@types/glob': 7.2.0
+      '@types/micromatch': 4.0.2
       '@types/mocha': 9.1.1
       '@types/node': 16.0.3
       c8: 7.11.3
       eslint: 8.16.0
+      glob: 8.0.3
+      micromatch: 4.0.5
       mocha: 9.2.2
       rimraf: 3.0.2
       typescript: 4.7.2
