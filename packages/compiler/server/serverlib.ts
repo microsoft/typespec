@@ -646,10 +646,10 @@ export function createServer(host: ServerHost): Server {
       ? node.value
       : getDirectoryPath(node.value);
     const mainCadl = resolvePath(documentDir, nodevalueDir);
-    const Files = (await program.host.readDir(mainCadl)).filter(
+    const files = (await program.host.readDir(mainCadl)).filter(
       (x) => x !== documentFile && x !== "node_modules"
     );
-    for (const file of Files) {
+    for (const file of files) {
       const extension = getAnyExtensionFromPath(file);
       switch (extension) {
         case ".cadl":
