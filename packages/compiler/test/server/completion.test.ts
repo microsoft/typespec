@@ -109,7 +109,46 @@ describe("compiler: server: completion", () => {
       "test/main/node_modules/test.cadl": "",
       "test/node_modules/foo/test.cadl": "",
     });
-    check(completions, [], {
+    check(completions, [
+        {
+            "commitCharacters": [],
+            "kind": 19,
+            "label": "main",
+          }
+
+    ], {
+      allowAdditionalCompletions: false,
+    });
+  });
+
+  it("complete import for relative path after node_modules folder", async () => {
+    const completions = await complete(` import "./node_modules/┆ `, undefined, {
+      "test/node_modules/foo.cadl": "",
+    });
+    check(completions, [
+        {
+            "commitCharacters": [],
+            "kind": 17,
+            "label": "foo.cadl",
+          }
+
+    ], {
+      allowAdditionalCompletions: false,
+    });
+  });
+
+  it("import './folder/|' --> don't complete 'folder' complete what's in folder", async () => {
+    const completions = await complete(` import "./bar/┆ `, undefined, {
+      "test/bar/foo.cadl": "",
+    });
+    check(completions, [
+        {
+            "commitCharacters": [],
+            "kind": 17,
+            "label": "foo.cadl",
+          }
+
+    ], {
       allowAdditionalCompletions: false,
     });
   });

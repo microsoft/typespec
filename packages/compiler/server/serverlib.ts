@@ -46,6 +46,7 @@ import {
   getAnyExtensionFromPath,
   getBaseFileName,
   getDirectoryPath,
+  hasTrailingDirectorySeparator,
   joinPaths,
   resolvePath,
 } from "../core/path-utils.js";
@@ -248,7 +249,7 @@ export function createServer(host: ServerHost): Server {
       definitionProvider: true,
       completionProvider: {
         resolveProvider: false,
-        triggerCharacters: [".", "@"],
+        triggerCharacters: [".", "@", "/"],
         allCommitCharacters: [".", ",", ";", "("],
       },
       semanticTokensProvider: {
@@ -641,18 +642,12 @@ export function createServer(host: ServerHost): Server {
     const documentPath = getPath(document);
     const documentFile = getBaseFileName(documentPath);
     const documentDir = getDirectoryPath(documentPath);
-    if (documentDir.indexOf("node_modules") !== -1) {
-      return;
-    }
-    const nodevalueDir = getDirectoryPath(node.value);
+    const nodevalueDir = hasTrailingDirectorySeparator(node.value) ? node.value : getDirectoryPath(node.value);
     const maincadl = resolvePath(documentDir, nodevalueDir);
-    const listFiles = (await program.host.readDir(maincadl)).filter((x) => x !== documentFile);
+    const listFiles = (await program.host.readDir(maincadl)).filter((x) => x !== documentFile && x !== "node_modules");
     for (const file of listFiles) {
-      if (file === "node_modules") {
-        break;
-      }
-      const extention = getAnyExtensionFromPath(file);
-      switch (extention) {
+      const extension = getAnyExtensionFromPath(file);
+      switch (extension) {
         case ".cadl":
         case ".js":
         case ".mjs":
