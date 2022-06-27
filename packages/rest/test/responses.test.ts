@@ -1,6 +1,6 @@
 import { ModelType } from "@cadl-lang/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { compileOperations, getOperations } from "./test-host.js";
 
 describe("cadl: rest: responses", () => {
@@ -74,6 +74,34 @@ describe("cadl: rest: responses", () => {
       { code: "@cadl-lang/rest/content-type-string" },
       { code: "@cadl-lang/rest/content-type-string" },
     ]);
+  });
+
+  it("supports any casing for string literal 'Content-Type' header properties.", async () => {
+    const [routes, diagnostics] = await getOperations(
+      `
+      model Foo {}
+
+      @test
+      namespace Test {
+        @route("/test1")
+        @get
+        op test1(): { @header "content-Type": "text/html", @body body: Foo };
+
+        @route("/test2")
+        @get
+        op test2(): { @header "CONTENT-type": "text/plain", @body body: Foo };
+
+        @route("/test3")
+        @get
+        op test3(): { @header "content-type": "application/json", @body body: Foo };
+      }
+    `
+    );
+    expectDiagnosticEmpty(diagnostics);
+    strictEqual(routes.length, 3);
+    deepStrictEqual(routes[0].responses[0].responses[0].body?.contentTypes, ["text/html"]);
+    deepStrictEqual(routes[1].responses[0].responses[0].body?.contentTypes, ["text/plain"]);
+    deepStrictEqual(routes[2].responses[0].responses[0].body?.contentTypes, ["application/json"]);
   });
 
   // Regression test for https://github.com/microsoft/cadl/issues/328
