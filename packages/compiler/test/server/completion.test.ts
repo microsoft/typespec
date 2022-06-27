@@ -106,7 +106,7 @@ describe("compiler: server: completion", () => {
   it("complete import for relative path excludes node_modules", async () => {
     const completions = await complete(` import "./┆ `, undefined, {
       "test/node_modules/test.cadl": "",
-      "test/main/node_modules/test.cadl": "",
+      "test/main/test.cadl": "",
       "test/node_modules/foo/test.cadl": "",
     });
     check(
