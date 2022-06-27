@@ -642,9 +642,13 @@ export function createServer(host: ServerHost): Server {
     const documentPath = getPath(document);
     const documentFile = getBaseFileName(documentPath);
     const documentDir = getDirectoryPath(documentPath);
-    const nodevalueDir = hasTrailingDirectorySeparator(node.value) ? node.value : getDirectoryPath(node.value);
+    const nodevalueDir = hasTrailingDirectorySeparator(node.value)
+      ? node.value
+      : getDirectoryPath(node.value);
     const maincadl = resolvePath(documentDir, nodevalueDir);
-    const listFiles = (await program.host.readDir(maincadl)).filter((x) => x !== documentFile && x !== "node_modules");
+    const listFiles = (await program.host.readDir(maincadl)).filter(
+      (x) => x !== documentFile && x !== "node_modules"
+    );
     for (const file of listFiles) {
       const extension = getAnyExtensionFromPath(file);
       switch (extension) {
