@@ -1781,7 +1781,7 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    if (type.baseModel) {
+    if (type.baseModel && type.baseModel.kind === "Model") {
       type.baseModel.derivedModels.push(type);
     }
 
@@ -1964,7 +1964,7 @@ export function createChecker(program: Program): Checker {
   function checkClassHeritage(
     model: ModelStatementNode,
     heritageRef: TypeReferenceNode
-  ): ModelType | undefined {
+  ): ModelType | TemplateParameterType | undefined {
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
 
@@ -1990,12 +1990,12 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
-    if (heritageType.kind !== "Model") {
+    if (heritageType.kind !== "Model" && heritageType.kind !== "TemplateParameter") {
       program.reportDiagnostic(createDiagnostic({ code: "extend-model", target: heritageRef }));
       return undefined;
     }
 
-    if (isIntrinsic(program, heritageType)) {
+    if (heritageType.kind === "Model" && isIntrinsic(program, heritageType)) {
       program.reportDiagnostic(
         createDiagnostic({
           code: "extend-primitive",
@@ -2070,9 +2070,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function* walkPropertiesInherited(model: ModelType) {
-    let current: ModelType | undefined = model;
+    let current: ModelType | TemplateParameterType | undefined = model;
 
     while (current) {
+      if (current.kind === "TemplateParameter") break;
       yield* current.properties.values();
       current = current.baseModel;
     }
@@ -3646,6 +3647,7 @@ function createUsingSymbol(symbolSource: Sym): Sym {
 
 function isDerivedFrom(derived: ModelType, base: ModelType) {
   while (derived !== base && derived.baseModel) {
+    if (derived.baseModel.kind === "TemplateParameter") break;
     derived = derived.baseModel;
   }
   return derived === base;
