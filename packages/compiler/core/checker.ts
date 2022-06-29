@@ -1754,14 +1754,14 @@ export function createChecker(program: Program): Checker {
     }
     const isBase = checkModelIs(node, node.is);
 
-    if (isBase) {
+    if (isBase && isBase.kind === "Model") {
       checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
     }
     decorators.push(...checkDecorators(node));
 
-    if (isBase) {
+    if (isBase && isBase.kind === "Model") {
       for (const prop of isBase.properties.values()) {
         type.properties.set(
           prop.name,
@@ -1770,9 +1770,6 @@ export function createChecker(program: Program): Checker {
           })
         );
       }
-    }
-
-    if (isBase) {
       type.baseModel = isBase.baseModel;
     } else if (node.extends) {
       type.baseModel = checkClassHeritage(node, node.extends);
@@ -2014,7 +2011,7 @@ export function createChecker(program: Program): Checker {
   function checkModelIs(
     model: ModelStatementNode,
     isExpr: TypeReferenceNode | undefined
-  ): ModelType | undefined {
+  ): ModelType | TemplateParameterType | undefined {
     if (!isExpr) return undefined;
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
@@ -2035,7 +2032,7 @@ export function createChecker(program: Program): Checker {
     const isType = checkTypeReferenceSymbol(target, isExpr);
     pendingResolutions.delete(modelSymId);
 
-    if (isType.kind !== "Model") {
+    if (isType.kind !== "Model" && isType.kind !== "TemplateParameter") {
       program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return;
     }
