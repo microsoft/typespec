@@ -78,4 +78,26 @@ describe("openapi3: parameters", () => {
     );
     strictEqual(oapi.components.parameters["Pet$Id"].name, "petId");
   });
+
+  it("inlines spread of parameters from anonymous model", async () => {
+    const oapi = await openApiFor(
+      `
+      op template<TParameters, TReturn>(...TParameters): TReturn;
+      op instantiation is template<{@path id: string}, void>;
+      `
+    );
+
+    ok(oapi.paths["/{id}"].get);
+
+    deepStrictEqual(oapi.paths["/{id}"].get.parameters, [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: {
+          type: "string",
+        },
+      },
+    ]);
+  });
 });

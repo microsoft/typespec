@@ -573,10 +573,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     const placeholder = {};
-    // only parameters inherited by spreading or from interface are shared in #/parameters
-    // bt: not sure about the interface part of this comment?
 
-    if (spreadParam) {
+    // only parameters inherited by spreading from non-inlined type are shared in #/components/parameters
+    if (spreadParam && property.model && !shouldInline(program, property.model)) {
       params.set(property, placeholder);
     }
 
