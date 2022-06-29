@@ -566,7 +566,7 @@ describe("compiler: models", () => {
         model C { a: A<B> };
         `
       );
-      const { A, B } = (await testHost.compile("./")) as { A: ModelType; B: ModelType };
+      const { A } = (await testHost.compile("./")) as { A: ModelType };
       strictEqual(calls, 1);
       strictEqual(A.properties.size, 1);
     });
