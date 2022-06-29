@@ -107,7 +107,7 @@ describe("compiler: syntax", () => {
         [/Cannot use default with non optional properties/],
       ],
       ["model", [/Identifier expected/]],
-      ["model Car is vehicle", [/'{' expected/]],
+      ["model Car is Vehicle", [/';', or '{' expected/]],
       ["model Car;", [/'{', '=', 'extends', or 'is' expected/]],
       ["model Car extends Foo;", [/'{' expected/]],
     ]);

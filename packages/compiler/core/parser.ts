@@ -675,9 +675,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const optionalExtends: TypeReferenceNode | undefined = parseOptionalModelExtends();
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
 
-    let properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
-    if (optionalIs && token() === Token.Semicolon) {
-      properties = [];
+    let properties: (ModelPropertyNode | ModelSpreadPropertyNode)[] = [];
+    if (optionalIs) {
+      const tok = expectTokenIsOneOf(Token.Semicolon, Token.OpenBrace);
+      if (tok === Token.Semicolon) {
+        nextToken();
+      } else {
+        properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+      }
     } else {
       properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
     }
