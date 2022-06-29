@@ -291,6 +291,10 @@ IsModelHeritage :
 
 ExtendsModelHeritage :
     `extends` ReferenceExpression
+
+ModelHeritage :
+    IsModelHeritage
+    ExtendsModelHeritage
     
 ModelBody :
     ModelPropertyList `,`?
