@@ -321,7 +321,8 @@ export function isSchemaProperty(program: Program, property: ModelTypeProperty) 
   const queryInfo = getQueryParamName(program, property);
   const pathInfo = getPathParamName(program, property);
   const statusCodeinfo = isStatusCode(program, property);
-  return !(headerInfo || queryInfo || pathInfo || statusCodeinfo);
+  const body = isBody(program, property);
+  return !(headerInfo || queryInfo || pathInfo || statusCodeinfo || body);
 }
 
 export function getOperationParameters(
@@ -330,14 +331,13 @@ export function getOperationParameters(
   operation: OperationType
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
+  const visibility = getRequestVisibility(verb);
+  const metadata = gatherMetadata(program, operation.parameters, visibility);
+
   const result: HttpOperationParameters = {
     parameters: [],
-    metadata: new Set(),
+    metadata,
   };
-  let unannotatedParam: ModelTypeProperty | undefined;
-
-  const visibility = getRequestVisibility(verb);
-  result.metadata = gatherMetadata(program, operation.parameters, visibility);
 
   for (const param of result.metadata) {
     const queryParam = getQueryParamName(program, param);
@@ -356,7 +356,7 @@ export function getOperationParameters(
         createDiagnostic({
           code: "operation-param-duplicate-type",
           format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
-          target: param,
+          target: param, // TODO: bad location for nested metadata, should elaborate the context that pulled it in to an operation.
         })
       );
     }
@@ -373,18 +373,25 @@ export function getOperationParameters(
       } else {
         diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
       }
+    }
+  }
+
+  let unannotatedParam: ModelTypeProperty | undefined;
+
+  for (const param of operation.parameters.properties.values()) {
+    if (result.metadata.has(param)) {
+      continue;
+    }
+    if (unannotatedParam === undefined) {
+      unannotatedParam = param;
     } else {
-      if (unannotatedParam === undefined) {
-        unannotatedParam = param;
-      } else {
-        diagnostics.add(
-          createDiagnostic({
-            code: "duplicate-body",
-            messageId: "duplicateUnannotated",
-            target: param,
-          })
-        );
-      }
+      diagnostics.add(
+        createDiagnostic({
+          code: "duplicate-body",
+          messageId: "duplicateUnannotated",
+          target: param,
+        })
+      );
     }
   }
 
@@ -401,6 +408,12 @@ export function getOperationParameters(
       );
     }
   }
+
+  // Don't confuse matters by returning body as "metadata" too.
+  if (result.body) {
+    result.metadata.delete(result.body);
+  }
+
   return diagnostics.wrap(result);
 }
 
