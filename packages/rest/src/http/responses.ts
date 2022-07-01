@@ -22,6 +22,7 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
+import { gatherMetadata, Visibility } from "./route.js";
 
 export type StatusCode = `${number}` | "*";
 export interface HttpOperationResponse {
@@ -29,6 +30,7 @@ export interface HttpOperationResponse {
   type: Type;
   description?: string;
   responses: HttpOperationResponseContent[];
+  metadata: Set<ModelTypeProperty>;
 }
 
 export interface HttpOperationResponseContent {
@@ -76,6 +78,11 @@ function processResponseType(
   responses: Record<string, HttpOperationResponse>,
   responseModel: Type
 ) {
+  const metadata =
+    responseModel.kind === "Model"
+      ? gatherMetadata(program, responseModel, Visibility.Read)
+      : new Set();
+
   // Get explicity defined status codes
   const statusCodes: Array<string> = getResponseStatusCodes(program, responseModel);
 
@@ -87,8 +94,9 @@ function processResponseType(
 
   // Get explicitly defined body
   let bodyModel = getResponseBody(program, diagnostics, responseModel);
+
   // If there is no explicit body, it should be conjured from the return type
-  // if it is a primitive type or it contains more than just response metadata
+  // if it is a primitive type or it contains more than just metadata
   if (!bodyModel) {
     if (responseModel.kind === "Model") {
       if (isIntrinsic(program, responseModel)) {
@@ -134,10 +142,11 @@ function processResponseType(
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.
     const response: HttpOperationResponse = responses[statusCode] ?? {
-      statusCode: statusCode,
+      statusCode,
       type: responseModel,
       description: getResponseDescription(program, responseModel, statusCode),
       responses: [],
+      metadata,
     };
 
     // check for duplicates

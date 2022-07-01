@@ -2,7 +2,6 @@ import {
   applyVisibility,
   ArrayType,
   checkIfServiceNamespace,
-  compilerAssert,
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
@@ -54,15 +53,16 @@ import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
 import {
   getAllRoutes,
   getContentTypes,
-  getHeaderFieldName,
-  getPathParamName,
-  getQueryParamName,
+  getRequestVisibility,
   getStatusCodeDescription,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationResponse,
-  isStatusCode,
+  isSchemaProperty,
   OperationDetails,
+  Visibility,
+  visibilityToArray,
+  visiblityToPascalCase,
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
@@ -165,47 +165,6 @@ export function addSecurityDefinition(
 export interface OpenAPIEmitterOptions {
   outputFile: string;
 }
-
-const enum Visibility {
-  All = -1,
-  Read = 1 << 0,
-  Create = 1 << 1,
-  Update = 1 << 2,
-  Delete = 1 << 3,
-  Query = 1 << 4,
-}
-
-function visibilityToArray(visibility: Visibility) {
-  const result = [];
-
-  if (visibility === Visibility.All) {
-    return undefined;
-  }
-  if (visibility & Visibility.Read) {
-    result.push("read");
-  }
-  if (visibility & Visibility.Create) {
-    result.push("create");
-  }
-  if (visibility & Visibility.Update) {
-    result.push("update");
-  }
-  if (visibility & Visibility.Query) {
-    result.push("query");
-  }
-
-  compilerAssert(result.length > 0, "invalid visibility");
-  return result;
-}
-
-function visiblityToPascalCase(visibility: Visibility) {
-  return (
-    visibilityToArray(visibility)
-      ?.map((v) => v[0].toUpperCase() + v.slice(1))
-      ?.join("") ?? ""
-  );
-}
-
 /**
  * Represents a node that will hold a JSON reference. The value is computed
  * at the end so that we can defer decisions about the name that is
@@ -353,7 +312,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         if (prop.type.kind === "Enum") {
           variable.enum = getSchemaForEnum(prop.type).enum;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum;
+          variable.enum = getSchemaForUnion(prop.type, Visibility.All).enum;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -637,7 +596,9 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
    */
   function getEffectiveSchemaType(type: Type): Type {
     if (type.kind === "Model" && !type.name) {
-      const effective = program.checker.getEffectiveModelType(type, isSchemaProperty);
+      const effective = program.checker.getEffectiveModelType(type, (p) =>
+        isSchemaProperty(program, p)
+      );
       if (effective.name) {
         return effective;
       }
@@ -734,26 +695,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     }
 
     currentEndpoint.requestBody = requestBody;
-  }
-
-  function getRequestVisibility(verb: http.HttpVerb) {
-    switch (verb) {
-      case "get":
-      case "head":
-        return Visibility.Query;
-      case "post":
-        return Visibility.Create;
-      case "put":
-        return Visibility.Create | Visibility.Update;
-      case "patch":
-        return Visibility.Update;
-      case "delete":
-        return Visibility.Delete;
-
-      default:
-        const _assertNever: never = verb;
-        compilerAssert(false, "unreachable");
-    }
   }
 
   function emitParameter(
@@ -1107,7 +1048,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     applyExternalDocs(model, modelSchema);
 
     for (const [name, prop] of model.properties) {
-      if (!isSchemaProperty(prop)) {
+      if (!isSchemaProperty(program, prop)) {
         continue;
       }
 
@@ -1282,20 +1223,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return type.options.flatMap(getStringValues).filter((v) => v);
     }
     return [];
-  }
-
-  /**
-   * A "schema property" here is a property that is emitted to OpenAPI schema.
-   *
-   * Headers, parameters, status codes are not schema properties even they are
-   * represented as properties in Cadl.
-   */
-  function isSchemaProperty(property: ModelTypeProperty) {
-    const headerInfo = getHeaderFieldName(program, property);
-    const queryInfo = getQueryParamName(program, property);
-    const pathInfo = getPathParamName(program, property);
-    const statusCodeinfo = isStatusCode(program, property);
-    return !(headerInfo || queryInfo || pathInfo || statusCodeinfo);
   }
 
   function isReadonlyProperty(property: ModelTypeProperty) {

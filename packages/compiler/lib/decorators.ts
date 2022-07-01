@@ -401,7 +401,7 @@ export function applyVisibility(
   );
 }
 
-function getVisibilityFilter(program: Program, visibilities: string[]) {
+export function getVisibilityFilter(program: Program, visibilities: string[]) {
   return (property: ModelTypeProperty) => {
     const propertyVisibilities = getVisibility(program, property);
     return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));

@@ -1,10 +1,14 @@
 import {
+  compilerAssert,
   createDiagnosticCollector,
   DecoratorContext,
   Diagnostic,
   DiagnosticCollector,
   getServiceNamespace,
+  getVisibilityFilter,
   InterfaceType,
+  isIntrinsic,
+  ModelType,
   ModelTypeProperty,
   NamespaceType,
   OperationType,
@@ -28,6 +32,7 @@ import {
   getQueryParamName,
   HttpVerb,
   isBody,
+  isStatusCode,
 } from "./decorators.js";
 import { getResponsesForOperation, HttpOperationResponse } from "./responses.js";
 
@@ -58,6 +63,7 @@ export interface HttpOperationParameter {
 export interface HttpOperationParameters {
   parameters: HttpOperationParameter[];
   body?: ModelTypeProperty;
+  metadata: Set<ModelTypeProperty>;
 }
 
 export interface OperationDetails {
@@ -74,6 +80,49 @@ export interface OperationDetails {
 export interface RoutePath {
   path: string;
   isReset: boolean;
+}
+
+export enum Visibility {
+  All = -1,
+  Read = 1 << 0,
+  Create = 1 << 1,
+  Update = 1 << 2,
+  Delete = 1 << 3,
+  Query = 1 << 4,
+}
+
+export function visibilityToArray(visibility: Visibility) {
+  const result = [];
+
+  if (visibility === Visibility.All) {
+    return undefined;
+  }
+  if (visibility & Visibility.Read) {
+    result.push("read");
+  }
+  if (visibility & Visibility.Create) {
+    result.push("create");
+  }
+  if (visibility & Visibility.Update) {
+    result.push("update");
+  }
+  if (visibility & Visibility.Delete) {
+    result.push("delete");
+  }
+  if (visibility & Visibility.Query) {
+    result.push("query");
+  }
+
+  compilerAssert(result.length > 0, "invalid visibility");
+  return result;
+}
+
+export function visiblityToPascalCase(visibility: Visibility) {
+  return (
+    visibilityToArray(visibility)
+      ?.map((v) => v[0].toUpperCase() + v.slice(1))
+      ?.join("") ?? ""
+  );
 }
 
 /**
@@ -211,27 +260,96 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
   }
 }
 
+export function getRequestVisibility(verb: HttpVerb): Visibility {
+  switch (verb) {
+    case "get":
+    case "head":
+      return Visibility.Query;
+    case "post":
+      return Visibility.Create;
+    case "put":
+      return Visibility.Create | Visibility.Update;
+    case "patch":
+      return Visibility.Update;
+    case "delete":
+      return Visibility.Delete;
+
+    default:
+      const _assertNever: never = verb;
+      compilerAssert(false, "unreachable");
+  }
+}
+
+export function gatherMetadata(
+  program: Program,
+  model: ModelType,
+  visibility: Visibility
+): Set<ModelTypeProperty> {
+  const visited = new Set();
+  const metadata = new Set<ModelTypeProperty>();
+  const visibilities = visibilityToArray(visibility);
+  const visibilityFilter = visibilities ? getVisibilityFilter(program, visibilities) : () => true;
+  gather(model);
+  return metadata;
+
+  function gather(model: ModelType) {
+    if (visited.has(model)) {
+      return;
+    }
+    visited.add(model);
+    for (const property of model.properties.values()) {
+      if (!visibilityFilter(property)) {
+        continue;
+      }
+      if (!isSchemaProperty(program, property)) {
+        metadata.add(property);
+      } else if (property.type.kind === "Model" && !isIntrinsic(program, property.type)) {
+        gather(property.type);
+      }
+    }
+  }
+}
+
+/**
+ * A "schema property" here is a property that is emitted to OpenAPI schema.
+ *
+ * Headers, parameters, status codes are not schema properties even they are
+ * represented as properties in Cadl.
+ */
+export function isSchemaProperty(program: Program, property: ModelTypeProperty) {
+  const headerInfo = getHeaderFieldName(program, property);
+  const queryInfo = getQueryParamName(program, property);
+  const pathInfo = getPathParamName(program, property);
+  const statusCodeinfo = isStatusCode(program, property);
+  return !(headerInfo || queryInfo || pathInfo || statusCodeinfo);
+}
+
 export function getOperationParameters(
   program: Program,
+  verb: HttpVerb,
   operation: OperationType
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const result: HttpOperationParameters = {
     parameters: [],
+    metadata: new Set(),
   };
-  let unAnnotatedParam: ModelTypeProperty | undefined;
+  let unannotatedParam: ModelTypeProperty | undefined;
 
-  for (const param of operation.parameters.properties.values()) {
+  const visibility = getRequestVisibility(verb);
+  result.metadata = gatherMetadata(program, operation.parameters, visibility);
+
+  for (const param of result.metadata) {
     const queryParam = getQueryParamName(program, param);
     const pathParam = getPathParamName(program, param);
     const headerParam = getHeaderFieldName(program, param);
-    const bodyParm = isBody(program, param);
+    const bodyParam = isBody(program, param);
 
     const defined = [
       ["query", queryParam],
       ["path", pathParam],
       ["header", headerParam],
-      ["body", bodyParm],
+      ["body", bodyParam],
     ].filter((x) => !!x[1]);
     if (defined.length >= 2) {
       diagnostics.add(
@@ -249,15 +367,15 @@ export function getOperationParameters(
       result.parameters.push({ type: "path", name: pathParam, param });
     } else if (headerParam) {
       result.parameters.push({ type: "header", name: headerParam, param });
-    } else if (bodyParm) {
+    } else if (bodyParam) {
       if (result.body === undefined) {
         result.body = param;
       } else {
         diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
       }
     } else {
-      if (unAnnotatedParam === undefined) {
-        unAnnotatedParam = param;
+      if (unannotatedParam === undefined) {
+        unannotatedParam = param;
       } else {
         diagnostics.add(
           createDiagnostic({
@@ -270,15 +388,15 @@ export function getOperationParameters(
     }
   }
 
-  if (unAnnotatedParam !== undefined) {
+  if (unannotatedParam !== undefined) {
     if (result.body === undefined) {
-      result.body = unAnnotatedParam;
+      result.body = unannotatedParam;
     } else {
       diagnostics.add(
         createDiagnostic({
           code: "duplicate-body",
           messageId: "bodyAndUnannotated",
-          target: unAnnotatedParam,
+          target: unannotatedParam,
         })
       );
     }
@@ -334,9 +452,10 @@ function getPathForOperation(
   diagnostics: DiagnosticCollector,
   operation: OperationType,
   routeFragments: string[],
+  verb: HttpVerb,
   options: RouteOptions
 ): { path: string; pathFragment?: string; parameters: HttpOperationParameters } {
-  const parameters = diagnostics.pipe(getOperationParameters(program, operation));
+  const parameters = diagnostics.pipe(getOperationParameters(program, verb, operation));
   const pathFragments = [...routeFragments];
   const routePath = getRoutePath(program, operation);
   if (isAutoRoute(program, operation)) {
@@ -390,12 +509,7 @@ function getPathForOperation(
   };
 }
 
-function getVerbForOperation(
-  program: Program,
-  diagnostics: DiagnosticCollector,
-  operation: OperationType,
-  parameters: HttpOperationParameters
-): HttpVerb {
+function getVerbForOperation(program: Program, operation: OperationType): HttpVerb | undefined {
   const resourceOperation = getResourceOperation(program, operation);
   const verb =
     (resourceOperation && resourceOperationToVerb[resourceOperation.operation]) ??
@@ -403,21 +517,7 @@ function getVerbForOperation(
     // TODO: Enable this verb choice to be customized!
     (getAction(program, operation) || getCollectionAction(program, operation) ? "post" : undefined);
 
-  if (verb !== undefined) {
-    return verb;
-  }
-
-  if (parameters.body) {
-    diagnostics.add(
-      createDiagnostic({
-        code: "http-verb-missing-with-body",
-        format: { operationName: operation.name },
-        target: operation,
-      })
-    );
-  }
-
-  return "get";
+  return verb;
 }
 
 function buildRoutes(
@@ -433,7 +533,6 @@ function buildRoutes(
   const parentFragments = [...routeFragments, ...(baseRoute ? [baseRoute.path] : [])];
 
   // TODO: Allow overriding the existing resource operation of the same kind
-
   const operations: OperationDetails[] = [];
   for (const [_, op] of container.operations) {
     // Skip previously-visited operations
@@ -446,14 +545,33 @@ function buildRoutes(
       continue;
     }
 
-    const route = getPathForOperation(program, diagnostics, op, parentFragments, options);
-    const verb = getVerbForOperation(program, diagnostics, op, route.parameters);
+    const verb = getVerbForOperation(program, op);
+
+    const route = getPathForOperation(
+      program,
+      diagnostics,
+      op,
+      parentFragments,
+      verb ?? "get",
+      options
+    );
+
     const responses = diagnostics.pipe(getResponsesForOperation(program, op));
+
+    if (!verb && route.parameters.body) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "http-verb-missing-with-body",
+          format: { operationName: op.name },
+          target: op,
+        })
+      );
+    }
 
     operations.push({
       path: route.path,
       pathFragment: route.pathFragment,
-      verb,
+      verb: verb ?? "get",
       container,
       groupName: container.name,
       parameters: route.parameters,
