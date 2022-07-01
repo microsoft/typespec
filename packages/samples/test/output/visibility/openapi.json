@@ -134,16 +134,12 @@
           },
           "test": {
             "type": "string"
-          },
-          "create": {
-            "type": "string"
           }
         },
         "required": [
           "secret",
           "name",
-          "test",
-          "create"
+          "test"
         ]
       },
       "WriteableOptionalPerson": {
@@ -156,9 +152,6 @@
             "type": "string"
           },
           "test": {
-            "type": "string"
-          },
-          "create": {
             "type": "string"
           }
         }

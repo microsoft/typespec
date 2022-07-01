@@ -356,7 +356,7 @@ export function getOperationParameters(
         createDiagnostic({
           code: "operation-param-duplicate-type",
           format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
-          target: param, // TODO: bad location for nested metadata, should elaborate the context that pulled it in to an operation.
+          target: operation, // TODO: bad location for nested metadata, should elaborate the context that pulled it in to an operation.
         })
       );
     }
@@ -389,7 +389,7 @@ export function getOperationParameters(
         createDiagnostic({
           code: "duplicate-body",
           messageId: "duplicateUnannotated",
-          target: param,
+          target: operation,
         })
       );
     }
@@ -403,7 +403,7 @@ export function getOperationParameters(
         createDiagnostic({
           code: "duplicate-body",
           messageId: "bodyAndUnannotated",
-          target: unannotatedParam,
+          target: operation,
         })
       );
     }
