@@ -1,5 +1,3 @@
-import { not } from "ajv/dist/compile/codegen/index.js";
-import { start } from "repl";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CompletionItem,
@@ -94,7 +92,7 @@ export interface Server {
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
-  getFoldingRanges(getFoldingRanges: FoldingRangeParams) : Promise<FoldingRange[]>;
+  getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -416,32 +414,32 @@ export function createServer(host: ServerHost): Server {
     const ranges: FoldingRange[] = [];
     getRangesForNode(ast);
 
-    function getRangesForNode(node: Node){
-          if ("decorators" in node && node.decorators.length > 0) {
-            const startPos = node.decorators[0].pos
-            const endPos = node.decorators[node.decorators.length-1].end
-            const nodeEndPos = node.end
-            let startLine = file.getLineAndCharacterOfPosition(startPos).line;
-            let endLine = file.getLineAndCharacterOfPosition(endPos).line;
-            if (startLine !== endLine){
-              ranges.push({startLine,endLine});
-            }
-            startLine = file.getLineAndCharacterOfPosition(skipTrivia(file.text,endPos)).line;
-            endLine = file.getLineAndCharacterOfPosition(nodeEndPos).line;
-            if (startLine !== endLine){
-              ranges.push({startLine,endLine});
-            }
-            visitChildren(node,getRangesForNode);
-            return
-          }
-          const startPos = node.pos;
-          const endPos = node.end;
-          const startLine = file.getLineAndCharacterOfPosition(startPos).line;
-          const endLine = file.getLineAndCharacterOfPosition(endPos).line;
-          if (startLine !== endLine && node.kind !== SyntaxKind.CadlScript){
-            ranges.push({startLine,endLine});
-          }
-          visitChildren(node,getRangesForNode);
+    function getRangesForNode(node: Node) {
+      if ("decorators" in node && node.decorators.length > 0) {
+        const startPos = node.decorators[0].pos;
+        const endPos = node.decorators[node.decorators.length - 1].end;
+        const nodeEndPos = node.end;
+        let startLine = file.getLineAndCharacterOfPosition(startPos).line;
+        let endLine = file.getLineAndCharacterOfPosition(endPos).line;
+        if (startLine !== endLine) {
+          ranges.push({ startLine, endLine });
+        }
+        startLine = file.getLineAndCharacterOfPosition(skipTrivia(file.text, endPos)).line;
+        endLine = file.getLineAndCharacterOfPosition(nodeEndPos).line;
+        if (startLine !== endLine) {
+          ranges.push({ startLine, endLine });
+        }
+        visitChildren(node, getRangesForNode);
+        return;
+      }
+      const startPos = node.pos;
+      const endPos = node.end;
+      const startLine = file.getLineAndCharacterOfPosition(startPos).line;
+      const endLine = file.getLineAndCharacterOfPosition(endPos).line;
+      if (startLine !== endLine && node.kind !== SyntaxKind.CadlScript) {
+        ranges.push({ startLine, endLine });
+      }
+      visitChildren(node, getRangesForNode);
     }
     return ranges;
   }
