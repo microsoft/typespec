@@ -438,13 +438,11 @@ export function createServer(host: ServerHost): Server {
           const endPos = node.end;
           const startLine = file.getLineAndCharacterOfPosition(startPos).line;
           const endLine = file.getLineAndCharacterOfPosition(endPos).line;
-          if (startLine !== endLine && node.kind !== SyntaxKind.CadlScript && !(ranges.some(e =>
-            e.startLine === startLine &&  e.endLine === endLine))){
+          if (startLine !== endLine && node.kind !== SyntaxKind.CadlScript){
             ranges.push({startLine,endLine});
           }
           visitChildren(node,getRangesForNode);
     }
-    console.log(ranges);
     return ranges;
   }
 

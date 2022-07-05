@@ -4,7 +4,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { createTestServerHost} from "../../testing/test-server-host.js";
 
-describe("compiler: server: foldingRange", () => {
+describe.only("compiler: server: foldingRange", () => {
 
   it("testing for foldingRange with doc", async () => {
     const ranges = await getFoldingRanges(`@doc("Error")
@@ -43,6 +43,9 @@ describe("compiler: server: foldingRange", () => {
       ...Response<200>;
     } | Error;`);
     deepStrictEqual(ranges,     [ 
+      { startLine: 0, endLine: 2 },
+      { startLine: 0, endLine: 2 },
+      { startLine: 0, endLine: 2 },
       { startLine: 0, endLine: 2 }
      ]);
   });
