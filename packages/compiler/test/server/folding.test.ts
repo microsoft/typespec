@@ -4,7 +4,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { createTestServerHost} from "../../testing/test-server-host.js";
 
-describe.only("compiler: server: foldingRange", () => {
+describe("compiler: server: foldingRange", () => {
 
   it("testing for foldingRange with doc", async () => {
     const ranges = await getFoldingRanges(`@doc("Error")
