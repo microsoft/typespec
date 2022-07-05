@@ -536,20 +536,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return mapCadlTypeToOpenAPI(type, visibility);
     }
 
+    type = getEffectiveSchemaType(type, visibility);
+
     let map = pendingSchemas.get(type);
     if (!map) {
       map = new Map();
       pendingSchemas.set(type, map);
     }
-
-    const pending = map.get(visibility);
-    if (pending) {
-      const placeholder = new RefPlaceholder();
-      pending.references.push(placeholder);
-      return { $ref: placeholder };
-    }
-
-    type = getEffectiveSchemaType(type, visibility);
 
     if (shouldInline(program, type)) {
       const schema = getSchemaForType(type, visibility);
@@ -566,7 +559,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       return schema;
     } else {
       const placeholder = new RefPlaceholder();
-      map.set(visibility, { type, visibility, references: [placeholder] });
+
+      const pending = map.get(visibility);
+      if (pending) {
+        pending.references.push(placeholder);
+      } else {
+        map.set(visibility, { type, visibility, references: [placeholder] });
+      }
       return { $ref: placeholder };
     }
   }
@@ -577,6 +576,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
    */
   function getEffectiveSchemaType(type: Type, visibility: Visibility): Type {
     if (type.kind === "Model" && !type.name) {
+      // NOTE: We don't apply visibility here. It is handled separately so
+      //       we can Applying it here would cause removing invisible
+      //       properties to trigger inlining whereas we create named types
+      //       for each visibility.
       const effective = program.checker.getEffectiveModelType(
         type,
         (p) => !isApplicableMetadata(program, p, visibility)
