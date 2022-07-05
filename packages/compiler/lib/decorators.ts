@@ -376,6 +376,10 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
   return program.stateMap(visibilitySettingsKey).get(target);
 }
 
+export function clearVisibility(program: Program, target: Type): void {
+  program.stateMap(visibilitySettingsKey).delete(target);
+}
+
 export function $withVisibility(
   context: DecoratorContext,
   target: Type,
@@ -386,19 +390,6 @@ export function $withVisibility(
   }
 
   filterModelPropertiesInPlace(target, getVisibilityFilter(context.program, visibilities));
-}
-
-export function applyVisibility(
-  program: Program,
-  model: ModelType,
-  visibilities: string[],
-  overrideFilter?: (property: ModelTypeProperty) => boolean
-): ModelType {
-  const visibilityFilter = getVisibilityFilter(program, visibilities);
-  return program.checker.filterModelProperties(
-    model,
-    (p) => visibilityFilter(p) || (!!overrideFilter && overrideFilter(p))
-  );
 }
 
 export function getVisibilityFilter(program: Program, visibilities: string[]) {

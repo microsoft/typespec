@@ -286,11 +286,11 @@ export function gatherMetadata(
   visibility: Visibility
 ): Set<ModelTypeProperty> {
   const visited = new Set();
-  const metadata = new Set<ModelTypeProperty>();
+  const metadata = new Map<string, ModelTypeProperty>();
   const visibilities = visibilityToArray(visibility);
   const visibilityFilter = visibilities ? getVisibilityFilter(program, visibilities) : () => true;
   gather(model);
-  return metadata;
+  return new Set(metadata.values());
 
   function gather(model: ModelType) {
     if (visited.has(model)) {
@@ -301,13 +301,29 @@ export function gatherMetadata(
       if (!visibilityFilter(property)) {
         continue;
       }
-      if (!isSchemaProperty(program, property)) {
-        metadata.add(property);
+      if (!metadata.has(property.name) && isApplicableMetadata(program, property, visibility)) {
+        metadata.set(property.name, property);
       } else if (property.type.kind === "Model" && !isIntrinsic(program, property.type)) {
         gather(property.type);
       }
     }
   }
+}
+
+function isApplicableMetadata(
+  program: Program,
+  property: ModelTypeProperty,
+  visibility: Visibility
+) {
+  if (isSchemaProperty(program, property)) {
+    return false;
+  }
+
+  if (visibility === Visibility.Read) {
+    return !!getHeaderFieldName(program, property) || !!isStatusCode(program, property);
+  }
+
+  return true;
 }
 
 /**
@@ -356,7 +372,7 @@ export function getOperationParameters(
         createDiagnostic({
           code: "operation-param-duplicate-type",
           format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
-          target: operation, // TODO: bad location for nested metadata, should elaborate the context that pulled it in to an operation.
+          target: param, // TODO: bad location for nested metadata, should elaborate the context that pulled it in to an operation.
         })
       );
     }
@@ -389,7 +405,7 @@ export function getOperationParameters(
         createDiagnostic({
           code: "duplicate-body",
           messageId: "duplicateUnannotated",
-          target: operation,
+          target: param,
         })
       );
     }
@@ -403,13 +419,13 @@ export function getOperationParameters(
         createDiagnostic({
           code: "duplicate-body",
           messageId: "bodyAndUnannotated",
-          target: operation,
+          target: unannotatedParam,
         })
       );
     }
   }
 
-  // Don't confuse matters by returning body as "metadata" too.
+  // Don't confuse matters by returning body as metadata.
   if (result.body) {
     result.metadata.delete(result.body);
   }

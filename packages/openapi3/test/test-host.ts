@@ -1,3 +1,4 @@
+import { logVerboseTestOutput } from "@cadl-lang/compiler";
 import { createTestHost, createTestWrapper, resolveVirtualPath } from "@cadl-lang/compiler/testing";
 import { OpenAPITestLibrary } from "@cadl-lang/openapi/testing";
 import { RestTestLibrary } from "@cadl-lang/rest/testing";
@@ -43,15 +44,21 @@ export async function openApiFor(code: string, versions?: string[]) {
     emitters: { "@cadl-lang/openapi3": { outputFile: outPath } },
   });
 
+  let output: any;
   if (!versions) {
-    return JSON.parse(host.fs.get(outPath)!);
+    output = JSON.parse(host.fs.get(outPath)!);
   } else {
-    const output: any = {};
+    output = {};
     for (const version of versions) {
       output[version] = JSON.parse(host.fs.get(versionedOutput(outPath, version))!);
     }
-    return output;
   }
+  logVerboseTestOutput((log) => {
+    log("OpenAPI output:");
+    log(JSON.stringify(output, undefined, 2));
+    log("");
+  });
+  return output;
 }
 
 export async function checkFor(code: string) {

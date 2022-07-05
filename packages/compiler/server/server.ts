@@ -70,6 +70,7 @@ function main() {
   connection.onReferences(s.findReferences);
   connection.onRenameRequest(s.rename);
   connection.onPrepareRename(s.prepareRename);
+
   connection.languages.semanticTokens.on(s.buildSemanticTokens);
 
   documents.onDidChangeContent(s.checkChange);

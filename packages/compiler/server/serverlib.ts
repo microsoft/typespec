@@ -247,6 +247,7 @@ export function createServer(host: ServerHost): Server {
     const capabilities: ServerCapabilities = {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
+
       completionProvider: {
         resolveProvider: false,
         triggerCharacters: [".", "@", "/"],

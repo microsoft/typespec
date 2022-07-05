@@ -314,7 +314,6 @@ describe("openapi3: definitions", () => {
         x: T
       }`
     );
-
     ok(res.isRef);
     ok(res.schemas.Foo_int32, "expected definition named Foo_int32");
     ok(res.schemas.Bar_int32, "expected definition named Bar_int32");

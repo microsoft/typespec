@@ -76,7 +76,7 @@ interface ResourceUpdate<TResource, TError> {
   @updatesResource(TResource)
   update(
     ...ResourceParameters<TResource>,
-    @body properties: OptionalProperties<UpdateableProperties<TResource>>
+      @body properties: OptionalProperties<UpdateableProperties<TResource>>
   ): TResource | TError;
 }
 
