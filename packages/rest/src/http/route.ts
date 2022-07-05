@@ -82,13 +82,19 @@ export interface RoutePath {
   isReset: boolean;
 }
 
+// REVIEW: It ends up being helpful to store visibility as flags in an enum.
+//         Currently core visibility API is still string[] and these flags are used
+//         only by rest lib / openapi emitter. Can we push this down? Or does core
+//         still require that visibility can be any string?
 export enum Visibility {
-  All = -1,
   Read = 1 << 0,
   Create = 1 << 1,
   Update = 1 << 2,
   Delete = 1 << 3,
   Query = 1 << 4,
+  All = Read | Create | Update | Delete | Query,
+
+  ArrayItem = 1 << 20,
 }
 
 export function visibilityToArray(visibility: Visibility) {
@@ -118,11 +124,16 @@ export function visibilityToArray(visibility: Visibility) {
 }
 
 export function visiblityToPascalCase(visibility: Visibility) {
-  return (
+  let s =
     visibilityToArray(visibility)
       ?.map((v) => v[0].toUpperCase() + v.slice(1))
-      ?.join("") ?? ""
-  );
+      ?.join("Or") ?? "";
+
+  if (visibility & Visibility.ArrayItem) {
+    s += "Item";
+  }
+
+  return s;
 }
 
 /**
@@ -282,40 +293,76 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
 
 export function gatherMetadata(
   program: Program,
+  diagnostics: DiagnosticCollector,
   model: ModelType,
   visibility: Visibility
 ): Set<ModelTypeProperty> {
+  // REVIEW: This doesn't need to be a set anymore, array should be ok.
   const visited = new Set();
   const metadata = new Map<string, ModelTypeProperty>();
   const visibilities = visibilityToArray(visibility);
-  const visibilityFilter = visibilities ? getVisibilityFilter(program, visibilities) : () => true;
-  gather(model);
-  return new Set(metadata.values());
+  const visibilityFilter = getVisibilityFilter(program, visibilities);
 
-  function gather(model: ModelType) {
-    if (visited.has(model)) {
-      return;
-    }
-    visited.add(model);
-    for (const property of model.properties.values()) {
+  if (isIntrinsic(program, model)) {
+    return new Set();
+  }
+
+  const queue = [model];
+  while (queue.length > 0) {
+    const m = queue.shift()!; // REVIEW: This is probably not an efficient way to queue.
+    visited.add(m);
+
+    for (const property of m.properties.values()) {
       if (!visibilityFilter(property)) {
+        continue;
+      }
+      // BUG/REVIEW: Proposal says duplicates are "invalid" metadata and
+      //         invalid metadata is not an error but becomes part of the
+      //         schema. This is problematic, though, because it creates an
+      //         especially hard case where the same ModelType can create
+      //         different schemas. Also, making this an error causes
+      //         problems for certain patterns with nested @key. So it's not
+      //         an error, but the duplicates will disappear. traversal is
+      //         done breadth-first/level-order to keep the preferred
+      //         element topmost.
+      //
+      if (metadata.has(property.name)) {
+        // diagnostics.add(
+        //   // BUG: Report all locations for dupes
+        //   createDiagnostic({
+        //     code: "duplicate-metadata",
+        //     target: property,
+        //   })
+        // );
         continue;
       }
       if (!metadata.has(property.name) && isApplicableMetadata(program, property, visibility)) {
         metadata.set(property.name, property);
-      } else if (property.type.kind === "Model" && !isIntrinsic(program, property.type)) {
-        gather(property.type);
+      }
+
+      if (
+        property.type.kind === "Model" &&
+        !isIntrinsic(program, property.type) &&
+        !visited.has(property.type)
+      ) {
+        queue.push(property.type);
       }
     }
   }
+
+  return new Set(metadata.values());
 }
 
-function isApplicableMetadata(
+export function isApplicableMetadata(
   program: Program,
   property: ModelTypeProperty,
   visibility: Visibility
 ) {
   if (isSchemaProperty(program, property)) {
+    return false; // not metadata
+  }
+
+  if (visibility & Visibility.ArrayItem) {
     return false;
   }
 
@@ -348,7 +395,7 @@ export function getOperationParameters(
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const visibility = getRequestVisibility(verb);
-  const metadata = gatherMetadata(program, operation.parameters, visibility);
+  const metadata = gatherMetadata(program, diagnostics, operation.parameters, visibility);
 
   const result: HttpOperationParameters = {
     parameters: [],

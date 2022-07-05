@@ -119,6 +119,13 @@ const libDefinition = {
         default: paramMessage`Multiple return types for content type ${"contentType"} and status code ${"statusCode"}`,
       },
     },
+    "duplicate-metadata": {
+      severity: "error",
+      messages: {
+        // BUG: better message and more details needed.
+        default: "Duplicate metadata",
+      },
+    },
     "content-type-ignored": {
       severity: "warning",
       messages: {

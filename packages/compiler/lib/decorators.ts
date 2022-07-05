@@ -392,7 +392,10 @@ export function $withVisibility(
   filterModelPropertiesInPlace(target, getVisibilityFilter(context.program, visibilities));
 }
 
-export function getVisibilityFilter(program: Program, visibilities: string[]) {
+export function getVisibilityFilter(program: Program, visibilities: string[] | undefined) {
+  if (!visibilities) {
+    return () => true;
+  }
   return (property: ModelTypeProperty) => {
     const propertyVisibilities = getVisibility(program, property);
     return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));

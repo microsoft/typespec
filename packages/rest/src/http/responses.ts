@@ -80,7 +80,7 @@ function processResponseType(
 ) {
   const metadata =
     responseModel.kind === "Model"
-      ? gatherMetadata(program, responseModel, Visibility.Read)
+      ? gatherMetadata(program, diagnostics, responseModel, Visibility.Read)
       : new Set();
 
   // Get explicity defined status codes

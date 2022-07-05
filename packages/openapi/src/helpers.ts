@@ -19,6 +19,7 @@ import { reportDiagnostic } from "./lib.js";
  * A friendly name can be provided by the user using `@friendlyName`
  * decorator, or chosen by default in simple cases.
  */
+// REVIEW: visibility defaulted to avoid having to change openapi 2 emitter for now
 export function shouldInline(program: Program, type: Type): boolean {
   if (hasFriendlyName(program, type)) {
     return false;
