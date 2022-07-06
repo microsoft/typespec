@@ -676,7 +676,7 @@ emitters:
 # For example
 emitters:
  "@cadl-lang/openapi3":
-    outputFile: my-custom-file.json
+    output-file: my-custom-file.json
 ```
 
 - Via cli
@@ -685,7 +685,7 @@ emitters:
 --option "<emitterName>.<optionName>=<value>"
 
 # For example
---option "@cadl-lang/openapi3.outputFile=my-custom-file.json"
+--option "@cadl-lang/openapi3.output-file=my-custom-file.json"
 ```
 
 #### Creating libraries

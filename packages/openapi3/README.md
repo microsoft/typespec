@@ -71,10 +71,10 @@ or via the command line with
 --option "@cadl-lang/openapi3.<optionName>=<value>"
 
 # For example
---option "@cadl-lang/openapi3.outputFile=my-custom-openapi.json"
+--option "@cadl-lang/openapi3.output-file=my-custom-openapi.json"
 ```
 
-### `outputFile`
+### `output-file`
 
 Configure the name of the swagger output file relative to the compiler `output-path`.
 
