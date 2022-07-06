@@ -768,7 +768,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     // REVIEW: Algorithm for detecting schemas that can be reused is
     // currently hacky. We JSON.stringify the schemas to put them in a map
     // and when there are dupes, and shortest name wins.
-    // Better algorithm is likely needed. We can also fail to find dupes since they are not
+    // Better algorithm is likely needed. We can still fail to find dupes since they are not
     // my not be serialized the same until we have fixed up the reference
     // placeholders.
 

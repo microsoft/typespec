@@ -64,7 +64,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Horse"
+                "$ref": "#/components/schemas/HorseCreateOrUpdate"
               }
             }
           }
@@ -335,6 +335,22 @@
   "components": {
     "schemas": {
       "Horse": {
+        "type": "object",
+        "properties": {
+          "isAShowHorse": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "isAShowHorse"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Pet"
+          }
+        ]
+      },
+      "HorseCreateOrUpdate": {
         "type": "object",
         "properties": {
           "isAShowHorse": {

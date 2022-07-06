@@ -44,7 +44,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Kiosk"
+                "$ref": "#/components/schemas/KioskCreate"
               }
             }
           }
@@ -391,7 +391,69 @@
       }
     },
     "schemas": {
+      "KioskCreate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "unique id"
+          },
+          "name": {
+            "type": "string",
+            "description": "name of device hardware"
+          },
+          "size": {
+            "$ref": "#/components/schemas/ScreenSize",
+            "description": "screen size"
+          },
+          "location": {
+            "$ref": "#/components/schemas/LatLng",
+            "description": "kiosk location"
+          },
+          "create_time": {
+            "$ref": "#/components/schemas/Timestamp"
+          }
+        },
+        "description": "Describes a hardware device that can display signs.",
+        "required": [
+          "name",
+          "size",
+          "location"
+        ]
+      },
       "Kiosk": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "unique id"
+          },
+          "name": {
+            "type": "string",
+            "description": "name of device hardware"
+          },
+          "size": {
+            "$ref": "#/components/schemas/ScreenSize",
+            "description": "screen size"
+          },
+          "location": {
+            "$ref": "#/components/schemas/LatLng",
+            "description": "kiosk location"
+          },
+          "create_time": {
+            "$ref": "#/components/schemas/Timestamp"
+          }
+        },
+        "description": "Describes a hardware device that can display signs.",
+        "required": [
+          "name",
+          "size",
+          "location"
+        ]
+      },
+      "KioskReadItem": {
         "type": "object",
         "properties": {
           "id": {
@@ -448,7 +510,7 @@
           "kiosks": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Kiosk"
+              "$ref": "#/components/schemas/KioskReadItem"
             },
             "x-cadl-name": "Kiosk[]"
           }
