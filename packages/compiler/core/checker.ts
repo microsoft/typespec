@@ -2069,15 +2069,6 @@ export function createChecker(program: Program): Checker {
     return props;
   }
 
-  function* walkPropertiesInherited(model: ModelType) {
-    let current: ModelType | undefined = model;
-
-    while (current) {
-      yield* current.properties.values();
-      current = current.baseModel;
-    }
-  }
-
   function countPropertiesInherited(
     model: ModelType,
     filter?: (property: ModelTypeProperty) => boolean
@@ -3659,4 +3650,13 @@ function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined 
     property = property.sourceProperty;
   }
   return property?.model;
+}
+
+export function* walkPropertiesInherited(model: ModelType) {
+  let current: ModelType | undefined = model;
+
+  while (current) {
+    yield* current.properties.values();
+    current = current.baseModel;
+  }
 }

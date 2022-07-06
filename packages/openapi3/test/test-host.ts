@@ -53,11 +53,13 @@ export async function openApiFor(code: string, versions?: string[]) {
       output[version] = JSON.parse(host.fs.get(versionedOutput(outPath, version))!);
     }
   }
+
   logVerboseTestOutput((log) => {
     log("OpenAPI output:");
     log(JSON.stringify(output, undefined, 2));
     log("");
   });
+
   return output;
 }
 

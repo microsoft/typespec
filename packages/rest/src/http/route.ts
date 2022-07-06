@@ -8,13 +8,13 @@ import {
   InterfaceType,
   isIntrinsic,
   isVisible as isVisibleCore,
-  ModelType,
   ModelTypeProperty,
   NamespaceType,
   OperationType,
   Program,
   Type,
   validateDecoratorTarget,
+  walkPropertiesInherited,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
 import {
@@ -66,7 +66,6 @@ export interface HttpOperationParameter {
 export interface HttpOperationParameters {
   parameters: HttpOperationParameter[];
   body?: ModelTypeProperty;
-  metadata: Set<ModelTypeProperty>;
 }
 
 export interface OperationDetails {
@@ -95,6 +94,8 @@ export enum Visibility {
   Update = 1 << 2,
   Delete = 1 << 3,
   Query = 1 << 4,
+
+  All = Read | Create | Update | Delete | Query,
 
   /**
    * Additional flag to indicate when something is nested in a collection
@@ -127,7 +128,7 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
     if (visibility & Visibility.Query) {
       result.push("query");
     }
-    // Item flag intentionally ignored here.
+
     compilerAssert(result.length > 0, "invalid visibility");
     visibilityToArrayMap.set(visibility, result);
   }
@@ -136,18 +137,18 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
 }
 
 export function getVisibilitySuffix(visibility: Visibility) {
-  let s = "";
+  let suffix = "";
 
   if (visibility !== Visibility.Read) {
     const visibilities = visibilityToArray(visibility);
-    s = visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
+    suffix += visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
   }
 
   if (visibility & Visibility.Item) {
-    s += "Item";
+    suffix += "Item";
   }
 
-  return s;
+  return suffix;
 }
 
 /**
@@ -308,22 +309,26 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
 export function gatherMetadata(
   program: Program,
   diagnostics: DiagnosticCollector,
-  model: ModelType,
+  type: Type,
   visibility: Visibility
 ): Set<ModelTypeProperty> {
-  if (isIntrinsic(program, model)) {
+  if (type.kind !== "Model") {
+    return new Set();
+  }
+
+  if (isIntrinsic(program, type)) {
     return new Set();
   }
 
   const visited = new Set();
   const metadata = new Map<string, ModelTypeProperty>();
-  const queue = [model];
+  const queue = [type];
 
   while (queue.length > 0) {
-    const m = queue.shift()!; // REVIEW: This is probably not an efficient way to queue.
-    visited.add(m);
+    const model = queue.shift()!; // REVIEW: This is probably not an efficient way to queue.
+    visited.add(model);
 
-    for (const [name, property] of m.properties) {
+    for (const property of walkPropertiesInherited(model)) {
       if (!isVisible(program, property, visibility)) {
         continue;
       }
@@ -340,17 +345,15 @@ export function gatherMetadata(
       // The traversal here is level order so that the preferred metadata in
       // the case of duplicates (ultimately for error recovery when
       // diagnostic is added) is the least deep, which seems least
-      // surprising.
-      if (metadata.has(name)) {
+      // surprising and most compatible with prior behavior.
+      if (metadata.has(property.name)) {
         // TODO: diagnostics.add(...)
         continue;
       }
 
-      if (isApplicableMetadata(program, property, visibility)) {
-        metadata.set(name, property);
-      }
-
-      if (
+      if (isApplicableMetadataOrBody(program, property, visibility)) {
+        metadata.set(property.name, property);
+      } else if (
         property.type.kind === "Model" &&
         !isIntrinsic(program, property.type) &&
         !visited.has(property.type)
@@ -363,13 +366,14 @@ export function gatherMetadata(
   return new Set(metadata.values());
 }
 
+// REVIEW: Move these helpers out of route.ts
+
 export function isMetadata(program: Program, property: ModelTypeProperty) {
   return (
     isHeader(program, property) ||
     isQueryParam(program, property) ||
     isPathParam(program, property) ||
-    isStatusCode(program, property) ||
-    isBody(program, property) // REVIEW: handled specially elsewhere and confusing to claim it is "metadata".
+    isStatusCode(program, property)
   );
 }
 
@@ -382,8 +386,29 @@ export function isApplicableMetadata(
   property: ModelTypeProperty,
   visibility: Visibility
 ) {
+  return isApplicableMetadataCore(program, property, visibility, false);
+}
+
+export function isApplicableMetadataOrBody(
+  program: Program,
+  property: ModelTypeProperty,
+  visibility: Visibility
+) {
+  return isApplicableMetadataCore(program, property, visibility, true);
+}
+
+function isApplicableMetadataCore(
+  program: Program,
+  property: ModelTypeProperty,
+  visibility: Visibility,
+  treatBodyAsMetadata: boolean
+) {
   if (visibility & Visibility.Item) {
-    return false;
+    return false; // no metadata is applicable to collection items
+  }
+
+  if (treatBodyAsMetadata && isBody(program, property)) {
+    return true;
   }
 
   if (!isMetadata(program, property)) {
@@ -412,10 +437,9 @@ export function getOperationParameters(
 
   const result: HttpOperationParameters = {
     parameters: [],
-    metadata,
   };
 
-  for (const param of result.metadata) {
+  for (const param of metadata) {
     const queryParam = getQueryParamName(program, param);
     const pathParam = getPathParamName(program, param);
     const headerParam = getHeaderFieldName(program, param);
@@ -455,7 +479,7 @@ export function getOperationParameters(
   let unannotatedParam: ModelTypeProperty | undefined;
 
   for (const param of operation.parameters.properties.values()) {
-    if (result.metadata.has(param)) {
+    if (metadata.has(param)) {
       continue;
     }
     if (unannotatedParam === undefined) {
@@ -483,11 +507,6 @@ export function getOperationParameters(
         })
       );
     }
-  }
-
-  // REVIEW: Don't confuse matters by returning body as metadata.
-  if (result.body) {
-    result.metadata.delete(result.body);
   }
 
   return diagnostics.wrap(result);

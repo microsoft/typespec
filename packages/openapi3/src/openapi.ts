@@ -314,7 +314,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         if (prop.type.kind === "Enum") {
           variable.enum = getSchemaForEnum(prop.type).enum;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum;
+          variable.enum = getSchemaForUnion(prop.type, Visibility.All).enum;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
