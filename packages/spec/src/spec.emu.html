@@ -283,12 +283,19 @@ UsingStatement :
     `using` IdentifierOrMemberExpression `;`
 
 ModelStatement :
+    DecoratorList? `model` Identifier TemplateParameters? IsModelHeritage `;`
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
-ModelHeritage :
-    `extends` ReferenceExpression
+IsModelHeritage :
     `is` ReferenceExpression
 
+ExtendsModelHeritage :
+    `extends` ReferenceExpression
+
+ModelHeritage :
+    IsModelHeritage
+    ExtendsModelHeritage
+    
 ModelBody :
     ModelPropertyList `,`?
     ModelPropertyList `;`?

@@ -56,9 +56,14 @@ function createTestCompilerHost(
 
     async readDir(path: string) {
       path = resolveVirtualPath(path);
-      return [...virtualFs.keys()]
+      const fileFolder = [...virtualFs.keys()]
         .filter((x) => x.startsWith(`${path}/`))
-        .map((x) => x.replace(`${path}/`, ""));
+        .map((x) => x.replace(`${path}/`, ""))
+        .map((x) => {
+          const index = x.indexOf("/");
+          return index !== -1 ? x.substring(0, index) : x;
+        });
+      return [...new Set(fileFolder)];
     },
 
     async rm(path: string, options: RmOptions) {

@@ -92,9 +92,9 @@ describe("compiler: syntax", () => {
 
       "model Car { ... A.B, ... C<D> }",
 
-      "model Car is Vehicle { }",
+      "model Car is Vehicle;",
 
-      "model Names is string[] { }",
+      "model Names is string[];",
     ]);
 
     parseErrorEach([
@@ -107,6 +107,9 @@ describe("compiler: syntax", () => {
         [/Cannot use default with non optional properties/],
       ],
       ["model", [/Identifier expected/]],
+      ["model Car is Vehicle", [/';', or '{' expected/]],
+      ["model Car;", [/'{', '=', 'extends', or 'is' expected/]],
+      ["model Car extends Foo;", [/'{' expected/]],
     ]);
   });
 

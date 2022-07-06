@@ -43,7 +43,10 @@ import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
+  getAnyExtensionFromPath,
+  getBaseFileName,
   getDirectoryPath,
+  hasTrailingDirectorySeparator,
   joinPaths,
   resolvePath,
 } from "../core/path-utils.js";
@@ -57,6 +60,7 @@ import {
   IdentifierNode,
   Node,
   SourceFile,
+  StringLiteralNode,
   SymbolFlags,
   SyntaxKind,
   Type,
@@ -245,7 +249,7 @@ export function createServer(host: ServerHost): Server {
       definitionProvider: true,
       completionProvider: {
         resolveProvider: false,
-        triggerCharacters: [".", "@"],
+        triggerCharacters: [".", "@", "/"],
         allCommitCharacters: [".", ",", ";", "("],
       },
       semanticTokensProvider: {
@@ -487,7 +491,7 @@ export function createServer(host: ServerHost): Server {
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
-              await addImportCompletion(program, document, completions);
+              await addImportCompletion(program, document, completions, node);
             }
             break;
         }
@@ -608,6 +612,7 @@ export function createServer(host: ServerHost): Server {
         if (libPackageJson.cadlMain != undefined) {
           completions.items.push({
             label: dependency,
+            commitCharacters: [],
             kind: CompletionItemKind.Module,
           });
         }
@@ -618,9 +623,53 @@ export function createServer(host: ServerHost): Server {
   async function addImportCompletion(
     program: Program,
     document: TextDocument,
-    completions: CompletionList
+    completions: CompletionList,
+    node: StringLiteralNode
   ) {
-    await addLibraryImportCompletion(program, document, completions);
+    if (node.value.startsWith("./") || node.value.startsWith("../")) {
+      await addRelativePathCompletion(program, document, completions, node);
+    } else if (!node.value.startsWith(".")) {
+      await addLibraryImportCompletion(program, document, completions);
+    }
+  }
+
+  async function addRelativePathCompletion(
+    program: Program,
+    document: TextDocument,
+    completions: CompletionList,
+    node: StringLiteralNode
+  ) {
+    const documentPath = getPath(document);
+    const documentFile = getBaseFileName(documentPath);
+    const documentDir = getDirectoryPath(documentPath);
+    const nodevalueDir = hasTrailingDirectorySeparator(node.value)
+      ? node.value
+      : getDirectoryPath(node.value);
+    const mainCadl = resolvePath(documentDir, nodevalueDir);
+    const files = (await program.host.readDir(mainCadl)).filter(
+      (x) => x !== documentFile && x !== "node_modules"
+    );
+    for (const file of files) {
+      const extension = getAnyExtensionFromPath(file);
+      switch (extension) {
+        case ".cadl":
+        case ".js":
+        case ".mjs":
+          completions.items.push({
+            label: file,
+            commitCharacters: [],
+            kind: CompletionItemKind.File,
+          });
+          break;
+        case "":
+          completions.items.push({
+            label: file,
+            commitCharacters: [],
+            kind: CompletionItemKind.Folder,
+          });
+          break;
+      }
+    }
   }
 
   /**

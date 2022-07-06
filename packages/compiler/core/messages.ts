@@ -444,7 +444,7 @@ const diagnostics = {
   "emitter-not-found": {
     severity: "error",
     messages: {
-      default: paramMessage`Cannot find emitter ${"emitterPackage"}`,
+      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
     },
   },
 
