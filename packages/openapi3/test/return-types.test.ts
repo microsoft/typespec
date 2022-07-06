@@ -230,7 +230,8 @@ describe("openapi3: return types", () => {
       @route("/")
       namespace root {
         @get
-        op read(): (Key & TextPlain) | Error;
+        // Note: & takes precedence over |
+        op read(): Key & TextPlain | Error;
       }
       `
     );

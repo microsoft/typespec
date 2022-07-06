@@ -122,7 +122,8 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
     newProp.decorators = newProp.decorators.filter((d) => d.decorator !== $visibility);
     clearVisibility(program, newProp);
 
-    context.call($path, newProp, undefined); // REVIEW: Why isn't resourceTypeForKeyParam called too?
+    // REVIEW: Why isn't resourceTypeForKeyParam called too?
+    context.call($path, newProp, undefined as any);
 
     target.properties.set(keyName, newProp);
   }
