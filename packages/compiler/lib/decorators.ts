@@ -389,17 +389,16 @@ export function $withVisibility(
     return;
   }
 
-  filterModelPropertiesInPlace(target, getVisibilityFilter(context.program, visibilities));
+  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, visibilities));
 }
 
-export function getVisibilityFilter(program: Program, visibilities: string[] | undefined) {
-  if (!visibilities) {
-    return () => true;
-  }
-  return (property: ModelTypeProperty) => {
-    const propertyVisibilities = getVisibility(program, property);
-    return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));
-  };
+export function isVisible(
+  program: Program,
+  property: ModelTypeProperty,
+  visibilities: readonly string[]
+) {
+  const propertyVisibilities = getVisibility(program, property);
+  return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));
 }
 
 function filterModelPropertiesInPlace(
@@ -432,7 +431,7 @@ export function $withUpdateableProperties(context: DecoratorContext, target: Typ
   }
 
   // remove all read-only properties from the target type
-  filterModelPropertiesInPlace(target, getVisibilityFilter(context.program, ["update"]));
+  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
 }
 
 // -- @withoutOmittedProperties decorator ----------------------

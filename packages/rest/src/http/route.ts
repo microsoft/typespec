@@ -5,9 +5,9 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getServiceNamespace,
-  getVisibilityFilter,
   InterfaceType,
   isIntrinsic,
+  isVisible as isVisibleCore,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -32,6 +32,9 @@ import {
   getQueryParamName,
   HttpVerb,
   isBody,
+  isHeader,
+  isPathParam,
+  isQueryParam,
   isStatusCode,
 } from "./decorators.js";
 import { getResponsesForOperation, HttpOperationResponse } from "./responses.js";
@@ -92,44 +95,55 @@ export enum Visibility {
   Update = 1 << 2,
   Delete = 1 << 3,
   Query = 1 << 4,
-  All = Read | Create | Update | Delete | Query,
 
-  ArrayItem = 1 << 20,
+  /**
+   * Additional flag to indicate when something is nested in a collection
+   * and therefore no metadata is applicable.
+   */
+  Item = 1 << 20,
 }
 
-export function visibilityToArray(visibility: Visibility) {
-  const result = [];
+const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
+function visibilityToArray(visibility: Visibility): readonly string[] {
+  // Item flag is not a real visibility.
+  visibility &= ~Visibility.Item;
 
-  if (visibility === Visibility.All) {
-    return undefined;
-  }
-  if (visibility & Visibility.Read) {
-    result.push("read");
-  }
-  if (visibility & Visibility.Create) {
-    result.push("create");
-  }
-  if (visibility & Visibility.Update) {
-    result.push("update");
-  }
-  if (visibility & Visibility.Delete) {
-    result.push("delete");
-  }
-  if (visibility & Visibility.Query) {
-    result.push("query");
+  let result = visibilityToArrayMap.get(visibility);
+  if (!result) {
+    result = [];
+
+    if (visibility & Visibility.Read) {
+      result.push("read");
+    }
+    if (visibility & Visibility.Create) {
+      result.push("create");
+    }
+    if (visibility & Visibility.Update) {
+      result.push("update");
+    }
+    if (visibility & Visibility.Delete) {
+      result.push("delete");
+    }
+    if (visibility & Visibility.Query) {
+      result.push("query");
+    }
+    // Item flag intentionally ignored here.
+    compilerAssert(result.length > 0, "invalid visibility");
+    visibilityToArrayMap.set(visibility, result);
   }
 
-  compilerAssert(result.length > 0, "invalid visibility");
   return result;
 }
 
-export function visiblityToPascalCase(visibility: Visibility) {
-  let s =
-    visibilityToArray(visibility)
-      ?.map((v) => v[0].toUpperCase() + v.slice(1))
-      ?.join("Or") ?? "";
+export function getVisibilitySuffix(visibility: Visibility) {
+  let s = "";
 
-  if (visibility & Visibility.ArrayItem) {
+  if (visibility !== Visibility.Read) {
+    const visibilities = visibilityToArray(visibility);
+    s = visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
+  }
+
+  if (visibility & Visibility.Item) {
     s += "Item";
   }
 
@@ -297,47 +311,43 @@ export function gatherMetadata(
   model: ModelType,
   visibility: Visibility
 ): Set<ModelTypeProperty> {
-  // REVIEW: This doesn't need to be a set anymore, array should be ok.
-  const visited = new Set();
-  const metadata = new Map<string, ModelTypeProperty>();
-  const visibilities = visibilityToArray(visibility);
-  const visibilityFilter = getVisibilityFilter(program, visibilities);
-
   if (isIntrinsic(program, model)) {
     return new Set();
   }
 
+  const visited = new Set();
+  const metadata = new Map<string, ModelTypeProperty>();
   const queue = [model];
+
   while (queue.length > 0) {
     const m = queue.shift()!; // REVIEW: This is probably not an efficient way to queue.
     visited.add(m);
 
-    for (const property of m.properties.values()) {
-      if (!visibilityFilter(property)) {
+    for (const [name, property] of m.properties) {
+      if (!isVisible(program, property, visibility)) {
         continue;
       }
-      // BUG/REVIEW: Proposal says duplicates are "invalid" metadata and
-      //         invalid metadata is not an error but becomes part of the
-      //         schema. This is problematic, though, because it creates an
-      //         especially hard case where the same ModelType can create
-      //         different schemas. Also, making this an error causes
-      //         problems for certain patterns with nested @key. So it's not
-      //         an error, but the duplicates will disappear. traversal is
-      //         done breadth-first/level-order to keep the preferred
-      //         element topmost.
+
+      // REVIEW: Proposal says duplicates are "invalid" metadata and invalid
+      // metadata is not an error but becomes part of the schema. This is
+      // problematic, though, because it creates an an unbounded number of
+      // variants of the same model, depending on where it is referenced.
+      // Keeping track of these and naming them is especially hard.
       //
-      if (metadata.has(property.name)) {
-        // diagnostics.add(
-        //   // BUG: Report all locations for dupes
-        //   createDiagnostic({
-        //     code: "duplicate-metadata",
-        //     target: property,
-        //   })
-        // );
+      // I propose making it an error, but that currently breaks some
+      // samples and tests.
+      //
+      // The traversal here is level order so that the preferred metadata in
+      // the case of duplicates (ultimately for error recovery when
+      // diagnostic is added) is the least deep, which seems least
+      // surprising.
+      if (metadata.has(name)) {
+        // TODO: diagnostics.add(...)
         continue;
       }
-      if (!metadata.has(property.name) && isApplicableMetadata(program, property, visibility)) {
-        metadata.set(property.name, property);
+
+      if (isApplicableMetadata(program, property, visibility)) {
+        metadata.set(name, property);
       }
 
       if (
@@ -353,39 +363,42 @@ export function gatherMetadata(
   return new Set(metadata.values());
 }
 
+export function isMetadata(program: Program, property: ModelTypeProperty) {
+  return (
+    isHeader(program, property) ||
+    isQueryParam(program, property) ||
+    isPathParam(program, property) ||
+    isStatusCode(program, property) ||
+    isBody(program, property) // REVIEW: handled specially elsewhere and confusing to claim it is "metadata".
+  );
+}
+
+export function isVisible(program: Program, property: ModelTypeProperty, visibility: Visibility) {
+  return isVisibleCore(program, property, visibilityToArray(visibility));
+}
+
 export function isApplicableMetadata(
   program: Program,
   property: ModelTypeProperty,
   visibility: Visibility
 ) {
-  if (isSchemaProperty(program, property)) {
-    return false; // not metadata
+  if (visibility & Visibility.Item) {
+    return false;
   }
 
-  if (visibility & Visibility.ArrayItem) {
+  if (!isMetadata(program, property)) {
     return false;
   }
 
   if (visibility === Visibility.Read) {
-    return !!getHeaderFieldName(program, property) || !!isStatusCode(program, property);
+    return isHeader(program, property) || isStatusCode(program, property);
+  }
+
+  if (!(visibility & Visibility.Read)) {
+    return !isStatusCode(program, property);
   }
 
   return true;
-}
-
-/**
- * A "schema property" here is a property that is emitted to OpenAPI schema.
- *
- * Headers, parameters, status codes are not schema properties even they are
- * represented as properties in Cadl.
- */
-export function isSchemaProperty(program: Program, property: ModelTypeProperty) {
-  const headerInfo = getHeaderFieldName(program, property);
-  const queryInfo = getQueryParamName(program, property);
-  const pathInfo = getPathParamName(program, property);
-  const statusCodeinfo = isStatusCode(program, property);
-  const body = isBody(program, property);
-  return !(headerInfo || queryInfo || pathInfo || statusCodeinfo || body);
 }
 
 export function getOperationParameters(
@@ -419,7 +432,7 @@ export function getOperationParameters(
         createDiagnostic({
           code: "operation-param-duplicate-type",
           format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
-          target: param, // TODO: bad location for nested metadata, should elaborate the context that pulled it in to an operation.
+          target: param, // REVIEW: bad location for nested metadata, should elaborate the context that pulled it in to an operation.
         })
       );
     }
@@ -472,7 +485,7 @@ export function getOperationParameters(
     }
   }
 
-  // Don't confuse matters by returning body as metadata.
+  // REVIEW: Don't confuse matters by returning body as metadata.
   if (result.body) {
     result.metadata.delete(result.body);
   }
