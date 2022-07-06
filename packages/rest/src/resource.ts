@@ -1,4 +1,6 @@
 import {
+  $visibility,
+  clearVisibility,
   DecoratorContext,
   getKeyName,
   isErrorType,
@@ -99,9 +101,10 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
     const newProp = program.checker.cloneType(keyProperty);
     newProp.name = keyName;
 
-    //newProp.decorators = newProp.decorators.filter((d) => d.decorator !== $visibility);
-    //clearVisibility(program, newProp);
-
+    // REVIEW: Lost a ton of time on this, this is mutating old prop and new prop!!!
+    //         cloneType seems to leave decorators aliased and we are relying on this
+    //         so that @key Resource.id gets @path when spread into Updateable properties
+    //         and then skipped as metadata.
     newProp.decorators.push(
       {
         decorator: $path,
@@ -113,8 +116,13 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
       }
     );
 
-    context.call($path, newProp);
-    context.call($resourceTypeForKeyParam, newProp, resourceType);
+    // REVIEW: Need to drop visibility so that `@key @visibility("read")` does not
+    //         make op get(x: KeysOf<T>) does not make the keys disappear from the
+    //         request.
+    newProp.decorators = newProp.decorators.filter((d) => d.decorator !== $visibility);
+    clearVisibility(program, newProp);
+
+    context.call($path, newProp, undefined); // REVIEW: Why isn't resourceTypeForKeyParam called too?
 
     target.properties.set(keyName, newProp);
   }
