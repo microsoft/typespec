@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "implementation of folding",
+      "comment": "Improve folding in IDE.",
       "type": "minor"
     }
   ],
