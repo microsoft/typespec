@@ -1,6 +1,7 @@
 import {
   ArrayType,
   checkIfServiceNamespace,
+  compilerAssert,
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
@@ -193,6 +194,11 @@ interface PendingSchema {
 interface ProcessedSchema extends PendingSchema {
   name: string;
   schema: unknown;
+}
+
+interface ProcessedSchemaGroup {
+  finished: boolean;
+  map: Map<Visibility, ProcessedSchema>;
 }
 
 function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
@@ -739,82 +745,127 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function emitSchemas() {
-    const schemas = new Map<Type, Map<Visibility, ProcessedSchema>>();
-
+    const processedSchemas = new Map<Type, ProcessedSchemaGroup>();
     while (pendingSchemas.size > 0) {
       for (const [type, map] of pendingSchemas) {
         pendingSchemas.delete(type);
-        let schemasForType = schemas.get(type);
-        if (!schemasForType) {
-          schemasForType = new Map();
-          schemas.set(type, schemasForType);
+        let processedSchemasForType = processedSchemas.get(type);
+        if (!processedSchemasForType) {
+          processedSchemasForType = { finished: false, map: new Map() };
+          processedSchemas.set(type, processedSchemasForType);
         }
 
         for (const [visibility, pendingSchema] of map) {
-          let schema = schemasForType.get(visibility);
-          if (schema) {
-            schema.references.push(...pendingSchema.references);
+          let processedSchema = processedSchemasForType.map.get(visibility);
+          if (processedSchema) {
+            processedSchema.references.push(...pendingSchema.references);
           } else {
-            const openapiSchema = getSchemaForType(type, visibility);
+            const schema = getSchemaForType(type, visibility);
             const name =
               getTypeName(program, type, typeNameOptions) + getVisibilitySuffix(visibility);
-            schema = { ...pendingSchema, schema: openapiSchema, name };
-            schemasForType.set(visibility, schema);
+            processedSchema = { ...pendingSchema, schema, name };
+            processedSchemasForType.map.set(visibility, processedSchema);
           }
         }
       }
     }
 
-    // REVIEW: Algorithm for detecting schemas that can be reused is
-    // currently hacky. We JSON.stringify the schemas to put them in a map
-    // and when there are dupes, and shortest name wins.
-    // Better algorithm is likely needed. We can still fail to find dupes since they are not
-    // my not be serialized the same until we have fixed up the reference
-    // placeholders.
-
-    for (const [type, map] of schemas) {
-      const reducedMap = new Map<string, ProcessedSchema>();
-      for (const schema of map.values()) {
-        const schemaString = JSON.stringify(schema.schema);
-        const existing = reducedMap.get(schemaString);
-        if (!existing) {
-          reducedMap.set(schemaString, schema);
-        } else {
-          const name = existing.name.length <= schema.name.length ? existing.name : schema.name;
-          reducedMap.set(schemaString, {
-            ...existing,
-            name,
-            references: [...existing.references, ...schema.references],
-          });
-        }
-      }
-
-      for (const schema of reducedMap.values()) {
-        const name =
-          reducedMap.size === 1 ? getTypeName(program, schema.type, typeNameOptions) : schema.name;
-        const ref = "#/components/schemas/" + encodeURIComponent(name);
-        for (const placeholder of schema.references) {
-          placeholder.value = ref;
-        }
-        checkDuplicateTypeName(program, type, name, root.components.schemas);
-        root.components.schemas[name] = schema.schema;
-      }
+    for (const type of processedSchemas.keys()) {
+      finish(type);
     }
 
     unboxRefPlaceholders(root);
-  }
 
-  function unboxRefPlaceholders(node: any) {
-    if (node instanceof RefPlaceholder) {
-      node = node.value;
-    } else if (Array.isArray(node)) {
-      node = node.map(unboxRefPlaceholders);
-    } else if (typeof node === "object") {
-      for (const [key, value] of Object.entries(node)) {
-        node[key] = unboxRefPlaceholders(value);
+    function finish(type?: Type) {
+      if (!type) {
+        return;
+      }
+
+      const group = processedSchemas.get(type);
+      if (!group || group.finished) {
+        return;
+      }
+
+      // prevent cycles setting this early
+      // REVIEW: algorithm can leave dupes behind when there are cycles.
+      group.finished = true;
+
+      if (group.map.size <= 1) {
+        finishGroup(type, group);
+        return;
+      }
+
+      // we must finish types in depth-first order so that serialized schema
+      // as references must be finalized before.
+      //
+      // REVIEW: probably missing things in this traversal. Impact will be
+      //         duplicated schemas.
+      switch (type.kind) {
+        case "Model":
+          finish(type.baseModel);
+          for (const prop of type.properties.values()) {
+            finish(prop.type);
+          }
+          break;
+        case "Array":
+          finish(type.elementType);
+          break;
+        case "Union":
+          for (const variant of type.variants.values()) {
+            finish(variant.type);
+          }
+          break;
+      }
+
+      const mapBySerializedSchema = new Map<string, ProcessedSchema>();
+      for (const [visibility, processed] of group.map) {
+        const serializedSchema = JSON.stringify(processed.schema);
+        const existing = mapBySerializedSchema.get(serializedSchema);
+
+        if (existing) {
+          if (existing.name.length > processed.name.length) {
+            existing.name = processed.name;
+          }
+          existing.references.push(...processed.references);
+          group.map.delete(visibility);
+        } else {
+          mapBySerializedSchema.set(serializedSchema, processed);
+        }
+      }
+
+      finishGroup(type, group);
+    }
+
+    function finishGroup(type: Type, group: ProcessedSchemaGroup) {
+      for (const processed of group.map.values()) {
+        const name =
+          group.map.size === 1
+            ? getTypeName(program, processed.type, typeNameOptions)
+            : processed.name;
+
+        const ref = "#/components/schemas/" + encodeURIComponent(name);
+        checkDuplicateTypeName(program, type, name, root.components.schemas);
+        root.components.schemas[name] = processed.schema;
+
+        for (const placeholder of processed.references) {
+          placeholder.value = ref;
+        }
       }
     }
-    return node;
+
+    function unboxRefPlaceholders(node: any) {
+      if (node instanceof RefPlaceholder) {
+        compilerAssert(typeof node.value === "string", "Reference placeholder was not filled.");
+        node = node.value;
+      } else if (Array.isArray(node)) {
+        node = node.map(unboxRefPlaceholders);
+      } else if (typeof node === "object") {
+        for (const [key, value] of Object.entries(node)) {
+          node[key] = unboxRefPlaceholders(value);
+        }
+      }
+      return node;
+    }
   }
 
   function emitTags() {

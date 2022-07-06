@@ -64,7 +64,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/HorseCreateOrUpdate"
+                "$ref": "#/components/schemas/Horse"
               }
             }
           }
@@ -334,6 +334,17 @@
   },
   "components": {
     "schemas": {
+      "Pet": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
       "Horse": {
         "type": "object",
         "properties": {
@@ -348,33 +359,6 @@
           {
             "$ref": "#/components/schemas/Pet"
           }
-        ]
-      },
-      "HorseCreateOrUpdate": {
-        "type": "object",
-        "properties": {
-          "isAShowHorse": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "isAShowHorse"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Pet"
-          }
-        ]
-      },
-      "Pet": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
         ]
       },
       "Feline": {

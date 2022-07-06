@@ -57,7 +57,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BasicCreateOrUpdate"
+                "$ref": "#/components/schemas/Basic"
               }
             }
           }
@@ -763,31 +763,16 @@
   },
   "components": {
     "schemas": {
-      "Basic": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true,
-            "x-cadl-name": "int32 | null",
-            "description": "Basic Id"
-          },
-          "name": {
-            "type": "string",
-            "description": "Name property with a very long description that does not fit on a single line and a line break."
-          },
-          "color": {
-            "$ref": "#/components/schemas/CMYKColors"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "color"
+      "CMYKColors": {
+        "type": "string",
+        "enum": [
+          "cyan",
+          "Magenta",
+          "YELLOW",
+          "blacK"
         ]
       },
-      "BasicCreateOrUpdate": {
+      "Basic": {
         "type": "object",
         "properties": {
           "id": {
@@ -1012,15 +997,6 @@
         },
         "required": [
           "field"
-        ]
-      },
-      "CMYKColors": {
-        "type": "string",
-        "enum": [
-          "cyan",
-          "Magenta",
-          "YELLOW",
-          "blacK"
         ]
       }
     }

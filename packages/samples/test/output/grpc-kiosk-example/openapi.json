@@ -44,7 +44,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KioskCreate"
+                "$ref": "#/components/schemas/Kiosk"
               }
             }
           }
@@ -391,69 +391,61 @@
       }
     },
     "schemas": {
-      "KioskCreate": {
+      "ScreenSize": {
         "type": "object",
         "properties": {
-          "id": {
+          "width": {
             "type": "integer",
-            "format": "int32",
-            "description": "unique id"
+            "format": "int32"
           },
-          "name": {
-            "type": "string",
-            "description": "name of device hardware"
-          },
-          "size": {
-            "$ref": "#/components/schemas/ScreenSize",
-            "description": "screen size"
-          },
-          "location": {
-            "$ref": "#/components/schemas/LatLng",
-            "description": "kiosk location"
-          },
-          "create_time": {
-            "$ref": "#/components/schemas/Timestamp"
+          "height": {
+            "type": "integer",
+            "format": "int32"
           }
         },
-        "description": "Describes a hardware device that can display signs.",
+        "description": "Represents the size of a screen in pixels.",
         "required": [
-          "name",
-          "size",
-          "location"
+          "width",
+          "height"
+        ]
+      },
+      "LatLng": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "description": "An object that represents a latitude/longitude pair. This is expressed as a\npair of doubles to represent degrees latitude and degrees longitude. Unless\nspecified otherwise, this must conform to the\n<a href=\"http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf\">WGS84\nstandard</a>. Values must be within normalized ranges.",
+        "required": [
+          "latitude",
+          "longitude"
+        ]
+      },
+      "Timestamp": {
+        "type": "object",
+        "properties": {
+          "seconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nanos": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "A timestamp",
+        "required": [
+          "seconds",
+          "nanos"
         ]
       },
       "Kiosk": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32",
-            "description": "unique id"
-          },
-          "name": {
-            "type": "string",
-            "description": "name of device hardware"
-          },
-          "size": {
-            "$ref": "#/components/schemas/ScreenSize",
-            "description": "screen size"
-          },
-          "location": {
-            "$ref": "#/components/schemas/LatLng",
-            "description": "kiosk location"
-          },
-          "create_time": {
-            "$ref": "#/components/schemas/Timestamp"
-          }
-        },
-        "description": "Describes a hardware device that can display signs.",
-        "required": [
-          "name",
-          "size",
-          "location"
-        ]
-      },
-      "KioskReadItem": {
         "type": "object",
         "properties": {
           "id": {
@@ -510,7 +502,7 @@
           "kiosks": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/KioskReadItem"
+              "$ref": "#/components/schemas/Kiosk"
             },
             "x-cadl-name": "Kiosk[]"
           }
@@ -568,60 +560,6 @@
           }
         },
         "description": "A successful response."
-      },
-      "ScreenSize": {
-        "type": "object",
-        "properties": {
-          "width": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "height": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "description": "Represents the size of a screen in pixels.",
-        "required": [
-          "width",
-          "height"
-        ]
-      },
-      "LatLng": {
-        "type": "object",
-        "properties": {
-          "latitude": {
-            "type": "number",
-            "format": "double"
-          },
-          "longitude": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "description": "An object that represents a latitude/longitude pair. This is expressed as a\npair of doubles to represent degrees latitude and degrees longitude. Unless\nspecified otherwise, this must conform to the\n<a href=\"http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf\">WGS84\nstandard</a>. Values must be within normalized ranges.",
-        "required": [
-          "latitude",
-          "longitude"
-        ]
-      },
-      "Timestamp": {
-        "type": "object",
-        "properties": {
-          "seconds": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "nanos": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "description": "A timestamp",
-        "required": [
-          "seconds",
-          "nanos"
-        ]
       },
       "ProtobufAny": {
         "type": "object",
