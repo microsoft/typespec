@@ -1050,7 +1050,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     for (const [name, prop] of model.properties) {
       if (
-        !isVisible(program, prop, visibility) ||
+        (!isVisible(program, prop, visibility) && !isReadonlyProperty(prop)) ||
         isApplicableMetadata(program, prop, visibility)
       ) {
         continue;
