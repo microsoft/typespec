@@ -273,7 +273,11 @@ function getResponseBody(
   }
 
   // Without an explicit body, response type is response model itself if
-  // there is at least it has at least one non-metadata property.
+  // there it has at least one non-metadata property, or if it has derived
+  // models
+  if (responseType.derivedModels.length > 0) {
+    return responseType;
+  }
   for (const property of walkPropertiesInherited(responseType)) {
     if (!isApplicableMetadata(program, property, Visibility.Read)) {
       return responseType;
