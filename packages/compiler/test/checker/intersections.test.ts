@@ -5,6 +5,7 @@ import {
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
+  extractCursor,
 } from "../../testing/index.js";
 
 describe("compiler: intersections", () => {
@@ -48,15 +49,20 @@ describe("compiler: intersections", () => {
   });
 
   it("emit diagnostic if one of the intersected type is not a model", async () => {
-    const diagnostics = await runner.diagnose(`
-      @test model Foo {
-        prop: {a: string} & "string literal";
-      }
-    `);
+    let source = `@test model Foo {
+      prop: {a: string} & ┆"string literal"┆;
+    }`;
 
+    let pos: number, end: number;
+    ({ source, pos } = extractCursor(source));
+    ({ source, pos: end } = extractCursor(source));
+
+    const diagnostics = await runner.diagnose(source);
     expectDiagnostics(diagnostics, {
       code: "intersect-non-model",
       message: "Cannot intersect non-model types (including union types).",
+      pos,
+      end,
     });
   });
 });
