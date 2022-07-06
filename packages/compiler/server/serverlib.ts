@@ -415,29 +415,31 @@ export function createServer(host: ServerHost): Server {
     getRangesForNode(ast);
 
     function getRangesForNode(node: Node) {
+      let startPos = node.pos;
+      let endPos = node.end;
       if ("decorators" in node && node.decorators.length > 0) {
-        const startPos = node.decorators[0].pos;
-        const endPos = node.decorators[node.decorators.length - 1].end;
+        startPos = node.decorators[0].pos;
+        endPos = node.decorators[node.decorators.length - 1].end;
+      }
+      let startLine = file.getLineAndCharacterOfPosition(startPos).line;
+      let endLine = file.getLineAndCharacterOfPosition(endPos).line;
+      const startCharacter = file.getLineAndCharacterOfPosition(startPos).character;
+      const endCharacter = file.getLineAndCharacterOfPosition(endPos).character;
+      if ("decorators" in node && node.decorators.length > 0) {
         const nodeEndPos = node.end;
-        let startLine = file.getLineAndCharacterOfPosition(startPos).line;
-        let endLine = file.getLineAndCharacterOfPosition(endPos).line;
         if (startLine !== endLine) {
-          ranges.push({ startLine, endLine });
+          ranges.push({ startLine, startCharacter, endLine, endCharacter });
         }
         startLine = file.getLineAndCharacterOfPosition(skipTrivia(file.text, endPos)).line;
         endLine = file.getLineAndCharacterOfPosition(nodeEndPos).line;
         if (startLine !== endLine) {
-          ranges.push({ startLine, endLine });
+          ranges.push({ startLine, startCharacter, endLine, endCharacter });
         }
         visitChildren(node, getRangesForNode);
         return;
       }
-      const startPos = node.pos;
-      const endPos = node.end;
-      const startLine = file.getLineAndCharacterOfPosition(startPos).line;
-      const endLine = file.getLineAndCharacterOfPosition(endPos).line;
       if (startLine !== endLine && node.kind !== SyntaxKind.CadlScript) {
-        ranges.push({ startLine, endLine });
+        ranges.push({ startLine, startCharacter, endLine, endCharacter });
       }
       visitChildren(node, getRangesForNode);
     }

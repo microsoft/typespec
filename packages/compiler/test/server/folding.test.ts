@@ -3,21 +3,21 @@ import { FoldingRange } from "vscode-languageserver/node.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
 describe("compiler: server: foldingRange", () => {
-  it("testing for foldingRange with doc", async () => {
+  it("includes decorator in folding range", async () => {
     const ranges = await getFoldingRanges(`@doc("Error")
     @doc("Foo")
     @doc("bar")
     @doc("FooBar")`);
-    deepStrictEqual(ranges, [{ startLine: 0, endLine: 3 }]);
+    deepStrictEqual(ranges, [{ endCharacter: 18, endLine: 3, startCharacter: 0, startLine: 0 }]);
   });
 
-  it("testing for foldingRange with model", async () => {
+  it("includes model in folding range", async () => {
     const ranges = await getFoldingRanges(`model Error {
       code: int32;}`);
-    deepStrictEqual(ranges, [{ startLine: 0, endLine: 1 }]);
+    deepStrictEqual(ranges, [{ endCharacter: 19, endLine: 1, startCharacter: 0, startLine: 0 }]);
   });
 
-  it("testing for foldingRange with doc outside of model", async () => {
+  it("includes model and decorator in folding range", async () => {
     const ranges = await getFoldingRanges(`@doc("Error")
     @doc("Foo")
     @doc("bar")
@@ -26,51 +26,51 @@ describe("compiler: server: foldingRange", () => {
       message: string;
     }`);
     deepStrictEqual(ranges, [
-      { startLine: 0, endLine: 2 },
-      { startLine: 3, endLine: 6 },
+      { endCharacter: 15, endLine: 2, startCharacter: 0, startLine: 0 },
+      { endCharacter: 15, endLine: 6, startCharacter: 0, startLine: 3 },
     ]);
   });
 
-  it("testing for foldingRange with op", async () => {
+  it("includes op in folding range", async () => {
     const ranges = await getFoldingRanges(`op delete(...PetId): {
       ...Response<200>;
     } | Error;`);
     deepStrictEqual(ranges, [
-      { startLine: 0, endLine: 2 },
-      { startLine: 0, endLine: 2 },
-      { startLine: 0, endLine: 2 },
-      { startLine: 0, endLine: 2 },
+      { endCharacter: 14, endLine: 2, startCharacter: 0, startLine: 0 },
+      { endCharacter: 13, endLine: 2, startCharacter: 9, startLine: 0 },
+      { endCharacter: 13, endLine: 2, startCharacter: 21, startLine: 0 },
+      { endCharacter: 5, endLine: 2, startCharacter: 21, startLine: 0 },
     ]);
   });
 
-  it("testing for foldingRange with of namespace", async () => {
+  it("includes namespace in folding range", async () => {
     const ranges = await getFoldingRanges(`namespace Foo {
     }`);
-    deepStrictEqual(ranges, [{ startLine: 0, endLine: 1 }]);
+    deepStrictEqual(ranges, [{ endCharacter: 5, endLine: 1, startCharacter: 0, startLine: 0 }]);
   });
 
-  it("testing for foldingRange with doc inside of namespace", async () => {
+  it("includes namespace and decorator in folding range", async () => {
     const ranges = await getFoldingRanges(`namespace Foo {
       @doc("Delete Foo")
       @doc("Create Foo") }`);
     deepStrictEqual(ranges, [
-      { startLine: 0, endLine: 2 },
-      { startLine: 1, endLine: 2 },
+      { endCharacter: 26, endLine: 2, startCharacter: 0, startLine: 0 },
+      { endCharacter: 24, endLine: 2, startCharacter: 6, startLine: 1 },
     ]);
   });
 
-  it("testing for foldingRange with doc outside of namespace", async () => {
+  it("includes decorator before namespace in folding range", async () => {
     const ranges = await getFoldingRanges(`@doc("Delete Foo")
     @doc("Create Foo") 
     namespace Foo {
  }`);
     deepStrictEqual(ranges, [
-      { startLine: 0, endLine: 1 },
-      { startLine: 2, endLine: 3 },
+      { endCharacter: 22, endLine: 1, startCharacter: 0, startLine: 0 },
+      { endCharacter: 22, endLine: 3, startCharacter: 0, startLine: 2 },
     ]);
   });
 
-  it("testing folding does not occur with one line", async () => {
+  it("folding range with one line", async () => {
     const ranges = await getFoldingRanges(`@doc("Delete Foo")`);
     deepStrictEqual(ranges, []);
   });
