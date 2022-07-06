@@ -526,6 +526,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function getSchemaOrRef(type: Type, visibility: Visibility): any {
+    const refUrl = getRef(program, type);
+    if (refUrl) {
+      return {
+        $ref: refUrl,
+      };
+    }
+
     if (type.kind === "Model" && type.name === getIntrinsicModelName(program, type)) {
       // if the model is one of the Cadl Intrinsic type.
       // it's a base Cadl "primitive" that corresponds directly to an OpenAPI
@@ -552,11 +559,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     if (shouldInline(program, type)) {
       const schema = getSchemaForType(type, visibility);
+
       if (schema === undefined && isErrorType(type)) {
         // Exit early so that syntax errors are exposed.  This error will
         // be caught and handled in emitOpenAPI.
         throw new ErrorTypeFoundError();
       }
+
       // helps to read output and correlate to Cadl
       if (schema) {
         const name = getTypeName(program, type, typeNameOptions);
