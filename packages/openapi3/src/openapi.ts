@@ -770,8 +770,13 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
+    // REVIEW: Two passes here to avoid reordering schemas. Revisit sorting output to
+    //         have more future-proofness in algorithm changes without disturbing diffs.
     for (const type of processedSchemas.keys()) {
       finish(type);
+    }
+    for (const group of processedSchemas.values()) {
+      emitGroup(group);
     }
 
     unboxRefPlaceholders(root);
@@ -791,7 +796,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       group.finished = true;
 
       if (group.map.size <= 1) {
-        finishGroup(type, group);
+        fixupReferences(group);
         return;
       }
 
@@ -817,6 +822,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           break;
       }
 
+      // REVIEW: JSON.stringify to find duplicate schemas feels bad.
       const mapBySerializedSchema = new Map<string, ProcessedSchema>();
       for (const [visibility, processed] of group.map) {
         const serializedSchema = JSON.stringify(processed.schema);
@@ -833,10 +839,10 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         }
       }
 
-      finishGroup(type, group);
+      fixupReferences(group);
     }
 
-    function finishGroup(type: Type, group: ProcessedSchemaGroup) {
+    function fixupReferences(group: ProcessedSchemaGroup) {
       for (const processed of group.map.values()) {
         const name =
           group.map.size === 1
@@ -844,12 +850,22 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
             : processed.name;
 
         const ref = "#/components/schemas/" + encodeURIComponent(name);
-        checkDuplicateTypeName(program, type, name, root.components.schemas);
-        root.components.schemas[name] = processed.schema;
 
         for (const placeholder of processed.references) {
           placeholder.value = ref;
         }
+      }
+    }
+
+    function emitGroup(group: ProcessedSchemaGroup) {
+      for (const processed of group.map.values()) {
+        const name =
+          group.map.size === 1
+            ? getTypeName(program, processed.type, typeNameOptions)
+            : processed.name;
+
+        checkDuplicateTypeName(program, processed.type, name, root.components.schemas);
+        root.components.schemas[name] = processed.schema;
       }
     }
 

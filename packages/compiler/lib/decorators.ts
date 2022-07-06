@@ -430,7 +430,6 @@ export function $withUpdateableProperties(context: DecoratorContext, target: Typ
     return;
   }
 
-  // remove all read-only properties from the target type
   filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
 }
 

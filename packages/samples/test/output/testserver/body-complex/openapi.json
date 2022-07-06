@@ -763,15 +763,6 @@
   },
   "components": {
     "schemas": {
-      "CMYKColors": {
-        "type": "string",
-        "enum": [
-          "cyan",
-          "Magenta",
-          "YELLOW",
-          "blacK"
-        ]
-      },
       "Basic": {
         "type": "object",
         "properties": {
@@ -997,6 +988,15 @@
         },
         "required": [
           "field"
+        ]
+      },
+      "CMYKColors": {
+        "type": "string",
+        "enum": [
+          "cyan",
+          "Magenta",
+          "YELLOW",
+          "blacK"
         ]
       }
     }

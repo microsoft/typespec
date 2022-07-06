@@ -1,6 +1,4 @@
 import {
-  $visibility,
-  clearVisibility,
   DecoratorContext,
   getKeyName,
   isErrorType,
@@ -101,8 +99,8 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
     const newProp = program.checker.cloneType(keyProperty);
     newProp.name = keyName;
 
-    newProp.decorators = newProp.decorators.filter((d) => d.decorator !== $visibility);
-    clearVisibility(program, newProp);
+    //newProp.decorators = newProp.decorators.filter((d) => d.decorator !== $visibility);
+    //clearVisibility(program, newProp);
 
     newProp.decorators.push(
       {

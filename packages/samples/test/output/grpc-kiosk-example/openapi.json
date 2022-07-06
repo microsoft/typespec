@@ -391,60 +391,6 @@
       }
     },
     "schemas": {
-      "ScreenSize": {
-        "type": "object",
-        "properties": {
-          "width": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "height": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "description": "Represents the size of a screen in pixels.",
-        "required": [
-          "width",
-          "height"
-        ]
-      },
-      "LatLng": {
-        "type": "object",
-        "properties": {
-          "latitude": {
-            "type": "number",
-            "format": "double"
-          },
-          "longitude": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "description": "An object that represents a latitude/longitude pair. This is expressed as a\npair of doubles to represent degrees latitude and degrees longitude. Unless\nspecified otherwise, this must conform to the\n<a href=\"http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf\">WGS84\nstandard</a>. Values must be within normalized ranges.",
-        "required": [
-          "latitude",
-          "longitude"
-        ]
-      },
-      "Timestamp": {
-        "type": "object",
-        "properties": {
-          "seconds": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "nanos": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "description": "A timestamp",
-        "required": [
-          "seconds",
-          "nanos"
-        ]
-      },
       "Kiosk": {
         "type": "object",
         "properties": {
@@ -560,6 +506,60 @@
           }
         },
         "description": "A successful response."
+      },
+      "ScreenSize": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Represents the size of a screen in pixels.",
+        "required": [
+          "width",
+          "height"
+        ]
+      },
+      "LatLng": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "description": "An object that represents a latitude/longitude pair. This is expressed as a\npair of doubles to represent degrees latitude and degrees longitude. Unless\nspecified otherwise, this must conform to the\n<a href=\"http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf\">WGS84\nstandard</a>. Values must be within normalized ranges.",
+        "required": [
+          "latitude",
+          "longitude"
+        ]
+      },
+      "Timestamp": {
+        "type": "object",
+        "properties": {
+          "seconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nanos": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "A timestamp",
+        "required": [
+          "seconds",
+          "nanos"
+        ]
       },
       "ProtobufAny": {
         "type": "object",

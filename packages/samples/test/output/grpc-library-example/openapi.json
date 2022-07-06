@@ -441,11 +441,6 @@
       }
     },
     "schemas": {
-      "shelf_name": {
-        "type": "string",
-        "description": "The name of a shelf.\nShelf names have the form `shelves/{shelf_id}`.",
-        "pattern": "shelves/\\w+"
-      },
       "Shelf": {
         "type": "object",
         "properties": {
@@ -504,10 +499,10 @@
           "shelves"
         ]
       },
-      "book_name": {
+      "shelf_name": {
         "type": "string",
-        "description": "The name of a book.\nBook names have the form `shelves/{shelf_id}/books/{book_id}`",
-        "pattern": "shelves/\\w+/books/\\w+"
+        "description": "The name of a shelf.\nShelf names have the form `shelves/{shelf_id}`.",
+        "pattern": "shelves/\\w+"
       },
       "Book": {
         "type": "object",
@@ -565,6 +560,11 @@
             "type": "string"
           }
         }
+      },
+      "book_name": {
+        "type": "string",
+        "description": "The name of a book.\nBook names have the form `shelves/{shelf_id}/books/{book_id}`",
+        "pattern": "shelves/\\w+/books/\\w+"
       }
     }
   }

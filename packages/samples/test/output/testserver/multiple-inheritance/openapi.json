@@ -334,17 +334,6 @@
   },
   "components": {
     "schemas": {
-      "Pet": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
-        ]
-      },
       "Horse": {
         "type": "object",
         "properties": {
@@ -359,6 +348,17 @@
           {
             "$ref": "#/components/schemas/Pet"
           }
+        ]
+      },
+      "Pet": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
         ]
       },
       "Feline": {
