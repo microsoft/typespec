@@ -27,7 +27,7 @@ describe("compiler: server: foldingRange", () => {
     }`);
     deepStrictEqual(ranges, [
       { endCharacter: 15, endLine: 2, startCharacter: 0, startLine: 0 },
-      { endCharacter: 15, endLine: 6, startCharacter: 0, startLine: 3 },
+      { endCharacter: 5, endLine: 6, startCharacter: 4, startLine: 3 },
     ]);
   });
 
@@ -66,7 +66,7 @@ describe("compiler: server: foldingRange", () => {
  }`);
     deepStrictEqual(ranges, [
       { endCharacter: 22, endLine: 1, startCharacter: 0, startLine: 0 },
-      { endCharacter: 22, endLine: 3, startCharacter: 0, startLine: 2 },
+      { endCharacter: 2, endLine: 3, startCharacter: 4, startLine: 2 },
     ]);
   });
 

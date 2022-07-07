@@ -412,38 +412,31 @@ export function createServer(host: ServerHost): Server {
     const file = await compilerHost.readFile(getPath(params.textDocument));
     const ast = parse(file);
     const ranges: FoldingRange[] = [];
-    getRangesForNode(ast);
+    visitChildren(ast, addRangesForNode);
+    function addRangesForNode(node: Node) {
+      let nodeStart = node.pos;
+      if ("decorators" in node && node.decorators.length > 0) {
+        const decoratorEnd = node.decorators[node.decorators.length - 1].end;
+        addRange(nodeStart, decoratorEnd);
+        nodeStart = skipTrivia(file.text, decoratorEnd);
+      }
 
-    function getRangesForNode(node: Node) {
-      let startPos = node.pos;
-      let endPos = node.end;
-      if ("decorators" in node && node.decorators.length > 0) {
-        startPos = node.decorators[0].pos;
-        endPos = node.decorators[node.decorators.length - 1].end;
-      }
-      let startLine = file.getLineAndCharacterOfPosition(startPos).line;
-      let endLine = file.getLineAndCharacterOfPosition(endPos).line;
-      const startCharacter = file.getLineAndCharacterOfPosition(startPos).character;
-      const endCharacter = file.getLineAndCharacterOfPosition(endPos).character;
-      if ("decorators" in node && node.decorators.length > 0) {
-        const nodeEndPos = node.end;
-        if (startLine !== endLine) {
-          ranges.push({ startLine, startCharacter, endLine, endCharacter });
-        }
-        startLine = file.getLineAndCharacterOfPosition(skipTrivia(file.text, endPos)).line;
-        endLine = file.getLineAndCharacterOfPosition(nodeEndPos).line;
-        if (startLine !== endLine) {
-          ranges.push({ startLine, startCharacter, endLine, endCharacter });
-        }
-        visitChildren(node, getRangesForNode);
-        return;
-      }
-      if (startLine !== endLine && node.kind !== SyntaxKind.CadlScript) {
-        ranges.push({ startLine, startCharacter, endLine, endCharacter });
-      }
-      visitChildren(node, getRangesForNode);
+      addRange(nodeStart, node.end);
+      visitChildren(node, addRangesForNode);
     }
     return ranges;
+    function addRange(startPos: number, endPos: number) {
+      const start = file.getLineAndCharacterOfPosition(startPos);
+      const end = file.getLineAndCharacterOfPosition(endPos);
+      if (start.line !== end.line) {
+        ranges.push({
+          startLine: start.line,
+          startCharacter: start.character,
+          endLine: end.line,
+          endCharacter: end.character,
+        });
+      }
+    }
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
