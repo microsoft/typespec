@@ -139,7 +139,7 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
 export function getVisibilitySuffix(visibility: Visibility) {
   let suffix = "";
 
-  if (visibility !== Visibility.Read) {
+  if ((visibility & ~Visibility.Item) !== Visibility.Read) {
     const visibilities = visibilityToArray(visibility);
     suffix += visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
   }
