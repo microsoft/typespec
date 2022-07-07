@@ -10,6 +10,8 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  FoldingRange,
+  FoldingRangeParams,
   InitializedParams,
   InitializeParams,
   InitializeResult,
@@ -51,7 +53,7 @@ import {
   resolvePath,
 } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
-import { createScanner, isKeyword, isPunctuation, Token } from "../core/scanner.js";
+import { createScanner, isKeyword, isPunctuation, skipTrivia, Token } from "../core/scanner.js";
 import {
   CadlScriptNode,
   CompilerHost,
@@ -90,6 +92,7 @@ export interface Server {
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -233,6 +236,7 @@ export function createServer(host: ServerHost): Server {
     getSemanticTokens,
     buildSemanticTokens,
     checkChange,
+    getFoldingRanges,
     log,
   };
 
@@ -247,6 +251,7 @@ export function createServer(host: ServerHost): Server {
     const capabilities: ServerCapabilities = {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
+      foldingRangeProvider: true,
       completionProvider: {
         resolveProvider: false,
         triggerCharacters: [".", "@", "/"],
@@ -400,6 +405,37 @@ export function createServer(host: ServerHost): Server {
       });
 
       return undefined;
+    }
+  }
+
+  async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
+    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const ast = parse(file);
+    const ranges: FoldingRange[] = [];
+    visitChildren(ast, addRangesForNode);
+    function addRangesForNode(node: Node) {
+      let nodeStart = node.pos;
+      if ("decorators" in node && node.decorators.length > 0) {
+        const decoratorEnd = node.decorators[node.decorators.length - 1].end;
+        addRange(nodeStart, decoratorEnd);
+        nodeStart = skipTrivia(file.text, decoratorEnd);
+      }
+
+      addRange(nodeStart, node.end);
+      visitChildren(node, addRangesForNode);
+    }
+    return ranges;
+    function addRange(startPos: number, endPos: number) {
+      const start = file.getLineAndCharacterOfPosition(startPos);
+      const end = file.getLineAndCharacterOfPosition(endPos);
+      if (start.line !== end.line) {
+        ranges.push({
+          startLine: start.line,
+          startCharacter: start.character,
+          endLine: end.line,
+          endCharacter: end.character,
+        });
+      }
     }
   }
 
