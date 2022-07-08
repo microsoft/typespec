@@ -66,7 +66,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "missing-import",
-        message: `Emitter '@cadl-lang/my-emitter' is requiring '@cadl-lang/my-lib' from being imported. Add 'import "@cadl-lang/my-lib".`,
+        message: `Emitter '@cadl-lang/my-emitter' requires '@cadl-lang/my-lib' to be imported. Add 'import "@cadl-lang/my-lib".`,
       });
     });
 
