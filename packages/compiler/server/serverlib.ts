@@ -427,7 +427,6 @@ export function createServer(host: ServerHost): Server {
       addRange(nodeStart, node.end);
       visitChildren(node, addRangesForNode);
     }
-    console.log(ranges);
     return ranges;
     function addRange(startPos: number, endPos: number) {
       const start = file.getLineAndCharacterOfPosition(startPos);
