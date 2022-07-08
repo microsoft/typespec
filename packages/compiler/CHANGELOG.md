@@ -1,6 +1,25 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+This log was last generated on Fri, 08 Jul 2022 21:46:22 GMT and should not be manually modified.
+
+## 0.33.0
+Fri, 08 Jul 2022 21:46:22 GMT
+
+### Minor changes
+
+- Decorator definition helper support spread args
+- Add ability to provide emitter options
+- Improve folding in IDE.
+- Allow omitting braces from model is statements
+- implementation of relativePath
+
+### Patches
+
+- Fix issue with compiler version mismatch in VSCode
+- Fix error location for intersection with non-model
+- Fix Internal Compiler Error when using invalid relative import
+- Internal: Decorator definition helper works with multiple target and param types
+- Improved the error message shown when an `onEmit` function is not found in the requested emitter package
 
 ## 0.32.0
 Mon, 13 Jun 2022 23:42:28 GMT
