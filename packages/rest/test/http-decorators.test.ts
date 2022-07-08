@@ -1,5 +1,9 @@
 import { ModelTypeProperty, NamespaceType } from "@cadl-lang/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
+import {
+  BasicTestRunner,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
   getHeaderFieldName,
@@ -152,6 +156,25 @@ describe("rest: http decorators", () => {
           message: "Cannot apply @path decorator to Model",
         },
       ]);
+    });
+
+    it("emit diagnostics if property is optional without default", async () => {
+      const diagnostics = await runner.diagnose(`
+          op test(@path myPath?: string): string;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/optional-path-param",
+        message: "Path parameter cannot be optional without a default value.",
+      });
+    });
+
+    it("accept optional property with default values", async () => {
+      const diagnostics = await runner.diagnose(`
+          op test(@path myPath?: string = "my-default"): string;
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("emit diagnostics when path name is not a string", async () => {
