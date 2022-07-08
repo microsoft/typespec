@@ -29,7 +29,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "cadl-vscode": "~0.15.0",
+    "cadl-vscode": "~0.15.1",
     "@cadl-lang/internal-build-utils": "~0.3.0"
   }
 }
