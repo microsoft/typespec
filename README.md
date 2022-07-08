@@ -130,6 +130,7 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@server("https://example.com", "Single server endpoint")
 @route("/example")
 namespace Example {
   @get
