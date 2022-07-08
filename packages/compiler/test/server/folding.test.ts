@@ -3,6 +3,19 @@ import { FoldingRange } from "vscode-languageserver/node.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
 describe("compiler: server: foldingRange", () => {
+
+  it("includes comments in folding range", async () => {
+    const ranges = await getFoldingRanges(`/**
+    description of model foo
+    **/`);
+    deepStrictEqual(ranges, [{ endCharacter: 7, endLine: 2, startCharacter: 0, startLine: 0 }]);
+  });
+
+  it("includes one line comments in folding range", async () => {
+    const ranges = await getFoldingRanges(`//foo`);
+    deepStrictEqual(ranges, []);
+  });
+
   it("includes decorator in folding range", async () => {
     const ranges = await getFoldingRanges(`@doc("Error")
     @doc("Foo")
