@@ -76,13 +76,6 @@ export function $path(context: DecoratorContext, entity: ModelTypeProperty, para
     return;
   }
 
-  if (entity.optional && entity.default === undefined) {
-    reportDiagnostic(context.program, {
-      code: "optional-path-param",
-      target: entity,
-    });
-  }
-
   context.program.stateMap(pathFieldsKey).set(entity, paramName ?? entity.name);
 }
 

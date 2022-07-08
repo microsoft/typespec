@@ -246,6 +246,13 @@ export function getOperationParameters(
     if (queryParam) {
       result.parameters.push({ type: "query", name: queryParam, param });
     } else if (pathParam) {
+      if (param.optional && param.default === undefined) {
+        reportDiagnostic(program, {
+          code: "optional-path-param",
+          format: { paramName: param.name },
+          target: operation,
+        });
+      }
       result.parameters.push({ type: "path", name: pathParam, param });
     } else if (headerParam) {
       result.parameters.push({ type: "header", name: headerParam, param });
