@@ -1327,7 +1327,13 @@ export interface CadlLibraryDef<
   readonly diagnostics: DiagnosticMap<T>;
 
   /**
-   * Provide names for emitters if there is multiple.
+   * List of other library that should be imported when this is used as an emitter.
+   * Compiler will emit an error if the libraryes are not explicitly imported.
+   */
+  readonly requireImports?: readonly string[];
+
+  /**
+   * Emitter configuration if library is an emitter.
    */
   readonly emitter?: {
     options?: JSONSchemaType<E>;
@@ -1340,8 +1346,25 @@ export interface CadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>
 > {
+  /**
+   * Name of the library. Must match the package.json name.
+   */
   readonly name: string;
+
+  /**
+   * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
+   */
   readonly diagnostics: DiagnosticMap<T>;
+
+  /**
+   * List of other library that should be imported when this is used as an emitter.
+   * Compiler will emit an error if the libraryes are not explicitly imported.
+   */
+  readonly requireImports?: readonly string[];
+
+  /**
+   * Emitter configuration if library is an emitter.
+   */
   readonly emitter?: {
     options?: JSONSchemaType<E>;
   };

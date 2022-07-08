@@ -426,7 +426,7 @@ const diagnostics = {
   },
 
   /**
-   * Binder
+   * Library
    */
   "on-validate-fail": {
     severity: "error",
@@ -438,6 +438,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+    },
+  },
+  "missing-import": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter '${"emitterName"}' is requiring '${"requiredImport"}' from being imported. Add 'import "${"requiredImport"}".`,
     },
   },
 
