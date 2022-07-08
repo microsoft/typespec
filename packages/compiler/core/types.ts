@@ -1328,7 +1328,7 @@ export interface CadlLibraryDef<
 
   /**
    * List of other library that should be imported when this is used as an emitter.
-   * Compiler will emit an error if the libraryes are not explicitly imported.
+   * Compiler will emit an error if the libraries are not explicitly imported.
    */
   readonly requireImports?: readonly string[];
 
