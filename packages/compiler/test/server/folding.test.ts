@@ -3,7 +3,6 @@ import { FoldingRange } from "vscode-languageserver/node.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
 describe("compiler: server: foldingRange", () => {
-
   it("includes comments in folding range", async () => {
     const ranges = await getFoldingRanges(`/**
     description of model foo

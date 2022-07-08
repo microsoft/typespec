@@ -34,7 +34,6 @@ import {
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import { option } from "yargs";
 import { loadCadlConfigForPath } from "../config/config-loader.js";
 import {
   compilerAssert,
@@ -411,10 +410,11 @@ export function createServer(host: ServerHost): Server {
 
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
     const file = await compilerHost.readFile(getPath(params.textDocument));
-    const ast = parse(file,{comments: true});
+    const ast = parse(file, { comments: true });
     const ranges: FoldingRange[] = [];
     for (let i = 0; i < ast.comments.length; i++) {
-      addRange(ast.comments[i].pos,ast.comments[i].end);}
+      addRange(ast.comments[i].pos, ast.comments[i].end);
+    }
     visitChildren(ast, addRangesForNode);
     function addRangesForNode(node: Node) {
       let nodeStart = node.pos;
