@@ -443,7 +443,7 @@ const diagnostics = {
   "missing-import": {
     severity: "error",
     messages: {
-      default: paramMessage`Emitter '${"emitterName"}' is requiring '${"requiredImport"}' from being imported. Add 'import "${"requiredImport"}".`,
+      default: paramMessage`Emitter '${"emitterName"}' requires '${"requiredImport"}' to be imported. Add 'import "${"requiredImport"}".`,
     },
   },
 
