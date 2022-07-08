@@ -77,7 +77,7 @@ import {
 } from "./types.js";
 
 const defaultOptions = {
-  outputFile: "openapi.json",
+  "output-file": "openapi.json",
 };
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
@@ -85,7 +85,7 @@ export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAP
   const options: OpenAPIEmitterOptions = {
     outputFile: resolvePath(
       p.compilerOptions.outputPath ?? "./cadl-output",
-      resolvedOptions.outputFile
+      resolvedOptions["output-file"]
     ),
   };
 

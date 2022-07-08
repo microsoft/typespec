@@ -1,14 +1,14 @@
 import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
 
 export interface OpenAPIEmitterOptions {
-  outputFile?: string;
+  "output-file"?: string;
 }
 
 const EmiterOptionsSchema: JSONSchemaType<OpenAPIEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    outputFile: { type: "string", nullable: true },
+    "output-file": { type: "string", nullable: true },
   },
   required: [],
 };
