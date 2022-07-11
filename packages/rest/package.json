@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/rest",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "author": "Microsoft Corporation",
   "description": "Cadl REST protocol binding",
   "homepage": "https://github.com/Microsoft/cadl",
@@ -56,14 +56,14 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/compiler": "~0.32.0"
+    "@cadl-lang/compiler": "~0.33.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
-    "@cadl-lang/compiler": "~0.32.0",
+    "@cadl-lang/compiler": "~0.33.0",
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
-    "@cadl-lang/library-linter": "~0.1.1",
+    "@cadl-lang/library-linter": "~0.1.2",
     "@cadl-lang/eslint-plugin": "~0.1.0",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
