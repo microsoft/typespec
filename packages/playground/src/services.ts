@@ -76,6 +76,14 @@ export async function attachServices(host: BrowserHost) {
     };
   }
 
+  function monacoFoldingRange(range: lsp.FoldingRange): monaco.languages.FoldingRange {
+    return {
+      start: range.startLine + 1,
+      end: range.endLine + 1,
+      kind: range.kind ? new monaco.languages.FoldingRangeKind(range.kind) : undefined,
+    };
+  }
+
   function monacoTextEdit(edit: lsp.TextEdit): monaco.languages.TextEdit {
     return {
       range: monacoRange(edit.range),
@@ -124,6 +132,15 @@ export async function attachServices(host: BrowserHost) {
     async provideRenameEdits(model, position, newName) {
       const result = await serverLib.rename({ ...lspArgs(model, position), newName });
       return monacoWorkspaceEdit(result);
+    },
+  });
+
+  monaco.languages.registerFoldingRangeProvider("cadl", {
+    async provideFoldingRanges(model) {
+      const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
+      const output = ranges.map(monacoFoldingRange);
+      return output;
+
     },
   });
 
