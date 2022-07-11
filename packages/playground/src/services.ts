@@ -140,7 +140,6 @@ export async function attachServices(host: BrowserHost) {
       const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
       const output = ranges.map(monacoFoldingRange);
       return output;
-
     },
   });
 
