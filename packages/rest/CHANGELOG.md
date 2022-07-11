@@ -1,6 +1,15 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+
+## 0.15.1
+Fri, 08 Jul 2022 23:22:57 GMT
+
+### Patches
+
+- $consumes decorator better validation
+- Add `@collectionAction` decorator for defining collection-level resource actions
+- Make string literal "Content-Type" header check case-insensitive
 
 ## 0.15.0
 Mon, 13 Jun 2022 23:42:28 GMT

@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+
+## 0.13.0
+Fri, 08 Jul 2022 23:22:57 GMT
+
+### Minor changes
+
+- Emitter can take `outputFile` as an option
+- Rename emitter options to be `kebab-case`
+
+### Patches
+
+- Inline parameters spread from anonymous model
 
 ## 0.12.0
 Mon, 13 Jun 2022 23:42:28 GMT
