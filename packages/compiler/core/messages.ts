@@ -544,6 +544,12 @@ const diagnostics = {
       default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
+  "circular-op-signature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Operation '${"typeName"}' recursively references itself.`,
+    },
+  },
   "circular-alias-type": {
     severity: "error",
     messages: {

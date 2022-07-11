@@ -516,7 +516,8 @@ export function createChecker(program: Program): Checker {
       | OperationStatementNode
       | UnionStatementNode
   ): number {
-    return node.symbol!.id!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    return node.symbol?.id!;
   }
 
   function getModelName(model: ModelType, options: TypeNameOptions | undefined) {
@@ -1182,9 +1183,8 @@ export function createChecker(program: Program): Checker {
     opReference: TypeReferenceNode | undefined
   ): OperationType | undefined {
     if (!opReference) return undefined;
-
     // Ensure that we don't end up with a circular reference to the same operation
-    const opSymId = operation.symbol ? getNodeSymId(operation) : undefined;
+    const opSymId = getNodeSymId(operation);
     if (opSymId) {
       pendingResolutions.add(opSymId);
     }
@@ -1198,9 +1198,9 @@ export function createChecker(program: Program): Checker {
     if (pendingResolutions.has(getNodeSymId(target.declarations[0] as any))) {
       if (!isInstantiatingTemplateType()) {
         reportDiagnostic(program, {
-          code: "circular-base-type",
+          code: "circular-op-signature",
           format: { typeName: (target.declarations[0] as any).id.sv },
-          target: target,
+          target: opReference,
         });
       }
 
@@ -1211,6 +1211,10 @@ export function createChecker(program: Program): Checker {
     const baseOperation = checkTypeReferenceSymbol(target, opReference);
     if (opSymId) {
       pendingResolutions.delete(opSymId);
+    }
+
+    if (isErrorType(baseOperation)) {
+      return undefined;
     }
 
     // Was the wrong type referenced?
@@ -2394,6 +2398,10 @@ export function createChecker(program: Program): Checker {
       name: node.id.sv,
     });
 
+    if (!instantiatingThisTemplate) {
+      links.declaredType = interfaceType;
+    }
+
     for (const mixinNode of node.extends) {
       const mixinType = getTypeForNode(mixinNode);
       if (mixinType.kind !== "Interface") {
@@ -2421,22 +2429,13 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    const ownMembers = new Map<string, OperationType>();
-
-    checkInterfaceMembers(node, ownMembers, interfaceType);
-
-    for (const [k, v] of ownMembers) {
-      // don't do a duplicate check here because interface members can override
-      // an member coming from a mixin.
-      interfaceType.operations.set(k, v);
-    }
+    checkInterfaceMembers(node, interfaceType);
 
     if (shouldCreateTypeForTemplate(node)) {
       finishType(interfaceType);
     }
 
     if (!instantiatingThisTemplate) {
-      links.declaredType = interfaceType;
       links.instantiations = new TypeInstantiationMap();
       interfaceType.namespace?.interfaces.set(interfaceType.name, interfaceType);
     }
@@ -2444,15 +2443,13 @@ export function createChecker(program: Program): Checker {
     return interfaceType;
   }
 
-  function checkInterfaceMembers(
-    node: InterfaceStatementNode,
-    members: Map<string, OperationType>,
-    interfaceType: InterfaceType
-  ) {
+  function checkInterfaceMembers(node: InterfaceStatementNode, interfaceType: InterfaceType) {
+    const ownMembers = new Map<string, OperationType>();
+
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, interfaceType);
       if (opType.kind === "Operation") {
-        if (members.has(opType.name)) {
+        if (ownMembers.has(opType.name)) {
           program.reportDiagnostic(
             createDiagnostic({
               code: "interface-duplicate",
@@ -2462,7 +2459,8 @@ export function createChecker(program: Program): Checker {
           );
           continue;
         }
-        members.set(opType.name, opType);
+        ownMembers.set(opType.name, opType);
+        interfaceType.operations.set(opType.name, opType);
       }
     }
   }
