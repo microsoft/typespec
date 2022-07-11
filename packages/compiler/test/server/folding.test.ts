@@ -10,7 +10,7 @@ describe("compiler: server: foldingRange", () => {
     deepStrictEqual(ranges, [{ endCharacter: 7, endLine: 2, startCharacter: 0, startLine: 0 }]);
   });
 
-  it("includes one line comments in folding range", async () => {
+  it("does not include one line comments in folding range", async () => {
     const ranges = await getFoldingRanges(`//foo`);
     deepStrictEqual(ranges, []);
   });
