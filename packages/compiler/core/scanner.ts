@@ -998,12 +998,10 @@ export function skipWhiteSpace(input: string, position: number): number {
   while (position < input.length) {
     const ch = input.charCodeAt(position);
 
-    if (isWhiteSpace(ch)) {
-      position++;
-      continue;
+    if (!isWhiteSpace(ch)) {
+      break;
     }
-
-    break;
+    position++;
   }
 
   return position;
