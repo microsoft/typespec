@@ -419,22 +419,25 @@ export function createServer(host: ServerHost): Server {
     const file = await compilerHost.readFile(getPath(params.textDocument));
     const ast = parse(file, { comments: true });
     const ranges: FoldingRange[] = [];
-    let i = 0;
-    while (i < ast.comments.length) {
+    let rangeStartSingleLines = -1;
+    for (let i = 0; i < ast.comments.length; i++) {
       const rangeStart = ast.comments[i].pos;
-      let rangeEnd = ast.comments[i].end;
-      let j = i + 1;
-      while (
-        j < ast.comments.length &&
-        ast.comments[j - 1].kind === 36 &&
-        ast.comments[j].kind === 36 &&
-        ast.comments[j].pos === skipWhiteSpace(file.text, ast.comments[j - 1].end)
+      const rangeEnd = ast.comments[i].end;
+      if (
+        ast.comments[i].kind === 36 &&
+        i + 1 < ast.comments.length &&
+        ast.comments[i + 1].kind === 36 &&
+        ast.comments[i + 1].pos === skipWhiteSpace(file.text, ast.comments[i].end)
       ) {
-        rangeEnd = ast.comments[j].end;
-        j++;
+        if (rangeStartSingleLines === -1) {
+          rangeStartSingleLines = ast.comments[i].pos;
+        }
+      } else if (rangeStartSingleLines !== -1) {
+        addRange(rangeStartSingleLines, rangeEnd);
+        rangeStartSingleLines = -1;
+      } else {
+        addRange(rangeStart, rangeEnd);
       }
-      addRange(rangeStart, rangeEnd);
-      j !== i + 1 ? (i = j) : i++;
     }
     visitChildren(ast, addRangesForNode);
     function addRangesForNode(node: Node) {

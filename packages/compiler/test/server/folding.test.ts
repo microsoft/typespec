@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert";
 import { FoldingRange } from "vscode-languageserver/node.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
-describe.only("compiler: server: foldingRange", () => {
+describe("compiler: server: foldingRange", () => {
   it("includes consecutive single line comments separated by whitespaces in folding range", async () => {
     const ranges = await getFoldingRanges(`//foo
     
