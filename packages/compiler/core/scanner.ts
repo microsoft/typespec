@@ -994,6 +994,21 @@ export function skipTrivia(input: string, position: number): number {
   return position;
 }
 
+export function skipWhiteSpace(input: string, position: number): number {
+  while (position < input.length) {
+    const ch = input.charCodeAt(position);
+
+    if (isWhiteSpace(ch)) {
+      position++;
+      continue;
+    }
+
+    break;
+  }
+
+  return position;
+}
+
 function skipSingleLineComment(input: string, position: number): number {
   position += 2; // consume '//'
 
