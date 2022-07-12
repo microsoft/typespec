@@ -12,7 +12,7 @@ describe.only("compiler: server: foldingRange", () => {
     deepStrictEqual(ranges, [{ endCharacter: 10, endLine: 4, startCharacter: 0, startLine: 0 }]);
   });
 
-  it("includes single and multiple line comments separated by whitespaces in folding range", async () => {
+  it("doesn't fold consecutive single and multi-line comment together", async () => {
     const ranges = await getFoldingRanges(`*/
     foobar
     */
