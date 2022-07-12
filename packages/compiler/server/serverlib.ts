@@ -421,22 +421,21 @@ export function createServer(host: ServerHost): Server {
     const ranges: FoldingRange[] = [];
     let rangeStartSingleLines = -1;
     for (let i = 0; i < ast.comments.length; i++) {
-      const rangeStart = ast.comments[i].pos;
-      const rangeEnd = ast.comments[i].end;
+      const comment = ast.comments[i];
       if (
-        ast.comments[i].kind === 36 &&
+        comment.kind === SyntaxKind.LineComment &&
         i + 1 < ast.comments.length &&
-        ast.comments[i + 1].kind === 36 &&
-        ast.comments[i + 1].pos === skipWhiteSpace(file.text, ast.comments[i].end)
+        ast.comments[i + 1].kind === SyntaxKind.LineComment &&
+        ast.comments[i + 1].pos === skipWhiteSpace(file.text, comment.end)
       ) {
         if (rangeStartSingleLines === -1) {
-          rangeStartSingleLines = ast.comments[i].pos;
+          rangeStartSingleLines = comment.pos;
         }
       } else if (rangeStartSingleLines !== -1) {
-        addRange(rangeStartSingleLines, rangeEnd);
+        addRange(rangeStartSingleLines, comment.end);
         rangeStartSingleLines = -1;
       } else {
-        addRange(rangeStart, rangeEnd);
+        addRange(comment.pos, comment.end);
       }
     }
     visitChildren(ast, addRangesForNode);
