@@ -80,12 +80,12 @@ const Token = {
 } as const;
 
 testColorization("semantic colorization", tokenizeSemantic);
-// testColorization("tmlanguage", tokenizeTMLanguage);
+testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
   describe(`compiler: server: ${description}`, () => {
     describe("aliases", () => {
-      it.only("simple alias", async () => {
+      it("simple alias", async () => {
         const tokens = await tokenize("alias Foo = string");
         deepStrictEqual(tokens, [
           Token.keywords.alias,
