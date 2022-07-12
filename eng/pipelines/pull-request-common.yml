@@ -27,9 +27,18 @@ steps:
   - script: node common/scripts/install-run-rush.js test-official
     displayName: Test
 
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: "JUnit"
+      testResultsFiles: "**/junit.xml"
+      mergeTestResults: true
+      failTaskOnFailedTests: true
+    displayName: Publish test results
+    condition: succeededOrFailed()
+
   - publish: ./packages/playground/test-results
     artifact: "uitestresults-${{ parameters.imageName }}-node-${{ parameters.nodeVersion }}"
-    displayName: Publish test artifacts
+    displayName: Publish UI tests artifacts
     condition: failed()
 
   - template: ./upload-coverage.yml
