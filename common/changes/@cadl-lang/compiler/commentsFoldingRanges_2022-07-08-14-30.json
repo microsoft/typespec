@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "implementation of relativePath",
+      "comment": "implemented folding for comments",
       "type": "minor"
     }
   ],

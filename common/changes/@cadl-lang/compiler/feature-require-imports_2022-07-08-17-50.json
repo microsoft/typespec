@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix Internal Compiler Error when using invalid relative import",
-      "type": "patch"
+      "comment": "Feature: Emitter can specify a list of required imports",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/compiler"

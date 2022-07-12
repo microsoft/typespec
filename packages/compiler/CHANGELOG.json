@@ -2,6 +2,47 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.33.0",
+      "tag": "@cadl-lang/compiler_v0.33.0",
+      "date": "Fri, 08 Jul 2022 23:22:57 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Decorator definition helper support spread args"
+          },
+          {
+            "comment": "Add ability to provide emitter options"
+          },
+          {
+            "comment": "Improve folding in IDE."
+          },
+          {
+            "comment": "Allow omitting braces from model is statements"
+          },
+          {
+            "comment": "implementation of relativePath"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix issue with compiler version mismatch in VSCode"
+          },
+          {
+            "comment": "Fix error location for intersection with non-model"
+          },
+          {
+            "comment": "Fix Internal Compiler Error when using invalid relative import"
+          },
+          {
+            "comment": "Internal: Decorator definition helper works with multiple target and param types"
+          },
+          {
+            "comment": "Improved the error message shown when an `onEmit` function is not found in the requested emitter package"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.32.0",
       "tag": "@cadl-lang/compiler_v0.32.0",
       "date": "Mon, 13 Jun 2022 23:42:28 GMT",
