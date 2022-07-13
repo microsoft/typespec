@@ -15,7 +15,7 @@ interface RelatedTypeOptions {
   commonCode?: string;
 }
 
-describe("compiler: checker: intrinsic", () => {
+describe("compiler: checker: type relations", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
     runner = createTestWrapper(await createTestHost(), (x) => x);
@@ -48,6 +48,40 @@ describe("compiler: checker: intrinsic", () => {
     ok(!related, `Type ${options.source} should NOT be assignable to ${options.target}`);
     expectDiagnostics(diagnostics, match);
   }
+
+  describe("property definitions", () => {
+    it("cannot add property to primitive type", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo is string {
+          prop1: string;
+        }`);
+      expectDiagnostics(diagnostics, {
+        code: "no-prop",
+        message: "Property 'prop1' cannot be defined on type with 'never' indexer",
+      });
+    });
+
+    it("cannot add property incompatible with indexer", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo is Record<int32> {
+          prop1: string;
+        }`);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'Cadl.int32' is not assignable to type 'Cadl.string'",
+      });
+    });
+
+    it("cannot intersect model with properties and a primitive type", async () => {
+      const diagnostics = await runner.diagnose(`
+        alias A = string & {prop1: string};
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "intersect-invalid-index",
+        message: "Cannot intersect model types with different index types 'never' and  '(none)'",
+      });
+    });
+  });
 
   describe("string target", () => {
     it("can assign string", async () => {
@@ -262,6 +296,10 @@ describe("compiler: checker: intrinsic", () => {
       await expectTypeAssignable({ source: "12.43", target: "float" });
       await expectTypeAssignable({ source: "34000.43", target: "float" });
       await expectTypeAssignable({ source: "-2147483448.43", target: "float" });
+    });
+
+    it("can assign integer literal", async () => {
+      await expectTypeAssignable({ source: "987", target: "float" });
     });
 
     it("emit diagnostic assigning integer", async () => {

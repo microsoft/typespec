@@ -227,7 +227,7 @@ const diagnostics = {
   "intersect-invalid-index": {
     severity: "error",
     messages: {
-      default: paramMessage`Cannot intersect model types with different index types('${"indexer1"}' and  '${"indexer2"}').`,
+      default: paramMessage`Cannot intersect model types with different index types '${"indexer1"}' and  '${"indexer2"}'`,
     },
   },
   "intersect-duplicate-property": {
@@ -317,6 +317,12 @@ const diagnostics = {
     messages: {
       default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
       withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
+    },
+  },
+  "no-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propName"}' cannot be defined on type with 'never' indexer`,
     },
   },
   "missing-property": {

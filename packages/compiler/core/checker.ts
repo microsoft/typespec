@@ -1005,7 +1005,8 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
     });
 
-    let indexer: ModelIndexer | undefined;
+    const notFound = Symbol();
+    let indexer: ModelIndexer | typeof notFound | undefined = notFound;
     for (const [optionNode, option] of options) {
       if (option.kind === "TemplateParameter") {
         continue;
@@ -1016,11 +1017,11 @@ export function createChecker(program: Program): Checker {
         );
         continue;
       }
-      if (!areCompatibleIndexers(indexer, option.indexer)) {
+      if (indexer !== notFound && !areCompatibleIndexers(indexer, option.indexer)) {
         program.reportDiagnostic(
           createDiagnostic({
             code: "intersect-invalid-index",
-            target: option,
+            target: optionNode,
             format: {
               indexer1: indexer?.key.name ?? "(none)",
               indexer2: option.indexer?.key.name ?? "(none)",
@@ -1847,6 +1848,9 @@ export function createChecker(program: Program): Checker {
       checkDeprecated(isBase, node.is!);
       // copy decorators
       decorators.push(...isBase.decorators);
+      if (isBase.indexer) {
+        type.indexer = isBase.indexer;
+      }
     }
     decorators.push(...checkDecorators(node));
 
@@ -1935,6 +1939,27 @@ export function createChecker(program: Program): Checker {
     return finishType(type);
   }
 
+  function checkPropertyCompatibleWithIndexer(
+    parentModel: ModelType,
+    property: ModelTypeProperty,
+    diagnosticTarget: DiagnosticTarget
+  ) {
+    if (parentModel.indexer === undefined) {
+      return;
+    }
+
+    if (isNeverType(parentModel.indexer.key)) {
+      reportDiagnostic(program, {
+        code: "no-prop",
+        format: { propName: property.name },
+        target: diagnosticTarget,
+      });
+    } else {
+      const [valid, diagnostics] = isTypeAssignableTo(parentModel.indexer.value!, property.type);
+      if (!valid) program.reportDiagnostics(diagnostics);
+    }
+  }
+
   function checkModelProperties(
     node: ModelExpressionNode | ModelStatementNode,
     properties: Map<string, ModelTypeProperty>,
@@ -1944,12 +1969,14 @@ export function createChecker(program: Program): Checker {
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const newProp = checkModelProperty(prop, parentModel);
+        checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
         defineProperty(properties, newProp, inheritedPropertyNames);
       } else {
         // spread property
         const newProperties = checkSpreadProperty(prop.target, parentModel);
 
         for (const newProp of newProperties) {
+          checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
           defineProperty(properties, newProp, inheritedPropertyNames);
         }
       }
