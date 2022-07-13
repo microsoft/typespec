@@ -325,6 +325,12 @@ const diagnostics = {
       default: paramMessage`Property '${"propName"}' cannot be defined on type with 'never' indexer`,
     },
   },
+  "missing-index": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Index signature for type '${"indexType"}' is missing in type '${"sourceType"}'.`,
+    },
+  },
   "missing-property": {
     severity: "error",
     messages: {

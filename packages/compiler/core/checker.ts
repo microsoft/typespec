@@ -3727,7 +3727,27 @@ export function createChecker(program: Program): Checker {
       return [false, [createUnassignableDiagnostic(source, target)]];
     }
 
-    return isIndexConstraintValid(target.indexer.value!, source);
+    // Model expressions should be able to be assigned.
+    if (source.name === "") {
+      return isIndexConstraintValid(target.indexer.value!, source);
+    } else {
+      if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
+        return [
+          false,
+          [
+            createDiagnostic({
+              code: "missing-index",
+              format: {
+                indexType: getTypeName(target.indexer.key),
+                sourceType: getTypeName(source),
+              },
+              target,
+            }),
+          ],
+        ];
+      }
+      return isTypeAssignableTo(source.indexer.value!, target.indexer.value!);
+    }
   }
   /**
    * @param constraintType Type of the constraints(All properties must have this type).

@@ -92,7 +92,7 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
     });
 
-    it("can assign string literal", async () => {
+    it("emit diagnostic when assigning numericl literal", async () => {
       await expectTypeNotAssignable(
         { source: "123", target: "string" },
         {
@@ -428,19 +428,14 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: "Record<int32>", target: "Record<numeric>" });
     });
 
-    it("can assign object with extends where all properties are string", async () => {
+    it("can assign object that implement the same indexer", async () => {
       await expectTypeAssignable({
         source: "Foo",
         target: "Record<string>",
         commonCode: `
-        model Foo extends Bar  {
+        model Foo is Record<string> {
           prop1: string;
           prop2: string;
-        }
-
-        model Bar {
-          prop3: string;
-          prop4: string;
         }
       `,
       });
@@ -456,9 +451,9 @@ describe("compiler: checker: type relations", () => {
       );
     });
 
-    it("emit diagnostic if some properties are different type", async () => {
+    it("emit diagnostic assigning Record of incompatible type", async () => {
       await expectTypeNotAssignable(
-        { source: `{foo: string, bar: int32}`, target: "Record<string>" },
+        { source: `Record<int32>`, target: "Record<string>" },
         {
           code: "unassignable",
           message: "Type 'Cadl.int32' is not assignable to type 'Cadl.string'",
@@ -466,23 +461,9 @@ describe("compiler: checker: type relations", () => {
       );
     });
 
-    it("emit diagnostic if some properties are different type in base model", async () => {
+    it("emit diagnostic if some properties are different type", async () => {
       await expectTypeNotAssignable(
-        {
-          source: "Foo",
-          target: "Record<string>",
-          commonCode: `
-            model Foo extends Bar {
-              prop1: string;
-              prop2: string;
-            }
-
-            model Bar {
-              prop3: string;
-              prop4: int32;
-            }
-            `,
-        },
+        { source: `{foo: string, bar: int32}`, target: "Record<string>" },
         {
           code: "unassignable",
           message: "Type 'Cadl.int32' is not assignable to type 'Cadl.string'",
@@ -615,7 +596,7 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
-  describe("Union target", () => {
+  describe("Enum target", () => {
     it("can assign same enum", async () => {
       await expectTypeAssignable({
         source: "Foo",
