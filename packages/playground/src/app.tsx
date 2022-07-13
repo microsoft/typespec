@@ -258,6 +258,9 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     }
   }, []);
   const content =
+    viewSelection.type === "swagger-ui" ? (
+      <SwaggerUI spec={viewSelection.content} />
+    ):
     viewSelection.type === "file" ? (
       <OutputEditor value={viewSelection.content} />
     ) : viewSelection.type === "errors" ? (
