@@ -214,6 +214,14 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
           id: x,
         })
       ),
+      // Swagger-UI Output
+      ...props.outputFiles.map(
+        (x): Tab => ({
+          align: "left",
+          name: x + ": Swagger-UI",
+          id: x +".swaggerui",
+        })
+      ),
       { id: "type-graph", name: "Type Graph", align: "right" },
       {
         id: "errors",
