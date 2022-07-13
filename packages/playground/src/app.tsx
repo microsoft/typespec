@@ -249,6 +249,8 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
   const handleTabSelection = useCallback((tabId: string) => {
     if (tabId === "type-graph") {
       setViewSelection({ type: "type-graph" });
+    } else if(tabId.endsWith(".swaggerui")){
+      void loadSwaggerUIforFile(tabId);
     } else if (tabId === "errors") {
       setViewSelection({ type: "errors" });
     } else {
