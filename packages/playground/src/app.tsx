@@ -204,6 +204,10 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     setViewSelection({ type: "file", filename: path, content: contents.text });
   }
 
+  async function loadSwaggerUIforFile(path: string) {
+    const contents = await host.readFile("./cadl-output/" + path.replace(".swaggerui", ""));  
+    setViewSelection({ type: "swagger-ui", filename: path, content: contents.text });
+  }
   const diagnostics = props.program?.diagnostics;
   const tabs: Tab[] = useMemo(() => {
     return [
