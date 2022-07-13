@@ -31,7 +31,7 @@ describe("compiler: checker: type relations", () => {
     }`)) as { Test: ModelType };
     const sourceProp = Test.properties.get("source")!.type;
     const targetProp = Test.properties.get("target")!.type;
-    return runner.program.checker.isTypeAssignableTo(sourceProp, targetProp);
+    return runner.program.checker.isTypeAssignableTo(sourceProp, targetProp, targetProp);
   }
 
   async function expectTypeAssignable(options: RelatedTypeOptions) {

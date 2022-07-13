@@ -17,6 +17,7 @@ import {
   isVoidType,
   JsSourceFileNode,
   ModelIndexer,
+  ModelSpreadPropertyNode,
   NeverType,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
@@ -156,9 +157,14 @@ export interface Checker {
    * Check if the source type can be assigned to the target type.
    * @param source Source type, should be assignable to the target.
    * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
    * @returns [related, list of diagnostics]
    */
-  isTypeAssignableTo(source: Type, target: Type): [boolean, Diagnostic[]];
+  isTypeAssignableTo(
+    source: Type,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, Diagnostic[]];
 
   /**
    * Check if the given type is one of the built-in standard Cadl Types.
@@ -1942,7 +1948,7 @@ export function createChecker(program: Program): Checker {
   function checkPropertyCompatibleWithIndexer(
     parentModel: ModelType,
     property: ModelTypeProperty,
-    diagnosticTarget: DiagnosticTarget
+    diagnosticTarget: ModelPropertyNode | ModelSpreadPropertyNode
   ) {
     if (parentModel.indexer === undefined) {
       return;
@@ -1955,7 +1961,14 @@ export function createChecker(program: Program): Checker {
         target: diagnosticTarget,
       });
     } else {
-      const [valid, diagnostics] = isTypeAssignableTo(property.type, parentModel.indexer.value!);
+      const [valid, diagnostics] = isTypeAssignableTo(
+        property.type,
+        parentModel.indexer.value!,
+        diagnosticTarget.kind === SyntaxKind.ModelSpreadProperty
+          ? diagnosticTarget
+          : diagnosticTarget.value
+      );
+      console.log("Diag", diagnostics);
       if (!valid) program.reportDiagnostics(diagnostics);
     }
   }
@@ -2231,7 +2244,7 @@ export function createChecker(program: Program): Checker {
   function checkModelProperty(prop: ModelPropertyNode, parentModel?: ModelType): ModelTypeProperty {
     const decorators = checkDecorators(prop);
     const valueType = getTypeForNode(prop.value);
-    const defaultValue = prop.default && checkDefault(getTypeForNode(prop.default), valueType);
+    const defaultValue = prop.default && checkDefault(prop.default, valueType);
     const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
 
     const type: ModelTypeProperty = createType({
@@ -2264,7 +2277,8 @@ export function createChecker(program: Program): Checker {
     return valueTypes.has(type.kind);
   }
 
-  function checkDefault(defaultType: Type, type: Type): Type {
+  function checkDefault(defaultNode: Node, type: Type): Type {
+    const defaultType = getTypeForNode(defaultNode);
     if (isErrorType(type)) {
       return errorType;
     }
@@ -2278,7 +2292,7 @@ export function createChecker(program: Program): Checker {
       );
       return errorType;
     }
-    const [related, diagnostics] = isTypeAssignableTo(defaultType, type);
+    const [related, diagnostics] = isTypeAssignableTo(defaultType, type, defaultNode);
     if (!related) {
       program.reportDiagnostics(diagnostics);
       return errorType;
@@ -3574,8 +3588,13 @@ export function createChecker(program: Program): Checker {
    * Check if the source type can be assigned to the target type.
    * @param source Source type
    * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
    */
-  function isTypeAssignableTo(source: Type, target: Type): [boolean, Diagnostic[]] {
+  function isTypeAssignableTo(
+    source: Type,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, Diagnostic[]] {
     if (source === target) return [true, []];
 
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
@@ -3583,39 +3602,38 @@ export function createChecker(program: Program): Checker {
     if (isSimpleTypeRelated === true) {
       return [true, []];
     } else if (isSimpleTypeRelated === false) {
-      return [
-        false,
-        [
-          createDiagnostic({
-            code: "unassignable",
-            format: { targetType: getTypeName(target), value: getTypeName(source) },
-            target,
-          }),
-        ],
-      ];
+      return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
-      return isIndexerValid(source, target as ModelType & { indexer: ModelIndexer });
+      return isIndexerValid(
+        source,
+        target as ModelType & { indexer: ModelIndexer },
+        diagnosticTarget
+      );
     } else if (target.kind === "Model" && source.kind === "Model") {
-      return isModelRelatedTo(source, target);
+      return isModelRelatedTo(source, target, diagnosticTarget);
     } else if (target.kind === "Model" && target.indexer && source.kind === "Tuple") {
       for (const item of source.values) {
-        const [related, diagnostics] = isTypeAssignableTo(item, target.indexer.value!);
+        const [related, diagnostics] = isTypeAssignableTo(
+          item,
+          target.indexer.value!,
+          diagnosticTarget
+        );
         if (!related) {
           return [false, diagnostics];
         }
       }
       return [true, []];
     } else if (target.kind === "Tuple" && source.kind === "Tuple") {
-      return isTupleAssignableToTuple(source, target);
+      return isTupleAssignableToTuple(source, target, diagnosticTarget);
     } else if (target.kind === "Union") {
-      return isAssignableToUnion(source, target);
+      return isAssignableToUnion(source, target, diagnosticTarget);
     } else if (target.kind === "Enum") {
-      return isAssignableToEnum(source, target);
+      return isAssignableToEnum(source, target, diagnosticTarget);
     }
 
-    return [false, [createUnassignableDiagnostic(source, target)]];
+    return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
   }
 
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
@@ -3685,7 +3703,11 @@ export function createChecker(program: Program): Checker {
     return source.value >= low && source.value <= high && (!options.int || isInt);
   }
 
-  function isModelRelatedTo(source: ModelType, target: ModelType): [boolean, Diagnostic[]] {
+  function isModelRelatedTo(
+    source: ModelType,
+    target: ModelType,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, Diagnostic[]] {
     const diagnostics: Diagnostic[] = [];
     for (const prop of walkPropertiesInherited(target)) {
       const sourceProperty = getProperty(source, prop.name);
@@ -3702,7 +3724,11 @@ export function createChecker(program: Program): Checker {
           })
         );
       } else {
-        const [related, propDiagnostics] = isTypeAssignableTo(sourceProperty.type, prop.type);
+        const [related, propDiagnostics] = isTypeAssignableTo(
+          sourceProperty.type,
+          prop.type,
+          diagnosticTarget
+        );
         if (!related) {
           diagnostics.push(...propDiagnostics);
         }
@@ -3720,16 +3746,17 @@ export function createChecker(program: Program): Checker {
 
   function isIndexerValid(
     source: ModelType,
-    target: ModelType & { indexer: ModelIndexer }
+    target: ModelType & { indexer: ModelIndexer },
+    diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     if (isNeverIndexer(target.indexer)) {
       // TODO better error here saying that you cannot assign to
-      return [false, [createUnassignableDiagnostic(source, target)]];
+      return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     // Model expressions should be able to be assigned.
     if (source.name === "") {
-      return isIndexConstraintValid(target.indexer.value, source);
+      return isIndexConstraintValid(target.indexer.value, source, diagnosticTarget);
     } else {
       if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
         return [
@@ -3746,23 +3773,36 @@ export function createChecker(program: Program): Checker {
           ],
         ];
       }
-      return isTypeAssignableTo(source.indexer.value!, target.indexer.value);
+      return isTypeAssignableTo(source.indexer.value!, target.indexer.value, diagnosticTarget);
     }
   }
   /**
    * @param constraintType Type of the constraints(All properties must have this type).
    * @param type Type of the model that should be respecting the constraint.
+   * @param diagnosticTarget Diagnostic target unless something better can be inffered.
    */
-  function isIndexConstraintValid(constraintType: Type, type: ModelType): [boolean, Diagnostic[]] {
+  function isIndexConstraintValid(
+    constraintType: Type,
+    type: ModelType,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, Diagnostic[]] {
     for (const prop of type.properties.values()) {
-      const [related, diagnostics] = isTypeAssignableTo(prop.type, constraintType);
+      const [related, diagnostics] = isTypeAssignableTo(
+        prop.type,
+        constraintType,
+        diagnosticTarget
+      );
       if (!related) {
         return [false, diagnostics];
       }
     }
 
     if (type.baseModel) {
-      const [related, diagnostics] = isIndexConstraintValid(constraintType, type.baseModel);
+      const [related, diagnostics] = isIndexConstraintValid(
+        constraintType,
+        type.baseModel,
+        diagnosticTarget
+      );
       if (!related) {
         return [false, diagnostics];
       }
@@ -3770,7 +3810,11 @@ export function createChecker(program: Program): Checker {
     return [true, []];
   }
 
-  function isTupleAssignableToTuple(source: TupleType, target: TupleType): [boolean, Diagnostic[]] {
+  function isTupleAssignableToTuple(
+    source: TupleType,
+    target: TupleType,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, Diagnostic[]] {
     if (source.values.length !== target.values.length) {
       return [
         false,
@@ -3783,14 +3827,14 @@ export function createChecker(program: Program): Checker {
               targetType: getTypeName(target),
               details: `Source has ${source.values.length} element(s) but target requires ${target.values.length}.`,
             },
-            target: source,
+            target: diagnosticTarget,
           }),
         ],
       ];
     }
     for (const [index, sourceItem] of source.values.entries()) {
       const targetItem = target.values[index];
-      const [related, diagnostics] = isTypeAssignableTo(sourceItem, targetItem);
+      const [related, diagnostics] = isTypeAssignableTo(sourceItem, targetItem, diagnosticTarget);
       if (!related) {
         return [false, diagnostics];
       }
@@ -3798,40 +3842,52 @@ export function createChecker(program: Program): Checker {
     return [true, []];
   }
 
-  function isAssignableToUnion(source: Type, target: UnionType): [boolean, Diagnostic[]] {
+  function isAssignableToUnion(
+    source: Type,
+    target: UnionType,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, Diagnostic[]] {
     for (const option of target.options) {
-      const [related] = isTypeAssignableTo(source, option);
+      const [related] = isTypeAssignableTo(source, option, diagnosticTarget);
       if (related) {
         return [true, []];
       }
     }
-    return [false, [createUnassignableDiagnostic(source, target)]];
+    return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
   }
 
-  function isAssignableToEnum(source: Type, target: EnumType): [boolean, Diagnostic[]] {
+  function isAssignableToEnum(
+    source: Type,
+    target: EnumType,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, Diagnostic[]] {
     switch (source.kind) {
       case "Enum":
         if (source === target) {
           return [true, []];
         } else {
-          return [false, [createUnassignableDiagnostic(source, target)]];
+          return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
         }
       case "EnumMember":
         if (source.enum === target) {
           return [true, []];
         } else {
-          return [false, [createUnassignableDiagnostic(source, target)]];
+          return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
         }
       default:
-        return [false, [createUnassignableDiagnostic(source, target)]];
+        return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
   }
 
-  function createUnassignableDiagnostic(source: Type, target: Type) {
+  function createUnassignableDiagnostic(
+    source: Type,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget
+  ) {
     return createDiagnostic({
       code: "unassignable",
       format: { targetType: getTypeName(target), value: getTypeName(source) },
-      target,
+      target: diagnosticTarget,
     });
   }
 
