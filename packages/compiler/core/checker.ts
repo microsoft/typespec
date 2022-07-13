@@ -1948,14 +1948,14 @@ export function createChecker(program: Program): Checker {
       return;
     }
 
-    if (isNeverType(parentModel.indexer.key)) {
+    if (isNeverIndexer(parentModel.indexer)) {
       reportDiagnostic(program, {
         code: "no-prop",
         format: { propName: property.name },
         target: diagnosticTarget,
       });
     } else {
-      const [valid, diagnostics] = isTypeAssignableTo(parentModel.indexer.value!, property.type);
+      const [valid, diagnostics] = isTypeAssignableTo(property.type, parentModel.indexer.value!);
       if (!valid) program.reportDiagnostics(diagnostics);
     }
   }
@@ -3722,14 +3722,14 @@ export function createChecker(program: Program): Checker {
     source: ModelType,
     target: ModelType & { indexer: ModelIndexer }
   ): [boolean, Diagnostic[]] {
-    if (isNeverType(target.indexer.key)) {
+    if (isNeverIndexer(target.indexer)) {
       // TODO better error here saying that you cannot assign to
       return [false, [createUnassignableDiagnostic(source, target)]];
     }
 
     // Model expressions should be able to be assigned.
     if (source.name === "") {
-      return isIndexConstraintValid(target.indexer.value!, source);
+      return isIndexConstraintValid(target.indexer.value, source);
     } else {
       if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
         return [
@@ -3746,7 +3746,7 @@ export function createChecker(program: Program): Checker {
           ],
         ];
       }
-      return isTypeAssignableTo(source.indexer.value!, target.indexer.value!);
+      return isTypeAssignableTo(source.indexer.value!, target.indexer.value);
     }
   }
   /**
@@ -4036,4 +4036,10 @@ function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined 
     property = property.sourceProperty;
   }
   return property?.model;
+}
+
+export function isNeverIndexer(
+  indexer: ModelIndexer
+): indexer is { key: NeverType; value: undefined } {
+  return isNeverType(indexer.key);
 }

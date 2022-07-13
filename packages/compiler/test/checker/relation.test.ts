@@ -49,7 +49,16 @@ describe("compiler: checker: type relations", () => {
     expectDiagnostics(diagnostics, match);
   }
 
-  describe("property definitions", () => {
+  describe("model with indexer", () => {
+    it("can add property of subtype of indexer", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo is Record<int32> {
+          prop1: int16;
+          prop2: 123;
+        }`);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("cannot add property to primitive type", async () => {
       const diagnostics = await runner.diagnose(`
         model Foo is string {
@@ -57,7 +66,7 @@ describe("compiler: checker: type relations", () => {
         }`);
       expectDiagnostics(diagnostics, {
         code: "no-prop",
-        message: "Property 'prop1' cannot be defined on type with 'never' indexer",
+        message: "Property 'prop1' cannot be defined on type with 'never' index",
       });
     });
 
@@ -68,7 +77,7 @@ describe("compiler: checker: type relations", () => {
         }`);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'Cadl.int32' is not assignable to type 'Cadl.string'",
+        message: "Type 'Cadl.string' is not assignable to type 'Cadl.int32'",
       });
     });
 

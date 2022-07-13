@@ -322,7 +322,7 @@ const diagnostics = {
   "no-prop": {
     severity: "error",
     messages: {
-      default: paramMessage`Property '${"propName"}' cannot be defined on type with 'never' indexer`,
+      default: paramMessage`Property '${"propName"}' cannot be defined on type with 'never' index`,
     },
   },
   "missing-index": {
