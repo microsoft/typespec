@@ -10,6 +10,7 @@ import debounce from "debounce";
 import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import "swagger-ui-react/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { createBrowserHost } from "./browser-host";
 import { CadlEditor, OutputEditor } from "./components/cadl-editor";
@@ -18,6 +19,7 @@ import { ErrorTab } from "./components/error-tab";
 import { Footer } from "./components/footer";
 import { OutputTabs, Tab } from "./components/output-tabs";
 import { SamplesDropdown } from "./components/samples-dropdown";
+import { SwaggerUI } from "./components/swagger-ui";
 import { importCadlCompiler } from "./core";
 import { PlaygroundManifest } from "./manifest";
 import { attachServices } from "./services";
@@ -257,7 +259,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
 };
 
 type ViewSelection =
-  | { type: "file"; filename: string; content: string }
+  | { type: "file" | "swagger-ui"; filename: string; content: string }
   | { type: "type-graph" }
   | { type: "errors" };
 
