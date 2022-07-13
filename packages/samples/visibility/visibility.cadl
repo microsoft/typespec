@@ -43,6 +43,6 @@ model WriteableOptionalPerson {
 @route("/hello")
 namespace Hello {
   @get op read(@path id: string, @query fieldMask: string[]): ReadablePerson;
-  @post op create(person: WritablePerson): ReadablePerson;
-  @put op update(person: WriteableOptionalPerson): ReadablePerson;
+  @post op create(@body person: WritablePerson): ReadablePerson;
+  @put op update(@body person: WriteableOptionalPerson): ReadablePerson;
 }

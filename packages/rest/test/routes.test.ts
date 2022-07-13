@@ -293,20 +293,6 @@ describe("rest: routes", () => {
       strictEqual(diagnostics[0].message, "Param multiParam has multiple types: [query, path]");
     });
 
-    it("emit diagnostic when there are multiple unannotated parameters", async () => {
-      const [_, diagnostics] = await compileOperations(`
-        @route("/test")
-        @get op get(param1: string, param2: string): string;
-      `);
-
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-body");
-      strictEqual(
-        diagnostics[0].message,
-        "Operation has multiple unannotated parameters. There can only be one representing the body"
-      );
-    });
-
     it("emit diagnostic when there is an unannotated parameter and a @body param", async () => {
       const [_, diagnostics] = await compileOperations(`
         @route("/test")
@@ -344,22 +330,6 @@ describe("rest: routes", () => {
           verb: "get",
           path: "/test",
           params: { params: [{ type: "query", name: "select" }], body: "bodyParam" },
-        },
-      ]);
-    });
-
-    it("resolves a single unannotated parameter as request body", async () => {
-      const [routes, diagnostics] = await compileOperations(`
-        @route("/test")
-        @get op get(@query select: string, unannotedBodyParam: string): string;
-      `);
-
-      expectDiagnosticEmpty(diagnostics);
-      deepStrictEqual(routes, [
-        {
-          verb: "get",
-          path: "/test",
-          params: { params: [{ type: "query", name: "select" }], body: "unannotedBodyParam" },
         },
       ]);
     });

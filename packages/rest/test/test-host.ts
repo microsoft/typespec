@@ -71,7 +71,7 @@ export async function compileOperations(
       path: r.path,
       params: {
         params: r.parameters.parameters.map(({ type, name }) => ({ type, name })),
-        body: r.parameters.body?.name,
+        body: r.parameters.bodyParameter?.name,
       },
     };
   });

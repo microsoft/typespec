@@ -57,7 +57,8 @@ export interface HttpOperationParameter {
 
 export interface HttpOperationParameters {
   parameters: HttpOperationParameter[];
-  body?: ModelTypeProperty;
+  bodyType?: Type;
+  bodyParameter?: ModelTypeProperty;
 }
 
 export interface OperationDetails {
@@ -218,19 +219,19 @@ export function getOperationParameters(
   const result: HttpOperationParameters = {
     parameters: [],
   };
-  let unAnnotatedParam: ModelTypeProperty | undefined;
+  let unannotatedParam = false;
 
   for (const param of operation.parameters.properties.values()) {
     const queryParam = getQueryParamName(program, param);
     const pathParam = getPathParamName(program, param);
     const headerParam = getHeaderFieldName(program, param);
-    const bodyParm = isBody(program, param);
+    const bodyParam = isBody(program, param);
 
     const defined = [
       ["query", queryParam],
       ["path", pathParam],
       ["header", headerParam],
-      ["body", bodyParm],
+      ["body", bodyParam],
     ].filter((x) => !!x[1]);
     if (defined.length >= 2) {
       diagnostics.add(
@@ -248,36 +249,27 @@ export function getOperationParameters(
       result.parameters.push({ type: "path", name: pathParam, param });
     } else if (headerParam) {
       result.parameters.push({ type: "header", name: headerParam, param });
-    } else if (bodyParm) {
-      if (result.body === undefined) {
-        result.body = param;
+    } else if (bodyParam) {
+      if (result.bodyType === undefined) {
+        result.bodyParameter = param;
+        result.bodyType = param.type;
       } else {
         diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
       }
     } else {
-      if (unAnnotatedParam === undefined) {
-        unAnnotatedParam = param;
-      } else {
-        diagnostics.add(
-          createDiagnostic({
-            code: "duplicate-body",
-            messageId: "duplicateUnannotated",
-            target: param,
-          })
-        );
-      }
+      unannotatedParam = true;
     }
   }
 
-  if (unAnnotatedParam !== undefined) {
-    if (result.body === undefined) {
-      result.body = unAnnotatedParam;
+  if (unannotatedParam) {
+    if (result.bodyType === undefined) {
+      result.bodyType = operation.parameters;
     } else {
       diagnostics.add(
         createDiagnostic({
           code: "duplicate-body",
           messageId: "bodyAndUnannotated",
-          target: unAnnotatedParam,
+          target: operation,
         })
       );
     }
@@ -406,7 +398,7 @@ function getVerbForOperation(
     return verb;
   }
 
-  if (parameters.body) {
+  if (parameters.bodyType) {
     diagnostics.add(
       createDiagnostic({
         code: "http-verb-missing-with-body",

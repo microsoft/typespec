@@ -605,15 +605,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     parent: ModelType | undefined,
     parameters: HttpOperationParameters
   ) {
-    if (parameters.body === undefined) {
+    const bodyType = parameters.bodyType;
+    const bodyParam = parameters.bodyParameter;
+
+    if (bodyType === undefined) {
       return;
     }
 
-    const bodyParam = parameters.body;
-    const bodyType = bodyParam.type;
-
     const requestBody: any = {
-      description: getDoc(program, bodyParam),
+      description: bodyParam ? getDoc(program, bodyParam) : undefined,
       content: {},
     };
 

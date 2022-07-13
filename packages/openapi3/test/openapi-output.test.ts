@@ -723,6 +723,40 @@ describe("openapi3: definitions", () => {
       $ref: "#/components/schemas/Pet",
     });
   });
+
+  it("recovers logical type name", async () => {
+    const oapi = await openApiFor(
+      `
+      model Thing {
+        name?: string;
+      }
+
+      @route("/things/{id}")
+      @get
+      op get(@path id: string, @query test: string, ...Thing): Thing & { @header test: string; };
+      `
+    );
+
+    deepStrictEqual(oapi.components.schemas.Thing, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+    });
+
+    deepStrictEqual(oapi.paths["/things/{id}"].get.requestBody.content["application/json"].schema, {
+      $ref: "#/components/schemas/Thing",
+    });
+
+    deepStrictEqual(
+      oapi.paths["/things/{id}"].get.responses["200"].content["application/json"].schema,
+      {
+        $ref: "#/components/schemas/Thing",
+      }
+    );
+  });
 });
 
 describe("openapi3: primitives", () => {
