@@ -344,15 +344,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
-          error({ code: "multiple-blockless-namespace" });
+          error({ code: "multiple-blockless-namespace", target: item });
         }
         if (seenDecl) {
-          error({ code: "blockless-namespace-first" });
+          error({ code: "blockless-namespace-first", target: item });
         }
         seenBlocklessNs = true;
       } else if (item.kind === SyntaxKind.ImportStatement) {
         if (seenDecl || seenBlocklessNs || seenUsing) {
-          error({ code: "import-first" });
+          error({ code: "import-first", target: item });
         }
       } else if (item.kind === SyntaxKind.UsingStatement) {
         seenUsing = true;
@@ -379,8 +379,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
-          error({ code: "import-first", messageId: "topLevel" });
           item = parseImportStatement();
+          error({ code: "import-first", messageId: "topLevel", target: item });
           break;
         case Token.ModelKeyword:
           item = parseModelStatement(pos, decorators);
@@ -389,7 +389,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           const ns = parseNamespaceStatement(pos, decorators);
 
           if (!Array.isArray(ns.statements)) {
-            error({ code: "blockless-namespace-first", messageId: "topLevel" });
+            error({ code: "blockless-namespace-first", messageId: "topLevel", target: ns });
           }
           item = ns;
           break;
