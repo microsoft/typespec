@@ -196,7 +196,14 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
       } else {
         setViewSelection({ type: "file", filename: "", content: "" });
       }
+    } else if (viewSelection.type ===  "swagger-ui" ){
+        if (props.outputFiles.length > 0) {
+          void loadSwaggerUIforFile(props.outputFiles[0]);
+        } else {
+          setViewSelection({ type: "swagger-ui", filename: "", content: "" });
+        }
     }
+    
   }, [props.program, props.outputFiles]);
 
   async function loadOutputFile(path: string) {
