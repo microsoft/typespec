@@ -129,7 +129,7 @@ export type IntrinsicModelName =
   | "bytes"
   | "numeric"
   | "integer"
-  | "real"
+  | "float"
   | "int64"
   | "int32"
   | "int16"

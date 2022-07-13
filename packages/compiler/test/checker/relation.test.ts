@@ -184,7 +184,7 @@ describe("compiler: checker: intrinsic", () => {
     });
   });
 
-  // Need to handle bigint in cadl.
+  // Need to handle bigint in cadl. https://github.com/Azure/cadl-azure/issues/506
   describe.skip("int64 target", () => {
     it("can assign int64", async () => {
       await expectTypeAssignable({ source: "int64", target: "int64" });
@@ -251,25 +251,35 @@ describe("compiler: checker: intrinsic", () => {
     });
   });
 
-  describe("real target", () => {
-    ["real", "float32", "float64"].forEach((x) => {
+  describe("float target", () => {
+    ["float", "float32", "float64"].forEach((x) => {
       it(`can assign ${x}`, async () => {
-        await expectTypeAssignable({ source: x, target: "real" });
+        await expectTypeAssignable({ source: x, target: "float" });
       });
     });
 
     it("can assign decimal literal", async () => {
-      await expectTypeAssignable({ source: "12.43", target: "real" });
-      await expectTypeAssignable({ source: "34000.43", target: "real" });
-      await expectTypeAssignable({ source: "-2147483448.43", target: "real" });
+      await expectTypeAssignable({ source: "12.43", target: "float" });
+      await expectTypeAssignable({ source: "34000.43", target: "float" });
+      await expectTypeAssignable({ source: "-2147483448.43", target: "float" });
+    });
+
+    it("emit diagnostic assigning integer", async () => {
+      await expectTypeNotAssignable(
+        { source: `integer`, target: "float" },
+        {
+          code: "unassignable",
+          message: "Type 'Cadl.integer' is not assignable to type 'Cadl.float'",
+        }
+      );
     });
 
     it("emit diagnostic assigning other type", async () => {
       await expectTypeNotAssignable(
-        { source: `boolean`, target: "real" },
+        { source: `boolean`, target: "float" },
         {
           code: "unassignable",
-          message: "Type 'Cadl.boolean' is not assignable to type 'Cadl.real'",
+          message: "Type 'Cadl.boolean' is not assignable to type 'Cadl.float'",
         }
       );
     });
@@ -287,7 +297,7 @@ describe("compiler: checker: intrinsic", () => {
       "uint16",
       "uint32",
       "uint64",
-      "real",
+      "float",
       "float32",
       "float64",
     ].forEach((x) => {
@@ -373,7 +383,7 @@ describe("compiler: checker: intrinsic", () => {
 
     it("can assign object with property being the of subtype type", async () => {
       await expectTypeAssignable({ source: "{foo: int32}", target: "Record<numeric>" });
-      await expectTypeAssignable({ source: "{foo: real, bar: int64}", target: "Record<numeric>" });
+      await expectTypeAssignable({ source: "{foo: float, bar: int64}", target: "Record<numeric>" });
     });
 
     it("can assign a record of subtypes", async () => {

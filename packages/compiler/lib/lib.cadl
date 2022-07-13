@@ -20,8 +20,8 @@ model numeric {}
 model integer {}
 
 @numeric
-@intrinsic("real")
-model real {}
+@intrinsic("float")
+model float {}
 
 @numeric
 @intrinsic("int64")

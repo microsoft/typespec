@@ -3647,12 +3647,12 @@ export function createChecker(program: Program): Checker {
       | "float64"
       | "numeric"
       | "integer"
-      | "real"
+      | "float"
   ) {
     if (targetInstrinsicType === "numeric") return true;
     const isInt = Number.isInteger(source.value);
     if (targetInstrinsicType === "integer") return isInt;
-    if (targetInstrinsicType === "real") return true;
+    if (targetInstrinsicType === "float") return true;
 
     const [low, high, options] = numericRanges[targetInstrinsicType];
     return source.value >= low && source.value <= high && (!options.int || isInt);
@@ -3953,7 +3953,7 @@ const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
   bytes: "any",
   numeric: "any",
   integer: "numeric",
-  real: "numeric",
+  float: "numeric",
   int64: "integer",
   safeint: "int64",
   int32: "safeint",
@@ -3963,7 +3963,7 @@ const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
   uint32: "uint64",
   uint16: "uint32",
   uint8: "uint16",
-  float64: "real",
+  float64: "float",
   float32: "float64",
   string: "any",
   plainDate: "any",
