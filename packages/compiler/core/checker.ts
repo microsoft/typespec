@@ -515,6 +515,8 @@ export function createChecker(program: Program): Checker {
       case "Number":
       case "Boolean":
         return type.value.toString();
+      case "Intrinsic":
+        return type.name;
     }
 
     return "(unnamed type)";
