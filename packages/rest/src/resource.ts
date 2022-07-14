@@ -95,10 +95,8 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
   if (resourceKey) {
     const { keyProperty } = resourceKey;
     const keyName = getKeyName(program, keyProperty);
-
-    const newProp = program.checker.cloneType(keyProperty);
-    newProp.name = keyName;
-    newProp.decorators.push(
+    const decorators = [
+      ...keyProperty.decorators,
       {
         decorator: $path,
         args: [],
@@ -106,9 +104,9 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
       {
         decorator: $resourceTypeForKeyParam,
         args: [{ node: target.node, value: resourceType }],
-      }
-    );
-    context.call($path, newProp, undefined as any);
+      },
+    ];
+    const newProp = program.checker.cloneType(keyProperty, { name: keyName, decorators });
 
     target.properties.set(keyName, newProp);
   }
