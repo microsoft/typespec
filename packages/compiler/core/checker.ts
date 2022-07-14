@@ -1011,8 +1011,8 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
     });
 
-    const notFound = Symbol();
-    let indexer: ModelIndexer | typeof notFound | undefined = notFound;
+    const initialValue = Symbol("initialValue");
+    let indexer: ModelIndexer | typeof initialValue | undefined = initialValue;
     for (const [optionNode, option] of options) {
       if (option.kind === "TemplateParameter") {
         continue;
@@ -1023,7 +1023,7 @@ export function createChecker(program: Program): Checker {
         );
         continue;
       }
-      if (indexer !== notFound && !areCompatibleIndexers(indexer, option.indexer)) {
+      if (indexer !== initialValue && !areCompatibleIndexers(indexer, option.indexer)) {
         program.reportDiagnostic(
           createDiagnostic({
             code: "intersect-invalid-index",
@@ -1968,7 +1968,6 @@ export function createChecker(program: Program): Checker {
           ? diagnosticTarget
           : diagnosticTarget.value
       );
-      console.log("Diag", diagnostics);
       if (!valid) program.reportDiagnostics(diagnostics);
     }
   }
