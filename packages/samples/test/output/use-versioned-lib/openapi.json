@@ -8,7 +8,7 @@
   "paths": {
     "/": {
       "get": {
-        "operationId": "VersionedApi_read",
+        "operationId": "read",
         "parameters": [],
         "responses": {
           "200": {
