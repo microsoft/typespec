@@ -43,9 +43,9 @@ import {
 import {
   getExtensions,
   getExternalDocs,
-  getOperationId,
   getParameterKey,
   getTypeName,
+  resolveOperationId,
   shouldInline,
 } from "@cadl-lang/openapi";
 import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
@@ -381,13 +381,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    const operationId = getOperationId(program, op);
-    if (operationId) {
-      currentEndpoint.operationId = operationId;
-    } else {
-      // Synthesize an operation ID
-      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
-    }
+    currentEndpoint.operationId = resolveOperationId(program, op);
     applyExternalDocs(op, currentEndpoint);
 
     // Set up basic endpoint fields
