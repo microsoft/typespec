@@ -74,6 +74,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
                   "name": {
                     "type": "string"
                   },
@@ -693,6 +697,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
                   "name": {
                     "type": "string"
                   },
