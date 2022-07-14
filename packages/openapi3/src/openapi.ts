@@ -43,9 +43,9 @@ import {
 import {
   getExtensions,
   getExternalDocs,
-  getOperationId,
   getParameterKey,
   getTypeName,
+  resolveOperationId,
   shouldInline,
 } from "@cadl-lang/openapi";
 import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
@@ -354,7 +354,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   }
 
   function emitOperation(operation: OperationDetails): void {
-    const { path: fullPath, operation: op, groupName, verb, parameters } = operation;
+    const { path: fullPath, operation: op, verb, parameters } = operation;
 
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
@@ -381,13 +381,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       }
     }
 
-    const operationId = getOperationId(program, op);
-    if (operationId) {
-      currentEndpoint.operationId = operationId;
-    } else {
-      // Synthesize an operation ID
-      currentEndpoint.operationId = (groupName.length > 0 ? `${groupName}_` : "") + op.name;
-    }
+    currentEndpoint.operationId = resolveOperationId(program, op);
     applyExternalDocs(op, currentEndpoint);
 
     // Set up basic endpoint fields

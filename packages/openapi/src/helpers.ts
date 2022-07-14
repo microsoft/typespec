@@ -1,13 +1,16 @@
 import {
   getFriendlyName as getAssignedFriendlyName,
+  getServiceNamespace,
   isArrayModelType,
   isRecordModelType,
   ModelType,
   ModelTypeProperty,
+  OperationType,
   Program,
   Type,
   TypeNameOptions,
 } from "@cadl-lang/compiler";
+import { getOperationId } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
 
 /**
@@ -152,4 +155,35 @@ function getDefaultFriendlyName(
   const model = (ns ? ns + "." : "") + type.name;
   const args = type.templateArguments.map((arg) => getTypeName(program, arg, options));
   return `${model}_${args.join("_")}`;
+}
+
+/**
+ * Resolve the OpenAPI operation ID for the given operation using the following logic:
+ * - If @operationId was specified use that value
+ * - If operation is defined at the root or under the service namespace return <operation.name>
+ * - Otherwise(operation is under another namespace or interface) return <namespace/interface.name>_<opration.name>
+ *
+ * @param program Cadl Program
+ * @param operation Operation
+ * @returns Operation ID in this format <name> or <group>_<name>
+ */
+export function resolveOperationId(program: Program, operation: OperationType) {
+  const explicitOperationId = getOperationId(program, operation);
+  if (explicitOperationId) {
+    return explicitOperationId;
+  }
+
+  if (operation.interface) {
+    return `${operation.interface.name}_${operation.name}`;
+  }
+  const namespace = operation.namespace;
+  if (
+    namespace === undefined ||
+    namespace === program.checker.getGlobalNamespaceType() ||
+    namespace === getServiceNamespace(program)
+  ) {
+    return operation.name;
+  }
+
+  return `${namespace.name}_${operation.name}`;
 }
