@@ -99,7 +99,7 @@ export interface Projector {
 
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
-  name: "ErrorType" | "void" | "never" | "any";
+  name: "ErrorType" | "void" | "never" | "unknown";
 }
 
 export interface ErrorType extends IntrinsicType {
@@ -114,8 +114,8 @@ export interface NeverType extends IntrinsicType {
   name: "never";
 }
 
-export interface AnyType extends IntrinsicType {
-  name: "any";
+export interface UnknownType extends IntrinsicType {
+  name: "unknown";
 }
 
 // represents a type that is being returned from the
@@ -470,7 +470,7 @@ export enum SyntaxKind {
   BooleanLiteral,
   VoidKeyword,
   NeverKeyword,
-  AnyKeyword,
+  UnknownKeyword,
   TypeReference,
   ProjectionReference,
   TemplateParameterDeclaration,
@@ -866,7 +866,7 @@ export interface NeverKeywordNode extends BaseNode {
 }
 
 export interface AnyKeywordNode extends BaseNode {
-  readonly kind: SyntaxKind.AnyKeyword;
+  readonly kind: SyntaxKind.UnknownKeyword;
 }
 
 export interface ReturnExpressionNode extends BaseNode {

@@ -1082,7 +1082,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           return parseVoidKeyword();
         case Token.NeverKeyword:
           return parseNeverKeyword();
-        case Token.AnyKeyword:
+        case Token.UnknownKeyword:
           return parseAnyKeyword();
         default:
           return parseReferenceExpression("expression");
@@ -1110,9 +1110,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseAnyKeyword(): AnyKeywordNode {
     const pos = tokenPos();
-    parseExpected(Token.AnyKeyword);
+    parseExpected(Token.UnknownKeyword);
     return {
-      kind: SyntaxKind.AnyKeyword,
+      kind: SyntaxKind.UnknownKeyword,
       ...finishNode(pos),
     };
   }
@@ -1577,7 +1577,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         return parseVoidKeyword();
       case Token.NeverKeyword:
         return parseNeverKeyword();
-      case Token.AnyKeyword:
+      case Token.UnknownKeyword:
         return parseAnyKeyword();
       default:
         return parseIdentifier("expression");
@@ -2364,7 +2364,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ProjectionEnumSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
-    case SyntaxKind.AnyKeyword:
+    case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
       return;
     default:

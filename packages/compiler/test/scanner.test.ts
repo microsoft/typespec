@@ -333,7 +333,7 @@ describe("compiler: scanner", () => {
       Token.FalseKeyword,
       Token.VoidKeyword,
       Token.NeverKeyword,
-      Token.AnyKeyword,
+      Token.UnknownKeyword,
     ];
     let minKeywordLengthFound = Number.MAX_SAFE_INTEGER;
     let maxKeywordLengthFound = Number.MIN_SAFE_INTEGER;

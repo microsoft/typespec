@@ -6,7 +6,6 @@ import {
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
-  AnyType,
   ArrayModelType,
   DecoratorContext,
   EnumMemberType,
@@ -20,6 +19,7 @@ import {
   NeverType,
   OperationType,
   Type,
+  UnknownType,
   VoidType,
 } from "../core/types.js";
 export * from "./service.js";
@@ -161,8 +161,8 @@ export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
 }
 
-export function isAnyType(type: Type): type is AnyType {
-  return type.kind === "Intrinsic" && type.name === "any";
+export function isUnknownType(type: Type): type is UnknownType {
+  return type.kind === "Intrinsic" && type.name === "unknown";
 }
 
 /**

@@ -2,7 +2,6 @@ import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
-  AnyType,
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
@@ -11,9 +10,9 @@ import {
   getIntrinsicModelName,
   IdentifierKind,
   IntrinsicModelName,
-  isAnyType,
   isIntrinsic,
   isNeverType,
+  isUnknownType,
   isVoidType,
   JsSourceFileNode,
   ModelIndexer,
@@ -25,6 +24,7 @@ import {
   reportDeprecated,
   SymbolFlags,
   TemplateParameterType,
+  UnknownType,
   VoidType,
 } from "./index.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
@@ -210,7 +210,7 @@ export interface Checker {
   errorType: ErrorType;
   voidType: VoidType;
   neverType: NeverType;
-  anyType: AnyType;
+  anyType: UnknownType;
 }
 
 interface TypePrototype {
@@ -295,7 +295,7 @@ export function createChecker(program: Program): Checker {
   const errorType: ErrorType = createType({ kind: "Intrinsic", name: "ErrorType" });
   const voidType = createType({ kind: "Intrinsic", name: "void" } as const);
   const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
-  const anyType = createType({ kind: "Intrinsic", name: "any" } as const);
+  const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
@@ -365,7 +365,7 @@ export function createChecker(program: Program): Checker {
     project,
     neverType,
     errorType,
-    anyType,
+    anyType: unknownType,
     voidType,
     createType,
     createAndFinishType,
@@ -480,8 +480,8 @@ export function createChecker(program: Program): Checker {
         return voidType;
       case SyntaxKind.NeverKeyword:
         return neverType;
-      case SyntaxKind.AnyKeyword:
-        return anyType;
+      case SyntaxKind.UnknownKeyword:
+        return unknownType;
     }
 
     // we don't emit an error here as we blindly call this function
@@ -2980,8 +2980,8 @@ export function createChecker(program: Program): Checker {
         return voidType;
       case SyntaxKind.NeverKeyword:
         return neverType;
-      case SyntaxKind.AnyKeyword:
-        return anyType;
+      case SyntaxKind.UnknownKeyword:
+        return unknownType;
       case SyntaxKind.Return:
         return evalReturnKeyword(node);
       default:
@@ -3639,7 +3639,7 @@ export function createChecker(program: Program): Checker {
 
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
     if (isVoidType(target) || isNeverType(target)) return false;
-    if (isAnyType(target)) return true;
+    if (isUnknownType(target)) return true;
     const sourceIntrinsicName = getIntrinsicModelName(program, source);
     const targetIntrinsicName = getIntrinsicModelName(program, target);
     if (targetIntrinsicName) {
@@ -4028,9 +4028,9 @@ const numericRanges = {
 } as const;
 
 class IntrinsicTypeRelationTree<
-  T extends Record<IntrinsicModelName, IntrinsicModelName | IntrinsicModelName[] | "any">
+  T extends Record<IntrinsicModelName, IntrinsicModelName | IntrinsicModelName[] | "unknown">
 > {
-  private map = new Map<IntrinsicModelName, Set<IntrinsicModelName | "any">>();
+  private map = new Map<IntrinsicModelName, Set<IntrinsicModelName | "unknown">>();
   public constructor(data: T) {
     for (const [key, value] of Object.entries(data)) {
       if (value === undefined) {
@@ -4038,7 +4038,7 @@ class IntrinsicTypeRelationTree<
       }
 
       const parents = Array.isArray(value) ? value : [value];
-      const set = new Set<IntrinsicModelName | "any">([
+      const set = new Set<IntrinsicModelName | "unknown">([
         key as IntrinsicModelName,
         ...parents,
         ...parents.flatMap((parent) => [...(this.map.get(parent as any) ?? [])]),
@@ -4053,9 +4053,9 @@ class IntrinsicTypeRelationTree<
 }
 
 const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
-  Record: "any",
-  bytes: "any",
-  numeric: "any",
+  Record: "unknown",
+  bytes: "unknown",
+  numeric: "unknown",
   integer: "numeric",
   float: "numeric",
   int64: "integer",
@@ -4069,14 +4069,14 @@ const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
   uint8: "uint16",
   float64: "float",
   float32: "float64",
-  string: "any",
-  plainDate: "any",
-  plainTime: "any",
-  zonedDateTime: "any",
-  duration: "any",
-  boolean: "any",
-  null: "any",
-  Map: "any",
+  string: "unknown",
+  plainDate: "unknown",
+  plainTime: "unknown",
+  zonedDateTime: "unknown",
+  duration: "unknown",
+  boolean: "unknown",
+  null: "unknown",
+  Map: "unknown",
 });
 function isDerivedFrom(derived: ModelType, base: ModelType) {
   while (derived !== base && derived.baseModel) {

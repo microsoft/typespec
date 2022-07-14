@@ -92,6 +92,41 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
+  describe("unknown target", () => {
+    [
+      "integer",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "safeint",
+      "uint8",
+      "uint16",
+      "uint32",
+      "uint64",
+      "string",
+      "numeric",
+      "float",
+      "object",
+      "Record<string>",
+      "bytes",
+      "duration",
+      "plainDate",
+    ].forEach((x) => {
+      it(`can assign ${x}`, async () => {
+        await expectTypeAssignable({ source: x, target: "unknown" });
+      });
+    });
+
+    it("can assign string literal", async () => {
+      await expectTypeAssignable({ source: `"foo"`, target: "unknown" });
+    });
+
+    it("can assign numeric literal", async () => {
+      await expectTypeAssignable({ source: `1234.4`, target: "unknown" });
+    });
+  });
+
   describe("string target", () => {
     it("can assign string", async () => {
       await expectTypeAssignable({ source: "string", target: "string" });
