@@ -39,7 +39,7 @@ function setTemplatedStringProperty(
   program: Program,
   target: Type,
   text: string,
-  sourceObject: Type
+  sourceObject?: ModelType
 ) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
 
@@ -69,7 +69,7 @@ export function $summary(
   context: DecoratorContext,
   target: Type,
   text: string,
-  sourceObject: Type
+  sourceObject?: ModelType
 ) {
   setTemplatedStringProperty(summaryKey, context.program, target, text, sourceObject);
 }
@@ -91,7 +91,7 @@ export function $doc(
   context: DecoratorContext,
   target: NamespaceType | OperationType, // TODO-TIM revert back, for testing only
   text: string,
-  sourceObject: Type
+  sourceObject?: ModelType
 ) {
   setTemplatedStringProperty(docsKey, context.program, target, text, sourceObject);
 }
