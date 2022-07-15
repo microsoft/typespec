@@ -202,6 +202,8 @@ export async function createProgram(
   const duplicateSymbols = new Set<Sym>();
   let currentProjector: Projector | undefined;
   const emitters: EmitterRef[] = [];
+  const requireImports = new Map<string, string>();
+  const libraryLoaded = new Set<string>();
   let error = false;
 
   const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
@@ -293,6 +295,17 @@ export async function createProgram(
     }
   }
 
+  for (const [requiredImport, emitterName] of requireImports) {
+    if (!libraryLoaded.has(requiredImport)) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "missing-import",
+          format: { requiredImport, emitterName },
+          target: NoTarget,
+        })
+      );
+    }
+  }
   if (program.hasError()) {
     return program;
   }
@@ -456,10 +469,9 @@ export async function createProgram(
     target: DiagnosticTarget | typeof NoTarget,
     relativeTo: string
   ) {
-    let importFilePath: string;
-    const libPath = await resolveCadlLibrary(path, relativeTo, target);
-    if (libPath) {
-      importFilePath = libPath;
+    const importFilePath = await resolveCadlLibrary(path, relativeTo, target);
+    if (importFilePath) {
+      libraryLoaded.add(path);
       logger.debug(`Loading library "${path}" from "${importFilePath}"`);
     } else {
       return;
@@ -515,6 +527,11 @@ export async function createProgram(
 
     const emitterFunction = file.esmExports.$onEmit;
     const libDefinition: CadlLibrary<any> | undefined = file.esmExports.$lib;
+    if (libDefinition?.requireImports) {
+      for (const lib of libDefinition.requireImports) {
+        requireImports.set(lib, libDefinition.name);
+      }
+    }
     if (emitterFunction !== undefined) {
       if (libDefinition?.emitter?.options) {
         const optionValidator = new SchemaValidator(libDefinition.emitter?.options, {

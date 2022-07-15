@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Remove `groupName` from `OperationDetails`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
