@@ -64,7 +64,6 @@ export interface OperationDetails {
   path: string;
   pathFragment?: string;
   verb: HttpVerb;
-  groupName: string;
   container: OperationContainer;
   parameters: HttpOperationParameters;
   responses: HttpOperationResponse[];
@@ -455,7 +454,6 @@ function buildRoutes(
       pathFragment: route.pathFragment,
       verb,
       container,
-      groupName: container.name,
       parameters: route.parameters,
       operation: op,
       responses,
