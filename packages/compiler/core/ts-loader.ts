@@ -1,31 +1,36 @@
 import ts from "typescript";
 import { Type } from "./types.js";
 
-export async function loadTypesFromDefinition(definitionFile: string) {
+export async function loadTypesFromDefinition(
+  definitionFile: string
+): Promise<Record<string, DecoratorSignature>> {
   const tsHost = ts.createCompilerHost({});
   const program = ts.createProgram({ rootNames: [definitionFile], options: {}, host: tsHost });
   const files = program.getSourceFiles().filter((x) => x.fileName === definitionFile);
 
   const checker = program.getTypeChecker();
-  getExportedFunctionSignatures(checker, files[0]);
-
-  //TODO remove for testing.
-  process.exit(1);
+  return getExportedDecoratorsSignatures(checker, files[0]);
 }
 
-function getExportedFunctionSignatures(checker: ts.TypeChecker, file: ts.SourceFile) {
+function getExportedDecoratorsSignatures(
+  checker: ts.TypeChecker,
+  file: ts.SourceFile
+): Record<string, DecoratorSignature> {
   const moduleSymbol = checker.getSymbolAtLocation(file);
   const exportedSymbols = checker.getExportsOfModule(moduleSymbol!);
-  // const typeName = fullyQualifiedName.replace(/".*"\./, "");
+  const signatures: Record<string, DecoratorSignature> = {};
 
   for (const symbol of exportedSymbols) {
-    if (symbol.flags & ts.SymbolFlags.Function && symbol.name.startsWith("$doc")) {
+    if (symbol.flags & ts.SymbolFlags.Function && symbol.name[0] === "$") {
       const node = symbol.declarations?.[0];
       const type = checker.getTypeOfSymbolAtLocation(symbol, node!);
-      console.log("Type", type);
-      getDecoratorSignature(checker, type);
+      const signature = getDecoratorSignature(checker, type);
+      if (signature) {
+        signatures[symbol.name] = signature;
+      }
     }
   }
+  return signatures;
 }
 
 export interface DecoratorParameter {
@@ -36,10 +41,13 @@ export interface DecoratorParameter {
 export interface DecoratorSignature {
   name: string;
   target: Type["kind"][] | undefined;
-  parameters?: DecoratorParameter[];
+  args: DecoratorParameter[];
 }
 
-function getDecoratorSignature(checker: ts.TypeChecker, functionType: ts.Type) {
+function getDecoratorSignature(
+  checker: ts.TypeChecker,
+  functionType: ts.Type
+): DecoratorSignature | undefined {
   const signatures = checker.getSignaturesOfType(functionType, ts.SignatureKind.Call);
   if (signatures.length === 0) {
     return undefined;
@@ -50,10 +58,9 @@ function getDecoratorSignature(checker: ts.TypeChecker, functionType: ts.Type) {
   const decoratorSignature: DecoratorSignature = {
     name: functionType.symbol.name.replace("$", "@"),
     target: getCadlTypesForParameter(checker, targetParam).kind,
-    parameters: parameters.map((x) => getCadlTypesForParameter(checker, x)),
+    args: parameters.map((x) => getCadlTypesForParameter(checker, x)),
   };
 
-  console.log("Signatures", decoratorSignature);
   return decoratorSignature;
 }
 

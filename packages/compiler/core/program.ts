@@ -367,10 +367,9 @@ export async function createProgram(
     }
 
     const definitionFile = path.replace(".js", ".d.ts");
-    console.log("Definition file for", { path, definitionFile });
+    let signatures = {};
     if ((await host.stat(definitionFile)).isFile()) {
-      console.log("Definition exists");
-      await loadTypesFromDefinition(definitionFile);
+      signatures = await loadTypesFromDefinition(definitionFile);
     }
     return {
       kind: SyntaxKind.JsSourceFile,
@@ -383,6 +382,7 @@ export async function createProgram(
         flags: NodeFlags.Synthetic,
       },
       esmExports: exports,
+      signatures,
       file,
       namespaceSymbols: [],
       symbol: undefined as any,
