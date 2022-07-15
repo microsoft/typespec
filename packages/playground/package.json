@@ -66,6 +66,7 @@
     "@cadl-lang/bundler": "~0.1.0",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
+    "mocha-junit-reporter": "~2.0.2",
     "c8": "~7.11.0",
     "@playwright/test": "~1.22.2",
     "playwright": "~1.22.2",
