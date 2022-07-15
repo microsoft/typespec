@@ -87,7 +87,12 @@ const docsKey = Symbol("docs");
  *
  * @doc can be specified on any language element -- a model, an operation, a namespace, etc.
  */
-export function $doc(context: DecoratorContext, target: Type, text: string, sourceObject: Type) {
+export function $doc(
+  context: DecoratorContext,
+  target: NamespaceType | OperationType, // TODO-TIM revert back, for testing only
+  text: string,
+  sourceObject: Type
+) {
   setTemplatedStringProperty(docsKey, context.program, target, text, sourceObject);
 }
 

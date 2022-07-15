@@ -10,6 +10,7 @@ import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import { SchemaValidator } from "./schema-validator.js";
+import { loadTypesFromDefinition } from "./ts-loader.js";
 import {
   CadlLibrary,
   CadlScriptNode,
@@ -365,6 +366,12 @@ export async function createProgram(
       return undefined;
     }
 
+    const definitionFile = path.replace(".js", ".d.ts");
+    console.log("Definition file for", { path, definitionFile });
+    if ((await host.stat(definitionFile)).isFile()) {
+      console.log("Definition exists");
+      await loadTypesFromDefinition(definitionFile);
+    }
     return {
       kind: SyntaxKind.JsSourceFile,
       id: {
