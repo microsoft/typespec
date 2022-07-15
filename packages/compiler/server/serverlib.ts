@@ -53,7 +53,14 @@ import {
   resolvePath,
 } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
-import { createScanner, isKeyword, isPunctuation, skipTrivia, Token } from "../core/scanner.js";
+import {
+  createScanner,
+  isKeyword,
+  isPunctuation,
+  skipTrivia,
+  skipWhiteSpace,
+  Token,
+} from "../core/scanner.js";
 import {
   CadlScriptNode,
   CompilerHost,
@@ -410,8 +417,27 @@ export function createServer(host: ServerHost): Server {
 
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
     const file = await compilerHost.readFile(getPath(params.textDocument));
-    const ast = parse(file);
+    const ast = parse(file, { comments: true });
     const ranges: FoldingRange[] = [];
+    let rangeStartSingleLines = -1;
+    for (let i = 0; i < ast.comments.length; i++) {
+      const comment = ast.comments[i];
+      if (
+        comment.kind === SyntaxKind.LineComment &&
+        i + 1 < ast.comments.length &&
+        ast.comments[i + 1].kind === SyntaxKind.LineComment &&
+        ast.comments[i + 1].pos === skipWhiteSpace(file.text, comment.end)
+      ) {
+        if (rangeStartSingleLines === -1) {
+          rangeStartSingleLines = comment.pos;
+        }
+      } else if (rangeStartSingleLines !== -1) {
+        addRange(rangeStartSingleLines, comment.end);
+        rangeStartSingleLines = -1;
+      } else {
+        addRange(comment.pos, comment.end);
+      }
+    }
     visitChildren(ast, addRangesForNode);
     function addRangesForNode(node: Node) {
       let nodeStart = node.pos;

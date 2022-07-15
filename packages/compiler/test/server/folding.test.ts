@@ -3,6 +3,57 @@ import { FoldingRange } from "vscode-languageserver/node.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
 describe("compiler: server: foldingRange", () => {
+  it("includes consecutive single line comments separated by whitespaces in folding range", async () => {
+    const ranges = await getFoldingRanges(`//foo
+    
+    //bar
+
+    //test`);
+    deepStrictEqual(ranges, [{ endCharacter: 10, endLine: 4, startCharacter: 0, startLine: 0 }]);
+  });
+
+  it("doesn't fold consecutive single and multi-line comment together", async () => {
+    const ranges = await getFoldingRanges(`*/
+    foobar
+    */
+
+    //bar
+
+    //test`);
+    deepStrictEqual(ranges, [
+      { endCharacter: 10, endLine: 6, startCharacter: 4, startLine: 4 },
+      { endCharacter: 6, endLine: 2, startCharacter: 0, startLine: 0 },
+    ]);
+  });
+
+  it("single line comments separated by multiple line comments does not fold", async () => {
+    const ranges = await getFoldingRanges(`//foo
+    /*foobar*/
+    //bar
+    /*bartest*/
+    //test`);
+    deepStrictEqual(ranges, []);
+  });
+
+  it("single line comments separated by  decorators does not fold", async () => {
+    const ranges = await getFoldingRanges(`//foo
+    @doc("foobar")
+    //bar`);
+    deepStrictEqual(ranges, []);
+  });
+
+  it("includes comments in folding range", async () => {
+    const ranges = await getFoldingRanges(`/**
+    description of model foo
+    **/`);
+    deepStrictEqual(ranges, [{ endCharacter: 7, endLine: 2, startCharacter: 0, startLine: 0 }]);
+  });
+
+  it("does not include one line comments in folding range", async () => {
+    const ranges = await getFoldingRanges(`//foo`);
+    deepStrictEqual(ranges, []);
+  });
+
   it("includes decorator in folding range", async () => {
     const ranges = await getFoldingRanges(`@doc("Error")
     @doc("Foo")
@@ -17,7 +68,7 @@ describe("compiler: server: foldingRange", () => {
     deepStrictEqual(ranges, [{ endCharacter: 19, endLine: 1, startCharacter: 0, startLine: 0 }]);
   });
 
-  it("includes model and decorator in folding range", async () => {
+  it("includes model and decorators in folding range", async () => {
     const ranges = await getFoldingRanges(`@doc("Error")
     @doc("Foo")
     @doc("bar")

@@ -59,5 +59,23 @@ describe("compiler: entrypoints", () => {
         message: `Library "my-lib" has an invalid main file.`,
       });
     });
+
+    it("emit diagnostics if emitter require import that is not imported", async () => {
+      const program = await compileScenario("emitter-require-import", {
+        emitters: { "@cadl-lang/my-emitter": {} },
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "missing-import",
+        message: `Emitter '@cadl-lang/my-emitter' requires '@cadl-lang/my-lib' to be imported. Add 'import "@cadl-lang/my-lib".`,
+      });
+    });
+
+    it("succeed if required import from an emitter is imported", async () => {
+      const program = await compileScenario("emitter-require-import", {
+        emitters: { "@cadl-lang/my-emitter": {} },
+        additionalImports: ["@cadl-lang/my-lib"],
+      });
+      expectDiagnosticEmpty(program.diagnostics);
+    });
   });
 });

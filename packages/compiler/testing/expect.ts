@@ -23,7 +23,7 @@ export interface DiagnosticMatch {
   /**
    * Match the code.
    */
-  code: string;
+  code?: string;
 
   /**
    * Match the message.
@@ -57,11 +57,14 @@ export interface DiagnosticMatch {
  */
 export function expectDiagnostics(
   diagnostics: readonly Diagnostic[],
-  match: DiagnosticMatch | DiagnosticMatch[]
+  match: DiagnosticMatch | DiagnosticMatch[],
+  options = {
+    strict: true,
+  }
 ) {
   const array = isArray(match) ? match : [match];
 
-  if (array.length !== diagnostics.length) {
+  if (options.strict && array.length !== diagnostics.length) {
     assert.fail(
       `Expected ${array.length} diagnostics but found ${diagnostics.length}:\n ${formatDiagnostics(
         diagnostics
@@ -73,11 +76,13 @@ export function expectDiagnostics(
     const expectation = array[i];
     const sep = "-".repeat(100);
     const message = `Diagnostics found:\n${sep}\n${formatDiagnostics(diagnostics)}\n${sep}`;
-    strictEqual(
-      diagnostic.code,
-      expectation.code,
-      `Diagnostic at index ${i} has non matching code.\n${message}`
-    );
+    if (expectation.code !== undefined) {
+      strictEqual(
+        diagnostic.code,
+        expectation.code,
+        `Diagnostic at index ${i} has non matching code.\n${message}`
+      );
+    }
 
     if (expectation.message !== undefined) {
       matchStrOrRegex(
