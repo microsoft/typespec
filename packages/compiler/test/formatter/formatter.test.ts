@@ -1,5 +1,6 @@
 import { strictEqual, throws } from "assert";
 import prettier from "prettier";
+import { fail } from "yargs";
 import * as plugin from "../../formatter/index.js";
 
 function format(code: string): string {
@@ -16,6 +17,10 @@ function assertFormat({ code, expected }: { code: string; expected: string }) {
 }
 
 describe("compiler: prettier formatter", () => {
+  it("fail test remove", () => {
+    fail(true);
+  });
+
   it("throws error if there is a parsing issue", () => {
     const code = `namespace this is invalid`;
 
