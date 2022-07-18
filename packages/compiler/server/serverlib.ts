@@ -494,7 +494,7 @@ export function createServer(host: ServerHost): Server {
     const ranges: SymbolInformation[] = [];
     visitChildren(ast, addRangesForNode);
 
-    function addRangesForNode(node: Node) {
+    function addSymbolsForNode(node: Node) {
       const symbolNode = getNameandSymbolKind(node);
       if (symbolNode !== undefined) {
         const start = file.getLineAndCharacterOfPosition(node.pos);
