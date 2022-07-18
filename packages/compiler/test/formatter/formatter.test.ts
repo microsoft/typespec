@@ -569,7 +569,7 @@ alias Bar = {
 alias Foo = A  |  (  B     & C);
 `,
         expected: `
-alias Foo = A | ( B & C);
+alias Foo = A | (B & C);
 `,
       });
     });
