@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Implemented Document Symbols",
+      "comment": "Add editor support for document symbols.",
       "type": "minor"
     }
   ],
