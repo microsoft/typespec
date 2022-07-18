@@ -55,7 +55,10 @@ export interface SimpleOperationDetails {
   path: string;
   params: {
     params: Array<{ name: string; type: HttpOperationParameter["type"] }>;
-    body?: string | string[]; // array of properties if type
+    /**
+     * name of explicit `@body` parameter or array of unannotated parameter names that make up the body.
+     */
+    body?: string | string[];
   };
 }
 
