@@ -471,7 +471,7 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function getNameandSymbolKind(node: Node): { name: string; kind: SymbolKind } | undefined {
+  function getNameAndSymbolKind(node: Node): { name: string; kind: SymbolKind } | undefined {
     switch (node.kind) {
       case SyntaxKind.NamespaceStatement:
         return { name: node.id.sv, kind: SymbolKind.Namespace };
