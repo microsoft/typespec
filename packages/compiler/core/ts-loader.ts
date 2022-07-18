@@ -1,15 +1,24 @@
 import ts from "typescript";
-import { Type } from "./types.js";
+import { CompilerHost, Type } from "./types.js";
 
-export async function loadTypesFromDefinition(
-  definitionFile: string
-): Promise<Record<string, DecoratorSignature>> {
+export interface TSLoader {
+  getExportedFunctionsFromDTS(definitionFile: string): Record<string, DecoratorSignature>;
+}
+
+export function createTSLoader(cadlHost: CompilerHost): TSLoader {
   const tsHost = ts.createCompilerHost({});
-  const program = ts.createProgram({ rootNames: [definitionFile], options: {}, host: tsHost });
-  const files = program.getSourceFiles().filter((x) => x.fileName === definitionFile);
 
-  const checker = program.getTypeChecker();
-  return getExportedDecoratorsSignatures(checker, files[0]);
+  return {
+    getExportedFunctionsFromDTS,
+  };
+
+  function getExportedFunctionsFromDTS(definitionFile: string): Record<string, DecoratorSignature> {
+    const program = ts.createProgram({ rootNames: [definitionFile], options: {}, host: tsHost });
+    const files = program.getSourceFiles().filter((x) => x.fileName === definitionFile);
+
+    const checker = program.getTypeChecker();
+    return getExportedDecoratorsSignatures(checker, files[0]);
+  }
 }
 
 function getExportedDecoratorsSignatures(
