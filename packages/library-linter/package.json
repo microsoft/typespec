@@ -41,7 +41,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "mocha",
-    "test-official": "c8 mocha --forbid-only --reporter mocha-junit-reporter",
+    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
@@ -61,6 +61,7 @@
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
     "mocha-junit-reporter": "~2.0.2",
+    "mocha-multi-reporters": "~1.5.1",
     "c8": "~7.11.0",
     "rimraf": "~3.0.2",
     "typescript": "~4.7.2"
