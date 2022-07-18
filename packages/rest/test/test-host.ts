@@ -55,7 +55,7 @@ export interface SimpleOperationDetails {
   path: string;
   params: {
     params: Array<{ name: string; type: HttpOperationParameter["type"] }>;
-    body?: string;
+    body?: string | string[]; // array of properties if type
   };
 }
 
@@ -71,7 +71,11 @@ export async function compileOperations(
       path: r.path,
       params: {
         params: r.parameters.parameters.map(({ type, name }) => ({ type, name })),
-        body: r.parameters.bodyParameter?.name,
+        body:
+          r.parameters.bodyParameter?.name ??
+          (r.parameters.bodyType?.kind === "Model"
+            ? Array.from(r.parameters.bodyType.properties.keys())
+            : undefined),
       },
     };
   });

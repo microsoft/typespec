@@ -526,7 +526,7 @@ export function createChecker(program: Program): Checker {
       // template instantiation
       const args = model.templateArguments.map((x) => getTypeName(x, options));
       return `${modelName}<${args.join(", ")}>`;
-    } else if ((model.node as ModelStatementNode).templateParameters?.length > 0) {
+    } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
       // template
       const params = (model.node as ModelStatementNode).templateParameters.map((t) => t.id.sv);
       return `${model.name}<${params.join(", ")}>`;

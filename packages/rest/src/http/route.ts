@@ -219,7 +219,7 @@ export function getOperationParameters(
   const result: HttpOperationParameters = {
     parameters: [],
   };
-  let unannotatedParam = false;
+  const unannotatedParams = new Set<ModelTypeProperty>();
 
   for (const param of operation.parameters.properties.values()) {
     const queryParam = getQueryParamName(program, param);
@@ -257,13 +257,15 @@ export function getOperationParameters(
         diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
       }
     } else {
-      unannotatedParam = true;
+      unannotatedParams.add(param);
     }
   }
 
-  if (unannotatedParam) {
+  if (unannotatedParams.size > 0) {
     if (result.bodyType === undefined) {
-      result.bodyType = operation.parameters;
+      result.bodyType = program.checker.filterModelProperties(operation.parameters, (p) =>
+        unannotatedParams.has(p)
+      );
     } else {
       diagnostics.add(
         createDiagnostic({

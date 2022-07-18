@@ -333,6 +333,47 @@ describe("rest: routes", () => {
         },
       ]);
     });
+
+    it("resolves single unannotated parameter as request body", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(@query select: string, unannotatedBodyParam: string): string;
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test",
+          params: {
+            params: [{ type: "query", name: "select" }],
+            body: ["unannotatedBodyParam"],
+          },
+        },
+      ]);
+    });
+
+    it("resolves multiple unannotated parameters as request body", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(
+          @query select: string,
+          unannotatedBodyParam1: string,
+          unannotatedBodyParam2: string): string;
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test",
+          params: {
+            params: [{ type: "query", name: "select" }],
+            body: ["unannotatedBodyParam1", "unannotatedBodyParam2"],
+          },
+        },
+      ]);
+    });
   });
 
   describe("double @route", () => {
