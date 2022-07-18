@@ -1,6 +1,5 @@
-import { strictEqual, throws } from "assert";
+import { fail, strictEqual, throws } from "assert";
 import prettier from "prettier";
-import { fail } from "yargs";
 import * as plugin from "../../formatter/index.js";
 
 function format(code: string): string {
@@ -18,7 +17,7 @@ function assertFormat({ code, expected }: { code: string; expected: string }) {
 
 describe("compiler: prettier formatter", () => {
   it("fail test remove", () => {
-    fail(true);
+    fail("Should fail for testing");
   });
 
   it("throws error if there is a parsing issue", () => {
