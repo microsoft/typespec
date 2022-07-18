@@ -71,6 +71,7 @@ function main() {
   connection.onRenameRequest(s.rename);
   connection.onPrepareRename(s.prepareRename);
   connection.onFoldingRanges(s.getFoldingRanges);
+  connection.onDocumentSymbol(s.getDocumentSymbols);
   connection.languages.semanticTokens.on(s.buildSemanticTokens);
 
   documents.onDidChangeContent(s.checkChange);

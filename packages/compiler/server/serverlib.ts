@@ -10,6 +10,7 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  DocumentSymbolParams,
   FoldingRange,
   FoldingRangeParams,
   InitializedParams,
@@ -26,6 +27,8 @@ import {
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
+  SymbolInformation,
+  SymbolKind,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
@@ -100,6 +103,7 @@ export interface Server {
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
+  getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -244,6 +248,7 @@ export function createServer(host: ServerHost): Server {
     buildSemanticTokens,
     checkChange,
     getFoldingRanges,
+    getDocumentSymbols,
     log,
   };
 
@@ -259,6 +264,7 @@ export function createServer(host: ServerHost): Server {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
       foldingRangeProvider: true,
+      documentSymbolProvider: true,
       completionProvider: {
         resolveProvider: false,
         triggerCharacters: [".", "@", "/"],
@@ -463,6 +469,45 @@ export function createServer(host: ServerHost): Server {
         });
       }
     }
+  }
+
+  function getNameandSymbolKind(node: Node): { name: string; kind: SymbolKind } | undefined {
+    switch (node.kind) {
+      case SyntaxKind.NamespaceStatement:
+        return { name: node.id.sv, kind: SymbolKind.Namespace };
+      case SyntaxKind.CadlScript:
+        return { name: node.id.sv, kind: SymbolKind.File };
+      case SyntaxKind.EnumStatement:
+        return { name: node.id.sv, kind: SymbolKind.Enum };
+      case SyntaxKind.InterfaceStatement:
+        return { name: node.id.sv, kind: SymbolKind.Interface };
+      case SyntaxKind.OperationStatement:
+        return { name: node.id.sv, kind: SymbolKind.Operator };
+      default:
+        return undefined;
+    }
+  }
+
+  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]> {
+    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const ast = parse(file);
+    const ranges: SymbolInformation[] = [];
+    visitChildren(ast, addRangesForNode);
+
+    function addRangesForNode(node: Node) {
+      const symbolNode = getNameandSymbolKind(node);
+      if (symbolNode !== undefined) {
+        const start = file.getLineAndCharacterOfPosition(node.pos);
+        const end = file.getLineAndCharacterOfPosition(node.end);
+        ranges.push({
+          name: symbolNode.name,
+          kind: symbolNode.kind,
+          location: Location.create(params.textDocument.uri, Range.create(start, end)),
+        });
+      }
+      visitChildren(node, addRangesForNode);
+    }
+    return ranges;
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
