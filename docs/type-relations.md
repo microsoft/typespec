@@ -10,7 +10,7 @@ graph RL
     array["Array<T>"] --> unknown
     tuple["Tuple"] --> array
     numeric --> unknown
-    subgraph numerics[For numeric types, a smaller type can be assigned to a larger one]
+    subgraph numerics[For numeric types, a narrower type can be assigned to a wider one]
       integer --> numeric
         int8 --> integer
         int16 --> integer
@@ -80,7 +80,7 @@ model S {
 
 ## Record<T>
 
-A record is a model indexed with a string with value of T. This means that is represent a model where all properties(string key) are assignable to the type T. You can assign an model expression where all the properties are of type T or another model that `is` also a `Record<T>`
+A record is a model indexed with a string with value of T. This means that it represents a model where all properties(string key) are assignable to the type T. You can assign a model expression where all the properties are of type T or another model that `is` also a `Record<T>`
 
 ```cadl
 // Represent an object where all the values are int32.
@@ -129,7 +129,7 @@ model S {
 
 ```
 
-The reason is `model S` here is not assignable but the model expression `{ foo: 123; bar: 456; }` does, is that model S could be extended with additional properties that could then not be compatible.
+The reason is `model S` here is not assignable but the model expression `{ foo: 123; bar: 456; }` is, is that model S could be extended with additional properties that could then not be compatible.
 
 If you for example now add a new model
 

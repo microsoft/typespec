@@ -710,7 +710,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOptionalModelIs() {
     if (parseOptional(Token.IsKeyword)) {
-      return parseArrayOrReferenceExpression();
+      return parseArrayExpressionOrReferenceExpression();
     }
     return;
   }
@@ -907,7 +907,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return expr;
   }
 
-  function parseArrayOrReferenceExpression(): ArrayExpressionNode | TypeReferenceNode {
+  function parseArrayExpressionOrReferenceExpression(): ArrayExpressionNode | TypeReferenceNode {
     const pos = tokenPos();
     let expr: ArrayExpressionNode | TypeReferenceNode = parseReferenceExpression();
 
