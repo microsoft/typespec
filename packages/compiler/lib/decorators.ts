@@ -696,6 +696,47 @@ export function getKeyName(program: Program, property: ModelTypeProperty): strin
 }
 
 /**
+ * `@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set
+ *
+ * The first argument accepts a string representing the desired default
+ * visibility value.  If a key property already has a `visibility` decorator
+ * then the default visibility is not applied.
+ *
+ * `@withDefaultKeyVisibility` can only be applied to model types.
+ */
+export function $withDefaultKeyVisibility(
+  context: DecoratorContext,
+  entity: Type,
+  visibility: string
+): void {
+  if (!validateDecoratorTarget(context, entity, "@withDefaultKeyVisibility", "Model")) {
+    return;
+  }
+
+  const keyProperties: ModelTypeProperty[] = [];
+  entity.properties.forEach((prop: ModelTypeProperty) => {
+    // Keep track of any key property without a visibility
+    if (isKey(context.program, prop) && !getVisibility(context.program, prop)) {
+      keyProperties.push(prop);
+    }
+  });
+
+  // For each key property without a visibility, clone it and add the specified
+  // default visibility value
+  keyProperties.forEach((keyProp) => {
+    entity.properties.set(
+      keyProp.name,
+      context.program.checker.cloneType(keyProp, {
+        decorators: [
+          ...keyProp.decorators,
+          { decorator: $visibility, args: [{ value: visibility }] },
+        ],
+      })
+    );
+  });
+}
+
+/**
  * Mark a type as deprecated
  * @param context DecoratorContext
  * @param target Decorator target

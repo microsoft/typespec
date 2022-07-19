@@ -108,7 +108,7 @@ model ListSignsResponse {
 }
 
 model SetSignIdForKioskIdsRequest {
-  kiosk_ids: int32[];
+  @body kiosk_ids: int32[];
 
   @path
   sign_id: int32;

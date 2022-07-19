@@ -510,6 +510,17 @@ alias VeryLong =
 `,
       });
     });
+
+    it("keeps parentheses if under an intersection expression", () => {
+      assertFormat({
+        code: `
+alias Foo = (A     | B    ) & C;
+`,
+        expected: `
+alias Foo = (A | B) & C;
+`,
+      });
+    });
   });
 
   describe("alias intersection", () => {
@@ -548,6 +559,17 @@ alias Bar = {
 } & {
   bar: string;
 };
+`,
+      });
+    });
+
+    it("keeps parentheses if under an union expression", () => {
+      assertFormat({
+        code: `
+alias Foo = A  |  (  B     & C);
+`,
+        expected: `
+alias Foo = A | (B & C);
 `,
       });
     });
@@ -1014,6 +1036,28 @@ alias Foo = string       [];
 `,
         expected: `
 alias Foo = string[];
+`,
+      });
+    });
+
+    it("keeps parentheses for array type if necessary(for union)", () => {
+      assertFormat({
+        code: `
+alias Foo = (string     | int32    )  [];
+`,
+        expected: `
+alias Foo = (string | int32)[];
+`,
+      });
+    });
+
+    it("keeps parentheses for array type if necessary(for intersection)", () => {
+      assertFormat({
+        code: `
+alias Foo = (string     & int32    )  [];
+`,
+        expected: `
+alias Foo = (string & int32)[];
 `,
       });
     });

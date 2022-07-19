@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/eslint-plugin",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/eslint-plugin"
+}

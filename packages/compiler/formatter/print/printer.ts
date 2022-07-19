@@ -39,6 +39,7 @@ import {
 } from "../../core/types.js";
 import { isArray } from "../../core/util.js";
 import { commentHandler } from "./comment-handler.js";
+import { needsParens } from "./needs-parens.js";
 import { CadlPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
 
 const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } =
@@ -61,7 +62,8 @@ export function printCadl(
 ): prettier.Doc {
   const directives = printDirectives(path, options, print);
   const node = printNode(path, options, print);
-  return [directives, node];
+  const value = needsParens(path, options) ? ["(", node, ")"] : node;
+  return [directives, value];
 }
 
 export function printNode(
