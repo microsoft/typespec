@@ -83,11 +83,11 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
     return { command: "node", args: [...options, script, ...args] };
   }
 
-  let options: ExecutableOptions | undefined;
+  const options: ExecutableOptions = {
+    env: { ...process.env },
+  };
   if (nodeOptions) {
-    options = {
-      env: { ...process.env, NODE_OPTIONS: nodeOptions },
-    };
+    options.env.NODE_OPTIONS = nodeOptions;
   }
 
   // In production, first try VS Code configuration, which allows a global machine
@@ -123,6 +123,7 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
     }
   }
 
+  options.env["CADL_SKIP_COMPILER_RESOLVE"] = "1";
   return { command: "node", args: [serverPath, ...args], options };
 }
 
