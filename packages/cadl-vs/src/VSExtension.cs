@@ -82,7 +82,7 @@ namespace Microsoft.Cadl.VisualStudio
                 WorkingDirectory = settings?.ScopePath,
             };
 
-            foreach(var entry in env)
+            foreach (var entry in env)
             {
                 info.Environment[entry.Key] = env[entry.Value];
             }

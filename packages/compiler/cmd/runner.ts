@@ -25,7 +25,7 @@ export async function runScript(relativePath: string): Promise<void> {
 }
 
 async function resolvePackageRoot(): Promise<string> {
-  if (process.env.CADL_SKIP_COMPILER_RESOLVE) {
+  if (process.env.CADL_SKIP_COMPILER_RESOLVE === "1") {
     return await getThisPackageRoot();
   }
 

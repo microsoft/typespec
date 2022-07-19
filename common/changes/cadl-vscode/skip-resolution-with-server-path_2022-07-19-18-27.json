@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Providing `cadl.cadl-server.path` option will force the specified compiler to be used",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
