@@ -63,6 +63,12 @@ const libDefinition = {
         default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
       },
     },
+    "optional-path-param": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Path parameter '${"paramName"}' cannot be optional without a default value.`,
+      },
+    },
     "missing-server-param": {
       severity: "error",
       messages: {

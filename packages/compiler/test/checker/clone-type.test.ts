@@ -1,6 +1,6 @@
-import { deepStrictEqual, ok } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
-import { Type } from "../../core/types.js";
+import { DecoratorContext, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: type cloning", () => {
@@ -39,6 +39,19 @@ describe("compiler: type cloning", () => {
       const clone = testHost.program.checker.cloneType(test);
       ok(blues.has(clone!), "the clone is blue");
       deepStrictEqual(test, clone!);
+
+      // Ensure that the cloned decorators list isn't reused directly
+      if ("decorators" in test && "decorators" in clone) {
+        clone.decorators.push({
+          decorator: (_ctx: DecoratorContext, _type: Type) => {
+            // Decorator not executed
+          },
+          args: [],
+        });
+
+        strictEqual(test.decorators.length, 2);
+        strictEqual(clone.decorators.length, 3);
+      }
     });
   }
 });
