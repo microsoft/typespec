@@ -55,7 +55,10 @@ export interface SimpleOperationDetails {
   path: string;
   params: {
     params: Array<{ name: string; type: HttpOperationParameter["type"] }>;
-    body?: string;
+    /**
+     * name of explicit `@body` parameter or array of unannotated parameter names that make up the body.
+     */
+    body?: string | string[];
   };
 }
 
@@ -71,7 +74,11 @@ export async function compileOperations(
       path: r.path,
       params: {
         params: r.parameters.parameters.map(({ type, name }) => ({ type, name })),
-        body: r.parameters.body?.name,
+        body:
+          r.parameters.bodyParameter?.name ??
+          (r.parameters.bodyType?.kind === "Model"
+            ? Array.from(r.parameters.bodyType.properties.keys())
+            : undefined),
       },
     };
   });
