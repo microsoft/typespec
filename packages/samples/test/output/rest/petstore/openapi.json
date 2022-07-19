@@ -72,27 +72,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "tag": {
-                    "type": "string"
-                  },
-                  "age": {
-                    "type": "integer",
-                    "format": "int32",
-                    "minimum": 0,
-                    "maximum": 20
-                  },
-                  "ownerId": {
-                    "type": "integer",
-                    "format": "int64"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Pet>>"
+                "$ref": "#/components/schemas/PetUpdate"
               }
             }
           }
@@ -164,7 +144,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Pet"
+                "$ref": "#/components/schemas/PetCreate"
               }
             }
           }
@@ -246,7 +226,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Checkup"
+                "$ref": "#/components/schemas/CheckupUpdate"
               }
             }
           }
@@ -352,22 +332,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string"
-                  },
-                  "premium": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "deductible": {
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Insurance>>"
+                "$ref": "#/components/schemas/InsuranceUpdate"
               }
             }
           }
@@ -522,22 +487,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string"
-                  },
-                  "premium": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "deductible": {
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Insurance>>"
+                "$ref": "#/components/schemas/InsuranceUpdate"
               }
             }
           }
@@ -589,7 +539,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Checkup"
+                "$ref": "#/components/schemas/CheckupUpdate"
               }
             }
           }
@@ -691,18 +641,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "age": {
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Owner>>"
+                "$ref": "#/components/schemas/OwnerUpdate"
               }
             }
           }
@@ -774,7 +713,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Owner"
+                "$ref": "#/components/schemas/OwnerCreate"
               }
             }
           }
@@ -856,7 +795,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Checkup"
+                "$ref": "#/components/schemas/CheckupUpdate"
               }
             }
           }
@@ -962,22 +901,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string"
-                  },
-                  "premium": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "deductible": {
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Insurance>>"
+                "$ref": "#/components/schemas/InsuranceUpdate"
               }
             }
           }
@@ -1072,6 +996,55 @@
           "message"
         ]
       },
+      "PetUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "The template for adding optional properties."
+      },
+      "PetCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "The template for adding updateable properties.",
+        "required": [
+          "name",
+          "age",
+          "ownerId"
+        ]
+      },
       "Rest.Resource.Page_Pet": {
         "type": "object",
         "properties": {
@@ -1092,6 +1065,18 @@
         "required": [
           "value"
         ]
+      },
+      "CheckupUpdate": {
+        "type": "object",
+        "properties": {
+          "vetName": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "description": "The template for adding optional properties."
       },
       "Checkup": {
         "type": "object",
@@ -1155,6 +1140,23 @@
           "deductible"
         ]
       },
+      "InsuranceUpdate": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "premium": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deductible": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "The template for adding optional properties."
+      },
       "Toy": {
         "type": "object",
         "properties": {
@@ -1214,6 +1216,36 @@
         },
         "required": [
           "id",
+          "name",
+          "age"
+        ]
+      },
+      "OwnerUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "The template for adding optional properties."
+      },
+      "OwnerCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "The template for adding updateable properties.",
+        "required": [
           "name",
           "age"
         ]
