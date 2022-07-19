@@ -1,6 +1,6 @@
 # Cadl HTTP/Rest Library
 
-This package provides [Cadl](htps://github.com/microsoft/Cadl) decorators to describe HTTP and REST API.
+This package provides [Cadl](htps://github.com/microsoft/Cadl) decorators, models, and interfaces to describe HTTP and REST API. With fundamental models and decorators defined in Cadl.Http namespace, you will be able describe basic http level operations. Cadl.Rest namespace adds additional predefined models and interfaces. These building blocks make defining REST resources and operations based on standard patterns extremely simple.
 
 ## Install
 
@@ -33,34 +33,33 @@ See [Rest section in the tutorial](../../docs/tutorial.md#rest-apis)
 ## Models
 
 - ### HTTP namespace
-  | Model                                                                | Notes                                                                |
-  | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
-  | Response<Status>                                                     | <Status> is numerical status code.                                   |
-  | OkResponse<T>                                                        | Response<200> with T as the response body model type.                |
-  | LocationHeader                                                       | Location header                                                      |
-  | CreatedResponse                                                      | Response<201>                                                        |
-  | AcceptedResponse                                                     | Response<202>                                                        |
-  | NoContentResponse                                                    | Response<204>                                                        |
-  | MovedResponse                                                        | Response<301> with LocationHeader for redirected URL                 |
-  | NotModifiedResponse                                                  | Response<304>                                                        |
-  | UnauthorizedResponse                                                 | Response<401>                                                        |
-  | NotFoundResponse                                                     | Response<404>                                                        |
-  | ConflictResponse                                                     | Response<409>                                                        |
-  | PlainData<T>                                                         | Produces a new model with the same properties as T, but with @query, |
-  | // @header, @body, and @path decorators removed from all properties. |
+  | Model                | Notes                                                                                                                                  |
+  | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+  | Response&lt;Status>  | <Status> is numerical status code.                                                                                                     |
+  | OkResponse&lt;T>     | Response<200> with T as the response body model type.                                                                                  |
+  | LocationHeader       | Location header                                                                                                                        |
+  | CreatedResponse      | Response&lt;201>                                                                                                                       |
+  | AcceptedResponse     | Response&lt;202>                                                                                                                       |
+  | NoContentResponse    | Response&lt;204>                                                                                                                       |
+  | MovedResponse        | Response<301> with LocationHeader for redirected URL                                                                                   |
+  | NotModifiedResponse  | Response&lt;304>                                                                                                                       |
+  | UnauthorizedResponse | Response&lt;401>                                                                                                                       |
+  | NotFoundResponse     | Response&lt;404>                                                                                                                       |
+  | ConflictResponse     | Response&lt;409>                                                                                                                       |
+  | PlainData&lt;T>      | Produces a new model with the same properties as T, but with @query, @header, @body, and @path decorators removed from all properties. |
 - ### REST namespace
-  | Model                                   | Notes |
-  | --------------------------------------- | ----- |
-  | ResourceError                           |       |
-  | KeysOf<T>                               |       |
-  | ParentKeysOf<T>                         |       |
-  | ResourceParameters<TResource>           |       |
-  | ResourceCollectionParameters<TResource> |       |
-  | ResourceCreatedResponse<T>              |       |
-  | ResourceCreateOrUpdateModel<TResource>  |       |
-  | ResourceCreateModel<TResource>          |       |
-  | ResourceDeletedResponse                 |       |
-  | Page<T>                                 |       |
+  | Model                                      | Notes |
+  | ------------------------------------------ | ----- |
+  | ResourceError                              |       |
+  | KeysOf&lt;T>                               |       |
+  | ParentKeysOf&lt;T>                         |       |
+  | ResourceParameters&lt;TResource>           |       |
+  | ResourceCollectionParameters&lt;TResource> |       |
+  | ResourceCreatedResponse&lt;T>              |       |
+  | ResourceCreateOrUpdateModel&lt;TResource>  |       |
+  | ResourceCreateModel&lt;TResource>          |       |
+  | ResourceDeletedResponse                    |       |
+  | Page&lt;T>                                 |       |
 
 ## Types
 
@@ -192,29 +191,29 @@ auto-generated routes.
 - ### HTTP namespace
   None
 - ### REST namespace
-  | Interfaces                                                           | Notes                                                                                          |
-  | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-  | ResourceRead<TResource, TError>                                      | Resource GET operation                                                                         |
-  | ResourceCreateOrUpdate<TResource, TError>                            | Resource PUT operation                                                                         |
-  | ResourceCreate<TResource, TError>                                    | Resource POST operation                                                                        |
-  | ResourceUpdate<TResource, TError>                                    | Resource PATCH operation                                                                       |
-  | ResourceDelete<TResource, TError>                                    | Resource DEL operation                                                                         |
-  | ResourceList<TResource, TError>                                      | Resource LIST operation which is a GET operation from a parent resource.                       |
-  | ResourceInstanceOperations<TResource, TError>                        | Combines resource GET + PATCH + DEL operations                                                 |
-  | ResourceCollectionOperations<TResource, TError>                      | Combines resource POST + LIST operations                                                       |
-  | ResourceOperations<TResource, TError>                                | Combines resource instance and collection operations. Includes GET + PATCH + DEL + POST + LIST |
-  | SingletonResourceRead<TSingleton, TResource, TError>                 |                                                                                                |
-  | SingletonResourceUpdate<TSingleton, TResource, TError>               |                                                                                                |
-  | SingletonResourceOperations<TSingleton, TResource, TError>           |                                                                                                |
-  | ExtensionResourceRead<TExtension, TResource, TError>                 |                                                                                                |
-  | ExtensionResourceCreateOrUpdate<TExtension, TResource, TError>       |                                                                                                |
-  | ExtensionResourceCreate<TExtension, TResource, TError>               |                                                                                                |
-  | ExtensionResourceUpdate<TExtension, TResource, TError>               |                                                                                                |
-  | ExtensionResourceDelete<TExtension, TResource, TError>               |                                                                                                |
-  | ExtensionResourceList<TExtension, TResource, TError>                 |                                                                                                |
-  | ExtensionResourceInstanceOperations<TExtension, TResource, TError>   |                                                                                                |
-  | ExtensionResourceCollectionOperations<TExtension, TResource, TError> |                                                                                                |
-  | ExtensionResourceOperations<TExtension, TResource, TError>           |                                                                                                |
+  | Interfaces                                                              | Notes                                                                                          |
+  | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+  | ResourceRead&lt;TResource, TError>                                      | Resource GET operation                                                                         |
+  | ResourceCreateOrUpdate&lt;TResource, TError>                            | Resource PUT operation                                                                         |
+  | ResourceCreate&lt;TResource, TError>                                    | Resource POST operation                                                                        |
+  | ResourceUpdate&lt;TResource, TError>                                    | Resource PATCH operation                                                                       |
+  | ResourceDelete&lt;TResource, TError>                                    | Resource DEL operation                                                                         |
+  | ResourceList&lt;TResource, TError>                                      | Resource LIST operation which is a GET operation from a parent resource.                       |
+  | ResourceInstanceOperations&lt;TResource, TError>                        | Combines resource GET + PATCH + DEL operations                                                 |
+  | ResourceCollectionOperations&lt;TResource, TError>                      | Combines resource POST + LIST operations                                                       |
+  | ResourceOperations&lt;TResource, TError>                                | Combines resource instance and collection operations. Includes GET + PATCH + DEL + POST + LIST |
+  | SingletonResourceRead&lt;TSingleton, TResource, TError>                 |                                                                                                |
+  | SingletonResourceUpdate&lt;TSingleton, TResource, TError>               |                                                                                                |
+  | SingletonResourceOperations&lt;TSingleton, TResource, TError>           |                                                                                                |
+  | ExtensionResourceRead&lt;TExtension, TResource, TError>                 |                                                                                                |
+  | ExtensionResourceCreateOrUpdate&lt;TExtension, TResource, TError>       |                                                                                                |
+  | ExtensionResourceCreate&lt;TExtension, TResource, TError>               |                                                                                                |
+  | ExtensionResourceUpdate&lt;TExtension, TResource, TError>               |                                                                                                |
+  | ExtensionResourceDelete&lt;TExtension, TResource, TError>               |                                                                                                |
+  | ExtensionResourceList&lt;TExtension, TResource, TError>                 |                                                                                                |
+  | ExtensionResourceInstanceOperations&lt;TExtension, TResource, TError>   |                                                                                                |
+  | ExtensionResourceCollectionOperations&lt;TExtension, TResource, TError> |                                                                                                |
+  | ExtensionResourceOperations&lt;TExtension, TResource, TError>           |                                                                                                |
 
 ## See also
 
