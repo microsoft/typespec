@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { ModelType } from "../../core/index.js";
+import { getVisibility, ModelType } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
@@ -369,6 +369,44 @@ describe("compiler: built-in decorators", () => {
 
       const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
       deepStrictEqual(properties, ["notMe"]);
+    });
+  });
+
+  describe("@withDefaultKeyVisibility", () => {
+    it("sets the default visibility on a key property when not already present", async () => {
+      const { TestModel } = (await runner.compile(
+        `
+        model OriginalModel {
+          @key
+          name: string;
+        }
+
+        @test
+        model TestModel is DefaultKeyVisibility<OriginalModel, "read"> {
+        } `
+      )) as { TestModel: ModelType };
+
+      deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), ["read"]);
+    });
+
+    it("allows visibility applied to a key property to override the default", async () => {
+      const { TestModel } = (await runner.compile(
+        `
+        model OriginalModel {
+          @key
+          @visibility("read", "update")
+          name: string;
+        }
+
+        @test
+        model TestModel is DefaultKeyVisibility<OriginalModel, "create"> {
+        } `
+      )) as { TestModel: ModelType };
+
+      deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), [
+        "read",
+        "update",
+      ]);
     });
   });
 
