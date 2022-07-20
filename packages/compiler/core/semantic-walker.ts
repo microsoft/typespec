@@ -87,7 +87,6 @@ function navigateOperationType(
   navigateType(operation.returnType, eventEmitter, visited);
 }
 
-// TODO-TIM navigate indexer
 function navigateModelType(
   model: ModelType,
   eventEmitter: EventEmitter<SemanticNodeListener>,
@@ -102,6 +101,9 @@ function navigateModelType(
   }
   if (model.baseModel) {
     navigateModelType(model.baseModel, eventEmitter, visited);
+  }
+  if (model.indexer && model.indexer.value) {
+    navigateType(model.indexer.value, eventEmitter, visited);
   }
   eventEmitter.emit("exitModel", model);
 }

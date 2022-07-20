@@ -710,7 +710,20 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOptionalModelIs() {
     if (parseOptional(Token.IsKeyword)) {
-      return parseArrayExpressionOrReferenceExpression();
+      const pos = tokenPos();
+      let expr: ArrayExpressionNode | TypeReferenceNode = parseReferenceExpression();
+
+      while (parseOptional(Token.OpenBracket)) {
+        parseExpected(Token.CloseBracket);
+
+        expr = {
+          kind: SyntaxKind.ArrayExpression,
+          elementType: expr,
+          ...finishNode(pos),
+        };
+      }
+
+      return expr;
     }
     return;
   }
@@ -907,23 +920,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return expr;
   }
 
-  function parseArrayExpressionOrReferenceExpression(): ArrayExpressionNode | TypeReferenceNode {
-    const pos = tokenPos();
-    let expr: ArrayExpressionNode | TypeReferenceNode = parseReferenceExpression();
-
-    while (parseOptional(Token.OpenBracket)) {
-      parseExpected(Token.CloseBracket);
-
-      expr = {
-        kind: SyntaxKind.ArrayExpression,
-        elementType: expr,
-        ...finishNode(pos),
-      };
-    }
-
-    return expr;
-  }
-
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
   ): TypeReferenceNode {
@@ -1083,7 +1079,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         case Token.NeverKeyword:
           return parseNeverKeyword();
         case Token.UnknownKeyword:
-          return parseAnyKeyword();
+          return parseUnknownKeyword();
         default:
           return parseReferenceExpression("expression");
       }
@@ -1108,7 +1104,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseAnyKeyword(): AnyKeywordNode {
+  function parseUnknownKeyword(): AnyKeywordNode {
     const pos = tokenPos();
     parseExpected(Token.UnknownKeyword);
     return {
@@ -1578,7 +1574,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       case Token.NeverKeyword:
         return parseNeverKeyword();
       case Token.UnknownKeyword:
-        return parseAnyKeyword();
+        return parseUnknownKeyword();
       default:
         return parseIdentifier("expression");
     }

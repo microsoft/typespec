@@ -222,19 +222,14 @@ const tupleExpression: BeginEndRule = {
   key: "tuple-expression",
   scope: meta,
   begin: "\\[",
-  end: "\\]",
-  patterns: [expression],
-};
-
-const arrayExpression: MatchRule = {
-  key: "array-expression",
-  scope: meta,
-  match: `(${identifier})(\\[)(\\])`,
-  captures: {
-    "1": expression,
-    "2": { scope: "punctuation.squarebracket.open.cadl" },
-    "3": { scope: "punctuation.squarebracket.close.cadl" },
+  beginCaptures: {
+    "0": { scope: "punctuation.squarebracket.open.cadl" },
   },
+  end: "\\]",
+  endCaptures: {
+    "0": { scope: "punctuation.squarebracket.close.cadl" },
+  },
+  patterns: [expression],
 };
 
 const typeAnnotation: BeginEndRule = {
@@ -532,7 +527,6 @@ expression.patterns = [
   directive,
   parenthesizedExpression,
   typeArguments,
-  arrayExpression,
   tupleExpression,
   modelExpression,
   identifierExpression,

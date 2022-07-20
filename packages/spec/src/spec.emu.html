@@ -287,7 +287,7 @@ ModelStatement :
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
 IsModelHeritage :
-    `is` ReferenceExpression
+    `is` ReferenceExpression`[]`?
 
 ExtendsModelHeritage :
     `extends` ReferenceExpression
