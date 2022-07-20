@@ -13,9 +13,9 @@ describe("openapi3: schema", () => {
       `
     );
     deepStrictEqual(res.components.schemas.Thing.properties.properties, {
-      "$ref":"#/components/schemas/Thing",
-      "nullable": true,
-      "x-cadl-name": "Thing | null"
+      $ref: "#/components/schemas/Thing",
+      nullable: true,
+      "x-cadl-name": "Thing | null",
     });
   });
-})
+});
