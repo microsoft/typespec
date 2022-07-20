@@ -2356,10 +2356,16 @@ export function createChecker(program: Program): Checker {
       const memberNames = new Set<string>();
 
       for (const member of node.members) {
-        const memberType = checkEnumMember(enumType, member, memberNames);
-        if (memberType) {
-          memberNames.add(memberType.name);
-          enumType.members.push(memberType);
+        if (member.kind === SyntaxKind.EnumMember) {
+          const memberType = checkEnumMember(enumType, member, memberNames);
+          if (memberType) {
+            enumType.members.push(memberType);
+          }
+        } else {
+          const members = checkEnumSpreadMember(enumType, member.target, memberNames);
+          for (const memberType of members) {
+            enumType.members.push(memberType);
+          }
         }
       }
 
@@ -2563,6 +2569,7 @@ export function createChecker(program: Program): Checker {
       );
       return;
     }
+    existingMemberNames.add(name);
     return createAndFinishType({
       kind: "EnumMember",
       enum: parentEnum,
@@ -2571,6 +2578,44 @@ export function createChecker(program: Program): Checker {
       value,
       decorators,
     });
+  }
+
+  function checkEnumSpreadMember(
+    parentEnum: EnumType,
+    targetNode: TypeReferenceNode,
+    existingMemberNames: Set<string>
+  ): EnumMemberType[] {
+    const members: EnumMemberType[] = [];
+    const targetType = getTypeForNode(targetNode);
+
+    if (!isErrorType(targetType)) {
+      if (targetType.kind !== "Enum") {
+        program.reportDiagnostic(createDiagnostic({ code: "spread-enum", target: targetNode }));
+        return members;
+      }
+
+      for (const member of targetType.members) {
+        if (existingMemberNames.has(member.name)) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "enum-member-duplicate",
+              format: { name: member.name },
+              target: targetNode,
+            })
+          );
+        } else {
+          existingMemberNames.add(member.name);
+          const clonedMember = cloneType(member, {
+            enum: parentEnum,
+          });
+          if (clonedMember) {
+            members.push(clonedMember);
+          }
+        }
+      }
+    }
+
+    return members;
   }
 
   // the types here aren't ideal and could probably be refactored.

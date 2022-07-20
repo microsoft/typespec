@@ -444,6 +444,7 @@ export enum SyntaxKind {
   UnionVariant,
   EnumStatement,
   EnumMember,
+  EnumSpreadMember,
   AliasStatement,
   UnionExpression,
   IntersectionExpression,
@@ -551,6 +552,7 @@ export type Node =
   | OperationSignatureDeclarationNode
   | OperationSignatureReferenceNode
   | EnumMemberNode
+  | EnumSpreadMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | DirectiveExpressionNode
@@ -768,7 +770,7 @@ export interface UnionVariantNode extends BaseNode {
 
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
-  readonly members: readonly EnumMemberNode[];
+  readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
@@ -777,6 +779,11 @@ export interface EnumMemberNode extends BaseNode {
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value?: StringLiteralNode | NumericLiteralNode;
   readonly decorators: readonly DecoratorExpressionNode[];
+}
+
+export interface EnumSpreadMemberNode extends BaseNode {
+  readonly kind: SyntaxKind.EnumSpreadMember;
+  readonly target: TypeReferenceNode;
 }
 
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
