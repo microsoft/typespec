@@ -1,5 +1,5 @@
-import { ok } from "assert";
-import { ModelType } from "../../core/index.js";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { isNeverIndexer, ModelType } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -66,7 +66,7 @@ describe("compiler: checker: type relations", () => {
         }`);
       expectDiagnostics(diagnostics, {
         code: "no-prop",
-        message: "Property 'prop1' cannot be defined on type with 'never' index",
+        message: "Property 'prop1' cannot be defined because model cannot hold properties.",
       });
     });
 
@@ -81,13 +81,46 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
+    it("can intersect 2 record", async () => {
+      const { Bar } = (await runner.compile(`
+        alias Foo = Record<{foo: string}> & Record<{bar: string}>;
+        @test model Bar {foo: Foo}
+      `)) as { Bar: ModelType };
+      const Foo = Bar.properties.get("foo")!.type as ModelType;
+      ok(Foo.indexer);
+      ok(!isNeverIndexer(Foo.indexer));
+      const indexValue = Foo.indexer.value;
+      strictEqual(indexValue.kind, "Model" as const);
+      deepStrictEqual([...indexValue.properties.keys()], ["foo", "bar"]);
+    });
+
     it("cannot intersect model with properties and a primitive type", async () => {
       const diagnostics = await runner.diagnose(`
         alias A = string & {prop1: string};
       `);
       expectDiagnostics(diagnostics, {
         code: "intersect-invalid-index",
-        message: "Cannot intersect model types with different index types 'never' and  '(none)'",
+        message: "Cannot intersect a model that cannot hold properties.",
+      });
+    });
+
+    it("cannot intersect array and Record", async () => {
+      const diagnostics = await runner.diagnose(`
+        alias A = string[] & Record<string>;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "intersect-invalid-index",
+        message: "Cannot intersect an array model.",
+      });
+    });
+
+    it("cannot intersect array and model", async () => {
+      const diagnostics = await runner.diagnose(`
+        alias A = string[] & {prop1: string};
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "intersect-invalid-index",
+        message: "Cannot intersect an array model.",
       });
     });
   });

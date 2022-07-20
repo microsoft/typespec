@@ -227,7 +227,9 @@ const diagnostics = {
   "intersect-invalid-index": {
     severity: "error",
     messages: {
-      default: paramMessage`Cannot intersect model types with different index types '${"indexer1"}' and  '${"indexer2"}'`,
+      default: "Cannot intersect incompatible models.",
+      never: "Cannot intersect a model that cannot hold properties.",
+      array: "Cannot intersect an array model.",
     },
   },
   "intersect-duplicate-property": {
@@ -304,6 +306,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Cannot spread properties of non-model type.",
+      neverIndex: "Cannot spread type because it cannot hold properties.",
     },
   },
   "unsupported-default": {
@@ -322,7 +325,7 @@ const diagnostics = {
   "no-prop": {
     severity: "error",
     messages: {
-      default: paramMessage`Property '${"propName"}' cannot be defined on type with 'never' index`,
+      default: paramMessage`Property '${"propName"}' cannot be defined because model cannot hold properties.`,
     },
   },
   "missing-index": {

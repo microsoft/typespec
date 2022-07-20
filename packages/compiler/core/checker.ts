@@ -16,7 +16,9 @@ import {
   isVoidType,
   JsSourceFileNode,
   ModelIndexer,
+  ModelKeyIndexer,
   ModelSpreadPropertyNode,
+  NeverIndexer,
   NeverType,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
@@ -1002,6 +1004,17 @@ export function createChecker(program: Program): Checker {
    */
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
     const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o)]);
+    return mergeModelTypes(node, options);
+  }
+
+  function mergeModelTypes(
+    node:
+      | ModelStatementNode
+      | ModelExpressionNode
+      | IntersectionExpressionNode
+      | ProjectionModelExpressionNode,
+    options: [Node, Type][]
+  ) {
     const properties = new Map<string, ModelTypeProperty>();
 
     const intersection: ModelType = createType({
@@ -1013,8 +1026,7 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
     });
 
-    const initialValue = Symbol("initialValue");
-    let indexer: ModelIndexer | typeof initialValue | undefined = initialValue;
+    const indexers: ModelKeyIndexer[] = [];
     for (const [optionNode, option] of options) {
       if (option.kind === "TemplateParameter") {
         continue;
@@ -1025,19 +1037,38 @@ export function createChecker(program: Program): Checker {
         );
         continue;
       }
-      if (indexer !== initialValue && !areCompatibleIndexers(indexer, option.indexer)) {
-        program.reportDiagnostic(
-          createDiagnostic({
+
+      if (option.indexer) {
+        if (isNeverIndexer(option.indexer)) {
+          reportDiagnostic(program, {
             code: "intersect-invalid-index",
+            messageId: "never",
             target: optionNode,
-            format: {
-              indexer1: indexer?.key.name ?? "(none)",
-              indexer2: option.indexer?.key.name ?? "(none)",
-            },
-          })
-        );
+          });
+        } else if (option.indexer.key.name === "integer") {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "intersect-invalid-index",
+              messageId: "array",
+              target: optionNode,
+            })
+          );
+        } else {
+          indexers.push(option.indexer);
+        }
       }
-      indexer = option.indexer;
+      if (indexers.length === 1) {
+        intersection.indexer = indexers[0];
+      } else if (indexers.length > 1) {
+        intersection.indexer = {
+          key: indexers[0].key,
+          value: mergeModelTypes(
+            node,
+            indexers.map((x) => [x.value.node!, x.value])
+          ),
+        };
+      }
+
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -1060,17 +1091,6 @@ export function createChecker(program: Program): Checker {
     }
 
     return finishType(intersection);
-  }
-
-  function areCompatibleIndexers(
-    indexer1: ModelIndexer | undefined,
-    indexer2: ModelIndexer | undefined
-  ) {
-    const indexer1Key = indexer1?.key;
-    const indexer2Key = indexer2?.key;
-    // Cannot intersect model with a never index.
-    if (indexer1Key === neverType || indexer2Key === neverType) return false;
-    return indexer1Key === indexer2Key || indexer1Key === undefined || indexer2Key === undefined;
   }
 
   function checkArrayExpression(node: ArrayExpressionNode): ModelType {
@@ -2209,25 +2229,32 @@ export function createChecker(program: Program): Checker {
     targetNode: TypeReferenceNode,
     parentModel: ModelType
   ): ModelTypeProperty[] {
-    const props: ModelTypeProperty[] = [];
     const targetType = getTypeForNode(targetNode);
 
-    if (targetType.kind != "TemplateParameter" && !isErrorType(targetType)) {
-      if (targetType.kind !== "Model") {
-        program.reportDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
-        return props;
-      }
-
-      // copy each property
-      for (const prop of walkPropertiesInherited(targetType)) {
-        const newProp = cloneType(prop, {
-          sourceProperty: prop,
-          model: parentModel,
-        });
-        props.push(newProp);
-      }
+    if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
+      return [];
+    }
+    if (targetType.kind !== "Model") {
+      program.reportDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
+      return [];
     }
 
+    if (targetType.indexer && isNeverIndexer(targetType.indexer)) {
+      program.reportDiagnostic(
+        createDiagnostic({ code: "spread-model", messageId: "neverIndex", target: targetNode })
+      );
+      return [];
+    }
+
+    const props: ModelTypeProperty[] = [];
+    // copy each property
+    for (const prop of walkPropertiesInherited(targetType)) {
+      const newProp = cloneType(prop, {
+        sourceProperty: prop,
+        model: parentModel,
+      });
+      props.push(newProp);
+    }
     return props;
   }
 
@@ -4115,8 +4142,6 @@ function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined 
   return property?.model;
 }
 
-export function isNeverIndexer(
-  indexer: ModelIndexer
-): indexer is { key: NeverType; value: undefined } {
+export function isNeverIndexer(indexer: ModelIndexer): indexer is NeverIndexer {
   return isNeverType(indexer.key);
 }

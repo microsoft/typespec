@@ -153,12 +153,12 @@ export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = 
   name: T;
 };
 
-export type ModelIndexer =
-  | {
-      key: ModelType;
-      value: Type;
-    }
-  | { key: NeverType; value: undefined };
+export type NeverIndexer = { key: NeverType; value: undefined };
+export type ModelKeyIndexer = {
+  key: ModelType;
+  value: Type;
+};
+export type ModelIndexer = ModelKeyIndexer | NeverIndexer;
 
 export interface ArrayModelType extends ModelType {
   indexer: { key: ModelType; value: Type };
