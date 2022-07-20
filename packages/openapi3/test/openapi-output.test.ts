@@ -1,11 +1,52 @@
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import {
   createOpenAPITestRunner,
   diagnoseOpenApiFor,
   oapiForModel,
   openApiFor,
 } from "./test-host.js";
+
+describe("openapi3: output file", () => {
+  async function rawOpenApiFor(code: string, options: OpenAPI3EmitterOptions): Promise<string> {
+    const runner = await createOpenAPITestRunner();
+
+    const outPath = "openapi.json";
+
+    await runner.compile(code, {
+      noEmit: false,
+      emitters: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+    });
+
+    return runner.fs.get(outPath)!;
+  }
+
+  // Content of an empty spec
+  const expectedEmptySpec = [
+    "{",
+    `  "openapi": "3.0.0",`,
+    `  "info": {`,
+    `    "title": "(title)",`,
+    `    "version": "0000-00-00"`,
+    `  },`,
+    `  "tags": [],`,
+    `  "paths": {},`,
+    `  "components": {}`,
+    "}",
+    "",
+  ];
+
+  it("emit LF line endings by default", async () => {
+    const output = await rawOpenApiFor("", {});
+    strictEqual(output, expectedEmptySpec.join("\n"));
+  });
+
+  it("emit CRLF when configured", async () => {
+    const output = await rawOpenApiFor("", { "new-line": "crlf" });
+    strictEqual(output, expectedEmptySpec.join("\r\n"));
+  });
+});
 
 describe("openapi3: definitions", () => {
   it("defines models", async () => {
