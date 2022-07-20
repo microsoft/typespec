@@ -181,17 +181,17 @@ The responses object maps a HTTP response code to the expected response.
 
 In Cadl, operation responses are defined by the return types of the `op`. The status code for a response can be specified as a property in the return type with the `@statusCode` decorator (the property name is ignored). The Cadl.Http package also defines several standard response types:
 
-| OpenAPI response | Cadl construct         | Notes                                |
-| ---------------- | ---------------------- | ------------------------------------ |
-| `200`            | `OkResponse<T>`        | `T` specifies the response body type |
-| `201`            | `CreatedResponse`      | Probably should have `T` parameter   |
-| `202`            | `AcceptedResponse`     |                                      |
-| `204`            | `NoContentResponse`    |                                      |
-| `301`            | `MovedResponse`        |                                      |
-| `304`            | `NotModifiedResponse`  |                                      |
-| `401`            | `UnauthorizedResponse` |                                      |
-| `404`            | `NotFoundResponse`     |                                      |
-| `409`            | `ConflictResponse`     |                                      |
+| OpenAPI response | Cadl construct         |
+| ---------------- | ---------------------- |
+| `200`            | `OkResponse`           |
+| `201`            | `CreatedResponse`      |
+| `202`            | `AcceptedResponse`     |
+| `204`            | `NoContentResponse`    |
+| `301`            | `MovedResponse`        |
+| `304`            | `NotModifiedResponse`  |
+| `401`            | `UnauthorizedResponse` |
+| `404`            | `NotFoundResponse`     |
+| `409`            | `ConflictResponse`     |
 
 If a return type does not contain a `statusCode`, it is assumed to be the `200` response.
 

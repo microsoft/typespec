@@ -694,7 +694,7 @@ describe("openapi3: definitions", () => {
     });
   });
 
-  it("defines response bodies unioned in OkResponse as unions of models", async () => {
+  it("defines response bodies unioned and intersected with OkResponse as unions of models", async () => {
     const openApi = await openApiFor(`
       model Cat {
         meow: int32;
@@ -704,7 +704,7 @@ describe("openapi3: definitions", () => {
       }
       @route("/")
       namespace root {
-        op read(): OkResponse<Cat | Dog>;
+        op read(): OkResponse & Body<Cat | Dog>;
       }
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");

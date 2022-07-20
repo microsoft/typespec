@@ -11,7 +11,7 @@ namespace Root {
 
     @route("subsub")
     namespace SubSubA {
-      @post op doSomething(@body thing: Thing): OkResponse<string>;
+      @post op doSomething(@body thing: Thing): OkResponse & Body<string>;
 
       // Doesn't conflict with parent namespace!
       model Thing {
