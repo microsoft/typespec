@@ -106,6 +106,16 @@ model Dog extends Animal {}
 
 ```
 
+```CSharp
+// C#
+class Animal {
+  Public string Species { Get; Set; }
+}
+
+class Dog : Animal {
+}
+```
+
 #### Is
 
 Sometimes you want to copy all aspects of a type without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It is like spread, but also copies [decorators](#Decorators) in addition to properties. One common use case is to give a better name to a [template](#Templates) instantiation:
