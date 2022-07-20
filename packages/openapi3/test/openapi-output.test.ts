@@ -1,3 +1,4 @@
+import { resolvePath } from "@cadl-lang/compiler";
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
@@ -12,7 +13,7 @@ describe("openapi3: output file", () => {
   async function rawOpenApiFor(code: string, options: OpenAPI3EmitterOptions): Promise<string> {
     const runner = await createOpenAPITestRunner();
 
-    const outPath = "openapi.json";
+    const outPath = resolvePath("/openapi.json");
 
     await runner.compile(code, {
       noEmit: false,
