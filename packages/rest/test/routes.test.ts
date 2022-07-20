@@ -219,6 +219,32 @@ describe("rest: routes", () => {
     ]);
   });
 
+  it("models with non-required key property will produce required path parameter for key", async () => {
+    const [routes, diagnostics] = await compileOperations(`
+      using Cadl.Rest.Resource;
+
+      namespace Things {
+        model Thing {
+          @key
+          @segment("things")
+          thingId?: string;
+        }
+
+        @autoRoute
+        @get op GetThingWithParams(...KeysOf<Thing>): string;
+      }
+      `);
+
+    deepStrictEqual(routes, [
+      {
+        verb: "get",
+        path: "/things/{thingId}",
+        params: { body: undefined, params: [{ name: "thingId", type: "path" }] },
+      },
+    ]);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   it("autoRoute operations filter out path parameters with a string literal type", async () => {
     const routes = await getRoutesFor(
       `
