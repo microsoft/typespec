@@ -99,7 +99,7 @@ describe("compiler: syntax", () => {
     ]);
 
     parseErrorEach([
-      ["model Car is { }", [/Identifier expected/]],
+      ["model Car is { }", [/';', or '{' expected./]],
       ["model Car is Foo extends Bar { }", [/'{' expected/]],
       ["model Car extends Bar is Foo { }", [/'{' expected/]],
       ["model Car { withDefaultMissing?: string =  }", [/Expression expected/]],
@@ -123,9 +123,9 @@ describe("compiler: syntax", () => {
       "model foo<T> extends bar.baz<T> { }",
     ]);
     parseErrorEach([
-      ["model foo extends { }", [/Identifier expected/]],
+      ["model foo extends { }", [/'{' expected/]],
       ["model foo extends bar, baz { }", [/'{' expected/]],
-      ["model foo extends = { }", [/Identifier expected/]],
+      ["model foo extends = { }", [/Expression expected/]],
       ["model foo extends bar = { }", [/'{' expected/]],
     ]);
   });

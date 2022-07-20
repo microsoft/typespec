@@ -760,8 +760,8 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ModelStatement;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
-  readonly extends?: TypeReferenceNode;
-  readonly is?: TypeReferenceNode | ArrayExpressionNode;
+  readonly extends?: Expression;
+  readonly is?: Expression;
   readonly decorators: DecoratorExpressionNode[];
 }
 

@@ -1,4 +1,5 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
+import { isArrayModelType } from "../../core/index.js";
 import { isTemplate } from "../../core/semantic-walker.js";
 import { ModelType, ModelTypeProperty, Type } from "../../core/types.js";
 import {
@@ -303,6 +304,20 @@ describe("compiler: models", () => {
       strictEqual(Pet.derivedModels[3], Dog);
     });
 
+    it("emit error when extends non model", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A extends (string | int32) {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "extend-model",
+        message: "Models must extend other models.",
+      });
+    });
+
     it("emit error when extends itself", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -407,6 +422,31 @@ describe("compiler: models", () => {
       strictEqual(A.derivedModels[1], C);
     });
 
+    it("model is accept array expression", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        import "./dec.js";
+        @test model A is string[];
+        `
+      );
+      const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+      ok(isArrayModelType(testHost.program, A));
+    });
+
+    it("model is accept array expression of complex type", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        import "./dec.js";
+        @test model A is (string | int32)[];
+        `
+      );
+      const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+      ok(isArrayModelType(testHost.program, A));
+      strictEqual(A.indexer.value.kind, "Union");
+    });
+
     it("doesn't allow duplicate properties", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -419,6 +459,20 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.cadl");
       strictEqual(diagnostics.length, 1);
       match(diagnostics[0].message, /Model already has a property/);
+    });
+
+    it("emit error when is non model or array", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A is (string | int32) {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` must specify another model.",
+      });
     });
 
     it("emit error when is itself", async () => {

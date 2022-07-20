@@ -16,7 +16,6 @@ import {
 import {
   AliasStatementNode,
   AnyKeywordNode,
-  ArrayExpressionNode,
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
@@ -674,7 +673,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
-    const optionalExtends: TypeReferenceNode | undefined = parseOptionalModelExtends();
+    const optionalExtends = parseOptionalModelExtends();
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
 
     let properties: (ModelPropertyNode | ModelSpreadPropertyNode)[] = [];
@@ -703,27 +702,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOptionalModelExtends() {
     if (parseOptional(Token.ExtendsKeyword)) {
-      return parseReferenceExpression();
+      return parseExpression();
     }
     return undefined;
   }
 
   function parseOptionalModelIs() {
     if (parseOptional(Token.IsKeyword)) {
-      const pos = tokenPos();
-      let expr: ArrayExpressionNode | TypeReferenceNode = parseReferenceExpression();
-
-      while (parseOptional(Token.OpenBracket)) {
-        parseExpected(Token.CloseBracket);
-
-        expr = {
-          kind: SyntaxKind.ArrayExpression,
-          elementType: expr,
-          ...finishNode(pos),
-        };
-      }
-
-      return expr;
+      return parseExpression();
     }
     return;
   }

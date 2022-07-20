@@ -19,7 +19,7 @@ describe("openapi3: Array", () => {
     });
   });
 
-  it("defines models extended from primitives", async () => {
+  it("define a named array using model is", async () => {
     const res = await oapiForModel(
       "Pet",
       `

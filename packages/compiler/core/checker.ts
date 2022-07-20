@@ -2108,8 +2108,15 @@ export function createChecker(program: Program): Checker {
 
   function checkClassHeritage(
     model: ModelStatementNode,
-    heritageRef: TypeReferenceNode
+    heritageRef: Expression
   ): ModelType | undefined {
+    if (heritageRef.kind !== SyntaxKind.TypeReference) {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        target: heritageRef,
+      });
+      return undefined;
+    }
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
 
@@ -2158,15 +2165,16 @@ export function createChecker(program: Program): Checker {
 
   function checkModelIs(
     model: ModelStatementNode,
-    isExpr: TypeReferenceNode | ArrayExpressionNode | undefined
+    isExpr: Expression | undefined
   ): ModelType | undefined {
     if (!isExpr) return undefined;
+
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
     let isType;
     if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(isExpr);
-    } else {
+    } else if (isExpr.kind === SyntaxKind.TypeReference) {
       const target = resolveTypeReference(isExpr);
       if (target === undefined) {
         return undefined;
@@ -2182,6 +2190,9 @@ export function createChecker(program: Program): Checker {
         return undefined;
       }
       isType = checkTypeReferenceSymbol(target, isExpr);
+    } else {
+      reportDiagnostic(program, { code: "is-model", target: isExpr });
+      return undefined;
     }
 
     pendingResolutions.delete(modelSymId);
