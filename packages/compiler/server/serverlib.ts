@@ -471,7 +471,7 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function getNameandSymbolKind(node: Node): { name: string; kind: SymbolKind } | undefined {
+  function getSymbolKindKind(node: Node): { name: string; kind: SymbolKind } | undefined {
     switch (node.kind) {
       case SyntaxKind.NamespaceStatement:
         return { name: node.id.sv, kind: SymbolKind.Namespace };
@@ -483,6 +483,10 @@ export function createServer(host: ServerHost): Server {
         return { name: node.id.sv, kind: SymbolKind.Interface };
       case SyntaxKind.OperationStatement:
         return { name: node.id.sv, kind: SymbolKind.Operator };
+      case SyntaxKind.ModelStatement:
+        return { name: node.id.sv, kind: SymbolKind.Struct };
+      case SyntaxKind.UnionStatement:
+        return { name: node.id.sv, kind: SymbolKind.Enum };
       default:
         return undefined;
     }
@@ -495,7 +499,7 @@ export function createServer(host: ServerHost): Server {
     visitChildren(ast, addRangesForNode);
 
     function addRangesForNode(node: Node) {
-      const symbolNode = getNameandSymbolKind(node);
+      const symbolNode = getSymbolKindKind(node);
       if (symbolNode !== undefined) {
         const start = file.getLineAndCharacterOfPosition(node.pos);
         const end = file.getLineAndCharacterOfPosition(node.end);
