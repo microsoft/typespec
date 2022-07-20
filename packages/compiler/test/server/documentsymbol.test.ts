@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { pathToFileURL } from "url";
 import { SymbolInformation } from "vscode-languageserver/node.js";
 import { resolveVirtualPath } from "../../testing/test-host.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
@@ -19,7 +20,7 @@ describe("compiler: server: SymbolInformation", () => {
               line: 0,
             },
           },
-          uri: "file:///" + resolveVirtualPath("test/test.cadl"),
+          uri: pathToFileURL(resolveVirtualPath("test.cadl")).href,
         },
         name: "Foo",
       },
@@ -42,7 +43,7 @@ describe("compiler: server: SymbolInformation", () => {
               line: 0,
             },
           },
-          uri: "file:///" + resolveVirtualPath("test/test.cadl"),
+          uri: pathToFileURL(resolveVirtualPath("test.cadl")).href,
         },
         name: "Pet",
       },
@@ -65,7 +66,7 @@ describe("compiler: server: SymbolInformation", () => {
               line: 0,
             },
           },
-          uri: "file:///" + resolveVirtualPath("test/test.cadl"),
+          uri: pathToFileURL(resolveVirtualPath("test.cadl")).href,
         },
         name: "Pet",
       },
@@ -82,7 +83,7 @@ describe("compiler: server: SymbolInformation", () => {
               line: 0,
             },
           },
-          uri: "file:///" + resolveVirtualPath("test/test.cadl"),
+          uri: pathToFileURL(resolveVirtualPath("test.cadl")).href,
         },
         name: "read",
       },
@@ -91,7 +92,7 @@ describe("compiler: server: SymbolInformation", () => {
 
   async function getDocumentSymbols(source: string): Promise<SymbolInformation[]> {
     const testHost = await createTestServerHost();
-    const textDocument = testHost.addOrUpdateDocument("test/test.cadl", source);
+    const textDocument = testHost.addOrUpdateDocument("test.cadl", source);
     return await testHost.server.getDocumentSymbols({
       textDocument,
     });
