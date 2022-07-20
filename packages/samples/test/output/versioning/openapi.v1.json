@@ -84,7 +84,7 @@
             "items": {
               "$ref": "#/components/schemas/Library.PetToy"
             },
-            "x-cadl-name": "Array<Library.PetToy>"
+            "x-cadl-name": "Library.PetToy[]"
           }
         },
         "discriminator": {
@@ -131,14 +131,10 @@
         "properties": {
           "name": {
             "type": "string"
-          },
-          "material": {
-            "type": "string"
           }
         },
         "required": [
-          "name",
-          "material"
+          "name"
         ]
       }
     }

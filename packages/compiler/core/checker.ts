@@ -571,7 +571,11 @@ export function createChecker(program: Program): Checker {
   function isCadlNamespace(
     namespace: NamespaceType
   ): namespace is NamespaceType & { name: "Cadl"; namespace: NamespaceType } {
-    return namespace.name === "Cadl" && namespace.namespace === globalNamespaceType;
+    return (
+      namespace.name === "Cadl" &&
+      (namespace.namespace === globalNamespaceType ||
+        namespace.namespace === program.currentProjector?.projectedGlobalNamespace)
+    );
   }
 
   /**

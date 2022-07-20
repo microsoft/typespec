@@ -1,5 +1,6 @@
 import { isNeverType } from "../lib/decorators.js";
 import { compilerAssert } from "./diagnostics.js";
+import { isNeverIndexer } from "./index.js";
 import { Program } from "./program";
 import {
   DecoratorApplication,
@@ -234,6 +235,17 @@ export function createProjector(
 
     if (model.baseModel) {
       projectedModel.baseModel = projectType(model.baseModel) as ModelType;
+    }
+
+    if (model.indexer) {
+      if (isNeverIndexer(model.indexer)) {
+        projectedModel.indexer = { key: neverType, value: undefined };
+      } else {
+        projectedModel.indexer = {
+          key: projectModel(model.indexer.key),
+          value: projectType(model.indexer.value),
+        };
+      }
     }
 
     projectedTypes.set(model, projectedModel);
