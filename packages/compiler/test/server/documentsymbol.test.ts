@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert";
 import { SymbolInformation } from "vscode-languageserver/node.js";
 import { resolveVirtualPath } from "../../testing/test-host.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
-describe.only("compiler: server: SymbolInformation", () => {
+describe("compiler: server: SymbolInformation", () => {
   it("includes namespace for symbolInformation", async () => {
     const ranges = await getDocumentSymbols(`namespace Foo;`);
     deepStrictEqual(ranges, [
@@ -19,7 +19,7 @@ describe.only("compiler: server: SymbolInformation", () => {
               line: 0,
             },
           },
-          uri: "file:///Z:/test/test/test.cadl",
+          uri: "file:///" + resolveVirtualPath("test/test.cadl"),
         },
         name: "Foo",
       },
@@ -42,7 +42,7 @@ describe.only("compiler: server: SymbolInformation", () => {
               line: 0,
             },
           },
-          uri: "file:///Z:/test/test/test.cadl",
+          uri: "file:///" + resolveVirtualPath("test/test.cadl"),
         },
         name: "Pet",
       },
@@ -65,7 +65,7 @@ describe.only("compiler: server: SymbolInformation", () => {
               line: 0,
             },
           },
-          uri: "file:///Z:/test/test/test.cadl",
+          uri: "file:///" + resolveVirtualPath("test/test.cadl"),
         },
         name: "Pet",
       },
@@ -82,7 +82,7 @@ describe.only("compiler: server: SymbolInformation", () => {
               line: 0,
             },
           },
-          uri: "file:///Z:/test/test/test.cadl",
+          uri: "file:///" + resolveVirtualPath("test/test.cadl"),
         },
         name: "read",
       },
@@ -91,7 +91,7 @@ describe.only("compiler: server: SymbolInformation", () => {
 
   async function getDocumentSymbols(source: string): Promise<SymbolInformation[]> {
     const testHost = await createTestServerHost();
-    const textDocument = testHost.addOrUpdateDocument(resolveVirtualPath("test/test.cadl"), source);
+    const textDocument = testHost.addOrUpdateDocument("test/test.cadl", source);
     return await testHost.server.getDocumentSymbols({
       textDocument,
     });
