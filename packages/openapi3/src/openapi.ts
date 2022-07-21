@@ -1,5 +1,4 @@
 import {
-  ArrayType,
   checkIfServiceNamespace,
   EmitOptionsFor,
   EnumMemberType,
@@ -25,6 +24,7 @@ import {
   ignoreDiagnostics,
   isErrorType,
   isIntrinsic,
+  isNeverType,
   isNumericType,
   isSecret,
   isStringType,
@@ -605,15 +605,15 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     parent: ModelType | undefined,
     parameters: HttpOperationParameters
   ) {
-    if (parameters.body === undefined) {
+    const bodyType = parameters.bodyType;
+    const bodyParam = parameters.bodyParameter;
+
+    if (bodyType === undefined) {
       return;
     }
 
-    const bodyParam = parameters.body;
-    const bodyType = bodyParam.type;
-
     const requestBody: any = {
-      description: getDoc(program, bodyParam),
+      description: bodyParam ? getDoc(program, bodyParam) : undefined,
       content: {},
     };
 
@@ -657,9 +657,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     // Apply decorators to the schema for the parameter.
     const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
-    if (param.type.kind === "Array") {
-      schema.items = getSchemaForType(param.type.elementType);
-    }
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
@@ -706,9 +703,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const builtinType = mapCadlTypeToOpenAPI(type);
     if (builtinType !== undefined) return builtinType;
 
-    if (type.kind === "Array") {
-      return getSchemaForArray(type);
-    } else if (type.kind === "Model") {
+    if (type.kind === "Model") {
       return getSchemaForModel(type);
     } else if (type.kind === "Union") {
       return getSchemaForUnion(type);
@@ -786,9 +781,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "UnionVariant":
         type = "model";
         break;
-      case "Array":
-        type = "array";
-        break;
       default:
         reportUnsupportedUnionType(nonNullOptions[0]);
         return {};
@@ -847,15 +839,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function getSchemaForUnionVariant(variant: UnionTypeVariant) {
     const schema: any = getSchemaForType(variant.type);
     return schema;
-  }
-
-  function getSchemaForArray(array: ArrayType) {
-    const target = array.elementType;
-
-    return {
-      type: "array",
-      items: getSchemaOrRef(target),
-    };
   }
 
   function isNullType(type: Type): boolean {
@@ -1199,6 +1182,23 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
    * Map Cadl intrinsic models to open api definitions
    */
   function mapCadlIntrinsicModelToOpenAPI(cadlType: ModelType): any | undefined {
+    if (cadlType.indexer) {
+      if (isNeverType(cadlType.indexer.key)) {
+      } else {
+        const name = getIntrinsicModelName(program, cadlType.indexer.key);
+        if (name === "string") {
+          return {
+            type: "object",
+            additionalProperties: getSchemaOrRef(cadlType.indexer.value!),
+          };
+        } else if (name === "integer") {
+          return {
+            type: "array",
+            items: getSchemaOrRef(cadlType.indexer.value!),
+          };
+        }
+      }
+    }
     if (!isIntrinsic(program, cadlType)) {
       return undefined;
     }
@@ -1240,13 +1240,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
-      case "Map":
-        // We assert on valType because Map types always have a type
-        const valType = cadlType.properties.get("v");
-        return {
-          type: "object",
-          additionalProperties: getSchemaOrRef(valType!.type),
-        };
     }
   }
 }

@@ -6,17 +6,20 @@ import {
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
+  ArrayModelType,
   DecoratorContext,
   EnumMemberType,
   EnumType,
   InterfaceType,
   IntrinsicModelName,
+  ModelIndexer,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
   NeverType,
   OperationType,
   Type,
+  UnknownType,
   VoidType,
 } from "../core/types.js";
 export * from "./service.js";
@@ -121,6 +124,16 @@ export function isIntrinsic(program: Program, target: Type | undefined): boolean
   return program.stateMap(intrinsicsKey).has(target);
 }
 
+const indexTypeKey = Symbol("index");
+export function $indexer(context: DecoratorContext, target: Type, key: ModelType, value: Type) {
+  const indexer: ModelIndexer = { key, value };
+  context.program.stateMap(indexTypeKey).set(target, indexer);
+}
+
+export function getIndexer(program: Program, target: Type): ModelIndexer | undefined {
+  return program.stateMap(indexTypeKey).get(target);
+}
+
 /**
  * The top level name of the intrinsic model.
  *
@@ -146,6 +159,26 @@ export function isVoidType(type: Type): type is VoidType {
 
 export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
+}
+
+export function isUnknownType(type: Type): type is UnknownType {
+  return type.kind === "Intrinsic" && type.name === "unknown";
+}
+
+/**
+ * Check if a model is an array type.
+ * @param type Model type
+ */
+export function isArrayModelType(program: Program, type: ModelType): type is ArrayModelType {
+  return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "integer");
+}
+
+/**
+ * Check if a model is an array type.
+ * @param type Model type
+ */
+export function isRecordModelType(program: Program, type: ModelType): type is ArrayModelType {
+  return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "string");
 }
 
 const numericTypesKey = Symbol("numeric");
@@ -693,6 +726,47 @@ export function isKey(program: Program, property: ModelTypeProperty) {
 
 export function getKeyName(program: Program, property: ModelTypeProperty): string {
   return program.stateMap(keyKey).get(property);
+}
+
+/**
+ * `@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set
+ *
+ * The first argument accepts a string representing the desired default
+ * visibility value.  If a key property already has a `visibility` decorator
+ * then the default visibility is not applied.
+ *
+ * `@withDefaultKeyVisibility` can only be applied to model types.
+ */
+export function $withDefaultKeyVisibility(
+  context: DecoratorContext,
+  entity: Type,
+  visibility: string
+): void {
+  if (!validateDecoratorTarget(context, entity, "@withDefaultKeyVisibility", "Model")) {
+    return;
+  }
+
+  const keyProperties: ModelTypeProperty[] = [];
+  entity.properties.forEach((prop: ModelTypeProperty) => {
+    // Keep track of any key property without a visibility
+    if (isKey(context.program, prop) && !getVisibility(context.program, prop)) {
+      keyProperties.push(prop);
+    }
+  });
+
+  // For each key property without a visibility, clone it and add the specified
+  // default visibility value
+  keyProperties.forEach((keyProp) => {
+    entity.properties.set(
+      keyProp.name,
+      context.program.checker.cloneType(keyProp, {
+        decorators: [
+          ...keyProp.decorators,
+          { decorator: $visibility, args: [{ value: visibility }] },
+        ],
+      })
+    );
+  });
 }
 
 /**

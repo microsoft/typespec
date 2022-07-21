@@ -54,4 +54,31 @@ describe("compiler: spread", () => {
       message: "Unknown identifier NotDefined",
     });
   });
+
+  it("emit diagnostic if spreading non model type", async () => {
+    const diagnostics = await runner.diagnose(`
+      alias U = (string | int32);
+      model Foo {
+        ...U
+      }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "spread-model",
+      message: "Cannot spread properties of non-model type.",
+    });
+  });
+
+  it("emit diagnostic if spreading type not allowing properties", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Foo {
+        ...string
+      }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "spread-model",
+      message: "Cannot spread type because it cannot hold properties.",
+    });
+  });
 });
