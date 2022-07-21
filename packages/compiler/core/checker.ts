@@ -932,7 +932,7 @@ export function createChecker(program: Program): Checker {
    * with unions). The resulting model is anonymous.
    */
   function checkIntersectionExpression(node: IntersectionExpressionNode) {
-    const optionTypes = node.options.map(getTypeForNode);
+    const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o)]);
     const properties = new Map<string, ModelTypeProperty>();
 
     const intersection: ModelType = createType({
@@ -944,12 +944,14 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
     });
 
-    for (const option of optionTypes) {
+    for (const [optionNode, option] of options) {
       if (option.kind === "TemplateParameter") {
         continue;
       }
       if (option.kind !== "Model") {
-        program.reportDiagnostic(createDiagnostic({ code: "intersect-non-model", target: option }));
+        program.reportDiagnostic(
+          createDiagnostic({ code: "intersect-non-model", target: optionNode })
+        );
         continue;
       }
       const allProps = walkPropertiesInherited(option);

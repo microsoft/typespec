@@ -40,7 +40,7 @@ export async function openApiFor(code: string, versions?: string[]) {
   );
   await host.compile("./main.cadl", {
     noEmit: false,
-    emitters: { "@cadl-lang/openapi3": { outputFile: outPath } },
+    emitters: { "@cadl-lang/openapi3": { "output-file": outPath } },
   });
 
   if (!versions) {

@@ -252,7 +252,7 @@ The above example is equivalent to the `GoodBreed` alias above, except that emit
 
 #### Intersections
 
-Intersections describe a type that must include all of the intersection's constituents. Create an intersection with the `&` operator.
+Intersections describe a type that must include all the intersection's constituents. Create an intersection with the `&` operator.
 
 ```cadl
 alias Dog = Animal & Pet;
@@ -284,7 +284,7 @@ op getDog(...commonParams, name: string): Dog;
 
 ```
 
-Often an endpoint point return one of any number of models. For example, there might be return type for when an item is found, and a return type for when an item isn't found. Unions are used to describe this pattern:
+Often an endpoint returns one of any number of models. For example, there might be a return type for when an item is found, and a return type for when an item isn't found. Unions are used to describe this pattern:
 
 ```cadl
 model DogNotFound {
@@ -297,7 +297,7 @@ op getDog(name: string): Dog | DogNotFound;
 
 ### Namespaces & Usings
 
-Namespaces let you group related types together into namespaces. This helps organize your types making them easier to find and prevents name conflicts. Namespaces are merged across files, so you can reference any type anywhere in your Cadl program via its namespace. You can create namespace blocks like the following:
+Namespaces let you group related types together into namespaces. This helps organize your types, making them easier to find and prevents name conflicts. Namespaces are merged across files, so you can reference any type anywhere in your Cadl program via its namespace. You can create namespace blocks like the following:
 
 ```cadl
 namespace Models {
@@ -406,9 +406,9 @@ interface C {
 
 ### Imports
 
-Imports add files or libraries to your Cadl program. When you compile an Cadl file, you provide a path to your root Cadl file, by convention called "main.cadl". From there, any files you import are added to your program. If you import a directory, Cadl will look for a `main.cadl` file inside that directory.
+Imports add files or libraries to your Cadl program. When you compile a Cadl file, you provide a path to your root Cadl file, by convention called "main.cadl". From there, any files you import are added to your program. If you import a directory, Cadl will look for a `main.cadl` file inside that directory.
 
-The path you import must either begin with "./" or "../" or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either ".cadl" or ".js". The following demonstrates how to use imports to assemble an Cadl program from multiple files:
+The path you import must either begin with "./" or "../" or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either ".cadl" or ".js". The following demonstrates how to use imports to assemble a Cadl program from multiple files:
 
 ```cadl
 // main.cadl
@@ -432,7 +432,7 @@ model Dog {}
 
 ### Decorators
 
-Decorators enable a developer to attach metadata to types in an Cadl program. They can also be used to calculate types based on their inputs. Decorators are the backbone of Cadl's extensibility and give it the flexibility to describe many different kinds of APIs and associated metadata like documentation, constraints, samples, and the like.
+Decorators enable a developer to attach metadata to types in a Cadl program. They can also be used to calculate types based on their inputs. Decorators are the backbone of Cadl's extensibility and give it the flexibility to describe many different kinds of APIs and associated metadata like documentation, constraints, samples, and the like.
 
 Many Cadl constructs can be decorated, including namespaces, operations and their parameters, and models and their members.
 
@@ -676,7 +676,7 @@ emitters:
 # For example
 emitters:
  "@cadl-lang/openapi3":
-    outputFile: my-custom-file.json
+    output-file: my-custom-file.json
 ```
 
 - Via cli
@@ -685,14 +685,14 @@ emitters:
 --option "<emitterName>.<optionName>=<value>"
 
 # For example
---option "@cadl-lang/openapi3.outputFile=my-custom-file.json"
+--option "@cadl-lang/openapi3.output-file=my-custom-file.json"
 ```
 
 #### Creating libraries
 
-Creating an Cadl library is essentially the same as creating any NPM library. [Consult the official documentation for more info](https://docs.npmjs.com/creating-node-js-modules). `main` should refer to a JS file that exports all your library's decorators and helper utilities.
+Creating a Cadl library is essentially the same as creating any NPM library. [Consult the official documentation for more info](https://docs.npmjs.com/creating-node-js-modules). `main` should refer to a JS file that exports all your library's decorators and helper utilities.
 
-The package.json file for an Cadl library requires one additional field: `cadlMain`, which refers to the root file of your Cadl program similar to how `main` refers to the root of a JS program. If you don't have any Cadl declarations, `cadlMain` can be identical to `main`.
+The package.json file for a Cadl library requires one additional field: `cadlMain`, which refers to the root file of your Cadl program similar to how `main` refers to the root of a JS program. If you don't have any Cadl declarations, `cadlMain` can be identical to `main`.
 
 ### REST APIs
 
@@ -708,6 +708,7 @@ A definition for a service is the namespace that contains all the operations for
 
 - @serviceTitle - the title of the service
 - @serviceVersion - the version of the service. Can be any string, but later version should lexicographically sort after earlier versions
+- @server - the host of the service. Can accept parameters.
 - @produces - the content types the service may produce
 - @consumes - the content types that may be sent to the service
 
@@ -716,11 +717,21 @@ Here's an example that uses these to define a Pet Store service:
 ```cadl
 @serviceTitle("Pet Store Service")
 @serviceVersion("2021-03-25")
+@server("https://example.com", "Single server endpoint")
 @doc("This is a sample server Petstore server.")
 @Cadl.Rest.produces("application/json", "image/png")
 @Cadl.Rest.consumes("application/json")
 namespace PetStore;
 
+```
+
+The `server` keyword can take a third parameter with parameters as necessary:
+
+```cadl
+@server("https://{region}.foo.com", "Regional endpoint", {
+  @doc("Region name")
+  region?: string = "westus",
+})
 ```
 
 #### Resources & routes
@@ -753,11 +764,11 @@ namespace Pets {
 ##### Automatic route generation
 
 Instead of manually specifying routes using the `@route` decorator, you automatically generate
-routes from operation parameters by applying the `@autoRoute` decorator to an operation or a namespace
+routes from operation parameters by applying the `@autoRoute` decorator to an operation, namespace,
 or interface containing operations.
 
 For this to work, an operation's path parameters (those marked with `@path`) must also be marked with
-the `@segment` decorator to specify what the preceding path segment should be.
+the `@segment` decorator to define the preceding path segment.
 
 This is especially useful when reusing common parameter sets defined as model types.
 

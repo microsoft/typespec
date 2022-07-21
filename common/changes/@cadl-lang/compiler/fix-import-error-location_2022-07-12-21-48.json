@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix Internal Compiler Error when using invalid relative import",
+      "comment": "Fix parsing error locations for imports and blockless namespaces",
       "type": "patch"
     }
   ],

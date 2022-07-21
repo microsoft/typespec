@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Add ability to provide emitter options",
+      "comment": "implemented folding for comments",
       "type": "minor"
     }
   ],

@@ -10,6 +10,8 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  FoldingRange,
+  FoldingRangeParams,
   InitializedParams,
   InitializeParams,
   InitializeResult,
@@ -43,12 +45,15 @@ import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
+  getAnyExtensionFromPath,
+  getBaseFileName,
   getDirectoryPath,
+  hasTrailingDirectorySeparator,
   joinPaths,
   resolvePath,
 } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
-import { createScanner, isKeyword, isPunctuation, Token } from "../core/scanner.js";
+import { createScanner, isKeyword, isPunctuation, skipTrivia, Token } from "../core/scanner.js";
 import {
   CadlScriptNode,
   CompilerHost,
@@ -57,6 +62,7 @@ import {
   IdentifierNode,
   Node,
   SourceFile,
+  StringLiteralNode,
   SymbolFlags,
   SyntaxKind,
   Type,
@@ -86,6 +92,7 @@ export interface Server {
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -229,6 +236,7 @@ export function createServer(host: ServerHost): Server {
     getSemanticTokens,
     buildSemanticTokens,
     checkChange,
+    getFoldingRanges,
     log,
   };
 
@@ -243,9 +251,10 @@ export function createServer(host: ServerHost): Server {
     const capabilities: ServerCapabilities = {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
+      foldingRangeProvider: true,
       completionProvider: {
         resolveProvider: false,
-        triggerCharacters: [".", "@"],
+        triggerCharacters: [".", "@", "/"],
         allCommitCharacters: [".", ",", ";", "("],
       },
       semanticTokensProvider: {
@@ -399,6 +408,40 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
+    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const ast = parse(file, { comments: true });
+    const ranges: FoldingRange[] = [];
+    for (let i = 0; i < ast.comments.length; i++) {
+      addRange(ast.comments[i].pos, ast.comments[i].end);
+    }
+    visitChildren(ast, addRangesForNode);
+    function addRangesForNode(node: Node) {
+      let nodeStart = node.pos;
+      if ("decorators" in node && node.decorators.length > 0) {
+        const decoratorEnd = node.decorators[node.decorators.length - 1].end;
+        addRange(nodeStart, decoratorEnd);
+        nodeStart = skipTrivia(file.text, decoratorEnd);
+      }
+
+      addRange(nodeStart, node.end);
+      visitChildren(node, addRangesForNode);
+    }
+    return ranges;
+    function addRange(startPos: number, endPos: number) {
+      const start = file.getLineAndCharacterOfPosition(startPos);
+      const end = file.getLineAndCharacterOfPosition(endPos);
+      if (start.line !== end.line) {
+        ranges.push({
+          startLine: start.line,
+          startCharacter: start.character,
+          endLine: end.line,
+          endCharacter: end.character,
+        });
+      }
+    }
+  }
+
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
     const program = await compile(change.document);
     if (!program) {
@@ -487,7 +530,7 @@ export function createServer(host: ServerHost): Server {
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
-              await addImportCompletion(program, document, completions);
+              await addImportCompletion(program, document, completions, node);
             }
             break;
         }
@@ -608,6 +651,7 @@ export function createServer(host: ServerHost): Server {
         if (libPackageJson.cadlMain != undefined) {
           completions.items.push({
             label: dependency,
+            commitCharacters: [],
             kind: CompletionItemKind.Module,
           });
         }
@@ -618,9 +662,53 @@ export function createServer(host: ServerHost): Server {
   async function addImportCompletion(
     program: Program,
     document: TextDocument,
-    completions: CompletionList
+    completions: CompletionList,
+    node: StringLiteralNode
   ) {
-    await addLibraryImportCompletion(program, document, completions);
+    if (node.value.startsWith("./") || node.value.startsWith("../")) {
+      await addRelativePathCompletion(program, document, completions, node);
+    } else if (!node.value.startsWith(".")) {
+      await addLibraryImportCompletion(program, document, completions);
+    }
+  }
+
+  async function addRelativePathCompletion(
+    program: Program,
+    document: TextDocument,
+    completions: CompletionList,
+    node: StringLiteralNode
+  ) {
+    const documentPath = getPath(document);
+    const documentFile = getBaseFileName(documentPath);
+    const documentDir = getDirectoryPath(documentPath);
+    const nodevalueDir = hasTrailingDirectorySeparator(node.value)
+      ? node.value
+      : getDirectoryPath(node.value);
+    const mainCadl = resolvePath(documentDir, nodevalueDir);
+    const files = (await program.host.readDir(mainCadl)).filter(
+      (x) => x !== documentFile && x !== "node_modules"
+    );
+    for (const file of files) {
+      const extension = getAnyExtensionFromPath(file);
+      switch (extension) {
+        case ".cadl":
+        case ".js":
+        case ".mjs":
+          completions.items.push({
+            label: file,
+            commitCharacters: [],
+            kind: CompletionItemKind.File,
+          });
+          break;
+        case "":
+          completions.items.push({
+            label: file,
+            commitCharacters: [],
+            kind: CompletionItemKind.Folder,
+          });
+          break;
+      }
+    }
   }
 
   /**

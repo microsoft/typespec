@@ -426,7 +426,7 @@ const diagnostics = {
   },
 
   /**
-   * Binder
+   * Library
    */
   "on-validate-fail": {
     severity: "error",
@@ -437,7 +437,13 @@ const diagnostics = {
   "emitter-not-found": {
     severity: "error",
     messages: {
-      default: paramMessage`Cannot find emitter ${"emitterPackage"}`,
+      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+    },
+  },
+  "missing-import": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter '${"emitterName"}' requires '${"requiredImport"}' to be imported. Add 'import "${"requiredImport"}".`,
     },
   },
 

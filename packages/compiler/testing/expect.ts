@@ -23,7 +23,7 @@ export interface DiagnosticMatch {
   /**
    * Match the code.
    */
-  code: string;
+  code?: string;
 
   /**
    * Match the message.
@@ -39,6 +39,16 @@ export interface DiagnosticMatch {
    * Name of the file for this diagnostic.
    */
   file?: string | RegExp;
+
+  /**
+   * Start position of the diagnostic
+   */
+  pos?: number;
+
+  /**
+   * End position of the diagnostic
+   */
+  end?: number;
 }
 
 /**
@@ -47,11 +57,14 @@ export interface DiagnosticMatch {
  */
 export function expectDiagnostics(
   diagnostics: readonly Diagnostic[],
-  match: DiagnosticMatch | DiagnosticMatch[]
+  match: DiagnosticMatch | DiagnosticMatch[],
+  options = {
+    strict: true,
+  }
 ) {
   const array = isArray(match) ? match : [match];
 
-  if (array.length !== diagnostics.length) {
+  if (options.strict && array.length !== diagnostics.length) {
     assert.fail(
       `Expected ${array.length} diagnostics but found ${diagnostics.length}:\n ${formatDiagnostics(
         diagnostics
@@ -63,38 +76,63 @@ export function expectDiagnostics(
     const expectation = array[i];
     const sep = "-".repeat(100);
     const message = `Diagnostics found:\n${sep}\n${formatDiagnostics(diagnostics)}\n${sep}`;
-    strictEqual(
-      diagnostic.code,
-      expectation.code,
-      `Diagnostics at index ${i} has non matching code.\n${message}`
-    );
+    if (expectation.code !== undefined) {
+      strictEqual(
+        diagnostic.code,
+        expectation.code,
+        `Diagnostic at index ${i} has non matching code.\n${message}`
+      );
+    }
 
     if (expectation.message !== undefined) {
       matchStrOrRegex(
         diagnostic.message,
         expectation.message,
-        `Diagnostics at index ${i} has non matching message.\n${message}`
+        `Diagnostic at index ${i} has non matching message.\n${message}`
       );
     }
     if (expectation.severity !== undefined) {
       strictEqual(
         diagnostic.severity,
         expectation.severity,
-        `Diagnostics at index ${i} has non matching severity.\n${message}`
+        `Diagnostic at index ${i} has non matching severity.\n${message}`
       );
     }
-    if (expectation.file !== undefined) {
+    if (
+      expectation.file !== undefined ||
+      expectation.pos !== undefined ||
+      expectation.end !== undefined
+    ) {
       if (diagnostic.target === NoTarget) {
         fail(`Diagnostics at index ${i} expected to have a target.\n${message}`);
       }
       const source = getSourceLocation(diagnostic.target);
-      matchStrOrRegex(
-        source.file.path,
-        typeof expectation.file === "string"
-          ? resolveVirtualPath(expectation.file)
-          : expectation.file,
-        `Diagnostics at index ${i} has non matching file.\n${message}`
-      );
+
+      if (expectation.file !== undefined) {
+        matchStrOrRegex(
+          source.file.path,
+          typeof expectation.file === "string"
+            ? resolveVirtualPath(expectation.file)
+            : expectation.file,
+          `Diagnostics at index ${i} has non matching file.\n${message}`
+        );
+      }
+
+      if (expectation.pos !== undefined) {
+        strictEqual(
+          source.pos,
+          expectation.pos,
+          `Diagnostic at index ${i} has non-matching start position.`
+        );
+      }
+
+      if (expectation.end !== undefined) {
+        strictEqual(
+          source.end,
+          expectation.end,
+          `Diagnostic at index ${i} has non-matching end position.`
+        );
+      }
     }
   }
 }

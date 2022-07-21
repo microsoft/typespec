@@ -3,16 +3,17 @@ import { CharCode } from "../core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../core/parser.js";
 import { CadlScriptNode, Node, NodeFlags, SourceFile, SyntaxKind } from "../core/types.js";
+import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
 
 describe("compiler: syntax", () => {
   describe("import statements", () => {
     parseEach(['import "x";']);
 
     parseErrorEach([
-      ['namespace Foo { import "x"; }', [/Imports must be top-level/]],
-      ['namespace Foo { } import "x";', [/Imports must come prior/]],
-      ['model Foo { } import "x";', [/Imports must come prior/]],
-      ['using Bar; import "x";', [/Imports must come prior/]],
+      ['namespace Foo { import "x"; }', [{ message: /Imports must be top-level/, pos: 16 }]],
+      ['namespace Foo { } import "x";', [{ message: /Imports must come prior/, pos: 18 }]],
+      ['model Foo { } import "x";', [{ message: /Imports must come prior/, pos: 14 }]],
+      ['using Bar; import "x";', [{ message: /Imports must come prior/, pos: 11 }]],
     ]);
   });
 
@@ -93,6 +94,8 @@ describe("compiler: syntax", () => {
       "model Car { ... A.B, ... C<D> }",
 
       "model Car is Vehicle { }",
+
+      "model Car is Vehicle;",
     ]);
 
     parseErrorEach([
@@ -105,6 +108,9 @@ describe("compiler: syntax", () => {
         [/Cannot use default with non optional properties/],
       ],
       ["model", [/Identifier expected/]],
+      ["model Car is Vehicle", [/';', or '{' expected/]],
+      ["model Car;", [/'{', '=', 'extends', or 'is' expected/]],
+      ["model Car extends Foo;", [/'{' expected/]],
     ]);
   });
 
@@ -217,10 +223,22 @@ describe("compiler: syntax", () => {
     ]);
 
     parseErrorEach([
-      ["namespace Foo { namespace Store; }", [/Blockless namespace can only be top-level/]],
-      ["namespace Store; namespace Store2;", [/Cannot use multiple blockless namespaces/]],
-      ["model Foo { }; namespace Store;", [/Blockless namespaces can't follow other/]],
-      ["namespace Foo { }; namespace Store;", [/Blockless namespaces can't follow other/]],
+      [
+        "namespace Foo { namespace Store; }",
+        [{ message: /Blockless namespace can only be top-level/, pos: 16 }],
+      ],
+      [
+        "namespace Store; namespace Store2;",
+        [{ message: /Cannot use multiple blockless namespaces/, pos: 17 }],
+      ],
+      [
+        "model Foo { }; namespace Store;",
+        [{ message: /Blockless namespaces can't follow other/, pos: 15 }],
+      ],
+      [
+        "namespace Foo { }; namespace Store;",
+        [{ message: /Blockless namespaces can't follow other/, pos: 19 }],
+      ],
     ]);
   });
 
@@ -699,8 +717,8 @@ function checkPositioning(node: Node, file: SourceFile) {
  * }
  */
 function parseErrorEach(
-  cases: [string, RegExp[], Callback?][],
-  options: { strict?: boolean } = {}
+  cases: [string, (RegExp | DiagnosticMatch)[], Callback?][],
+  options = { strict: false }
 ) {
   for (const [code, matches, callback] of cases) {
     it(`doesn't parse '${shorten(code)}'`, () => {
@@ -728,10 +746,12 @@ function parseErrorEach(
           "More diagnostics reported than expected."
         );
       }
-      let i = 0;
-      for (const match of matches) {
-        assert.match(astNode.parseDiagnostics[i++].message, match);
-      }
+
+      const expected = matches.map<DiagnosticMatch>((m) =>
+        m instanceof RegExp ? { message: m } : m
+      );
+      expectDiagnostics(astNode.parseDiagnostics, expected, options);
+
       assert(
         hasParseError(astNode),
         "node claims to have no parse errors, but above were reported."
