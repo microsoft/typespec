@@ -10,6 +10,7 @@ import {
   DecoratorExpressionNode,
   DirectiveExpressionNode,
   EnumMemberNode,
+  EnumSpreadMemberNode,
   EnumStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
@@ -142,6 +143,8 @@ export function printNode(
       return printMemberExpression(path as AstPath<MemberExpressionNode>, options, print);
     case SyntaxKind.EnumMember:
       return printEnumMember(path as AstPath<EnumMemberNode>, options, print);
+    case SyntaxKind.EnumSpreadMember:
+      return printEnumSpreadMember(path as AstPath<EnumSpreadMemberNode>, options, print);
     case SyntaxKind.UnionVariant:
       return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
@@ -458,6 +461,14 @@ export function printEnumMember(
   const propertyIndex = path.stack[path.stack.length - 2];
   const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
   return [multiline && isNotFirst ? hardline : "", decorators, id, value];
+}
+
+function printEnumSpreadMember(
+  path: prettier.AstPath<EnumSpreadMemberNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  return ["...", path.call(print, "target")];
 }
 
 export function printUnionStatement(
