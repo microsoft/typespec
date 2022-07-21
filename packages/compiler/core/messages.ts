@@ -343,7 +343,7 @@ const diagnostics = {
   "extends-interface": {
     severity: "error",
     messages: {
-      default: "Interfaces can only mix other interfaces",
+      default: "Interfaces can only extends other interfaces",
     },
   },
   "extends-interface-duplicate": {
