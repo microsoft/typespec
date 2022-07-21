@@ -719,7 +719,7 @@ With the language building blocks we've covered so far we're ready to author our
 
 Cadl also has an official OpenAPI emitter called `@cadl-lang/openapi3` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
 
-The following examples assume you have imported both `@cadl-lang/openapi3` and `@cadl-lang/rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention).
+The following examples assume you have imported both `@cadl-lang/openapi3` and `@cadl-lang/rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention). For detailed library reference, please see rest library's [Readme.md](https://github.com/microsoft/cadl/blob/main/packages/rest/README.md).
 
 #### Service definition and metadata
 

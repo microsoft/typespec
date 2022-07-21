@@ -19,7 +19,7 @@ using Cadl.Http;
 using Cadl.Rest;
 ```
 
-See [Rest section in the tutorial](../../docs/tutorial.md#rest-apis)
+See [Rest section in the tutorial](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#rest-apis)
 
 ## Library Tour
 
