@@ -1,4 +1,4 @@
-// Preload the parser so it doeesn;t slow down the first test as much
+// Preload the parser so it doesn't slow down the first test as much
 import "@typescript-eslint/parser";
 import { resolve } from "path";
 
