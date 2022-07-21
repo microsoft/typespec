@@ -20,4 +20,5 @@ model Foo<
     some: string;
     eveneveneveneveneveneven: string;
     someveryveryveryveryverylong: string;
-  }> {}
+  }
+> {}
