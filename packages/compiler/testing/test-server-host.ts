@@ -88,6 +88,21 @@ export function extractCursor(sourceWithCursor: string): { source: string; pos: 
 }
 
 /**
+ * Takes source code with 2 cursor position indicated by `┆`, removes the
+ * `┆` and returns the source without the `┆` and the numeric cursor
+ * first (pos) and 2nd (end) position.
+ */
+export function extractStartEndCursors(sourceWithStartEndCursor: string): {
+  source: string;
+  pos: number;
+  end: number;
+} {
+  const { source: sourceWithEndCursor, pos } = extractCursor(sourceWithStartEndCursor);
+  const { source, pos: end } = extractCursor(sourceWithEndCursor);
+  return { source, pos, end };
+}
+
+/**
  * Extracts all identifiers marked with trailing empty comments from source
  */
 export function getTestIdentifiers(source: string): IdentifierNode[] {

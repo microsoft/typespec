@@ -228,7 +228,8 @@ function printTemplateParameters<T extends Node>(
   if ((value as any).length === 0) {
     return "";
   }
-  return ["<", join(", ", path.map(print, propertyName)), ">"];
+  const body = indent([softline, join([", ", softline], path.map(print, propertyName))]);
+  return group(["<", body, ">"]);
 }
 
 export function canAttachComment(node: Node): boolean {
@@ -752,20 +753,22 @@ function printModelPropertiesBlock(
   if (!hasProperties && !nodeHasComments) {
     return "{}";
   }
-
+  const tryInline = path.getParentNode()?.kind === SyntaxKind.TemplateParameterDeclaration;
+  const lineDoc = tryInline ? softline : hardline;
   const seperator = isModelAValue(path) ? "," : ";";
 
   const body: prettier.Doc = [
-    hardline,
+    lineDoc,
     join(
-      hardline,
-      path.map((x) => [print(x as any), seperator], "properties")
+      [seperator, lineDoc],
+      path.map((x) => [print(x as any)], "properties")
     ),
+    hasProperties ? ifBreak(seperator) : "",
   ];
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
-  return ["{", indent(body), hardline, "}"];
+  return group(["{", indent(body), lineDoc, "}"]);
 }
 
 /**

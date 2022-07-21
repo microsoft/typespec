@@ -1046,6 +1046,29 @@ model Foo<   T  ="abc",    K =        134
 model Foo<T = "abc", K = 134> {}`,
       });
     });
+
+    it("format parameter declarations with constraints", () => {
+      assertFormat({
+        code: `
+model Foo<   T  extends      string, K      extends { 
+        foo: int32   }
+> {
+}`,
+        expected: `
+model Foo<T extends string, K extends {foo: int32}> {}`,
+      });
+    });
+
+    it("format parameter declarations with constraints and defauls", () => {
+      assertFormat({
+        code: `
+model Foo<T       extends    string =      
+    "abc"> {
+}`,
+        expected: `
+model Foo<T extends string = "abc"> {}`,
+      });
+    });
   });
 
   describe("array expression", () => {
