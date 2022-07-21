@@ -703,7 +703,7 @@ emitters:
 Cadl has following standard libraries:
 | Library | Package name | Documentation | Source |
 |---|---|---|---|
-| OpenAPI 2 | @cadl-lang/openapi| [Readme.md](https://github.com/microsoft/cadl/tree/main/packages/openapi/README.md)| [Link](https://github.com/microsoft/cadl/tree/main/packages/openapi)
+| OpenAPI binding library | @cadl-lang/openapi| [Readme.md](https://github.com/microsoft/cadl/tree/main/packages/openapi/README.md)| [Link](https://github.com/microsoft/cadl/tree/main/packages/openapi)
 | OpenAPI 3 | @cadl-lang/openapi3| [Readme.md](https://github.com/microsoft/cadl/tree/main/packages/openapi3/README.md)|[Link](https://github.com/microsoft/cadl/tree/main/packages/openapi)
 | HTTP, REST | @cadl-lang/rest | [Readme.md](https://github.com/microsoft/cadl/tree/main/packages/rest/README.md)|[Link](https://github.com/microsoft/cadl/tree/main/packages/openapi)
 
