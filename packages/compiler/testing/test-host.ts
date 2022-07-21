@@ -9,7 +9,7 @@ import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
-import { getSourceFileKindFromExt } from "../core/util.js";
+import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { BasicTestRunner, createTestWrapper } from "./test-utils.js";
 import {
@@ -142,9 +142,9 @@ function createTestCompilerHost(
   };
 }
 
-export async function createTestFileSystem(): Promise<TestFileSystem> {
-  const virtualFs = new Map<string, string>();
-  const jsImports = new Map<string, Promise<any>>();
+export async function createTestFileSystem(caseInsensitive = false): Promise<TestFileSystem> {
+  const virtualFs = createStringMap<string>(caseInsensitive);
+  const jsImports = createStringMap<Promise<any>>(caseInsensitive);
 
   const compilerHost = createTestCompilerHost(virtualFs, jsImports);
   return {

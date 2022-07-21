@@ -48,6 +48,10 @@ export function deepClone<T>(value: T): T {
   return value;
 }
 
+export async function resolveRealPath(host: CompilerHost, path: string) {
+  return resolvePath(await host.realpath(path));
+}
+
 export interface FileHandlingOptions {
   allowFileNotFound?: boolean;
   diagnosticTarget?: DiagnosticTarget | typeof NoTarget;
@@ -188,5 +192,24 @@ export function getSourceFileKindFromExt(path: string): SourceFileKind | undefin
     return "cadl";
   } else {
     return undefined;
+  }
+}
+
+export function createStringMap<T>(caseInsensitive: boolean): Map<string, T> {
+  return caseInsensitive ? new CaseInsensitiveMap<T>() : new Map<string, T>();
+}
+
+class CaseInsensitiveMap<T> extends Map<string, T> {
+  get(key: string) {
+    return super.get(key.toUpperCase());
+  }
+  set(key: string, value: T) {
+    return super.set(key.toUpperCase(), value);
+  }
+  has(key: string) {
+    return super.has(key.toUpperCase());
+  }
+  delete(key: string) {
+    return super.delete(key.toUpperCase());
   }
 }
