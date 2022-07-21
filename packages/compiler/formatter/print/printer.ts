@@ -1009,7 +1009,11 @@ function printTemplateParameterDeclaration(
   print: PrettierChildPrint
 ): Doc {
   const node = path.getValue();
-  return [path.call(print, "id"), node.default ? [" = ", path.call(print, "default")] : ""];
+  return [
+    path.call(print, "id"),
+    node.constraint ? [" extends ", path.call(print, "constraint")] : "",
+    node.default ? [" = ", path.call(print, "default")] : "",
+  ];
 }
 
 function printModelSpread(
