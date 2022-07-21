@@ -13,13 +13,13 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "re
 import "swagger-ui-react/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { createBrowserHost } from "./browser-host";
-import { CadlEditor, OutputEditor } from "./components/cadl-editor";
+import { CadlEditor } from "./components/cadl-editor";
 import { useMonacoModel } from "./components/editor";
 import { ErrorTab } from "./components/error-tab";
 import { Footer } from "./components/footer";
+import { OpenAPIOutput } from "./components/openapi-output";
 import { OutputTabs, Tab } from "./components/output-tabs";
 import { SamplesDropdown } from "./components/samples-dropdown";
-import { SwaggerUI } from "./components/swagger-ui";
 import { importCadlCompiler } from "./core";
 import { PlaygroundManifest } from "./manifest";
 import { attachServices } from "./services";
@@ -196,12 +196,6 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
       } else {
         setViewSelection({ type: "file", filename: "", content: "" });
       }
-    } else if (viewSelection.type ===  "swagger-ui" ){
-        if (props.outputFiles.length > 0) {
-          void loadSwaggerUIforFile(props.outputFiles[0]);
-        } else {
-          setViewSelection({ type: "swagger-ui", filename: "", content: "" });
-        }
     }
     
   }, [props.program, props.outputFiles]);
@@ -211,10 +205,6 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     setViewSelection({ type: "file", filename: path, content: contents.text });
   }
 
-  async function loadSwaggerUIforFile(path: string) {
-    const contents = await host.readFile("./cadl-output/" + path.replace(".swaggerui", ""));  
-    setViewSelection({ type: "swagger-ui", filename: path, content: contents.text });
-  }
   const diagnostics = props.program?.diagnostics;
   const tabs: Tab[] = useMemo(() => {
     return [
@@ -223,14 +213,6 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
           align: "left",
           name: x,
           id: x,
-        })
-      ),
-      // Swagger-UI Output
-      ...props.outputFiles.map(
-        (x): Tab => ({
-          align: "left",
-          name: x + ": Swagger-UI",
-          id: x +".swaggerui",
         })
       ),
       { id: "type-graph", name: "Type Graph", align: "right" },
@@ -249,8 +231,6 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
   const handleTabSelection = useCallback((tabId: string) => {
     if (tabId === "type-graph") {
       setViewSelection({ type: "type-graph" });
-    } else if(tabId.endsWith(".swaggerui")){
-      void loadSwaggerUIforFile(tabId);
     } else if (tabId === "errors") {
       setViewSelection({ type: "errors" });
     } else {
@@ -258,11 +238,8 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     }
   }, []);
   const content =
-    viewSelection.type === "swagger-ui" ? (
-      <SwaggerUI spec={viewSelection.content} />
-    ):
-    viewSelection.type === "file" ? (
-      <OutputEditor value={viewSelection.content} />
+    viewSelection.type === "file"? (
+      <OpenAPIOutput content={viewSelection.content} />
     ) : viewSelection.type === "errors" ? (
       <ErrorTab internalCompilerError={props.internalCompilerError} diagnostics={diagnostics} />
     ) : (
@@ -283,7 +260,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
 };
 
 type ViewSelection =
-  | { type: "file" | "swagger-ui"; filename: string; content: string }
+  | { type: "file"; filename: string; content: string }
   | { type: "type-graph" }
   | { type: "errors" };
 
