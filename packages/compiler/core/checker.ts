@@ -1,4 +1,3 @@
-import { string } from "yargs";
 import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
@@ -411,14 +410,6 @@ export function createChecker(program: Program): Checker {
       "Cadl built-in array type should have been initalized before using array syntax."
     );
     return loadedType as any;
-  }
-  /**
-   * Force a Cadl intrinsic model to be loaded.
-   * @param name Intrinsic Model Name
-   */
-  function checkCadlIntrinsicModel(name: string) {
-    const sym = cadlNamespaceBinding?.exports?.get("Array");
-    checkModelStatement(sym!.declarations[0] as any);
   }
 
   function mergeSourceFile(file: CadlScriptNode | JsSourceFileNode) {
