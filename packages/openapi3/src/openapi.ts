@@ -1,5 +1,6 @@
 import {
   checkIfServiceNamespace,
+  emitFile,
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
@@ -32,6 +33,7 @@ import {
   ModelType,
   ModelTypeProperty,
   NamespaceType,
+  NewLine,
   OperationType,
   Program,
   resolvePath,
@@ -64,7 +66,7 @@ import {
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
-import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
+import { OpenAPI3EmitterOptions, OpenAPILibrary, reportDiagnostic } from "./lib.js";
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
@@ -78,21 +80,29 @@ import {
 
 const defaultOptions = {
   "output-file": "openapi.json",
-};
+  "new-line": "lf",
+} as const;
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
-  const resolvedOptions = { ...defaultOptions, ...emitterOptions };
-  const options: OpenAPIEmitterOptions = {
-    outputFile: resolvePath(
-      p.compilerOptions.outputPath ?? "./cadl-output",
-      resolvedOptions["output-file"]
-    ),
-  };
-
+  const options = resolveOptions(p, emitterOptions ?? {});
   const emitter = createOAPIEmitter(p, options);
   await emitter.emitOpenAPI();
 }
 
+export function resolveOptions(
+  program: Program,
+  options: OpenAPI3EmitterOptions
+): ResolvedOpenAPI3EmitterOptions {
+  const resolvedOptions = { ...defaultOptions, ...options };
+
+  return {
+    newLine: resolvedOptions["new-line"],
+    outputFile: resolvePath(
+      program.compilerOptions.outputPath ?? "./cadl-output",
+      resolvedOptions["output-file"]
+    ),
+  };
+}
 // NOTE: These functions aren't meant to be used directly as decorators but as a
 // helper functions for other decorators.  The security information given here
 // will be inserted into the `security` and `securityDefinitions` sections of
@@ -160,11 +170,12 @@ export function addSecurityDefinition(
   definitions[name] = details;
 }
 
-export interface OpenAPIEmitterOptions {
+export interface ResolvedOpenAPI3EmitterOptions {
   outputFile: string;
+  newLine: NewLine;
 }
 
-function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
+function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
   let root: OpenAPI3Document;
 
   // Get the service namespace string for use in name shortening
@@ -340,7 +351,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           ? resolvePath(options.outputFile.replace(".json", `.${version}.json`))
           : resolvePath(options.outputFile);
 
-        await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
+        await emitFile(program, {
+          path: outPath,
+          content: prettierOutput(JSON.stringify(root, null, 2)),
+          newLine: options.newLine,
+        });
       }
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
