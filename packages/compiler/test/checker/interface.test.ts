@@ -227,7 +227,7 @@ describe("compiler: interfaces", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, {
       code: "extends-interface",
-      message: "Interfaces can only extends other interfaces",
+      message: "Interfaces can only extend other interfaces",
     });
   });
 
