@@ -107,7 +107,7 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` na
   None
 - ### REST namespace
 
-These standard interfaces defines resource operations in basic building blocks that you can expose on the resources. You can use `extends` to compose the operations to meet the exact needs of resource API.
+These standard interfaces defines resource operations in basic building blocks that you can expose on the resources. You can use `extends` to compose the operations to meet the exact needs of your resource APIs.
 
 For example, for below `foo` model
 
@@ -121,7 +121,6 @@ model foo {
 - `foo` resource supports full CRUDL operations.
 
 ```Cadl
-
 interface FooService extends Resource.ResourceOperations<Foo, Error>;
 ```
 
