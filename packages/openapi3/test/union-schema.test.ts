@@ -14,7 +14,7 @@ describe("openapi3: schema", () => {
     );
     deepStrictEqual(res.components.schemas.Thing.properties.properties, {
       type: "object",
-      allOf: [ {$ref: "#/components/schemas/Thing"}],
+      allOf: [{ $ref: "#/components/schemas/Thing" }],
       nullable: true,
       "x-cadl-name": "Thing | null",
     });
