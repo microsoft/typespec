@@ -49,7 +49,7 @@ export enum Token {
   OpenBracket = 14,
   CloseBracket = 15,
   Dot = 16,
-  Elipsis = 17,
+  Ellipsis = 17,
   Semicolon = 18,
   Comma = 19,
   LessThan = 20,
@@ -436,7 +436,7 @@ export function createScanner(
 
         case CharCode.Dot:
           return lookAhead(1) === CharCode.Dot && lookAhead(2) === CharCode.Dot
-            ? next(Token.Elipsis, 3)
+            ? next(Token.Ellipsis, 3)
             : next(Token.Dot);
 
         case CharCode.Slash:

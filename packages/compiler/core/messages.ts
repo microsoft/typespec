@@ -348,6 +348,12 @@ const diagnostics = {
       default: paramMessage`Enum already has a member named ${"name"}`,
     },
   },
+  "spread-enum": {
+    severity: "error",
+    messages: {
+      default: "Cannot spread members of non-enum type.",
+    },
+  },
   "decorator-fail": {
     severity: "error",
     messages: {
