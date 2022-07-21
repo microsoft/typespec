@@ -1,3 +1,4 @@
+import { string } from "yargs";
 import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
@@ -270,14 +271,13 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<Type[], Type>
   implements TypeInstantiationMap {};
 
+type StdTypeName = IntrinsicModelName | "Array" | "Record";
+
 export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
-  const stdTypes: {
-    record: ModelType;
-    array: ModelType;
-  } = {} as any;
+  const stdTypes: Partial<Record<StdTypeName, ModelType>> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
   const typePrototype: TypePrototype = {
@@ -394,6 +394,31 @@ export function createChecker(program: Program): Checker {
       },
       declarations: [],
     });
+  }
+
+  function getStdType<T extends StdTypeName>(name: T): ModelType & { name: T } {
+    const type = stdTypes[name];
+    if (type !== undefined) {
+      return type as any;
+    }
+
+    const sym = cadlNamespaceBinding?.exports?.get(name);
+    checkModelStatement(sym!.declarations[0] as any);
+
+    const loadedType = stdTypes[name];
+    compilerAssert(
+      loadedType,
+      "Cadl built-in array type should have been initalized before using array syntax."
+    );
+    return loadedType as any;
+  }
+  /**
+   * Force a Cadl intrinsic model to be loaded.
+   * @param name Intrinsic Model Name
+   */
+  function checkCadlIntrinsicModel(name: string) {
+    const sym = cadlNamespaceBinding?.exports?.get("Array");
+    checkModelStatement(sym!.declarations[0] as any);
   }
 
   function mergeSourceFile(file: CadlScriptNode | JsSourceFileNode) {
@@ -1099,11 +1124,7 @@ export function createChecker(program: Program): Checker {
 
   function checkArrayExpression(node: ArrayExpressionNode): ModelType {
     const type = getTypeForNode(node.elementType);
-    compilerAssert(
-      stdTypes.array,
-      "Cadl built-in array type should have been initalized before using array syntax."
-    );
-    return instantiateTemplate(stdTypes.array.node as any, [type]) as ModelType;
+    return instantiateTemplate(getStdType("Array").node as any, [type]) as ModelType;
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
@@ -1931,9 +1952,9 @@ export function createChecker(program: Program): Checker {
 
     const indexer = getIndexer(program, type);
     if (type.name === "Array" && isInCadlNamespace(type)) {
-      stdTypes.array = type;
+      stdTypes.Array = type;
     } else if (type.name === "Record" && isInCadlNamespace(type)) {
-      stdTypes.record = type;
+      stdTypes.Record = type;
     }
     if (indexer) {
       type.indexer = indexer;
@@ -3943,11 +3964,12 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function isStdType(type: Type, stdType?: IntrinsicModelName | "Array"): boolean {
+  function isStdType(type: Type, stdType?: StdTypeName): boolean {
     if (type.kind !== "Model") return false;
     const intrinsicModelName = getIntrinsicModelName(program, type);
     if (intrinsicModelName) return stdType === undefined || stdType === intrinsicModelName;
-    if (stdType === "Array" && type === stdTypes.array) return true;
+    if (stdType === "Array" && type === stdTypes["Array"]) return true;
+    if (stdType === "Record" && type === stdTypes["Record"]) return true;
     return false;
   }
 
