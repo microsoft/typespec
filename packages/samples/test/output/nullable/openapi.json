@@ -36,7 +36,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AnotherModel",
+                "type": "object",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AnotherModel"
+                  }
+                ],
                 "nullable": true,
                 "x-cadl-name": "AnotherModel | null"
               }
@@ -76,7 +81,12 @@
             "x-cadl-name": "string | null"
           },
           "modelOrNull": {
-            "$ref": "#/components/schemas/AnotherModel",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AnotherModel"
+              }
+            ],
             "nullable": true,
             "x-cadl-name": "AnotherModel | null"
           },
