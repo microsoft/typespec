@@ -224,12 +224,19 @@ function printTemplateParameters<T extends Node>(
   print: PrettierChildPrint,
   propertyName: keyof T
 ) {
-  const value = path.getValue()[propertyName];
-  if ((value as any).length === 0) {
+  const node = path.getValue();
+  const args = node[propertyName] as any as TemplateParameterDeclarationNode[];
+  if ((args as any).length === 0) {
     return "";
   }
-  const body = indent([softline, join([", ", softline], path.map(print, propertyName))]);
-  return group(["<", body, ">"]);
+
+  const shouldHug = (args as any).length === 1;
+  if (shouldHug) {
+    return ["<", join(", ", path.map(print, propertyName)), ">"];
+  } else {
+    const body = indent([softline, join([", ", softline], path.map(print, propertyName))]);
+    return group(["<", body, softline, ">"]);
+  }
 }
 
 export function canAttachComment(node: Node): boolean {
@@ -727,8 +734,8 @@ export function printModelStatement(
 ) {
   const node = path.getValue();
   const id = path.call(print, "id");
-  const heritage = node.extends ? ["extends ", path.call(print, "extends"), " "] : "";
-  const isBase = node.is ? ["is ", path.call(print, "is"), " "] : "";
+  const heritage = node.extends ? [softline, "extends ", path.call(print, "extends"), " "] : "";
+  const isBase = node.is ? [softline, "is ", path.call(print, "is"), " "] : "";
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
@@ -736,8 +743,7 @@ export function printModelStatement(
     id,
     generic,
     " ",
-    heritage,
-    isBase,
+    group(indent(["", heritage, isBase])),
     printModelPropertiesBlock(path, options, print),
   ];
 }
