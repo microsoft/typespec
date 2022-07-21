@@ -102,11 +102,12 @@ export enum Token {
   ReturnKeyword = 59,
   VoidKeyword = 60,
   NeverKeyword = 61,
+  UnknownKeyword = 62,
   // Update MaxKeyword if anything is added right above here
 }
 
 const MinKeyword = Token.ImportKeyword;
-const MaxKeyword = Token.NeverKeyword;
+const MaxKeyword = Token.UnknownKeyword;
 
 const MinPunctuation = Token.OpenBrace;
 const MaxPunctuation = Token.EqualsGreaterThan;
@@ -178,6 +179,7 @@ export const TokenDisplay: readonly string[] = [
   "'return'",
   "'void'", // 60
   "'never'",
+  "'unknown'",
 ];
 
 /** @internal */
@@ -201,6 +203,7 @@ export const Keywords: readonly [string, Token][] = [
   ["return", Token.ReturnKeyword],
   ["void", Token.VoidKeyword],
   ["never", Token.NeverKeyword],
+  ["unknown", Token.UnknownKeyword],
 ];
 
 /** @internal */
