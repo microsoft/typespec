@@ -1,0 +1,80 @@
+{
+  "name": "@cadl-lang/html-program-viewer",
+  "version": "0.2.1",
+  "author": "Microsoft Corporation",
+  "description": "Cadl library for emitting an html view of the program.",
+  "homepage": "https://github.com/Azure/cadl",
+  "readme": "https://github.com/Azure/cadl/blob/master/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/cadl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/cadl/issues"
+  },
+  "keywords": [
+    "cadl"
+  ],
+  "type": "module",
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/src/index.d.ts"
+      ],
+      "testing": [
+        "./dist/src/testing/index.d.ts"
+      ]
+    }
+  },
+  "cadlMain": "dist/src/index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "mocha",
+    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts"
+  },
+  "files": [
+    "lib/*.cadl",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "peerDependencies": {
+    "@cadl-lang/compiler": "~0.33.0"
+  },
+  "dependencies": {
+    "prettier": "~2.7.1",
+    "react": "~18.0.0",
+    "react-dom": "~18.0.0",
+    "react-is": "~18.1.0",
+    "styled-components": "~5.3.5"
+  },
+  "devDependencies": {
+    "@types/mocha": "~9.1.0",
+    "@types/node": "~16.0.3",
+    "@types/prettier": "2.6.0",
+    "@types/react": "~18.0.5",
+    "@types/react-dom": "~18.0.1",
+    "@cadl-lang/compiler": "~0.33.0",
+    "@cadl-lang/eslint-config-cadl": "~0.3.0",
+    "@types/styled-components": "~5.1.25",
+    "eslint": "^8.12.0",
+    "mocha": "~9.2.0",
+    "mocha-junit-reporter": "~2.0.2",
+    "mocha-multi-reporters": "~1.5.1",
+    "c8": "~7.11.0",
+    "rimraf": "~3.0.2",
+    "typescript": "~4.7.2"
+  }
+}

@@ -121,8 +121,26 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@cadl-lang/library-linter",
+      "projectFolder": "packages/library-linter",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@cadl-lang/eslint-plugin",
+      "projectFolder": "packages/eslint-plugin-cadl",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@cadl-lang/openapi3",
       "projectFolder": "packages/openapi3",
+      "reviewCategory": "production",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@cadl-lang/html-program-viewer",
+      "projectFolder": "packages/html-program-viewer",
       "reviewCategory": "production",
       "shouldPublish": true
     },

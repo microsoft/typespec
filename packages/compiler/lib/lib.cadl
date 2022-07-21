@@ -102,3 +102,9 @@ model OmitProperties<T, TStringOrTuple> {
 model OmitDefaults<T> {
   ...T;
 }
+
+@doc("The template for setting the default visibility of key properties.")
+@withDefaultKeyVisibility(Visibility)
+model DefaultKeyVisibility<T, Visibility> {
+  ...T;
+}

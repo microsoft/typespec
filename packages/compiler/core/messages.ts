@@ -253,7 +253,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`Cannot resolve ${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
-      underNamespace: paramMessage`Namespace doesn't have member ${"id"}`,
+      underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
+      underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in non-namespace node ${"nodeName"}`,
     },
   },
@@ -285,6 +286,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Model `is` must specify another model.",
+    },
+  },
+  "is-operation": {
+    severity: "error",
+    messages: {
+      default: "Operation can only reuse the signature of another operation.",
     },
   },
   "spread-model": {
@@ -341,6 +348,12 @@ const diagnostics = {
       default: paramMessage`Enum already has a member named ${"name"}`,
     },
   },
+  "spread-enum": {
+    severity: "error",
+    messages: {
+      default: "Cannot spread members of non-enum type.",
+    },
+  },
   "decorator-fail": {
     severity: "error",
     messages: {
@@ -369,16 +382,23 @@ const diagnostics = {
       default: "Main file must either be a .cadl file or a .js file.",
     },
   },
-  "library-not-found": {
+  "import-not-found": {
     severity: "error",
     messages: {
-      default: paramMessage`Couldn't find library "${"path"}"`,
+      default: paramMessage`Couldn't resolve import "${"path"}"`,
+    },
+  },
+  "library-invalid": {
+    severity: "error",
+    messages: {
+      cadlMain: paramMessage`Library "${"path"}" has an invalid cadlMain file.`,
+      default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },
   "compiler-version-mismatch": {
     severity: "error",
     messages: {
-      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this error occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this error occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.`,
+      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this error occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this error occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
     },
   },
   "duplicate-symbol": {
@@ -412,7 +432,7 @@ const diagnostics = {
   },
 
   /**
-   * Binder
+   * Library
    */
   "on-validate-fail": {
     severity: "error",
@@ -423,7 +443,13 @@ const diagnostics = {
   "emitter-not-found": {
     severity: "error",
     messages: {
-      default: paramMessage`Cannot find emitter with name ${"emitterName"} in ${"emitterPackage"}`,
+      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+    },
+  },
+  "missing-import": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter '${"emitterName"}' requires '${"requiredImport"}' to be imported. Add 'import "${"requiredImport"}".`,
     },
   },
 
@@ -446,6 +472,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Expected ${"expected"} arguments, but got ${"actual"}.`,
+      between: paramMessage`Expected between ${"min"} and ${"max"} arguments, but got ${"actual"}.`,
     },
   },
   "known-values-invalid-enum": {
@@ -461,6 +488,13 @@ const diagnostics = {
       atPath: paramMessage`Type '${"kind"}' of '${"path"}' is not a value type.`,
     },
   },
+  deprecated: {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Deprecated: ${"message"}`,
+    },
+  },
+
   /**
    * Service
    */
@@ -468,12 +502,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
-    },
-  },
-  "service-decorator-namespace-only": {
-    severity: "error",
-    messages: {
-      default: paramMessage`The ${"decorator"} decorator can only be applied to namespaces.`,
     },
   },
   "service-namespace-duplicate": {
@@ -485,7 +513,7 @@ const diagnostics = {
   "list-type-not-model": {
     severity: "error",
     messages: {
-      default: "@list decorator's parameter must be a model type reference.",
+      default: "@list decorator's parameter must be a model type.",
     },
   },
 

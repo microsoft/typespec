@@ -6,13 +6,13 @@ import {
   expectDiagnosticEmpty,
   TestHost,
 } from "@cadl-lang/compiler/testing";
-import { HttpVerb } from "../src/http.js";
+import { HttpVerb } from "../src/http/decorators.js";
 import {
   getAllRoutes,
   HttpOperationParameter,
   OperationDetails,
   RouteOptions,
-} from "../src/route.js";
+} from "../src/http/route.js";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
@@ -55,7 +55,10 @@ export interface SimpleOperationDetails {
   path: string;
   params: {
     params: Array<{ name: string; type: HttpOperationParameter["type"] }>;
-    body?: string;
+    /**
+     * name of explicit `@body` parameter or array of unannotated parameter names that make up the body.
+     */
+    body?: string | string[];
   };
 }
 
@@ -71,7 +74,11 @@ export async function compileOperations(
       path: r.path,
       params: {
         params: r.parameters.parameters.map(({ type, name }) => ({ type, name })),
-        body: r.parameters.body?.name,
+        body:
+          r.parameters.bodyParameter?.name ??
+          (r.parameters.bodyType?.kind === "Model"
+            ? Array.from(r.parameters.bodyType.properties.keys())
+            : undefined),
       },
     };
   });
@@ -85,6 +92,6 @@ export async function getOperations(
 ): Promise<[OperationDetails[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
   await runner.compileAndDiagnose(code, { noEmit: true });
-  const routes = getAllRoutes(runner.program, routeOptions);
+  const [routes] = getAllRoutes(runner.program, routeOptions);
   return [routes, runner.program.diagnostics];
 }

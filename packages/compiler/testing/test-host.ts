@@ -1,4 +1,5 @@
 import assert from "assert";
+import { RmOptions } from "fs";
 import { readFile } from "fs/promises";
 import { globby } from "globby";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -8,6 +9,7 @@ import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
+import { getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { BasicTestRunner, createTestWrapper } from "./test-utils.js";
 import {
@@ -54,18 +56,27 @@ function createTestCompilerHost(
 
     async readDir(path: string) {
       path = resolveVirtualPath(path);
-      return [...virtualFs.keys()]
+      const fileFolder = [...virtualFs.keys()]
         .filter((x) => x.startsWith(`${path}/`))
-        .map((x) => x.replace(`${path}/`, ""));
+        .map((x) => x.replace(`${path}/`, ""))
+        .map((x) => {
+          const index = x.indexOf("/");
+          return index !== -1 ? x.substring(0, index) : x;
+        });
+      return [...new Set(fileFolder)];
     },
 
-    async removeDir(path: string) {
+    async rm(path: string, options: RmOptions) {
       path = resolveVirtualPath(path);
 
-      for (const key of virtualFs.keys()) {
-        if (key.startsWith(`${path}/`)) {
-          virtualFs.delete(key);
+      if (options.recursive && !virtualFs.has(path)) {
+        for (const key of virtualFs.keys()) {
+          if (key.startsWith(`${path}/`)) {
+            virtualFs.delete(key);
+          }
         }
+      } else {
+        virtualFs.delete(path);
       }
     },
 
@@ -120,6 +131,7 @@ function createTestCompilerHost(
     async realpath(path) {
       return path;
     },
+    getSourceFileKind: getSourceFileKindFromExt,
 
     logSink: NodeHost.logSink,
     mkdirp: async (path: string) => path,
@@ -223,6 +235,7 @@ async function createTestHostInternal(): Promise<TestHost> {
   // add test decorators
   fileSystem.addCadlFile(".cadl/test-lib/main.cadl", 'import "./test.js";');
   fileSystem.addJsFile(".cadl/test-lib/test.js", {
+    namespace: "Cadl",
     $test(_: any, target: Type, name?: string) {
       if (!name) {
         if (

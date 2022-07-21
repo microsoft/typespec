@@ -28,7 +28,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "mocha",
-    "test-official": "c8 mocha --forbid-only",
+    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
@@ -38,7 +38,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@cadl-lang/compiler": "~0.31.0",
+    "@cadl-lang/compiler": "~0.33.0",
     "@rollup/plugin-virtual": "~2.1.0",
     "@rollup/plugin-commonjs": "~22.0.0-13",
     "@rollup/plugin-json": "~4.1.0",
@@ -53,9 +53,11 @@
     "@cadl-lang/eslint-config-cadl": "~0.3.0",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
+    "mocha-junit-reporter": "~2.0.2",
+    "mocha-multi-reporters": "~1.5.1",
     "c8": "~7.11.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.6.3",
-    "vite": "^2.8.0"
+    "typescript": "~4.7.2",
+    "vite": "^2.9.9"
   }
 }

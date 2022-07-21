@@ -19,7 +19,7 @@ export interface CadlConfig {
    */
   extends?: string;
 
-  emitters: Record<string, boolean>;
+  emitters: Record<string, Record<string, unknown> | boolean>;
 }
 
 export type RuleValue = "on" | "off" | Record<string, unknown>;
@@ -29,5 +29,5 @@ export type RuleValue = "on" | "off" | Record<string, unknown>;
  */
 export interface CadlRawConfig {
   extends?: string;
-  emitters?: Record<string, boolean>;
+  emitters?: Record<string, boolean | Record<string, unknown>>;
 }

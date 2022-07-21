@@ -2,6 +2,146 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.33.0",
+      "tag": "@cadl-lang/compiler_v0.33.0",
+      "date": "Fri, 08 Jul 2022 23:22:57 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Decorator definition helper support spread args"
+          },
+          {
+            "comment": "Add ability to provide emitter options"
+          },
+          {
+            "comment": "Improve folding in IDE."
+          },
+          {
+            "comment": "Allow omitting braces from model is statements"
+          },
+          {
+            "comment": "implementation of relativePath"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix issue with compiler version mismatch in VSCode"
+          },
+          {
+            "comment": "Fix error location for intersection with non-model"
+          },
+          {
+            "comment": "Fix Internal Compiler Error when using invalid relative import"
+          },
+          {
+            "comment": "Internal: Decorator definition helper works with multiple target and param types"
+          },
+          {
+            "comment": "Improved the error message shown when an `onEmit` function is not found in the requested emitter package"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.32.0",
+      "tag": "@cadl-lang/compiler_v0.32.0",
+      "date": "Mon, 13 Jun 2022 23:42:28 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Improve error message when loading library with invalid `main` file"
+          },
+          {
+            "comment": "Added new decorator signatgure validation helper"
+          },
+          {
+            "comment": "Allow empty tuples"
+          },
+          {
+            "comment": "Add helper functions to work with diagnostics in accessor functions"
+          },
+          {
+            "comment": "Add diagnostics target to decorator context"
+          },
+          {
+            "comment": "Add `@deprecated` decorator and emit warning diagnostic when referencing deprecated type"
+          },
+          {
+            "comment": "Add completion support for import of libraries"
+          },
+          {
+            "comment": "Remove @serviceHost decorator"
+          },
+          {
+            "comment": "Add ability to rename Models, Operations, Interface, Unions and Enums in projections."
+          },
+          {
+            "comment": "Add compiler API to filter model properties and get try to find equivalent named models for anonymous models"
+          },
+          {
+            "comment": "Rename `setDecoratorNamespace` -> `setCadlNamespace`"
+          },
+          {
+            "comment": "Add support for operation templates and operation signature reuse"
+          },
+          {
+            "comment": "Implement references to model, enum, union, and interface members"
+          },
+          {
+            "comment": "Add semantic colorization"
+          },
+          {
+            "comment": "Add completion/find-all-ref/rename support to member references"
+          },
+          {
+            "comment": "Allow `using` before blockless `namespace`"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix completion between `.` and `)`"
+          },
+          {
+            "comment": "Fix issue with compiling virtual editor files"
+          },
+          {
+            "comment": "Allow an emitter library to have `.cadl` files"
+          },
+          {
+            "comment": "Fix issue with resolving node position when inside string literal"
+          },
+          {
+            "comment": "Provide full namespace name in diagnostic"
+          },
+          {
+            "comment": "Fix issue with server not locating main.cadl in parent folder"
+          },
+          {
+            "comment": "Improve tracking of open documents in language server"
+          },
+          {
+            "comment": "Fix issues with referencing enum from decorator on namespace"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Allow cadl compile . on the compiler itself"
+          },
+          {
+            "comment": "`getTypeName` returns type name for more types"
+          },
+          {
+            "comment": "Upgrade to TS4.7"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.2.0` to `~0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.31.0",
       "tag": "@cadl-lang/compiler_v0.31.0",
       "date": "Fri, 06 May 2022 17:19:57 GMT",

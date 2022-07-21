@@ -16,6 +16,7 @@ using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
 using Task = System.Threading.Tasks.Task;
 using System.Linq;
+using System.ComponentModel;
 
 namespace Microsoft.Cadl.VisualStudio
 {
@@ -66,7 +67,7 @@ namespace Microsoft.Cadl.VisualStudio
             var settingsManager = workspace?.GetSettingsManager();
             var settings = settingsManager?.GetAggregatedSettings(SettingsTypes.Generic);
             var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
-            var (serverCommand, serverArgs) = resolveCadlServer(settings);
+            var (serverCommand, serverArgs, env) = resolveCadlServer(settings);
             var info = new ProcessStartInfo
             {
                 // Use cadl-server on PATH in production
@@ -81,21 +82,37 @@ namespace Microsoft.Cadl.VisualStudio
                 WorkingDirectory = settings?.ScopePath,
             };
 
-#if DEBUG
-      // Use local build of cadl-server in development (lauched from F5 in VS)
-      if (InDevelopmentMode()) {
-        // --nolazy isn't supported by NODE_OPTIONS so we pass these via CLI instead
-        info.Environment.Remove("NODE_OPTIONS");
-      }
+            foreach (var entry in env)
+            {
+                info.Environment[entry.Key] = env[entry.Value];
+            }
+#if env
+            // Use local build of cadl-server in development (lauched from F5 in VS)
+            if (InDevelopmentMode())
+            {
+                // --nolazy isn't supported by NODE_OPTIONS so we pass these via CLI instead
+                info.Environment.Remove("NODE_OPTIONS");
+            }
 #endif
+            try
+            {
+                var process = Process.Start(info);
+                process.BeginErrorReadLine();
+                process.ErrorDataReceived += (_, e) => LogStderrMessage(e.Data);
 
-            var process = Process.Start(info);
-            process.BeginErrorReadLine();
-            process.ErrorDataReceived += (_, e) => LogStderrMessage(e.Data);
+                return new Connection(
+                  process.StandardOutput.BaseStream,
+                  process.StandardInput.BaseStream);
+            }
+            catch (Win32Exception e)
+            {
+                if (e.NativeErrorCode == Win32ErrorCodes.ERROR_FILE_NOT_FOUND)
+                {
+                    throw new CadlServerNotFoundException(info.FileName);
+                }
+                throw e;
+            }
 
-            return new Connection(
-              process.StandardOutput.BaseStream,
-              process.StandardInput.BaseStream);
         }
 
         public async Task OnLoadedAsync()
@@ -108,21 +125,30 @@ namespace Microsoft.Cadl.VisualStudio
         }
 
 #if VS2019
-    public Task OnServerInitializeFailedAsync(Exception e) {
-      Debug.Fail("Failed to initialize cadl-server:\r\n\r\n" + e);
-      return Task.CompletedTask;
-    }
+        public Task OnServerInitializeFailedAsync(Exception e)
+        {
+            if (e is CadlUserErrorException)
+            {
+                Console.WriteLine("Failed to initialize cadl-server:\r\n\r\n" + e.Message);
+            }
+            else
+            {
+                Debug.Fail("Unexpected error initializing cadl-server:\r\n\r\n" + e);
+            }
+            return Task.CompletedTask;
+        }
 #endif
 
 #if VS2022
     public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState) {
       var exception = initializationState.InitializationException;
-      Debug.Fail("Failed to initialize cadl-server:\r\n\r\n" + exception);
+      var message = exception is CadlUserErrorException 
+        ? exception.Message 
+        : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception}";
+      Debug.Assert(exception is CadlUserErrorException, "Unexpected error initializing cadl-server:\r\n\r\n" + exception);
       return Task.FromResult<InitializationFailureContext?>(
         new InitializationFailureContext {
-          FailureMessage = "Failed to activate Cadl language server!\r\n" +
-                           "File issue at https://github.com/microsoft/cadl\r\n\r\n" +
-                           exception
+          FailureMessage = "Failed to activate Cadl language server!\r\n" + message
       });
     }
 #endif
@@ -143,41 +169,44 @@ namespace Microsoft.Cadl.VisualStudio
         }
 
 #if DEBUG
-    private static bool InDevelopmentMode() {
-      return string.Equals(
-        Environment.GetEnvironmentVariable("CADL_DEVELOPMENT_MODE"),
-        "true",
-        StringComparison.OrdinalIgnoreCase);
-    }
+        private static bool InDevelopmentMode()
+        {
+            return string.Equals(
+              Environment.GetEnvironmentVariable("CADL_DEVELOPMENT_MODE"),
+              "true",
+              StringComparison.OrdinalIgnoreCase);
+        }
 
-    private static string GetDevelopmentCadlServerPath() {
-      // Even when debugging, we get deployed to an extension folder outside the
-      // source tree, so we stash the source directory in a file in debug builds
-      // so we can use it to run cadl-server against the live developer build in
-      // the source tree.
-      var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-      var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
-      return Path.GetFullPath(Path.Combine(srcDir, "../compiler/cmd/cadl-server.js"));
-    }
+        private static string GetDevelopmentCadlServerPath()
+        {
+            // Even when debugging, we get deployed to an extension folder outside the
+            // source tree, so we stash the source directory in a file in debug builds
+            // so we can use it to run cadl-server against the live developer build in
+            // the source tree.
+            var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
+            return Path.GetFullPath(Path.Combine(srcDir, "../compiler/cmd/cadl-server.js"));
+        }
 #endif
 
-        private (string, string[]) resolveCadlServer(IWorkspaceSettings? settings)
+        private (string, string[], IDictionary<string, string>) resolveCadlServer(IWorkspaceSettings? settings)
         {
+            var env = new Dictionary<string, string>();
             var args = new string[] { "--stdio" };
-
 #if DEBUG
-      // Use local build of cadl-server in development (lauched from F5 in VS)
-      if (InDevelopmentMode()) {
-        var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
-        var module = GetDevelopmentCadlServerPath();
-        return ("node.exe", new string[] { module, options }.Concat(args).ToArray());
-      }
+            // Use local build of cadl-server in development (lauched from F5 in VS)
+            if (InDevelopmentMode())
+            {
+                var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
+                var module = GetDevelopmentCadlServerPath();
+                return ("node.exe", new string[] { module, options }.Concat(args).ToArray(), env);
+            }
 #endif
 
             var serverPath = settings?.Property<string>("cadl.cadl-server.path");
             if (serverPath == null)
             {
-                return ("cadl-server.cmd", args);
+                return ("cadl-server.cmd", args, env);
             }
 
             if (!serverPath.EndsWith(".js"))
@@ -185,14 +214,16 @@ namespace Microsoft.Cadl.VisualStudio
                 if (File.Exists(serverPath))
                 {
                     var command = serverPath.EndsWith(".cmd") ? serverPath : $"${serverPath}.cmd";
-                    return (command, args);
+                    return (command, args, env);
                 }
                 else
                 {
                     serverPath = Path.Combine(serverPath, "cmd/cadl-server.js");
                 }
             }
-            return ("node.exe", new string[] { serverPath }.Concat(args).ToArray());
+
+            env["CADL_SKIP_COMPILER_RESOLVE"] = "1";
+            return ("node.exe", new string[] { serverPath }.Concat(args).ToArray(), env);
 
         }
     }

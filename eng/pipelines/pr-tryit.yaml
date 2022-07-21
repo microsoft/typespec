@@ -9,9 +9,12 @@ jobs:
       vmImage: windows-latest
 
     steps:
+      - checkout: self
+        persistCredentials: true
+
       - task: NodeTool@0
         inputs:
-          versionSpec: 16.x
+          versionSpec: 16.14.2
         displayName: Install Node.js
 
       - script: npx @microsoft/rush install
@@ -30,12 +33,5 @@ jobs:
           containerName: "$web"
         displayName: "Update playground"
 
-      - script: node eng/scripts/check-for-tryit-comment.js
+      - script: node eng/scripts/create-tryit-comment.js
         displayName: Check already commented
-
-      - task: GitHubComment@0
-        inputs:
-          gitHubConnection: "internal (1)"
-          repositoryName: "$(Build.Repository.Name)"
-          comment: "<!-- _CADL_TRYIT_COMMENT_ -->\nYou can try these changes at https://cadlplayground.z22.web.core.windows.net/prs/$(System.PullRequest.PullRequestNumber)/"
-        condition: and(succeeded(), ne(variables['SKIP_COMMENT'], 'true'))

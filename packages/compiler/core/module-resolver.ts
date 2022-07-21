@@ -2,7 +2,18 @@ import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 
 export interface ResolveModuleOptions {
   baseDir: string;
+
+  /**
+   * When resolution reach package.json returns the path to the file relative to it.
+   * @default pkg.main
+   */
   resolveMain?: (pkg: any) => string;
+
+  /**
+   * When resolution reach a directory without package.json look for those files to load in order.
+   * @default ["index.mjs", "index.js"]
+   */
+  directoryIndexFiles?: string[];
 }
 
 export interface ResolveModuleHost {
@@ -31,12 +42,14 @@ export interface NodePackage {
   cadlMain?: string;
 }
 
-type ResolveModuleErrorCode = "MODULE_NOT_FOUND";
+type ResolveModuleErrorCode = "MODULE_NOT_FOUND" | "INVALID_MAIN";
 export class ResolveModuleError extends Error {
   public constructor(public code: ResolveModuleErrorCode, message: string) {
     super(message);
   }
 }
+
+const defaultDirectoryIndexFiles = ["index.mjs", "index.js"];
 
 /**
  * Resolve a module
@@ -50,8 +63,10 @@ export async function resolveModule(
   name: string,
   options: ResolveModuleOptions
 ) {
+  const realpath = async (x: string) => resolvePath(await host.realpath(x));
+
   const { baseDir } = options;
-  const absoluteStart = baseDir === "" ? "." : await host.realpath(resolvePath(baseDir));
+  const absoluteStart = baseDir === "" ? "." : await realpath(resolvePath(baseDir));
 
   if (!(await isDirectory(host, absoluteStart))) {
     throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
@@ -61,15 +76,15 @@ export async function resolveModule(
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
     const res = resolvePath(absoluteStart, name);
     const m = (await loadAsFile(res)) || (await loadAsDirectory(res));
-    if (m) return host.realpath(m);
+    if (m) return realpath(m);
   }
 
   const module = await findAsNodeModule(name, absoluteStart);
-  if (module) return host.realpath(module);
+  if (module) return realpath(module);
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
-    `Cannot find module '${name} ' from '${baseDir}'`
+    `Cannot find module '${name}' from '${baseDir}'`
   );
 
   /**
@@ -127,8 +142,13 @@ export async function resolveModule(
       return loadPackage(directory, pkg);
     }
 
-    // Try to load index file
-    return loadAsFile(joinPaths(directory, "index"));
+    for (const file of options.directoryIndexFiles ?? defaultDirectoryIndexFiles) {
+      const resolvedFile = await loadAsFile(joinPaths(directory, file));
+      if (resolvedFile) {
+        return resolvedFile;
+      }
+    }
+    return undefined;
   }
 
   async function loadPackage(directory: string, pkg: NodePackage): Promise<string | undefined> {
@@ -138,11 +158,21 @@ export async function resolveModule(
     }
 
     const mainFullPath = resolvePath(directory, mainFile);
+    let loaded;
     try {
-      return loadAsFile(mainFullPath) ?? loadAsDirectory(mainFullPath);
+      loaded = (await loadAsFile(mainFullPath)) ?? (await loadAsDirectory(mainFullPath));
     } catch (e) {
       throw new Error(
         `Cannot find module '${mainFullPath}'. Please verify that the package.json has a valid "main" entry`
+      );
+    }
+
+    if (loaded) {
+      return loaded;
+    } else {
+      throw new ResolveModuleError(
+        "INVALID_MAIN",
+        `Package ${pkg.name} main file "${mainFile}" is invalid.`
       );
     }
   }
@@ -152,7 +182,7 @@ export async function resolveModule(
       return file;
     }
 
-    const extensions = [".js"];
+    const extensions = [".mjs", ".js"];
     for (const ext of extensions) {
       const fileWithExtension = file + ext;
       if (await isFile(host, fileWithExtension)) {

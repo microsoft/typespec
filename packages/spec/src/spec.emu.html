@@ -283,12 +283,19 @@ UsingStatement :
     `using` IdentifierOrMemberExpression `;`
 
 ModelStatement :
+    DecoratorList? `model` Identifier TemplateParameters? IsModelHeritage `;`
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
-ModelHeritage :
-    `extends` ReferenceExpression
+IsModelHeritage :
     `is` ReferenceExpression
 
+ExtendsModelHeritage :
+    `extends` ReferenceExpression
+
+ModelHeritage :
+    IsModelHeritage
+    ExtendsModelHeritage
+    
 ModelBody :
     ModelPropertyList `,`?
     ModelPropertyList `;`?
@@ -320,7 +327,7 @@ InterfaceMemberList :
     InterfaceMemberList `;` InterfaceMember
 
 InterfaceMember :
-    `op`? Identifier `(` ModelPropertyList? `)` `:` Expression
+    `op`? Identifier OperationSignature
 
 
 UnionStatement :
@@ -350,8 +357,12 @@ EnumMemberList :
     EnumMemberList `;` EnumMember
 
 EnumMember :
+    EnumSpreadMember
     DecoratorList? Identifier EnumMemberValue?
     DecoratorList? StringLiteral EnumMemberValue?
+
+EnumSpreadMember :
+    `...` ReferenceExpression
 
 EnumMemberValue :
     `:` StringLiteral
@@ -377,11 +388,21 @@ IdentifierList :
     Identifier
     IdentifierList `,` Identifier
 
-NamespaceStatement: 
+NamespaceStatement : 
     DecoratorList? `namespace` IdentifierOrMemberExpression `{` StatementList? `}`
 
+OperationSignatureDeclaration :
+  `(` ModelPropertyList? `)` `:` Expression
+
+OperationSignatureReference :
+  `is` ReferenceExpression
+
+OperationSignature :
+  OperationSignatureDeclaration
+  OperationSignatureReference
+
 OperationStatement :
-    DecoratorList? `op` Identifier `(` ModelPropertyList? `)` `:` Expression `;`
+    DecoratorList? `op` Identifier TemplateArguments? OperationSignature `;`
 
 Expression :
     UnionExpressionOrHigher

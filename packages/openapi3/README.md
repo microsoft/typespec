@@ -27,6 +27,8 @@ emitters:
   @cadl-lang/openapi3: true
 ```
 
+For configuration [see options](#emitter-options)
+
 ## Use OpenAPI 3.0 specific decorators:
 
 ```cadl
@@ -46,6 +48,35 @@ union MyUnion {
 }
 
 ```
+
+## Emitter options:
+
+Emitter options can be configured via the `cadl-project.yaml` configuration:
+
+```yaml
+emitters:
+  '@cadl-lang/openapi3':
+    <optionName>: <value>
+
+
+# For example
+emitters:
+  '@cadl-lang/openapi3':
+    outputFile: my-custom-openapi.json
+```
+
+or via the command line with
+
+```bash
+--option "@cadl-lang/openapi3.<optionName>=<value>"
+
+# For example
+--option "@cadl-lang/openapi3.output-file=my-custom-openapi.json"
+```
+
+### `output-file`
+
+Configure the name of the swagger output file relative to the compiler `output-path`.
 
 ## See also
 

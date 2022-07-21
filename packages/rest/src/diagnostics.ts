@@ -3,18 +3,6 @@ import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
 const libDefinition = {
   name: "@cadl-lang/rest",
   diagnostics: {
-    "produces-namespace-only": {
-      severity: "error",
-      messages: {
-        default: "The @produces decorator can only be applied to namespaces.",
-      },
-    },
-    "consumes-namespace-only": {
-      severity: "error",
-      messages: {
-        default: "The @consumes decorator can only be applied to namespaces.",
-      },
-    },
     "http-verb-duplicate": {
       severity: "error",
       messages: {
@@ -73,6 +61,18 @@ const libDefinition = {
       severity: "error",
       messages: {
         default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
+      },
+    },
+    "optional-path-param": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Path parameter '${"paramName"}' cannot be optional without a default value.`,
+      },
+    },
+    "missing-server-param": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Server url contains parameter '${"param"}' but wasn't found in given parameters`,
       },
     },
     "duplicate-body": {
@@ -135,6 +135,6 @@ const libDefinition = {
 } as const;
 
 const restLib = createCadlLibrary(libDefinition);
-const reportDiagnostic = restLib.reportDiagnostic;
+const { reportDiagnostic, createDiagnostic } = restLib;
 
-export { restLib, reportDiagnostic };
+export { restLib, reportDiagnostic, createDiagnostic };

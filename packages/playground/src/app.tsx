@@ -1,23 +1,35 @@
-import { compile, DiagnosticTarget, getSourceLocation, NoTarget } from "@cadl-lang/compiler";
+import {
+  Diagnostic,
+  DiagnosticTarget,
+  getSourceLocation,
+  NoTarget,
+  Program,
+} from "@cadl-lang/compiler";
+import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { createBrowserHost } from "./browserHost";
+import { CompletionItemTag } from "vscode-languageserver";
+import { createBrowserHost } from "./browser-host";
 import { CadlEditor, OutputEditor } from "./components/cadl-editor";
 import { useMonacoModel } from "./components/editor";
+import { ErrorTab } from "./components/error-tab";
 import { Footer } from "./components/footer";
-import { OutputTabs } from "./components/output-tabs";
+import { OutputTabs, Tab } from "./components/output-tabs";
 import { SamplesDropdown } from "./components/samples-dropdown";
+import { importCadlCompiler } from "./core";
+import { PlaygroundManifest } from "./manifest";
 import { attachServices } from "./services";
 
 const host = await createBrowserHost();
-attachServices(host);
+await attachServices(host);
 
 export const App: FunctionComponent = () => {
   const cadlModel = useMonacoModel("inmemory://test/main.cadl", "cadl");
-  const [outputValue, setOutputValue] = useState({ filename: "", content: "" });
   const [outputFiles, setOutputFiles] = useState<string[]>([]);
+  const [program, setProgram] = useState<Program>();
+  const [internalCompilerError, setInternalCompilerError] = useState<any>();
 
   useEffect(() => {
     if (window.location.search.length > 0) {
@@ -56,6 +68,11 @@ export const App: FunctionComponent = () => {
     window.open(url, "_blank");
   }, [saveCode, cadlModel]);
 
+  const cadlDocs = useCallback(async () => {
+    const url = `https://github.com/microsoft/cadl/blob/main/docs/tutorial.md`;
+    window.open(url, "_blank");
+  }, [cadlModel]);
+
   async function emptyOutputDir() {
     // empty output directory
     const dirs = await host.readDir("./cadl-output");
@@ -73,32 +90,32 @@ export const App: FunctionComponent = () => {
   async function doCompile(content: string) {
     await host.writeFile("main.cadl", content);
     await emptyOutputDir();
-    const program = await compile("main.cadl", host, {
-      outputPath: "cadl-output",
-      swaggerOutputFile: "cadl-output/openapi.json",
-      emitters: ["@cadl-lang/openapi3"],
-    });
+    const { compile } = await importCadlCompiler();
+    try {
+      const program = await compile("main.cadl", host, {
+        outputPath: "cadl-output",
+        emitters: { [PlaygroundManifest.defaultEmitter]: {} },
+      });
+      setInternalCompilerError(undefined);
+      setProgram(program);
+      const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
+        ...getMarkerLocation(diag.target),
+        message: diag.message,
+        severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
+        tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
+      }));
 
-    const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
-      ...getMarkerLocation(diag.target),
-      message: diag.message,
-      severity: MarkerSeverity.Error,
-    }));
+      editor.setModelMarkers(cadlModel, "owner", markers ?? []);
 
-    editor.setModelMarkers(cadlModel, "owner", markers ?? []);
-
-    const outputFiles = await host.readDir("./cadl-output");
-    setOutputFiles(outputFiles);
-    if (outputFiles.length > 0) {
-      await loadOutputFile(outputFiles[0]);
-    } else {
-      setOutputValue({ filename: "", content: "" });
+      const outputFiles = await host.readDir("./cadl-output");
+      setOutputFiles(outputFiles);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Internal compiler error", error);
+      editor.setModelMarkers(cadlModel, "owner", []);
+      setProgram(undefined);
+      setInternalCompilerError(error);
     }
-  }
-
-  async function loadOutputFile(path: string) {
-    const contents = await host.readFile("./cadl-output/" + path);
-    setOutputValue({ filename: path, content: contents.text });
   }
 
   function getMarkerLocation(
@@ -133,34 +150,131 @@ export const App: FunctionComponent = () => {
 
   return (
     <div id="grid">
-      <div id="commandBar">
-        <label>
-          <button onClick={saveCode as any}>Share</button>
-        </label>
-        <label>
-          {"Load a sample: "}
-          <SamplesDropdown onSelectSample={updateCadl as any} />
-        </label>
-        <label>
-          <button onClick={newIssue as any}>Open Issue</button>
-        </label>
-      </div>
-      <OutputTabs
-        files={outputFiles}
-        selected={outputValue.filename}
-        onSelect={(x) => loadOutputFile(x) as any}
-      />
       <div id="editorContainer">
+        <div id="commandBar">
+          <label>
+            <button onClick={saveCode as any}>Share</button>
+          </label>
+          <label>
+            {"Load a sample: "}
+            <SamplesDropdown onSelectSample={updateCadl as any} />
+          </label>
+          <label>
+            <button onClick={newIssue as any}>Open Issue</button>
+          </label>
+          <label>
+            <button onClick={cadlDocs as any}>Show Cadl Tutorial</button>
+          </label>
+        </div>
         <div id="editor">
           <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
         </div>
       </div>
-      <div id="outputContainer">
-        <div id="output">
-          <OutputEditor value={outputValue.content} />
-        </div>
+      <div className="output-panel">
+        <OutputView
+          program={program}
+          outputFiles={outputFiles}
+          internalCompilerError={internalCompilerError}
+        />
       </div>
       <Footer />
     </div>
+  );
+};
+
+export interface OutputViewProps {
+  outputFiles: string[];
+  internalCompilerError?: any;
+  program: Program | undefined;
+}
+
+export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
+  const [viewSelection, setViewSelection] = useState<ViewSelection>({
+    type: "file",
+    filename: "",
+    content: "",
+  });
+
+  useEffect(() => {
+    if (viewSelection.type === "file") {
+      if (props.outputFiles.length > 0) {
+        void loadOutputFile(props.outputFiles[0]);
+      } else {
+        setViewSelection({ type: "file", filename: "", content: "" });
+      }
+    }
+  }, [props.program, props.outputFiles]);
+
+  async function loadOutputFile(path: string) {
+    const contents = await host.readFile("./cadl-output/" + path);
+    setViewSelection({ type: "file", filename: path, content: contents.text });
+  }
+
+  const diagnostics = props.program?.diagnostics;
+  const tabs: Tab[] = useMemo(() => {
+    return [
+      ...props.outputFiles.map(
+        (x): Tab => ({
+          align: "left",
+          name: x,
+          id: x,
+        })
+      ),
+      { id: "type-graph", name: "Type Graph", align: "right" },
+      {
+        id: "errors",
+        name: (
+          <ErrorTabLabel
+            internalCompilerError={props.internalCompilerError}
+            diagnostics={diagnostics}
+          />
+        ),
+        align: "right",
+      },
+    ];
+  }, [props.outputFiles, diagnostics, props.internalCompilerError]);
+  const handleTabSelection = useCallback((tabId: string) => {
+    if (tabId === "type-graph") {
+      setViewSelection({ type: "type-graph" });
+    } else if (tabId === "errors") {
+      setViewSelection({ type: "errors" });
+    } else {
+      void loadOutputFile(tabId);
+    }
+  }, []);
+  const content =
+    viewSelection.type === "file" ? (
+      <OutputEditor value={viewSelection.content} />
+    ) : viewSelection.type === "errors" ? (
+      <ErrorTab internalCompilerError={props.internalCompilerError} diagnostics={diagnostics} />
+    ) : (
+      <div className="type-graph-container">
+        {props.program && <CadlProgramViewer program={props.program} />}
+      </div>
+    );
+  return (
+    <>
+      <OutputTabs
+        tabs={tabs}
+        selected={viewSelection.type === "file" ? viewSelection.filename : viewSelection.type}
+        onSelect={handleTabSelection}
+      />
+      <div className="output-content">{content}</div>
+    </>
+  );
+};
+
+type ViewSelection =
+  | { type: "file"; filename: string; content: string }
+  | { type: "type-graph" }
+  | { type: "errors" };
+
+const ErrorTabLabel: FunctionComponent<{
+  internalCompilerError?: any;
+  diagnostics?: readonly Diagnostic[];
+}> = ({ internalCompilerError, diagnostics }) => {
+  const errorCount = (internalCompilerError ? 1 : 0) + (diagnostics ? diagnostics.length : 0);
+  return (
+    <div>Errors {errorCount > 0 ? <span className="error-tab-count">{errorCount}</span> : ""}</div>
   );
 };

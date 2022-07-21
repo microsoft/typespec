@@ -1,6 +1,22 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Fri, 06 May 2022 17:19:57 GMT and should not be manually modified.
+This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+
+## 0.6.1
+Fri, 08 Jul 2022 23:22:57 GMT
+
+_Version update only_
+
+## 0.6.0
+Mon, 13 Jun 2022 23:42:28 GMT
+
+### Minor changes
+
+- Uptake changes to decorator context
+- Add ability to use @renamedFrom on Models, Operations, Interface, Unions and Enums.
+- Add validation for incompatible versioning across references
+- Moved all decorators and functions to `Cadl.Versioning` namespace
+- **Breaking Change** Version must be defined using an enum and referenced using enums
 
 ## 0.5.0
 Fri, 06 May 2022 17:19:57 GMT

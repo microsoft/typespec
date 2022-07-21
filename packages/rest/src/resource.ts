@@ -1,4 +1,5 @@
 import {
+  $visibility,
   DecoratorContext,
   getKeyName,
   isErrorType,
@@ -6,12 +7,11 @@ import {
   ModelType,
   ModelTypeProperty,
   Program,
-  setDecoratorNamespace,
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./diagnostics.js";
-import { $path } from "./http.js";
+import { $path } from "./http/decorators.js";
 
 export interface ResourceKey {
   resourceType: ModelType;
@@ -66,15 +66,15 @@ export function getResourceTypeKey(program: Program, resourceType: ModelType): R
 }
 
 export function $resourceTypeForKeyParam(
-  { program }: DecoratorContext,
+  context: DecoratorContext,
   entity: Type,
   resourceType: Type
 ) {
-  if (!validateDecoratorTarget(program, entity, "@resourceTypeForKeyParam", "ModelProperty")) {
+  if (!validateDecoratorTarget(context, entity, "@resourceTypeForKeyParam", "ModelProperty")) {
     return;
   }
 
-  program.stateMap(resourceTypeForKeyParamKey).set(entity, resourceType);
+  context.program.stateMap(resourceTypeForKeyParamKey).set(entity, resourceType);
 }
 
 export function getResourceTypeForKeyParam(
@@ -97,20 +97,29 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
     const { keyProperty } = resourceKey;
     const keyName = getKeyName(program, keyProperty);
 
-    const newProp = program.checker.cloneType(keyProperty);
-    newProp.name = keyName;
-    newProp.decorators.push(
+    // Filter out the @visibility decorator because it might affect metadata
+    // filtering
+    const decorators = [
+      ...keyProperty.decorators.filter((d) => d.decorator !== $visibility),
       {
         decorator: $path,
         args: [],
       },
       {
         decorator: $resourceTypeForKeyParam,
-        args: [resourceType],
-      }
-    );
-    $path(context, newProp, undefined as any);
+        args: [{ node: target.node, value: resourceType }],
+      },
+    ];
 
+    // Clone the key property and ensure that an optional key property doesn't
+    // become an optional path parameter
+    const newProp = program.checker.cloneType(keyProperty, {
+      name: keyName,
+      decorators,
+      optional: false,
+    });
+
+    // Add the key property to the target type
     target.properties.set(keyName, newProp);
   }
 }
@@ -120,7 +129,7 @@ export function $copyResourceKeyParameters(
   entity: Type,
   filter?: string
 ) {
-  if (!validateDecoratorTarget(context.program, entity, "@copyResourceKeyParameters", "Model")) {
+  if (!validateDecoratorTarget(context, entity, "@copyResourceKeyParameters", "Model")) {
     return;
   }
 
@@ -172,10 +181,11 @@ export function getParentResource(
  *
  * `@parentResource` can only be applied to models.
  */
-export function $parentResource({ program }: DecoratorContext, entity: Type, parentType: Type) {
-  if (!validateDecoratorTarget(program, parentType, "@parentResource", "Model")) {
+export function $parentResource(context: DecoratorContext, entity: Type, parentType: Type) {
+  if (!validateDecoratorTarget(context, parentType, "@parentResource", "Model")) {
     return;
   }
+  const { program } = context;
 
   program.stateMap(parentResourceTypesKey).set(entity, parentType);
 
@@ -202,5 +212,3 @@ export function $parentResource({ program }: DecoratorContext, entity: Type, par
     currentType = getParentResource(program, currentType);
   }
 }
-
-setDecoratorNamespace("Cadl.Rest", $parentResource, $copyResourceKeyParameters);

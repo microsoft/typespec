@@ -1,34 +1,17 @@
-import { cadlBundlePlugin } from "@cadl-lang/bundler";
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { definePlaygroundViteConfig } from "./src/build-utils";
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  base: "./",
-  build: {
-    target: "esnext",
-    chunkSizeWarningLimit: 4000,
-  },
-  assetsInclude: [/\.cadl$/],
-  optimizeDeps: {
-    exclude: ["node-fetch"],
-  },
-  plugins: [
-    react(),
-    cadlBundlePlugin({
-      folderName: "libs",
-      libraries: [
-        "@cadl-lang/compiler",
-        "@cadl-lang/rest",
-        "@cadl-lang/openapi",
-        "@cadl-lang/versioning",
-        "@cadl-lang/openapi3",
-      ],
-    }),
+export default definePlaygroundViteConfig({
+  defaultEmitter: "@cadl-lang/openapi3",
+  libraries: [
+    "@cadl-lang/compiler",
+    "@cadl-lang/rest",
+    "@cadl-lang/openapi",
+    "@cadl-lang/versioning",
+    "@cadl-lang/openapi3",
   ],
-  server: {
-    fs: {
-      strict: false,
-    },
+  samples: {
+    Http: "samples/http.cadl",
+    "Rest framework": "samples/rest.cadl",
+    "Versioned Rest framework": "samples/versioning.cadl",
   },
 });

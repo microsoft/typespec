@@ -1,6 +1,58 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Fri, 06 May 2022 17:19:57 GMT and should not be manually modified.
+This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+
+## 0.33.0
+Fri, 08 Jul 2022 23:22:57 GMT
+
+### Minor changes
+
+- Decorator definition helper support spread args
+- Add ability to provide emitter options
+- Improve folding in IDE.
+- Allow omitting braces from model is statements
+- implementation of relativePath
+
+### Patches
+
+- Fix issue with compiler version mismatch in VSCode
+- Fix error location for intersection with non-model
+- Fix Internal Compiler Error when using invalid relative import
+- Internal: Decorator definition helper works with multiple target and param types
+- Improved the error message shown when an `onEmit` function is not found in the requested emitter package
+
+## 0.32.0
+Mon, 13 Jun 2022 23:42:28 GMT
+
+### Minor changes
+
+- Improve error message when loading library with invalid `main` file
+- Added new decorator signatgure validation helper
+- Allow empty tuples
+- Add helper functions to work with diagnostics in accessor functions
+- Add diagnostics target to decorator context
+- Add `@deprecated` decorator and emit warning diagnostic when referencing deprecated type
+- Add completion support for import of libraries
+- Remove @serviceHost decorator
+- Add ability to rename Models, Operations, Interface, Unions and Enums in projections.
+- Add compiler API to filter model properties and get try to find equivalent named models for anonymous models
+- Rename `setDecoratorNamespace` -> `setCadlNamespace`
+- Add support for operation templates and operation signature reuse
+- Implement references to model, enum, union, and interface members
+- Add semantic colorization
+- Add completion/find-all-ref/rename support to member references
+- Allow `using` before blockless `namespace`
+
+### Patches
+
+- Fix completion between `.` and `)`
+- Fix issue with compiling virtual editor files
+- Allow an emitter library to have `.cadl` files
+- Fix issue with resolving node position when inside string literal
+- Provide full namespace name in diagnostic
+- Fix issue with server not locating main.cadl in parent folder
+- Improve tracking of open documents in language server
+- Fix issues with referencing enum from decorator on namespace
 
 ## 0.31.0
 Fri, 06 May 2022 17:19:57 GMT

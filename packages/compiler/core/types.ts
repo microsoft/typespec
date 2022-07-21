@@ -1,10 +1,16 @@
+import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { Program } from "./program";
 
 /**
  * Type System types
  */
 
-export type DecoratorArgument = Type | number | string | boolean;
+export type DecoratorArgumentValue = Type | number | string | boolean;
+
+export interface DecoratorArgument {
+  value: DecoratorArgumentValue;
+  node?: Node;
+}
 
 export interface DecoratorApplication {
   decorator: DecoratorFunction;
@@ -13,7 +19,7 @@ export interface DecoratorApplication {
 }
 
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: Type, ...customArgs: any[]): void;
+  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
   namespace?: string;
 }
 
@@ -79,7 +85,7 @@ export interface ProjectionType extends BaseType {
 export interface ProjectionApplication {
   scope?: Type;
   projectionName: string;
-  arguments: DecoratorArgument[];
+  arguments: DecoratorArgumentValue[];
   direction?: "from" | "to";
 }
 
@@ -144,7 +150,7 @@ export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = 
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
   name: IntrinsicModelName | string;
-  node:
+  node?:
     | ModelStatementNode
     | ModelExpressionNode
     | IntersectionExpressionNode
@@ -161,6 +167,12 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
    * Direct children. This is the reverse relation of @see baseModel
    */
   derivedModels: ModelType[];
+
+  /**
+   * Late-bound symbol of this model type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface ModelTypeProperty extends BaseType, DecoratedType {
@@ -186,6 +198,11 @@ export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
   node: InterfaceStatementNode;
   namespace?: NamespaceType;
   operations: Map<string, OperationType>;
+  /**
+   * Late-bound symbol of this interface type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface EnumType extends BaseType, DecoratedType {
@@ -202,9 +219,14 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   enum: EnumType;
   node: EnumMemberNode;
   value?: string | number;
+  /**
+   * when spread operators make new enum members,
+   * this tracks the enum member we copied from.
+   */
+  sourceMember?: EnumMemberType;
 }
 
-export interface OperationType extends BaseType, DecoratedType {
+export interface OperationType extends BaseType, DecoratedType, TemplatedType {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
@@ -267,6 +289,12 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedType {
   variants: Map<string | symbol, UnionTypeVariant>;
   expression: boolean;
   readonly options: Type[];
+
+  /**
+   * Late-bound symbol of this interface type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface UnionTypeVariant extends BaseType, DecoratedType {
@@ -313,9 +341,21 @@ export interface Sym {
   exports?: SymbolTable;
 
   /**
+   * Symbols for members of this symbol which must be referenced off the parent symbol
+   * and cannot be referenced by other means (i.e. by unqualified lookup of the symbol
+   * name).
+   */
+  members?: SymbolTable;
+
+  /**
    * For using symbols, this is the used symbol.
    */
   symbolSource?: Sym;
+
+  /**
+   * For late-bound symbols, this is the type referenced by the symbol.
+   */
+  type?: Type;
 
   /**
    * For decorator and function symbols, this is the JS function implementation.
@@ -341,29 +381,39 @@ export interface SymbolTable extends Map<string, Sym> {
 
 // prettier-ignore
 export const enum SymbolFlags {
-  None                = 0,
-  Model               = 1 << 1,
-  ModelProperty       = 1 << 2,
-  Operation           = 1 << 3,
-  Enum                = 1 << 4,
-  EnumMember          = 1 << 5,
-  Interface           = 1 << 6,
-  Union               = 1 << 7,
-  UnionVariant        = 1 << 8,
-  Alias               = 1 << 9,
-  Namespace           = 1 << 10,
-  Projection          = 1 << 11,
-  Decorator           = 1 << 12,
-  TemplateParameter   = 1 << 13,
-  ProjectionParameter = 1 << 14,
-  Function            = 1 << 15,
-  FunctionParameter   = 1 << 16,
-  Using               = 1 << 17,
-  DuplicateUsing      = 1 << 18,
-  SourceFile          = 1 << 19,
+  None                  = 0,
+  Model                 = 1 << 1,
+  ModelProperty         = 1 << 2,
+  Operation             = 1 << 3,
+  Enum                  = 1 << 4,
+  EnumMember            = 1 << 5,
+  Interface             = 1 << 6,
+  InterfaceMember       = 1 << 7,
+  Union                 = 1 << 8,
+  UnionVariant          = 1 << 9,
+  Alias                 = 1 << 10,
+  Namespace             = 1 << 11,
+  Projection            = 1 << 12,
+  Decorator             = 1 << 13,
+  TemplateParameter     = 1 << 14,
+  ProjectionParameter   = 1 << 15,
+  Function              = 1 << 16,
+  FunctionParameter     = 1 << 17,
+  Using                 = 1 << 18,
+  DuplicateUsing        = 1 << 19,
+  SourceFile            = 1 << 20,
 
+  /**
+   * A symbol which was late-bound, in which case, the type referred to
+   * by this symbol is stored directly in the symbol.
+   */
+  LateBound = 1 << 21,
 
-  ExportContainer = Namespace | SourceFile
+  ExportContainer = Namespace | SourceFile,
+  /**
+   * Symbols whose members will be late bound (and stored on the type)
+   */
+  MemberContainer = Model | Enum | Union | Interface,
 }
 
 /**
@@ -388,6 +438,8 @@ export enum SyntaxKind {
   NamespaceStatement,
   UsingStatement,
   OperationStatement,
+  OperationSignatureDeclaration,
+  OperationSignatureReference,
   ModelStatement,
   ModelExpression,
   ModelProperty,
@@ -397,6 +449,7 @@ export enum SyntaxKind {
   UnionVariant,
   EnumStatement,
   EnumMember,
+  EnumSpreadMember,
   AliasStatement,
   UnionExpression,
   IntersectionExpression,
@@ -501,7 +554,10 @@ export type Node =
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode
   | EnumMemberNode
+  | EnumSpreadMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | DirectiveExpressionNode
@@ -668,10 +724,24 @@ export interface UsingStatementNode extends BaseNode {
   readonly name: IdentifierNode | MemberExpressionNode;
 }
 
-export interface OperationStatementNode extends BaseNode, DeclarationNode {
-  readonly kind: SyntaxKind.OperationStatement;
+export interface OperationSignatureDeclarationNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureDeclaration;
   readonly parameters: ModelExpressionNode;
   readonly returnType: Expression;
+}
+
+export interface OperationSignatureReferenceNode extends BaseNode {
+  readonly kind: SyntaxKind.OperationSignatureReference;
+  readonly baseOperation: TypeReferenceNode;
+}
+
+export type OperationSignature =
+  | OperationSignatureDeclarationNode
+  | OperationSignatureReferenceNode;
+
+export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.OperationStatement;
+  readonly signature: OperationSignature;
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
@@ -705,7 +775,7 @@ export interface UnionVariantNode extends BaseNode {
 
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
-  readonly members: readonly EnumMemberNode[];
+  readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
@@ -714,6 +784,11 @@ export interface EnumMemberNode extends BaseNode {
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value?: StringLiteralNode | NumericLiteralNode;
   readonly decorators: readonly DecoratorExpressionNode[];
+}
+
+export interface EnumSpreadMemberNode extends BaseNode {
+  readonly kind: SyntaxKind.EnumSpreadMember;
+  readonly target: TypeReferenceNode;
 }
 
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -1079,6 +1154,14 @@ export interface Diagnostic {
   target: DiagnosticTarget | typeof NoTarget;
 }
 
+/**
+ * Return type of accessor functions in CADL.
+ * Tuple composed of:
+ * - 0: Actual result of an accessor function
+ * - 1: List of diagnostics that were emitted while retrieving the data.
+ */
+export type DiagnosticResult<T> = [T, readonly Diagnostic[]];
+
 export interface DirectiveBase {
   node: DirectiveExpressionNode;
 }
@@ -1097,7 +1180,7 @@ export interface Dirent {
   isDirectory(): boolean;
 }
 
-export interface RemoveDirOptions {
+export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In
    * recursive mode, errors are not reported if `path` does not exist, and
@@ -1129,10 +1212,10 @@ export interface CompilerHost {
   readDir(dir: string): Promise<string[]>;
 
   /**
-   * Deletes the directory.
-   * @param path Path to the directory.
+   * Deletes a directory or file.
+   * @param path Path to the directory or file.
    */
-  removeDir(dir: string, options?: RemoveDirOptions): Promise<void>;
+  rm(path: string, options?: RmOptions): Promise<void>;
 
   /**
    * create directory recursively.
@@ -1152,6 +1235,8 @@ export interface CompilerHost {
   // get info about a path
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
 
+  getSourceFileKind(path: string): SourceFileKind | undefined;
+
   // get the real path of a possibly symlinked path
   realpath(path: string): Promise<string>;
 
@@ -1163,6 +1248,11 @@ export interface CompilerHost {
 
   logSink: LogSink;
 }
+
+/**
+ * Type of the source file that can be loaded via cadl
+ */
+export type SourceFileKind = "cadl" | "js";
 
 type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (k: infer I) => void
   ? I
@@ -1236,7 +1326,7 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
  */
 export interface CadlLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
-  E extends string = string
+  E extends Record<string, any> = Record<string, never>
 > {
   /**
    * Name of the library. Must match the package.json name.
@@ -1249,40 +1339,89 @@ export interface CadlLibraryDef<
   readonly diagnostics: DiagnosticMap<T>;
 
   /**
-   * Provide names for emitters if there is multiple.
+   * List of other library that should be imported when this is used as an emitter.
+   * Compiler will emit an error if the libraries are not explicitly imported.
+   */
+  readonly requireImports?: readonly string[];
+
+  /**
+   * Emitter configuration if library is an emitter.
    */
   readonly emitter?: {
-    names?: readonly E[];
+    options?: JSONSchemaType<E>;
   };
 }
 
+export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
+
 export interface CadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
-  E extends string = string
+  E extends Record<string, any> = Record<string, never>
 > {
+  /**
+   * Name of the library. Must match the package.json name.
+   */
   readonly name: string;
+
+  /**
+   * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
+   */
   readonly diagnostics: DiagnosticMap<T>;
+
+  /**
+   * List of other library that should be imported when this is used as an emitter.
+   * Compiler will emit an error if the libraryes are not explicitly imported.
+   */
+  readonly requireImports?: readonly string[];
+
+  /**
+   * Emitter configuration if library is an emitter.
+   */
   readonly emitter?: {
-    names?: readonly E[];
+    options?: JSONSchemaType<E>;
   };
 
   reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
     program: Program,
     diag: DiagnosticReport<T, C, M>
   ): void;
+  createDiagnostic<C extends keyof T, M extends keyof T[C]>(
+    diag: DiagnosticReport<T, C, M>
+  ): Diagnostic;
 }
 
 /**
  * Get the options for the onEmit of this library.
  */
-export type EmitOptionsFor<C> = C extends CadlLibrary<infer _T, infer E> ? EmitOptions<E> : never;
-
-export interface EmitOptions<E extends string> {
-  name?: E;
-}
+export type EmitOptionsFor<C> = C extends CadlLibrary<infer _T, infer E> ? E : never;
 
 export interface DecoratorContext {
   program: Program;
+
+  /**
+   * Point to the decorator target
+   */
+  decoratorTarget: DiagnosticTarget;
+
+  /**
+   * Function that can be used to retrieve the target for a parameter at the given index.
+   * @param paramIndex Parameter index in the cadl
+   * @example @foo("bar", 123) -> $foo(context, target, arg0: string, arg1: number);
+   *  getArgumentTarget(0) -> target for arg0
+   *  getArgumentTarget(1) -> target for arg1
+   */
+  getArgumentTarget(paramIndex: number): DiagnosticTarget | undefined;
+
+  /**
+   * Helper to call out to another decorator
+   * @param decorator Other decorator function
+   * @param args Args to pass to other decorator funciton
+   */
+  call<T extends Type, A extends any[], R>(
+    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
+    target: T,
+    ...args: A
+  ): R;
 }
 
 export type LogLevel = "debug" | "verbose" | "info" | "warning" | "error";

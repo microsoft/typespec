@@ -10,7 +10,7 @@ export const RestTestLibrary: CadlTestLibrary = {
     { realDir: "lib", pattern: "*.cadl", virtualPath: "./node_modules/@cadl-lang/rest/lib" },
     {
       realDir: "dist/src",
-      pattern: "*.js",
+      pattern: "**/*.js",
       virtualPath: "./node_modules/@cadl-lang/rest/dist/src",
     },
   ],

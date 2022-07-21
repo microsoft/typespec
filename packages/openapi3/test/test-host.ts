@@ -16,7 +16,7 @@ export async function createOpenAPITestRunner() {
     host,
     (code) =>
       `import "@cadl-lang/rest"; import "@cadl-lang/openapi"; import "@cadl-lang/openapi3"; using Cadl.Rest; using Cadl.Http; using OpenAPI; ${code}`,
-    { emitters: ["@cadl-lang/openapi3"] }
+    { emitters: { "@cadl-lang/openapi3": {} } }
   );
 }
 
@@ -35,13 +35,12 @@ export async function openApiFor(code: string, versions?: string[]) {
   host.addCadlFile(
     "./main.cadl",
     `import "@cadl-lang/rest"; import "@cadl-lang/openapi"; import "@cadl-lang/openapi3"; ${
-      versions ? `import "@cadl-lang/versioning"; ` : ""
+      versions ? `import "@cadl-lang/versioning"; using Cadl.Versioning;` : ""
     }using Cadl.Rest;using Cadl.Http;using OpenAPI;${code}`
   );
   await host.compile("./main.cadl", {
     noEmit: false,
-    swaggerOutputFile: outPath,
-    emitters: ["@cadl-lang/openapi3"],
+    emitters: { "@cadl-lang/openapi3": { "output-file": outPath } },
   });
 
   if (!versions) {

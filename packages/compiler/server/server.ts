@@ -38,7 +38,7 @@ function main() {
     log(message: string) {
       connection.console.log(message);
     },
-    getDocumentByURL(url: string) {
+    getOpenDocumentByURL(url: string) {
       return documents.get(url);
     },
   };
@@ -70,6 +70,9 @@ function main() {
   connection.onReferences(s.findReferences);
   connection.onRenameRequest(s.rename);
   connection.onPrepareRename(s.prepareRename);
+  connection.onFoldingRanges(s.getFoldingRanges);
+  connection.languages.semanticTokens.on(s.buildSemanticTokens);
+
   documents.onDidChangeContent(s.checkChange);
   documents.onDidClose(s.documentClosed);
 

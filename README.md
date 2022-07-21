@@ -130,6 +130,7 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@server("https://example.com", "Single server endpoint")
 @route("/example")
 namespace Example {
   @get
@@ -193,3 +194,31 @@ This will download and install the latest Visual Studio extension. Use `cadl vs 
 If `cadl-server` cannot be found on PATH by Visual Studio in your setup, you can
 configure its location by setting up the `cadl.cadl-server.path` entry in `.vs/VSWorkspaceSettings.json`. You may need to restart Visual Studio after changing this.
 This should be the path to the `@cadl-lang/compiler` package. (e.g. `./node_modules/@cadl-lang/compiler`)
+
+### Installing nightly version
+
+On every commit to the main branch, packages with changes are automatically published to npm with the `@next` tag.
+The [packages](#packages) section shows which version corresponds to the `next` tag for each package.
+
+To use a `nightly` version of the packages, go over each one of the packages in the `package.json` file and update it to either the latest published `@next` version or `@latest`, whichever is the newest. You can also use the tag `latest` or `next` instead of an explicit version.
+
+After updating the package.json file you can run `npm update --force`. Force is required as there might be some incompatible version requirement.
+
+Example
+
+```json5
+// Stable setup
+"dependencies": {
+  "@cadl-lang/compiler": "~0.30.0",
+  "@cadl-lang/rest": "~0.14.0",
+  "@cadl-lang/openapi": "~0.9.0",
+}
+
+// Consume next version
+// In this example: compiler and openapi have changes but rest library has none
+"dependencies": {
+  "@cadl-lang/compiler": "~0.31.0-dev.5",
+  "@cadl-lang/rest": "~0.14.0", // No changes to @cadl-lang/rest library so need to stay the latest.
+  "@cadl-lang/openapi": "~0.10.0-dev.2",
+}
+```

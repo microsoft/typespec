@@ -26,6 +26,7 @@ import {
   DirectiveExpressionNode,
   EmptyStatementNode,
   EnumMemberNode,
+  EnumSpreadMemberNode,
   EnumStatementNode,
   Expression,
   IdentifierContext,
@@ -44,6 +45,7 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  OperationSignature,
   OperationStatementNode,
   ProjectionBlockExpressionNode,
   ProjectionEnumSelectorNode,
@@ -80,6 +82,7 @@ import {
   Writable,
 } from "./types.js";
 import { isArray } from "./util.js";
+
 /**
  * Callback to parse each element in a delimited list
  *
@@ -285,6 +288,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const stmts: Statement[] = [];
     let seenBlocklessNs = false;
     let seenDecl = false;
+    let seenUsing = false;
     while (token() !== Token.EndOfFile) {
       const pos = tokenPos();
       const directives = parseDirectiveList();
@@ -331,7 +335,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          item = parseInvalidStatement(decorators);
+          item = parseInvalidStatement(pos, decorators);
           break;
       }
 
@@ -339,16 +343,18 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
-          error({ code: "multiple-blockless-namespace" });
+          error({ code: "multiple-blockless-namespace", target: item });
         }
         if (seenDecl) {
-          error({ code: "blockless-namespace-first" });
+          error({ code: "blockless-namespace-first", target: item });
         }
         seenBlocklessNs = true;
       } else if (item.kind === SyntaxKind.ImportStatement) {
-        if (seenDecl || seenBlocklessNs) {
-          error({ code: "import-first" });
+        if (seenDecl || seenBlocklessNs || seenUsing) {
+          error({ code: "import-first", target: item });
         }
+      } else if (item.kind === SyntaxKind.UsingStatement) {
+        seenUsing = true;
       } else {
         seenDecl = true;
       }
@@ -372,8 +378,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
-          error({ code: "import-first", messageId: "topLevel" });
           item = parseImportStatement();
+          error({ code: "import-first", messageId: "topLevel", target: item });
           break;
         case Token.ModelKeyword:
           item = parseModelStatement(pos, decorators);
@@ -382,7 +388,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           const ns = parseNamespaceStatement(pos, decorators);
 
           if (!Array.isArray(ns.statements)) {
-            error({ code: "blockless-namespace-first", messageId: "topLevel" });
+            error({ code: "blockless-namespace-first", messageId: "topLevel", target: ns });
           }
           item = ns;
           break;
@@ -418,7 +424,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseEmptyStatement();
           break;
         default:
-          item = parseInvalidStatement(decorators);
+          item = parseInvalidStatement(pos, decorators);
           break;
       }
       item.directives = directives;
@@ -508,7 +514,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       nextToken();
     }
 
-    const operations = parseList(ListKind.InterfaceMembers, parseInterfaceMember);
+    const operations = parseList(ListKind.InterfaceMembers, (pos, decorators) =>
+      parseOperationStatement(pos, decorators, true)
+    );
 
     return {
       kind: SyntaxKind.InterfaceStatement,
@@ -536,27 +544,6 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
 
     return list;
-  }
-
-  function parseInterfaceMember(
-    pos: number,
-    decorators: DecoratorExpressionNode[]
-  ): OperationStatementNode {
-    parseOptional(Token.OpKeyword);
-
-    const id = parseIdentifier();
-    const parameters = parseOperationParameters();
-    parseExpected(Token.Colon);
-
-    const returnType = parseExpression();
-    return {
-      kind: SyntaxKind.OperationStatement,
-      id,
-      parameters,
-      returnType,
-      decorators,
-      ...finishNode(pos),
-    };
   }
 
   function parseUnionStatement(
@@ -610,22 +597,56 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOperationStatement(
     pos: number,
-    decorators: DecoratorExpressionNode[]
+    decorators: DecoratorExpressionNode[],
+    inInterface?: boolean
   ): OperationStatementNode {
-    parseExpected(Token.OpKeyword);
+    if (inInterface) {
+      parseOptional(Token.OpKeyword);
+    } else {
+      parseExpected(Token.OpKeyword);
+    }
 
     const id = parseIdentifier();
-    const parameters = parseOperationParameters();
-    parseExpected(Token.Colon);
+    const templateParameters = inInterface ? [] : parseTemplateParameterList();
 
-    const returnType = parseExpression();
-    parseExpected(Token.Semicolon);
+    // Make sure the next token is one that is expected
+    const token = expectTokenIsOneOf(Token.OpenParen, Token.IsKeyword);
+
+    // Check if we're parsing a declaration or reuse of another operation
+    let signature: OperationSignature;
+    const signaturePos = tokenPos();
+    if (token === Token.OpenParen) {
+      const parameters = parseOperationParameters();
+      parseExpected(Token.Colon);
+      const returnType = parseExpression();
+
+      signature = {
+        kind: SyntaxKind.OperationSignatureDeclaration,
+        parameters,
+        returnType,
+        ...finishNode(signaturePos),
+      };
+    } else {
+      parseExpected(Token.IsKeyword);
+      const opReference = parseReferenceExpression();
+
+      signature = {
+        kind: SyntaxKind.OperationSignatureReference,
+        baseOperation: opReference,
+        ...finishNode(signaturePos),
+      };
+    }
+
+    // The interface parser handles semicolon parsing between statements
+    if (!inInterface) {
+      parseExpected(Token.Semicolon);
+    }
 
     return {
       kind: SyntaxKind.OperationStatement,
       id,
-      parameters,
-      returnType,
+      templateParameters,
+      signature,
       decorators,
       ...finishNode(pos),
     };
@@ -654,7 +675,18 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const optionalExtends: TypeReferenceNode | undefined = parseOptionalModelExtends();
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
-    const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+
+    let properties: (ModelPropertyNode | ModelSpreadPropertyNode)[] = [];
+    if (optionalIs) {
+      const tok = expectTokenIsOneOf(Token.Semicolon, Token.OpenBrace);
+      if (tok === Token.Semicolon) {
+        nextToken();
+      } else {
+        properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+      }
+    } else {
+      properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+    }
 
     return {
       kind: SyntaxKind.ModelStatement,
@@ -698,7 +730,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseModelPropertyOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
-    return token() === Token.Elipsis
+    return token() === Token.Ellipsis
       ? parseModelSpreadProperty(pos, decorators)
       : parseModelProperty(pos, decorators);
   }
@@ -707,7 +739,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelSpreadPropertyNode {
-    parseExpected(Token.Elipsis);
+    parseExpected(Token.Ellipsis);
 
     reportInvalidDecorators(decorators, "spread property");
 
@@ -753,12 +785,35 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
-    const members = parseList(ListKind.EnumMembers, parseEnumMember);
+    const members = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
       members,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumMemberOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
+    return token() === Token.Ellipsis
+      ? parseEnumSpreadMember(pos, decorators)
+      : parseEnumMember(pos, decorators);
+  }
+
+  function parseEnumSpreadMember(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): EnumSpreadMemberNode {
+    parseExpected(Token.Ellipsis);
+
+    reportInvalidDecorators(decorators, "spread enum");
+
+    const target = parseReferenceExpression();
+
+    return {
+      kind: SyntaxKind.EnumSpreadMember,
+      target,
       ...finishNode(pos),
     };
   }
@@ -1593,7 +1648,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ) {
-    return token() === Token.Elipsis
+    return token() === Token.Ellipsis
       ? parseProjectionModelSpreadProperty(pos, decorators)
       : parseProjectionModelProperty(pos, decorators);
   }
@@ -1602,7 +1657,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ProjectionModelSpreadPropertyNode {
-    parseExpected(Token.Elipsis);
+    parseExpected(Token.Ellipsis);
 
     reportInvalidDecorators(decorators, "spread property");
 
@@ -1975,12 +2030,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return { kind: SyntaxKind.EmptyStatement, ...finishNode(pos) };
   }
 
-  function parseInvalidStatement(decorators: DecoratorExpressionNode[]): InvalidStatementNode {
+  function parseInvalidStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): InvalidStatementNode {
     // Error recovery: avoid an avalanche of errors when we get cornered into
     // parsing statements where none exist. Skip until we find a statement
     // keyword or decorator and only report one error for a contiguous range of
     // neither.
-    const pos = tokenPos();
     do {
       nextToken();
     } while (
@@ -2156,9 +2213,13 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
-        visitNode(cb, node.parameters) ||
-        visitNode(cb, node.returnType)
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.signature)
       );
+    case SyntaxKind.OperationSignatureDeclaration:
+      return visitNode(cb, node.parameters) || visitNode(cb, node.returnType);
+    case SyntaxKind.OperationSignatureReference:
+      return visitNode(cb, node.baseOperation);
     case SyntaxKind.NamespaceStatement:
       return (
         visitEach(cb, node.decorators) ||
@@ -2214,6 +2275,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.EnumMember:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.EnumSpreadMember:
+      return visitNode(cb, node.target);
     case SyntaxKind.AliasStatement:
       return (
         visitNode(cb, node.id) ||
@@ -2329,15 +2392,29 @@ export function getNodeAtPosition(
   position: number,
   filter = (node: Node) => true
 ) {
+  const realNode = getNodeAtPositionInternal(script, position, filter);
+  if (realNode?.kind === SyntaxKind.StringLiteral) {
+    return realNode;
+  }
   // If we're not immediately after an identifier character, then advance
   // the position past any trivia. This is done because a zero-width
   // inserted missing identifier that the user is now trying to complete
   // starts after the trivia following the cursor.
   const cp = codePointBefore(script.file.text, position);
   if (!cp || !isIdentifierContinue(cp)) {
-    position = skipTrivia(script.file.text, position);
+    const newPosition = skipTrivia(script.file.text, position);
+    if (newPosition !== position) {
+      return getNodeAtPositionInternal(script, newPosition, filter);
+    }
   }
+  return realNode;
+}
 
+function getNodeAtPositionInternal(
+  script: CadlScriptNode,
+  position: number,
+  filter = (node: Node) => true
+) {
   return visit(script);
 
   function visit(node: Node): Node | undefined {

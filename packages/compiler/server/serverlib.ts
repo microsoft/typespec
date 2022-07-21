@@ -1,12 +1,17 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionItem,
   CompletionItemKind,
+  CompletionItemTag,
   CompletionList,
   CompletionParams,
   DefinitionParams,
   Diagnostic as VSDiagnostic,
   DiagnosticSeverity,
+  DiagnosticTag,
   DidChangeWatchedFilesParams,
+  FoldingRange,
+  FoldingRangeParams,
   InitializedParams,
   InitializeParams,
   InitializeResult,
@@ -16,6 +21,10 @@ import {
   Range,
   ReferenceParams,
   RenameParams,
+  SemanticTokens,
+  SemanticTokensBuilder,
+  SemanticTokensLegend,
+  SemanticTokensParams,
   ServerCapabilities,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
@@ -33,31 +42,44 @@ import {
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { CompilerOptions } from "../core/options.js";
-import { getNodeAtPosition, visitChildren } from "../core/parser.js";
+import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
+  getAnyExtensionFromPath,
+  getBaseFileName,
   getDirectoryPath,
+  hasTrailingDirectorySeparator,
   joinPaths,
   resolvePath,
 } from "../core/path-utils.js";
 import { createProgram, Program } from "../core/program.js";
+import {
+  createScanner,
+  isKeyword,
+  isPunctuation,
+  skipTrivia,
+  skipWhiteSpace,
+  Token,
+} from "../core/scanner.js";
 import {
   CadlScriptNode,
   CompilerHost,
   Diagnostic as CadlDiagnostic,
   DiagnosticTarget,
   IdentifierNode,
+  Node,
   SourceFile,
+  StringLiteralNode,
   SymbolFlags,
   SyntaxKind,
   Type,
 } from "../core/types.js";
-import { doIO, loadFile } from "../core/util.js";
-import { getDoc, isIntrinsic } from "../lib/decorators.js";
+import { doIO, findProjectRoot, getSourceFileKindFromExt, loadFile } from "../core/util.js";
+import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
-  getDocumentByURL(url: string): TextDocument | undefined;
+  getOpenDocumentByURL(url: string): TextDocument | undefined;
   sendDiagnostics(params: PublishDiagnosticsParams): void;
   log(message: string): void;
 }
@@ -74,7 +96,10 @@ export interface Server {
   findReferences(params: ReferenceParams): Promise<Location[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
+  getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
+  buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -90,6 +115,37 @@ export interface ServerWorkspaceFolder extends WorkspaceFolder {
   // character so that we can test if a path is within a workspace using
   // startsWith.
   path: string;
+}
+
+export enum SemanticTokenKind {
+  Namespace,
+  Type,
+  Class,
+  Enum,
+  Interface,
+  Struct,
+  TypeParameter,
+  Parameter,
+  Variable,
+  Property,
+  EnumMember,
+  Event,
+  Function,
+  Method,
+  Macro,
+  Keyword,
+  Modifier,
+  Comment,
+  String,
+  Number,
+  Regexp,
+  Operator,
+}
+
+export interface SemanticToken {
+  kind: SemanticTokenKind;
+  pos: number;
+  end: number;
 }
 
 interface CachedFile {
@@ -160,6 +216,7 @@ export function createServer(host: ServerHost): Server {
     ...host.compilerHost,
     readFile,
     stat,
+    getSourceFileKind,
   };
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
@@ -183,18 +240,33 @@ export function createServer(host: ServerHost): Server {
     findReferences,
     prepareRename,
     rename,
+    getSemanticTokens,
+    buildSemanticTokens,
     checkChange,
+    getFoldingRanges,
     log,
   };
 
   function initialize(params: InitializeParams): InitializeResult {
+    const tokenLegend: SemanticTokensLegend = {
+      tokenTypes: Object.keys(SemanticTokenKind)
+        .filter((x) => Number.isNaN(Number(x)))
+        .map((x) => x.slice(0, 1).toLocaleLowerCase() + x.slice(1)),
+      tokenModifiers: [],
+    };
+
     const capabilities: ServerCapabilities = {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
+      foldingRangeProvider: true,
       completionProvider: {
         resolveProvider: false,
-        triggerCharacters: [".", "@"],
+        triggerCharacters: [".", "@", "/"],
         allCommitCharacters: [".", ",", ";", "("],
+      },
+      semanticTokensProvider: {
+        full: true,
+        legend: tokenLegend,
       },
       referencesProvider: true,
       renameProvider: {
@@ -291,7 +363,7 @@ export function createServer(host: ServerHost): Server {
 
     const options = {
       ...serverOptions,
-      emitters: config.emitters ? Object.keys(config.emitters) : [],
+      emitters: config.emitters,
     };
 
     if (!upToDate(document)) {
@@ -316,7 +388,7 @@ export function createServer(host: ServerHost): Server {
       }
 
       if (callback) {
-        const doc = "version" in document ? document : host.getDocumentByURL(document.uri);
+        const doc = "version" in document ? document : host.getOpenDocumentByURL(document.uri);
         compilerAssert(doc, "Failed to get document.");
         const path = getPath(doc);
         const script = program.sourceFiles.get(path);
@@ -340,6 +412,56 @@ export function createServer(host: ServerHost): Server {
       });
 
       return undefined;
+    }
+  }
+
+  async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
+    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const ast = parse(file, { comments: true });
+    const ranges: FoldingRange[] = [];
+    let rangeStartSingleLines = -1;
+    for (let i = 0; i < ast.comments.length; i++) {
+      const comment = ast.comments[i];
+      if (
+        comment.kind === SyntaxKind.LineComment &&
+        i + 1 < ast.comments.length &&
+        ast.comments[i + 1].kind === SyntaxKind.LineComment &&
+        ast.comments[i + 1].pos === skipWhiteSpace(file.text, comment.end)
+      ) {
+        if (rangeStartSingleLines === -1) {
+          rangeStartSingleLines = comment.pos;
+        }
+      } else if (rangeStartSingleLines !== -1) {
+        addRange(rangeStartSingleLines, comment.end);
+        rangeStartSingleLines = -1;
+      } else {
+        addRange(comment.pos, comment.end);
+      }
+    }
+    visitChildren(ast, addRangesForNode);
+    function addRangesForNode(node: Node) {
+      let nodeStart = node.pos;
+      if ("decorators" in node && node.decorators.length > 0) {
+        const decoratorEnd = node.decorators[node.decorators.length - 1].end;
+        addRange(nodeStart, decoratorEnd);
+        nodeStart = skipTrivia(file.text, decoratorEnd);
+      }
+
+      addRange(nodeStart, node.end);
+      visitChildren(node, addRangesForNode);
+    }
+    return ranges;
+    function addRange(startPos: number, endPos: number) {
+      const start = file.getLineAndCharacterOfPosition(startPos);
+      const end = file.getLineAndCharacterOfPosition(endPos);
+      if (start.line !== end.line) {
+        ranges.push({
+          startLine: start.line,
+          startCharacter: start.character,
+          endLine: end.line,
+          endCharacter: end.character,
+        });
+      }
     }
   }
 
@@ -388,6 +510,9 @@ export function createServer(host: ServerHost): Server {
       const range = Range.create(start, end);
       const severity = convertSeverity(each.severity);
       const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "Cadl");
+      if (each.code === "deprecated") {
+        diagnostic.tags = [DiagnosticTag.Deprecated];
+      }
       const diagnostics = diagnosticMap.get(document);
       compilerAssert(
         diagnostics,
@@ -414,8 +539,7 @@ export function createServer(host: ServerHost): Server {
       isIncomplete: false,
       items: [],
     };
-
-    await compile(params.textDocument, (program, document, file) => {
+    await compile(params.textDocument, async (program, document, file) => {
       const node = getNodeAtPosition(file, document.offsetAt(params.position));
       if (node === undefined) {
         addKeywordCompletion("root", completions);
@@ -426,6 +550,11 @@ export function createServer(host: ServerHost): Server {
             break;
           case SyntaxKind.Identifier:
             addIdentifierCompletion(program, node, completions);
+            break;
+          case SyntaxKind.StringLiteral:
+            if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
+              await addImportCompletion(program, document, completions, node);
+            }
             break;
         }
       }
@@ -490,11 +619,11 @@ export function createServer(host: ServerHost): Server {
     const references: IdentifierNode[] = [];
     for (const script of program.sourceFiles.values() ?? []) {
       visitChildren(script, function visit(node) {
-        if (
-          node.kind === SyntaxKind.Identifier &&
-          program.checker.resolveIdentifier(node) === sym
-        ) {
-          references.push(node);
+        if (node.kind === SyntaxKind.Identifier) {
+          const s = program.checker.resolveIdentifier(node);
+          if (s === sym || (sym.type && s?.type === sym.type)) {
+            references.push(node);
+          }
         }
         visitChildren(node, visit);
       });
@@ -513,6 +642,98 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  async function addLibraryImportCompletion(
+    program: Program,
+    document: TextDocument,
+    completions: CompletionList
+  ) {
+    const documentPath = getPath(document);
+    const projectRoot = await findProjectRoot(compilerHost, documentPath);
+    if (projectRoot != undefined) {
+      const [packagejson] = await loadFile(
+        compilerHost,
+        resolvePath(projectRoot, "package.json"),
+        JSON.parse,
+        program.reportDiagnostic
+      );
+      let dependencies: string[] = [];
+      if (packagejson.dependencies != undefined) {
+        dependencies = dependencies.concat(Object.keys(packagejson.dependencies));
+      }
+      if (packagejson.peerDependencies != undefined) {
+        dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
+      }
+      for (const dependency of dependencies) {
+        const nodeProjectRoot = resolvePath(projectRoot, "node_modules", dependency);
+        const [libPackageJson] = await loadFile(
+          compilerHost,
+          resolvePath(nodeProjectRoot, "package.json"),
+          JSON.parse,
+          program.reportDiagnostic
+        );
+        if (libPackageJson.cadlMain != undefined) {
+          completions.items.push({
+            label: dependency,
+            commitCharacters: [],
+            kind: CompletionItemKind.Module,
+          });
+        }
+      }
+    }
+  }
+
+  async function addImportCompletion(
+    program: Program,
+    document: TextDocument,
+    completions: CompletionList,
+    node: StringLiteralNode
+  ) {
+    if (node.value.startsWith("./") || node.value.startsWith("../")) {
+      await addRelativePathCompletion(program, document, completions, node);
+    } else if (!node.value.startsWith(".")) {
+      await addLibraryImportCompletion(program, document, completions);
+    }
+  }
+
+  async function addRelativePathCompletion(
+    program: Program,
+    document: TextDocument,
+    completions: CompletionList,
+    node: StringLiteralNode
+  ) {
+    const documentPath = getPath(document);
+    const documentFile = getBaseFileName(documentPath);
+    const documentDir = getDirectoryPath(documentPath);
+    const nodevalueDir = hasTrailingDirectorySeparator(node.value)
+      ? node.value
+      : getDirectoryPath(node.value);
+    const mainCadl = resolvePath(documentDir, nodevalueDir);
+    const files = (await program.host.readDir(mainCadl)).filter(
+      (x) => x !== documentFile && x !== "node_modules"
+    );
+    for (const file of files) {
+      const extension = getAnyExtensionFromPath(file);
+      switch (extension) {
+        case ".cadl":
+        case ".js":
+        case ".mjs":
+          completions.items.push({
+            label: file,
+            commitCharacters: [],
+            kind: CompletionItemKind.File,
+          });
+          break;
+        case "":
+          completions.items.push({
+            label: file,
+            commitCharacters: [],
+            kind: CompletionItemKind.Folder,
+          });
+          break;
+      }
+    }
+  }
+
   /**
    * Add completion options for an identifier.
    */
@@ -528,6 +749,7 @@ export function createServer(host: ServerHost): Server {
     for (const [key, { sym, label }] of result) {
       let documentation: string | undefined;
       let kind: CompletionItemKind;
+      let deprecated = false;
       if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
       } else if (
@@ -536,16 +758,21 @@ export function createServer(host: ServerHost): Server {
       ) {
         kind = CompletionItemKind.Module;
       } else {
-        const type = program.checker.getTypeForNode(sym.declarations[0]);
+        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
         documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
+        deprecated = isDeprecated(program, type);
       }
-      completions.items.push({
+      const item: CompletionItem = {
         label: label ?? key,
         documentation,
         kind,
         insertText: key,
-      });
+      };
+      if (deprecated) {
+        item.tags = [CompletionItemTag.Deprecated];
+      }
+      completions.items.push(item);
     }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
@@ -558,15 +785,167 @@ export function createServer(host: ServerHost): Server {
       case SyntaxKind.EnumStatement:
       case SyntaxKind.UnionStatement:
         return CompletionItemKind.Enum;
+      case SyntaxKind.EnumMember:
+      case SyntaxKind.UnionVariant:
+        return CompletionItemKind.EnumMember;
       case SyntaxKind.AliasStatement:
         return CompletionItemKind.Variable;
       case SyntaxKind.ModelStatement:
         return isIntrinsic(program, target) ? CompletionItemKind.Keyword : CompletionItemKind.Class;
+      case SyntaxKind.ModelProperty:
+        return CompletionItemKind.Field;
+      case SyntaxKind.OperationStatement:
+        return CompletionItemKind.Method;
       case SyntaxKind.NamespaceStatement:
         return CompletionItemKind.Module;
       default:
         return CompletionItemKind.Struct;
     }
+  }
+
+  async function getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]> {
+    const ignore = -1;
+    const defer = -2;
+    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const tokens = mapTokens();
+    const ast = parse(file);
+    classifyNode(ast);
+    return Array.from(tokens.values()).filter((t) => t.kind !== undefined);
+
+    function mapTokens() {
+      const tokens = new Map<number, SemanticToken>();
+      const scanner = createScanner(file, () => {});
+
+      while (scanner.scan() !== Token.EndOfFile) {
+        const kind = classifyToken(scanner.token);
+        if (kind === ignore) {
+          continue;
+        }
+        tokens.set(scanner.tokenPosition, {
+          kind: kind === defer ? undefined! : kind,
+          pos: scanner.tokenPosition,
+          end: scanner.position,
+        });
+      }
+      return tokens;
+    }
+
+    function classifyToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
+      switch (token) {
+        case Token.Identifier:
+          return defer;
+        case Token.StringLiteral:
+          return SemanticTokenKind.String;
+        case Token.NumericLiteral:
+          return SemanticTokenKind.Number;
+        case Token.MultiLineComment:
+        case Token.SingleLineComment:
+          return SemanticTokenKind.Comment;
+        default:
+          if (isKeyword(token)) {
+            return SemanticTokenKind.Keyword;
+          }
+          if (isPunctuation(token)) {
+            return SemanticTokenKind.Operator;
+          }
+          return ignore;
+      }
+    }
+
+    function classifyNode(node: Node) {
+      switch (node.kind) {
+        case SyntaxKind.DirectiveExpression:
+          classify(node.target, SemanticTokenKind.Keyword);
+          break;
+        case SyntaxKind.TemplateParameterDeclaration:
+          classify(node.id, SemanticTokenKind.TypeParameter);
+          break;
+        case SyntaxKind.ModelProperty:
+        case SyntaxKind.UnionVariant:
+          classify(node.id, SemanticTokenKind.Property);
+          break;
+        case SyntaxKind.AliasStatement:
+          classify(node.id, SemanticTokenKind.Struct);
+          break;
+        case SyntaxKind.ModelStatement:
+          classify(node.id, SemanticTokenKind.Struct);
+          break;
+        case SyntaxKind.EnumStatement:
+          classify(node.id, SemanticTokenKind.Enum);
+          break;
+        case SyntaxKind.EnumMember:
+          classify(node.id, SemanticTokenKind.EnumMember);
+          break;
+        case SyntaxKind.NamespaceStatement:
+          classify(node.id, SemanticTokenKind.Namespace);
+          break;
+        case SyntaxKind.InterfaceStatement:
+          classify(node.id, SemanticTokenKind.Interface);
+          break;
+        case SyntaxKind.OperationStatement:
+          classify(node.id, SemanticTokenKind.Function);
+          break;
+        case SyntaxKind.DecoratorExpression:
+          classifyReference(node.target, SemanticTokenKind.Macro);
+          break;
+        case SyntaxKind.TypeReference:
+          classifyReference(node.target);
+          break;
+        case SyntaxKind.MemberExpression:
+          classifyReference(node);
+          break;
+      }
+      visitChildren(node, classifyNode);
+    }
+
+    function classify(node: Node, kind: SemanticTokenKind) {
+      const token = tokens.get(node.pos);
+      if (token && token.kind === undefined) {
+        token.kind = kind;
+      }
+    }
+
+    function classifyReference(node: Node, kind = SemanticTokenKind.Type) {
+      switch (node.kind) {
+        case SyntaxKind.MemberExpression:
+          classifyIdentifier(node.base, SemanticTokenKind.Namespace);
+          classifyIdentifier(node.id, kind);
+          break;
+        case SyntaxKind.TypeReference:
+          classifyIdentifier(node.target, kind);
+          break;
+        case SyntaxKind.Identifier:
+          classify(node, kind);
+          break;
+      }
+    }
+
+    function classifyIdentifier(node: Node, kind: SemanticTokenKind) {
+      if (node.kind === SyntaxKind.Identifier) {
+        classify(node, kind);
+      }
+    }
+  }
+
+  async function buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens> {
+    const builder = new SemanticTokensBuilder();
+    const tokens = await getSemanticTokens(params);
+    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const starts = file.getLineStarts();
+
+    for (const token of tokens) {
+      const start = file.getLineAndCharacterOfPosition(token.pos);
+      const end = file.getLineAndCharacterOfPosition(token.end);
+
+      for (let pos = token.pos, line = start.line; line <= end.line; line++) {
+        const endPos = line === end.line ? token.end : starts[line + 1];
+        const character = line === start.line ? start.character : 0;
+        builder.push(line, character, endPos - pos, token.kind, 0);
+        pos = endPos;
+      }
+    }
+
+    return builder.build();
   }
 
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {
@@ -638,7 +1017,7 @@ export function createServer(host: ServerHost): Server {
     if (!("version" in document)) {
       return true;
     }
-    return document.version === host.getDocumentByURL(document.uri)?.version;
+    return document.version === host.getOpenDocumentByURL(document.uri)?.version;
   }
 
   /**
@@ -713,6 +1092,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   function inWorkspace(path: string) {
+    path = ensureTrailingDirectorySeparator(path);
     return workspaceFolders.some((f) => path.startsWith(f.path));
   }
 
@@ -736,14 +1116,14 @@ export function createServer(host: ServerHost): Server {
     return pathOrUrl.startsWith("untitled:");
   }
 
-  function getDocument(path: string) {
+  function getOpenDocument(path: string) {
     const url = getURL(path);
-    return url ? host.getDocumentByURL(url) : undefined;
+    return url ? host.getOpenDocumentByURL(url) : undefined;
   }
 
   async function readFile(path: string): Promise<ServerSourceFile> {
     // Try open files sent from client over LSP
-    const document = getDocument(path);
+    const document = getOpenDocument(path);
     if (document) {
       return {
         document,
@@ -774,7 +1154,7 @@ export function createServer(host: ServerHost): Server {
   async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
     // if we have an open document for the path or a cache entry, then we know
     // it's a file and not a directory and needn't hit the disk.
-    if (getDocument(path) || fileSystemCache.get(path)?.type === "file") {
+    if (getOpenDocument(path) || fileSystemCache.get(path)?.type === "file") {
       return {
         isFile() {
           return true;
@@ -785,5 +1165,13 @@ export function createServer(host: ServerHost): Server {
       };
     }
     return await host.compilerHost.stat(path);
+  }
+
+  function getSourceFileKind(path: string) {
+    const document = getOpenDocument(path);
+    if (document?.languageId === "cadl") {
+      return "cadl";
+    }
+    return getSourceFileKindFromExt(path);
   }
 }
