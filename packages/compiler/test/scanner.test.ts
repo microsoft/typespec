@@ -386,7 +386,7 @@ describe("compiler: scanner", () => {
     }
 
     // check the rest
-    assert.strictEqual(TokenDisplay[Token.Elipsis], "'...'");
+    assert.strictEqual(TokenDisplay[Token.Ellipsis], "'...'");
     assert.strictEqual(TokenDisplay[Token.None], "none");
     assert.strictEqual(TokenDisplay[Token.Invalid], "invalid");
     assert.strictEqual(TokenDisplay[Token.EndOfFile], "end of file");

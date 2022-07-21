@@ -357,8 +357,12 @@ EnumMemberList :
     EnumMemberList `;` EnumMember
 
 EnumMember :
+    EnumSpreadMember
     DecoratorList? Identifier EnumMemberValue?
     DecoratorList? StringLiteral EnumMemberValue?
+
+EnumSpreadMember :
+    `...` ReferenceExpression
 
 EnumMemberValue :
     `:` StringLiteral

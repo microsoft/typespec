@@ -27,6 +27,7 @@ import {
   DirectiveExpressionNode,
   EmptyStatementNode,
   EnumMemberNode,
+  EnumSpreadMemberNode,
   EnumStatementNode,
   Expression,
   IdentifierContext,
@@ -730,7 +731,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseModelPropertyOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
-    return token() === Token.Elipsis
+    return token() === Token.Ellipsis
       ? parseModelSpreadProperty(pos, decorators)
       : parseModelProperty(pos, decorators);
   }
@@ -739,7 +740,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelSpreadPropertyNode {
-    parseExpected(Token.Elipsis);
+    parseExpected(Token.Ellipsis);
 
     reportInvalidDecorators(decorators, "spread property");
 
@@ -785,12 +786,35 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
-    const members = parseList(ListKind.EnumMembers, parseEnumMember);
+    const members = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
       members,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumMemberOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
+    return token() === Token.Ellipsis
+      ? parseEnumSpreadMember(pos, decorators)
+      : parseEnumMember(pos, decorators);
+  }
+
+  function parseEnumSpreadMember(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): EnumSpreadMemberNode {
+    parseExpected(Token.Ellipsis);
+
+    reportInvalidDecorators(decorators, "spread enum");
+
+    const target = parseReferenceExpression();
+
+    return {
+      kind: SyntaxKind.EnumSpreadMember,
+      target,
       ...finishNode(pos),
     };
   }
@@ -1638,7 +1662,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ) {
-    return token() === Token.Elipsis
+    return token() === Token.Ellipsis
       ? parseProjectionModelSpreadProperty(pos, decorators)
       : parseProjectionModelProperty(pos, decorators);
   }
@@ -1647,7 +1671,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ProjectionModelSpreadPropertyNode {
-    parseExpected(Token.Elipsis);
+    parseExpected(Token.Ellipsis);
 
     reportInvalidDecorators(decorators, "spread property");
 
@@ -2265,6 +2289,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.EnumMember:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.EnumSpreadMember:
+      return visitNode(cb, node.target);
     case SyntaxKind.AliasStatement:
       return (
         visitNode(cb, node.id) ||
