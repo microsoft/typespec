@@ -222,7 +222,13 @@ const tupleExpression: BeginEndRule = {
   key: "tuple-expression",
   scope: meta,
   begin: "\\[",
+  beginCaptures: {
+    "0": { scope: "punctuation.squarebracket.open.cadl" },
+  },
   end: "\\]",
+  endCaptures: {
+    "0": { scope: "punctuation.squarebracket.close.cadl" },
+  },
   patterns: [expression],
 };
 

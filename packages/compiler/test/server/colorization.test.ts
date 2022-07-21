@@ -284,6 +284,20 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
 
+      it("model with is array expression", async () => {
+        const tokens = await tokenize("model Foo is string[] {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.model,
+          Token.identifiers.type("Foo"),
+          Token.keywords.is,
+          Token.identifiers.type("string"),
+          Token.punctuation.openBracket,
+          Token.punctuation.closeBracket,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
       it("single template argument model", async () => {
         const tokens = await tokenize("model Foo<T> {}");
         deepStrictEqual(tokens, [
