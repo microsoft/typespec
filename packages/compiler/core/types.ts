@@ -219,6 +219,9 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   enum: EnumType;
   node: EnumMemberNode;
   value?: string | number;
+  // when spread operators make new enum members,
+  // this tracks the enum member we copied from.
+  sourceMember?: EnumMemberType;
 }
 
 export interface OperationType extends BaseType, DecoratedType, TemplatedType {

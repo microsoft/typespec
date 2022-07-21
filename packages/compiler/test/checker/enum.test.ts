@@ -113,6 +113,7 @@ describe("compiler: enums", () => {
     strictEqual(Foo.members.length, 3);
     strictEqual(Foo.members[0].name, "One");
     strictEqual(Foo.members[0].enum, Foo);
+    strictEqual(Foo.members[0].sourceMember, Bar.members[0]);
 
     strictEqual(Bar.members.length, 2);
     strictEqual(Bar.members[0].name, "One");

@@ -2607,6 +2607,7 @@ export function createChecker(program: Program): Checker {
           existingMemberNames.add(member.name);
           const clonedMember = cloneType(member, {
             enum: parentEnum,
+            sourceMember: member,
           });
           if (clonedMember) {
             members.push(clonedMember);
