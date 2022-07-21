@@ -287,10 +287,10 @@ ModelStatement :
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
 IsModelHeritage :
-    `is` ReferenceExpression
+    `is` Expression
 
 ExtendsModelHeritage :
-    `extends` ReferenceExpression
+    `extends` Expression
 
 ModelHeritage :
     IsModelHeritage
@@ -357,8 +357,12 @@ EnumMemberList :
     EnumMemberList `;` EnumMember
 
 EnumMember :
+    EnumSpreadMember
     DecoratorList? Identifier EnumMemberValue?
     DecoratorList? StringLiteral EnumMemberValue?
+
+EnumSpreadMember :
+    `...` ReferenceExpression
 
 EnumMemberValue :
     `:` StringLiteral

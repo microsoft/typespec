@@ -30,11 +30,6 @@ export function createProjectionMembers(checker: Checker): {
   }
 
   return {
-    Array: {
-      elementType(base) {
-        return base.elementType;
-      },
-    },
     Model: {
       ...createBaseMembers(),
       ...createNameableMembers(),
