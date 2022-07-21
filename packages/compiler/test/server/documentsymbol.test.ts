@@ -3,7 +3,7 @@ import { pathToFileURL } from "url";
 import { SymbolInformation } from "vscode-languageserver/node.js";
 import { resolveVirtualPath } from "../../testing/test-host.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
-describe.only("compiler: server: SymbolInformation", () => {
+describe("compiler: server: SymbolInformation", () => {
   it("includes namespace for symbolInformation", async () => {
     const ranges = await getDocumentSymbols(`namespace Foo;`);
     deepStrictEqual(ranges, [
