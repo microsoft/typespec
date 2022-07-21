@@ -482,9 +482,13 @@ export function createServer(host: ServerHost): Server {
       case SyntaxKind.InterfaceStatement:
         return { name: node.id.sv, kind: SymbolKind.Interface };
       case SyntaxKind.OperationStatement:
-        return { name: node.id.sv, kind: SymbolKind.Operator };
+        return { name: node.id.sv, kind: SymbolKind.Function };
       case SyntaxKind.ModelStatement:
         return { name: node.id.sv, kind: SymbolKind.Struct };
+      case SyntaxKind.ModelProperty && SyntaxKind.StringLiteral:
+        return { name: node.value, kind: SymbolKind.Struct };
+      case SyntaxKind.ModelProperty && SyntaxKind.Identifier:
+        return { name: node.sv, kind: SymbolKind.Struct };
       case SyntaxKind.UnionStatement:
         return { name: node.id.sv, kind: SymbolKind.Enum };
       default:
