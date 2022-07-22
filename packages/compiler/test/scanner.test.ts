@@ -333,6 +333,7 @@ describe("compiler: scanner", () => {
       Token.FalseKeyword,
       Token.VoidKeyword,
       Token.NeverKeyword,
+      Token.UnknownKeyword,
     ];
     let minKeywordLengthFound = Number.MAX_SAFE_INTEGER;
     let maxKeywordLengthFound = Number.MIN_SAFE_INTEGER;
@@ -385,7 +386,7 @@ describe("compiler: scanner", () => {
     }
 
     // check the rest
-    assert.strictEqual(TokenDisplay[Token.Elipsis], "'...'");
+    assert.strictEqual(TokenDisplay[Token.Ellipsis], "'...'");
     assert.strictEqual(TokenDisplay[Token.None], "none");
     assert.strictEqual(TokenDisplay[Token.Invalid], "invalid");
     assert.strictEqual(TokenDisplay[Token.EndOfFile], "end of file");
