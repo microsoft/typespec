@@ -10,6 +10,7 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  FileEvent,
   FoldingRange,
   FoldingRangeParams,
   InitializedParams,
@@ -74,7 +75,13 @@ import {
   SyntaxKind,
   Type,
 } from "../core/types.js";
-import { doIO, findProjectRoot, getSourceFileKindFromExt, loadFile } from "../core/util.js";
+import {
+  doIO,
+  findProjectRoot,
+  getNormalizedRealPath,
+  getSourceFileKindFromExt,
+  loadFile,
+} from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 
 export interface ServerHost {
@@ -87,9 +94,9 @@ export interface ServerHost {
 export interface Server {
   readonly pendingMessages: readonly string[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
-  initialize(params: InitializeParams): InitializeResult;
+  initialize(params: InitializeParams): Promise<InitializeResult>;
   initialized(params: InitializedParams): void;
-  workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): void;
+  workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
   watchedFilesChanged(params: DidChangeWatchedFilesParams): void;
   gotoDefinition(params: DefinitionParams): Promise<Location[]>;
   complete(params: CompletionParams): Promise<CompletionList>;
@@ -210,14 +217,8 @@ export function createServer(host: ServerHost): Server {
   // the compiler reads a file that isn't open, we use this cache to avoid
   // hitting the disk. Entries are invalidated when LSP client notifies us of
   // a file change.
-  const fileSystemCache = new Map<string, CachedFile | CachedError>();
-
-  const compilerHost: CompilerHost = {
-    ...host.compilerHost,
-    readFile,
-    stat,
-    getSourceFileKind,
-  };
+  const fileSystemCache = createFileSystemCache();
+  const compilerHost = createCompilerHost();
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
@@ -247,7 +248,7 @@ export function createServer(host: ServerHost): Server {
     log,
   };
 
-  function initialize(params: InitializeParams): InitializeResult {
+  async function initialize(params: InitializeParams): Promise<InitializeResult> {
     const tokenLegend: SemanticTokensLegend = {
       tokenTypes: Object.keys(SemanticTokenKind)
         .filter((x) => Number.isNaN(Number(x)))
@@ -275,11 +276,12 @@ export function createServer(host: ServerHost): Server {
     };
 
     if (params.capabilities.workspace?.workspaceFolders) {
-      workspaceFolders =
-        params.workspaceFolders?.map((w) => ({
+      for (const w of params.workspaceFolders ?? []) {
+        workspaceFolders.push({
           ...w,
-          path: ensureTrailingDirectorySeparator(resolvePath(compilerHost.fileURLToPath(w.uri))),
-        })) ?? [];
+          path: ensureTrailingDirectorySeparator(await fileURLToRealPath(w.uri)),
+        });
+      }
       capabilities.workspace = {
         workspaceFolders: {
           supported: true,
@@ -291,9 +293,7 @@ export function createServer(host: ServerHost): Server {
         {
           name: "<root>",
           uri: params.rootUri,
-          path: ensureTrailingDirectorySeparator(
-            resolvePath(compilerHost.fileURLToPath(params.rootUri))
-          ),
+          path: ensureTrailingDirectorySeparator(await fileURLToRealPath(params.rootUri)),
         },
       ];
     } else if (params.rootPath) {
@@ -301,7 +301,9 @@ export function createServer(host: ServerHost): Server {
         {
           name: "<root>",
           uri: compilerHost.pathToFileURL(params.rootPath),
-          path: ensureTrailingDirectorySeparator(resolvePath(params.rootPath)),
+          path: ensureTrailingDirectorySeparator(
+            await getNormalizedRealPath(compilerHost, params.rootPath)
+          ),
         },
       ];
     }
@@ -315,27 +317,24 @@ export function createServer(host: ServerHost): Server {
     log("Initialization complete.");
   }
 
-  function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
+  async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
     log("Workspace Folders Changed", e);
     const map = new Map(workspaceFolders.map((f) => [f.uri, f]));
     for (const folder of e.removed) {
       map.delete(folder.uri);
     }
     for (const folder of e.added) {
-      map.set(folder.uri, { ...folder, path: compilerHost.fileURLToPath(folder.uri) });
+      map.set(folder.uri, {
+        ...folder,
+        path: ensureTrailingDirectorySeparator(await fileURLToRealPath(folder.uri)),
+      });
     }
     workspaceFolders = Array.from(map.values());
     log("Workspace Folders", workspaceFolders);
   }
 
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
-    // remove stale file system cache entries on file change notification
-    for (const each of params.changes) {
-      if (each.uri.startsWith("file:")) {
-        const path = compilerHost.fileURLToPath(each.uri);
-        fileSystemCache.delete(path);
-      }
-    }
+    fileSystemCache.notify(params.changes);
   }
 
   type CompileCallback<T> = (
@@ -357,7 +356,7 @@ export function createServer(host: ServerHost): Server {
     document: TextDocument | TextDocumentIdentifier,
     callback?: CompileCallback<T>
   ): Promise<T | Program | undefined> {
-    const path = getPath(document);
+    const path = await getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await loadCadlConfigForPath(compilerHost, mainFile);
 
@@ -390,7 +389,7 @@ export function createServer(host: ServerHost): Server {
       if (callback) {
         const doc = "version" in document ? document : host.getOpenDocumentByURL(document.uri);
         compilerAssert(doc, "Failed to get document.");
-        const path = getPath(doc);
+        const path = await getPath(doc);
         const script = program.sourceFiles.get(path);
         compilerAssert(script, "Failed to get script.");
         return await callback(program, doc, script);
@@ -416,7 +415,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
-    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const file = await compilerHost.readFile(await getPath(params.textDocument));
     const ast = parse(file, { comments: true });
     const ranges: FoldingRange[] = [];
     let rangeStartSingleLines = -1;
@@ -647,7 +646,7 @@ export function createServer(host: ServerHost): Server {
     document: TextDocument,
     completions: CompletionList
   ) {
-    const documentPath = getPath(document);
+    const documentPath = await getPath(document);
     const projectRoot = await findProjectRoot(compilerHost, documentPath);
     if (projectRoot != undefined) {
       const [packagejson] = await loadFile(
@@ -701,7 +700,7 @@ export function createServer(host: ServerHost): Server {
     completions: CompletionList,
     node: StringLiteralNode
   ) {
-    const documentPath = getPath(document);
+    const documentPath = await getPath(document);
     const documentFile = getBaseFileName(documentPath);
     const documentDir = getDirectoryPath(documentPath);
     const nodevalueDir = hasTrailingDirectorySeparator(node.value)
@@ -806,7 +805,7 @@ export function createServer(host: ServerHost): Server {
   async function getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]> {
     const ignore = -1;
     const defer = -2;
-    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const file = await compilerHost.readFile(await getPath(params.textDocument));
     const tokens = mapTokens();
     const ast = parse(file);
     classifyNode(ast);
@@ -930,7 +929,7 @@ export function createServer(host: ServerHost): Server {
   async function buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens> {
     const builder = new SemanticTokensBuilder();
     const tokens = await getSemanticTokens(params);
-    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const file = await compilerHost.readFile(await getPath(params.textDocument));
     const starts = file.getLineStarts();
 
     for (const token of tokens) {
@@ -1047,7 +1046,7 @@ export function createServer(host: ServerHost): Server {
       let mainFile = "main.cadl";
       let pkg: any;
       const pkgPath = joinPaths(dir, "package.json");
-      const cached = fileSystemCache.get(pkgPath)?.data;
+      const cached = (await fileSystemCache.get(pkgPath))?.data;
 
       if (cached) {
         pkg = cached;
@@ -1059,7 +1058,7 @@ export function createServer(host: ServerHost): Server {
           logMainFileSearchDiagnostic,
           options
         );
-        fileSystemCache.get(pkgPath)!.data = pkg ?? {};
+        (await fileSystemCache.get(pkgPath))!.data = pkg ?? {};
       }
 
       if (typeof pkg?.cadlMain === "string") {
@@ -1096,11 +1095,11 @@ export function createServer(host: ServerHost): Server {
     return workspaceFolders.some((f) => path.startsWith(f.path));
   }
 
-  function getPath(document: TextDocument | TextDocumentIdentifier) {
+  async function getPath(document: TextDocument | TextDocumentIdentifier) {
     if (isUntitled(document.uri)) {
       return document.uri;
     }
-    const path = resolvePath(compilerHost.fileURLToPath(document.uri));
+    const path = await fileURLToRealPath(document.uri);
     pathToURLMap.set(path, document.uri);
     return path;
   }
@@ -1121,57 +1120,92 @@ export function createServer(host: ServerHost): Server {
     return url ? host.getOpenDocumentByURL(url) : undefined;
   }
 
-  async function readFile(path: string): Promise<ServerSourceFile> {
-    // Try open files sent from client over LSP
-    const document = getOpenDocument(path);
-    if (document) {
-      return {
-        document,
-        ...createSourceFile(document.getText(), path),
-      };
-    }
+  async function fileURLToRealPath(url: string) {
+    return getNormalizedRealPath(compilerHost, compilerHost.fileURLToPath(url));
+  }
 
-    // Try file system cache
-    const cached = fileSystemCache.get(path);
-    if (cached) {
-      if (cached.type === "error") {
-        throw cached.error;
+  function createFileSystemCache() {
+    const cache = new Map<string, CachedFile | CachedError>();
+    let changes: FileEvent[] = [];
+    return {
+      async get(path: string) {
+        for (const change of changes) {
+          const path = await fileURLToRealPath(change.uri);
+          cache.delete(path);
+        }
+        changes = [];
+        return cache.get(path);
+      },
+      set(path: string, entry: CachedFile | CachedError) {
+        cache.set(path, entry);
+      },
+      notify(changes: FileEvent[]) {
+        changes.push(...changes);
+      },
+    };
+  }
+
+  function createCompilerHost(): CompilerHost {
+    const base = host.compilerHost;
+    return {
+      ...base,
+      readFile,
+      stat,
+      getSourceFileKind,
+    };
+
+    async function readFile(path: string): Promise<ServerSourceFile> {
+      // Try open files sent from client over LSP
+      const document = getOpenDocument(path);
+      if (document) {
+        return {
+          document,
+          ...createSourceFile(document.getText(), path),
+        };
       }
-      return cached.file;
+
+      // Try file system cache
+      const cached = await fileSystemCache.get(path);
+      if (cached) {
+        if (cached.type === "error") {
+          throw cached.error;
+        }
+        return cached.file;
+      }
+
+      // Hit the disk and cache
+      try {
+        const file = await base.readFile(path);
+        fileSystemCache.set(path, { type: "file", file });
+        return file;
+      } catch (error) {
+        fileSystemCache.set(path, { type: "error", error });
+        throw error;
+      }
     }
 
-    // Hit the disk and cache
-    try {
-      const file = await host.compilerHost.readFile(path);
-      fileSystemCache.set(path, { type: "file", file });
-      return file;
-    } catch (error) {
-      fileSystemCache.set(path, { type: "error", error });
-      throw error;
+    async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
+      // if we have an open document for the path or a cache entry, then we know
+      // it's a file and not a directory and needn't hit the disk.
+      if (getOpenDocument(path) || (await fileSystemCache.get(path))?.type === "file") {
+        return {
+          isFile() {
+            return true;
+          },
+          isDirectory() {
+            return false;
+          },
+        };
+      }
+      return await base.stat(path);
     }
-  }
 
-  async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
-    // if we have an open document for the path or a cache entry, then we know
-    // it's a file and not a directory and needn't hit the disk.
-    if (getOpenDocument(path) || fileSystemCache.get(path)?.type === "file") {
-      return {
-        isFile() {
-          return true;
-        },
-        isDirectory() {
-          return false;
-        },
-      };
+    function getSourceFileKind(path: string) {
+      const document = getOpenDocument(path);
+      if (document?.languageId === "cadl") {
+        return "cadl";
+      }
+      return getSourceFileKindFromExt(path);
     }
-    return await host.compilerHost.stat(path);
-  }
-
-  function getSourceFileKind(path: string) {
-    const document = getOpenDocument(path);
-    if (document?.languageId === "cadl") {
-      return "cadl";
-    }
-    return getSourceFileKindFromExt(path);
   }
 }

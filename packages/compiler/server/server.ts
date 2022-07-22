@@ -50,11 +50,11 @@ function main() {
   s.log("Process ID", process.pid);
   s.log("Command Line", process.argv);
 
-  connection.onInitialize((params) => {
+  connection.onInitialize(async (params) => {
     if (params.capabilities.workspace?.workspaceFolders) {
       clientHasWorkspaceFolderCapability = true;
     }
-    return s.initialize(params);
+    return await s.initialize(params);
   });
 
   connection.onInitialized((params) => {

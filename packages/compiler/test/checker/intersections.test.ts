@@ -5,7 +5,7 @@ import {
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
-  extractStartEndCursors,
+  extractSquiggles,
 } from "../../testing/index.js";
 
 describe("compiler: intersections", () => {
@@ -49,9 +49,12 @@ describe("compiler: intersections", () => {
   });
 
   it("emit diagnostic if one of the intersected type is not a model", async () => {
-    const { source, pos, end } = extractStartEndCursors(`@test model Foo {
-      prop: {a: string} & ┆"string literal"┆;
-    }`);
+    const { source, pos, end } = extractSquiggles(`
+      @test model Foo {
+        prop: {a: string} & ~~~"string literal"~~~
+      }
+    `);
+
     const diagnostics = await runner.diagnose(source);
     expectDiagnostics(diagnostics, {
       code: "intersect-non-model",

@@ -4,8 +4,14 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
+import { createStringMap } from "../core/util.js";
 import { createServer, Server, ServerHost } from "../server/index.js";
-import { createTestFileSystem, resolveVirtualPath, StandardTestLibrary } from "./test-host.js";
+import {
+  createTestFileSystem,
+  resolveVirtualPath,
+  StandardTestLibrary,
+  TestHostOptions,
+} from "./test-host.js";
 import { TestFileSystem } from "./types.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {
@@ -17,13 +23,11 @@ export interface TestServerHost extends ServerHost, TestFileSystem {
   getURL(path: string): string;
 }
 
-export async function createTestServerHost(): Promise<TestServerHost> {
-  const documents = new Map<string, TextDocument>();
-  const diagnostics = new Map<string, Diagnostic[]>();
+export async function createTestServerHost(options?: TestHostOptions) {
   const logMessages: string[] = [];
-  const fileSystem = await createTestFileSystem();
-  // We don't add the @test decorator for server tests
-  fileSystem.compilerHost.getLibDirs = () => [resolveVirtualPath(".cadl/lib")];
+  const documents = createStringMap<TextDocument>(!!options?.caseInsensitiveFileSystem);
+  const diagnostics = createStringMap<Diagnostic[]>(!!options?.caseInsensitiveFileSystem);
+  const fileSystem = await createTestFileSystem({ ...options, excludeTestLib: true });
   await fileSystem.addCadlLibrary(StandardTestLibrary);
 
   const serverHost: TestServerHost = {
@@ -63,9 +67,10 @@ export async function createTestServerHost(): Promise<TestServerHost> {
     },
   };
 
+  const rootUri = serverHost.getURL("./");
   const server = createServer(serverHost);
-  server.initialize({
-    rootUri: serverHost.getURL("./"),
+  await server.initialize({
+    rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
     capabilities: {},
     processId: null,
     workspaceFolders: null,
@@ -76,29 +81,31 @@ export async function createTestServerHost(): Promise<TestServerHost> {
 }
 
 /**
- * Takes source code with a cursor position indicated by `┆`, removes the
- * `┆` and returns the source without the `┆` and the numeric cursor
- * position.
+ * Takes source code with a cursor position indicated by the given marker
+ * ("┆" by default), and returns the source without the marker along with
+ * the cursor position.
  */
-export function extractCursor(sourceWithCursor: string): { source: string; pos: number } {
-  const pos = sourceWithCursor.indexOf("┆");
-  ok(pos >= 0, "no cursor found");
-  const source = sourceWithCursor.replace("┆", "");
+export function extractCursor(
+  sourceWithCursor: string,
+  marker = "┆"
+): { source: string; pos: number } {
+  const pos = sourceWithCursor.indexOf(marker);
+  ok(pos >= 0, "marker not found");
+  const source = sourceWithCursor.replace(marker, "");
   return { source, pos };
 }
 
 /**
- * Takes source code with 2 cursor position indicated by `┆`, removes the
- * `┆` and returns the source without the `┆` and the numeric cursor
- * first (pos) and 2nd (end) position.
+ * Takes source code with start and end positions indicated by given marker
+ * ("~~~" by default) and returns the source without the markers along with
+ * the start and end positions.
  */
-export function extractStartEndCursors(sourceWithStartEndCursor: string): {
-  source: string;
-  pos: number;
-  end: number;
-} {
-  const { source: sourceWithEndCursor, pos } = extractCursor(sourceWithStartEndCursor);
-  const { source, pos: end } = extractCursor(sourceWithEndCursor);
+export function extractSquiggles(
+  sourceWithSquiggles: string,
+  marker = "~~~"
+): { source: string; pos: number; end: number } {
+  const { source: sourceWithoutFistSquiggle, pos } = extractCursor(sourceWithSquiggles, marker);
+  const { source, pos: end } = extractCursor(sourceWithoutFistSquiggle, marker);
   return { source, pos, end };
 }
 
