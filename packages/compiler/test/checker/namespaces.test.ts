@@ -37,6 +37,24 @@ describe("compiler: namespaces with blocks", () => {
     ok(blues.has(Q), "Q is blue");
   });
 
+  it("can reference array expression on decorator of namespace", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+    import "./blue.js";
+    @blue(Bar) @test
+    namespace Test {
+      model Bar {
+        arrayProp: string[];
+      }
+    }
+    `
+    );
+    const { Test } = await testHost.compile("./");
+
+    strictEqual(Test.kind, "Namespace" as const);
+  });
+
   it("merges like namespaces", async () => {
     testHost.addCadlFile(
       "main.cadl",

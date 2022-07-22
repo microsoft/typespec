@@ -686,26 +686,6 @@ describe("cadl: projections", () => {
     });
   });
 
-  describe("arrays", () => {
-    it("can get element type", async () => {
-      const code = `
-        @test model Foo {
-          x: string[];
-        }
-
-        #suppress "projections-are-experimental"
-        projection Foo#test {
-          to {
-            return self.x::type::elementType;
-          }
-        }
-      `;
-
-      const result = (await testProjection(code)) as ModelType;
-      strictEqual(result.name, "string");
-    });
-  });
-
   const projectionCode = (body: string) => `
       #suppress "projections-are-experimental"
       projection Foo#test {

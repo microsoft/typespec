@@ -1,13 +1,9 @@
 import assert from "assert";
-import { ArrayType, ModelType, Type } from "../../core/types.js";
+import { ModelType, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
 function assertModel(type?: Type): asserts type is ModelType {
   assert(type?.kind === "Model");
-}
-
-function assertArray(type: Type): asserts type is ArrayType {
-  assert(type.kind === "Array");
 }
 
 describe("compiler: model circular references", () => {
@@ -45,8 +41,8 @@ describe("compiler: model circular references", () => {
     const m = records["M"];
     assertModel(m);
     const propType = m.properties.get("selfs")!.type;
-    assertArray(propType);
-    assert(propType.elementType === m);
+    assertModel(propType);
+    assert(propType.indexer!.value === m);
   });
 
   it("models can reference each other", async () => {

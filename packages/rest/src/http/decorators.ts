@@ -8,7 +8,6 @@ import {
   setCadlNamespace,
   Type,
   validateDecoratorParamCount,
-  validateDecoratorParamType,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "../diagnostics.js";
@@ -41,13 +40,14 @@ export function isHeader(program: Program, entity: Type) {
   return program.stateMap(headerFieldsKey).has(entity);
 }
 
+const queryDecorator = createDecoratorDefinition({
+  name: "@query",
+  target: "ModelProperty",
+  args: [{ kind: "String", optional: true }],
+} as const);
 const queryFieldsKey = Symbol("query");
-export function $query(context: DecoratorContext, entity: Type, queryKey?: string) {
-  if (!validateDecoratorTarget(context, entity, "@query", "ModelProperty")) {
-    return;
-  }
-
-  if (queryKey && !validateDecoratorParamType(context.program, entity, queryKey, "String")) {
+export function $query(context: DecoratorContext, entity: ModelTypeProperty, queryKey?: string) {
+  if (!queryDecorator.validate(context, entity, [queryKey])) {
     return;
   }
 
@@ -65,20 +65,18 @@ export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(queryFieldsKey).has(entity);
 }
 
+const pathDecorator = createDecoratorDefinition({
+  name: "@path",
+  target: "ModelProperty",
+  args: [{ kind: "String", optional: true }],
+} as const);
 const pathFieldsKey = Symbol("path");
-export function $path(context: DecoratorContext, entity: Type, paramName?: string) {
-  if (!validateDecoratorTarget(context, entity, "@path", "ModelProperty")) {
+export function $path(context: DecoratorContext, entity: ModelTypeProperty, paramName?: string) {
+  if (!pathDecorator.validate(context, entity, [paramName])) {
     return;
   }
 
-  if (paramName && !validateDecoratorParamType(context.program, entity, paramName, "String")) {
-    return;
-  }
-
-  if (!paramName && entity.kind === "ModelProperty") {
-    paramName = entity.name;
-  }
-  context.program.stateMap(pathFieldsKey).set(entity, paramName);
+  context.program.stateMap(pathFieldsKey).set(entity, paramName ?? entity.name);
 }
 
 export function getPathParamName(program: Program, entity: Type) {
@@ -89,9 +87,14 @@ export function isPathParam(program: Program, entity: Type) {
   return program.stateMap(pathFieldsKey).has(entity);
 }
 
+const bodyDecorator = createDecoratorDefinition({
+  name: "@body",
+  target: "ModelProperty",
+  args: [],
+} as const);
 const bodyFieldsKey = Symbol("body");
-export function $body(context: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(context, entity, "@body", "ModelProperty")) {
+export function $body(context: DecoratorContext, entity: ModelTypeProperty) {
+  if (!bodyDecorator.validate(context, entity, [])) {
     return;
   }
   context.program.stateSet(bodyFieldsKey).add(entity);
@@ -101,9 +104,14 @@ export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(bodyFieldsKey).has(entity);
 }
 
+const statusCodeDecorator = createDecoratorDefinition({
+  name: "@statusCode",
+  target: "ModelProperty",
+  args: [],
+} as const);
 const statusCodeKey = Symbol("statusCode");
-export function $statusCode(context: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(context, entity, "@statusCode", "ModelProperty")) {
+export function $statusCode(context: DecoratorContext, entity: ModelTypeProperty) {
+  if (!statusCodeDecorator.validate(context, entity, [])) {
     return;
   }
   context.program.stateSet(statusCodeKey).add(entity);

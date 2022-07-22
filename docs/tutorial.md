@@ -44,6 +44,8 @@ model Dog {
 
 #### Built-in Models
 
+[Type relations](./type-relations.md)
+
 Cadl comes with built-in models for common data types:
 
 - `string`: sequence of characters
