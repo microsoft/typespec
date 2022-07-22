@@ -6,7 +6,7 @@ import {
   createTestHost,
   createTestRunner,
   expectDiagnostics,
-  extractStartEndCursors,
+  extractSquiggles,
   TestHost,
 } from "../../testing/index.js";
 
@@ -324,8 +324,8 @@ describe("compiler: templates", () => {
     });
 
     it("emit diagnostics if template default is not assignable to constraint", async () => {
-      const { source, pos, end } = extractStartEndCursors(`
-        model A<T extends string = ┆123┆> { a: T }
+      const { source, pos, end } = extractSquiggles(`
+        model A<T extends string = ~~~123~~~> { a: T }
       `);
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
@@ -337,11 +337,11 @@ describe("compiler: templates", () => {
     });
 
     it("emit diagnostics if template reference arg is not assignable to constraint", async () => {
-      const { source, pos, end } = extractStartEndCursors(`
+      const { source, pos, end } = extractSquiggles(`
         model A<T extends string> { a: T }
 
         model B {
-          a: A<┆456┆>
+          a: A<~~~456~~~>
         }
       `);
       const diagnostics = await runner.diagnose(source);
