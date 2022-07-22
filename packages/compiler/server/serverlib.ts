@@ -10,11 +10,7 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
-<<<<<<< HEAD
   DocumentSymbolParams,
-=======
-  FileEvent,
->>>>>>> main
   FoldingRange,
   FoldingRangeParams,
   InitializedParams,
