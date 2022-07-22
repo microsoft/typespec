@@ -798,7 +798,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
         let schema: any = getSchemaOrRef(nonNullOptions[0]);
-        if (nullable && schema?.$ref) {
+        if (nullable && schema.$ref) {
           schema = {
             type: "object",
             allOf: [schema],
