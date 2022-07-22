@@ -5,6 +5,7 @@ import {
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
+  extractSquiggles,
 } from "../../testing/index.js";
 
 describe("compiler: spread", () => {
@@ -18,17 +19,12 @@ describe("compiler: spread", () => {
   beforeEach(async () => {
     const host = await createTestHost();
     host.addJsFile("blue.js", { $blue });
-    runner = createTestWrapper(
-      host,
-      (code) => `
-    import "./blue.js";
-    ${code}
-    `
-    );
+    runner = createTestWrapper(host, (code) => code);
   });
 
   it("clones decorated properties", async () => {
     const { C } = (await runner.compile(`
+      import "./blue.js";
       model A { @blue foo: string }
       model B { @blue bar: string }
       @test model C { ... A, ... B }
@@ -79,6 +75,25 @@ describe("compiler: spread", () => {
     expectDiagnostics(diagnostics, {
       code: "spread-model",
       message: "Cannot spread type because it cannot hold properties.",
+    });
+  });
+
+  it("emits duplicate diagnostic at correct location", async () => {
+    const { source, pos, end } = extractSquiggles(`
+      model Foo { 
+        x: string 
+      } 
+      model Bar { 
+        x: string, 
+        ~~~...Foo~~~
+      }
+    `);
+
+    const diagnostics = await runner.diagnose(source);
+    expectDiagnostics(diagnostics, {
+      code: "duplicate-property",
+      pos,
+      end,
     });
   });
 });
