@@ -11,6 +11,7 @@ import {
   DiagnosticTag,
   DidChangeWatchedFilesParams,
   DocumentSymbolParams,
+  FileEvent,
   FoldingRange,
   FoldingRangeParams,
   InitializedParams,
@@ -496,7 +497,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]> {
-    const file = await compilerHost.readFile(getPath(params.textDocument));
+    const file = await compilerHost.readFile(await getPath(params.textDocument));
     const ast = parse(file);
     const ranges: SymbolInformation[] = [];
     visitChildren(ast, addRangesForNode);
