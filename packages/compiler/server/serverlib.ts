@@ -78,9 +78,9 @@ import {
 import {
   doIO,
   findProjectRoot,
+  getNormalizedRealPath,
   getSourceFileKindFromExt,
   loadFile,
-  resolveRealPath,
 } from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 
@@ -302,7 +302,7 @@ export function createServer(host: ServerHost): Server {
           name: "<root>",
           uri: compilerHost.pathToFileURL(params.rootPath),
           path: ensureTrailingDirectorySeparator(
-            await resolveRealPath(compilerHost, params.rootPath)
+            await getNormalizedRealPath(compilerHost, params.rootPath)
           ),
         },
       ];
@@ -1121,7 +1121,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function fileURLToRealPath(url: string) {
-    return resolveRealPath(compilerHost, compilerHost.fileURLToPath(url));
+    return getNormalizedRealPath(compilerHost, compilerHost.fileURLToPath(url));
   }
 
   function createFileSystemCache() {
@@ -1152,6 +1152,7 @@ export function createServer(host: ServerHost): Server {
       stat,
       getSourceFileKind,
     };
+
     const compilerHost = Object.create(base);
     Object.assign(compilerHost, overrides);
     return compilerHost;

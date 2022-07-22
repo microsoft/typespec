@@ -6,6 +6,7 @@ import {
   isPathAbsolute,
   isUrl,
   joinPaths,
+  normalizePath,
   resolvePath,
 } from "./path-utils.js";
 import {
@@ -48,8 +49,8 @@ export function deepClone<T>(value: T): T {
   return value;
 }
 
-export async function resolveRealPath(host: CompilerHost, path: string) {
-  return resolvePath(await host.realpath(path));
+export async function getNormalizedRealPath(host: CompilerHost, path: string) {
+  return normalizePath(await host.realpath(path));
 }
 
 export interface FileHandlingOptions {
