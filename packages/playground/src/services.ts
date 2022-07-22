@@ -23,7 +23,7 @@ export async function attachServices(host: BrowserHost) {
 
   const { createServer } = await importCadlCompiler();
   const serverLib = createServer(serverHost);
-  const lsConfig = serverLib.initialize({
+  const lsConfig = await serverLib.initialize({
     capabilities: {},
     processId: 1,
     workspaceFolders: [],
