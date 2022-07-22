@@ -16,7 +16,7 @@ export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props)=> {
   return(
     <>
     {PlaygroundManifest.enableSwaggerUI? (
-    <select className="output-dropdown" onChange={handleSelected}>
+    <select className="output-dropdown" onChange={handleSelected} value={selected}>
       <option>OpenApi</option>
       <option >Swagger-UI</option>
     </select>
