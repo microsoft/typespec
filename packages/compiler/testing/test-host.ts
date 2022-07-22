@@ -20,6 +20,12 @@ import {
   TestHostError,
 } from "./types.js";
 
+export interface TestHostOptions {
+  caseInsensitiveFileSystem?: boolean;
+  excludeTestLib?: boolean;
+  compilerHostOverrides?: Partial<CompilerHost>;
+}
+
 export function resolveVirtualPath(path: string, ...paths: string[]) {
   // NB: We should always resolve an absolute path, and there is no absolute
   // path that works across OSes. This ensures that we can still rely on API
@@ -30,8 +36,14 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
 
 function createTestCompilerHost(
   virtualFs: Map<string, string>,
-  jsImports: Map<string, Record<string, any>>
+  jsImports: Map<string, Record<string, any>>,
+  options?: TestHostOptions
 ): CompilerHost {
+  const libDirs = [resolveVirtualPath(".cadl/lib")];
+  if (!options?.excludeTestLib) {
+    libDirs.push(resolveVirtualPath(".cadl/test-lib"));
+  }
+
   return {
     async readUrl(url: string) {
       const contents = virtualFs.get(url);
@@ -81,7 +93,7 @@ function createTestCompilerHost(
     },
 
     getLibDirs() {
-      return [resolveVirtualPath(".cadl/lib"), resolveVirtualPath(".cadl/test-lib")];
+      return libDirs;
     },
 
     getExecutionRoot() {
@@ -139,14 +151,16 @@ function createTestCompilerHost(
     pathToFileURL(path: string) {
       return pathToFileURL(path).href;
     },
+
+    ...options?.compilerHostOverrides,
   };
 }
 
-export async function createTestFileSystem(caseInsensitive = false): Promise<TestFileSystem> {
-  const virtualFs = createStringMap<string>(caseInsensitive);
-  const jsImports = createStringMap<Promise<any>>(caseInsensitive);
+export async function createTestFileSystem(options?: TestHostOptions): Promise<TestFileSystem> {
+  const virtualFs = createStringMap<string>(!!options?.caseInsensitiveFileSystem);
+  const jsImports = createStringMap<Promise<any>>(!!options?.caseInsensitiveFileSystem);
 
-  const compilerHost = createTestCompilerHost(virtualFs, jsImports);
+  const compilerHost = createTestCompilerHost(virtualFs, jsImports, options);
   return {
     addCadlFile,
     addJsFile,

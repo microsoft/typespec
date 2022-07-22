@@ -1147,16 +1147,12 @@ export function createServer(host: ServerHost): Server {
 
   function createCompilerHost(): CompilerHost {
     const base = host.compilerHost;
-    const overrides: Partial<CompilerHost> = {
+    return {
+      ...base,
       readFile,
       stat,
       getSourceFileKind,
     };
-
-    // NOTE: we use the underlying host as a prototype to allow test code to mutate it.
-    const compilerHost = Object.create(base);
-    Object.assign(compilerHost, overrides);
-    return compilerHost;
 
     async function readFile(path: string): Promise<ServerSourceFile> {
       // Try open files sent from client over LSP
