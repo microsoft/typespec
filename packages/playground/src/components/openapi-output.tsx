@@ -9,14 +9,14 @@ export interface OpenAPIOutputProps {
 export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props)=> {
   const[selected, setSelected] = useState<"raw"|"swagger-ui">("raw");
   const handleSelected = useCallback(
-    () => { return setSelected(selected === "raw"?("swagger-ui"):("raw"));
+    () => { setSelected(selected === "raw"?("swagger-ui"):("raw"));
     },
     [selected],
   );
   return(
     <>
     {PlaygroundManifest.enableSwaggerUI? (
-    <select className="output-dropdown" onChange={handleSelected}>
+    <select className="output-dropdown" onChange={handleSelected} value={selected}>
       <option>OpenApi</option>
       <option >Swagger-UI</option>
     </select>
