@@ -1,14 +1,21 @@
 import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
 
-export interface OpenAPIEmitterOptions {
+export interface OpenAPI3EmitterOptions {
   "output-file"?: string;
+
+  /**
+   * Set the newline character for emitting files.
+   * @default lf
+   */
+  "new-line"?: "crlf" | "lf";
 }
 
-const EmiterOptionsSchema: JSONSchemaType<OpenAPIEmitterOptions> = {
+const EmiterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
     "output-file": { type: "string", nullable: true },
+    "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
   },
   required: [],
 };
@@ -104,7 +111,7 @@ export const libDef = {
     },
   },
   emitter: {
-    options: EmiterOptionsSchema as JSONSchemaType<OpenAPIEmitterOptions>,
+    options: EmiterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
 } as const;
 

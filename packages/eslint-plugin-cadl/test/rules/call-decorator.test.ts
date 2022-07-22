@@ -73,5 +73,3 @@ function $bar(context: DecoratorContext, target: Type) {
     },
   ],
 });
-
-ruleTester.run;

@@ -78,6 +78,13 @@ or via the command line with
 
 Configure the name of the swagger output file relative to the compiler `output-path`.
 
+### `new-line`
+
+Set the newline character for emitting files. Can be either:
+
+- `lf`(Default)
+- `crlf`
+
 ## See also
 
 - [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
