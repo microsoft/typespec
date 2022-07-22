@@ -9,7 +9,7 @@ export interface OpenAPIOutputProps {
 export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props)=> {
   const[selected, setSelected] = useState<"raw"|"swagger-ui">("raw");
   const handleSelected = useCallback(
-    () => { return setSelected(selected === "raw"?("swagger-ui"):("raw"));
+    () => { setSelected(selected === "raw"?("swagger-ui"):("raw"));
     },
     [selected],
   );
