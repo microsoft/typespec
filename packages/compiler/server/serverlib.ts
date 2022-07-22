@@ -1153,6 +1153,7 @@ export function createServer(host: ServerHost): Server {
       getSourceFileKind,
     };
 
+    // NOTE: we use the underlying host as a prototype to allow test code to mutate it.
     const compilerHost = Object.create(base);
     Object.assign(compilerHost, overrides);
     return compilerHost;
