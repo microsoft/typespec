@@ -2027,7 +2027,7 @@ export function createChecker(program: Program): Checker {
 
         for (const newProp of newProperties) {
           checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
-          defineProperty(properties, newProp, inheritedPropertyNames);
+          defineProperty(properties, newProp, inheritedPropertyNames, prop);
         }
       }
     }
@@ -2036,14 +2036,15 @@ export function createChecker(program: Program): Checker {
   function defineProperty(
     properties: Map<string, ModelTypeProperty>,
     newProp: ModelTypeProperty,
-    inheritedPropertyNames?: Set<string>
+    inheritedPropertyNames?: Set<string>,
+    diagnosticTarget?: DiagnosticTarget
   ) {
     if (properties.has(newProp.name)) {
       program.reportDiagnostic(
         createDiagnostic({
           code: "duplicate-property",
           format: { propName: newProp.name },
-          target: newProp,
+          target: diagnosticTarget ?? newProp,
         })
       );
       return;
@@ -2054,7 +2055,7 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({
           code: "override-property",
           format: { propName: newProp.name },
-          target: newProp,
+          target: diagnosticTarget ?? newProp,
         })
       );
 
