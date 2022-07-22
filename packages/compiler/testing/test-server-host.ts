@@ -4,8 +4,14 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
+import { createStringMap } from "../core/util.js";
 import { createServer, Server, ServerHost } from "../server/index.js";
-import { createTestFileSystem, resolveVirtualPath, StandardTestLibrary } from "./test-host.js";
+import {
+  createTestFileSystem,
+  resolveVirtualPath,
+  StandardTestLibrary,
+  TestHostOptions,
+} from "./test-host.js";
 import { TestFileSystem } from "./types.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {
@@ -17,13 +23,11 @@ export interface TestServerHost extends ServerHost, TestFileSystem {
   getURL(path: string): string;
 }
 
-export async function createTestServerHost(): Promise<TestServerHost> {
-  const documents = new Map<string, TextDocument>();
-  const diagnostics = new Map<string, Diagnostic[]>();
+export async function createTestServerHost(options?: TestHostOptions) {
   const logMessages: string[] = [];
-  const fileSystem = await createTestFileSystem();
-  // We don't add the @test decorator for server tests
-  fileSystem.compilerHost.getLibDirs = () => [resolveVirtualPath(".cadl/lib")];
+  const documents = createStringMap<TextDocument>(!!options?.caseInsensitiveFileSystem);
+  const diagnostics = createStringMap<Diagnostic[]>(!!options?.caseInsensitiveFileSystem);
+  const fileSystem = await createTestFileSystem({ ...options, excludeTestLib: true });
   await fileSystem.addCadlLibrary(StandardTestLibrary);
 
   const serverHost: TestServerHost = {
@@ -63,9 +67,10 @@ export async function createTestServerHost(): Promise<TestServerHost> {
     },
   };
 
+  const rootUri = serverHost.getURL("./");
   const server = createServer(serverHost);
-  server.initialize({
-    rootUri: serverHost.getURL("./"),
+  await server.initialize({
+    rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
     capabilities: {},
     processId: null,
     workspaceFolders: null,
