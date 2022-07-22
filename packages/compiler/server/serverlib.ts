@@ -485,10 +485,11 @@ export function createServer(host: ServerHost): Server {
         return { name: node.id.sv, kind: SymbolKind.Function };
       case SyntaxKind.ModelStatement:
         return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.ModelProperty && SyntaxKind.StringLiteral:
-        return { name: node.value, kind: SymbolKind.Struct };
-      case SyntaxKind.ModelProperty && SyntaxKind.Identifier:
-        return { name: node.sv, kind: SymbolKind.Struct };
+      case SyntaxKind.ModelProperty:
+        if (node.id.kind === SyntaxKind.StringLiteral) {
+          return { name: node.id.value, kind: SymbolKind.Struct };
+        }
+        return { name: node.id.sv, kind: SymbolKind.Struct };
       case SyntaxKind.UnionStatement:
         return { name: node.id.sv, kind: SymbolKind.Enum };
       default:
