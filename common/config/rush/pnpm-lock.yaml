@@ -67,6 +67,8 @@ specifiers:
   lzutf8: ~0.6.1
   mkdirp: ~1.0.4
   mocha: ~9.2.0
+  mocha-junit-reporter: ~2.0.2
+  mocha-multi-reporters: ~1.5.1
   monaco-editor: ~0.32.1
   mustache: ~4.2.0
   node-fetch: ~3.2.0
@@ -164,6 +166,8 @@ dependencies:
   lzutf8: 0.6.2
   mkdirp: 1.0.4
   mocha: 9.2.2
+  mocha-junit-reporter: 2.0.2_mocha@9.2.2
+  mocha-multi-reporters: 1.5.1_mocha@9.2.2
   monaco-editor: 0.32.1
   mustache: 4.2.0
   node-fetch: 3.2.5
@@ -1449,6 +1453,10 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /charenc/0.0.2:
+    resolution: {integrity: sha512-yrLQ/yVUFXkzg7EDQsPieE/53+0RlaWTs+wBrvW36cyilJ2SaDWfl4Yj7MtLTXleV9uEKefbAGUPv2/iWSooRA==}
+    dev: false
+
   /cheerio-select/2.1.0:
     resolution: {integrity: sha512-9v9kG0LvzrlcungtnJtpGNxY+fzECQKhK4EGJX2vByejiMX84MFNQw4UxPJl3bFbTMw+Dfs37XaIkCwTZfLh4g==}
     dependencies:
@@ -1617,6 +1625,10 @@ packages:
       which: 2.0.2
     dev: false
 
+  /crypt/0.0.2:
+    resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
+    dev: false
+
   /css-color-keywords/1.0.0:
     resolution: {integrity: sha512-FyyrDHZKEjXDpNJYvVsV960FiqQyXc/LlYmsxl2BcdMb2WPx0OGRVgTg55rPSyLSNMqP52R9r8geSp7apN3Ofg==}
     engines: {node: '>=4'}
@@ -1680,6 +1692,12 @@ packages:
 
   /debounce/1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
+    dev: false
+
+  /debug/2.6.9:
+    resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
+    dependencies:
+      ms: 2.0.0
     dev: false
 
   /debug/4.3.3_supports-color@8.1.1:
@@ -2782,6 +2800,10 @@ packages:
       binary-extensions: 2.2.0
     dev: false
 
+  /is-buffer/1.1.6:
+    resolution: {integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==}
+    dev: false
+
   /is-builtin-module/3.1.0:
     resolution: {integrity: sha512-OV7JjAgOTfAFJmHZLvpSTb4qi0nIILDV1gWPYDnDJUTNFM5aGlRAhk4QcT8i7TuAleeEV5Fdkqn3t4mS+Q11fg==}
     engines: {node: '>=6'}
@@ -3109,6 +3131,14 @@ packages:
       picomatch: 2.3.1
     dev: false
 
+  /md5/2.3.0:
+    resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
+    dependencies:
+      charenc: 0.0.2
+      crypt: 0.0.2
+      is-buffer: 1.1.6
+    dev: false
+
   /mdurl/1.0.1:
     resolution: {integrity: sha512-/sKlQJCBYVY9Ers9hqzKou4H6V5UWc/M59TH2dvkt+84itfnq7uFOMLpOiOS4ujvHP4etln18fmIxA5R5fll0g==}
     dev: false
@@ -3179,10 +3209,43 @@ packages:
     resolution: {integrity: sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==}
     dev: false
 
+  /mkdirp/0.5.6:
+    resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
+    hasBin: true
+    dependencies:
+      minimist: 1.2.6
+    dev: false
+
   /mkdirp/1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
     hasBin: true
+    dev: false
+
+  /mocha-junit-reporter/2.0.2_mocha@9.2.2:
+    resolution: {integrity: sha512-vYwWq5hh3v1lG0gdQCBxwNipBfvDiAM1PHroQRNp96+2l72e9wEUTw+mzoK+O0SudgfQ7WvTQZ9Nh3qkAYAjfg==}
+    peerDependencies:
+      mocha: '>=2.2.5'
+    dependencies:
+      debug: 2.6.9
+      md5: 2.3.0
+      mkdirp: 0.5.6
+      mocha: 9.2.2
+      strip-ansi: 6.0.1
+      xml: 1.0.1
+    dev: false
+
+  /mocha-multi-reporters/1.5.1_mocha@9.2.2:
+    resolution: {integrity: sha512-Yb4QJOaGLIcmB0VY7Wif5AjvLMUFAdV57D2TWEva1Y0kU/3LjKpeRVmlMIfuO1SVbauve459kgtIizADqxMWPg==}
+    engines: {node: '>=6.0.0'}
+    peerDependencies:
+      mocha: '>=3.1.2'
+    dependencies:
+      debug: 4.3.4
+      lodash: 4.17.21
+      mocha: 9.2.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /mocha/9.2.2:
@@ -3218,6 +3281,10 @@ packages:
 
   /monaco-editor/0.32.1:
     resolution: {integrity: sha512-LUt2wsUvQmEi2tfTOK+tjAPvt7eQ+K5C4rZPr6SeuyzjAuAHrIvlUloTcOiGjZW3fn3a/jFQCONrEJbNOaCqbA==}
+    dev: false
+
+  /ms/2.0.0:
+    resolution: {integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=}
     dev: false
 
   /ms/2.1.2:
@@ -4035,7 +4102,7 @@ packages:
     dev: false
 
   /strip-ansi/3.0.1:
-    resolution: {integrity: sha1-ajhfuIU9lS1f8F0Oiq+UJ43GPc8=}
+    resolution: {integrity: sha512-VhumSSbBqDTP8p2ZLKj40UjBCV4+v8bUSEpUb4KjRgWk9pbqGF4REFj6KEagidb2f/M6AzC0EmFyDNGaw9OCzg==}
     engines: {node: '>=0.10.0'}
     dependencies:
       ansi-regex: 2.1.1
@@ -4576,6 +4643,10 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /xml/1.0.1:
+    resolution: {integrity: sha512-huCv9IH9Tcf95zuYCsQraZtWnJvBtLVE0QHMOs8bWyZAFZNDcYjsPq1nEx8jKA9y+Beo9v+7OBPRisQTjinQMw==}
+    dev: false
+
   /xml2js/0.4.23:
     resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
     engines: {node: '>=4.0.0'}
@@ -4686,7 +4757,7 @@ packages:
     dev: false
 
   file:projects/bundler.tgz:
-    resolution: {integrity: sha512-4ZoZelqsvlrUxlHJ1gSELFmj+JK8P5MUJ/IiH8p4SsWXTOvHNH5mmt0Hf+SAE2uPx6rRc/gBRav6vVISPgOkMQ==, tarball: file:projects/bundler.tgz}
+    resolution: {integrity: sha512-2/hk4rVmFj4vl2PZVzjecgTWa13/E4bnLAQCOS+qHpz3g7EQWWf4MP/mC9Rb2lWezURSsCOTBW8sKHn3hJG10Q==, tarball: file:projects/bundler.tgz}
     name: '@rush-temp/bundler'
     version: 0.0.0
     dependencies:
@@ -4701,6 +4772,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       rollup: 2.70.2
       typescript: 4.7.2
@@ -4719,7 +4792,7 @@ packages:
     dev: false
 
   file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-uvG8GUqvgRQhUurP7k+yi4tj2GI9exbUrJDCLOOF0vyqyoQXj/Ha48N+xdJQijO1KY/E6KqMZcRDGeW6ZT82tw==, tarball: file:projects/cadl-vscode.tgz}
+    resolution: {integrity: sha512-UTsDWcUB4q4g/Dk/UsuBYnhy760DaSXmA8lA5y9wT/5ol6mpNqa5L3H1sxkOFARChNe38ors1kXe0R+GiaUqmg==, tarball: file:projects/cadl-vscode.tgz}
     name: '@rush-temp/cadl-vscode'
     version: 0.0.0
     dependencies:
@@ -4733,6 +4806,8 @@ packages:
       eslint: 8.16.0
       mkdirp: 1.0.4
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       rollup: 2.70.2
       typescript: 4.7.2
@@ -4745,7 +4820,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-353t1ixEquBA6ddA8jGY4hfgbS5bisBIf8mxFejvRdoeKqVu/qdZOvFslZp15HIBMgfHtn+2f2Pqj0ubhGtXTQ==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-n30OdhX5JkOXIUVaHJLRkW/XMnZJ52lRalKBPPhHs7Z3vdn15sw2guqM4DkdHEsPhzBWP7ZAMPcgV33Apuv4Xw==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -4768,6 +4843,8 @@ packages:
       js-yaml: 4.1.0
       mkdirp: 1.0.4
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       mustache: 4.2.0
       node-fetch: 3.2.5
       node-watch: 0.7.3
@@ -4808,7 +4885,7 @@ packages:
     dev: false
 
   file:projects/eslint-plugin.tgz:
-    resolution: {integrity: sha512-/W25sDjYoZlAYmjD8FfOTafkR72kp10ZXT1gSn5Kt+3lb5/2yO4RKJ7gf7GF9kRPd2vlUIo+z9xQDKUQ9OYogQ==, tarball: file:projects/eslint-plugin.tgz}
+    resolution: {integrity: sha512-WAJY67cn7IzoBeGrL2UKiz8aYJ7Bc/juiyCk8bvZlU++MqA0M67sDUb3ZJT8fZzuyVfokqVTTwB/xTQ85+oZGA==, tarball: file:projects/eslint-plugin.tgz}
     name: '@rush-temp/eslint-plugin'
     version: 0.0.0
     dependencies:
@@ -4818,6 +4895,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       typescript: 4.7.2
     transitivePeerDependencies:
@@ -4825,7 +4904,7 @@ packages:
     dev: false
 
   file:projects/html-program-viewer.tgz:
-    resolution: {integrity: sha512-yajH8AtfIk5GROz5JoTUiYIHLmBaKbNcuJzcteNf4cJsTkBZk4F4P5IefdA8Ah6jripKWo4m1oXJGf7/TlddAg==, tarball: file:projects/html-program-viewer.tgz}
+    resolution: {integrity: sha512-mzsN6qwQjpNdmoSB/z9wbcXU/ZFTHthjEYUHZh1EFCZUo8mujOJqGELBa5kWHNZyxDyrr8SmM5rXEnofv5qGag==, tarball: file:projects/html-program-viewer.tgz}
     name: '@rush-temp/html-program-viewer'
     version: 0.0.0
     dependencies:
@@ -4838,6 +4917,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       prettier: 2.7.1
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
@@ -4850,7 +4931,7 @@ packages:
     dev: false
 
   file:projects/internal-build-utils.tgz:
-    resolution: {integrity: sha512-q9RTNKQbKhehMhPF3vDkugya8BGg7B3wxcsDB1G+ndp1uFgqfN3zNV6Ypg6K+sXmMUFfPDIi0RMQwjDCmCc5fA==, tarball: file:projects/internal-build-utils.tgz}
+    resolution: {integrity: sha512-bwdByidzJzux1IT2MD0QV4XySe1Y88yjij6GIfDkIhNAM4ipvTpFutYszg2PS2c52iEdwFRy14DH5RtQOfi1JQ==, tarball: file:projects/internal-build-utils.tgz}
     name: '@rush-temp/internal-build-utils'
     version: 0.0.0
     dependencies:
@@ -4861,6 +4942,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       strip-json-comments: 4.0.0
       typescript: 4.7.2
@@ -4871,7 +4954,7 @@ packages:
     dev: false
 
   file:projects/library-linter.tgz:
-    resolution: {integrity: sha512-tC7UsVCo+3oxNwXzCLF8RbZF+SVgNCKafvA88QTcuN7nKYobV8GJ3XdM7jcFnYafY+AQBBDTXkZCRVVbyozOaw==, tarball: file:projects/library-linter.tgz}
+    resolution: {integrity: sha512-tUqp8jxnHuEhjFJAupNnhvntvdoo6o3D2tQrcvLwTw2STNknT/M9yyOf5Xdy+XOhCZ1uYeKz1eZzjipkLFHNGA==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
     version: 0.0.0
     dependencies:
@@ -4880,6 +4963,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       typescript: 4.7.2
     transitivePeerDependencies:
@@ -4887,7 +4972,7 @@ packages:
     dev: false
 
   file:projects/openapi.tgz:
-    resolution: {integrity: sha512-hmR542FkrS6LPnat9O8Zg7nKieCc6Y6PGKzSuQaVEvGuNnRdfPQOB9JUEsCNsAzTCCQ6s44QNEDXXWVfaYMrVw==, tarball: file:projects/openapi.tgz}
+    resolution: {integrity: sha512-sDtmQJ78JVQTewN3NVO1N091MpOyGn6lBr+EkAsyPZCZQGC9vbcVgG81yUAfKTLaZqRNaDpkThc85Yo/nPZcQQ==, tarball: file:projects/openapi.tgz}
     name: '@rush-temp/openapi'
     version: 0.0.0
     dependencies:
@@ -4896,6 +4981,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       typescript: 4.7.2
     transitivePeerDependencies:
@@ -4903,7 +4990,7 @@ packages:
     dev: false
 
   file:projects/openapi3.tgz:
-    resolution: {integrity: sha512-KzqkkafajRi6HK/L2GjlFeNYYORe6Phbln8OREDKk64E1VJ1gIfTWq9jzrswLv3oYazBIIOpkoYybOyNzj95rw==, tarball: file:projects/openapi3.tgz}
+    resolution: {integrity: sha512-3JEdvwpOcduPNohCM/AFtlHb15ccG500rcYervuVR+mk/ya2V1s6AUVqOG9MbzwllfWHCWfA64zNipnQVEtpyg==, tarball: file:projects/openapi3.tgz}
     name: '@rush-temp/openapi3'
     version: 0.0.0
     dependencies:
@@ -4912,6 +4999,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       typescript: 4.7.2
     transitivePeerDependencies:
@@ -4919,7 +5008,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz:
-    resolution: {integrity: sha512-x9L6N/DdYISCnR3EtGk5P+sn+3imYI5tVvInZpqn1VrxVKeZJP5CaA3iO1jmhXIvuuaIbnAO66Z6Y4N7ECTFJw==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-xzU++hXJiS7d1FhYubrf5Nlar4UiFTVS+1D16hmOalAC/HavY5h6l1Upv0BqCx8t8JQb+Fb76Cwzo1soFOxbUw==, tarball: file:projects/playground.tgz}
     name: '@rush-temp/playground'
     version: 0.0.0
     dependencies:
@@ -4938,6 +5027,8 @@ packages:
       eslint: 8.16.0
       lzutf8: 0.6.2
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       monaco-editor: 0.32.1
       playwright: 1.22.2
       prettier: 2.7.1
@@ -4956,7 +5047,7 @@ packages:
     dev: false
 
   file:projects/prettier-plugin-cadl.tgz:
-    resolution: {integrity: sha512-Q7HucSNWbutkPgvQLwpSPTVNuqr1hNqarVwrAVfqMst/5kShOGNdqFtMz+LWsRQmuNqAgEIdFJ6k6/JKtjdX4g==, tarball: file:projects/prettier-plugin-cadl.tgz}
+    resolution: {integrity: sha512-zitRYEyeZeqmmNRMZsUzp/V4w14YM3xfvpvzOZfDeYqdpCD2LRyQumzF4jAD3gVR3n0/70HPpYfL6yqPrUF3gQ==, tarball: file:projects/prettier-plugin-cadl.tgz}
     name: '@rush-temp/prettier-plugin-cadl'
     version: 0.0.0
     dependencies:
@@ -4965,12 +5056,16 @@ packages:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.2
       '@rollup/plugin-replace': 2.4.2_rollup@2.70.2
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       prettier: 2.7.1
       rollup: 2.70.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   file:projects/rest.tgz:
-    resolution: {integrity: sha512-n5hc2OWNdfRoqzTN5VUXHQpsQAs7bM+SG4GgnxkZb7wbUer25BsMV0uiLA6qNILxeOLkhKsPGw5UTsHeJTAmkw==, tarball: file:projects/rest.tgz}
+    resolution: {integrity: sha512-FXuuz8jkIjk6O7teUIATDHfFG94WzuXcyFlM/nIAsb1c059+lbLOvpi12XjPonG7CuGl641o9gXwmh0eU2FR/g==, tarball: file:projects/rest.tgz}
     name: '@rush-temp/rest'
     version: 0.0.0
     dependencies:
@@ -4979,6 +5074,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       typescript: 4.7.2
     transitivePeerDependencies:
@@ -5027,7 +5124,7 @@ packages:
     dev: false
 
   file:projects/versioning.tgz:
-    resolution: {integrity: sha512-TeebsyvV5sTFQuH5x+yF8BpsiX6TykZ4CCp/gVCcvfX67O3yuDFEItjyIx/xIa2s4sCopJlH/dkZg5ZkwXQDpA==, tarball: file:projects/versioning.tgz}
+    resolution: {integrity: sha512-g/IE39lidTFfsCaWZsICmnODXsz2xo3SG5qzU2DF5sXZa+J6nxtoziNclZb5acxEx/UmRuNwq3EtoFvKlWjv2g==, tarball: file:projects/versioning.tgz}
     name: '@rush-temp/versioning'
     version: 0.0.0
     dependencies:
@@ -5036,6 +5133,8 @@ packages:
       c8: 7.11.3
       eslint: 8.16.0
       mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
       rimraf: 3.0.2
       typescript: 4.7.2
     transitivePeerDependencies:

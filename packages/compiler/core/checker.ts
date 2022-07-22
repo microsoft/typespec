@@ -117,7 +117,7 @@ export interface Checker {
   getLiteralType(node: LiteralNode): LiteralType;
   getTypeName(type: Type, options?: TypeNameOptions): string;
   getNamespaceString(type: NamespaceType | undefined, options?: TypeNameOptions): string;
-  cloneType<T extends Type>(type: T): T;
+  cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
   project(
     target: Type,
@@ -526,7 +526,7 @@ export function createChecker(program: Program): Checker {
       // template instantiation
       const args = model.templateArguments.map((x) => getTypeName(x, options));
       return `${modelName}<${args.join(", ")}>`;
-    } else if ((model.node as ModelStatementNode).templateParameters?.length > 0) {
+    } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
       // template
       const params = (model.node as ModelStatementNode).templateParameters.map((t) => t.id.sv);
       return `${model.name}<${params.join(", ")}>`;
@@ -2779,12 +2779,17 @@ export function createChecker(program: Program): Checker {
    * recursively by the caller.
    */
   function cloneType<T extends Type>(type: T, additionalProps: { [P in keyof T]?: T[P] } = {}): T {
+    // Create a new decorator list with the same decorators so that edits to the
+    // new decorators list doesn't affect the cloned type
+    const decorators = "decorators" in type ? [...type.decorators] : undefined;
+
     // TODO: this needs to handle other types
     let clone;
     switch (type.kind) {
       case "Model":
         clone = finishType({
           ...type,
+          decorators,
           properties: Object.prototype.hasOwnProperty.call(additionalProps, "properties")
             ? undefined
             : new Map(
@@ -2796,6 +2801,7 @@ export function createChecker(program: Program): Checker {
       case "Union":
         clone = finishType({
           ...type,
+          decorators,
           variants: new Map<string | symbol, UnionTypeVariant>(
             Array.from(type.variants.entries()).map(([key, prop]) => [
               key,
@@ -2811,6 +2817,7 @@ export function createChecker(program: Program): Checker {
       case "Interface":
         clone = finishType({
           ...type,
+          decorators,
           operations: new Map(type.operations.entries()),
           ...additionalProps,
         });
@@ -2818,6 +2825,7 @@ export function createChecker(program: Program): Checker {
       case "Enum":
         clone = finishType({
           ...type,
+          decorators,
           members: type.members.map((v) => cloneType(v)),
           ...additionalProps,
         });
@@ -2825,6 +2833,7 @@ export function createChecker(program: Program): Checker {
       default:
         clone = finishType({
           ...type,
+          ...(decorators ? { decorators } : {}),
           ...additionalProps,
         });
     }

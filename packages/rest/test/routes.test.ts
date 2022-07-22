@@ -219,6 +219,32 @@ describe("rest: routes", () => {
     ]);
   });
 
+  it("models with non-required key property will produce required path parameter for key", async () => {
+    const [routes, diagnostics] = await compileOperations(`
+      using Cadl.Rest.Resource;
+
+      namespace Things {
+        model Thing {
+          @key
+          @segment("things")
+          thingId?: string;
+        }
+
+        @autoRoute
+        @get op GetThingWithParams(...KeysOf<Thing>): string;
+      }
+      `);
+
+    deepStrictEqual(routes, [
+      {
+        verb: "get",
+        path: "/things/{thingId}",
+        params: { body: undefined, params: [{ name: "thingId", type: "path" }] },
+      },
+    ]);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   it("autoRoute operations filter out path parameters with a string literal type", async () => {
     const routes = await getRoutesFor(
       `
@@ -293,20 +319,6 @@ describe("rest: routes", () => {
       strictEqual(diagnostics[0].message, "Param multiParam has multiple types: [query, path]");
     });
 
-    it("emit diagnostic when there are multiple unannotated parameters", async () => {
-      const [_, diagnostics] = await compileOperations(`
-        @route("/test")
-        @get op get(param1: string, param2: string): string;
-      `);
-
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-body");
-      strictEqual(
-        diagnostics[0].message,
-        "Operation has multiple unannotated parameters. There can only be one representing the body"
-      );
-    });
-
     it("emit diagnostic when there is an unannotated parameter and a @body param", async () => {
       const [_, diagnostics] = await compileOperations(`
         @route("/test")
@@ -348,10 +360,10 @@ describe("rest: routes", () => {
       ]);
     });
 
-    it("resolves a single unannotated parameter as request body", async () => {
+    it("resolves single unannotated parameter as request body", async () => {
       const [routes, diagnostics] = await compileOperations(`
         @route("/test")
-        @get op get(@query select: string, unannotedBodyParam: string): string;
+        @get op get(@query select: string, unannotatedBodyParam: string): string;
       `);
 
       expectDiagnosticEmpty(diagnostics);
@@ -359,7 +371,32 @@ describe("rest: routes", () => {
         {
           verb: "get",
           path: "/test",
-          params: { params: [{ type: "query", name: "select" }], body: "unannotedBodyParam" },
+          params: {
+            params: [{ type: "query", name: "select" }],
+            body: ["unannotatedBodyParam"],
+          },
+        },
+      ]);
+    });
+
+    it("resolves multiple unannotated parameters as request body", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test")
+        @get op get(
+          @query select: string,
+          unannotatedBodyParam1: string,
+          unannotatedBodyParam2: string): string;
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test",
+          params: {
+            params: [{ type: "query", name: "select" }],
+            body: ["unannotatedBodyParam1", "unannotatedBodyParam2"],
+          },
         },
       ]);
     });
