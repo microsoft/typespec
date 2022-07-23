@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "renamed function and constant variables",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
