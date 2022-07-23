@@ -470,7 +470,7 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function getSymbolKindKind(node: Node): { name: string; kind: SymbolKind } | undefined {
+  function getSymbolNameAndKind(node: Node): { name: string; kind: SymbolKind } | undefined {
     switch (node.kind) {
       case SyntaxKind.NamespaceStatement:
         return { name: node.id.sv, kind: SymbolKind.Namespace };
@@ -499,15 +499,15 @@ export function createServer(host: ServerHost): Server {
   async function getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]> {
     const file = await compilerHost.readFile(await getPath(params.textDocument));
     const ast = parse(file);
-    const ranges: SymbolInformation[] = [];
+    const symbols: SymbolInformation[] = [];
     visitChildren(ast, addRangesForNode);
 
     function addRangesForNode(node: Node) {
-      const symbolNode = getSymbolKindKind(node);
+      const symbolNode = getSymbolNameAndKind(node);
       if (symbolNode !== undefined) {
         const start = file.getLineAndCharacterOfPosition(node.pos);
         const end = file.getLineAndCharacterOfPosition(node.end);
-        ranges.push({
+        symbols.push({
           name: symbolNode.name,
           kind: symbolNode.kind,
           location: Location.create(params.textDocument.uri, Range.create(start, end)),
@@ -515,7 +515,7 @@ export function createServer(host: ServerHost): Server {
       }
       visitChildren(node, addRangesForNode);
     }
-    return ranges;
+    return symbols;
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
