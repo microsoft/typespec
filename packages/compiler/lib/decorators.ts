@@ -89,7 +89,7 @@ const docsKey = Symbol("docs");
  */
 export function $doc(
   context: DecoratorContext,
-  target: NamespaceType | OperationType, // TODO-TIM revert back, for testing only
+  target: Type,
   text: string,
   sourceObject?: ModelType
 ) {

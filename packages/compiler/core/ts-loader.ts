@@ -1,23 +1,46 @@
 import ts from "typescript";
 import { CompilerHost, Type } from "./types.js";
 
+function logTime<T>(name: string, fn: () => T): T {
+  const start = new Date().getTime();
+  const result = fn();
+  const end = new Date().getTime();
+  console.log(name, end - start);
+  return result;
+}
 export interface TSLoader {
   getExportedFunctionsFromDTS(definitionFile: string): Record<string, DecoratorSignature>;
 }
 
 export function createTSLoader(cadlHost: CompilerHost): TSLoader {
   const tsHost = ts.createCompilerHost({});
-
+  let lastProgram: ts.Program | undefined;
+  const loadedFiles: string[] = [];
   return {
     getExportedFunctionsFromDTS,
   };
 
   function getExportedFunctionsFromDTS(definitionFile: string): Record<string, DecoratorSignature> {
-    const program = ts.createProgram({ rootNames: [definitionFile], options: {}, host: tsHost });
-    const files = program.getSourceFiles().filter((x) => x.fileName === definitionFile);
+    return logTime(`get ts types: ${definitionFile}`, () => {
+      loadedFiles.push(definitionFile);
+      const program = ts.createProgram({
+        rootNames: [...loadedFiles],
+        options: {
+          disableSolutionSearching: true,
+        },
+        host: tsHost,
+        oldProgram: lastProgram,
+      });
+      lastProgram = program;
+      const files = program.getSourceFiles().filter((x) => x.fileName === definitionFile);
 
-    const checker = program.getTypeChecker();
-    return getExportedDecoratorsSignatures(checker, files[0]);
+      const checker = program.getTypeChecker();
+      console.log("FIle", files[0]?.fileName);
+      if (files[0] === undefined) {
+        return {};
+      }
+      return getExportedDecoratorsSignatures(checker, files[0]);
+    });
   }
 }
 
@@ -64,6 +87,9 @@ function getDecoratorSignature(
   const signature = signatures[0];
   const [_contextParam, targetParam, ...parameters] = signature.parameters;
 
+  if (targetParam === undefined) {
+    return undefined;
+  }
   const decoratorSignature: DecoratorSignature = {
     name: functionType.symbol.name.replace("$", "@"),
     target: getCadlTypesForParameter(checker, targetParam).kind,

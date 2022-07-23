@@ -2633,7 +2633,12 @@ export function createChecker(program: Program): Checker {
       const args = decApp.args.map((x) => x.value);
       if (decApp.signature) {
         const definition = createDecoratorDefinition(decApp.signature as any);
-        definition.validate(context, target, args);
+        if (
+          (target as any).kind !== "TemplateParameter" &&
+          !args.some((x: any) => x.kind === "TemplateParameter")
+        ) {
+          definition.validate(context, target, args);
+        }
       }
       fn(context, target, ...args);
     } catch (error: any) {
