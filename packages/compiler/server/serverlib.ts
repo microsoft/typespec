@@ -513,7 +513,7 @@ export function createServer(host: ServerHost): Server {
           location: Location.create(params.textDocument.uri, Range.create(start, end)),
         });
       }
-      visitChildren(node, addRangesForNode);
+      visitChildren(node, addSymbolsForNode);
     }
     return symbols;
   }
