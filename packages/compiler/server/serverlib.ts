@@ -500,9 +500,9 @@ export function createServer(host: ServerHost): Server {
     const file = await compilerHost.readFile(await getPath(params.textDocument));
     const ast = parse(file);
     const symbols: SymbolInformation[] = [];
-    visitChildren(ast, addRangesForNode);
+    visitChildren(ast, addSymbolsForNode);
 
-    function addRangesForNode(node: Node) {
+    function addSymbolsForNode(node: Node) {
       const symbolNode = getSymbolNameAndKind(node);
       if (symbolNode !== undefined) {
         const start = file.getLineAndCharacterOfPosition(node.pos);
