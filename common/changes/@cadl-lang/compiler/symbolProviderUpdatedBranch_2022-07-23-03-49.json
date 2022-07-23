@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "renamed function and constant variables",
-      "type": "minor"
+      "comment": "",
+      "type": ""
     }
   ],
   "packageName": "@cadl-lang/compiler"
