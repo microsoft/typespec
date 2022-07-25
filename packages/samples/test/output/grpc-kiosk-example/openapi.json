@@ -30,7 +30,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -69,7 +69,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -111,7 +111,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -144,7 +144,7 @@
             "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -176,7 +176,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -247,7 +247,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -280,7 +280,7 @@
             "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -309,7 +309,7 @@
             "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -365,7 +365,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
