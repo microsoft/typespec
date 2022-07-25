@@ -61,7 +61,7 @@ export function createProjector(
     projectType,
   };
   const projectedNamespaces: NamespaceType[] = [];
-  let projectingNamespace = false;
+  let projectingNamespaces = false;
 
   program.currentProjector = projector;
 
@@ -71,10 +71,10 @@ export function createProjector(
       : program.checker.getGlobalNamespaceType()
     : program.checker.getGlobalNamespaceType();
 
-  projectingNamespace = true;
+  projectingNamespaces = true;
   // project all the namespaces first
   projector.projectedGlobalNamespace = projectNamespace(targetGlobalNs) as NamespaceType;
-  projectingNamespace = false;
+  projectingNamespaces = false;
 
   // then project all the types
   for (const ns of projectedNamespaces) {
@@ -98,7 +98,7 @@ export function createProjector(
     switch (type.kind) {
       case "Namespace":
         compilerAssert(
-          projectingNamespace,
+          projectingNamespaces,
           `Namespace ${type.name} should have already been projected.`
         );
         projected = projectNamespace(type);
