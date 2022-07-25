@@ -67,7 +67,7 @@ namespace Microsoft.Cadl.VisualStudio
             var settingsManager = workspace?.GetSettingsManager();
             var settings = settingsManager?.GetAggregatedSettings(SettingsTypes.Generic);
             var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
-            var (serverCommand, serverArgs) = resolveCadlServer(settings);
+            var (serverCommand, serverArgs, env) = resolveCadlServer(settings);
             var info = new ProcessStartInfo
             {
                 // Use cadl-server on PATH in production
@@ -82,7 +82,11 @@ namespace Microsoft.Cadl.VisualStudio
                 WorkingDirectory = settings?.ScopePath,
             };
 
-#if DEBUG
+            foreach (var entry in env)
+            {
+                info.Environment[entry.Key] = env[entry.Value];
+            }
+#if env
             // Use local build of cadl-server in development (lauched from F5 in VS)
             if (InDevelopmentMode())
             {
@@ -185,8 +189,9 @@ namespace Microsoft.Cadl.VisualStudio
         }
 #endif
 
-        private (string, string[]) resolveCadlServer(IWorkspaceSettings? settings)
+        private (string, string[], IDictionary<string, string>) resolveCadlServer(IWorkspaceSettings? settings)
         {
+            var env = new Dictionary<string, string>();
             var args = new string[] { "--stdio" };
 #if DEBUG
             // Use local build of cadl-server in development (lauched from F5 in VS)
@@ -194,14 +199,14 @@ namespace Microsoft.Cadl.VisualStudio
             {
                 var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
                 var module = GetDevelopmentCadlServerPath();
-                return ("node.exe", new string[] { module, options }.Concat(args).ToArray());
+                return ("node.exe", new string[] { module, options }.Concat(args).ToArray(), env);
             }
 #endif
 
             var serverPath = settings?.Property<string>("cadl.cadl-server.path");
             if (serverPath == null)
             {
-                return ("cadl-server.cmd", args);
+                return ("cadl-server.cmd", args, env);
             }
 
             if (!serverPath.EndsWith(".js"))
@@ -209,14 +214,16 @@ namespace Microsoft.Cadl.VisualStudio
                 if (File.Exists(serverPath))
                 {
                     var command = serverPath.EndsWith(".cmd") ? serverPath : $"${serverPath}.cmd";
-                    return (command, args);
+                    return (command, args, env);
                 }
                 else
                 {
                     serverPath = Path.Combine(serverPath, "cmd/cadl-server.js");
                 }
             }
-            return ("node.exe", new string[] { serverPath }.Concat(args).ToArray());
+
+            env["CADL_SKIP_COMPILER_RESOLVE"] = "1";
+            return ("node.exe", new string[] { serverPath }.Concat(args).ToArray(), env);
 
         }
     }

@@ -1,11 +1,53 @@
+import { resolvePath } from "@cadl-lang/compiler";
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import {
   createOpenAPITestRunner,
   diagnoseOpenApiFor,
   oapiForModel,
   openApiFor,
 } from "./test-host.js";
+
+describe("openapi3: output file", () => {
+  async function rawOpenApiFor(code: string, options: OpenAPI3EmitterOptions): Promise<string> {
+    const runner = await createOpenAPITestRunner();
+
+    const outPath = resolvePath("/openapi.json");
+
+    await runner.compile(code, {
+      noEmit: false,
+      emitters: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+    });
+
+    return runner.fs.get(outPath)!;
+  }
+
+  // Content of an empty spec
+  const expectedEmptySpec = [
+    "{",
+    `  "openapi": "3.0.0",`,
+    `  "info": {`,
+    `    "title": "(title)",`,
+    `    "version": "0000-00-00"`,
+    `  },`,
+    `  "tags": [],`,
+    `  "paths": {},`,
+    `  "components": {}`,
+    "}",
+    "",
+  ];
+
+  it("emit LF line endings by default", async () => {
+    const output = await rawOpenApiFor("", {});
+    strictEqual(output, expectedEmptySpec.join("\n"));
+  });
+
+  it("emit CRLF when configured", async () => {
+    const output = await rawOpenApiFor("", { "new-line": "crlf" });
+    strictEqual(output, expectedEmptySpec.join("\r\n"));
+  });
+});
 
 describe("openapi3: definitions", () => {
   it("defines models", async () => {
@@ -722,6 +764,40 @@ describe("openapi3: definitions", () => {
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
       $ref: "#/components/schemas/Pet",
     });
+  });
+
+  it("recovers logical type name", async () => {
+    const oapi = await openApiFor(
+      `
+      model Thing {
+        name?: string;
+      }
+
+      @route("/things/{id}")
+      @get
+      op get(@path id: string, @query test: string, ...Thing): Thing & { @header test: string; };
+      `
+    );
+
+    deepStrictEqual(oapi.components.schemas.Thing, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+    });
+
+    deepStrictEqual(oapi.paths["/things/{id}"].get.requestBody.content["application/json"].schema, {
+      $ref: "#/components/schemas/Thing",
+    });
+
+    deepStrictEqual(
+      oapi.paths["/things/{id}"].get.responses["200"].content["application/json"].schema,
+      {
+        $ref: "#/components/schemas/Thing",
+      }
+    );
   });
 });
 

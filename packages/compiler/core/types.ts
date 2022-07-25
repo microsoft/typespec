@@ -42,6 +42,7 @@ export interface TemplatedType {
   templateArguments?: Type[];
   templateNode?: Node;
 }
+
 export type Type =
   | ModelType
   | ModelTypeProperty
@@ -54,7 +55,6 @@ export type Type =
   | StringLiteralType
   | NumericLiteralType
   | BooleanLiteralType
-  | ArrayType
   | TupleType
   | UnionType
   | UnionTypeVariant
@@ -99,7 +99,7 @@ export interface Projector {
 
 export interface IntrinsicType extends BaseType {
   kind: "Intrinsic";
-  name: "ErrorType" | "void" | "never";
+  name: "ErrorType" | "void" | "never" | "unknown";
 }
 
 export interface ErrorType extends IntrinsicType {
@@ -114,6 +114,10 @@ export interface NeverType extends IntrinsicType {
   name: "never";
 }
 
+export interface UnknownType extends IntrinsicType {
+  name: "unknown";
+}
+
 // represents a type that is being returned from the
 // currently executing lambda or projection
 export interface ReturnRecord {
@@ -123,6 +127,9 @@ export interface ReturnRecord {
 
 export type IntrinsicModelName =
   | "bytes"
+  | "numeric"
+  | "integer"
+  | "float"
   | "int64"
   | "int32"
   | "int16"
@@ -140,12 +147,26 @@ export type IntrinsicModelName =
   | "zonedDateTime"
   | "duration"
   | "boolean"
-  | "null"
-  | "Map";
+  | "null";
 
 export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = ModelType & {
   name: T;
 };
+
+export type NeverIndexer = { key: NeverType; value: undefined };
+export type ModelKeyIndexer = {
+  key: ModelType;
+  value: Type;
+};
+export type ModelIndexer = ModelKeyIndexer | NeverIndexer;
+
+export interface ArrayModelType extends ModelType {
+  indexer: { key: ModelType; value: Type };
+}
+
+export interface RecordModelType extends ModelType {
+  indexer: { key: ModelType; value: Type };
+}
 
 export interface ModelType extends BaseType, DecoratedType, TemplatedType {
   kind: "Model";
@@ -156,6 +177,7 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedType {
     | IntersectionExpressionNode
     | ProjectionModelExpressionNode;
   namespace?: NamespaceType;
+  indexer?: ModelIndexer;
   properties: Map<string, ModelTypeProperty>;
 
   /**
@@ -219,6 +241,11 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   enum: EnumType;
   node: EnumMemberNode;
   value?: string | number;
+  /**
+   * when spread operators make new enum members,
+   * this tracks the enum member we copied from.
+   */
+  sourceMember?: EnumMemberType;
 }
 
 export interface OperationType extends BaseType, DecoratedType, TemplatedType {
@@ -262,12 +289,6 @@ export interface BooleanLiteralType extends BaseType {
   kind: "Boolean";
   node?: BooleanLiteralNode;
   value: boolean;
-}
-
-export interface ArrayType extends BaseType {
-  kind: "Array";
-  node: ArrayExpressionNode;
-  elementType: Type;
 }
 
 export interface TupleType extends BaseType {
@@ -444,6 +465,7 @@ export enum SyntaxKind {
   UnionVariant,
   EnumStatement,
   EnumMember,
+  EnumSpreadMember,
   AliasStatement,
   UnionExpression,
   IntersectionExpression,
@@ -454,6 +476,7 @@ export enum SyntaxKind {
   BooleanLiteral,
   VoidKeyword,
   NeverKeyword,
+  UnknownKeyword,
   TypeReference,
   ProjectionReference,
   TemplateParameterDeclaration,
@@ -551,6 +574,7 @@ export type Node =
   | OperationSignatureDeclarationNode
   | OperationSignatureReferenceNode
   | EnumMemberNode
+  | EnumSpreadMemberNode
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | DirectiveExpressionNode
@@ -668,7 +692,8 @@ export type Expression =
   | NumericLiteralNode
   | BooleanLiteralNode
   | VoidKeywordNode
-  | NeverKeywordNode;
+  | NeverKeywordNode
+  | AnyKeywordNode;
 
 export type ProjectionExpression =
   | ProjectionLogicalExpressionNode
@@ -690,6 +715,7 @@ export type ProjectionExpression =
   | IdentifierNode
   | VoidKeywordNode
   | NeverKeywordNode
+  | AnyKeywordNode
   | ReturnExpressionNode;
 
 export type ReferenceExpression =
@@ -741,8 +767,8 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ModelStatement;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
-  readonly extends?: TypeReferenceNode;
-  readonly is?: TypeReferenceNode;
+  readonly extends?: Expression;
+  readonly is?: Expression;
   readonly decorators: DecoratorExpressionNode[];
 }
 
@@ -768,7 +794,7 @@ export interface UnionVariantNode extends BaseNode {
 
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
-  readonly members: readonly EnumMemberNode[];
+  readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
@@ -777,6 +803,11 @@ export interface EnumMemberNode extends BaseNode {
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value?: StringLiteralNode | NumericLiteralNode;
   readonly decorators: readonly DecoratorExpressionNode[];
+}
+
+export interface EnumSpreadMemberNode extends BaseNode {
+  readonly kind: SyntaxKind.EnumSpreadMember;
+  readonly target: TypeReferenceNode;
 }
 
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -844,6 +875,10 @@ export interface VoidKeywordNode extends BaseNode {
 
 export interface NeverKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.NeverKeyword;
+}
+
+export interface AnyKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.UnknownKeyword;
 }
 
 export interface ReturnExpressionNode extends BaseNode {

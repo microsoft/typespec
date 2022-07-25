@@ -1,4 +1,5 @@
 import {
+  $visibility,
   DecoratorContext,
   getKeyName,
   isErrorType,
@@ -96,9 +97,10 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
     const { keyProperty } = resourceKey;
     const keyName = getKeyName(program, keyProperty);
 
-    const newProp = program.checker.cloneType(keyProperty);
-    newProp.name = keyName;
-    newProp.decorators.push(
+    // Filter out the @visibility decorator because it might affect metadata
+    // filtering
+    const decorators = [
+      ...keyProperty.decorators.filter((d) => d.decorator !== $visibility),
       {
         decorator: $path,
         args: [],
@@ -106,10 +108,18 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
       {
         decorator: $resourceTypeForKeyParam,
         args: [{ node: target.node, value: resourceType }],
-      }
-    );
-    context.call($path, newProp, undefined as any);
+      },
+    ];
 
+    // Clone the key property and ensure that an optional key property doesn't
+    // become an optional path parameter
+    const newProp = program.checker.cloneType(keyProperty, {
+      name: keyName,
+      decorators,
+      optional: false,
+    });
+
+    // Add the key property to the target type
     target.properties.set(keyName, newProp);
   }
 }

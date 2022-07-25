@@ -10,6 +10,7 @@ import {
   DecoratorExpressionNode,
   DirectiveExpressionNode,
   EnumMemberNode,
+  EnumSpreadMemberNode,
   EnumStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
@@ -39,6 +40,7 @@ import {
 } from "../../core/types.js";
 import { isArray } from "../../core/util.js";
 import { commentHandler } from "./comment-handler.js";
+import { needsParens } from "./needs-parens.js";
 import { CadlPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
 
 const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } =
@@ -61,7 +63,8 @@ export function printCadl(
 ): prettier.Doc {
   const directives = printDirectives(path, options, print);
   const node = printNode(path, options, print);
-  return [directives, node];
+  const value = needsParens(path, options) ? ["(", node, ")"] : node;
+  return [directives, value];
 }
 
 export function printNode(
@@ -140,6 +143,8 @@ export function printNode(
       return printMemberExpression(path as AstPath<MemberExpressionNode>, options, print);
     case SyntaxKind.EnumMember:
       return printEnumMember(path as AstPath<EnumMemberNode>, options, print);
+    case SyntaxKind.EnumSpreadMember:
+      return printEnumSpreadMember(path as AstPath<EnumSpreadMemberNode>, options, print);
     case SyntaxKind.UnionVariant:
       return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
@@ -156,6 +161,8 @@ export function printNode(
       return "void";
     case SyntaxKind.NeverKeyword:
       return "never";
+    case SyntaxKind.UnknownKeyword:
+      return "unknown";
     // TODO: projection formatting
     case SyntaxKind.Projection:
     case SyntaxKind.ProjectionParameterDeclaration:
@@ -456,6 +463,14 @@ export function printEnumMember(
   const propertyIndex = path.stack[path.stack.length - 2];
   const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
   return [multiline && isNotFirst ? hardline : "", decorators, id, value];
+}
+
+function printEnumSpreadMember(
+  path: prettier.AstPath<EnumSpreadMemberNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  return ["...", path.call(print, "target")];
 }
 
 export function printUnionStatement(

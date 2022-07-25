@@ -1,7 +1,27 @@
 namespace Cadl;
 
+model object {}
+
+@indexer(integer, T)
+model Array<T> {}
+
+@indexer(string, T)
+model Record<T> {}
+
 @intrinsic("bytes")
 model bytes {}
+
+@numeric
+@intrinsic("numeric")
+model numeric {}
+
+@numeric
+@intrinsic("integer")
+model integer {}
+
+@numeric
+@intrinsic("float")
+model float {}
 
 @numeric
 @intrinsic("int64")
@@ -68,17 +88,8 @@ model boolean {}
 @intrinsic("null")
 model null {}
 
-// want to change this to
-// model<K, V> = [K, V][];
-// but templates aren't supported with model = yet.
-@intrinsic("Map")
-model Map<K, V> {
-  @doc("the key of the Map.")
-  k: K;
-
-  @doc("the vaule of the Map.")
-  v: V;
-}
+@deprecated("Map is deprecated, use Record<T> instead")
+model Map<K, V> is Record<V> {}
 
 @doc("The template for adding optional properties.")
 @withOptionalProperties
@@ -100,5 +111,11 @@ model OmitProperties<T, TStringOrTuple> {
 
 @withoutDefaultValues
 model OmitDefaults<T> {
+  ...T;
+}
+
+@doc("The template for setting the default visibility of key properties.")
+@withDefaultKeyVisibility(Visibility)
+model DefaultKeyVisibility<T, Visibility> {
   ...T;
 }
