@@ -20,7 +20,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Describes a hardware device that can display signs.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -30,7 +30,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -59,7 +59,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -69,7 +69,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -101,7 +101,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Describes a hardware device that can display signs.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -111,7 +111,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -141,10 +141,10 @@
         ],
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -166,7 +166,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Describes a digital sign.\nSigns can include text, images, or both.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -176,7 +176,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -205,7 +205,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -237,7 +237,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Describes a digital sign.\nSigns can include text, images, or both.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -247,7 +247,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -277,10 +277,10 @@
         ],
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -306,10 +306,10 @@
         ],
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -355,7 +355,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -365,7 +365,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {

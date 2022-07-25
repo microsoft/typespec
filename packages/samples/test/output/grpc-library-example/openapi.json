@@ -20,7 +20,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A Shelf contains a collection of books with a theme.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -30,7 +30,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -67,7 +67,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Response message for LibraryService.ListShelves.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -77,7 +77,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -103,7 +103,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A Shelf contains a collection of books with a theme.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -113,7 +113,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -140,7 +140,7 @@
             "description": "No body returned"
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -166,7 +166,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A Shelf contains a collection of books with a theme.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -176,7 +176,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -212,7 +212,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A single book in the library.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -222,7 +222,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -262,7 +262,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Response message for LibraryService.ListBooks.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -272,7 +272,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -298,7 +298,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A single book in the library.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -308,7 +308,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {
@@ -335,7 +335,7 @@
             "description": "No body returned"
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "An unexpected error response",
             "content": {
               "application/json": {
                 "schema": {

@@ -22,7 +22,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {

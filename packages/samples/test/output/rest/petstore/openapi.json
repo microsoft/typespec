@@ -17,7 +17,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -48,7 +48,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -110,7 +110,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -156,7 +156,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -192,7 +192,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -244,7 +244,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -277,7 +277,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -308,7 +308,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -353,7 +353,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -393,7 +393,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -429,7 +429,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -463,7 +463,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -505,7 +505,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -553,7 +553,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -586,7 +586,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -617,7 +617,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -679,7 +679,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -725,7 +725,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -761,7 +761,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -813,7 +813,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -846,7 +846,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -877,7 +877,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
