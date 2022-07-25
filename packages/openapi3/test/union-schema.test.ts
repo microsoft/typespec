@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
-  it("union with self reference model and null", async () => {
+  it("makes nullable schema when union with null", async () => {
     const res = await openApiFor(
       `
       model Thing {
