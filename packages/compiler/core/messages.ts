@@ -224,6 +224,14 @@ const diagnostics = {
       default: "Cannot intersect non-model types (including union types).",
     },
   },
+  "intersect-invalid-index": {
+    severity: "error",
+    messages: {
+      default: "Cannot intersect incompatible models.",
+      never: "Cannot intersect a model that cannot hold properties.",
+      array: "Cannot intersect an array model.",
+    },
+  },
   "intersect-duplicate-property": {
     severity: "error",
     messages: {
@@ -298,24 +306,38 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Cannot spread properties of non-model type.",
+      neverIndex: "Cannot spread type because it cannot hold properties.",
     },
   },
   "unsupported-default": {
     severity: "error",
     messages: {
-      default: paramMessage`Default values are not supported for '${"type"}' type`,
-    },
-  },
-  "invalid-default-type": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Default must be a ${"type"}`,
+      default: paramMessage`Default must be have a value type but has type '${"type"}'.`,
     },
   },
   unassignable: {
     severity: "error",
     messages: {
       default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
+      withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
+    },
+  },
+  "no-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propName"}' cannot be defined because model cannot hold properties.`,
+    },
+  },
+  "missing-index": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Index signature for type '${"indexType"}' is missing in type '${"sourceType"}'.`,
+    },
+  },
+  "missing-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propertyName"}' is missing on type '${"sourceType"}' but required in '${"targetType"}'`,
     },
   },
   "extends-interface": {
@@ -346,6 +368,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Enum already has a member named ${"name"}`,
+    },
+  },
+  "spread-enum": {
+    severity: "error",
+    messages: {
+      default: "Cannot spread members of non-enum type.",
     },
   },
   "decorator-fail": {

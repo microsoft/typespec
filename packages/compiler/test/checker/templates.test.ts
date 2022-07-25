@@ -205,12 +205,15 @@ describe("compiler: templates", () => {
     testHost.addCadlFile(
       "main.cadl",
       `
-        @test model A<T = Map> { a: T }
+        @test model A<T = Record> { a: T }
       `
     );
 
     const diagnostics = await testHost.diagnose("main.cadl");
-    expectDiagnostics(diagnostics, { code: "invalid-template-args" });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-template-args",
+      message: "Too few template arguments provided.",
+    });
   });
 
   it("can reference other parameters", async () => {
