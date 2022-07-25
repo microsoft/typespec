@@ -85,8 +85,23 @@
             ],
             "x-cadl-name": "foo | bar",
             "default": "foo"
+          },
+          "optionalEnum": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MyEnum"
+              }
+            ],
+            "default": "a"
           }
         }
+      },
+      "MyEnum": {
+        "type": "string",
+        "enum": [
+          "a",
+          "b"
+        ]
       }
     }
   }
