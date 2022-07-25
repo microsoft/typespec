@@ -19,13 +19,6 @@ export interface OpenAPI3Document extends Extensions {
   paths: Record<string, OpenAPI3PathItem>;
 
   /**
-   * Additional paths and operations that cannot be used in `paths` as the url is not unique.
-   * This can be used to provide operation overload using a query param.
-   * @example "/foo?type=abc" returning FooA and "/foo?type=xyz" returning FooB are not allowed in `paths` as there is query params.
-   */
-  "x-ms-paths"?: Record<string, OpenAPI3PathItem>;
-
-  /**
    * An array of Server Objects, which provide connectivity information to a target server.
    * If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
    */
