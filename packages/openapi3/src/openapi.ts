@@ -339,9 +339,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       emitTags();
 
       // Clean up empty entries
-      for (const elem of Object.keys(root.components)) {
-        if (Object.keys(root.components[elem]).length === 0) {
-          delete root.components[elem];
+      if (root.components) {
+        for (const elem of Object.keys(root.components)) {
+          if (Object.keys(root.components[elem as any]).length === 0) {
+            delete root.components[elem as any];
+          }
         }
       }
 
@@ -687,11 +689,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         program,
         property,
         param,
-        root.components.parameters,
+        root.components!.parameters!,
         typeNameOptions
       );
 
-      root.components.parameters[key] = { ...param };
+      root.components!.parameters![key] = { ...param };
       for (const key of Object.keys(param)) {
         delete param[key];
       }
@@ -702,8 +704,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     for (const type of schemas) {
       const schemaForType = getSchemaForType(type);
       if (schemaForType) {
-        const name = getTypeName(program, type, typeNameOptions, root.components.schemas);
-        root.components.schemas[name] = schemaForType;
+        const name = getTypeName(program, type, typeNameOptions, root!.components!.schemas);
+        root.components!.schemas![name] = schemaForType;
       }
     }
   }
@@ -937,19 +939,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
 
       // Apply decorators on the property to the type's schema
-      modelSchema.properties[name] = applyIntrinsicDecorators(prop, getSchemaOrRef(prop.type));
+      const property: any = (modelSchema.properties[name] = applyIntrinsicDecorators(
+        prop,
+        getSchemaOrRef(prop.type)
+      ));
       if (description) {
-        modelSchema.properties[name].description = description;
+        property.description = description;
       }
 
       if (prop.default) {
-        modelSchema.properties[name].default = getDefaultValue(prop.default);
+        property.default = getDefaultValue(prop.default);
       }
 
       // Should the property be marked as readOnly?
       const vis = getVisibility(program, prop);
       if (vis && vis.includes("read") && vis.length == 1) {
-        modelSchema.properties[name].readOnly = true;
+        property.readOnly = true;
       }
 
       // Attach any additional OpenAPI extensions
@@ -1110,21 +1115,18 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return !(headerInfo || queryInfo || pathInfo || statusCodeinfo);
   }
 
-  function applyIntrinsicDecorators(cadlType: ModelType | ModelTypeProperty, target: any): any {
+  function applyIntrinsicDecorators(
+    cadlType: ModelType | ModelTypeProperty,
+    target: OpenAPI3Schema
+  ): OpenAPI3Schema {
     const newTarget = { ...target };
     const docStr = getDoc(program, cadlType);
     const isString = isStringType(program, getPropertyType(cadlType));
     const isNumeric = isNumericType(program, getPropertyType(cadlType));
 
-    if (isString && !target.documentation && docStr) {
+    if (isString && !target.description && docStr) {
       newTarget.description = docStr;
     }
-
-    const summaryStr = getSummary(program, cadlType);
-    if (isString && !target.summary && summaryStr) {
-      newTarget.summary = summaryStr;
-    }
-
     const formatStr = getFormat(program, cadlType);
     if (isString && !target.format && formatStr) {
       newTarget.format = formatStr;
