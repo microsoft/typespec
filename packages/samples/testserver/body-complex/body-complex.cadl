@@ -84,7 +84,7 @@ model ArrayWrapper {
 }
 
 model DictionaryWrapper {
-  field: Map<string, string>;
+  field: Record<string>;
 }
 
 model ReadonlyObj {

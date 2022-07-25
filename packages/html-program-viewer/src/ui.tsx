@@ -331,13 +331,6 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
           {type.name}
         </TypeRef>
       );
-    case "Array":
-      return (
-        <>
-          <TypeReference type={type.elementType} />
-          {"[]"}
-        </>
-      );
     case "Union":
       return (
         <>
