@@ -343,7 +343,7 @@ const diagnostics = {
   "extends-interface": {
     severity: "error",
     messages: {
-      default: "Interfaces can only mix other interfaces",
+      default: "Interfaces can only extend other interfaces",
     },
   },
   "extends-interface-duplicate": {
@@ -576,6 +576,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+    },
+  },
+  "circular-op-signature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Operation '${"typeName"}' recursively references itself.`,
     },
   },
   "circular-alias-type": {
