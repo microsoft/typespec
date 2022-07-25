@@ -162,6 +162,7 @@ model MergeShelvesRequest {
   name: shelf_name;
 
   @doc("The name of the shelf we're removing books from and deleting.")
+  @body
   other_shelf_name: shelf_name;
 }
 
@@ -172,6 +173,7 @@ model CreateBookRequest {
   name: shelf_name;
 
   @doc("The book to create.")
+  @body
   book: Book;
 }
 

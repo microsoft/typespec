@@ -1,8 +1,34 @@
-import { createCadlLibrary, paramMessage } from "@cadl-lang/compiler";
+import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
+
+export interface OpenAPI3EmitterOptions {
+  "output-file"?: string;
+
+  /**
+   * Set the newline character for emitting files.
+   * @default lf
+   */
+  "new-line"?: "crlf" | "lf";
+}
+
+const EmiterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    "output-file": { type: "string", nullable: true },
+    "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
+  },
+  required: [],
+};
 
 export const libDef = {
   name: "@cadl-lang/openapi3",
   diagnostics: {
+    "invalid-server-variable": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
+      },
+    },
     "security-service-namespace": {
       severity: "error",
       messages: {
@@ -85,10 +111,11 @@ export const libDef = {
     },
   },
   emitter: {
-    names: ["openapi3"],
+    options: EmiterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
 } as const;
-const lib = createCadlLibrary(libDef);
-export const { reportDiagnostic } = lib;
 
-export type OpenAPILibrary = typeof lib;
+export const $lib = createCadlLibrary(libDef);
+export const { reportDiagnostic } = $lib;
+
+export type OpenAPILibrary = typeof $lib;

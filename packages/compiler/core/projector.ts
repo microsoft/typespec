@@ -1,8 +1,8 @@
 import { isNeverType } from "../lib/decorators.js";
 import { compilerAssert } from "./diagnostics.js";
+import { isNeverIndexer } from "./index.js";
 import { Program } from "./program";
 import {
-  ArrayType,
   DecoratorApplication,
   DecoratorArgument,
   EnumMemberType,
@@ -115,9 +115,6 @@ export function createProjector(
       case "UnionVariant":
         projected = projectUnionVariant(type);
         break;
-      case "Array":
-        projected = projectArray(type);
-        break;
       case "Tuple":
         projected = projectTuple(type);
         break;
@@ -150,7 +147,10 @@ export function createProjector(
       interfaces: childInterfaces,
       unions: childUnions,
       enums: childEnums,
+      decorators: [],
     });
+
+    projectedNs.decorators = projectDecorators(ns.decorators);
 
     // ns run decorators before projecting anything inside them
     finishType(projectedNs);
@@ -182,36 +182,36 @@ export function createProjector(
       return neverType;
     }
 
-    for (const [key, childModel] of ns.models) {
+    for (const childModel of ns.models.values()) {
       const projected = projectType(childModel);
       if (projected.kind === "Model") {
-        projectedNs.models.set(key, projected);
+        projectedNs.models.set(projected.name, projected);
       }
     }
 
-    for (const [key, childOperation] of ns.operations) {
+    for (const childOperation of ns.operations.values()) {
       const projected = projectType(childOperation);
       if (projected.kind === "Operation") {
-        projectedNs.operations.set(key, projected);
+        projectedNs.operations.set(projected.name, projected);
       }
     }
 
-    for (const [key, childInterface] of ns.interfaces) {
+    for (const childInterface of ns.interfaces.values()) {
       const projected = projectType(childInterface);
       if (projected.kind === "Interface") {
-        projectedNs.interfaces.set(key, projected);
+        projectedNs.interfaces.set(projected.name, projected);
       }
     }
-    for (const [key, childUnion] of ns.unions) {
+    for (const childUnion of ns.unions.values()) {
       const projected = projectType(childUnion);
       if (projected.kind === "Union") {
-        projectedNs.unions.set(key, projected);
+        projectedNs.unions.set(projected.name!, projected);
       }
     }
-    for (const [key, childEnum] of ns.enums) {
+    for (const childEnum of ns.enums.values()) {
       const projected = projectType(childEnum);
       if (projected.kind === "Enum") {
-        projectedNs.enums.set(key, projected);
+        projectedNs.enums.set(projected.name, projected);
       }
     }
 
@@ -236,6 +236,17 @@ export function createProjector(
 
     if (model.baseModel) {
       projectedModel.baseModel = projectType(model.baseModel) as ModelType;
+    }
+
+    if (model.indexer) {
+      if (isNeverIndexer(model.indexer)) {
+        projectedModel.indexer = { key: neverType, value: undefined };
+      } else {
+        projectedModel.indexer = {
+          key: projectModel(model.indexer.key),
+          value: projectType(model.indexer.value),
+        };
+      }
     }
 
     projectedTypes.set(model, projectedModel);
@@ -285,8 +296,8 @@ export function createProjector(
    */
   function shouldFinishType(type: ModelType | InterfaceType | UnionType) {
     if (
-      type.node.kind !== SyntaxKind.ModelStatement &&
-      type.node.kind !== SyntaxKind.InterfaceStatement
+      type.node?.kind !== SyntaxKind.ModelStatement &&
+      type.node?.kind !== SyntaxKind.InterfaceStatement
     ) {
       return true;
     }
@@ -347,10 +358,10 @@ export function createProjector(
       operations,
     });
 
-    for (const [key, op] of iface.operations) {
+    for (const op of iface.operations.values()) {
       const projectedOp = projectType(op);
       if (projectedOp.kind === "Operation") {
-        operations.set(key, projectedOp);
+        operations.set(projectedOp.name, projectedOp);
       }
     }
 
@@ -397,17 +408,6 @@ export function createProjector(
     return projectedVariant;
   }
 
-  function projectArray(array: ArrayType) {
-    const projectedType = projectType(array.elementType);
-
-    const projectedArray = shallowClone(array, {
-      elementType: projectedType,
-    });
-
-    finishType(projectedArray);
-    return projectedArray;
-  }
-
   function projectTuple(tuple: TupleType) {
     const values: Type[] = [];
     const projectedTuple = shallowClone(tuple, {
@@ -444,9 +444,9 @@ export function createProjector(
     const decorators = projectDecorators(e.decorators);
     const projectedMember = shallowClone(e, {
       decorators,
-      enum: projectedTypes.get(e.enum)! as EnumType,
     });
-
+    const parentEnum = projectType(e.enum) as EnumType;
+    projectedMember.enum = parentEnum;
     finishType(projectedMember);
     return projectedMember;
   }

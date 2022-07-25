@@ -25,8 +25,9 @@ body {
   display: flex;
   font-size: 14px;
 }
+
 #grid > .footer.in-pr {
-  background-color: #CE662A;
+  background-color: #ce662a;
 }
 
 #grid > .footer > .item {
@@ -46,30 +47,6 @@ body {
   padding: 2px 2px;
 }
 
-.output-tabs {
-  display: flex;
-}
-
-.output-tabs a {
-  padding: 0 5px;
-  border: 1px solid #ccc;
-  border-top: none;
-  border-bottom: none;
-  margin: 2px;
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.output-tabs a.active {
-  font-weight: bold;
-  background-color: #eee;
-}
-
-.output-tabs .middle-spacer {
-  flex: 1;
-}
-
 #editorContainer {
   grid-column: 1;
   grid-row: 2;
@@ -82,12 +59,42 @@ body {
   overflow: hidden;
 }
 
-#outputContainer {
+.output-panel {
   grid-column: 2;
   grid-row: 2;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #c5c5c5;
 }
-#output {
+
+.output-tabs {
+  display: flex;
+  border-bottom: 1px solid #c5c5c5;
+}
+
+.output-tabs a {
+  height: 26px;
+  padding: 0 5px;
+  border-right: 1px solid #ccc;
+  border-top: none;
+  border-bottom: none;
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.output-tabs a.active {
+  font-weight: bold;
+  background-color: #eee;
+}
+
+.output-tabs .middle-spacer {
+  flex: 1;
+  border-right: 1px solid #ccc;
+}
+
+.output-content {
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -102,4 +109,49 @@ body {
 .type-graph-container {
   height: 100%;
   overflow: scroll;
+}
+
+.error-tab-count {
+  background-color: #cc2222;
+  color: #f5f5f5;
+  padding: 0 5px;
+  border-radius: 20px;
+}
+
+.diagnostic-list {
+  height: 100%;
+  overflow: auto;
+}
+
+.diagnostic-item {
+  display: flex;
+}
+.diagnostic-item-severity {
+  padding: 0 5px;
+}
+.diagnostic-item-severity.error {
+  color: #cc2222;
+}
+.diagnostic-item-severity.warning {
+  color: orange;
+}
+.diagnostic-item-code {
+  padding: 0 5px;
+  color: #333333;
+}
+.diagnostic-item-message {
+  padding: 0 5px;
+}
+
+.center {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.internal-server-error {
+  border: 1px solid #cc2222;
+  padding: 10px;
+  margin: 20px;
 }

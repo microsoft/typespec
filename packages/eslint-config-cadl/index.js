@@ -1,7 +1,7 @@
 module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: { project: "./tsconfig.json" },
-  plugins: ["@typescript-eslint/eslint-plugin", "prettier"],
+  plugins: ["@typescript-eslint/eslint-plugin", "prettier", "unicorn", "mocha"],
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   env: {
     node: true,
@@ -22,6 +22,18 @@ module.exports = {
     ],
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/no-misused-promises": "error",
+
+    /**
+     * Unicorn
+     */
+    "unicorn/filename-case": ["error", { case: "kebabCase" }],
+
+    /**
+     * Mocha
+     */
+    "mocha/no-identical-title": "error",
+    "mocha/no-nested-tests": "error",
+    "mocha/no-empty-description": "error",
 
     /**
      * Core

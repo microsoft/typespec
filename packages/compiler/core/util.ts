@@ -1,7 +1,22 @@
 import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
-import { getDirectoryPath, isPathAbsolute, isUrl, joinPaths, resolvePath } from "./path-utils.js";
-import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "./types.js";
+import {
+  getAnyExtensionFromPath,
+  getDirectoryPath,
+  isPathAbsolute,
+  isUrl,
+  joinPaths,
+  normalizePath,
+  resolvePath,
+} from "./path-utils.js";
+import {
+  CompilerHost,
+  Diagnostic,
+  DiagnosticTarget,
+  NoTarget,
+  SourceFile,
+  SourceFileKind,
+} from "./types.js";
 
 export { cadlVersion } from "./manifest.js";
 export { NodeHost } from "./node-host.js";
@@ -32,6 +47,10 @@ export function deepClone<T>(value: T): T {
   }
 
   return value;
+}
+
+export async function getNormalizedRealPath(host: CompilerHost, path: string) {
+  return normalizePath(await host.realpath(path));
 }
 
 export interface FileHandlingOptions {
@@ -163,5 +182,35 @@ export async function findProjectRoot(
       return undefined;
     }
     current = parent;
+  }
+}
+
+export function getSourceFileKindFromExt(path: string): SourceFileKind | undefined {
+  const ext = getAnyExtensionFromPath(path);
+  if (ext === ".js" || ext === ".mjs") {
+    return "js";
+  } else if (ext === ".cadl") {
+    return "cadl";
+  } else {
+    return undefined;
+  }
+}
+
+export function createStringMap<T>(caseInsensitive: boolean): Map<string, T> {
+  return caseInsensitive ? new CaseInsensitiveMap<T>() : new Map<string, T>();
+}
+
+class CaseInsensitiveMap<T> extends Map<string, T> {
+  get(key: string) {
+    return super.get(key.toUpperCase());
+  }
+  set(key: string, value: T) {
+    return super.set(key.toUpperCase(), value);
+  }
+  has(key: string) {
+    return super.has(key.toUpperCase());
+  }
+  delete(key: string) {
+    return super.delete(key.toUpperCase());
   }
 }

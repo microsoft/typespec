@@ -7,10 +7,10 @@
     "**/CHANGELOG.json": true,
     "**/CHANGELOG.md": true,
     "docs/spec.html": true,
-    "common/config/rush/pnpm-lock.yaml": true
+    "common/config/rush/pnpm-lock.yaml": true,
+    "**/node_modules/**": true
   },
   "files.exclude": {
-    "**/node_modules/**": true,
     "**/common/temp/**": true,
     "**/obj/**": true,
     "**/bin/**": true,
@@ -19,7 +19,7 @@
   },
   "[javascript]": {
     "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
+    "editor.formatOnPaste": false, // work around https://github.com/simonhaenisch/prettier-plugin-organize-imports/issues/53
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
@@ -27,7 +27,7 @@
   },
   "[typescript]": {
     "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
+    "editor.formatOnPaste": false, // work around https://github.com/simonhaenisch/prettier-plugin-organize-imports/issues/53
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
@@ -90,9 +90,9 @@
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
   "mochaExplorer.files": [
-    "./packages/*/dist/test/**/*.js",
-    "./packages/*/dist-dev/test/**/*.js",
-    "./packages/*/test/**/*.js"
+    "./packages/*/dist/test/**/*.test.js",
+    "./packages/*/dist-dev/test/**/*.test.js",
+    "./packages/*/test/**/*.test.js"
   ],
   "mochaExplorer.ignore": "./packages/*/dist/test/manual/**/*.js",
   "mochaExplorer.mochaPath": "./packages/compiler/node_modules/mocha",

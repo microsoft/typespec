@@ -38,7 +38,7 @@ function main() {
     log(message: string) {
       connection.console.log(message);
     },
-    getDocumentByURL(url: string) {
+    getOpenDocumentByURL(url: string) {
       return documents.get(url);
     },
   };
@@ -50,11 +50,11 @@ function main() {
   s.log("Process ID", process.pid);
   s.log("Command Line", process.argv);
 
-  connection.onInitialize((params) => {
+  connection.onInitialize(async (params) => {
     if (params.capabilities.workspace?.workspaceFolders) {
       clientHasWorkspaceFolderCapability = true;
     }
-    return s.initialize(params);
+    return await s.initialize(params);
   });
 
   connection.onInitialized((params) => {
@@ -70,6 +70,10 @@ function main() {
   connection.onReferences(s.findReferences);
   connection.onRenameRequest(s.rename);
   connection.onPrepareRename(s.prepareRename);
+  connection.onFoldingRanges(s.getFoldingRanges);
+  connection.onDocumentSymbol(s.getDocumentSymbols);
+  connection.languages.semanticTokens.on(s.buildSemanticTokens);
+
   documents.onDidChangeContent(s.checkChange);
   documents.onDidClose(s.documentClosed);
 

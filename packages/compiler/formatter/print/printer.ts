@@ -10,6 +10,7 @@ import {
   DecoratorExpressionNode,
   DirectiveExpressionNode,
   EnumMemberNode,
+  EnumSpreadMemberNode,
   EnumStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
@@ -23,6 +24,8 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  OperationSignatureDeclarationNode,
+  OperationSignatureReferenceNode,
   OperationStatementNode,
   Statement,
   StringLiteralNode,
@@ -37,6 +40,7 @@ import {
 } from "../../core/types.js";
 import { isArray } from "../../core/util.js";
 import { commentHandler } from "./comment-handler.js";
+import { needsParens } from "./needs-parens.js";
 import { CadlPrettierOptions, DecorableNode, PrettierChildPrint } from "./types.js";
 
 const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } =
@@ -59,7 +63,8 @@ export function printCadl(
 ): prettier.Doc {
   const directives = printDirectives(path, options, print);
   const node = printNode(path, options, print);
-  return [directives, node];
+  const value = needsParens(path, options) ? ["(", node, ")"] : node;
+  return [directives, value];
 }
 
 export function printNode(
@@ -85,6 +90,18 @@ export function printNode(
       return [`using `, path.call(print, "name"), `;`];
     case SyntaxKind.OperationStatement:
       return printOperationStatement(path as AstPath<OperationStatementNode>, options, print);
+    case SyntaxKind.OperationSignatureDeclaration:
+      return printOperationSignatureDeclaration(
+        path as AstPath<OperationSignatureDeclarationNode>,
+        options,
+        print
+      );
+    case SyntaxKind.OperationSignatureReference:
+      return printOperationSignatureReference(
+        path as AstPath<OperationSignatureReferenceNode>,
+        options,
+        print
+      );
     case SyntaxKind.NamespaceStatement:
       return printNamespaceStatement(path as AstPath<NamespaceStatementNode>, options, print);
     case SyntaxKind.ModelStatement:
@@ -126,6 +143,8 @@ export function printNode(
       return printMemberExpression(path as AstPath<MemberExpressionNode>, options, print);
     case SyntaxKind.EnumMember:
       return printEnumMember(path as AstPath<EnumMemberNode>, options, print);
+    case SyntaxKind.EnumSpreadMember:
+      return printEnumSpreadMember(path as AstPath<EnumSpreadMemberNode>, options, print);
     case SyntaxKind.UnionVariant:
       return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
@@ -142,6 +161,8 @@ export function printNode(
       return "void";
     case SyntaxKind.NeverKeyword:
       return "never";
+    case SyntaxKind.UnknownKeyword:
+      return "unknown";
     // TODO: projection formatting
     case SyntaxKind.Projection:
     case SyntaxKind.ProjectionParameterDeclaration:
@@ -442,6 +463,14 @@ export function printEnumMember(
   const propertyIndex = path.stack[path.stack.length - 2];
   const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
   return [multiline && isNotFirst ? hardline : "", decorators, id, value];
+}
+
+function printEnumSpreadMember(
+  path: prettier.AstPath<EnumSpreadMemberNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  return ["...", path.call(print, "target")];
 }
 
 export function printUnionStatement(
@@ -813,7 +842,7 @@ function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
   const parent: Node | null = path.getParentNode() as any;
 
   switch (parent?.kind) {
-    case SyntaxKind.OperationStatement:
+    case SyntaxKind.OperationSignatureDeclaration:
       return parent.parameters !== path.getNode();
     default:
       return true;
@@ -853,12 +882,29 @@ export function printNamespaceStatement(
   return printNested(path, []);
 }
 
+export function printOperationSignatureDeclaration(
+  path: AstPath<OperationSignatureDeclarationNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return ["(", path.call(print, "parameters"), "): ", path.call(print, "returnType")];
+}
+
+export function printOperationSignatureReference(
+  path: AstPath<OperationSignatureReferenceNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return [" is ", path.call(print, "baseOperation")];
+}
+
 export function printOperationStatement(
   path: AstPath<OperationStatementNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ) {
   const inInterface = (path.getParentNode()?.kind as any) === SyntaxKind.InterfaceStatement;
+  const templateParams = printTemplateParameters(path, options, print, "templateParameters");
   const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
     tryInline: true,
   });
@@ -867,10 +913,8 @@ export function printOperationStatement(
     decorators,
     inInterface ? "" : "op ",
     path.call(print, "id"),
-    "(",
-    path.call(print, "parameters"),
-    "): ",
-    path.call(print, "returnType"),
+    templateParams,
+    path.call(print, "signature"),
     `;`,
   ];
 }

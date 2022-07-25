@@ -2,6 +2,54 @@
   "name": "cadl-vscode",
   "entries": [
     {
+      "version": "0.15.1",
+      "tag": "cadl-vscode_v0.15.1",
+      "date": "Fri, 08 Jul 2022 23:22:58 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.32.0` to `~0.33.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.15.0",
+      "tag": "cadl-vscode_v0.15.0",
+      "date": "Mon, 13 Jun 2022 23:42:28 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Improve error reporting when cadl-server is not found"
+          },
+          {
+            "comment": "Resolve issue with `language-configuration.json` being excluded from extension"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Update tmLanguage grammar for operation signature support"
+          },
+          {
+            "comment": "Add semantic colorization"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Upgrade to TS4.7"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.31.0` to `~0.32.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.2.0` to `~0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.0",
       "tag": "cadl-vscode_v0.14.0",
       "date": "Fri, 06 May 2022 17:19:57 GMT",

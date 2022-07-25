@@ -1,6 +1,5 @@
 import { Program } from "./program.js";
 import {
-  ArrayType,
   EnumType,
   InterfaceType,
   ModelType,
@@ -103,6 +102,9 @@ function navigateModelType(
   if (model.baseModel) {
     navigateModelType(model.baseModel, eventEmitter, visited);
   }
+  if (model.indexer && model.indexer.value) {
+    navigateType(model.indexer.value, eventEmitter, visited);
+  }
   eventEmitter.emit("exitModel", model);
 }
 
@@ -131,18 +133,6 @@ function navigateInterfaceType(
   for (const op of type.operations.values()) {
     navigateType(op, eventEmitter, visited);
   }
-}
-
-function navigateArrayType(
-  array: ArrayType,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, array)) {
-    return;
-  }
-  eventEmitter.emit("array", array);
-  navigateType(array.elementType, eventEmitter, visited);
 }
 
 function navigateEnumType(
@@ -222,8 +212,6 @@ function navigateType(
       return navigateNamespaceType(type, eventEmitter, visited);
     case "Interface":
       return navigateInterfaceType(type, eventEmitter, visited);
-    case "Array":
-      return navigateArrayType(type, eventEmitter, visited);
     case "Enum":
       return navigateEnumType(type, eventEmitter, visited);
     case "Operation":
@@ -258,7 +246,7 @@ function navigateType(
  */
 export function isTemplate(model: ModelType): boolean {
   return (
-    model.node.kind === SyntaxKind.ModelStatement &&
+    model.node?.kind === SyntaxKind.ModelStatement &&
     model.node.templateParameters.length > 0 &&
     !model.templateArguments?.length
   );

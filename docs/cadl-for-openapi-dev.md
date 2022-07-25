@@ -77,9 +77,7 @@ In OpenAPI v3, the top-level `servers` field specifies an array of `server` obje
 
 There is also an autorest extension used in many Azure API definitions called [`x-ms-parameterized-host`](https://github.com/Azure/autorest/tree/main/docs/extensions#x-ms-parameterized-host) to define the base URL for the service.
 
-In Cadl, the `host` in OpenAPI v2 can be specified with the `@serviceHost` decorator on the namespace. Similar support will be added to the openapi3 emitter shortly.
-
-There is currently no mechanism to specify `basePath` so all paths in the path object must derive directly from the `@serviceHost` value.
+In Cadl, the `host` in OpenAPI v2 can be specified with the `@server` decorator on the namespace(From `@cadl-lang/rest` library). Similar support will be added to the openapi3 emitter shortly.
 
 ## Paths Object
 

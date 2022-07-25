@@ -7,6 +7,8 @@ import {
 import { reportDiagnostic } from "./diagnostics.js";
 import { getResourceTypeKey } from "./resource.js";
 
+export const namespace = "Cadl.Rest.Private";
+
 const validatedMissingKey = Symbol("validatedMissing");
 // Workaround for the lack of template constraints https://github.com/microsoft/cadl/issues/377
 export function $validateHasKey(context: DecoratorContext, target: Type, value: Type) {

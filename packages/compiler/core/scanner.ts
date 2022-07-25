@@ -49,7 +49,7 @@ export enum Token {
   OpenBracket = 14,
   CloseBracket = 15,
   Dot = 16,
-  Elipsis = 17,
+  Ellipsis = 17,
   Semicolon = 18,
   Comma = 19,
   LessThan = 20,
@@ -102,11 +102,12 @@ export enum Token {
   ReturnKeyword = 59,
   VoidKeyword = 60,
   NeverKeyword = 61,
+  UnknownKeyword = 62,
   // Update MaxKeyword if anything is added right above here
 }
 
 const MinKeyword = Token.ImportKeyword;
-const MaxKeyword = Token.NeverKeyword;
+const MaxKeyword = Token.UnknownKeyword;
 
 const MinPunctuation = Token.OpenBrace;
 const MaxPunctuation = Token.EqualsGreaterThan;
@@ -178,6 +179,7 @@ export const TokenDisplay: readonly string[] = [
   "'return'",
   "'void'", // 60
   "'never'",
+  "'unknown'",
 ];
 
 /** @internal */
@@ -201,6 +203,7 @@ export const Keywords: readonly [string, Token][] = [
   ["return", Token.ReturnKeyword],
   ["void", Token.VoidKeyword],
   ["never", Token.NeverKeyword],
+  ["unknown", Token.UnknownKeyword],
 ];
 
 /** @internal */
@@ -436,7 +439,7 @@ export function createScanner(
 
         case CharCode.Dot:
           return lookAhead(1) === CharCode.Dot && lookAhead(2) === CharCode.Dot
-            ? next(Token.Elipsis, 3)
+            ? next(Token.Ellipsis, 3)
             : next(Token.Dot);
 
         case CharCode.Slash:
@@ -989,6 +992,19 @@ export function skipTrivia(input: string, position: number): number {
     }
 
     break;
+  }
+
+  return position;
+}
+
+export function skipWhiteSpace(input: string, position: number): number {
+  while (position < input.length) {
+    const ch = input.charCodeAt(position);
+
+    if (!isWhiteSpace(ch)) {
+      break;
+    }
+    position++;
   }
 
   return position;

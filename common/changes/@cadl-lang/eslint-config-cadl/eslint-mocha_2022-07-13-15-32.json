@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/eslint-config-cadl",
+      "comment": "Add eslint-plugin-mocha",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/eslint-config-cadl"
+}

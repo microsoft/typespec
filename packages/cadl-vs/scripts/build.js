@@ -26,10 +26,13 @@ async function main() {
 
   const result = await getBuildTool();
   if (result.type === "dotnet") {
-    await ensureDotnetVersion({ exitIfError: true });
-    await runDotnet(["build", "--configuration", "Release", `-p:Version=${version}`], {
-      cwd: pkgRoot,
-    });
+    await ensureDotnetVersion({ exitWithSuccessInDevBuilds: true });
+    await runDotnet(
+      ["build", "--configuration", "Release", `-p:Version=${version}`, "-clp:NoSummary"],
+      {
+        cwd: pkgRoot,
+      }
+    );
   } else {
     await buildWithMsbuild(result.path, pkgRoot, version);
   }
@@ -50,7 +53,7 @@ async function buildWithMsbuild(msbuildPath, pkgRoot, version) {
   }
   msbuildArgs.push(join(pkgRoot, "Microsoft.Cadl.VS.sln"));
   const result = await run(msbuildPath, msbuildArgs, { throwOnNonZeroExit: false });
-  process.exit(result.exitCode ?? 1);
+  process.exit(result.exitCode);
 }
 
 async function getBuildTool() {

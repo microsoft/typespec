@@ -1,11 +1,12 @@
-import { readdir, readFile, realpath, rmdir, stat, writeFile } from "fs/promises";
+import { readdir, readFile, realpath, rm, stat, writeFile } from "fs/promises";
 import mkdirp from "mkdirp";
 import fetch from "node-fetch";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile } from "./diagnostics.js";
 import { createConsoleSink } from "./logger/index.js";
 import { joinPaths, resolvePath } from "./path-utils.js";
-import { CompilerHost, RemoveDirOptions } from "./types";
+import { CompilerHost, RmOptions } from "./types";
+import { getSourceFileKindFromExt } from "./util.js";
 
 /**
  * Implementation of the @see CompilerHost using the real file system.
@@ -20,7 +21,7 @@ export const NodeHost: CompilerHost = {
   readFile: async (path: string) => createSourceFile(await readFile(path, "utf-8"), path),
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
   readDir: (path: string) => readdir(path),
-  removeDir: (path: string, options: RemoveDirOptions) => rmdir(path, options),
+  rm: (path: string, options: RmOptions) => rm(path, options),
   getExecutionRoot: () => resolvePath(fileURLToPath(import.meta.url), "../../../"),
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {
@@ -33,6 +34,7 @@ export const NodeHost: CompilerHost = {
   realpath(path) {
     return realpath(path);
   },
+  getSourceFileKind: getSourceFileKindFromExt,
   logSink: createConsoleSink(),
   mkdirp: (path: string) => mkdirp(path),
   fileURLToPath,

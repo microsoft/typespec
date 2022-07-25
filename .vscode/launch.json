@@ -67,7 +67,12 @@
       "request": "launch",
       "name": "Compile Scratch",
       "program": "${workspaceRoot}/packages/compiler/dist/core/cli.js",
-      "args": ["compile", "../samples/scratch", "--output-path=temp/scratch-output"],
+      "args": [
+        "compile",
+        "../samples/scratch",
+        "--output-path=temp/scratch-output",
+        "--emit=@cadl-lang/openapi3"
+      ],
       "smartStep": true,
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**/*.js"],

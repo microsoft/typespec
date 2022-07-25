@@ -26,7 +26,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/walkCat": {
       "post": {
         "operationId": "MyService_walkCat",
         "parameters": [
@@ -42,7 +44,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {},
-                  "x-cadl-name": "(anonymous model)"
+                  "x-cadl-name": "{}"
                 }
               }
             }

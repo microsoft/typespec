@@ -2,6 +2,113 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.13.0",
+      "tag": "@cadl-lang/openapi3_v0.13.0",
+      "date": "Fri, 08 Jul 2022 23:22:57 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Emitter can take `outputFile` as an option"
+          },
+          {
+            "comment": "Rename emitter options to be `kebab-case`"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Inline parameters spread from anonymous model"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.32.0` to `~0.33.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.0` to `~0.15.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.10.0` to `~0.10.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.6.0` to `~0.6.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.1` to `~0.1.2`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.6.0` to `~0.6.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.32.0` to `~0.33.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.0` to `~0.15.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.10.0` to `~0.10.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.12.0",
+      "tag": "@cadl-lang/openapi3_v0.12.0",
+      "date": "Mon, 13 Jun 2022 23:42:28 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake changes to @cadl-lang/rest libraries around accessor"
+          },
+          {
+            "comment": "Uptake changes to decorator context"
+          },
+          {
+            "comment": "Add support for new @server decorator used to specify api endpoints."
+          },
+          {
+            "comment": "Find good names where possible for anonymous models that differ from named models only by properties that are not part of the schema"
+          },
+          {
+            "comment": "Uptake changes to versioning library using enums for version"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Upgrade to TS4.7"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.31.0` to `~0.32.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.14.0` to `~0.15.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.9.0` to `~0.10.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.5.0` to `~0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.0` to `~0.1.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.5.0` to `~0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.31.0` to `~0.32.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.14.0` to `~0.15.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.9.0` to `~0.10.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.0",
       "tag": "@cadl-lang/openapi3_v0.11.0",
       "date": "Fri, 06 May 2022 17:19:57 GMT",
