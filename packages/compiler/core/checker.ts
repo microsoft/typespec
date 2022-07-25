@@ -274,6 +274,7 @@ type StdTypeName = IntrinsicModelName | "Array" | "Record";
 
 export function createChecker(program: Program): Checker {
   let templateInstantiation: Type[] = [];
+  let resolvingDefault = false;
   let instantiatingTemplate: Node | undefined;
   let currentSymbolId = 0;
   const stdTypes: Partial<Record<StdTypeName, ModelType>> = {};
@@ -653,6 +654,7 @@ export function createChecker(program: Program): Checker {
       | AliasStatementNode;
     const links = getSymbolLinks(node.symbol);
     const isInstantiatingThisTemplate = instantiatingTemplate === parentNode;
+
     if (links.declaredType && !isInstantiatingThisTemplate) {
       return links.declaredType;
     }
@@ -682,7 +684,7 @@ export function createChecker(program: Program): Checker {
 
   function getResolvedTypeParameterDefault(
     declaredType: TemplateParameterType,
-    existingValues: Record<string, Type>
+    node: TemplateParameterDeclarationNode
   ): Type | undefined {
     if (declaredType.default === undefined) {
       return undefined;
@@ -690,11 +692,12 @@ export function createChecker(program: Program): Checker {
     if (isErrorType(declaredType.default)) {
       return declaredType.default;
     }
-    if (declaredType.default.kind === "TemplateParameter") {
-      return existingValues[declaredType.default.node.id.sv];
-    } else {
-      return declaredType.default;
-    }
+
+    console.log("Resolving default for", node.id.sv);
+    const d = getTypeForNode(node.default!);
+    console.log("DONE RESOLVING default for", node.id.sv);
+
+    return d;
   }
 
   function checkTemplateParameterDefault(
@@ -765,6 +768,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTemplateInstantiationArgs(
+    templateNode: Node,
     node: Node,
     args: Type[],
     declarations: readonly TemplateParameterDeclarationNode[]
@@ -776,20 +780,25 @@ export function createChecker(program: Program): Checker {
     }
 
     const values: Type[] = [];
-    const valueMap: Record<string, Type> = {};
     let tooFew = false;
+
     for (let i = 0; i < declarations.length; i++) {
       const declaration = declarations[i];
 
       if (i < args.length) {
         values.push(args[i]);
-        valueMap[declaration.id.sv] = args[i];
       } else {
         const declaredType = getTypeForNode(declaration)! as TemplateParameterType;
-        const defaultValue = getResolvedTypeParameterDefault(declaredType, valueMap);
+        const oldTis = templateInstantiation;
+        const oldTemplateNode = instantiatingTemplate;
+        instantiatingTemplate = templateNode;
+        templateInstantiation = values;
+        resolvingDefault = true;
+        const defaultValue = getResolvedTypeParameterDefault(declaredType, declaration);
+        templateInstantiation = oldTis;
+        instantiatingTemplate = oldTemplateNode;
         if (defaultValue) {
           values.push(defaultValue);
-          valueMap[declaration.id.sv] = defaultValue;
         } else {
           tooFew = true;
           values.push(errorType);
@@ -894,7 +903,12 @@ export function createChecker(program: Program): Checker {
         }
 
         const templateParameters = decl.templateParameters;
-        const instantiationArgs = checkTemplateInstantiationArgs(node, args, templateParameters);
+        const instantiationArgs = checkTemplateInstantiationArgs(
+          decl,
+          node,
+          args,
+          templateParameters
+        );
         baseType = instantiateTemplate(decl, instantiationArgs);
       }
     } else {
@@ -2732,7 +2746,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function finishType<T extends Type>(typeDef: T): T {
-    (typeDef as any).templateArguments = templateInstantiation;
+    if (!resolvingDefault) {
+      (typeDef as any).templateArguments = templateInstantiation;
+    }
 
     if ("decorators" in typeDef) {
       for (const decApp of typeDef.decorators) {
@@ -4206,4 +4222,11 @@ function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined 
 
 export function isNeverIndexer(indexer: ModelIndexer): indexer is NeverIndexer {
   return isNeverType(indexer.key);
+}
+
+class TemplateInstantiationManager {
+  setCurrentInstantiation(node: Node, args: Type[]) {
+    this.currentNode = node;
+    this.currentArgs = args;
+  }
 }
