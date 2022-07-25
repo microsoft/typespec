@@ -4223,10 +4223,3 @@ function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined 
 export function isNeverIndexer(indexer: ModelIndexer): indexer is NeverIndexer {
   return isNeverType(indexer.key);
 }
-
-class TemplateInstantiationManager {
-  setCurrentInstantiation(node: Node, args: Type[]) {
-    this.currentNode = node;
-    this.currentArgs = args;
-  }
-}
