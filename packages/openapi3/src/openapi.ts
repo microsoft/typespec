@@ -481,7 +481,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getResponseDescriptionForStatusCode(statusCode: string) {
     if (statusCode === "default") {
-      return "An unexpected error response";
+      return "An unexpected error response.";
     }
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
