@@ -94,7 +94,7 @@ export function createProjector(
     let projected;
     switch (type.kind) {
       case "Namespace":
-        compilerAssert(false, "Namespace should have already been projected.");
+        projected = projectNamespace(type);
         break;
       case "Model":
         projected = projectModel(type);
@@ -133,6 +133,10 @@ export function createProjector(
   }
 
   function projectNamespace(ns: NamespaceType): Type {
+    const alreadyProjected = projectedTypes.get(ns);
+    if (alreadyProjected) {
+      return alreadyProjected;
+    }
     const childNamespaces = new Map<string, NamespaceType>();
     const childModels = new Map<string, ModelType>();
     const childOperations = new Map<string, OperationType>();
