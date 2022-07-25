@@ -273,9 +273,7 @@ const TypeInstantiationMap = class
 type StdTypeName = IntrinsicModelName | "Array" | "Record";
 
 export function createChecker(program: Program): Checker {
-  let templateInstantiation: Type[] = [];
-  let resolvingDefault = false;
-  let instantiatingTemplate: Node | undefined;
+  const templateInstantiationManager = new TemplateInstantiationManager();
   let currentSymbolId = 0;
   const stdTypes: Partial<Record<StdTypeName, ModelType>> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
@@ -614,7 +612,10 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    const modelName = (nsName ? nsName + "." : "") + (model.name || "(anonymous model)");
+    if (model.name === "") {
+      return (nsName ? nsName + "." : "") + "(anonymous model)";
+    }
+    const modelName = (nsName ? nsName + "." : "") + model.name;
     if (model.templateArguments && model.templateArguments.length > 0) {
       // template instantiation
       const args = model.templateArguments.map((x) => getTypeName(x, options));
@@ -653,7 +654,7 @@ export function createChecker(program: Program): Checker {
       | UnionStatementNode
       | AliasStatementNode;
     const links = getSymbolLinks(node.symbol);
-    const isInstantiatingThisTemplate = instantiatingTemplate === parentNode;
+    const isInstantiatingThisTemplate = templateInstantiationManager.isInstantiating(parentNode);
 
     if (links.declaredType && !isInstantiatingThisTemplate) {
       return links.declaredType;
@@ -676,7 +677,7 @@ export function createChecker(program: Program): Checker {
         );
       }
     } else {
-      return templateInstantiation[index];
+      return templateInstantiationManager.getArgAt(index);
     }
 
     return type;
@@ -693,11 +694,7 @@ export function createChecker(program: Program): Checker {
       return declaredType.default;
     }
 
-    console.log("Resolving default for", node.id.sv);
-    const d = getTypeForNode(node.default!);
-    console.log("DONE RESOLVING default for", node.id.sv);
-
-    return d;
+    return getTypeForNode(node.default!);
   }
 
   function checkTemplateParameterDefault(
@@ -789,14 +786,9 @@ export function createChecker(program: Program): Checker {
         values.push(args[i]);
       } else {
         const declaredType = getTypeForNode(declaration)! as TemplateParameterType;
-        const oldTis = templateInstantiation;
-        const oldTemplateNode = instantiatingTemplate;
-        instantiatingTemplate = templateNode;
-        templateInstantiation = values;
-        resolvingDefault = true;
+        templateInstantiationManager.setCurrentInstantiation(templateNode, values);
         const defaultValue = getResolvedTypeParameterDefault(declaredType, declaration);
-        templateInstantiation = oldTis;
-        instantiatingTemplate = oldTemplateNode;
+        templateInstantiationManager.endInstantiation(templateNode);
         if (defaultValue) {
           values.push(defaultValue);
         } else {
@@ -977,11 +969,7 @@ export function createChecker(program: Program): Checker {
       return cached;
     }
 
-    const oldTis = templateInstantiation;
-    const oldTemplate = instantiatingTemplate;
-    templateInstantiation = args;
-    instantiatingTemplate = templateNode;
-
+    const [oldTemplate] = templateInstantiationManager.setCurrentInstantiation(templateNode, args);
     const type =
       symbolLinks.declaredType && oldTemplate === templateNode
         ? symbolLinks.declaredType
@@ -991,8 +979,7 @@ export function createChecker(program: Program): Checker {
     if (type.kind === "Model") {
       type.templateNode = templateNode;
     }
-    templateInstantiation = oldTis;
-    instantiatingTemplate = oldTemplate;
+    templateInstantiationManager.endInstantiation(templateNode);
     return type;
   }
 
@@ -1258,7 +1245,7 @@ export function createChecker(program: Program): Checker {
   ): OperationType | ErrorType {
     // Operations defined in interfaces aren't bound to symbols
     const links = !parentInterface ? getSymbolLinks(node.symbol) : undefined;
-    const instantiatingThisTemplate = instantiatingTemplate === node;
+    const instantiatingThisTemplate = templateInstantiationManager.isInstantiating(node);
     if (links) {
       if (links.declaredType && !instantiatingThisTemplate) {
         // we're not instantiating this operation and we've already checked it
@@ -1884,7 +1871,7 @@ export function createChecker(program: Program): Checker {
 
   function checkModelStatement(node: ModelStatementNode) {
     const links = getSymbolLinks(node.symbol);
-    const instantiatingThisTemplate = instantiatingTemplate === node;
+    const instantiatingThisTemplate = templateInstantiationManager.isInstantiating(node);
 
     if (links.declaredType && !instantiatingThisTemplate) {
       // we're not instantiating this model and we've already checked it
@@ -1977,10 +1964,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function shouldCreateTypeForTemplate(node: TemplateDeclarationNode) {
-    const instantiatingThisTemplate = instantiatingTemplate === node;
+    const instantiatingThisTemplate = templateInstantiationManager.isInstantiating(node as any);
     return (
       (instantiatingThisTemplate &&
-        templateInstantiation.every((t) => t.kind !== "TemplateParameter")) ||
+        templateInstantiationManager.getArgs().every((t) => t.kind !== "TemplateParameter")) ||
       node.templateParameters.length === 0
     );
   }
@@ -2425,7 +2412,7 @@ export function createChecker(program: Program): Checker {
 
   function checkAlias(node: AliasStatementNode): Type {
     const links = getSymbolLinks(node.symbol);
-    const instantiatingThisTemplate = instantiatingTemplate === node;
+    const instantiatingThisTemplate = templateInstantiationManager.isInstantiating(node);
 
     if (links.declaredType && !instantiatingThisTemplate) {
       return links.declaredType;
@@ -2495,7 +2482,7 @@ export function createChecker(program: Program): Checker {
 
   function checkInterface(node: InterfaceStatementNode): InterfaceType {
     const links = getSymbolLinks(node.symbol);
-    const instantiatingThisTemplate = instantiatingTemplate === node;
+    const instantiatingThisTemplate = templateInstantiationManager.isInstantiating(node);
 
     if (links.declaredType && !instantiatingThisTemplate) {
       // we're not instantiating this interface and we've already checked it
@@ -2582,7 +2569,7 @@ export function createChecker(program: Program): Checker {
 
   function checkUnion(node: UnionStatementNode) {
     const links = getSymbolLinks(node.symbol);
-    const instantiatingThisTemplate = instantiatingTemplate === node;
+    const instantiatingThisTemplate = templateInstantiationManager.isInstantiating(node);
 
     if (links.declaredType && !instantiatingThisTemplate) {
       // we're not instantiating this union and we've already checked it
@@ -2746,9 +2733,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function finishType<T extends Type>(typeDef: T): T {
-    if (!resolvingDefault) {
-      (typeDef as any).templateArguments = templateInstantiation;
-    }
+    (typeDef as any).templateArguments = templateInstantiationManager.getArgs();
 
     if ("decorators" in typeDef) {
       for (const decApp of typeDef.decorators) {
@@ -3513,7 +3498,7 @@ export function createChecker(program: Program): Checker {
    * @returns true if checker is currently instantiating a template type.
    */
   function isInstantiatingTemplateType(): boolean {
-    return instantiatingTemplate !== undefined;
+    return templateInstantiationManager.isInstantiatingAny();
   }
 
   function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
@@ -4222,4 +4207,46 @@ function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined 
 
 export function isNeverIndexer(indexer: ModelIndexer): indexer is NeverIndexer {
   return isNeverType(indexer.key);
+}
+
+class TemplateInstantiationManager {
+  private argsStack: Array<[Node, readonly Type[]]> = [];
+  private currentNode: Node | undefined;
+  private currentArgs: readonly Type[] = [];
+
+  isInstantiatingAny() {
+    return this.currentNode !== undefined;
+  }
+
+  isInstantiating(node: Node) {
+    return this.currentNode === node;
+  }
+
+  getArgAt(index: number) {
+    return this.currentArgs[index];
+  }
+
+  getArgs(): Type[] {
+    return this.currentArgs as any;
+  }
+
+  setCurrentInstantiation(node: Node, args: readonly Type[]): [Node | undefined, readonly Type[]] {
+    const oldNode = this.currentNode;
+    const oldArgs = this.currentArgs;
+    this.currentNode = node;
+    this.currentArgs = args;
+    if (oldNode !== undefined) {
+      this.argsStack.push([oldNode, oldArgs]);
+    }
+    return [oldNode, oldArgs];
+  }
+
+  endInstantiation(node: Node) {
+    compilerAssert(node === this.currentNode, "Expected to be instantiating a different node.");
+
+    const last = this.argsStack.pop();
+
+    this.currentNode = last ? last[0] : undefined;
+    this.currentArgs = last ? last[1] : [];
+  }
 }
