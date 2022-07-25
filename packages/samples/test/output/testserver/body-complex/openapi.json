@@ -983,7 +983,8 @@
             "type": "object",
             "additionalProperties": {
               "type": "string"
-            }
+            },
+            "x-cadl-name": "Record<string>"
           }
         },
         "required": [

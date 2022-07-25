@@ -1,6 +1,6 @@
 import {
-  ArrayType,
   checkIfServiceNamespace,
+  emitFile,
   EmitOptionsFor,
   EnumMemberType,
   EnumType,
@@ -25,6 +25,7 @@ import {
   ignoreDiagnostics,
   isErrorType,
   isIntrinsic,
+  isNeverType,
   isNumericType,
   isSecret,
   isStringType,
@@ -32,6 +33,7 @@ import {
   ModelType,
   ModelTypeProperty,
   NamespaceType,
+  NewLine,
   OperationType,
   Program,
   resolvePath,
@@ -64,7 +66,7 @@ import {
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
-import { OpenAPILibrary, reportDiagnostic } from "./lib.js";
+import { OpenAPI3EmitterOptions, OpenAPILibrary, reportDiagnostic } from "./lib.js";
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
@@ -78,21 +80,29 @@ import {
 
 const defaultOptions = {
   "output-file": "openapi.json",
-};
+  "new-line": "lf",
+} as const;
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
-  const resolvedOptions = { ...defaultOptions, ...emitterOptions };
-  const options: OpenAPIEmitterOptions = {
-    outputFile: resolvePath(
-      p.compilerOptions.outputPath ?? "./cadl-output",
-      resolvedOptions["output-file"]
-    ),
-  };
-
+  const options = resolveOptions(p, emitterOptions ?? {});
   const emitter = createOAPIEmitter(p, options);
   await emitter.emitOpenAPI();
 }
 
+export function resolveOptions(
+  program: Program,
+  options: OpenAPI3EmitterOptions
+): ResolvedOpenAPI3EmitterOptions {
+  const resolvedOptions = { ...defaultOptions, ...options };
+
+  return {
+    newLine: resolvedOptions["new-line"],
+    outputFile: resolvePath(
+      program.compilerOptions.outputPath ?? "./cadl-output",
+      resolvedOptions["output-file"]
+    ),
+  };
+}
 // NOTE: These functions aren't meant to be used directly as decorators but as a
 // helper functions for other decorators.  The security information given here
 // will be inserted into the `security` and `securityDefinitions` sections of
@@ -160,11 +170,12 @@ export function addSecurityDefinition(
   definitions[name] = details;
 }
 
-export interface OpenAPIEmitterOptions {
+export interface ResolvedOpenAPI3EmitterOptions {
   outputFile: string;
+  newLine: NewLine;
 }
 
-function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
+function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
   let root: OpenAPI3Document;
 
   // Get the service namespace string for use in name shortening
@@ -340,7 +351,11 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
           ? resolvePath(options.outputFile.replace(".json", `.${version}.json`))
           : resolvePath(options.outputFile);
 
-        await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
+        await emitFile(program, {
+          path: outPath,
+          content: prettierOutput(JSON.stringify(root, null, 2)),
+          newLine: options.newLine,
+        });
       }
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -657,9 +672,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
 
     // Apply decorators to the schema for the parameter.
     const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
-    if (param.type.kind === "Array") {
-      schema.items = getSchemaForType(param.type.elementType);
-    }
     if (param.default) {
       schema.default = getDefaultValue(param.default);
     }
@@ -706,9 +718,7 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
     const builtinType = mapCadlTypeToOpenAPI(type);
     if (builtinType !== undefined) return builtinType;
 
-    if (type.kind === "Array") {
-      return getSchemaForArray(type);
-    } else if (type.kind === "Model") {
+    if (type.kind === "Model") {
       return getSchemaForModel(type);
     } else if (type.kind === "Union") {
       return getSchemaForUnion(type);
@@ -786,9 +796,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
       case "UnionVariant":
         type = "model";
         break;
-      case "Array":
-        type = "array";
-        break;
       default:
         reportUnsupportedUnionType(nonNullOptions[0]);
         return {};
@@ -852,15 +859,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
   function getSchemaForUnionVariant(variant: UnionTypeVariant) {
     const schema: any = getSchemaForType(variant.type);
     return schema;
-  }
-
-  function getSchemaForArray(array: ArrayType) {
-    const target = array.elementType;
-
-    return {
-      type: "array",
-      items: getSchemaOrRef(target),
-    };
   }
 
   function isNullType(type: Type): boolean {
@@ -1204,6 +1202,23 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
    * Map Cadl intrinsic models to open api definitions
    */
   function mapCadlIntrinsicModelToOpenAPI(cadlType: ModelType): any | undefined {
+    if (cadlType.indexer) {
+      if (isNeverType(cadlType.indexer.key)) {
+      } else {
+        const name = getIntrinsicModelName(program, cadlType.indexer.key);
+        if (name === "string") {
+          return {
+            type: "object",
+            additionalProperties: getSchemaOrRef(cadlType.indexer.value!),
+          };
+        } else if (name === "integer") {
+          return {
+            type: "array",
+            items: getSchemaOrRef(cadlType.indexer.value!),
+          };
+        }
+      }
+    }
     if (!isIntrinsic(program, cadlType)) {
       return undefined;
     }
@@ -1245,13 +1260,6 @@ function createOAPIEmitter(program: Program, options: OpenAPIEmitterOptions) {
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
-      case "Map":
-        // We assert on valType because Map types always have a type
-        const valType = cadlType.properties.get("v");
-        return {
-          type: "object",
-          additionalProperties: getSchemaOrRef(valType!.type),
-        };
     }
   }
 }

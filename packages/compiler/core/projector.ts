@@ -1,8 +1,8 @@
 import { isNeverType } from "../lib/decorators.js";
 import { compilerAssert } from "./diagnostics.js";
+import { isNeverIndexer } from "./index.js";
 import { Program } from "./program";
 import {
-  ArrayType,
   DecoratorApplication,
   DecoratorArgument,
   EnumMemberType,
@@ -113,9 +113,6 @@ export function createProjector(
         break;
       case "UnionVariant":
         projected = projectUnionVariant(type);
-        break;
-      case "Array":
-        projected = projectArray(type);
         break;
       case "Tuple":
         projected = projectTuple(type);
@@ -238,6 +235,17 @@ export function createProjector(
 
     if (model.baseModel) {
       projectedModel.baseModel = projectType(model.baseModel) as ModelType;
+    }
+
+    if (model.indexer) {
+      if (isNeverIndexer(model.indexer)) {
+        projectedModel.indexer = { key: neverType, value: undefined };
+      } else {
+        projectedModel.indexer = {
+          key: projectModel(model.indexer.key),
+          value: projectType(model.indexer.value),
+        };
+      }
     }
 
     projectedTypes.set(model, projectedModel);
@@ -382,17 +390,6 @@ export function createProjector(
 
     checker.finishType(projectedVariant);
     return projectedVariant;
-  }
-
-  function projectArray(array: ArrayType) {
-    const projectedType = projectType(array.elementType);
-
-    const projectedArray = shallowClone(array, {
-      elementType: projectedType,
-    });
-
-    checker.finishType(projectedArray);
-    return projectedArray;
   }
 
   function projectTuple(tuple: TupleType) {
