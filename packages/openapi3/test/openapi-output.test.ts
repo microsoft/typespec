@@ -177,6 +177,35 @@ describe("openapi3: definitions", () => {
     });
   });
 
+  it("specify default value on enum property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optionalEnum?: MyEnum = MyEnum.a;
+      };
+      
+      enum MyEnum {
+        a: "a-value",
+        b,
+      }
+      `
+    );
+
+    ok(res.isRef);
+    ok(res.schemas.Foo, "expected definition named Foo");
+    ok(res.schemas.MyEnum, "expected definition named MyEnum");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optionalEnum: {
+          allOf: [{ $ref: "#/components/schemas/MyEnum" }],
+          default: "a-value",
+        },
+      },
+    });
+  });
+
   it("emits models extended from models when parent is emitted", async () => {
     const res = await openApiFor(
       `
