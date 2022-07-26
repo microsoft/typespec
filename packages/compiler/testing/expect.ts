@@ -152,6 +152,7 @@ function matchStrOrRegex(value: string, expectation: string | RegExp, assertMess
  */
 export function expectIdenticalTypes(a: Type, b: Type) {
   if (a !== b) {
+    // Note: `||` instead of `??` is intentional to allow for anonymous types with name = `""`
     strictEqual((a as any).name || "(anonymous type 1)", (b as any).name || "(anonymous type 2)");
     fail(`Types are both named "${(a as any).name}", but they are not identical.`);
   }
