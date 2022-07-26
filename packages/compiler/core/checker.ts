@@ -4206,8 +4206,8 @@ const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
 
 /**
  * Find all named models that could have been the source of the given
- * property. This includes all property sources in a chain and their derived
- * models.
+ * property. This includes the named parents of all property sources in a
+ * chain.
  */
 function getNamedSourceModels(property: ModelTypeProperty): Set<ModelType> | undefined {
   if (!property.sourceProperty) {
@@ -4218,11 +4218,6 @@ function getNamedSourceModels(property: ModelTypeProperty): Set<ModelType> | und
   for (let p: ModelTypeProperty | undefined = property; p; p = p.sourceProperty) {
     if (p.model?.name) {
       set.add(p.model);
-      for (const derived of p.model.derivedModels) {
-        if (derived.name) {
-          set.add(derived);
-        }
-      }
     }
   }
 
