@@ -29,7 +29,8 @@ import {
   isNumericType,
   isSecret,
   isStringType,
-  isTemplate,
+  isTemplateDeclaration,
+  isTemplateDeclarationOrInstance,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -888,7 +889,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function includeDerivedModel(model: ModelType): boolean {
     return (
-      !isTemplate(model) &&
+      !isTemplateDeclaration(model) &&
       (model.templateArguments === undefined ||
         model.templateArguments?.length === 0 ||
         model.derivedModels.length > 0)
@@ -973,8 +974,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // templated type.
     if (
       model.baseModel &&
-      model.baseModel.templateArguments &&
-      model.baseModel.templateArguments.length > 0 &&
+      isTemplateDeclarationOrInstance(model.baseModel) &&
       Object.keys(modelSchema.properties).length === 0
     ) {
       // Take the base model schema but carry across the documentation property
