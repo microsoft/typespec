@@ -2,7 +2,7 @@ import { ok } from "assert";
 import { isTemplate, isTemplateDeclaration, isTemplateInstance, ModelType } from "../core/index.js";
 import { BasicTestRunner, createTestRunner } from "../testing/index.js";
 
-describe.only("compiler: type-utils", () => {
+describe("compiler: type-utils", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
