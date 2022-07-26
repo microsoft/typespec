@@ -27,7 +27,7 @@ export function isTemplateDeclaration(type: TemplatedType): boolean {
 /**
  * Resolve if the type was created from a template type or is a template type declaration.
  */
-export function isTemplate(type: TemplatedType): boolean {
+export function isTemplateDeclarationOrInstance(type: TemplatedType): boolean {
   if (type.node === undefined) {
     return false;
   }

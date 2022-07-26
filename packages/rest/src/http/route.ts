@@ -5,8 +5,8 @@ import {
   DiagnosticCollector,
   getServiceNamespace,
   InterfaceType,
-  isTemplate,
   isTemplateDeclaration,
+  isTemplateDeclarationOrInstance,
   ModelTypeProperty,
   NamespaceType,
   OperationType,
@@ -444,7 +444,7 @@ function buildRoutes(
     }
 
     // Skip templated operations
-    if (isTemplate(op)) {
+    if (isTemplateDeclarationOrInstance(op)) {
       continue;
     }
 
