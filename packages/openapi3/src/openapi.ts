@@ -1129,7 +1129,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const isString = isStringType(program, getPropertyType(cadlType));
     const isNumeric = isNumericType(program, getPropertyType(cadlType));
 
-    if (isString && !target.description && docStr) {
+    if (!target.description && docStr) {
       newTarget.description = docStr;
     }
     const formatStr = getFormat(program, cadlType);
