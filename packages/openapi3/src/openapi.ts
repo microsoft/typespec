@@ -29,8 +29,8 @@ import {
   isNumericType,
   isSecret,
   isStringType,
-  isTemplate,
   isTemplateDeclaration,
+  isTemplateDeclarationOrInstance,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -974,7 +974,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // templated type.
     if (
       model.baseModel &&
-      isTemplate(model.baseModel) &&
+      isTemplateDeclarationOrInstance(model.baseModel) &&
       Object.keys(modelSchema.properties).length === 0
     ) {
       // Take the base model schema but carry across the documentation property
