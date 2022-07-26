@@ -5,6 +5,8 @@ import {
   DiagnosticCollector,
   getServiceNamespace,
   InterfaceType,
+  isTemplate,
+  isTemplateDeclaration,
   ModelTypeProperty,
   NamespaceType,
   OperationType,
@@ -124,7 +126,7 @@ function addRouteContainer(program: Program, entity: Type): void {
     throw new Error(`${entity.kind} is not or does not have a container`);
   }
 
-  if (isUninstantiatedTemplateInterface(container)) {
+  if (container.kind === "Interface" && isTemplateDeclaration(container)) {
     // Don't register uninstantiated template interfaces
     return;
   }
@@ -442,7 +444,7 @@ function buildRoutes(
     }
 
     // Skip templated operations
-    if (isUninstantiatedTemplateOperation(op)) {
+    if (isTemplate(op)) {
       continue;
     }
 
@@ -495,20 +497,6 @@ export function getRoutesForContainer(
   );
 }
 
-function isUninstantiatedTemplateInterface(maybeInterface: Type): boolean {
-  return (
-    maybeInterface.kind === "Interface" &&
-    maybeInterface.node.templateParameters &&
-    maybeInterface.node.templateParameters.length > 0 &&
-    (!maybeInterface.templateArguments || maybeInterface.templateArguments.length === 0)
-  );
-}
-
-function isUninstantiatedTemplateOperation(maybeOperation: Type): boolean {
-  // Any operation statement with template parameters is inherently uninstantiated
-  return maybeOperation.kind === "Operation" && maybeOperation.node.templateParameters.length > 0;
-}
-
 export function getAllRoutes(
   program: Program,
   options?: RouteOptions
@@ -524,7 +512,7 @@ export function getAllRoutes(
   const visitedOperations = new Set<OperationType>();
   for (const container of containers) {
     // Is this container a templated interface that hasn't been instantiated?
-    if (isUninstantiatedTemplateInterface(container)) {
+    if (container.kind === "Interface" && isTemplateDeclaration(container)) {
       // Skip template interface operations
       continue;
     }
