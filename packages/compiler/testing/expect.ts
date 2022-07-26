@@ -1,5 +1,5 @@
 import assert, { fail, match, strictEqual } from "assert";
-import { Diagnostic, formatDiagnostic, getSourceLocation, NoTarget } from "../core/index.js";
+import { Diagnostic, formatDiagnostic, getSourceLocation, NoTarget, Type } from "../core/index.js";
 import { isArray } from "../core/util.js";
 import { resolveVirtualPath } from "./test-host.js";
 
@@ -142,5 +142,18 @@ function matchStrOrRegex(value: string, expectation: string | RegExp, assertMess
     strictEqual(value, expectation, assertMessage);
   } else {
     match(value, expectation, assertMessage);
+  }
+}
+
+/**
+ * Replacement for strictEqual for identity check against types. strictEqual
+ * does a really slow deep comparison for the error message when it fails in
+ * order to show the diff. Just show the type names instead.
+ */
+export function expectIdenticalTypes(a: Type, b: Type) {
+  if (a !== b) {
+    // Note: `||` instead of `??` is intentional to allow for anonymous types with name = `""`
+    strictEqual((a as any).name || "(anonymous type 1)", (b as any).name || "(anonymous type 2)");
+    fail(`Types are both named "${(a as any).name}", but they are not identical.`);
   }
 }

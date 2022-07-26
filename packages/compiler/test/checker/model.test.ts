@@ -1,6 +1,6 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { isArrayModelType } from "../../core/index.js";
-import { isTemplate } from "../../core/semantic-walker.js";
+import { isTemplateDeclaration } from "../../core/type-utils.js";
 import { ModelType, ModelTypeProperty, Type } from "../../core/types.js";
 import {
   createTestHost,
@@ -293,7 +293,7 @@ describe("compiler: models", () => {
       };
       strictEqual(Pet.derivedModels.length, 4);
       strictEqual(Pet.derivedModels[0].name, "TPet");
-      ok(isTemplate(Pet.derivedModels[0]));
+      ok(isTemplateDeclaration(Pet.derivedModels[0]));
 
       strictEqual(Pet.derivedModels[1].name, "TPet");
       ok(Pet.derivedModels[1].templateArguments);
