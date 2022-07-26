@@ -24,6 +24,7 @@ export const CadlLanguageConfiguration = {
     { open: "(", close: ")" },
     { open: '"', close: '"' },
   ],
+  // From https://github.com/Microsoft/vscode/blob/main/extensions/javascript/javascript-language-configuration.json
   indentationRules: {
     decreaseIndentPattern: {
       pattern: "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$",
