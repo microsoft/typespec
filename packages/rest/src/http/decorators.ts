@@ -6,7 +6,9 @@ import {
   NamespaceType,
   Program,
   setCadlNamespace,
+  TupleType,
   Type,
+  UnionType,
   validateDecoratorParamCount,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
@@ -387,3 +389,25 @@ export function $plainData(context: DecoratorContext, entity: Type) {
 }
 
 setCadlNamespace("Private", $plainData);
+
+const useAuthDecorator = createDecoratorDefinition({
+  name: "@useAuth",
+  target: "Namespace",
+  args: [{ kind: ["Model", "Union", "Tuple"] }],
+} as const);
+const authenticationKey = Symbol("authentication");
+export function $useAuth(
+  context: DecoratorContext,
+  entity: NamespaceType,
+  queryKey: ModelType | UnionType | TupleType
+) {
+  if (!useAuthDecorator.validate(context, entity, [queryKey])) {
+    return;
+  }
+
+  context.program.stateMap(authenticationKey).set(entity, queryKey);
+}
+
+export function getAuthentication(program: Program, namespace: NamespaceType) {
+  return program.stateMap(authenticationKey).get(namespace);
+}
