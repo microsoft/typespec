@@ -19,7 +19,7 @@ describe("openapi3: primitives", () => {
     });
   });
 
-  it("apply description on extended primitive", async () => {
+  it("apply description on extended primitive (string)", async () => {
     const res = await oapiForModel(
       "shortString",
       `
@@ -32,6 +32,24 @@ describe("openapi3: primitives", () => {
     ok(res.schemas.shortString, "expected definition named shortString");
     deepStrictEqual(res.schemas.shortString, {
       type: "string",
+      description: "My custom description",
+    });
+  });
+
+  it("apply description on extended primitive (int32)", async () => {
+    const res = await oapiForModel(
+      "specialint",
+      `
+      @doc("My custom description")
+      model specialint is int32 {}
+      `
+    );
+
+    ok(res.isRef);
+    ok(res.schemas.specialint, "expected definition named shortString");
+    deepStrictEqual(res.schemas.specialint, {
+      type: "integer",
+      format: "int32",
       description: "My custom description",
     });
   });

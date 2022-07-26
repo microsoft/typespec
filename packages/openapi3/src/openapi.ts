@@ -29,8 +29,8 @@ import {
   isNumericType,
   isSecret,
   isStringType,
-  isTemplate,
   isTemplateDeclaration,
+  isTemplateDeclarationOrInstance,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -974,7 +974,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // templated type.
     if (
       model.baseModel &&
-      isTemplate(model.baseModel) &&
+      isTemplateDeclarationOrInstance(model.baseModel) &&
       Object.keys(modelSchema.properties).length === 0
     ) {
       // Take the base model schema but carry across the documentation property
@@ -1129,7 +1129,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const isString = isStringType(program, getPropertyType(cadlType));
     const isNumeric = isNumericType(program, getPropertyType(cadlType));
 
-    if (isString && !target.description && docStr) {
+    if (!target.description && docStr) {
       newTarget.description = docStr;
     }
     const formatStr = getFormat(program, cadlType);
