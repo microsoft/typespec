@@ -6,9 +6,41 @@ import { BrowserHost } from "./browser-host";
 import { importCadlCompiler } from "./core";
 import "./style.css";
 
+function getIndentAction(
+  value: "none" | "indent" | "indentOutdent" | "outdent"
+): monaco.languages.IndentAction {
+  switch (value) {
+    case "none":
+      return monaco.languages.IndentAction.None;
+    case "indent":
+      return monaco.languages.IndentAction.Indent;
+    case "indentOutdent":
+      return monaco.languages.IndentAction.IndentOutdent;
+    case "outdent":
+      return monaco.languages.IndentAction.Outdent;
+  }
+}
+function getCadlLanguageConfiguration(): monaco.languages.LanguageConfiguration {
+  return {
+    ...(CadlLanguageConfiguration as any),
+    onEnterRules: CadlLanguageConfiguration.onEnterRules.map((rule) => {
+      return {
+        beforeText: new RegExp(rule.beforeText.pattern),
+        previousLineText:
+          "previousLineText" in rule ? new RegExp(rule.previousLineText.pattern) : undefined,
+        action: {
+          indentAction: getIndentAction(rule.action.indent),
+          appendText: "appendText" in rule.action ? rule.action.appendText : undefined,
+          removeText: "removeText" in rule.action ? rule.action.removeText : undefined,
+        },
+      };
+    }),
+  };
+}
+
 export async function attachServices(host: BrowserHost) {
   monaco.languages.register({ id: "cadl" });
-  monaco.languages.setLanguageConfiguration("cadl", CadlLanguageConfiguration as any);
+  monaco.languages.setLanguageConfiguration("cadl", getCadlLanguageConfiguration());
 
   const serverHost: ServerHost = {
     compilerHost: host,
