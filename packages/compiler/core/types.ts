@@ -38,7 +38,12 @@ export interface DecoratedType {
   decorators: DecoratorApplication[];
 }
 
-export interface TemplatedType {
+/**
+ * Union of all the types that implement TemplatedTypeBase
+ */
+export type TemplatedType = ModelType | OperationType | InterfaceType | UnionType;
+
+export interface TemplatedTypeBase {
   templateArguments?: Type[];
   templateNode?: Node;
 }
@@ -168,7 +173,7 @@ export interface RecordModelType extends ModelType {
   indexer: { key: ModelType; value: Type };
 }
 
-export interface ModelType extends BaseType, DecoratedType, TemplatedType {
+export interface ModelType extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Model";
   name: IntrinsicModelName | string;
   node?:
@@ -214,7 +219,7 @@ export interface ModelTypeProperty extends BaseType, DecoratedType {
   model?: ModelType;
 }
 
-export interface InterfaceType extends BaseType, DecoratedType, TemplatedType {
+export interface InterfaceType extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Interface";
   name: string;
   node: InterfaceStatementNode;
@@ -248,7 +253,7 @@ export interface EnumMemberType extends BaseType, DecoratedType {
   sourceMember?: EnumMemberType;
 }
 
-export interface OperationType extends BaseType, DecoratedType, TemplatedType {
+export interface OperationType extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
@@ -297,7 +302,7 @@ export interface TupleType extends BaseType {
   values: Type[];
 }
 
-export interface UnionType extends BaseType, DecoratedType, TemplatedType {
+export interface UnionType extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
   node: UnionExpressionNode | UnionStatementNode;

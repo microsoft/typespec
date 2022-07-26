@@ -3,6 +3,7 @@ import {
   getServiceNamespace,
   isArrayModelType,
   isRecordModelType,
+  isTemplateInstance,
   ModelType,
   ModelTypeProperty,
   OperationType,
@@ -33,7 +34,7 @@ export function shouldInline(program: Program, type: Type): boolean {
     case "Model":
       return (
         !type.name ||
-        hasTemplateArguments(type) ||
+        isTemplateInstance(type) ||
         program.checker.isStdType(type, "Array") ||
         program.checker.isStdType(type, "Record")
       );
@@ -109,10 +110,6 @@ export function getParameterKey(
   return key;
 }
 
-function hasTemplateArguments(type: Type): type is ModelType & { templateArguments: Type[] } {
-  return type.kind === "Model" && !!type.templateArguments && type.templateArguments.length > 0;
-}
-
 function hasFriendlyName(program: Program, type: Type): boolean {
   return !!getAssignedFriendlyName(program, type) || hasDefaultFriendlyName(program, type);
 }
@@ -134,8 +131,8 @@ function hasDefaultFriendlyName(
     !!type.name &&
     !isArrayModelType(program, type) &&
     !isRecordModelType(program, type) &&
-    hasTemplateArguments(type) &&
-    !type.templateArguments.some((arg) => hasTemplateArguments(arg) || shouldInline(program, arg))
+    isTemplateInstance(type) &&
+    !type.templateArguments.some((arg) => isTemplateInstance(arg) || shouldInline(program, arg))
   );
 }
 

@@ -2307,9 +2307,15 @@ export function createChecker(program: Program): Checker {
     filter?: (property: ModelTypeProperty) => boolean
   ) {
     let count = 0;
-    for (const each of walkPropertiesInherited(model)) {
-      if (!filter || filter(each)) {
-        count++;
+    if (filter) {
+      for (const each of walkPropertiesInherited(model)) {
+        if (filter(each)) {
+          count++;
+        }
+      }
+    } else {
+      for (let m: ModelType | undefined = model; m; m = m.baseModel) {
+        count += m.properties.size;
       }
     }
     return count;
@@ -4052,57 +4058,67 @@ export function createChecker(program: Program): Checker {
     if (filter) {
       model = filterModelProperties(model, filter);
     }
-    while (true) {
-      if (model.name) {
-        // named model
-        return model;
-      }
 
-      // We would need to change the algorithm if this doesn't hold. We
-      // assume model has no inherited properties below.
-      compilerAssert(!model.baseModel, "Anonymous model with base model.");
-
-      if (model.properties.size === 0) {
-        // empty model
-        return model;
-      }
-
-      let source: ModelType | undefined;
-
-      for (const property of model.properties.values()) {
-        const propertySource = getRootSourceModel(property);
-        if (!propertySource) {
-          // unsourced property
-          return model;
-        }
-
-        if (!source) {
-          // initialize common source from first sourced property.
-          source = propertySource;
-          continue;
-        }
-
-        if (isDerivedFrom(source, propertySource)) {
-          // OK
-        } else if (isDerivedFrom(propertySource, source)) {
-          // OK, but refine common source to derived type.
-          source = propertySource;
-        } else {
-          // different source
-          return model;
-        }
-      }
-
-      compilerAssert(source, "Should have found a common source to reach here.");
-
-      if (model.properties.size !== countPropertiesInherited(source, filter)) {
-        // source has additional properties.
-        return model;
-      }
-
-      // keep going until we reach a model that cannot be further reduced.
-      model = source;
+    if (model.name) {
+      // named model
+      return model;
     }
+
+    // We would need to change the algorithm if this doesn't hold. We
+    // assume model has no inherited properties below.
+    compilerAssert(!model.baseModel, "Anonymous model with base model.");
+
+    if (model.properties.size === 0) {
+      // empty model
+      return model;
+    }
+
+    // Find the candidate set of named model types that could have been the
+    // source of every property in the model.
+    let candidates: Set<ModelType> | undefined;
+    for (const property of model.properties.values()) {
+      const sources = getNamedSourceModels(property);
+      if (!sources) {
+        // unsourced property: no possible match
+        return model;
+      }
+
+      if (!candidates) {
+        // first sourced property: initialize candidates to its sources
+        candidates = sources;
+        continue;
+      }
+
+      // remove candidates that are not common to this property
+      for (const element of sources) {
+        if (!sources.has(element)) {
+          candidates.delete(element);
+        }
+      }
+    }
+
+    // Search for a candidate that has no additional properties (ignoring
+    // filtered properties). If so, it is effectively the same type as the
+    // input model. Consider a candidate that meets this test without
+    // ignoring filtering as a better match than one that requires filtering
+    // to meet this test.
+    let match: ModelType | undefined;
+    for (const candidate of candidates ?? []) {
+      if (model.properties.size === countPropertiesInherited(candidate)) {
+        match = candidate;
+        break; // exact match
+      }
+      if (
+        filter &&
+        !match &&
+        model.properties.size === countPropertiesInherited(candidate, filter)
+      ) {
+        match = candidate;
+        continue; // match with filter: keep searching for exact match
+      }
+    }
+
+    return match ?? model;
   }
 
   function filterModelProperties(
@@ -4223,21 +4239,30 @@ const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
   null: "unknown",
   Map: "unknown",
 });
-function isDerivedFrom(derived: ModelType, base: ModelType) {
-  while (derived !== base && derived.baseModel) {
-    derived = derived.baseModel;
-  }
-  return derived === base;
-}
 
-function getRootSourceModel(property: ModelTypeProperty): ModelType | undefined {
+/**
+ * Find all named models that could have been the source of the given
+ * property. This includes all property sources in a chain and their derived
+ * models.
+ */
+function getNamedSourceModels(property: ModelTypeProperty): Set<ModelType> | undefined {
   if (!property.sourceProperty) {
     return undefined;
   }
-  while (property.sourceProperty) {
-    property = property.sourceProperty;
+
+  const set = new Set<ModelType>();
+  for (let p: ModelTypeProperty | undefined = property; p; p = p.sourceProperty) {
+    if (p.model?.name) {
+      set.add(p.model);
+      for (const derived of p.model.derivedModels) {
+        if (derived.name) {
+          set.add(derived);
+        }
+      }
+    }
   }
-  return property?.model;
+
+  return set;
 }
 
 export function isNeverIndexer(indexer: ModelIndexer): indexer is NeverIndexer {
