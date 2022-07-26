@@ -1,5 +1,10 @@
 import { ok } from "assert";
-import { isTemplate, isTemplateDeclaration, isTemplateInstance, ModelType } from "../core/index.js";
+import {
+  isTemplateDeclaration,
+  isTemplateDeclarationOrInstance,
+  isTemplateInstance,
+  ModelType,
+} from "../core/index.js";
 import { BasicTestRunner, createTestRunner } from "../testing/index.js";
 
 describe("compiler: type-utils", () => {
@@ -14,7 +19,7 @@ describe("compiler: type-utils", () => {
        model Foo<T> {t: T};
     `);
       const Foo = runner.program.checker.getGlobalNamespaceType().models.get("Foo")!;
-      ok(isTemplate(Foo));
+      ok(isTemplateDeclarationOrInstance(Foo));
       ok(isTemplateDeclaration(Foo), "Should BE a template declaration");
       ok(!isTemplateInstance(Foo), "Should NOT be a template instance");
     });
@@ -29,7 +34,7 @@ describe("compiler: type-utils", () => {
       `)) as { Bar: ModelType };
       const Foo = Bar.properties.get("foo")!.type as ModelType;
 
-      ok(isTemplate(Foo));
+      ok(isTemplateDeclarationOrInstance(Foo));
       ok(isTemplateInstance(Foo), "Should BE a template instance");
       ok(!isTemplateDeclaration(Foo), "Should NOT be a template declaration");
     });
