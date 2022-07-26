@@ -180,7 +180,7 @@ describe("versioning: reference versioned library", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("doesn't emit diagnostic when mixin interface of non versioned lib", async () => {
+    it("doesn't emit diagnostic when extends interface of non versioned lib", async () => {
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
         namespace MyService {
@@ -310,6 +310,28 @@ describe("versioning: dependencies", () => {
     assertHasProperties(SpreadInstance1, ["t", "a"]);
     const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
+  });
+
+  // Test for https://github.com/microsoft/cadl/issues/760
+  it("have a nested service namespace", async () => {
+    const { MyService } = (await runner.compile(`
+        @serviceTitle("Test")
+        @versionedDependency(Lib.Versions.v1)
+        @test("MyService")
+        namespace MyOrg.MyService {
+
+        }
+
+        @versioned(Versions)
+        namespace Lib {
+          enum Versions {
+            v1: "v1",
+          }
+        }
+      `)) as { MyService: NamespaceType };
+
+    const [v1] = runProjections(runner.program, MyService);
+    ok(v1.projectedTypes.get(MyService));
   });
 });
 

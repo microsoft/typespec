@@ -184,35 +184,35 @@ export function getStatusCodes(program: Program, entity: Type): string[] {
   return program.stateMap(statusCodeKey).get(entity) ?? [];
 }
 
-// Note: these descriptions come from https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+// Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 export function getStatusCodeDescription(statusCode: string) {
   switch (statusCode) {
     case "200":
-      return "Ok";
+      return "The request has succeeded.";
     case "201":
-      return "Created";
+      return "The request has succeeded and a new resource has been created as a result.";
     case "202":
-      return "Accepted";
+      return "The request has been accepted for processing, but processing has not yet completed.";
     case "204":
-      return "No Content";
+      return "There is no content to send for this request, but the headers may be useful. ";
     case "301":
-      return "Moved Permanently";
+      return "The URL of the requested resource has been changed permanently. The new URL is given in the response.";
     case "304":
-      return "Not Modified";
+      return "The client has made a conditional request and the resource has not been modified.";
     case "400":
-      return "Bad Request";
+      return "The server could not understand the request due to invalid syntax.";
     case "401":
-      return "Unauthorized";
+      return "Access is unauthorized.";
     case "403":
-      return "Forbidden";
+      return "Access is forbidden";
     case "404":
-      return "Not Found";
+      return "The server cannot find the requested resource.";
     case "409":
-      return "Conflict";
+      return "The request conflicts with the current state of the server.";
     case "412":
-      return "Precondition Failed";
+      return "Precondition failed.";
     case "503":
-      return "Service Unavailable";
+      return "Service unavailable.";
   }
 
   switch (statusCode.charAt(0)) {
