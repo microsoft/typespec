@@ -352,5 +352,32 @@ describe("compiler: templates", () => {
         end,
       });
     });
+
+    it("use constrain as type when referencing another template", async () => {
+      await runner.compile(`
+        model A<T extends string> { b: B<T> }
+        model B<T extends string> {}
+      `);
+    });
+
+    it("use constrain as type when referencing another template parameter", async () => {
+      await runner.compile(`
+        model Foo<A extends string, B extends string = A> { b: B }
+      `);
+    });
+
+    it("emit diagnostics if using another template with a constraint but template parameter constraint is not compatible", async () => {
+      const { source, pos, end } = extractSquiggles(`
+        model A<T> { b: B<~~~T~~~> }
+        model B<T extends string> {}
+      `);
+      const diagnostics = await runner.diagnose(source);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'unknown' is not assignable to type 'Cadl.string'",
+        pos,
+        end,
+      });
+    });
   });
 });

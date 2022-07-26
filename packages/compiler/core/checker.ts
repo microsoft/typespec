@@ -3738,6 +3738,10 @@ export function createChecker(program: Program): Checker {
   ): [boolean, Diagnostic[]] {
     if (source === target) return [true, []];
 
+    if (source.kind === "TemplateParameter") {
+      source = source.constraint ?? unknownType;
+    }
+
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
 
     if (isSimpleTypeRelated === true) {
