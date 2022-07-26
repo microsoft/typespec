@@ -1,6 +1,6 @@
 import { isNeverType } from "../lib/decorators.js";
 import { compilerAssert } from "./diagnostics.js";
-import { isNeverIndexer } from "./index.js";
+import { isNeverIndexer, isTemplateDeclaration } from "./index.js";
 import { Program } from "./program";
 import {
   DecoratorApplication,
@@ -296,19 +296,7 @@ export function createProjector(
     ) {
       return true;
     }
-    if (type.node.templateParameters.length === 0) {
-      return true;
-    }
-    // we have template arguments
-    if (!type.templateArguments) {
-      return false;
-    }
-
-    if (type.templateArguments.length < type.node.templateParameters.length) {
-      return false;
-    }
-
-    return true;
+    return !isTemplateDeclaration(type);
   }
 
   function projectModelProperty(prop: ModelTypeProperty): Type {
