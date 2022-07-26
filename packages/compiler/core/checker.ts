@@ -4048,7 +4048,7 @@ export function createChecker(program: Program): Checker {
       }
 
       if (!candidates) {
-        // first source property: initialize candidates to its sources
+        // first sourced property: initialize candidates to its sources
         candidates = sources;
         continue;
       }
