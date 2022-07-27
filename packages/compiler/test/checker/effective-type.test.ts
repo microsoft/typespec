@@ -390,7 +390,40 @@ describe("compiler: effective type", () => {
 
     const filtered = testHost.program.checker.filterModelProperties(Source, removeFilter);
     const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    strictEqual(effective.name, "", "Result should be anonymous");
     expectIdenticalTypes(effective, filtered);
+  });
+
+  it("only parts of base and spread sources with separate filter", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./remove.js";
+
+      // NOTE: Base and Source should have the same number of properties so that we
+      // don't let a bug case escape this test by luck via the property count check.
+      model Base {
+        @remove propA: string;
+        propB: string;
+      }
+
+      model Source {
+        @remove propC: string;
+        propD: string;
+      }
+
+      @test model Derived extends Base {
+        ...Source;
+      }
+      `
+    );
+    const { Derived } = await testHost.compile("./");
+    strictEqual(Derived.kind, "Model" as const);
+
+    const filtered = testHost.program.checker.filterModelProperties(Derived, removeFilter);
+    const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    strictEqual(effective.name, "", "result should be anonymous");
+    expectIdenticalTypes(filtered, effective);
   });
 
   it("only part of source with filter", async () => {
