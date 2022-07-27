@@ -274,7 +274,6 @@ type StdTypeName = IntrinsicModelName | "Array" | "Record";
 
 export function createChecker(program: Program): Checker {
   let currentSymbolId = 0;
-  let instantiatingTemplate: Node | undefined;
   const stdTypes: Partial<Record<StdTypeName, ModelType>> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
@@ -450,6 +449,23 @@ export function createChecker(program: Program): Checker {
       for (const [name, binding] of cadlNamespaceBinding!.exports!) {
         file.locals!.set(name, createUsingSymbol(binding));
       }
+    }
+  }
+
+  /**
+   * Create the link for the given type to the symbol links.
+   * If currently instantiating a template it will link to the instantiations.
+   * Else will link to the declaredType.
+   * @param links Symbol link
+   * @param type Type
+   * @param mapper Type mapper if in an template instantiation
+   */
+  function linkType(links: SymbolLinks, type: Type, mapper: TypeMapper | undefined) {
+    if (mapper === undefined) {
+      links.declaredType = type;
+      links.instantiations = new TypeInstantiationMap();
+    } else if (links.instantiations) {
+      links.instantiations.set(mapper.args, type);
     }
   }
 
@@ -966,22 +982,16 @@ export function createChecker(program: Program): Checker {
         );
       }
     }
-    const cached = symbolLinks.instantiations.get(args) as ModelType;
+    const cached = symbolLinks.instantiations.get(args);
     if (cached) {
       return cached;
     }
 
-    const instantiatingThis = instantiatingTemplate === templateNode;
     const mapper = createTypeMapper(params, args);
-    const oldTemplate = instantiatingTemplate;
-    instantiatingTemplate = templateNode;
-    const type =
-      instantiatingThis && symbolLinks.declaredType
-        ? symbolLinks.declaredType
-        : getTypeForNode(templateNode, mapper);
-    instantiatingTemplate = oldTemplate;
-
-    symbolLinks.instantiations!.set(args, type);
+    const type = getTypeForNode(templateNode, mapper);
+    if (!symbolLinks.instantiations!.get(args)) {
+      symbolLinks.instantiations!.set(args, type);
+    }
     if (type.kind === "Model") {
       type.templateNode = templateNode;
     }
@@ -1325,9 +1335,8 @@ export function createChecker(program: Program): Checker {
       namespace?.operations.set(name, operationType);
     }
 
-    if (links && mapper === undefined) {
-      links.declaredType = operationType;
-      links.instantiations = new TypeInstantiationMap();
+    if (links) {
+      linkType(links, operationType, mapper);
     }
 
     return operationType;
@@ -1920,9 +1929,7 @@ export function createChecker(program: Program): Checker {
       decorators,
       derivedModels: [],
     });
-    if (mapper === undefined) {
-      links.declaredType = type;
-    }
+    linkType(links, type, mapper);
     const isBase = checkModelIs(node, node.is, mapper);
 
     if (isBase) {
@@ -1962,8 +1969,6 @@ export function createChecker(program: Program): Checker {
     // Hold on to the model type that's being defined so that it
     // can be referenced
     if (mapper === undefined) {
-      links.declaredType = type;
-      links.instantiations = new TypeInstantiationMap();
       type.namespace?.models.set(type.name, type);
     }
 
@@ -2492,10 +2497,7 @@ export function createChecker(program: Program): Checker {
 
     pendingResolutions.add(aliasSymId);
     const type = getTypeForNode(node.value, mapper);
-    if (mapper === undefined) {
-      links.declaredType = type;
-      links.instantiations = new TypeInstantiationMap();
-    }
+    linkType(links, type, mapper);
     pendingResolutions.delete(aliasSymId);
 
     return type;
@@ -2561,9 +2563,7 @@ export function createChecker(program: Program): Checker {
       name: node.id.sv,
     });
 
-    if (mapper === undefined) {
-      links.declaredType = interfaceType;
-    }
+    linkType(links, interfaceType, mapper);
 
     for (const extendsNode of node.extends) {
       const extendsType = getTypeForNode(extendsNode, mapper);
@@ -2599,7 +2599,6 @@ export function createChecker(program: Program): Checker {
     }
 
     if (mapper === undefined) {
-      links.instantiations = new TypeInstantiationMap();
       interfaceType.namespace?.interfaces.set(interfaceType.name, interfaceType);
     }
 
@@ -2660,9 +2659,8 @@ export function createChecker(program: Program): Checker {
       finishType(unionType, mapper);
     }
 
+    linkType(links, unionType, mapper);
     if (mapper === undefined) {
-      links.declaredType = unionType;
-      links.instantiations = new TypeInstantiationMap();
       unionType.namespace?.unions.set(unionType.name!, unionType);
     }
 
