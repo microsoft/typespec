@@ -573,7 +573,8 @@ function validateRouteUnique(diagnostics: DiagnosticCollector, operations: Opera
 const resourceOperationToVerb: any = {
   read: "get",
   create: "post",
-  createOrUpdate: "put",
+  createOrUpdate: "patch",
+  createOrReplace: "put",
   update: "patch",
   delete: "delete",
   list: "get",

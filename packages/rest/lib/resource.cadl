@@ -48,6 +48,16 @@ model ResourceCreatedResponse<T> {
   @body body: T;
 }
 
+interface ResourceCreateOrReplace<TResource, TError> {
+  @autoRoute
+  @doc("Creates or replaces a instance of the resource.")
+  @createsOrReplacesResource(TResource)
+  createOrReplace(
+    ...ResourceParameters<TResource>,
+    @body resource: ResourceCreateModel<TResource>
+  ): TResource | ResourceCreatedResponse<TResource> | TError;
+}
+
 @friendlyName("{name}Update", TResource)
 model ResourceCreateOrUpdateModel<TResource>
   is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>> {}
