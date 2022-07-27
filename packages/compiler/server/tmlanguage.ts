@@ -219,7 +219,7 @@ const typeArguments: BeginEndRule = {
 };
 
 const typeParameterConstraint: BeginEndRule = {
-  key: "type-parameter-constrain",
+  key: "type-parameter-constraint",
   scope: meta,
   begin: `extends`,
   beginCaptures: {
