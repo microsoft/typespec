@@ -196,8 +196,9 @@ export function getSegmentSeparator(program: Program, entity: Type): string | un
 
 export type ResourceOperations =
   | "read"
-  | "createOrUpdate"
   | "create"
+  | "createOrReplace"
+  | "createOrUpdate"
   | "update"
   | "delete"
   | "list";
@@ -269,6 +270,26 @@ export function $createsResource(
   context.call($segmentOf, entity, resourceType);
 
   setResourceOperation(context, entity, resourceType, "create", createsResourceDecorator);
+}
+
+const createsOrReplacesResourceDecorator = createDecoratorDefinition({
+  name: "@createsOrReplacesResource",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $createsOrReplacesResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType
+) {
+  setResourceOperation(
+    context,
+    entity,
+    resourceType,
+    "createOrReplace",
+    createsOrReplacesResourceDecorator
+  );
 }
 
 const createsOrUpdatesResourceDecorator = createDecoratorDefinition({
