@@ -4089,8 +4089,19 @@ export function createChecker(program: Program): Checker {
         continue;
       }
 
+      // Add any derived types we observe to both sides. A derived type can
+      // substitute for a base type in these sets because derived types have
+      // all the properties of their bases.
+      //
+      // NOTE: Once property overrides are allowed, this code will need to
+      // be updated to check that the current property is not overridden by
+      // the derived type before adding it here. An override would invalidate
+      // this substitution.
+      addDerivedModels(sources, candidates);
+      addDerivedModels(candidates, sources);
+
       // remove candidates that are not common to this property
-      for (const element of sources) {
+      for (const element of candidates) {
         if (!sources.has(element)) {
           candidates.delete(element);
         }
@@ -4258,6 +4269,23 @@ function getNamedSourceModels(property: ModelTypeProperty): Set<ModelType> | und
   }
 
   return set;
+}
+
+/**
+ * Find derived types of `models` in `possiblyDerivedModels` and add them to
+ * `models`.
+ */
+function addDerivedModels(models: Set<ModelType>, possiblyDerivedModels: ReadonlySet<ModelType>) {
+  for (const element of possiblyDerivedModels) {
+    if (!models.has(element)) {
+      for (let t = element.baseModel; t; t = t.baseModel) {
+        if (models.has(t)) {
+          models.add(element);
+          break;
+        }
+      }
+    }
+  }
 }
 
 export function isNeverIndexer(indexer: ModelIndexer): indexer is NeverIndexer {
