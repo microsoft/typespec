@@ -88,6 +88,26 @@ describe("openapi3: security", () => {
     deepStrictEqual(res.security, [{ OAuth2Auth: ["read", "write"] }]);
   });
 
+  it("can specify custom auth name with description", async () => {
+    const res = await openApiFor(
+      `
+      @serviceTitle("My service")
+      @useAuth(MyAuth)
+      @test namespace Foo {
+        @doc("My custom basic auth")
+        model MyAuth is BasicAuth;
+      }
+      `
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      MyAuth: {
+        type: "http",
+        scheme: "basic",
+      },
+    });
+    deepStrictEqual(res.security, [{ MyAuth: [] }]);
+  });
+
   it("can use multiple auth", async () => {
     const res = await openApiFor(
       `

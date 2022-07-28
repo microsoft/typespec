@@ -426,6 +426,25 @@ describe("rest: http decorators", () => {
       });
     });
 
+    it("can specify custom auth name with description", async () => {
+      const { Foo } = (await runner.compile(`
+        @doc("My custom basic auth")
+        model MyAuth is BasicAuth;
+        @useAuth(MyAuth)
+        @test namespace Foo {}
+      `)) as { Foo: NamespaceType };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              { id: "MyAuth", description: "My custom basic auth", type: "http", scheme: "basic" },
+            ],
+          },
+        ],
+      });
+    });
+
     it("can specify BearerAuth", async () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BearerAuth)

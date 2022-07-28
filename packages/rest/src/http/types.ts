@@ -23,6 +23,11 @@ export interface HttpAuthBase {
    * Id of the authentication scheme.
    */
   id: string;
+
+  /**
+   * Optional description.
+   */
+  description?: string;
 }
 
 /**

@@ -5,6 +5,7 @@ import {
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
+  getDoc,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -410,7 +411,7 @@ export function $useAuth(
     return;
   }
 
-  const [auth, diagnostics] = extractServiceAuthentication(authConfig);
+  const [auth, diagnostics] = extractServiceAuthentication(context.program, authConfig);
   if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
   if (auth !== undefined) {
     setAuthentication(context.program, serviceNamespace, auth);
@@ -426,24 +427,26 @@ export function setAuthentication(
 }
 
 function extractServiceAuthentication(
+  program: Program,
   type: ModelType | UnionType | TupleType
 ): [ServiceAuthentication | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
   switch (type.kind) {
     case "Model":
-      const auth = diagnostics.pipe(extractHttpAuthentication(type, type));
+      const auth = diagnostics.pipe(extractHttpAuthentication(program, type, type));
       if (auth === undefined) return diagnostics.wrap(undefined);
       return diagnostics.wrap({ options: [{ schemes: [auth] }] });
     case "Tuple":
-      const option = diagnostics.pipe(extractHttpAuthenticationOption(type, type));
+      const option = diagnostics.pipe(extractHttpAuthenticationOption(program, type, type));
       return diagnostics.wrap({ options: [option] });
     case "Union":
-      return extractHttpAuthenticationOptions(type, type);
+      return extractHttpAuthenticationOptions(program, type, type);
   }
 }
 
 function extractHttpAuthenticationOptions(
+  program: Program,
   tuple: UnionType,
   diagnosticTarget: DiagnosticTarget
 ): [ServiceAuthentication, readonly Diagnostic[]] {
@@ -452,13 +455,17 @@ function extractHttpAuthenticationOptions(
   for (const value of tuple.options) {
     switch (value.kind) {
       case "Model":
-        const result = diagnostics.pipe(extractHttpAuthentication(value, diagnosticTarget));
+        const result = diagnostics.pipe(
+          extractHttpAuthentication(program, value, diagnosticTarget)
+        );
         if (result !== undefined) {
           options.push({ schemes: [result] });
         }
         break;
       case "Tuple":
-        const option = diagnostics.pipe(extractHttpAuthenticationOption(value, diagnosticTarget));
+        const option = diagnostics.pipe(
+          extractHttpAuthenticationOption(program, value, diagnosticTarget)
+        );
         options.push(option);
         break;
       default:
@@ -475,6 +482,7 @@ function extractHttpAuthenticationOptions(
 }
 
 function extractHttpAuthenticationOption(
+  program: Program,
   tuple: TupleType,
   diagnosticTarget: DiagnosticTarget
 ): [AuthenticationOption, readonly Diagnostic[]] {
@@ -483,7 +491,9 @@ function extractHttpAuthenticationOption(
   for (const value of tuple.values) {
     switch (value.kind) {
       case "Model":
-        const result = diagnostics.pipe(extractHttpAuthentication(value, diagnosticTarget));
+        const result = diagnostics.pipe(
+          extractHttpAuthentication(program, value, diagnosticTarget)
+        );
         if (result !== undefined) {
           schemes.push(result);
         }
@@ -502,6 +512,7 @@ function extractHttpAuthenticationOption(
 }
 
 function extractHttpAuthentication(
+  program: Program,
   modelType: ModelType,
   diagnosticTarget: DiagnosticTarget
 ): [HttpAuth | undefined, readonly Diagnostic[]] {
@@ -509,10 +520,12 @@ function extractHttpAuthentication(
   if (result === undefined) {
     return [result, diagnostics];
   }
+  const description = getDoc(program, modelType);
   return [
     {
       ...result,
       id: modelType.name || result.type,
+      ...(description && { description }),
     },
     diagnostics,
   ];
