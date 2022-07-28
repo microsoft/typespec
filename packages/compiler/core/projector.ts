@@ -1,6 +1,6 @@
 import { isNeverType } from "../lib/decorators.js";
 import { compilerAssert } from "./diagnostics.js";
-import { isNeverIndexer } from "./index.js";
+import { isNeverIndexer, isTemplateDeclaration } from "./index.js";
 import { Program } from "./program";
 import {
   DecoratorApplication,
@@ -62,6 +62,8 @@ export function createProjector(
   };
   const projectedNamespaces: NamespaceType[] = [];
   const typesWithDecoratorToApply: Array<Type & { decorators: DecoratorApplication[] }> = [];
+  let projectingNamespaces = false;
+
   program.currentProjector = projector;
 
   const targetGlobalNs = startNode
@@ -70,8 +72,10 @@ export function createProjector(
       : program.checker.getGlobalNamespaceType()
     : program.checker.getGlobalNamespaceType();
 
+  projectingNamespaces = true;
   // project all the namespaces first
   projector.projectedGlobalNamespace = projectNamespace(targetGlobalNs) as NamespaceType;
+  projectingNamespaces = false;
 
   // then project all the types
   for (const ns of projectedNamespaces) {
@@ -95,7 +99,11 @@ export function createProjector(
     let projected;
     switch (type.kind) {
       case "Namespace":
-        compilerAssert(false, "Namespace should have already been projected.");
+        compilerAssert(
+          projectingNamespaces,
+          `Namespace ${type.name} should have already been projected.`
+        );
+        projected = projectNamespace(type);
         break;
       case "Model":
         projected = projectModel(type);
@@ -134,6 +142,10 @@ export function createProjector(
   }
 
   function projectNamespace(ns: NamespaceType): Type {
+    const alreadyProjected = projectedTypes.get(ns);
+    if (alreadyProjected) {
+      return alreadyProjected;
+    }
     const childNamespaces = new Map<string, NamespaceType>();
     const childModels = new Map<string, ModelType>();
     const childOperations = new Map<string, OperationType>();
@@ -276,7 +288,7 @@ export function createProjector(
   }
 
   function finishType(type: Type) {
-    checker.finishType(type, false);
+    checker.finishType(type, undefined, false);
 
     if ("decorators" in type) {
       typesWithDecoratorToApply.push(type);
@@ -301,19 +313,7 @@ export function createProjector(
     ) {
       return true;
     }
-    if (type.node.templateParameters.length === 0) {
-      return true;
-    }
-    // we have template arguments
-    if (!type.templateArguments) {
-      return false;
-    }
-
-    if (type.templateArguments.length < type.node.templateParameters.length) {
-      return false;
-    }
-
-    return true;
+    return !isTemplateDeclaration(type);
   }
 
   function projectModelProperty(prop: ModelTypeProperty): Type {

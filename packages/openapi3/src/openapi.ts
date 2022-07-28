@@ -29,7 +29,8 @@ import {
   isNumericType,
   isSecret,
   isStringType,
-  isTemplate,
+  isTemplateDeclaration,
+  isTemplateDeclarationOrInstance,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -481,7 +482,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getResponseDescriptionForStatusCode(statusCode: string) {
     if (statusCode === "default") {
-      return "An unexpected error response";
+      return "An unexpected error response.";
     }
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
@@ -806,11 +807,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (type === "model" || type === "array") {
       if (nonNullOptions.length === 1) {
         // Get the schema for the model type
-        const schema: any = getSchemaForType(nonNullOptions[0]);
-        if (nullable) {
-          schema["nullable"] = true;
+        let schema: any = getSchemaOrRef(nonNullOptions[0]);
+        if (nullable && schema.$ref) {
+          schema = {
+            type: "object",
+            allOf: [schema],
+            nullable: true,
+          };
+        } else if (nullable) {
+          schema.nullable = true;
         }
-
         return schema;
       } else {
         const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
@@ -883,7 +889,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function includeDerivedModel(model: ModelType): boolean {
     return (
-      !isTemplate(model) &&
+      !isTemplateDeclaration(model) &&
       (model.templateArguments === undefined ||
         model.templateArguments?.length === 0 ||
         model.derivedModels.length > 0)
@@ -968,8 +974,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // templated type.
     if (
       model.baseModel &&
-      model.baseModel.templateArguments &&
-      model.baseModel.templateArguments.length > 0 &&
+      isTemplateDeclarationOrInstance(model.baseModel) &&
       Object.keys(modelSchema.properties).length === 0
     ) {
       // Take the base model schema but carry across the documentation property
@@ -1124,7 +1129,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const isString = isStringType(program, getPropertyType(cadlType));
     const isNumeric = isNumericType(program, getPropertyType(cadlType));
 
-    if (isString && !target.description && docStr) {
+    if (!target.description && docStr) {
       newTarget.description = docStr;
     }
     const formatStr = getFormat(program, cadlType);

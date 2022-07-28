@@ -1,7 +1,14 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
 import { getSourceLocation } from "../../core/diagnostics.js";
 import { Diagnostic, ModelType, StringLiteralType } from "../../core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import {
+  BasicTestRunner,
+  createTestHost,
+  createTestRunner,
+  expectDiagnostics,
+  extractSquiggles,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: templates", () => {
   let testHost: TestHost;
@@ -236,6 +243,48 @@ describe("compiler: templates", () => {
     strictEqual((b.type as StringLiteralType).value, "bye");
   });
 
+  it("can reference other parameters in default in a model expression", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T, X = {t: T}> { b: X }
+        model B { 
+          foo: A<"bye">
+        };
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const b = A.properties.get("b")!;
+    strictEqual(b.type.kind, "Model" as const);
+    const t = b.type.properties.get("t")!.type;
+    strictEqual(t.kind, "String" as const);
+    strictEqual(t.value, "bye");
+  });
+
+  it("can reference other parameters in default via another template", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T, X = Foo<T>> { b: X }
+        model B { 
+          foo: A<"bye">
+        };
+
+        model Foo<T> {
+          t: T;
+        }
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const b = A.properties.get("b")!;
+    strictEqual(b.type.kind, "Model" as const);
+    const t = b.type.properties.get("t")!.type;
+    strictEqual(t.kind, "String" as const);
+    strictEqual(t.value, "bye");
+  });
+
   it("emit diagnostics if referencing itself", async () => {
     testHost.addCadlFile(
       "main.cadl",
@@ -290,6 +339,87 @@ describe("compiler: templates", () => {
       code: "invalid-template-default",
       message:
         "Template parameter defaults can only reference previously declared type parameters.",
+    });
+  });
+
+  describe("constraints", () => {
+    let runner: BasicTestRunner;
+
+    beforeEach(async () => {
+      runner = await createTestRunner();
+    });
+
+    it("compile when the constrain is satisfied in the default value", async () => {
+      await runner.compile(`
+        model A<T extends string = "abc"> { a: T }
+      `);
+    });
+
+    it("compile when the constrain is satisfied in template arg", async () => {
+      await runner.compile(`
+        model A<T extends string> { a: T }
+
+        model B {
+          a: A<"def">
+        }
+      `);
+    });
+
+    it("emit diagnostics if template default is not assignable to constraint", async () => {
+      const { source, pos, end } = extractSquiggles(`
+        model A<T extends string = ~~~123~~~> { a: T }
+      `);
+      const diagnostics = await runner.diagnose(source);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type '123' is not assignable to type 'Cadl.string'",
+        pos,
+        end,
+      });
+    });
+
+    it("emit diagnostics if template reference arg is not assignable to constraint", async () => {
+      const { source, pos, end } = extractSquiggles(`
+        model A<T extends string> { a: T }
+
+        model B {
+          a: A<~~~456~~~>
+        }
+      `);
+      const diagnostics = await runner.diagnose(source);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type '456' is not assignable to type 'Cadl.string'",
+        pos,
+        end,
+      });
+    });
+
+    it("use constrain as type when referencing another template", async () => {
+      await runner.compile(`
+        model A<T extends string> { b: B<T> }
+        model B<T extends string> {}
+      `);
+    });
+
+    it("use constrain as type when referencing another template parameter", async () => {
+      await runner.compile(`
+        model Foo<A extends string, B extends string = A> { b: B }
+      `);
+    });
+
+    it("emit diagnostics if using another template with a constraint but template parameter constraint is not compatible", async () => {
+      const { source, pos, end } = extractSquiggles(`
+        model A<T> { b: B<~~~T~~~> }
+        model B<T extends string> {}
+      `);
+      const diagnostics = await runner.diagnose(source);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'unknown' is not assignable to type 'Cadl.string'",
+        pos,
+        end,
+      });
     });
   });
 });

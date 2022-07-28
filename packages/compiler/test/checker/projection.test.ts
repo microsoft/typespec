@@ -53,6 +53,25 @@ describe("cadl: projections", () => {
     );
   });
 
+  it("projects nested namespaces with decorator refering to another namespace", async () => {
+    testHost.addJsFile("./ref.js", {
+      $ref: () => null,
+    });
+    const code = `
+    import "./ref.js";
+     @ref(Other.MyModel)
+     namespace MyOrg.MyService {
+      @test model Foo {}
+     }
+
+     namespace Other {
+      model MyModel {}
+     }
+     `;
+    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    strictEqual(result.namespace?.namespace?.name, "MyOrg");
+  });
+
   it("takes parameters", async () => {
     const code = `
       @test model Foo {
