@@ -6,6 +6,7 @@ import {
 } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
+  getAuthentication,
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
@@ -384,6 +385,153 @@ describe("rest: http decorators", () => {
           url: "https://example.com/{name}/foo",
         },
       ]);
+    });
+  });
+
+  describe.only("@useAuth", () => {
+    it("emit diagnostics when @header is not used on namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+          @useAuth(BasicAuth) op test(): string;
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message: "Cannot apply @useAuth decorator to Operation",
+        },
+      ]);
+    });
+
+    it("emit diagnostics when config is not a model, tuple or union", async () => {
+      const diagnostics = await runner.diagnose(`
+          @useAuth(123)
+          namespace Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message:
+          "Argument '123' of type 'Number' is not assignable to parameter of type 'Model, Union, Tuple'",
+      });
+    });
+
+    it("can specify BasicAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(BasicAuth)
+        @test namespace Foo {}
+      `)) as { Foo: NamespaceType };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [{ schemes: [{ type: "http", scheme: "basic" }] }],
+      });
+    });
+
+    it("can specify BearerAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(BearerAuth)
+        @test namespace Foo {}
+      `)) as { Foo: NamespaceType };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [{ schemes: [{ type: "http", scheme: "bearer" }] }],
+      });
+    });
+
+    it("can specify ApiKeyAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-my-header">)
+        @test namespace Foo {}
+      `)) as { Foo: NamespaceType };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [{ schemes: [{ type: "apiKey", in: "header", name: "x-my-header" }] }],
+      });
+    });
+
+    it("can specify OAauth2", async () => {
+      const { Foo } = (await runner.compile(`
+        model MyFlow {
+          type: OAuth2FlowType.implicit;
+          authorizationUrl: "https://api.example.com/oauth2/authorize";
+          refreshUrl: "https://api.example.com/oauth2/refresh";
+          scopes: ["read", "write"];
+        }
+        @useAuth(OAuth2Auth<[MyFlow]>)
+        @test namespace Foo {}
+      `)) as { Foo: NamespaceType };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              {
+                type: "oauth2",
+                flows: [
+                  {
+                    type: "implicit",
+                    authorizationUrl: "https://api.example.com/oauth2/authorize",
+                    refreshUrl: "https://api.example.com/oauth2/refresh",
+                    scopes: ["read", "write"],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify multiple auth options", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(BasicAuth | BearerAuth)
+        @test namespace Foo {}
+      `)) as { Foo: NamespaceType };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          { schemes: [{ type: "http", scheme: "basic" }] },
+          { schemes: [{ type: "http", scheme: "bearer" }] },
+        ],
+      });
+    });
+
+    it("can specify multiple auth schemes to be used together", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth([BasicAuth, BearerAuth])
+        @test namespace Foo {}
+      `)) as { Foo: NamespaceType };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              { type: "http", scheme: "basic" },
+              { type: "http", scheme: "bearer" },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify multiple auth schemes to be used together and multiple options", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth])
+        @test namespace Foo {}
+      `)) as { Foo: NamespaceType };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [{ type: "http", scheme: "bearer" }],
+          },
+          {
+            schemes: [
+              { type: "apiKey", in: "header", name: "x-my-header" },
+              { type: "http", scheme: "basic" },
+            ],
+          },
+        ],
+      });
     });
   });
 });

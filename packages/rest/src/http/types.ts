@@ -1,11 +1,18 @@
-namespace Cadl.Http;
-
-enum AuthType {
-  http,
-  apiKey,
-  oauth2,
-  openIdConnect,
+export interface ServiceAuthentication {
+  /**
+   * Either one of those options can be used independently to authenticate.
+   */
+  options: AuthenticationOption[];
 }
+
+export interface AuthenticationOption {
+  /**
+   * For this authentication option all the given auth have to be used together.
+   */
+  schemes: HttpAuth[];
+}
+
+export type HttpAuth = BasicAuth | BearerAuth | ApiKeyAuth<any, any> | Oauth2Auth<any>;
 
 /**
  * Basic authentication is a simple authentication scheme built into the HTTP protocol.
@@ -15,8 +22,8 @@ enum AuthType {
  *  Authorization: Basic ZGVtbzpwQDU1dzByZA==
  * ```
  */
-model BasicAuth {
-  type: AuthType.http;
+export interface BasicAuth {
+  type: "http";
   scheme: "basic";
 }
 
@@ -28,16 +35,12 @@ model BasicAuth {
  *   Authorization: Bearer <token>
  * ```
  */
-model BearerAuth {
-  type: AuthType.http;
+export interface BearerAuth {
+  type: "http";
   scheme: "bearer";
 }
 
-enum ApiKeyLocation {
-  header,
-  query,
-  cookie,
-}
+type ApiKeyLocation = "header" | "query" | "cookie";
 
 /**
  * An API key is a token that a client provides when making API calls. The key can be sent in the query string:
@@ -59,8 +62,8 @@ enum ApiKeyLocation {
  * Cookie: X-API-KEY=abcdef12345
  * ```
  */
-model ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
-  type: AuthType.apiKey;
+export interface ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
+  type: "apiKey";
   in: TLocation;
   name: TName;
 }
@@ -71,8 +74,8 @@ model ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
  * For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
  */
-model OAuth2Auth<TFlows extends ImplicitFlow[]> {
-  type: AuthType.oauth2;
+export interface Oauth2Auth<TFlows extends OAuth2Flow> {
+  type: "oauth2";
   flows: TFlows;
 }
 
@@ -83,45 +86,45 @@ enum OAuth2FlowType {
   clientCredentials,
 }
 
-alias OAuth2Flow = AuthorizationCodeFlow | ImplicitFlow | PasswordFlow | ClientCredentialsFlow;
+type OAuth2Flow = AuthorizationCodeFlow | ImplicitFlow | PasswordFlow | ClientCredentialsFlow;
 
 /**
  * Authorization Code flow
  */
-model AuthorizationCodeFlow {
+export interface AuthorizationCodeFlow {
   type: OAuth2FlowType.authorizationCode;
   authorizationUrl: string;
   tokenUrl: string;
-  refreshUrl?: string;
+  refreshUrl: string;
   scopes: string[];
 }
 
 /**
  * Implicit flow
  */
-model ImplicitFlow {
+export interface ImplicitFlow {
   type: OAuth2FlowType.implicit;
   authorizationUrl: string;
-  refreshUrl?: string;
+  refreshUrl: string;
   scopes: string[];
 }
 
 /**
  * Resource Owner Password flow
  */
-model PasswordFlow {
+export interface PasswordFlow {
   type: OAuth2FlowType.password;
   authorizationUrl: string;
-  refreshUrl?: string;
+  refreshUrl: string;
   scopes: string[];
 }
 
 /**
  * Client credentials flow
  */
-model ClientCredentialsFlow {
+export interface ClientCredentialsFlow {
   type: OAuth2FlowType.clientCredentials;
   tokenUrl: string;
-  refreshUrl?: string;
+  refreshUrl: string;
   scopes: string[];
 }

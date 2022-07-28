@@ -1,6 +1,10 @@
 import {
+  cadlTypeToJson,
   createDecoratorDefinition,
+  createDiagnosticCollector,
   DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
@@ -12,8 +16,9 @@ import {
   validateDecoratorParamCount,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "../diagnostics.js";
+import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
 import { extractParamsFromPath } from "../utils.js";
+import { AuthenticationOption, HttpAuth, ServiceAuthentication } from "./types.js";
 
 export const namespace = "Cadl.Http";
 
@@ -399,13 +404,100 @@ const authenticationKey = Symbol("authentication");
 export function $useAuth(
   context: DecoratorContext,
   entity: NamespaceType,
-  queryKey: ModelType | UnionType | TupleType
+  authConfig: ModelType | UnionType | TupleType
 ) {
-  if (!useAuthDecorator.validate(context, entity, [queryKey])) {
+  if (!useAuthDecorator.validate(context, entity, [authConfig])) {
     return;
   }
 
-  context.program.stateMap(authenticationKey).set(entity, queryKey);
+  const [auth, diagnostics] = extractServiceAuthentication(authConfig);
+  if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
+  if (auth !== undefined) {
+    context.program.stateMap(authenticationKey).set(entity, auth);
+  }
+}
+
+function extractServiceAuthentication(
+  type: ModelType | UnionType | TupleType
+): [ServiceAuthentication | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  switch (type.kind) {
+    case "Model":
+      const auth = diagnostics.pipe(extractHttpAuthentication(type, type));
+      if (auth === undefined) return diagnostics.wrap(undefined);
+      return diagnostics.wrap({ options: [{ schemes: [auth] }] });
+    case "Tuple":
+      const option = diagnostics.pipe(extractHttpAuthenticationOption(type, type));
+      return diagnostics.wrap({ options: [option] });
+    case "Union":
+      return extractHttpAuthenticationOptions(type, type);
+  }
+}
+
+function extractHttpAuthenticationOptions(
+  tuple: UnionType,
+  diagnosticTarget: DiagnosticTarget
+): [ServiceAuthentication, readonly Diagnostic[]] {
+  const options: AuthenticationOption[] = [];
+  const diagnostics = createDiagnosticCollector();
+  for (const value of tuple.options) {
+    switch (value.kind) {
+      case "Model":
+        const result = diagnostics.pipe(extractHttpAuthentication(value, diagnosticTarget));
+        if (result !== undefined) {
+          options.push({ schemes: [result] });
+        }
+        break;
+      case "Tuple":
+        const option = diagnostics.pipe(extractHttpAuthenticationOption(value, diagnosticTarget));
+        options.push(option);
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-type-for-auth",
+            format: { kind: value.kind },
+            target: value,
+          })
+        );
+    }
+  }
+  return diagnostics.wrap({ options });
+}
+
+function extractHttpAuthenticationOption(
+  tuple: TupleType,
+  diagnosticTarget: DiagnosticTarget
+): [AuthenticationOption, readonly Diagnostic[]] {
+  const schemes: HttpAuth[] = [];
+  const diagnostics = createDiagnosticCollector();
+  for (const value of tuple.values) {
+    switch (value.kind) {
+      case "Model":
+        const result = diagnostics.pipe(extractHttpAuthentication(value, diagnosticTarget));
+        if (result !== undefined) {
+          schemes.push(result);
+        }
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-type-for-auth",
+            format: { kind: value.kind },
+            target: value,
+          })
+        );
+    }
+  }
+  return diagnostics.wrap({ schemes });
+}
+
+function extractHttpAuthentication(
+  modelType: ModelType,
+  diagnosticTarget: DiagnosticTarget
+): [HttpAuth | undefined, readonly Diagnostic[]] {
+  return cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
 }
 
 export function getAuthentication(program: Program, namespace: NamespaceType) {
