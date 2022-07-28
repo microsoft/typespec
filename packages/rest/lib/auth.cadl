@@ -71,7 +71,7 @@ model ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
  * For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
  */
-model OAuth2Auth<TFlows extends ImplicitFlow[]> {
+model OAuth2Auth<TFlows extends OAuth2Flow[]> {
   type: AuthType.oauth2;
   flows: TFlows;
 }
