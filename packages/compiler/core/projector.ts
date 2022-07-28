@@ -153,10 +153,12 @@ export function createProjector(
       }
     }
   }
-  function projectNamespace(ns: NamespaceType, projectSubNamespace?: boolean): Type {
+  function projectNamespace(ns: NamespaceType, projectSubNamespace: boolean = true): Type {
     const alreadyProjected = projectedTypes.get(ns) as NamespaceType;
     if (alreadyProjected) {
-      projectSubNamespaces(ns, alreadyProjected);
+      if (projectSubNamespace) {
+        projectSubNamespaces(ns, alreadyProjected);
+      }
       return alreadyProjected;
     }
     const childNamespaces = new Map<string, NamespaceType>();
@@ -182,7 +184,6 @@ export function createProjector(
 
     if (projectSubNamespace) {
       projectSubNamespaces(ns, projectedNs);
-    } else {
     }
 
     projectedNamespaces.push(ns);
