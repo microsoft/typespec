@@ -682,11 +682,15 @@ export function createChecker(program: Program): Checker {
         node: node,
       });
 
+      if (node.constraint) {
+        type.constraint = getTypeForNode(node.constraint);
+      }
       if (node.default) {
         type.default = checkTemplateParameterDefault(
           node.default,
           parentNode.templateParameters,
-          index
+          index,
+          type.constraint
         );
       }
     }
@@ -712,7 +716,8 @@ export function createChecker(program: Program): Checker {
   function checkTemplateParameterDefault(
     nodeDefault: Expression,
     templateParameters: readonly TemplateParameterDeclarationNode[],
-    index: number
+    index: number,
+    constraint: Type | undefined
   ) {
     function visit(node: Node) {
       const type = getTypeForNode(node);
@@ -738,7 +743,12 @@ export function createChecker(program: Program): Checker {
 
       return hasError ? undefined : type;
     }
-    return visit(nodeDefault) ?? errorType;
+    const type = visit(nodeDefault) ?? errorType;
+
+    if (!isErrorType(type) && constraint) {
+      checkTypeAssignable(type, constraint, nodeDefault);
+    }
+    return type;
   }
 
   function checkTypeReference(
@@ -765,15 +775,15 @@ export function createChecker(program: Program): Checker {
   function checkTypeReferenceArgs(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined
-  ): Type[] {
-    const args: Type[] = [];
+  ): [Node, Type][] {
+    const args: [Node, Type][] = [];
     if (node.kind !== SyntaxKind.TypeReference) {
       return args;
     }
 
     for (const arg of node.arguments) {
       const value = getTypeForNode(arg, mapper);
-      args.push(value);
+      args.push([arg, value]);
     }
     return args;
   }
@@ -781,7 +791,7 @@ export function createChecker(program: Program): Checker {
   function checkTemplateInstantiationArgs(
     templateNode: Node,
     node: Node,
-    args: Type[],
+    args: [Node, Type][],
     declarations: readonly TemplateParameterDeclarationNode[]
   ): [TemplateParameterType[], Type[]] {
     if (args.length > declarations.length) {
@@ -800,7 +810,11 @@ export function createChecker(program: Program): Checker {
       params.push(declaredType);
 
       if (i < args.length) {
-        values.push(args[i]);
+        const [valueNode, value] = args[i];
+        values.push(value);
+        if (declaredType.constraint) {
+          checkTypeAssignable(value, declaredType.constraint, valueNode);
+        }
       } else {
         const mapper = createTypeMapper(params, values);
         const defaultValue = getResolvedTypeParameterDefault(declaredType, declaration, mapper);
@@ -3757,6 +3771,24 @@ export function createChecker(program: Program): Checker {
   }
 
   /**
+   * Check if the source type can be assigned to the target type and emit diagnostics
+   * @param source Source type
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   */
+  function checkTypeAssignable(
+    source: Type,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): boolean {
+    const [related, diagnostics] = isTypeAssignableTo(source, target, diagnosticTarget);
+    if (!related) {
+      program.reportDiagnostics(diagnostics);
+    }
+    return related;
+  }
+
+  /**
    * Check if the source type can be assigned to the target type.
    * @param source Source type
    * @param target Target type
@@ -3768,6 +3800,10 @@ export function createChecker(program: Program): Checker {
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     if (source === target) return [true, []];
+
+    if (source.kind === "TemplateParameter") {
+      source = source.constraint ?? unknownType;
+    }
 
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
 
@@ -4110,8 +4146,19 @@ export function createChecker(program: Program): Checker {
         continue;
       }
 
+      // Add any derived types we observe to both sides. A derived type can
+      // substitute for a base type in these sets because derived types have
+      // all the properties of their bases.
+      //
+      // NOTE: Once property overrides are allowed, this code will need to
+      // be updated to check that the current property is not overridden by
+      // the derived type before adding it here. An override would invalidate
+      // this substitution.
+      addDerivedModels(sources, candidates);
+      addDerivedModels(candidates, sources);
+
       // remove candidates that are not common to this property
-      for (const element of sources) {
+      for (const element of candidates) {
         if (!sources.has(element)) {
           candidates.delete(element);
         }
@@ -4263,8 +4310,8 @@ const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
 
 /**
  * Find all named models that could have been the source of the given
- * property. This includes all property sources in a chain and their derived
- * models.
+ * property. This includes the named parents of all property sources in a
+ * chain.
  */
 function getNamedSourceModels(property: ModelTypeProperty): Set<ModelType> | undefined {
   if (!property.sourceProperty) {
@@ -4275,15 +4322,27 @@ function getNamedSourceModels(property: ModelTypeProperty): Set<ModelType> | und
   for (let p: ModelTypeProperty | undefined = property; p; p = p.sourceProperty) {
     if (p.model?.name) {
       set.add(p.model);
-      for (const derived of p.model.derivedModels) {
-        if (derived.name) {
-          set.add(derived);
-        }
-      }
     }
   }
 
   return set;
+}
+
+/**
+ * Find derived types of `models` in `possiblyDerivedModels` and add them to
+ * `models`.
+ */
+function addDerivedModels(models: Set<ModelType>, possiblyDerivedModels: ReadonlySet<ModelType>) {
+  for (const element of possiblyDerivedModels) {
+    if (!models.has(element)) {
+      for (let t = element.baseModel; t; t = t.baseModel) {
+        if (models.has(t)) {
+          models.add(element);
+          break;
+        }
+      }
+    }
+  }
 }
 
 export function isNeverIndexer(indexer: ModelIndexer): indexer is NeverIndexer {

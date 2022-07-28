@@ -69,7 +69,7 @@ describe("compiler: effective type", () => {
     expectIdenticalTypes(effective, Source);
   });
 
-  it("indirect spread and filter", async () => {
+  it("indirect spread, intersect, and filter", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -187,6 +187,36 @@ describe("compiler: effective type", () => {
       }
 
       @test model Derived extends Base {
+        @remove test: string;
+      }
+      `
+    );
+    const { Base, Derived } = await testHost.compile("./");
+    strictEqual(Base.kind, "Model" as const);
+    strictEqual(Derived.kind, "Model" as const);
+
+    const propType = Derived.properties.get("test")?.type;
+    strictEqual(propType?.kind, "Model" as const);
+
+    const effective = testHost.program.checker.getEffectiveModelType(Derived, removeFilter);
+    expectIdenticalTypes(effective, Base);
+  });
+
+  it("extend and filter two levels", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./remove.js";
+
+      @test model Base {
+        prop: string;
+      }
+
+      @test model Middle extends Base {
+        @remove prop2: string;
+      }
+
+      @test model Derived extends Middle {
         @remove test: string;
       }
       `
@@ -360,7 +390,40 @@ describe("compiler: effective type", () => {
 
     const filtered = testHost.program.checker.filterModelProperties(Source, removeFilter);
     const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    strictEqual(effective.name, "", "Result should be anonymous");
     expectIdenticalTypes(effective, filtered);
+  });
+
+  it("only parts of base and spread sources with separate filter", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      import "./remove.js";
+
+      // NOTE: Base and Source should have the same number of properties so that we
+      // don't let a bug case escape this test by luck via the property count check.
+      model Base {
+        @remove propA: string;
+        propB: string;
+      }
+
+      model Source {
+        @remove propC: string;
+        propD: string;
+      }
+
+      @test model Derived extends Base {
+        ...Source;
+      }
+      `
+    );
+    const { Derived } = await testHost.compile("./");
+    strictEqual(Derived.kind, "Model" as const);
+
+    const filtered = testHost.program.checker.filterModelProperties(Derived, removeFilter);
+    const effective = testHost.program.checker.getEffectiveModelType(filtered);
+    strictEqual(effective.name, "", "result should be anonymous");
+    expectIdenticalTypes(filtered, effective);
   });
 
   it("only part of source with filter", async () => {
