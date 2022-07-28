@@ -8,6 +8,7 @@ import {
   NamespaceType,
   OperationType,
   Program,
+  setCadlNamespace,
   Type,
 } from "@cadl-lang/compiler";
 import { getResourceTypeKey } from "./resource.js";
@@ -432,3 +433,37 @@ export function getCollectionAction(
 ): string | null | undefined {
   return program.stateMap(collectionActionsKey).get(operation);
 }
+
+const resourceLocationsKey = Symbol("resourceLocations");
+
+const resourceLocationDecorator = createDecoratorDefinition({
+  name: "@resourceLocation",
+  target: "Model",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $resourceLocation(
+  context: DecoratorContext,
+  entity: ModelType,
+  resourceType: ModelType
+): void {
+  if ((resourceType as Type).kind === "TemplateParameter") {
+    // Skip it, this operation is in a templated interface
+    return;
+  }
+
+  if (!resourceLocationDecorator.validate(context, entity, [resourceType])) {
+    return;
+  }
+
+  context.program.stateMap(resourceLocationsKey).set(entity, resourceType);
+}
+
+export function getResourceLocationType(
+  program: Program,
+  entity: ModelType
+): ModelType | undefined {
+  return program.stateMap(resourceLocationsKey).get(entity);
+}
+
+setCadlNamespace("Private", $resourceLocation);
