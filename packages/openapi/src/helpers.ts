@@ -1,10 +1,7 @@
 import {
-  getFriendlyName as getAssignedFriendlyName,
+  getFriendlyName,
   getServiceNamespace,
-  isArrayModelType,
-  isRecordModelType,
   isTemplateInstance,
-  ModelType,
   ModelTypeProperty,
   OperationType,
   Program,
@@ -26,10 +23,9 @@ import { reportDiagnostic } from "./lib.js";
  * decorator, or chosen by default in simple cases.
  */
 export function shouldInline(program: Program, type: Type): boolean {
-  if (hasFriendlyName(program, type)) {
+  if (getFriendlyName(program, type)) {
     return false;
   }
-
   switch (type.kind) {
     case "Model":
       return (
@@ -62,8 +58,7 @@ export function getTypeName(
   options: TypeNameOptions,
   existing?: Record<string, any>
 ): string {
-  const name =
-    getFriendlyName(program, type, options) ?? program.checker.getTypeName(type, options);
+  const name = getFriendlyName(program, type) ?? program.checker.getTypeName(type, options);
 
   if (existing && existing[name]) {
     reportDiagnostic(program, {
@@ -108,50 +103,6 @@ export function getParameterKey(
   }
 
   return key;
-}
-
-function hasFriendlyName(program: Program, type: Type): boolean {
-  return !!getAssignedFriendlyName(program, type) || hasDefaultFriendlyName(program, type);
-}
-
-function getFriendlyName(program: Program, type: Type, options: TypeNameOptions): string {
-  return getAssignedFriendlyName(program, type) ?? getDefaultFriendlyName(program, type, options);
-}
-
-/**
- * A template instantiation has a default friendly name if none if its type
- * arguments are nested template instantiations or inlined types.
- */
-function hasDefaultFriendlyName(
-  program: Program,
-  type: Type
-): type is ModelType & { name: string; templateArguments: Type[] } {
-  return (
-    type.kind === "Model" &&
-    !!type.name &&
-    !isArrayModelType(program, type) &&
-    !isRecordModelType(program, type) &&
-    isTemplateInstance(type) &&
-    !type.templateArguments.some((arg) => isTemplateInstance(arg) || shouldInline(program, arg))
-  );
-}
-
-/**
- * Gets the default friendly name of the form Type_Arg1_..._ArgN when applicable as described
- * by `hasDefaultFriendlyName`. Returns undefined when not applicable.
- */
-function getDefaultFriendlyName(
-  program: Program,
-  type: Type,
-  options: TypeNameOptions
-): string | undefined {
-  if (!hasDefaultFriendlyName(program, type)) {
-    return undefined;
-  }
-  const ns = program.checker.getNamespaceString(type.namespace, options);
-  const model = (ns ? ns + "." : "") + type.name;
-  const args = type.templateArguments.map((arg) => getTypeName(program, arg, options));
-  return `${model}_${args.join("_")}`;
 }
 
 /**
