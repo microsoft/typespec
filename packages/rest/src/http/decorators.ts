@@ -500,6 +500,9 @@ function extractHttpAuthentication(
   return cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
 }
 
-export function getAuthentication(program: Program, namespace: NamespaceType) {
+export function getAuthentication(
+  program: Program,
+  namespace: NamespaceType
+): ServiceAuthentication | undefined {
   return program.stateMap(authenticationKey).get(namespace);
 }

@@ -74,7 +74,7 @@ export interface ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends stri
  * For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
  */
-export interface Oauth2Auth<TFlows extends OAuth2Flow> {
+export interface Oauth2Auth<TFlows extends OAuth2Flow[]> {
   type: "oauth2";
   flows: TFlows;
 }
