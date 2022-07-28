@@ -106,6 +106,35 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.type("T"),
         ]);
       });
+
+      it("templated alias with default", async () => {
+        const tokens = await tokenize("alias Foo<T = string> = T");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.operators.assignment,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.operators.assignment,
+          Token.identifiers.type("T"),
+        ]);
+      });
+      it("templated alias with constraint", async () => {
+        const tokens = await tokenize("alias Foo<T extends string> = T");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.operators.assignment,
+          Token.identifiers.type("T"),
+        ]);
+      });
     });
 
     describe("decorators", () => {
@@ -305,6 +334,35 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.type("Foo"),
           Token.punctuation.typeParameters.begin,
           Token.identifiers.type("T"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("templated model with default", async () => {
+        const tokens = await tokenize("model Foo<T = string> {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.model,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.operators.assignment,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+      it("templated model with constraint", async () => {
+        const tokens = await tokenize("model Foo<T extends string> {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.model,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
           Token.punctuation.typeParameters.end,
           Token.punctuation.openBrace,
           Token.punctuation.closeBrace,

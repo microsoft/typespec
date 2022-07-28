@@ -162,6 +162,58 @@ describe("rest: resources", () => {
     ]);
   });
 
+  it("resources: standard lifecycle operations have expected paths and verbs", async () => {
+    const routes = await getRoutesFor(
+      `
+      using Cadl.Rest.Resource;
+
+      model Thing {
+        @key
+        @segment("things")
+        thingId: string;
+      }
+
+      @error model Error {}
+
+      interface Things extends ResourceOperations<Thing, Error>, ResourceCreateOrReplace<Thing, Error> {
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [
+      {
+        params: ["thingId"],
+        path: "/things/{thingId}",
+        verb: "get",
+      },
+      {
+        params: ["thingId"],
+        path: "/things/{thingId}",
+        verb: "patch",
+      },
+      {
+        params: ["thingId"],
+        path: "/things/{thingId}",
+        verb: "delete",
+      },
+      {
+        params: [],
+        path: "/things",
+        verb: "post",
+      },
+      {
+        params: [],
+        path: "/things",
+        verb: "get",
+      },
+      {
+        params: ["thingId"],
+        path: "/things/{thingId}",
+        verb: "put",
+      },
+    ]);
+  });
+
   it("singleton resource: generates standard operations", async () => {
     const routes = await getRoutesFor(
       `

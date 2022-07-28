@@ -179,7 +179,7 @@
       }
     },
     "/pets/{petId}/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "PetCheckups_CreateOrUpdate",
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
@@ -495,7 +495,7 @@
       }
     },
     "/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "Checkups_createOrUpdate",
         "description": "Creates or update a instance of the resource.",
         "parameters": [
@@ -748,7 +748,7 @@
       }
     },
     "/owners/{ownerId}/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "OwnerCheckups_CreateOrUpdate",
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
