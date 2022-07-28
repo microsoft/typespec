@@ -7,6 +7,7 @@ import {
   EnumType,
   InterfaceType,
   ModelType,
+  NamespaceType,
   NumericLiteralType,
   OperationType,
   ProjectionApplication,
@@ -70,6 +71,42 @@ describe("cadl: projections", () => {
      `;
     const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
     strictEqual(result.namespace?.namespace?.name, "MyOrg");
+  });
+
+  // Test for https://github.com/microsoft/cadl/issues/786
+  it("projects nested namespaces with common parent and decorator referencing each others content", async () => {
+    const sym = Symbol("test-ref");
+    testHost.addJsFile("./ref.js", {
+      $ref: (context: DecoratorContext, target: NamespaceType, value: Type) =>
+        context.program.stateMap(sym).set(target, value),
+    });
+    const code = `
+    import "./ref.js";
+
+     @ref(Lib.One.MyModel)
+     namespace MyOrg.MyService {
+      @test model Foo {}
+     }
+
+     namespace Lib.One {
+      model MyModel {}
+     }
+
+     @ref(Lib.One.MyModel)
+     namespace Lib.Two {
+
+     }
+     `;
+    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    strictEqual(result.namespace?.namespace?.name, "MyOrg");
+    const map = testHost.program.stateMap(sym);
+    const myModelProjected = testHost.program
+      .currentProjector!.projectedGlobalNamespace!.namespaces.get("Lib")
+      ?.namespaces.get("One")
+      ?.models.get("MyModel");
+    const refs = [...map.values()];
+    strictEqual(myModelProjected, refs[0]);
+    strictEqual(myModelProjected, refs[1]);
   });
 
   it("takes parameters", async () => {
