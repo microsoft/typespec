@@ -114,14 +114,7 @@ describe("openapi3: security", () => {
       `
       @serviceTitle("My service")
       @useAuth(BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth])
-      namespace MyService {
-        model MyFlow {
-          type: OAuth2FlowType.implicit;
-          authorizationUrl: "https://api.example.com/oauth2/authorize";
-          refreshUrl: "https://api.example.com/oauth2/refresh";
-          scopes: ["read", "write"];
-        }
-      }
+      namespace MyService {}
       `
     );
     deepStrictEqual(res.components.securitySchemes, {
