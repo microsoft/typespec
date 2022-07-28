@@ -1297,8 +1297,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       const oai3SecurityOption: Record<string, string[]> = {};
       for (const scheme of option.schemes) {
         const [oaiScheme, scopes] = getOpenAPI3Scheme(scheme);
-        oaiSchemes[scheme.type] = oaiScheme;
-        oai3SecurityOption[scheme.type] = scopes;
+        oaiSchemes[scheme.id] = oaiScheme;
+        oai3SecurityOption[scheme.id] = scopes;
       }
       security.push(oai3SecurityOption);
     }

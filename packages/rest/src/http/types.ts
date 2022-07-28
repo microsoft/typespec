@@ -14,6 +14,13 @@ export interface AuthenticationOption {
 
 export type HttpAuth = BasicAuth | BearerAuth | ApiKeyAuth<any, any> | Oauth2Auth<any>;
 
+export interface HttpAuthBase {
+  /**
+   * Id of the authentication scheme.
+   */
+  id: string;
+}
+
 /**
  * Basic authentication is a simple authentication scheme built into the HTTP protocol.
  * The client sends HTTP requests with the Authorization header that contains the word Basic word followed by a space and a base64-encoded string username:password.
@@ -22,7 +29,7 @@ export type HttpAuth = BasicAuth | BearerAuth | ApiKeyAuth<any, any> | Oauth2Aut
  *  Authorization: Basic ZGVtbzpwQDU1dzByZA==
  * ```
  */
-export interface BasicAuth {
+export interface BasicAuth extends HttpAuthBase {
   type: "http";
   scheme: "basic";
 }
@@ -35,7 +42,7 @@ export interface BasicAuth {
  *   Authorization: Bearer <token>
  * ```
  */
-export interface BearerAuth {
+export interface BearerAuth extends HttpAuthBase {
   type: "http";
   scheme: "bearer";
 }
@@ -62,7 +69,8 @@ type ApiKeyLocation = "header" | "query" | "cookie";
  * Cookie: X-API-KEY=abcdef12345
  * ```
  */
-export interface ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
+export interface ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string>
+  extends HttpAuthBase {
   type: "apiKey";
   in: TLocation;
   name: TName;
@@ -74,7 +82,7 @@ export interface ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends stri
  * For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
  */
-export interface Oauth2Auth<TFlows extends OAuth2Flow[]> {
+export interface Oauth2Auth<TFlows extends OAuth2Flow[]> extends HttpAuthBase {
   type: "oauth2";
   flows: TFlows;
 }

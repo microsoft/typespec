@@ -497,7 +497,17 @@ function extractHttpAuthentication(
   modelType: ModelType,
   diagnosticTarget: DiagnosticTarget
 ): [HttpAuth | undefined, readonly Diagnostic[]] {
-  return cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
+  const [result, diagnostics] = cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
+  if (result === undefined) {
+    return [result, diagnostics];
+  }
+  return [
+    {
+      ...result,
+      id: modelType.name || result.type,
+    },
+    diagnostics,
+  ];
 }
 
 export function getAuthentication(

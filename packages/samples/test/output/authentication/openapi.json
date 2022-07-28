@@ -27,14 +27,14 @@
   },
   "security": [
     {
-      "http": []
+      "BearerAuth": []
     },
     {
-      "apiKey": [],
-      "http": []
+      "ApiKeyAuth": [],
+      "BasicAuth": []
     },
     {
-      "oauth2": [
+      "OAuth2Auth": [
         "read",
         "write"
       ]
@@ -42,16 +42,20 @@
   ],
   "components": {
     "securitySchemes": {
-      "http": {
+      "BearerAuth": {
         "type": "http",
-        "scheme": "basic"
+        "scheme": "bearer"
       },
-      "apiKey": {
+      "ApiKeyAuth": {
         "type": "apiKey",
         "in": "header",
         "name": "x-my-header"
       },
-      "oauth2": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "OAuth2Auth": {
         "type": "oauth2",
         "flows": {
           "implicit": {
