@@ -1317,8 +1317,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         for (const flow of auth.flows) {
           scopes.push(...flow.scopes);
           flows[flow.type] = {
-            authorizationUrl: flow.authorizationUrl,
-            tokenUrl: flow.tokenUrl,
+            authorizationUrl: (flow as any).authorizationUrl,
+            tokenUrl: (flow as any).tokenUrl,
             refreshUrl: flow.refreshUrl,
             scopes: Object.fromEntries(flow.scopes.map((x: string) => [x, ""])),
           };

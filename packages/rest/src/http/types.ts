@@ -12,7 +12,11 @@ export interface AuthenticationOption {
   schemes: HttpAuth[];
 }
 
-export type HttpAuth = BasicAuth | BearerAuth | ApiKeyAuth<any, any> | Oauth2Auth<any>;
+export type HttpAuth =
+  | BasicAuth
+  | BearerAuth
+  | ApiKeyAuth<ApiKeyLocation, string>
+  | Oauth2Auth<OAuth2Flow[]>;
 
 export interface HttpAuthBase {
   /**
@@ -102,7 +106,7 @@ export interface AuthorizationCodeFlow {
   type: "authorizationCode";
   authorizationUrl: string;
   tokenUrl: string;
-  refreshUrl: string;
+  refreshUrl?: string;
   scopes: string[];
 }
 
@@ -112,7 +116,7 @@ export interface AuthorizationCodeFlow {
 export interface ImplicitFlow {
   type: "implicit";
   authorizationUrl: string;
-  refreshUrl: string;
+  refreshUrl?: string;
   scopes: string[];
 }
 
@@ -122,7 +126,7 @@ export interface ImplicitFlow {
 export interface PasswordFlow {
   type: "password";
   authorizationUrl: string;
-  refreshUrl: string;
+  refreshUrl?: string;
   scopes: string[];
 }
 
@@ -132,6 +136,6 @@ export interface PasswordFlow {
 export interface ClientCredentialsFlow {
   type: "clientCredentials";
   tokenUrl: string;
-  refreshUrl: string;
+  refreshUrl?: string;
   scopes: string[];
 }
