@@ -422,7 +422,7 @@ describe("rest: http decorators", () => {
       `)) as { Foo: NamespaceType };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
-        options: [{ schemes: [{ type: "http", scheme: "basic" }] }],
+        options: [{ schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] }],
       });
     });
 
@@ -433,7 +433,7 @@ describe("rest: http decorators", () => {
       `)) as { Foo: NamespaceType };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
-        options: [{ schemes: [{ type: "http", scheme: "bearer" }] }],
+        options: [{ schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] }],
       });
     });
 
@@ -444,7 +444,9 @@ describe("rest: http decorators", () => {
       `)) as { Foo: NamespaceType };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
-        options: [{ schemes: [{ type: "apiKey", in: "header", name: "x-my-header" }] }],
+        options: [
+          { schemes: [{ id: "ApiKeyAuth", type: "apiKey", in: "header", name: "x-my-header" }] },
+        ],
       });
     });
 
@@ -465,6 +467,7 @@ describe("rest: http decorators", () => {
           {
             schemes: [
               {
+                id: "OAuth2Auth",
                 type: "oauth2",
                 flows: [
                   {
@@ -489,8 +492,8 @@ describe("rest: http decorators", () => {
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
-          { schemes: [{ type: "http", scheme: "basic" }] },
-          { schemes: [{ type: "http", scheme: "bearer" }] },
+          { schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] },
+          { schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] },
         ],
       });
     });
@@ -505,8 +508,8 @@ describe("rest: http decorators", () => {
         options: [
           {
             schemes: [
-              { type: "http", scheme: "basic" },
-              { type: "http", scheme: "bearer" },
+              { id: "BasicAuth", type: "http", scheme: "basic" },
+              { id: "BearerAuth", type: "http", scheme: "bearer" },
             ],
           },
         ],
@@ -522,12 +525,12 @@ describe("rest: http decorators", () => {
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
           {
-            schemes: [{ type: "http", scheme: "bearer" }],
+            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
           },
           {
             schemes: [
-              { type: "apiKey", in: "header", name: "x-my-header" },
-              { type: "http", scheme: "basic" },
+              { id: "ApiKeyAuth", type: "apiKey", in: "header", name: "x-my-header" },
+              { id: "BasicAuth", type: "http", scheme: "basic" },
             ],
           },
         ],
