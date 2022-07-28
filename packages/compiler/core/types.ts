@@ -442,8 +442,8 @@ export const enum SymbolFlags {
  * Maps type arguments to instantiated type.
  */
 export interface TypeInstantiationMap {
-  get(args: Type[]): Type | undefined;
-  set(args: Type[], type: Type): void;
+  get(args: readonly Type[]): Type | undefined;
+  set(args: readonly Type[], type: Type): void;
 }
 
 /**

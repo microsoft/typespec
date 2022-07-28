@@ -243,6 +243,48 @@ describe("compiler: templates", () => {
     strictEqual((b.type as StringLiteralType).value, "bye");
   });
 
+  it("can reference other parameters in default in a model expression", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T, X = {t: T}> { b: X }
+        model B { 
+          foo: A<"bye">
+        };
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const b = A.properties.get("b")!;
+    strictEqual(b.type.kind, "Model" as const);
+    const t = b.type.properties.get("t")!.type;
+    strictEqual(t.kind, "String" as const);
+    strictEqual(t.value, "bye");
+  });
+
+  it("can reference other parameters in default via another template", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+        @test model A<T, X = Foo<T>> { b: X }
+        model B { 
+          foo: A<"bye">
+        };
+
+        model Foo<T> {
+          t: T;
+        }
+      `
+    );
+
+    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const b = A.properties.get("b")!;
+    strictEqual(b.type.kind, "Model" as const);
+    const t = b.type.properties.get("t")!.type;
+    strictEqual(t.kind, "String" as const);
+    strictEqual(t.value, "bye");
+  });
+
   it("emit diagnostics if referencing itself", async () => {
     testHost.addCadlFile(
       "main.cadl",
