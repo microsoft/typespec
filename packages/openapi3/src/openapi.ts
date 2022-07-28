@@ -1308,9 +1308,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   function getOpenAPI3Scheme(auth: HttpAuth): [OpenAPI3SecurityScheme, string[]] {
     switch (auth.type) {
       case "http":
-        return [{ type: "http", scheme: auth.scheme }, []];
+        return [{ type: "http", scheme: auth.scheme, description: auth.description }, []];
       case "apiKey":
-        return [{ type: "apiKey", in: auth.in, name: auth.name }, []];
+        return [
+          { type: "apiKey", in: auth.in, name: auth.name, description: auth.description },
+          [],
+        ];
       case "oauth2":
         const flows: OpenAPI3OAuthFlows = {};
         const scopes: string[] = [];
@@ -1323,7 +1326,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
             scopes: Object.fromEntries(flow.scopes.map((x: string) => [x, ""])),
           };
         }
-        return [{ type: "oauth2", flows }, scopes];
+        return [{ type: "oauth2", flows, description: auth.description }, scopes];
       default:
         const _assertNever: never = auth;
         compilerAssert(false, "Unreachable");

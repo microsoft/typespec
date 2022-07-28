@@ -103,6 +103,7 @@ describe("openapi3: security", () => {
       MyAuth: {
         type: "http",
         scheme: "basic",
+        description: "My custom basic auth",
       },
     });
     deepStrictEqual(res.security, [{ MyAuth: [] }]);
