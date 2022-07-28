@@ -388,7 +388,7 @@ describe("rest: http decorators", () => {
     });
   });
 
-  describe.only("@useAuth", () => {
+  describe("@useAuth", () => {
     it("emit diagnostics when @header is not used on namespace", async () => {
       const diagnostics = await runner.diagnose(`
           @useAuth(BasicAuth) op test(): string;
