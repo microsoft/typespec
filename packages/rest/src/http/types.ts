@@ -87,20 +87,19 @@ export interface Oauth2Auth<TFlows extends OAuth2Flow[]> extends HttpAuthBase {
   flows: TFlows;
 }
 
-enum OAuth2FlowType {
-  authorizationCode,
-  implicit,
-  password,
-  clientCredentials,
-}
+export type OAuth2Flow =
+  | AuthorizationCodeFlow
+  | ImplicitFlow
+  | PasswordFlow
+  | ClientCredentialsFlow;
 
-type OAuth2Flow = AuthorizationCodeFlow | ImplicitFlow | PasswordFlow | ClientCredentialsFlow;
+export type OAuth2FlowType = OAuth2Flow["type"];
 
 /**
  * Authorization Code flow
  */
 export interface AuthorizationCodeFlow {
-  type: OAuth2FlowType.authorizationCode;
+  type: "authorizationCode";
   authorizationUrl: string;
   tokenUrl: string;
   refreshUrl: string;
@@ -111,7 +110,7 @@ export interface AuthorizationCodeFlow {
  * Implicit flow
  */
 export interface ImplicitFlow {
-  type: OAuth2FlowType.implicit;
+  type: "implicit";
   authorizationUrl: string;
   refreshUrl: string;
   scopes: string[];
@@ -121,7 +120,7 @@ export interface ImplicitFlow {
  * Resource Owner Password flow
  */
 export interface PasswordFlow {
-  type: OAuth2FlowType.password;
+  type: "password";
   authorizationUrl: string;
   refreshUrl: string;
   scopes: string[];
@@ -131,7 +130,7 @@ export interface PasswordFlow {
  * Client credentials flow
  */
 export interface ClientCredentialsFlow {
-  type: OAuth2FlowType.clientCredentials;
+  type: "clientCredentials";
   tokenUrl: string;
   refreshUrl: string;
   scopes: string[];

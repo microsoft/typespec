@@ -403,18 +403,26 @@ const useAuthDecorator = createDecoratorDefinition({
 const authenticationKey = Symbol("authentication");
 export function $useAuth(
   context: DecoratorContext,
-  entity: NamespaceType,
+  serviceNamespace: NamespaceType,
   authConfig: ModelType | UnionType | TupleType
 ) {
-  if (!useAuthDecorator.validate(context, entity, [authConfig])) {
+  if (!useAuthDecorator.validate(context, serviceNamespace, [authConfig])) {
     return;
   }
 
   const [auth, diagnostics] = extractServiceAuthentication(authConfig);
   if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
   if (auth !== undefined) {
-    context.program.stateMap(authenticationKey).set(entity, auth);
+    setAuthentication(context.program, serviceNamespace, auth);
   }
+}
+
+export function setAuthentication(
+  program: Program,
+  serviceNamespace: NamespaceType,
+  auth: ServiceAuthentication
+) {
+  program.stateMap(authenticationKey).set(serviceNamespace, auth);
 }
 
 function extractServiceAuthentication(
