@@ -120,7 +120,7 @@ model Page<T> {
   value: T[];
 
   @doc("The link to the next page of items")
-  nextLink?: string;
+  nextLink?: ResourceLocation<T>;
 }
 
 interface ResourceList<TResource, TError> {

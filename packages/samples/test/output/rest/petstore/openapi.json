@@ -1057,7 +1057,7 @@
             "description": "The items on this page"
           },
           "nextLink": {
-            "type": "string",
+            "$ref": "#/components/schemas/Rest.ResourceLocation_Pet",
             "description": "The link to the next page of items"
           }
         },
@@ -1110,7 +1110,7 @@
             "description": "The items on this page"
           },
           "nextLink": {
-            "type": "string",
+            "$ref": "#/components/schemas/Rest.ResourceLocation_Checkup",
             "description": "The link to the next page of items"
           }
         },
@@ -1190,7 +1190,7 @@
             "description": "The items on this page"
           },
           "nextLink": {
-            "type": "string",
+            "$ref": "#/components/schemas/Rest.ResourceLocation_Toy",
             "description": "The link to the next page of items"
           }
         },
@@ -1262,7 +1262,7 @@
             "description": "The items on this page"
           },
           "nextLink": {
-            "type": "string",
+            "$ref": "#/components/schemas/Rest.ResourceLocation_Owner",
             "description": "The link to the next page of items"
           }
         },
@@ -1270,6 +1270,22 @@
         "required": [
           "value"
         ]
+      },
+      "Rest.ResourceLocation_Pet": {
+        "type": "string",
+        "description": "The location of an instance of Pet"
+      },
+      "Rest.ResourceLocation_Checkup": {
+        "type": "string",
+        "description": "The location of an instance of Checkup"
+      },
+      "Rest.ResourceLocation_Toy": {
+        "type": "string",
+        "description": "The location of an instance of Toy"
+      },
+      "Rest.ResourceLocation_Owner": {
+        "type": "string",
+        "description": "The location of an instance of Owner"
       }
     }
   }
