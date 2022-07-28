@@ -1208,7 +1208,7 @@ alias Foo = ["very long text that will overflow 1","very long text that will ove
 alias Foo = [
   "very long text that will overflow 1",
   "very long text that will overflow 2",
-  "very long text that will overflow 3",
+  "very long text that will overflow 3"
 ];
 `,
       });

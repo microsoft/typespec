@@ -101,7 +101,7 @@ export function createProjector(
           projectingNamespaces,
           `Namespace ${type.name} should have already been projected.`
         );
-        projected = projectNamespace(type);
+        projected = projectNamespace(type, false);
         break;
       case "Model":
         projected = projectModel(type);
@@ -139,9 +139,26 @@ export function createProjector(
     return projected;
   }
 
-  function projectNamespace(ns: NamespaceType): Type {
-    const alreadyProjected = projectedTypes.get(ns);
+  function projectSubNamespaces(ns: NamespaceType, projectedNs: NamespaceType) {
+    if (ns.namespaces.size === projectedNs.namespaces.size) {
+      // Sub namespace should already have been projected.
+      return;
+    }
+    for (const [key, childNs] of ns.namespaces) {
+      const projected = projectNamespace(childNs);
+      if (projected.kind === "Namespace") {
+        // todo: check for never?
+        projectedNs.namespaces.set(key, projected);
+        projected.namespace = projectedNs;
+      }
+    }
+  }
+  function projectNamespace(ns: NamespaceType, projectSubNamespace: boolean = true): Type {
+    const alreadyProjected = projectedTypes.get(ns) as NamespaceType;
     if (alreadyProjected) {
+      if (projectSubNamespace) {
+        projectSubNamespaces(ns, alreadyProjected);
+      }
       return alreadyProjected;
     }
     const childNamespaces = new Map<string, NamespaceType>();
@@ -165,13 +182,8 @@ export function createProjector(
     // ns run decorators before projecting anything inside them
     checker.finishType(projectedNs);
 
-    for (const [key, childNs] of ns.namespaces) {
-      const projected = projectNamespace(childNs);
-      if (projected.kind === "Namespace") {
-        // todo: check for never?
-        childNamespaces.set(key, projected);
-        projected.namespace = projectedNs;
-      }
+    if (projectSubNamespace) {
+      projectSubNamespaces(ns, projectedNs);
     }
 
     projectedNamespaces.push(ns);
@@ -411,6 +423,8 @@ export function createProjector(
       members,
       decorators,
     });
+
+    projectedTypes.set(e, projectedEnum);
 
     for (const member of e.members) {
       const projectedMember = projectType(member);

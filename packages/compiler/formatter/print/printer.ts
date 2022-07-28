@@ -690,7 +690,6 @@ export function printTuple(
         path.map((arg) => [softline, print(arg)], "values")
       )
     ),
-    ifBreak(","),
     softline,
     "]",
   ]);

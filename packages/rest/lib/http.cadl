@@ -11,13 +11,17 @@ model Response<Status> {
   statusCode: Status;
 }
 
-model OkResponse<Body> is Response<200> {
-  @doc("The reponse body.")
+/**
+ * Defines a model with a single property of the given type, marked with `@body`.
+ *
+ * This can be useful in situations where you cannot use a bare T as the body
+ * and it is awkward to add a property.
+ */
+model Body<T> {
   @body
-  body: Body;
+  body: T;
 }
 
-@doc("The Location header.")
 model LocationHeader {
   @doc("The Location header contains the URL where the status of the long running operation can be checked.")
   @header
@@ -28,6 +32,7 @@ model LocationHeader {
 // to update the default descriptions for these status codes. This ensures
 // that we get consistent emit between different ways to spell the same
 // responses in Cadl.
+model OkResponse is Response<200> {}
 model CreatedResponse is Response<201> {}
 model AcceptedResponse is Response<202> {}
 model NoContentResponse is Response<204> {}
@@ -41,12 +46,10 @@ model ForbiddenResponse is Response<403> {}
 model NotFoundResponse is Response<404> {}
 model ConflictResponse is Response<409> {}
 
-// Produces a new model with the same properties as T, but with @query,
-// @header, @body, and @path decorators removed from all properties.
-//
-// ISSUE: Can't use @doc to document this as it leaks into OpenAPI output.
-// We probably need a way to do Cadl-developer-only docs that show in the
-// IDE but do not leak into output. https://github.com/microsoft/cadl/issues/131
+/**
+ * Produces a new model with the same properties as T, but with `@query`,
+ *`@header`, `@body`, and `@path` decorators removed from all properties.
+ */
 @plainData
 model PlainData<T> {
   ...T;
