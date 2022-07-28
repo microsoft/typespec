@@ -725,8 +725,3 @@ describe("compiler: checker: type relations", () => {
     });
   });
 });
-
-interface Foo {
-  name: string;
-  age?: string;
-}
