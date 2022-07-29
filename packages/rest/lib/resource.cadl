@@ -60,7 +60,7 @@ interface ResourceCreateOrReplace<TResource, TError> {
 
 @friendlyName("{name}Update", TResource)
 model ResourceCreateOrUpdateModel<TResource>
-  is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>> {}
+  is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>>;
 
 interface ResourceCreateOrUpdate<TResource, TError> {
   @autoRoute
@@ -74,7 +74,7 @@ interface ResourceCreateOrUpdate<TResource, TError> {
 
 @friendlyName("{name}Create", TResource)
 model ResourceCreateModel<TResource>
-  is UpdateableProperties<DefaultKeyVisibility<TResource, "read">> {}
+  is UpdateableProperties<DefaultKeyVisibility<TResource, "read">>;
 
 interface ResourceCreate<TResource, TError> {
   @autoRoute
