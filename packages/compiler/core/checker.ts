@@ -3920,17 +3920,19 @@ export function createChecker(program: Program): Checker {
     for (const prop of walkPropertiesInherited(target)) {
       const sourceProperty = getProperty(source, prop.name);
       if (sourceProperty === undefined) {
-        diagnostics.push(
-          createDiagnostic({
-            code: "missing-property",
-            format: {
-              propertyName: prop.name,
-              sourceType: getTypeName(source),
-              targetType: getTypeName(target),
-            },
-            target: source,
-          })
-        );
+        if (!prop.optional) {
+          diagnostics.push(
+            createDiagnostic({
+              code: "missing-property",
+              format: {
+                propertyName: prop.name,
+                sourceType: getTypeName(source),
+                targetType: getTypeName(target),
+              },
+              target: source,
+            })
+          );
+        }
       } else {
         const [related, propDiagnostics] = isTypeAssignableTo(
           sourceProperty.type,
