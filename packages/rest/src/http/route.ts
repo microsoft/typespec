@@ -10,7 +10,6 @@ import {
   isTemplateDeclarationOrInstance,
   ModelTypeProperty,
   NamespaceType,
-  NoTarget,
   OperationType,
   Program,
   Type,
@@ -515,7 +514,7 @@ export function reportIfNoRoutes(program: Program, routes: OperationDetails[]) {
   if (routes.length === 0) {
     reportDiagnostic(program, {
       code: "no-routes",
-      target: NoTarget,
+      target: program.checker.getGlobalNamespaceType(),
     });
   }
 }
