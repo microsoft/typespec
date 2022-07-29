@@ -733,17 +733,21 @@ export function printModelStatement(
 ) {
   const node = path.getValue();
   const id = path.call(print, "id");
-  const heritage = node.extends ? [softline, "extends ", path.call(print, "extends"), " "] : "";
-  const isBase = node.is ? [softline, "is ", path.call(print, "is"), " "] : "";
+  const heritage = node.extends
+    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
+    : "";
+  const isBase = node.is ? [ifBreak(line, " "), "is ", path.call(print, "is")] : "";
   const generic = printTemplateParameters(path, options, print, "templateParameters");
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
+  const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
     "model ",
     id,
     generic,
-    " ",
     group(indent(["", heritage, isBase])),
-    printModelPropertiesBlock(path, options, print),
+    body,
   ];
 }
 
