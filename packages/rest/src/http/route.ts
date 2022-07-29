@@ -9,6 +9,7 @@ import {
   isTemplateDeclarationOrInstance,
   ModelTypeProperty,
   NamespaceType,
+  NoTarget,
   OperationType,
   Program,
   Type,
@@ -504,21 +505,12 @@ export function getAllRoutes(
   let operations: OperationDetails[] = [];
   const diagnostics = createDiagnosticCollector();
   const serviceNamespace = getServiceNamespace(program);
-  const containers: Type[] = [
-    ...(serviceNamespace ? [serviceNamespace] : []),
-    ...Array.from(program.stateSet(routeContainerKey)),
-  ];
+  const namespacesToExport: NamespaceType[] = serviceNamespace ? [serviceNamespace] : [];
 
   const visitedOperations = new Set<OperationType>();
-  for (const container of containers) {
-    // Is this container a templated interface that hasn't been instantiated?
-    if (container.kind === "Interface" && isTemplateDeclaration(container)) {
-      // Skip template interface operations
-      continue;
-    }
-
+  for (const container of namespacesToExport) {
     const newOps = diagnostics.pipe(
-      getRoutesForContainer(program, container as OperationContainer, visitedOperations, options)
+      getRoutesForContainer(program, container, visitedOperations, options)
     );
 
     // Make sure we don't visit the same operations again
@@ -530,6 +522,15 @@ export function getAllRoutes(
 
   validateRouteUnique(diagnostics, operations);
   return diagnostics.wrap(operations);
+}
+
+export function reportIfNoRoutes(program: Program, routes: OperationDetails[]) {
+  if (routes.length === 0) {
+    reportDiagnostic(program, {
+      code: "no-routes",
+      target: NoTarget,
+    });
+  }
 }
 
 function validateRouteUnique(diagnostics: DiagnosticCollector, operations: OperationDetails[]) {

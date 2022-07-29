@@ -64,6 +64,7 @@ import {
   HttpOperationResponse,
   isStatusCode,
   OperationDetails,
+  reportIfNoRoutes,
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
@@ -333,6 +334,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     initializeEmitter(serviceNamespace, version);
     try {
       const [routes] = getAllRoutes(program);
+      reportIfNoRoutes(program, routes);
+
       for (const operation of routes) {
         emitOperation(operation);
       }
