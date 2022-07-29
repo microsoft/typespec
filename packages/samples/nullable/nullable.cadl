@@ -3,6 +3,9 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
+@serviceTitle("Nullable sample")
+namespace NullableSample;
+
 model HasNullables {
   str: string;
   when: plainTime;

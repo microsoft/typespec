@@ -8,6 +8,9 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
+@serviceTitle("Grpc Library sample")
+namespace GrpcLibrarySample;
+
 @doc("""
 This API represents a simple digital library.  It lets you manage Shelf
 resources and Book resources in the library. It defines the following
@@ -83,7 +86,7 @@ The name of a book.
 Book names have the form `shelves/{shelf_id}/books/{book_id}`
 """)
 @pattern("shelves/\\w+/books/\\w+")
-model book_name is string;
+model book_name is string {}
 
 @doc("A single book in the library.")
 model Book {
@@ -109,7 +112,7 @@ The name of a shelf.
 Shelf names have the form `shelves/{shelf_id}`.
 """)
 @pattern("shelves/\\w+")
-model shelf_name is string;
+model shelf_name is string {}
 
 @doc("A Shelf contains a collection of books with a theme.")
 model Shelf {

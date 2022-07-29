@@ -2,6 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@serviceTitle("Grpc Kiosk sample")
+namespace GrpcKioskSample;
+
 @route("/v1")
 @tag("Display")
 namespace Display {

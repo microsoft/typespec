@@ -2,6 +2,7 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@serviceTitle("Nested sample")
 namespace Root {
   @route("/sub/a")
   namespace SubA {
@@ -31,6 +32,6 @@ namespace Root {
   }
 
   namespace SubC {
-    op anotherOp(thing: Root.SubA.Thing, thing2: SubA.Thing): string;
+    @post op anotherOp(thing: Root.SubA.Thing, thing2: SubA.Thing): string;
   }
 }

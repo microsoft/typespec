@@ -119,23 +119,6 @@ function getRouteOptionsForNamespace(
   return program.stateMap(routeOptionsKey).get(namespace);
 }
 
-const routeContainerKey = Symbol("routeContainer");
-function addRouteContainer(program: Program, entity: Type): void {
-  const container = entity.kind === "Operation" ? entity.interface || entity.namespace : entity;
-  if (!container) {
-    // Somehow the entity doesn't have a container.  This should only happen
-    // when a type was created manually and not by the checker.
-    throw new Error(`${entity.kind} is not or does not have a container`);
-  }
-
-  if (container.kind === "Interface" && isTemplateDeclaration(container)) {
-    // Don't register uninstantiated template interfaces
-    return;
-  }
-
-  program.stateSet(routeContainerKey).add(container);
-}
-
 const routesKey = Symbol("routes");
 function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   if (
@@ -143,9 +126,6 @@ function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   ) {
     return;
   }
-
-  // Register the container of the operation as one that holds routed operations
-  addRouteContainer(context.program, entity);
 
   const state = context.program.stateMap(routesKey);
 
@@ -432,6 +412,10 @@ function buildRoutes(
   visitedOperations: Set<OperationType>,
   options: RouteOptions
 ): OperationDetails[] {
+  if (container.kind === "Interface" && isTemplateDeclaration(container)) {
+    // Skip template interface operations
+    return [];
+  }
   // Get the route info for this container, if any
   const baseRoute = getRoutePath(program, container);
   const parentFragments = [...routeFragments, ...(baseRoute ? [baseRoute.path] : [])];
@@ -599,9 +583,6 @@ export function $autoRoute(context: DecoratorContext, entity: Type) {
   ) {
     return;
   }
-
-  // Register the container of the operation as one that holds routed operations
-  addRouteContainer(context.program, entity);
 
   context.program.stateSet(autoRouteKey).add(entity);
 }

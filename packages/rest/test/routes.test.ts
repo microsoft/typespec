@@ -24,15 +24,33 @@ describe("rest: routes", () => {
       });
 
       it("interface at the document root are included", async () => {
-        const routes = await getOperations(
-          `
-      interface Foo {
-        @get index(): void;
-      }
-      `
-        );
+        const routes = await getOperations(`
+          interface Foo {
+            @get index(): void;
+          }
+        `);
 
         expectRouteIncluded(routes, ["/"]);
+      });
+
+      it("generic operation at the document root are NOT included", async () => {
+        const routes = await getOperations(`
+          @route("/not-included")
+          @get op index<T>(): T;
+        `);
+
+        expectRouteIncluded(routes, []);
+      });
+
+      it("generic interface at the document root are NOT included", async () => {
+        const routes = await getOperations(`
+          interface Foo<T> {
+            @route("/not-included")
+            @get index(): T;
+          }
+        `);
+
+        expectRouteIncluded(routes, []);
       });
 
       it("routes inside a namespace not marked as the service namespace aren't be included", async () => {
