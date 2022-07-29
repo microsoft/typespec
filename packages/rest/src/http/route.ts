@@ -5,6 +5,7 @@ import {
   DiagnosticCollector,
   getServiceNamespace,
   InterfaceType,
+  isGlobalNamespace,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
   ModelTypeProperty,
@@ -466,9 +467,11 @@ function buildRoutes(
 
   // Build all child routes and append them to the list, but don't recurse in
   // the global scope because that could pull in unwanted operations
-  if (container.kind === "Namespace" && container.name !== "") {
+  if (container.kind === "Namespace") {
+    // If building routes for the global namespace we shouldn't navigate the sub namespaces.
+    const includeSubNamespaces = isGlobalNamespace(program, container);
     const children: OperationContainer[] = [
-      ...container.namespaces.values(),
+      ...(includeSubNamespaces ? [] : container.namespaces.values()),
       ...container.interfaces.values(),
     ];
 
