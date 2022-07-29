@@ -32,19 +32,19 @@ model LocationHeader {
 // to update the default descriptions for these status codes. This ensures
 // that we get consistent emit between different ways to spell the same
 // responses in Cadl.
-model OkResponse is Response<200> {}
-model CreatedResponse is Response<201> {}
-model AcceptedResponse is Response<202> {}
-model NoContentResponse is Response<204> {}
+model OkResponse is Response<200>;
+model CreatedResponse is Response<201>;
+model AcceptedResponse is Response<202>;
+model NoContentResponse is Response<204>;
 model MovedResponse is Response<301> {
   ...LocationHeader;
 }
-model NotModifiedResponse is Response<304> {}
-model BadRequestResponse is Response<400> {}
-model UnauthorizedResponse is Response<401> {}
-model ForbiddenResponse is Response<403> {}
-model NotFoundResponse is Response<404> {}
-model ConflictResponse is Response<409> {}
+model NotModifiedResponse is Response<304>;
+model BadRequestResponse is Response<400>;
+model UnauthorizedResponse is Response<401>;
+model ForbiddenResponse is Response<403>;
+model NotFoundResponse is Response<404>;
+model ConflictResponse is Response<409>;
 
 /**
  * Produces a new model with the same properties as T, but with `@query`,
