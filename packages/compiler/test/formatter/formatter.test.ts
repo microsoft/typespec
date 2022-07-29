@@ -202,8 +202,8 @@ model Foo
       });
     });
 
-    describe("model `is`", () => {
-      it("format inline", () => {
+    describe.only("model `is`", () => {
+      it("remove body if its empty", () => {
         assertFormat({
           code: `
 model   Foo is Base {
@@ -214,9 +214,24 @@ model   Bar is Base<
 }
 `,
           expected: `
-model Foo is Base {}
+model Foo is Base;
 
-model Bar is Base<string> {}
+model Bar is Base<string>;
+`,
+        });
+      });
+
+      it("keeps body if there is a comment inside", () => {
+        assertFormat({
+          code: `
+model   Foo is Base {
+   // Some comment
+}
+`,
+          expected: `
+model Foo is Base {
+  // Some comment
+}
 `,
         });
       });
@@ -224,12 +239,12 @@ model Bar is Base<string> {}
       it("split and indent is when model declaration line is too long", () => {
         assertFormat({
           code: `
-model   Foo is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongModelThatWillBeTooLong {
+model   Foo is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong {
 }
 `,
           expected: `
 model Foo
-  is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongModelThatWillBeTooLong {}
+  is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong;
 `,
         });
       });
