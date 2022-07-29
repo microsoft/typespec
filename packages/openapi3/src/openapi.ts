@@ -188,6 +188,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   // Keep a list of all Types encountered that need schema definitions
   let schemas = new Set<Type>();
 
+  // Keep track of inline types still in the process of having their schema computed
+  // This is used to detect cycles in inline types, which is an
+  let inProgressInlineTypes = new Set<Type>();
+
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
   // this map.
@@ -234,6 +238,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     serviceNamespace = getServiceNamespaceString(program);
     currentPath = root.paths;
     schemas = new Set();
+    inProgressInlineTypes = new Set();
     params = new Map();
     tags = new Set();
   }
@@ -525,7 +530,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const name = getTypeName(program, type, typeNameOptions);
 
     if (shouldInline(program, type)) {
-      const schema = getSchemaForType(type);
+      const schema = getSchemaForInlineType(type, name);
 
       if (schema === undefined && isErrorType(type)) {
         // Exit early so that syntax errors are exposed.  This error will
@@ -545,6 +550,21 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       schemas.add(type);
       return placeholder;
     }
+  }
+
+  function getSchemaForInlineType(type: Type, name: string) {
+    if (inProgressInlineTypes.has(type)) {
+      reportDiagnostic(program, {
+        code: "inline-cycle",
+        format: { type: name },
+        target: type,
+      });
+      return {};
+    }
+    inProgressInlineTypes.add(type);
+    const schema = getSchemaForType(type);
+    inProgressInlineTypes.delete(type);
+    return schema;
   }
 
   /**

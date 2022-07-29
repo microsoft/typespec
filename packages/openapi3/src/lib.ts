@@ -109,6 +109,12 @@ export const libDef = {
         default: paramMessage`Invalid type '${"type"}' for a default value`,
       },
     },
+    "inline-cycle": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Cycle detected in '${"type"}'. Use @friendlyName decorator to assign an OpenAPI definition name and make it non-inline.`,
+      },
+    },
   },
   emitter: {
     options: EmiterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,

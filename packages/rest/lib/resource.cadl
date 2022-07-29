@@ -114,7 +114,8 @@ interface ResourceDelete<TResource, TError> {
   delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
 }
 
-@doc("Paged response")
+@doc("Paged response of {name} items", T)
+@friendlyName("{name}Page", T)
 model Page<T> {
   @doc("The items on this page")
   value: T[];
