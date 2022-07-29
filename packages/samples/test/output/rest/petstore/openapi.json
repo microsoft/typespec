@@ -160,27 +160,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "value": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Pet"
-                      },
-                      "x-cadl-name": "Pet[]",
-                      "description": "The items on this page"
-                    },
-                    "nextLink": {
-                      "type": "string",
-                      "description": "The link to the next page of items",
-                      "x-cadl-name": "Rest.ResourceLocation<Pet>"
-                    }
-                  },
-                  "description": "Paged response",
-                  "required": [
-                    "value"
-                  ],
-                  "x-cadl-name": "Rest.Resource.Page<Pet>"
+                  "$ref": "#/components/schemas/PetPage"
                 }
               }
             }
@@ -268,27 +248,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "value": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Checkup"
-                      },
-                      "x-cadl-name": "Checkup[]",
-                      "description": "The items on this page"
-                    },
-                    "nextLink": {
-                      "type": "string",
-                      "description": "The link to the next page of items",
-                      "x-cadl-name": "Rest.ResourceLocation<Checkup>"
-                    }
-                  },
-                  "description": "Paged response",
-                  "required": [
-                    "value"
-                  ],
-                  "x-cadl-name": "Rest.Resource.Page<Checkup>"
+                  "$ref": "#/components/schemas/CheckupPage"
                 }
               }
             }
@@ -437,27 +397,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "value": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Toy"
-                      },
-                      "x-cadl-name": "Toy[]",
-                      "description": "The items on this page"
-                    },
-                    "nextLink": {
-                      "type": "string",
-                      "description": "The link to the next page of items",
-                      "x-cadl-name": "Rest.ResourceLocation<Toy>"
-                    }
-                  },
-                  "description": "Paged response",
-                  "required": [
-                    "value"
-                  ],
-                  "x-cadl-name": "Rest.Resource.Page<Toy>"
+                  "$ref": "#/components/schemas/ToyPage"
                 }
               }
             }
@@ -617,27 +557,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "value": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Checkup"
-                      },
-                      "x-cadl-name": "Checkup[]",
-                      "description": "The items on this page"
-                    },
-                    "nextLink": {
-                      "type": "string",
-                      "description": "The link to the next page of items",
-                      "x-cadl-name": "Rest.ResourceLocation<Checkup>"
-                    }
-                  },
-                  "description": "Paged response",
-                  "required": [
-                    "value"
-                  ],
-                  "x-cadl-name": "Rest.Resource.Page<Checkup>"
+                  "$ref": "#/components/schemas/CheckupPage"
                 }
               }
             }
@@ -809,27 +729,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "value": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Owner"
-                      },
-                      "x-cadl-name": "Owner[]",
-                      "description": "The items on this page"
-                    },
-                    "nextLink": {
-                      "type": "string",
-                      "description": "The link to the next page of items",
-                      "x-cadl-name": "Rest.ResourceLocation<Owner>"
-                    }
-                  },
-                  "description": "Paged response",
-                  "required": [
-                    "value"
-                  ],
-                  "x-cadl-name": "Rest.Resource.Page<Owner>"
+                  "$ref": "#/components/schemas/OwnerPage"
                 }
               }
             }
@@ -917,27 +817,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "value": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Checkup"
-                      },
-                      "x-cadl-name": "Checkup[]",
-                      "description": "The items on this page"
-                    },
-                    "nextLink": {
-                      "type": "string",
-                      "description": "The link to the next page of items",
-                      "x-cadl-name": "Rest.ResourceLocation<Checkup>"
-                    }
-                  },
-                  "description": "Paged response",
-                  "required": [
-                    "value"
-                  ],
-                  "x-cadl-name": "Rest.Resource.Page<Checkup>"
+                  "$ref": "#/components/schemas/CheckupPage"
                 }
               }
             }
@@ -1165,6 +1045,28 @@
           "ownerId"
         ]
       },
+      "PetPage": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pet"
+            },
+            "x-cadl-name": "Pet[]",
+            "description": "The items on this page"
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation<Pet>"
+          }
+        },
+        "description": "Paged response of Pet items",
+        "required": [
+          "value"
+        ]
+      },
       "CheckupUpdate": {
         "type": "object",
         "properties": {
@@ -1195,6 +1097,28 @@
           "id",
           "vetName",
           "notes"
+        ]
+      },
+      "CheckupPage": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Checkup"
+            },
+            "x-cadl-name": "Checkup[]",
+            "description": "The items on this page"
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation<Checkup>"
+          }
+        },
+        "description": "Paged response of Checkup items",
+        "required": [
+          "value"
         ]
       },
       "Insurance": {
@@ -1256,6 +1180,28 @@
           "name"
         ]
       },
+      "ToyPage": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Toy"
+            },
+            "x-cadl-name": "Toy[]",
+            "description": "The items on this page"
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation<Toy>"
+          }
+        },
+        "description": "Paged response of Toy items",
+        "required": [
+          "value"
+        ]
+      },
       "Owner": {
         "type": "object",
         "properties": {
@@ -1305,6 +1251,28 @@
         "required": [
           "name",
           "age"
+        ]
+      },
+      "OwnerPage": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Owner"
+            },
+            "x-cadl-name": "Owner[]",
+            "description": "The items on this page"
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation<Owner>"
+          }
+        },
+        "description": "Paged response of Owner items",
+        "required": [
+          "value"
         ]
       }
     }
