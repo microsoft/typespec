@@ -75,6 +75,7 @@ import {
   OpenAPI3Parameter,
   OpenAPI3ParameterType,
   OpenAPI3Schema,
+  OpenAPI3SchemaProperty,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
 } from "./types.js";
@@ -898,6 +899,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return type.value;
       case "Tuple":
         return type.values.map(getDefaultValue);
+      case "EnumMember":
+        return type.value ?? type.name;
       default:
         reportDiagnostic(program, {
           code: "invalid-default",
@@ -956,7 +959,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         continue;
       }
 
-      const description = getDoc(program, prop);
       if (!prop.optional) {
         if (!modelSchema.required) {
           modelSchema.required = [];
@@ -964,27 +966,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         modelSchema.required.push(name);
       }
 
-      // Apply decorators on the property to the type's schema
-      const property: any = (modelSchema.properties[name] = applyIntrinsicDecorators(
-        prop,
-        getSchemaOrRef(prop.type)
-      ));
-      if (description) {
-        property.description = description;
-      }
-
-      if (prop.default) {
-        property.default = getDefaultValue(prop.default);
-      }
-
-      // Should the property be marked as readOnly?
-      const vis = getVisibility(program, prop);
-      if (vis && vis.includes("read") && vis.length == 1) {
-        property.readOnly = true;
-      }
-
-      // Attach any additional OpenAPI extensions
-      attachExtensions(program, prop, modelSchema.properties[name]);
+      modelSchema.properties[name] = resolveProperty(prop);
     }
 
     // Special case: if a model type extends a single *templated* base type and
@@ -1011,6 +993,42 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     // Attach any OpenAPI extensions
     attachExtensions(program, model, modelSchema);
     return modelSchema;
+  }
+
+  function resolveProperty(prop: ModelTypeProperty): OpenAPI3SchemaProperty {
+    const description = getDoc(program, prop);
+
+    const schema = getSchemaOrRef(prop.type);
+    // Apply decorators on the property to the type's schema
+    const additionalProps: Partial<OpenAPI3Schema> = applyIntrinsicDecorators(prop, {});
+    if (description) {
+      additionalProps.description = description;
+    }
+
+    if (prop.default) {
+      additionalProps.default = getDefaultValue(prop.default);
+    }
+
+    // Should the property be marked as readOnly?
+    const vis = getVisibility(program, prop);
+    if (vis && vis.includes("read") && vis.length == 1) {
+      additionalProps.readOnly = true;
+    }
+
+    // Attach any additional OpenAPI extensions
+    attachExtensions(program, prop, additionalProps);
+    if ("$ref" in schema) {
+      if (Object.keys(additionalProps).length === 0) {
+        return schema;
+      } else {
+        return {
+          allOf: [schema],
+          ...additionalProps,
+        };
+      }
+    } else {
+      return { ...schema, ...additionalProps };
+    }
   }
 
   function attachExtensions(program: Program, type: Type, emitObject: any) {
