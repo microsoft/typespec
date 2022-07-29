@@ -1057,7 +1057,11 @@
             "description": "The items on this page"
           },
           "nextLink": {
-            "$ref": "#/components/schemas/Rest.ResourceLocation_Pet",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Rest.ResourceLocation_Pet"
+              }
+            ],
             "description": "The link to the next page of items"
           }
         },
@@ -1110,7 +1114,11 @@
             "description": "The items on this page"
           },
           "nextLink": {
-            "$ref": "#/components/schemas/Rest.ResourceLocation_Checkup",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Rest.ResourceLocation_Checkup"
+              }
+            ],
             "description": "The link to the next page of items"
           }
         },
@@ -1190,7 +1198,11 @@
             "description": "The items on this page"
           },
           "nextLink": {
-            "$ref": "#/components/schemas/Rest.ResourceLocation_Toy",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Rest.ResourceLocation_Toy"
+              }
+            ],
             "description": "The link to the next page of items"
           }
         },
@@ -1262,7 +1274,11 @@
             "description": "The items on this page"
           },
           "nextLink": {
-            "$ref": "#/components/schemas/Rest.ResourceLocation_Owner",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Rest.ResourceLocation_Owner"
+              }
+            ],
             "description": "The link to the next page of items"
           }
         },
