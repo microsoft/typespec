@@ -453,9 +453,11 @@ function buildRoutes(
   if (container.kind === "Namespace") {
     // If building routes for the global namespace we shouldn't navigate the sub namespaces.
     const includeSubNamespaces = isGlobalNamespace(program, container);
+    const additionalInterfaces = getExternalInterfaces(program, container) ?? [];
     const children: OperationContainer[] = [
       ...(includeSubNamespaces ? [] : container.namespaces.values()),
       ...container.interfaces.values(),
+      ...additionalInterfaces,
     ];
 
     const childRoutes = children.flatMap((child) =>
@@ -482,6 +484,45 @@ export function getRoutesForContainer(
   return diagnostics.wrap(
     buildRoutes(program, diagnostics, container, [], visitedOperations, routeOptions)
   );
+}
+
+const externalInterfaces = Symbol("externalInterfaces");
+/**
+ * @depreacted DO NOT USE. For internal use only as a workaround.
+ * @param program Program
+ * @param target Target namespace
+ * @param interf Interface that should be included in namespace.
+ */
+export function includeInterfaceRoutesInNamespace(
+  program: Program,
+  target: NamespaceType,
+  sourceInterface: string
+) {
+  let array = program.stateMap(externalInterfaces).get(target);
+  if (array === undefined) {
+    array = [];
+    program.stateMap(externalInterfaces).set(target, array);
+  }
+
+  array.push(sourceInterface);
+}
+
+function getExternalInterfaces(program: Program, namespace: NamespaceType) {
+  const interfaces: string[] | undefined = program.stateMap(externalInterfaces).get(namespace);
+  if (interfaces === undefined) {
+    return undefined;
+  }
+  return interfaces
+    .map((interfaceFQN: string) => {
+      let current: NamespaceType | undefined = program.checker.getGlobalNamespaceType();
+      const namespaces = interfaceFQN.split(".");
+      const interfaceName = namespaces.pop()!;
+      for (const namespaceName of namespaces) {
+        current = current?.namespaces.get(namespaceName);
+      }
+      return current?.interfaces.get(interfaceName);
+    })
+    .filter((x): x is InterfaceType => x !== undefined);
 }
 
 export function getAllRoutes(
