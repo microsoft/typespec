@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Make OkResponse non-generic",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

@@ -118,7 +118,7 @@ model Thing<T> {
   property: T;
 }
 
-model StringThing is Thing<string> {}
+model StringThing is Thing<string>;
 
 // StringThing declaration is equivalent to the following declaration:
 @decorator
@@ -837,7 +837,7 @@ namespace PetToys {
 
 #### Request & response bodies
 
-Request and response bodies are declared using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
+Request and response bodies can be declared explictly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
 
 ```cadl
 @route("/pets")
@@ -848,7 +848,26 @@ namespace Pets {
   op read(@path petId: int32): {
     @body pet: Pet;
   };
+  @post
   op create(@body pet: Pet): {};
+}
+
+```
+
+Note that in the absence of explicit `@body`:
+
+1. The set of parameters that are not marked @header, @query, or @path form the request body.
+2. The set of properties of the return model that are not marked @header, @query, or @path form the response body.
+3. If the return type is not a model, then it defines the response body.
+
+This is how we were able to return Pet and Pet[] bodies without using @body for list and read. We can actually write
+create in the same terse style by spreading the Pet object into the parameter list like this:
+
+```cadl
+@route("/pets")
+namespace Pets {
+  @post
+  op create(...Pet): {};
 }
 
 ```
@@ -896,6 +915,7 @@ namespace Pets {
     @header eTag: string;
     @body pet: Pet;
   };
+  @post
   op create(@body pet: Pet): {};
 }
 
@@ -920,7 +940,7 @@ namespace Pets {
     @statusCode statusCode: 404;
   };
   op create(@body pet: Pet): {
-    @statusCode statusCode: 200;
+    @statusCode statusCode: 204;
   };
 }
 
@@ -928,19 +948,71 @@ namespace Pets {
 
 #### Built-in response shapes
 
-Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently. Lets update our sample one last time to use these built-in response types:
+Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently.
+
+There is also a Body<T> type, which can be used as a shorthand for { @body body: T } when an explicit body is required.
+
+Lets update our sample one last time to use these built-in types:
 
 ```cadl
-model OkResponseWithETag<T> {
-  ...OkResponse<T>;
+model ETag {
   @header eTag: string;
+}
+@route("/pets")
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): OkResponse & Body<Pet[]>;
+  op read(@path petId: int32, @header ifMatch?: string): (OkResponse &
+    Body<Pet> &
+    ETag) | NotFoundResponse;
+  @post
+  op create(...Pet): NoContentResponse;
+}
+
+```
+
+Note that the default status code is 200 for non-empty bodies and 204 for empty bodies. Similarly, explicit `Body<T>` is not required when T is known to be a model. So the following terser form is equivalent:
+
+```cadl
+@route("/pets")
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): Pet[];
+  op read(@path petId: int32, @header ifMatch?: string): (Pet & ETag) | NotFoundResponse;
+  @post
+  op create(...Pet): {};
+}
+
+```
+
+Finally, another common style is to make helper response types that are
+shared across a larger service definition. In this style, you can be
+entirely explicit while also keeping operation definitions concise.
+
+For example, we could write :
+
+```cadl
+model ListResponse<T> {
+  ...OkResponse;
+  ...Body<T[]>;
+}
+
+model ReadSuccessResponse<T> {
+  ...OkResponse;
+  ...ETag;
+  ...Body<T>;
+}
+
+alias ReadResponse<T> = ReadSuccessResponse<T> | NotFoundResponse;
+
+model CreateResponse {
+  ...NoContentResponse;
 }
 
 @route("/pets")
 namespace Pets {
-  op list(@query skip: int32, @query top: int32): OkResponse<Pet[]>;
-  op read(@path petId: int32, @header ifMatch?: string): OkResponseWithETag<Pet> | NotFoundResponse;
-  op create(@body pet: Pet): OkResponse<{}>;
+  op list(@query skip: int32, @query top: int32): ListResponse<Pet>;
+  op read(@path petId: int32, @header ifMatch?: string): ReadResponse<Pet>;
+  @post
+  op create(...Pet): CreateResponse;
 }
 
 ```

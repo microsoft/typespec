@@ -311,6 +311,52 @@ describe("versioning: dependencies", () => {
     const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
     assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
   });
+
+  // Test for https://github.com/microsoft/cadl/issues/760
+  it("have a nested service namespace", async () => {
+    const { MyService } = (await runner.compile(`
+        @serviceTitle("Test")
+        @versionedDependency(Lib.Versions.v1)
+        @test("MyService")
+        namespace MyOrg.MyService {
+
+        }
+
+        @versioned(Versions)
+        namespace Lib {
+          enum Versions {
+            v1: "v1",
+          }
+        }
+      `)) as { MyService: NamespaceType };
+
+    const [v1] = runProjections(runner.program, MyService);
+    ok(v1.projectedTypes.get(MyService));
+  });
+
+  // Test for https://github.com/microsoft/cadl/issues/786
+  it("have a nested service namespace and libraries sharing common parent namespace", async () => {
+    const { MyService } = (await runner.compile(`
+        @serviceTitle("Test")
+        @versionedDependency(Lib.One.Versions.v1)
+        @test("MyService")
+        namespace MyOrg.MyService {
+
+        }
+
+        @versioned(Versions)
+        namespace Lib.One {
+          enum Versions { v1: "v1" }
+        }
+        
+        @versionedDependency(Lib.One.Versions.v1)
+        namespace Lib.Two { }
+
+      `)) as { MyService: NamespaceType };
+
+    const [v1] = runProjections(runner.program, MyService);
+    ok(v1.projectedTypes.get(MyService));
+  });
 });
 
 function runProjections(program: Program, rootNs: NamespaceType) {

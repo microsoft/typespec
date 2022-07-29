@@ -24,7 +24,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -41,10 +41,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
