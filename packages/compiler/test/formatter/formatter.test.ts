@@ -202,7 +202,7 @@ model Foo
       });
     });
 
-    describe.only("model `is`", () => {
+    describe("model `is`", () => {
       it("remove body if its empty", () => {
         assertFormat({
           code: `
