@@ -131,6 +131,7 @@ const libDefinition = {
         default:
           "Current spec is not exposing any routes. This could be to not having the service namespace marked with @serviceTitle.",
       },
+    },
 
     "invalid-type-for-auth": {
       severity: "error",
