@@ -390,17 +390,9 @@ function getVerbForOperation(
     return verb;
   }
 
-  if (parameters.bodyType) {
-    diagnostics.add(
-      createDiagnostic({
-        code: "http-verb-missing-with-body",
-        format: { operationName: operation.name },
-        target: operation,
-      })
-    );
-  }
-
-  return "get";
+  // If no verb was found by this point, choose a verb based on whether there is
+  // a body type for the request
+  return parameters.bodyType ? "post" : "get";
 }
 
 function buildRoutes(

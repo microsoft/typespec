@@ -15,12 +15,6 @@ const libDefinition = {
         default: paramMessage`Cannot use @${"verb"} on a ${"entityKind"}`,
       },
     },
-    "http-verb-missing-with-body": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Operation ${"operationName"} has a body but doesn't specify a verb.`,
-      },
-    },
     "operation-resource-wrong-type": {
       severity: "error",
       messages: {
