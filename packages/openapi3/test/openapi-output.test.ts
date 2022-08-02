@@ -117,14 +117,14 @@ describe("openapi3: definitions", () => {
       };`
     );
 
-    ok(res.isRef);
-    ok(res.schemas.Foo_int32, "expected definition named Foo_int32");
-    deepStrictEqual(res.schemas.Foo_int32, {
+    ok(!res.isRef);
+    deepStrictEqual(res.useSchema, {
       type: "object",
       properties: {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
+      "x-cadl-name": "Foo<int32>",
     });
   });
 
@@ -140,14 +140,14 @@ describe("openapi3: definitions", () => {
       };`
     );
 
-    ok(res.isRef);
-    ok(res.schemas["Foo_Test.M"], "expected definition named Foo_Test.M");
-    deepStrictEqual(res.schemas["Foo_Test.M"], {
+    ok(!res.isRef);
+    deepStrictEqual(res.useSchema, {
       type: "object",
       properties: {
         x: { $ref: "#/components/schemas/Test.M" },
       },
       required: ["x"],
+      "x-cadl-name": "Foo<Test.M>",
     });
   });
 
@@ -174,6 +174,35 @@ describe("openapi3: definitions", () => {
       type: "object",
       properties: { y: { type: "integer", format: "int32" } },
       required: ["y"],
+    });
+  });
+
+  it("specify default value on enum property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optionalEnum?: MyEnum = MyEnum.a;
+      };
+      
+      enum MyEnum {
+        a: "a-value",
+        b,
+      }
+      `
+    );
+
+    ok(res.isRef);
+    ok(res.schemas.Foo, "expected definition named Foo");
+    ok(res.schemas.MyEnum, "expected definition named MyEnum");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optionalEnum: {
+          allOf: [{ $ref: "#/components/schemas/MyEnum" }],
+          default: "a-value",
+        },
+      },
     });
   });
 
@@ -208,6 +237,7 @@ describe("openapi3: definitions", () => {
       model Parent {
         x?: int32;
       };
+      @friendlyName("TParent_{name}", T)
       model TParent<T> extends Parent {
         t: T;
       }
@@ -221,7 +251,7 @@ describe("openapi3: definitions", () => {
     );
     ok(
       !("TParent" in res.components.schemas),
-      "Parent templated type shouldn't be includd in OpenAPI"
+      "Parent templated type shouldn't be included in OpenAPI"
     );
     deepStrictEqual(res.components.schemas.Parent, {
       type: "object",
@@ -316,6 +346,7 @@ describe("openapi3: definitions", () => {
     const res = await oapiForModel(
       "Bar",
       `
+      @friendlyName("Foo_{name}", T)
       model Foo<T> {
         y: T;
       };
@@ -353,20 +384,24 @@ describe("openapi3: definitions", () => {
       }`
     );
 
-    ok(res.isRef);
-    ok(res.schemas.Foo_int32, "expected definition named Foo_int32");
-    ok(res.schemas.Bar_int32, "expected definition named Bar_int32");
-    deepStrictEqual(res.schemas.Bar_int32, {
+    ok(!res.isRef);
+    deepStrictEqual(res.useSchema, {
       type: "object",
-      properties: { x: { type: "integer", format: "int32" } },
-      allOf: [{ $ref: "#/components/schemas/Foo_int32" }],
+      properties: {
+        x: { type: "integer", format: "int32" },
+      },
       required: ["x"],
-    });
-
-    deepStrictEqual(res.schemas.Foo_int32, {
-      type: "object",
-      properties: { y: { type: "integer", format: "int32" } },
-      required: ["y"],
+      "x-cadl-name": "Bar<int32>",
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            y: { type: "integer", format: "int32" },
+          },
+          required: ["y"],
+          "x-cadl-name": "Foo<int32>",
+        },
+      ],
     });
   });
 
@@ -798,6 +833,17 @@ describe("openapi3: definitions", () => {
         $ref: "#/components/schemas/Thing",
       }
     );
+  });
+
+  it("detects cycles in inline type", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model Thing<T> { inner?: Thing<T>; }
+      op get(): Thing<string>;
+      `
+    );
+
+    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/inline-cycle" }]);
   });
 });
 

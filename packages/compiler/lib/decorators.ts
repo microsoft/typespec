@@ -716,6 +716,17 @@ export function $key(context: DecoratorContext, entity: Type, altName?: string):
     return;
   }
 
+  // Ensure that the key property is not marked as optional
+  if (entity.optional) {
+    reportDiagnostic(context.program, {
+      code: "no-optional-key",
+      format: { propertyName: entity.name },
+      target: entity,
+    });
+
+    return;
+  }
+
   // Register the key property
   context.program.stateMap(keyKey).set(entity, altName || entity.name);
 }

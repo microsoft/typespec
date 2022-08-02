@@ -404,11 +404,19 @@
             "description": "name of device hardware"
           },
           "size": {
-            "$ref": "#/components/schemas/ScreenSize",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScreenSize"
+              }
+            ],
             "description": "screen size"
           },
           "location": {
-            "$ref": "#/components/schemas/LatLng",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LatLng"
+              }
+            ],
             "description": "kiosk location"
           },
           "create_time": {

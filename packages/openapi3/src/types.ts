@@ -506,6 +506,11 @@ export type OpenAPI3Schema = Extensions & {
   /** Allows sending a null value for the defined schema. Default value is false. */
   nullable?: boolean;
 
+  /**
+   * Property is readonly.
+   */
+  readOnly?: boolean;
+
   /** Adds support for polymorphism. The discriminator is an object name that is used to differentiate between other schemas which may satisfy the payload description  */
   discriminator?: OpenAPI3Discriminator;
 
