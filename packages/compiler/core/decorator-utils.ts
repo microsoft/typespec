@@ -355,6 +355,8 @@ function cadlTypeToJsonInternal(
     case "Boolean":
     case "Number":
       return [cadlType.value, []];
+    case "EnumMember":
+      return [cadlType.value ?? cadlType.name, []];
     case "Tuple": {
       const result = [];
       for (const [index, type] of cadlType.values.entries()) {
