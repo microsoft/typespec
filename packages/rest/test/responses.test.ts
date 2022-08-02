@@ -1,7 +1,7 @@
 import { ModelType } from "@cadl-lang/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { compileOperations, getOperations } from "./test-host.js";
+import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
 describe("cadl: rest: responses", () => {
   it("issues diagnostics for duplicate body decorator", async () => {
@@ -77,7 +77,7 @@ describe("cadl: rest: responses", () => {
   });
 
   it("supports any casing for string literal 'Content-Type' header properties.", async () => {
-    const [routes, diagnostics] = await getOperations(
+    const [routes, diagnostics] = await getOperationsWithServiceNamespace(
       `
       model Foo {}
 
@@ -106,7 +106,7 @@ describe("cadl: rest: responses", () => {
 
   // Regression test for https://github.com/microsoft/cadl/issues/328
   it("empty response model becomes body if it has childrens", async () => {
-    const [routes, diagnostics] = await getOperations(
+    const [routes, diagnostics] = await getOperationsWithServiceNamespace(
       `
       @route("/") op read(): A;
 

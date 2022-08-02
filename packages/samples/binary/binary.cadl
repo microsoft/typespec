@@ -2,6 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@serviceTitle("Binary sample")
+namespace BinarySample;
+
 model HasBytes {
   bytes: bytes;
 }

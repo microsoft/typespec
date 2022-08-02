@@ -4,6 +4,9 @@ import "@cadl-lang/openapi";
 using Cadl.Http;
 using OpenAPI;
 
+@serviceTitle("sample")
+namespace Sample;
+
 @doc("Uri or local path to source data.")
 model SourcePath {
   @minLength(0)
