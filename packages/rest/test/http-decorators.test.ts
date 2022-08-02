@@ -237,7 +237,7 @@ describe("rest: http decorators", () => {
 
     it("set the body with @body", async () => {
       const { body } = await runner.compile(`
-          op test(@test @body body: string): string;
+          @post op test(@test @body body: string): string;
         `);
 
       ok(isBody(runner.program, body));
