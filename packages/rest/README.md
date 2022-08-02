@@ -25,27 +25,38 @@ See [Rest section in the tutorial](https://github.com/microsoft/cadl/blob/main/d
 
 `@cadl-lang/rest` library defines of the following artifacts:
 
-- [Models](#models)
-- [Decorators](#decorators)
-- [Interfaces](#interfaces)
+- [Cadl HTTP/Rest Library](#cadl-httprest-library)
+  - [Install](#install)
+  - [Usage](#usage)
+  - [Library Tour](#library-tour)
+  - [Models](#models)
+  - [Decorators](#decorators)
+  - [Interfaces](#interfaces)
+  - [See also](#see-also)
 
 ## Models
 
 - ### HTTP namespace
-  | Model                | Notes                                                                                                                                  |
-  | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-  | LocationHeader       | Location header                                                                                                                        |
-  | Response&lt;Status>  | &lt;Status> is numerical status code.                                                                                                  |
-  | OkResponse&lt;T>     | Response&lt;200> with T as the response body model type.                                                                               |
-  | CreatedResponse      | Response&lt;201>                                                                                                                       |
-  | AcceptedResponse     | Response&lt;202>                                                                                                                       |
-  | NoContentResponse    | Response&lt;204>                                                                                                                       |
-  | MovedResponse        | Response&lt;301> with LocationHeader for redirected URL                                                                                |
-  | NotModifiedResponse  | Response&lt;304>                                                                                                                       |
-  | UnauthorizedResponse | Response&lt;401>                                                                                                                       |
-  | NotFoundResponse     | Response&lt;404>                                                                                                                       |
-  | ConflictResponse     | Response&lt;409>                                                                                                                       |
-  | PlainData&lt;T>      | Produces a new model with the same properties as T, but with @query, @header, @body, and @path decorators removed from all properties. |
+
+  | Model                        | Notes                                                                                                                                  |
+  | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+  | LocationHeader               | Location header                                                                                                                        |
+  | Response&lt;Status>          | &lt;Status> is numerical status code.                                                                                                  |
+  | OkResponse&lt;T>             | Response&lt;200> with T as the response body model type.                                                                               |
+  | CreatedResponse              | Response&lt;201>                                                                                                                       |
+  | AcceptedResponse             | Response&lt;202>                                                                                                                       |
+  | NoContentResponse            | Response&lt;204>                                                                                                                       |
+  | MovedResponse                | Response&lt;301> with LocationHeader for redirected URL                                                                                |
+  | NotModifiedResponse          | Response&lt;304>                                                                                                                       |
+  | UnauthorizedResponse         | Response&lt;401>                                                                                                                       |
+  | NotFoundResponse             | Response&lt;404>                                                                                                                       |
+  | ConflictResponse             | Response&lt;409>                                                                                                                       |
+  | PlainData&lt;T>              | Produces a new model with the same properties as T, but with @query, @header, @body, and @path decorators removed from all properties. |
+  | BasicAuth                    | Configure `basic` authentication with @useAuth                                                                                         |
+  | BearerAuth                   | Configure `bearer` authentication with @useAuth                                                                                        |
+  | ApiKeyAuth<TLocation, TName> | Configure `apiKey` authentication with @useAuth                                                                                        |
+  | OAuth2Auth<TFlows>           | Configure `oauth2` authentication with @useAuth                                                                                        |
+
 - ### REST namespace
   | Model                                      | Notes                                                                                                       |
   | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
@@ -78,6 +89,7 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Http` na
 | @path       | model properties and operation parameters | indicating the properties are in request path.                                                    |
 | @statusCode | model properties and operation parameters | indicating the property is the return status code. Only one allowed per model.                    |
 | @server     | namespace                                 | Configure the server url for the service.                                                         |
+| @useAuth    | namespace                                 | Configure the service authentication.                                                             |
 
 - ### REST namespace
 

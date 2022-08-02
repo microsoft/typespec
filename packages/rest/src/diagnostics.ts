@@ -125,6 +125,20 @@ const libDefinition = {
         default: "content-type header ignored because return type has no body",
       },
     },
+    "no-routes": {
+      severity: "warning",
+      messages: {
+        default:
+          "Current spec is not exposing any routes. This could be to not having the service namespace marked with @serviceTitle.",
+      },
+    },
+
+    "invalid-type-for-auth": {
+      severity: "error",
+      messages: {
+        default: paramMessage`@useAuth ${"kind"} only accept Auth model, Tuple of auth model or union of auth model.`,
+      },
+    },
   },
 } as const;
 

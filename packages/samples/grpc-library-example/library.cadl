@@ -8,6 +8,9 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
+@serviceTitle("Grpc Library sample")
+namespace GrpcLibrarySample;
+
 @doc("""
 This API represents a simple digital library.  It lets you manage Shelf
 resources and Book resources in the library. It defines the following
