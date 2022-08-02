@@ -1,0 +1,45 @@
+* {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family); 
+  overflow: hidden;
+}
+
+.app_version{
+  background: var(--version_bar-color);
+  color: var(--text-in-main-color);
+  text-align: center;
+}
+
+:root {
+  --font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;;
+  --main-color: #0B6A0B;
+  --text-in-main-color:#ffffff;
+  --tab-inner-color: #095A09;
+  --version_bar-color: #013301;
+}
+
+html {
+  height: 100%;
+}
+
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {}
