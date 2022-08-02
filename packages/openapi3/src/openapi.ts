@@ -81,7 +81,7 @@ import {
   OpenAPI3ParameterType,
   OpenAPI3Schema,
   OpenAPI3SchemaProperty,
-  OpenAPI3SecurityScheme,  
+  OpenAPI3SecurityScheme,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
 } from "./types.js";
