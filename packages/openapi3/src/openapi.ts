@@ -1308,6 +1308,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "date" };
       case "zonedDateTime":
         return { type: "string", format: "date-time" };
+      case "uri":
+        return { type: "string", format: "uri" };
       case "plainTime":
         return { type: "string", format: "time" };
       case "duration":

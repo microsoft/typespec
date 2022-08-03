@@ -88,6 +88,9 @@ model boolean {}
 @intrinsic("null")
 model null {}
 
+@intrinsic("uri")
+model uri {}
+
 @deprecated("Map is deprecated, use Record<T> instead")
 model Map<K, V> is Record<V>;
 

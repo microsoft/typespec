@@ -836,6 +836,7 @@ describe("openapi3: primitives", () => {
     ["zonedDateTime", { type: "string", format: "date-time" }],
     ["plainTime", { type: "string", format: "time" }],
     ["duration", { type: "string", format: "duration" }],
+    ["uri", { type: "string", format: "uri" }],
     ["bytes", { type: "string", format: "byte" }],
   ];
 
