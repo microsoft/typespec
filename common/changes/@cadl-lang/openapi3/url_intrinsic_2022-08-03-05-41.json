@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Added support for uri intrinsic type.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}
