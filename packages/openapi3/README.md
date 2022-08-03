@@ -74,7 +74,7 @@ Syntax:
 @oneOf()
 ```
 
-`@oneOf`
+`@oneOf`emits `oneOf` keyword for a union type in the resulting OpenAPI 3.0 specification. It indicates that the value of union type can only contain exactly one of the subschemas.
 
 `@oneOf` can only be applied to a union types.
 
