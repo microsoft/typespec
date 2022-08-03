@@ -54,7 +54,12 @@
     "vscode-languageserver-textdocument": "~1.0.1",
     "vscode-languageserver": "~7.0.0",
     "lzutf8": "~0.6.1",
-    "debounce": "~1.2.1"
+    "debounce": "~1.2.1",
+    "@fluentui/web-components": "~2.5.3",
+    "react-icons": "~4.4.0",
+    "react-router-dom": "~6.3.0",
+    "@types/react-router-dom": "~5.3.3",
+    "react-loader-spinner": "~5.1.7-beta.1"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
