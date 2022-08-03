@@ -49,6 +49,35 @@ union MyUnion {
 
 ```
 
+## Decorators
+
+- [@useRef](#useref)
+- [@oneOf](#oneof)
+
+### @useRef
+
+Syntax:
+
+```
+@useRef(urlString)
+```
+
+`@useRef`
+
+`@useRef` can only be applied to model or model property types.
+
+### @oneOf
+
+Syntax:
+
+```
+@oneOf()
+```
+
+`@oneOf`
+
+`@oneOf` can only be applied to a union types.
+
 ## Emitter options:
 
 Emitter options can be configured via the `cadl-project.yaml` configuration:
