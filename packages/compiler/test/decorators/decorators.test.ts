@@ -333,6 +333,22 @@ describe("compiler: built-in decorators", () => {
       strictEqual(prop.kind, "ModelProperty" as const);
       strictEqual(getKeyName(runner.program, prop), "alternateName");
     });
+
+    it("emits diagnostic when key property is marked as optional", async () => {
+      const diagnostics = await runner.diagnose(
+        `model M {
+          @key
+          prop?: string;
+        }`
+      );
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "no-optional-key",
+          message: "Property 'prop' marked as key cannot be optional.",
+        },
+      ]);
+    });
   });
 
   describe("@withoutOmittedProperties", () => {

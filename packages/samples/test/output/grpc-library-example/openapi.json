@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "(title)",
+    "title": "Grpc Library sample",
     "version": "0000-00-00"
   },
   "tags": [
@@ -445,7 +445,11 @@
         "type": "object",
         "properties": {
           "name": {
-            "$ref": "#/components/schemas/shelf_name",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/shelf_name"
+              }
+            ],
             "description": "The resource name of the shelf.\nShelf names have the form `shelves/{shelf_id}`.\nThe name is ignored when creating a shelf."
           },
           "theme": {
@@ -508,7 +512,11 @@
         "type": "object",
         "properties": {
           "name": {
-            "$ref": "#/components/schemas/book_name",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/book_name"
+              }
+            ],
             "description": "The resource name of the book.\nBook names have the form `shelves/{shelf_id}/books/{book_id}`.\nThe name is ignored when creating a book."
           },
           "author": {

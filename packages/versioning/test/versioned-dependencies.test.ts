@@ -333,6 +333,30 @@ describe("versioning: dependencies", () => {
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
   });
+
+  // Test for https://github.com/microsoft/cadl/issues/786
+  it("have a nested service namespace and libraries sharing common parent namespace", async () => {
+    const { MyService } = (await runner.compile(`
+        @serviceTitle("Test")
+        @versionedDependency(Lib.One.Versions.v1)
+        @test("MyService")
+        namespace MyOrg.MyService {
+
+        }
+
+        @versioned(Versions)
+        namespace Lib.One {
+          enum Versions { v1: "v1" }
+        }
+        
+        @versionedDependency(Lib.One.Versions.v1)
+        namespace Lib.Two { }
+
+      `)) as { MyService: NamespaceType };
+
+    const [v1] = runProjections(runner.program, MyService);
+    ok(v1.projectedTypes.get(MyService));
+  });
 });
 
 function runProjections(program: Program, rootNs: NamespaceType) {

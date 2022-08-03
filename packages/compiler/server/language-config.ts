@@ -15,6 +15,7 @@ export const CadlLanguageConfiguration = {
     { open: "{", close: "}" },
     { open: "[", close: "]" },
     { open: "(", close: ")" },
+    { open: "/**", close: " */", notIn: ["string"] },
     // NOTE: quotes omitted here intentionally for now as they interfere with typing """
   ],
   surroundingPairs: [
@@ -22,5 +23,77 @@ export const CadlLanguageConfiguration = {
     { open: "[", close: "]" },
     { open: "(", close: ")" },
     { open: '"', close: '"' },
+  ],
+  // From https://github.com/Microsoft/vscode/blob/main/extensions/javascript/javascript-language-configuration.json
+  indentationRules: {
+    decreaseIndentPattern: {
+      pattern: "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$",
+    },
+    increaseIndentPattern: {
+      pattern: "^((?!//).)*(\\{([^}\"'`/]*|(\\t|[ ])*//.*)|\\([^)\"'`/]*|\\[[^\\]\"'`/]*)$",
+    },
+    // e.g.  * ...| or */| or *-----*/|
+    unIndentedLinePattern: {
+      pattern:
+        "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$|^(\\t|[ ])*[ ]\\*/\\s*$|^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
+    },
+  },
+  onEnterRules: [
+    {
+      // e.g. /** | */
+      beforeText: {
+        pattern: "^\\s*/\\*\\*(?!/)([^\\*]|\\*(?!/))*$",
+      },
+      afterText: {
+        pattern: "^\\s*\\*/$",
+      },
+      action: {
+        indent: "indentOutdent",
+        appendText: " * ",
+      },
+    },
+    {
+      // e.g. /** ...|
+      beforeText: {
+        pattern: "^\\s*/\\*\\*(?!/)([^\\*]|\\*(?!/))*$",
+      },
+      action: {
+        indent: "none",
+        appendText: " * ",
+      },
+    },
+    {
+      // e.g.  * ...|
+      beforeText: {
+        pattern: "^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
+      },
+      previousLineText: {
+        pattern: "(?=^(\\s*(/\\*\\*|\\*)).*)(?=(?!(\\s*\\*/)))",
+      },
+      action: {
+        indent: "none",
+        appendText: "* ",
+      },
+    },
+    {
+      // e.g.  */|
+      beforeText: {
+        pattern: "^(\\t|[ ])*[ ]\\*/\\s*$",
+      },
+      action: {
+        indent: "none",
+        removeText: 1,
+      },
+    },
+    {
+      // e.g.  *-----*/|
+      beforeText: {
+        pattern: "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$",
+      },
+      action: {
+        indent: "none",
+        removeText: 1,
+      },
+    },
   ],
 } as const;

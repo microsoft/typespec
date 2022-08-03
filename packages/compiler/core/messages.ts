@@ -516,6 +516,12 @@ const diagnostics = {
       default: paramMessage`Deprecated: ${"message"}`,
     },
   },
+  "no-optional-key": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propertyName"}' marked as key cannot be optional.`,
+    },
+  },
 
   /**
    * Service

@@ -8,6 +8,7 @@ import {
   NamespaceType,
   OperationType,
   Program,
+  setCadlNamespace,
   Type,
 } from "@cadl-lang/compiler";
 import { getResourceTypeKey } from "./resource.js";
@@ -196,8 +197,9 @@ export function getSegmentSeparator(program: Program, entity: Type): string | un
 
 export type ResourceOperations =
   | "read"
-  | "createOrUpdate"
   | "create"
+  | "createOrReplace"
+  | "createOrUpdate"
   | "update"
   | "delete"
   | "list";
@@ -269,6 +271,26 @@ export function $createsResource(
   context.call($segmentOf, entity, resourceType);
 
   setResourceOperation(context, entity, resourceType, "create", createsResourceDecorator);
+}
+
+const createsOrReplacesResourceDecorator = createDecoratorDefinition({
+  name: "@createsOrReplacesResource",
+  target: "Operation",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $createsOrReplacesResource(
+  context: DecoratorContext,
+  entity: OperationType,
+  resourceType: ModelType
+) {
+  setResourceOperation(
+    context,
+    entity,
+    resourceType,
+    "createOrReplace",
+    createsOrReplacesResourceDecorator
+  );
 }
 
 const createsOrUpdatesResourceDecorator = createDecoratorDefinition({
@@ -411,3 +433,37 @@ export function getCollectionAction(
 ): string | null | undefined {
   return program.stateMap(collectionActionsKey).get(operation);
 }
+
+const resourceLocationsKey = Symbol("resourceLocations");
+
+const resourceLocationDecorator = createDecoratorDefinition({
+  name: "@resourceLocation",
+  target: "Model",
+  args: [{ kind: "Model" }],
+} as const);
+
+export function $resourceLocation(
+  context: DecoratorContext,
+  entity: ModelType,
+  resourceType: ModelType
+): void {
+  if ((resourceType as Type).kind === "TemplateParameter") {
+    // Skip it, this operation is in a templated interface
+    return;
+  }
+
+  if (!resourceLocationDecorator.validate(context, entity, [resourceType])) {
+    return;
+  }
+
+  context.program.stateMap(resourceLocationsKey).set(entity, resourceType);
+}
+
+export function getResourceLocationType(
+  program: Program,
+  entity: ModelType
+): ModelType | undefined {
+  return program.stateMap(resourceLocationsKey).get(entity);
+}
+
+setCadlNamespace("Private", $resourceLocation);

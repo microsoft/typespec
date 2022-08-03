@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "(title)",
+    "title": "Grpc Kiosk sample",
     "version": "0000-00-00"
   },
   "tags": [
@@ -404,11 +404,19 @@
             "description": "name of device hardware"
           },
           "size": {
-            "$ref": "#/components/schemas/ScreenSize",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScreenSize"
+              }
+            ],
             "description": "screen size"
           },
           "location": {
-            "$ref": "#/components/schemas/LatLng",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LatLng"
+              }
+            ],
             "description": "kiosk location"
           },
           "create_time": {

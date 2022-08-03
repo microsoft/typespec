@@ -88,7 +88,9 @@ function addEmptyModelComment(comment: CommentNode) {
     enclosingNode.kind === SyntaxKind.ModelStatement &&
     enclosingNode.properties.length === 0 &&
     precedingNode &&
-    precedingNode.kind === SyntaxKind.Identifier
+    (precedingNode === enclosingNode.is ||
+      precedingNode === enclosingNode.id ||
+      precedingNode === enclosingNode.extends)
   ) {
     util.addDanglingComment(enclosingNode, comment, undefined);
     return true;

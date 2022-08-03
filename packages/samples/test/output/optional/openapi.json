@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "(title)",
+    "title": "Optional sample",
     "version": "0000-00-00"
   },
   "tags": [],
@@ -85,8 +85,23 @@
             ],
             "x-cadl-name": "foo | bar",
             "default": "foo"
+          },
+          "optionalEnum": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MyEnum"
+              }
+            ],
+            "default": "a"
           }
         }
+      },
+      "MyEnum": {
+        "type": "string",
+        "enum": [
+          "a",
+          "b"
+        ]
       }
     }
   }

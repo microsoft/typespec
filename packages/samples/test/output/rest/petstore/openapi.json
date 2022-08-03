@@ -160,7 +160,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Pet"
+                  "$ref": "#/components/schemas/PetPage"
                 }
               }
             }
@@ -179,7 +179,7 @@
       }
     },
     "/pets/{petId}/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "PetCheckups_CreateOrUpdate",
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
@@ -248,7 +248,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/CheckupPage"
                 }
               }
             }
@@ -397,7 +397,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Toy"
+                  "$ref": "#/components/schemas/ToyPage"
                 }
               }
             }
@@ -495,7 +495,7 @@
       }
     },
     "/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "Checkups_createOrUpdate",
         "description": "Creates or update a instance of the resource.",
         "parameters": [
@@ -557,7 +557,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/CheckupPage"
                 }
               }
             }
@@ -729,7 +729,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Owner"
+                  "$ref": "#/components/schemas/OwnerPage"
                 }
               }
             }
@@ -748,7 +748,7 @@
       }
     },
     "/owners/{ownerId}/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "OwnerCheckups_CreateOrUpdate",
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
@@ -817,7 +817,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/CheckupPage"
                 }
               }
             }
@@ -1045,7 +1045,7 @@
           "ownerId"
         ]
       },
-      "Rest.Resource.Page_Pet": {
+      "PetPage": {
         "type": "object",
         "properties": {
           "value": {
@@ -1058,10 +1058,11 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation<Pet>"
           }
         },
-        "description": "Paged response",
+        "description": "Paged response of Pet items",
         "required": [
           "value"
         ]
@@ -1098,7 +1099,7 @@
           "notes"
         ]
       },
-      "Rest.Resource.Page_Checkup": {
+      "CheckupPage": {
         "type": "object",
         "properties": {
           "value": {
@@ -1111,10 +1112,11 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation<Checkup>"
           }
         },
-        "description": "Paged response",
+        "description": "Paged response of Checkup items",
         "required": [
           "value"
         ]
@@ -1178,7 +1180,7 @@
           "name"
         ]
       },
-      "Rest.Resource.Page_Toy": {
+      "ToyPage": {
         "type": "object",
         "properties": {
           "value": {
@@ -1191,10 +1193,11 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation<Toy>"
           }
         },
-        "description": "Paged response",
+        "description": "Paged response of Toy items",
         "required": [
           "value"
         ]
@@ -1250,7 +1253,7 @@
           "age"
         ]
       },
-      "Rest.Resource.Page_Owner": {
+      "OwnerPage": {
         "type": "object",
         "properties": {
           "value": {
@@ -1263,10 +1266,11 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items"
+            "description": "The link to the next page of items",
+            "x-cadl-name": "Rest.ResourceLocation<Owner>"
           }
         },
-        "description": "Paged response",
+        "description": "Paged response of Owner items",
         "required": [
           "value"
         ]

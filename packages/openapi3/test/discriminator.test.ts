@@ -29,10 +29,7 @@ describe("openapi3: discriminated unions", () => {
         bark: string;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -76,10 +73,7 @@ describe("openapi3: discriminated unions", () => {
         bark: string;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -126,10 +120,7 @@ describe("openapi3: discriminated unions", () => {
       bark: string;
     }
 
-    @route("/")
-    namespace root {
-      op read(): { @body body: Pet };
-    }
+    op read(): { @body body: Pet };
     `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -169,10 +160,7 @@ describe("openapi3: discriminated unions", () => {
         purebred: boolean;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -232,10 +220,7 @@ describe("openapi3: discriminated unions", () => {
         breed: "poodle";
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -309,10 +294,7 @@ describe("openapi3: discriminated unions", () => {
         kind: string;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -368,10 +350,7 @@ describe("openapi3: discriminated unions", () => {
         tail: float64;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     strictEqual(diagnostics.length, 6);
     strictEqual((diagnostics[0].target as ModelType).name, "Dog");
@@ -404,10 +383,7 @@ describe("openapi3: discriminated unions", () => {
         bark: string;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     strictEqual(diagnostics.length, 2);
     match(diagnostics[0].message, /"housepet" defined in two different variants: Cat and Dog/);
