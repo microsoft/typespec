@@ -813,3 +813,62 @@ export function isDeprecated(program: Program, type: Type): boolean {
 export function getDeprecated(program: Program, type: Type): string | undefined {
   return program.stateMap(deprecatedKey).get(type);
 }
+
+const overloadedByKey = Symbol("overloadedByKey");
+const overloadsOperationKey = Symbol("overloadsOperation");
+
+/**
+ * `@overload` - Indicate that the target overloads (specializes) the overloads type.
+ * @param context DecoratorContext
+ * @param target The specializing operation declaration
+ * @param overloads The operation to be overloaded.
+ */
+export function $overload(
+  context: DecoratorContext,
+  target: OperationType,
+  overloads: OperationType
+) {
+  // TODO: Verify that the target is a subtype of the overloads instance (e.g. doesn't expand on the set
+  // of parameters or return types for the overloads function)
+  if (!validateDecoratorTarget(context, target, "@overload", "Operation")) {
+    return;
+  }
+  context.program.stateMap(overloadsOperationKey).set(target, overloads);
+  if (overloads.kind != "Operation") {
+    context.program.reportDiagnostic({
+      code: "cadl-overload-wrong-type",
+      severity: "error",
+      message: "You can only @overload other operations.",
+      target: target,
+    });
+  }
+  const existingOverloads =
+    getOverloadedBy(context.program, overloads) || new Array<OperationType>();
+  context.program.stateMap(overloadedByKey).set(overloads, existingOverloads.concat(target));
+}
+
+/**
+ * Get all operations that are marked as overloads of the given operatoin
+ * @param context
+ * @param operation
+ * @returns
+ */
+export function getOverloadedBy(
+  program: Program,
+  operation: OperationType
+): Array<OperationType> | undefined {
+  return program.stateMap(overloadedByKey).get(operation);
+}
+
+/**
+ * Indicate if the given operation is an overload of another operations
+ * @param program
+ * @param operation
+ * @returns
+ */
+export function isOverloading(
+  program: Program,
+  operation: OperationType
+): OperationType | undefined {
+  return program.stateMap(overloadsOperationKey).get(operation);
+}

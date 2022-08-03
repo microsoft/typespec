@@ -1,11 +1,13 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, ModelType } from "../../core/index.js";
+import { getVisibility, ModelType, OperationType } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
   getKeyName,
   getKnownValues,
+  getOverloadedBy,
   isErrorModel,
+  isOverloading,
 } from "../../lib/decorators.js";
 import {
   BasicTestRunner,
@@ -490,6 +492,107 @@ describe("compiler: built-in decorators", () => {
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
       });
+    });
+  });
+
+  describe("@overload", () => {
+    it("Overload methods is just fine", async () => {
+      const compiled = (await runner.compile(`
+        @test
+        op someThing(param: string | int32): string | int32;
+
+        @test
+        @overload(someThing)
+        op someStringThing(param: string): string;
+
+        @test
+        @overload(someThing)
+        op someNumberThing(param: int32): int32;
+
+        @test
+        op someUnrelatedThing(): void;
+
+      `)) as {
+        someThing: OperationType;
+        someStringThing: OperationType;
+        someNumberThing: OperationType;
+        someUnrelatedThing: OperationType;
+      };
+
+      strictEqual(compiled.someThing.kind, "Operation");
+      ok(isOverloading(runner.program, compiled.someStringThing));
+      ok(isOverloading(runner.program, compiled.someNumberThing));
+      ok(!isOverloading(runner.program, compiled.someThing));
+      ok(!isOverloading(runner.program, compiled.someUnrelatedThing));
+      const overloadedBy = getOverloadedBy(runner.program, compiled.someThing)?.map(
+        (op) => op.name
+      );
+      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.indexOf("someStringThing") !== -1);
+      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+      ok(getOverloadedBy(runner.program, compiled.someUnrelatedThing) === undefined);
+    });
+    it("Overload across namespaces is just fine", async () => {
+      const compiled = (await runner.compile(`
+        namespace ADifferentNS {
+          @test
+          op someThing(param: string | int32): string | int32;
+
+          @test
+          @overload(someThing)
+          op someStringThing(param: string): string;
+        }
+
+        @test
+        @overload(ADifferentNS.someThing)
+        op someNumberThing(param: int32): int32;
+      `)) as {
+        someThing: OperationType;
+        someStringThing: OperationType;
+        someNumberThing: OperationType;
+      };
+
+      strictEqual(compiled.someThing.kind, "Operation");
+      ok(isOverloading(runner.program, compiled.someStringThing));
+      ok(isOverloading(runner.program, compiled.someNumberThing));
+      ok(!isOverloading(runner.program, compiled.someThing));
+      const overloadedBy = getOverloadedBy(runner.program, compiled.someThing)?.map(
+        (op) => op.name
+      );
+      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.indexOf("someStringThing") !== -1);
+      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+    });
+    it("Overload in an interface is just fine", async () => {
+      const compiled = (await runner.compile(`
+        interface SomeInterface {
+          @test
+          op someThing(param: string | int32): string | int32;
+
+          @test
+          @overload(SomeInterface.someThing)
+          op someStringThing(param: string): string;
+
+          @test
+          @overload(SomeInterface.someThing)
+          op someNumberThing(param: int32): int32;
+        }
+      `)) as {
+        someThing: OperationType;
+        someStringThing: OperationType;
+        someNumberThing: OperationType;
+      };
+
+      strictEqual(compiled.someThing.kind, "Operation");
+      ok(isOverloading(runner.program, compiled.someStringThing));
+      ok(isOverloading(runner.program, compiled.someNumberThing));
+      ok(!isOverloading(runner.program, compiled.someThing));
+      const overloadedBy = getOverloadedBy(runner.program, compiled.someThing)?.map(
+        (op) => op.name
+      );
+      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.indexOf("someStringThing") !== -1);
+      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
     });
   });
 });
