@@ -53,20 +53,18 @@ model PetId {
 namespace Pets {
   @doc("Delete a pet.")
   @delete
-  op delete(...PetId): {
-    ...Response<200>;
-  } | Error;
+  op delete(...PetId): OkResponse | Error;
 
   @fancyDoc("List pets.")
-  op list(@query nextLink?: string): OkResponse<ResponsePage<Pet>> | Error;
+  op list(@query nextLink?: string): ResponsePage<Pet> | Error;
 
   @doc("Returns a pet. Supports eTags.")
-  op read(...PetId): OkResponse<Pet> | NotModified<Pet> | Error;
+  op read(...PetId): Pet | (NotModifiedResponse & Pet) | Error;
 
-  @post op create(@body pet: Pet): OkResponse<Pet> | Error;
+  @post op create(@body pet: Pet): Pet | Error;
 }
 
 @route("/pets/{petId}/toys")
 namespace ListPetToysResponse {
-  op list(@path petId: string, @query nameFilter: string): OkResponse<ResponsePage<Toy>> | Error;
+  op list(@path petId: string, @query nameFilter: string): ResponsePage<Toy> | Error;
 }

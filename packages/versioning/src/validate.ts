@@ -1,4 +1,11 @@
-import { NamespaceType, navigateProgram, NoTarget, Program, Type } from "@cadl-lang/compiler";
+import {
+  isTemplateInstance,
+  NamespaceType,
+  navigateProgram,
+  NoTarget,
+  Program,
+  Type,
+} from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 import {
   getAddedOn,
@@ -29,7 +36,7 @@ export function $onValidate(program: Program) {
   navigateProgram(program, {
     model: (model) => {
       // If this is an instantiated type we don't want to keep the mapping.
-      if (model.templateArguments && model.templateArguments.length > 0) {
+      if (isTemplateInstance(model)) {
         return;
       }
       addDependency(model.namespace, model.baseModel);

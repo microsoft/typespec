@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Make response descriptions more consistent",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

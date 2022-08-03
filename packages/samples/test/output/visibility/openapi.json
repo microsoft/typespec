@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "(title)",
+    "title": "Visibility sample",
     "version": "0000-00-00"
   },
   "tags": [],
@@ -32,7 +32,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -50,7 +50,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -75,7 +75,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {

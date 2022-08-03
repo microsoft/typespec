@@ -137,7 +137,7 @@ function processResponseType(
     const response: HttpOperationResponse = responses[statusCode] ?? {
       statusCode: statusCode,
       type: responseModel,
-      description: getResponseDescription(program, responseModel, statusCode),
+      description: getResponseDescription(program, responseModel, statusCode, bodyModel),
       responses: [],
     };
 
@@ -301,12 +301,22 @@ function getResponseBody(
 
 function getResponseDescription(
   program: Program,
-  responseModel: Type,
-  statusCode: string
+  responseType: Type,
+  statusCode: string,
+  bodyType: Type | undefined
 ): string | undefined {
-  const desc = getDoc(program, responseModel);
-  if (desc) {
-    return desc;
+  // NOTE: If the response type is an envelope and not the same as the body
+  // type, then use its @doc as the response description. However, if the
+  // response type is the same as the body type, then use the default status
+  // code description and don't duplicate the schema description of the body
+  // as the response description. This allows more freedom to change how
+  // Cadl is expressed in semantically equivalent ways without causing
+  // the output to change unnecessarily.
+  if (responseType !== bodyType) {
+    const desc = getDoc(program, responseType);
+    if (desc) {
+      return desc;
+    }
   }
 
   return getStatusCodeDescription(statusCode);

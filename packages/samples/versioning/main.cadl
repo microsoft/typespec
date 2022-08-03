@@ -45,15 +45,15 @@ model Cat extends PetBase {
 
 @route("/")
 interface MyService {
-  getPet(...ApiVersionParam): OkResponse<PetBase>;
+  getPet(...ApiVersionParam): PetBase;
 
   @added(Versions.v2)
   @post
   @route("/walkDog")
-  walkDog(...ApiVersionParam): OkResponse<{}>;
+  walkDog(...ApiVersionParam): OkResponse;
 
   @removed(Versions.v2)
   @post
   @route("/walkCat")
-  walkCat(...ApiVersionParam): OkResponse<{}>;
+  walkCat(...ApiVersionParam): OkResponse;
 }
