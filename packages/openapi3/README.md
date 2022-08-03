@@ -64,7 +64,7 @@ Syntax:
 
 `@useRef`
 
-`@useRef` can only be applied to model or model property types.
+`@useRef` is used to replace the Cadl model type in emitter output with a pre-existing named OpenAPI schema.
 
 ### @oneOf
 

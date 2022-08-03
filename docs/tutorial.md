@@ -477,21 +477,20 @@ Dog type: Model
 
 Cadl comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
 
-- [@deprecated](#deprecated) - Indicating the decorator target has be deprecated.
+- [@deprecated](#deprecated) - indicates that the decorator target has been deprecated.
 - [@doc](#doc) - attach a documentation string. Works great with multi-line string literals.
 - [@error](#error) - specify a model is representing an error
 - [@format](#format) - specify the data format hint for a string type
 - [@friendlyName](#friendlyname) - specify a friendly name to be used instead of declared model name
 - @indexer
 - [@inspectType/@inspectTypeName](#inspecttype) - displays information about a type during compilation
-- [@intrinsic](#intrinsic) - force declare a model is intrinsic type
 - [@key](#key) - mark a model property as the key to identify instances of that type
 - [@knownValues](#knownvalues) - mark a string type with an enum that contains all known values
 - @list -
 - @minLength/@maxLength - set the min and max lengths for strings
 - @minValue/@maxValue - set the min and max values of number types
 - [@pattern](#pattern) - set the pattern for a string using regular expression syntax
-- @secret - mark a string as a secret value that should be treated carefully to avoid exposure
+- [@secret](#secret) - mark a string as a secret value that should be treated carefully to avoid exposure
 - [@summary](#summary) - attach a documentation string, typically a short, single-line description.
 - [@tag](#tag) - attach a simple tag to a declaration
 - [@visibility/@withVisibility](#visibility-decorators)
@@ -500,16 +499,6 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 - [@withoutDefaultValues](#withoutdefaultvalues) - removes all read-only properties from the target type.
 - [@withoutOmittedProperties](#withoutomittedproperties) - removes all model properties that match a type.
 - [@withUpdateableProperties](#withupdateableproperties) - remove all read-only properties from the target type
-
-##### @intrinsic
-
-Syntax:
-
-```
-@intrinsic(modelName)
-```
-
-`@intrinsic` force declare a model is intrinsic type. It can be specified on a model.
 
 ##### @inspectType
 
@@ -628,6 +617,24 @@ The optional first argument accepts an alternate key name which may be used by e
 Otherwise, the name of the target property will be used.
 
 `@key` can only be applied to model properties.
+
+##### @secret
+
+Syntax:
+
+```
+@secret
+```
+
+`@secret` mark a string as a secret value that should be treated carefully to avoid exposure
+
+```
+@secret
+model Password is string;
+
+```
+
+`@secret` can only be applied to string model;
 
 ##### @format
 
