@@ -5,6 +5,7 @@ import {
   DiagnosticCollector,
   getServiceNamespace,
   InterfaceType,
+  isGlobalNamespace,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
   ModelTypeProperty,
@@ -117,23 +118,6 @@ function getRouteOptionsForNamespace(
   return program.stateMap(routeOptionsKey).get(namespace);
 }
 
-const routeContainerKey = Symbol("routeContainer");
-function addRouteContainer(program: Program, entity: Type): void {
-  const container = entity.kind === "Operation" ? entity.interface || entity.namespace : entity;
-  if (!container) {
-    // Somehow the entity doesn't have a container.  This should only happen
-    // when a type was created manually and not by the checker.
-    throw new Error(`${entity.kind} is not or does not have a container`);
-  }
-
-  if (container.kind === "Interface" && isTemplateDeclaration(container)) {
-    // Don't register uninstantiated template interfaces
-    return;
-  }
-
-  program.stateSet(routeContainerKey).add(container);
-}
-
 const routesKey = Symbol("routes");
 function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   if (
@@ -141,9 +125,6 @@ function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   ) {
     return;
   }
-
-  // Register the container of the operation as one that holds routed operations
-  addRouteContainer(context.program, entity);
 
   const state = context.program.stateMap(routesKey);
 
@@ -409,17 +390,9 @@ function getVerbForOperation(
     return verb;
   }
 
-  if (parameters.bodyType) {
-    diagnostics.add(
-      createDiagnostic({
-        code: "http-verb-missing-with-body",
-        format: { operationName: operation.name },
-        target: operation,
-      })
-    );
-  }
-
-  return "get";
+  // If no verb was found by this point, choose a verb based on whether there is
+  // a body type for the request
+  return parameters.bodyType ? "post" : "get";
 }
 
 function buildRoutes(
@@ -430,6 +403,10 @@ function buildRoutes(
   visitedOperations: Set<OperationType>,
   options: RouteOptions
 ): OperationDetails[] {
+  if (container.kind === "Interface" && isTemplateDeclaration(container)) {
+    // Skip template interface operations
+    return [];
+  }
   // Get the route info for this container, if any
   const baseRoute = getRoutePath(program, container);
   const parentFragments = [...routeFragments, ...(baseRoute ? [baseRoute.path] : [])];
@@ -465,10 +442,14 @@ function buildRoutes(
 
   // Build all child routes and append them to the list, but don't recurse in
   // the global scope because that could pull in unwanted operations
-  if (container.kind === "Namespace" && container.name !== "") {
+  if (container.kind === "Namespace") {
+    // If building routes for the global namespace we shouldn't navigate the sub namespaces.
+    const includeSubNamespaces = isGlobalNamespace(program, container);
+    const additionalInterfaces = getExternalInterfaces(program, container) ?? [];
     const children: OperationContainer[] = [
-      ...container.namespaces.values(),
+      ...(includeSubNamespaces ? [] : container.namespaces.values()),
       ...container.interfaces.values(),
+      ...additionalInterfaces,
     ];
 
     const childRoutes = children.flatMap((child) =>
@@ -497,6 +478,45 @@ export function getRoutesForContainer(
   );
 }
 
+const externalInterfaces = Symbol("externalInterfaces");
+/**
+ * @depreacted DO NOT USE. For internal use only as a workaround.
+ * @param program Program
+ * @param target Target namespace
+ * @param interf Interface that should be included in namespace.
+ */
+export function includeInterfaceRoutesInNamespace(
+  program: Program,
+  target: NamespaceType,
+  sourceInterface: string
+) {
+  let array = program.stateMap(externalInterfaces).get(target);
+  if (array === undefined) {
+    array = [];
+    program.stateMap(externalInterfaces).set(target, array);
+  }
+
+  array.push(sourceInterface);
+}
+
+function getExternalInterfaces(program: Program, namespace: NamespaceType) {
+  const interfaces: string[] | undefined = program.stateMap(externalInterfaces).get(namespace);
+  if (interfaces === undefined) {
+    return undefined;
+  }
+  return interfaces
+    .map((interfaceFQN: string) => {
+      let current: NamespaceType | undefined = program.checker.getGlobalNamespaceType();
+      const namespaces = interfaceFQN.split(".");
+      const interfaceName = namespaces.pop()!;
+      for (const namespaceName of namespaces) {
+        current = current?.namespaces.get(namespaceName);
+      }
+      return current?.interfaces.get(interfaceName);
+    })
+    .filter((x): x is InterfaceType => x !== undefined);
+}
+
 export function getAllRoutes(
   program: Program,
   options?: RouteOptions
@@ -504,21 +524,12 @@ export function getAllRoutes(
   let operations: OperationDetails[] = [];
   const diagnostics = createDiagnosticCollector();
   const serviceNamespace = getServiceNamespace(program);
-  const containers: Type[] = [
-    ...(serviceNamespace ? [serviceNamespace] : []),
-    ...Array.from(program.stateSet(routeContainerKey)),
-  ];
+  const namespacesToExport: NamespaceType[] = serviceNamespace ? [serviceNamespace] : [];
 
   const visitedOperations = new Set<OperationType>();
-  for (const container of containers) {
-    // Is this container a templated interface that hasn't been instantiated?
-    if (container.kind === "Interface" && isTemplateDeclaration(container)) {
-      // Skip template interface operations
-      continue;
-    }
-
+  for (const container of namespacesToExport) {
     const newOps = diagnostics.pipe(
-      getRoutesForContainer(program, container as OperationContainer, visitedOperations, options)
+      getRoutesForContainer(program, container, visitedOperations, options)
     );
 
     // Make sure we don't visit the same operations again
@@ -530,6 +541,15 @@ export function getAllRoutes(
 
   validateRouteUnique(diagnostics, operations);
   return diagnostics.wrap(operations);
+}
+
+export function reportIfNoRoutes(program: Program, routes: OperationDetails[]) {
+  if (routes.length === 0) {
+    reportDiagnostic(program, {
+      code: "no-routes",
+      target: program.checker.getGlobalNamespaceType(),
+    });
+  }
 }
 
 function validateRouteUnique(diagnostics: DiagnosticCollector, operations: OperationDetails[]) {
@@ -595,9 +615,6 @@ export function $autoRoute(context: DecoratorContext, entity: Type) {
   ) {
     return;
   }
-
-  // Register the container of the operation as one that holds routed operations
-  addRouteContainer(context.program, entity);
 
   context.program.stateSet(autoRouteKey).add(entity);
 }

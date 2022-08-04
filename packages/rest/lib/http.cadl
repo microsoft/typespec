@@ -1,4 +1,5 @@
 import "../dist/src/http/index.js";
+import "./auth.cadl";
 
 namespace Cadl.Http;
 

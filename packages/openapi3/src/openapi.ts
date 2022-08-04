@@ -1,5 +1,6 @@
 import {
   checkIfServiceNamespace,
+  compilerAssert,
   emitFile,
   EmitOptionsFor,
   EnumMemberType,
@@ -54,16 +55,20 @@ import {
 import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
 import {
   getAllRoutes,
+  getAuthentication,
   getContentTypes,
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
   getStatusCodeDescription,
+  HttpAuth,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationResponse,
   isStatusCode,
   OperationDetails,
+  reportIfNoRoutes,
+  ServiceAuthentication,
 } from "@cadl-lang/rest/http";
 import { buildVersionProjections } from "@cadl-lang/versioning";
 import { getOneOf, getRef } from "./decorators.js";
@@ -71,11 +76,13 @@ import { OpenAPI3EmitterOptions, OpenAPILibrary, reportDiagnostic } from "./lib.
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
+  OpenAPI3OAuthFlows,
   OpenAPI3Operation,
   OpenAPI3Parameter,
   OpenAPI3ParameterType,
   OpenAPI3Schema,
   OpenAPI3SchemaProperty,
+  OpenAPI3SecurityScheme,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
 } from "./types.js";
@@ -211,6 +218,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   return { emitOpenAPI };
 
   function initializeEmitter(serviceNamespaceType: NamespaceType, version?: string) {
+    const auth = processAuth(serviceNamespaceType);
+
     root = {
       openapi: "3.0.0",
       info: {
@@ -221,13 +230,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       externalDocs: getExternalDocs(program, serviceNamespaceType),
       tags: [],
       paths: {},
+      security: auth?.security,
       components: {
         parameters: {},
         requestBodies: {},
         responses: {},
         schemas: {},
         examples: {},
-        securitySchemes: {},
+        securitySchemes: auth?.securitySchemes ?? {},
       },
     };
     const servers = http.getServers(program, serviceNamespaceType);
@@ -339,6 +349,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     initializeEmitter(serviceNamespace, version);
     try {
       const [routes] = getAllRoutes(program);
+      reportIfNoRoutes(program, routes);
+
       for (const operation of routes) {
         emitOperation(operation);
       }
@@ -1300,6 +1312,65 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         return { type: "string", format: "time" };
       case "duration":
         return { type: "string", format: "duration" };
+    }
+  }
+
+  function processAuth(serviceNamespace: NamespaceType):
+    | {
+        securitySchemes: Record<string, OpenAPI3SecurityScheme>;
+        security: Record<string, string[]>[];
+      }
+    | undefined {
+    const authentication = getAuthentication(program, serviceNamespace);
+    if (authentication) {
+      return processServiceAuthentication(authentication);
+    }
+    return undefined;
+  }
+
+  function processServiceAuthentication(authentication: ServiceAuthentication): {
+    securitySchemes: Record<string, OpenAPI3SecurityScheme>;
+    security: Record<string, string[]>[];
+  } {
+    const oaiSchemes: Record<string, OpenAPI3SecurityScheme> = {};
+    const security: Record<string, string[]>[] = [];
+    for (const option of authentication.options) {
+      const oai3SecurityOption: Record<string, string[]> = {};
+      for (const scheme of option.schemes) {
+        const [oaiScheme, scopes] = getOpenAPI3Scheme(scheme);
+        oaiSchemes[scheme.id] = oaiScheme;
+        oai3SecurityOption[scheme.id] = scopes;
+      }
+      security.push(oai3SecurityOption);
+    }
+    return { securitySchemes: oaiSchemes, security };
+  }
+
+  function getOpenAPI3Scheme(auth: HttpAuth): [OpenAPI3SecurityScheme, string[]] {
+    switch (auth.type) {
+      case "http":
+        return [{ type: "http", scheme: auth.scheme, description: auth.description }, []];
+      case "apiKey":
+        return [
+          { type: "apiKey", in: auth.in, name: auth.name, description: auth.description },
+          [],
+        ];
+      case "oauth2":
+        const flows: OpenAPI3OAuthFlows = {};
+        const scopes: string[] = [];
+        for (const flow of auth.flows) {
+          scopes.push(...flow.scopes);
+          flows[flow.type] = {
+            authorizationUrl: (flow as any).authorizationUrl,
+            tokenUrl: (flow as any).tokenUrl,
+            refreshUrl: flow.refreshUrl,
+            scopes: Object.fromEntries(flow.scopes.map((x: string) => [x, ""])),
+          };
+        }
+        return [{ type: "oauth2", flows, description: auth.description }, scopes];
+      default:
+        const _assertNever: never = auth;
+        compilerAssert(false, "Unreachable");
     }
   }
 }
