@@ -10,6 +10,9 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  DocumentHighlight,
+  DocumentHighlightKind,
+  DocumentHighlightParams,
   DocumentSymbolParams,
   FileEvent,
   FoldingRange,
@@ -104,6 +107,7 @@ export interface Server {
   gotoDefinition(params: DefinitionParams): Promise<Location[]>;
   complete(params: CompletionParams): Promise<CompletionList>;
   findReferences(params: ReferenceParams): Promise<Location[]>;
+  findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
@@ -243,6 +247,7 @@ export function createServer(host: ServerHost): Server {
     documentClosed,
     complete,
     findReferences,
+    findDocumentHighlight,
     prepareRename,
     rename,
     getSemanticTokens,
@@ -266,6 +271,7 @@ export function createServer(host: ServerHost): Server {
       definitionProvider: true,
       foldingRangeProvider: true,
       documentSymbolProvider: true,
+      documentHighlightProvider: true,
       completionProvider: {
         resolveProvider: false,
         triggerCharacters: [".", "@", "/"],
@@ -518,6 +524,28 @@ export function createServer(host: ServerHost): Server {
     return symbols;
   }
 
+  async function findDocumentHighlight(
+    params: DocumentHighlightParams
+  ): Promise<DocumentHighlight[]> {
+    const file = await compilerHost.readFile(await getPath(params.textDocument));
+    const identifiers = await compile(params.textDocument, (program, document, file) =>
+      findReferenceIdentifiers(program, file, document.offsetAt(params.position), false)
+    );
+    const highlight: DocumentHighlight[] = [];
+    if (identifiers === undefined) {
+      return highlight;
+    }
+    for (let i = 0; i < identifiers.length; i++) {
+      const start = file.getLineAndCharacterOfPosition(identifiers[i].pos);
+      const end = file.getLineAndCharacterOfPosition(identifiers[i].end);
+      highlight.push({
+        range: Range.create(start, end),
+        kind: DocumentHighlightKind.Read,
+      });
+    }
+    return highlight;
+  }
+
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
     const program = await compile(change.document);
     if (!program) {
@@ -618,7 +646,7 @@ export function createServer(host: ServerHost): Server {
 
   async function findReferences(params: ReferenceParams): Promise<Location[]> {
     const identifiers = await compile(params.textDocument, (program, document, file) =>
-      findReferenceIdentifiers(program, file, document.offsetAt(params.position))
+      findReferenceIdentifiers(program, file, document.offsetAt(params.position), true)
     );
     return getLocations(identifiers);
   }
@@ -636,7 +664,8 @@ export function createServer(host: ServerHost): Server {
       const identifiers = findReferenceIdentifiers(
         program,
         file,
-        document.offsetAt(params.position)
+        document.offsetAt(params.position),
+        true
       );
       for (const id of identifiers) {
         const location = getLocation(id);
@@ -657,7 +686,8 @@ export function createServer(host: ServerHost): Server {
   function findReferenceIdentifiers(
     program: Program,
     file: CadlScriptNode,
-    pos: number
+    pos: number,
+    wholeProgram: boolean
   ): IdentifierNode[] {
     const id = getNodeAtPosition(file, pos);
     if (id?.kind !== SyntaxKind.Identifier) {
@@ -670,8 +700,20 @@ export function createServer(host: ServerHost): Server {
     }
 
     const references: IdentifierNode[] = [];
-    for (const script of program.sourceFiles.values() ?? []) {
-      visitChildren(script, function visit(node) {
+    if (wholeProgram === true) {
+      for (const script of program.sourceFiles.values() ?? []) {
+        visitChildren(script, function visit(node) {
+          if (node.kind === SyntaxKind.Identifier) {
+            const s = program.checker.resolveIdentifier(node);
+            if (s === sym || (sym.type && s?.type === sym.type)) {
+              references.push(node);
+            }
+          }
+          visitChildren(node, visit);
+        });
+      }
+    } else {
+      visitChildren(file, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
           const s = program.checker.resolveIdentifier(node);
           if (s === sym || (sym.type && s?.type === sym.type)) {
