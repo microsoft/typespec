@@ -173,7 +173,7 @@ export function getParentResource(
 }
 
 /**
- * `@parentResource` marks a model property with a reference to its parent resource type
+ * `@parentResource` marks a model with a reference to its parent resource type
  *
  * The first argument should be a reference to a model type which will be treated as the parent
  * type of the target model type.  This will cause the `@key` properties of all parent types of
