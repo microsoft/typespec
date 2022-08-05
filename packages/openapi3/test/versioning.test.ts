@@ -102,54 +102,52 @@ describe("openapi3: versioning", () => {
     });
   });
 
-  describe.only("Versioning Bug Repro", () => {
-    it("doesn't lose parent namespace", async () => {
-      const host = await createOpenAPITestHost();
+  it("doesn't lose parent namespace", async () => {
+    const host = await createOpenAPITestHost();
 
-      let storedNamespace: string | undefined = undefined;
-      host.addJsFile("test.js", {
-        $armNamespace(context: DecoratorContext, entity: NamespaceType) {
-          storedNamespace = context.program.checker.getNamespaceString(entity);
-        },
-      });
-
-      const runner = createTestWrapper(
-        host,
-        (code) =>
-          `import "@cadl-lang/rest"; import "@cadl-lang/openapi";
-           import "@cadl-lang/openapi3"; import "@cadl-lang/versioning";
-           import "./test.js";
-
-           using Cadl.Rest; using Cadl.Http; using OpenAPI; using Cadl.Versioning; ${code}`,
-        { emitters: { "@cadl-lang/openapi3": {} } }
-      );
-
-      const { get } = (await runner.compile(`
-
-      @versioned(Contoso.Library.Versions)
-      namespace Contoso.Library {
-        enum Versions { v1 };
-      }
-
-      @armNamespace
-      @serviceTitle("Widgets 'r' Us")
-      @versionedDependency(Contoso.Library.Versions.v1)
-      namespace Contoso.WidgetService {
-        model Widget {
-          @key
-          @segment("widgets")
-          id: string;
-        }
-
-        interface Operations {
-          @test
-          op get(id: string): Widget;
-        }
-      }
-      `)) as { get: OperationType };
-
-      // Fail!
-      strictEqual(storedNamespace, "Contoso.WidgetService");
+    let storedNamespace: string | undefined = undefined;
+    host.addJsFile("test.js", {
+      $armNamespace(context: DecoratorContext, entity: NamespaceType) {
+        storedNamespace = context.program.checker.getNamespaceString(entity);
+      },
     });
+
+    const runner = createTestWrapper(
+      host,
+      (code) =>
+        `import "@cadl-lang/rest"; import "@cadl-lang/openapi";
+          import "@cadl-lang/openapi3"; import "@cadl-lang/versioning";
+          import "./test.js";
+
+          using Cadl.Rest; using Cadl.Http; using OpenAPI; using Cadl.Versioning; ${code}`,
+      { emitters: { "@cadl-lang/openapi3": {} } }
+    );
+
+    const { get } = (await runner.compile(`
+
+    @versioned(Contoso.Library.Versions)
+    namespace Contoso.Library {
+      namespace Blah { }
+      enum Versions { v1 };
+    }
+
+    @armNamespace
+    @serviceTitle("Widgets 'r' Us")
+    @versionedDependency(Contoso.Library.Versions.v1)
+    namespace Contoso.WidgetService {
+      model Widget {
+        @key
+        @segment("widgets")
+        id: string;
+      }
+
+      interface Operations {
+        @test
+        op get(id: string): Widget;
+      }
+    }
+    `)) as { get: OperationType };
+
+    strictEqual(storedNamespace, "Contoso.WidgetService");
   });
 });
