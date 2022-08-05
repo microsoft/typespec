@@ -1,4 +1,5 @@
 import {
+  createDecoratorDefinition,
   validateDecoratorParamType,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
@@ -812,4 +813,68 @@ export function isDeprecated(program: Program, type: Type): boolean {
  */
 export function getDeprecated(program: Program, type: Type): string | undefined {
   return program.stateMap(deprecatedKey).get(type);
+}
+
+const overloadedByKey = Symbol("overloadedByKey");
+const overloadsOperationKey = Symbol("overloadsOperation");
+
+const overloadDecorator = createDecoratorDefinition({
+  name: "@overload",
+  target: "Operation",
+  args: [{ kind: "Operation" }],
+} as const);
+
+/**
+ * `@overload` - Indicate that the target overloads (specializes) the overloads type.
+ * @param context DecoratorContext
+ * @param target The specializing operation declaration
+ * @param overloads The operation to be overloaded.
+ */
+export function $overload(
+  context: DecoratorContext,
+  target: OperationType,
+  overloads: OperationType
+) {
+  if (!overloadDecorator.validate(context, target, [overloads])) {
+    return;
+  }
+
+  // Ensure that the overloaded method arguments are a subtype of the original operation.
+  const [valid, diagnostics] = context.program.checker.isTypeAssignableTo(
+    target.parameters,
+    overloads.parameters,
+    target
+  );
+  if (!valid) context.program.reportDiagnostics(diagnostics);
+
+  // Save the information about the overloaded operation
+  context.program.stateMap(overloadsOperationKey).set(target, overloads);
+  const existingOverloads = getOverloads(context.program, overloads) || new Array<OperationType>();
+  context.program.stateMap(overloadedByKey).set(overloads, existingOverloads.concat(target));
+}
+
+/**
+ * Get all operations that are marked as overloads of the given operation
+ * @param context
+ * @param operation
+ * @returns An array of operations that overload the given operation.
+ */
+export function getOverloads(
+  program: Program,
+  operation: OperationType
+): Array<OperationType> | undefined {
+  return program.stateMap(overloadedByKey).get(operation);
+}
+
+/**
+ * If the given operation overloads another operation, return that operation.
+ * @param program Program
+ * @param operation The operation to check for an overload target.
+ * @returns The operation this operation overloads, if any.
+ */
+export function getOverloadedOperation(
+  program: Program,
+  operation: OperationType
+): OperationType | undefined {
+  return program.stateMap(overloadsOperationKey).get(operation);
 }
