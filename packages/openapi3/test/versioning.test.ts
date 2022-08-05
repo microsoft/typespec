@@ -1,5 +1,7 @@
+import { DecoratorContext, NamespaceType, OperationType } from "@cadl-lang/compiler";
+import { createTestWrapper } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { openApiFor } from "./test-host.js";
+import { createOpenAPITestHost, openApiFor } from "./test-host.js";
 
 describe("openapi3: versioning", () => {
   it("works with models", async () => {
@@ -97,6 +99,57 @@ describe("openapi3: versioning", () => {
         prop3: { type: "string" },
       },
       required: ["prop1", "prop2", "prop3"],
+    });
+  });
+
+  describe.only("Versioning Bug Repro", () => {
+    it("doesn't lose parent namespace", async () => {
+      const host = await createOpenAPITestHost();
+
+      let storedNamespace: string | undefined = undefined;
+      host.addJsFile("test.js", {
+        $armNamespace(context: DecoratorContext, entity: NamespaceType) {
+          storedNamespace = context.program.checker.getNamespaceString(entity);
+        },
+      });
+
+      const runner = createTestWrapper(
+        host,
+        (code) =>
+          `import "@cadl-lang/rest"; import "@cadl-lang/openapi";
+           import "@cadl-lang/openapi3"; import "@cadl-lang/versioning";
+           import "./test.js";
+
+           using Cadl.Rest; using Cadl.Http; using OpenAPI; using Cadl.Versioning; ${code}`,
+        { emitters: { "@cadl-lang/openapi3": {} } }
+      );
+
+      const { get } = (await runner.compile(`
+
+      @versioned(Contoso.Library.Versions)
+      namespace Contoso.Library {
+        enum Versions { v1 };
+      }
+
+      @armNamespace
+      @serviceTitle("Widgets 'r' Us")
+      @versionedDependency(Contoso.Library.Versions.v1)
+      namespace Contoso.WidgetService {
+        model Widget {
+          @key
+          @segment("widgets")
+          id: string;
+        }
+
+        interface Operations {
+          @test
+          op get(id: string): Widget;
+        }
+      }
+      `)) as { get: OperationType };
+
+      // Fail!
+      strictEqual(storedNamespace, "Contoso.WidgetService");
     });
   });
 });
