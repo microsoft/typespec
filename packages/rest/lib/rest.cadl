@@ -7,4 +7,5 @@ namespace Cadl.Rest;
 
 @doc("The location of an instance of {name}", TResource)
 @Private.resourceLocation(TResource)
+@format("url")
 model ResourceLocation<TResource> is string;

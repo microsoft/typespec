@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "The ResourceLocation<T> type now reports \"format: url\" in OpenAPI emitters",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
