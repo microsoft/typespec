@@ -5,9 +5,9 @@ import {
   getFriendlyName,
   getKeyName,
   getKnownValues,
-  getOverloadedBy,
+  getOverloadedOperation,
+  getOverloads,
   isErrorModel,
-  isOverloading,
 } from "../../lib/decorators.js";
 import {
   BasicTestRunner,
@@ -496,7 +496,50 @@ describe("compiler: built-in decorators", () => {
   });
 
   describe("@overload", () => {
-    it("Overload methods is just fine", async () => {
+    it("emits an error when @overload is given something other than an operation", async () => {
+      const diagnostics = await runner.diagnose(`
+        @overload("foo")
+        op someStringThing(param: string): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message:
+          "Argument 'foo' of type 'String' is not assignable to parameter of type 'Operation'",
+        severity: "error",
+      });
+    });
+
+    it("emits an error when the overload's parameters are unrelated to the overloaded operation", async () => {
+      const diagnostics = await runner.diagnose(`
+        op someThing(param: string | int32): string | int32;
+
+        @overload(someThing)
+        op someUnrelatedThing(foo: boolean): string;
+
+        @overload(someThing)
+        op anotherUnrelatedThing(param: boolean): string;
+
+        @overload(someThing)
+        op thisOneWorks(param: string, foo: int32): string;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "missing-property",
+          message:
+            "Property 'param' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+          severity: "error",
+        },
+        {
+          code: "unassignable",
+          message: "Type 'Cadl.boolean' is not assignable to type 'Cadl.string | Cadl.int32'",
+          severity: "error",
+        },
+      ]);
+    });
+
+    it("can define operation overloads outside of a namespace or interface", async () => {
       const compiled = (await runner.compile(`
         @test
         op someThing(param: string | int32): string | int32;
@@ -520,19 +563,18 @@ describe("compiler: built-in decorators", () => {
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
-      ok(isOverloading(runner.program, compiled.someStringThing));
-      ok(isOverloading(runner.program, compiled.someNumberThing));
-      ok(!isOverloading(runner.program, compiled.someThing));
-      ok(!isOverloading(runner.program, compiled.someUnrelatedThing));
-      const overloadedBy = getOverloadedBy(runner.program, compiled.someThing)?.map(
-        (op) => op.name
-      );
+      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
+      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
+      ok(!getOverloadedOperation(runner.program, compiled.someThing));
+      ok(!getOverloadedOperation(runner.program, compiled.someUnrelatedThing));
+      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
       ok(overloadedBy?.length == 2);
       ok(overloadedBy?.indexOf("someStringThing") !== -1);
       ok(overloadedBy?.indexOf("someNumberThing") !== -1);
-      ok(getOverloadedBy(runner.program, compiled.someUnrelatedThing) === undefined);
+      ok(getOverloads(runner.program, compiled.someUnrelatedThing) === undefined);
     });
-    it("Overload across namespaces is just fine", async () => {
+
+    it("can overload operations defined in a namespace", async () => {
       const compiled = (await runner.compile(`
         namespace ADifferentNS {
           @test
@@ -553,17 +595,16 @@ describe("compiler: built-in decorators", () => {
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
-      ok(isOverloading(runner.program, compiled.someStringThing));
-      ok(isOverloading(runner.program, compiled.someNumberThing));
-      ok(!isOverloading(runner.program, compiled.someThing));
-      const overloadedBy = getOverloadedBy(runner.program, compiled.someThing)?.map(
-        (op) => op.name
-      );
+      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
+      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
+      ok(!getOverloadedOperation(runner.program, compiled.someThing));
+      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
       ok(overloadedBy?.length == 2);
       ok(overloadedBy?.indexOf("someStringThing") !== -1);
       ok(overloadedBy?.indexOf("someNumberThing") !== -1);
     });
-    it("Overload in an interface is just fine", async () => {
+
+    it("can overload operations defined in an interface", async () => {
       const compiled = (await runner.compile(`
         interface SomeInterface {
           @test
@@ -584,12 +625,10 @@ describe("compiler: built-in decorators", () => {
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
-      ok(isOverloading(runner.program, compiled.someStringThing));
-      ok(isOverloading(runner.program, compiled.someNumberThing));
-      ok(!isOverloading(runner.program, compiled.someThing));
-      const overloadedBy = getOverloadedBy(runner.program, compiled.someThing)?.map(
-        (op) => op.name
-      );
+      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
+      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
+      ok(!getOverloadedOperation(runner.program, compiled.someThing));
+      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
       ok(overloadedBy?.length == 2);
       ok(overloadedBy?.indexOf("someStringThing") !== -1);
       ok(overloadedBy?.indexOf("someNumberThing") !== -1);

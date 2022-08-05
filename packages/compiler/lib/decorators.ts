@@ -1,4 +1,5 @@
 import {
+  createDecoratorDefinition,
   validateDecoratorParamType,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
@@ -817,6 +818,12 @@ export function getDeprecated(program: Program, type: Type): string | undefined 
 const overloadedByKey = Symbol("overloadedByKey");
 const overloadsOperationKey = Symbol("overloadsOperation");
 
+const overloadDecorator = createDecoratorDefinition({
+  name: "@overload",
+  target: "Operation",
+  args: [{ kind: "Operation" }],
+} as const);
+
 /**
  * `@overload` - Indicate that the target overloads (specializes) the overloads type.
  * @param context DecoratorContext
@@ -828,32 +835,31 @@ export function $overload(
   target: OperationType,
   overloads: OperationType
 ) {
-  // TODO: Verify that the target is a subtype of the overloads instance (e.g. doesn't expand on the set
-  // of parameters or return types for the overloads function)
-  if (!validateDecoratorTarget(context, target, "@overload", "Operation")) {
+  if (!overloadDecorator.validate(context, target, [overloads])) {
     return;
   }
+
+  // Ensure that the overloaded method arguments are a subtype of the original operation.
+  const [valid, diagnostics] = context.program.checker.isTypeAssignableTo(
+    target.parameters,
+    overloads.parameters,
+    target
+  );
+  if (!valid) context.program.reportDiagnostics(diagnostics);
+
+  // Save the information about the overloaded operation
   context.program.stateMap(overloadsOperationKey).set(target, overloads);
-  if (overloads.kind != "Operation") {
-    context.program.reportDiagnostic({
-      code: "cadl-overload-wrong-type",
-      severity: "error",
-      message: "You can only @overload other operations.",
-      target: target,
-    });
-  }
-  const existingOverloads =
-    getOverloadedBy(context.program, overloads) || new Array<OperationType>();
+  const existingOverloads = getOverloads(context.program, overloads) || new Array<OperationType>();
   context.program.stateMap(overloadedByKey).set(overloads, existingOverloads.concat(target));
 }
 
 /**
- * Get all operations that are marked as overloads of the given operatoin
+ * Get all operations that are marked as overloads of the given operation
  * @param context
  * @param operation
- * @returns
+ * @returns An array of operations that overload the given operation.
  */
-export function getOverloadedBy(
+export function getOverloads(
   program: Program,
   operation: OperationType
 ): Array<OperationType> | undefined {
@@ -861,12 +867,12 @@ export function getOverloadedBy(
 }
 
 /**
- * Indicate if the given operation is an overload of another operations
- * @param program
- * @param operation
- * @returns
+ * If the given operation overloads another operation, return that operation.
+ * @param program Program
+ * @param operation The operation to check for an overload target.
+ * @returns The operation this operation overloads, if any.
  */
-export function isOverloading(
+export function getOverloadedOperation(
   program: Program,
   operation: OperationType
 ): OperationType | undefined {
