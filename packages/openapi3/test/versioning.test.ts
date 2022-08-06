@@ -1,4 +1,4 @@
-import { DecoratorContext, NamespaceType, OperationType } from "@cadl-lang/compiler";
+import { DecoratorContext, NamespaceType } from "@cadl-lang/compiler";
 import { createTestWrapper } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { createOpenAPITestHost, openApiFor } from "./test-host.js";
@@ -123,7 +123,7 @@ describe("openapi3: versioning", () => {
       { emitters: { "@cadl-lang/openapi3": {} } }
     );
 
-    const { get } = (await runner.compile(`
+    await runner.compile(`
 
     @versioned(Contoso.Library.Versions)
     namespace Contoso.Library {
@@ -146,7 +146,7 @@ describe("openapi3: versioning", () => {
         op get(id: string): Widget;
       }
     }
-    `)) as { get: OperationType };
+    `);
 
     strictEqual(storedNamespace, "Contoso.WidgetService");
   });
