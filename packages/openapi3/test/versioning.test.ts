@@ -1,5 +1,6 @@
+import { createTestWrapper } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { openApiFor } from "./test-host.js";
+import { createOpenAPITestHost, openApiFor } from "./test-host.js";
 
 describe("openapi3: versioning", () => {
   it("works with models", async () => {
@@ -100,9 +101,20 @@ describe("openapi3: versioning", () => {
     });
   });
 
-  it.only("works with something?", async () => {
-    const { v1 } = await openApiFor(
-      `      
+  it("doesn't throw errors when using UpdateableProperties", async () => {
+    // if this test throws a duplicate name diagnostic, check that getEffectiveType
+    // is returning the projected type.
+    const host = await createOpenAPITestHost();
+    const runner = createTestWrapper(
+      host,
+      (code) =>
+        `import "@cadl-lang/rest"; import "@cadl-lang/openapi";
+          import "@cadl-lang/openapi3"; import "@cadl-lang/versioning";
+          using Cadl.Rest; using Cadl.Http; using OpenAPI; using Cadl.Versioning; ${code}`,
+      { emitters: { "@cadl-lang/openapi3": {} } }
+    );
+
+    await runner.compile(`
       @versioned(Library.Versions)
       namespace Library {
         enum Versions { v1, v2 };
@@ -129,8 +141,6 @@ describe("openapi3: versioning", () => {
           oops(...UpdateableProperties<Widget>): Widget;
         }
       }
-    `,
-      ["v1", "v2"]
-    );
+    `);
   });
 });

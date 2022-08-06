@@ -4124,7 +4124,6 @@ export function createChecker(program: Program): Checker {
       compilerAssert(false, "Fail");
     }
 
-    console.log("Returning projected type", projectedType);
     return projectedType;
   }
 
