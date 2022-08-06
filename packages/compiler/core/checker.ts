@@ -373,7 +373,7 @@ export function createChecker(program: Program): Checker {
     finishType,
     isTypeAssignableTo,
     isStdType,
-    getEffectiveModelType,
+    getEffectiveModelType: getProjectedEffectiveModelType,
     filterModelProperties,
   };
 
@@ -4108,6 +4108,24 @@ export function createChecker(program: Program): Checker {
     if (stdType === "Array" && type === stdTypes["Array"]) return true;
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
     return false;
+  }
+
+  function getProjectedEffectiveModelType(
+    model: ModelType,
+    filter?: (property: ModelTypeProperty) => boolean
+  ): ModelType {
+    const type = getEffectiveModelType(model, filter);
+    if (!program.currentProjector) {
+      return type;
+    }
+
+    const projectedType = program.currentProjector.projectType(type);
+    if (projectedType.kind !== "Model") {
+      compilerAssert(false, "Fail");
+    }
+
+    console.log("Returning projected type", projectedType);
+    return projectedType;
   }
 
   function getEffectiveModelType(

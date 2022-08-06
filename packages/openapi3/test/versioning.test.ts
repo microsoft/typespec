@@ -99,4 +99,38 @@ describe("openapi3: versioning", () => {
       required: ["prop1", "prop2", "prop3"],
     });
   });
+
+  it.only("works with something?", async () => {
+    const { v1 } = await openApiFor(
+      `      
+      @versioned(Library.Versions)
+      namespace Library {
+        enum Versions { v1, v2 };
+      }
+      
+      @serviceTitle("Service")
+      @versionedDependency(Library.Versions.v1)
+      namespace Service {
+        model Widget {
+          @key
+          @segment("widgets")
+          name: string;
+          details?: WidgetDetails;
+        }
+      
+        model WidgetDetails {};
+      
+        @autoRoute
+        interface Projects {
+          @doc("Gets the details of a widget.")
+          get(): Widget;
+          
+          // Comment out the next line to make the error go away!
+          oops(...UpdateableProperties<Widget>): Widget;
+        }
+      }
+    `,
+      ["v1", "v2"]
+    );
+  });
 });
