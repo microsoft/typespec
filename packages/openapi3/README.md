@@ -49,6 +49,35 @@ union MyUnion {
 
 ```
 
+## Decorators
+
+- [@useRef](#useref)
+- [@oneOf](#oneof)
+
+### @useRef
+
+Syntax:
+
+```
+@useRef(urlString)
+```
+
+`@useRef`
+
+`@useRef` is used to replace the Cadl model type in emitter output with a pre-existing named OpenAPI schema.
+
+### @oneOf
+
+Syntax:
+
+```
+@oneOf()
+```
+
+`@oneOf`emits `oneOf` keyword for a union type in the resulting OpenAPI 3.0 specification. It indicates that the value of union type can only contain exactly one of the subschemas.
+
+`@oneOf` can only be applied to a union types.
+
 ## Emitter options:
 
 Emitter options can be configured via the `cadl-project.yaml` configuration:
