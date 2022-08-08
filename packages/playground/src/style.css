@@ -157,5 +157,5 @@ body {
 }
 
 .output-dropdown{
-  float: right;
+  position: absolute;
 }
