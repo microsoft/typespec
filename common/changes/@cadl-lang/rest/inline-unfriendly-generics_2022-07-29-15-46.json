@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Add friendly name for Page<T> as TPage",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

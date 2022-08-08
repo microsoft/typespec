@@ -95,7 +95,7 @@ alias S = {
   foo: int8;
   bar: int32;
 };
-model S is Record<int32> {}
+model S is Record<int32>;
 model S is Record<int32> {
   foo: 123;
 }

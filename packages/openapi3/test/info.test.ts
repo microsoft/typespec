@@ -6,7 +6,9 @@ describe("openapi3: info", () => {
     const res = await openApiFor(
       `
       @serviceTitle("My Service")
-      namespace Foo {}
+      namespace Foo {
+        op test(): string;
+      }
       `
     );
     strictEqual(res.info.title, "My Service");
@@ -16,7 +18,9 @@ describe("openapi3: info", () => {
     const res = await openApiFor(
       `
       @serviceVersion("1.2.3-test")
-      namespace Foo {}
+      namespace Foo {
+        op test(): string;
+      }
       `
     );
     strictEqual(res.info.version, "1.2.3-test");
@@ -27,7 +31,9 @@ describe("openapi3: info", () => {
       `
       @doc("My service description")
       @serviceTitle("My Service")
-      namespace Foo {}
+      namespace Foo {
+        op test(): string;
+      }
       `
     );
     strictEqual(res.info.description, "My service description");
@@ -37,7 +43,9 @@ describe("openapi3: info", () => {
       `
       @externalDocs("https://example.com", "more info")
       @serviceTitle("My Service")
-      namespace Foo {}
+      namespace Foo {
+        op test(): string;
+      }
       `
     );
     deepStrictEqual(res.externalDocs, {

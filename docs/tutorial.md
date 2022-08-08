@@ -15,15 +15,15 @@ Cadl's primary benefits include:
 
 Cadl consists of the following language features:
 
-- Models: data shapes or schemas
-- Type Literals: strings and numbers with specific values
-- Type Operators: syntax for composing model types into other types
-- Operations: service endpoints with parameters and return values
-- Namespaces & Usings: groups models and operations together into hierarchical groups with friendly names
-- Interfaces: groups operations
-- Imports: links declarations across multiple files and libraries together into a single program
-- Decorators: bits of TypeScript code that add metadata or sometimes mutate declarations
-- Libraries: encapsulate Cadl definitions into reusable components
+- [Models](#Models): data shapes or schemas
+- [Type Literals](#Type-Literals): strings and numbers with specific values
+- [Type Operators](#Type-Operators): syntax for composing model types into other types
+- [Operations](#Operations): service endpoints with parameters and return values
+- [Namespaces & Usings](#Namespaces-&-Usings): groups models and operations together into hierarchical groups with friendly names
+- [Interfaces](#Interfaces): groups operations
+- [Imports](#Imports): links declarations across multiple files and libraries together into a single program
+- [Decorators](#Decorators): bits of TypeScript code that add metadata or sometimes mutate declarations
+- [Libraries](#Libraries): encapsulate Cadl definitions into reusable components
 
 In addition, Cadl comes with a standard library for describing REST APIs and generating OpenAPI. Other protocol bindings are a work in progress!
 
@@ -97,7 +97,7 @@ model Dog {
 
 #### Extends
 
-Sometimes you want to create an explicit relationship between two models, for example when you want to emit class definitions in languages which support inheritance. The `extends` keyword can be used to establish such a relationship.
+Sometimes you want to create an explicit relationship between two models, for example when you want to emit class definitions in languages which support inheritance. The `extends` keyword can be used to establish such a relationship. It is also used extensively with `interface` to compose from existing interface building blocks.
 
 ```cadl
 model Animal {
@@ -118,7 +118,7 @@ model Thing<T> {
   property: T;
 }
 
-model StringThing is Thing<string> {}
+model StringThing is Thing<string>;
 
 // StringThing declaration is equivalent to the following declaration:
 @decorator
@@ -690,6 +690,15 @@ emitters:
 --option "@cadl-lang/openapi3.output-file=my-custom-file.json"
 ```
 
+#### Standard emitter libraries
+
+Cadl has following standard libraries:
+| Library | Package name | Documentation | Source |
+|---|---|---|---|
+| OpenAPI binding library | @cadl-lang/openapi| [Readme.md](https://github.com/microsoft/cadl/tree/main/packages/openapi/README.md)| [Link](https://github.com/microsoft/cadl/tree/main/packages/openapi)
+| OpenAPI 3 | @cadl-lang/openapi3| [Readme.md](https://github.com/microsoft/cadl/tree/main/packages/openapi3/README.md)|[Link](https://github.com/microsoft/cadl/tree/main/packages/openapi)
+| HTTP, REST | @cadl-lang/rest | [Readme.md](https://github.com/microsoft/cadl/tree/main/packages/rest/README.md)|[Link](https://github.com/microsoft/cadl/tree/main/packages/openapi)
+
 #### Creating libraries
 
 Creating a Cadl library is essentially the same as creating any NPM library. [Consult the official documentation for more info](https://docs.npmjs.com/creating-node-js-modules). `main` should refer to a JS file that exports all your library's decorators and helper utilities.
@@ -702,7 +711,7 @@ With the language building blocks we've covered so far we're ready to author our
 
 Cadl also has an official OpenAPI emitter called `@cadl-lang/openapi3` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
 
-The following examples assume you have imported both `@cadl-lang/openapi3` and `@cadl-lang/rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention).
+The following examples assume you have imported both `@cadl-lang/openapi3` and `@cadl-lang/rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention). For detailed library reference, please see rest library's [Readme.md](https://github.com/microsoft/cadl/blob/main/packages/rest/README.md).
 
 #### Service definition and metadata
 
@@ -828,7 +837,7 @@ namespace PetToys {
 
 #### Request & response bodies
 
-Request and response bodies are declared using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
+Request and response bodies can be declared explictly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
 
 ```cadl
 @route("/pets")
@@ -839,7 +848,26 @@ namespace Pets {
   op read(@path petId: int32): {
     @body pet: Pet;
   };
+  @post
   op create(@body pet: Pet): {};
+}
+
+```
+
+Note that in the absence of explicit `@body`:
+
+1. The set of parameters that are not marked @header, @query, or @path form the request body.
+2. The set of properties of the return model that are not marked @header, @query, or @path form the response body.
+3. If the return type is not a model, then it defines the response body.
+
+This is how we were able to return Pet and Pet[] bodies without using @body for list and read. We can actually write
+create in the same terse style by spreading the Pet object into the parameter list like this:
+
+```cadl
+@route("/pets")
+namespace Pets {
+  @post
+  op create(...Pet): {};
 }
 
 ```
@@ -887,6 +915,7 @@ namespace Pets {
     @header eTag: string;
     @body pet: Pet;
   };
+  @post
   op create(@body pet: Pet): {};
 }
 
@@ -911,7 +940,7 @@ namespace Pets {
     @statusCode statusCode: 404;
   };
   op create(@body pet: Pet): {
-    @statusCode statusCode: 200;
+    @statusCode statusCode: 204;
   };
 }
 
@@ -919,19 +948,71 @@ namespace Pets {
 
 #### Built-in response shapes
 
-Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently. Lets update our sample one last time to use these built-in response types:
+Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently.
+
+There is also a Body<T> type, which can be used as a shorthand for { @body body: T } when an explicit body is required.
+
+Lets update our sample one last time to use these built-in types:
 
 ```cadl
-model OkResponseWithETag<T> {
-  ...OkResponse<T>;
+model ETag {
   @header eTag: string;
+}
+@route("/pets")
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): OkResponse & Body<Pet[]>;
+  op read(@path petId: int32, @header ifMatch?: string): (OkResponse &
+    Body<Pet> &
+    ETag) | NotFoundResponse;
+  @post
+  op create(...Pet): NoContentResponse;
+}
+
+```
+
+Note that the default status code is 200 for non-empty bodies and 204 for empty bodies. Similarly, explicit `Body<T>` is not required when T is known to be a model. So the following terser form is equivalent:
+
+```cadl
+@route("/pets")
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): Pet[];
+  op read(@path petId: int32, @header ifMatch?: string): (Pet & ETag) | NotFoundResponse;
+  @post
+  op create(...Pet): {};
+}
+
+```
+
+Finally, another common style is to make helper response types that are
+shared across a larger service definition. In this style, you can be
+entirely explicit while also keeping operation definitions concise.
+
+For example, we could write :
+
+```cadl
+model ListResponse<T> {
+  ...OkResponse;
+  ...Body<T[]>;
+}
+
+model ReadSuccessResponse<T> {
+  ...OkResponse;
+  ...ETag;
+  ...Body<T>;
+}
+
+alias ReadResponse<T> = ReadSuccessResponse<T> | NotFoundResponse;
+
+model CreateResponse {
+  ...NoContentResponse;
 }
 
 @route("/pets")
 namespace Pets {
-  op list(@query skip: int32, @query top: int32): OkResponse<Pet[]>;
-  op read(@path petId: int32, @header ifMatch?: string): OkResponseWithETag<Pet> | NotFoundResponse;
-  op create(@body pet: Pet): OkResponse<{}>;
+  op list(@query skip: int32, @query top: int32): ListResponse<Pet>;
+  op read(@path petId: int32, @header ifMatch?: string): ReadResponse<Pet>;
+  @post
+  op create(...Pet): CreateResponse;
 }
 
 ```

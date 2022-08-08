@@ -583,6 +583,24 @@ describe("compiler: checker: type relations", () => {
         `,
       });
     });
+
+    it("can assign object without some of the optional properties", async () => {
+      await expectTypeAssignable({
+        source: "{name: string}",
+        target: "{name: string, age?: int32}",
+      });
+    });
+
+    it("emit diagnostic when required property is missing", async () => {
+      await expectTypeNotAssignable(
+        { source: `{foo: "abc"}`, target: `{foo: string, bar: string}` },
+        {
+          code: "missing-property",
+          message:
+            "Property 'bar' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+        }
+      );
+    });
   });
 
   describe("Array target", () => {

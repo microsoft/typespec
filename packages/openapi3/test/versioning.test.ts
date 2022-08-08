@@ -20,8 +20,8 @@ describe("openapi3: versioning", () => {
         }
 
         @route("/read1")
-        op read1(): OkResponse<Test>;
-        op read2(): OkResponse<MyLibrary.Foo>;
+        op read1(): Test;
+        op read2(): MyLibrary.Foo;
       }
 
       @versioned(Versions)
@@ -37,6 +37,7 @@ describe("openapi3: versioning", () => {
     `,
       ["v1", "v2", "v3"]
     );
+
     strictEqual(v1.info.version, "v1");
     deepStrictEqual(v1.components.schemas.Test, {
       type: "object",

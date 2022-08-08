@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "(title)",
+    "title": "Grpc Kiosk sample",
     "version": "0000-00-00"
   },
   "tags": [
@@ -20,7 +20,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Describes a hardware device that can display signs.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -59,7 +59,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -101,7 +101,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Describes a hardware device that can display signs.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -141,7 +141,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
             "description": "An unexpected error response.",
@@ -166,7 +166,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Describes a digital sign.\nSigns can include text, images, or both.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -205,7 +205,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -237,7 +237,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Describes a digital sign.\nSigns can include text, images, or both.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -277,7 +277,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
             "description": "An unexpected error response.",
@@ -306,7 +306,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "There is no content to send for this request, but the headers may be useful. "
           },
           "default": {
             "description": "An unexpected error response.",
@@ -355,7 +355,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -404,11 +404,19 @@
             "description": "name of device hardware"
           },
           "size": {
-            "$ref": "#/components/schemas/ScreenSize",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScreenSize"
+              }
+            ],
             "description": "screen size"
           },
           "location": {
-            "$ref": "#/components/schemas/LatLng",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LatLng"
+              }
+            ],
             "description": "kiosk location"
           },
           "create_time": {

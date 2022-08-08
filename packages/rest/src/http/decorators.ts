@@ -1,17 +1,25 @@
 import {
+  cadlTypeToJson,
   createDecoratorDefinition,
+  createDiagnosticCollector,
   DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
+  getDoc,
   ModelType,
   ModelTypeProperty,
   NamespaceType,
   Program,
   setCadlNamespace,
+  TupleType,
   Type,
+  UnionType,
   validateDecoratorParamCount,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "../diagnostics.js";
+import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
 import { extractParamsFromPath } from "../utils.js";
+import { AuthenticationOption, HttpAuth, ServiceAuthentication } from "./types.js";
 
 export const namespace = "Cadl.Http";
 
@@ -184,35 +192,35 @@ export function getStatusCodes(program: Program, entity: Type): string[] {
   return program.stateMap(statusCodeKey).get(entity) ?? [];
 }
 
-// Note: these descriptions come from https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+// Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 export function getStatusCodeDescription(statusCode: string) {
   switch (statusCode) {
     case "200":
-      return "Ok";
+      return "The request has succeeded.";
     case "201":
-      return "Created";
+      return "The request has succeeded and a new resource has been created as a result.";
     case "202":
-      return "Accepted";
+      return "The request has been accepted for processing, but processing has not yet completed.";
     case "204":
-      return "No Content";
+      return "There is no content to send for this request, but the headers may be useful. ";
     case "301":
-      return "Moved Permanently";
+      return "The URL of the requested resource has been changed permanently. The new URL is given in the response.";
     case "304":
-      return "Not Modified";
+      return "The client has made a conditional request and the resource has not been modified.";
     case "400":
-      return "Bad Request";
+      return "The server could not understand the request due to invalid syntax.";
     case "401":
-      return "Unauthorized";
+      return "Access is unauthorized.";
     case "403":
-      return "Forbidden";
+      return "Access is forbidden";
     case "404":
-      return "Not Found";
+      return "The server cannot find the requested resource.";
     case "409":
-      return "Conflict";
+      return "The request conflicts with the current state of the server.";
     case "412":
-      return "Precondition Failed";
+      return "Precondition failed.";
     case "503":
-      return "Service Unavailable";
+      return "Service unavailable.";
   }
 
   switch (statusCode.charAt(0)) {
@@ -387,3 +395,145 @@ export function $plainData(context: DecoratorContext, entity: Type) {
 }
 
 setCadlNamespace("Private", $plainData);
+
+const useAuthDecorator = createDecoratorDefinition({
+  name: "@useAuth",
+  target: "Namespace",
+  args: [{ kind: ["Model", "Union", "Tuple"] }],
+} as const);
+const authenticationKey = Symbol("authentication");
+export function $useAuth(
+  context: DecoratorContext,
+  serviceNamespace: NamespaceType,
+  authConfig: ModelType | UnionType | TupleType
+) {
+  if (!useAuthDecorator.validate(context, serviceNamespace, [authConfig])) {
+    return;
+  }
+
+  const [auth, diagnostics] = extractServiceAuthentication(context.program, authConfig);
+  if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
+  if (auth !== undefined) {
+    setAuthentication(context.program, serviceNamespace, auth);
+  }
+}
+
+export function setAuthentication(
+  program: Program,
+  serviceNamespace: NamespaceType,
+  auth: ServiceAuthentication
+) {
+  program.stateMap(authenticationKey).set(serviceNamespace, auth);
+}
+
+function extractServiceAuthentication(
+  program: Program,
+  type: ModelType | UnionType | TupleType
+): [ServiceAuthentication | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  switch (type.kind) {
+    case "Model":
+      const auth = diagnostics.pipe(extractHttpAuthentication(program, type, type));
+      if (auth === undefined) return diagnostics.wrap(undefined);
+      return diagnostics.wrap({ options: [{ schemes: [auth] }] });
+    case "Tuple":
+      const option = diagnostics.pipe(extractHttpAuthenticationOption(program, type, type));
+      return diagnostics.wrap({ options: [option] });
+    case "Union":
+      return extractHttpAuthenticationOptions(program, type, type);
+  }
+}
+
+function extractHttpAuthenticationOptions(
+  program: Program,
+  tuple: UnionType,
+  diagnosticTarget: DiagnosticTarget
+): [ServiceAuthentication, readonly Diagnostic[]] {
+  const options: AuthenticationOption[] = [];
+  const diagnostics = createDiagnosticCollector();
+  for (const value of tuple.options) {
+    switch (value.kind) {
+      case "Model":
+        const result = diagnostics.pipe(
+          extractHttpAuthentication(program, value, diagnosticTarget)
+        );
+        if (result !== undefined) {
+          options.push({ schemes: [result] });
+        }
+        break;
+      case "Tuple":
+        const option = diagnostics.pipe(
+          extractHttpAuthenticationOption(program, value, diagnosticTarget)
+        );
+        options.push(option);
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-type-for-auth",
+            format: { kind: value.kind },
+            target: value,
+          })
+        );
+    }
+  }
+  return diagnostics.wrap({ options });
+}
+
+function extractHttpAuthenticationOption(
+  program: Program,
+  tuple: TupleType,
+  diagnosticTarget: DiagnosticTarget
+): [AuthenticationOption, readonly Diagnostic[]] {
+  const schemes: HttpAuth[] = [];
+  const diagnostics = createDiagnosticCollector();
+  for (const value of tuple.values) {
+    switch (value.kind) {
+      case "Model":
+        const result = diagnostics.pipe(
+          extractHttpAuthentication(program, value, diagnosticTarget)
+        );
+        if (result !== undefined) {
+          schemes.push(result);
+        }
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-type-for-auth",
+            format: { kind: value.kind },
+            target: value,
+          })
+        );
+    }
+  }
+  return diagnostics.wrap({ schemes });
+}
+
+function extractHttpAuthentication(
+  program: Program,
+  modelType: ModelType,
+  diagnosticTarget: DiagnosticTarget
+): [HttpAuth | undefined, readonly Diagnostic[]] {
+  const [result, diagnostics] = cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
+  if (result === undefined) {
+    return [result, diagnostics];
+  }
+  const description = getDoc(program, modelType);
+  return [
+    {
+      ...result,
+      id: modelType.name || result.type,
+      ...(description && { description }),
+    },
+    diagnostics,
+  ];
+}
+
+export function getAuthentication(
+  program: Program,
+  namespace: NamespaceType
+): ServiceAuthentication | undefined {
+  return program.stateMap(authenticationKey).get(namespace);
+}
