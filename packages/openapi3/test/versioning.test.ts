@@ -1,3 +1,4 @@
+import { DecoratorContext, NamespaceType } from "@cadl-lang/compiler";
 import { createTestWrapper } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { createOpenAPITestHost, openApiFor } from "./test-host.js";
@@ -101,6 +102,51 @@ describe("openapi3: versioning", () => {
     });
   });
 
+  it("doesn't lose parent namespace", async () => {
+    const host = await createOpenAPITestHost();
+
+    let storedNamespace: string | undefined = undefined;
+    host.addJsFile("test.js", {
+      $armNamespace(context: DecoratorContext, entity: NamespaceType) {
+        storedNamespace = context.program.checker.getNamespaceString(entity);
+      },
+    });
+
+    const runner = createTestWrapper(
+      host,
+      (code) =>
+        `import "@cadl-lang/rest"; import "@cadl-lang/openapi";
+          import "@cadl-lang/openapi3"; import "@cadl-lang/versioning";
+          import "./test.js";
+          using Cadl.Rest; using Cadl.Http; using OpenAPI; using Cadl.Versioning; ${code}`,
+      { emitters: { "@cadl-lang/openapi3": {} } }
+    );
+
+    await runner.compile(`
+    @versioned(Contoso.Library.Versions)
+    namespace Contoso.Library {
+      namespace Blah { }
+      enum Versions { v1 };
+    }
+    @armNamespace
+    @serviceTitle("Widgets 'r' Us")
+    @versionedDependency(Contoso.Library.Versions.v1)
+    namespace Contoso.WidgetService {
+      model Widget {
+        @key
+        @segment("widgets")
+        id: string;
+      }
+      interface Operations {
+        @test
+        op get(id: string): Widget;
+      }
+    }
+    `);
+
+    strictEqual(storedNamespace, "Contoso.WidgetService");
+  });
+
   it("doesn't throw errors when using UpdateableProperties", async () => {
     // if this test throws a duplicate name diagnostic, check that getEffectiveType
     // is returning the projected type.
@@ -119,7 +165,7 @@ describe("openapi3: versioning", () => {
       namespace Library {
         enum Versions { v1, v2 };
       }
-      
+
       @serviceTitle("Service")
       @versionedDependency(Library.Versions.v1)
       namespace Service {
@@ -129,14 +175,14 @@ describe("openapi3: versioning", () => {
           name: string;
           details?: WidgetDetails;
         }
-      
+
         model WidgetDetails {};
-      
+
         @autoRoute
         interface Projects {
           @doc("Gets the details of a widget.")
           get(): Widget;
-          
+
           // Comment out the next line to make the error go away!
           oops(...UpdateableProperties<Widget>): Widget;
         }
