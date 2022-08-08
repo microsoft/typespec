@@ -15,14 +15,22 @@ export async function createOpenAPITestHost() {
   });
 }
 
-export async function createOpenAPITestRunner() {
+export async function createOpenAPITestRunner({
+  withVersioning,
+}: { withVersioning?: boolean } = {}) {
   const host = await createOpenAPITestHost();
-  return createTestWrapper(
-    host,
-    (code) =>
-      `import "@cadl-lang/rest"; import "@cadl-lang/openapi"; import "@cadl-lang/openapi3"; using Cadl.Rest; using Cadl.Http; using OpenAPI; ${code}`,
-    { emitters: { "@cadl-lang/openapi3": {} } }
-  );
+  const importAndUsings = `
+  import "@cadl-lang/rest"; import "@cadl-lang/openapi";
+  import "@cadl-lang/openapi3"; 
+  ${withVersioning ? `import "@cadl-lang/versioning"` : ""};
+  using Cadl.Rest;
+  using Cadl.Http;
+  using OpenAPI;
+  ${withVersioning ? "using Cadl.Versioning;" : ""}
+`;
+  return createTestWrapper(host, (code) => `${importAndUsings} ${code}`, {
+    emitters: { "@cadl-lang/openapi3": {} },
+  });
 }
 
 function versionedOutput(path: string, version: string) {
