@@ -1,7 +1,7 @@
 import { DecoratorContext, NamespaceType } from "@cadl-lang/compiler";
 import { createTestWrapper } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { createOpenAPITestHost, openApiFor } from "./test-host.js";
+import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
 describe("openapi3: versioning", () => {
   it("works with models", async () => {
@@ -147,43 +147,29 @@ describe("openapi3: versioning", () => {
     strictEqual(storedNamespace, "Contoso.WidgetService");
   });
 
+  // Test for https://github.com/microsoft/cadl/issues/812
   it("doesn't throw errors when using UpdateableProperties", async () => {
     // if this test throws a duplicate name diagnostic, check that getEffectiveType
     // is returning the projected type.
-    const host = await createOpenAPITestHost();
-    const runner = createTestWrapper(
-      host,
-      (code) =>
-        `import "@cadl-lang/rest"; import "@cadl-lang/openapi";
-          import "@cadl-lang/openapi3"; import "@cadl-lang/versioning";
-          using Cadl.Rest; using Cadl.Http; using OpenAPI; using Cadl.Versioning; ${code}`,
-      { emitters: { "@cadl-lang/openapi3": {} } }
-    );
-
+    const runner = await createOpenAPITestRunner({ withVersioning: true });
     await runner.compile(`
       @versioned(Library.Versions)
       namespace Library {
-        enum Versions { v1, v2 };
+        enum Versions {
+          v1,
+          v2,
+        }
       }
-
+      
       @serviceTitle("Service")
       @versionedDependency(Library.Versions.v1)
       namespace Service {
         model Widget {
-          @key
-          @segment("widgets")
-          name: string;
           details?: WidgetDetails;
         }
-
-        model WidgetDetails {};
-
-        @autoRoute
+      
+        model WidgetDetails {}
         interface Projects {
-          @doc("Gets the details of a widget.")
-          get(): Widget;
-
-          // Comment out the next line to make the error go away!
           oops(...UpdateableProperties<Widget>): Widget;
         }
       }
