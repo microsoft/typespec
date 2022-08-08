@@ -155,3 +155,7 @@ body {
   padding: 10px;
   margin: 20px;
 }
+
+.output-dropdown{
+  float: right;
+}
