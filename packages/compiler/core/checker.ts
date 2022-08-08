@@ -373,7 +373,7 @@ export function createChecker(program: Program): Checker {
     finishType,
     isTypeAssignableTo,
     isStdType,
-    getEffectiveModelType: getProjectedEffectiveModelType,
+    getEffectiveModelType,
     filterModelProperties,
   };
 
@@ -4110,11 +4110,7 @@ export function createChecker(program: Program): Checker {
     return false;
   }
 
-  function getProjectedEffectiveModelType(
-    model: ModelType,
-    filter?: (property: ModelTypeProperty) => boolean
-  ): ModelType {
-    const type = getEffectiveModelType(model, filter);
+  function getProjectedEffectiveModelType(type: ModelType): ModelType {
     if (!program.currentProjector) {
       return type;
     }
@@ -4137,7 +4133,7 @@ export function createChecker(program: Program): Checker {
 
     if (model.name) {
       // named model
-      return model;
+      return getProjectedEffectiveModelType(model);
     }
 
     // We would need to change the algorithm if this doesn't hold. We
@@ -4205,7 +4201,7 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    return match ?? model;
+    return match ? getProjectedEffectiveModelType(match) : model;
   }
 
   function filterModelProperties(
