@@ -533,7 +533,7 @@ export function createServer(host: ServerHost): Server {
     );
     const highlight: DocumentHighlight[] = [];
     if (identifiers === undefined) {
-      return highlight;
+      return [];
     }
     for (let i = 0; i < identifiers.length; i++) {
       const start = file.getLineAndCharacterOfPosition(identifiers[i].pos);
