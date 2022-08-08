@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Update Readme.md for new decorators.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}

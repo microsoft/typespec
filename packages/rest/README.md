@@ -100,6 +100,7 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` na
 | @produces                 | namespace, operations                                 | Syntax:<br> `@produces(mimetypeString)` <br><br>Note:<br> The `@produces` decorator is used to specify the MIME media types or representations a resource can produce and send back to the client.                                                                                                                                                                                                                                                           |
 | @consumes                 | namespace, operations                                 | Syntax:<br> `@consumes(mimetypeString)` <br><br>Note:<br> The `@consumes` decorator is used to specify which MIME media types of representations a resource can accept, or consume, from the client.                                                                                                                                                                                                                                                         |
 | @discriminator            | models                                                | Syntax:<br> `@discriminator(kindString)` <br><br>Note:<br> `@discriminator` allows defining polymorphic models to be used by API as parameters and return types. In many strongly typed languages, they are expressed as inheritance.                                                                                                                                                                                                                        |
+| @resource                 | Model                                                 | Syntax:<br> `@resource(collectionName)` <br><br>Note:<br> This decorator is to used to mark a model as a resource type with a name for the type's collection.                                                                                                                                                                                                                                                                                                |
 | @readsResource            | operations                                            | Syntax:<br> `@readsResource(modelType)` <br><br>Note:<br> This decorator is to used to signal the operation that is the Read operation for a particular resource.                                                                                                                                                                                                                                                                                            |
 | @createsResource          | operations                                            | Syntax:<br> `@createsResource(modelType)` <br><br>Note:<br> This decorator is to used to signal the operation that is the Create operation for a particular resource.                                                                                                                                                                                                                                                                                        |
 | @createsOrUpdatesResource | operations                                            | Syntax:<br> `@createsOrUpdatesResource(modelType)` <br><br>Note:<br> This decorator is to used to signal the operation that is the CreatesOrUpdate operation for a particular resource.                                                                                                                                                                                                                                                                      |
@@ -121,22 +122,23 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` na
 
 These standard interfaces defines resource operations in basic building blocks that you can expose on the resources. You can use `extends` to compose the operations to meet the exact needs of your resource APIs.
 
-For example, for below `foo` model
+For example, for below `Widget` model
 
 ```
-model foo {
+@resource("widgets")
+model Widget {
   @key id: string;
   name: string;
 }
 ```
 
-- `foo` resource supports full CRUDL operations.
+- `Widget` resource supports full CRUDL operations.
 
 ```Cadl
-interface FooService extends Resource.ResourceOperations<Foo, Error>;
+interface WidgetService extends Resource.ResourceOperations<Widget, Error>;
 ```
 
-- `foo` resource supports only CRD operations.
+- `Widget` resource supports only CRD operations.
 
 ```Cadl
 interface WidgetService
