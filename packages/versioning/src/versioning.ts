@@ -358,17 +358,17 @@ export function buildVersionProjections(
 ): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
   return resolutions.map((resolution) => {
-    // const projections = [...resolution.versions.entries()].map(([ns, version]) => {
-    //   return;
-    // });
     return {
       version: resolution.rootVersion?.value,
-      projections: [
-        {
-          projectionName: "v",
-          arguments: [resolution.versions as any],
-        },
-      ],
+      projections:
+        resolution.versions.size === 0
+          ? []
+          : [
+              {
+                projectionName: "v",
+                arguments: [resolution.versions as any],
+              },
+            ],
     };
   });
 }
@@ -486,15 +486,10 @@ function appliesAtVersion(
   if (namespace === undefined) {
     return null;
   }
-  // let version = getVersionForEnumMember(p, enumMemberVersion)!;
   const version = enumMemberVersion.properties.get(namespace.projectionBase ?? namespace);
   if (version === undefined) {
     return null;
   }
-  // const newVersion = versionIndex.get(version)?.get(namespace);
-  // if (newVersion) {
-  //   version = newVersion;
-  // }
 
   const appliedOnVersion = getMetadataFn(p, type);
   if (appliedOnVersion === undefined) {
