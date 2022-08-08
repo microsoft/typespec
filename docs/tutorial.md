@@ -19,7 +19,7 @@ Cadl consists of the following language features:
 - [Type Literals](#Type-Literals): strings and numbers with specific values
 - [Type Operators](#Type-Operators): syntax for composing model types into other types
 - [Operations](#Operations): service endpoints with parameters and return values
-- [Namespaces & Usings](#Namespaces-&-Usings): groups models and operations together into hierarchical groups with friendly names
+- [Namespaces & Usings](#namespaces--usings): groups models and operations together into hierarchical groups with friendly names
 - [Interfaces](#Interfaces): groups operations
 - [Imports](#Imports): links declarations across multiple files and libraries together into a single program
 - [Decorators](#Decorators): bits of TypeScript code that add metadata or sometimes mutate declarations
