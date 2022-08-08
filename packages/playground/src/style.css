@@ -158,4 +158,6 @@ body {
 
 .output-dropdown{
   position: absolute;
+  z-index: 1;
+  right: 0;
 }
