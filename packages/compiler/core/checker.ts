@@ -1036,19 +1036,20 @@ export function createChecker(program: Program): Checker {
       }
       if (type.kind === "Union" && type.expression) {
         for (const [name, variant] of type.variants) {
-          type.variants.set(name, variant);
+          unionType.variants.set(name, variant);
         }
-      }
-      const variant: UnionTypeVariant = createType({
-        kind: "UnionVariant",
-        type,
-        name: Symbol("name"),
-        decorators: [],
-        node: undefined,
-        union: unionType,
-      });
+      } else {
+        const variant: UnionTypeVariant = createType({
+          kind: "UnionVariant",
+          type,
+          name: Symbol("name"),
+          decorators: [],
+          node: undefined,
+          union: unionType,
+        });
 
-      unionType.variants.set(variant.name, variant);
+        unionType.variants.set(variant.name, variant);
+      }
     }
 
     return unionType;
