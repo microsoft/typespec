@@ -352,32 +352,24 @@ interface VersionProjections {
   projections: ProjectionApplication[];
 }
 
-const versionIndex = new Map<Version, Map<NamespaceType, Version>>();
-
-function indexVersions(resolutions: VersionResolution[]) {
-  versionIndex.clear();
-  for (const resolution of resolutions) {
-    for (const version of resolution.versions.values()) {
-      versionIndex.set(version, resolution.versions);
-    }
-  }
-}
-
 export function buildVersionProjections(
   program: Program,
   rootNs: NamespaceType
 ): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
-  indexVersions(resolutions);
   return resolutions.map((resolution) => {
-    const projections = [...resolution.versions.entries()].map(([ns, version]) => {
-      return {
-        scope: ns,
-        projectionName: "v",
-        arguments: [version.enumMember],
-      };
-    });
-    return { version: resolution.rootVersion?.value, projections };
+    // const projections = [...resolution.versions.entries()].map(([ns, version]) => {
+    //   return;
+    // });
+    return {
+      version: resolution.rootVersion?.value,
+      projections: [
+        {
+          projectionName: "v",
+          arguments: [resolution.versions as any],
+        },
+      ],
+    };
   });
 }
 
@@ -441,6 +433,10 @@ export function getVersions(p: Program, t: Type): [NamespaceType, VersionMap] | 
     } else {
       return cacheVersion(t, []);
     }
+  } else if (t.kind === "EnumMember") {
+    return cacheVersion(t, getVersions(p, t.enum) || []);
+  } else if (t.kind === "UnionVariant") {
+    return cacheVersion(t, getVersions(p, t.union) || []);
   } else {
     return cacheVersion(t, []);
   }
@@ -484,16 +480,21 @@ function appliesAtVersion(
   getMetadataFn: (p: Program, t: Type) => Version | undefined,
   p: Program,
   type: Type,
-  enumMemberVersion: EnumMemberType
-) {
+  enumMemberVersion: any
+): boolean | null {
   const [namespace] = getVersions(p, type);
-  let version = getVersionForEnumMember(p, enumMemberVersion)!;
-  if (namespace) {
-    const newVersion = versionIndex.get(version)?.get(namespace);
-    if (newVersion) {
-      version = newVersion;
-    }
+  if (namespace === undefined) {
+    return null;
   }
+  // let version = getVersionForEnumMember(p, enumMemberVersion)!;
+  const version = enumMemberVersion.properties.get(namespace.projectionBase ?? namespace);
+  if (version === undefined) {
+    return null;
+  }
+  // const newVersion = versionIndex.get(version)?.get(namespace);
+  // if (newVersion) {
+  //   version = newVersion;
+  // }
 
   const appliedOnVersion = getMetadataFn(p, type);
   if (appliedOnVersion === undefined) {

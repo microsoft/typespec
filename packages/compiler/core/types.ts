@@ -323,6 +323,7 @@ export interface UnionTypeVariant extends BaseType, DecoratedType {
   name: string | symbol;
   node: UnionVariantNode | undefined;
   type: Type;
+  union: UnionType;
 }
 
 export interface TemplateParameterType extends BaseType {

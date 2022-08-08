@@ -184,11 +184,16 @@ projection enum#v {
     } else if (removedOnOrBefore(self, version)) {
       return never;
     } else {
+      log("Checking enum:");
+      log(self::name);
       if renamedAfter(self, version) {
         self::rename(getRenamedFromOldName(self));
       };
-
+      
       self::members::forEach((m) => {
+        log("Checking enum member:");
+        log(m::name);
+        log(addedAfter(m, version));
         if addedAfter(m, version) {
           self::deleteMember(m::name);
         };
