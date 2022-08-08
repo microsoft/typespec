@@ -700,7 +700,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     const references: IdentifierNode[] = [];
-    if (wholeProgram === true) {
+    if (wholeProgram) {
       for (const script of program.sourceFiles.values() ?? []) {
         visitChildren(script, function visit(node) {
           if (node.kind === SyntaxKind.Identifier) {
