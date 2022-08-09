@@ -36,7 +36,7 @@ export interface ResolveModuleHost {
 /**
  * Type for package.json
  */
-export interface NodePackage {
+interface NodePackage {
   name: string;
   main: string;
   cadlMain?: string;
