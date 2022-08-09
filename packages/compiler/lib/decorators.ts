@@ -449,7 +449,7 @@ export function $withOptionalProperties(context: DecoratorContext, target: Type)
   target.properties.forEach((p) => (p.optional = true));
 }
 
-// -- @withUpdatableProperties decorator ----------------------
+// -- @withUpdateableProperties decorator ----------------------
 
 export function $withUpdateableProperties(context: DecoratorContext, target: Type) {
   if (!validateDecoratorTarget(context, target, "@withUpdateableProperties", "Model")) {
