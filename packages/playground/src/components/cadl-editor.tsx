@@ -33,15 +33,9 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
     { binding: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyF, handle: format },
     // alt+shift+F => format
     { binding: KeyMod.Alt | KeyMod.Shift | KeyCode.KeyF, handle: format },
-    ...props.commands ?? [],
+    ...(props.commands ?? []),
   ];
-  return (
-    <Editor
-      model={props.model}
-      commands={commands}
-      options={options}
-    ></Editor>
-  );
+  return <Editor model={props.model} commands={commands} options={options}></Editor>;
 };
 
 export const OutputEditor: FunctionComponent<{ value: string }> = ({ value }) => {
