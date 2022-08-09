@@ -187,7 +187,7 @@ export async function attachServices(host: BrowserHost) {
   monaco.languages.registerDocumentHighlightProvider("cadl", {
     async provideDocumentHighlights(model, position) {
       const ranges = await serverLib.findDocumentHighlight(lspArgs(model, position));
-      const output = ranges.map(monacoDocumentHighlight);
+      return highlights.map(monacoDocumentHighlight);
       return output;
     },
   });
