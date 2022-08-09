@@ -699,7 +699,17 @@ export function createServer(host: ServerHost): Server {
 
     const references: IdentifierNode[] = [];
     if (wholeProgram) {
-      findReferenceIdentifiers(program, file, pos, false);
+      for (const script of program.sourceFiles.values() ?? []) {
+        visitChildren(script, function visit(node) {
+          if (node.kind === SyntaxKind.Identifier) {
+            const s = program.checker.resolveIdentifier(node);
+            if (s === sym || (sym.type && s?.type === sym.type)) {
+              references.push(node);
+            }
+          }
+          visitChildren(node, visit);
+        });
+      }
     } else {
       visitChildren(file, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
