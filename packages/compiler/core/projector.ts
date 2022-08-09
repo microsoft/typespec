@@ -1,7 +1,7 @@
 import { isNeverType } from "../lib/decorators.js";
 import { compilerAssert } from "./diagnostics.js";
 import { isNeverIndexer, isTemplateDeclaration } from "./index.js";
-import { Program } from "./program";
+import { Program } from "./program.js";
 import {
   DecoratorApplication,
   DecoratorArgument,

@@ -1,4 +1,4 @@
-import { Diagnostic } from "../core";
+import { Diagnostic } from "../core/index.js";
 
 /**
  * Represent the normalized user configuration.

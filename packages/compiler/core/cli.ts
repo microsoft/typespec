@@ -291,14 +291,14 @@ function compileInput(
   if (compilerOptions.watchForChanges) {
     runCompile();
     return new Promise((resolve, reject) => {
-      const watcher = watch(
+      const watcher = (watch as any)(
         path,
         {
           recursive: true,
-          filter: (f) =>
+          filter: (f: string) =>
             [".js", ".cadl"].indexOf(getAnyExtensionFromPath(f)) > -1 && !/node_modules/.test(f),
         },
-        (e, name) => {
+        (e: any, name: any) => {
           runCompile();
         }
       );

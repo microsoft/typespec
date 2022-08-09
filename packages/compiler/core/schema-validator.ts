@@ -7,10 +7,10 @@ export interface SchemaValidatorOptions {
   coerceTypes?: boolean;
 }
 export class SchemaValidator<T> {
-  private ajv: Ajv;
+  private ajv: any;
 
   public constructor(private schema: JSONSchemaType<T>, options: SchemaValidatorOptions = {}) {
-    this.ajv = new Ajv({
+    this.ajv = new (Ajv as any)({
       strict: true,
       coerceTypes: options.coerceTypes,
     });

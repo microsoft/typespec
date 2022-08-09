@@ -1,6 +1,6 @@
 import { codeFrameColumns } from "@babel/code-frame";
 import pc from "picocolors";
-import { Formatter } from "picocolors/types";
+import { Formatter } from "picocolors/types.js";
 import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
 
 export interface FormatLogOptions {
