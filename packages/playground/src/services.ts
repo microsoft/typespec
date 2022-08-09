@@ -103,8 +103,8 @@ export async function attachServices(host: BrowserHost) {
     highlight: lsp.DocumentHighlight
   ): monaco.languages.DocumentHighlight {
     return {
-      range: monacoRange(range.range),
-      kind: range.kind,
+      range: monacoRange(highlight.range),
+      kind: highlight.kind,
     };
   }
 
@@ -188,7 +188,6 @@ export async function attachServices(host: BrowserHost) {
     async provideDocumentHighlights(model, position) {
       const highlights = await serverLib.findDocumentHighlight(lspArgs(model, position));
       return highlights.map(monacoDocumentHighlight);
-      return output;
     },
   });
 
