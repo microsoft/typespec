@@ -1016,39 +1016,43 @@ export function createChecker(program: Program): Checker {
     node: UnionExpressionNode,
     mapper: TypeMapper | undefined
   ): UnionType {
-    const variants: [string | symbol, UnionTypeVariant][] = node.options.flatMap((o) => {
-      const type = getTypeForNode(o, mapper);
-
-      // The type `A | never` is just `A`
-      if (type === neverType) {
-        return [];
-      }
-      if (type.kind === "Union" && type.expression) {
-        return Array.from(type.variants.entries());
-      }
-      const variant: UnionTypeVariant = createType({
-        kind: "UnionVariant",
-        type,
-        name: Symbol("name"),
-        decorators: [],
-        node: undefined,
-      });
-
-      return [[variant.name, variant]];
-    });
-
-    const type: UnionType = createAndFinishType({
+    const unionType: UnionType = createAndFinishType({
       kind: "Union",
       node,
       get options() {
         return Array.from(this.variants.values()).map((v) => v.type);
       },
       expression: true,
-      variants: new Map(variants),
+      variants: new Map(),
       decorators: [],
     });
 
-    return type;
+    for (const o of node.options) {
+      const type = getTypeForNode(o, mapper);
+
+      // The type `A | never` is just `A`
+      if (type === neverType) {
+        continue;
+      }
+      if (type.kind === "Union" && type.expression) {
+        for (const [name, variant] of type.variants) {
+          unionType.variants.set(name, variant);
+        }
+      } else {
+        const variant: UnionTypeVariant = createType({
+          kind: "UnionVariant",
+          type,
+          name: Symbol("name"),
+          decorators: [],
+          node: undefined,
+          union: unionType,
+        });
+
+        unionType.variants.set(variant.name, variant);
+      }
+    }
+
+    return unionType;
   }
 
   /**
@@ -2655,7 +2659,6 @@ export function createChecker(program: Program): Checker {
 
     const decorators = checkDecorators(node, mapper);
     const variants = new Map<string, UnionTypeVariant>();
-    checkUnionVariants(node, variants, mapper);
     const unionType: UnionType = createType({
       kind: "Union",
       decorators,
@@ -2668,6 +2671,7 @@ export function createChecker(program: Program): Checker {
       },
       expression: false,
     });
+    checkUnionVariants(unionType, node, variants, mapper);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(unionType, mapper);
@@ -2682,12 +2686,13 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkUnionVariants(
-    union: UnionStatementNode,
+    parentUnion: UnionType,
+    node: UnionStatementNode,
     variants: Map<string, UnionTypeVariant>,
     mapper: TypeMapper | undefined
   ) {
-    for (const variantNode of union.options) {
-      const variantType = checkUnionVariant(union, variantNode, mapper);
+    for (const variantNode of node.options) {
+      const variantType = checkUnionVariant(parentUnion, node, variantNode, mapper);
       if (variants.has(variantType.name as string)) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -2703,7 +2708,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkUnionVariant(
-    union: UnionStatementNode,
+    parentUnion: UnionType,
+    node: UnionStatementNode,
     variantNode: UnionVariantNode,
     mapper: TypeMapper | undefined
   ): UnionTypeVariant {
@@ -2717,9 +2723,10 @@ export function createChecker(program: Program): Checker {
       node: variantNode,
       decorators,
       type,
+      union: parentUnion,
     });
 
-    if (shouldCreateTypeForTemplate(union, mapper)) {
+    if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(variantType, mapper);
     }
 
