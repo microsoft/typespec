@@ -4,6 +4,7 @@ import {
   EnumMemberType,
   EnumType,
   NamespaceType,
+  ObjectType,
   Program,
   ProjectionApplication,
   Type,
@@ -352,24 +353,45 @@ interface VersionProjections {
   projections: ProjectionApplication[];
 }
 
+const versionIndex = new Map<ObjectType, Map<NamespaceType, Version>>();
+
+/**
+ * @internal
+ */
+export function indexVersions(program: Program, versions: Map<NamespaceType, Version>) {
+  const versionKey = program.checker.createType<ObjectType>({
+    kind: "Object",
+    properties: {},
+  } as any);
+  versionIndex.set(versionKey, versions);
+  return versionKey;
+}
+
+function getVersionForNamespace(versionKey: ObjectType, namespaceType: NamespaceType) {
+  return versionIndex.get(versionKey)?.get(namespaceType);
+}
+
 export function buildVersionProjections(
   program: Program,
   rootNs: NamespaceType
 ): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
+  versionIndex.clear();
   return resolutions.map((resolution) => {
-    return {
-      version: resolution.rootVersion?.value,
-      projections:
-        resolution.versions.size === 0
-          ? []
-          : [
-              {
-                projectionName: "v",
-                arguments: [resolution.versions as any],
-              },
-            ],
-    };
+    if (resolution.versions.size === 0) {
+      return { version: undefined, projections: [] };
+    } else {
+      const versionKey = indexVersions(program, resolution.versions);
+      return {
+        version: resolution.rootVersion?.value,
+        projections: [
+          {
+            projectionName: "v",
+            arguments: [versionKey],
+          },
+        ],
+      };
+    }
   });
 }
 
@@ -444,22 +466,22 @@ export function getVersions(p: Program, t: Type): [NamespaceType, VersionMap] | 
 
 // these decorators take a `versionSource` parameter because not all types can walk up to
 // the containing namespace. Model properties, for example.
-export function addedAfter(p: Program, type: Type, version: EnumMemberType) {
+export function addedAfter(p: Program, type: Type, version: ObjectType) {
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function removedOnOrBefore(p: Program, type: Type, version: EnumMemberType) {
+export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
   const appliesAt = appliesAtVersion(getRemovedOn, p, type, version);
   return appliesAt === null ? false : appliesAt;
 }
 
-export function renamedAfter(p: Program, type: Type, version: EnumMemberType) {
+export function renamedAfter(p: Program, type: Type, version: ObjectType) {
   const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function madeOptionalAfter(p: Program, type: Type, version: EnumMemberType) {
+export function madeOptionalAfter(p: Program, type: Type, version: ObjectType) {
   const appliesAt = appliesAtVersion(getMadeOptionalOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
@@ -480,13 +502,16 @@ function appliesAtVersion(
   getMetadataFn: (p: Program, t: Type) => Version | undefined,
   p: Program,
   type: Type,
-  enumMemberVersion: any
+  versionKey: ObjectType
 ): boolean | null {
   const [namespace] = getVersions(p, type);
   if (namespace === undefined) {
     return null;
   }
-  const version = enumMemberVersion.properties.get(namespace.projectionBase ?? namespace);
+  const version = getVersionForNamespace(
+    versionKey,
+    (namespace.projectionBase as NamespaceType) ?? namespace
+  );
   if (version === undefined) {
     return null;
   }
