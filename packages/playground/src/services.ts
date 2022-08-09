@@ -100,7 +100,7 @@ export async function attachServices(host: BrowserHost) {
   }
 
   function monacoDocumentHighlight(
-    range: lsp.DocumentHighlight
+    highlight: lsp.DocumentHighlight
   ): monaco.languages.DocumentHighlight {
     return {
       range: monacoRange(range.range),
