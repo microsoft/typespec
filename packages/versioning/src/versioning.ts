@@ -4,6 +4,7 @@ import {
   EnumMemberType,
   EnumType,
   NamespaceType,
+  ObjectType,
   Program,
   ProjectionApplication,
   Type,
@@ -352,15 +353,22 @@ interface VersionProjections {
   projections: ProjectionApplication[];
 }
 
-const versionIndex = new Map<Version, Map<NamespaceType, Version>>();
+const versionIndex = new Map<ObjectType, Map<NamespaceType, Version>>();
 
-function indexVersions(resolutions: VersionResolution[]) {
-  versionIndex.clear();
-  for (const resolution of resolutions) {
-    for (const version of resolution.versions.values()) {
-      versionIndex.set(version, resolution.versions);
-    }
-  }
+/**
+ * @internal
+ */
+export function indexVersions(program: Program, versions: Map<NamespaceType, Version>) {
+  const versionKey = program.checker.createType<ObjectType>({
+    kind: "Object",
+    properties: {},
+  } as any);
+  versionIndex.set(versionKey, versions);
+  return versionKey;
+}
+
+function getVersionForNamespace(versionKey: ObjectType, namespaceType: NamespaceType) {
+  return versionIndex.get(versionKey)?.get(namespaceType);
 }
 
 export function buildVersionProjections(
@@ -368,16 +376,22 @@ export function buildVersionProjections(
   rootNs: NamespaceType
 ): VersionProjections[] {
   const resolutions = resolveVersions(program, rootNs);
-  indexVersions(resolutions);
+  versionIndex.clear();
   return resolutions.map((resolution) => {
-    const projections = [...resolution.versions.entries()].map(([ns, version]) => {
+    if (resolution.versions.size === 0) {
+      return { version: undefined, projections: [] };
+    } else {
+      const versionKey = indexVersions(program, resolution.versions);
       return {
-        scope: ns,
-        projectionName: "v",
-        arguments: [version.enumMember],
+        version: resolution.rootVersion?.value,
+        projections: [
+          {
+            projectionName: "v",
+            arguments: [versionKey],
+          },
+        ],
       };
-    });
-    return { version: resolution.rootVersion?.value, projections };
+    }
   });
 }
 
@@ -441,6 +455,10 @@ export function getVersions(p: Program, t: Type): [NamespaceType, VersionMap] | 
     } else {
       return cacheVersion(t, []);
     }
+  } else if (t.kind === "EnumMember") {
+    return cacheVersion(t, getVersions(p, t.enum) || []);
+  } else if (t.kind === "UnionVariant") {
+    return cacheVersion(t, getVersions(p, t.union) || []);
   } else {
     return cacheVersion(t, []);
   }
@@ -448,22 +466,22 @@ export function getVersions(p: Program, t: Type): [NamespaceType, VersionMap] | 
 
 // these decorators take a `versionSource` parameter because not all types can walk up to
 // the containing namespace. Model properties, for example.
-export function addedAfter(p: Program, type: Type, version: EnumMemberType) {
+export function addedAfter(p: Program, type: Type, version: ObjectType) {
   const appliesAt = appliesAtVersion(getAddedOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function removedOnOrBefore(p: Program, type: Type, version: EnumMemberType) {
+export function removedOnOrBefore(p: Program, type: Type, version: ObjectType) {
   const appliesAt = appliesAtVersion(getRemovedOn, p, type, version);
   return appliesAt === null ? false : appliesAt;
 }
 
-export function renamedAfter(p: Program, type: Type, version: EnumMemberType) {
+export function renamedAfter(p: Program, type: Type, version: ObjectType) {
   const appliesAt = appliesAtVersion(getRenamedFromVersion, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
 
-export function madeOptionalAfter(p: Program, type: Type, version: EnumMemberType) {
+export function madeOptionalAfter(p: Program, type: Type, version: ObjectType) {
   const appliesAt = appliesAtVersion(getMadeOptionalOn, p, type, version);
   return appliesAt === null ? false : !appliesAt;
 }
@@ -484,15 +502,18 @@ function appliesAtVersion(
   getMetadataFn: (p: Program, t: Type) => Version | undefined,
   p: Program,
   type: Type,
-  enumMemberVersion: EnumMemberType
-) {
+  versionKey: ObjectType
+): boolean | null {
   const [namespace] = getVersions(p, type);
-  let version = getVersionForEnumMember(p, enumMemberVersion)!;
-  if (namespace) {
-    const newVersion = versionIndex.get(version)?.get(namespace);
-    if (newVersion) {
-      version = newVersion;
-    }
+  if (namespace === undefined) {
+    return null;
+  }
+  const version = getVersionForNamespace(
+    versionKey,
+    (namespace.projectionBase as NamespaceType) ?? namespace
+  );
+  if (version === undefined) {
+    return null;
   }
 
   const appliedOnVersion = getMetadataFn(p, type);
