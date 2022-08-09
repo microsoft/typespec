@@ -22,6 +22,7 @@ export interface UsageTracker {
   readonly types: readonly TrackableType[];
   isUsedAs(type: TrackableType, usage: UsageFlags): boolean;
 }
+
 /**
  * Resolve usage(input, output or both) of various types in the given namespace.
  * Will recursively scan all namespace, interfaces and operations contained inside the namespace.
