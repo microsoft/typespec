@@ -19,7 +19,7 @@ Cadl consists of the following language features:
 - [Type Literals](#Type-Literals): strings and numbers with specific values
 - [Type Operators](#Type-Operators): syntax for composing model types into other types
 - [Operations](#Operations): service endpoints with parameters and return values
-- [Namespaces & Usings](#Namespaces-&-Usings): groups models and operations together into hierarchical groups with friendly names
+- [Namespaces & Usings](#namespaces--usings): groups models and operations together into hierarchical groups with friendly names
 - [Interfaces](#Interfaces): groups operations
 - [Imports](#Imports): links declarations across multiple files and libraries together into a single program
 - [Decorators](#Decorators): bits of TypeScript code that add metadata or sometimes mutate declarations
@@ -67,7 +67,10 @@ Cadl comes with built-in models for common data types:
 - `duration`: A duration/time period. e.g 5s, 10h
 - `boolean`: true or false
 - `null`: the null value found in e.g. JSON.
-- `Map<K, V>`: a map from K to V.
+- `Record<T>`: a dictionary with string K and value T.
+- `unknown`: A top type in Cadl that all types can be assigned to.
+- `void`: A function return type indicating the function doesn't return a value.
+- `never`: The never type indicates the values that will never occur. Typically, you use the never type to represent the return type of a function that always throws an error.
 
 #### Spread
 
@@ -474,17 +477,71 @@ Dog type: Model
 
 Cadl comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
 
-- @summary - attach a documentation string, typically a short, single-line description.
-- @doc - attach a documentation string. Works great with multi-line string literals.
-- @key - mark a model property as the key to identify instances of that type
-- @tag - attach a simple tag to a declaration
-- @secret - mark a string as a secret value that should be treated carefully to avoid exposure
-- @minValue/@maxValue - set the min and max values of number types
+- [@deprecated](#deprecated) - indicates that the decorator target has been deprecated.
+- [@doc](#doc) - attach a documentation string. Works great with multi-line string literals.
+- [@error](#error) - specify a model is representing an error
+- [@format](#format) - specify the data format hint for a string type
+- [@friendlyName](#friendlyname) - specify a friendly name to be used instead of declared model name
+- @indexer
+- [@inspectType/@inspectTypeName](#inspecttype) - displays information about a type during compilation
+- [@key](#key) - mark a model property as the key to identify instances of that type
+- [@knownValues](#knownvalues) - mark a string type with an enum that contains all known values
+- @list -
 - @minLength/@maxLength - set the min and max lengths for strings
-- @knownValues - mark a string type with an enum that contains all known values
-- @pattern - set the pattern for a string using regular expression syntax
-- @format - specify the data format hint for a string type
-- @error - specify a model is representing an error
+- @minValue/@maxValue - set the min and max values of number types
+- [@pattern](#pattern) - set the pattern for a string using regular expression syntax
+- [@secret](#secret) - mark a string as a secret value that should be treated carefully to avoid exposure
+- [@summary](#summary) - attach a documentation string, typically a short, single-line description.
+- [@tag](#tag) - attach a simple tag to a declaration
+- [@visibility/@withVisibility](#visibility-decorators)
+- [@withDefaultKeyVisibility](#withefaultkeyvisibility) - set the visibility of key properties in a model if not already set.
+- [@withOptionalProperties](#withoptionalproperties) - makes all properties of the target type optional.
+- [@withoutDefaultValues](#withoutdefaultvalues) - removes all read-only properties from the target type.
+- [@withoutOmittedProperties](#withoutomittedproperties) - removes all model properties that match a type.
+- [@withUpdateableProperties](#withupdateableproperties) - remove all read-only properties from the target type
+
+##### @inspectType
+
+Syntax:
+
+```
+@inspectType(message)
+@inspectTypeName(message)
+```
+
+`@inspectType` displays information about a type during compilation.
+`@inspectTypeName` displays information and name of type during compilation.
+They can be specified on any language element -- a model, an operation, a namespace, etc.
+
+##### @deprecated
+
+Syntax:
+
+```
+@deprecated(message)
+```
+
+`@deprecated` marks a type as deprecated. It can be specified on any language element -- a model, an operation, a namespace, etc.
+
+##### @friendlyName
+
+Syntax:
+
+```
+@friendlyName(string)
+```
+
+`@friendlyName` specifies an alternate model name to be used instead of declared model name. It can be specified on a model.
+
+##### @pattern
+
+Syntax:
+
+```
+@pattern(regularExpressionText)
+```
+
+`@pattern` specifies a regular expression on a string property.
 
 ##### @summary
 
@@ -561,6 +618,24 @@ Otherwise, the name of the target property will be used.
 
 `@key` can only be applied to model properties.
 
+##### @secret
+
+Syntax:
+
+```
+@secret
+```
+
+`@secret` mark a string as a secret value that should be treated carefully to avoid exposure
+
+```
+@secret
+model Password is string;
+
+```
+
+`@secret` can only be applied to string model;
+
 ##### @format
 
 Syntax:
@@ -624,6 +699,68 @@ model WriteDog {
 }
 
 ```
+
+#### @withDefaultKeyVisibility
+
+Syntax:
+
+```
+@withDefaultKeyVisibility(string)
+```
+
+`@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set. The first argument accepts a string representing the desired default
+visibility value.
+If a key property already has a `visibility` decorator then the default visibility is not applied.
+
+`@withDefaultKeyVisibility` can only be applied to model types.
+
+#### @withOptionalProperties
+
+Syntax:
+
+```
+@withOptionalProperties()
+```
+
+`@withOptionalProperties` makes all properties of the target type optional.
+
+`@withOptionalProperties` can only be applied to model types.
+
+#### @withoutDefaultValues
+
+Syntax:
+
+```
+@withoutDefaultValues()
+```
+
+`@withoutDefaultValues` removes all read-only properties from the target type.
+
+`@withoutDefaultValues` can only be applied to model types.
+
+#### @withoutOmittedProperties
+
+Syntax:
+
+```
+@withoutOmittedProperties(type)
+```
+
+`@withoutOmittedProperties` removes all model properties that match a type.
+
+`@withoutOmittedProperties` can only be applied to model types.
+
+#### @withUpdateableProperties
+
+Syntax:
+
+```
+@withUpdateableProperties()
+```
+
+`@withUpdateableProperties` remove all read-only properties from the target type.
+
+`@withUpdateableProperties` can only be applied to model types.
 
 ### Libraries
 

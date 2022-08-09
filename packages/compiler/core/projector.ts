@@ -149,7 +149,6 @@ export function createProjector(
       if (projected.kind === "Namespace") {
         // todo: check for never?
         projectedNs.namespaces.set(key, projected);
-        projected.namespace = projectedNs;
       }
     }
   }
@@ -178,6 +177,10 @@ export function createProjector(
     });
 
     projectedNs.decorators = projectDecorators(ns.decorators);
+
+    if (ns.namespace) {
+      projectedNs.namespace = projectNamespace(ns.namespace, false);
+    }
 
     // ns run decorators before projecting anything inside them
     checker.finishType(projectedNs);
