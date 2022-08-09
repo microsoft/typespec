@@ -4110,6 +4110,19 @@ export function createChecker(program: Program): Checker {
     return false;
   }
 
+  function getProjectedEffectiveModelType(type: ModelType): ModelType {
+    if (!program.currentProjector) {
+      return type;
+    }
+
+    const projectedType = program.currentProjector.projectType(type);
+    if (projectedType.kind !== "Model") {
+      compilerAssert(false, "Fail");
+    }
+
+    return projectedType;
+  }
+
   function getEffectiveModelType(
     model: ModelType,
     filter?: (property: ModelTypeProperty) => boolean
@@ -4120,7 +4133,7 @@ export function createChecker(program: Program): Checker {
 
     if (model.name) {
       // named model
-      return model;
+      return getProjectedEffectiveModelType(model);
     }
 
     // We would need to change the algorithm if this doesn't hold. We
@@ -4188,7 +4201,7 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    return match ?? model;
+    return match ? getProjectedEffectiveModelType(match) : model;
   }
 
   function filterModelProperties(

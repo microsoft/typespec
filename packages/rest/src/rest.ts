@@ -11,6 +11,7 @@ import {
   setCadlNamespace,
   Type,
 } from "@cadl-lang/compiler";
+import { reportDiagnostic } from "./diagnostics.js";
 import { getResourceTypeKey } from "./resource.js";
 
 const producesTypesKey = Symbol("producesTypes");
@@ -193,6 +194,52 @@ export function $segmentSeparator(
 
 export function getSegmentSeparator(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentSeparatorsKey).get(entity);
+}
+
+const resourceDecorator = createDecoratorDefinition({
+  name: "@resource",
+  target: "Model",
+  args: [{ kind: "String" }],
+} as const);
+
+/**
+ * `@resource` marks a model as a resource type.
+ *
+ * The first argument should be the name of the collection that the resources
+ * belong to.  For example, a resource type `Widget` might have a collection
+ * name of `widgets`.
+ *
+ * `@resource` can only be applied to models.
+ */
+export function $resource(context: DecoratorContext, entity: ModelType, collectionName: string) {
+  if (!resourceDecorator.validate(context, entity, [collectionName])) {
+    return;
+  }
+
+  // Ensure type has a key property
+  const key = getResourceTypeKey(context.program, entity);
+
+  // A resource type must have a key property
+  if (!key) {
+    reportDiagnostic(context.program, {
+      code: "resource-missing-key",
+      format: {
+        modelName: entity.name,
+      },
+      target: entity,
+    });
+
+    return;
+  }
+
+  // Apply the @segment decorator with the collection name
+  context.call($segment, key.keyProperty, collectionName);
+
+  // Manually push the decorator onto the property so that it's copyable in KeysOf<T>
+  key.keyProperty.decorators.push({
+    decorator: $segment,
+    args: [{ value: collectionName }],
+  });
 }
 
 export type ResourceOperations =
