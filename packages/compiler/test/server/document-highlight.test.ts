@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { DocumentHighlight } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
-describe("compiler: server: documentHighlight", () => {
+describe.only("compiler: server: documentHighlight", () => {
   it("includes model in highlighting", async () => {
     const ranges = await findDocumentHighlight(`model MyToy extends Toy {}
     model Toy┆ {

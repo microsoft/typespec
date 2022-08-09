@@ -531,19 +531,17 @@ export function createServer(host: ServerHost): Server {
     const identifiers = await compile(params.textDocument, (program, document, file) =>
       findReferenceIdentifiers(program, file, document.offsetAt(params.position), false)
     );
-    const highlight: DocumentHighlight[] = [];
     if (identifiers === undefined) {
       return [];
     }
-    for (let i = 0; i < identifiers.length; i++) {
-      const start = file.getLineAndCharacterOfPosition(identifiers[i].pos);
-      const end = file.getLineAndCharacterOfPosition(identifiers[i].end);
-      highlight.push({
+    return identifiers.map((identifier) => {
+      const start = file.getLineAndCharacterOfPosition(identifier.pos);
+      const end = file.getLineAndCharacterOfPosition(identifier.end);
+      return {
         range: Range.create(start, end),
         kind: DocumentHighlightKind.Read,
-      });
-    }
-    return highlight;
+      };
+    });
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
@@ -701,17 +699,7 @@ export function createServer(host: ServerHost): Server {
 
     const references: IdentifierNode[] = [];
     if (wholeProgram) {
-      for (const script of program.sourceFiles.values() ?? []) {
-        visitChildren(script, function visit(node) {
-          if (node.kind === SyntaxKind.Identifier) {
-            const s = program.checker.resolveIdentifier(node);
-            if (s === sym || (sym.type && s?.type === sym.type)) {
-              references.push(node);
-            }
-          }
-          visitChildren(node, visit);
-        });
-      }
+      findReferenceIdentifiers(program, file, pos, false);
     } else {
       visitChildren(file, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {

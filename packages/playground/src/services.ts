@@ -99,6 +99,15 @@ export async function attachServices(host: BrowserHost) {
     };
   }
 
+  function monacoDocumentHighlight(
+    range: lsp.DocumentHighlight
+  ): monaco.languages.DocumentHighlight {
+    return {
+      range: monacoRange(range.range),
+      kind: range.kind,
+    };
+  }
+
   function monacoRange(range: lsp.Range): monaco.IRange {
     return {
       startColumn: range.start.character + 1,
@@ -171,6 +180,14 @@ export async function attachServices(host: BrowserHost) {
     async provideFoldingRanges(model) {
       const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
       const output = ranges.map(monacoFoldingRange);
+      return output;
+    },
+  });
+
+  monaco.languages.registerDocumentHighlightProvider("cadl", {
+    async provideDocumentHighlights(model, position) {
+      const ranges = await serverLib.findDocumentHighlight(lspArgs(model, position));
+      const output = ranges.map(monacoDocumentHighlight);
       return output;
     },
   });
