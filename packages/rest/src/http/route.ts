@@ -322,16 +322,17 @@ function getPathForOperation(
   const parameters = diagnostics.pipe(getOperationParameters(program, operation));
   const pathFragments = [...routeFragments];
   const routePath = getRoutePath(program, operation);
+
+  // Prepend any explicit route path
+  if (routePath) {
+    pathFragments.push(routePath.path);
+  }
+
   if (isAutoRoute(program, operation)) {
     // The operation exists within an @autoRoute scope, generate the path.  This
     // mutates the pathFragments and parameters lists that are passed in!
     generatePathFromParameters(program, operation, pathFragments, parameters, options);
   } else {
-    // Prepend any explicit route path
-    if (routePath) {
-      pathFragments.push(routePath.path);
-    }
-
     // Pull out path parameters to verify what's in the path string
     const paramByName = new Map(
       parameters.parameters
