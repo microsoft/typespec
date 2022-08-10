@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, ModelType, OperationType } from "../../core/index.js";
+import { getVisibility, isSecret, ModelType, OperationType } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
@@ -632,6 +632,97 @@ describe("compiler: built-in decorators", () => {
       ok(overloadedBy?.length == 2);
       ok(overloadedBy?.indexOf("someStringThing") !== -1);
       ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+    });
+  });
+
+  describe("@secret", () => {
+    it("can be applied on a string model", async () => {
+      const { A } = await runner.compile(
+        `
+        @test
+        @secret
+        model A is string;
+        `
+      );
+
+      ok(isSecret(runner.program, A));
+    });
+
+    it("can be applied on a model property with string type", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        model A {
+          @secret
+          a: string;
+        }
+        `
+      )) as { A: ModelType };
+
+      ok(isSecret(runner.program, A.properties.get("a")!));
+    });
+
+    it("can be applied on a model property with stringlike model as type", async () => {
+      const { A } = (await runner.compile(
+        `
+        model CustomStr is string;
+
+        @test
+        model A {
+          @secret
+          a: CustomStr;
+        }
+        `
+      )) as { A: ModelType };
+
+      ok(isSecret(runner.program, A.properties.get("a")!));
+    });
+
+    it("emit diagnostic if model is not a string", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        @secret
+        model A {}
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @secret decorator to type it is not one of: string",
+      });
+    });
+
+    it("emit diagnostic if model is a different intrinsic type(not a string)", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        @secret
+        model A is int32 {}
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @secret decorator to type it is not one of: string",
+      });
+    });
+
+    it("emit diagnostic if model property is not a string type", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        model A {
+          @secret
+          a: int32;
+        }
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @secret decorator to type it is not one of: string",
+      });
     });
   });
 });
