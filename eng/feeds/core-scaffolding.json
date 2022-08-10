@@ -1,0 +1,13 @@
+{
+  "azure-core": {
+    "title": "Azure Data Plane Service",
+    "description": "Create a project representing an Azure Data Plane API",
+    "libraries": [
+      "@cadl-lang/rest",
+      "@cadl-lang/openapi",
+      "@cadl-lang/versioning",
+      "@azure-tools/cadl-autorest",
+      "@azure-tools/cadl-azure-core"
+    ]
+  }
+}
