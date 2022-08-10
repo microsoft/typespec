@@ -103,6 +103,30 @@ describe("versioning: reference versioned library", () => {
       assertFooV2(FooV2);
     });
 
+    it("use the same versioned library version for multiple service versions", async () => {
+      const { MyService, Test } = (await runner.compile(`
+        @versioned(Versions)
+        @versionedDependency([[Versions.v1, VersionedLib.Versions.l1], [Versions.v2, VersionedLib.Versions.l1]])
+        @test namespace MyService {
+          enum Versions {v1, v2}
+          @test model Test extends VersionedLib.Foo {}
+        } 
+    `)) as { MyService: NamespaceType; Test: ModelType };
+      const versions = buildVersionProjections(runner.program, MyService);
+      strictEqual(versions.length, 2);
+      strictEqual(versions[0].version, "v1");
+      strictEqual(versions[1].version, "v2");
+
+      const projectorV1 = runner.program.enableProjections(versions[0].projections, Test);
+      const FooV1 = (projectorV1.projectedTypes.get(Test) as any).baseModel;
+
+      assertFooV1(FooV1);
+
+      const projectorV2 = runner.program.enableProjections(versions[1].projections, Test);
+      const FooV2 = (projectorV2.projectedTypes.get(Test) as any).baseModel;
+      assertFooV1(FooV2);
+    });
+
     it("emit diagnostic if passing a specific version", async () => {
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
@@ -246,6 +270,36 @@ describe("versioning: dependencies", () => {
       using Cadl.Versioning;
       ${code}`
     );
+  });
+
+  it("use model defined in non versioned library spreading properties", async () => {
+    const { MyService, Test } = (await runner.compile(`
+      namespace NonVersionedLib {
+        enum Versions {l1, l2}
+        model Spread<T> {
+          t: string;
+          ...T;
+        }
+      }
+
+      @versioned(Versions)
+      @test namespace MyService {
+        enum Versions {v1, v2}
+
+        model Spreadable {
+          a: int32;
+          @added(Versions.v2) b: int32;
+        }
+        @test model Test extends NonVersionedLib.Spread<Spreadable> {}
+      }
+      `)) as { MyService: NamespaceType; Test: ModelType };
+
+    const [v1, v2] = runProjections(runner.program, MyService);
+
+    const SpreadInstance1 = (v1.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance1, ["t", "a"]);
+    const SpreadInstance2 = (v2.projectedTypes.get(Test) as any).baseModel;
+    assertHasProperties(SpreadInstance2, ["t", "a", "b"]);
   });
 
   it("can spread versioned model from another library", async () => {

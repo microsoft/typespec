@@ -171,6 +171,7 @@ export function createProjectionMembers(checker: Checker): {
             name,
             node: undefined,
             type,
+            union: base,
           });
           base.variants.set(name, variantType);
           return voidType;

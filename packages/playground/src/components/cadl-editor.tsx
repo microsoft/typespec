@@ -24,7 +24,11 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
       parser: "cadl",
       plugins: [CadlPrettierPlugin],
     });
-    props.model.setValue(output);
+    props.model.pushEditOperations(
+      [],
+      [{ range: props.model.getFullModelRange(), text: output }],
+      () => null,
+    );
   };
 
   // Add shortcuts

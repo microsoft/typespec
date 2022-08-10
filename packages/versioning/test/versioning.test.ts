@@ -3,6 +3,7 @@ import {
   InterfaceType,
   IntrinsicType,
   ModelType,
+  NamespaceType,
   OperationType,
   ProjectionApplication,
   Type,
@@ -10,7 +11,7 @@ import {
 } from "@cadl-lang/compiler";
 import { BasicTestRunner, createTestWrapper } from "@cadl-lang/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
-import { getVersions } from "../src/versioning.js";
+import { getVersions, indexVersions, Version } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
@@ -538,6 +539,7 @@ describe("cadl: versioning", () => {
       strictEqual((v2 as any as IntrinsicType).name, "never");
       strictEqual(v1.kind, "Interface");
     });
+
     it("can add members", async () => {
       const {
         source,
@@ -559,6 +561,7 @@ describe("cadl: versioning", () => {
         source
       );
     });
+
     it("can remove members", async () => {
       const {
         source,
@@ -826,8 +829,10 @@ describe("cadl: versioning", () => {
     if (actualVersion === undefined) {
       fail(`Should have found the version ${version}`);
     }
+    const versionMap = new Map<NamespaceType, Version>([[actualVersion.namespace, actualVersion]]);
+    const versionKey = indexVersions(runner.program, versionMap);
     const projection: ProjectionApplication = {
-      arguments: [actualVersion.enumMember],
+      arguments: [versionKey],
       projectionName: "v",
       direction,
     };
