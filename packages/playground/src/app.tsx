@@ -205,7 +205,6 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         setViewSelection({ type: "file", filename: "", content: "" });
       }
     }
-    
   }, [props.program, props.outputFiles]);
 
   async function loadOutputFile(path: string) {
@@ -246,7 +245,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     }
   }, []);
   const content =
-    viewSelection.type === "file"? (
+    viewSelection.type === "file" ? (
       <OpenAPIOutput content={viewSelection.content} />
     ) : viewSelection.type === "errors" ? (
       <ErrorTab internalCompilerError={props.internalCompilerError} diagnostics={diagnostics} />

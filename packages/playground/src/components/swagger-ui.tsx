@@ -1,22 +1,21 @@
-import { useEffect, useRef } from "react";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useRef } from "react";
 import CreateSwaggerUI from "swagger-ui";
-export interface SwaggerUIProps{
-  spec: string; 
+export interface SwaggerUIProps {
+  spec: string;
 }
-export const SwaggerUI: FunctionComponent<SwaggerUIProps> =(props)=> {
+export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
   const uiRef = useRef(null);
   const uiInstance = useRef<any>(null);
   useEffect(() => {
-    if(uiInstance.current === null) {
-      uiInstance.current = CreateSwaggerUI({  
+    if (uiInstance.current === null) {
+      uiInstance.current = CreateSwaggerUI({
         domNode: uiRef.current,
         spec: JSON.parse(props.spec),
-      })
+      });
     } else {
-     uiInstance.current.specActions.updateSpec(props.spec);
+      uiInstance.current.specActions.updateSpec(props.spec);
     }
-  }, [props.spec])
+  }, [props.spec]);
 
-  return <div ref={uiRef}></div>
-}
+  return <div ref={uiRef}></div>;
+};
