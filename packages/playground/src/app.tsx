@@ -36,19 +36,19 @@ export const App: FunctionComponent = () => {
   useEffect(() => {
     if (window.location.search.length > 0) {
       const parsed = new URLSearchParams(window.location.search);
-      const sample= parsed.get("sample");
-      if (sample) {
-        const content =  PlaygroundManifest.samples[sample];
+      const compressed = parsed.get("c");
+      if (compressed) {
+        const content = lzutf8.decompress(compressed, { inputEncoding: "Base64" });
         cadlModel.setValue(content);
         void doCompile(content);
       }
     }
   }, []);
- 
+
   useEffect(() => {
     cadlModel.onDidChangeContent(debounce(() => doCompile(cadlModel.getValue()), 200));
   }, [cadlModel]);
- 
+
   const updateCadl = useCallback(
     (value: string) => {
       cadlModel.setValue(value);
@@ -56,14 +56,10 @@ export const App: FunctionComponent = () => {
     },
     [cadlModel]
   );
- 
+
   const saveCode = useCallback(async () => {
-    const getsample = cadlModel.getValue();
-    history.pushState(null, "", window.location.pathname + "?sample=" + Object.keys(PlaygroundManifest.samples).find((key) => {
-      if (PlaygroundManifest.samples[key] === getsample) {
-        return key;
-      }
-    return ""}));
+    const compressed = lzutf8.compress(cadlModel.getValue(), { outputEncoding: "Base64" });
+    history.pushState(null, "", window.location.pathname + "?c=" + encodeURIComponent(compressed));
     await navigator.clipboard.writeText(window.location.toString());
   }, [cadlModel]);
 
