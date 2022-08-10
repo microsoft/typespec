@@ -59,9 +59,11 @@ export const App: FunctionComponent = () => {
  
   const saveCode = useCallback(async () => {
     const getsample = cadlModel.getValue();
-    history.pushState(null, "", window.location.pathname + "?sample=" + Object.keys(PlaygroundManifest.samples).find((key)=>{
+    history.pushState(null, "", window.location.pathname + "?sample=" + Object.keys(PlaygroundManifest.samples).find((key) => {
       if (PlaygroundManifest.samples[key] === getsample) {
-        return key; } return ""; }));
+        return key;
+      }
+    return ""}));
     await navigator.clipboard.writeText(window.location.toString());
   }, [cadlModel]);
 
