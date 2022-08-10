@@ -363,8 +363,7 @@ const TypeDataKey = styled.div`
   color: #333;
   margin-right: 5px;
 `;
-const TypeDataValue = styled.div`
-`;
+const TypeDataValue = styled.div``;
 const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const entries = [...program.stateMaps.entries()]
