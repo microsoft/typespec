@@ -1056,6 +1056,30 @@ namespace MyNamespace {
 `,
       });
     });
+
+    it("directive hugs decorators on model property", () => {
+      assertFormat({
+        code: `
+model Foo {
+  prop1: string;
+  #suppress   "some-error"     "because"
+    @decorate("args")
+   @decorate
+   prop2: string;
+  }
+`,
+        expected: `
+model Foo {
+  prop1: string;
+
+  #suppress "some-error" "because"
+  @decorate("args")
+  @decorate
+  prop2: string;
+}
+`,
+      });
+    });
   });
 
   describe("decorators", () => {
