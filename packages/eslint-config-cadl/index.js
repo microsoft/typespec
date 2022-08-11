@@ -34,6 +34,7 @@ module.exports = {
     "mocha/no-identical-title": "error",
     "mocha/no-nested-tests": "error",
     "mocha/no-empty-description": "error",
+    "mocha/no-exclusive-tests": "warn",
 
     /**
      * Core
