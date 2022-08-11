@@ -479,6 +479,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return mapCadlTypeToOpenAPI(type);
     }
 
+    if (type.kind === "EnumMember") {
+      // Enum members are just the OA representation of their values.
+      if (typeof type.value === "number") {
+        return { type: "number", enum: [type.value] };
+      } else {
+        return { type: "string", enum: [type.value ?? type.name] };
+      }
+    }
+
     type = getEffectiveSchemaType(type);
     const name = getTypeName(program, type, typeNameOptions);
 
@@ -764,6 +773,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
     const schemaMembers: { schema: any; type: Type | null }[] = [];
     let nullable = false;
+    let discriminator = getDiscriminator(program, union);
 
     for (const variant of variants) {
       if (isNullType(variant.type)) {
@@ -825,6 +835,19 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     if (nullable) {
       schema.nullable = true;
+    }
+
+    if (discriminator) {
+      // the decorator validates that all the variants will be a model type
+      // with the discriminator field present.
+      schema.discriminator = discriminator;
+      const mapping = getDiscriminatorMapping(
+        discriminator,
+        variants.map((v) => v.type) as ModelType[]
+      );
+      if (mapping) {
+        schema.discriminator.mapping = mapping;
+      }
     }
 
     return schema;
@@ -1094,6 +1117,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return [type.value];
     } else if (type.kind === "Union") {
       return type.options.flatMap(getStringValues).filter((v) => v);
+    } else if (type.kind === "EnumMember" && typeof type.value !== "number") {
+      return [type.value ?? type.name];
     }
     return [];
   }

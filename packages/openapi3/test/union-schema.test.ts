@@ -24,12 +24,12 @@ describe("openapi3: union type", () => {
     const res = await openApiFor(
       `
       model A {
-        type: "A";
+        type: "ay";
         a: string;
       }
 
       model B {
-        type: "B";
+        type: "bee";
         b: string;
       }
 
@@ -39,18 +39,73 @@ describe("openapi3: union type", () => {
         b: B
       }
 
-      @discriminator("type")
-      model Base {
-        x: string;
-      }
-      model X extends Base { type: "X" }
-      model Y extends Base { type: "Y"}
-
-
-
-      op foo(x: Base): { thing: Base };
+      op foo(x: AorB): { thing: AorB };
       `
     );
+
+    deepStrictEqual(res.components.schemas.AorB, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/A",
+        },
+        {
+          $ref: "#/components/schemas/B",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          ay: "#/components/schemas/A",
+          bee: "#/components/schemas/B",
+        },
+      },
+    });
+  });
+
+  it.only("handles discriminated unions with enum typed fields", async () => {
+    const res = await openApiFor(
+      `
+      enum Types {
+        A;
+        B: "bee";
+      }
+      model A {
+        type: Types.A;
+        a: string;
+      }
+
+      model B {
+        type: Types.B;
+        b: string;
+      }
+
+      @discriminator("type")
+      union AorB {
+        a: A,
+        b: B
+      }
+
+      op foo(x: AorB): { thing: AorB };
+      `
+    );
+
+    deepStrictEqual(res.components.schemas.AorB, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/A",
+        },
+        {
+          $ref: "#/components/schemas/B",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          A: "#/components/schemas/A",
+          bee: "#/components/schemas/B",
+        },
+      },
+    });
   });
 
   it("defines nullable properties with multiple variants", async () => {
