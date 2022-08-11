@@ -773,7 +773,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
     const schemaMembers: { schema: any; type: Type | null }[] = [];
     let nullable = false;
-    let discriminator = getDiscriminator(program, union);
+    const discriminator = getDiscriminator(program, union);
 
     for (const variant of variants) {
       if (isNullType(variant.type)) {
