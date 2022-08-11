@@ -35,8 +35,8 @@
     },
     {
       "OAuth2Auth": [
-        null,
-        null
+        "read",
+        "write"
       ]
     }
   ],
@@ -62,7 +62,8 @@
             "authorizationUrl": "https://api.example.com/oauth2/authorize",
             "refreshUrl": "https://api.example.com/oauth2/refresh",
             "scopes": {
-              "undefined": ""
+              "read": "",
+              "write": ""
             }
           }
         }
