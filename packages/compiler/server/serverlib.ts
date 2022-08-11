@@ -682,6 +682,23 @@ export function createServer(host: ServerHost): Server {
     return { changes };
   }
 
+  function addReferenceIdentifiers(
+    program: Program,
+    file: CadlScriptNode,
+    sym: Sym,
+    references: IdentifierNode[]
+  ) {
+    visitChildren(file, function visit(node) {
+      if (node.kind === SyntaxKind.Identifier) {
+        const s = program.checker.resolveIdentifier(node);
+        if (s === sym || (sym.type && s?.type === sym.type)) {
+          references.push(node);
+        }
+      }
+      visitChildren(node, visit);
+    });
+  }
+
   function findReferenceIdentifiers(
     program: Program,
     file: CadlScriptNode,
@@ -705,22 +722,6 @@ export function createServer(host: ServerHost): Server {
       }
     } else {
       addReferenceIdentifiers(program, file, sym, references);
-    }
-    function addReferenceIdentifiers(
-      program: Program,
-      file: CadlScriptNode,
-      sym: Sym,
-      references: IdentifierNode[]
-    ) {
-      visitChildren(file, function visit(node) {
-        if (node.kind === SyntaxKind.Identifier) {
-          const s = program.checker.resolveIdentifier(node);
-          if (s === sym || (sym.type && s?.type === sym.type)) {
-            references.push(node);
-          }
-        }
-        visitChildren(node, visit);
-      });
     }
     return references;
   }
