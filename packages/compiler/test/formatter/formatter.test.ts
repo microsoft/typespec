@@ -297,7 +297,7 @@ model Foo {
     });
   });
 
-  describe.only("comments", () => {
+  describe("comments", () => {
     it("format comment at position 0", () => {
       assertFormat({
         code: `// This comment is at position 0.
