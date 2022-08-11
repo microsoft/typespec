@@ -62,7 +62,7 @@ describe("openapi3: union type", () => {
     });
   });
 
-  it.only("handles discriminated unions with enum typed fields", async () => {
+  it("handles discriminated unions with enum typed fields", async () => {
     const res = await openApiFor(
       `
       enum Types {
