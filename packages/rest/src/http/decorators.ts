@@ -521,14 +521,27 @@ function extractHttpAuthentication(
     return [result, diagnostics];
   }
   const description = getDoc(program, modelType);
+  const auth = result.type === "oauth2" ? extractOAuth2Auth(result) : result;
   return [
     {
-      ...result,
+      ...auth,
       id: modelType.name || result.type,
       ...(description && { description }),
     },
     diagnostics,
   ];
+}
+
+function extractOAuth2Auth(data: any): HttpAuth {
+  return {
+    ...data,
+    flows: data.flows.map((flow: any) => {
+      return {
+        ...flow,
+        scopes: flow.scopes.map((x: string) => ({ value: x })),
+      };
+    }),
+  };
 }
 
 export function getAuthentication(
