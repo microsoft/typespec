@@ -701,12 +701,12 @@ export function createServer(host: ServerHost): Server {
     const references: IdentifierNode[] = [];
     if (wholeProgram) {
       for (const script of program.sourceFiles.values() ?? []) {
-        findReferenceIdentifiershelper(program, script, sym, references);
+        addReferenceIdentifiers(program, script, sym, references);
       }
     } else {
-      findReferenceIdentifiershelper(program, file, sym, references);
+      addReferenceIdentifiers(program, file, sym, references);
     }
-    function findReferenceIdentifiershelper(
+    function addReferenceIdentifiers(
       program: Program,
       file: CadlScriptNode,
       sym: Sym,
