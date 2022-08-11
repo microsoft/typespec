@@ -2,6 +2,18 @@
   "name": "@cadl-lang/internal-build-utils",
   "entries": [
     {
+      "version": "0.3.1",
+      "tag": "@cadl-lang/internal-build-utils_v0.3.1",
+      "date": "Thu, 11 Aug 2022 19:05:23 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@cadl-lang/internal-build-utils_v0.3.0",
       "date": "Mon, 13 Jun 2022 23:42:28 GMT",
