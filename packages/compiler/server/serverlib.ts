@@ -77,6 +77,7 @@ import {
   Node,
   SourceFile,
   StringLiteralNode,
+  Sym,
   SymbolFlags,
   SyntaxKind,
   Type,
@@ -700,17 +701,17 @@ export function createServer(host: ServerHost): Server {
     const references: IdentifierNode[] = [];
     if (wholeProgram) {
       for (const script of program.sourceFiles.values() ?? []) {
-        visitChildren(script, function visit(node) {
-          if (node.kind === SyntaxKind.Identifier) {
-            const s = program.checker.resolveIdentifier(node);
-            if (s === sym || (sym.type && s?.type === sym.type)) {
-              references.push(node);
-            }
-          }
-          visitChildren(node, visit);
-        });
+        findReferenceIdentifiershelper(program, script, sym, references);
       }
     } else {
+      findReferenceIdentifiershelper(program, file, sym, references);
+    }
+    function findReferenceIdentifiershelper(
+      program: Program,
+      file: CadlScriptNode,
+      sym: Sym,
+      references: IdentifierNode[]
+    ) {
       visitChildren(file, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
           const s = program.checker.resolveIdentifier(node);
@@ -721,7 +722,6 @@ export function createServer(host: ServerHost): Server {
         visitChildren(node, visit);
       });
     }
-
     return references;
   }
 
