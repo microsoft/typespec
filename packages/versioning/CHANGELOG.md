@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Aug 2022 19:05:23 GMT and should not be manually modified.
+
+## 0.7.0
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Minor changes
+
+- Internal: Uptake new compiler helpers to work with template types
+
+### Patches
+
+- Fix: Versioning when non-versioned library has template with spread.
+- Fix: Versioning when multiple service versions consume the same library version.
 
 ## 0.6.1
 Fri, 08 Jul 2022 23:22:57 GMT

@@ -1,6 +1,53 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Aug 2022 19:05:23 GMT and should not be manually modified.
+
+## 0.34.0
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Minor changes
+
+- combine consecutive single line comments that are separated by whitespace
+- comment folding
+- implemented folding for comments
+- Allow extracting value from enums
+- Add helper method for emitting file in emitters
+- Feature: Emitter can specify a list of required imports
+- Allow `@secret` on model property
+- Add type relations and include a few more built-in types `any`, `object`, `Record`. `Map` was removed
+- Added support for template constraints
+- Format `model Foo is Bar {}` to `model Foo is Bar;`
+- Added ability for decorator validator to accept any type
+- Add @overload decorator
+- Add helper to check if a namespace is the global namespace
+- Support spread enum
+- Add editor support for document symbols.
+- Improve language configuration to help with comment indentation
+- Provide helper to check types are template, template declaration or template instance
+
+### Patches
+
+- Fix: Allow omiting optional properties
+- Improve `cloneType` implementation to duplicate decorator lists correctly
+- Add DefaultKeyVisibility<T, Visibility> and @withDefaultKeyVisibility to assign a default visibility value to model @key properties in specific operation signatures
+- Fix: Referencing previous template parameter in template parameter defaul
+- Fix bug in finding effective type
+- Fix issue with required parentheses being dropped with union, intersection and array expressions
+- Fix issue with formatting multi line tuple adding trailing comma.
+- Fix parsing error locations for imports and blockless namespaces
+- Fix issue with multi-file specs in VS Code on Windows where common definitions are not found.
+- Fix `mix` message when trying to extend non-interface
+- Fix issue with projection of nested namespace passing partial projected element to decorators
+- Fix: Operation signature with circular reference causing crash and updated message+code to be relevant to operations.
+- Fix: Couldn't use operation defined inside interfaces as signature.
+- Fix uninitialzed parent namespaces in projections
+- Run projections on types returned from getEffectiveType
+- Fix: Issue with Nested namespace in projection causing versioning library to fail when Service is using nested namespace
+- Internal: union variant type has reference to parent union.
+- Fix null reference in getTypeName API when called on anonymous models without a backing syntax node
+- Emit diagnostic when an optional property is marked with @key
+- Providing `cadl.cadl-server.path` option will force the specified compiler to be used
+- Fix error location of duplicate property from spread
 
 ## 0.33.0
 Fri, 08 Jul 2022 23:22:57 GMT
