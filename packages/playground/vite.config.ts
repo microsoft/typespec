@@ -14,5 +14,4 @@ export default definePlaygroundViteConfig({
     "Rest framework": "samples/rest.cadl",
     "Versioned Rest framework": "samples/versioning.cadl",
   },
-  enableSwaggerUI: true,
 });
