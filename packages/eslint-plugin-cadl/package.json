@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/eslint-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of Cadl libraries",
   "homepage": "https://github.com/Microsoft/cadl",
@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
-    "@cadl-lang/eslint-config-cadl": "~0.3.0",
+    "@cadl-lang/eslint-config-cadl": "~0.4.0",
     "@typescript-eslint/parser": "^5.30.7",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",

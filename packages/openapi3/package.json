@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/openapi3",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "author": "Microsoft Corporation",
   "description": "Cadl library for emitting OpenAPI 3.0 from the Cadl REST protocol binding",
   "homepage": "https://github.com/Microsoft/cadl",
@@ -52,21 +52,21 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@cadl-lang/versioning": "~0.6.1",
-    "@cadl-lang/compiler": "~0.33.0",
-    "@cadl-lang/rest": "~0.15.1",
-    "@cadl-lang/openapi": "~0.10.1"
+    "@cadl-lang/versioning": "~0.7.0",
+    "@cadl-lang/compiler": "~0.34.0",
+    "@cadl-lang/rest": "~0.16.0",
+    "@cadl-lang/openapi": "~0.11.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
-    "@cadl-lang/compiler": "~0.33.0",
-    "@cadl-lang/rest": "~0.15.1",
-    "@cadl-lang/openapi": "~0.10.1",
-    "@cadl-lang/versioning": "~0.6.1",
-    "@cadl-lang/eslint-config-cadl": "~0.3.0",
-    "@cadl-lang/library-linter": "~0.1.2",
-    "@cadl-lang/eslint-plugin": "~0.1.0",
+    "@cadl-lang/compiler": "~0.34.0",
+    "@cadl-lang/rest": "~0.16.0",
+    "@cadl-lang/openapi": "~0.11.0",
+    "@cadl-lang/versioning": "~0.7.0",
+    "@cadl-lang/eslint-config-cadl": "~0.4.0",
+    "@cadl-lang/library-linter": "~0.1.3",
+    "@cadl-lang/eslint-plugin": "~0.1.1",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
     "mocha-junit-reporter": "~2.0.2",
