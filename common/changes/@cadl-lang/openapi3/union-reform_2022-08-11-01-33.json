@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Support more kinds of unions, fix various union bugs, and add support for @discriminator on unions",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Support more kinds of unions, fix various union bugs, and add support for @discriminator on unions",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
