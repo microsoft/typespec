@@ -27,7 +27,7 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
     props.model.pushEditOperations(
       [],
       [{ range: props.model.getFullModelRange(), text: output }],
-      () => null,
+      () => null
     );
   };
 
