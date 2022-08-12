@@ -415,5 +415,5 @@ describe("versioning: dependencies", () => {
 
 function runProjections(program: Program, rootNs: NamespaceType) {
   const versions = buildVersionProjections(program, rootNs);
-  return versions.map((x) => projectProgram(program, versions[0].projections).projector);
+  return versions.map((x) => projectProgram(program, x.projections).projector);
 }
