@@ -1,4 +1,4 @@
-import { ModelType, NamespaceType, Program } from "@cadl-lang/compiler";
+import { ModelType, NamespaceType, Program, projectProgram } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   createTestWrapper,
@@ -57,7 +57,7 @@ describe("versioning: reference versioned library", () => {
       strictEqual(versions[0].version, undefined);
       strictEqual(versions[0].projections.length, 1);
 
-      const projector = runner.program.enableProjections(versions[0].projections, Test);
+      const projector = projectProgram(runner.program, versions[0].projections, Test).projector;
       const Foo = (projector.projectedTypes.get(Test) as any).baseModel;
 
       assertFooV1(Foo);
@@ -93,12 +93,12 @@ describe("versioning: reference versioned library", () => {
       strictEqual(versions[0].version, "v1");
       strictEqual(versions[1].version, "v2");
 
-      const projectorV1 = runner.program.enableProjections(versions[0].projections, Test);
+      const projectorV1 = projectProgram(runner.program, versions[0].projections, Test).projector;
       const FooV1 = (projectorV1.projectedTypes.get(Test) as any).baseModel;
 
       assertFooV1(FooV1);
 
-      const projectorV2 = runner.program.enableProjections(versions[1].projections, Test);
+      const projectorV2 = projectProgram(runner.program, versions[1].projections, Test).projector;
       const FooV2 = (projectorV2.projectedTypes.get(Test) as any).baseModel;
       assertFooV2(FooV2);
     });
@@ -117,12 +117,12 @@ describe("versioning: reference versioned library", () => {
       strictEqual(versions[0].version, "v1");
       strictEqual(versions[1].version, "v2");
 
-      const projectorV1 = runner.program.enableProjections(versions[0].projections, Test);
+      const projectorV1 = projectProgram(runner.program, versions[0].projections, Test).projector;
       const FooV1 = (projectorV1.projectedTypes.get(Test) as any).baseModel;
 
       assertFooV1(FooV1);
 
-      const projectorV2 = runner.program.enableProjections(versions[1].projections, Test);
+      const projectorV2 = projectProgram(runner.program, versions[1].projections, Test).projector;
       const FooV2 = (projectorV2.projectedTypes.get(Test) as any).baseModel;
       assertFooV1(FooV2);
     });
@@ -415,5 +415,5 @@ describe("versioning: dependencies", () => {
 
 function runProjections(program: Program, rootNs: NamespaceType) {
   const versions = buildVersionProjections(program, rootNs);
-  return versions.map((x) => program.enableProjections(x.projections, rootNs));
+  return versions.map((x) => projectProgram(program, versions[0].projections).projector);
 }

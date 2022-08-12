@@ -1,7 +1,8 @@
 import { isNeverType } from "../lib/decorators.js";
+import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
-import { isNeverIndexer, isTemplateDeclaration } from "./index.js";
-import { Program } from "./program";
+import { isNeverIndexer, isTemplateDeclaration, ProjectedProgram } from "./index.js";
+import { Program, StateMap, StateSet } from "./program.js";
 import {
   DecoratorApplication,
   DecoratorArgument,
@@ -50,7 +51,7 @@ export function createProjector(
   program: Program,
   projections: ProjectionApplication[],
   startNode?: Type
-): Projector {
+): ProjectedProgram {
   const projectedTypes = new Map<Type, Type>();
   const checker = program.checker;
   const neverType = checker.neverType;
@@ -63,8 +64,13 @@ export function createProjector(
   const projectedNamespaces: NamespaceType[] = [];
   let projectingNamespaces = false;
 
-  program.currentProjector = projector;
-
+  const projectedProgram = {
+    ...program,
+    getGlobalNamespaceType: () => projector.projectedGlobalNamespace!,
+    stateMaps: new Map<symbol, StateMap<any>>(),
+    stateSets: new Map<symbol, StateSet>(),
+    projector,
+  };
   const targetGlobalNs = startNode
     ? startNode.projector
       ? startNode.projector.projectedGlobalNamespace!
@@ -86,7 +92,7 @@ export function createProjector(
     ? projectedTypes.get(startNode)
     : projector.projectedGlobalNamespace;
 
-  return projector;
+  return projectedProgram;
 
   function projectType(type: Type): Type {
     if (projectedTypes.has(type)) {
@@ -183,7 +189,7 @@ export function createProjector(
     }
 
     // ns run decorators before projecting anything inside them
-    checker.finishType(projectedNs);
+    finishTypeForProgram(projectedProgram, projectedNs);
 
     if (projectSubNamespace) {
       projectSubNamespaces(ns, projectedNs);
@@ -285,7 +291,7 @@ export function createProjector(
 
     projectedModel.decorators = projectDecorators(model.decorators);
     if (shouldFinishType(model)) {
-      checker.finishType(projectedModel);
+      finishTypeForProgram(projectedProgram, projectedModel);
     }
     projectedModel.templateArguments = templateArguments;
     const projectedResult = applyProjection(model, projectedModel);
@@ -323,7 +329,7 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
-    checker.finishType(projectedProp);
+    finishTypeForProgram(projectedProgram, projectedProp);
     return projectedProp;
   }
 
@@ -344,7 +350,7 @@ export function createProjector(
       projectedOp.namespace = projectedNamespaceScope();
     }
 
-    checker.finishType(projectedOp);
+    finishTypeForProgram(projectedProgram, projectedOp);
     return applyProjection(op, projectedOp);
   }
 
@@ -364,7 +370,7 @@ export function createProjector(
     }
 
     if (shouldFinishType(iface)) {
-      checker.finishType(projectedIface);
+      finishTypeForProgram(projectedProgram, projectedIface);
     }
 
     return applyProjection(iface, projectedIface);
@@ -387,7 +393,7 @@ export function createProjector(
     }
 
     if (shouldFinishType(union)) {
-      checker.finishType(projectedUnion);
+      finishTypeForProgram(projectedProgram, projectedUnion);
     }
 
     return applyProjection(union, projectedUnion);
@@ -402,7 +408,7 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
-    checker.finishType(projectedVariant);
+    finishTypeForProgram(projectedProgram, projectedVariant);
     return projectedVariant;
   }
 
@@ -436,7 +442,7 @@ export function createProjector(
       }
     }
 
-    checker.finishType(projectedEnum);
+    finishTypeForProgram(projectedProgram, projectedEnum);
     return applyProjection(e, projectedEnum);
   }
 
@@ -447,7 +453,7 @@ export function createProjector(
     });
     const parentEnum = projectType(e.enum) as EnumType;
     projectedMember.enum = parentEnum;
-    checker.finishType(projectedMember);
+    finishTypeForProgram(projectedProgram, projectedMember);
     return projectedMember;
   }
 

@@ -27,15 +27,7 @@ export function navigateProgram(
     return;
   }
 
-  if (program.currentProjector) {
-    navigateNamespaceType(
-      program.currentProjector.projectedGlobalNamespace!,
-      eventEmitter,
-      visited
-    );
-  } else {
-    navigateNamespaceType(program.checker.getGlobalNamespaceType(), eventEmitter, visited);
-  }
+  navigateNamespaceType(program.getGlobalNamespaceType(), eventEmitter, visited);
 }
 
 function navigateNamespaceType(

@@ -3,6 +3,7 @@ import {
   DecoratorContext,
   Diagnostic,
   DiagnosticCollector,
+  filterModelProperties,
   getServiceNamespace,
   InterfaceType,
   isGlobalNamespace,
@@ -253,7 +254,7 @@ export function getOperationParameters(
 
   if (unannotatedParams.size > 0) {
     if (result.bodyType === undefined) {
-      result.bodyType = program.checker.filterModelProperties(operation.parameters, (p) =>
+      result.bodyType = filterModelProperties(program, operation.parameters, (p) =>
         unannotatedParams.has(p)
       );
     } else {

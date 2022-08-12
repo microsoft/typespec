@@ -1,7 +1,7 @@
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile } from "./diagnostics.js";
-import { SymbolFlags } from "./index.js";
+import { NamespaceType, ProjectionApplication, SymbolFlags } from "./index.js";
 import { createLogger } from "./logger/index.js";
 import { createDiagnostic } from "./messages.js";
 import { resolveModule, ResolveModuleHost } from "./module-resolver.js";
@@ -26,7 +26,6 @@ import {
   Node,
   NodeFlags,
   NoTarget,
-  ProjectionApplication,
   Projector,
   SourceFile,
   Sym,
@@ -35,6 +34,16 @@ import {
   Type,
 } from "./types.js";
 import { doIO, loadFile } from "./util.js";
+
+export interface ProjectedProgram extends Program {
+  projector: Projector;
+}
+
+export function isProjectedProgram(
+  program: Program | ProjectedProgram
+): program is ProjectedProgram {
+  return "projector" in program;
+}
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -60,9 +69,7 @@ export interface Program {
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
-  enableProjections(projections: ProjectionApplication[], startNode?: Type): Projector;
-  disableProjections(): void;
-  currentProjector?: Projector;
+  getGlobalNamespaceType(): NamespaceType;
 }
 
 interface EmitterRef {
@@ -70,123 +77,15 @@ interface EmitterRef {
   options: EmitterOptions;
 }
 
-class StateMap<V> implements Map<Type, V> {
-  private internalState = new Map<undefined | Projector, Map<Type, V>>();
-  constructor(public program: Program, public key: symbol) {}
+export class StateMap<V> extends Map<Type, V> {}
+export class StateSet extends Set<Type> {}
 
-  has(t: Type) {
-    return this.dispatch(t)?.has(t) ?? false;
-  }
-
-  set(t: Type, v: any) {
-    this.dispatch(t).set(t, v);
-    return this;
-  }
-
-  get(t: Type) {
-    return this.dispatch(t).get(t);
-  }
-
-  delete(t: Type) {
-    return this.dispatch(t).delete(t);
-  }
-
-  forEach(cb: (value: V, key: Type, map: Map<Type, V>) => void, thisArg?: any) {
-    this.dispatch().forEach(cb, thisArg);
-    return this;
-  }
-
-  get size() {
-    return this.dispatch().size;
-  }
-
-  clear() {
-    return this.dispatch().clear();
-  }
-
-  entries() {
-    return this.dispatch().entries();
-  }
-
-  values() {
-    return this.dispatch().values();
-  }
-
-  keys() {
-    return this.dispatch().keys();
-  }
-
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-
-  [Symbol.toStringTag] = "StateMap";
-
-  dispatch(keyType?: Type): Map<Type, V> {
-    const key = keyType ? keyType.projector : this.program.currentProjector;
-    if (!this.internalState.has(key)) {
-      this.internalState.set(key, new Map());
-    }
-
-    return this.internalState.get(key)!;
-  }
-}
-class StateSet implements Set<Type> {
-  private internalState = new Map<undefined | Projector, Set<Type>>();
-  constructor(public program: Program, public key: symbol) {}
-
-  has(t: Type) {
-    return this.dispatch(t)?.has(t) ?? false;
-  }
-
-  add(t: Type) {
-    this.dispatch(t).add(t);
-    return this;
-  }
-
-  delete(t: Type) {
-    return this.dispatch(t).delete(t);
-  }
-
-  forEach(cb: (value: Type, value2: Type, set: Set<Type>) => void, thisArg?: any) {
-    this.dispatch().forEach(cb, thisArg);
-    return this;
-  }
-
-  get size() {
-    return this.dispatch().size;
-  }
-
-  clear() {
-    return this.dispatch().clear();
-  }
-
-  values() {
-    return this.dispatch().values();
-  }
-
-  keys() {
-    return this.dispatch().keys();
-  }
-
-  entries() {
-    return this.dispatch().entries();
-  }
-
-  [Symbol.iterator]() {
-    return this.values();
-  }
-
-  [Symbol.toStringTag] = "StateSet";
-
-  dispatch(keyType?: Type): Set<Type> {
-    const key = keyType ? keyType.projector : this.program.currentProjector;
-    if (!this.internalState.has(key)) {
-      this.internalState.set(key, new Set());
-    }
-
-    return this.internalState.get(key)!;
-  }
+export function projectProgram(
+  program: Program,
+  projections: ProjectionApplication[],
+  startNode?: Type
+): ProjectedProgram {
+  return createProjector(program, projections, startNode);
 }
 
 export async function createProgram(
@@ -200,7 +99,6 @@ export async function createProgram(
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
-  let currentProjector: Projector | undefined;
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const libraryLoaded = new Set<string>();
@@ -234,14 +132,7 @@ export async function createProgram(
     onValidate(cb) {
       validateCbs.push(cb);
     },
-    enableProjections,
-    disableProjections,
-    get currentProjector() {
-      return currentProjector;
-    },
-    set currentProjector(v) {
-      currentProjector = v;
-    },
+    getGlobalNamespaceType,
   };
 
   let virtualFileCount = 0;
@@ -752,7 +643,7 @@ export async function createProgram(
     let m = stateMaps.get(key);
 
     if (!m) {
-      m = new StateMap(program, key);
+      m = new StateMap();
       stateMaps.set(key, m);
     }
 
@@ -763,19 +654,11 @@ export async function createProgram(
     let s = stateSets.get(key);
 
     if (!s) {
-      s = new StateSet(program, key);
+      s = new StateSet();
       stateSets.set(key, s);
     }
 
     return s;
-  }
-
-  function enableProjections(projections: ProjectionApplication[], startNode?: Type) {
-    return createProjector(program, projections, startNode);
-  }
-
-  function disableProjections() {
-    currentProjector = undefined;
   }
 
   function reportDiagnostic(diagnostic: Diagnostic): void {
@@ -920,6 +803,10 @@ export async function createProgram(
         }
       }
     }
+  }
+
+  function getGlobalNamespaceType() {
+    return checker!.getGlobalNamespaceType();
   }
 }
 
