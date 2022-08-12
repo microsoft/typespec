@@ -944,5 +944,15 @@ export function getProjectedName(
   target: Type,
   projectionName: string
 ): string | undefined {
-  return program.stateMap(projectedNameKey).get(target)?.get(projectionName);
+  return getProjectedNames(program, target)?.get(projectionName);
+}
+
+/**
+ * Get the projected name of the given entity for the given projection.
+ * @param program Program
+ * @param target Target
+ * @returns Projected name for the given projection
+ */
+export function hasProjectedName(program: Program, target: Type, projectionName: string): boolean {
+  return getProjectedNames(program, target)?.has(projectionName) ?? false;
 }

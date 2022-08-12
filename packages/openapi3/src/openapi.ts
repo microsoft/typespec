@@ -38,6 +38,7 @@ import {
   NewLine,
   OperationType,
   Program,
+  ProjectionApplication,
   resolvePath,
   Type,
   TypeNameOptions,
@@ -328,6 +329,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!serviceNs) {
       return;
     }
+    const commonProjections: ProjectionApplication[] = [
+      {
+        projectionName: "wire",
+        arguments: ["json"],
+      },
+    ];
     const versions = buildVersionProjections(program, serviceNs);
     for (const record of versions) {
       if (record.version) {
@@ -337,9 +344,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
       }
 
-      if (record.projections.length > 0) {
-        program.enableProjections(record.projections);
-      }
+      program.enableProjections([...commonProjections, ...record.projections]);
 
       await emitOpenAPIFromVersion(serviceNs, record.version);
     }

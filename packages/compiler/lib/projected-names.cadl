@@ -1,5 +1,100 @@
 // Set of projections consuming the @projectedName decorator
 
 #suppress "projections-are-experimental"
-projection model#toJson {
+projection op#wire {
+  to(wireName) {
+    if hasProjectedName(self, wireName) {
+      self::rename(getProjectedName(self, wireName));
+    };
+  }
+
+  from(version) {
+    if hasProjectedName(self, wireName) {
+      self::rename(self::projectionBase::name);
+    };
+  }
+}
+
+#suppress "projections-are-experimental"
+projection interface#wire {
+  to(wireName) {
+    if hasProjectedName(self, wireName) {
+      self::rename(getProjectedName(self, wireName));
+    };
+  }
+
+  from(version) {
+    if hasProjectedName(self, wireName) {
+      self::rename(self::projectionBase::name);
+    };
+  }
+}
+
+#suppress "projections-are-experimental"
+projection model#wire {
+  to(wireName) {
+    if hasProjectedName(self, wireName) {
+      self::rename(getProjectedName(self, wireName));
+    };
+
+    self::properties::forEach((p) => {
+      if hasProjectedName(p, wireName) {
+        self::renameProperty(p::name, getProjectedName(p, wireName));
+      };
+    });
+  }
+
+  from(version) {
+    if hasProjectedName(self, wireName) {
+      self::rename(self::projectionBase::name);
+    };
+    
+    self::projectionBase::properties::forEach((p) => {
+      if hasProjectedName(p, wireName) {
+        self::renameProperty(getProjectedName(p, wireName), p::name);
+      };
+    });
+  }
+}
+
+#suppress "projections-are-experimental"
+projection enum#wire {
+  to(wireName) {
+    if hasProjectedName(self, wireName) {
+      self::rename(getProjectedName(self, wireName));
+    };
+
+    self::members::forEach((p) => {
+      if hasProjectedName(p, wireName) {
+        self::renameMember(p::name, getProjectedName(p, wireName));
+      };
+    });
+  }
+
+  from(version) {
+    if hasProjectedName(self, wireName) {
+      self::rename(self::projectionBase::name);
+    };
+    
+    self::projectionBase::members::forEach((p) => {
+      if hasProjectedName(p, wireName) {
+        self::renameMember(getProjectedName(p, wireName), p::name);
+      };
+    });
+  }
+}
+
+#suppress "projections-are-experimental"
+projection union#wire {
+  to(wireName) {
+    if hasProjectedName(self, wireName) {
+      self::rename(getProjectedName(self, wireName));
+    };
+  }
+
+  from(version) {
+    if hasProjectedName(self, wireName) {
+      self::rename(self::projectionBase::name);
+    };
+  }
 }

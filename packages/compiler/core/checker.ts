@@ -385,8 +385,8 @@ export function createChecker(program: Program): Checker {
     cadlNamespaceBinding!.exports!.set("log", {
       flags: SymbolFlags.Function,
       name: "log",
-      value(p: Program, str: string): Type {
-        program.logger.log({ level: "debug", message: str });
+      value(p: Program, ...strs: string[]): Type {
+        program.logger.log({ level: "debug", message: strs.join(" ") });
         return voidType;
       },
       declarations: [],
@@ -3677,7 +3677,16 @@ export function createChecker(program: Program): Checker {
         kind: "Function",
         call(...args: Type[]): Type {
           const retval = ref.value!(program, ...marshalProjectionArguments(args));
-          return marshalProjectionReturn(retval);
+          try {
+            return marshalProjectionReturn(retval);
+          } catch (e) {
+            if (e instanceof ProjectionError) {
+              throw new Error(
+                `Can't marshal value "${retval}" returned from JS function "${node.sv}" into cadl`
+              );
+            }
+            throw e;
+          }
         },
       } as const);
       return t;
