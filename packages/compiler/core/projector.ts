@@ -21,9 +21,6 @@ import {
   UnionTypeVariant,
 } from "./types.js";
 
-function foo() {}
-foo();
-
 /**
  * Creates a projector which returns a projected view of either the global namespace or the
  * start node provided. Projecting a type effectively clones every type referenced underneath
