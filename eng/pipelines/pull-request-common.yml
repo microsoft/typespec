@@ -10,6 +10,10 @@ steps:
       versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
 
+  - task: MSBuild@1
+    inputs:
+      msbuildVersion: 17.0.x
+
   - task: UseDotNet@2
     inputs:
       version: 6.0.x
