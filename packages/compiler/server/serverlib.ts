@@ -17,10 +17,14 @@ import {
   FileEvent,
   FoldingRange,
   FoldingRangeParams,
+  Hover,
+  HoverParams,
   InitializedParams,
   InitializeParams,
   InitializeResult,
   Location,
+  MarkupContent,
+  MarkupKind,
   PrepareRenameParams,
   PublishDiagnosticsParams,
   Range,
@@ -114,6 +118,7 @@ export interface Server {
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  getHoverSymbol(params: HoverParams): Promise<Hover>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
@@ -255,6 +260,7 @@ export function createServer(host: ServerHost): Server {
     buildSemanticTokens,
     checkChange,
     getFoldingRanges,
+    getHoverSymbol,
     getDocumentSymbols,
     log,
   };
@@ -271,6 +277,7 @@ export function createServer(host: ServerHost): Server {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
       foldingRangeProvider: true,
+      hoverProvider: true,
       documentSymbolProvider: true,
       documentHighlightProvider: true,
       completionProvider: {
@@ -604,6 +611,31 @@ export function createServer(host: ServerHost): Server {
     for (const [document, diagnostics] of diagnosticMap) {
       sendDiagnostics(document, diagnostics);
     }
+  }
+
+  async function getDocument(params: DefinitionParams): Promise<string> {
+    const sym = await compile(params.textDocument, (program, document, file) => {
+      const id = getNodeAtPosition(file, document.offsetAt(params.position));
+      return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+    });
+    const symbol = sym;
+    if (symbol) {
+      return [symbol.name, symbol.declarations[0].kind.toString()].join(", ");
+    }
+    return "";
+  }
+
+  async function getHoverSymbol(params: HoverParams): Promise<Hover> {
+    const docString = await getDocument(params);
+    const markdown: MarkupContent = {
+      kind: MarkupKind.PlainText,
+      value: docString,
+    };
+    const hoverSymbol = {
+      contents: markdown,
+    };
+
+    return hoverSymbol;
   }
 
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
