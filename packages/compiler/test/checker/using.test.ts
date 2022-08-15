@@ -1,5 +1,5 @@
 import { match, rejects, strictEqual } from "assert";
-import { DecoratorContext, getSourceLocation } from "../../core/index.js";
+import { getSourceLocation } from "../../core/index.js";
 import { ModelType } from "../../core/types.js";
 import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
 
@@ -355,44 +355,6 @@ describe("compiler: using statements", () => {
       `
       namespace Foo;
       model test { x: int32 };
-    `
-    );
-
-    await testHost.compile("./");
-  });
-
-  it("Cadl namespace is automatically using'd in eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace Bar; model A { a: int32 };`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-
-      namespace Foo;
-      @eval model test { x: int32 };
-    `
-    );
-
-    await testHost.compile("./");
-  });
-
-  it("works with eval", async () => {
-    testHost.addJsFile("test.js", {
-      async $eval({ program }: DecoratorContext) {
-        await program.evalCadlScript(`using Foo; model A { a: X };`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-      namespace Foo;
-      model X { };
-      @eval model test { };
     `
     );
 

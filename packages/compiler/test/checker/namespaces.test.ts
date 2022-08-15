@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
-import { DecoratorContext, ModelType, NamespaceType, Type } from "../../core/types.js";
+import { ModelType, NamespaceType, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
@@ -382,11 +382,6 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("merges properly with other namespaces using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace N; @test model Z { ... X, ... Y }`);
-      },
-    });
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -423,12 +418,6 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("can access the cadl namespace using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace Z; @test model Z { @doc("x") x: int32 }`);
-      },
-    });
-
     testHost.addCadlFile(
       "main.cadl",
       `
