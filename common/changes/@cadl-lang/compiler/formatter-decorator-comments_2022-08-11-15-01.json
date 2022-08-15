@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "implemented folding for comments",
+      "comment": "Formatter: Comments in between decorators will stay between the decorators when formatting.",
       "type": "minor"
     }
   ],

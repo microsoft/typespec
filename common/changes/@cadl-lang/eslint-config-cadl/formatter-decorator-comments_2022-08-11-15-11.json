@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/eslint-config-cadl",
-      "comment": "Upgrade to TS4.7",
-      "type": "none"
+      "comment": "Add warning when using `.only` to remmeber to remove before pushing",
+      "type": "patch"
     }
   ],
   "packageName": "@cadl-lang/eslint-config-cadl"

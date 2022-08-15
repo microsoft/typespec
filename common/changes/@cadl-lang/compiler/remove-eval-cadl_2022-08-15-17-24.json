@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "combine consecutive single line comments that are separated by whitespace",
+      "comment": "Internal: Remove `evalCadlScript` from `Program`",
       "type": "minor"
     }
   ],

@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
-import { DecoratorContext, ModelType, NamespaceType, Type } from "../../core/types.js";
+import { ModelType, NamespaceType, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
@@ -379,69 +379,6 @@ describe("compiler: blockless namespaces", () => {
       Z: ModelType;
     };
     strictEqual(Z.properties.size, 2, "has two properties");
-  });
-
-  it("merges properly with other namespaces using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace N; @test model Z { ... X, ... Y }`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./a.cadl";
-      import "./b.cadl";
-      import "./c.cadl";
-      `
-    );
-    testHost.addCadlFile(
-      "a.cadl",
-      `
-      namespace N;
-      model X { x: int32 }
-      `
-    );
-    testHost.addCadlFile(
-      "b.cadl",
-      `
-      namespace N;
-      model Y { y: int32 }
-      `
-    );
-    testHost.addCadlFile(
-      "c.cadl",
-      `
-      import "./test.js";
-      @eval model test { }
-      `
-    );
-    const { Z } = (await testHost.compile("./")) as {
-      Z: ModelType;
-    };
-    strictEqual(Z.properties.size, 2, "has two properties");
-  });
-
-  it("can access the cadl namespace using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace Z; @test model Z { @doc("x") x: int32 }`);
-      },
-    });
-
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-
-      @test @eval model X { x: int32 }
-      `
-    );
-
-    const { X } = (await testHost.compile("./")) as {
-      X: ModelType;
-    };
-    strictEqual((X.properties.get("x")!.type as ModelType).name, "int32");
   });
 
   it("does lookup correctly", async () => {

@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Fix parsing error locations for imports and blockless namespaces",
+      "comment": "Formatter: Directive on model property with decorators will hug decorator.",
       "type": "patch"
     }
   ],

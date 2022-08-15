@@ -74,6 +74,7 @@ function main() {
   connection.onDocumentSymbol(s.getDocumentSymbols);
   connection.onDocumentHighlight(s.findDocumentHighlight);
   connection.onHover(s.getHoverSymbol);
+
   connection.languages.semanticTokens.on(s.buildSemanticTokens);
 
   documents.onDidChangeContent(s.checkChange);
