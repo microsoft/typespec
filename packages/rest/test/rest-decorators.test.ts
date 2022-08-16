@@ -1,4 +1,4 @@
-import { ModelType } from "@cadl-lang/compiler";
+import { Model } from "@cadl-lang/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { getConsumes, getProduces, getResourceLocationType } from "../src/rest.js";
@@ -146,7 +146,7 @@ describe("rest: http decorators", () => {
 
           @test
           model WidgetLocation is ResourceLocation<Widget>;
-`)) as { WidgetLocation: ModelType };
+`)) as { WidgetLocation: Model };
 
       const resourceType = getResourceLocationType(runner.program, WidgetLocation);
       ok(resourceType);
