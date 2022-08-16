@@ -26,13 +26,13 @@ model LocationHeader {
 }
 
 @doc("The request has succeeded and a new resource has been created as a result.")
-model CreatedResponse is Response<201> {}
+model CreatedResponse is Response<201>;
 
 @doc("The request has been received but not yet acted upon.")
-model AcceptedResponse is Response<202> {}
+model AcceptedResponse is Response<202>;
 
 @doc("There is no content to send for this request, but the headers may be useful. ")
-model NoContentResponse is Response<204> {}
+model NoContentResponse is Response<204>;
 
 @doc("The URL of the requested resource has been changed permanently. The new URL is given in the response.")
 model MovedResponse is Response<301> {
@@ -40,16 +40,16 @@ model MovedResponse is Response<301> {
 }
 
 @doc("This is used for caching purposes.")
-model NotModifiedResponse is Response<304> {}
+model NotModifiedResponse is Response<304>;
 
 @doc("The server could not understand the request due to invalid syntax.")
-model UnauthorizedResponse is Response<401> {}
+model UnauthorizedResponse is Response<401>;
 
 @doc("The server can not find the requested resource.")
-model NotFoundResponse is Response<404> {}
+model NotFoundResponse is Response<404>;
 
 @doc("This response is sent when a request conflicts with the current state of the server.")
-model ConflictResponse is Response<409> {}
+model ConflictResponse is Response<409>;
 
 // Produces a new model with the same properties as T, but with @query,
 // @header, @body, and @path decorators removed from all properties.
