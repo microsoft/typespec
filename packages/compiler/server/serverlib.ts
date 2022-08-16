@@ -118,7 +118,7 @@ export interface Server {
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
-  getHoverSymbol(params: HoverParams): Promise<Hover>;
+  getTypeDetails(params: HoverParams): Promise<Hover>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
@@ -260,7 +260,7 @@ export function createServer(host: ServerHost): Server {
     buildSemanticTokens,
     checkChange,
     getFoldingRanges,
-    getHoverSymbol,
+    getTypeDetails,
     getDocumentSymbols,
     log,
   };
@@ -613,22 +613,27 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getDocument(params: DefinitionParams): Promise<string> {
+  async function getDocument(type: Type): Promise<string> {
+    return type.kind;
+  }
+
+  async function getTypeDetails(params: HoverParams): Promise<Hover> {
     const sym = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
       return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
     });
-    const symbol = sym;
-    if (symbol) {
-      return [symbol.name, symbol.declarations[0].kind.toString()].join(", ");
+    let docString = "";
+    if (sym) {
+      const typesym = await compile(params.textDocument, (program, document, file) => {
+        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
+        return getDocument(type);
+      });
+      if (typesym) {
+        docString = typesym;
+      }
     }
-    return "";
-  }
-
-  async function getHoverSymbol(params: HoverParams): Promise<Hover> {
-    const docString = await getDocument(params);
     const markdown: MarkupContent = {
-      kind: MarkupKind.PlainText,
+      kind: MarkupKind.Markdown,
       value: docString,
     };
     const hoverSymbol = {
@@ -658,13 +663,16 @@ export function createServer(host: ServerHost): Server {
       } else {
         switch (node.kind) {
           case SyntaxKind.NamespaceStatement:
+            getTypeDetails(params);
             addKeywordCompletion("namespace", completions);
             break;
           case SyntaxKind.Identifier:
+            getTypeDetails(params);
             addIdentifierCompletion(program, node, completions);
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
+              getTypeDetails(params);
               await addImportCompletion(program, document, completions, node);
             }
             break;

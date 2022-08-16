@@ -108,6 +108,18 @@ export async function attachServices(host: BrowserHost) {
     };
   }
 
+  function monacoHoverContents(contents: lsp.MarkupContent): monaco.IMarkdownString[] {
+    return [{ value: contents.value }];
+  }
+
+  function monacoHover(type: lsp.Hover): monaco.languages.Hover {
+    const typecontents = type.contents as lsp.MarkupContent;
+    if (type.range) {
+      return { contents: monacoHoverContents(typecontents), range: monacoRange(type.range) };
+    }
+    return { contents: monacoHoverContents(typecontents) };
+  }
+
   function monacoRange(range: lsp.Range): monaco.IRange {
     return {
       startColumn: range.start.character + 1,
@@ -181,6 +193,13 @@ export async function attachServices(host: BrowserHost) {
       const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
       const output = ranges.map(monacoFoldingRange);
       return output;
+    },
+  });
+
+  monaco.languages.registerHoverProvider("cadl", {
+    async provideHover(model, position) {
+      const hover = await serverLib.getTypeDetails(lspArgs(model, position));
+      return monacoHover(hover);
     },
   });
 
