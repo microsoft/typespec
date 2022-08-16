@@ -32,7 +32,7 @@ describe("compiler: libraries", () => {
     const diagnostics = await testHost.diagnose("main.cadl");
     expectDiagnostics(diagnostics, {
       code: "compiler-version-mismatch",
-      severity: "error",
+      severity: "warning",
       message: /Current Cadl compiler conflicts with local version/,
     });
   });

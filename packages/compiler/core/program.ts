@@ -712,9 +712,7 @@ export async function createProgram(
    * @returns
    */
   async function loadMain(mainPath: string, options: CompilerOptions): Promise<void> {
-    if (!(await checkForCompilerVersionMismatch(mainPath))) {
-      return;
-    }
+    await checkForCompilerVersionMismatch(mainPath);
 
     const sourceFileKind = host.getSourceFileKind(mainPath);
 
