@@ -14,7 +14,7 @@ import {
   Program,
   Type,
 } from "@cadl-lang/compiler";
-import { createDiagnostic } from "../diagnostics.js";
+import { createDiagnostic } from "../lib.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
