@@ -3,7 +3,7 @@ import {
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
   isTemplateInstance,
-  ModelType,
+  Model,
 } from "../core/index.js";
 import { BasicTestRunner, createTestRunner } from "../testing/index.js";
 
@@ -31,8 +31,8 @@ describe("compiler: type-utils", () => {
       @test model Bar {
         foo: Foo<string> 
       }
-      `)) as { Bar: ModelType };
-      const Foo = Bar.properties.get("foo")!.type as ModelType;
+      `)) as { Bar: Model };
+      const Foo = Bar.properties.get("foo")!.type as Model;
 
       ok(isTemplateDeclarationOrInstance(Foo));
       ok(isTemplateInstance(Foo), "Should BE a template instance");

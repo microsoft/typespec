@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, isSecret, ModelType, OperationType } from "../../core/index.js";
+import { getVisibility, isSecret, Model, Operation } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
@@ -197,7 +197,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @knownValues(Foo)
         model Bar is string {}
-      `)) as { Bar: ModelType };
+      `)) as { Bar: Model };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -214,7 +214,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @knownValues(Foo)
         model Bar is int32 {}
-      `)) as { Bar: ModelType };
+      `)) as { Bar: Model };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -402,7 +402,7 @@ describe("compiler: built-in decorators", () => {
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "read"> {
         } `
-      )) as { TestModel: ModelType };
+      )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), ["read"]);
     });
@@ -419,7 +419,7 @@ describe("compiler: built-in decorators", () => {
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "create"> {
         } `
-      )) as { TestModel: ModelType };
+      )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), [
         "read",
@@ -556,10 +556,10 @@ describe("compiler: built-in decorators", () => {
         op someUnrelatedThing(): void;
 
       `)) as {
-        someThing: OperationType;
-        someStringThing: OperationType;
-        someNumberThing: OperationType;
-        someUnrelatedThing: OperationType;
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
+        someUnrelatedThing: Operation;
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
@@ -589,9 +589,9 @@ describe("compiler: built-in decorators", () => {
         @overload(ADifferentNS.someThing)
         op someNumberThing(param: int32): int32;
       `)) as {
-        someThing: OperationType;
-        someStringThing: OperationType;
-        someNumberThing: OperationType;
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
@@ -619,9 +619,9 @@ describe("compiler: built-in decorators", () => {
           op someNumberThing(param: int32): int32;
         }
       `)) as {
-        someThing: OperationType;
-        someStringThing: OperationType;
-        someNumberThing: OperationType;
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
       };
 
       strictEqual(compiled.someThing.kind, "Operation");
@@ -657,7 +657,7 @@ describe("compiler: built-in decorators", () => {
           a: string;
         }
         `
-      )) as { A: ModelType };
+      )) as { A: Model };
 
       ok(isSecret(runner.program, A.properties.get("a")!));
     });
@@ -673,7 +673,7 @@ describe("compiler: built-in decorators", () => {
           a: CustomStr;
         }
         `
-      )) as { A: ModelType };
+      )) as { A: Model };
 
       ok(isSecret(runner.program, A.properties.get("a")!));
     });

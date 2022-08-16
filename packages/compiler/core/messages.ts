@@ -418,7 +418,7 @@ const diagnostics = {
     },
   },
   "incompatible-library": {
-    severity: "error",
+    severity: "warning",
     messages: {
       default: paramMessage`Multiple versions of "${"name"}" library were loaded:\n${"versionMap"}`,
     },

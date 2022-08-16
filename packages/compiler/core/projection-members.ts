@@ -1,7 +1,7 @@
 import { camelCase, paramCase, pascalCase, snakeCase } from "change-case";
 import { Checker } from "./checker.js";
 import { assertType, ProjectionError } from "./diagnostics.js";
-import { ObjectType, Type, UnionTypeVariant } from "./types.js";
+import { ObjectType, Type, UnionVariant } from "./types.js";
 
 export function createProjectionMembers(checker: Checker): {
   [TKind in Type["kind"]]?: Record<string, (base: Type & { kind: TKind }) => Type>;
@@ -165,7 +165,7 @@ export function createProjectionMembers(checker: Checker): {
         return createFunctionType((nameT: Type, type: Type) => {
           assertType("Variant name", nameT, "String");
           const name = nameT.value;
-          const variantType: UnionTypeVariant = createType({
+          const variantType: UnionVariant = createType({
             kind: "UnionVariant",
             decorators: [],
             name,

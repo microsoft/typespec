@@ -2,7 +2,7 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile } from "./diagnostics.js";
 import { compilerAssert, MANIFEST, SymbolFlags } from "./index.js";
-import { LIBRARIES_LOADED } from "./library.js";
+import { LIBRARIES_URL_LOADED } from "./library.js";
 import { createLogger } from "./logger/index.js";
 import { createDiagnostic } from "./messages.js";
 import {
@@ -333,8 +333,8 @@ export async function createProgram(
   async function validateLoadedLibraries() {
     const loadedRoots = new Set<string>();
     // Check all the files that were loaded
-    for (const file of LIBRARIES_LOADED) {
-      const root = await findProjectRoot(host, file);
+    for (const fileUrl of LIBRARIES_URL_LOADED) {
+      const root = await findProjectRoot(host, host.fileURLToPath(fileUrl));
       if (root) {
         loadedRoots.add(root);
       }

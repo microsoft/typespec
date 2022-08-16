@@ -41,7 +41,7 @@ export interface DecoratedType {
 /**
  * Union of all the types that implement TemplatedTypeBase
  */
-export type TemplatedType = ModelType | OperationType | InterfaceType | UnionType;
+export type TemplatedType = Model | Operation | Interface | Union;
 
 export interface TemplatedTypeBase {
   templateArguments?: Type[];
@@ -49,24 +49,69 @@ export interface TemplatedTypeBase {
 }
 
 export type Type =
-  | ModelType
-  | ModelTypeProperty
-  | InterfaceType
-  | EnumType
-  | EnumMemberType
-  | TemplateParameterType
-  | NamespaceType
-  | OperationType
-  | StringLiteralType
-  | NumericLiteralType
-  | BooleanLiteralType
-  | TupleType
-  | UnionType
-  | UnionTypeVariant
+  | Model
+  | ModelProperty
+  | Interface
+  | Enum
+  | EnumMember
+  | TemplateParameter
+  | Namespace
+  | Operation
+  | StringLiteral
+  | NumericLiteral
+  | BooleanLiteral
+  | Tuple
+  | Union
+  | UnionVariant
   | IntrinsicType
   | FunctionType
   | ObjectType
-  | ProjectionType;
+  | Projection;
+
+/** @deprecated Use `Model` instead. */
+export type ModelType = Model;
+
+/** @deprecated Use `ModelProperty` instead. */
+export type ModelTypeProperty = ModelProperty;
+
+/** @deprecated Use `Interface` instead. */
+export type InterfaceType = Interface;
+
+/** @deprecated Use `Enum` instead. */
+export type EnumType = Enum;
+
+/** @deprecated Use `EnumMember` instead. */
+export type EnumMemberType = EnumMember;
+
+/** @deprecated Use `TemplateParameter` instead.` */
+export type TemplateParameterType = TemplateParameter;
+
+/** @deprecated Use `Namespace` instead. */
+export type NamespaceType = Namespace;
+
+/** @deprecated Use `Operation` instead. */
+export type OperationType = Operation;
+
+/** @deprecated Use `StringLiteral` instead. */
+export type StringLiteralType = StringLiteral;
+
+/** @deprecated Use `BooleanLiteral` instead. */
+export type BooleanLiteralType = BooleanLiteral;
+
+/** @deprecated Use `NumericLiteral` instead. */
+export type NumericLiteralType = NumericLiteral;
+
+/** @deprecated Use `Tuple` instead. */
+export type TupleType = Tuple;
+
+/** @deprecated Use `Union` instead. */
+export type UnionType = Union;
+
+/** @deprecated Use `UnionVariant` instead. */
+export type UnionTypeVariant = UnionVariant;
+
+/** @deprecated Use `Projection` instead. */
+export type ProjectionType = Projection;
 
 export type TypeOrReturnRecord = Type | ReturnRecord;
 
@@ -80,7 +125,7 @@ export interface ObjectType extends BaseType {
   properties: Record<string, Type>;
 }
 
-export interface ProjectionType extends BaseType {
+export interface Projection extends BaseType {
   kind: "Projection";
   node: undefined;
   nodeByKind: Map<string, ProjectionStatementNode>;
@@ -99,7 +144,7 @@ export interface Projector {
   projectedTypes: Map<Type, Type>;
   projectType(type: Type): Type;
   projectedStartNode?: Type;
-  projectedGlobalNamespace?: NamespaceType;
+  projectedGlobalNamespace?: Namespace;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -154,26 +199,26 @@ export type IntrinsicModelName =
   | "boolean"
   | "null";
 
-export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = ModelType & {
+export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = Model & {
   name: T;
 };
 
 export type NeverIndexer = { key: NeverType; value: undefined };
 export type ModelKeyIndexer = {
-  key: ModelType;
+  key: Model;
   value: Type;
 };
 export type ModelIndexer = ModelKeyIndexer | NeverIndexer;
 
-export interface ArrayModelType extends ModelType {
-  indexer: { key: ModelType; value: Type };
+export interface ArrayModelType extends Model {
+  indexer: { key: Model; value: Type };
 }
 
-export interface RecordModelType extends ModelType {
-  indexer: { key: ModelType; value: Type };
+export interface RecordModelType extends Model {
+  indexer: { key: Model; value: Type };
 }
 
-export interface ModelType extends BaseType, DecoratedType, TemplatedTypeBase {
+export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Model";
   name: IntrinsicModelName | string;
   node?:
@@ -181,19 +226,19 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedTypeBase {
     | ModelExpressionNode
     | IntersectionExpressionNode
     | ProjectionModelExpressionNode;
-  namespace?: NamespaceType;
+  namespace?: Namespace;
   indexer?: ModelIndexer;
-  properties: Map<string, ModelTypeProperty>;
+  properties: Map<string, ModelProperty>;
 
   /**
    * Model this model extends. This represent inheritance.
    */
-  baseModel?: ModelType;
+  baseModel?: Model;
 
   /**
    * Direct children. This is the reverse relation of @see baseModel
    */
-  derivedModels: ModelType[];
+  derivedModels: Model[];
 
   /**
    * Late-bound symbol of this model type.
@@ -202,7 +247,7 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
-export interface ModelTypeProperty extends BaseType, DecoratedType {
+export interface ModelProperty extends BaseType, DecoratedType {
   kind: "ModelProperty";
   node:
     | ModelPropertyNode
@@ -213,18 +258,18 @@ export interface ModelTypeProperty extends BaseType, DecoratedType {
   type: Type;
   // when spread or intersection operators make new property types,
   // this tracks the property we copied from.
-  sourceProperty?: ModelTypeProperty;
+  sourceProperty?: ModelProperty;
   optional: boolean;
   default?: Type;
-  model?: ModelType;
+  model?: Model;
 }
 
-export interface InterfaceType extends BaseType, DecoratedType, TemplatedTypeBase {
+export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Interface";
   name: string;
   node: InterfaceStatementNode;
-  namespace?: NamespaceType;
-  operations: Map<string, OperationType>;
+  namespace?: Namespace;
+  operations: Map<string, Operation>;
   /**
    * Late-bound symbol of this interface type.
    * @internal
@@ -232,82 +277,82 @@ export interface InterfaceType extends BaseType, DecoratedType, TemplatedTypeBas
   symbol?: Sym;
 }
 
-export interface EnumType extends BaseType, DecoratedType {
+export interface Enum extends BaseType, DecoratedType {
   kind: "Enum";
   name: string;
   node: EnumStatementNode;
-  namespace?: NamespaceType;
-  members: EnumMemberType[];
+  namespace?: Namespace;
+  members: EnumMember[];
 }
 
-export interface EnumMemberType extends BaseType, DecoratedType {
+export interface EnumMember extends BaseType, DecoratedType {
   kind: "EnumMember";
   name: string;
-  enum: EnumType;
+  enum: Enum;
   node: EnumMemberNode;
   value?: string | number;
   /**
    * when spread operators make new enum members,
    * this tracks the enum member we copied from.
    */
-  sourceMember?: EnumMemberType;
+  sourceMember?: EnumMember;
 }
 
-export interface OperationType extends BaseType, DecoratedType, TemplatedTypeBase {
+export interface Operation extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
-  namespace?: NamespaceType;
-  interface?: InterfaceType;
-  parameters: ModelType;
+  namespace?: Namespace;
+  interface?: Interface;
+  parameters: Model;
   returnType: Type;
 }
 
-export interface NamespaceType extends BaseType, DecoratedType {
+export interface Namespace extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
-  namespace?: NamespaceType;
+  namespace?: Namespace;
   node: NamespaceStatementNode;
-  models: Map<string, ModelType>;
-  operations: Map<string, OperationType>;
-  namespaces: Map<string, NamespaceType>;
-  interfaces: Map<string, InterfaceType>;
-  enums: Map<string, EnumType>;
-  unions: Map<string, UnionType>;
+  models: Map<string, Model>;
+  operations: Map<string, Operation>;
+  namespaces: Map<string, Namespace>;
+  interfaces: Map<string, Interface>;
+  enums: Map<string, Enum>;
+  unions: Map<string, Union>;
 }
 
-export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLiteralType;
+export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
 
-export interface StringLiteralType extends BaseType {
+export interface StringLiteral extends BaseType {
   kind: "String";
   node?: StringLiteralNode;
   value: string;
 }
 
-export interface NumericLiteralType extends BaseType {
+export interface NumericLiteral extends BaseType {
   kind: "Number";
   node?: NumericLiteralNode;
   value: number;
 }
 
-export interface BooleanLiteralType extends BaseType {
+export interface BooleanLiteral extends BaseType {
   kind: "Boolean";
   node?: BooleanLiteralNode;
   value: boolean;
 }
 
-export interface TupleType extends BaseType {
+export interface Tuple extends BaseType {
   kind: "Tuple";
   node: TupleExpressionNode;
   values: Type[];
 }
 
-export interface UnionType extends BaseType, DecoratedType, TemplatedTypeBase {
+export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
   node: UnionExpressionNode | UnionStatementNode;
-  namespace?: NamespaceType;
-  variants: Map<string | symbol, UnionTypeVariant>;
+  namespace?: Namespace;
+  variants: Map<string | symbol, UnionVariant>;
   expression: boolean;
   readonly options: Type[];
 
@@ -318,15 +363,15 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
-export interface UnionTypeVariant extends BaseType, DecoratedType {
+export interface UnionVariant extends BaseType, DecoratedType {
   kind: "UnionVariant";
   name: string | symbol;
   node: UnionVariantNode | undefined;
   type: Type;
-  union: UnionType;
+  union: Union;
 }
 
-export interface TemplateParameterType extends BaseType {
+export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
   constraint?: Type;

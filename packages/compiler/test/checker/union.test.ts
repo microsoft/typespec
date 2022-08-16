@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { ModelType, UnionType, UnionTypeVariant } from "../../core/types.js";
+import { Model, Union, UnionVariant } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: union declarations", () => {
@@ -12,7 +12,7 @@ describe("compiler: union declarations", () => {
   it("can be declared and decorated", async () => {
     const blues = new WeakSet();
     testHost.addJsFile("test.js", {
-      $blue(p: any, t: UnionType | UnionTypeVariant) {
+      $blue(p: any, t: Union | UnionVariant) {
         blues.add(t);
       },
     });
@@ -24,15 +24,15 @@ describe("compiler: union declarations", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("./")) as { Foo: UnionType };
+    const { Foo } = (await testHost.compile("./")) as { Foo: Union };
     ok(Foo);
     ok(blues.has(Foo));
     strictEqual(Foo.options.length, 2);
     const varX = Foo.variants.get("x")!;
     ok(blues.has(varX));
     const varY = Foo.variants.get("y")!;
-    const varXType = (varX as UnionTypeVariant).type;
-    const varYType = (varY as UnionTypeVariant).type;
+    const varXType = (varX as UnionVariant).type;
+    const varYType = (varY as UnionVariant).type;
 
     strictEqual(varX.kind, "UnionVariant");
     strictEqual(varY.kind, "UnionVariant");
@@ -50,10 +50,10 @@ describe("compiler: union declarations", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("./")) as { Foo: UnionType };
+    const { Foo } = (await testHost.compile("./")) as { Foo: Union };
 
     const varX = Foo.variants.get("x")!;
-    const varXType = (varX as UnionTypeVariant).type as ModelType;
+    const varXType = (varX as UnionVariant).type as Model;
 
     strictEqual(varX.kind, "UnionVariant");
     strictEqual(varXType.kind, "Model");
@@ -69,8 +69,8 @@ describe("compiler: union declarations", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("./")) as { Foo: ModelType };
-    const type = Foo.properties.get("x")!.type as UnionType;
+    const { Foo } = (await testHost.compile("./")) as { Foo: Model };
+    const type = Foo.properties.get("x")!.type as Union;
     strictEqual(type.options.length, 4);
     for (const key of type.variants.keys()) {
       strictEqual(typeof key, "symbol");
@@ -87,8 +87,8 @@ describe("compiler: union declarations", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("./")) as { Foo: ModelType };
-    const type = Foo.properties.get("x")!.type as UnionType;
+    const { Foo } = (await testHost.compile("./")) as { Foo: Model };
+    const type = Foo.properties.get("x")!.type as Union;
     strictEqual(type.options.length, 3);
     for (const key of type.variants.keys()) {
       strictEqual(typeof key, "symbol");
@@ -103,8 +103,8 @@ describe("compiler: union declarations", () => {
       `
     );
 
-    const { Foo } = (await testHost.compile("./")) as { Foo: ModelType };
-    const type = Foo.properties.get("x")!.type as UnionType;
+    const { Foo } = (await testHost.compile("./")) as { Foo: Model };
+    const type = Foo.properties.get("x")!.type as Union;
     strictEqual(type.options.length, 1);
   });
 });

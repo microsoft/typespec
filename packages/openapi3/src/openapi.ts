@@ -2,8 +2,8 @@ import {
   compilerAssert,
   emitFile,
   EmitOptionsFor,
-  EnumMemberType,
-  EnumType,
+  Enum,
+  EnumMember,
   getAllTags,
   getDoc,
   getFormat,
@@ -31,17 +31,17 @@ import {
   isStringType,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
+  Model,
+  ModelProperty,
+  Namespace,
   NewLine,
-  OperationType,
+  Operation,
   Program,
   resolvePath,
   Type,
   TypeNameOptions,
-  UnionType,
-  UnionTypeVariant,
+  Union,
+  UnionVariant,
 } from "@cadl-lang/compiler";
 import {
   getExtensions,
@@ -139,7 +139,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
   // this map.
-  let params: Map<ModelTypeProperty, any>;
+  let params: Map<ModelProperty, any>;
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tags: Set<string>;
@@ -154,7 +154,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   return { emitOpenAPI };
 
-  function initializeEmitter(serviceNamespaceType: NamespaceType, version?: string) {
+  function initializeEmitter(serviceNamespaceType: Namespace, version?: string) {
     const auth = processAuth(serviceNamespaceType);
 
     root = {
@@ -217,7 +217,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function validateValidServerVariable(program: Program, prop: ModelTypeProperty) {
+  function validateValidServerVariable(program: Program, prop: ModelProperty) {
     const isValid = isValidServerVariableType(program, prop.type);
 
     if (!isValid) {
@@ -282,7 +282,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  async function emitOpenAPIFromVersion(serviceNamespace: NamespaceType, version?: string) {
+  async function emitOpenAPIFromVersion(serviceNamespace: Namespace, version?: string) {
     initializeEmitter(serviceNamespace, version);
     try {
       const [routes] = getAllRoutes(program);
@@ -442,7 +442,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
-  function getResponseHeader(prop: ModelTypeProperty) {
+  function getResponseHeader(prop: ModelProperty) {
     const header: any = {};
     populateParameter(header, prop, "header");
     delete header.in;
@@ -530,7 +530,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return type;
   }
 
-  function getParamPlaceholder(property: ModelTypeProperty) {
+  function getParamPlaceholder(property: ModelProperty) {
     let spreadParam = false;
 
     if (property.sourceProperty) {
@@ -589,8 +589,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitRequestBody(
-    op: OperationType,
-    parent: ModelType | undefined,
+    op: Operation,
+    parent: Model | undefined,
     parameters: HttpOperationParameters
   ) {
     const bodyType = parameters.bodyType;
@@ -623,7 +623,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     currentEndpoint.requestBody = requestBody;
   }
 
-  function emitParameter(param: ModelTypeProperty, kind: OpenAPI3ParameterType) {
+  function emitParameter(param: ModelProperty, kind: OpenAPI3ParameterType) {
     const ph = getParamPlaceholder(param);
     currentEndpoint.parameters.push(ph);
 
@@ -635,7 +635,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function populateParameter(
     ph: OpenAPI3Parameter,
-    param: ModelTypeProperty,
+    param: ModelProperty,
     kind: OpenAPI3ParameterType
   ) {
     ph.name = param.name;
@@ -709,7 +709,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return undefined;
   }
 
-  function getSchemaForEnum(e: EnumType) {
+  function getSchemaForEnum(e: Enum) {
     const values = [];
     if (e.members.length == 0) {
       reportUnsupportedUnion("empty");
@@ -731,7 +731,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
 
     return schema;
-    function enumMemberType(member: EnumMemberType) {
+    function enumMemberType(member: EnumMember) {
       if (typeof member.value === "number") {
         return "number";
       }
@@ -743,7 +743,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForUnion(union: UnionType) {
+  function getSchemaForUnion(union: Union) {
     let type: string;
     const nonNullOptions = union.options.filter((t) => !isNullType(t));
     const nullable = union.options.length != nonNullOptions.length;
@@ -829,7 +829,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function getSchemaForUnionVariant(variant: UnionTypeVariant) {
+  function getSchemaForUnionVariant(variant: UnionVariant) {
     const schema: any = getSchemaForType(variant.type);
     return schema;
   }
@@ -859,7 +859,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function includeDerivedModel(model: ModelType): boolean {
+  function includeDerivedModel(model: Model): boolean {
     return (
       !isTemplateDeclaration(model) &&
       (model.templateArguments === undefined ||
@@ -868,7 +868,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     );
   }
 
-  function getSchemaForModel(model: ModelType) {
+  function getSchemaForModel(model: Model) {
     let modelSchema: OpenAPI3Schema & Required<Pick<OpenAPI3Schema, "properties">> = {
       type: "object",
       properties: {},
@@ -944,7 +944,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return modelSchema;
   }
 
-  function resolveProperty(prop: ModelTypeProperty): OpenAPI3SchemaProperty {
+  function resolveProperty(prop: ModelProperty): OpenAPI3SchemaProperty {
     const description = getDoc(program, prop);
 
     const schema = getSchemaOrRef(prop.type);
@@ -992,7 +992,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function validateDiscriminator(
     discriminator: Discriminator,
-    childModels: readonly ModelType[]
+    childModels: readonly Model[]
   ): boolean {
     const { propertyName } = discriminator;
     const retVals = childModels.map((t) => {
@@ -1047,10 +1047,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getDiscriminatorMapping(
     discriminator: any,
-    derivedModels: readonly ModelType[]
+    derivedModels: readonly Model[]
   ): Record<string, string> | undefined {
     const { propertyName } = discriminator;
-    const getMapping = (t: ModelType): any => {
+    const getMapping = (t: Model): any => {
       const prop = t.properties?.get(propertyName);
       if (prop) {
         return getStringValues(prop.type).flatMap((v) => [{ [v]: getSchemaOrRef(t).$ref }]);
@@ -1099,7 +1099,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
    * Headers, parameters, status codes are not schema properties even they are
    * represented as properties in Cadl.
    */
-  function isSchemaProperty(property: ModelTypeProperty) {
+  function isSchemaProperty(property: ModelProperty) {
     const headerInfo = getHeaderFieldName(program, property);
     const queryInfo = getQueryParamName(program, property);
     const pathInfo = getPathParamName(program, property);
@@ -1108,7 +1108,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function applyIntrinsicDecorators(
-    cadlType: ModelType | ModelTypeProperty,
+    cadlType: Model | ModelProperty,
     target: OpenAPI3Schema
   ): OpenAPI3Schema {
     const newTarget = { ...target };
@@ -1190,7 +1190,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   /**
    * Map Cadl intrinsic models to open api definitions
    */
-  function mapCadlIntrinsicModelToOpenAPI(cadlType: ModelType): any | undefined {
+  function mapCadlIntrinsicModelToOpenAPI(cadlType: Model): any | undefined {
     if (cadlType.indexer) {
       if (isNeverType(cadlType.indexer.key)) {
       } else {
@@ -1252,7 +1252,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function processAuth(serviceNamespace: NamespaceType):
+  function processAuth(serviceNamespace: Namespace):
     | {
         securitySchemes: Record<string, OpenAPI3SecurityScheme>;
         security: Record<string, string[]>[];
