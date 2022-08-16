@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi",
+      "comment": "Update decororator state key to allow multiple instance of library to work together.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi"
+}
