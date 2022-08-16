@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from "url";
+import { MANIFEST } from "../../core/manifest.js";
 import { NodeHost } from "../../core/node-host.js";
 import { createProgram } from "../../core/program.js";
 import { createTestHost, expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
@@ -26,7 +27,11 @@ describe("compiler: libraries", () => {
     testHost.addCadlFile("main.cadl", "");
     testHost.addCadlFile(
       "./node_modules/@cadl-lang/compiler/package.json",
-      JSON.stringify({ name: "@cadl-lang/compiler", main: "index.js" })
+      JSON.stringify({
+        name: "@cadl-lang/compiler",
+        main: "index.js",
+        version: "0.1.0-notthesame.1",
+      })
     );
     testHost.addJsFile("./node_modules/@cadl-lang/compiler/index.js", {});
     const diagnostics = await testHost.diagnose("main.cadl");
@@ -35,6 +40,18 @@ describe("compiler: libraries", () => {
       severity: "warning",
       message: /Current Cadl compiler conflicts with local version/,
     });
+  });
+
+  it("allows compiler install to mistmatch if the version are the same", async () => {
+    const testHost = await createTestHost();
+    testHost.addCadlFile("main.cadl", "");
+    testHost.addCadlFile(
+      "./node_modules/@cadl-lang/compiler/package.json",
+      JSON.stringify({ name: "@cadl-lang/compiler", main: "index.js", version: MANIFEST.version })
+    );
+    testHost.addJsFile("./node_modules/@cadl-lang/compiler/index.js", {});
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("report errors in js files", async () => {

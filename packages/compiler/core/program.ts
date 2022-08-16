@@ -1,13 +1,14 @@
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile } from "./diagnostics.js";
-import { SymbolFlags } from "./index.js";
+import { compilerAssert, MANIFEST, SymbolFlags } from "./index.js";
 import { LIBRARIES_LOADED } from "./library.js";
 import { createLogger } from "./logger/index.js";
 import { createDiagnostic } from "./messages.js";
 import {
   ModuleResolutionResult,
   NodePackage,
+  ResolvedModule,
   resolveModule,
   ResolveModuleHost,
 } from "./module-resolver.js";
@@ -734,7 +735,7 @@ export async function createProgram(
   // compiler.
   async function checkForCompilerVersionMismatch(mainPath: string): Promise<boolean> {
     const baseDir = getDirectoryPath(mainPath);
-    let actual: string;
+    let actual: ResolvedModule;
     try {
       const resolved = await resolveModule(
         {
@@ -748,7 +749,11 @@ export async function createProgram(
         "@cadl-lang/compiler",
         { baseDir }
       );
-      actual = resolved.type === "module" ? resolved.mainFile : resolved.path;
+      compilerAssert(
+        resolved.type === "module",
+        `Expected to have resolved "@cadl-lang/compiler" to a node module.`
+      );
+      actual = resolved;
     } catch (err: any) {
       if (err.code === "MODULE_NOT_FOUND" || err.code === "INVALID_MAIN") {
         return true; // no local cadl, ok to use any compiler
@@ -761,14 +766,14 @@ export async function createProgram(
       "../index.js"
     );
 
-    if (actual !== expected) {
+    if (actual.mainFile !== expected && MANIFEST.version !== actual.manifest.version) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server
-      const betterCadlServerPath = resolvePath(actual, "../../../../../.bin/cadl-server");
+      const betterCadlServerPath = resolvePath(actual.path, ".bin/cadl-server");
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir: baseDir, betterCadlServerPath, actual, expected },
+          format: { basedir: baseDir, betterCadlServerPath, actual: actual.mainFile, expected },
           target: NoTarget,
         })
       );
