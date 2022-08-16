@@ -1,7 +1,10 @@
+import { fileURLToPath } from "url";
 import { createDiagnosticCreator } from "./diagnostics.js";
 import { CadlLibrary, CadlLibraryDef, CallableMessage, DiagnosticMessages } from "./types.js";
 
-export const LIBRARIES_LOADED = new Set<string>();
+(global as any)._CADL_LIBRARY_LOADED_ = new Set<string>();
+
+export const LIBRARIES_LOADED = (global as any)._CADL_LIBRARY_LOADED_;
 
 /**
  * Create a new Cadl library definition.
@@ -31,7 +34,7 @@ export function createCadlLibrary<
   }
 
   const caller = getCaller();
-  LIBRARIES_LOADED.add(caller);
+  LIBRARIES_LOADED.add(fileURLToPath(caller));
   return { ...lib, reportDiagnostic, createDiagnostic, createStateSymbol };
 }
 
@@ -67,7 +70,7 @@ export function setCadlNamespace(
 }
 
 function getCaller() {
-  return getCallStack()[0].getFileName();
+  return getCallStack()[2].getFileName();
 }
 
 function getCallStack() {

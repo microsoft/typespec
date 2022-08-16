@@ -366,7 +366,7 @@ export async function createProgram(
           format: {
             name: name,
             versionMap: incompatibleLibs
-              .map((x) => `   - Version: "${x.manifest.version}" installed at "${x.path}"`)
+              .map((x) => `  - Version: "${x.manifest.version}" installed at "${x.path}"`)
               .join("\n"),
           },
           target: NoTarget,
@@ -499,7 +499,7 @@ export async function createProgram(
       return;
     }
     if (library.type === "module") {
-      loadedLibraries.set(path, {
+      loadedLibraries.set(library.manifest.name, {
         path: library.path,
         manifest: library.manifest,
       });
