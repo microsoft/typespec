@@ -4,13 +4,13 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getServiceNamespace,
-  InterfaceType,
+  Interface,
   isGlobalNamespace,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
+  ModelProperty,
+  Namespace,
+  Operation,
   Program,
   Type,
   validateDecoratorTarget,
@@ -34,7 +34,7 @@ import {
 } from "./decorators.js";
 import { getResponsesForOperation, HttpOperationResponse } from "./responses.js";
 
-export type OperationContainer = NamespaceType | InterfaceType;
+export type OperationContainer = Namespace | Interface;
 
 export interface FilteredRouteParam {
   routeParamString?: string;
@@ -42,10 +42,7 @@ export interface FilteredRouteParam {
 }
 
 export interface AutoRouteOptions {
-  routeParamFilter?: (
-    op: OperationType,
-    param: ModelTypeProperty
-  ) => FilteredRouteParam | undefined;
+  routeParamFilter?: (op: Operation, param: ModelProperty) => FilteredRouteParam | undefined;
 }
 
 export interface RouteOptions {
@@ -55,13 +52,13 @@ export interface RouteOptions {
 export interface HttpOperationParameter {
   type: "query" | "path" | "header";
   name: string;
-  param: ModelTypeProperty;
+  param: ModelProperty;
 }
 
 export interface HttpOperationParameters {
   parameters: HttpOperationParameter[];
   bodyType?: Type;
-  bodyParameter?: ModelTypeProperty;
+  bodyParameter?: ModelProperty;
 }
 
 export interface OperationDetails {
@@ -71,7 +68,7 @@ export interface OperationDetails {
   container: OperationContainer;
   parameters: HttpOperationParameters;
   responses: HttpOperationResponse[];
-  operation: OperationType;
+  operation: Operation;
 }
 
 export interface RoutePath {
@@ -105,7 +102,7 @@ export function $routeReset(context: DecoratorContext, entity: Type, path: strin
 const routeOptionsKey = Symbol("routeOptions");
 export function setRouteOptionsForNamespace(
   program: Program,
-  namespace: NamespaceType,
+  namespace: Namespace,
   options: RouteOptions
 ) {
   program.stateMap(routeOptionsKey).set(namespace, options);
@@ -113,7 +110,7 @@ export function setRouteOptionsForNamespace(
 
 function getRouteOptionsForNamespace(
   program: Program,
-  namespace: NamespaceType
+  namespace: Namespace
 ): RouteOptions | undefined {
   return program.stateMap(routeOptionsKey).get(namespace);
 }
@@ -152,7 +149,7 @@ function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
 
 export function getRoutePath(
   program: Program,
-  entity: NamespaceType | InterfaceType | OperationType
+  entity: Namespace | Interface | Operation
 ): RoutePath | undefined {
   return program.stateMap(routesKey).get(entity);
 }
@@ -196,13 +193,13 @@ function addSegmentFragment(program: Program, target: Type, pathFragments: strin
 
 export function getOperationParameters(
   program: Program,
-  operation: OperationType
+  operation: Operation
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const result: HttpOperationParameters = {
     parameters: [],
   };
-  const unannotatedParams = new Set<ModelTypeProperty>();
+  const unannotatedParams = new Set<ModelProperty>();
 
   for (const param of operation.parameters.properties.values()) {
     const queryParam = getQueryParamName(program, param);
@@ -271,7 +268,7 @@ export function getOperationParameters(
 
 function generatePathFromParameters(
   program: Program,
-  operation: OperationType,
+  operation: Operation,
   pathFragments: string[],
   parameters: HttpOperationParameters,
   options: RouteOptions
@@ -315,7 +312,7 @@ function generatePathFromParameters(
 function getPathForOperation(
   program: Program,
   diagnostics: DiagnosticCollector,
-  operation: OperationType,
+  operation: Operation,
   routeFragments: string[],
   options: RouteOptions
 ): { path: string; pathFragment?: string; parameters: HttpOperationParameters } {
@@ -376,7 +373,7 @@ function getPathForOperation(
 function getVerbForOperation(
   program: Program,
   diagnostics: DiagnosticCollector,
-  operation: OperationType,
+  operation: Operation,
   parameters: HttpOperationParameters
 ): HttpVerb {
   const resourceOperation = getResourceOperation(program, operation);
@@ -400,7 +397,7 @@ function buildRoutes(
   diagnostics: DiagnosticCollector,
   container: OperationContainer,
   routeFragments: string[],
-  visitedOperations: Set<OperationType>,
+  visitedOperations: Set<Operation>,
   options: RouteOptions
 ): OperationDetails[] {
   if (container.kind === "Interface" && isTemplateDeclaration(container)) {
@@ -464,7 +461,7 @@ function buildRoutes(
 export function getRoutesForContainer(
   program: Program,
   container: OperationContainer,
-  visitedOperations: Set<OperationType>,
+  visitedOperations: Set<Operation>,
   options?: RouteOptions
 ): [OperationDetails[], readonly Diagnostic[]] {
   const routeOptions =
@@ -487,7 +484,7 @@ const externalInterfaces = Symbol("externalInterfaces");
  */
 export function includeInterfaceRoutesInNamespace(
   program: Program,
-  target: NamespaceType,
+  target: Namespace,
   sourceInterface: string
 ) {
   let array = program.stateMap(externalInterfaces).get(target);
@@ -499,14 +496,14 @@ export function includeInterfaceRoutesInNamespace(
   array.push(sourceInterface);
 }
 
-function getExternalInterfaces(program: Program, namespace: NamespaceType) {
+function getExternalInterfaces(program: Program, namespace: Namespace) {
   const interfaces: string[] | undefined = program.stateMap(externalInterfaces).get(namespace);
   if (interfaces === undefined) {
     return undefined;
   }
   return interfaces
     .map((interfaceFQN: string) => {
-      let current: NamespaceType | undefined = program.checker.getGlobalNamespaceType();
+      let current: Namespace | undefined = program.checker.getGlobalNamespaceType();
       const namespaces = interfaceFQN.split(".");
       const interfaceName = namespaces.pop()!;
       for (const namespaceName of namespaces) {
@@ -514,7 +511,7 @@ function getExternalInterfaces(program: Program, namespace: NamespaceType) {
       }
       return current?.interfaces.get(interfaceName);
     })
-    .filter((x): x is InterfaceType => x !== undefined);
+    .filter((x): x is Interface => x !== undefined);
 }
 
 export function getAllRoutes(
@@ -524,9 +521,9 @@ export function getAllRoutes(
   let operations: OperationDetails[] = [];
   const diagnostics = createDiagnosticCollector();
   const serviceNamespace = getServiceNamespace(program);
-  const namespacesToExport: NamespaceType[] = serviceNamespace ? [serviceNamespace] : [];
+  const namespacesToExport: Namespace[] = serviceNamespace ? [serviceNamespace] : [];
 
-  const visitedOperations = new Set<OperationType>();
+  const visitedOperations = new Set<Operation>();
   for (const container of namespacesToExport) {
     const newOps = diagnostics.pipe(
       getRoutesForContainer(program, container, visitedOperations, options)
@@ -619,13 +616,10 @@ export function $autoRoute(context: DecoratorContext, entity: Type) {
   context.program.stateSet(autoRouteKey).add(entity);
 }
 
-export function isAutoRoute(
-  program: Program,
-  target: NamespaceType | InterfaceType | OperationType
-): boolean {
+export function isAutoRoute(program: Program, target: Namespace | Interface | Operation): boolean {
   // Loop up through parent scopes (interface, namespace) to see if
   // @autoRoute was used anywhere
-  let current: NamespaceType | InterfaceType | OperationType | undefined = target;
+  let current: Namespace | Interface | Operation | undefined = target;
   while (current !== undefined) {
     if (program.stateSet(autoRouteKey).has(current)) {
       return true;

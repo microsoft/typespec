@@ -1,20 +1,20 @@
-import { EnumType, InterfaceType, ModelType, UnionType } from "@cadl-lang/compiler";
+import { Enum, Interface, Model, Union } from "@cadl-lang/compiler";
 import { ok, strictEqual } from "assert";
 
-export function assertHasProperties(model: ModelType, props: string[]) {
+export function assertHasProperties(model: Model, props: string[]) {
   strictEqual(model.properties.size, props.length, `Model ${model.name} property count`);
   for (const propName of props) {
     ok(model.properties.has(propName), `Model ${model.name} should have property ${propName}`);
   }
 }
 
-export function assertHasVariants(union: UnionType, variants: string[]) {
+export function assertHasVariants(union: Union, variants: string[]) {
   strictEqual(union.variants.size, variants.length, `Union ${union.name} variant count`);
   for (const variantName of variants) {
     ok(union.variants.has(variantName), `Union ${union.name} should have variant ${variantName}`);
   }
 }
-export function assertHasOperations(iface: InterfaceType, operations: string[]) {
+export function assertHasOperations(iface: Interface, operations: string[]) {
   strictEqual(iface.operations.size, operations.length, `Interface ${iface.name} operation count`);
   for (const operationName of operations) {
     ok(
@@ -24,7 +24,7 @@ export function assertHasOperations(iface: InterfaceType, operations: string[]) 
   }
 }
 
-export function assertHasMembers(enumType: EnumType, members: string[]) {
+export function assertHasMembers(enumType: Enum, members: string[]) {
   strictEqual(enumType.members.length, members.length, `Enum ${enumType.name} member count`);
   for (const member of members) {
     ok(
