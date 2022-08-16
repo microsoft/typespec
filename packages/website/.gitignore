@@ -1,1 +1,2 @@
-public/libs/
+#ignore output folder
+/_website
