@@ -457,12 +457,12 @@ interface Foo {
       assertFormat({
         code: `
 @foo
-// comment
+   // comment
 namespace Bar;
 `,
         expected: `
-// comment
 @foo
+// comment
 namespace Bar;
 `,
       });
@@ -472,31 +472,103 @@ namespace Bar;
       assertFormat({
         code: `
 @foo
-// comment
+  // comment
 model Bar {}
 `,
         expected: `
-// comment
 @foo
+// comment
 model Bar {}
 `,
       });
     });
 
-    it("format comment between decorator and model property", () => {
+    it("keeps comment in between decorators", () => {
+      assertFormat({
+        code: `
+@foo
+  // comment
+  @bar
+model Bar {}
+`,
+        expected: `
+@foo
+// comment
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("keeps comment at the end of line of a decorators", () => {
+      assertFormat({
+        code: `
+@foo          // comment
+  @bar
+model Bar {}
+`,
+        expected: `
+@foo // comment
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("comment preceeding decorators hug decorators", () => {
+      assertFormat({
+        code: `
+        // comment
+@foo          
+  @bar
+model Bar {}
+`,
+        expected: `
+// comment
+@foo
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on model property", () => {
       assertFormat({
         code: `
 model Bar {
-  @foo
-// comment
-myProp: string;
+      @foo
+        // comment
+    @bar
+  foo: string;
 }
 `,
         expected: `
 model Bar {
   @foo
   // comment
-  myProp: string;
+  @bar
+  foo: string;
+}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on enum member", () => {
+      assertFormat({
+        code: `
+enum Bar {
+      @foo
+        // comment
+    @bar
+  foo: "foo",
+}
+`,
+        expected: `
+        enum Bar {
+  @foo
+  // comment
+  @bar
+  foo: "foo",
 }
 `,
       });
@@ -980,6 +1052,30 @@ namespace MyNamespace {}
 @decorate
 namespace MyNamespace {
 
+}
+`,
+      });
+    });
+
+    it("directive hugs decorators on model property", () => {
+      assertFormat({
+        code: `
+model Foo {
+  prop1: string;
+  #suppress   "some-error"     "because"
+    @decorate("args")
+   @decorate
+   prop2: string;
+  }
+`,
+        expected: `
+model Foo {
+  prop1: string;
+
+  #suppress "some-error" "because"
+  @decorate("args")
+  @decorate
+  prop2: string;
 }
 `,
       });

@@ -61,10 +61,16 @@ export function printCadl(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
-  const directives = printDirectives(path, options, print);
-  const node = printNode(path, options, print);
-  const value = needsParens(path, options) ? ["(", node, ")"] : node;
+  const node = path.getValue();
+  const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
+  const printedNode = printNode(path, options, print);
+  const value = needsParens(path, options) ? ["(", printedNode, ")"] : printedNode;
   return [directives, value];
+}
+
+function shouldPrintDirective(node: Node) {
+  // Model property handle printing directive itself.
+  return node.kind !== SyntaxKind.ModelProperty;
 }
 
 export function printNode(
@@ -824,6 +830,7 @@ export function printModelProperty(
   }
   return [
     multiline && isNotFirst ? hardline : "",
+    printDirectives(path, options, print),
     decorators,
     id,
     node.optional ? "?: " : ": ",

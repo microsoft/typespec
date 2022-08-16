@@ -6,8 +6,8 @@ import {
   Diagnostic,
   DiagnosticTarget,
   IntrinsicModelName,
-  ModelType,
-  ModelTypeProperty,
+  Model,
+  ModelProperty,
   Type,
 } from "./types.js";
 
@@ -54,7 +54,7 @@ export function validateDecoratorTarget<K extends TypeKind>(
 
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
-  target: ModelType | ModelTypeProperty,
+  target: Model | ModelProperty,
   decoratorName: string,
   expectedType: IntrinsicModelName | IntrinsicModelName[]
 ): boolean {

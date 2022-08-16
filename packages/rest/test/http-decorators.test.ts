@@ -1,4 +1,4 @@
-import { ModelTypeProperty, NamespaceType } from "@cadl-lang/compiler";
+import { ModelProperty, Namespace } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
@@ -359,7 +359,7 @@ describe("rest: http decorators", () => {
       const { MyService } = (await runner.compile(`
         @server("https://example.com", "My service url")
         @test namespace MyService {}
-      `)) as { MyService: NamespaceType };
+      `)) as { MyService: Namespace };
 
       const servers = getServers(runner.program, MyService);
       deepStrictEqual(servers, [
@@ -375,13 +375,13 @@ describe("rest: http decorators", () => {
       const { MyService, NameParam } = (await runner.compile(`
         @server("https://example.com/{name}/foo", "My service url", {@test("NameParam") name: string })
         @test namespace MyService {}
-      `)) as { MyService: NamespaceType; NameParam: ModelTypeProperty };
+      `)) as { MyService: Namespace; NameParam: ModelProperty };
 
       const servers = getServers(runner.program, MyService);
       deepStrictEqual(servers, [
         {
           description: "My service url",
-          parameters: new Map<string, ModelTypeProperty>([["name", NameParam]]),
+          parameters: new Map<string, ModelProperty>([["name", NameParam]]),
           url: "https://example.com/{name}/foo",
         },
       ]);
@@ -419,7 +419,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BasicAuth)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [{ schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] }],
@@ -432,7 +432,7 @@ describe("rest: http decorators", () => {
         model MyAuth is BasicAuth;
         @useAuth(MyAuth)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -449,7 +449,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BearerAuth)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [{ schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] }],
@@ -460,7 +460,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-my-header">)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -479,7 +479,7 @@ describe("rest: http decorators", () => {
         }
         @useAuth(OAuth2Auth<[MyFlow]>)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -507,7 +507,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BasicAuth | BearerAuth)
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -521,7 +521,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth([BasicAuth, BearerAuth])
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
@@ -539,7 +539,7 @@ describe("rest: http decorators", () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth])
         @test namespace Foo {}
-      `)) as { Foo: NamespaceType };
+      `)) as { Foo: Namespace };
 
       deepStrictEqual(getAuthentication(runner.program, Foo), {
         options: [
