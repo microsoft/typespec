@@ -1,6 +1,6 @@
 import {
-  EnumMember,
   Enum,
+  EnumMember,
   Interface,
   Model,
   ModelProperty,
