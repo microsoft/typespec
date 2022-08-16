@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started with Cadl.</title>
+    <link rel="stylesheet" href="../css/style.css" type="text/css">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+        <div class="navbar-logo">
+          <a href="/"><h1>Cadl</h1></a>
+        </div>
+        <div class="navbar-links">
+          <ul>
+            
+            <li><a href="/blog/">Blog</a></li>
+            
+            <li><a href="/community/">Community</a></li>
+            
+            <li><a href="/docs/">Docs</a></li>
+            
+            <li><a href="/download/">Download</a></li>
+            
+            <li><a href="/play">Playground</a></li>
+            
+            <li><a href="/tutorial/">Tutorial</a></li>
+            
+        </ul>
+        </div>
+      <div class="navbar-search_box">
+      <input type="text" placeholder="Search Here" required>
+      </div>
+    </div>
+    </header>
+    <main>
+    
+<div class="tutorial">
+    <h1>Introduction to API Definition Language (Cadl)</h1>
+<p>Cadl is a language for describing cloud service APIs and generating other API description languages, client and service code, documentation, and other assets. Cadl provides highly extensible core language primitives that can describe API shapes common among REST, GraphQL, gRPC, and other protocols.</p>
+<p>Cadl is an object oriented dynamic language whose evaluation results in an object model describing service APIs. Unlike typical programming languages, Cadl consists primarily of declarations, however these declarations can be decorated to provide highly dynamic behavior.</p>
+<p>Cadl's primary benefits include:</p>
+<ul>
+<li>Protocol agnostic: it can describe and generate code for APIs across multiple protocols and serialization languages</li>
+<li>Modular: developers can group common API shapes and conventions together and reuse them</li>
+<li>Terse: the syntax is expressive, capable of describing complex APIs with minimal code</li>
+<li>Extensible: developers can customize the language to describe just about any style of API</li>
+</ul>
+<h2>Language Tour</h2>
+<p>Cadl consists of the following language features:</p>
+<ul>
+<li><a href="#Models">Models</a>: data shapes or schemas</li>
+<li><a href="#Type-Literals">Type Literals</a>: strings and numbers with specific values</li>
+<li><a href="#Type-Operators">Type Operators</a>: syntax for composing model types into other types</li>
+<li><a href="#Operations">Operations</a>: service endpoints with parameters and return values</li>
+<li><a href="#namespaces--usings">Namespaces &amp; Usings</a>: groups models and operations together into hierarchical groups with friendly names</li>
+<li><a href="#Interfaces">Interfaces</a>: groups operations</li>
+<li><a href="#Imports">Imports</a>: links declarations across multiple files and libraries together into a single program</li>
+<li><a href="#Decorators">Decorators</a>: bits of TypeScript code that add metadata or sometimes mutate declarations</li>
+<li><a href="#Libraries">Libraries</a>: encapsulate Cadl definitions into reusable components</li>
+</ul>
+<p>In addition, Cadl comes with a standard library for describing REST APIs and generating OpenAPI. Other protocol bindings are a work in progress!</p>
+<h3>Models</h3>
+<p>Cadl models are used to describe data shapes or schemas. Models have any number of members and can extend and be composed with other models. Members are required by default, but can made optional by appending a &quot;?&quot; to the member name. A default value can also be provided with adding <code>= &lt;value&gt;</code> on an optional property.</p>
+<p>The following defines a data shape with three members:</p>
+<pre><code class="language-cadl">model Dog {
+  name: string;
+  favoriteToy?: string;
+  bestTreat?: string = &quot;chicken&quot;;
+}
+
+</code></pre>
+<h4>Built-in Models</h4>
+<p><a href="./type-relations.md">Type relations</a></p>
+<p>Cadl comes with built-in models for common data types:</p>
+<ul>
+<li><code>string</code>: sequence of characters</li>
+<li><code>bytes</code>: a sequence of bytes</li>
+<li><code>int8</code>: 8-bit signed integer</li>
+<li><code>int16</code>: 16-bit signed integer</li>
+<li><code>int32</code>: 32-bit signed integer</li>
+<li><code>int64</code>: 64-bit signed integer</li>
+<li><code>uint8</code>: 8-bit unsigned integer</li>
+<li><code>uint16</code>: 16-bit unsigned integer</li>
+<li><code>uint32</code>: 32-bit unsigned integer</li>
+<li><code>uint64</code>: 64-bit unsigned integer</li>
+<li><code>safeint</code>: an integer that is safe to store in a IEEE754 double and safe to round trip through all JSON processors.</li>
+<li><code>float32</code>: IEEE 754 single-precision floating point number</li>
+<li><code>float64</code>: IEEE 754 double-precision floating point number</li>
+<li><code>plainDate</code>: A date on a calendar without a time zone, e.g. &quot;April 10th&quot;</li>
+<li><code>plainTime</code>: A time on a clock without a time zone, e.g. &quot;3:00 am&quot;</li>
+<li><code>zonedDateTime</code>: A date and time in a particular time zone, e.g. &quot;April 10th at 3:00am in PST&quot;</li>
+<li><code>duration</code>: A duration/time period. e.g 5s, 10h</li>
+<li><code>boolean</code>: true or false</li>
+<li><code>null</code>: the null value found in e.g. JSON.</li>
+<li><code>Record&lt;T&gt;</code>: a dictionary with string K and value T.</li>
+<li><code>unknown</code>: A top type in Cadl that all types can be assigned to.</li>
+<li><code>void</code>: A function return type indicating the function doesn't return a value.</li>
+<li><code>never</code>: The never type indicates the values that will never occur. Typically, you use the never type to represent the return type of a function that always throws an error.</li>
+</ul>
+<h4>Spread</h4>
+<p>The spread operator takes the members of a source model and copies them into a target model. Spread doesn't create any nominal relationship between source and target, and so it's useful when you want to reuse common properties without reasoning about or generating complex inheritance relationships.</p>
+<pre><code class="language-cadl">model Animal {
+  species: string;
+}
+
+model Pet {
+  name: string;
+}
+
+model Dog {
+  ...Animal;
+  ...Pet;
+}
+
+// Dog is equivalent to the following declaration:
+model Dog {
+  species: string;
+  name: string;
+}
+
+</code></pre>
+<h4>Extends</h4>
+<p>Sometimes you want to create an explicit relationship between two models, for example when you want to emit class definitions in languages which support inheritance. The <code>extends</code> keyword can be used to establish such a relationship. It is also used extensively with <code>interface</code> to compose from existing interface building blocks.</p>
+<pre><code class="language-cadl">model Animal {
+  species: string;
+}
+
+model Dog extends Animal {}
+
+</code></pre>
+<h4>Is</h4>
+<p>Sometimes you want to copy all aspects of a type without creating a nominal inheritance relationship. The <code>is</code> keyword can be used for this purpose. It is like spread, but also copies <a href="#Decorators">decorators</a> in addition to properties. One common use case is to give a better name to a <a href="#Templates">template</a> instantiation:</p>
+<pre><code class="language-cadl">@decorator
+model Thing&lt;T&gt; {
+  property: T;
+}
+
+model StringThing is Thing&lt;string&gt;;
+
+// StringThing declaration is equivalent to the following declaration:
+@decorator
+model StringThing {
+  property: string;
+}
+
+</code></pre>
+<h3>Enums</h3>
+<p>Enums define a type which can hold one of a set of constant values.</p>
+<pre><code class="language-cadl">enum Color {
+  Red,
+  Blue,
+  Green,
+}
+
+</code></pre>
+<p>In this case, we haven't specified how the constants will be represented, allowing for different choices in different scenarios. For example, the OpenAPI emitter will choose string values &quot;Red&quot;, &quot;Green&quot;, &quot;Blue&quot;. Another protocol might prefer to assign incrementing numeric values 0, 1, 2.</p>
+<p>We can also specify explicit string or numeric values:</p>
+<pre><code class="language-cadl">enum Color {
+  Red: &quot;red&quot;,
+  Blue: &quot;blue&quot;,
+  Green: &quot;green&quot;,
+}
+
+enum Priority {
+  High: 100,
+  Low: 0,
+}
+
+</code></pre>
+<h4>Templates</h4>
+<p>It is often useful to let the users of a model fill in certain details. Model templates enable this pattern. Similar to generics found in other languages, model templates declare template parameters that users provide when referencing the model.</p>
+<pre><code class="language-cadl">model Page&lt;T&gt; {
+  size: number;
+  item: T[];
+}
+
+model DogPage {
+  ...Page&lt;Dog&gt;;
+}
+
+</code></pre>
+<p>A template parameter can be given a default value with <code>= &lt;value&gt;</code>.</p>
+<pre><code class="language-cadl">model Page&lt;T = string&gt; {
+  size: number;
+  item: T[];
+}
+
+</code></pre>
+<h4>Type Aliases</h4>
+<p>Sometimes it's convenient to alias a model template instantiation or type produced via type operators (covered later) as a convenient name. Aliases allow this:</p>
+<pre><code class="language-cadl">alias DogPage = Page&lt;Dog&gt;;
+
+</code></pre>
+<p>Unlike <code>model</code>, <code>alias</code> does not create a new entity, and as such will not change generated code in any way. An alias merely describes a source code shorthand to avoid repeating the right-hand side in multiple places.</p>
+<p>Because alias does not create a new entity, you cannot specify decorators on an alias.</p>
+<h3>Type Literals</h3>
+<p>API authors often need to describe API shapes in terms of specific literal values. For example, this operation returns this specific integer status code, or this model member can be one of a few specific string values. It is also often useful to pass specific literal values to decorators. Cadl supports string, number, and boolean literal values to support these cases:</p>
+<pre><code class="language-cadl">model BestDog {
+  name: &quot;Suki&quot;;
+  age: 14;
+  best: true;
+}
+
+</code></pre>
+<p>String literal types can also be created using the triple-quote syntax which enables multi-line strings:</p>
+<pre><code class="language-cadl">model Dog {
+  favoriteFoods: &quot;&quot;&quot;
+    McDonalds
+    Chipotle
+    And so on
+    &quot;&quot;&quot;;
+}
+
+</code></pre>
+<h3>Type Operators</h3>
+<p>Cadl supports a few type operators that make it easy to compose new models from other models.</p>
+<h4>Unions</h4>
+<p>Unions describe a type that must be exactly one of the union's constituents. Create a union with the <code>|</code> operator.</p>
+<pre><code class="language-cadl">alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
+
+</code></pre>
+<h5>Named unions</h5>
+<p>There is also a declaration syntax for naming a union and its options:</p>
+<pre><code class="language-cadl">union GoodBreed {
+  beagle: Beagle,
+  shepherd: GermanShepherd,
+  retriever: GoldenRetriever,
+}
+
+</code></pre>
+<p>The above example is equivalent to the <code>GoodBreed</code> alias above, except that emitters can actually see <code>GoodBreed</code> as a named entity and also see the <code>beagle</code>, <code>shepherd</code>, and <code>retriever</code> names for the options. It also becomes possible to apply <a href="#Decorators">decorators</a> to each of the options when using this form.</p>
+<h4>Intersections</h4>
+<p>Intersections describe a type that must include all the intersection's constituents. Create an intersection with the <code>&amp;</code> operator.</p>
+<pre><code class="language-cadl">alias Dog = Animal &amp; Pet;
+
+</code></pre>
+<h4>Arrays</h4>
+<p>Arrays describe lists of things. Create an Array type with the <code>[]</code> operator.</p>
+<pre><code class="language-cadl">alias Pack = Dog[];
+
+</code></pre>
+<h3>Operations</h3>
+<p>Operations describe service endpoints and consist of an operation name, parameters, and return type. Operations are declared using the <code>op</code> keyword:</p>
+<pre><code class="language-cadl">op getDog(name: string): Dog;
+
+</code></pre>
+<p>The operation's parameters describe a model, so anything you can do in a model you can do in a parameter list as well, including using the spread operator:</p>
+<pre><code class="language-cadl">op getDog(...commonParams, name: string): Dog;
+
+</code></pre>
+<p>Often an endpoint returns one of any number of models. For example, there might be a return type for when an item is found, and a return type for when an item isn't found. Unions are used to describe this pattern:</p>
+<pre><code class="language-cadl">model DogNotFound {
+  error: &quot;Not Found&quot;;
+}
+
+op getDog(name: string): Dog | DogNotFound;
+
+</code></pre>
+<h3>Namespaces &amp; Usings</h3>
+<p>Namespaces let you group related types together into namespaces. This helps organize your types, making them easier to find and prevents name conflicts. Namespaces are merged across files, so you can reference any type anywhere in your Cadl program via its namespace. You can create namespace blocks like the following:</p>
+<pre><code class="language-cadl">namespace Models {
+  model Dog {}
+}
+
+op getDog(): Models.Dog;
+
+</code></pre>
+<p>You can also put an entire Cadl file into a namespace by using the blockless namespace syntax:</p>
+<pre><code class="language-cadl">// models.cadl
+namespace Models;
+model Dog {}
+
+</code></pre>
+<pre><code class="language-cadl">// main.cadl
+import &quot;./models.cadl&quot;;
+op getDog(): Models.Dog;
+
+</code></pre>
+<p>Namespace declarations can declare multiple namespaces at once by using a dotted member expression. There's no need to declare nested namespace blocks if you don't want to.</p>
+<pre><code class="language-cadl">namespace A.B;
+namespace C.D {
+
+}
+namespace C.D.E {
+  model M {}
+}
+
+alias M = A.B.C.D.E.M;
+
+</code></pre>
+<p>It can be convenient to add references to a namespace's declarations to your local namespace, especially when namespaces can become deeply nested. The <code>using</code> statement lets us do this:</p>
+<pre><code class="language-cadl">// models.cadl
+namespace Service.Models;
+model Dog {}
+
+</code></pre>
+<pre><code class="language-cadl">// main.cadl
+import &quot;./models.cadl&quot;;
+using ServiceModels;
+op getDog(): Dog; // here we can use Dog directly.
+
+</code></pre>
+<p>The bindings introduced by a <code>using</code> statement are local to the namespace they are declared in. They do not become part of the namespace themselves.</p>
+<pre><code class="language-cadl">namespace Test {
+  model A {}
+}
+
+namespace Test2 {
+  using Test;
+  alias B = A; // ok
+}
+
+alias C = Test2.A; // not ok
+alias C = Test2.B; // ok
+
+</code></pre>
+<h3>Interfaces</h3>
+<p>Interfaces can be used to group operations.</p>
+<pre><code class="language-cadl">interface A {
+  a(): string;
+}
+
+interface B {
+  b(): string;
+}
+
+</code></pre>
+<p>And the keyword <code>extends</code> can be used to compose operations from other interfaces into a new interface:</p>
+<pre><code class="language-cadl">interface C extends A, B {
+  c(): string;
+}
+
+// C is equivalent to the following declaration
+interface C {
+  a(): string;
+  b(): string;
+  c(): string;
+}
+
+</code></pre>
+<h3>Imports</h3>
+<p>Imports add files or libraries to your Cadl program. When you compile a Cadl file, you provide a path to your root Cadl file, by convention called &quot;main.cadl&quot;. From there, any files you import are added to your program. If you import a directory, Cadl will look for a <code>main.cadl</code> file inside that directory.</p>
+<p>The path you import must either begin with &quot;./&quot; or &quot;../&quot; or otherwise be an absolute path. The path must either refer to a directory, or else have an extension of either &quot;.cadl&quot; or &quot;.js&quot;. The following demonstrates how to use imports to assemble a Cadl program from multiple files:</p>
+<pre><code class="language-cadl">// main.cadl
+import &quot;./models&quot;;
+op getDog(): Dog;
+
+</code></pre>
+<pre><code class="language-cadl">// models/main.cadl
+import &quot;./dog.cadl&quot;;
+
+</code></pre>
+<pre><code class="language-cadl">// models/dog.cadl
+namespace Models;
+model Dog {}
+
+</code></pre>
+<h3>Decorators</h3>
+<p>Decorators enable a developer to attach metadata to types in a Cadl program. They can also be used to calculate types based on their inputs. Decorators are the backbone of Cadl's extensibility and give it the flexibility to describe many different kinds of APIs and associated metadata like documentation, constraints, samples, and the like.</p>
+<p>Many Cadl constructs can be decorated, including namespaces, operations and their parameters, and models and their members.</p>
+<p>Decorators are defined using JavaScript functions that are exported from a standard ECMAScript module. When you import a JavaScript file, Cadl will look for any exported functions, and make them available as decorators inside the Cadl syntax. When a decorated declaration is evaluated by Cadl, it will invoke the decorator function, passing along a reference to the current compilation, an object representing the type it is attached to, and any arguments the user provided to the decorator.</p>
+<p>Decorators are attached by adding the decorator before the element you want to decorate, prefixing the name of the decorator with <code>@</code>. Arguments can be provided by using parentheses in a manner similar to many programming languages, e.g. <code>@dec(1, &quot;hi&quot;, { a: string })</code>. The parentheses can be omitted when no arguments are provided.</p>
+<p>The following shows an example of declaring and then using a decorator:</p>
+<pre><code class="language-js">// model.js
+export function logType(compilation, targetType, name) {
+  console.log(name + &quot;: &quot; + targetType.kind);
+}
+</code></pre>
+<pre><code class="language-cadl">// main.cadl
+import &quot;./model.js&quot;;
+
+@logType(&quot;Dog type&quot;)
+model Dog {
+  @logType(&quot;Name type&quot;)
+  name: string;
+}
+
+</code></pre>
+<p>After running this Cadl program, the following will be printed to the console:</p>
+<pre><code>Name type: ModelProperty
+Dog type: Model
+</code></pre>
+<h4>Built-in decorators</h4>
+<p>Cadl comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.</p>
+<ul>
+<li><a href="#deprecated">@deprecated</a> - indicates that the decorator target has been deprecated.</li>
+<li><a href="#doc">@doc</a> - attach a documentation string. Works great with multi-line string literals.</li>
+<li><a href="#error">@error</a> - specify a model is representing an error</li>
+<li><a href="#format">@format</a> - specify the data format hint for a string type</li>
+<li><a href="#friendlyname">@friendlyName</a> - specify a friendly name to be used instead of declared model name</li>
+<li>@indexer</li>
+<li><a href="#inspecttype">@inspectType/@inspectTypeName</a> - displays information about a type during compilation</li>
+<li><a href="#key">@key</a> - mark a model property as the key to identify instances of that type</li>
+<li><a href="#knownvalues">@knownValues</a> - mark a string type with an enum that contains all known values</li>
+<li>@list -</li>
+<li>@minLength/@maxLength - set the min and max lengths for strings</li>
+<li>@minValue/@maxValue - set the min and max values of number types</li>
+<li><a href="#pattern">@pattern</a> - set the pattern for a string using regular expression syntax</li>
+<li><a href="#secret">@secret</a> - mark a string as a secret value that should be treated carefully to avoid exposure</li>
+<li><a href="#summary">@summary</a> - attach a documentation string, typically a short, single-line description.</li>
+<li><a href="#tag">@tag</a> - attach a simple tag to a declaration</li>
+<li><a href="#visibility-decorators">@visibility/@withVisibility</a></li>
+<li><a href="#withefaultkeyvisibility">@withDefaultKeyVisibility</a> - set the visibility of key properties in a model if not already set.</li>
+<li><a href="#withoptionalproperties">@withOptionalProperties</a> - makes all properties of the target type optional.</li>
+<li><a href="#withoutdefaultvalues">@withoutDefaultValues</a> - removes all read-only properties from the target type.</li>
+<li><a href="#withoutomittedproperties">@withoutOmittedProperties</a> - removes all model properties that match a type.</li>
+<li><a href="#withupdateableproperties">@withUpdateableProperties</a> - remove all read-only properties from the target type</li>
+</ul>
+<h5>@inspectType</h5>
+<p>Syntax:</p>
+<pre><code>@inspectType(message)
+@inspectTypeName(message)
+</code></pre>
+<p><code>@inspectType</code> displays information about a type during compilation.
+<code>@inspectTypeName</code> displays information and name of type during compilation.
+They can be specified on any language element -- a model, an operation, a namespace, etc.</p>
+<h5>@deprecated</h5>
+<p>Syntax:</p>
+<pre><code>@deprecated(message)
+</code></pre>
+<p><code>@deprecated</code> marks a type as deprecated. It can be specified on any language element -- a model, an operation, a namespace, etc.</p>
+<h5>@friendlyName</h5>
+<p>Syntax:</p>
+<pre><code>@friendlyName(string)
+</code></pre>
+<p><code>@friendlyName</code> specifies an alternate model name to be used instead of declared model name. It can be specified on a model.</p>
+<h5>@pattern</h5>
+<p>Syntax:</p>
+<pre><code>@pattern(regularExpressionText)
+</code></pre>
+<p><code>@pattern</code> specifies a regular expression on a string property.</p>
+<h5>@summary</h5>
+<p>Syntax:</p>
+<pre><code>@summary(text [, object])
+</code></pre>
+<p><code>@summary</code> attaches a documentation string. It is typically used to give a short, single-line
+description, and can be used in combination with or instead of <code>@doc</code>.</p>
+<p>The first argument to <code>@summary</code> is a string, which may contain template parameters, enclosed in braces,
+which are replaced with an attribute for the type (commonly &quot;name&quot;) passed as the second (optional) argument.</p>
+<p><code>@summary</code> can be specified on any language element -- a model, an operation, a namespace, etc.</p>
+<h5>@doc</h5>
+<p>Syntax:</p>
+<pre><code>@doc(text [, object])
+</code></pre>
+<p><code>@doc</code> attaches a documentation string. Works great with multi-line string literals.</p>
+<p>The first argument to <code>@doc</code> is a string, which may contain template parameters, enclosed in braces,
+which are replaced with an attribute for the type (commonly &quot;name&quot;) passed as the second (optional) argument.</p>
+<p><code>@doc</code> can be specified on any language element -- a model, an operation, a namespace, etc.</p>
+<h5>@knownValues</h5>
+<p>Syntax:</p>
+<pre><code>@knownValues(enumTypeReference)
+</code></pre>
+<p><code>@knownValues</code> marks a string type with an enum that contains all known values</p>
+<p>The first parameter is a reference to an enum type that enumerates all possible values that the
+type accepts.</p>
+<p><code>@knownValues</code> can only be applied to model types that extend <code>string</code>.</p>
+<p>Example:</p>
+<pre><code>enum OperationStateValues {
+  Running,
+  Completed,
+  Failed
+}
+
+@knownValues(OperationStateValues)
+model OperationState extends string {
+}
+</code></pre>
+<h5>@key</h5>
+<p>Syntax:</p>
+<pre><code>@key([keyName])
+</code></pre>
+<p><code>@key</code> - mark a model property as the key to identify instances of that type</p>
+<p>The optional first argument accepts an alternate key name which may be used by emitters.
+Otherwise, the name of the target property will be used.</p>
+<p><code>@key</code> can only be applied to model properties.</p>
+<h5>@secret</h5>
+<p>Syntax:</p>
+<pre><code>@secret
+</code></pre>
+<p><code>@secret</code> mark a string as a secret value that should be treated carefully to avoid exposure</p>
+<pre><code>@secret
+model Password is string;
+
+</code></pre>
+<p><code>@secret</code> can only be applied to string model;</p>
+<h5>@format</h5>
+<p>Syntax:</p>
+<pre><code>@format(formatName)
+</code></pre>
+<p><code>@format</code> - specify the data format hint for a string type</p>
+<p>The first argument is a string that identifies the format that the string type expects. Any string
+can be entered here, but a Cadl emitter must know how to interpret</p>
+<p>For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
+valid values for a string type's format:</p>
+<p>https://swagger.io/specification/#data-types</p>
+<p><code>@format</code> can be applied to a type that extends from <code>string</code> or a <code>string</code>-typed model property.</p>
+<h5>@error</h5>
+<p>Syntax:</p>
+<pre><code>@error
+</code></pre>
+<p><code>@format</code> - specify that this model is an error type</p>
+<p>For HTTP API this can be used to represent a failure.</p>
+<h5>Visibility decorators</h5>
+<p>Additionally, the decorators <code>@withVisibility</code> and <code>@visibility</code> provide an extensible visibility framework that allows for defining a canonical model with fine-grained visibility flags and derived models that apply those flags. Flags can be any string value and so can be customized to your application. Also, <code>@visibility</code> can take multiple string flags to set multiple flags at once, and <code>@withVisibility</code> can take multiple string flags to filter on at once.</p>
+<p>Consider the following example:</p>
+<pre><code class="language-cadl">model Dog {
+  // the service will generate an ID, so you dont need to send it.
+  @visibility(&quot;read&quot;) id: int32;
+  // the service will store this secret name, but won't ever return it
+  @visibility(&quot;write&quot;) secretName: string;
+  // no flags are like specifying all flags at once, so in this case
+  // equivalent to @visibility(&quot;read&quot;, &quot;write&quot;)
+  name: string;
+}
+
+// The spread operator will copy all the properties of Dog into ReadDog,
+// and withVisibility will remove any that don't match the current
+// visibility setting
+@withVisibility(&quot;read&quot;)
+model ReadDog {
+  ...Dog;
+}
+
+@withVisibility(&quot;write&quot;)
+model WriteDog {
+  ...Dog;
+}
+
+</code></pre>
+<h4>@withDefaultKeyVisibility</h4>
+<p>Syntax:</p>
+<pre><code>@withDefaultKeyVisibility(string)
+</code></pre>
+<p><code>@withDefaultKeyVisibility</code> - set the visibility of key properties in a model if not already set. The first argument accepts a string representing the desired default
+visibility value.
+If a key property already has a <code>visibility</code> decorator then the default visibility is not applied.</p>
+<p><code>@withDefaultKeyVisibility</code> can only be applied to model types.</p>
+<h4>@withOptionalProperties</h4>
+<p>Syntax:</p>
+<pre><code>@withOptionalProperties()
+</code></pre>
+<p><code>@withOptionalProperties</code> makes all properties of the target type optional.</p>
+<p><code>@withOptionalProperties</code> can only be applied to model types.</p>
+<h4>@withoutDefaultValues</h4>
+<p>Syntax:</p>
+<pre><code>@withoutDefaultValues()
+</code></pre>
+<p><code>@withoutDefaultValues</code> removes all read-only properties from the target type.</p>
+<p><code>@withoutDefaultValues</code> can only be applied to model types.</p>
+<h4>@withoutOmittedProperties</h4>
+<p>Syntax:</p>
+<pre><code>@withoutOmittedProperties(type)
+</code></pre>
+<p><code>@withoutOmittedProperties</code> removes all model properties that match a type.</p>
+<p><code>@withoutOmittedProperties</code> can only be applied to model types.</p>
+<h4>@withUpdateableProperties</h4>
+<p>Syntax:</p>
+<pre><code>@withUpdateableProperties()
+</code></pre>
+<p><code>@withUpdateableProperties</code> remove all read-only properties from the target type.</p>
+<p><code>@withUpdateableProperties</code> can only be applied to model types.</p>
+<h3>Libraries</h3>
+<p>Cadl libraries are bundles of useful Cadl declarations and decorators into reusable packages. Cadl libraries are actually npm packages under the covers. Official Cadl libraries can be found with the <code>@cadl-lang/</code> or <code>@azure-tools/cadl-</code> npm package name prefix. Libraries can be either a language library, an emitter library or both.</p>
+<h4>Setting up Cadl library</h4>
+<p>The first step in using a library is to install it via <code>npm</code>. You can get <code>npm</code> and <code>node</code> from the <a href="https://nodejs.org">Node.js website</a>.</p>
+<p>If you haven't already initialized your Cadl project's package.json file, now would be a good time to do so. The package.json file lets you track the dependencies your project depends on, and is a best practice to check in along with any Cadl files you create. Run <code>npm init</code> create your package.json file.</p>
+<p>Then, in your Cadl project directory, type <code>npm install libraryName</code> to install a library. For example, to install the official Cadl REST API bindings and OpenAPI generator, you would type <code>npm install @cadl-lang/rest @cadl-lang/openapi3</code>.</p>
+<h4>Using language libraries</h4>
+<p>Lastly, you need to import the libraries into your Cadl program. By convention, all external dependencies are imported in your <code>main.cadl</code> file, but can be in any Cadl file imported into your program. Importing the two libraries we installed above would look like this:</p>
+<pre><code class="language-cadl">// in main.cadl
+import &quot;@cadl-lang/rest&quot;;
+import &quot;@cadl-lang/openapi3&quot;;
+
+</code></pre>
+<h4>Using emitter libraries</h4>
+<p>The emitter needs to be referenced either via the cli <code>--emit</code> option or configured in the CADL config file.</p>
+<pre><code class="language-bash"># Run openapi3 emitter on the spec
+cadl compile . --emit=@cadl-lang/openapi3
+</code></pre>
+<p>or in the config file <code>cadl-project.yaml</code></p>
+<pre><code class="language-yaml">emitters:
+  &quot;@cadl-lang/openapi3&quot;: true
+</code></pre>
+<h5>Configuring emitter libraries</h5>
+<p>Emitters might provide some options to configure the generated output. Those options can be set either via the config <code>cadl-project.yaml</code> or the cli</p>
+<ul>
+<li>Via config</li>
+</ul>
+<pre><code class="language-yaml">emitters:
+  &lt;emitterName&gt;:
+    &lt;optionName&gt;: &lt;value&gt;
+
+# For example
+emitters:
+ &quot;@cadl-lang/openapi3&quot;:
+    output-file: my-custom-file.json
+</code></pre>
+<ul>
+<li>Via cli</li>
+</ul>
+<pre><code class="language-yaml">--option &quot;&lt;emitterName&gt;.&lt;optionName&gt;=&lt;value&gt;&quot;
+
+# For example
+--option &quot;@cadl-lang/openapi3.output-file=my-custom-file.json&quot;
+</code></pre>
+<h4>Standard emitter libraries</h4>
+<p>Cadl has following standard libraries:</p>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Package name</th>
+<th>Documentation</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAPI binding library</td>
+<td>@cadl-lang/openapi</td>
+<td><a href="https://github.com/microsoft/cadl/tree/main/packages/openapi/README.md">Readme.md</a></td>
+<td><a href="https://github.com/microsoft/cadl/tree/main/packages/openapi">Link</a></td>
+</tr>
+<tr>
+<td>OpenAPI 3</td>
+<td>@cadl-lang/openapi3</td>
+<td><a href="https://github.com/microsoft/cadl/tree/main/packages/openapi3/README.md">Readme.md</a></td>
+<td><a href="https://github.com/microsoft/cadl/tree/main/packages/openapi">Link</a></td>
+</tr>
+<tr>
+<td>HTTP, REST</td>
+<td>@cadl-lang/rest</td>
+<td><a href="https://github.com/microsoft/cadl/tree/main/packages/rest/README.md">Readme.md</a></td>
+<td><a href="https://github.com/microsoft/cadl/tree/main/packages/openapi">Link</a></td>
+</tr>
+</tbody>
+</table>
+<h4>Creating libraries</h4>
+<p>Creating a Cadl library is essentially the same as creating any NPM library. <a href="https://docs.npmjs.com/creating-node-js-modules">Consult the official documentation for more info</a>. <code>main</code> should refer to a JS file that exports all your library's decorators and helper utilities.</p>
+<p>The package.json file for a Cadl library requires one additional field: <code>cadlMain</code>, which refers to the root file of your Cadl program similar to how <code>main</code> refers to the root of a JS program. If you don't have any Cadl declarations, <code>cadlMain</code> can be identical to <code>main</code>.</p>
+<h3>REST APIs</h3>
+<p>With the language building blocks we've covered so far we're ready to author our first REST API. Cadl has an official REST API &quot;binding&quot; called <code>@cadl-lang/rest</code>. It's a set of Cadl declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.</p>
+<p>Cadl also has an official OpenAPI emitter called <code>@cadl-lang/openapi3</code> that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.</p>
+<p>The following examples assume you have imported both <code>@cadl-lang/openapi3</code> and <code>@cadl-lang/rest</code> somewhere in your Cadl program (though importing them in <code>main.cadl</code> is the standard convention). For detailed library reference, please see rest library's <a href="https://github.com/microsoft/cadl/blob/main/packages/rest/README.md">Readme.md</a>.</p>
+<h4>Service definition and metadata</h4>
+<p>A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. Cadl offers the following decorators for providing this metadata, and all are optional.</p>
+<ul>
+<li>@serviceTitle - the title of the service</li>
+<li>@serviceVersion - the version of the service. Can be any string, but later version should lexicographically sort after earlier versions</li>
+<li>@server - the host of the service. Can accept parameters.</li>
+<li>@produces - the content types the service may produce</li>
+<li>@consumes - the content types that may be sent to the service</li>
+</ul>
+<p>Here's an example that uses these to define a Pet Store service:</p>
+<pre><code class="language-cadl">@serviceTitle(&quot;Pet Store Service&quot;)
+@serviceVersion(&quot;2021-03-25&quot;)
+@server(&quot;https://example.com&quot;, &quot;Single server endpoint&quot;)
+@doc(&quot;This is a sample server Petstore server.&quot;)
+@Cadl.Rest.produces(&quot;application/json&quot;, &quot;image/png&quot;)
+@Cadl.Rest.consumes(&quot;application/json&quot;)
+namespace PetStore;
+
+</code></pre>
+<p>The <code>server</code> keyword can take a third parameter with parameters as necessary:</p>
+<pre><code class="language-cadl">@server(&quot;https://{region}.foo.com&quot;, &quot;Regional endpoint&quot;, {
+  @doc(&quot;Region name&quot;)
+  region?: string = &quot;westus&quot;,
+})
+</code></pre>
+<h4>Resources &amp; routes</h4>
+<p>Resources are operations that are grouped in a namespace. You declare such a namespace by adding the <code>@route</code> decorator to provide the path to that resource:</p>
+<pre><code class="language-cadl">using Cadl.Http;
+
+@route(&quot;/pets&quot;)
+namespace Pets {
+
+}
+
+</code></pre>
+<p>To define an operation on this resource, you need to provide the HTTP verb for the route using the <code>@get</code>, <code>@head</code> <code>@post</code>, <code>@put</code>, <code>@patch</code>, or <code>@delete</code> decorators. Alternatively, you can name your operation <code>list</code>, <code>create</code>, <code>read</code>, <code>update</code>, <code>delete</code>, or <code>deleteAll</code> and the appropriate verb will be used automatically. Lets add an operation to our <code>Pets</code> resource:</p>
+<pre><code class="language-cadl">@route(&quot;/pets&quot;)
+namespace Pets {
+  op list(): Pet[];
+
+  // or you could also use
+  @get op listPets(): Pet[];
+}
+
+</code></pre>
+<h5>Automatic route generation</h5>
+<p>Instead of manually specifying routes using the <code>@route</code> decorator, you automatically generate
+routes from operation parameters by applying the <code>@autoRoute</code> decorator to an operation, namespace,
+or interface containing operations.</p>
+<p>For this to work, an operation's path parameters (those marked with <code>@path</code>) must also be marked with
+the <code>@segment</code> decorator to define the preceding path segment.</p>
+<p>This is especially useful when reusing common parameter sets defined as model types.</p>
+<p>For example:</p>
+<pre><code>model CommonParameters {
+  @path
+  @segment(&quot;tenants&quot;)
+  tenantId: string;
+
+  @path
+  @segment(&quot;users&quot;)
+  userName: string;
+}
+
+@autoRoute
+interface UserOperations {
+  @get
+  getUser(...CommonParameters): User | Error;
+
+  @put
+  updateUser(...CommonParameters, user: User): User | Error;
+}
+</code></pre>
+<p>This will result in the following route for both operations</p>
+<pre><code>/tenants/{tenantId}/users/{userName}
+</code></pre>
+<h4>Path and query parameters</h4>
+<p>Model properties and parameters which should be passed as path and query parameters use the <code>@path</code> and <code>@query</code> parameters respectively. Let's modify our list operation to support pagination, and add a read operation to our Pets resource:</p>
+<pre><code class="language-cadl">@route(&quot;/pets&quot;)
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): Pet[];
+  op read(@path petId: int32): Pet;
+}
+
+</code></pre>
+<p>Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following Cadl. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.</p>
+<pre><code class="language-cadl">@route(&quot;/pets/{petId}/toys&quot;)
+namespace PetToys {
+  op list(@path petId: int32): Toy[];
+}
+
+</code></pre>
+<h4>Request &amp; response bodies</h4>
+<p>Request and response bodies can be declared explictly using the <code>@body</code> decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.</p>
+<pre><code class="language-cadl">@route(&quot;/pets&quot;)
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): {
+    @body pets: Pet[];
+  };
+  op read(@path petId: int32): {
+    @body pet: Pet;
+  };
+  @post
+  op create(@body pet: Pet): {};
+}
+
+</code></pre>
+<p>Note that in the absence of explicit <code>@body</code>:</p>
+<ol>
+<li>The set of parameters that are not marked @header, @query, or @path form the request body.</li>
+<li>The set of properties of the return model that are not marked @header, @query, or @path form the response body.</li>
+<li>If the return type is not a model, then it defines the response body.</li>
+</ol>
+<p>This is how we were able to return Pet and Pet[] bodies without using @body for list and read. We can actually write
+create in the same terse style by spreading the Pet object into the parameter list like this:</p>
+<pre><code class="language-cadl">@route(&quot;/pets&quot;)
+namespace Pets {
+  @post
+  op create(...Pet): {};
+}
+
+</code></pre>
+<h4>Polymorphism with discriminators</h4>
+<p>A pattern often used in REST APIs is to define a request or response body as having one of several different shapes, with a property called the
+&quot;discriminator&quot; indicating which actual shape is used for a particular instance.
+Cadl supports this pattern with the <code>@discriminator</code> decorator of the Rest library.</p>
+<p>The <code>@discrminator</code> decorator takes one argument, the name of the discriminator property, and should be placed on the
+model for the request or response body. The different shapes are then defined by separate models that <code>extend</code> this request or response model.
+The discriminator property is defined in the &quot;child&quot; models with the value or values that indicate an instance that conforms to its shape.</p>
+<p>As an example, a <code>Pet</code> model that allows instances that are either a <code>Cat</code> or a <code>Dog</code> can be defined with</p>
+<pre><code class="language-cadl">@discriminator(&quot;kind&quot;)
+model Pet {
+  name: string;
+  weight?: float32;
+}
+model Cat extends Pet {
+  kind: &quot;cat&quot;;
+  meow: int32;
+}
+model Dog extends Pet {
+  kind: &quot;dog&quot;;
+  bark: string;
+}
+
+</code></pre>
+<h4>Headers</h4>
+<p>Model properties and parameters that should be passed in a header use the <code>@header</code> decorator. The decorator takes the header name as a parameter. If a header name is not provided, it is inferred from the property or parameter name. Let's add <code>etag</code> support to our pet store's read operation.</p>
+<pre><code class="language-cadl">@route(&quot;/pets&quot;)
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): {
+    @body pets: Pet[];
+  };
+  op read(@path petId: int32, @header ifMatch?: string): {
+    @header eTag: string;
+    @body pet: Pet;
+  };
+  @post
+  op create(@body pet: Pet): {};
+}
+
+</code></pre>
+<h4>Status codes</h4>
+<p>Use the <code>@header</code> decorator on a property named <code>statusCode</code> to declare a status code for a response. Generally, setting this to just <code>int32</code> isn't particularly useful. Instead, use number literal types to create a discriminated union of response types. Let's add status codes to our responses, and add a 404 response to our read endpoint.</p>
+<pre><code class="language-cadl">@route(&quot;/pets&quot;)
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): {
+    @statusCode statusCode: 200;
+    @body pets: Pet[];
+  };
+  op read(@path petId: int32, @header ifMatch?: string): {
+    @statusCode statusCode: 200;
+    @header eTag: string;
+    @body pet: Pet;
+  } | {
+    @statusCode statusCode: 404;
+  };
+  op create(@body pet: Pet): {
+    @statusCode statusCode: 204;
+  };
+}
+
+</code></pre>
+<h4>Built-in response shapes</h4>
+<p>Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently.</p>
+<p>There is also a Body<T> type, which can be used as a shorthand for { @body body: T } when an explicit body is required.</p>
+<p>Lets update our sample one last time to use these built-in types:</p>
+<pre><code class="language-cadl">model ETag {
+  @header eTag: string;
+}
+@route(&quot;/pets&quot;)
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): OkResponse &amp; Body&lt;Pet[]&gt;;
+  op read(@path petId: int32, @header ifMatch?: string): (OkResponse &amp;
+    Body&lt;Pet&gt; &amp;
+    ETag) | NotFoundResponse;
+  @post
+  op create(...Pet): NoContentResponse;
+}
+
+</code></pre>
+<p>Note that the default status code is 200 for non-empty bodies and 204 for empty bodies. Similarly, explicit <code>Body&lt;T&gt;</code> is not required when T is known to be a model. So the following terser form is equivalent:</p>
+<pre><code class="language-cadl">@route(&quot;/pets&quot;)
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): Pet[];
+  op read(@path petId: int32, @header ifMatch?: string): (Pet &amp; ETag) | NotFoundResponse;
+  @post
+  op create(...Pet): {};
+}
+
+</code></pre>
+<p>Finally, another common style is to make helper response types that are
+shared across a larger service definition. In this style, you can be
+entirely explicit while also keeping operation definitions concise.</p>
+<p>For example, we could write :</p>
+<pre><code class="language-cadl">model ListResponse&lt;T&gt; {
+  ...OkResponse;
+  ...Body&lt;T[]&gt;;
+}
+
+model ReadSuccessResponse&lt;T&gt; {
+  ...OkResponse;
+  ...ETag;
+  ...Body&lt;T&gt;;
+}
+
+alias ReadResponse&lt;T&gt; = ReadSuccessResponse&lt;T&gt; | NotFoundResponse;
+
+model CreateResponse {
+  ...NoContentResponse;
+}
+
+@route(&quot;/pets&quot;)
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): ListResponse&lt;Pet&gt;;
+  op read(@path petId: int32, @header ifMatch?: string): ReadResponse&lt;Pet&gt;;
+  @post
+  op create(...Pet): CreateResponse;
+}
+
+</code></pre>
+<h3>CADL Config</h3>
+<p>Cadl has a configuration file <code>cadl-project.yaml</code> that right now is only used to configure the default emitter to use.
+The config file needs to be a sibling of the <code>package.json</code>. Cadl will look for the following files in that order and pick the 1st one found:</p>
+<p>Configuration schema:</p>
+<pre><code class="language-yaml"># Map of the default emitters to use when not using `--emit`
+emitters:
+  &lt;emitterName&gt;: true
+</code></pre>
+
+</div>
+    </main>
+    <footer>
+        
+<div class="footer">
+      <div class="footer-row">
+        <div class="column1">
+          <article id="cadl">
+          <a><h1>Cadl</h1></a>
+          <p>Made with ♥ in Redmond, Boston, SF &amp; Dublin</p>
+          </article>
+          <article id="microsoft">
+            <a href="">
+              <img id="microsoft-logo" width="92" height="19" 
+              src="data:image/png;base64,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"
+              alt="Microsoft Logo"/>
+            </a>
+            <p>&copy; 2012-2022 Microsoft <br/>
+              <a href="https://go.microsoft.com/fwlink/?LinkId=521839" title="Microsoft Privacy Policy">Privacy</a>
+            </p>
+          </article>
+        </div>
+
+        <div class="column2">
+          <h2>Using Cadl</h2>
+          <ul>
+            <li><a href="/docs/home">Get Started</a></li>
+            <li><a href="/download">Download</a></li>
+            <li><a href="/community">Community</a></li>
+            <li><a href="/play">Playground</a></li>
+            <li><a href="/tsconfig">TSConfig Ref</a></li>
+            <li><a href="/why-create-typescript">Why Cadl</a></li>
+            <li><a href="/branding">Design</a></li>
+          </ul>
+        </div>
+
+        <div class="column3">
+          <h2>Community</h2>
+          <ul>
+            <li><a href="" >Get Help</a></li>
+            <li><a href="">Blog</a></li>
+            <li><a href="https://github.com/microsoft/cadl/blob/main/docs/tutorial.md" ><span><svg fill="none" height="12" viewBox="0 0 12 12" width="12" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m6.03927.165405c-3.27055 0-5.922909 2.652005-5.922909 5.923645 0 2.61709 1.697089 4.83705 4.050909 5.62035.29636.0546.40436-.1284.40436-.2854 0-.1408-.00509-.5131-.008-1.0073-1.64763.3578-1.99527-.7942-1.99527-.7942-.26946-.68436-.65782-.86654-.65782-.86654-.53782-.36727.04073-.36001.04073-.36001.59454.04182.90727.61055.90727.61055.52836.90509 1.38655.64364 1.724.492.05382-.38254.20691-.64363.376-.79163-1.31527-.14946-2.69818-.65782-2.69818-2.92764 0-.64654.23091-1.17564.60982-1.58946-.06109-.14981-.26437-.75236.05818-1.56763 0 0 .49709-.15927 1.62872.60727.47237-.13163.97928-.19709 1.48291-.19964.50328.00255 1.00982.06801 1.48291.19964 1.13091-.76654 1.62727-.60727 1.62727-.60727.32328.81527.12001 1.41782.05928 1.56763.37964.41382.60873.94292.60873 1.58946 0 2.27564-1.38509 2.77636-2.70437 2.92291.21237.18291.40182.54436.40182 1.09672 0 .79204-.00727 1.43094-.00727 1.62514 0 .1585.10691.3429.40727.2851 2.35197-.7851 4.04767-3.00369 4.04767-5.62005 0-3.27164-2.6524-5.923645-5.92403-5.923645z" fill="#fffffe" fill-rule="evenodd"></path></svg></span>GitHub Repo</a></li>
+            <li><a href="" ><span><svg fill="none" height="10" viewBox="0 0 11 10" width="11" xmlns="http://www.w3.org/2000/svg"><path d="m9.05511 0h-7.11021c-.59959 0-1.087753.46-1.087753 1.03v6.76c0 .57.488163 1.03 1.087753 1.03h6.01715l-.28123-.925.67918.595.64205.56 1.14085.95v-8.97c0-.57-.4882-1.03-1.08779-1.03zm-2.04817 6.53s-.19102-.215-.3502-.405c.6951-.185.96041-.595.96041-.595-.21755.135-.42449.23-.61021.295-.2653.105-.52.175-.76938.215-.50939.09-.97633.065-1.37429-.005-.30245-.055-.56245-.135-.78-.215-.12204-.045-.25469-.1-.38735-.17-.01592-.01-.03183-.015-.04775-.025-.01061-.005-.01592-.01-.02123-.015-.09551-.05-.14857-.085-.14857-.085s.2547.4.92857.59c-.15918.19-.35551.415-.35551.415-1.17265-.035-1.61836-.76-1.61836-.76 0-1.61.76408-2.915.76408-2.915.76408-.54 1.49102-.525 1.49102-.525l.05306.06c-.9551.26-1.39551.655-1.39551.655s.11673-.06.31306-.145c.56776-.235 1.01878-.3 1.20449-.315.03184-.005.05837-.01.0902-.01.32368-.04.6898-.05 1.07184-.01.50408.055 1.04531.195 1.59714.48 0 0-.41918-.375-1.32122-.635l.07428-.08s.72694-.015 1.49103.525c0 0 .76408 1.305.76408 2.915 0 0-.45102.725-1.62368.76z" fill="#fff"></path></svg></span>Community Chat</a></li>
+            <li><a href="" ><span><svg fill="none" height="10" viewBox="0 0 13 10" width="13" xmlns="http://www.w3.org/2000/svg"><path d="m4.58519 10c4.62962 0 7.16291-3.83919 7.16291-7.16289 0-.10801 0-.21602-.0049-.32403.4909-.35348.918-.80024 1.2568-1.30591-.4517.20128-.9377.33384-1.4483.39766.5204-.30929.9181-.805148 1.1095-1.394284-.486.289658-1.026.495856-1.6004.608773-.4615-.490946-1.11448-.7953322-1.83617-.7953322-1.38938 0-2.51856 1.1291732-2.51856 2.5185532 0 .19638.02455.38785.06383.57441-2.09143-.1031-3.94721-1.10954-5.1893-2.631474-.21602.373119-.33876.805154-.33876 1.266644 0 .87388.44677 1.64467 1.11936 2.09634-.41239-.01473-.80024-.12765-1.13899-.31421v.03437c0 1.21754.86897 2.23871 2.01778 2.46946-.2111.05891-.43203.08837-.66277.08837-.16202 0-.31912-.01473-.47131-.04419.31911 1.00153 1.25191 1.72813 2.35163 1.74777-.86406.67751-1.94906 1.08008-3.12733 1.08008-.20128 0-.402571-.00982-.59895-.03436 1.10954.70696 2.43509 1.12425 3.85393 1.12425z" fill="#fff"></path></svg></span>@Cadl</a></li>
+            <li><a href="" ><span><svg fill="none" height="16" viewBox="0 0 12 16" width="12" xmlns="http://www.w3.org/2000/svg"><path d="m.375 15.1875v-6h1.09375l-.03125 4.8125h7.1875v-4.78125h1.125v5.96875zm1.75-3.1563h5.625v1.1876h-5.625zm.03125-.9374.09375-1.2188 5.65625.5312-.125 1.2188zm.28125-2.4688.34375-1.1875 5.46875 1.53125-.34375 1.18745zm1.03125-2.90625.625-1.0625 4.84375 2.9375-.65625 1.0625zm2.40625-2.9375 1-.71875 3.3125 4.625-1 .71875zm3.625-1.78125 1.1875-.1875.9375 5.59375-1.2188.1875z" fill="#fff"></path></svg></span>Stack Overflow</a></li>
+            <li><a href="" ><span><svg fill="none" height="12" viewBox="0 0 12 12" width="12" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m6.03927.165405c-3.27055 0-5.922909 2.652005-5.922909 5.923645 0 2.61709 1.697089 4.83705 4.050909 5.62035.29636.0546.40436-.1284.40436-.2854 0-.1408-.00509-.5131-.008-1.0073-1.64763.3578-1.99527-.7942-1.99527-.7942-.26946-.68436-.65782-.86654-.65782-.86654-.53782-.36727.04073-.36001.04073-.36001.59454.04182.90727.61055.90727.61055.52836.90509 1.38655.64364 1.724.492.05382-.38254.20691-.64363.376-.79163-1.31527-.14946-2.69818-.65782-2.69818-2.92764 0-.64654.23091-1.17564.60982-1.58946-.06109-.14981-.26437-.75236.05818-1.56763 0 0 .49709-.15927 1.62872.60727.47237-.13163.97928-.19709 1.48291-.19964.50328.00255 1.00982.06801 1.48291.19964 1.13091-.76654 1.62727-.60727 1.62727-.60727.32328.81527.12001 1.41782.05928 1.56763.37964.41382.60873.94292.60873 1.58946 0 2.27564-1.38509 2.77636-2.70437 2.92291.21237.18291.40182.54436.40182 1.09672 0 .79204-.00727 1.43094-.00727 1.62514 0 .1585.10691.3429.40727.2851 2.35197-.7851 4.04767-3.00369 4.04767-5.62005 0-3.27164-2.6524-5.923645-5.92403-5.923645z" fill="#fffffe" fill-rule="evenodd"></path></svg></span>Web Repo</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    </footer>
+</body>
+</html>
