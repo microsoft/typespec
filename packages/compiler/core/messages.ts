@@ -417,6 +417,12 @@ const diagnostics = {
       default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },
+  "incompatible-library": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Multiple versions of "${"name"}" library were loaded:\n${"versionMap"}`,
+    },
+  },
   "compiler-version-mismatch": {
     severity: "error",
     messages: {

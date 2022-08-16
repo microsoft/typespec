@@ -1,6 +1,8 @@
 import { createDiagnosticCreator } from "./diagnostics.js";
 import { CadlLibrary, CadlLibraryDef, CallableMessage, DiagnosticMessages } from "./types.js";
 
+export const LIBRARIES_LOADED = new Set<string>();
+
 /**
  * Create a new Cadl library definition.
  * @param lib Library definition.
@@ -24,7 +26,13 @@ export function createCadlLibrary<
   E extends Record<string, any>
 >(lib: Readonly<CadlLibraryDef<T, E>>): CadlLibrary<T, E> {
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
-  return { ...lib, reportDiagnostic, createDiagnostic };
+  function createStateSymbol(name: string): symbol {
+    return Symbol.for(`${lib.name}.${name}`);
+  }
+
+  const caller = getCaller();
+  LIBRARIES_LOADED.add(caller);
+  return { ...lib, reportDiagnostic, createDiagnostic, createStateSymbol };
 }
 
 export function paramMessage<T extends string[]>(
@@ -56,4 +64,16 @@ export function setCadlNamespace(
   ...functions: Array<(...args: any[]) => any>
 ): void {
   functions.forEach((c: any) => (c.namespace = namespace));
+}
+
+function getCaller() {
+  return getCallStack()[0].getFileName();
+}
+
+function getCallStack() {
+  const _prepareStackTrace = Error.prepareStackTrace;
+  Error.prepareStackTrace = (_, stack) => stack;
+  const stack = (new Error() as any).stack.slice(1); // eslint-disable-line unicorn/error-message
+  Error.prepareStackTrace = _prepareStackTrace;
+  return stack;
 }

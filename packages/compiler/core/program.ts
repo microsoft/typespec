@@ -2,9 +2,15 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile } from "./diagnostics.js";
 import { SymbolFlags } from "./index.js";
+import { LIBRARIES_LOADED } from "./library.js";
 import { createLogger } from "./logger/index.js";
 import { createDiagnostic } from "./messages.js";
-import { resolveModule, ResolveModuleHost } from "./module-resolver.js";
+import {
+  ModuleResolutionResult,
+  NodePackage,
+  resolveModule,
+  ResolveModuleHost,
+} from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
@@ -34,7 +40,7 @@ import {
   SyntaxKind,
   Type,
 } from "./types.js";
-import { doIO, loadFile } from "./util.js";
+import { doIO, findProjectRoot, loadFile } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -188,6 +194,11 @@ class StateSet implements Set<Type> {
   }
 }
 
+interface CadlLibraryReference {
+  path: string;
+  manifest: NodePackage;
+}
+
 export async function createProgram(
   host: CompilerHost,
   mainFile: string,
@@ -202,7 +213,7 @@ export async function createProgram(
   let currentProjector: Projector | undefined;
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
-  const libraryLoaded = new Set<string>();
+  const loadedLibraries = new Map<string, CadlLibraryReference>();
   let error = false;
 
   const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
@@ -293,7 +304,7 @@ export async function createProgram(
   }
 
   for (const [requiredImport, emitterName] of requireImports) {
-    if (!libraryLoaded.has(requiredImport)) {
+    if (!loadedLibraries.has(requiredImport)) {
       program.reportDiagnostic(
         createDiagnostic({
           code: "missing-import",
@@ -303,6 +314,8 @@ export async function createProgram(
       );
     }
   }
+
+  await validateLoadedLibraries();
   if (program.hasError()) {
     return program;
   }
@@ -313,6 +326,54 @@ export async function createProgram(
 
   return program;
 
+  /**
+   * Validate the libraries loaded during the compilation process are compatible.
+   */
+  async function validateLoadedLibraries() {
+    const loadedRoots = new Set<string>();
+    // Check all the files that were loaded
+    for (const file of LIBRARIES_LOADED) {
+      const root = await findProjectRoot(host, file);
+      if (root) {
+        loadedRoots.add(root);
+      }
+    }
+
+    const libraries = new Map([...loadedLibraries.entries()]);
+    const incompatibleLibraries = new Map<string, CadlLibraryReference[]>();
+    for (const root of loadedRoots) {
+      const packageJsonPath = joinPaths(root, "package.json");
+      try {
+        const packageJson: NodePackage = JSON.parse((await host.readFile(packageJsonPath)).text);
+        const found = libraries.get(packageJson.name);
+        if (found && found.path !== root && found.manifest.version !== packageJson.version) {
+          let incompatibleIndex: CadlLibraryReference[] | undefined = incompatibleLibraries.get(
+            packageJson.name
+          );
+          if (incompatibleIndex === undefined) {
+            incompatibleIndex = [found];
+            incompatibleLibraries.set(packageJson.name, incompatibleIndex);
+          }
+          incompatibleIndex.push({ path: root, manifest: packageJson });
+        }
+      } catch {}
+    }
+
+    for (const [name, incompatibleLibs] of incompatibleLibraries) {
+      reportDiagnostic(
+        createDiagnostic({
+          code: "incompatible-library",
+          format: {
+            name: name,
+            versionMap: incompatibleLibs
+              .map((x) => `   - Version: "${x.manifest.version}" installed at "${x.path}"`)
+              .join("\n"),
+          },
+          target: NoTarget,
+        })
+      );
+    }
+  }
   async function loadStandardLibrary(program: Program) {
     for (const dir of host.getLibDirs()) {
       await loadDirectory(dir, NoTarget);
@@ -433,13 +494,18 @@ export async function createProgram(
     target: DiagnosticTarget | typeof NoTarget,
     relativeTo: string
   ) {
-    const importFilePath = await resolveCadlLibrary(path, relativeTo, target);
-    if (importFilePath) {
-      libraryLoaded.add(path);
-      logger.debug(`Loading library "${path}" from "${importFilePath}"`);
-    } else {
+    const library = await resolveCadlLibrary(path, relativeTo, target);
+    if (library === undefined) {
       return;
     }
+    if (library.type === "module") {
+      loadedLibraries.set(path, {
+        path: library.path,
+        manifest: library.manifest,
+      });
+      logger.debug(`Loading library "${path}" from "${library.mainFile}"`);
+    }
+    const importFilePath = library.type === "module" ? library.mainFile : library.path;
 
     const isDirectory = (await host.stat(importFilePath)).isDirectory();
     if (isDirectory) {
@@ -527,7 +593,7 @@ export async function createProgram(
     specifier: string,
     baseDir: string,
     target: DiagnosticTarget | typeof NoTarget
-  ): Promise<string | undefined> {
+  ): Promise<ModuleResolutionResult | undefined> {
     try {
       return await resolveModule(getResolveModuleHost(), specifier, {
         baseDir,
@@ -566,7 +632,12 @@ export async function createProgram(
    */
   async function resolveJSLibrary(specifier: string, baseDir: string): Promise<string | undefined> {
     try {
-      return await resolveModule(getResolveModuleHost(), specifier, { baseDir });
+      const resolved = await resolveModule(getResolveModuleHost(), specifier, { baseDir });
+      if (resolved.type === "file") {
+        return resolved.path;
+      } else {
+        return resolved.mainFile;
+      }
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
         program.reportDiagnostic(
@@ -667,7 +738,7 @@ export async function createProgram(
     const baseDir = getDirectoryPath(mainPath);
     let actual: string;
     try {
-      actual = await resolveModule(
+      const resolved = await resolveModule(
         {
           realpath: host.realpath,
           stat: host.stat,
@@ -679,6 +750,7 @@ export async function createProgram(
         "@cadl-lang/compiler",
         { baseDir }
       );
+      actual = resolved.type === "module" ? resolved.mainFile : resolved.path;
     } catch (err: any) {
       if (err.code === "MODULE_NOT_FOUND" || err.code === "INVALID_MAIN") {
         return true; // no local cadl, ok to use any compiler
