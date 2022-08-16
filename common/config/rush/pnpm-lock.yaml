@@ -74,7 +74,7 @@ specifiers:
   mocha-multi-reporters: ~1.5.1
   monaco-editor: ~0.32.1
   mustache: ~4.2.0
-  node-fetch: ~3.2.0
+  node-fetch: 3.2.8
   node-watch: ~0.7.1
   onigasm: ~2.2.5
   picocolors: ~1.0.0
@@ -177,7 +177,7 @@ dependencies:
   mocha-multi-reporters: 1.5.1_mocha@9.2.2
   monaco-editor: 0.32.1
   mustache: 4.2.0
-  node-fetch: 3.2.10
+  node-fetch: 3.2.8
   node-watch: 0.7.3
   onigasm: 2.2.5
   picocolors: 1.0.0
@@ -4425,8 +4425,8 @@ packages:
       whatwg-url: 5.0.0
     dev: false
 
-  /node-fetch/3.2.10:
-    resolution: {integrity: sha512-MhuzNwdURnZ1Cp4XTazr69K0BTizsBroX7Zx3UgDSVcZYKF/6p0CBe4EUb/hLqmzVhl0UpYfgRljQ4yxE+iCxA==}
+  /node-fetch/3.2.8:
+    resolution: {integrity: sha512-KtpD1YhGszhntMpBDyp5lyagk8KIMopC1LEb7cQUAh7zcosaX5uK8HnbNb2i3NTQK3sIawCItS0uFC3QzcLHdg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       data-uri-to-buffer: 4.0.0
@@ -6743,7 +6743,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-+oL/+y0rI9rTC2MFCrT0jlhjW9vNxfbUPAUx2xSTVySj9BISSKaX8NQFY96DiHKdQvVC1ANNYInht3AEouhN+g==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-k3jadUC1fkg9M16GM25MvBf09/ItLT9epfHglCK7UdqrywoasG2dNtvPqPKu7JqnIQvhx2qmjwIN4NodG3/rIg==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -6769,7 +6769,7 @@ packages:
       mocha-junit-reporter: 2.0.2_mocha@9.2.2
       mocha-multi-reporters: 1.5.1_mocha@9.2.2
       mustache: 4.2.0
-      node-fetch: 3.2.10
+      node-fetch: 3.2.8
       node-watch: 0.7.3
       picocolors: 1.0.0
       prettier: 2.7.1
