@@ -3,10 +3,10 @@ import {
   createDecoratorDefinition,
   DecoratorContext,
   DecoratorValidator,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
   Program,
   setCadlNamespace,
   Type,
@@ -25,11 +25,7 @@ const producesDecorator = createDecoratorDefinition({
   },
 } as const);
 
-export function $produces(
-  context: DecoratorContext,
-  entity: NamespaceType,
-  ...contentTypes: string[]
-) {
+export function $produces(context: DecoratorContext, entity: Namespace, ...contentTypes: string[]) {
   if (!producesDecorator.validate(context, entity, contentTypes)) {
     return;
   }
@@ -51,11 +47,7 @@ const consumeDefinition = createDecoratorDefinition({
     kind: "String",
   },
 } as const);
-export function $consumes(
-  context: DecoratorContext,
-  entity: NamespaceType,
-  ...contentTypes: string[]
-) {
+export function $consumes(context: DecoratorContext, entity: Namespace, ...contentTypes: string[]) {
   if (!consumeDefinition.validate(context, entity, contentTypes)) {
     return;
   }
@@ -80,7 +72,7 @@ const discriminatorDecorator = createDecoratorDefinition({
   args: [{ kind: "String" }],
 } as const);
 
-export function $discriminator(context: DecoratorContext, entity: ModelType, propertyName: string) {
+export function $discriminator(context: DecoratorContext, entity: Model, propertyName: string) {
   if (!discriminatorDecorator.validate(context, entity, [propertyName])) {
     return;
   }
@@ -114,7 +106,7 @@ const segmentsKey = Symbol("segments");
  */
 export function $segment(
   context: DecoratorContext,
-  entity: ModelType | ModelTypeProperty | OperationType,
+  entity: Model | ModelProperty | Operation,
   name: string
 ) {
   if (!segmentDecorator.validate(context, entity, [name])) {
@@ -124,7 +116,7 @@ export function $segment(
   context.program.stateMap(segmentsKey).set(entity, name);
 }
 
-function getResourceSegment(program: Program, resourceType: ModelType): string | undefined {
+function getResourceSegment(program: Program, resourceType: Model): string | undefined {
   // Add path segment for resource type key (if it has one)
   const resourceKey = getResourceTypeKey(program, resourceType);
   return resourceKey
@@ -138,11 +130,7 @@ const segmentOfDecorator = createDecoratorDefinition({
   args: [{ kind: "Model" }],
 } as const);
 
-export function $segmentOf(
-  context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType
-) {
+export function $segmentOf(context: DecoratorContext, entity: Operation, resourceType: Model) {
   if ((resourceType.kind as any) === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
     return;
@@ -182,7 +170,7 @@ const segmentSeparatorDecorator = createDecoratorDefinition({
  */
 export function $segmentSeparator(
   context: DecoratorContext,
-  entity: ModelType | ModelTypeProperty | OperationType,
+  entity: Model | ModelProperty | Operation,
   separator: string
 ) {
   if (!segmentSeparatorDecorator.validate(context, entity, [separator])) {
@@ -211,7 +199,7 @@ const resourceDecorator = createDecoratorDefinition({
  *
  * `@resource` can only be applied to models.
  */
-export function $resource(context: DecoratorContext, entity: ModelType, collectionName: string) {
+export function $resource(context: DecoratorContext, entity: Model, collectionName: string) {
   if (!resourceDecorator.validate(context, entity, [collectionName])) {
     return;
   }
@@ -253,7 +241,7 @@ export type ResourceOperations =
 
 export interface ResourceOperation {
   operation: string;
-  resourceType: ModelType;
+  resourceType: Model;
 }
 
 const resourceOperationsKey = Symbol("resourceOperations");
@@ -262,8 +250,8 @@ interface ResourceOperationValidator extends DecoratorValidator<"Operation", [{ 
 
 export function setResourceOperation(
   context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType,
+  entity: Operation,
+  resourceType: Model,
   operation: ResourceOperations,
   decorator: ResourceOperationValidator
 ) {
@@ -284,7 +272,7 @@ export function setResourceOperation(
 
 export function getResourceOperation(
   program: Program,
-  cadlOperation: OperationType
+  cadlOperation: Operation
 ): ResourceOperation | undefined {
   return program.stateMap(resourceOperationsKey).get(cadlOperation);
 }
@@ -295,11 +283,7 @@ const readsResourceDecorator = createDecoratorDefinition({
   args: [{ kind: "Model" }],
 } as const);
 
-export function $readsResource(
-  context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType
-) {
+export function $readsResource(context: DecoratorContext, entity: Operation, resourceType: Model) {
   setResourceOperation(context, entity, resourceType, "read", readsResourceDecorator);
 }
 
@@ -311,8 +295,8 @@ const createsResourceDecorator = createDecoratorDefinition({
 
 export function $createsResource(
   context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType
+  entity: Operation,
+  resourceType: Model
 ) {
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
@@ -328,8 +312,8 @@ const createsOrReplacesResourceDecorator = createDecoratorDefinition({
 
 export function $createsOrReplacesResource(
   context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType
+  entity: Operation,
+  resourceType: Model
 ) {
   setResourceOperation(
     context,
@@ -348,8 +332,8 @@ const createsOrUpdatesResourceDecorator = createDecoratorDefinition({
 
 export function $createsOrUpdatesResource(
   context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType
+  entity: Operation,
+  resourceType: Model
 ) {
   setResourceOperation(
     context,
@@ -368,8 +352,8 @@ const updatesResourceDecorator = createDecoratorDefinition({
 
 export function $updatesResource(
   context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType
+  entity: Operation,
+  resourceType: Model
 ) {
   setResourceOperation(context, entity, resourceType, "update", updatesResourceDecorator);
 }
@@ -382,8 +366,8 @@ const deletesResourceDecorator = createDecoratorDefinition({
 
 export function $deletesResource(
   context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType
+  entity: Operation,
+  resourceType: Model
 ) {
   setResourceOperation(context, entity, resourceType, "delete", deletesResourceDecorator);
 }
@@ -394,11 +378,7 @@ const listsResourceDecorator = createDecoratorDefinition({
   args: [{ kind: "Model" }],
 } as const);
 
-export function $listsResource(
-  context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType
-) {
+export function $listsResource(context: DecoratorContext, entity: Operation, resourceType: Model) {
   // Add the @list decorator too so that collection routes are generated correctly
   context.call($list, entity, resourceType);
 
@@ -412,7 +392,7 @@ function lowerCaseFirstChar(str: string): string {
   return str[0].toLocaleLowerCase() + str.substring(1);
 }
 
-function makeActionName(op: OperationType, name: string | undefined): string {
+function makeActionName(op: Operation, name: string | undefined): string {
   return lowerCaseFirstChar(name || op.name);
 }
 
@@ -423,7 +403,7 @@ const actionDecorator = createDecoratorDefinition({
 } as const);
 
 const actionsKey = Symbol("actions");
-export function $action(context: DecoratorContext, entity: OperationType, name?: string) {
+export function $action(context: DecoratorContext, entity: Operation, name?: string) {
   if (!actionDecorator.validate(context, entity, [name])) {
     return;
   }
@@ -435,7 +415,7 @@ export function $action(context: DecoratorContext, entity: OperationType, name?:
   context.program.stateMap(actionsKey).set(entity, action);
 }
 
-export function getAction(program: Program, operation: OperationType): string | null | undefined {
+export function getAction(program: Program, operation: Operation): string | null | undefined {
   return program.stateMap(actionsKey).get(operation);
 }
 
@@ -449,8 +429,8 @@ const collectionActionDecorator = createDecoratorDefinition({
 
 export function $collectionAction(
   context: DecoratorContext,
-  entity: OperationType,
-  resourceType: ModelType,
+  entity: Operation,
+  resourceType: Model,
   name?: string
 ) {
   if ((resourceType as Type).kind === "TemplateParameter") {
@@ -476,7 +456,7 @@ export function $collectionAction(
 
 export function getCollectionAction(
   program: Program,
-  operation: OperationType
+  operation: Operation
 ): string | null | undefined {
   return program.stateMap(collectionActionsKey).get(operation);
 }
@@ -491,8 +471,8 @@ const resourceLocationDecorator = createDecoratorDefinition({
 
 export function $resourceLocation(
   context: DecoratorContext,
-  entity: ModelType,
-  resourceType: ModelType
+  entity: Model,
+  resourceType: Model
 ): void {
   if ((resourceType as Type).kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
@@ -506,10 +486,7 @@ export function $resourceLocation(
   context.program.stateMap(resourceLocationsKey).set(entity, resourceType);
 }
 
-export function getResourceLocationType(
-  program: Program,
-  entity: ModelType
-): ModelType | undefined {
+export function getResourceLocationType(program: Program, entity: Model): Model | undefined {
   return program.stateMap(resourceLocationsKey).get(entity);
 }
 

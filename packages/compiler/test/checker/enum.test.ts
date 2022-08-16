@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { DecoratorContext, EnumMemberType, EnumType, ModelType, Type } from "../../core/types.js";
+import { DecoratorContext, Enum, EnumMember, Model, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: enums", () => {
@@ -20,7 +20,7 @@ describe("compiler: enums", () => {
     );
 
     const { E } = (await testHost.compile("./")) as {
-      E: EnumType;
+      E: Enum;
     };
 
     ok(E);
@@ -42,10 +42,10 @@ describe("compiler: enums", () => {
     );
 
     const { E, A, B, C } = (await testHost.compile("./")) as {
-      E: EnumType;
-      A: EnumMemberType;
-      B: EnumMemberType;
-      C: EnumMemberType;
+      E: Enum;
+      A: EnumMember;
+      B: EnumMember;
+      C: EnumMember;
     };
 
     ok(E);
@@ -67,7 +67,7 @@ describe("compiler: enums", () => {
     );
 
     const { Foo } = (await testHost.compile("./")) as {
-      Foo: ModelType;
+      Foo: Model;
     };
 
     ok(Foo);
@@ -104,8 +104,8 @@ describe("compiler: enums", () => {
     );
 
     const { Foo, Bar } = (await testHost.compile("main.cadl")) as {
-      Foo: EnumType;
-      Bar: EnumType;
+      Foo: Enum;
+      Bar: Enum;
     };
     ok(Foo);
     ok(Bar);
@@ -122,13 +122,13 @@ describe("compiler: enums", () => {
 
   // Issue here was the same EnumType was create twice for each decorator on different namespaces causing equality issues when comparing the enum or enum member
   it("enums can be refernced from decorator on namespace", async () => {
-    let refViaMyService: EnumType | undefined;
-    let refViaMyLib: EnumType | undefined;
+    let refViaMyService: Enum | undefined;
+    let refViaMyLib: Enum | undefined;
     testHost.addJsFile("lib.js", {
-      $saveMyService(context: DecoratorContext, target: Type, ref: EnumType) {
+      $saveMyService(context: DecoratorContext, target: Type, ref: Enum) {
         refViaMyService = ref;
       },
-      $saveMyLib(context: DecoratorContext, target: Type, ref: EnumType) {
+      $saveMyLib(context: DecoratorContext, target: Type, ref: Enum) {
         refViaMyLib = ref;
       },
     });

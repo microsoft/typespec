@@ -1,5 +1,5 @@
 import { match, strictEqual } from "assert";
-import { DecoratorContext, Diagnostic } from "../../core/types.js";
+import { Diagnostic } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: duplicate declarations", () => {
@@ -34,26 +34,6 @@ describe("compiler: duplicate declarations", () => {
     assertDuplicates(diagnostics);
   });
 
-  it("reports duplicate model declarations in global scope using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`model A { }`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-      @eval
-      model A { }
-    `
-    );
-
-    const diagnostics = await testHost.diagnose("./");
-
-    assertDuplicates(diagnostics);
-  });
-
   it("reports duplicate model declarations in a single namespace", async () => {
     testHost.addCadlFile(
       "main.cadl",
@@ -61,24 +41,6 @@ describe("compiler: duplicate declarations", () => {
       namespace Foo;
       model A { }
       model A { }
-    `
-    );
-
-    const diagnostics = await testHost.diagnose("./");
-    assertDuplicates(diagnostics);
-  });
-
-  it("reports duplicate model declarations in a single namespace using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace Foo; model A { }; model A { };`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-      @eval model test { }
     `
     );
 
@@ -97,25 +59,6 @@ describe("compiler: duplicate declarations", () => {
       namespace N {
         model A { };
       }
-    `
-    );
-
-    const diagnostics = await testHost.diagnose("./");
-    assertDuplicates(diagnostics);
-  });
-
-  it("reports duplicate model declarations across multiple namespaces using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace Foo; model A { }`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-      namespace Foo;
-      @eval model A { }
     `
     );
 

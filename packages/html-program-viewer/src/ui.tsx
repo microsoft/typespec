@@ -1,14 +1,14 @@
 import {
-  EnumMemberType,
-  EnumType,
-  InterfaceType,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
+  Enum,
+  EnumMember,
+  Interface,
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
   Program,
   Type,
-  UnionType,
+  Union,
 } from "@cadl-lang/compiler";
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
@@ -16,7 +16,7 @@ import { ServerStyleSheet } from "styled-components";
 import { Item, Literal, styled } from "./common.js";
 import { inspect } from "./inspect.js";
 
-function expandNamespaces(namespace: NamespaceType): NamespaceType[] {
+function expandNamespaces(namespace: Namespace): Namespace[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
 }
 
@@ -147,7 +147,7 @@ export const ItemList = <T extends object>(props: ItemListProps<T>) => {
   );
 };
 
-const Namespace: FunctionComponent<{ type: NamespaceType }> = ({ type }) => {
+const Namespace: FunctionComponent<{ type: Namespace }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const name = program.checker!.getNamespaceString(type) || "<root>";
 
@@ -176,7 +176,7 @@ const Namespace: FunctionComponent<{ type: NamespaceType }> = ({ type }) => {
   return <TypeUI type={type} name={name} properties={properties} />;
 };
 
-const Interface: FunctionComponent<{ type: InterfaceType }> = ({ type }) => {
+const Interface: FunctionComponent<{ type: Interface }> = ({ type }) => {
   const properties = [
     {
       name: "operations",
@@ -187,7 +187,7 @@ const Interface: FunctionComponent<{ type: InterfaceType }> = ({ type }) => {
   return <TypeUI type={type} name={type.name} properties={properties} />;
 };
 
-const Operation: FunctionComponent<{ type: OperationType }> = ({ type }) => {
+const Operation: FunctionComponent<{ type: Operation }> = ({ type }) => {
   const properties = [
     {
       name: "parameters",
@@ -209,7 +209,7 @@ function getDataProperty(type: Type): TypeUIProperty {
     value: <TypeData type={type} />,
   };
 }
-const Model: FunctionComponent<{ type: ModelType }> = ({ type }) => {
+const Model: FunctionComponent<{ type: Model }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const id = getIdForType(program, type);
   const properties = [
@@ -222,7 +222,7 @@ const Model: FunctionComponent<{ type: ModelType }> = ({ type }) => {
   return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const ModelProperty: FunctionComponent<{ type: ModelTypeProperty }> = ({ type }) => {
+const ModelProperty: FunctionComponent<{ type: ModelProperty }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const id = getIdForType(program, type);
   const properties = [
@@ -239,7 +239,7 @@ const ModelProperty: FunctionComponent<{ type: ModelTypeProperty }> = ({ type })
   return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const Enum: FunctionComponent<{ type: EnumType }> = ({ type }) => {
+const Enum: FunctionComponent<{ type: Enum }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const id = getIdForType(program, type);
   const properties = [
@@ -252,7 +252,7 @@ const Enum: FunctionComponent<{ type: EnumType }> = ({ type }) => {
   return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const EnumMember: FunctionComponent<{ type: EnumMemberType }> = ({ type }) => {
+const EnumMember: FunctionComponent<{ type: EnumMember }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const id = getIdForType(program, type);
   const properties = [
@@ -265,7 +265,7 @@ const EnumMember: FunctionComponent<{ type: EnumMemberType }> = ({ type }) => {
   return <TypeUI type={type} name={type.name} id={id} properties={properties} />;
 };
 
-const Union: FunctionComponent<{ type: UnionType }> = ({ type }) => {
+const Union: FunctionComponent<{ type: Union }> = ({ type }) => {
   const program = useContext(ProgramContext);
 
   return (
@@ -277,7 +277,7 @@ const Union: FunctionComponent<{ type: UnionType }> = ({ type }) => {
   );
 };
 
-const UnionOptions: FunctionComponent<{ type: UnionType }> = ({ type }) => {
+const UnionOptions: FunctionComponent<{ type: Union }> = ({ type }) => {
   if (type.options.length === 0) {
     return <div></div>;
   }

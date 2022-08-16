@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/html-program-viewer",
+      "comment": "React to Type suffix removal",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/html-program-viewer"
+}
