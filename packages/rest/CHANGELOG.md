@@ -1,6 +1,32 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Aug 2022 19:05:23 GMT and should not be manually modified.
+
+## 0.16.0
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Minor changes
+
+- Add new `@useAuth` decorator providing support to define service authentication
+- Uptake changes to type relations
+- Update resource operation interfaces to configure Create and Update model properties correctly
+- Support set of unannotated parameters as request body
+- Add friendly name for Page<T> as TPage
+- Make OkResponse non-generic
+- Remove `groupName` from `OperationDetails`
+- Emit diagnostic when defining @path property that is optional without a default value
+- Update route resolution logic to be more consistent. If service namespace is provided use routes under otherwise use routes directly at the global namespace level(do not go into the nested namespaces)
+- Internal: Uptake new compiler helpers to work with template types
+
+### Patches
+
+- Add a @resource decorator to simplify how one defines resource types and specifies the collection (segment) name
+- Add `ResourceCreateOrReplace` type and `createsOrReplaces` decorator to model an "upsert" operation
+- Improve `cloneKeyProperties` implementation so that original model type is not affected
+- Ensure that all @key properties turned into @path parameters by KeysOf<T> are required even if the original is optional
+- Operations with a body and no verb will default route to POST
+- Add `ResourceLocation<T>` to mark a property as containing a link to a specific resource type
+- Make response descriptions more consistent
 
 ## 0.15.1
 Fri, 08 Jul 2022 23:22:57 GMT

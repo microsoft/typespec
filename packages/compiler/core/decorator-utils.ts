@@ -6,8 +6,8 @@ import {
   Diagnostic,
   DiagnosticTarget,
   IntrinsicModelName,
-  ModelType,
-  ModelTypeProperty,
+  Model,
+  ModelProperty,
   Type,
 } from "./types.js";
 
@@ -54,7 +54,7 @@ export function validateDecoratorTarget<K extends TypeKind>(
 
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
-  target: ModelType | ModelTypeProperty,
+  target: Model | ModelProperty,
   decoratorName: string,
   expectedType: IntrinsicModelName | IntrinsicModelName[]
 ): boolean {
@@ -355,6 +355,8 @@ function cadlTypeToJsonInternal(
     case "Boolean":
     case "Number":
       return [cadlType.value, []];
+    case "EnumMember":
+      return [cadlType.value ?? cadlType.name, []];
     case "Tuple": {
       const result = [];
       for (const [index, type] of cadlType.values.entries()) {

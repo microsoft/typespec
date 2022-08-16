@@ -1,11 +1,55 @@
-import { expectDiagnostics } from "@cadl-lang/compiler/testing";
+import { resolvePath } from "@cadl-lang/compiler";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import {
   createOpenAPITestRunner,
   diagnoseOpenApiFor,
   oapiForModel,
   openApiFor,
 } from "./test-host.js";
+
+describe("openapi3: output file", () => {
+  async function rawOpenApiFor(code: string, options: OpenAPI3EmitterOptions): Promise<string> {
+    const runner = await createOpenAPITestRunner();
+
+    const outPath = resolvePath("/openapi.json");
+
+    const diagnostics = await runner.diagnose(code, {
+      noEmit: false,
+      emitters: { "@cadl-lang/openapi3": { ...options, "output-file": outPath } },
+    });
+
+    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
+
+    return runner.fs.get(outPath)!;
+  }
+
+  // Content of an empty spec
+  const expectedEmptySpec = [
+    "{",
+    `  "openapi": "3.0.0",`,
+    `  "info": {`,
+    `    "title": "(title)",`,
+    `    "version": "0000-00-00"`,
+    `  },`,
+    `  "tags": [],`,
+    `  "paths": {},`,
+    `  "components": {}`,
+    "}",
+    "",
+  ];
+
+  it("emit LF line endings by default", async () => {
+    const output = await rawOpenApiFor("", {});
+    strictEqual(output, expectedEmptySpec.join("\n"));
+  });
+
+  it("emit CRLF when configured", async () => {
+    const output = await rawOpenApiFor("", { "new-line": "crlf" });
+    strictEqual(output, expectedEmptySpec.join("\r\n"));
+  });
+});
 
 describe("openapi3: definitions", () => {
   it("defines models", async () => {
@@ -63,7 +107,7 @@ describe("openapi3: definitions", () => {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-      "x-cadl-name": "root.(anonymous model)",
+      "x-cadl-name": "(anonymous model)",
     });
   });
 
@@ -75,14 +119,14 @@ describe("openapi3: definitions", () => {
       };`
     );
 
-    ok(res.isRef);
-    ok(res.schemas.Foo_int32, "expected definition named Foo_int32");
-    deepStrictEqual(res.schemas.Foo_int32, {
+    ok(!res.isRef);
+    deepStrictEqual(res.useSchema, {
       type: "object",
       properties: {
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
+      "x-cadl-name": "Foo<int32>",
     });
   });
 
@@ -98,14 +142,14 @@ describe("openapi3: definitions", () => {
       };`
     );
 
-    ok(res.isRef);
-    ok(res.schemas["Foo_Test.M"], "expected definition named Foo_Test.M");
-    deepStrictEqual(res.schemas["Foo_Test.M"], {
+    ok(!res.isRef);
+    deepStrictEqual(res.useSchema, {
       type: "object",
       properties: {
         x: { $ref: "#/components/schemas/Test.M" },
       },
       required: ["x"],
+      "x-cadl-name": "Foo<Test.M>",
     });
   });
 
@@ -135,6 +179,35 @@ describe("openapi3: definitions", () => {
     });
   });
 
+  it("specify default value on enum property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optionalEnum?: MyEnum = MyEnum.a;
+      };
+      
+      enum MyEnum {
+        a: "a-value",
+        b,
+      }
+      `
+    );
+
+    ok(res.isRef);
+    ok(res.schemas.Foo, "expected definition named Foo");
+    ok(res.schemas.MyEnum, "expected definition named MyEnum");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optionalEnum: {
+          allOf: [{ $ref: "#/components/schemas/MyEnum" }],
+          default: "a-value",
+        },
+      },
+    });
+  });
+
   it("emits models extended from models when parent is emitted", async () => {
     const res = await openApiFor(
       `
@@ -144,9 +217,7 @@ describe("openapi3: definitions", () => {
       model Child extends Parent {
         y?: int32;
       }
-      namespace Test {
-        @route("/") op test(): Parent;
-      }
+      @route("/") op test(): Parent;
       `
     );
     deepStrictEqual(res.components.schemas.Parent, {
@@ -166,20 +237,19 @@ describe("openapi3: definitions", () => {
       model Parent {
         x?: int32;
       };
+      @friendlyName("TParent_{name}", T)
       model TParent<T> extends Parent {
         t: T;
       }
       model Child extends TParent<string> {
         y?: int32;
       }
-      namespace Test {
-        @route("/") op test(): Parent;
-      }
+      @route("/") op test(): Parent;
       `
     );
     ok(
       !("TParent" in res.components.schemas),
-      "Parent templated type shouldn't be includd in OpenAPI"
+      "Parent templated type shouldn't be included in OpenAPI"
     );
     deepStrictEqual(res.components.schemas.Parent, {
       type: "object",
@@ -210,9 +280,7 @@ describe("openapi3: definitions", () => {
       model Child is TParent<string> {
         y?: int32;
       }
-      namespace Test {
-        @route("/") op test(): Parent;
-      }
+      @route("/") op test(): Parent;
       `
     );
     ok(
@@ -274,6 +342,7 @@ describe("openapi3: definitions", () => {
     const res = await oapiForModel(
       "Bar",
       `
+      @friendlyName("Foo_{name}", T)
       model Foo<T> {
         y: T;
       };
@@ -311,20 +380,24 @@ describe("openapi3: definitions", () => {
       }`
     );
 
-    ok(res.isRef);
-    ok(res.schemas.Foo_int32, "expected definition named Foo_int32");
-    ok(res.schemas.Bar_int32, "expected definition named Bar_int32");
-    deepStrictEqual(res.schemas.Bar_int32, {
+    ok(!res.isRef);
+    deepStrictEqual(res.useSchema, {
       type: "object",
-      properties: { x: { type: "integer", format: "int32" } },
-      allOf: [{ $ref: "#/components/schemas/Foo_int32" }],
+      properties: {
+        x: { type: "integer", format: "int32" },
+      },
       required: ["x"],
-    });
-
-    deepStrictEqual(res.schemas.Foo_int32, {
-      type: "object",
-      properties: { y: { type: "integer", format: "int32" } },
-      required: ["y"],
+      "x-cadl-name": "Bar<int32>",
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            y: { type: "integer", format: "int32" },
+          },
+          required: ["y"],
+          "x-cadl-name": "Foo<int32>",
+        },
+      ],
     });
   });
 
@@ -519,10 +592,7 @@ describe("openapi3: definitions", () => {
       enum PetType {
       }
       model Pet { type: PetType };
-      @route("/")
-      namespace root {
-        op read(): Pet;
-      }
+      op read(): Pet;
       `);
 
     expectDiagnostics(diagnostics, {
@@ -540,10 +610,7 @@ describe("openapi3: definitions", () => {
       model Dog {
         bark: string;
       }
-      @route("/")
-      namespace root {
-        @post op create(@body body: Cat | Dog): { ...Response<200> };
-      }
+      @post op create(@body body: Cat | Dog): { ...Response<200> };
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
@@ -558,10 +625,8 @@ describe("openapi3: definitions", () => {
       model Cat {
         meow: int32;
       }
-      @route("/")
-      namespace root {
-        @post op create(@body body: Cat | string): { ...Response<200> };
-      }
+      
+      @post op create(@body body: Cat | string): { ...Response<200> };
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     deepStrictEqual(openApi.paths["/"].post.requestBody.content["application/json"].schema, {
@@ -579,10 +644,7 @@ describe("openapi3: definitions", () => {
       bark: string;
     }
     alias Pet = Cat | Dog;
-    @route("/")
-    namespace root {
-      @post op create(@body body: Pet): { ...Response<200> };
-    }
+    @post op create(@body body: Pet): { ...Response<200> };
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
@@ -600,10 +662,8 @@ describe("openapi3: definitions", () => {
       model Dog {
         bark: string;
       }
-      @route("/")
-      namespace root {
-        op read(): { @body body: Cat | Dog };
-      }
+      
+      op read(): { @body body: Cat | Dog };
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
@@ -618,10 +678,8 @@ describe("openapi3: definitions", () => {
     model Cat {
       meow: int32;
     }
-    @route("/")
-    namespace root {
-      op read(): { @body body: Cat | string };
-    }
+    
+    op read(): { @body body: Cat | string };
     `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
@@ -639,10 +697,7 @@ describe("openapi3: definitions", () => {
         bark: string;
       }
       alias Pet = Cat | Dog;
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
@@ -652,7 +707,7 @@ describe("openapi3: definitions", () => {
     });
   });
 
-  it("defines response bodies unioned in OkResponse as unions of models", async () => {
+  it("defines response bodies unioned and intersected with OkResponse as unions of models", async () => {
     const openApi = await openApiFor(`
       model Cat {
         meow: int32;
@@ -660,10 +715,7 @@ describe("openapi3: definitions", () => {
       model Dog {
         bark: string;
       }
-      @route("/")
-      namespace root {
-        op read(): OkResponse<Cat | Dog>;
-      }
+      op read(): OkResponse & Body<Cat | Dog>;
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
@@ -682,10 +734,8 @@ describe("openapi3: definitions", () => {
         bark: string;
       }
       union Pet { cat: Cat, dog: Dog }
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
@@ -708,10 +758,7 @@ describe("openapi3: definitions", () => {
       }
       @oneOf
       union Pet { cat: Cat, dog: Dog }
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
     ok(openApi.components.schemas.Dog, "expected definition named Dog");
@@ -757,43 +804,17 @@ describe("openapi3: definitions", () => {
       }
     );
   });
-});
 
-describe("openapi3: primitives", () => {
-  const cases = [
-    ["int8", { type: "integer", format: "int8" }],
-    ["int16", { type: "integer", format: "int16" }],
-    ["int32", { type: "integer", format: "int32" }],
-    ["int64", { type: "integer", format: "int64" }],
-    ["safeint", { type: "integer", format: "int64" }],
-    ["uint8", { type: "integer", format: "uint8" }],
-    ["uint16", { type: "integer", format: "uint16" }],
-    ["uint32", { type: "integer", format: "uint32" }],
-    ["uint64", { type: "integer", format: "uint64" }],
-    ["float32", { type: "number", format: "float" }],
-    ["float64", { type: "number", format: "double" }],
-    ["string", { type: "string" }],
-    ["boolean", { type: "boolean" }],
-    ["plainDate", { type: "string", format: "date" }],
-    ["zonedDateTime", { type: "string", format: "date-time" }],
-    ["plainTime", { type: "string", format: "time" }],
-    ["duration", { type: "string", format: "duration" }],
-    ["bytes", { type: "string", format: "byte" }],
-  ];
+  it("detects cycles in inline type", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model Thing<T> { inner?: Thing<T>; }
+      op get(): Thing<string>;
+      `
+    );
 
-  for (const test of cases) {
-    it("knows schema for " + test[0], async () => {
-      const res = await oapiForModel(
-        "Pet",
-        `
-        model Pet { name: ${test[0]} };
-        `
-      );
-
-      const schema = res.schemas.Pet.properties.name;
-      deepStrictEqual(schema, test[1]);
-    });
-  }
+    expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/inline-cycle" }]);
+  });
 });
 
 describe("openapi3: literals", () => {
@@ -824,10 +845,8 @@ describe("openapi3: operations", () => {
     const res = await openApiFor(
       `
       @route("/")
-      namespace root {
-        @get()
-        op read(@query queryWithDefault?: string = "defaultValue"): string;
-      }
+      @get()
+      op read(@query queryWithDefault?: string = "defaultValue"): string;
       `
     );
 
@@ -837,19 +856,16 @@ describe("openapi3: operations", () => {
   it("define operations with param with decorators", async () => {
     const res = await openApiFor(
       `
-      @route("/thing")
-      namespace root {
-        @get
-        @route("{name}")
-        op getThing(
-          @pattern("^[a-zA-Z0-9-]{3,24}$")
-          @path name: string,
+      @get
+      @route("/thing/{name}")
+      op getThing(
+        @pattern("^[a-zA-Z0-9-]{3,24}$")
+        @path name: string,
 
-          @minValue(1)
-          @maxValue(10)
-          @query count: int32
-        ): string;
-      }
+        @minValue(1)
+        @maxValue(10)
+        @query count: int32
+      ): string;
       `
     );
 
@@ -870,14 +886,9 @@ describe("openapi3: operations", () => {
 describe("openapi3: request", () => {
   describe("binary request", () => {
     it("bytes request should default to application/json byte", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
+      const res = await openApiFor(`
         @post op read(@body body: bytes): {};
-      }
-      `
-      );
+      `);
 
       const requestBody = res.paths["/"].post.requestBody;
       ok(requestBody);
@@ -886,14 +897,9 @@ describe("openapi3: request", () => {
     });
 
     it("bytes request should respect @header contentType and use binary format when not json or text", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
+      const res = await openApiFor(`
         @post op read(@header contentType: "image/png", @body body: bytes): {};
-      }
-      `
-      );
+      `);
 
       const requestBody = res.paths["/"].post.requestBody;
       ok(requestBody);
@@ -905,19 +911,13 @@ describe("openapi3: request", () => {
 
 describe("openapi3: extension decorator", () => {
   it("adds an arbitrary extension to a model", async () => {
-    const oapi = await openApiFor(
-      `
+    const oapi = await openApiFor(`
       @extension("x-model-extension", "foobar")
       model Pet {
         name: string;
       }
-      @route("/")
-      namespace root {
-        @get()
-        op read(): Pet;
-      }
-      `
-    );
+      @get() op read(): Pet;
+      `);
     ok(oapi.components.schemas.Pet);
     strictEqual(oapi.components.schemas.Pet["x-model-extension"], "foobar");
   });
@@ -928,12 +928,9 @@ describe("openapi3: extension decorator", () => {
       model Pet {
         name: string;
       }
-      @route("/")
-      namespace root {
-        @get()
-        @extension("x-operation-extension", "barbaz")
-        op list(): Pet[];
-      }
+      @get()
+      @extension("x-operation-extension", "barbaz")
+      op list(): Pet[];
       `
     );
     ok(oapi.paths["/"].get);
@@ -952,10 +949,8 @@ describe("openapi3: extension decorator", () => {
         petId: string;
       }
       @route("/Pets")
-      namespace root {
-        @get()
-        op get(... PetId): Pet;
-      }
+      @get()
+      op get(... PetId): Pet;
       `
     );
     ok(oapi.paths["/Pets/{petId}"].get);
@@ -981,10 +976,8 @@ describe("openapi3: extension decorator", () => {
         petId: string;
       }
       @route("/Pets")
-      namespace root {
-        @get()
-        op get(... PetId): Pet;
-      }
+      @get()
+      op get(... PetId): Pet;
       `
     );
     ok(oapi.paths["/Pets/{petId}"].get);

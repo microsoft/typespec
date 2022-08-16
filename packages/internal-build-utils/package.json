@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/internal-build-utils",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Microsoft Corporation",
   "description": "Internal library to Cadl providing helpers to build.",
   "homepage": "https://github.com/Azure/cadl",
@@ -47,7 +47,7 @@
     "@types/node": "~16.0.3",
     "@types/watch": "~1.0.3",
     "@types/yargs": "~17.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.3.0",
+    "@cadl-lang/eslint-config-cadl": "~0.4.0",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
     "mocha-junit-reporter": "~2.0.2",

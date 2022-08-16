@@ -1,10 +1,12 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { getVisibility, ModelType } from "../../core/index.js";
+import { getVisibility, isSecret, Model, Operation } from "../../core/index.js";
 import {
   getDoc,
   getFriendlyName,
   getKeyName,
   getKnownValues,
+  getOverloadedOperation,
+  getOverloads,
   isErrorModel,
 } from "../../lib/decorators.js";
 import {
@@ -195,7 +197,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @knownValues(Foo)
         model Bar is string {}
-      `)) as { Bar: ModelType };
+      `)) as { Bar: Model };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -212,7 +214,7 @@ describe("compiler: built-in decorators", () => {
         @test
         @knownValues(Foo)
         model Bar is int32 {}
-      `)) as { Bar: ModelType };
+      `)) as { Bar: Model };
 
       ok(Bar.kind);
       const knownValues = getKnownValues(runner.program, Bar);
@@ -333,6 +335,22 @@ describe("compiler: built-in decorators", () => {
       strictEqual(prop.kind, "ModelProperty" as const);
       strictEqual(getKeyName(runner.program, prop), "alternateName");
     });
+
+    it("emits diagnostic when key property is marked as optional", async () => {
+      const diagnostics = await runner.diagnose(
+        `model M {
+          @key
+          prop?: string;
+        }`
+      );
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "no-optional-key",
+          message: "Property 'prop' marked as key cannot be optional.",
+        },
+      ]);
+    });
   });
 
   describe("@withoutOmittedProperties", () => {
@@ -384,7 +402,7 @@ describe("compiler: built-in decorators", () => {
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "read"> {
         } `
-      )) as { TestModel: ModelType };
+      )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), ["read"]);
     });
@@ -401,7 +419,7 @@ describe("compiler: built-in decorators", () => {
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "create"> {
         } `
-      )) as { TestModel: ModelType };
+      )) as { TestModel: Model };
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), [
         "read",
@@ -473,6 +491,237 @@ describe("compiler: built-in decorators", () => {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
+      });
+    });
+  });
+
+  describe("@overload", () => {
+    it("emits an error when @overload is given something other than an operation", async () => {
+      const diagnostics = await runner.diagnose(`
+        @overload("foo")
+        op someStringThing(param: string): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message:
+          "Argument 'foo' of type 'String' is not assignable to parameter of type 'Operation'",
+        severity: "error",
+      });
+    });
+
+    it("emits an error when the overload's parameters are unrelated to the overloaded operation", async () => {
+      const diagnostics = await runner.diagnose(`
+        op someThing(param: string | int32): string | int32;
+
+        @overload(someThing)
+        op someUnrelatedThing(foo: boolean): string;
+
+        @overload(someThing)
+        op anotherUnrelatedThing(param: boolean): string;
+
+        @overload(someThing)
+        op thisOneWorks(param: string, foo: int32): string;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "missing-property",
+          message:
+            "Property 'param' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+          severity: "error",
+        },
+        {
+          code: "unassignable",
+          message: "Type 'Cadl.boolean' is not assignable to type 'Cadl.string | Cadl.int32'",
+          severity: "error",
+        },
+      ]);
+    });
+
+    it("can define operation overloads outside of a namespace or interface", async () => {
+      const compiled = (await runner.compile(`
+        @test
+        op someThing(param: string | int32): string | int32;
+
+        @test
+        @overload(someThing)
+        op someStringThing(param: string): string;
+
+        @test
+        @overload(someThing)
+        op someNumberThing(param: int32): int32;
+
+        @test
+        op someUnrelatedThing(): void;
+
+      `)) as {
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
+        someUnrelatedThing: Operation;
+      };
+
+      strictEqual(compiled.someThing.kind, "Operation");
+      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
+      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
+      ok(!getOverloadedOperation(runner.program, compiled.someThing));
+      ok(!getOverloadedOperation(runner.program, compiled.someUnrelatedThing));
+      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
+      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.indexOf("someStringThing") !== -1);
+      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+      ok(getOverloads(runner.program, compiled.someUnrelatedThing) === undefined);
+    });
+
+    it("can overload operations defined in a namespace", async () => {
+      const compiled = (await runner.compile(`
+        namespace ADifferentNS {
+          @test
+          op someThing(param: string | int32): string | int32;
+
+          @test
+          @overload(someThing)
+          op someStringThing(param: string): string;
+        }
+
+        @test
+        @overload(ADifferentNS.someThing)
+        op someNumberThing(param: int32): int32;
+      `)) as {
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
+      };
+
+      strictEqual(compiled.someThing.kind, "Operation");
+      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
+      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
+      ok(!getOverloadedOperation(runner.program, compiled.someThing));
+      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
+      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.indexOf("someStringThing") !== -1);
+      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+    });
+
+    it("can overload operations defined in an interface", async () => {
+      const compiled = (await runner.compile(`
+        interface SomeInterface {
+          @test
+          op someThing(param: string | int32): string | int32;
+
+          @test
+          @overload(SomeInterface.someThing)
+          op someStringThing(param: string): string;
+
+          @test
+          @overload(SomeInterface.someThing)
+          op someNumberThing(param: int32): int32;
+        }
+      `)) as {
+        someThing: Operation;
+        someStringThing: Operation;
+        someNumberThing: Operation;
+      };
+
+      strictEqual(compiled.someThing.kind, "Operation");
+      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
+      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
+      ok(!getOverloadedOperation(runner.program, compiled.someThing));
+      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
+      ok(overloadedBy?.length == 2);
+      ok(overloadedBy?.indexOf("someStringThing") !== -1);
+      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+    });
+  });
+
+  describe("@secret", () => {
+    it("can be applied on a string model", async () => {
+      const { A } = await runner.compile(
+        `
+        @test
+        @secret
+        model A is string;
+        `
+      );
+
+      ok(isSecret(runner.program, A));
+    });
+
+    it("can be applied on a model property with string type", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        model A {
+          @secret
+          a: string;
+        }
+        `
+      )) as { A: Model };
+
+      ok(isSecret(runner.program, A.properties.get("a")!));
+    });
+
+    it("can be applied on a model property with stringlike model as type", async () => {
+      const { A } = (await runner.compile(
+        `
+        model CustomStr is string;
+
+        @test
+        model A {
+          @secret
+          a: CustomStr;
+        }
+        `
+      )) as { A: Model };
+
+      ok(isSecret(runner.program, A.properties.get("a")!));
+    });
+
+    it("emit diagnostic if model is not a string", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        @secret
+        model A {}
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @secret decorator to type it is not one of: string",
+      });
+    });
+
+    it("emit diagnostic if model is a different intrinsic type(not a string)", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        @secret
+        model A is int32 {}
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @secret decorator to type it is not one of: string",
+      });
+    });
+
+    it("emit diagnostic if model property is not a string type", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @test
+        model A {
+          @secret
+          a: int32;
+        }
+        `
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @secret decorator to type it is not one of: string",
       });
     });
   });

@@ -48,6 +48,16 @@ model ResourceCreatedResponse<T> {
   @body body: T;
 }
 
+interface ResourceCreateOrReplace<TResource, TError> {
+  @autoRoute
+  @doc("Creates or replaces a instance of the resource.")
+  @createsOrReplacesResource(TResource)
+  createOrReplace(
+    ...ResourceParameters<TResource>,
+    @body resource: ResourceCreateModel<TResource>
+  ): TResource | ResourceCreatedResponse<TResource> | TError;
+}
+
 @friendlyName("{name}Update", TResource)
 model ResourceCreateOrUpdateModel<TResource>
   is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>>;
@@ -104,13 +114,14 @@ interface ResourceDelete<TResource, TError> {
   delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
 }
 
-@doc("Paged response")
+@doc("Paged response of {name} items", T)
+@friendlyName("{name}Page", T)
 model Page<T> {
   @doc("The items on this page")
   value: T[];
 
   @doc("The link to the next page of items")
-  nextLink?: string;
+  nextLink?: ResourceLocation<T>;
 }
 
 interface ResourceList<TResource, TError> {

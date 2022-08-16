@@ -169,9 +169,10 @@ model Foo {}
       });
     });
 
-    it("format model with heritage", () => {
-      assertFormat({
-        code: `
+    describe("model `extends`", () => {
+      it("format inline", () => {
+        assertFormat({
+          code: `
 model   Foo extends Base {
 }
 
@@ -179,17 +180,32 @@ model   Bar extends Base<
   string    > {
 }
 `,
-        expected: `
+          expected: `
 model Foo extends Base {}
 
 model Bar extends Base<string> {}
 `,
+        });
+      });
+
+      it("split and indent is when model declaration line is too long", () => {
+        assertFormat({
+          code: `
+model   Foo extends SuperExtremeAndVeryVeryVeryVeryVeryVeryLongModelThatWillBeTooLong {
+}
+`,
+          expected: `
+model Foo
+  extends SuperExtremeAndVeryVeryVeryVeryVeryVeryLongModelThatWillBeTooLong {}
+`,
+        });
       });
     });
 
-    it("format model with is", () => {
-      assertFormat({
-        code: `
+    describe("model `is`", () => {
+      it("remove body if its empty", () => {
+        assertFormat({
+          code: `
 model   Foo is Base {
 }
 
@@ -197,11 +213,40 @@ model   Bar is Base<
   string    > {
 }
 `,
-        expected: `
-model Foo is Base {}
+          expected: `
+model Foo is Base;
 
-model Bar is Base<string> {}
+model Bar is Base<string>;
 `,
+        });
+      });
+
+      it("keeps body if there is a comment inside", () => {
+        assertFormat({
+          code: `
+model   Foo is Base {
+   // Some comment
+}
+`,
+          expected: `
+model Foo is Base {
+  // Some comment
+}
+`,
+        });
+      });
+
+      it("split and indent is when model declaration line is too long", () => {
+        assertFormat({
+          code: `
+model   Foo is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong {
+}
+`,
+          expected: `
+model Foo
+  is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong;
+`,
+        });
       });
     });
 
@@ -412,12 +457,12 @@ interface Foo {
       assertFormat({
         code: `
 @foo
-// comment
+   // comment
 namespace Bar;
 `,
         expected: `
-// comment
 @foo
+// comment
 namespace Bar;
 `,
       });
@@ -427,31 +472,103 @@ namespace Bar;
       assertFormat({
         code: `
 @foo
-// comment
+  // comment
 model Bar {}
 `,
         expected: `
-// comment
 @foo
+// comment
 model Bar {}
 `,
       });
     });
 
-    it("format comment between decorator and model property", () => {
+    it("keeps comment in between decorators", () => {
+      assertFormat({
+        code: `
+@foo
+  // comment
+  @bar
+model Bar {}
+`,
+        expected: `
+@foo
+// comment
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("keeps comment at the end of line of a decorators", () => {
+      assertFormat({
+        code: `
+@foo          // comment
+  @bar
+model Bar {}
+`,
+        expected: `
+@foo // comment
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("comment preceeding decorators hug decorators", () => {
+      assertFormat({
+        code: `
+        // comment
+@foo          
+  @bar
+model Bar {}
+`,
+        expected: `
+// comment
+@foo
+@bar
+model Bar {}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on model property", () => {
       assertFormat({
         code: `
 model Bar {
-  @foo
-// comment
-myProp: string;
+      @foo
+        // comment
+    @bar
+  foo: string;
 }
 `,
         expected: `
 model Bar {
   @foo
   // comment
-  myProp: string;
+  @bar
+  foo: string;
+}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on enum member", () => {
+      assertFormat({
+        code: `
+enum Bar {
+      @foo
+        // comment
+    @bar
+  foo: "foo",
+}
+`,
+        expected: `
+        enum Bar {
+  @foo
+  // comment
+  @bar
+  foo: "foo",
 }
 `,
       });
@@ -643,6 +760,26 @@ enum Foo {
 
   @doc("third")
   C: "c",
+}
+`,
+      });
+    });
+
+    it("format spread members", () => {
+      assertFormat({
+        code: `
+enum Foo {
+        ...       Bar  , One: "1",
+        ...Baz  ; Two: "2",
+
+}
+`,
+        expected: `
+enum Foo {
+  ...Bar,
+  One: "1",
+  ...Baz,
+  Two: "2",
 }
 `,
       });
@@ -919,6 +1056,30 @@ namespace MyNamespace {
 `,
       });
     });
+
+    it("directive hugs decorators on model property", () => {
+      assertFormat({
+        code: `
+model Foo {
+  prop1: string;
+  #suppress   "some-error"     "because"
+    @decorate("args")
+   @decorate
+   prop2: string;
+  }
+`,
+        expected: `
+model Foo {
+  prop1: string;
+
+  #suppress "some-error" "because"
+  @decorate("args")
+  @decorate
+  prop2: string;
+}
+`,
+      });
+    });
   });
 
   describe("decorators", () => {
@@ -1026,6 +1187,80 @@ model Foo<   T  ="abc",    K =        134
 model Foo<T = "abc", K = 134> {}`,
       });
     });
+
+    it("format parameter declarations with constraints", () => {
+      assertFormat({
+        code: `
+model Foo<   T  extends      string, K      extends { 
+        foo: int32   }
+> {
+}`,
+        expected: `
+model Foo<T extends string, K extends {foo: int32}> {}`,
+      });
+    });
+
+    it("format parameter declarations with constraints and defauls", () => {
+      assertFormat({
+        code: `
+model Foo<T       extends    string =      
+    "abc"> {
+}`,
+        expected: `
+model Foo<T extends string = "abc"> {}`,
+      });
+    });
+  });
+
+  describe("template references", () => {
+    it("format simple template reference", () => {
+      assertFormat({
+        code: `
+alias Foo = Bar<        
+  string
+>;
+`,
+        expected: `
+alias Foo = Bar<string>;`,
+      });
+    });
+
+    it("doesn't split if there is a single argument that is too long", () => {
+      assertFormat({
+        code: `
+alias Foo = Bar<
+  "very very very very very very very very very very very verylong string that is overflowing the max column allowed">;
+`,
+        expected: `
+alias Foo = Bar<"very very very very very very very very very very very verylong string that is overflowing the max column allowed">;`,
+      });
+    });
+
+    it("doesn't split if there is multiple args but line is not too long", () => {
+      assertFormat({
+        code: `
+alias Foo = Bar<
+  string,     int32, 
+    boolean
+`,
+        expected: `
+alias Foo = Bar<string, int32, boolean>;`,
+      });
+    });
+
+    it("split and indent if there is multiple argument and line is overflowing the max column allowed", () => {
+      assertFormat({
+        code: `
+alias Foo = Bar<
+  "very long string that is overflowing the max column allowed",  "very long string that is overflowing the max column allowed">;
+`,
+        expected: `
+alias Foo = Bar<
+  "very long string that is overflowing the max column allowed",
+  "very long string that is overflowing the max column allowed"
+>;`,
+      });
+    });
   });
 
   describe("array expression", () => {
@@ -1084,7 +1319,7 @@ alias Foo = ["very long text that will overflow 1","very long text that will ove
 alias Foo = [
   "very long text that will overflow 1",
   "very long text that will overflow 2",
-  "very long text that will overflow 3",
+  "very long text that will overflow 3"
 ];
 `,
       });

@@ -54,8 +54,7 @@ describe("openapi3: parameters", () => {
   });
 
   it("encodes parameter keys in references", async () => {
-    const oapi = await openApiFor(
-      `
+    const oapi = await openApiFor(`
       model Pet extends Pet$Id {
         name: string;
       }
@@ -63,13 +62,11 @@ describe("openapi3: parameters", () => {
         @path
         petId: string;
       }
+
       @route("/Pets")
-      namespace root {
-        @get()
-        op get(... Pet$Id): Pet;
-      }
-      `
-    );
+      @get()
+      op get(... Pet$Id): Pet;
+      `);
 
     ok(oapi.paths["/Pets/{petId}"].get);
     strictEqual(

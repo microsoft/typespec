@@ -44,12 +44,13 @@ function addEmptyInterfaceComment(comment: CommentNode) {
 }
 
 /**
- * When a comment is in between a decorator and a statement.
+ * When a comment is in between decorators.
  *
  * @example
  *
  * @foo
  * // My comment
+ * @bar
  * model Foo {
  * }
  */
@@ -63,9 +64,11 @@ function addStatementDecoratorComment(comment: CommentNode) {
     (enclosingNode.kind === SyntaxKind.NamespaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelStatement ||
       enclosingNode.kind === SyntaxKind.EnumStatement ||
+      enclosingNode.kind === SyntaxKind.ModelProperty ||
+      enclosingNode.kind === SyntaxKind.EnumMember ||
       enclosingNode.kind === SyntaxKind.UnionStatement)
   ) {
-    util.addLeadingComment(enclosingNode, comment);
+    util.addTrailingComment(precedingNode, comment);
     return true;
   }
   return false;
@@ -88,7 +91,9 @@ function addEmptyModelComment(comment: CommentNode) {
     enclosingNode.kind === SyntaxKind.ModelStatement &&
     enclosingNode.properties.length === 0 &&
     precedingNode &&
-    precedingNode.kind === SyntaxKind.Identifier
+    (precedingNode === enclosingNode.is ||
+      precedingNode === enclosingNode.id ||
+      precedingNode === enclosingNode.extends)
   ) {
     util.addDanglingComment(enclosingNode, comment, undefined);
     return true;

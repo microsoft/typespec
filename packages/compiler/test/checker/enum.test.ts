@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { DecoratorContext, EnumMemberType, EnumType, ModelType, Type } from "../../core/types.js";
+import { DecoratorContext, Enum, EnumMember, Model, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: enums", () => {
@@ -20,7 +20,7 @@ describe("compiler: enums", () => {
     );
 
     const { E } = (await testHost.compile("./")) as {
-      E: EnumType;
+      E: Enum;
     };
 
     ok(E);
@@ -42,10 +42,10 @@ describe("compiler: enums", () => {
     );
 
     const { E, A, B, C } = (await testHost.compile("./")) as {
-      E: EnumType;
-      A: EnumMemberType;
-      B: EnumMemberType;
-      C: EnumMemberType;
+      E: Enum;
+      A: EnumMember;
+      B: EnumMember;
+      C: EnumMember;
     };
 
     ok(E);
@@ -67,7 +67,7 @@ describe("compiler: enums", () => {
     );
 
     const { Foo } = (await testHost.compile("./")) as {
-      Foo: ModelType;
+      Foo: Model;
     };
 
     ok(Foo);
@@ -88,15 +88,47 @@ describe("compiler: enums", () => {
     });
   });
 
+  it("can have spread members", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @test enum Bar {
+        One: "1",
+        Two: "2",
+      }
+      @test enum Foo  {
+        ...Bar,
+        Three: "3"
+      }
+      `
+    );
+
+    const { Foo, Bar } = (await testHost.compile("main.cadl")) as {
+      Foo: Enum;
+      Bar: Enum;
+    };
+    ok(Foo);
+    ok(Bar);
+
+    strictEqual(Foo.members.length, 3);
+    strictEqual(Foo.members[0].name, "One");
+    strictEqual(Foo.members[0].enum, Foo);
+    strictEqual(Foo.members[0].sourceMember, Bar.members[0]);
+
+    strictEqual(Bar.members.length, 2);
+    strictEqual(Bar.members[0].name, "One");
+    strictEqual(Bar.members[0].enum, Bar);
+  });
+
   // Issue here was the same EnumType was create twice for each decorator on different namespaces causing equality issues when comparing the enum or enum member
   it("enums can be refernced from decorator on namespace", async () => {
-    let refViaMyService: EnumType | undefined;
-    let refViaMyLib: EnumType | undefined;
+    let refViaMyService: Enum | undefined;
+    let refViaMyLib: Enum | undefined;
     testHost.addJsFile("lib.js", {
-      $saveMyService(context: DecoratorContext, target: Type, ref: EnumType) {
+      $saveMyService(context: DecoratorContext, target: Type, ref: Enum) {
         refViaMyService = ref;
       },
-      $saveMyLib(context: DecoratorContext, target: Type, ref: EnumType) {
+      $saveMyLib(context: DecoratorContext, target: Type, ref: Enum) {
         refViaMyLib = ref;
       },
     });

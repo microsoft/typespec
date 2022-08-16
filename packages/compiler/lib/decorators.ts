@@ -1,4 +1,5 @@
 import {
+  createDecoratorDefinition,
   validateDecoratorParamType,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
@@ -6,17 +7,20 @@ import {
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
+  ArrayModelType,
   DecoratorContext,
-  EnumMemberType,
-  EnumType,
-  InterfaceType,
+  Enum,
+  EnumMember,
+  Interface,
   IntrinsicModelName,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
+  Model,
+  ModelIndexer,
+  ModelProperty,
+  Namespace,
   NeverType,
-  OperationType,
+  Operation,
   Type,
+  UnknownType,
   VoidType,
 } from "../core/types.js";
 export * from "./service.js";
@@ -121,6 +125,16 @@ export function isIntrinsic(program: Program, target: Type | undefined): boolean
   return program.stateMap(intrinsicsKey).has(target);
 }
 
+const indexTypeKey = Symbol("index");
+export function $indexer(context: DecoratorContext, target: Type, key: Model, value: Type) {
+  const indexer: ModelIndexer = { key, value };
+  context.program.stateMap(indexTypeKey).set(target, indexer);
+}
+
+export function getIndexer(program: Program, target: Type): ModelIndexer | undefined {
+  return program.stateMap(indexTypeKey).get(target);
+}
+
 /**
  * The top level name of the intrinsic model.
  *
@@ -148,6 +162,26 @@ export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
 }
 
+export function isUnknownType(type: Type): type is UnknownType {
+  return type.kind === "Intrinsic" && type.name === "unknown";
+}
+
+/**
+ * Check if a model is an array type.
+ * @param type Model type
+ */
+export function isArrayModelType(program: Program, type: Model): type is ArrayModelType {
+  return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "integer");
+}
+
+/**
+ * Check if a model is an array type.
+ * @param type Model type
+ */
+export function isRecordModelType(program: Program, type: Model): type is ArrayModelType {
+  return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "string");
+}
+
 const numericTypesKey = Symbol("numeric");
 export function $numeric(context: DecoratorContext, target: Type) {
   const { program } = context;
@@ -170,7 +204,7 @@ export function $numeric(context: DecoratorContext, target: Type) {
 /**
  * Return the type of the property or the model itself.
  */
-export function getPropertyType(target: ModelType | ModelTypeProperty): Type {
+export function getPropertyType(target: Model | ModelProperty): Type {
   if (target.kind === "ModelProperty") {
     return target.type;
   } else {
@@ -344,11 +378,21 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 // -- @secret decorator ---------------------
 
 const secretTypesKey = Symbol("secretTypes");
+const secretDecorator = createDecoratorDefinition({
+  name: "@secret",
+  target: ["Model", "ModelProperty"],
+  args: [],
+} as const);
 
-export function $secret(context: DecoratorContext, target: Type) {
+/**
+ * Mark a string as a secret value that should be treated carefully to avoid exposure
+ * @param context Decorator context
+ * @param target Decorator target, either a string model or a property with type string.
+ */
+export function $secret(context: DecoratorContext, target: Model | ModelProperty) {
   if (
-    !validateDecoratorTarget(context, target, "@secret", "Model") ||
-    !validateDecoratorTargetIntrinsic(context, target, "@pattern", "string")
+    !secretDecorator.validate(context, target, []) ||
+    !validateDecoratorTargetIntrinsic(context, target, "@secret", "string")
   ) {
     return;
   }
@@ -385,7 +429,7 @@ export function $withVisibility(
     return;
   }
 
-  const filter = (_: any, prop: ModelTypeProperty) => {
+  const filter = (_: any, prop: ModelProperty) => {
     const vis = getVisibility(context.program, prop);
     return vis !== undefined && visibilities.filter((v) => !vis.includes(v)).length > 0;
   };
@@ -394,8 +438,8 @@ export function $withVisibility(
 }
 
 function mapFilterOut(
-  map: Map<string, ModelTypeProperty>,
-  pred: (key: string, prop: ModelTypeProperty) => boolean
+  map: Map<string, ModelProperty>,
+  pred: (key: string, prop: ModelProperty) => boolean
 ) {
   for (const [key, prop] of map) {
     if (pred(key, prop)) {
@@ -415,7 +459,7 @@ export function $withOptionalProperties(context: DecoratorContext, target: Type)
   target.properties.forEach((p) => (p.optional = true));
 }
 
-// -- @withUpdatableProperties decorator ----------------------
+// -- @withUpdateableProperties decorator ----------------------
 
 export function $withUpdateableProperties(context: DecoratorContext, target: Type) {
   if (!validateDecoratorTarget(context, target, "@withUpdateableProperties", "Model")) {
@@ -501,11 +545,11 @@ export function $list(context: DecoratorContext, target: Type, listedType?: Type
   context.program.stateMap(listPropertiesKey).set(target, listedType);
 }
 
-export function getListOperationType(program: Program, target: Type): ModelType | undefined {
+export function getListOperationType(program: Program, target: Type): Model | undefined {
   return program.stateMap(listPropertiesKey).get(target);
 }
 
-export function isListOperation(program: Program, target: OperationType): boolean {
+export function isListOperation(program: Program, target: Operation): boolean {
   // The type stored for the operation
   return program.stateMap(listPropertiesKey).has(target);
 }
@@ -536,11 +580,11 @@ export function getTags(program: Program, target: Type): string[] {
 // interface it resides within.
 export function getAllTags(
   program: Program,
-  target: NamespaceType | InterfaceType | OperationType
+  target: Namespace | Interface | Operation
 ): string[] | undefined {
   const tags = new Set<string>();
 
-  let current: NamespaceType | InterfaceType | OperationType | undefined = target;
+  let current: Namespace | Interface | Operation | undefined = target;
   while (current !== undefined) {
     for (const t of getTags(program, current)) {
       tags.add(t);
@@ -635,7 +679,7 @@ export function $knownValues(context: DecoratorContext, target: Type, knownValue
   context.program.stateMap(knownValuesKey).set(target, knownValues);
 }
 
-function isEnumMemberAssignableToType(typeName: IntrinsicModelName, member: EnumMemberType) {
+function isEnumMemberAssignableToType(typeName: IntrinsicModelName, member: EnumMember) {
   const memberType = member.value !== undefined ? typeof member.value : "string";
   switch (memberType) {
     case "string":
@@ -657,10 +701,7 @@ function isEnumMemberAssignableToType(typeName: IntrinsicModelName, member: Enum
   }
 }
 
-export function getKnownValues(
-  program: Program,
-  target: ModelType | ModelTypeProperty
-): EnumType | undefined {
+export function getKnownValues(program: Program, target: Model | ModelProperty): Enum | undefined {
   return program.stateMap(knownValuesKey).get(target);
 }
 
@@ -683,15 +724,26 @@ export function $key(context: DecoratorContext, entity: Type, altName?: string):
     return;
   }
 
+  // Ensure that the key property is not marked as optional
+  if (entity.optional) {
+    reportDiagnostic(context.program, {
+      code: "no-optional-key",
+      format: { propertyName: entity.name },
+      target: entity,
+    });
+
+    return;
+  }
+
   // Register the key property
   context.program.stateMap(keyKey).set(entity, altName || entity.name);
 }
 
-export function isKey(program: Program, property: ModelTypeProperty) {
+export function isKey(program: Program, property: ModelProperty) {
   return program.stateMap(keyKey).has(property);
 }
 
-export function getKeyName(program: Program, property: ModelTypeProperty): string {
+export function getKeyName(program: Program, property: ModelProperty): string {
   return program.stateMap(keyKey).get(property);
 }
 
@@ -713,8 +765,8 @@ export function $withDefaultKeyVisibility(
     return;
   }
 
-  const keyProperties: ModelTypeProperty[] = [];
-  entity.properties.forEach((prop: ModelTypeProperty) => {
+  const keyProperties: ModelProperty[] = [];
+  entity.properties.forEach((prop: ModelProperty) => {
     // Keep track of any key property without a visibility
     if (isKey(context.program, prop) && !getVisibility(context.program, prop)) {
       keyProperties.push(prop);
@@ -768,4 +820,61 @@ export function isDeprecated(program: Program, type: Type): boolean {
  */
 export function getDeprecated(program: Program, type: Type): string | undefined {
   return program.stateMap(deprecatedKey).get(type);
+}
+
+const overloadedByKey = Symbol("overloadedByKey");
+const overloadsOperationKey = Symbol("overloadsOperation");
+
+const overloadDecorator = createDecoratorDefinition({
+  name: "@overload",
+  target: "Operation",
+  args: [{ kind: "Operation" }],
+} as const);
+
+/**
+ * `@overload` - Indicate that the target overloads (specializes) the overloads type.
+ * @param context DecoratorContext
+ * @param target The specializing operation declaration
+ * @param overloads The operation to be overloaded.
+ */
+export function $overload(context: DecoratorContext, target: Operation, overloads: Operation) {
+  if (!overloadDecorator.validate(context, target, [overloads])) {
+    return;
+  }
+
+  // Ensure that the overloaded method arguments are a subtype of the original operation.
+  const [valid, diagnostics] = context.program.checker.isTypeAssignableTo(
+    target.parameters,
+    overloads.parameters,
+    target
+  );
+  if (!valid) context.program.reportDiagnostics(diagnostics);
+
+  // Save the information about the overloaded operation
+  context.program.stateMap(overloadsOperationKey).set(target, overloads);
+  const existingOverloads = getOverloads(context.program, overloads) || new Array<Operation>();
+  context.program.stateMap(overloadedByKey).set(overloads, existingOverloads.concat(target));
+}
+
+/**
+ * Get all operations that are marked as overloads of the given operation
+ * @param context
+ * @param operation
+ * @returns An array of operations that overload the given operation.
+ */
+export function getOverloads(program: Program, operation: Operation): Array<Operation> | undefined {
+  return program.stateMap(overloadedByKey).get(operation);
+}
+
+/**
+ * If the given operation overloads another operation, return that operation.
+ * @param program Program
+ * @param operation The operation to check for an overload target.
+ * @returns The operation this operation overloads, if any.
+ */
+export function getOverloadedOperation(
+  program: Program,
+  operation: Operation
+): Operation | undefined {
+  return program.stateMap(overloadsOperationKey).get(operation);
 }

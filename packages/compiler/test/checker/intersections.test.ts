@@ -1,11 +1,11 @@
 import { ok, strictEqual } from "assert";
-import { ModelType } from "../../core/index.js";
+import { Model } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
-  extractCursor,
+  extractSquiggles,
 } from "../../testing/index.js";
 
 describe("compiler: intersections", () => {
@@ -21,9 +21,9 @@ describe("compiler: intersections", () => {
       @test model Foo {
         prop: {a: string} & {b: string};
       }
-    `)) as { Foo: ModelType };
+    `)) as { Foo: Model };
 
-    const prop = Foo.properties.get("prop")!.type as ModelType;
+    const prop = Foo.properties.get("prop")!.type as Model;
     strictEqual(prop.kind, "Model");
     strictEqual(prop.properties.size, 2);
     ok(prop.properties.has("a"));
@@ -38,10 +38,10 @@ describe("compiler: intersections", () => {
       @test model Foo {
         prop: Bar<{a: string}, {b: string}>;
       }
-    `)) as { Foo: ModelType };
+    `)) as { Foo: Model };
 
-    const Bar = Foo.properties.get("prop")!.type as ModelType;
-    const prop = Bar.properties.get("prop")!.type as ModelType;
+    const Bar = Foo.properties.get("prop")!.type as Model;
+    const prop = Bar.properties.get("prop")!.type as Model;
     strictEqual(prop.kind, "Model");
     strictEqual(prop.properties.size, 2);
     ok(prop.properties.has("a"));
@@ -49,13 +49,11 @@ describe("compiler: intersections", () => {
   });
 
   it("emit diagnostic if one of the intersected type is not a model", async () => {
-    let source = `@test model Foo {
-      prop: {a: string} & ┆"string literal"┆;
-    }`;
-
-    let pos: number, end: number;
-    ({ source, pos } = extractCursor(source));
-    ({ source, pos: end } = extractCursor(source));
+    const { source, pos, end } = extractSquiggles(`
+      @test model Foo {
+        prop: {a: string} & ~~~"string literal"~~~
+      }
+    `);
 
     const diagnostics = await runner.diagnose(source);
     expectDiagnostics(diagnostics, {

@@ -1,6 +1,30 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Aug 2022 19:05:23 GMT and should not be manually modified.
+
+## 0.14.0
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Minor changes
+
+- Added support for default value for properties with enum type.
+- Use authentication configured via `@useAuth` http decorator
+- Add new emitter option `new-line` to configure emitted line endings
+- Uptake changes to type relations
+- Support set of unannotated parameters as request body
+- Inline generic instantiations without `@friendlyName`
+- Uptake new `resolveOperationId` helper from openapi library improving the logic
+- Add warning if there is no exposed routes
+- Internal: Uptake new compiler helpers to work with template types
+
+### Patches
+
+- Fix: Description being ignored on non-string primitive models
+- Fix uninitialized parent namespaces in projection
+- Run projections on types returned from getEffectiveType
+- fix infinite recursion with self referencing model
+- Remove `summary` property set on schemas
+- Make response descriptions more consistent
 
 ## 0.13.0
 Fri, 08 Jul 2022 23:22:57 GMT

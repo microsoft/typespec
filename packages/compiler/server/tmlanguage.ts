@@ -218,11 +218,64 @@ const typeArguments: BeginEndRule = {
   patterns: [expression, punctuationComma],
 };
 
+const typeParameterConstraint: BeginEndRule = {
+  key: "type-parameter-constraint",
+  scope: meta,
+  begin: `extends`,
+  beginCaptures: {
+    "0": { scope: "keyword.other.cadl" },
+  },
+  end: `(?=>)|${universalEnd}`,
+  patterns: [expression],
+};
+
+const typeParameterDefault: BeginEndRule = {
+  key: "type-parameter-default",
+  scope: meta,
+  begin: `=`,
+  beginCaptures: {
+    "0": { scope: "keyword.operator.assignment.cadl" },
+  },
+  end: `(?=>)|${universalEnd}`,
+  patterns: [expression],
+};
+
+const typeParameter: BeginEndRule = {
+  key: "type-parameter",
+  scope: meta,
+  begin: `(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "entity.name.type.cadl" },
+  },
+  end: `(?=>)|${universalEnd}`,
+  patterns: [typeParameterConstraint, typeParameterDefault],
+};
+
+const typeParameters: BeginEndRule = {
+  key: "type-parameters",
+  scope: meta,
+  begin: "<",
+  beginCaptures: {
+    "0": { scope: "punctuation.definition.typeparameters.begin.cadl" },
+  },
+  end: ">",
+  endCaptures: {
+    "0": { scope: "punctuation.definition.typeparameters.end.cadl" },
+  },
+  patterns: [typeParameter, punctuationComma],
+};
+
 const tupleExpression: BeginEndRule = {
   key: "tuple-expression",
   scope: meta,
   begin: "\\[",
+  beginCaptures: {
+    "0": { scope: "punctuation.squarebracket.open.cadl" },
+  },
   end: "\\]",
+  endCaptures: {
+    "0": { scope: "punctuation.squarebracket.close.cadl" },
+  },
   patterns: [expression],
 };
 
@@ -317,6 +370,7 @@ const modelStatement: BeginEndRule = {
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
     token,
+    typeParameters,
     modelHeritage, // before expression or `extends` or `is` will look like type name
     expression, // enough to match name, type parameters, and body.
   ],
@@ -352,7 +406,7 @@ const aliasStatement: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: universalEnd,
-  patterns: [typeArguments, operatorAssignment, expression],
+  patterns: [typeParameters, operatorAssignment, expression],
 };
 
 const namespaceName: BeginEndRule = {
@@ -416,7 +470,7 @@ const operationHeritage: BeginEndRule = {
 const operationSignature: IncludeRule = {
   key: "operation-signature",
   patterns: [
-    typeArguments,
+    typeParameters,
     operationHeritage,
     operationParameters,
     typeAnnotation, // return type

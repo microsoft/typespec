@@ -4,12 +4,13 @@ import {
   DiagnosticCollector,
   getDoc,
   getIntrinsicModelName,
+  isArrayModelType,
   isErrorModel,
   isIntrinsic,
   isVoidType,
-  ModelType,
-  ModelTypeProperty,
-  OperationType,
+  Model,
+  ModelProperty,
+  Operation,
   Program,
   Type,
 } from "@cadl-lang/compiler";
@@ -32,7 +33,7 @@ export interface HttpOperationResponse {
 }
 
 export interface HttpOperationResponseContent {
-  headers?: Record<string, ModelTypeProperty>;
+  headers?: Record<string, ModelProperty>;
   body?: HttpOperationBody;
 }
 
@@ -46,7 +47,7 @@ export interface HttpOperationBody {
  */
 export function getResponsesForOperation(
   program: Program,
-  operation: OperationType
+  operation: Operation
 ): [HttpOperationResponse[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
@@ -91,12 +92,12 @@ function processResponseType(
   // if it is a primitive type or it contains more than just response metadata
   if (!bodyModel) {
     if (responseModel.kind === "Model") {
-      if (isIntrinsic(program, responseModel)) {
+      if (isIntrinsic(program, responseModel) || isArrayModelType(program, responseModel)) {
         bodyModel = responseModel;
       } else {
-        const isResponseMetadata = (p: ModelTypeProperty) =>
+        const isResponseMetadata = (p: ModelProperty) =>
           isHeader(program, p) || isStatusCode(program, p);
-        const allProperties = (p: ModelType): ModelTypeProperty[] => {
+        const allProperties = (p: Model): ModelProperty[] => {
           return [...p.properties.values(), ...(p.baseModel ? allProperties(p.baseModel) : [])];
         };
         if (
@@ -136,7 +137,7 @@ function processResponseType(
     const response: HttpOperationResponse = responses[statusCode] ?? {
       statusCode: statusCode,
       type: responseModel,
-      description: getResponseDescription(program, responseModel, statusCode),
+      description: getResponseDescription(program, responseModel, statusCode, bodyModel),
       responses: [],
     };
 
@@ -222,7 +223,7 @@ function getResponseContentTypes(
  * @property property Model property
  * @returns List of contnet types and any diagnostics if there was an issue.
  */
-export function getContentTypes(property: ModelTypeProperty): [string[], readonly Diagnostic[]] {
+export function getContentTypes(property: ModelProperty): [string[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   if (property.type.kind === "String") {
     return [[property.type.value], []];
@@ -251,10 +252,7 @@ export function getContentTypes(property: ModelTypeProperty): [string[], readonl
 /**
  * Get response headers from response Model
  */
-function getResponseHeaders(
-  program: Program,
-  responseModel: Type
-): Record<string, ModelTypeProperty> {
+function getResponseHeaders(program: Program, responseModel: Type): Record<string, ModelProperty> {
   if (responseModel.kind === "Model") {
     const responseHeaders: any = responseModel.baseModel
       ? getResponseHeaders(program, responseModel.baseModel)
@@ -276,7 +274,10 @@ function getResponseBody(
   responseModel: Type
 ): Type | undefined {
   if (responseModel.kind === "Model") {
-    const getAllBodyProps = (m: ModelType): ModelTypeProperty[] => {
+    if (isArrayModelType(program, responseModel)) {
+      return undefined;
+    }
+    const getAllBodyProps = (m: Model): ModelProperty[] => {
       const bodyProps = [...m.properties.values()].filter((t) => isBody(program, t));
       if (m.baseModel) {
         bodyProps.push(...getAllBodyProps(m.baseModel));
@@ -297,12 +298,22 @@ function getResponseBody(
 
 function getResponseDescription(
   program: Program,
-  responseModel: Type,
-  statusCode: string
+  responseType: Type,
+  statusCode: string,
+  bodyType: Type | undefined
 ): string | undefined {
-  const desc = getDoc(program, responseModel);
-  if (desc) {
-    return desc;
+  // NOTE: If the response type is an envelope and not the same as the body
+  // type, then use its @doc as the response description. However, if the
+  // response type is the same as the body type, then use the default status
+  // code description and don't duplicate the schema description of the body
+  // as the response description. This allows more freedom to change how
+  // Cadl is expressed in semantically equivalent ways without causing
+  // the output to change unnecessarily.
+  if (responseType !== bodyType) {
+    const desc = getDoc(program, responseType);
+    if (desc) {
+      return desc;
+    }
   }
 
   return getStatusCodeDescription(statusCode);

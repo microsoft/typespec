@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Internal: Remove `evalCadlScript` from `Program`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
