@@ -313,6 +313,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
+        attachExtensions(program, prop, variable);
         variables[name] = variable;
       }
       return {
