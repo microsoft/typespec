@@ -112,7 +112,7 @@ export interface AuthorizationCodeFlow {
   authorizationUrl: string;
   tokenUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes: OAuth2Scope[];
 }
 
 /**
@@ -122,7 +122,7 @@ export interface ImplicitFlow {
   type: "implicit";
   authorizationUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes: OAuth2Scope[];
 }
 
 /**
@@ -132,7 +132,7 @@ export interface PasswordFlow {
   type: "password";
   authorizationUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes: OAuth2Scope[];
 }
 
 /**
@@ -142,5 +142,10 @@ export interface ClientCredentialsFlow {
   type: "clientCredentials";
   tokenUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes: OAuth2Scope[];
+}
+
+export interface OAuth2Scope {
+  value: string;
+  description?: string;
 }
