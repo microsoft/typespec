@@ -39,6 +39,8 @@ const Token = {
     is: createToken("is", "keyword.other.cadl"),
     if: createToken("if", "keyword.other.cadl"),
     else: createToken("else", "keyword.other.cadl"),
+    to: createToken("to", "keyword.other.cadl"),
+    from: createToken("from", "keyword.other.cadl"),
     other: (text: string) => createToken(text, "keyword.other.cadl"),
   },
 
@@ -663,7 +665,7 @@ function testColorization(description: string, tokenize: Tokenize) {
     });
   });
 
-  describe("projections", () => {
+  describe.only("projections", () => {
     it("simple projection", async () => {
       const tokens = await tokenize(`
       projection op#foo {
@@ -678,6 +680,7 @@ function testColorization(description: string, tokenize: Tokenize) {
         Token.operators.selector,
         Token.identifiers.variable("foo"),
         Token.punctuation.openBrace,
+        Token.keywords.to,
         Token.punctuation.openParen,
         Token.identifiers.variable("arg1"),
         Token.punctuation.closeParen,
@@ -706,6 +709,7 @@ function testColorization(description: string, tokenize: Tokenize) {
         Token.operators.selector,
         Token.identifiers.variable("foo"),
         Token.punctuation.openBrace,
+        Token.keywords.to,
         Token.punctuation.openParen,
         Token.identifiers.variable("arg1"),
         Token.punctuation.closeParen,

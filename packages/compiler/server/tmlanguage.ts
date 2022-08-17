@@ -666,6 +666,9 @@ const projection: BeginEndRule = {
   key: "projection",
   scope: meta,
   begin: "(from|to)",
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
   end: `((?<=\\})|${universalEnd})`,
   patterns: [projectionParameters, projectionBody],
 };

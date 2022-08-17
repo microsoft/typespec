@@ -992,6 +992,9 @@ export function createServer(host: ServerHost): Server {
           classifyReference(node.selector);
           classify(node.id, SemanticTokenKind.Variable);
           break;
+        case SyntaxKind.Projection:
+          classify(node, SemanticTokenKind.Keyword);
+          break;
         case SyntaxKind.ProjectionParameterDeclaration:
           classifyReference(node.id, SemanticTokenKind.Parameter);
           break;
