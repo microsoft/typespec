@@ -42,7 +42,7 @@ describe("compiler: libraries", () => {
     });
   });
 
-  it("allows compiler install to mistmatch if the version are the same", async () => {
+  it("allows compiler install to mismatch if the version are the same", async () => {
     const testHost = await createTestHost();
     testHost.addCadlFile("main.cadl", "");
     testHost.addCadlFile(
