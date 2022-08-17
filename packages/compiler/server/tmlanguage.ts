@@ -597,8 +597,8 @@ const projectionExpression: IncludeRule = {
   ],
 };
 
-const ifBody: BeginEndRule = {
-  key: "if-body",
+const projectionBody: BeginEndRule = {
+  key: "projection-body",
   scope: meta,
   begin: "\\{",
   beginCaptures: {
@@ -619,7 +619,30 @@ const ifExpression: BeginEndRule = {
     "1": { scope: "keyword.other.cadl" },
   },
   end: `((?<=\\})|${universalEnd})`,
-  patterns: [projectionExpression, ifBody],
+  patterns: [projectionExpression, projectionBody],
+};
+
+const elseIfExpression: BeginEndRule = {
+  key: "else-if-expression",
+  scope: meta,
+  begin: `\\b(else)\\s+(if)\\b`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionExpression, projectionBody],
+};
+
+const elseExpression: BeginEndRule = {
+  key: "else-expression",
+  scope: meta,
+  begin: `\\b(else)\\b`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionExpression, projectionBody],
 };
 
 const functionCall: BeginEndRule = {
@@ -637,20 +660,7 @@ const functionCall: BeginEndRule = {
   patterns: [expression],
 };
 
-projectionExpression.patterns = [ifExpression, functionCall];
-const projectionBody: BeginEndRule = {
-  key: "projection-body",
-  scope: meta,
-  begin: "\\{",
-  beginCaptures: {
-    "0": { scope: "punctuation.curlybrace.open.cadl" },
-  },
-  end: "\\}",
-  endCaptures: {
-    "0": { scope: "punctuation.curlybrace.close.cadl" },
-  },
-  patterns: [projectionExpression, punctuationSemicolon],
-};
+projectionExpression.patterns = [elseIfExpression, ifExpression, elseExpression, functionCall];
 
 const projection: BeginEndRule = {
   key: "projection",

@@ -38,6 +38,7 @@ const Token = {
     extends: createToken("extends", "keyword.other.cadl"),
     is: createToken("is", "keyword.other.cadl"),
     if: createToken("if", "keyword.other.cadl"),
+    else: createToken("else", "keyword.other.cadl"),
     other: (text: string) => createToken(text, "keyword.other.cadl"),
   },
 
@@ -61,6 +62,7 @@ const Token = {
   punctuation: {
     comma: createToken(",", "punctuation.comma.cadl"),
     accessor: createToken(".", "punctuation.accessor.cadl"),
+    valueAccessor: createToken("::", "punctuation.accessor.cadl"),
     openBracket: createToken("[", "punctuation.squarebracket.open.cadl"),
     closeBracket: createToken("]", "punctuation.squarebracket.close.cadl"),
     openBrace: createToken("{", "punctuation.curlybrace.open.cadl"),
@@ -82,7 +84,7 @@ const Token = {
   },
 } as const;
 
-// testColorization("semantic colorization", tokenizeSemantic);
+testColorization("semantic colorization", tokenizeSemantic);
 testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
@@ -661,7 +663,7 @@ function testColorization(description: string, tokenize: Tokenize) {
     });
   });
 
-  describe.only("projections", () => {
+  describe("projections", () => {
     it("simple projection", async () => {
       const tokens = await tokenize(`
       projection op#foo {
@@ -690,13 +692,11 @@ function testColorization(description: string, tokenize: Tokenize) {
       ]);
     });
 
-    it("if expression", async () => {
+    async function testProjectionBody(body: string, expectedTokens: Token[]) {
       const tokens = await tokenize(`
       projection op#foo {
         to(arg1) {
-          if hasFoo(arg1) {
-            doFoo(arg1);
-          };
+          ${body}
         }
       }
       `);
@@ -710,22 +710,85 @@ function testColorization(description: string, tokenize: Tokenize) {
         Token.identifiers.variable("arg1"),
         Token.punctuation.closeParen,
         Token.punctuation.openBrace,
-        Token.keywords.if,
-        Token.identifiers.functionName("hasFoo"),
-        Token.punctuation.openParen,
-        Token.identifiers.type("arg1"),
-        Token.punctuation.closeParen,
-        Token.punctuation.openBrace,
-        Token.identifiers.functionName("doFoo"),
-        Token.punctuation.openParen,
-        Token.identifiers.type("arg1"),
-        Token.punctuation.closeParen,
-        Token.punctuation.semicolon,
-        Token.punctuation.closeBrace,
-        Token.punctuation.semicolon,
+        ...expectedTokens,
         Token.punctuation.closeBrace,
         Token.punctuation.closeBrace,
       ]);
+    }
+
+    it("if expression with body", async () => {
+      await testProjectionBody(
+        `
+        if hasFoo(arg1) {
+          doFoo(arg1);
+        };
+      `,
+        [
+          Token.keywords.if,
+          Token.identifiers.functionName("hasFoo"),
+          Token.punctuation.openParen,
+          Token.identifiers.type("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          Token.identifiers.functionName("doFoo"),
+          Token.punctuation.openParen,
+          Token.identifiers.type("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+          Token.punctuation.closeBrace,
+          Token.punctuation.semicolon,
+        ]
+      );
+    });
+
+    it("if, else if, else expression", async () => {
+      await testProjectionBody(
+        `
+        if hasFoo() {
+        } else if hasBar() {
+        } else {
+        };
+      `,
+        [
+          Token.keywords.if,
+          Token.identifiers.functionName("hasFoo"),
+          Token.punctuation.openParen,
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+
+          Token.keywords.else,
+          Token.keywords.if,
+          Token.identifiers.functionName("hasBar"),
+          Token.punctuation.openParen,
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+
+          Token.keywords.else,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+
+          Token.punctuation.semicolon,
+        ]
+      );
+    });
+
+    it("property accessor", async () => {
+      await testProjectionBody(
+        `
+        doFoo(self::name);
+        `,
+        [
+          Token.identifiers.functionName("doFoo"),
+          Token.punctuation.openParen,
+          Token.identifiers.type("self"),
+          ...(tokenize === tokenizeSemantic ? [Token.punctuation.valueAccessor] : []),
+          Token.identifiers.type("name"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+        ]
+      );
     });
   });
 }
