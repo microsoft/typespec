@@ -159,7 +159,6 @@ const CadlTypeNameKindMap: Record<string, Type["kind"]> = {
   StringType: "String",
   NumberType: "Number",
   BooleanType: "Boolean",
-  ArrayType: "Array",
   TupleType: "Tuple",
   UnionType: "Union",
   UnionVariantType: "UnionVariant",
