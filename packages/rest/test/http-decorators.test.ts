@@ -493,7 +493,7 @@ describe("rest: http decorators", () => {
                     type: "implicit",
                     authorizationUrl: "https://api.example.com/oauth2/authorize",
                     refreshUrl: "https://api.example.com/oauth2/refresh",
-                    scopes: ["read", "write"],
+                    scopes: [{ value: "read" }, { value: "write" }],
                   },
                 ],
               },
