@@ -82,7 +82,7 @@ const Token = {
   },
 } as const;
 
-testColorization("semantic colorization", tokenizeSemantic);
+// testColorization("semantic colorization", tokenizeSemantic);
 testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
@@ -667,7 +667,7 @@ function testColorization(description: string, tokenize: Tokenize) {
       projection op#foo {
         to(arg1) {
           calling(arg1);
-        };
+        }
       }
       `);
       deepStrictEqual(tokens, [
@@ -686,7 +686,6 @@ function testColorization(description: string, tokenize: Tokenize) {
         Token.punctuation.closeParen,
         Token.punctuation.semicolon,
         Token.punctuation.closeBrace,
-        Token.punctuation.semicolon,
         Token.punctuation.closeBrace,
       ]);
     });
@@ -698,7 +697,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           if hasFoo(arg1) {
             doFoo(arg1);
           };
-        };
+        }
       }
       `);
       deepStrictEqual(tokens, [
@@ -725,7 +724,6 @@ function testColorization(description: string, tokenize: Tokenize) {
         Token.punctuation.closeBrace,
         Token.punctuation.semicolon,
         Token.punctuation.closeBrace,
-        Token.punctuation.semicolon,
         Token.punctuation.closeBrace,
       ]);
     });

@@ -318,7 +318,7 @@ const modelSpreadProperty: BeginEndRule = {
 const directive: BeginEndRule = {
   key: "directive",
   scope: meta,
-  begin: `(#${identifier})`,
+  begin: `\\s*(#${identifier})`,
   beginCaptures: {
     "1": { scope: "keyword.directive.name.cadl" },
   },
@@ -565,6 +565,129 @@ const usingStatement: BeginEndRule = {
   patterns: [token, identifierExpression],
 };
 
+const projectionParameter: BeginEndRule = {
+  key: "projection-parameter",
+  scope: meta,
+  begin: `(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "variable.name.cadl" },
+  },
+  end: `(?=\\))|${universalEnd}`,
+  patterns: [],
+};
+
+const projectionParameters: BeginEndRule = {
+  key: "projection-parameters",
+  scope: meta,
+  begin: "\\(",
+  beginCaptures: {
+    "0": { scope: "punctuation.parenthesis.open.cadl" },
+  },
+  end: "\\)",
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.cadl" },
+  },
+  patterns: [token, projectionParameter],
+};
+
+const projectionExpression: IncludeRule = {
+  key: "projection-expression",
+  patterns: [
+    /* placeholder filled later due to cycle*/
+  ],
+};
+
+const ifBody: BeginEndRule = {
+  key: "if-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
+  patterns: [projectionExpression, punctuationSemicolon],
+};
+
+const ifExpression: BeginEndRule = {
+  key: "if-expression",
+  scope: meta,
+  begin: `\\b(if)\\b`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionExpression, ifBody],
+};
+
+const functionCall: BeginEndRule = {
+  key: "function-call",
+  scope: meta,
+  begin: `(${identifier})\\s*(\\()`,
+  beginCaptures: {
+    "1": { scope: "entity.name.function.cadl" },
+    "2": { scope: "punctuation.parenthesis.open.cadl" },
+  },
+  end: `\\)`,
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.cadl" },
+  },
+  patterns: [expression],
+};
+
+projectionExpression.patterns = [ifExpression, functionCall];
+const projectionBody: BeginEndRule = {
+  key: "projection-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
+  patterns: [projectionExpression, punctuationSemicolon],
+};
+
+const projection: BeginEndRule = {
+  key: "projection",
+  scope: meta,
+  begin: "(from|to)",
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionParameters, projectionBody],
+};
+
+const projectionStatementBody: BeginEndRule = {
+  key: "projection-statement-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.cadl" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.cadl" },
+  },
+  patterns: [projection],
+};
+
+const projectionStatement: BeginEndRule = {
+  key: "projection-statement",
+  scope: meta,
+  begin: `\\b(projection)\\b\\s+(${identifier})(#)(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.cadl" },
+    "2": { scope: "keyword.other.cadl" },
+    "3": { scope: "keyword.operator.selector.cadl" },
+    "4": { scope: "variable.name.cadl" },
+  },
+  end: `((?<=\\})|${universalEnd})`,
+  patterns: [projectionStatementBody],
+};
+
 // NOTE: We don't actually classify all the different expression types and their
 // punctuation yet. For now, at least, we only deal with the ones that would
 // break coloring due to breaking out of context inappropriately with parens/
@@ -594,6 +717,7 @@ statement.patterns = [
   operationStatement,
   importStatement,
   usingStatement,
+  projectionStatement,
   punctuationSemicolon,
 ];
 

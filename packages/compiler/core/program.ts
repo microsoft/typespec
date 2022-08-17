@@ -402,10 +402,6 @@ export async function createProgram(
       throw new RangeError("Duplicate script path: " + cadlScript);
     }
     const sourceFile = parse(cadlScript);
-    if (cadlScript.path.includes("scratch")) {
-      const projStatement = sourceFile.statements[0];
-      console.log("Prok", projStatement);
-    }
     program.reportDiagnostics(sourceFile.parseDiagnostics);
     program.sourceFiles.set(cadlScript.path, sourceFile);
     binder.bindSourceFile(sourceFile);
