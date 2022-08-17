@@ -3,6 +3,9 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
+@serviceTitle("Nullable sample")
+namespace NullableSample;
+
 model HasNullables {
   str: string;
   when: plainTime;
@@ -17,7 +20,10 @@ model HasNullables {
 
 @route("/test")
 namespace NullableMethods {
-  @get op read(@query someParam: string | null, modelOrNull: AnotherModel | null): HasNullables;
+  @get op read(
+    @query someParam: string | null,
+    @body modelOrNull: AnotherModel | null
+  ): HasNullables;
 }
 
 model AnotherModel {

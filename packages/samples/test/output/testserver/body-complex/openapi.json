@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "(title)",
+    "title": "sample",
     "version": "0000-00-00"
   },
   "tags": [],
@@ -23,7 +23,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -40,10 +40,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -81,7 +81,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -98,10 +98,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -139,7 +139,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -156,10 +156,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -197,7 +197,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -214,10 +214,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -255,7 +255,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -272,10 +272,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -313,7 +313,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -330,10 +330,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -371,7 +371,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -388,10 +388,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -429,7 +429,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -446,10 +446,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -487,7 +487,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -504,10 +504,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -545,7 +545,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -562,10 +562,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -603,7 +603,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -620,10 +620,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -661,7 +661,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -678,10 +678,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -719,7 +719,7 @@
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -736,10 +736,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok"
+            "description": "The request has succeeded."
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -983,7 +983,8 @@
             "type": "object",
             "additionalProperties": {
               "type": "string"
-            }
+            },
+            "x-cadl-name": "Record<string>"
           }
         },
         "required": [

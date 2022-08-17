@@ -31,5 +31,5 @@ union Pet {
 
 @route("/")
 interface MyService {
-  getPet(...ApiVersionParam): OkResponse<Pet>;
+  getPet(...ApiVersionParam): Body<Pet>;
 }

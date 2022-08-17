@@ -15,12 +15,6 @@ const libDefinition = {
         default: paramMessage`Cannot use @${"verb"} on a ${"entityKind"}`,
       },
     },
-    "http-verb-missing-with-body": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Operation ${"operationName"} has a body but doesn't specify a verb.`,
-      },
-    },
     "operation-resource-wrong-type": {
       severity: "error",
       messages: {
@@ -61,6 +55,12 @@ const libDefinition = {
       severity: "error",
       messages: {
         default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
+      },
+    },
+    "optional-path-param": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Path parameter '${"paramName"}' cannot be optional without a default value.`,
       },
     },
     "missing-server-param": {
@@ -123,6 +123,20 @@ const libDefinition = {
       severity: "warning",
       messages: {
         default: "content-type header ignored because return type has no body",
+      },
+    },
+    "no-routes": {
+      severity: "warning",
+      messages: {
+        default:
+          "Current spec is not exposing any routes. This could be to not having the service namespace marked with @serviceTitle.",
+      },
+    },
+
+    "invalid-type-for-auth": {
+      severity: "error",
+      messages: {
+        default: paramMessage`@useAuth ${"kind"} only accept Auth model, Tuple of auth model or union of auth model.`,
       },
     },
   },

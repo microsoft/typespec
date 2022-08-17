@@ -48,15 +48,33 @@ model ResourceCreatedResponse<T> {
   @body body: T;
 }
 
+interface ResourceCreateOrReplace<TResource, TError> {
+  @autoRoute
+  @doc("Creates or replaces a instance of the resource.")
+  @createsOrReplacesResource(TResource)
+  createOrReplace(
+    ...ResourceParameters<TResource>,
+    @body resource: ResourceCreateModel<TResource>
+  ): TResource | ResourceCreatedResponse<TResource> | TError;
+}
+
+@friendlyName("{name}Update", TResource)
+model ResourceCreateOrUpdateModel<TResource>
+  is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>>;
+
 interface ResourceCreateOrUpdate<TResource, TError> {
   @autoRoute
   @doc("Creates or update a instance of the resource.")
   @createsOrUpdatesResource(TResource)
   createOrUpdate(
     ...ResourceParameters<TResource>,
-    @body resource: TResource
+    @body resource: ResourceCreateOrUpdateModel<TResource>
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }
+
+@friendlyName("{name}Create", TResource)
+model ResourceCreateModel<TResource>
+  is UpdateableProperties<DefaultKeyVisibility<TResource, "read">>;
 
 interface ResourceCreate<TResource, TError> {
   @autoRoute
@@ -64,7 +82,7 @@ interface ResourceCreate<TResource, TError> {
   @createsResource(TResource)
   create(
     ...ResourceCollectionParameters<TResource>,
-    @body resource: TResource
+    @body resource: ResourceCreateModel<TResource>
   ): TResource | ResourceCreatedResponse<TResource> | TError;
 }
 
@@ -76,7 +94,7 @@ interface ResourceUpdate<TResource, TError> {
   @updatesResource(TResource)
   update(
     ...ResourceParameters<TResource>,
-    @body properties: OptionalProperties<UpdateableProperties<TResource>>
+    @body properties: ResourceCreateOrUpdateModel<TResource>
   ): TResource | TError;
 }
 
@@ -96,13 +114,14 @@ interface ResourceDelete<TResource, TError> {
   delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
 }
 
-@doc("Paged response")
+@doc("Paged response of {name} items", T)
+@friendlyName("{name}Page", T)
 model Page<T> {
   @doc("The items on this page")
   value: T[];
 
   @doc("The link to the next page of items")
-  nextLink?: string;
+  nextLink?: ResourceLocation<T>;
 }
 
 interface ResourceList<TResource, TError> {
@@ -150,7 +169,9 @@ interface SingletonResourceUpdate<TSingleton, TResource, TError> {
   @updatesResource(TSingleton)
   Update(
     ...ResourceParameters<TResource>,
-    @body properties: OptionalProperties<UpdateableProperties<TSingleton>>
+
+    @body
+    properties: ResourceCreateOrUpdateModel<TSingleton>
   ): TSingleton | TError;
 }
 
@@ -174,7 +195,7 @@ interface ExtensionResourceCreateOrUpdate<TExtension, TResource, TError> {
   CreateOrUpdate(
     ...ResourceParameters<TResource>,
     ...ResourceParameters<TExtension>,
-    @body resource: TExtension
+    @body resource: ResourceCreateOrUpdateModel<TExtension>
   ): TExtension | ResourceCreatedResponse<TExtension> | TError;
 }
 
@@ -184,7 +205,7 @@ interface ExtensionResourceCreate<TExtension, TResource, TError> {
   @createsResource(TExtension)
   Create(
     ...ResourceParameters<TResource>,
-    @body resource: TResource
+    @body resource: ResourceCreateModel<TExtension>
   ): TExtension | ResourceCreatedResponse<TExtension> | TError;
 }
 
@@ -195,7 +216,9 @@ interface ExtensionResourceUpdate<TExtension, TResource, TError> {
   Update(
     ...ResourceParameters<TResource>,
     ...ResourceParameters<TExtension>,
-    @body properties: OptionalProperties<UpdateableProperties<TExtension>>
+
+    @body
+    properties: ResourceCreateOrUpdateModel<TExtension>
   ): TExtension | TError;
 }
 

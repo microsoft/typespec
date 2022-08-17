@@ -15,6 +15,7 @@ import {
 } from "./scanner.js";
 import {
   AliasStatementNode,
+  AnyKeywordNode,
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
@@ -26,6 +27,7 @@ import {
   DirectiveExpressionNode,
   EmptyStatementNode,
   EnumMemberNode,
+  EnumSpreadMemberNode,
   EnumStatementNode,
   Expression,
   IdentifierContext,
@@ -672,7 +674,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
-    const optionalExtends: TypeReferenceNode | undefined = parseOptionalModelExtends();
+    const optionalExtends = parseOptionalModelExtends();
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
 
     let properties: (ModelPropertyNode | ModelSpreadPropertyNode)[] = [];
@@ -701,14 +703,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOptionalModelExtends() {
     if (parseOptional(Token.ExtendsKeyword)) {
-      return parseReferenceExpression();
+      return parseExpression();
     }
     return undefined;
   }
 
   function parseOptionalModelIs() {
     if (parseOptional(Token.IsKeyword)) {
-      return parseReferenceExpression();
+      return parseExpression();
     }
     return;
   }
@@ -716,6 +718,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseTemplateParameter(): TemplateParameterDeclarationNode {
     const pos = tokenPos();
     const id = parseIdentifier();
+    let constraint: Expression | undefined;
+    if (parseOptional(Token.ExtendsKeyword)) {
+      constraint = parseExpression();
+    }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
       def = parseExpression();
@@ -723,13 +729,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return {
       kind: SyntaxKind.TemplateParameterDeclaration,
       id,
+      constraint,
       default: def,
       ...finishNode(pos),
     };
   }
 
   function parseModelPropertyOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
-    return token() === Token.Elipsis
+    return token() === Token.Ellipsis
       ? parseModelSpreadProperty(pos, decorators)
       : parseModelProperty(pos, decorators);
   }
@@ -738,7 +745,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelSpreadPropertyNode {
-    parseExpected(Token.Elipsis);
+    parseExpected(Token.Ellipsis);
 
     reportInvalidDecorators(decorators, "spread property");
 
@@ -784,12 +791,35 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
-    const members = parseList(ListKind.EnumMembers, parseEnumMember);
+    const members = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
       members,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumMemberOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
+    return token() === Token.Ellipsis
+      ? parseEnumSpreadMember(pos, decorators)
+      : parseEnumMember(pos, decorators);
+  }
+
+  function parseEnumSpreadMember(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): EnumSpreadMemberNode {
+    parseExpected(Token.Ellipsis);
+
+    reportInvalidDecorators(decorators, "spread enum");
+
+    const target = parseReferenceExpression();
+
+    return {
+      kind: SyntaxKind.EnumSpreadMember,
+      target,
       ...finishNode(pos),
     };
   }
@@ -1063,6 +1093,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           return parseVoidKeyword();
         case Token.NeverKeyword:
           return parseNeverKeyword();
+        case Token.UnknownKeyword:
+          return parseUnknownKeyword();
         default:
           return parseReferenceExpression("expression");
       }
@@ -1083,6 +1115,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.NeverKeyword);
     return {
       kind: SyntaxKind.NeverKeyword,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseUnknownKeyword(): AnyKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.UnknownKeyword);
+    return {
+      kind: SyntaxKind.UnknownKeyword,
       ...finishNode(pos),
     };
   }
@@ -1547,6 +1588,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         return parseVoidKeyword();
       case Token.NeverKeyword:
         return parseNeverKeyword();
+      case Token.UnknownKeyword:
+        return parseUnknownKeyword();
       default:
         return parseIdentifier("expression");
     }
@@ -1624,7 +1667,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ) {
-    return token() === Token.Elipsis
+    return token() === Token.Ellipsis
       ? parseProjectionModelSpreadProperty(pos, decorators)
       : parseProjectionModelProperty(pos, decorators);
   }
@@ -1633,7 +1676,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ProjectionModelSpreadPropertyNode {
-    parseExpected(Token.Elipsis);
+    parseExpected(Token.Ellipsis);
 
     reportInvalidDecorators(decorators, "spread property");
 
@@ -2251,6 +2294,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.EnumMember:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.EnumSpreadMember:
+      return visitNode(cb, node.target);
     case SyntaxKind.AliasStatement:
       return (
         visitNode(cb, node.id) ||
@@ -2315,7 +2360,9 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
-      return visitNode(cb, node.id) || visitNode(cb, node.default);
+      return (
+        visitNode(cb, node.id) || visitNode(cb, node.constraint) || visitNode(cb, node.default)
+      );
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
       return visitNode(cb, node.id);
     case SyntaxKind.ProjectionParameterDeclaration:
@@ -2332,6 +2379,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ProjectionEnumSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
+    case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
       return;
     default:

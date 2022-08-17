@@ -120,7 +120,6 @@ async function resolveCadlBundleDefinition(libraryPath: string): Promise<CadlBun
 async function createRollupConfig(definition: CadlBundleDefinition): Promise<RollupOptions> {
   const libraryPath = definition.path;
   const program = await createProgram(NodeHost, libraryPath, {
-    nostdlib: true,
     noEmit: true,
   });
   const jsFiles: string[] = [];

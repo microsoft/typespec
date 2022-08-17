@@ -1,12 +1,12 @@
 import assert from "assert";
 import {
-  InterfaceType,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
-  UnionType,
-  UnionTypeVariant,
+  Interface,
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Union,
+  UnionVariant,
 } from "../core/index.js";
 import { getProperty, navigateProgram } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "../testing/index.js";
@@ -24,13 +24,13 @@ describe("compiler: semantic walker", () => {
     await host.compile("main.cadl", { nostdlib: true });
 
     const result = {
-      models: [] as ModelType[],
-      modelProperties: [] as ModelTypeProperty[],
-      namespaces: [] as NamespaceType[],
-      operations: [] as OperationType[],
-      interfaces: [] as InterfaceType[],
-      unions: [] as UnionType[],
-      unionVariants: [] as UnionTypeVariant[],
+      models: [] as Model[],
+      modelProperties: [] as ModelProperty[],
+      namespaces: [] as Namespace[],
+      operations: [] as Operation[],
+      interfaces: [] as Interface[],
+      unions: [] as Union[],
+      unionVariants: [] as UnionVariant[],
     };
 
     navigateProgram(host.program, {

@@ -2,6 +2,26 @@
   "name": "cadl-vs",
   "entries": [
     {
+      "version": "0.7.2",
+      "tag": "cadl-vs_v0.7.2",
+      "date": "Thu, 11 Aug 2022 19:05:23 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Providing `cadl.cadl-server.path` option will force the specified compiler to be used"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"cadl-vscode\" from `~0.15.1` to `~0.15.2`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.0` to `~0.3.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.1",
       "tag": "cadl-vs_v0.7.1",
       "date": "Mon, 13 Jun 2022 23:42:28 GMT",

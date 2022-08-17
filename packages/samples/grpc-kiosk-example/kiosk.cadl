@@ -2,6 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@serviceTitle("Grpc Kiosk sample")
+namespace GrpcKioskSample;
+
 @route("/v1")
 @tag("Display")
 namespace Display {
@@ -108,7 +111,7 @@ model ListSignsResponse {
 }
 
 model SetSignIdForKioskIdsRequest {
-  kiosk_ids: int32[];
+  @body kiosk_ids: int32[];
 
   @path
   sign_id: int32;

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/eslint-config-cadl",
+      "comment": "Add warning when using `.only` to remmeber to remove before pushing",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/eslint-config-cadl"
+}

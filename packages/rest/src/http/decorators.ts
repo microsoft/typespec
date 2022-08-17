@@ -1,18 +1,25 @@
 import {
+  cadlTypeToJson,
   createDecoratorDefinition,
+  createDiagnosticCollector,
   DecoratorContext,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
+  Diagnostic,
+  DiagnosticTarget,
+  getDoc,
+  Model,
+  ModelProperty,
+  Namespace,
   Program,
   setCadlNamespace,
+  Tuple,
   Type,
+  Union,
   validateDecoratorParamCount,
-  validateDecoratorParamType,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "../diagnostics.js";
+import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
 import { extractParamsFromPath } from "../utils.js";
+import { AuthenticationOption, HttpAuth, ServiceAuthentication } from "./types.js";
 
 export const namespace = "Cadl.Http";
 
@@ -22,7 +29,7 @@ const headerDecorator = createDecoratorDefinition({
   args: [{ kind: "String", optional: true }],
 } as const);
 const headerFieldsKey = Symbol("header");
-export function $header(context: DecoratorContext, entity: ModelTypeProperty, headerName?: string) {
+export function $header(context: DecoratorContext, entity: ModelProperty, headerName?: string) {
   if (!headerDecorator.validate(context, entity, [headerName])) {
     return;
   }
@@ -41,13 +48,14 @@ export function isHeader(program: Program, entity: Type) {
   return program.stateMap(headerFieldsKey).has(entity);
 }
 
+const queryDecorator = createDecoratorDefinition({
+  name: "@query",
+  target: "ModelProperty",
+  args: [{ kind: "String", optional: true }],
+} as const);
 const queryFieldsKey = Symbol("query");
-export function $query(context: DecoratorContext, entity: Type, queryKey?: string) {
-  if (!validateDecoratorTarget(context, entity, "@query", "ModelProperty")) {
-    return;
-  }
-
-  if (queryKey && !validateDecoratorParamType(context.program, entity, queryKey, "String")) {
+export function $query(context: DecoratorContext, entity: ModelProperty, queryKey?: string) {
+  if (!queryDecorator.validate(context, entity, [queryKey])) {
     return;
   }
 
@@ -65,20 +73,18 @@ export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(queryFieldsKey).has(entity);
 }
 
+const pathDecorator = createDecoratorDefinition({
+  name: "@path",
+  target: "ModelProperty",
+  args: [{ kind: "String", optional: true }],
+} as const);
 const pathFieldsKey = Symbol("path");
-export function $path(context: DecoratorContext, entity: Type, paramName?: string) {
-  if (!validateDecoratorTarget(context, entity, "@path", "ModelProperty")) {
+export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
+  if (!pathDecorator.validate(context, entity, [paramName])) {
     return;
   }
 
-  if (paramName && !validateDecoratorParamType(context.program, entity, paramName, "String")) {
-    return;
-  }
-
-  if (!paramName && entity.kind === "ModelProperty") {
-    paramName = entity.name;
-  }
-  context.program.stateMap(pathFieldsKey).set(entity, paramName);
+  context.program.stateMap(pathFieldsKey).set(entity, paramName ?? entity.name);
 }
 
 export function getPathParamName(program: Program, entity: Type) {
@@ -89,9 +95,14 @@ export function isPathParam(program: Program, entity: Type) {
   return program.stateMap(pathFieldsKey).has(entity);
 }
 
+const bodyDecorator = createDecoratorDefinition({
+  name: "@body",
+  target: "ModelProperty",
+  args: [],
+} as const);
 const bodyFieldsKey = Symbol("body");
-export function $body(context: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(context, entity, "@body", "ModelProperty")) {
+export function $body(context: DecoratorContext, entity: ModelProperty) {
+  if (!bodyDecorator.validate(context, entity, [])) {
     return;
   }
   context.program.stateSet(bodyFieldsKey).add(entity);
@@ -101,9 +112,14 @@ export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(bodyFieldsKey).has(entity);
 }
 
+const statusCodeDecorator = createDecoratorDefinition({
+  name: "@statusCode",
+  target: "ModelProperty",
+  args: [],
+} as const);
 const statusCodeKey = Symbol("statusCode");
-export function $statusCode(context: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(context, entity, "@statusCode", "ModelProperty")) {
+export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
+  if (!statusCodeDecorator.validate(context, entity, [])) {
     return;
   }
   context.program.stateSet(statusCodeKey).add(entity);
@@ -145,11 +161,7 @@ export function $statusCode(context: DecoratorContext, entity: Type) {
   setStatusCode(context.program, entity, codes);
 }
 
-export function setStatusCode(
-  program: Program,
-  entity: ModelType | ModelTypeProperty,
-  codes: string[]
-) {
+export function setStatusCode(program: Program, entity: Model | ModelProperty, codes: string[]) {
   program.stateMap(statusCodeKey).set(entity, codes);
 }
 
@@ -176,35 +188,35 @@ export function getStatusCodes(program: Program, entity: Type): string[] {
   return program.stateMap(statusCodeKey).get(entity) ?? [];
 }
 
-// Note: these descriptions come from https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+// Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 export function getStatusCodeDescription(statusCode: string) {
   switch (statusCode) {
     case "200":
-      return "Ok";
+      return "The request has succeeded.";
     case "201":
-      return "Created";
+      return "The request has succeeded and a new resource has been created as a result.";
     case "202":
-      return "Accepted";
+      return "The request has been accepted for processing, but processing has not yet completed.";
     case "204":
-      return "No Content";
+      return "There is no content to send for this request, but the headers may be useful. ";
     case "301":
-      return "Moved Permanently";
+      return "The URL of the requested resource has been changed permanently. The new URL is given in the response.";
     case "304":
-      return "Not Modified";
+      return "The client has made a conditional request and the resource has not been modified.";
     case "400":
-      return "Bad Request";
+      return "The server could not understand the request due to invalid syntax.";
     case "401":
-      return "Unauthorized";
+      return "Access is unauthorized.";
     case "403":
-      return "Forbidden";
+      return "Access is forbidden";
     case "404":
-      return "Not Found";
+      return "The server cannot find the requested resource.";
     case "409":
-      return "Conflict";
+      return "The request conflicts with the current state of the server.";
     case "412":
-      return "Precondition Failed";
+      return "Precondition failed.";
     case "503":
-      return "Service Unavailable";
+      return "Service unavailable.";
   }
 
   switch (statusCode.charAt(0)) {
@@ -290,7 +302,7 @@ function validateVerbNoArgs(context: DecoratorContext, args: unknown[]) {
 export interface HttpServer {
   url: string;
   description: string;
-  parameters: Map<string, ModelTypeProperty>;
+  parameters: Map<string, ModelProperty>;
 }
 
 const serverDecoratorDefinition = createDecoratorDefinition({
@@ -308,10 +320,10 @@ const serversKey = Symbol("servers");
  */
 export function $server(
   context: DecoratorContext,
-  target: NamespaceType,
+  target: Namespace,
   url: string,
   description: string,
-  parameters?: ModelType
+  parameters?: Model
 ): void {
   if (!serverDecoratorDefinition.validate(context, target, [url, description, parameters])) {
     return;
@@ -343,7 +355,7 @@ export function $server(
   });
 }
 
-export function getServers(program: Program, type: NamespaceType): HttpServer[] | undefined {
+export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {
   return program.stateMap(serversKey).get(type);
 }
 
@@ -379,3 +391,145 @@ export function $plainData(context: DecoratorContext, entity: Type) {
 }
 
 setCadlNamespace("Private", $plainData);
+
+const useAuthDecorator = createDecoratorDefinition({
+  name: "@useAuth",
+  target: "Namespace",
+  args: [{ kind: ["Model", "Union", "Tuple"] }],
+} as const);
+const authenticationKey = Symbol("authentication");
+export function $useAuth(
+  context: DecoratorContext,
+  serviceNamespace: Namespace,
+  authConfig: Model | Union | Tuple
+) {
+  if (!useAuthDecorator.validate(context, serviceNamespace, [authConfig])) {
+    return;
+  }
+
+  const [auth, diagnostics] = extractServiceAuthentication(context.program, authConfig);
+  if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
+  if (auth !== undefined) {
+    setAuthentication(context.program, serviceNamespace, auth);
+  }
+}
+
+export function setAuthentication(
+  program: Program,
+  serviceNamespace: Namespace,
+  auth: ServiceAuthentication
+) {
+  program.stateMap(authenticationKey).set(serviceNamespace, auth);
+}
+
+function extractServiceAuthentication(
+  program: Program,
+  type: Model | Union | Tuple
+): [ServiceAuthentication | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  switch (type.kind) {
+    case "Model":
+      const auth = diagnostics.pipe(extractHttpAuthentication(program, type, type));
+      if (auth === undefined) return diagnostics.wrap(undefined);
+      return diagnostics.wrap({ options: [{ schemes: [auth] }] });
+    case "Tuple":
+      const option = diagnostics.pipe(extractHttpAuthenticationOption(program, type, type));
+      return diagnostics.wrap({ options: [option] });
+    case "Union":
+      return extractHttpAuthenticationOptions(program, type, type);
+  }
+}
+
+function extractHttpAuthenticationOptions(
+  program: Program,
+  tuple: Union,
+  diagnosticTarget: DiagnosticTarget
+): [ServiceAuthentication, readonly Diagnostic[]] {
+  const options: AuthenticationOption[] = [];
+  const diagnostics = createDiagnosticCollector();
+  for (const value of tuple.options) {
+    switch (value.kind) {
+      case "Model":
+        const result = diagnostics.pipe(
+          extractHttpAuthentication(program, value, diagnosticTarget)
+        );
+        if (result !== undefined) {
+          options.push({ schemes: [result] });
+        }
+        break;
+      case "Tuple":
+        const option = diagnostics.pipe(
+          extractHttpAuthenticationOption(program, value, diagnosticTarget)
+        );
+        options.push(option);
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-type-for-auth",
+            format: { kind: value.kind },
+            target: value,
+          })
+        );
+    }
+  }
+  return diagnostics.wrap({ options });
+}
+
+function extractHttpAuthenticationOption(
+  program: Program,
+  tuple: Tuple,
+  diagnosticTarget: DiagnosticTarget
+): [AuthenticationOption, readonly Diagnostic[]] {
+  const schemes: HttpAuth[] = [];
+  const diagnostics = createDiagnosticCollector();
+  for (const value of tuple.values) {
+    switch (value.kind) {
+      case "Model":
+        const result = diagnostics.pipe(
+          extractHttpAuthentication(program, value, diagnosticTarget)
+        );
+        if (result !== undefined) {
+          schemes.push(result);
+        }
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-type-for-auth",
+            format: { kind: value.kind },
+            target: value,
+          })
+        );
+    }
+  }
+  return diagnostics.wrap({ schemes });
+}
+
+function extractHttpAuthentication(
+  program: Program,
+  modelType: Model,
+  diagnosticTarget: DiagnosticTarget
+): [HttpAuth | undefined, readonly Diagnostic[]] {
+  const [result, diagnostics] = cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
+  if (result === undefined) {
+    return [result, diagnostics];
+  }
+  const description = getDoc(program, modelType);
+  return [
+    {
+      ...result,
+      id: modelType.name || result.type,
+      ...(description && { description }),
+    },
+    diagnostics,
+  ];
+}
+
+export function getAuthentication(
+  program: Program,
+  namespace: Namespace
+): ServiceAuthentication | undefined {
+  return program.stateMap(authenticationKey).get(namespace);
+}

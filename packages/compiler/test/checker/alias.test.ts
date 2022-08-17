@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { ModelType, UnionType } from "../../core/types.js";
+import { Model, Union } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: aliases", () => {
@@ -23,10 +23,10 @@ describe("compiler: aliases", () => {
       `
     );
     const { A } = (await testHost.compile("./")) as {
-      A: ModelType;
+      A: Model;
     };
 
-    const propType: UnionType = A.properties.get("prop")!.type as UnionType;
+    const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
     strictEqual(propType.options.length, 4);
     strictEqual(propType.options[0].kind, "Model");
@@ -50,10 +50,10 @@ describe("compiler: aliases", () => {
       `
     );
     const { A } = (await testHost.compile("./")) as {
-      A: ModelType;
+      A: Model;
     };
 
-    const propType: UnionType = A.properties.get("prop")!.type as UnionType;
+    const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
     strictEqual(propType.options.length, 5);
     strictEqual(propType.options[0].kind, "Model");
@@ -76,10 +76,10 @@ describe("compiler: aliases", () => {
     );
 
     const { A } = (await testHost.compile("./")) as {
-      A: ModelType;
+      A: Model;
     };
 
-    const propType: UnionType = A.properties.get("prop")!.type as UnionType;
+    const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
     strictEqual(propType.options.length, 2);
     strictEqual(propType.options[0].kind, "Model");
@@ -100,10 +100,10 @@ describe("compiler: aliases", () => {
     );
 
     const { A } = (await testHost.compile("./")) as {
-      A: ModelType;
+      A: Model;
     };
 
-    const propType: UnionType = A.properties.get("prop")!.type as UnionType;
+    const propType: Union = A.properties.get("prop")!.type as Union;
     strictEqual(propType.kind, "Union");
     strictEqual(propType.options.length, 4);
     strictEqual(propType.options[0].kind, "Model");
@@ -126,10 +126,10 @@ describe("compiler: aliases", () => {
       `
     );
     const { A } = (await testHost.compile("./")) as {
-      A: ModelType;
+      A: Model;
     };
 
-    const propType: ModelType = A.properties.get("prop")!.type as ModelType;
+    const propType: Model = A.properties.get("prop")!.type as Model;
     strictEqual(propType.kind, "Model");
     strictEqual(propType.properties.size, 4);
     ok(propType.properties.has("a"));
@@ -152,10 +152,10 @@ describe("compiler: aliases", () => {
       `
     );
     const { Test, A, B, C } = (await testHost.compile("./")) as {
-      Test: ModelType;
-      A: ModelType;
-      B: ModelType;
-      C: ModelType;
+      Test: Model;
+      A: Model;
+      B: Model;
+      C: Model;
     };
 
     strictEqual(A.baseModel, Test);
@@ -178,8 +178,8 @@ describe("compiler: aliases", () => {
     );
 
     const { Bar, Baz } = (await testHost.compile("./")) as {
-      Bar: ModelType;
-      Baz: ModelType;
+      Bar: Model;
+      Baz: Model;
     };
 
     strictEqual(Baz.properties.get("x")!.type, Bar);
