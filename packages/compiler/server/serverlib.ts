@@ -118,7 +118,7 @@ export interface Server {
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
-  getTypeDetails(params: HoverParams): Promise<Hover>;
+  getHover(params: HoverParams): Promise<Hover>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
@@ -260,7 +260,7 @@ export function createServer(host: ServerHost): Server {
     buildSemanticTokens,
     checkChange,
     getFoldingRanges,
-    getTypeDetails,
+    getHover,
     getDocumentSymbols,
     log,
   };
@@ -613,25 +613,26 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getDocument(type: Type): Promise<string> {
+  async function getTypeDetails(type: Type): Promise<string> {
     return type.kind;
   }
 
-  async function getTypeDetails(params: HoverParams): Promise<Hover> {
-    const sym = await compile(params.textDocument, (program, document, file) => {
+  async function getHover(params: HoverParams): Promise<Hover> {
+    const typesym = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+      const sym =
+        id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+      if (sym) {
+        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
+        return getTypeDetails(type);
+      }
+      return undefined;
     });
     let docString = "";
-    if (sym) {
-      const typesym = await compile(params.textDocument, (program, document, file) => {
-        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-        return getDocument(type);
-      });
-      if (typesym) {
-        docString = typesym;
-      }
+    if (typesym) {
+      docString = typesym;
     }
+
     const markdown: MarkupContent = {
       kind: MarkupKind.Markdown,
       value: docString,
@@ -658,22 +659,26 @@ export function createServer(host: ServerHost): Server {
     };
     await compile(params.textDocument, async (program, document, file) => {
       const node = getNodeAtPosition(file, document.offsetAt(params.position));
+      const sym =
+        node?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(node) : undefined;
+      let detail = undefined;
+      if (sym) {
+        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
+        detail = await getTypeDetails(type);
+      }
       if (node === undefined) {
-        addKeywordCompletion("root", completions);
+        addKeywordCompletion("root", detail, completions);
       } else {
         switch (node.kind) {
           case SyntaxKind.NamespaceStatement:
-            getTypeDetails(params);
-            addKeywordCompletion("namespace", completions);
+            addKeywordCompletion("namespace", detail, completions);
             break;
           case SyntaxKind.Identifier:
-            getTypeDetails(params);
-            addIdentifierCompletion(program, node, completions);
+            addIdentifierCompletion(program, node, detail, completions);
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
-              getTypeDetails(params);
-              await addImportCompletion(program, document, completions, node);
+              await addImportCompletion(program, document, detail, completions, node);
             }
             break;
         }
@@ -766,11 +771,21 @@ export function createServer(host: ServerHost): Server {
     return references;
   }
 
-  function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
+  function addKeywordCompletion(
+    area: keyof KeywordArea,
+    detail: string | undefined,
+    completions: CompletionList
+  ) {
     const filteredKeywords = keywords.filter(([_, x]) => area in x);
     for (const [keyword] of filteredKeywords) {
       completions.items.push({
         label: keyword,
+        kind: CompletionItemKind.Keyword,
+      });
+    }
+    if (detail) {
+      completions.items.push({
+        label: detail,
         kind: CompletionItemKind.Keyword,
       });
     }
@@ -819,6 +834,7 @@ export function createServer(host: ServerHost): Server {
   async function addImportCompletion(
     program: Program,
     document: TextDocument,
+    detail: string | undefined,
     completions: CompletionList,
     node: StringLiteralNode
   ) {
@@ -826,6 +842,12 @@ export function createServer(host: ServerHost): Server {
       await addRelativePathCompletion(program, document, completions, node);
     } else if (!node.value.startsWith(".")) {
       await addLibraryImportCompletion(program, document, completions);
+    }
+    if (detail) {
+      completions.items.push({
+        label: detail,
+        kind: CompletionItemKind.Keyword,
+      });
     }
   }
 
@@ -874,6 +896,7 @@ export function createServer(host: ServerHost): Server {
   function addIdentifierCompletion(
     program: Program,
     node: IdentifierNode,
+    detail: string | undefined,
     completions: CompletionList
   ) {
     const result = program.checker.resolveCompletions(node);
@@ -908,9 +931,15 @@ export function createServer(host: ServerHost): Server {
       }
       completions.items.push(item);
     }
+    if (detail) {
+      completions.items.push({
+        label: detail,
+        kind: CompletionItemKind.Keyword,
+      });
+    }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
-      addKeywordCompletion("identifier", completions);
+      addKeywordCompletion("identifier", detail, completions);
     }
   }
 

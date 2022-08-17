@@ -198,7 +198,7 @@ export async function attachServices(host: BrowserHost) {
 
   monaco.languages.registerHoverProvider("cadl", {
     async provideHover(model, position) {
-      const hover = await serverLib.getTypeDetails(lspArgs(model, position));
+      const hover = await serverLib.getHover(lspArgs(model, position));
       return monacoHover(hover);
     },
   });

@@ -73,7 +73,7 @@ function main() {
   connection.onFoldingRanges(s.getFoldingRanges);
   connection.onDocumentSymbol(s.getDocumentSymbols);
   connection.onDocumentHighlight(s.findDocumentHighlight);
-  connection.onHover(s.getTypeDetails);
+  connection.onHover(s.getHover);
   connection.languages.semanticTokens.on(s.buildSemanticTokens);
 
   documents.onDidChangeContent(s.checkChange);
