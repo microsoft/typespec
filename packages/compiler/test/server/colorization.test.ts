@@ -665,7 +665,7 @@ function testColorization(description: string, tokenize: Tokenize) {
     });
   });
 
-  describe.only("projections", () => {
+  describe("projections", () => {
     it("simple projection", async () => {
       const tokens = await tokenize(`
       projection op#foo {

@@ -993,7 +993,7 @@ export function createServer(host: ServerHost): Server {
           classify(node.id, SemanticTokenKind.Variable);
           break;
         case SyntaxKind.Projection:
-          classify(node, SemanticTokenKind.Keyword);
+          classify(node.direction, SemanticTokenKind.Keyword);
           break;
         case SyntaxKind.ProjectionParameterDeclaration:
           classifyReference(node.id, SemanticTokenKind.Parameter);
@@ -1011,7 +1011,7 @@ export function createServer(host: ServerHost): Server {
       visitChildren(node, classifyNode);
     }
 
-    function classify(node: Node, kind: SemanticTokenKind) {
+    function classify(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
       const token = tokens.get(node.pos);
       if (token && token.kind === undefined) {
         token.kind = kind;

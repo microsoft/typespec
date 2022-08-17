@@ -1234,10 +1234,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
     }
 
-    if (proj1 && proj2 && proj1.direction === proj2.direction) {
+    if (proj1 && proj2 && proj1.direction.sv === proj2.direction.sv) {
       error({ code: "duplicate-symbol", target: proj2, format: { name: "projection" } });
     } else if (proj1) {
-      [to, from] = proj1.direction === "to" ? [proj1, proj2] : [proj2, proj1];
+      [to, from] = proj1.direction.sv === "to" ? [proj1, proj2] : [proj2, proj1];
     }
 
     parseExpected(Token.CloseBrace);
@@ -1255,12 +1255,19 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseProjection(): ProjectionNode {
     const pos = tokenPos();
     const directionId = parseIdentifier("projectionDirection");
-    let direction: "from" | "to";
+    let direction: IdentifierNode<"to" | "from">;
     if (directionId.sv !== "from" && directionId.sv !== "to") {
       error({ code: "token-expected", messageId: "projectionDirection" });
-      direction = "from";
+      direction = {
+        kind: SyntaxKind.Identifier,
+        sv: "to",
+        pos: pos,
+        end: pos,
+        symbol: undefined as any,
+        flags: NodeFlags.Synthetic,
+      };
     } else {
-      direction = directionId.sv;
+      direction = directionId as IdentifierNode<"to" | "from">;
     }
     let parameters: ProjectionParameterDeclarationNode[];
     if (token() === Token.OpenParen) {
@@ -2309,7 +2316,9 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
     case SyntaxKind.Projection:
-      return visitEach(cb, node.parameters) || visitEach(cb, node.body);
+      return (
+        visitNode(cb, node.direction) || visitEach(cb, node.parameters) || visitEach(cb, node.body)
+      );
     case SyntaxKind.ProjectionExpressionStatement:
       return visitNode(cb, node.expr);
     case SyntaxKind.ProjectionCallExpression:

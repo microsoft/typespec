@@ -3423,7 +3423,7 @@ export function createChecker(program: Program): Checker {
     let topLevelProjection = false;
     if (!currentProjectionDirection) {
       topLevelProjection = true;
-      currentProjectionDirection = node.direction;
+      currentProjectionDirection = node.direction.sv;
     }
     if (currentProjectionDirection === "from" && !target.projectionSource) {
       // this model wasn't projected, so we'll just return the target
