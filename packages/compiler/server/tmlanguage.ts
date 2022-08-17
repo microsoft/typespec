@@ -29,6 +29,7 @@ export type CadlScope =
   | "keyword.operator.type.annotation.cadl"
   | "keyword.operator.assignment.cadl"
   | "keyword.operator.optional.cadl"
+  | "keyword.operator.selector.cadl"
   | "keyword.operator.spread.cadl"
   // Punctuation
   | "punctuation.comma.cadl"

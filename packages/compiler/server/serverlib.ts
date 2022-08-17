@@ -988,6 +988,22 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.MemberExpression:
           classifyReference(node);
           break;
+        case SyntaxKind.ProjectionStatement:
+          classifyReference(node.selector);
+          classify(node.id, SemanticTokenKind.Variable);
+          break;
+        case SyntaxKind.ProjectionParameterDeclaration:
+          classifyReference(node.id, SemanticTokenKind.Parameter);
+          break;
+        case SyntaxKind.ProjectionCallExpression:
+          classifyReference(node.target, SemanticTokenKind.Function);
+          for (const arg of node.arguments) {
+            classifyReference(arg);
+          }
+          break;
+        case SyntaxKind.ProjectionMemberExpression:
+          classifyReference(node.id);
+          break;
       }
       visitChildren(node, classifyNode);
     }
@@ -1003,6 +1019,10 @@ export function createServer(host: ServerHost): Server {
       switch (node.kind) {
         case SyntaxKind.MemberExpression:
           classifyIdentifier(node.base, SemanticTokenKind.Namespace);
+          classifyIdentifier(node.id, kind);
+          break;
+        case SyntaxKind.ProjectionMemberExpression:
+          classifyReference(node.base, SemanticTokenKind.Namespace);
           classifyIdentifier(node.id, kind);
           break;
         case SyntaxKind.TypeReference:
