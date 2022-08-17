@@ -1467,7 +1467,7 @@ export interface CadlLibrary<
 
   /**
    * Get or create a symbol with the given name unique for that library.
-   * @param name Symbol name scopped with the library name.
+   * @param name Symbol name scoped with the library name.
    */
   createStateSymbol(name: string): symbol;
 }
