@@ -6,14 +6,14 @@ import {
   Diagnostic,
   DiagnosticTarget,
   getDoc,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
+  Model,
+  ModelProperty,
+  Namespace,
   Program,
   setCadlNamespace,
-  TupleType,
+  Tuple,
   Type,
-  UnionType,
+  Union,
   validateDecoratorParamCount,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
@@ -29,7 +29,7 @@ const headerDecorator = createDecoratorDefinition({
   args: [{ kind: "String", optional: true }],
 } as const);
 const headerFieldsKey = Symbol("header");
-export function $header(context: DecoratorContext, entity: ModelTypeProperty, headerName?: string) {
+export function $header(context: DecoratorContext, entity: ModelProperty, headerName?: string) {
   if (!headerDecorator.validate(context, entity, [headerName])) {
     return;
   }
@@ -54,7 +54,7 @@ const queryDecorator = createDecoratorDefinition({
   args: [{ kind: "String", optional: true }],
 } as const);
 const queryFieldsKey = Symbol("query");
-export function $query(context: DecoratorContext, entity: ModelTypeProperty, queryKey?: string) {
+export function $query(context: DecoratorContext, entity: ModelProperty, queryKey?: string) {
   if (!queryDecorator.validate(context, entity, [queryKey])) {
     return;
   }
@@ -79,7 +79,7 @@ const pathDecorator = createDecoratorDefinition({
   args: [{ kind: "String", optional: true }],
 } as const);
 const pathFieldsKey = Symbol("path");
-export function $path(context: DecoratorContext, entity: ModelTypeProperty, paramName?: string) {
+export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
   if (!pathDecorator.validate(context, entity, [paramName])) {
     return;
   }
@@ -101,7 +101,7 @@ const bodyDecorator = createDecoratorDefinition({
   args: [],
 } as const);
 const bodyFieldsKey = Symbol("body");
-export function $body(context: DecoratorContext, entity: ModelTypeProperty) {
+export function $body(context: DecoratorContext, entity: ModelProperty) {
   if (!bodyDecorator.validate(context, entity, [])) {
     return;
   }
@@ -118,7 +118,7 @@ const statusCodeDecorator = createDecoratorDefinition({
   args: [],
 } as const);
 const statusCodeKey = Symbol("statusCode");
-export function $statusCode(context: DecoratorContext, entity: ModelTypeProperty) {
+export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
   if (!statusCodeDecorator.validate(context, entity, [])) {
     return;
   }
@@ -161,11 +161,7 @@ export function $statusCode(context: DecoratorContext, entity: ModelTypeProperty
   setStatusCode(context.program, entity, codes);
 }
 
-export function setStatusCode(
-  program: Program,
-  entity: ModelType | ModelTypeProperty,
-  codes: string[]
-) {
+export function setStatusCode(program: Program, entity: Model | ModelProperty, codes: string[]) {
   program.stateMap(statusCodeKey).set(entity, codes);
 }
 
@@ -306,7 +302,7 @@ function validateVerbNoArgs(context: DecoratorContext, args: unknown[]) {
 export interface HttpServer {
   url: string;
   description: string;
-  parameters: Map<string, ModelTypeProperty>;
+  parameters: Map<string, ModelProperty>;
 }
 
 const serverDecoratorDefinition = createDecoratorDefinition({
@@ -324,10 +320,10 @@ const serversKey = Symbol("servers");
  */
 export function $server(
   context: DecoratorContext,
-  target: NamespaceType,
+  target: Namespace,
   url: string,
   description: string,
-  parameters?: ModelType
+  parameters?: Model
 ): void {
   if (!serverDecoratorDefinition.validate(context, target, [url, description, parameters])) {
     return;
@@ -359,7 +355,7 @@ export function $server(
   });
 }
 
-export function getServers(program: Program, type: NamespaceType): HttpServer[] | undefined {
+export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {
   return program.stateMap(serversKey).get(type);
 }
 
@@ -404,8 +400,8 @@ const useAuthDecorator = createDecoratorDefinition({
 const authenticationKey = Symbol("authentication");
 export function $useAuth(
   context: DecoratorContext,
-  serviceNamespace: NamespaceType,
-  authConfig: ModelType | UnionType | TupleType
+  serviceNamespace: Namespace,
+  authConfig: Model | Union | Tuple
 ) {
   if (!useAuthDecorator.validate(context, serviceNamespace, [authConfig])) {
     return;
@@ -420,7 +416,7 @@ export function $useAuth(
 
 export function setAuthentication(
   program: Program,
-  serviceNamespace: NamespaceType,
+  serviceNamespace: Namespace,
   auth: ServiceAuthentication
 ) {
   program.stateMap(authenticationKey).set(serviceNamespace, auth);
@@ -428,7 +424,7 @@ export function setAuthentication(
 
 function extractServiceAuthentication(
   program: Program,
-  type: ModelType | UnionType | TupleType
+  type: Model | Union | Tuple
 ): [ServiceAuthentication | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
@@ -447,7 +443,7 @@ function extractServiceAuthentication(
 
 function extractHttpAuthenticationOptions(
   program: Program,
-  tuple: UnionType,
+  tuple: Union,
   diagnosticTarget: DiagnosticTarget
 ): [ServiceAuthentication, readonly Diagnostic[]] {
   const options: AuthenticationOption[] = [];
@@ -483,7 +479,7 @@ function extractHttpAuthenticationOptions(
 
 function extractHttpAuthenticationOption(
   program: Program,
-  tuple: TupleType,
+  tuple: Tuple,
   diagnosticTarget: DiagnosticTarget
 ): [AuthenticationOption, readonly Diagnostic[]] {
   const schemes: HttpAuth[] = [];
@@ -513,7 +509,7 @@ function extractHttpAuthenticationOption(
 
 function extractHttpAuthentication(
   program: Program,
-  modelType: ModelType,
+  modelType: Model,
   diagnosticTarget: DiagnosticTarget
 ): [HttpAuth | undefined, readonly Diagnostic[]] {
   const [result, diagnostics] = cadlTypeToJson<HttpAuth>(modelType, diagnosticTarget);
@@ -533,7 +529,7 @@ function extractHttpAuthentication(
 
 export function getAuthentication(
   program: Program,
-  namespace: NamespaceType
+  namespace: Namespace
 ): ServiceAuthentication | undefined {
   return program.stateMap(authenticationKey).get(namespace);
 }

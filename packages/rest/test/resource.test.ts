@@ -1,4 +1,4 @@
-import { ModelType } from "@cadl-lang/compiler";
+import { Model } from "@cadl-lang/compiler";
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { getResourceTypeKey } from "../src/resource.js";
@@ -30,7 +30,7 @@ describe("rest: resources", () => {
         @key
         id: string;
       }
-    `)) as { Thing: ModelType };
+    `)) as { Thing: Model };
 
     // Check the key property to ensure the segment got added
     const key = getResourceTypeKey(runner.program, Thing);

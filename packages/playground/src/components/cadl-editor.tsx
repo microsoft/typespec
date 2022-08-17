@@ -24,7 +24,11 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
       parser: "cadl",
       plugins: [CadlPrettierPlugin],
     });
-    props.model.setValue(output);
+    props.model.pushEditOperations(
+      [],
+      [{ range: props.model.getFullModelRange(), text: output }],
+      () => null
+    );
   };
 
   // Add shortcuts
@@ -33,15 +37,9 @@ export const CadlEditor: FunctionComponent<CadlEditorProps> = (props) => {
     { binding: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyF, handle: format },
     // alt+shift+F => format
     { binding: KeyMod.Alt | KeyMod.Shift | KeyCode.KeyF, handle: format },
-    ...props.commands ?? [],
+    ...(props.commands ?? []),
   ];
-  return (
-    <Editor
-      model={props.model}
-      commands={commands}
-      options={options}
-    ></Editor>
-  );
+  return <Editor model={props.model} commands={commands} options={options}></Editor>;
 };
 
 export const OutputEditor: FunctionComponent<{ value: string }> = ({ value }) => {

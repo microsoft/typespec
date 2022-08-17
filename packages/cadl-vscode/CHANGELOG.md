@@ -1,6 +1,13 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Fri, 08 Jul 2022 23:22:58 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Aug 2022 19:05:23 GMT and should not be manually modified.
+
+## 0.15.2
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Patches
+
+- Providing `cadl.cadl-server.path` option will force the specified compiler to be used
 
 ## 0.15.1
 Fri, 08 Jul 2022 23:22:58 GMT
