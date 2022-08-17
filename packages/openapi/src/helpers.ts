@@ -1,9 +1,9 @@
 import {
-  getFriendlyName as getAssignedFriendlyName,
+  getFriendlyName,
   getServiceNamespace,
-  ModelType,
-  ModelTypeProperty,
-  OperationType,
+  isTemplateInstance,
+  ModelProperty,
+  Operation,
   Program,
   Type,
   TypeNameOptions,
@@ -23,13 +23,17 @@ import { reportDiagnostic } from "./lib.js";
  * decorator, or chosen by default in simple cases.
  */
 export function shouldInline(program: Program, type: Type): boolean {
-  if (hasFriendlyName(program, type)) {
+  if (getFriendlyName(program, type)) {
     return false;
   }
-
   switch (type.kind) {
     case "Model":
-      return !type.name || hasTemplateArguments(type);
+      return (
+        !type.name ||
+        isTemplateInstance(type) ||
+        program.checker.isStdType(type, "Array") ||
+        program.checker.isStdType(type, "Record")
+      );
     case "Enum":
     case "Union":
       return !type.name;
@@ -54,8 +58,7 @@ export function getTypeName(
   options: TypeNameOptions,
   existing?: Record<string, any>
 ): string {
-  const name =
-    getFriendlyName(program, type, options) ?? program.checker.getTypeName(type, options);
+  const name = getFriendlyName(program, type) ?? program.checker.getTypeName(type, options);
 
   if (existing && existing[name]) {
     reportDiagnostic(program, {
@@ -75,7 +78,7 @@ export function getTypeName(
  */
 export function getParameterKey(
   program: Program,
-  propery: ModelTypeProperty,
+  propery: ModelProperty,
   newParam: unknown,
   existingParams: Record<string, unknown>,
   options: TypeNameOptions
@@ -102,52 +105,6 @@ export function getParameterKey(
   return key;
 }
 
-function hasTemplateArguments(type: Type): type is ModelType & { templateArguments: Type[] } {
-  return type.kind === "Model" && !!type.templateArguments && type.templateArguments.length > 0;
-}
-
-function hasFriendlyName(program: Program, type: Type): boolean {
-  return !!getAssignedFriendlyName(program, type) || hasDefaultFriendlyName(program, type);
-}
-
-function getFriendlyName(program: Program, type: Type, options: TypeNameOptions): string {
-  return getAssignedFriendlyName(program, type) ?? getDefaultFriendlyName(program, type, options);
-}
-
-/**
- * A template instantiation has a default friendly name if none if its type
- * arguments are nested template instantiations or inlined types.
- */
-function hasDefaultFriendlyName(
-  program: Program,
-  type: Type
-): type is ModelType & { name: string; templateArguments: Type[] } {
-  return (
-    type.kind === "Model" &&
-    !!type.name &&
-    hasTemplateArguments(type) &&
-    !type.templateArguments.some((arg) => hasTemplateArguments(arg) || shouldInline(program, arg))
-  );
-}
-
-/**
- * Gets the default friendly name of the form Type_Arg1_..._ArgN when applicable as described
- * by `hasDefaultFriendlyName`. Returns undefined when not applicable.
- */
-function getDefaultFriendlyName(
-  program: Program,
-  type: Type,
-  options: TypeNameOptions
-): string | undefined {
-  if (!hasDefaultFriendlyName(program, type)) {
-    return undefined;
-  }
-  const ns = program.checker.getNamespaceString(type.namespace, options);
-  const model = (ns ? ns + "." : "") + type.name;
-  const args = type.templateArguments.map((arg) => getTypeName(program, arg, options));
-  return `${model}_${args.join("_")}`;
-}
-
 /**
  * Resolve the OpenAPI operation ID for the given operation using the following logic:
  * - If @operationId was specified use that value
@@ -158,7 +115,7 @@ function getDefaultFriendlyName(
  * @param operation Operation
  * @returns Operation ID in this format <name> or <group>_<name>
  */
-export function resolveOperationId(program: Program, operation: OperationType) {
+export function resolveOperationId(program: Program, operation: Operation) {
   const explicitOperationId = getOperationId(program, operation);
   if (explicitOperationId) {
     return explicitOperationId;

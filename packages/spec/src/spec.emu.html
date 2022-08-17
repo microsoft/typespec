@@ -287,10 +287,10 @@ ModelStatement :
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
 IsModelHeritage :
-    `is` ReferenceExpression
+    `is` Expression
 
 ExtendsModelHeritage :
-    `extends` ReferenceExpression
+    `extends` Expression
 
 ModelHeritage :
     IsModelHeritage
@@ -379,8 +379,11 @@ TemplateParameterList :
     TemplateParameterList `,` TemplateParameter
 
 TemplateParameter :
-    Identifier TemplateParameterDefault?
+    Identifier TemplateParameterConstraint? TemplateParameterDefault?
 
+TemplateParameterConstraint :
+    `extends` Expression
+    
 TemplateParameterDefault :
     `=` Expression
 

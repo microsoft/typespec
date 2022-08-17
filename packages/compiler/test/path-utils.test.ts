@@ -165,13 +165,6 @@ describe("compiler: path utils", () => {
     strictEqual(getBaseFileName("http://server/"), "");
     strictEqual(getBaseFileName("http://server/a"), "a");
     strictEqual(getBaseFileName("http://server/a/"), "a");
-    strictEqual(getBaseFileName("/path/a.ext", ".ext", /*ignoreCase*/ false), "a");
-    strictEqual(getBaseFileName("/path/a.ext", ".EXT", /*ignoreCase*/ true), "a");
-    strictEqual(getBaseFileName("/path/a.ext", "ext", /*ignoreCase*/ false), "a");
-    strictEqual(getBaseFileName("/path/a.b", ".ext", /*ignoreCase*/ false), "a.b");
-    strictEqual(getBaseFileName("/path/a.b", [".b", ".c"], /*ignoreCase*/ false), "a");
-    strictEqual(getBaseFileName("/path/a.c", [".b", ".c"], /*ignoreCase*/ false), "a");
-    strictEqual(getBaseFileName("/path/a.d", [".b", ".c"], /*ignoreCase*/ false), "a.d");
   });
 
   it("getAnyExtensionFromPath", () => {
@@ -180,13 +173,10 @@ describe("compiler: path utils", () => {
     strictEqual(getAnyExtensionFromPath("a.ext"), ".ext");
     strictEqual(getAnyExtensionFromPath("/a.ext"), ".ext");
     strictEqual(getAnyExtensionFromPath("a.ext/"), ".ext");
-    strictEqual(getAnyExtensionFromPath("a.ext", ".ext", /*ignoreCase*/ false), ".ext");
-    strictEqual(getAnyExtensionFromPath("a.ext", ".EXT", /*ignoreCase*/ true), ".ext");
-    strictEqual(getAnyExtensionFromPath("a.ext", "ext", /*ignoreCase*/ false), ".ext");
-    strictEqual(getAnyExtensionFromPath("a.b", ".ext", /*ignoreCase*/ false), "");
-    strictEqual(getAnyExtensionFromPath("a.b", [".b", ".c"], /*ignoreCase*/ false), ".b");
-    strictEqual(getAnyExtensionFromPath("a.c", [".b", ".c"], /*ignoreCase*/ false), ".c");
-    strictEqual(getAnyExtensionFromPath("a.d", [".b", ".c"], /*ignoreCase*/ false), "");
+    strictEqual(getAnyExtensionFromPath(".EXT"), ".ext");
+    strictEqual(getAnyExtensionFromPath("a.EXT"), ".ext");
+    strictEqual(getAnyExtensionFromPath("/a.EXT"), ".ext");
+    strictEqual(getAnyExtensionFromPath("a.EXT/"), ".ext");
   });
 
   it("getPathComponents", () => {

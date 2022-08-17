@@ -187,7 +187,7 @@ projection enum#v {
       if renamedAfter(self, version) {
         self::rename(getRenamedFromOldName(self));
       };
-
+      
       self::members::forEach((m) => {
         if addedAfter(m, version) {
           self::deleteMember(m::name);

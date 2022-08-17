@@ -49,7 +49,6 @@ export interface Program {
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
-  evalCadlScript(cadlScript: string): void;
   onValidate(cb: (program: Program) => void | Promise<void>): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
@@ -219,7 +218,6 @@ export async function createProgram(
     logger,
     emitters,
     loadCadlScript,
-    evalCadlScript,
     getOption,
     stateMap,
     stateMaps,
@@ -244,7 +242,6 @@ export async function createProgram(
     },
   };
 
-  let virtualFileCount = 0;
   const binder = createBinder(program);
 
   if (!options?.nostdlib) {
@@ -271,7 +268,7 @@ export async function createProgram(
     await loadEmitters(resolvedMain, emitters);
   }
 
-  const checker = (program.checker = createChecker(program));
+  program.checker = createChecker(program);
   program.checker.checkProgram();
 
   if (program.hasError()) {
@@ -410,39 +407,6 @@ export async function createProgram(
     binder.bindSourceFile(sourceFile);
     await loadScriptImports(sourceFile);
     return sourceFile;
-  }
-
-  function loadCadlScriptSync(cadlScript: SourceFile): CadlScriptNode {
-    // This is not a diagnostic because the compiler should never reuse the same path.
-    // It's the caller's responsibility to use unique paths.
-    if (program.sourceFiles.has(cadlScript.path)) {
-      throw new RangeError("Duplicate script path: " + cadlScript);
-    }
-    const sourceFile = parse(cadlScript);
-    program.reportDiagnostics(sourceFile.parseDiagnostics);
-    program.sourceFiles.set(cadlScript.path, sourceFile);
-    for (const stmt of sourceFile.statements) {
-      if (stmt.kind !== SyntaxKind.ImportStatement) break;
-      program.reportDiagnostic(createDiagnostic({ code: "dynamic-import", target: stmt }));
-    }
-    binder.bindSourceFile(sourceFile);
-
-    return sourceFile;
-  }
-
-  // Evaluates an arbitrary line of Cadl in the context of a
-  // specified file path.  If no path is specified, use a
-  // virtual file path
-  function evalCadlScript(script: string): void {
-    const sourceFile = createSourceFile(script, `__virtual_file_${++virtualFileCount}`);
-    const cadlScript = loadCadlScriptSync(sourceFile);
-    checker.mergeSourceFile(cadlScript);
-    checker.setUsingsForFile(cadlScript);
-    for (const ns of cadlScript.namespaces) {
-      const mergedSym = checker.getMergedSymbol(ns.symbol)!;
-      reportDuplicateSymbols(mergedSym.exports);
-    }
-    reportDuplicateSymbols(checker.getGlobalNamespaceNode().symbol.exports);
   }
 
   async function loadScriptImports(file: CadlScriptNode) {

@@ -15,6 +15,7 @@ import {
 } from "./scanner.js";
 import {
   AliasStatementNode,
+  AnyKeywordNode,
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
@@ -673,7 +674,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
-    const optionalExtends: TypeReferenceNode | undefined = parseOptionalModelExtends();
+    const optionalExtends = parseOptionalModelExtends();
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
 
     let properties: (ModelPropertyNode | ModelSpreadPropertyNode)[] = [];
@@ -702,14 +703,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOptionalModelExtends() {
     if (parseOptional(Token.ExtendsKeyword)) {
-      return parseReferenceExpression();
+      return parseExpression();
     }
     return undefined;
   }
 
   function parseOptionalModelIs() {
     if (parseOptional(Token.IsKeyword)) {
-      return parseReferenceExpression();
+      return parseExpression();
     }
     return;
   }
@@ -717,6 +718,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseTemplateParameter(): TemplateParameterDeclarationNode {
     const pos = tokenPos();
     const id = parseIdentifier();
+    let constraint: Expression | undefined;
+    if (parseOptional(Token.ExtendsKeyword)) {
+      constraint = parseExpression();
+    }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
       def = parseExpression();
@@ -724,6 +729,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return {
       kind: SyntaxKind.TemplateParameterDeclaration,
       id,
+      constraint,
       default: def,
       ...finishNode(pos),
     };
@@ -1087,6 +1093,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           return parseVoidKeyword();
         case Token.NeverKeyword:
           return parseNeverKeyword();
+        case Token.UnknownKeyword:
+          return parseUnknownKeyword();
         default:
           return parseReferenceExpression("expression");
       }
@@ -1107,6 +1115,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.NeverKeyword);
     return {
       kind: SyntaxKind.NeverKeyword,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseUnknownKeyword(): AnyKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.UnknownKeyword);
+    return {
+      kind: SyntaxKind.UnknownKeyword,
       ...finishNode(pos),
     };
   }
@@ -1571,6 +1588,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         return parseVoidKeyword();
       case Token.NeverKeyword:
         return parseNeverKeyword();
+      case Token.UnknownKeyword:
+        return parseUnknownKeyword();
       default:
         return parseIdentifier("expression");
     }
@@ -2341,7 +2360,9 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
-      return visitNode(cb, node.id) || visitNode(cb, node.default);
+      return (
+        visitNode(cb, node.id) || visitNode(cb, node.constraint) || visitNode(cb, node.default)
+      );
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
       return visitNode(cb, node.id);
     case SyntaxKind.ProjectionParameterDeclaration:
@@ -2358,6 +2379,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ProjectionEnumSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
+    case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
       return;
     default:

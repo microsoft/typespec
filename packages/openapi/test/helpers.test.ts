@@ -1,4 +1,4 @@
-import { OperationType } from "@cadl-lang/compiler";
+import { Operation } from "@cadl-lang/compiler";
 import { BasicTestRunner, createTestRunner } from "@cadl-lang/compiler/testing";
 import { strictEqual } from "assert";
 import { resolveOperationId } from "../src/helpers.js";
@@ -11,7 +11,7 @@ describe("OpenAPI3 Helpers", () => {
   });
   describe("resolveOperationId", () => {
     async function testResolveOperationId(code: string) {
-      const { foo } = (await runner.compile(code)) as { foo: OperationType };
+      const { foo } = (await runner.compile(code)) as { foo: Operation };
       return resolveOperationId(runner.program, foo);
     }
 

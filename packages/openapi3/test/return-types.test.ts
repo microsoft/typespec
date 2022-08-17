@@ -12,11 +12,7 @@ describe("openapi3: return types", () => {
       model Key {
         key: string;
       }
-      @route("/")
-      namespace root {
-        @get()
-        op read(): Key & ETagHeader;
-      }
+      @get() op read(): Key & ETagHeader;
       `
     );
     ok(res.paths["/"].get.responses["200"].headers);
@@ -32,11 +28,7 @@ describe("openapi3: return types", () => {
       model Key {
         key: string;
       }
-      @route("/")
-      namespace root {
-        @put
-        op create(): CreatedResponse & Key;
-      }
+      @put op create(): CreatedResponse & Key;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -52,11 +44,7 @@ describe("openapi3: return types", () => {
       model Key {
         key: string;
       }
-      @route("/")
-      namespace root {
-        @put
-        op create(): CreatedResponse & Key;
-      }
+      @put op create(): CreatedResponse & Key;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -75,11 +63,7 @@ describe("openapi3: return types", () => {
       model Key {
         key: string;
       }
-      @route("/")
-      namespace root {
-        @put
-        op create(): { ...CreatedResponse, ...ETagHeader, @body body: Key};
-      }
+      @put op create(): { ...CreatedResponse, ...ETagHeader, @body body: Key};
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -103,11 +87,7 @@ describe("openapi3: return types", () => {
       model CreatePageResponse extends CreatedResponse {
         @body body: Page;
       }
-      @route("/")
-      namespace root {
-        @put
-        op create(): CreatePageResponse;
-      }
+      @put op create(): CreatePageResponse;
       `
     );
     ok(res.paths["/"].put.responses["201"]);
@@ -129,11 +109,7 @@ describe("openapi3: return types", () => {
       model Key {
         key: string;
       }
-      @route("/")
-      namespace root {
-        @put
-        op create(): CreatedOrUpdatedResponse & DateHeader & Key;
-      }
+      @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
       `
     );
     ok(res.paths["/"].put.responses["200"]);
@@ -162,11 +138,7 @@ describe("openapi3: return types", () => {
       model Key {
         key: string;
       }
-      @route("/")
-      namespace root {
-        @put
-        op create(): CreatedOrUpdatedResponse & DateHeader & Key;
-      }
+      @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
       `
     );
     ok(res.paths["/"].put.responses["200"]);
@@ -194,11 +166,7 @@ describe("openapi3: return types", () => {
       model Key {
         key: string;
       }
-      @route("/")
-      namespace root {
-        @get
-        op read(): Key | Error;
-      }
+      @get op read(): Key | Error;
       `
     );
     ok(res.paths["/"].get.responses["200"]);
@@ -227,12 +195,9 @@ describe("openapi3: return types", () => {
       model Key {
         key: string;
       }
-      @route("/")
-      namespace root {
-        @get
-        // Note: & takes precedence over |
-        op read(): Key & TextPlain | Error;
-      }
+      
+      // Note: & takes precedence over |
+      @get op read(): Key & TextPlain | Error;
       `
     );
     ok(res.paths["/"].get.responses["200"]);
@@ -249,11 +214,7 @@ describe("openapi3: return types", () => {
       model TextMulti {
         @header contentType: "text/plain" | "text/html" | "text/csv";
       }
-      @route("/")
-      namespace root {
-        @get
-        op read(): { ...TextMulti, @body body: string };
-      }
+      @get op read(): { ...TextMulti, @body body: string };
     `
     );
     ok(res.paths["/"].get.responses["200"]);
@@ -273,17 +234,15 @@ describe("openapi3: return types", () => {
         code: "4XX";
       }
 
-      namespace root {
-        @route("/test1")
-        @get
-        op test1(): { @statusCode code: string, @body body: Foo };
-        @route("/test2")
-        @get
-        op test2(): { @statusCode code: "Ok", @body body: Foo };
-        @route("/test3")
-        @get
-        op test3(): { @statusCode code: "200" | BadRequest, @body body: Foo };
-      }
+      @route("/test1")
+      @get
+      op test1(): { @statusCode code: string, @body body: Foo };
+      @route("/test2")
+      @get
+      op test2(): { @statusCode code: "Ok", @body body: Foo };
+      @route("/test3")
+      @get
+      op test3(): { @statusCode code: "200" | BadRequest, @body body: Foo };
     `
     );
     expectDiagnostics(diagnostics, [
@@ -297,15 +256,9 @@ describe("openapi3: return types", () => {
   });
 
   it("defines responses with primitive types", async () => {
-    const res = await openApiFor(
-      `
-      @route("/")
-      namespace root {
-        @get()
-        op read(): string;
-      }
-      `
-    );
+    const res = await openApiFor(`
+      @get() op read(): string;
+      `);
     ok(res.paths["/"].get.responses["200"]);
     ok(res.paths["/"].get.responses["200"].content);
     strictEqual(
@@ -320,11 +273,7 @@ describe("openapi3: return types", () => {
       model Foo {
         foo: string;
       }
-      @route("/")
-      namespace root {
-        @get()
-        op read(): Foo[];
-      }
+      @get() op read(): Foo[];
       `
     );
     ok(res.paths["/"].get.responses["200"]);
@@ -338,10 +287,7 @@ describe("openapi3: return types", () => {
   it("return type with no properties should be 204 response w/ no content", async () => {
     const res = await openApiFor(
       `
-      @route("/")
-      namespace root {
-        @get op delete(): {};
-      }
+      @get op delete(): {};
       `
     );
 
@@ -352,14 +298,9 @@ describe("openapi3: return types", () => {
   });
 
   it("return type with only response metadata should be 204 response w/ no content", async () => {
-    const res = await openApiFor(
-      `
-      @route("/")
-      namespace root {
-        @get op delete(): {@header date: string};
-      }
-      `
-    );
+    const res = await openApiFor(`
+      @get op delete(): {@header date: string};
+    `);
 
     const responses = res.paths["/"].get.responses;
     ok(responses["204"]);
@@ -368,15 +309,9 @@ describe("openapi3: return types", () => {
   });
 
   it("defaults status code to 204 when implicit body has no content", async () => {
-    const res = await openApiFor(
-      `
-      @route("/")
-      namespace root {
-        @delete
-        op delete(): { @header date: string };
-      }
-      `
-    );
+    const res = await openApiFor(`
+      @delete op delete(): { @header date: string };
+      `);
     const responses = res.paths["/"].delete.responses;
     ok(responses["200"] === undefined);
     ok(responses["204"]);
@@ -396,11 +331,7 @@ describe("openapi3: return types", () => {
         foo: string;
       }
 
-      @route("/")
-      namespace root {
-        @get
-        op get(): Foo | Error;
-      }
+      @get op get(): Foo | Error;
       `
     );
     const responses = res.paths["/"].get.responses;
@@ -428,11 +359,7 @@ describe("openapi3: return types", () => {
         foo: string;
       }
 
-      @route("/")
-      namespace root {
-        @get
-        op get(): Foo | Error;
-      }
+      @get op get(): Foo | Error;
       `
     );
     const responses = res.paths["/"].get.responses;
@@ -461,11 +388,7 @@ describe("openapi3: return types", () => {
         foo: string;
       }
 
-      @route("/")
-      namespace root {
-        @get
-        op get(): Foo | Error;
-      }
+      @get op get(): Foo | Error;
       `
     );
     const responses = res.paths["/"].get.responses;
@@ -485,11 +408,7 @@ describe("openapi3: return types", () => {
   it("defines body schema when explicit body has no content", async () => {
     const res = await openApiFor(
       `
-      @route("/")
-      namespace root {
-        @delete
-        op delete(): { @header date: string, @body body: {} };
-      }
+      @delete op delete(): { @header date: string, @body body: {} };
       `
     );
     const responses = res.paths["/"].delete.responses;
@@ -500,14 +419,9 @@ describe("openapi3: return types", () => {
   });
 
   it("return type with only statusCode should have specified status code and no content", async () => {
-    const res = await openApiFor(
-      `
-      @route("/")
-      namespace root {
-        @get op create(): {@statusCode code: 201};
-      }
-      `
-    );
+    const res = await openApiFor(`
+      @get op create(): {@statusCode code: 201};
+    `);
 
     const responses = res.paths["/"].get.responses;
     ok(responses["201"]);
@@ -571,14 +485,9 @@ describe("openapi3: return types", () => {
 
   describe("binary responses", () => {
     it("bytes responses should default to application/json with byte format", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
+      const res = await openApiFor(`
         @get op read(): bytes;
-      }
-      `
-      );
+      `);
 
       const response = res.paths["/"].get.responses["200"];
       ok(response);
@@ -588,14 +497,9 @@ describe("openapi3: return types", () => {
     });
 
     it("@body body: bytes responses default to application/json with bytes format", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
+      const res = await openApiFor(`
         @get op read(): {@body body: bytes};
-      }
-      `
-      );
+      `);
 
       const response = res.paths["/"].get.responses["200"];
       ok(response);
@@ -605,14 +509,9 @@ describe("openapi3: return types", () => {
     });
 
     it("@header contentType text/plain should keep format to byte", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
+      const res = await openApiFor(`
         @get op read(): {@header contentType: "text/plain", @body body: bytes};
-      }
-      `
-      );
+      `);
 
       const response = res.paths["/"].get.responses["200"];
       ok(response);
@@ -622,14 +521,9 @@ describe("openapi3: return types", () => {
     });
 
     it("@header contentType not json or text should set format to binary", async () => {
-      const res = await openApiFor(
-        `
-      @route("/")
-      namespace root {
+      const res = await openApiFor(`
         @get op read(): {@header contentType: "image/png", @body body: bytes};
-      }
-      `
-      );
+      `);
 
       const response = res.paths["/"].get.responses["200"];
       ok(response);
