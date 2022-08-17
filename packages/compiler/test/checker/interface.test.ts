@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { InterfaceType, ModelType, Type } from "../../core/types.js";
+import { Interface, Model, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: interfaces", () => {
@@ -12,7 +12,7 @@ describe("compiler: interfaces", () => {
   it("works", async () => {
     const blues = new Set<Type>();
     testHost.addJsFile("test.js", {
-      $blue(p: any, t: InterfaceType) {
+      $blue(p: any, t: Interface) {
         blues.add(t);
       },
     });
@@ -27,7 +27,7 @@ describe("compiler: interfaces", () => {
     );
 
     const { Foo } = (await testHost.compile("./")) as {
-      Foo: InterfaceType;
+      Foo: Interface;
     };
 
     strictEqual(Foo.namespace, testHost.program.checker.getGlobalNamespaceType());
@@ -72,11 +72,11 @@ describe("compiler: interfaces", () => {
     );
 
     const { Foo } = (await testHost.compile("./")) as {
-      Foo: InterfaceType;
+      Foo: Interface;
     };
 
     strictEqual(Foo.operations.size, 1);
-    const returnType: ModelType = Foo.operations.get("bar")!.returnType as ModelType;
+    const returnType: Model = Foo.operations.get("bar")!.returnType as Model;
     strictEqual(returnType.kind, "Model");
     strictEqual(returnType.name, "int32");
   });
@@ -95,12 +95,12 @@ describe("compiler: interfaces", () => {
     );
 
     const { Foo } = (await testHost.compile("./")) as {
-      Foo: InterfaceType;
+      Foo: Interface;
     };
     strictEqual(Foo.operations.size, 2);
     ok(Foo.operations.get("foo"));
     ok(Foo.operations.get("bar"));
-    strictEqual((Foo.operations.get("bar")!.returnType as ModelType).name, "int32");
+    strictEqual((Foo.operations.get("bar")!.returnType as Model).name, "int32");
   });
 
   it("can extend two other interfaces", async () => {
@@ -118,19 +118,19 @@ describe("compiler: interfaces", () => {
     );
 
     const { Foo } = (await testHost.compile("./")) as {
-      Foo: InterfaceType;
+      Foo: Interface;
     };
     strictEqual(Foo.operations.size, 3);
     ok(Foo.operations.get("foo"));
     ok(Foo.operations.get("bar"));
     ok(Foo.operations.get("baz"));
-    strictEqual((Foo.operations.get("bar")!.returnType as ModelType).name, "int32");
+    strictEqual((Foo.operations.get("bar")!.returnType as Model).name, "int32");
   });
 
   it("doesn't copy interface decorators down when using extends", async () => {
     const blues = new Set<Type>();
     testHost.addJsFile("test.js", {
-      $blue(p: any, t: InterfaceType) {
+      $blue(p: any, t: Interface) {
         blues.add(t);
       },
     });
@@ -147,7 +147,7 @@ describe("compiler: interfaces", () => {
     );
 
     const { Bar } = (await testHost.compile("./")) as {
-      Bar: InterfaceType;
+      Bar: Interface;
     };
 
     ok(!blues.has(Bar));
@@ -158,7 +158,7 @@ describe("compiler: interfaces", () => {
     const blues = new Set<Type>();
     let calls = 0;
     testHost.addJsFile("test.js", {
-      $blue(p: any, t: InterfaceType) {
+      $blue(p: any, t: Interface) {
         calls++;
         blues.add(t);
       },
@@ -174,7 +174,7 @@ describe("compiler: interfaces", () => {
     );
 
     const { Bar } = (await testHost.compile("./")) as {
-      Bar: InterfaceType;
+      Bar: Interface;
     };
 
     strictEqual(calls, 2);
@@ -208,11 +208,11 @@ describe("compiler: interfaces", () => {
     );
 
     const { Foo } = (await testHost.compile("./")) as {
-      Foo: InterfaceType;
+      Foo: Interface;
     };
     strictEqual(Foo.operations.size, 1);
     ok(Foo.operations.get("bar"));
-    strictEqual((Foo.operations.get("bar")!.returnType as ModelType).name, "string");
+    strictEqual((Foo.operations.get("bar")!.returnType as Model).name, "string");
   });
 
   it("doesn't allow extending non-interfaces", async () => {

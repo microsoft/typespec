@@ -1,11 +1,11 @@
 import { strictEqual } from "assert";
 import { filterModelProperties, getEffectiveModelType } from "../../core/checker.js";
-import { DecoratorContext, ModelType, ModelTypeProperty, Type } from "../../core/types.js";
+import { DecoratorContext, Model, ModelProperty, Type } from "../../core/types.js";
 import { createTestHost, expectIdenticalTypes, TestHost } from "../../testing/index.js";
 
 describe("compiler: effective type", () => {
   let testHost: TestHost;
-  let removeFilter: (model: ModelTypeProperty) => boolean;
+  let removeFilter: (model: ModelProperty) => boolean;
 
   beforeEach(async () => {
     const removeSymbol = Symbol("remove");
@@ -15,7 +15,7 @@ describe("compiler: effective type", () => {
         program.stateSet(removeSymbol).add(entity);
       },
     });
-    removeFilter = (property: ModelTypeProperty) =>
+    removeFilter = (property: ModelProperty) =>
       !testHost.program.stateSet(removeSymbol).has(property);
   });
 
@@ -36,7 +36,7 @@ describe("compiler: effective type", () => {
     strictEqual(Source.kind, "Model" as const);
     strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("prop")?.type as ModelType;
+    const propType = Test.properties.get("prop")?.type as Model;
     const effective = getEffectiveModelType(testHost.program, propType);
     expectIdenticalTypes(effective, Source);
   });

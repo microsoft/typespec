@@ -1,10 +1,10 @@
 import { validateDecoratorTarget } from "../core/decorator-utils.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Program, ProjectedProgram } from "../core/program.js";
-import { DecoratorContext, NamespaceType, Projector, Type } from "../core/types.js";
+import { DecoratorContext, Namespace, Projector, Type } from "../core/types.js";
 
 interface ServiceDetails {
-  namespace?: NamespaceType;
+  namespace?: Namespace;
   title?: string;
   version?: string;
   host?: string;
@@ -23,7 +23,7 @@ function getServiceDetails(program: Program | ProjectedProgram) {
   return serviceDetails;
 }
 
-export function setServiceNamespace(program: Program, namespace: NamespaceType): void {
+export function setServiceNamespace(program: Program, namespace: Namespace): void {
   const serviceDetails = getServiceDetails(program);
   if (serviceDetails.namespace && serviceDetails.namespace !== namespace) {
     program.reportDiagnostic(
@@ -34,7 +34,7 @@ export function setServiceNamespace(program: Program, namespace: NamespaceType):
   serviceDetails.namespace = namespace;
 }
 
-export function checkIfServiceNamespace(program: Program, namespace: NamespaceType): boolean {
+export function checkIfServiceNamespace(program: Program, namespace: Namespace): boolean {
   const serviceDetails = getServiceDetails(program);
   return serviceDetails.namespace === namespace;
 }
@@ -89,7 +89,7 @@ export function getServiceVersion(program: Program): string {
   return serviceDetails.version || "0000-00-00";
 }
 
-export function getServiceNamespace(program: Program): NamespaceType | undefined {
+export function getServiceNamespace(program: Program): Namespace | undefined {
   const serviceDetails = getServiceDetails(program);
   return serviceDetails.namespace ?? program.checker.getGlobalNamespaceType();
 }
