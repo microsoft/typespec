@@ -11,7 +11,7 @@
    * Options that are only used when the PNPM package manager is selected
    */
   "pnpmOptions": {
-    "strictPeerDependencies": false
+    "strictPeerDependencies": true
   },
   "nodeSupportedVersionRange": ">=16.0.0",
   "suppressNodeLtsWarning": true,
