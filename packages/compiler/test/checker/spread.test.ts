@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { ModelType, Type } from "../../core/types.js";
+import { Model, Type } from "../../core/types.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -28,7 +28,7 @@ describe("compiler: spread", () => {
       model A { @blue foo: string }
       model B { @blue bar: string }
       @test model C { ... A, ... B }
-      `)) as { C: ModelType };
+      `)) as { C: Model };
 
     strictEqual(C.kind, "Model");
     strictEqual(C.properties.size, 2);

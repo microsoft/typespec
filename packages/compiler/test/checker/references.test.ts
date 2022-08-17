@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { EnumType, ModelType, OperationType, UnionTypeVariant } from "../../core/types.js";
+import { Enum, Model, Operation, UnionVariant } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: references", () => {
@@ -21,8 +21,8 @@ describe("compiler: references", () => {
     );
 
     const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-      Foo: ModelType;
-      Bar: ModelType;
+      Foo: Model;
+      Bar: Model;
     };
     strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("x"));
   });
@@ -45,8 +45,8 @@ describe("compiler: references", () => {
     );
 
     const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-      Foo: ModelType;
-      Bar: ModelType;
+      Foo: Model;
+      Bar: Model;
     };
 
     strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("y"));
@@ -69,9 +69,9 @@ describe("compiler: references", () => {
     );
 
     const { Foo, Bar, Base } = (await testHost.compile("./main.cadl")) as {
-      Foo: ModelType;
-      Bar: ModelType;
-      Base: ModelType;
+      Foo: Model;
+      Bar: Model;
+      Base: Model;
     };
 
     strictEqual(Foo.properties.get("x")!.type, Bar.properties.get("x"));
@@ -95,8 +95,8 @@ describe("compiler: references", () => {
     );
 
     const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-      Foo: ModelType;
-      Bar: ModelType;
+      Foo: Model;
+      Bar: Model;
     };
 
     strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("x"));
@@ -118,8 +118,8 @@ describe("compiler: references", () => {
     );
 
     const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-      Foo: ModelType;
-      Bar: ModelType;
+      Foo: Model;
+      Bar: Model;
     };
 
     strictEqual(Foo.properties.get("y")!.type, Bar.properties.get("x"));
@@ -139,8 +139,8 @@ describe("compiler: references", () => {
     );
 
     const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-      Foo: EnumType;
-      Bar: OperationType;
+      Foo: Enum;
+      Bar: Operation;
     };
 
     strictEqual(Foo.members[0], Bar.parameters.properties.get("arg")!.type);
@@ -160,8 +160,8 @@ describe("compiler: references", () => {
     );
 
     const { Foo, Bar } = (await testHost.compile("./main.cadl")) as {
-      Foo: EnumType;
-      Bar: OperationType;
+      Foo: Enum;
+      Bar: Operation;
     };
 
     strictEqual(Foo.members[0], Bar.parameters.properties.get("arg")!.type);
@@ -179,8 +179,8 @@ describe("compiler: references", () => {
     );
 
     const { x, Bar } = (await testHost.compile("./main.cadl")) as {
-      x: UnionTypeVariant;
-      Bar: ModelType;
+      x: UnionVariant;
+      Bar: Model;
     };
 
     strictEqual(x, Bar.properties.get("prop")!.type);
@@ -201,8 +201,8 @@ describe("compiler: references", () => {
     );
 
     const { x, Bar } = (await testHost.compile("./main.cadl")) as {
-      x: UnionTypeVariant;
-      Bar: ModelType;
+      x: UnionVariant;
+      Bar: Model;
     };
 
     strictEqual(x, Bar.properties.get("prop")!.type);
@@ -221,8 +221,8 @@ describe("compiler: references", () => {
     );
 
     const { operation, Bar } = (await testHost.compile("./main.cadl")) as {
-      operation: OperationType;
-      Bar: ModelType;
+      operation: Operation;
+      Bar: Model;
     };
 
     strictEqual(operation, Bar.properties.get("prop")!.type);
@@ -243,8 +243,8 @@ describe("compiler: references", () => {
     );
 
     const { operation, Bar } = (await testHost.compile("./main.cadl")) as {
-      operation: OperationType;
-      Bar: ModelType;
+      operation: Operation;
+      Bar: Model;
     };
 
     strictEqual(operation, Bar.properties.get("prop")!.type);
@@ -265,8 +265,8 @@ describe("compiler: references", () => {
     );
 
     const { operation, Bar } = (await testHost.compile("./main.cadl")) as {
-      operation: OperationType;
-      Bar: ModelType;
+      operation: Operation;
+      Bar: Model;
     };
 
     strictEqual(operation, Bar.properties.get("prop")!.type);

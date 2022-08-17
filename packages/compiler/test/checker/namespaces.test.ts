@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
-import { ModelType, NamespaceType, Type } from "../../core/types.js";
+import { Model, Namespace, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
@@ -27,9 +27,9 @@ describe("compiler: namespaces with blocks", () => {
       `
     );
     const { N, Y, Q } = (await testHost.compile("./")) as {
-      N: NamespaceType;
-      Y: NamespaceType;
-      Q: NamespaceType;
+      N: Namespace;
+      Y: Namespace;
+      Q: Namespace;
     };
 
     ok(blues.has(N), "N is blue");
@@ -66,10 +66,10 @@ describe("compiler: namespaces with blocks", () => {
       `
     );
     const { N, X, Y, Z } = (await testHost.compile("./")) as {
-      N: NamespaceType;
-      X: ModelType;
-      Y: ModelType;
-      Z: ModelType;
+      N: Namespace;
+      X: Model;
+      Y: Model;
+      Z: Model;
     };
     strictEqual(X.namespace, N);
     strictEqual(Y.namespace, N);
@@ -106,10 +106,10 @@ describe("compiler: namespaces with blocks", () => {
       `
     );
     const { N, X, Y, Z } = (await testHost.compile("./")) as {
-      N: NamespaceType;
-      X: ModelType;
-      Y: ModelType;
-      Z: ModelType;
+      N: Namespace;
+      X: Model;
+      Y: Model;
+      Z: Model;
     };
     strictEqual(X.namespace, N, "X namespace");
     strictEqual(Y.namespace, N, "Y namespace");
@@ -146,7 +146,7 @@ describe("compiler: namespaces with blocks", () => {
     );
 
     const { Z } = (await testHost.compile("./")) as {
-      Z: ModelType;
+      Z: Model;
     };
     strictEqual(Z.properties.size, 2, "has two properties");
   });
@@ -184,7 +184,7 @@ describe("compiler: namespaces with blocks", () => {
     );
 
     const { N } = (await testHost.compile("./")) as {
-      N: NamespaceType;
+      N: Namespace;
     };
 
     ok(reds.has(N), "is ultimately red"); // passes
@@ -241,7 +241,7 @@ describe("compiler: namespaces with blocks", () => {
     );
 
     const { N } = (await testHost.compile("./")) as {
-      N: NamespaceType;
+      N: Namespace;
     };
 
     ok(reds.has(N), "is ultimately red"); // passes
@@ -308,7 +308,7 @@ describe("compiler: namespaces with blocks", () => {
     );
 
     const { Foo } = (await testHost.compile("./")) as {
-      Foo: NamespaceType;
+      Foo: Namespace;
     };
 
     strictEqual(Foo.operations.size, 1);
@@ -376,7 +376,7 @@ describe("compiler: blockless namespaces", () => {
       `
     );
     const { Z } = (await testHost.compile("./")) as {
-      Z: ModelType;
+      Z: Model;
     };
     strictEqual(Z.properties.size, 2, "has two properties");
   });
@@ -461,8 +461,8 @@ describe("compiler: blockless namespaces", () => {
       `
     );
     const { N, M } = (await testHost.compile("./")) as {
-      N: NamespaceType;
-      M: NamespaceType;
+      N: Namespace;
+      M: Namespace;
     };
 
     ok(M.namespace);
@@ -496,8 +496,8 @@ describe("compiler: blockless namespaces", () => {
       `
     );
     const { M, O } = (await testHost.compile("./")) as {
-      M: NamespaceType;
-      O: NamespaceType;
+      M: Namespace;
+      O: Namespace;
     };
 
     ok(M.namespace);
@@ -536,7 +536,7 @@ describe("compiler: blockless namespaces", () => {
     );
 
     const { Foo } = (await testHost.compile("./a.cadl")) as {
-      Foo: NamespaceType;
+      Foo: Namespace;
     };
 
     strictEqual(Foo.operations.size, 1);

@@ -1,5 +1,5 @@
 import { Program } from "./program.js";
-import { NamespaceType, TemplateDeclarationNode, TemplatedType, Type } from "./types.js";
+import { Namespace, TemplateDeclarationNode, TemplatedType, Type } from "./types.js";
 
 /**
  * Check if the given type has template arguments.
@@ -38,7 +38,7 @@ export function isTemplateDeclarationOrInstance(type: TemplatedType): boolean {
 
 export function isGlobalNamespace(
   program: Program,
-  namespace: NamespaceType
-): namespace is NamespaceType & { name: "" } {
+  namespace: Namespace
+): namespace is Namespace & { name: "" } {
   return program.checker.getGlobalNamespaceType() === namespace;
 }

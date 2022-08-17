@@ -1,6 +1,6 @@
 import { match, rejects, strictEqual } from "assert";
 import { getSourceLocation } from "../../core/index.js";
-import { ModelType } from "../../core/types.js";
+import { Model } from "../../core/types.js";
 import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
 
 describe("compiler: using statements", () => {
@@ -34,7 +34,7 @@ describe("compiler: using statements", () => {
     );
 
     const { Y } = (await testHost.compile("./")) as {
-      Y: ModelType;
+      Y: Model;
     };
 
     strictEqual(Y.properties.size, 1);
@@ -65,7 +65,7 @@ describe("compiler: using statements", () => {
     );
 
     const { Y } = (await testHost.compile("./")) as {
-      Y: ModelType;
+      Y: Model;
     };
 
     strictEqual(Y.properties.size, 1);
@@ -95,7 +95,7 @@ describe("compiler: using statements", () => {
     );
 
     const { Y } = (await testHost.compile("./")) as {
-      Y: ModelType;
+      Y: Model;
     };
 
     strictEqual(Y.properties.size, 1);
@@ -312,7 +312,7 @@ describe("compiler: using statements", () => {
     );
 
     const { B } = (await testHost.compile("./")) as {
-      B: ModelType;
+      B: Model;
     };
     strictEqual(B.properties.size, 1);
     strictEqual(B.properties.get("a")!.type.kind, "Union");

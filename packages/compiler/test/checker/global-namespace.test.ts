@@ -1,5 +1,5 @@
 import assert, { notStrictEqual } from "assert";
-import { ModelType } from "../../core/types.js";
+import { Model } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
 describe("compiler: global namespace", () => {
@@ -103,7 +103,7 @@ describe("compiler: global namespace", () => {
   it("can override cadl library things", async () => {
     testHost.addCadlFile("./main.cadl", `@test model int32 { x: Cadl.int32 }`);
 
-    const { int32 } = (await testHost.compile("./")) as { int32: ModelType };
+    const { int32 } = (await testHost.compile("./")) as { int32: Model };
     notStrictEqual(int32, int32.properties.get("x")!.type);
   });
 });

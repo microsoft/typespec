@@ -3,17 +3,17 @@ import { Program } from "../../core/program.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
-  EnumMemberType,
-  EnumType,
-  InterfaceType,
-  ModelType,
-  NamespaceType,
-  NumericLiteralType,
-  OperationType,
+  Enum,
+  EnumMember,
+  Interface,
+  Model,
+  Namespace,
+  NumericLiteral,
+  Operation,
   ProjectionApplication,
-  StringLiteralType,
+  StringLiteral,
   Type,
-  UnionType,
+  Union,
 } from "../../core/types.js";
 import { getDoc } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
@@ -46,7 +46,7 @@ describe("cadl: projections", () => {
         }
       }
      `;
-    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as Model;
     strictEqual(
       result.namespace?.namespace?.name,
       "Bar",
@@ -69,7 +69,7 @@ describe("cadl: projections", () => {
       model MyModel {}
      }
      `;
-    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as Model;
     strictEqual(result.namespace?.namespace?.name, "MyOrg");
   });
 
@@ -77,7 +77,7 @@ describe("cadl: projections", () => {
   it("projects nested namespaces with common parent and decorator referencing each others content", async () => {
     const sym = Symbol("test-ref");
     testHost.addJsFile("./ref.js", {
-      $ref: (context: DecoratorContext, target: NamespaceType, value: Type) =>
+      $ref: (context: DecoratorContext, target: Namespace, value: Type) =>
         context.program.stateMap(sym).set(target, value),
     });
     const code = `
@@ -97,7 +97,7 @@ describe("cadl: projections", () => {
 
      }
      `;
-    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as Model;
     strictEqual(result.namespace?.namespace?.name, "MyOrg");
     const map = testHost.program.stateMap(sym);
     const myModelProjected = testHost.program
@@ -131,10 +131,10 @@ describe("cadl: projections", () => {
       }
     `;
 
-    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as Model;
     strictEqual(result.properties.size, 1);
 
-    const result2 = (await testProjection(code, [projection("v", 2)])) as ModelType;
+    const result2 = (await testProjection(code, [projection("v", 2)])) as Model;
     strictEqual(result2.properties.size, 2);
   });
 
@@ -152,7 +152,7 @@ describe("cadl: projections", () => {
         }
       }
     `;
-    const result = (await testProjection(code)) as ModelType;
+    const result = (await testProjection(code)) as Model;
     strictEqual(getDoc(testHost.program, result), "This is a model Foo");
     strictEqual(getDoc(testHost.program, result.properties.get("a")!), "Prop");
   });
@@ -160,7 +160,7 @@ describe("cadl: projections", () => {
   it("projects decorated types before projecting", async () => {
     let props;
     testHost.addJsFile("test.js", {
-      $checkPropCount(_: Program, t: ModelType) {
+      $checkPropCount(_: Program, t: Model) {
         props = t.properties.size;
       },
     });
@@ -203,7 +203,7 @@ describe("cadl: projections", () => {
         }
       `;
 
-    const result = (await testProjection(code)) as ModelType;
+    const result = (await testProjection(code)) as Model;
     const value = result.properties.get("value");
     ok(value);
     strictEqual(value.type.kind, "Number");
@@ -215,17 +215,17 @@ describe("cadl: projections", () => {
       const removedOnKey = Symbol("removedOn");
       const renamedFromKey = Symbol("renamedFrom");
       testHost.addJsFile("versioning.js", {
-        $added({ program }: DecoratorContext, t: Type, v: NumericLiteralType) {
+        $added({ program }: DecoratorContext, t: Type, v: NumericLiteral) {
           program.stateMap(addedOnKey).set(t, v);
         },
-        $removed({ program }: DecoratorContext, t: Type, v: NumericLiteralType) {
+        $removed({ program }: DecoratorContext, t: Type, v: NumericLiteral) {
           program.stateMap(removedOnKey).set(t, v);
         },
         $renamedFrom(
           { program }: DecoratorContext,
           t: Type,
-          v: NumericLiteralType,
-          oldName: StringLiteralType
+          v: NumericLiteral,
+          oldName: StringLiteral
         ) {
           const record = { v, oldName };
           program.stateMap(renamedFromKey).set(t, record);
@@ -284,14 +284,14 @@ describe("cadl: projections", () => {
         }
       `;
 
-      const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+      const result = (await testProjection(code, [projection("v", 1)])) as Model;
       strictEqual(result.properties.size, 4);
-      const resultNested = result.properties.get("e")!.type as ModelType;
+      const resultNested = result.properties.get("e")!.type as Model;
       strictEqual(resultNested.properties.size, 1);
 
-      const result2 = (await testProjection(code, [projection("v", 2)])) as ModelType;
+      const result2 = (await testProjection(code, [projection("v", 2)])) as Model;
       strictEqual(result2.properties.size, 4);
-      const resultNested2 = result2.properties.get("e")!.type as ModelType;
+      const resultNested2 = result2.properties.get("e")!.type as Model;
       strictEqual(resultNested2.properties.size, 2);
     });
 
@@ -318,21 +318,21 @@ describe("cadl: projections", () => {
         }
         `;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       const propOne = result.properties.get("propOne")!;
       ok(propOne, "has propOne");
-      const nestedProp = (propOne.type as ModelType).properties.get("nestedProp")!;
+      const nestedProp = (propOne.type as Model).properties.get("nestedProp")!;
       ok(nestedProp, "has nestedProp");
 
       const backResult = (await testProjection(
         code,
         [projection("test", [], "from")],
         result
-      )) as ModelType;
+      )) as Model;
 
       const prop_one = backResult.properties.get("prop_one")!;
       ok(prop_one, "has prop_one");
-      const nested_prop = (prop_one.type as ModelType).properties.get("nested_prop")!;
+      const nested_prop = (prop_one.type as Model).properties.get("nested_prop")!;
       ok(nested_prop, "has nested_prop");
     });
 
@@ -349,7 +349,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Model");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.models.get("Bar"), result);
@@ -373,13 +373,13 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Intrinsic");
       strictEqual(result.name, "void");
     });
 
     describe("renaming properties", () => {
-      async function testRenameProjection(verb: string, modelCode?: string): Promise<ModelType> {
+      async function testRenameProjection(verb: string, modelCode?: string): Promise<Model> {
         const defaultModelCode = `
           @test model Foo {
             foo_prop: string;
@@ -397,7 +397,7 @@ describe("cadl: projections", () => {
             }
           }
         `;
-        return (await testProjection(code)) as ModelType;
+        return (await testProjection(code)) as Model;
       }
 
       it("can round trip", async () => {
@@ -421,14 +421,14 @@ describe("cadl: projections", () => {
             }
           }
           `;
-        const cased = (await testProjection(code, [projection("toCamelCase")])) as ModelType;
+        const cased = (await testProjection(code, [projection("toCamelCase")])) as Model;
         ok(cased.properties.has("fooProp"));
         ok(cased.properties.has("barProp"));
         const uncased = (await testProjection(
           code,
           [projection("toCamelCase", [], "from")],
           cased
-        )) as ModelType;
+        )) as Model;
         ok(uncased.properties.has("foo_prop"));
         ok(uncased.properties.has("bar_prop"));
       });
@@ -498,16 +498,16 @@ describe("cadl: projections", () => {
       ${projectionCode(body)}
     `;
 
-    function assertHasVariant(union: UnionType, name: string) {
+    function assertHasVariant(union: Union, name: string) {
       const variant = union.variants.get(name);
       ok(variant, `Union ${union.name ?? "anonymous"} should have variant named ${name}`);
       strictEqual(variant.name, name);
     }
 
-    function assertVariantType(union: UnionType, variantName: string, typeName: string) {
+    function assertVariantType(union: Union, variantName: string, typeName: string) {
       assertHasVariant(union, variantName);
       const variant = union.variants.get(variantName)!;
-      strictEqual((variant.type as ModelType).name, typeName);
+      strictEqual((variant.type as Model).name, typeName);
     }
 
     it("can rename itself", async () => {
@@ -521,7 +521,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Union");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.unions.get("Bar"), result);
@@ -533,7 +533,7 @@ describe("cadl: projections", () => {
         });
       `);
 
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       assertHasVariant(result, "barProp");
       assertHasVariant(result, "bazProp");
     });
@@ -542,21 +542,21 @@ describe("cadl: projections", () => {
       const code = defaultCode(`
         self.bar_prop::setType(int16);
       `);
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       assertVariantType(result, "bar_prop", "int16");
     });
     it("can add variant types", async () => {
       const code = defaultCode(`
         self::addVariant("new", int16);
       `);
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       assertVariantType(result, "new", "int16");
     });
     it("can remove variant types", async () => {
       const code = defaultCode(`
         self::deleteVariant("bar_prop");
       `);
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       ok(!result.variants.has("bar_prop"));
     });
 
@@ -575,7 +575,7 @@ describe("cadl: projections", () => {
         }
       `;
 
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       strictEqual(result.variants.size, 1);
       ok(result.variants.has("a"));
       ok(!result.variants.has("b"));
@@ -597,8 +597,8 @@ describe("cadl: projections", () => {
         }
         `
       );
-      const { Foo } = (await testHost.compile("main.cadl")) as { Foo: OperationType };
-      const result = testHost.program.checker.project(Foo, Foo.projections[0].to!) as ModelType;
+      const { Foo } = (await testHost.compile("main.cadl")) as { Foo: Operation };
+      const result = testHost.program.checker.project(Foo, Foo.projections[0].to!) as Model;
       strictEqual(result.properties.get("x")!.type.kind, "Model");
       strictEqual(result.properties.get("y")!.type.kind, "Intrinsic");
     });
@@ -614,7 +614,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Operation");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.operations.get("Bar"), result);
@@ -644,7 +644,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Interface");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.interfaces.get("Bar"), result);
@@ -652,7 +652,7 @@ describe("cadl: projections", () => {
 
     it("can add members", async () => {
       const code = defaultCode(`self::addOperation("bar", {param: string}, void);`);
-      const FooProj = (await testProjection(code)) as InterfaceType;
+      const FooProj = (await testProjection(code)) as Interface;
       const newOp = FooProj.operations.get("bar");
       ok(newOp);
       strictEqual(newOp.parameters.properties.size, 1);
@@ -661,14 +661,14 @@ describe("cadl: projections", () => {
 
     it("can remove members", async () => {
       const code = defaultCode(`self::deleteOperation("op1");`);
-      const FooProj = (await testProjection(code)) as InterfaceType;
+      const FooProj = (await testProjection(code)) as Interface;
 
       strictEqual(FooProj.operations.size, 0);
     });
 
     it("can rename members", async () => {
       const code = defaultCode(`self::renameOperation("op1", "op2");`);
-      const FooProj = (await testProjection(code)) as InterfaceType;
+      const FooProj = (await testProjection(code)) as Interface;
 
       ok(FooProj.operations.get("op2"));
     });
@@ -698,7 +698,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Enum");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.enums.get("Bar"), result);
@@ -706,7 +706,7 @@ describe("cadl: projections", () => {
 
     it("can add members", async () => {
       const code = defaultCode(`self::addMember("three", 3);`);
-      const result = (await testProjection(code)) as EnumType;
+      const result = (await testProjection(code)) as Enum;
       strictEqual(result.members.length, 3);
       const newMember = result.members[2];
       strictEqual(newMember.name, "three");
@@ -714,12 +714,12 @@ describe("cadl: projections", () => {
     });
     it("can delete members", async () => {
       const code = defaultCode(`self::deleteMember("two");`);
-      const result = (await testProjection(code)) as EnumType;
+      const result = (await testProjection(code)) as Enum;
       strictEqual(result.members.length, 1);
     });
     it("can rename members", async () => {
       const code = defaultCode(`self::renameMember("two", "mewtwo");`);
-      const result = (await testProjection(code)) as EnumType;
+      const result = (await testProjection(code)) as Enum;
       const newMember = result.members[1];
       strictEqual(newMember.name, "mewtwo");
     });
@@ -734,9 +734,9 @@ describe("cadl: projections", () => {
         
         enum Bar {a, b}
       
-      `)) as ModelType;
+      `)) as Model;
 
-      const a = result.properties.get("a")!.type as EnumMemberType;
+      const a = result.properties.get("a")!.type as EnumMember;
       const Bar = result.properties.get("bar")!.type;
       strictEqual(a.enum, Bar);
     });
