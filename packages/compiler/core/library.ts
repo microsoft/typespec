@@ -2,12 +2,12 @@ import { createDiagnosticCreator } from "./diagnostics.js";
 import { CadlLibrary, CadlLibraryDef, CallableMessage, DiagnosticMessages } from "./types.js";
 
 const globalLibraryUrlLoadedSym = Symbol.for("CADL_LIBRARY_URL_LOADED");
-(global as any)[globalLibraryUrlLoadedSym] = new Set<string>();
+(globalThis as any)[globalLibraryUrlLoadedSym] = new Set<string>();
 
 /**
  * @internal List of urls that used `createCadlLibary`. Used to keep track of the loaded version of library and make sure they are compatible.
  */
-export const LIBRARIES_URL_LOADED = (global as any)[globalLibraryUrlLoadedSym];
+export const LIBRARIES_URL_LOADED = (globalThis as any)[globalLibraryUrlLoadedSym];
 
 /**
  * Create a new Cadl library definition.
