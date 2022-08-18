@@ -11,10 +11,10 @@ import {
   setCadlNamespace,
   Type,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./diagnostics.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 
-const producesTypesKey = Symbol("producesTypes");
+const producesTypesKey = createStateSymbol("producesTypes");
 
 const producesDecorator = createDecoratorDefinition({
   name: "@produces",
@@ -38,7 +38,7 @@ export function getProduces(program: Program, entity: Type): string[] {
   return program.stateMap(producesTypesKey).get(entity) || [];
 }
 
-const consumesTypesKey = Symbol("consumesTypes");
+const consumesTypesKey = createStateSymbol("consumesTypes");
 const consumeDefinition = createDecoratorDefinition({
   name: "@consumes",
   target: "Namespace",
@@ -64,7 +64,7 @@ export interface Discriminator {
   propertyName: string;
 }
 
-const discriminatorKey = Symbol("discriminator");
+const discriminatorKey = createStateSymbol("discriminator");
 
 const discriminatorDecorator = createDecoratorDefinition({
   name: "@discriminator",
@@ -94,7 +94,7 @@ const segmentDecorator = createDecoratorDefinition({
   args: [{ kind: "String" }],
 } as const);
 
-const segmentsKey = Symbol("segments");
+const segmentsKey = createStateSymbol("segments");
 
 /**
  * `@segment` defines the preceding path segment for a `@path` parameter in auto-generated routes
@@ -151,7 +151,7 @@ export function getSegment(program: Program, entity: Type): string | undefined {
   return program.stateMap(segmentsKey).get(entity);
 }
 
-const segmentSeparatorsKey = Symbol("segmentSeparators");
+const segmentSeparatorsKey = createStateSymbol("segmentSeparators");
 
 const segmentSeparatorDecorator = createDecoratorDefinition({
   name: "@segmentSeparator",
@@ -244,7 +244,7 @@ export interface ResourceOperation {
   resourceType: Model;
 }
 
-const resourceOperationsKey = Symbol("resourceOperations");
+const resourceOperationsKey = createStateSymbol("resourceOperations");
 
 interface ResourceOperationValidator extends DecoratorValidator<"Operation", [{ kind: "Model" }]> {}
 
@@ -402,7 +402,7 @@ const actionDecorator = createDecoratorDefinition({
   args: [{ kind: "String", optional: true }],
 } as const);
 
-const actionsKey = Symbol("actions");
+const actionsKey = createStateSymbol("actions");
 export function $action(context: DecoratorContext, entity: Operation, name?: string) {
   if (!actionDecorator.validate(context, entity, [name])) {
     return;
@@ -419,7 +419,7 @@ export function getAction(program: Program, operation: Operation): string | null
   return program.stateMap(actionsKey).get(operation);
 }
 
-const collectionActionsKey = Symbol("collectionActions");
+const collectionActionsKey = createStateSymbol("collectionActions");
 
 const collectionActionDecorator = createDecoratorDefinition({
   name: "@collectionAction",
@@ -461,7 +461,7 @@ export function getCollectionAction(
   return program.stateMap(collectionActionsKey).get(operation);
 }
 
-const resourceLocationsKey = Symbol("resourceLocations");
+const resourceLocationsKey = createStateSymbol("resourceLocations");
 
 const resourceLocationDecorator = createDecoratorDefinition({
   name: "@resourceLocation",

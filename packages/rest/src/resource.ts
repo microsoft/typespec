@@ -10,16 +10,16 @@ import {
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./diagnostics.js";
 import { $path } from "./http/decorators.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 export interface ResourceKey {
   resourceType: Model;
   keyProperty: ModelProperty;
 }
 
-const resourceKeysKey = Symbol("resourceKeys");
-const resourceTypeForKeyParamKey = Symbol("resourceTypeForKeyParam");
+const resourceKeysKey = createStateSymbol("resourceKeys");
+const resourceTypeForKeyParamKey = createStateSymbol("resourceTypeForKeyParam");
 
 export function setResourceTypeKey(
   program: Program,
@@ -164,7 +164,7 @@ export function $copyResourceKeyParameters(
   }
 }
 
-const parentResourceTypesKey = Symbol("parentResourceTypes");
+const parentResourceTypesKey = createStateSymbol("parentResourceTypes");
 export function getParentResource(program: Program, resourceType: Model): Model | undefined {
   return program.stateMap(parentResourceTypesKey).get(resourceType);
 }
