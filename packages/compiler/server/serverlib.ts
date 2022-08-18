@@ -779,11 +779,18 @@ export function createServer(host: ServerHost): Server {
   ) {
     const filteredKeywords = keywords.filter(([_, x]) => area in x);
     for (const [keyword] of filteredKeywords) {
-      completions.items.push({
-        label: keyword,
-        detail: detail,
-        kind: CompletionItemKind.Keyword,
-      });
+      if (detail) {
+        completions.items.push({
+          label: keyword,
+          detail: detail,
+          kind: CompletionItemKind.Keyword,
+        });
+      } else {
+        completions.items.push({
+          label: keyword,
+          kind: CompletionItemKind.Keyword,
+        });
+      }
     }
   }
 
@@ -818,12 +825,20 @@ export function createServer(host: ServerHost): Server {
           program.reportDiagnostic
         );
         if (libPackageJson.cadlMain != undefined) {
-          completions.items.push({
-            label: dependency,
-            commitCharacters: [],
-            detail: detail,
-            kind: CompletionItemKind.Module,
-          });
+          if (detail) {
+            completions.items.push({
+              label: dependency,
+              commitCharacters: [],
+              detail: detail,
+              kind: CompletionItemKind.Module,
+            });
+          } else {
+            completions.items.push({
+              label: dependency,
+              commitCharacters: [],
+              kind: CompletionItemKind.Module,
+            });
+          }
         }
       }
     }
@@ -866,20 +881,36 @@ export function createServer(host: ServerHost): Server {
         case ".cadl":
         case ".js":
         case ".mjs":
-          completions.items.push({
-            label: file,
-            detail: detail,
-            commitCharacters: [],
-            kind: CompletionItemKind.File,
-          });
+          if (detail) {
+            completions.items.push({
+              label: file,
+              detail: detail,
+              commitCharacters: [],
+              kind: CompletionItemKind.File,
+            });
+          } else {
+            completions.items.push({
+              label: file,
+              commitCharacters: [],
+              kind: CompletionItemKind.File,
+            });
+          }
           break;
         case "":
-          completions.items.push({
-            label: file,
-            detail: detail,
-            commitCharacters: [],
-            kind: CompletionItemKind.Folder,
-          });
+          if (detail) {
+            completions.items.push({
+              label: file,
+              detail: detail,
+              commitCharacters: [],
+              kind: CompletionItemKind.Folder,
+            });
+          } else {
+            completions.items.push({
+              label: file,
+              commitCharacters: [],
+              kind: CompletionItemKind.Folder,
+            });
+          }
           break;
       }
     }
@@ -915,13 +946,21 @@ export function createServer(host: ServerHost): Server {
         kind = getCompletionItemKind(program, type);
         deprecated = isDeprecated(program, type);
       }
-      const item: CompletionItem = {
+      let item: CompletionItem = {
         label: label ?? key,
         documentation,
         kind,
-        detail: detail,
         insertText: key,
       };
+      if (detail) {
+        item = {
+          label: label ?? key,
+          documentation,
+          kind,
+          detail: detail,
+          insertText: key,
+        };
+      }
       if (deprecated) {
         item.tags = [CompletionItemTag.Deprecated];
       }
