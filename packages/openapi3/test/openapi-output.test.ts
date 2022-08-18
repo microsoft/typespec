@@ -817,43 +817,6 @@ describe("openapi3: definitions", () => {
   });
 });
 
-describe("openapi3: primitives", () => {
-  const cases = [
-    ["int8", { type: "integer", format: "int8" }],
-    ["int16", { type: "integer", format: "int16" }],
-    ["int32", { type: "integer", format: "int32" }],
-    ["int64", { type: "integer", format: "int64" }],
-    ["safeint", { type: "integer", format: "int64" }],
-    ["uint8", { type: "integer", format: "uint8" }],
-    ["uint16", { type: "integer", format: "uint16" }],
-    ["uint32", { type: "integer", format: "uint32" }],
-    ["uint64", { type: "integer", format: "uint64" }],
-    ["float32", { type: "number", format: "float" }],
-    ["float64", { type: "number", format: "double" }],
-    ["string", { type: "string" }],
-    ["boolean", { type: "boolean" }],
-    ["plainDate", { type: "string", format: "date" }],
-    ["zonedDateTime", { type: "string", format: "date-time" }],
-    ["plainTime", { type: "string", format: "time" }],
-    ["duration", { type: "string", format: "duration" }],
-    ["bytes", { type: "string", format: "byte" }],
-  ];
-
-  for (const test of cases) {
-    it("knows schema for " + test[0], async () => {
-      const res = await oapiForModel(
-        "Pet",
-        `
-        model Pet { name: ${test[0]} };
-        `
-      );
-
-      const schema = res.schemas.Pet.properties.name;
-      deepStrictEqual(schema, test[1]);
-    });
-  }
-});
-
 describe("openapi3: literals", () => {
   const cases = [
     ["1", { type: "number", enum: [1] }],

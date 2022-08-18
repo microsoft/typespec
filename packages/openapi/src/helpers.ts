@@ -2,8 +2,8 @@ import {
   getFriendlyName,
   getServiceNamespace,
   isTemplateInstance,
-  ModelTypeProperty,
-  OperationType,
+  ModelProperty,
+  Operation,
   Program,
   Type,
   TypeNameOptions,
@@ -78,7 +78,7 @@ export function getTypeName(
  */
 export function getParameterKey(
   program: Program,
-  propery: ModelTypeProperty,
+  propery: ModelProperty,
   newParam: unknown,
   existingParams: Record<string, unknown>,
   options: TypeNameOptions
@@ -115,7 +115,7 @@ export function getParameterKey(
  * @param operation Operation
  * @returns Operation ID in this format <name> or <group>_<name>
  */
-export function resolveOperationId(program: Program, operation: OperationType) {
+export function resolveOperationId(program: Program, operation: Operation) {
   const explicitOperationId = getOperationId(program, operation);
   if (explicitOperationId) {
     return explicitOperationId;

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Api: Service Authentication oauth2 flow scopes is now an object with value and description",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

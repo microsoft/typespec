@@ -2,6 +2,50 @@
   "name": "@cadl-lang/openapi",
   "entries": [
     {
+      "version": "0.11.0",
+      "tag": "@cadl-lang/openapi_v0.11.0",
+      "date": "Thu, 11 Aug 2022 19:05:23 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake changes to type relations"
+          },
+          {
+            "comment": "Inline generic instantiations without `@friendlyName`"
+          },
+          {
+            "comment": "Added helper to resolve operation id"
+          },
+          {
+            "comment": "Internal: Uptake new compiler helpers to work with template types"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.33.0` to `~0.34.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.1` to `~0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.2` to `~0.1.3`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-plugin\" from `~0.1.0` to `~0.1.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.33.0` to `~0.34.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.1` to `~0.16.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.1",
       "tag": "@cadl-lang/openapi_v0.10.1",
       "date": "Fri, 08 Jul 2022 23:22:57 GMT",

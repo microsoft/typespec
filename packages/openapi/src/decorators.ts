@@ -3,8 +3,8 @@ import {
   CadlValue,
   createDecoratorDefinition,
   DecoratorContext,
-  ModelType,
-  OperationType,
+  Model,
+  Operation,
   Program,
   Type,
 } from "@cadl-lang/compiler";
@@ -26,7 +26,7 @@ const operationIdDecorator = createDecoratorDefinition({
  * @param entity Decorator target
  * @param opId Operation ID.
  */
-export function $operationId(context: DecoratorContext, entity: OperationType, opId: string) {
+export function $operationId(context: DecoratorContext, entity: Operation, opId: string) {
   if (!operationIdDecorator.validate(context, entity, [opId])) {
     return;
   }
@@ -36,7 +36,7 @@ export function $operationId(context: DecoratorContext, entity: OperationType, o
 /**
  * @returns operationId set via the @operationId decorator or `undefined`
  */
-export function getOperationId(program: Program, entity: OperationType): string | undefined {
+export function getOperationId(program: Program, entity: Operation): string | undefined {
   return program.stateMap(operationIdsKey).get(entity);
 }
 
@@ -103,7 +103,7 @@ const defaultResponseDecorator = createDecoratorDefinition({
  *
  */
 const defaultResponseKey = Symbol("defaultResponse");
-export function $defaultResponse(context: DecoratorContext, entity: ModelType) {
+export function $defaultResponse(context: DecoratorContext, entity: Model) {
   if (!defaultResponseDecorator.validate(context, entity, [])) {
     return;
   }

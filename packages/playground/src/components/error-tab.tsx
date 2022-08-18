@@ -28,7 +28,7 @@ export const InternalCompilerError: FunctionComponent<InternalCompilerErrorProps
       <div className="internal-server-error">
         <h3>Internal Compiler error</h3>
         <div>File issue at https://github.com/microsoft/cadl</div>
-        <hr/>
+        <hr />
         <div>{error.stack}</div>
       </div>
     </div>

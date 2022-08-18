@@ -1,6 +1,6 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
 import { getSourceLocation } from "../../core/diagnostics.js";
-import { Diagnostic, ModelType, StringLiteralType } from "../../core/types.js";
+import { Diagnostic, Model, StringLiteral } from "../../core/types.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -100,13 +100,13 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
-    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual((a.type as StringLiteral).value, "bye");
     strictEqual(b.type.kind, "String");
-    strictEqual((b.type as StringLiteralType).value, "hi");
+    strictEqual((b.type as StringLiteral).value, "hi");
   });
 
   it("allows default template parameters that are models", async () => {
@@ -120,10 +120,10 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const a = A.properties.get("a")!;
     strictEqual(a.type.kind, "Model");
-    strictEqual((a.type as ModelType).name, "string");
+    strictEqual((a.type as Model).name, "string");
   });
 
   it("template instance should be the exact same when passing value that is the same as the default", async () => {
@@ -139,7 +139,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { Test } = (await testHost.compile("main.cadl")) as { Test: ModelType };
+    const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
     const a = Test.properties.get("a")!;
     const b = Test.properties.get("b")!;
     const c = Test.properties.get("c")!;
@@ -234,13 +234,13 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
-    strictEqual((a.type as StringLiteralType).value, "bye");
+    strictEqual((a.type as StringLiteral).value, "bye");
     strictEqual(b.type.kind, "String");
-    strictEqual((b.type as StringLiteralType).value, "bye");
+    strictEqual((b.type as StringLiteral).value, "bye");
   });
 
   it("can reference other parameters in default in a model expression", async () => {
@@ -254,7 +254,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const b = A.properties.get("b")!;
     strictEqual(b.type.kind, "Model" as const);
     const t = b.type.properties.get("t")!.type;
@@ -277,7 +277,7 @@ describe("compiler: templates", () => {
       `
     );
 
-    const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+    const { A } = (await testHost.compile("main.cadl")) as { A: Model };
     const b = A.properties.get("b")!;
     strictEqual(b.type.kind, "Model" as const);
     const t = b.type.properties.get("t")!.type;
