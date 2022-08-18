@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi3",
+      "comment": "Uptake changes to http service authentication oauth2 scopes",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi3"
+}

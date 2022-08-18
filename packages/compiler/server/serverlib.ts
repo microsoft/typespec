@@ -611,6 +611,7 @@ export function createServer(host: ServerHost): Server {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
       return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
     });
+
     return getLocations(sym?.declarations);
   }
 

@@ -17,7 +17,7 @@ import {
   validateDecoratorParamCount,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
 import { extractParamsFromPath } from "../utils.js";
 import { AuthenticationOption, HttpAuth, ServiceAuthentication } from "./types.js";
 
@@ -28,7 +28,7 @@ const headerDecorator = createDecoratorDefinition({
   target: "ModelProperty",
   args: [{ kind: "String", optional: true }],
 } as const);
-const headerFieldsKey = Symbol("header");
+const headerFieldsKey = createStateSymbol("header");
 export function $header(context: DecoratorContext, entity: ModelProperty, headerName?: string) {
   if (!headerDecorator.validate(context, entity, [headerName])) {
     return;
@@ -53,7 +53,7 @@ const queryDecorator = createDecoratorDefinition({
   target: "ModelProperty",
   args: [{ kind: "String", optional: true }],
 } as const);
-const queryFieldsKey = Symbol("query");
+const queryFieldsKey = createStateSymbol("query");
 export function $query(context: DecoratorContext, entity: ModelProperty, queryKey?: string) {
   if (!queryDecorator.validate(context, entity, [queryKey])) {
     return;
@@ -78,7 +78,7 @@ const pathDecorator = createDecoratorDefinition({
   target: "ModelProperty",
   args: [{ kind: "String", optional: true }],
 } as const);
-const pathFieldsKey = Symbol("path");
+const pathFieldsKey = createStateSymbol("path");
 export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
   if (!pathDecorator.validate(context, entity, [paramName])) {
     return;
@@ -100,7 +100,7 @@ const bodyDecorator = createDecoratorDefinition({
   target: "ModelProperty",
   args: [],
 } as const);
-const bodyFieldsKey = Symbol("body");
+const bodyFieldsKey = createStateSymbol("body");
 export function $body(context: DecoratorContext, entity: ModelProperty) {
   if (!bodyDecorator.validate(context, entity, [])) {
     return;
@@ -117,7 +117,7 @@ const statusCodeDecorator = createDecoratorDefinition({
   target: "ModelProperty",
   args: [],
 } as const);
-const statusCodeKey = Symbol("statusCode");
+const statusCodeKey = createStateSymbol("statusCode");
 export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
   if (!statusCodeDecorator.validate(context, entity, [])) {
     return;
@@ -238,7 +238,7 @@ export function getStatusCodeDescription(statusCode: string) {
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
-const operationVerbsKey = Symbol("verbs");
+const operationVerbsKey = createStateSymbol("verbs");
 
 function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
   if (entity.kind === "Operation") {
@@ -310,7 +310,7 @@ const serverDecoratorDefinition = createDecoratorDefinition({
   target: "Namespace",
   args: [{ kind: "String" }, { kind: "String" }, { kind: "Model", optional: true }],
 } as const);
-const serversKey = Symbol("servers");
+const serversKey = createStateSymbol("servers");
 /**
  * Configure the server url for the service.
  * @param context Decorator context
@@ -397,7 +397,7 @@ const useAuthDecorator = createDecoratorDefinition({
   target: "Namespace",
   args: [{ kind: ["Model", "Union", "Tuple"] }],
 } as const);
-const authenticationKey = Symbol("authentication");
+const authenticationKey = createStateSymbol("authentication");
 export function $useAuth(
   context: DecoratorContext,
   serviceNamespace: Namespace,
@@ -517,14 +517,27 @@ function extractHttpAuthentication(
     return [result, diagnostics];
   }
   const description = getDoc(program, modelType);
+  const auth = result.type === "oauth2" ? extractOAuth2Auth(result) : result;
   return [
     {
-      ...result,
+      ...auth,
       id: modelType.name || result.type,
       ...(description && { description }),
     },
     diagnostics,
   ];
+}
+
+function extractOAuth2Auth(data: any): HttpAuth {
+  return {
+    ...data,
+    flows: data.flows.map((flow: any) => {
+      return {
+        ...flow,
+        scopes: flow.scopes.map((x: string) => ({ value: x })),
+      };
+    }),
+  };
 }
 
 export function getAuthentication(

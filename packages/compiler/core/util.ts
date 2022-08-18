@@ -173,7 +173,6 @@ export async function findProjectRoot(
       pkgPath,
       () => {}
     );
-
     if (stat?.isFile()) {
       return current;
     }
