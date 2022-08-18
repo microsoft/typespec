@@ -29,9 +29,19 @@ export interface UsageTracker {
  * @param namespace Entrypoint namespace to get usage from.
  * @returns Map of types to usage.
  */
-export function resolveUsages(namespace: NamespaceType): UsageTracker {
+export function resolveUsages(type: NamespaceType | InterfaceType | OperationType): UsageTracker {
   const usages = new Map<TrackableType, UsageFlags>();
-  addUsagesInNamespace(namespace, usages);
+  switch (type.kind) {
+    case "Namespace":
+      addUsagesInNamespace(type, usages);
+      break;
+    case "Interface":
+      addUsagesInInterface(type, usages);
+      break;
+    case "Operation":
+      addUsagesInOperation(type, usages);
+      break;
+  }
   return {
     types: [...usages.keys()],
     isUsedAs: (type: TrackableType, usage) => {

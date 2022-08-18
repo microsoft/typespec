@@ -8,10 +8,15 @@ describe("compiler: helpers: usage resolver", () => {
     runner = await createTestRunner();
   });
 
-  async function getUsages(code: string): Promise<{ inputs: string[]; outputs: string[] }> {
-    await runner.compile(code);
+  async function getUsages(
+    code: string,
+    targetName?: string
+  ): Promise<{ inputs: string[]; outputs: string[] }> {
+    const targets = await runner.compile(code);
 
-    const usages = resolveUsages(runner.program.checker.getGlobalNamespaceType());
+    const usages = resolveUsages(
+      targetName ? (targets[targetName] as any) : runner.program.checker.getGlobalNamespaceType()
+    );
 
     const result: { inputs: string[]; outputs: string[] } = { inputs: [], outputs: [] };
     for (const type of usages.types) {
@@ -123,5 +128,41 @@ describe("compiler: helpers: usage resolver", () => {
     `);
 
     deepStrictEqual(usages, { inputs: [], outputs: ["MyEnum"] });
+  });
+
+  describe("resolving usage of specific operation", () => {
+    it("only find usage in that operation", async () => {
+      const usages = await getUsages(
+        `
+          model Foo {}
+          op set(input: Foo): void;
+          @test op get(): Foo; 
+        `,
+        "get"
+      );
+
+      deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
+    });
+  });
+
+  describe("resolving usage of specific interface", () => {
+    it("only find usage in that interface", async () => {
+      const usages = await getUsages(
+        `
+          model Foo {}
+          model Bar {}
+          interface One {
+            set(input: Foo): void;
+          }
+          @test interface Two {
+            get(): Foo;
+            other(input: Bar): void;
+          }
+        `,
+        "Two"
+      );
+
+      deepStrictEqual(usages, { inputs: ["Bar"], outputs: ["Foo"] });
+    });
   });
 });
