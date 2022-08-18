@@ -1096,7 +1096,8 @@ export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNod
 
 export interface ProjectionNode extends BaseNode {
   readonly kind: SyntaxKind.Projection;
-  readonly direction: IdentifierNode<"to" | "from">;
+  readonly direction: "to" | "from";
+  readonly directionId?: IdentifierNode<"to" | "from">;
   readonly parameters: ProjectionParameterDeclarationNode[];
   readonly body: ProjectionStatementItem[];
   readonly locals?: SymbolTable;

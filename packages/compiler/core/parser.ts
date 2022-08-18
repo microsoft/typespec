@@ -1234,10 +1234,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
     }
 
-    if (proj1 && proj2 && proj1.direction.sv === proj2.direction.sv) {
+    if (proj1 && proj2 && proj1.direction === proj2.direction) {
       error({ code: "duplicate-symbol", target: proj2, format: { name: "projection" } });
     } else if (proj1) {
-      [to, from] = proj1.direction.sv === "to" ? [proj1, proj2] : [proj2, proj1];
+      [to, from] = proj1.direction === "to" ? [proj1, proj2] : [proj2, proj1];
     }
 
     parseExpected(Token.CloseBrace);
@@ -1255,19 +1255,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseProjection(): ProjectionNode {
     const pos = tokenPos();
     const directionId = parseIdentifier("projectionDirection");
-    let direction: IdentifierNode<"to" | "from">;
+    let direction: "to" | "from";
     if (directionId.sv !== "from" && directionId.sv !== "to") {
       error({ code: "token-expected", messageId: "projectionDirection" });
-      direction = {
-        kind: SyntaxKind.Identifier,
-        sv: "to",
-        pos: pos,
-        end: pos,
-        symbol: undefined as any,
-        flags: NodeFlags.Synthetic,
-      };
+      direction = "from";
     } else {
-      direction = directionId as IdentifierNode<"to" | "from">;
+      direction = directionId.sv;
     }
     let parameters: ProjectionParameterDeclarationNode[];
     if (token() === Token.OpenParen) {
@@ -1283,6 +1276,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       kind: SyntaxKind.Projection,
       body,
       direction,
+      directionId: directionId as IdentifierNode<"to" | "from">,
       parameters,
       ...finishNode(pos),
     };
@@ -2317,7 +2311,9 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.options);
     case SyntaxKind.Projection:
       return (
-        visitNode(cb, node.direction) || visitEach(cb, node.parameters) || visitEach(cb, node.body)
+        visitNode(cb, node.directionId) ||
+        visitEach(cb, node.parameters) ||
+        visitEach(cb, node.body)
       );
     case SyntaxKind.ProjectionExpressionStatement:
       return visitNode(cb, node.expr);
