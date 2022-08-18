@@ -615,10 +615,21 @@ export function createServer(host: ServerHost): Server {
 
   async function getTypeDetails(sym: Sym, type: Type, program: Program): Promise<string> {
     const doc = getDoc(program, type);
-    if (doc) {
-      return [type.kind, sym.name, doc].join(", ");
+    let namesList: string[] = [sym.name];
+    function symparent(sym: Sym) {
+      if (sym.parent) {
+        namesList.unshift(sym.parent.name);
+        symparent(sym.parent);
+      }
     }
-    return [type.kind, sym.name].join(", ");
+    symparent(sym);
+    const name = namesList.join(".");
+    const typeKind = type.kind.toLowerCase();
+    const kindName = [typeKind, name].join(" ");
+    if (doc) {
+      return [kindName, "\n---", doc].join("\n");
+    }
+    return kindName;
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
@@ -660,26 +671,19 @@ export function createServer(host: ServerHost): Server {
     };
     await compile(params.textDocument, async (program, document, file) => {
       const node = getNodeAtPosition(file, document.offsetAt(params.position));
-      const sym =
-        node?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(node) : undefined;
-      let detail = undefined;
-      if (sym) {
-        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-        detail = await getTypeDetails(sym, type, program);
-      }
       if (node === undefined) {
-        addKeywordCompletion("root", detail, completions);
+        addKeywordCompletion("root", completions);
       } else {
         switch (node.kind) {
           case SyntaxKind.NamespaceStatement:
-            addKeywordCompletion("namespace", detail, completions);
+            addKeywordCompletion("namespace", completions);
             break;
           case SyntaxKind.Identifier:
-            addIdentifierCompletion(program, node, detail, completions);
+            addIdentifierCompletion(program, node, params, completions);
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
-              await addImportCompletion(program, document, detail, completions, node);
+              await addImportCompletion(program, document, completions, node);
             }
             break;
         }
@@ -772,31 +776,18 @@ export function createServer(host: ServerHost): Server {
     return references;
   }
 
-  function addKeywordCompletion(
-    area: keyof KeywordArea,
-    detail: string | undefined,
-    completions: CompletionList
-  ) {
+  async function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
     const filteredKeywords = keywords.filter(([_, x]) => area in x);
     for (const [keyword] of filteredKeywords) {
-      if (detail) {
-        completions.items.push({
-          label: keyword,
-          detail: detail,
-          kind: CompletionItemKind.Keyword,
-        });
-      } else {
-        completions.items.push({
-          label: keyword,
-          kind: CompletionItemKind.Keyword,
-        });
-      }
+      completions.items.push({
+        label: keyword,
+        kind: CompletionItemKind.Keyword,
+      });
     }
   }
 
   async function addLibraryImportCompletion(
     program: Program,
-    detail: string | undefined,
     document: TextDocument,
     completions: CompletionList
   ) {
@@ -825,14 +816,7 @@ export function createServer(host: ServerHost): Server {
           program.reportDiagnostic
         );
         if (libPackageJson.cadlMain != undefined) {
-          if (detail) {
-            completions.items.push({
-              label: dependency,
-              commitCharacters: [],
-              detail: detail,
-              kind: CompletionItemKind.Module,
-            });
-          } else {
+          {
             completions.items.push({
               label: dependency,
               commitCharacters: [],
@@ -847,20 +831,18 @@ export function createServer(host: ServerHost): Server {
   async function addImportCompletion(
     program: Program,
     document: TextDocument,
-    detail: string | undefined,
     completions: CompletionList,
     node: StringLiteralNode
   ) {
     if (node.value.startsWith("./") || node.value.startsWith("../")) {
-      await addRelativePathCompletion(program, detail, document, completions, node);
+      await addRelativePathCompletion(program, document, completions, node);
     } else if (!node.value.startsWith(".")) {
-      await addLibraryImportCompletion(program, detail, document, completions);
+      await addLibraryImportCompletion(program, document, completions);
     }
   }
 
   async function addRelativePathCompletion(
     program: Program,
-    detail: string | undefined,
     document: TextDocument,
     completions: CompletionList,
     node: StringLiteralNode
@@ -881,14 +863,7 @@ export function createServer(host: ServerHost): Server {
         case ".cadl":
         case ".js":
         case ".mjs":
-          if (detail) {
-            completions.items.push({
-              label: file,
-              detail: detail,
-              commitCharacters: [],
-              kind: CompletionItemKind.File,
-            });
-          } else {
+          {
             completions.items.push({
               label: file,
               commitCharacters: [],
@@ -897,14 +872,7 @@ export function createServer(host: ServerHost): Server {
           }
           break;
         case "":
-          if (detail) {
-            completions.items.push({
-              label: file,
-              detail: detail,
-              commitCharacters: [],
-              kind: CompletionItemKind.Folder,
-            });
-          } else {
+          {
             completions.items.push({
               label: file,
               commitCharacters: [],
@@ -919,10 +887,10 @@ export function createServer(host: ServerHost): Server {
   /**
    * Add completion options for an identifier.
    */
-  function addIdentifierCompletion(
+  async function addIdentifierCompletion(
     program: Program,
     node: IdentifierNode,
-    detail: string | undefined,
+    params: CompletionParams,
     completions: CompletionList
   ) {
     const result = program.checker.resolveCompletions(node);
@@ -952,12 +920,22 @@ export function createServer(host: ServerHost): Server {
         kind,
         insertText: key,
       };
-      if (detail) {
+      const typeDetails = await compile(params.textDocument, (program, document, file) => {
+        const id = getNodeAtPosition(file, document.offsetAt(params.position));
+        const sym =
+          id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+        if (sym) {
+          const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
+          return getTypeDetails(sym, type, program);
+        }
+        return undefined;
+      });
+      if (typeDetails) {
         item = {
           label: label ?? key,
           documentation,
           kind,
-          detail: detail,
+          detail: typeDetails,
           insertText: key,
         };
       }
@@ -968,7 +946,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
-      addKeywordCompletion("identifier", detail, completions);
+      addKeywordCompletion("identifier", completions);
     }
   }
 
