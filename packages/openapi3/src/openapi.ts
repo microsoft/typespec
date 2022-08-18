@@ -313,6 +313,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
+        attachExtensions(program, prop, variable);
         variables[name] = variable;
       }
       return {
@@ -1359,12 +1360,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         const flows: OpenAPI3OAuthFlows = {};
         const scopes: string[] = [];
         for (const flow of auth.flows) {
-          scopes.push(...flow.scopes);
+          scopes.push(...flow.scopes.map((x) => x.value));
           flows[flow.type] = {
             authorizationUrl: (flow as any).authorizationUrl,
             tokenUrl: (flow as any).tokenUrl,
             refreshUrl: flow.refreshUrl,
-            scopes: Object.fromEntries(flow.scopes.map((x: string) => [x, ""])),
+            scopes: Object.fromEntries(flow.scopes.map((x) => [x.value, x.description ?? ""])),
           };
         }
         return [{ type: "oauth2", flows, description: auth.description }, scopes];
