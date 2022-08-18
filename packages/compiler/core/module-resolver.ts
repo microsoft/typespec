@@ -39,6 +39,7 @@ export interface ResolveModuleHost {
 export interface NodePackage {
   name: string;
   main: string;
+  version: string;
   cadlMain?: string;
 }
 
@@ -51,6 +52,32 @@ export class ResolveModuleError extends Error {
 
 const defaultDirectoryIndexFiles = ["index.mjs", "index.js"];
 
+export type ModuleResolutionResult = ResolvedFile | ResolvedModule;
+
+export interface ResolvedFile {
+  type: "file";
+  path: string;
+}
+
+export interface ResolvedModule {
+  type: "module";
+
+  /**
+   * Root of the package. (Same level as package.json)
+   */
+  path: string;
+
+  /**
+   * Resolved main file for the module.
+   */
+  mainFile: string;
+
+  /**
+   * Value of package.json.
+   */
+  manifest: NodePackage;
+}
+
 /**
  * Resolve a module
  * @param host
@@ -62,7 +89,7 @@ export async function resolveModule(
   host: ResolveModuleHost,
   name: string,
   options: ResolveModuleOptions
-) {
+): Promise<ModuleResolutionResult> {
   const realpath = async (x: string) => resolvePath(await host.realpath(x));
 
   const { baseDir } = options;
@@ -76,11 +103,13 @@ export async function resolveModule(
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
     const res = resolvePath(absoluteStart, name);
     const m = (await loadAsFile(res)) || (await loadAsDirectory(res));
-    if (m) return realpath(m);
+    if (m) {
+      return m;
+    }
   }
 
   const module = await findAsNodeModule(name, absoluteStart);
-  if (module) return realpath(module);
+  if (module) return module;
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
@@ -112,12 +141,15 @@ export async function resolveModule(
     ]);
   }
 
-  async function findAsNodeModule(name: string, baseDir: string): Promise<string | undefined> {
+  async function findAsNodeModule(
+    name: string,
+    baseDir: string
+  ): Promise<ResolvedModule | undefined> {
     const dirs = getPackageCandidates(name, baseDir);
     for (const { type, path } of dirs) {
       if (type === "node_modules") {
         if (await isDirectory(host, path)) {
-          const n = await loadAsDirectory(path);
+          const n = await loadAsDirectory(path, true);
           if (n) return n;
         }
       } else if (type === "self") {
@@ -135,11 +167,22 @@ export async function resolveModule(
     return undefined;
   }
 
-  async function loadAsDirectory(directory: string): Promise<string | undefined> {
+  async function loadAsDirectory(directory: string): Promise<ModuleResolutionResult | undefined>;
+  async function loadAsDirectory(
+    directory: string,
+    mustBePackage: true
+  ): Promise<ResolvedModule | undefined>;
+  async function loadAsDirectory(
+    directory: string,
+    mustBePackage?: boolean
+  ): Promise<ModuleResolutionResult | undefined> {
     const pkgFile = resolvePath(directory, "package.json");
     if (await isFile(host, pkgFile)) {
       const pkg = await readPackage(host, pkgFile);
       return loadPackage(directory, pkg);
+    }
+    if (mustBePackage) {
+      return undefined;
     }
 
     for (const file of options.directoryIndexFiles ?? defaultDirectoryIndexFiles) {
@@ -151,7 +194,10 @@ export async function resolveModule(
     return undefined;
   }
 
-  async function loadPackage(directory: string, pkg: NodePackage): Promise<string | undefined> {
+  async function loadPackage(
+    directory: string,
+    pkg: NodePackage
+  ): Promise<ResolvedModule | undefined> {
     const mainFile = options.resolveMain ? options.resolveMain(pkg) : pkg.main;
     if (typeof mainFile !== "string") {
       throw new TypeError(`package "${pkg.name}" main must be a string but was '${mainFile}'`);
@@ -168,7 +214,15 @@ export async function resolveModule(
     }
 
     if (loaded) {
-      return loaded;
+      if (loaded.type === "module") {
+        return loaded;
+      }
+      return {
+        type: "module",
+        path: await realpath(directory),
+        mainFile: loaded.path,
+        manifest: pkg,
+      };
     } else {
       throw new ResolveModuleError(
         "INVALID_MAIN",
@@ -177,19 +231,23 @@ export async function resolveModule(
     }
   }
 
-  async function loadAsFile(file: string): Promise<string | undefined> {
+  async function loadAsFile(file: string): Promise<ResolvedFile | undefined> {
     if (await isFile(host, file)) {
-      return file;
+      return resolvedFile(file);
     }
 
     const extensions = [".mjs", ".js"];
     for (const ext of extensions) {
       const fileWithExtension = file + ext;
       if (await isFile(host, fileWithExtension)) {
-        return fileWithExtension;
+        return resolvedFile(fileWithExtension);
       }
     }
     return undefined;
+  }
+
+  async function resolvedFile(path: string): Promise<ResolvedFile> {
+    return { type: "file", path: await realpath(path) };
   }
 }
 

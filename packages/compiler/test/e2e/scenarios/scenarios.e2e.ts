@@ -1,11 +1,11 @@
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { createProgram, NodeHost, Program } from "../../../core/index.js";
+import { createProgram, NodeHost, Program, resolvePath } from "../../../core/index.js";
 import { CompilerOptions } from "../../../core/options.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../testing/expect.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const scenarioRoot = resolve(__dirname, "../../../../test/e2e/scenarios");
+const scenarioRoot = resolvePath(__dirname, "../../../../test/e2e/scenarios");
 
 describe("compiler: entrypoints", () => {
   async function compileScenario(name: string, options: CompilerOptions = {}): Promise<Program> {
@@ -76,6 +76,27 @@ describe("compiler: entrypoints", () => {
         additionalImports: ["@cadl-lang/my-lib"],
       });
       expectDiagnosticEmpty(program.diagnostics);
+    });
+
+    it("succeed if loading different install of the same library at the same version", async () => {
+      const program = await compileScenario("same-library-same-version", {
+        emitters: { "@cadl-lang/lib2": {} },
+      });
+      expectDiagnosticEmpty(program.diagnostics);
+    });
+
+    it("emit error if loading different install of the same library at different version", async () => {
+      const program = await compileScenario("same-library-diff-version", {
+        emitters: { "@cadl-lang/lib2": {} },
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "incompatible-library",
+        message: [
+          `Multiple versions of "@cadl-lang/my-lib" library were loaded:`,
+          `  - Version: "1.0.0" installed at "${scenarioRoot}/same-library-diff-version/node_modules/@cadl-lang/lib1"`,
+          `  - Version: "2.0.0" installed at "${scenarioRoot}/same-library-diff-version/node_modules/@cadl-lang/lib2"`,
+        ].join("\n"),
+      });
     });
   });
 });
