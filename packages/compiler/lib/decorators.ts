@@ -59,7 +59,11 @@ function setTemplatedStringProperty(
   program.stateMap(key).set(target, text);
 }
 
-const summaryKey = Symbol("summary");
+function createStateSymbol(name: string) {
+  return Symbol.for(`Cadl.${name}`);
+}
+
+const summaryKey = createStateSymbol("summary");
 /**
  * @summary attaches a documentation string. It is typically used to give a short, single-line
  * description, and can be used in combination with or instead of @doc.
@@ -82,7 +86,7 @@ export function getSummary(program: Program, type: Type): string | undefined {
   return program.stateMap(summaryKey).get(type);
 }
 
-const docsKey = Symbol("docs");
+const docsKey = createStateSymbol("docs");
 /**
  * @doc attaches a documentation string. Works great with multi-line string literals.
  *
@@ -113,7 +117,7 @@ export function $inspectTypeName(program: Program, target: Type, text: string) {
   console.log(program.checker.getTypeName(target));
 }
 
-const intrinsicsKey = Symbol("intrinsics");
+const intrinsicsKey = createStateSymbol("intrinsics");
 export function $intrinsic(context: DecoratorContext, target: Type, name: IntrinsicModelName) {
   context.program.stateMap(intrinsicsKey).set(target, name);
 }
@@ -125,7 +129,7 @@ export function isIntrinsic(program: Program, target: Type | undefined): boolean
   return program.stateMap(intrinsicsKey).has(target);
 }
 
-const indexTypeKey = Symbol("index");
+const indexTypeKey = createStateSymbol("index");
 export function $indexer(context: DecoratorContext, target: Type, key: Model, value: Type) {
   const indexer: ModelIndexer = { key, value };
   context.program.stateMap(indexTypeKey).set(target, indexer);
@@ -182,7 +186,7 @@ export function isRecordModelType(program: Program, type: Model): type is ArrayM
   return Boolean(type.indexer && getIntrinsicModelName(program, type.indexer.key) === "string");
 }
 
-const numericTypesKey = Symbol("numeric");
+const numericTypesKey = createStateSymbol("numeric");
 export function $numeric(context: DecoratorContext, target: Type) {
   const { program } = context;
   if (!isIntrinsic(program, target)) {
@@ -218,7 +222,7 @@ export function isNumericType(program: Program, target: Type): boolean {
 
 // -- @error decorator ----------------------
 
-const errorKey = Symbol("error");
+const errorKey = createStateSymbol("error");
 
 export function $error(context: DecoratorContext, target: Type) {
   if (!validateDecoratorTarget(context, target, "@error", "Model")) {
@@ -234,7 +238,7 @@ export function isErrorModel(program: Program, target: Type): boolean {
 
 // -- @format decorator ---------------------
 
-const formatValuesKey = Symbol("formatValues");
+const formatValuesKey = createStateSymbol("formatValues");
 
 /**
  * `@format` - specify the data format hint for a string type
@@ -266,7 +270,7 @@ export function getFormat(program: Program, target: Type): string | undefined {
 
 // -- @pattern decorator ---------------------
 
-const patternValuesKey = Symbol("patternValues");
+const patternValuesKey = createStateSymbol("patternValues");
 
 export function $pattern(context: DecoratorContext, target: Type, pattern: string) {
   if (
@@ -285,7 +289,7 @@ export function getPattern(program: Program, target: Type): string | undefined {
 
 // -- @minLength decorator ---------------------
 
-const minLengthValuesKey = Symbol("minLengthValues");
+const minLengthValuesKey = createStateSymbol("minLengthValues");
 
 export function $minLength(context: DecoratorContext, target: Type, minLength: number) {
   if (
@@ -304,7 +308,7 @@ export function getMinLength(program: Program, target: Type): number | undefined
 
 // -- @maxLength decorator ---------------------
 
-const maxLengthValuesKey = Symbol("maxLengthValues");
+const maxLengthValuesKey = createStateSymbol("maxLengthValues");
 
 export function $maxLength(context: DecoratorContext, target: Type, maxLength: number) {
   if (
@@ -323,7 +327,7 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 
 // -- @minValue decorator ---------------------
 
-const minValuesKey = Symbol("minValues");
+const minValuesKey = createStateSymbol("minValues");
 
 export function $minValue(context: DecoratorContext, target: Type, minValue: number) {
   if (!validateDecoratorTarget(context, target, "@minValue", ["Model", "ModelProperty"])) {
@@ -350,7 +354,7 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 
 // -- @maxValue decorator ---------------------
 
-const maxValuesKey = Symbol("maxValues");
+const maxValuesKey = createStateSymbol("maxValues");
 
 export function $maxValue(context: DecoratorContext, target: Type, maxValue: number) {
   if (!validateDecoratorTarget(context, target, "@maxValue", ["Model", "ModelProperty"])) {
@@ -377,7 +381,7 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 
 // -- @secret decorator ---------------------
 
-const secretTypesKey = Symbol("secretTypes");
+const secretTypesKey = createStateSymbol("secretTypes");
 const secretDecorator = createDecoratorDefinition({
   name: "@secret",
   target: ["Model", "ModelProperty"],
@@ -406,7 +410,7 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 
 // -- @visibility decorator ---------------------
 
-const visibilitySettingsKey = Symbol("visibilitySettings");
+const visibilitySettingsKey = createStateSymbol("visibilitySettings");
 
 export function $visibility(context: DecoratorContext, target: Type, ...visibilities: string[]) {
   if (!validateDecoratorTarget(context, target, "@visibility", ["ModelProperty"])) {
@@ -522,7 +526,7 @@ export function $withoutDefaultValues(context: DecoratorContext, target: Type) {
 
 // -- @list decorator ---------------------
 
-const listPropertiesKey = Symbol("listProperties");
+const listPropertiesKey = createStateSymbol("listProperties");
 
 export function $list(context: DecoratorContext, target: Type, listedType?: Type) {
   if (!validateDecoratorTarget(context, target, "@list", "Operation")) {
@@ -555,7 +559,7 @@ export function isListOperation(program: Program, target: Operation): boolean {
 }
 
 // -- @tag decorator ---------------------
-const tagPropertiesKey = Symbol("tagProperties");
+const tagPropertiesKey = createStateSymbol("tagProperties");
 
 // Set a tag on an operation or namespace.  There can be multiple tags on either an
 // operation or namespace.
@@ -604,7 +608,7 @@ export function getAllTags(
 
 // -- @friendlyName decorator ---------------------
 
-const friendlyNamesKey = Symbol("friendlyNames");
+const friendlyNamesKey = createStateSymbol("friendlyNames");
 
 export function $friendlyName(
   context: DecoratorContext,
@@ -633,7 +637,7 @@ export function getFriendlyName(program: Program, target: Type): string {
   return program.stateMap(friendlyNamesKey).get(target);
 }
 
-const knownValuesKey = Symbol("knownValues");
+const knownValuesKey = createStateSymbol("knownValues");
 /**
  * `@knownValues` marks a string type with an enum that contains all known values
  *
@@ -705,7 +709,7 @@ export function getKnownValues(program: Program, target: Model | ModelProperty):
   return program.stateMap(knownValuesKey).get(target);
 }
 
-const keyKey = Symbol("key");
+const keyKey = createStateSymbol("key");
 
 /**
  * `@key` - mark a model property as the key to identify instances of that type
@@ -802,7 +806,7 @@ export function $withDefaultKeyVisibility(
 export function $deprecated(context: DecoratorContext, target: Type, message: string) {
   return context.program.stateMap(deprecatedKey).set(target, message);
 }
-const deprecatedKey = Symbol("deprecated");
+const deprecatedKey = createStateSymbol("deprecated");
 
 /**
  * Check if the given type is deprecated
@@ -822,8 +826,8 @@ export function getDeprecated(program: Program, type: Type): string | undefined 
   return program.stateMap(deprecatedKey).get(type);
 }
 
-const overloadedByKey = Symbol("overloadedByKey");
-const overloadsOperationKey = Symbol("overloadsOperation");
+const overloadedByKey = createStateSymbol("overloadedByKey");
+const overloadsOperationKey = createStateSymbol("overloadsOperation");
 
 const overloadDecorator = createDecoratorDefinition({
   name: "@overload",
