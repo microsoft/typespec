@@ -135,6 +135,28 @@ describe("openapi3: servers", () => {
     ]);
   });
 
+  it("set a server with parameters with extensions", async () => {
+    const res = await openApiFor(
+      `
+      @serviceTitle("My service")
+      @server("https://{region}.example.com", "Regional account endpoint", {
+        @extension("x-custom", "Foo")
+        region: string,
+      })
+      namespace MyService {}
+      `
+    );
+    deepStrictEqual(res.servers, [
+      {
+        description: "Regional account endpoint",
+        url: "https://{region}.example.com",
+        variables: {
+          region: { default: "", "x-custom": "Foo" },
+        },
+      },
+    ]);
+  });
+
   it("set a server with enum properties", async () => {
     const res = await openApiFor(
       `
