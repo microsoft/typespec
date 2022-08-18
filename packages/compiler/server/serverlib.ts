@@ -613,25 +613,26 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getTypeDetails(type: Type): Promise<string> {
-    return type.kind;
+  async function getTypeDetails(sym: Sym, type: Type, program: Program): Promise<string> {
+    const doc = getDoc(program, type);
+    if (doc) {
+      return [type.kind, sym.name, doc].join(", ");
+    }
+    return [type.kind, sym.name].join(", ");
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
-    const typesym = await compile(params.textDocument, (program, document, file) => {
+    const typeDetails = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
       const sym =
         id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
       if (sym) {
         const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-        return getTypeDetails(type);
+        return getTypeDetails(sym, type, program);
       }
       return undefined;
     });
-    let docString = "";
-    if (typesym) {
-      docString = typesym;
-    }
+    const docString = typeDetails ?? "";
 
     const markdown: MarkupContent = {
       kind: MarkupKind.Markdown,
@@ -664,7 +665,7 @@ export function createServer(host: ServerHost): Server {
       let detail = undefined;
       if (sym) {
         const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-        detail = await getTypeDetails(type);
+        detail = await getTypeDetails(sym, type, program);
       }
       if (node === undefined) {
         addKeywordCompletion("root", detail, completions);
@@ -780,12 +781,7 @@ export function createServer(host: ServerHost): Server {
     for (const [keyword] of filteredKeywords) {
       completions.items.push({
         label: keyword,
-        kind: CompletionItemKind.Keyword,
-      });
-    }
-    if (detail) {
-      completions.items.push({
-        label: detail,
+        detail: detail,
         kind: CompletionItemKind.Keyword,
       });
     }
@@ -793,6 +789,7 @@ export function createServer(host: ServerHost): Server {
 
   async function addLibraryImportCompletion(
     program: Program,
+    detail: string | undefined,
     document: TextDocument,
     completions: CompletionList
   ) {
@@ -824,6 +821,7 @@ export function createServer(host: ServerHost): Server {
           completions.items.push({
             label: dependency,
             commitCharacters: [],
+            detail: detail,
             kind: CompletionItemKind.Module,
           });
         }
@@ -839,20 +837,15 @@ export function createServer(host: ServerHost): Server {
     node: StringLiteralNode
   ) {
     if (node.value.startsWith("./") || node.value.startsWith("../")) {
-      await addRelativePathCompletion(program, document, completions, node);
+      await addRelativePathCompletion(program, detail, document, completions, node);
     } else if (!node.value.startsWith(".")) {
-      await addLibraryImportCompletion(program, document, completions);
-    }
-    if (detail) {
-      completions.items.push({
-        label: detail,
-        kind: CompletionItemKind.Keyword,
-      });
+      await addLibraryImportCompletion(program, detail, document, completions);
     }
   }
 
   async function addRelativePathCompletion(
     program: Program,
+    detail: string | undefined,
     document: TextDocument,
     completions: CompletionList,
     node: StringLiteralNode
@@ -875,6 +868,7 @@ export function createServer(host: ServerHost): Server {
         case ".mjs":
           completions.items.push({
             label: file,
+            detail: detail,
             commitCharacters: [],
             kind: CompletionItemKind.File,
           });
@@ -882,6 +876,7 @@ export function createServer(host: ServerHost): Server {
         case "":
           completions.items.push({
             label: file,
+            detail: detail,
             commitCharacters: [],
             kind: CompletionItemKind.Folder,
           });
@@ -924,18 +919,13 @@ export function createServer(host: ServerHost): Server {
         label: label ?? key,
         documentation,
         kind,
+        detail: detail,
         insertText: key,
       };
       if (deprecated) {
         item.tags = [CompletionItemTag.Deprecated];
       }
       completions.items.push(item);
-    }
-    if (detail) {
-      completions.items.push({
-        label: detail,
-        kind: CompletionItemKind.Keyword,
-      });
     }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
