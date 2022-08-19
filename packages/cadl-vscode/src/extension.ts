@@ -143,7 +143,7 @@ export async function deactivate() {
 }
 
 /**
- * Resolve some of the VSCode variable.
+ * Resolve some of the VSCode variables.
  * Simpler aLternative until https://github.com/microsoft/vscode/issues/46471 is supported.
  */
 class VSCodeVariableResolver {
