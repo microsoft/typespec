@@ -131,7 +131,21 @@ describe("compiler: helpers: usage resolver", () => {
   });
 
   describe("resolving usage of specific operation", () => {
-    it("only find usage in that operation", async () => {
+    it("only collect types used in that operation", async () => {
+      const usages = await getUsages(
+        `
+          model Foo {}
+          model Bar {}
+          op set(): Bar;
+          @test op get(): Foo; 
+        `,
+        "get"
+      );
+
+      deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
+    });
+
+    it("only collect specific usage(input/output) for that operation", async () => {
       const usages = await getUsages(
         `
           model Foo {}
