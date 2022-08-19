@@ -35,7 +35,7 @@ namespace Microsoft.Cadl.VisualStudio
             return Regex.Replace(value, VARIABLE_REGEXP, (match) =>
             {
                 var group = match.Groups[1];
-                if(group == null)
+                if (group == null)
                 {
                     return match.Value;
                 }
