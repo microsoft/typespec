@@ -1357,4 +1357,197 @@ model Foo {
       });
     });
   });
+
+  describe("projections", () => {
+    it("format to and from", () => {
+      assertFormat({
+        code: `
+projection         model#proj 
+  {to{} from {}}
+`,
+        expected: `
+projection model#proj {
+  to {
+
+  }
+  from {
+
+  }
+}
+`,
+      });
+    });
+
+    it("format to and from with args", () => {
+      assertFormat({
+        code: `
+projection         model#proj 
+  {to(   val) {} from(  
+    
+    val) {}}
+`,
+        expected: `
+projection model#proj {
+  to(val) {
+
+  }
+  from(val) {
+
+  }
+}
+`,
+      });
+    });
+
+    it("format function call", () => {
+      assertFormat({
+        code: `
+projection model#proj {
+to {
+   bar(     one, 
+    
+    two)
+}
+`,
+        expected: `
+projection model#proj {
+  to {
+    bar(one, two);
+  }
+}
+`,
+      });
+    });
+
+    describe("format operation", () => {
+      ["+", "-", "*", "/", "==", "!=", ">", "<", ">=", "<=", "||", "&&"].forEach((op) => {
+        it(`with ${op}`, () => {
+          assertFormat({
+            code: `
+projection model#proj {
+to {
+    bar( one 
+    
+      ${op} 
+      two)
+}
+}
+    `,
+            expected: `
+projection model#proj {
+  to {
+    bar(one ${op} two);
+  }
+}
+    `,
+          });
+        });
+      });
+    });
+
+    it("format lambda", () => {
+      assertFormat({
+        code: `
+projection model#proj {
+to {
+  (  a ,  
+    b) => { bar();}
+}
+}
+`,
+        expected: `
+projection model#proj {
+  to {
+    (a, b) => {
+      bar();
+    };
+  }
+}
+`,
+      });
+    });
+
+    describe("if", () => {
+      it("format simple if", () => {
+        assertFormat({
+          code: `
+projection model#proj {
+  to {
+    if foo 
+    
+      {
+              bar();
+    }
+  }
+}
+`,
+          expected: `
+projection model#proj {
+  to {
+    if foo {
+      bar();
+    };
+  }
+}
+`,
+        });
+      });
+
+      it("format with else if", () => {
+        assertFormat({
+          code: `
+projection model#proj {
+  to {
+    if one 
+    
+      {
+              bar();
+    } else 
+    if two { bar()}
+  }
+}
+`,
+          expected: `
+projection model#proj {
+  to {
+    if one {
+      bar();
+    } else if two {
+      bar();
+    };
+  }
+}
+`,
+        });
+      });
+
+      it("format with else", () => {
+        assertFormat({
+          code: `
+projection model#proj {
+  to {
+    if one 
+    
+      {
+              bar();
+    } else 
+     { bar()}
+  }
+}
+`,
+          expected: `
+projection model#proj {
+  to {
+    if one {
+      bar();
+    } else {
+      bar();
+    };
+  }
+}
+`,
+        });
+      });
+    });
+  });
 });
