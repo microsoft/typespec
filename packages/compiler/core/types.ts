@@ -712,9 +712,9 @@ export interface ImportStatementNode extends BaseNode {
   readonly path: StringLiteralNode;
 }
 
-export interface IdentifierNode<T = string> extends BaseNode {
+export interface IdentifierNode extends BaseNode {
   readonly kind: SyntaxKind.Identifier;
-  readonly sv: T;
+  readonly sv: string;
 }
 
 export interface DecoratorExpressionNode extends BaseNode {
@@ -1097,7 +1097,7 @@ export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNod
 export interface ProjectionNode extends BaseNode {
   readonly kind: SyntaxKind.Projection;
   readonly direction: "to" | "from";
-  readonly directionId?: IdentifierNode<"to" | "from">;
+  readonly directionId: IdentifierNode;
   readonly parameters: ProjectionParameterDeclarationNode[];
   readonly body: ProjectionStatementItem[];
   readonly locals?: SymbolTable;

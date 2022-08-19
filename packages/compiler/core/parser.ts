@@ -1276,7 +1276,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       kind: SyntaxKind.Projection,
       body,
       direction,
-      directionId: directionId as IdentifierNode<"to" | "from">,
+      directionId,
       parameters,
       ...finishNode(pos),
     };
