@@ -91,6 +91,7 @@
   "git.ignoreLimitWarning": true,
   "mochaExplorer.files": [
     "./packages/*/dist/test/**/*.test.js",
+    "./packages/*/dist/test/**/*.e2e.js",
     "./packages/*/dist-dev/test/**/*.test.js",
     "./packages/*/test/**/*.test.js"
   ],
