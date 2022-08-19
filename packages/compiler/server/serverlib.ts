@@ -680,7 +680,7 @@ export function createServer(host: ServerHost): Server {
             addKeywordCompletion("namespace", completions);
             break;
           case SyntaxKind.Identifier:
-            addIdentifierCompletion(program, node, params, completions);
+            addIdentifierCompletion(program, node, completions);
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
@@ -891,7 +891,6 @@ export function createServer(host: ServerHost): Server {
   async function addIdentifierCompletion(
     program: Program,
     node: IdentifierNode,
-    params: CompletionParams,
     completions: CompletionList
   ) {
     const result = program.checker.resolveCompletions(node);

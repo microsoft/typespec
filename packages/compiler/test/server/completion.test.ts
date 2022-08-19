@@ -16,19 +16,34 @@ describe("compiler: server: completion", () => {
       }
       `
     );
-
     check(completions, [
       {
-        label: "int32",
-        insertText: "int32",
-        kind: CompletionItemKind.Keyword,
+        label: "Cadl",
         documentation: undefined,
+        kind: 9,
+        detail: "intrinsic Z:/test/.cadl/dist/lib/decorators.js.Cadl",
+        insertText: "Cadl",
       },
       {
-        label: "Map",
-        insertText: "Map",
-        kind: CompletionItemKind.Class,
+        label: "M",
         documentation: undefined,
+        kind: 7,
+        detail: "model M",
+        insertText: "M",
+      },
+      {
+        label: "object",
+        documentation: undefined,
+        kind: 7,
+        detail: "model Cadl.object",
+        insertText: "object",
+      },
+      {
+        label: "Array",
+        documentation: undefined,
+        kind: 7,
+        detail: "model Cadl.Array",
+        insertText: "Array",
       },
     ]);
   });
@@ -198,6 +213,7 @@ describe("compiler: server: completion", () => {
     );
     check(completions, [
       {
+        detail: "intrinsic Z:/test/.cadl/dist/lib/decorators.js.Cadl.@doc",
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
@@ -233,6 +249,7 @@ describe("compiler: server: completion", () => {
 
     check(completions, [
       {
+        detail: "intrinsic Z:/test/.cadl/dist/lib/decorators.js.Cadl.@doc",
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
@@ -249,13 +266,34 @@ describe("compiler: server: completion", () => {
       }
       `
     );
-
     check(completions, [
       {
-        label: "string",
-        insertText: "string",
-        kind: CompletionItemKind.Keyword,
+        label: "Cadl",
         documentation: undefined,
+        kind: 9,
+        detail: "intrinsic Z:/test/.cadl/dist/lib/decorators.js.Cadl",
+        insertText: "Cadl",
+      },
+      {
+        label: "M",
+        documentation: undefined,
+        kind: 7,
+        detail: "model M",
+        insertText: "M",
+      },
+      {
+        label: "object",
+        documentation: undefined,
+        kind: 7,
+        detail: "model Cadl.object",
+        insertText: "object",
+      },
+      {
+        label: "Array",
+        documentation: undefined,
+        kind: 7,
+        detail: "model Cadl.Array",
+        insertText: "Array",
       },
     ]);
   });
@@ -272,6 +310,7 @@ describe("compiler: server: completion", () => {
 
     check(completions, [
       {
+        detail: "model 𐌰𐌲𐌰𐌲𐌰𐌲",
         label: "𐌰𐌲𐌰𐌲𐌰𐌲",
         insertText: "𐌰𐌲𐌰𐌲𐌰𐌲",
         kind: CompletionItemKind.Class,
@@ -296,12 +335,14 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "model N.A",
           label: "A",
           insertText: "A",
           kind: CompletionItemKind.Class,
           documentation: undefined,
         },
         {
+          detail: "model N.B",
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Class,
@@ -332,12 +373,14 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "enummember Orange",
           label: "Orange",
           insertText: "Orange",
           kind: CompletionItemKind.EnumMember,
           documentation: undefined,
         },
         {
+          detail: "enummember Banana",
           label: "Banana",
           insertText: "Banana",
           kind: CompletionItemKind.EnumMember,
@@ -370,12 +413,14 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "unionvariant orange",
           label: "orange",
           insertText: "orange",
           kind: CompletionItemKind.EnumMember,
           documentation: undefined,
         },
         {
+          detail: "unionvariant banana",
           label: "banana",
           insertText: "banana",
           kind: CompletionItemKind.EnumMember,
@@ -402,6 +447,7 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "operation N.test",
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
@@ -429,6 +475,7 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "operation test",
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
@@ -455,6 +502,7 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "modelproperty test",
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Field,
@@ -478,6 +526,7 @@ describe("compiler: server: completion", () => {
 
     check(completions, [
       {
+        detail: "templateparameter Template.Param",
         label: "Param",
         insertText: "Param",
         kind: CompletionItemKind.Struct,
@@ -498,6 +547,7 @@ describe("compiler: server: completion", () => {
 
     check(completions, [
       {
+        detail: "model N.A",
         label: "A",
         insertText: "A",
         kind: CompletionItemKind.Class,
@@ -524,6 +574,7 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "namespace A.B",
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Module,
@@ -565,12 +616,14 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "intrinsic Z:/test/test/decorators.js.Outer.Inner",
           label: "Inner",
           insertText: "Inner",
           kind: CompletionItemKind.Module,
           documentation: undefined,
         },
         {
+          detail: "intrinsic Z:/test/test/decorators.js.Outer.@outerDecorator",
           label: "outerDecorator",
           insertText: "outerDecorator",
           kind: CompletionItemKind.Function,
@@ -603,12 +656,14 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
+          detail: "model N.A",
           label: "A",
           insertText: "A",
           kind: CompletionItemKind.Class,
           documentation: undefined,
         },
         {
+          detail: "model N.B",
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Class,
@@ -635,6 +690,7 @@ describe("compiler: server: completion", () => {
 
     check(completions, [
       {
+        detail: "model Foo",
         label: "Foo",
         insertText: "Foo",
         kind: CompletionItemKind.Class,
