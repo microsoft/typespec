@@ -116,7 +116,7 @@ interface ResourceDelete<TResource, TError> {
 
 /**
  * Structure for a paging response using `value` and `nextLink` to represent pagination.
- * This only provide the model structure and not actual pagination support.
+ * This only provides the model structure and not actual pagination support.
  * See https://github.com/microsoft/cadl/issues/705 for general paging support.
  */
 @doc("Paged response of {name} items", T)
