@@ -56,7 +56,7 @@
     "vscode-languageserver": "~7.0.0",
     "lzutf8": "0.6.2",
     "debounce": "~1.2.1",
-    "swagger-ui": "~4.12.0"
+    "swagger-ui": "~4.14.0"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
