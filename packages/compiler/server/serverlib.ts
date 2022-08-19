@@ -902,6 +902,7 @@ export function createServer(host: ServerHost): Server {
       let documentation: string | undefined;
       let kind: CompletionItemKind;
       let deprecated = false;
+      const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
       if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
       } else if (
@@ -910,7 +911,6 @@ export function createServer(host: ServerHost): Server {
       ) {
         kind = CompletionItemKind.Module;
       } else {
-        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
         documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
         deprecated = isDeprecated(program, type);
@@ -921,16 +921,7 @@ export function createServer(host: ServerHost): Server {
         kind,
         insertText: key,
       };
-      const typeDetails = await compile(params.textDocument, (program, document, file) => {
-        const id = getNodeAtPosition(file, document.offsetAt(params.position));
-        const sym =
-          id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
-        if (sym) {
-          const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-          return getTypeDetails(sym, type, program);
-        }
-        return undefined;
-      });
+      const typeDetails = await getTypeDetails(sym, type, program);
       if (typeDetails) {
         item = {
           label: label ?? key,

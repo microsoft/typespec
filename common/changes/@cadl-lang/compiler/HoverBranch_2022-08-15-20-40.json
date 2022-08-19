@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "implementation of hover feature ",
+      "comment": "Hovering over a symbol gives the fully-qualified name and documentation",
       "type": "minor"
     }
   ],
