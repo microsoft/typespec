@@ -613,7 +613,11 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getTypeDetails(sym: Sym, type: Type, program: Program): Promise<string> {
+  async function getTypeDetails(
+    sym: Sym,
+    type: Type,
+    program: Program
+  ): Promise<string | undefined> {
     const doc = getDoc(program, type);
     let namesList: string[] = [sym.name];
     function symparent(sym: Sym) {
@@ -623,7 +627,11 @@ export function createServer(host: ServerHost): Server {
       }
     }
     symparent(sym);
+
     const name = namesList.join(".");
+    if (type.kind === "Intrinsic") {
+      return undefined;
+    }
     const typeKind = type.kind.toLowerCase();
     const kindName = [typeKind, name].join(" ");
     if (doc) {
@@ -922,13 +930,7 @@ export function createServer(host: ServerHost): Server {
       };
       const typeDetails = await getTypeDetails(sym, type, program);
       if (typeDetails) {
-        item = {
-          label: label ?? key,
-          documentation,
-          kind,
-          detail: typeDetails,
-          insertText: key,
-        };
+        item.detail = typeDetails;
       }
       if (deprecated) {
         item.tags = [CompletionItemTag.Deprecated];

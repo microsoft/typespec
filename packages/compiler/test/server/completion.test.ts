@@ -21,7 +21,6 @@ describe("compiler: server: completion", () => {
         label: "Cadl",
         documentation: undefined,
         kind: 9,
-        detail: "intrinsic Z:/test/.cadl/dist/lib/decorators.js.Cadl",
         insertText: "Cadl",
       },
       {
@@ -213,7 +212,6 @@ describe("compiler: server: completion", () => {
     );
     check(completions, [
       {
-        detail: "intrinsic Z:/test/.cadl/dist/lib/decorators.js.Cadl.@doc",
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
@@ -249,7 +247,6 @@ describe("compiler: server: completion", () => {
 
     check(completions, [
       {
-        detail: "intrinsic Z:/test/.cadl/dist/lib/decorators.js.Cadl.@doc",
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
@@ -271,7 +268,6 @@ describe("compiler: server: completion", () => {
         label: "Cadl",
         documentation: undefined,
         kind: 9,
-        detail: "intrinsic Z:/test/.cadl/dist/lib/decorators.js.Cadl",
         insertText: "Cadl",
       },
       {
@@ -616,14 +612,12 @@ describe("compiler: server: completion", () => {
       completions,
       [
         {
-          detail: "intrinsic Z:/test/test/decorators.js.Outer.Inner",
           label: "Inner",
           insertText: "Inner",
           kind: CompletionItemKind.Module,
           documentation: undefined,
         },
         {
-          detail: "intrinsic Z:/test/test/decorators.js.Outer.@outerDecorator",
           label: "outerDecorator",
           insertText: "outerDecorator",
           kind: CompletionItemKind.Function,
