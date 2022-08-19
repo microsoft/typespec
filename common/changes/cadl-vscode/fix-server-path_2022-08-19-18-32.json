@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Add support for `${workspaceFolder}` interpolation in configuration. As `workspaceRoot` is deprecated by VSCode",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
