@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Add support for `${workspaceFolder}` interpolation in configuration",
+      "type": "minor"
+    }
+  ],
+  "packageName": "cadl-vs"
+}
