@@ -84,7 +84,7 @@ namespace Microsoft.Cadl.VisualStudio
 
             foreach (var entry in env)
             {
-                info.Environment[entry.Key] = env[entry.Value];
+                info.Environment[entry.Key] = entry.Value;
             }
 #if env
             // Use local build of cadl-server in development (lauched from F5 in VS)
