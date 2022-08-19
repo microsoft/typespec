@@ -209,6 +209,11 @@ namespace Microsoft.Cadl.VisualStudio
                 return ("cadl-server.cmd", args, env);
             }
 
+            var variables = new Dictionary<string, string>();
+            variables.Add("workspaceFolder", workspaceService.CurrentWorkspace.Location);
+            var variableResolver = new VariableResolver(variables);
+
+            serverPath = variableResolver.ResolveVariables(serverPath);
             if (!serverPath.EndsWith(".js"))
             {
                 if (File.Exists(serverPath))

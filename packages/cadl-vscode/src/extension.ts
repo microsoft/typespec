@@ -75,13 +75,13 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
   const args = ["--stdio"];
 
   // In development mode (F5 launch from source), resolve to locally built server.js.
-  // if (process.env.CADL_DEVELOPMENT_MODE) {
-  //   const script = context.asAbsolutePath("../compiler/dist/server/server.js");
-  //   // we use CLI instead of NODE_OPTIONS environment variable in this case
-  //   // because --nolazy is not supported by NODE_OPTIONS.
-  //   const options = nodeOptions?.split(" ") ?? [];
-  //   return { command: "node", args: [...options, script, ...args] };
-  // }
+  if (process.env.CADL_DEVELOPMENT_MODE) {
+    const script = context.asAbsolutePath("../compiler/dist/server/server.js");
+    // we use CLI instead of NODE_OPTIONS environment variable in this case
+    // because --nolazy is not supported by NODE_OPTIONS.
+    const options = nodeOptions?.split(" ") ?? [];
+    return { command: "node", args: [...options, script, ...args] };
+  }
 
   const options: ExecutableOptions = {
     env: { ...process.env },
@@ -155,7 +155,7 @@ class VSCodeVariableResolver {
     const replaced = value.replace(
       VSCodeVariableResolver.VARIABLE_REGEXP,
       (match: string, variable: string) => {
-        return this.variables[match] ?? match;
+        return this.variables[variable] ?? match;
       }
     );
 
