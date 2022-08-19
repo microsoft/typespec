@@ -1169,7 +1169,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 }
 
 export type EmitterOptions = { name?: string } & Record<string, any>;
-export type Emitter = (program: Program, options: EmitterOptions) => void;
+export type Emitter = (program: Program, options: EmitterOptions) => Promise<void> | void;
 
 export interface SourceFile {
   /** The source code text. */
@@ -1464,6 +1464,12 @@ export interface CadlLibrary<
   createDiagnostic<C extends keyof T, M extends keyof T[C]>(
     diag: DiagnosticReport<T, C, M>
   ): Diagnostic;
+
+  /**
+   * Get or create a symbol with the given name unique for that library.
+   * @param name Symbol name scoped with the library name.
+   */
+  createStateSymbol(name: string): symbol;
 }
 
 /**
