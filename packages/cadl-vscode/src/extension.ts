@@ -75,13 +75,13 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
   const args = ["--stdio"];
 
   // In development mode (F5 launch from source), resolve to locally built server.js.
-  if (process.env.CADL_DEVELOPMENT_MODE) {
-    const script = context.asAbsolutePath("../compiler/dist/server/server.js");
-    // we use CLI instead of NODE_OPTIONS environment variable in this case
-    // because --nolazy is not supported by NODE_OPTIONS.
-    const options = nodeOptions?.split(" ") ?? [];
-    return { command: "node", args: [...options, script, ...args] };
-  }
+  // if (process.env.CADL_DEVELOPMENT_MODE) {
+  //   const script = context.asAbsolutePath("../compiler/dist/server/server.js");
+  //   // we use CLI instead of NODE_OPTIONS environment variable in this case
+  //   // because --nolazy is not supported by NODE_OPTIONS.
+  //   const options = nodeOptions?.split(" ") ?? [];
+  //   return { command: "node", args: [...options, script, ...args] };
+  // }
 
   const options: ExecutableOptions = {
     env: { ...process.env },
@@ -103,11 +103,13 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
     const executable = process.platform === "win32" ? "cadl-server.cmd" : "cadl-server";
     return { command: executable, args, options };
   }
+  const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
+  const variableResolver = new VSCodeVariableResolver({
+    workspaceFolder,
+    workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we keeping it for now for legacy reason.
+  });
 
-  if (serverPath.includes("${workspaceRoot}")) {
-    const workspaceRoot = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
-    serverPath = serverPath.replace("${workspaceRoot}", workspaceRoot);
-  }
+  serverPath = variableResolver.resolve(serverPath);
 
   if (!serverPath.endsWith(".js")) {
     // Allow path to cadl-server.cmd to be passed.
@@ -138,4 +140,25 @@ async function isFile(path: string) {
 
 export async function deactivate() {
   await client?.stop();
+}
+
+/**
+ * Resolve some of the VSCode variable.
+ * Simpler aLternative until https://github.com/microsoft/vscode/issues/46471 is supported.
+ */
+class VSCodeVariableResolver {
+  static readonly VARIABLE_REGEXP = /\$\{(.*?)\}/g;
+
+  public constructor(private variables: Record<string, string>) {}
+
+  public resolve(value: string): string {
+    const replaced = value.replace(
+      VSCodeVariableResolver.VARIABLE_REGEXP,
+      (match: string, variable: string) => {
+        return this.variables[match] ?? match;
+      }
+    );
+
+    return replaced;
+  }
 }

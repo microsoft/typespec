@@ -107,5 +107,5 @@
   "prettier.prettierPath": "./packages/compiler/node_modules/prettier",
   "prettier.documentSelectors": ["**/*.cadl"],
   "testExplorer.errorDecoration": false,
-  "cadl.cadl-server.path": "${workspaceRoot}/packages/compiler"
+  "cadl.cadl-server.path": "${workspaceFolder}/packages/compiler"
 }

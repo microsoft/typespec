@@ -13,6 +13,6 @@ See https://github.com/microsoft/cadl#installing-visual-studio-extension for ins
 
 ```json
 {
-  "cadl.cadl-server-path": "./mynestedproject/node_modules/@cadl-lang/compiler"
+  "cadl.cadl-server.path": "./mynestedproject/node_modules/@cadl-lang/compiler"
 }
 ```
