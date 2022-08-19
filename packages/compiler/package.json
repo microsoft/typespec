@@ -65,7 +65,7 @@
     "js-yaml": "~4.1.0",
     "mkdirp": "~1.0.4",
     "mustache": "~4.2.0",
-    "node-fetch": "3.2.8",
+    "node-fetch": "^3.2.10",
     "node-watch": "~0.7.1",
     "picocolors": "~1.0.0",
     "prettier": "~2.7.1",
