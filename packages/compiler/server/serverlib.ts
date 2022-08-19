@@ -619,7 +619,7 @@ export function createServer(host: ServerHost): Server {
     program: Program
   ): Promise<string | undefined> {
     const doc = getDoc(program, type);
-    let namesList: string[] = [sym.name];
+    const namesList: string[] = [sym.name];
     function symparent(sym: Sym) {
       if (sym.parent) {
         namesList.unshift(sym.parent.name);
@@ -681,14 +681,14 @@ export function createServer(host: ServerHost): Server {
     await compile(params.textDocument, async (program, document, file) => {
       const node = getNodeAtPosition(file, document.offsetAt(params.position));
       if (node === undefined) {
-        addKeywordCompletion("root", completions);
+        await addKeywordCompletion("root", completions);
       } else {
         switch (node.kind) {
           case SyntaxKind.NamespaceStatement:
-            addKeywordCompletion("namespace", completions);
+            await addKeywordCompletion("namespace", completions);
             break;
           case SyntaxKind.Identifier:
-            addIdentifierCompletion(program, node, completions);
+            await addIdentifierCompletion(program, node, completions);
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
@@ -922,7 +922,7 @@ export function createServer(host: ServerHost): Server {
         kind = getCompletionItemKind(program, type);
         deprecated = isDeprecated(program, type);
       }
-      let item: CompletionItem = {
+      const item: CompletionItem = {
         label: label ?? key,
         documentation,
         kind,
@@ -939,7 +939,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
-      addKeywordCompletion("identifier", completions);
+      await addKeywordCompletion("identifier", completions);
     }
   }
 
