@@ -195,12 +195,12 @@ namespace Microsoft.Cadl.VisualStudio
             var args = new string[] { "--stdio" };
 #if DEBUG
             // Use local build of cadl-server in development (lauched from F5 in VS)
-            //if (InDevelopmentMode())
-            //{
-            //    var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
-            //    var module = GetDevelopmentCadlServerPath();
-            //    return ("node.exe", new string[] { module, options }.Concat(args).ToArray(), env);
-            //}
+            if (InDevelopmentMode())
+            {
+               var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
+               var module = GetDevelopmentCadlServerPath();
+               return ("node.exe", new string[] { module, options }.Concat(args).ToArray(), env);
+            }
 #endif
 
             var serverPath = settings?.Property<string>("cadl.cadl-server.path");
