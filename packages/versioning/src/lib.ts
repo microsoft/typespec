@@ -59,4 +59,4 @@ const libDef = {
     },
   },
 } as const;
-export const { reportDiagnostic } = createCadlLibrary(libDef);
+export const { reportDiagnostic, createStateSymbol } = createCadlLibrary(libDef);

@@ -15,7 +15,7 @@ import {
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { createDiagnostic, reportDiagnostic } from "../diagnostics.js";
+import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
 import {
   getAction,
   getCollectionAction,
@@ -99,7 +99,7 @@ export function $routeReset(context: DecoratorContext, entity: Type, path: strin
   });
 }
 
-const routeOptionsKey = Symbol("routeOptions");
+const routeOptionsKey = createStateSymbol("routeOptions");
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
@@ -115,7 +115,7 @@ function getRouteOptionsForNamespace(
   return program.stateMap(routeOptionsKey).get(namespace);
 }
 
-const routesKey = Symbol("routes");
+const routesKey = createStateSymbol("routes");
 function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   if (
     !validateDecoratorTarget(context, entity, "@route", ["Namespace", "Interface", "Operation"])
@@ -475,7 +475,7 @@ export function getRoutesForContainer(
   );
 }
 
-const externalInterfaces = Symbol("externalInterfaces");
+const externalInterfaces = createStateSymbol("externalInterfaces");
 /**
  * @depreacted DO NOT USE. For internal use only as a workaround.
  * @param program Program
@@ -597,7 +597,7 @@ const resourceOperationToVerb: any = {
   list: "get",
 };
 
-const autoRouteKey = Symbol("autoRoute");
+const autoRouteKey = createStateSymbol("autoRoute");
 
 /**
  * `@autoRoute` enables automatic route generation for an operation, namespace, or interface.
