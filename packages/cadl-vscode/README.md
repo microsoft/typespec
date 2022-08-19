@@ -16,7 +16,7 @@ Available variables:
 
 ### `cadl.cadl-server.path`: Configure the server path
 
-There is cases where the Cadl project is located in a subfolder. In this case Cadl extension is not able to find the cadl compiler automatically and needs a little guidance.
+There are cases where the Cadl project is located in a subfolder. In such cases, the Cadl extension is not able to find the cadl compiler automatically and needs a little guidance.
 This setting provides the ability to configure where the cadl compiler is located.
 
 ```json
