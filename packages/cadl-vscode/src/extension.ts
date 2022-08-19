@@ -106,7 +106,7 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
   const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
-    workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we keeping it for now for legacy reason.
+    workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
   });
 
   serverPath = variableResolver.resolve(serverPath);
@@ -143,7 +143,7 @@ export async function deactivate() {
 }
 
 /**
- * Resolve some of the VSCode variable.
+ * Resolve some of the VSCode variables.
  * Simpler aLternative until https://github.com/microsoft/vscode/issues/46471 is supported.
  */
 class VSCodeVariableResolver {
