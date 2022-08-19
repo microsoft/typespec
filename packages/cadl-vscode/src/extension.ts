@@ -106,7 +106,7 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
   const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
-    workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we keeping it for now for legacy reason.
+    workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
   });
 
   serverPath = variableResolver.resolve(serverPath);
