@@ -57,7 +57,7 @@
           "cadl.cadl-server.path": {
             "type": "string",
             "default": "",
-            "description": "Path to `cadl-server` command that runs the Cadl language server.\n\nIf not specified, then `cadl-server` found on PATH is used.\n\nExample (User): /usr/local/bin/cadl-server\nExample (Workspace): ${workspaceRoot}/node_modules/.bin/cadl-server",
+            "description": "Path to `cadl-server` command that runs the Cadl language server.\n\nIf not specified, then `cadl-server` found on PATH is used.\n\nExample (User): /usr/local/bin/cadl-server\nExample (Workspace): ${workspaceFolder}/node_modules/.bin/cadl-server",
             "scope": "machine-overridable"
           }
         }
