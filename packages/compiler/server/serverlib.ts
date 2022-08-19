@@ -10,6 +10,9 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  DocumentHighlight,
+  DocumentHighlightKind,
+  DocumentHighlightParams,
   DocumentSymbolParams,
   FileEvent,
   FoldingRange,
@@ -74,6 +77,7 @@ import {
   Node,
   SourceFile,
   StringLiteralNode,
+  Sym,
   SymbolFlags,
   SyntaxKind,
   Type,
@@ -104,6 +108,7 @@ export interface Server {
   gotoDefinition(params: DefinitionParams): Promise<Location[]>;
   complete(params: CompletionParams): Promise<CompletionList>;
   findReferences(params: ReferenceParams): Promise<Location[]>;
+  findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
@@ -243,6 +248,7 @@ export function createServer(host: ServerHost): Server {
     documentClosed,
     complete,
     findReferences,
+    findDocumentHighlight,
     prepareRename,
     rename,
     getSemanticTokens,
@@ -266,6 +272,7 @@ export function createServer(host: ServerHost): Server {
       definitionProvider: true,
       foldingRangeProvider: true,
       documentSymbolProvider: true,
+      documentHighlightProvider: true,
       completionProvider: {
         resolveProvider: false,
         triggerCharacters: [".", "@", "/"],
@@ -518,6 +525,26 @@ export function createServer(host: ServerHost): Server {
     return symbols;
   }
 
+  async function findDocumentHighlight(
+    params: DocumentHighlightParams
+  ): Promise<DocumentHighlight[]> {
+    const file = await compilerHost.readFile(await getPath(params.textDocument));
+    const identifiers = await compile(params.textDocument, (program, document, file) =>
+      findReferenceIdentifiers(program, file, document.offsetAt(params.position), false)
+    );
+    if (identifiers === undefined) {
+      return [];
+    }
+    return identifiers.map((identifier) => {
+      const start = file.getLineAndCharacterOfPosition(identifier.pos);
+      const end = file.getLineAndCharacterOfPosition(identifier.end);
+      return {
+        range: Range.create(start, end),
+        kind: DocumentHighlightKind.Read,
+      };
+    });
+  }
+
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
     const program = await compile(change.document);
     if (!program) {
@@ -584,6 +611,7 @@ export function createServer(host: ServerHost): Server {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
       return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
     });
+
     return getLocations(sym?.declarations);
   }
 
@@ -618,7 +646,7 @@ export function createServer(host: ServerHost): Server {
 
   async function findReferences(params: ReferenceParams): Promise<Location[]> {
     const identifiers = await compile(params.textDocument, (program, document, file) =>
-      findReferenceIdentifiers(program, file, document.offsetAt(params.position))
+      findReferenceIdentifiers(program, file, document.offsetAt(params.position), true)
     );
     return getLocations(identifiers);
   }
@@ -636,7 +664,8 @@ export function createServer(host: ServerHost): Server {
       const identifiers = findReferenceIdentifiers(
         program,
         file,
-        document.offsetAt(params.position)
+        document.offsetAt(params.position),
+        true
       );
       for (const id of identifiers) {
         const location = getLocation(id);
@@ -654,10 +683,28 @@ export function createServer(host: ServerHost): Server {
     return { changes };
   }
 
+  function addReferenceIdentifiers(
+    program: Program,
+    file: CadlScriptNode,
+    sym: Sym,
+    references: IdentifierNode[]
+  ) {
+    visitChildren(file, function visit(node) {
+      if (node.kind === SyntaxKind.Identifier) {
+        const s = program.checker.resolveIdentifier(node);
+        if (s === sym || (sym.type && s?.type === sym.type)) {
+          references.push(node);
+        }
+      }
+      visitChildren(node, visit);
+    });
+  }
+
   function findReferenceIdentifiers(
     program: Program,
     file: CadlScriptNode,
-    pos: number
+    pos: number,
+    wholeProgram: boolean
   ): IdentifierNode[] {
     const id = getNodeAtPosition(file, pos);
     if (id?.kind !== SyntaxKind.Identifier) {
@@ -670,18 +717,13 @@ export function createServer(host: ServerHost): Server {
     }
 
     const references: IdentifierNode[] = [];
-    for (const script of program.sourceFiles.values() ?? []) {
-      visitChildren(script, function visit(node) {
-        if (node.kind === SyntaxKind.Identifier) {
-          const s = program.checker.resolveIdentifier(node);
-          if (s === sym || (sym.type && s?.type === sym.type)) {
-            references.push(node);
-          }
-        }
-        visitChildren(node, visit);
-      });
+    if (wholeProgram) {
+      for (const script of program.sourceFiles.values() ?? []) {
+        addReferenceIdentifiers(program, script, sym, references);
+      }
+    } else {
+      addReferenceIdentifiers(program, file, sym, references);
     }
-
     return references;
   }
 
@@ -947,11 +989,30 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.MemberExpression:
           classifyReference(node);
           break;
+        case SyntaxKind.ProjectionStatement:
+          classifyReference(node.selector);
+          classify(node.id, SemanticTokenKind.Variable);
+          break;
+        case SyntaxKind.Projection:
+          classify(node.directionId, SemanticTokenKind.Keyword);
+          break;
+        case SyntaxKind.ProjectionParameterDeclaration:
+          classifyReference(node.id, SemanticTokenKind.Parameter);
+          break;
+        case SyntaxKind.ProjectionCallExpression:
+          classifyReference(node.target, SemanticTokenKind.Function);
+          for (const arg of node.arguments) {
+            classifyReference(arg);
+          }
+          break;
+        case SyntaxKind.ProjectionMemberExpression:
+          classifyReference(node.id);
+          break;
       }
       visitChildren(node, classifyNode);
     }
 
-    function classify(node: Node, kind: SemanticTokenKind) {
+    function classify(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
       const token = tokens.get(node.pos);
       if (token && token.kind === undefined) {
         token.kind = kind;
@@ -962,6 +1023,10 @@ export function createServer(host: ServerHost): Server {
       switch (node.kind) {
         case SyntaxKind.MemberExpression:
           classifyIdentifier(node.base, SemanticTokenKind.Namespace);
+          classifyIdentifier(node.id, kind);
+          break;
+        case SyntaxKind.ProjectionMemberExpression:
+          classifyReference(node.base, SemanticTokenKind.Namespace);
           classifyIdentifier(node.id, kind);
           break;
         case SyntaxKind.TypeReference:

@@ -1,4 +1,4 @@
-import { ModelType, NamespaceType, Program } from "@cadl-lang/compiler";
+import { Model, Namespace, Program } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   createTestWrapper,
@@ -34,12 +34,12 @@ describe("versioning: reference versioned library", () => {
     );
   });
 
-  function assertFooV1(foo: ModelType) {
+  function assertFooV1(foo: Model) {
     ok(foo.properties.has("name"));
     ok(!foo.properties.has("age"), "Age was added in version 2 and version 1 was selected.");
   }
 
-  function assertFooV2(Foo: ModelType) {
+  function assertFooV2(Foo: Model) {
     ok(Foo.properties.has("name"));
     ok(Foo.properties.has("age"), "Age was added in version 2 and version 1 was selected.");
   }
@@ -51,7 +51,7 @@ describe("versioning: reference versioned library", () => {
         @test namespace MyService {
           @test model Test extends VersionedLib.Foo {}
         } 
-    `)) as { MyService: NamespaceType; Test: ModelType };
+    `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
       strictEqual(versions.length, 1);
       strictEqual(versions[0].version, undefined);
@@ -87,7 +87,7 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           @test model Test extends VersionedLib.Foo {}
         } 
-    `)) as { MyService: NamespaceType; Test: ModelType };
+    `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
       strictEqual(versions.length, 2);
       strictEqual(versions[0].version, "v1");
@@ -111,7 +111,7 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           @test model Test extends VersionedLib.Foo {}
         } 
-    `)) as { MyService: NamespaceType; Test: ModelType };
+    `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
       strictEqual(versions.length, 2);
       strictEqual(versions[0].version, "v1");
@@ -292,7 +292,7 @@ describe("versioning: dependencies", () => {
         }
         @test model Test extends NonVersionedLib.Spread<Spreadable> {}
       }
-      `)) as { MyService: NamespaceType; Test: ModelType };
+      `)) as { MyService: Namespace; Test: Model };
 
     const [v1, v2] = runProjections(runner.program, MyService);
 
@@ -324,7 +324,7 @@ describe("versioning: dependencies", () => {
         }
         @test model Test extends VersionedLib.Spread<Spreadable> {}
       }
-      `)) as { MyService: NamespaceType; Test: ModelType };
+      `)) as { MyService: Namespace; Test: Model };
 
     const [v1, v2] = runProjections(runner.program, MyService);
 
@@ -356,7 +356,7 @@ describe("versioning: dependencies", () => {
         }
         @test model Test extends VersionedLib.Spread<Spreadable> {}
       }
-      `)) as { MyService: NamespaceType; Test: ModelType };
+      `)) as { MyService: Namespace; Test: Model };
 
     const [v1, v2] = runProjections(runner.program, MyService);
 
@@ -382,7 +382,7 @@ describe("versioning: dependencies", () => {
             v1: "v1",
           }
         }
-      `)) as { MyService: NamespaceType };
+      `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
@@ -406,14 +406,14 @@ describe("versioning: dependencies", () => {
         @versionedDependency(Lib.One.Versions.v1)
         namespace Lib.Two { }
 
-      `)) as { MyService: NamespaceType };
+      `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
   });
 });
 
-function runProjections(program: Program, rootNs: NamespaceType) {
+function runProjections(program: Program, rootNs: Namespace) {
   const versions = buildVersionProjections(program, rootNs);
   return versions.map((x) => program.enableProjections(x.projections, rootNs));
 }

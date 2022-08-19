@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { DecoratorContext, IntrinsicType, OperationType, Type } from "../../core/types.js";
+import { DecoratorContext, IntrinsicType, Operation, Type } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: operations", () => {
@@ -17,7 +17,7 @@ describe("compiler: operations", () => {
     `
     );
 
-    const { foo } = (await testHost.compile("./main.cadl")) as { foo: OperationType };
+    const { foo } = (await testHost.compile("./main.cadl")) as { foo: Operation };
     strictEqual(foo.returnType.kind, "Intrinsic");
     strictEqual((foo.returnType as IntrinsicType).name, "void");
   });
@@ -34,7 +34,7 @@ describe("compiler: operations", () => {
     const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
     expectDiagnostics(diagnostics, []);
 
-    const { newFoo } = result as { newFoo: OperationType };
+    const { newFoo } = result as { newFoo: Operation };
     strictEqual(newFoo.parameters.properties.size, 2);
     const props = Array.from(newFoo.parameters.properties.values());
 
@@ -57,7 +57,7 @@ describe("compiler: operations", () => {
     const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
     expectDiagnostics(diagnostics, []);
 
-    const { newFoo } = result as { newFoo: OperationType };
+    const { newFoo } = result as { newFoo: Operation };
     strictEqual(newFoo.parameters.properties.size, 2);
     const props = Array.from(newFoo.parameters.properties.values());
 
@@ -78,7 +78,7 @@ describe("compiler: operations", () => {
       }`
     );
 
-    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: OperationType };
+    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
     strictEqual(newFoo.parameters.properties.size, 2);
     const props = Array.from(newFoo.parameters.properties.values());
 
@@ -100,7 +100,7 @@ describe("compiler: operations", () => {
       `
     );
 
-    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: OperationType };
+    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
 
     strictEqual(newFoo.returnType.kind, "Model" as const);
     strictEqual(newFoo.returnType.name, "boolean");
@@ -117,7 +117,7 @@ describe("compiler: operations", () => {
       `
     );
 
-    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: OperationType };
+    const { newFoo } = (await testHost.compile("./main.cadl")) as { newFoo: Operation };
 
     strictEqual(newFoo.returnType.kind, "Model" as const);
     strictEqual(newFoo.returnType.name, "boolean");
@@ -160,7 +160,7 @@ describe("compiler: operations", () => {
     const [result, diagnostics] = await testHost.compileAndDiagnose("./main.cadl");
     expectDiagnostics(diagnostics, []);
 
-    const { newFoo } = result as { newFoo: OperationType };
+    const { newFoo } = result as { newFoo: Operation };
     strictEqual(newFoo.parameters.properties.size, 2);
 
     // Check that the decorators were applied correctly to `newFoo`

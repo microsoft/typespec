@@ -2,6 +2,102 @@
   "name": "@cadl-lang/openapi3",
   "entries": [
     {
+      "version": "0.14.0",
+      "tag": "@cadl-lang/openapi3_v0.14.0",
+      "date": "Thu, 11 Aug 2022 19:05:23 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update Readme.md for new decorators."
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Added support for default value for properties with enum type."
+          },
+          {
+            "comment": "Use authentication configured via `@useAuth` http decorator"
+          },
+          {
+            "comment": "Add new emitter option `new-line` to configure emitted line endings"
+          },
+          {
+            "comment": "Uptake changes to type relations"
+          },
+          {
+            "comment": "Support set of unannotated parameters as request body"
+          },
+          {
+            "comment": "Inline generic instantiations without `@friendlyName`"
+          },
+          {
+            "comment": "Uptake new `resolveOperationId` helper from openapi library improving the logic"
+          },
+          {
+            "comment": "Add warning if there is no exposed routes"
+          },
+          {
+            "comment": "Internal: Uptake new compiler helpers to work with template types"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix: Description being ignored on non-string primitive models"
+          },
+          {
+            "comment": "Fix uninitialized parent namespaces in projection"
+          },
+          {
+            "comment": "Run projections on types returned from getEffectiveType"
+          },
+          {
+            "comment": "fix infinite recursion with self referencing model"
+          },
+          {
+            "comment": "Remove `summary` property set on schemas"
+          },
+          {
+            "comment": "Make response descriptions more consistent"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.33.0` to `~0.34.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.1` to `~0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.10.1` to `~0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.6.1` to `~0.7.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/library-linter\" from `~0.1.2` to `~0.1.3`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-plugin\" from `~0.1.0` to `~0.1.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/versioning\" from `~0.6.1` to `~0.7.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.33.0` to `~0.34.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/rest\" from `~0.15.1` to `~0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/openapi\" from `~0.10.1` to `~0.11.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.0",
       "tag": "@cadl-lang/openapi3_v0.13.0",
       "date": "Fri, 08 Jul 2022 23:22:57 GMT",

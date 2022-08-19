@@ -1,4 +1,4 @@
-import { DecoratorContext, NamespaceType } from "@cadl-lang/compiler";
+import { DecoratorContext, Namespace } from "@cadl-lang/compiler";
 import { createTestWrapper } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
@@ -107,7 +107,7 @@ describe("openapi3: versioning", () => {
 
     let storedNamespace: string | undefined = undefined;
     host.addJsFile("test.js", {
-      $armNamespace(context: DecoratorContext, entity: NamespaceType) {
+      $armNamespace(context: DecoratorContext, entity: Namespace) {
         storedNamespace = context.program.checker.getNamespaceString(entity);
       },
     });

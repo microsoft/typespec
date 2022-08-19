@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { ModelType } from "../../core/types.js";
+import { Model } from "../../core/types.js";
 import { getMaxValue, getMinValue } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
@@ -19,7 +19,7 @@ describe("compiler: range limiting decorators", () => {
       `
     );
 
-    const { A, B } = (await testHost.compile("./")) as { A: ModelType; B: ModelType };
+    const { A, B } = (await testHost.compile("./")) as { A: Model; B: Model };
 
     strictEqual(getMinValue(testHost.program, A.properties.get("foo")!), 15);
     strictEqual(getMaxValue(testHost.program, A.properties.get("boo")!), 55);
