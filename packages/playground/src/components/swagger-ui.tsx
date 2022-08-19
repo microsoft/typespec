@@ -6,11 +6,12 @@ export interface SwaggerUIProps {
 export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
   const uiRef = useRef(null);
   const uiInstance = useRef<any>(null);
+
   useEffect(() => {
     if (uiInstance.current === null) {
       uiInstance.current = CreateSwaggerUI({
         domNode: uiRef.current,
-        spec: JSON.parse(props.spec),
+        spec: props.spec as any,
       });
     } else {
       uiInstance.current.specActions.updateSpec(props.spec);
