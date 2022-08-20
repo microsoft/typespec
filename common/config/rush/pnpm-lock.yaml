@@ -90,7 +90,7 @@ specifiers:
   source-map-support: ~0.5.19
   strip-json-comments: ~4.0.0
   styled-components: ~5.3.5
-  swagger-ui: ~4.12.0
+  swagger-ui: ~4.14.0
   typescript: ~4.7.2
   vite: ^2.9.9
   vsce: ~2.6.7
@@ -192,7 +192,7 @@ dependencies:
   source-map-support: 0.5.21
   strip-json-comments: 4.0.0
   styled-components: 5.3.5_42bb643d0b268c4c5cb594c9f18cf5be
-  swagger-ui: 4.12.0
+  swagger-ui: 4.14.0
   typescript: 4.7.4
   vite: 2.9.14
   vsce: 2.6.7
@@ -2338,8 +2338,8 @@ packages:
       domelementtype: 2.3.0
     dev: false
 
-  /dompurify/2.3.3:
-    resolution: {integrity: sha512-dqnqRkPMAjOZE0FogZ+ceJNM2dZ3V/yNOuFB7+39qpO93hHhfRpHw3heYQC7DPK9FqbQTfBKUJhiSfz4MvXYwg==}
+  /dompurify/2.3.10:
+    resolution: {integrity: sha512-o7Fg/AgC7p/XpKjf/+RC3Ok6k4St5F7Q6q6+Nnm3p2zGWioAY6dh0CbbuwOhH2UcSzKsdniE/YnE2/92JcsA+g==}
     dev: false
 
   /domutils/3.0.1:
@@ -5063,10 +5063,10 @@ packages:
       react: 17.0.2
     dev: false
 
-  /react-debounce-input/3.2.4_react@17.0.2:
-    resolution: {integrity: sha512-fX70bNj0fLEYO2Zcvuh7eh9wOUQ29GIx6r8IxIJlc0i0mpUH++9ax0BhfAYfzndADli3RAMROrZQ014J01owrg==}
+  /react-debounce-input/3.3.0_react@17.0.2:
+    resolution: {integrity: sha512-VEqkvs8JvY/IIZvh71Z0TC+mdbxERvYF33RcebnodlsUZ8RSgyKe2VWaHXv4+/8aoOgXLxWrdsYs2hDhcwbUgA==}
     peerDependencies:
-      react: ^15.3.0 || ^16.0.0 || ^17.0.0
+      react: ^15.3.0 || 16 || 17 || 18
     dependencies:
       lodash.debounce: 4.0.8
       prop-types: 15.8.1
@@ -5889,8 +5889,8 @@ packages:
       - encoding
     dev: false
 
-  /swagger-ui/4.12.0:
-    resolution: {integrity: sha512-ffNcDTQFWu5dEzJywQ4QEcgQZlBaHaeYCjifuWePds8anzqCZXVpeJSD7RCirUs+8D051YevRSu3ZjqNUNyvrQ==}
+  /swagger-ui/4.14.0:
+    resolution: {integrity: sha512-XQgIw9AK6ZXTXBrSAKiEb/v+xjvgmIWxCBIYr4a0Hr0G2LwV9a024eO38aFCjftug/Jbobfd0JsENVzPIYywyA==}
     dependencies:
       '@babel/runtime-corejs3': 7.18.9
       '@braintree/sanitize-url': 6.0.0
@@ -5898,7 +5898,7 @@ packages:
       classnames: 2.3.1
       css.escape: 1.5.1
       deep-extend: 0.6.0
-      dompurify: 2.3.3
+      dompurify: 2.3.10
       ieee754: 1.2.1
       immutable: 3.8.2
       js-file-download: 0.4.12
@@ -5909,7 +5909,7 @@ packages:
       randombytes: 2.1.0
       react: 17.0.2
       react-copy-to-clipboard: 5.0.4_react@17.0.2
-      react-debounce-input: 3.2.4_react@17.0.2
+      react-debounce-input: 3.3.0_react@17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-immutable-proptypes: 2.2.0_immutable@3.8.2
       react-immutable-pure-component: 2.2.2_bd1a0e68a5e0e4857c26400f3b5f7e9d
@@ -6911,7 +6911,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz:
-    resolution: {integrity: sha512-z3SxyiWvUUTO6fEV0IpUYWm7MC4SkxFTeYgJsQbvvKgRXyjeCDaiOlSiPMA62mGq42NwdgvD8N+Amjge98CftA==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-hadqrZOjU7kgVpGnPR49Wkoj3mDaLdNAWzDAL0Kp7LgCa9sV9CM4FxLgRclK7/KMfhadqXKfQ7PLXEqyi64W4w==, tarball: file:projects/playground.tgz}
     name: '@rush-temp/playground'
     version: 0.0.0
     dependencies:
@@ -6939,7 +6939,7 @@ packages:
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
       rimraf: 3.0.2
-      swagger-ui: 4.12.0
+      swagger-ui: 4.14.0
       typescript: 4.7.4
       vite: 2.9.14
       vscode-languageserver: 7.0.0
