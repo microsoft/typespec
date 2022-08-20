@@ -8,15 +8,6 @@ Support libraries that enable the demo features are in the `packages/` directory
 
 ### Prerequisites
 
-#### Install Node & NPM
-
-Downlaod and install from https://nodejs.org.
-
-#### Install Eleventy (11Ty) using NPM.
-
-```bash
-> npm i --save-dev @11ty/eleventy
-```
 
 #### Clone this repository
 
