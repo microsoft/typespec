@@ -52,7 +52,6 @@ specifiers:
   ajv: ~8.9.0
   autorest: ~3.3.2
   c8: ~7.11.0
-  change-case: ~4.1.2
   cross-env: ~7.0.3
   debounce: ~1.2.1
   ecmarkup: ~12.0.3
@@ -71,8 +70,7 @@ specifiers:
   mocha-multi-reporters: ~1.5.1
   monaco-editor: ~0.32.1
   mustache: ~4.2.0
-  node-fetch: 3.2.8
-  node-watch: ~0.7.1
+  node-fetch: ^3.2.10
   onigasm: ~2.2.5
   picocolors: ~1.0.0
   playwright: ~1.22.2
@@ -152,7 +150,6 @@ dependencies:
   ajv: 8.9.0
   autorest: 3.3.2
   c8: 7.11.3
-  change-case: 4.1.2
   cross-env: 7.0.3
   debounce: 1.2.1
   ecmarkup: 12.0.3
@@ -171,8 +168,7 @@ dependencies:
   mocha-multi-reporters: 1.5.1_mocha@9.2.2
   monaco-editor: 0.32.1
   mustache: 4.2.0
-  node-fetch: 3.2.8
-  node-watch: 0.7.3
+  node-fetch: 3.2.10
   onigasm: 2.2.5
   picocolors: 1.0.0
   playwright: 1.22.2
@@ -3548,8 +3544,8 @@ packages:
       whatwg-url: 5.0.0
     dev: false
 
-  /node-fetch/3.2.8:
-    resolution: {integrity: sha512-KtpD1YhGszhntMpBDyp5lyagk8KIMopC1LEb7cQUAh7zcosaX5uK8HnbNb2i3NTQK3sIawCItS0uFC3QzcLHdg==}
+  /node-fetch/3.2.10:
+    resolution: {integrity: sha512-MhuzNwdURnZ1Cp4XTazr69K0BTizsBroX7Zx3UgDSVcZYKF/6p0CBe4EUb/hLqmzVhl0UpYfgRljQ4yxE+iCxA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       data-uri-to-buffer: 4.0.0
@@ -5328,7 +5324,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-k3jadUC1fkg9M16GM25MvBf09/ItLT9epfHglCK7UdqrywoasG2dNtvPqPKu7JqnIQvhx2qmjwIN4NodG3/rIg==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-KwKYm/Bl45uy9/wemZeH/tR5BrPBeevsA4c53lN+oPKPW150yX8PgES6Kui2VJT+KYVXTRSWrrp+BH7Ykbd5vg==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -5354,7 +5350,7 @@ packages:
       mocha-junit-reporter: 2.0.2_mocha@9.2.2
       mocha-multi-reporters: 1.5.1_mocha@9.2.2
       mustache: 4.2.0
-      node-fetch: 3.2.8
+      node-fetch: 3.2.10
       node-watch: 0.7.3
       picocolors: 1.0.0
       prettier: 2.7.1
