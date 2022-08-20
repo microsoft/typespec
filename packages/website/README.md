@@ -8,7 +8,6 @@ Support libraries that enable the demo features are in the `packages/` directory
 
 ### Prerequisites
 
-
 #### Clone this repository
 
 Clone this repository and cd into the root directory.
