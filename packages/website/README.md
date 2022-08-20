@@ -6,33 +6,17 @@ Support libraries that enable the demo features are in the `packages/` directory
 
 ## Instructions for editing or contributing to this website
 
-### Prerequisites
-
-#### Clone this repository
-
-Clone this repository and cd into the root directory.
-
-#### Install project dependencies & build
-
-First, install our monorepo manager:
-
-```bash
-> npm install -g @microsoft/rush
-```
-
-Next, install the project's dependencies.
-
-```bash
-> rush install
-```
-
-Next, build the project.
-
-```bash
-> rush build
-```
-
 ### Running the website
+
+To get started with the webiste, run the following npm commands
+
+To build for production:
+
+```bash
+> npm run build
+```
+
+To run the site on the local server
 
 ```bash
 > npm start
