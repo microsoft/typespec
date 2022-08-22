@@ -42,4 +42,4 @@ When wanting to let user add some customization specific to your emitter which o
 | ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | Line endings | What line endings are used in emitter files                                | This only affect the way the generated content gets written so this should be an **emitter option** |
 | Library name | What should be the library name for that package                           | ?TODO?                                                                                              |
-| Ouput style  | Emitter could emit 2 different style of library(e.g. Fluent or Functional) | ?TODO?                                                                                              |
+| Output style | Emitter could emit 2 different style of library(e.g. Fluent or Functional) | ?TODO?                                                                                              |
