@@ -25,27 +25,38 @@ See [Rest section in the tutorial](https://github.com/microsoft/cadl/blob/main/d
 
 `@cadl-lang/rest` library defines of the following artifacts:
 
-- [Models](#models)
-- [Decorators](#decorators)
-- [Interfaces](#interfaces)
+- [Cadl HTTP/Rest Library](#cadl-httprest-library)
+  - [Install](#install)
+  - [Usage](#usage)
+  - [Library Tour](#library-tour)
+  - [Models](#models)
+  - [Decorators](#decorators)
+  - [Interfaces](#interfaces)
+  - [See also](#see-also)
 
 ## Models
 
 - ### HTTP namespace
-  | Model                | Notes                                                                                                                                  |
-  | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-  | LocationHeader       | Location header                                                                                                                        |
-  | Response&lt;Status>  | &lt;Status> is numerical status code.                                                                                                  |
-  | OkResponse&lt;T>     | Response&lt;200> with T as the response body model type.                                                                               |
-  | CreatedResponse      | Response&lt;201>                                                                                                                       |
-  | AcceptedResponse     | Response&lt;202>                                                                                                                       |
-  | NoContentResponse    | Response&lt;204>                                                                                                                       |
-  | MovedResponse        | Response&lt;301> with LocationHeader for redirected URL                                                                                |
-  | NotModifiedResponse  | Response&lt;304>                                                                                                                       |
-  | UnauthorizedResponse | Response&lt;401>                                                                                                                       |
-  | NotFoundResponse     | Response&lt;404>                                                                                                                       |
-  | ConflictResponse     | Response&lt;409>                                                                                                                       |
-  | PlainData&lt;T>      | Produces a new model with the same properties as T, but with @query, @header, @body, and @path decorators removed from all properties. |
+
+  | Model                        | Notes                                                                                                                                  |
+  | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+  | LocationHeader               | Location header                                                                                                                        |
+  | Response&lt;Status>          | &lt;Status> is numerical status code.                                                                                                  |
+  | OkResponse&lt;T>             | Response&lt;200> with T as the response body model type.                                                                               |
+  | CreatedResponse              | Response&lt;201>                                                                                                                       |
+  | AcceptedResponse             | Response&lt;202>                                                                                                                       |
+  | NoContentResponse            | Response&lt;204>                                                                                                                       |
+  | MovedResponse                | Response&lt;301> with LocationHeader for redirected URL                                                                                |
+  | NotModifiedResponse          | Response&lt;304>                                                                                                                       |
+  | UnauthorizedResponse         | Response&lt;401>                                                                                                                       |
+  | NotFoundResponse             | Response&lt;404>                                                                                                                       |
+  | ConflictResponse             | Response&lt;409>                                                                                                                       |
+  | PlainData&lt;T>              | Produces a new model with the same properties as T, but with @query, @header, @body, and @path decorators removed from all properties. |
+  | BasicAuth                    | Configure `basic` authentication with @useAuth                                                                                         |
+  | BearerAuth                   | Configure `bearer` authentication with @useAuth                                                                                        |
+  | ApiKeyAuth<TLocation, TName> | Configure `apiKey` authentication with @useAuth                                                                                        |
+  | OAuth2Auth<TFlows>           | Configure `oauth2` authentication with @useAuth                                                                                        |
+
 - ### REST namespace
   | Model                                      | Notes                                                                                                       |
   | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
@@ -78,6 +89,7 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Http` na
 | @path       | model properties and operation parameters | indicating the properties are in request path.                                                    |
 | @statusCode | model properties and operation parameters | indicating the property is the return status code. Only one allowed per model.                    |
 | @server     | namespace                                 | Configure the server url for the service.                                                         |
+| @useAuth    | namespace                                 | Configure the service authentication.                                                             |
 
 - ### REST namespace
 
@@ -88,6 +100,7 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` na
 | @produces                 | namespace, operations                                 | Syntax:<br> `@produces(mimetypeString)` <br><br>Note:<br> The `@produces` decorator is used to specify the MIME media types or representations a resource can produce and send back to the client.                                                                                                                                                                                                                                                           |
 | @consumes                 | namespace, operations                                 | Syntax:<br> `@consumes(mimetypeString)` <br><br>Note:<br> The `@consumes` decorator is used to specify which MIME media types of representations a resource can accept, or consume, from the client.                                                                                                                                                                                                                                                         |
 | @discriminator            | models                                                | Syntax:<br> `@discriminator(kindString)` <br><br>Note:<br> `@discriminator` allows defining polymorphic models to be used by API as parameters and return types. In many strongly typed languages, they are expressed as inheritance.                                                                                                                                                                                                                        |
+| @resource                 | Model                                                 | Syntax:<br> `@resource(collectionName)` <br><br>Note:<br> This decorator is to used to mark a model as a resource type with a name for the type's collection.                                                                                                                                                                                                                                                                                                |
 | @readsResource            | operations                                            | Syntax:<br> `@readsResource(modelType)` <br><br>Note:<br> This decorator is to used to signal the operation that is the Read operation for a particular resource.                                                                                                                                                                                                                                                                                            |
 | @createsResource          | operations                                            | Syntax:<br> `@createsResource(modelType)` <br><br>Note:<br> This decorator is to used to signal the operation that is the Create operation for a particular resource.                                                                                                                                                                                                                                                                                        |
 | @createsOrUpdatesResource | operations                                            | Syntax:<br> `@createsOrUpdatesResource(modelType)` <br><br>Note:<br> This decorator is to used to signal the operation that is the CreatesOrUpdate operation for a particular resource.                                                                                                                                                                                                                                                                      |
@@ -109,22 +122,23 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` na
 
 These standard interfaces defines resource operations in basic building blocks that you can expose on the resources. You can use `extends` to compose the operations to meet the exact needs of your resource APIs.
 
-For example, for below `foo` model
+For example, for below `Widget` model
 
 ```
-model foo {
+@resource("widgets")
+model Widget {
   @key id: string;
   name: string;
 }
 ```
 
-- `foo` resource supports full CRUDL operations.
+- `Widget` resource supports full CRUDL operations.
 
 ```Cadl
-interface FooService extends Resource.ResourceOperations<Foo, Error>;
+interface WidgetService extends Resource.ResourceOperations<Widget, Error>;
 ```
 
-- `foo` resource supports only CRD operations.
+- `Widget` resource supports only CRD operations.
 
 ```Cadl
 interface WidgetService

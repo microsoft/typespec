@@ -1,4 +1,4 @@
-import { ModelType, ModelTypeProperty } from "@cadl-lang/compiler";
+import { Model, ModelProperty } from "@cadl-lang/compiler";
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { checkFor, createOpenAPITestRunner, openApiFor } from "./test-host.js";
@@ -29,10 +29,7 @@ describe("openapi3: discriminated unions", () => {
         bark: string;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -76,10 +73,7 @@ describe("openapi3: discriminated unions", () => {
         bark: string;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -126,10 +120,7 @@ describe("openapi3: discriminated unions", () => {
       bark: string;
     }
 
-    @route("/")
-    namespace root {
-      op read(): { @body body: Pet };
-    }
+    op read(): { @body body: Pet };
     `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -169,10 +160,7 @@ describe("openapi3: discriminated unions", () => {
         purebred: boolean;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -232,10 +220,7 @@ describe("openapi3: discriminated unions", () => {
         breed: "poodle";
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -309,10 +294,7 @@ describe("openapi3: discriminated unions", () => {
         kind: string;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     ok(openApi.components.schemas.Pet, "expected definition named Pet");
     ok(openApi.components.schemas.Cat, "expected definition named Cat");
@@ -368,19 +350,16 @@ describe("openapi3: discriminated unions", () => {
         tail: float64;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     strictEqual(diagnostics.length, 6);
-    strictEqual((diagnostics[0].target as ModelType).name, "Dog");
+    strictEqual((diagnostics[0].target as Model).name, "Dog");
     match(diagnostics[0].message, /not defined in a variant of a discriminated union/);
-    strictEqual((diagnostics[1].target as ModelTypeProperty).name, "kind"); // Pig.kind
+    strictEqual((diagnostics[1].target as ModelProperty).name, "kind"); // Pig.kind
     match(diagnostics[1].message, /must be type 'string'/);
-    strictEqual((diagnostics[2].target as ModelTypeProperty).name, "kind"); // Tiger.kind
+    strictEqual((diagnostics[2].target as ModelProperty).name, "kind"); // Tiger.kind
     match(diagnostics[2].message, /must be a required property/);
-    strictEqual((diagnostics[3].target as ModelType).name, "Dog");
+    strictEqual((diagnostics[3].target as Model).name, "Dog");
     match(diagnostics[3].message, /define the discriminator property with a string literal value/);
     match(diagnostics[4].message, /define the discriminator property with a string literal value/); // Pig.kind
     match(diagnostics[5].message, /define the discriminator property with a string literal value/); // Lizard.kind
@@ -404,10 +383,7 @@ describe("openapi3: discriminated unions", () => {
         bark: string;
       }
 
-      @route("/")
-      namespace root {
-        op read(): { @body body: Pet };
-      }
+      op read(): { @body body: Pet };
       `);
     strictEqual(diagnostics.length, 2);
     match(diagnostics[0].message, /"housepet" defined in two different variants: Cat and Dog/);

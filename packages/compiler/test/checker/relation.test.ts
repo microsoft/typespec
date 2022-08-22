@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { isNeverIndexer, ModelType } from "../../core/index.js";
+import { isNeverIndexer, Model } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -28,7 +28,7 @@ describe("compiler: checker: type relations", () => {
     @test model Test {
       source: ${source};
       target: ${target};
-    }`)) as { Test: ModelType };
+    }`)) as { Test: Model };
     const sourceProp = Test.properties.get("source")!.type;
     const targetProp = Test.properties.get("target")!.type;
     return runner.program.checker.isTypeAssignableTo(sourceProp, targetProp, targetProp);
@@ -85,8 +85,8 @@ describe("compiler: checker: type relations", () => {
       const { Bar } = (await runner.compile(`
         alias Foo = Record<{foo: string}> & Record<{bar: string}>;
         @test model Bar {foo: Foo}
-      `)) as { Bar: ModelType };
-      const Foo = Bar.properties.get("foo")!.type as ModelType;
+      `)) as { Bar: Model };
+      const Foo = Bar.properties.get("foo")!.type as Model;
       ok(Foo.indexer);
       ok(!isNeverIndexer(Foo.indexer));
       const indexValue = Foo.indexer.value;
@@ -582,6 +582,24 @@ describe("compiler: checker: type relations", () => {
           model Aging { age: int32 }
         `,
       });
+    });
+
+    it("can assign object without some of the optional properties", async () => {
+      await expectTypeAssignable({
+        source: "{name: string}",
+        target: "{name: string, age?: int32}",
+      });
+    });
+
+    it("emit diagnostic when required property is missing", async () => {
+      await expectTypeNotAssignable(
+        { source: `{foo: "abc"}`, target: `{foo: string, bar: string}` },
+        {
+          code: "missing-property",
+          message:
+            "Property 'bar' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+        }
+      );
     });
   });
 

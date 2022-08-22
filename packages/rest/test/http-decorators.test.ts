@@ -1,4 +1,4 @@
-import { ModelTypeProperty, NamespaceType } from "@cadl-lang/compiler";
+import { ModelProperty, Namespace } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
@@ -6,6 +6,7 @@ import {
 } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import {
+  getAuthentication,
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
@@ -236,7 +237,7 @@ describe("rest: http decorators", () => {
 
     it("set the body with @body", async () => {
       const { body } = await runner.compile(`
-          op test(@test @body body: string): string;
+          @post op test(@test @body body: string): string;
         `);
 
       ok(isBody(runner.program, body));
@@ -358,7 +359,7 @@ describe("rest: http decorators", () => {
       const { MyService } = (await runner.compile(`
         @server("https://example.com", "My service url")
         @test namespace MyService {}
-      `)) as { MyService: NamespaceType };
+      `)) as { MyService: Namespace };
 
       const servers = getServers(runner.program, MyService);
       deepStrictEqual(servers, [
@@ -374,16 +375,185 @@ describe("rest: http decorators", () => {
       const { MyService, NameParam } = (await runner.compile(`
         @server("https://example.com/{name}/foo", "My service url", {@test("NameParam") name: string })
         @test namespace MyService {}
-      `)) as { MyService: NamespaceType; NameParam: ModelTypeProperty };
+      `)) as { MyService: Namespace; NameParam: ModelProperty };
 
       const servers = getServers(runner.program, MyService);
       deepStrictEqual(servers, [
         {
           description: "My service url",
-          parameters: new Map<string, ModelTypeProperty>([["name", NameParam]]),
+          parameters: new Map<string, ModelProperty>([["name", NameParam]]),
           url: "https://example.com/{name}/foo",
         },
       ]);
+    });
+  });
+
+  describe("@useAuth", () => {
+    it("emit diagnostics when @header is not used on namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+          @useAuth(BasicAuth) op test(): string;
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message: "Cannot apply @useAuth decorator to Operation",
+        },
+      ]);
+    });
+
+    it("emit diagnostics when config is not a model, tuple or union", async () => {
+      const diagnostics = await runner.diagnose(`
+          @useAuth(123)
+          namespace Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message:
+          "Argument '123' of type 'Number' is not assignable to parameter of type 'Model, Union, Tuple'",
+      });
+    });
+
+    it("can specify BasicAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(BasicAuth)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [{ schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] }],
+      });
+    });
+
+    it("can specify custom auth name with description", async () => {
+      const { Foo } = (await runner.compile(`
+        @doc("My custom basic auth")
+        model MyAuth is BasicAuth;
+        @useAuth(MyAuth)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              { id: "MyAuth", description: "My custom basic auth", type: "http", scheme: "basic" },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify BearerAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(BearerAuth)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [{ schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] }],
+      });
+    });
+
+    it("can specify ApiKeyAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-my-header">)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          { schemes: [{ id: "ApiKeyAuth", type: "apiKey", in: "header", name: "x-my-header" }] },
+        ],
+      });
+    });
+
+    it("can specify OAauth2", async () => {
+      const { Foo } = (await runner.compile(`
+        model MyFlow {
+          type: OAuth2FlowType.implicit;
+          authorizationUrl: "https://api.example.com/oauth2/authorize";
+          refreshUrl: "https://api.example.com/oauth2/refresh";
+          scopes: ["read", "write"];
+        }
+        @useAuth(OAuth2Auth<[MyFlow]>)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              {
+                id: "OAuth2Auth",
+                type: "oauth2",
+                flows: [
+                  {
+                    type: "implicit",
+                    authorizationUrl: "https://api.example.com/oauth2/authorize",
+                    refreshUrl: "https://api.example.com/oauth2/refresh",
+                    scopes: [{ value: "read" }, { value: "write" }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify multiple auth options", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(BasicAuth | BearerAuth)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          { schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }] },
+          { schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }] },
+        ],
+      });
+    });
+
+    it("can specify multiple auth schemes to be used together", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth([BasicAuth, BearerAuth])
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              { id: "BasicAuth", type: "http", scheme: "basic" },
+              { id: "BearerAuth", type: "http", scheme: "bearer" },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify multiple auth schemes to be used together and multiple options", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth])
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+          },
+          {
+            schemes: [
+              { id: "ApiKeyAuth", type: "apiKey", in: "header", name: "x-my-header" },
+              { id: "BasicAuth", type: "http", scheme: "basic" },
+            ],
+          },
+        ],
+      });
     });
   });
 });

@@ -48,8 +48,19 @@ model ResourceCreatedResponse<T> {
   @body body: T;
 }
 
+interface ResourceCreateOrReplace<TResource, TError> {
+  @autoRoute
+  @doc("Creates or replaces a instance of the resource.")
+  @createsOrReplacesResource(TResource)
+  createOrReplace(
+    ...ResourceParameters<TResource>,
+    @body resource: ResourceCreateModel<TResource>
+  ): TResource | ResourceCreatedResponse<TResource> | TError;
+}
+
 @friendlyName("{name}Update", TResource)
-model ResourceCreateOrUpdateModel<TResource> is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>> {}
+model ResourceCreateOrUpdateModel<TResource>
+  is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<TResource, "read">>>;
 
 interface ResourceCreateOrUpdate<TResource, TError> {
   @autoRoute
@@ -62,7 +73,8 @@ interface ResourceCreateOrUpdate<TResource, TError> {
 }
 
 @friendlyName("{name}Create", TResource)
-model ResourceCreateModel<TResource> is UpdateableProperties<DefaultKeyVisibility<TResource, "read">> {}
+model ResourceCreateModel<TResource>
+  is UpdateableProperties<DefaultKeyVisibility<TResource, "read">>;
 
 interface ResourceCreate<TResource, TError> {
   @autoRoute
@@ -102,20 +114,26 @@ interface ResourceDelete<TResource, TError> {
   delete(...ResourceParameters<TResource>): ResourceDeletedResponse | TError;
 }
 
-@doc("Paged response")
-model Page<T> {
+/**
+ * Structure for a paging response using `value` and `nextLink` to represent pagination.
+ * This only provides the model structure and not actual pagination support.
+ * See https://github.com/microsoft/cadl/issues/705 for general paging support.
+ */
+@doc("Paged response of {name} items", T)
+@friendlyName("{name}CollectionWithNextLink", T)
+model CollectionWithNextLink<T> {
   @doc("The items on this page")
   value: T[];
 
   @doc("The link to the next page of items")
-  nextLink?: string;
+  nextLink?: ResourceLocation<T>;
 }
 
 interface ResourceList<TResource, TError> {
   @autoRoute
   @doc("Lists all instances of the resource.")
   @listsResource(TResource)
-  list(...ResourceCollectionParameters<TResource>): Page<TResource> | TError;
+  list(...ResourceCollectionParameters<TResource>): CollectionWithNextLink<TResource> | TError;
 }
 
 @Private.validateHasKey(TResource)
@@ -226,7 +244,7 @@ interface ExtensionResourceList<TExtension, TResource, TError> {
   List(
     ...ResourceParameters<TResource>,
     ...ResourceCollectionParameters<TExtension>
-  ): Page<TExtension> | TError;
+  ): CollectionWithNextLink<TExtension> | TError;
 }
 
 interface ExtensionResourceInstanceOperations<TExtension, TResource, TError>

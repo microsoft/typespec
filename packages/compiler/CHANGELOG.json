@@ -2,6 +2,142 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.34.0",
+      "tag": "@cadl-lang/compiler_v0.34.0",
+      "date": "Thu, 11 Aug 2022 19:05:23 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "combine consecutive single line comments that are separated by whitespace"
+          },
+          {
+            "comment": "comment folding"
+          },
+          {
+            "comment": "implemented folding for comments"
+          },
+          {
+            "comment": "Allow extracting value from enums"
+          },
+          {
+            "comment": "Add helper method for emitting file in emitters"
+          },
+          {
+            "comment": "Feature: Emitter can specify a list of required imports"
+          },
+          {
+            "comment": "Allow `@secret` on model property"
+          },
+          {
+            "comment": "Add type relations and include a few more built-in types `any`, `object`, `Record`. `Map` was removed"
+          },
+          {
+            "comment": "Added support for template constraints"
+          },
+          {
+            "comment": "Format `model Foo is Bar {}` to `model Foo is Bar;`"
+          },
+          {
+            "comment": "Added ability for decorator validator to accept any type"
+          },
+          {
+            "comment": "Add @overload decorator"
+          },
+          {
+            "comment": "Add helper to check if a namespace is the global namespace"
+          },
+          {
+            "comment": "Support spread enum"
+          },
+          {
+            "comment": "Add editor support for document symbols."
+          },
+          {
+            "comment": "Improve language configuration to help with comment indentation"
+          },
+          {
+            "comment": "Provide helper to check types are template, template declaration or template instance"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Fix: Allow omiting optional properties"
+          },
+          {
+            "comment": "Improve `cloneType` implementation to duplicate decorator lists correctly"
+          },
+          {
+            "comment": "Add DefaultKeyVisibility<T, Visibility> and @withDefaultKeyVisibility to assign a default visibility value to model @key properties in specific operation signatures"
+          },
+          {
+            "comment": "Fix: Referencing previous template parameter in template parameter defaul"
+          },
+          {
+            "comment": "Fix bug in finding effective type"
+          },
+          {
+            "comment": "Fix issue with required parentheses being dropped with union, intersection and array expressions"
+          },
+          {
+            "comment": "Fix issue with formatting multi line tuple adding trailing comma."
+          },
+          {
+            "comment": "Fix parsing error locations for imports and blockless namespaces"
+          },
+          {
+            "comment": "Fix issue with multi-file specs in VS Code on Windows where common definitions are not found."
+          },
+          {
+            "comment": "Fix `mix` message when trying to extend non-interface"
+          },
+          {
+            "comment": "Fix issue with projection of nested namespace passing partial projected element to decorators"
+          },
+          {
+            "comment": "Fix: Operation signature with circular reference causing crash and updated message+code to be relevant to operations."
+          },
+          {
+            "comment": "Fix: Couldn't use operation defined inside interfaces as signature."
+          },
+          {
+            "comment": "Fix uninitialzed parent namespaces in projections"
+          },
+          {
+            "comment": "Run projections on types returned from getEffectiveType"
+          },
+          {
+            "comment": "Fix: Issue with Nested namespace in projection causing versioning library to fail when Service is using nested namespace"
+          },
+          {
+            "comment": "Internal: union variant type has reference to parent union."
+          },
+          {
+            "comment": "Fix null reference in getTypeName API when called on anonymous models without a backing syntax node"
+          },
+          {
+            "comment": "Emit diagnostic when an optional property is marked with @key"
+          },
+          {
+            "comment": "Providing `cadl.cadl-server.path` option will force the specified compiler to be used"
+          },
+          {
+            "comment": "Fix error location of duplicate property from spread"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.3.0` to `~0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/internal-build-utils\" from `~0.3.0` to `~0.3.1`"
+          },
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.3.0` to `~0.3.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.33.0",
       "tag": "@cadl-lang/compiler_v0.33.0",
       "date": "Fri, 08 Jul 2022 23:22:57 GMT",

@@ -89,7 +89,7 @@ model boolean {}
 model null {}
 
 @deprecated("Map is deprecated, use Record<T> instead")
-model Map<K, V> is Record<V> {}
+model Map<K, V> is Record<V>;
 
 @doc("The template for adding optional properties.")
 @withOptionalProperties

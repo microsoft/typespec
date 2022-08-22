@@ -1,4 +1,9 @@
-import { createTestHost, createTestWrapper, resolveVirtualPath } from "@cadl-lang/compiler/testing";
+import {
+  createTestHost,
+  createTestWrapper,
+  expectDiagnosticEmpty,
+  resolveVirtualPath,
+} from "@cadl-lang/compiler/testing";
 import { OpenAPITestLibrary } from "@cadl-lang/openapi/testing";
 import { RestTestLibrary } from "@cadl-lang/rest/testing";
 import { VersioningTestLibrary } from "@cadl-lang/versioning/testing";
@@ -10,14 +15,22 @@ export async function createOpenAPITestHost() {
   });
 }
 
-export async function createOpenAPITestRunner() {
+export async function createOpenAPITestRunner({
+  withVersioning,
+}: { withVersioning?: boolean } = {}) {
   const host = await createOpenAPITestHost();
-  return createTestWrapper(
-    host,
-    (code) =>
-      `import "@cadl-lang/rest"; import "@cadl-lang/openapi"; import "@cadl-lang/openapi3"; using Cadl.Rest; using Cadl.Http; using OpenAPI; ${code}`,
-    { emitters: { "@cadl-lang/openapi3": {} } }
-  );
+  const importAndUsings = `
+  import "@cadl-lang/rest"; import "@cadl-lang/openapi";
+  import "@cadl-lang/openapi3"; 
+  ${withVersioning ? `import "@cadl-lang/versioning"` : ""};
+  using Cadl.Rest;
+  using Cadl.Http;
+  using OpenAPI;
+  ${withVersioning ? "using Cadl.Versioning;" : ""}
+`;
+  return createTestWrapper(host, (code) => `${importAndUsings} ${code}`, {
+    emitters: { "@cadl-lang/openapi3": {} },
+  });
 }
 
 function versionedOutput(path: string, version: string) {
@@ -26,7 +39,8 @@ function versionedOutput(path: string, version: string) {
 
 export async function diagnoseOpenApiFor(code: string) {
   const runner = await createOpenAPITestRunner();
-  return await runner.diagnose(code);
+  const diagnostics = await runner.diagnose(code);
+  return diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes");
 }
 
 export async function openApiFor(code: string, versions?: string[]) {
@@ -38,10 +52,11 @@ export async function openApiFor(code: string, versions?: string[]) {
       versions ? `import "@cadl-lang/versioning"; using Cadl.Versioning;` : ""
     }using Cadl.Rest;using Cadl.Http;using OpenAPI;${code}`
   );
-  await host.compile("./main.cadl", {
+  const diagnostics = await host.diagnose("./main.cadl", {
     noEmit: false,
     emitters: { "@cadl-lang/openapi3": { "output-file": outPath } },
   });
+  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@cadl-lang/rest/no-routes"));
 
   if (!versions) {
     return JSON.parse(host.fs.get(outPath)!);
@@ -62,6 +77,7 @@ export async function checkFor(code: string) {
 export async function oapiForModel(name: string, modelDef: string) {
   const oapi = await openApiFor(`
     ${modelDef};
+    @serviceTitle("Testing model")
     @route("/")
     namespace root {
       op read(): { @body body: ${name} };

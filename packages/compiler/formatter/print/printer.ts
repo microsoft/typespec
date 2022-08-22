@@ -61,10 +61,16 @@ export function printCadl(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
-  const directives = printDirectives(path, options, print);
-  const node = printNode(path, options, print);
-  const value = needsParens(path, options) ? ["(", node, ")"] : node;
+  const node = path.getValue();
+  const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
+  const printedNode = printNode(path, options, print);
+  const value = needsParens(path, options) ? ["(", printedNode, ")"] : printedNode;
   return [directives, value];
+}
+
+function shouldPrintDirective(node: Node) {
+  // Model property handle printing directive itself.
+  return node.kind !== SyntaxKind.ModelProperty;
 }
 
 export function printNode(
@@ -224,11 +230,19 @@ function printTemplateParameters<T extends Node>(
   print: PrettierChildPrint,
   propertyName: keyof T
 ) {
-  const value = path.getValue()[propertyName];
-  if ((value as any).length === 0) {
+  const node = path.getValue();
+  const args = node[propertyName] as any as TemplateParameterDeclarationNode[];
+  if ((args as any).length === 0) {
     return "";
   }
-  return ["<", join(", ", path.map(print, propertyName)), ">"];
+
+  const shouldHug = (args as any).length === 1;
+  if (shouldHug) {
+    return ["<", join(", ", path.map(print, propertyName)), ">"];
+  } else {
+    const body = indent([softline, join([", ", softline], path.map(print, propertyName))]);
+    return group(["<", body, softline, ">"]);
+  }
 }
 
 export function canAttachComment(node: Node): boolean {
@@ -682,7 +696,6 @@ export function printTuple(
         path.map((arg) => [softline, print(arg)], "values")
       )
     ),
-    ifBreak(","),
     softline,
     "]",
   ]);
@@ -726,18 +739,21 @@ export function printModelStatement(
 ) {
   const node = path.getValue();
   const id = path.call(print, "id");
-  const heritage = node.extends ? ["extends ", path.call(print, "extends"), " "] : "";
-  const isBase = node.is ? ["is ", path.call(print, "is"), " "] : "";
+  const heritage = node.extends
+    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
+    : "";
+  const isBase = node.is ? [ifBreak(line, " "), "is ", path.call(print, "is")] : "";
   const generic = printTemplateParameters(path, options, print, "templateParameters");
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
+  const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
     "model ",
     id,
     generic,
-    " ",
-    heritage,
-    isBase,
-    printModelPropertiesBlock(path, options, print),
+    group(indent(["", heritage, isBase])),
+    body,
   ];
 }
 
@@ -752,20 +768,22 @@ function printModelPropertiesBlock(
   if (!hasProperties && !nodeHasComments) {
     return "{}";
   }
-
+  const tryInline = path.getParentNode()?.kind === SyntaxKind.TemplateParameterDeclaration;
+  const lineDoc = tryInline ? softline : hardline;
   const seperator = isModelAValue(path) ? "," : ";";
 
   const body: prettier.Doc = [
-    hardline,
+    lineDoc,
     join(
-      hardline,
-      path.map((x) => [print(x as any), seperator], "properties")
+      [seperator, lineDoc],
+      path.map((x) => [print(x as any)], "properties")
     ),
+    hasProperties ? ifBreak(seperator) : "",
   ];
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
-  return ["{", indent(body), hardline, "}"];
+  return group(["{", indent(body), lineDoc, "}"]);
 }
 
 /**
@@ -812,6 +830,7 @@ export function printModelProperty(
   }
   return [
     multiline && isNotFirst ? hardline : "",
+    printDirectives(path, options, print),
     decorators,
     id,
     node.optional ? "?: " : ": ",
@@ -1009,7 +1028,11 @@ function printTemplateParameterDeclaration(
   print: PrettierChildPrint
 ): Doc {
   const node = path.getValue();
-  return [path.call(print, "id"), node.default ? [" = ", path.call(print, "default")] : ""];
+  return [
+    path.call(print, "id"),
+    node.constraint ? [" extends ", path.call(print, "constraint")] : "",
+    node.default ? [" = ", path.call(print, "default")] : "",
+  ];
 }
 
 function printModelSpread(

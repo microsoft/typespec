@@ -2,6 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@serviceTitle("Tags sample")
+namespace TagsSample;
+
 @route("/foo")
 @tag("foo")
 namespace Foo {

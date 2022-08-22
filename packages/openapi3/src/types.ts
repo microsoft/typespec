@@ -34,6 +34,9 @@ export interface OpenAPI3Document extends Extensions {
 
   /** An element to hold various schemas for the specification. */
   components?: OpenAPI3Components;
+
+  /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a request. Individual operations can override this definition. */
+  security?: Record<string, string[]>[];
 }
 
 export interface OpenAPI3Info extends Extensions {
@@ -502,6 +505,11 @@ export type OpenAPI3Schema = Extensions & {
 
   /** Allows sending a null value for the defined schema. Default value is false. */
   nullable?: boolean;
+
+  /**
+   * Property is readonly.
+   */
+  readOnly?: boolean;
 
   /** Adds support for polymorphism. The discriminator is an object name that is used to differentiate between other schemas which may satisfy the payload description  */
   discriminator?: OpenAPI3Discriminator;

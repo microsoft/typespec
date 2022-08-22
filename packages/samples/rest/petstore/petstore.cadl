@@ -16,8 +16,8 @@ model PetStoreError {
   message: string;
 }
 
+@resource("pets")
 model Pet {
-  @segment("pets")
   @key("petId")
   id: int32;
   name: string;
@@ -29,25 +29,25 @@ model Pet {
   ownerId: int64;
 }
 
+@resource("toys")
 @parentResource(Pet)
 model Toy {
-  @segment("toys")
   @key("toyId")
   id: int64;
   petId: int64;
   name: string;
 }
 
+@resource("owners")
 model Owner {
-  @segment("owners")
   @key("ownerId")
   id: int64;
   name: string;
   age: int32;
 }
 
+@resource("checkups")
 model Checkup {
-  @segment("checkups")
   @key("checkupId")
   id: int32;
   vetName: string;
@@ -71,7 +71,10 @@ interface PetInsurance extends SingletonResourceOperations<Insurance, Pet, PetSt
 
 interface Toys extends ResourceRead<Toy, PetStoreError> {
   @listsResource(Toy)
-  list(...ParentKeysOf<Toy>, @query nameFilter: string): Page<Toy> | PetStoreError;
+  list(
+    ...ParentKeysOf<Toy>,
+    @query nameFilter: string
+  ): CollectionWithNextLink<Toy> | PetStoreError;
 }
 interface ToyInsurance extends SingletonResourceOperations<Insurance, Toy, PetStoreError> {}
 

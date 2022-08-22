@@ -1,8 +1,8 @@
-import assert from "assert";
-import { ModelType, Type } from "../../core/types.js";
+import assert, { strictEqual } from "assert";
+import { Model, Type } from "../../core/types.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
 
-function assertModel(type?: Type): asserts type is ModelType {
+function assertModel(type?: Type): asserts type is Model {
   assert(type?.kind === "Model");
 }
 
@@ -86,7 +86,34 @@ describe("compiler: model circular references", () => {
     assertModel(model);
     const parentType = model.properties.get("parent")?.type;
     assertModel(parentType);
-    assert(parentType.templateNode === model.node);
+    strictEqual(parentType, model);
+  });
+
+  it("template model can reference each other", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @test model A<T> {
+        value: T;
+        b?: B<T>;
+      }
+      @test model B<T> {
+        value: T;
+        a?: A<T>;
+      }
+
+      op test(): A<string>;
+      `
+    );
+    const records = await testHost.compile("./");
+    const model = records["A"];
+    assertModel(model);
+    const bType = model.properties.get("b")?.type;
+    assertModel(bType);
+    const aTypeViaB = bType.properties.get("a")?.type;
+    assertModel(aTypeViaB);
+
+    strictEqual(model, aTypeViaB);
   });
 
   it("models can reference each other in different namespace with the same name", async () => {

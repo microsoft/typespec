@@ -52,7 +52,7 @@
             }
           },
           "304": {
-            "description": "Not modified",
+            "description": "The client has made a conditional request and the resource has not been modified.",
             "content": {
               "application/json": {
                 "schema": {

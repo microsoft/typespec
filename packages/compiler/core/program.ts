@@ -1,10 +1,17 @@
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSourceFile } from "./diagnostics.js";
-import { SymbolFlags } from "./index.js";
+import { compilerAssert, MANIFEST, SymbolFlags } from "./index.js";
+import { getLibraryUrlsLoaded } from "./library.js";
 import { createLogger } from "./logger/index.js";
 import { createDiagnostic } from "./messages.js";
-import { resolveModule, ResolveModuleHost } from "./module-resolver.js";
+import {
+  ModuleResolutionResult,
+  NodePackage,
+  ResolvedModule,
+  resolveModule,
+  ResolveModuleHost,
+} from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
@@ -34,7 +41,7 @@ import {
   SyntaxKind,
   Type,
 } from "./types.js";
-import { doIO, loadFile } from "./util.js";
+import { doIO, findProjectRoot, loadFile } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -49,7 +56,6 @@ export interface Program {
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode>;
-  evalCadlScript(cadlScript: string): void;
   onValidate(cb: (program: Program) => void | Promise<void>): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
@@ -189,6 +195,11 @@ class StateSet implements Set<Type> {
   }
 }
 
+interface CadlLibraryReference {
+  path: string;
+  manifest: NodePackage;
+}
+
 export async function createProgram(
   host: CompilerHost,
   mainFile: string,
@@ -203,7 +214,7 @@ export async function createProgram(
   let currentProjector: Projector | undefined;
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
-  const libraryLoaded = new Set<string>();
+  const loadedLibraries = new Map<string, CadlLibraryReference>();
   let error = false;
 
   const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
@@ -219,7 +230,6 @@ export async function createProgram(
     logger,
     emitters,
     loadCadlScript,
-    evalCadlScript,
     getOption,
     stateMap,
     stateMaps,
@@ -244,7 +254,6 @@ export async function createProgram(
     },
   };
 
-  let virtualFileCount = 0;
   const binder = createBinder(program);
 
   if (!options?.nostdlib) {
@@ -271,7 +280,7 @@ export async function createProgram(
     await loadEmitters(resolvedMain, emitters);
   }
 
-  const checker = (program.checker = createChecker(program));
+  program.checker = createChecker(program);
   program.checker.checkProgram();
 
   if (program.hasError()) {
@@ -296,7 +305,7 @@ export async function createProgram(
   }
 
   for (const [requiredImport, emitterName] of requireImports) {
-    if (!libraryLoaded.has(requiredImport)) {
+    if (!loadedLibraries.has(requiredImport)) {
       program.reportDiagnostic(
         createDiagnostic({
           code: "missing-import",
@@ -306,6 +315,8 @@ export async function createProgram(
       );
     }
   }
+
+  await validateLoadedLibraries();
   if (program.hasError()) {
     return program;
   }
@@ -316,6 +327,54 @@ export async function createProgram(
 
   return program;
 
+  /**
+   * Validate the libraries loaded during the compilation process are compatible.
+   */
+  async function validateLoadedLibraries() {
+    const loadedRoots = new Set<string>();
+    // Check all the files that were loaded
+    for (const fileUrl of getLibraryUrlsLoaded()) {
+      const root = await findProjectRoot(host, host.fileURLToPath(fileUrl));
+      if (root) {
+        loadedRoots.add(root);
+      }
+    }
+
+    const libraries = new Map([...loadedLibraries.entries()]);
+    const incompatibleLibraries = new Map<string, CadlLibraryReference[]>();
+    for (const root of loadedRoots) {
+      const packageJsonPath = joinPaths(root, "package.json");
+      try {
+        const packageJson: NodePackage = JSON.parse((await host.readFile(packageJsonPath)).text);
+        const found = libraries.get(packageJson.name);
+        if (found && found.path !== root && found.manifest.version !== packageJson.version) {
+          let incompatibleIndex: CadlLibraryReference[] | undefined = incompatibleLibraries.get(
+            packageJson.name
+          );
+          if (incompatibleIndex === undefined) {
+            incompatibleIndex = [found];
+            incompatibleLibraries.set(packageJson.name, incompatibleIndex);
+          }
+          incompatibleIndex.push({ path: root, manifest: packageJson });
+        }
+      } catch {}
+    }
+
+    for (const [name, incompatibleLibs] of incompatibleLibraries) {
+      reportDiagnostic(
+        createDiagnostic({
+          code: "incompatible-library",
+          format: {
+            name: name,
+            versionMap: incompatibleLibs
+              .map((x) => `  - Version: "${x.manifest.version}" installed at "${x.path}"`)
+              .join("\n"),
+          },
+          target: NoTarget,
+        })
+      );
+    }
+  }
   async function loadStandardLibrary(program: Program) {
     for (const dir of host.getLibDirs()) {
       await loadDirectory(dir, NoTarget);
@@ -412,39 +471,6 @@ export async function createProgram(
     return sourceFile;
   }
 
-  function loadCadlScriptSync(cadlScript: SourceFile): CadlScriptNode {
-    // This is not a diagnostic because the compiler should never reuse the same path.
-    // It's the caller's responsibility to use unique paths.
-    if (program.sourceFiles.has(cadlScript.path)) {
-      throw new RangeError("Duplicate script path: " + cadlScript);
-    }
-    const sourceFile = parse(cadlScript);
-    program.reportDiagnostics(sourceFile.parseDiagnostics);
-    program.sourceFiles.set(cadlScript.path, sourceFile);
-    for (const stmt of sourceFile.statements) {
-      if (stmt.kind !== SyntaxKind.ImportStatement) break;
-      program.reportDiagnostic(createDiagnostic({ code: "dynamic-import", target: stmt }));
-    }
-    binder.bindSourceFile(sourceFile);
-
-    return sourceFile;
-  }
-
-  // Evaluates an arbitrary line of Cadl in the context of a
-  // specified file path.  If no path is specified, use a
-  // virtual file path
-  function evalCadlScript(script: string): void {
-    const sourceFile = createSourceFile(script, `__virtual_file_${++virtualFileCount}`);
-    const cadlScript = loadCadlScriptSync(sourceFile);
-    checker.mergeSourceFile(cadlScript);
-    checker.setUsingsForFile(cadlScript);
-    for (const ns of cadlScript.namespaces) {
-      const mergedSym = checker.getMergedSymbol(ns.symbol)!;
-      reportDuplicateSymbols(mergedSym.exports);
-    }
-    reportDuplicateSymbols(checker.getGlobalNamespaceNode().symbol.exports);
-  }
-
   async function loadScriptImports(file: CadlScriptNode) {
     // collect imports
     const basedir = getDirectoryPath(file.file.path);
@@ -469,13 +495,18 @@ export async function createProgram(
     target: DiagnosticTarget | typeof NoTarget,
     relativeTo: string
   ) {
-    const importFilePath = await resolveCadlLibrary(path, relativeTo, target);
-    if (importFilePath) {
-      libraryLoaded.add(path);
-      logger.debug(`Loading library "${path}" from "${importFilePath}"`);
-    } else {
+    const library = await resolveCadlLibrary(path, relativeTo, target);
+    if (library === undefined) {
       return;
     }
+    if (library.type === "module") {
+      loadedLibraries.set(library.manifest.name, {
+        path: library.path,
+        manifest: library.manifest,
+      });
+      logger.debug(`Loading library "${path}" from "${library.mainFile}"`);
+    }
+    const importFilePath = library.type === "module" ? library.mainFile : library.path;
 
     const isDirectory = (await host.stat(importFilePath)).isDirectory();
     if (isDirectory) {
@@ -563,7 +594,7 @@ export async function createProgram(
     specifier: string,
     baseDir: string,
     target: DiagnosticTarget | typeof NoTarget
-  ): Promise<string | undefined> {
+  ): Promise<ModuleResolutionResult | undefined> {
     try {
       return await resolveModule(getResolveModuleHost(), specifier, {
         baseDir,
@@ -602,7 +633,12 @@ export async function createProgram(
    */
   async function resolveJSLibrary(specifier: string, baseDir: string): Promise<string | undefined> {
     try {
-      return await resolveModule(getResolveModuleHost(), specifier, { baseDir });
+      const resolved = await resolveModule(getResolveModuleHost(), specifier, { baseDir });
+      if (resolved.type === "file") {
+        return resolved.path;
+      } else {
+        return resolved.mainFile;
+      }
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
         program.reportDiagnostic(
@@ -677,9 +713,7 @@ export async function createProgram(
    * @returns
    */
   async function loadMain(mainPath: string, options: CompilerOptions): Promise<void> {
-    if (!(await checkForCompilerVersionMismatch(mainPath))) {
-      return;
-    }
+    await checkForCompilerVersionMismatch(mainPath);
 
     const sourceFileKind = host.getSourceFileKind(mainPath);
 
@@ -701,9 +735,9 @@ export async function createProgram(
   // compiler.
   async function checkForCompilerVersionMismatch(mainPath: string): Promise<boolean> {
     const baseDir = getDirectoryPath(mainPath);
-    let actual: string;
+    let actual: ResolvedModule;
     try {
-      actual = await resolveModule(
+      const resolved = await resolveModule(
         {
           realpath: host.realpath,
           stat: host.stat,
@@ -715,6 +749,11 @@ export async function createProgram(
         "@cadl-lang/compiler",
         { baseDir }
       );
+      compilerAssert(
+        resolved.type === "module",
+        `Expected to have resolved "@cadl-lang/compiler" to a node module.`
+      );
+      actual = resolved;
     } catch (err: any) {
       if (err.code === "MODULE_NOT_FOUND" || err.code === "INVALID_MAIN") {
         return true; // no local cadl, ok to use any compiler
@@ -727,14 +766,14 @@ export async function createProgram(
       "../index.js"
     );
 
-    if (actual !== expected) {
+    if (actual.mainFile !== expected && MANIFEST.version !== actual.manifest.version) {
       // we have resolved node_modules/@cadl-lang/compiler/dist/core/index.js and we want to get
       // to the shim executable node_modules/.bin/cadl-server
-      const betterCadlServerPath = resolvePath(actual, "../../../../../.bin/cadl-server");
+      const betterCadlServerPath = resolvePath(actual.path, ".bin/cadl-server");
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir: baseDir, betterCadlServerPath, actual, expected },
+          format: { basedir: baseDir, betterCadlServerPath, actual: actual.mainFile, expected },
           target: NoTarget,
         })
       );

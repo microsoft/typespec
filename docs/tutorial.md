@@ -19,7 +19,7 @@ Cadl consists of the following language features:
 - [Type Literals](#Type-Literals): strings and numbers with specific values
 - [Type Operators](#Type-Operators): syntax for composing model types into other types
 - [Operations](#Operations): service endpoints with parameters and return values
-- [Namespaces & Usings](#Namespaces-&-Usings): groups models and operations together into hierarchical groups with friendly names
+- [Namespaces & Usings](#namespaces--usings): groups models and operations together into hierarchical groups with friendly names
 - [Interfaces](#Interfaces): groups operations
 - [Imports](#Imports): links declarations across multiple files and libraries together into a single program
 - [Decorators](#Decorators): bits of TypeScript code that add metadata or sometimes mutate declarations
@@ -67,7 +67,10 @@ Cadl comes with built-in models for common data types:
 - `duration`: A duration/time period. e.g 5s, 10h
 - `boolean`: true or false
 - `null`: the null value found in e.g. JSON.
-- `Map<K, V>`: a map from K to V.
+- `Record<T>`: a dictionary with string K and value T.
+- `unknown`: A top type in Cadl that all types can be assigned to.
+- `void`: A function return type indicating the function doesn't return a value.
+- `never`: The never type indicates the values that will never occur. Typically, you use the never type to represent the return type of a function that always throws an error.
 
 #### Spread
 
@@ -118,7 +121,7 @@ model Thing<T> {
   property: T;
 }
 
-model StringThing is Thing<string> {}
+model StringThing is Thing<string>;
 
 // StringThing declaration is equivalent to the following declaration:
 @decorator
@@ -474,17 +477,71 @@ Dog type: Model
 
 Cadl comes built-in with a number of decorators that are useful for defining service APIs regardless of what protocol or language you're targeting.
 
-- @summary - attach a documentation string, typically a short, single-line description.
-- @doc - attach a documentation string. Works great with multi-line string literals.
-- @key - mark a model property as the key to identify instances of that type
-- @tag - attach a simple tag to a declaration
-- @secret - mark a string as a secret value that should be treated carefully to avoid exposure
-- @minValue/@maxValue - set the min and max values of number types
+- [@deprecated](#deprecated) - indicates that the decorator target has been deprecated.
+- [@doc](#doc) - attach a documentation string. Works great with multi-line string literals.
+- [@error](#error) - specify a model is representing an error
+- [@format](#format) - specify the data format hint for a string type
+- [@friendlyName](#friendlyname) - specify a friendly name to be used instead of declared model name
+- @indexer
+- [@inspectType/@inspectTypeName](#inspecttype) - displays information about a type during compilation
+- [@key](#key) - mark a model property as the key to identify instances of that type
+- [@knownValues](#knownvalues) - mark a string type with an enum that contains all known values
+- @list -
 - @minLength/@maxLength - set the min and max lengths for strings
-- @knownValues - mark a string type with an enum that contains all known values
-- @pattern - set the pattern for a string using regular expression syntax
-- @format - specify the data format hint for a string type
-- @error - specify a model is representing an error
+- @minValue/@maxValue - set the min and max values of number types
+- [@pattern](#pattern) - set the pattern for a string using regular expression syntax
+- [@secret](#secret) - mark a string as a secret value that should be treated carefully to avoid exposure
+- [@summary](#summary) - attach a documentation string, typically a short, single-line description.
+- [@tag](#tag) - attach a simple tag to a declaration
+- [@visibility/@withVisibility](#visibility-decorators)
+- [@withDefaultKeyVisibility](#withefaultkeyvisibility) - set the visibility of key properties in a model if not already set.
+- [@withOptionalProperties](#withoptionalproperties) - makes all properties of the target type optional.
+- [@withoutDefaultValues](#withoutdefaultvalues) - removes all read-only properties from the target type.
+- [@withoutOmittedProperties](#withoutomittedproperties) - removes all model properties that match a type.
+- [@withUpdateableProperties](#withupdateableproperties) - remove all read-only properties from the target type
+
+##### @inspectType
+
+Syntax:
+
+```
+@inspectType(message)
+@inspectTypeName(message)
+```
+
+`@inspectType` displays information about a type during compilation.
+`@inspectTypeName` displays information and name of type during compilation.
+They can be specified on any language element -- a model, an operation, a namespace, etc.
+
+##### @deprecated
+
+Syntax:
+
+```
+@deprecated(message)
+```
+
+`@deprecated` marks a type as deprecated. It can be specified on any language element -- a model, an operation, a namespace, etc.
+
+##### @friendlyName
+
+Syntax:
+
+```
+@friendlyName(string)
+```
+
+`@friendlyName` specifies an alternate model name to be used instead of declared model name. It can be specified on a model.
+
+##### @pattern
+
+Syntax:
+
+```
+@pattern(regularExpressionText)
+```
+
+`@pattern` specifies a regular expression on a string property.
 
 ##### @summary
 
@@ -561,6 +618,24 @@ Otherwise, the name of the target property will be used.
 
 `@key` can only be applied to model properties.
 
+##### @secret
+
+Syntax:
+
+```
+@secret
+```
+
+`@secret` mark a string as a secret value that should be treated carefully to avoid exposure
+
+```
+@secret
+model Password is string;
+
+```
+
+`@secret` can only be applied to string model;
+
 ##### @format
 
 Syntax:
@@ -624,6 +699,68 @@ model WriteDog {
 }
 
 ```
+
+#### @withDefaultKeyVisibility
+
+Syntax:
+
+```
+@withDefaultKeyVisibility(string)
+```
+
+`@withDefaultKeyVisibility` - set the visibility of key properties in a model if not already set. The first argument accepts a string representing the desired default
+visibility value.
+If a key property already has a `visibility` decorator then the default visibility is not applied.
+
+`@withDefaultKeyVisibility` can only be applied to model types.
+
+#### @withOptionalProperties
+
+Syntax:
+
+```
+@withOptionalProperties()
+```
+
+`@withOptionalProperties` makes all properties of the target type optional.
+
+`@withOptionalProperties` can only be applied to model types.
+
+#### @withoutDefaultValues
+
+Syntax:
+
+```
+@withoutDefaultValues()
+```
+
+`@withoutDefaultValues` removes all read-only properties from the target type.
+
+`@withoutDefaultValues` can only be applied to model types.
+
+#### @withoutOmittedProperties
+
+Syntax:
+
+```
+@withoutOmittedProperties(type)
+```
+
+`@withoutOmittedProperties` removes all model properties that match a type.
+
+`@withoutOmittedProperties` can only be applied to model types.
+
+#### @withUpdateableProperties
+
+Syntax:
+
+```
+@withUpdateableProperties()
+```
+
+`@withUpdateableProperties` remove all read-only properties from the target type.
+
+`@withUpdateableProperties` can only be applied to model types.
 
 ### Libraries
 
@@ -837,7 +974,7 @@ namespace PetToys {
 
 #### Request & response bodies
 
-Request and response bodies are declared using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
+Request and response bodies can be declared explictly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
 
 ```cadl
 @route("/pets")
@@ -848,7 +985,26 @@ namespace Pets {
   op read(@path petId: int32): {
     @body pet: Pet;
   };
+  @post
   op create(@body pet: Pet): {};
+}
+
+```
+
+Note that in the absence of explicit `@body`:
+
+1. The set of parameters that are not marked @header, @query, or @path form the request body.
+2. The set of properties of the return model that are not marked @header, @query, or @path form the response body.
+3. If the return type is not a model, then it defines the response body.
+
+This is how we were able to return Pet and Pet[] bodies without using @body for list and read. We can actually write
+create in the same terse style by spreading the Pet object into the parameter list like this:
+
+```cadl
+@route("/pets")
+namespace Pets {
+  @post
+  op create(...Pet): {};
 }
 
 ```
@@ -896,6 +1052,7 @@ namespace Pets {
     @header eTag: string;
     @body pet: Pet;
   };
+  @post
   op create(@body pet: Pet): {};
 }
 
@@ -920,7 +1077,7 @@ namespace Pets {
     @statusCode statusCode: 404;
   };
   op create(@body pet: Pet): {
-    @statusCode statusCode: 200;
+    @statusCode statusCode: 204;
   };
 }
 
@@ -928,19 +1085,71 @@ namespace Pets {
 
 #### Built-in response shapes
 
-Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently. Lets update our sample one last time to use these built-in response types:
+Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently.
+
+There is also a Body<T> type, which can be used as a shorthand for { @body body: T } when an explicit body is required.
+
+Lets update our sample one last time to use these built-in types:
 
 ```cadl
-model OkResponseWithETag<T> {
-  ...OkResponse<T>;
+model ETag {
   @header eTag: string;
+}
+@route("/pets")
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): OkResponse & Body<Pet[]>;
+  op read(@path petId: int32, @header ifMatch?: string): (OkResponse &
+    Body<Pet> &
+    ETag) | NotFoundResponse;
+  @post
+  op create(...Pet): NoContentResponse;
+}
+
+```
+
+Note that the default status code is 200 for non-empty bodies and 204 for empty bodies. Similarly, explicit `Body<T>` is not required when T is known to be a model. So the following terser form is equivalent:
+
+```cadl
+@route("/pets")
+namespace Pets {
+  op list(@query skip: int32, @query top: int32): Pet[];
+  op read(@path petId: int32, @header ifMatch?: string): (Pet & ETag) | NotFoundResponse;
+  @post
+  op create(...Pet): {};
+}
+
+```
+
+Finally, another common style is to make helper response types that are
+shared across a larger service definition. In this style, you can be
+entirely explicit while also keeping operation definitions concise.
+
+For example, we could write :
+
+```cadl
+model ListResponse<T> {
+  ...OkResponse;
+  ...Body<T[]>;
+}
+
+model ReadSuccessResponse<T> {
+  ...OkResponse;
+  ...ETag;
+  ...Body<T>;
+}
+
+alias ReadResponse<T> = ReadSuccessResponse<T> | NotFoundResponse;
+
+model CreateResponse {
+  ...NoContentResponse;
 }
 
 @route("/pets")
 namespace Pets {
-  op list(@query skip: int32, @query top: int32): OkResponse<Pet[]>;
-  op read(@path petId: int32, @header ifMatch?: string): OkResponseWithETag<Pet> | NotFoundResponse;
-  op create(@body pet: Pet): OkResponse<{}>;
+  op list(@query skip: int32, @query top: int32): ListResponse<Pet>;
+  op read(@path petId: int32, @header ifMatch?: string): ReadResponse<Pet>;
+  @post
+  op create(...Pet): CreateResponse;
 }
 
 ```

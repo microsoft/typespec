@@ -1,8 +1,70 @@
+import { Model } from "@cadl-lang/compiler";
 import { expectDiagnostics } from "@cadl-lang/compiler/testing";
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { getResourceTypeKey } from "../src/resource.js";
+import { getSegment } from "../src/rest.js";
 import { compileOperations, createRestTestRunner, getRoutesFor } from "./test-host.js";
 
 describe("rest: resources", () => {
+  it("@resource decorator emits a diagnostic when a @key property is not found", async () => {
+    const [_, diagnostics] = await compileOperations(`
+      @resource("thing")
+      model Thing {
+        id: string;
+      }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@cadl-lang/rest/resource-missing-key",
+      message:
+        "Type 'Thing' is used as a resource and therefore must have a key. Use @key to designate a property as the key.",
+    });
+  });
+
+  it("@resource decorator applies @segment decorator on the @key property", async () => {
+    const runner = await createRestTestRunner();
+    const { Thing } = (await runner.compile(`
+      @test
+      @resource("things")
+      model Thing {
+        @key
+        id: string;
+      }
+    `)) as { Thing: Model };
+
+    // Check the key property to ensure the segment got added
+    const key = getResourceTypeKey(runner.program, Thing);
+    ok(key, "No key property found.");
+    strictEqual(getSegment(runner.program, key.keyProperty), "things");
+  });
+
+  it("@resource decorator applies @segment decorator that reaches route generation", async () => {
+    const routes = await getRoutesFor(
+      `
+      using Cadl.Rest.Resource;
+
+      @test
+      @resource("things")
+      model Thing {
+        @key("thingId")
+        id: string;
+      }
+
+      @error model Error {}
+
+      interface Things extends ResourceRead<Thing, Error> {}
+      `
+    );
+
+    deepStrictEqual(routes, [
+      {
+        verb: "get",
+        path: "/things/{thingId}",
+        params: ["thingId"],
+      },
+    ]);
+  });
+
   it("resources: generates standard operations for resource types and their children", async () => {
     const routes = await getRoutesFor(
       `
@@ -158,6 +220,58 @@ describe("rest: resources", () => {
       {
         code: "@cadl-lang/rest/duplicate-parent-key",
         message: `Resource type 'SubSubthing' has a key property named 'thingId' which is already used by parent type 'Subthing'.`,
+      },
+    ]);
+  });
+
+  it("resources: standard lifecycle operations have expected paths and verbs", async () => {
+    const routes = await getRoutesFor(
+      `
+      using Cadl.Rest.Resource;
+
+      model Thing {
+        @key
+        @segment("things")
+        thingId: string;
+      }
+
+      @error model Error {}
+
+      interface Things extends ResourceOperations<Thing, Error>, ResourceCreateOrReplace<Thing, Error> {
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [
+      {
+        params: ["thingId"],
+        path: "/things/{thingId}",
+        verb: "get",
+      },
+      {
+        params: ["thingId"],
+        path: "/things/{thingId}",
+        verb: "patch",
+      },
+      {
+        params: ["thingId"],
+        path: "/things/{thingId}",
+        verb: "delete",
+      },
+      {
+        params: [],
+        path: "/things",
+        verb: "post",
+      },
+      {
+        params: [],
+        path: "/things",
+        verb: "get",
+      },
+      {
+        params: ["thingId"],
+        path: "/things/{thingId}",
+        verb: "put",
       },
     ]);
   });

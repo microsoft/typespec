@@ -6,9 +6,41 @@ import { BrowserHost } from "./browser-host";
 import { importCadlCompiler } from "./core";
 import "./style.css";
 
+function getIndentAction(
+  value: "none" | "indent" | "indentOutdent" | "outdent"
+): monaco.languages.IndentAction {
+  switch (value) {
+    case "none":
+      return monaco.languages.IndentAction.None;
+    case "indent":
+      return monaco.languages.IndentAction.Indent;
+    case "indentOutdent":
+      return monaco.languages.IndentAction.IndentOutdent;
+    case "outdent":
+      return monaco.languages.IndentAction.Outdent;
+  }
+}
+function getCadlLanguageConfiguration(): monaco.languages.LanguageConfiguration {
+  return {
+    ...(CadlLanguageConfiguration as any),
+    onEnterRules: CadlLanguageConfiguration.onEnterRules.map((rule) => {
+      return {
+        beforeText: new RegExp(rule.beforeText.pattern),
+        previousLineText:
+          "previousLineText" in rule ? new RegExp(rule.previousLineText.pattern) : undefined,
+        action: {
+          indentAction: getIndentAction(rule.action.indent),
+          appendText: "appendText" in rule.action ? rule.action.appendText : undefined,
+          removeText: "removeText" in rule.action ? rule.action.removeText : undefined,
+        },
+      };
+    }),
+  };
+}
+
 export async function attachServices(host: BrowserHost) {
   monaco.languages.register({ id: "cadl" });
-  monaco.languages.setLanguageConfiguration("cadl", CadlLanguageConfiguration as any);
+  monaco.languages.setLanguageConfiguration("cadl", getCadlLanguageConfiguration());
 
   const serverHost: ServerHost = {
     compilerHost: host,
@@ -64,6 +96,15 @@ export async function attachServices(host: BrowserHost) {
     return {
       uri: monaco.Uri.parse(loc.uri),
       range: monacoRange(loc.range),
+    };
+  }
+
+  function monacoDocumentHighlight(
+    highlight: lsp.DocumentHighlight
+  ): monaco.languages.DocumentHighlight {
+    return {
+      range: monacoRange(highlight.range),
+      kind: highlight.kind,
     };
   }
 
@@ -140,6 +181,13 @@ export async function attachServices(host: BrowserHost) {
       const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
       const output = ranges.map(monacoFoldingRange);
       return output;
+    },
+  });
+
+  monaco.languages.registerDocumentHighlightProvider("cadl", {
+    async provideDocumentHighlights(model, position) {
+      const highlights = await serverLib.findDocumentHighlight(lspArgs(model, position));
+      return highlights.map(monacoDocumentHighlight);
     },
   });
 
