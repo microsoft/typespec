@@ -4,8 +4,10 @@ An emitter is a cadl package that can consume the compiler Cadl Program and prod
 
 ## Prerequisite
 
-- Setup Cadl
-- Setup a new Cadl package
+- [Setup Cadl](https://github.com/Microsoft/cadl#readme)
+- [Setup a new Cadl package](./readme.md)
+
+**Note: All samples are shown using TypeScript but pure Javascript is also valid.**
 
 ## Basics
 
@@ -36,5 +38,8 @@ When wanting to let user add some customization specific to your emitter which o
 
 #### Examples
 
-- Line endings: This only affect the way the generated content gets written so this should be an **emitter option**
--
+| Option       | Description                                                                | USe                                                                                                 |
+| ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Line endings | What line endings are used in emitter files                                | This only affect the way the generated content gets written so this should be an **emitter option** |
+| Library name | What should be the library name for that package                           | ?TODO?                                                                                              |
+| Ouput style  | Emitter could emit 2 different style of library(e.g. Fluent or Functional) | ?TODO?                                                                                              |
