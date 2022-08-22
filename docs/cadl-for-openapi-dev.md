@@ -319,7 +319,14 @@ in favor of explicit `content-type` and `accept` header properties in request an
 
 ## securityDefinitions / securitySchemes Object
 
-In Cadl, these fields are currently set using javascript that is imported into the Cadl definition. In the near future there will likely be decorators that allow some of these elements to be set directly from Cadl.
+Use `@useAuth` decorator from the `@cadl-lang/rest" library
+
+```cadl
+using Cadl.Http;
+@useAuth(OAuth2Auth<["read", "write"]>)
+namespace MyService;
+
+```
 
 ## Specification Extensions
 
