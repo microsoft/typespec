@@ -1419,7 +1419,7 @@ projection model#proj {
       });
     });
 
-    describe("format operation", () => {
+    describe("format operation expression(s)", () => {
       ["+", "-", "*", "/", "==", "!=", ">", "<", ">=", "<=", "||", "&&"].forEach((op) => {
         it(`with ${op}`, () => {
           assertFormat({
@@ -1437,6 +1437,31 @@ to {
 projection model#proj {
   to {
     bar(one ${op} two);
+  }
+}
+    `,
+          });
+        });
+      });
+
+      [
+        ["1 + 2 * 3", "1 + (2 * 3)"],
+        ["( 1 + 2) * 3", "(1 + 2) * 3"],
+        ["one || two && three", "one || (two && three)"],
+      ].forEach(([input, expected]) => {
+        it(`case ${expected}`, () => {
+          assertFormat({
+            code: `
+projection model#proj {
+to {
+    bar(${input})
+}
+}
+    `,
+            expected: `
+projection model#proj {
+  to {
+    bar(${expected});
   }
 }
     `,
