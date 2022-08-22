@@ -527,11 +527,22 @@ Syntax:
 
 Syntax:
 
-```
+```cadl
 @friendlyName(string)
 ```
 
-`@friendlyName` specifies an alternate model name to be used instead of declared model name. It can be specified on a model.
+`@friendlyName` specifies how a templated type should name their instances. It takes a string literal coresponding the the name. `{name}` can be used to interpolate the value of the template parameter which can be passed as a 2nd parameter.
+
+Example:
+
+```cadl
+@friendlyName("{name}", T)
+model List<T> {}
+
+alias A = List<string>; // Instance friendly name would be `StringList`
+alias B = List<FooBar>; // Instance friendly name would be `FooBarList`
+
+```
 
 ##### @pattern
 
