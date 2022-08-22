@@ -16,7 +16,6 @@ import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
-import { SchemaValidator } from "./schema-validator.js";
 import {
   CadlLibrary,
   CadlScriptNode,
@@ -41,7 +40,7 @@ import {
   SyntaxKind,
   Type,
 } from "./types.js";
-import { doIO, findProjectRoot, loadFile } from "./util.js";
+import { deepEquals, doIO, findProjectRoot, loadFile, mapEquals } from "./util.js";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -203,7 +202,8 @@ interface CadlLibraryReference {
 export async function createProgram(
   host: CompilerHost,
   mainFile: string,
-  options: CompilerOptions = {}
+  options: CompilerOptions = {},
+  oldProgram?: Program // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ): Promise<Program> {
   const validateCbs: any = [];
   const stateMaps = new Map<symbol, StateMap<any>>();
@@ -279,6 +279,17 @@ export async function createProgram(
     const emitters = computeEmitters(options.emitters);
     await loadEmitters(resolvedMain, emitters);
   }
+
+  if (
+    oldProgram &&
+    mapEquals(oldProgram.sourceFiles, program.sourceFiles) &&
+    deepEquals(oldProgram.compilerOptions, program.compilerOptions)
+  ) {
+    return oldProgram;
+  }
+
+  // let GC reclaim old program, we do not reuse it beyond this point.
+  oldProgram = undefined;
 
   program.checker = createChecker(program);
   program.checker.checkProgram();
@@ -431,13 +442,13 @@ export async function createProgram(
         sv: "",
         pos: 0,
         end: 0,
-        symbol: undefined as any,
+        symbol: undefined!,
         flags: NodeFlags.Synthetic,
       },
       esmExports: exports,
       file,
       namespaceSymbols: [],
-      symbol: undefined as any,
+      symbol: undefined!,
       pos: 0,
       end: 0,
       flags: NodeFlags.None,
@@ -451,24 +462,33 @@ export async function createProgram(
     const file = await loadJsFile(path, diagnosticTarget);
     if (file !== undefined) {
       program.jsSourceFiles.set(path, file);
-      if (file.symbol === undefined) {
-        binder.bindJsSourceFile(file);
-      }
+      binder.bindJsSourceFile(file);
     }
   }
 
-  async function loadCadlScript(cadlScript: SourceFile): Promise<CadlScriptNode> {
+  async function loadCadlScript(file: SourceFile): Promise<CadlScriptNode> {
     // This is not a diagnostic because the compiler should never reuse the same path.
     // It's the caller's responsibility to use unique paths.
-    if (program.sourceFiles.has(cadlScript.path)) {
-      throw new RangeError("Duplicate script path: " + cadlScript);
+    if (program.sourceFiles.has(file.path)) {
+      throw new RangeError("Duplicate script path: " + file.path);
     }
-    const sourceFile = parse(cadlScript);
-    program.reportDiagnostics(sourceFile.parseDiagnostics);
-    program.sourceFiles.set(cadlScript.path, sourceFile);
-    binder.bindSourceFile(sourceFile);
-    await loadScriptImports(sourceFile);
-    return sourceFile;
+
+    const script = parseOrReuse(file);
+    program.reportDiagnostics(script.parseDiagnostics);
+    program.sourceFiles.set(file.path, script);
+    binder.bindSourceFile(script);
+    await loadScriptImports(script);
+    return script;
+  }
+
+  function parseOrReuse(file: SourceFile): CadlScriptNode {
+    const old = oldProgram?.sourceFiles.get(file.path) ?? host?.parseCache?.get(file);
+    if (old?.file === file && deepEquals(old.parseOptions, options.parseOptions)) {
+      return old;
+    }
+    const script = parse(file, options.parseOptions);
+    host.parseCache?.set(file, script);
+    return script;
   }
 
   async function loadScriptImports(file: CadlScriptNode) {
@@ -565,11 +585,8 @@ export async function createProgram(
     }
     if (emitterFunction !== undefined) {
       if (libDefinition?.emitter?.options) {
-        const optionValidator = new SchemaValidator(libDefinition.emitter?.options, {
-          coerceTypes: true,
-        });
-        const diagnostics = optionValidator.validate(options, NoTarget);
-        if (diagnostics.length > 0) {
+        const diagnostics = libDefinition?.emitterOptionValidator?.validate(options, NoTarget);
+        if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
           return;
         }
@@ -962,12 +979,14 @@ export async function createProgram(
   }
 }
 
+// (nicholg) Why do we have both compile and createProgram?
 export async function compile(
   mainFile: string,
   host: CompilerHost,
-  options?: CompilerOptions
+  options?: CompilerOptions,
+  oldProgram?: Program
 ): Promise<Program> {
-  return await createProgram(host, mainFile, options);
+  return await createProgram(host, mainFile, options, oldProgram);
 }
 
 function computeEmitters(

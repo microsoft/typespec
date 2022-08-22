@@ -105,9 +105,8 @@ import {
   UnionStatementNode,
   UnionVariant,
   UnionVariantNode,
-  Writable,
 } from "./types.js";
-import { isArray } from "./util.js";
+import { isArray, Mutable, mutate } from "./util.js";
 
 export interface TypeNameOptions {
   namespaceFilter: (ns: Namespace) => boolean;
@@ -266,11 +265,14 @@ const TypeInstantiationMap = class
 
 type StdTypeName = IntrinsicModelName | "Array" | "Record";
 
+let currentSymbolId = 0;
+
 export function createChecker(program: Program): Checker {
-  let currentSymbolId = 0;
   const stdTypes: Partial<Record<StdTypeName, Model>> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
+  const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
+
   const typePrototype: TypePrototype = {
     get projections(): ProjectionStatementNode[] {
       return (projectionsByTypeKind.get((this as Type).kind) || []).concat(
@@ -330,10 +332,7 @@ export function createChecker(program: Program): Checker {
     cadlNamespaceNode = cadlNamespaceBinding.declarations[1] as NamespaceStatementNode;
     initializeCadlIntrinsics();
     for (const file of program.sourceFiles.values()) {
-      for (const [name, binding] of cadlNamespaceBinding.exports!) {
-        const usedSym = createUsingSymbol(binding);
-        file.locals!.set(name, usedSym);
-      }
+      addUsingSymbols(cadlNamespaceBinding.exports!, file.locals);
     }
   }
 
@@ -376,7 +375,7 @@ export function createChecker(program: Program): Checker {
 
   function initializeCadlIntrinsics() {
     // a utility function to log strings or numbers
-    cadlNamespaceBinding!.exports!.set("log", {
+    mutate(cadlNamespaceBinding!.exports)!.set("log", {
       flags: SymbolFlags.Function,
       name: "log",
       value(p: Program, str: string): Type {
@@ -433,17 +432,40 @@ export function createChecker(program: Program): Checker {
         continue;
       }
       usedUsing.add(namespaceSym);
-
-      for (const [name, binding] of sym.exports!) {
-        parentNs.locals!.set(name, createUsingSymbol(binding));
-      }
+      addUsingSymbols(sym.exports!, parentNs.locals!);
     }
 
     if (cadlNamespaceNode) {
-      for (const [name, binding] of cadlNamespaceBinding!.exports!) {
-        file.locals!.set(name, createUsingSymbol(binding));
-      }
+      addUsingSymbols(cadlNamespaceBinding!.exports!, file.locals);
     }
+  }
+
+  function addUsingSymbols(source: SymbolTable, destination: SymbolTable): void {
+    const augmented = getOrCreateAugmentedSymbolTable(destination);
+    for (const symbolSource of source.values()) {
+      const sym: Sym = {
+        flags: SymbolFlags.Using,
+        declarations: [],
+        name: symbolSource.name,
+        symbolSource: symbolSource,
+      };
+      augmented.set(sym.name, sym);
+    }
+  }
+
+  /**
+   * We cannot inject symbols into the symbol tables hanging off syntax tree nodes as
+   * syntax tree nodes can be shared by other programs. This is called as a copy-on-write
+   * to inject using and late-bound symbols, and then we use the copy when resolving
+   * in the table.
+   */
+  function getOrCreateAugmentedSymbolTable(table: SymbolTable): Mutable<SymbolTable> {
+    let augmented = augmentedSymbolTables.get(table);
+    if (!augmented) {
+      augmented = createSymbolTable(table);
+      augmentedSymbolTables.set(table, augmented);
+    }
+    return mutate(augmented);
   }
 
   /**
@@ -1428,10 +1450,9 @@ export function createChecker(program: Program): Checker {
 
   function getSymbolId(s: Sym) {
     if (s.id === undefined) {
-      s.id = currentSymbolId++;
+      mutate(s).id = currentSymbolId++;
     }
-
-    return s.id;
+    return s.id!;
   }
 
   function resolveIdentifierInTable(
@@ -1442,6 +1463,8 @@ export function createChecker(program: Program): Checker {
     if (!table) {
       return undefined;
     }
+
+    table = augmentedSymbolTables.get(table) ?? table;
     let sym;
     if (resolveDecorator) {
       sym = table.get("@" + node.sv);
@@ -1599,6 +1622,7 @@ export function createChecker(program: Program): Checker {
       if (!table) {
         return;
       }
+      table = augmentedSymbolTables.get(table) ?? table;
       for (const [key, sym] of table) {
         if (sym.flags & SymbolFlags.DuplicateUsing) {
           const duplicates = table.duplicates.get(sym)!;
@@ -1663,23 +1687,17 @@ export function createChecker(program: Program): Checker {
     }
 
     let scope: Node | undefined = node.parent;
-    let binding;
+    let binding: Sym | undefined;
 
     while (scope && scope.kind !== SyntaxKind.CadlScript) {
       if (scope.symbol && "exports" in scope.symbol) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
         binding = resolveIdentifierInTable(node, mergedSymbol.exports, resolveDecorator);
-
         if (binding) return binding;
       }
 
       if ("locals" in scope) {
-        if ("duplicates" in scope.locals!) {
-          binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-        } else {
-          binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-        }
-
+        binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
         if (binding) return binding;
       }
 
@@ -2128,7 +2146,7 @@ export function createChecker(program: Program): Checker {
     switch (type.kind) {
       case "Model":
         type.symbol = createSymbol(type.node, type.name, SymbolFlags.Model | SymbolFlags.LateBound);
-        type.symbol.type = type;
+        mutate(type.symbol).type = type;
         break;
       case "Interface":
         type.symbol = createSymbol(
@@ -2136,64 +2154,54 @@ export function createChecker(program: Program): Checker {
           type.name,
           SymbolFlags.Interface | SymbolFlags.LateBound
         );
-        type.symbol.type = type;
+        mutate(type.symbol).type = type;
         break;
       case "Union":
         if (!type.name) return; // don't make a symbol for anonymous unions
         type.symbol = createSymbol(type.node, type.name, SymbolFlags.Union | SymbolFlags.LateBound);
-        type.symbol.type = type;
+        mutate(type.symbol).type = type;
         break;
     }
   }
 
   function lateBindMembers(type: Type, containerSym: Sym) {
+    let containerMembers: Mutable<SymbolTable> | undefined;
+
     switch (type.kind) {
       case "Model":
         for (const prop of walkPropertiesInherited(type)) {
-          const sym = createSymbol(
-            prop.node,
-            prop.name,
-            SymbolFlags.ModelProperty | SymbolFlags.LateBound
-          );
-          sym.type = prop;
-          containerSym.members!.set(prop.name, sym);
+          lateBindMember(prop, SymbolFlags.ModelProperty);
         }
         break;
       case "Enum":
         for (const member of type.members) {
-          const sym = createSymbol(
-            member.node,
-            member.name,
-            SymbolFlags.EnumMember | SymbolFlags.LateBound
-          );
-          sym.type = member;
-          containerSym.members!.set(member.name, sym);
+          lateBindMember(member, SymbolFlags.EnumMember);
         }
-
         break;
       case "Interface":
         for (const member of type.operations.values()) {
-          const sym = createSymbol(
-            member.node,
-            member.name,
-            SymbolFlags.InterfaceMember | SymbolFlags.LateBound
-          );
-          sym.type = member;
-          containerSym.members!.set(member.name, sym);
+          lateBindMember(member, SymbolFlags.InterfaceMember);
         }
         break;
       case "Union":
         for (const variant of type.variants.values()) {
-          // don't bind anything for union expressions
-          if (!variant.node || typeof variant.name === "symbol") continue;
-          const sym = createSymbol(
-            variant.node,
-            variant.name,
-            SymbolFlags.UnionVariant | SymbolFlags.LateBound
-          );
-          sym.type = variant;
-          containerSym.members!.set(variant.name, sym);
+          lateBindMember(variant, SymbolFlags.UnionVariant);
         }
+        break;
+    }
+
+    function lateBindMember(
+      member: Type & { node?: Node; name: string | symbol },
+      kind: SymbolFlags
+    ) {
+      if (!member.node || typeof member.name !== "string") {
+        // don't bind anything for union expressions
+        return;
+      }
+      const sym = createSymbol(member.node, member.name, kind | SymbolFlags.LateBound);
+      mutate(sym).type = member;
+      containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members!);
+      containerMembers.set(member.name, sym);
     }
   }
 
@@ -2894,10 +2902,10 @@ export function createChecker(program: Program): Checker {
     for (const [sym, duplicates] of source.duplicates) {
       const targetSet = target.duplicates.get(sym);
       if (targetSet === undefined) {
-        target.duplicates.set(sym, new Set([...duplicates]));
+        mutate(target.duplicates).set(sym, new Set([...duplicates]));
       } else {
         for (const duplicate of duplicates) {
-          targetSet.add(duplicate);
+          mutate(targetSet).add(duplicate);
         }
       }
     }
@@ -2912,18 +2920,18 @@ export function createChecker(program: Program): Checker {
           existingBinding = {
             ...sourceBinding,
           };
-          target.set(key, existingBinding);
+          mutate(target).set(key, existingBinding);
           mergedSymbols.set(sourceBinding, existingBinding);
         } else if (existingBinding.flags & SymbolFlags.Namespace) {
-          existingBinding.declarations.push(...sourceBinding.declarations);
+          mutate(existingBinding.declarations).push(...sourceBinding.declarations);
           mergedSymbols.set(sourceBinding, existingBinding);
-          mergeSymbolTable(sourceBinding.exports!, existingBinding.exports!);
+          mergeSymbolTable(sourceBinding.exports!, mutate(existingBinding.exports!));
         } else {
           // this will set a duplicate error
-          target.set(key, sourceBinding);
+          mutate(target).set(key, sourceBinding);
         }
       } else {
-        target.set(key, sourceBinding);
+        mutate(target).set(key, sourceBinding);
       }
     }
   }
@@ -2939,21 +2947,21 @@ export function createChecker(program: Program): Checker {
       pos: 0,
       end: 0,
       sv: "__GLOBAL_NS",
-      symbol: undefined as any,
+      symbol: undefined!,
       flags: NodeFlags.Synthetic,
     };
 
-    const nsNode: Writable<NamespaceStatementNode> = {
+    const nsNode: NamespaceStatementNode = {
       kind: SyntaxKind.NamespaceStatement,
       decorators: [],
       pos: 0,
       end: 0,
       id: nsId,
-      symbol: undefined as any,
+      symbol: undefined!,
       locals: createSymbolTable(),
       flags: NodeFlags.Synthetic,
     };
-    nsNode.symbol = createSymbol(nsNode, "__GLOBAL_NS", SymbolFlags.Namespace);
+    mutate(nsNode).symbol = createSymbol(nsNode, "__GLOBAL_NS", SymbolFlags.Namespace);
     return nsNode;
   }
 
@@ -4229,10 +4237,6 @@ function isAnonymous(type: Type) {
 
 function isErrorType(type: Type): type is ErrorType {
   return type.kind === "Intrinsic" && type.name === "ErrorType";
-}
-
-function createUsingSymbol(symbolSource: Sym): Sym {
-  return { flags: SymbolFlags.Using, declarations: [], name: symbolSource.name, symbolSource };
 }
 
 const numericRanges = {

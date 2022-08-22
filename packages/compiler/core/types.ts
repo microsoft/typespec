@@ -1,5 +1,6 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { Program } from "./program";
+import { JSONSchemaValidator } from "./schema-validator";
 
 /**
  * Type System types
@@ -379,56 +380,56 @@ export interface TemplateParameter extends BaseType {
 }
 
 export interface Sym {
-  flags: SymbolFlags;
+  readonly flags: SymbolFlags;
 
   /**
    * Nodes which contribute to this declaration
    */
-  declarations: Node[];
+  readonly declarations: readonly Node[];
 
   /**
    * The name of the symbol
    */
-  name: string;
+  readonly name: string;
 
   /**
    * A unique identifier for this symbol. Used to look up the symbol links.
    */
-  id?: number;
+  readonly id?: number;
 
   /**
    * The symbol containing this symbol, if any. E.g. for things declared in
    * a namespace, this refers to the namespace.
    */
-  parent?: Sym;
+  readonly parent?: Sym;
 
   /**
    * Externally visible symbols contained inside this symbol. E.g. all declarations
    * in a namespace, or members of an enum.
    */
-  exports?: SymbolTable;
+  readonly exports?: SymbolTable;
 
   /**
    * Symbols for members of this symbol which must be referenced off the parent symbol
    * and cannot be referenced by other means (i.e. by unqualified lookup of the symbol
    * name).
    */
-  members?: SymbolTable;
+  readonly members?: SymbolTable;
 
   /**
    * For using symbols, this is the used symbol.
    */
-  symbolSource?: Sym;
+  readonly symbolSource?: Sym;
 
   /**
    * For late-bound symbols, this is the type referenced by the symbol.
    */
-  type?: Type;
+  readonly type?: Type;
 
   /**
    * For decorator and function symbols, this is the JS function implementation.
    */
-  value?: (...args: any[]) => any;
+  readonly value?: (...args: any[]) => any;
 }
 
 export interface SymbolLinks {
@@ -440,11 +441,11 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
-export interface SymbolTable extends Map<string, Sym> {
+export interface SymbolTable extends ReadonlyMap<string, Sym> {
   /**
    * Duplicate
    */
-  readonly duplicates: Map<Sym, Set<Sym>>;
+  readonly duplicates: ReadonlyMap<Sym, ReadonlySet<Sym>>;
 }
 
 // prettier-ignore
@@ -599,7 +600,7 @@ export const enum NodeFlags {
 
 export interface BaseNode extends TextRange {
   readonly kind: SyntaxKind;
-  parent?: Node;
+  readonly parent?: Node;
   readonly directives?: readonly DirectiveExpressionNode[];
   readonly flags: NodeFlags;
   /**
@@ -611,7 +612,7 @@ export interface BaseNode extends TextRange {
 
 export interface TemplateDeclarationNode {
   readonly templateParameters: readonly TemplateParameterDeclarationNode[];
-  locals?: SymbolTable;
+  readonly locals?: SymbolTable;
 }
 
 export type Node =
@@ -647,10 +648,14 @@ export type Node =
 export type Comment = LineComment | BlockComment;
 
 export interface LineComment extends TextRange {
-  kind: SyntaxKind.LineComment;
+  readonly kind: SyntaxKind.LineComment;
 }
 export interface BlockComment extends TextRange {
-  kind: SyntaxKind.BlockComment;
+  readonly kind: SyntaxKind.BlockComment;
+}
+
+export interface ParseOptions {
+  readonly comments?: boolean;
 }
 
 export interface CadlScriptNode extends DeclarationNode, BaseNode {
@@ -664,6 +669,7 @@ export interface CadlScriptNode extends DeclarationNode, BaseNode {
   readonly parseDiagnostics: readonly Diagnostic[];
   readonly printable: boolean; // If this ast tree can safely be printed/formatted.
   readonly locals: SymbolTable;
+  readonly parseOptions: ParseOptions; // Options used to parse this file
 }
 
 export type Statement =
@@ -681,7 +687,7 @@ export type Statement =
   | ProjectionStatementNode;
 
 export interface DeclarationNode {
-  id: IdentifierNode;
+  readonly id: IdentifierNode;
 }
 
 export type Declaration =
@@ -786,7 +792,7 @@ export interface MemberExpressionNode extends BaseNode {
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.NamespaceStatement;
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
-  readonly decorators: DecoratorExpressionNode[];
+  readonly decorators: readonly DecoratorExpressionNode[];
   readonly locals?: SymbolTable;
 }
 
@@ -821,7 +827,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
   readonly extends?: Expression;
   readonly is?: Expression;
-  readonly decorators: DecoratorExpressionNode[];
+  readonly decorators: readonly DecoratorExpressionNode[];
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -1061,7 +1067,7 @@ export interface ProjectionModelPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionModelProperty;
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value: ProjectionExpression;
-  readonly decorators: DecoratorExpressionNode[];
+  readonly decorators: readonly DecoratorExpressionNode[];
   readonly optional: boolean;
   readonly default?: ProjectionExpression;
 }
@@ -1204,13 +1210,13 @@ export interface TextRange {
    * The starting position of the ranger measured in UTF-16 code units from the
    * start of the full string. Inclusive.
    */
-  pos: number;
+  readonly pos: number;
 
   /**
    * The ending position measured in UTF-16 code units from the start of the
    * full string. Exclusive.
    */
-  end: number;
+  readonly end: number;
 }
 
 export interface SourceLocation extends TextRange {
@@ -1273,6 +1279,11 @@ export interface CompilerHost {
 
   // read a utf-8 encoded file
   readFile(path: string): Promise<SourceFile>;
+
+  /**
+   * Optional cache to reuse the results of parsing and binding across programs.
+   */
+  parseCache?: WeakMap<SourceFile, CadlScriptNode>;
 
   /**
    * Write the file.
@@ -1434,29 +1445,11 @@ export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
 export interface CadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>
-> {
+> extends CadlLibraryDef<T, E> {
   /**
-   * Name of the library. Must match the package.json name.
+   * JSON Schema validtor for emitter options
    */
-  readonly name: string;
-
-  /**
-   * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
-   */
-  readonly diagnostics: DiagnosticMap<T>;
-
-  /**
-   * List of other library that should be imported when this is used as an emitter.
-   * Compiler will emit an error if the libraryes are not explicitly imported.
-   */
-  readonly requireImports?: readonly string[];
-
-  /**
-   * Emitter configuration if library is an emitter.
-   */
-  readonly emitter?: {
-    options?: JSONSchemaType<E>;
-  };
+  readonly emitterOptionValidator?: JSONSchemaValidator;
 
   reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
     program: Program,
@@ -1535,8 +1528,3 @@ export interface Logger {
   error(message: string): void;
   log(log: LogInfo): void;
 }
-
-/**
- * Remove the readonly properties on an object.
- */
-export type Writable<T> = { -readonly [P in keyof T]: T[P] };

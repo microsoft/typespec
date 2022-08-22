@@ -79,7 +79,7 @@ async function resolveCadlServer(context: ExtensionContext): Promise<Executable>
     const script = context.asAbsolutePath("../compiler/dist/server/server.js");
     // we use CLI instead of NODE_OPTIONS environment variable in this case
     // because --nolazy is not supported by NODE_OPTIONS.
-    const options = nodeOptions?.split(" ") ?? [];
+    const options = nodeOptions?.split(" ").filter((o) => o) ?? [];
     return { command: "node", args: [...options, script, ...args] };
   }
 
