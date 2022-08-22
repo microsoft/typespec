@@ -134,8 +134,7 @@ rush regen-samples
 PR validation runs OpenAPI emitters on samples and compares them to known,
 reviewed, checked-in versions. If your PR would change the generated output,
 run this command to regenerate any samples and check those files in with
-your PR. Carefully review whether the changes are intentional. 
-
+your PR. Carefully review whether the changes are intentional.
 
 # Using VS Code
 
