@@ -34,8 +34,13 @@ const Token = {
     namespace: createToken("namespace", "keyword.other.cadl"),
     interface: createToken("interface", "keyword.other.cadl"),
     alias: createToken("alias", "keyword.other.cadl"),
+    projection: createToken("projection", "keyword.other.cadl"),
     extends: createToken("extends", "keyword.other.cadl"),
     is: createToken("is", "keyword.other.cadl"),
+    if: createToken("if", "keyword.other.cadl"),
+    else: createToken("else", "keyword.other.cadl"),
+    to: createToken("to", "keyword.other.cadl"),
+    from: createToken("from", "keyword.other.cadl"),
     other: (text: string) => createToken(text, "keyword.other.cadl"),
   },
 
@@ -52,12 +57,14 @@ const Token = {
     assignment: createToken("=", "keyword.operator.assignment.cadl"),
     optional: createToken("?", "keyword.operator.optional.cadl"),
     typeAnnotation: createToken(":", "keyword.operator.type.annotation.cadl"),
+    selector: createToken("#", "keyword.operator.selector.cadl"),
     spread: createToken("...", "keyword.operator.spread.cadl"),
   },
 
   punctuation: {
     comma: createToken(",", "punctuation.comma.cadl"),
     accessor: createToken(".", "punctuation.accessor.cadl"),
+    valueAccessor: createToken("::", "punctuation.accessor.cadl"),
     openBracket: createToken("[", "punctuation.squarebracket.open.cadl"),
     closeBracket: createToken("]", "punctuation.squarebracket.close.cadl"),
     openBrace: createToken("{", "punctuation.curlybrace.open.cadl"),
@@ -657,6 +664,137 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
   });
+
+  describe("projections", () => {
+    it("simple projection", async () => {
+      const tokens = await tokenize(`
+      projection op#foo {
+        to(arg1) {
+          calling(arg1);
+        }
+      }
+      `);
+      deepStrictEqual(tokens, [
+        Token.keywords.projection,
+        Token.keywords.operation,
+        Token.operators.selector,
+        Token.identifiers.variable("foo"),
+        Token.punctuation.openBrace,
+        Token.keywords.to,
+        Token.punctuation.openParen,
+        Token.identifiers.variable("arg1"),
+        Token.punctuation.closeParen,
+        Token.punctuation.openBrace,
+        Token.identifiers.functionName("calling"),
+        Token.punctuation.openParen,
+        Token.identifiers.type("arg1"),
+        Token.punctuation.closeParen,
+        Token.punctuation.semicolon,
+        Token.punctuation.closeBrace,
+        Token.punctuation.closeBrace,
+      ]);
+    });
+
+    async function testProjectionBody(body: string, expectedTokens: Token[]) {
+      const tokens = await tokenize(`
+      projection op#foo {
+        to(arg1) {
+          ${body}
+        }
+      }
+      `);
+      deepStrictEqual(tokens, [
+        Token.keywords.projection,
+        Token.keywords.operation,
+        Token.operators.selector,
+        Token.identifiers.variable("foo"),
+        Token.punctuation.openBrace,
+        Token.keywords.to,
+        Token.punctuation.openParen,
+        Token.identifiers.variable("arg1"),
+        Token.punctuation.closeParen,
+        Token.punctuation.openBrace,
+        ...expectedTokens,
+        Token.punctuation.closeBrace,
+        Token.punctuation.closeBrace,
+      ]);
+    }
+
+    it("if expression with body", async () => {
+      await testProjectionBody(
+        `
+        if hasFoo(arg1) {
+          doFoo(arg1);
+        };
+      `,
+        [
+          Token.keywords.if,
+          Token.identifiers.functionName("hasFoo"),
+          Token.punctuation.openParen,
+          Token.identifiers.type("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          Token.identifiers.functionName("doFoo"),
+          Token.punctuation.openParen,
+          Token.identifiers.type("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+          Token.punctuation.closeBrace,
+          Token.punctuation.semicolon,
+        ]
+      );
+    });
+
+    it("if, else if, else expression", async () => {
+      await testProjectionBody(
+        `
+        if hasFoo() {
+        } else if hasBar() {
+        } else {
+        };
+      `,
+        [
+          Token.keywords.if,
+          Token.identifiers.functionName("hasFoo"),
+          Token.punctuation.openParen,
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+
+          Token.keywords.else,
+          Token.keywords.if,
+          Token.identifiers.functionName("hasBar"),
+          Token.punctuation.openParen,
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+
+          Token.keywords.else,
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+
+          Token.punctuation.semicolon,
+        ]
+      );
+    });
+
+    it("property accessor", async () => {
+      await testProjectionBody(
+        `
+        doFoo(self::name);
+        `,
+        [
+          Token.identifiers.functionName("doFoo"),
+          Token.punctuation.openParen,
+          Token.identifiers.type("self"),
+          ...(tokenize === tokenizeSemantic ? [Token.punctuation.valueAccessor] : []),
+          Token.identifiers.type("name"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+        ]
+      );
+    });
+  });
 }
 
 const punctuationMap = getPunctuationMap();
@@ -714,10 +852,12 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
         return Token.literals.string(text);
       case SemanticTokenKind.Number:
         return Token.literals.numeric(text);
+      case SemanticTokenKind.Modifier:
+        return Token.literals.numeric(text);
       case SemanticTokenKind.Operator:
         if (text === "@") return Token.identifiers.tag("@");
         const punctuation = punctuationMap.get(text);
-        ok(punctuation, "No tmlanugage equivalent for punctuation: " + text);
+        ok(punctuation, `No tmlanguage equivalent for punctuation: "${text}".`);
         return punctuation;
       default:
         ok(false, "Unexpected SemanticTokenKind: " + SemanticTokenKind[token.kind]);
