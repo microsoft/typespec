@@ -29,12 +29,6 @@ export const libDef = {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
       },
     },
-    "security-service-namespace": {
-      severity: "error",
-      messages: {
-        default: "Cannot add security details to a namespace other than the service namespace.",
-      },
-    },
     "resource-namespace": {
       severity: "error",
       messages: {
@@ -122,6 +116,6 @@ export const libDef = {
 } as const;
 
 export const $lib = createCadlLibrary(libDef);
-export const { reportDiagnostic } = $lib;
+export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;
