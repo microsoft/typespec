@@ -10,7 +10,7 @@ export const OpenAPIOutput: FunctionComponent<OpenAPIOutputProps> = (props) => {
   const [selected, setSelected] = useState<"raw" | "swagger-ui">("raw");
   const options = [
     { label: "Open API", value: "raw" },
-    { label: "Swagger-UI", value: "swagger-ui" },
+    { label: "Swagger UI", value: "swagger-ui" },
   ];
 
   const handleSelected = useCallback(
