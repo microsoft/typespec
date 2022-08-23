@@ -51,7 +51,7 @@ import {
   ProjectionBlockExpressionNode,
   ProjectionEnumSelectorNode,
   ProjectionExpression,
-  ProjectionExpressionStatement,
+  ProjectionExpressionStatementNode,
   ProjectionIfExpressionNode,
   ProjectionInterfaceSelectorNode,
   ProjectionLambdaExpressionNode,
@@ -1314,7 +1314,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return stmts;
   }
 
-  function parseProjectionExpressionStatement(): ProjectionExpressionStatement {
+  function parseProjectionExpressionStatement(): ProjectionExpressionStatementNode {
     const pos = tokenPos();
     const expr = parseProjectionExpression();
     parseExpected(Token.Semicolon);
