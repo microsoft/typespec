@@ -1,6 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { Program } from "./program";
-import { JSONSchemaValidator } from "./schema-validator";
 
 /**
  * Type System types
@@ -1441,6 +1440,17 @@ export interface CadlLibraryDef<
 }
 
 export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
+
+export interface JSONSchemaValidator {
+  /**
+   * Validate the configuration against its JSON Schema.
+   *
+   * @param config Configuration to validate.
+   * @param target Source file target to use for diagnostics.
+   * @returns Diagnostics produced by schema validation of the configuration.
+   */
+  validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
+}
 
 export interface CadlLibrary<
   T extends { [code: string]: DiagnosticMessages },

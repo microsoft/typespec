@@ -1,6 +1,12 @@
 import { createDiagnosticCreator } from "./diagnostics.js";
-import { createJSONSchemaValidator, JSONSchemaValidator } from "./schema-validator.js";
-import { CadlLibrary, CadlLibraryDef, CallableMessage, DiagnosticMessages } from "./types.js";
+import { createJSONSchemaValidator } from "./schema-validator.js";
+import {
+  CadlLibrary,
+  CadlLibraryDef,
+  CallableMessage,
+  DiagnosticMessages,
+  JSONSchemaValidator,
+} from "./types.js";
 
 const globalLibraryUrlsLoadedSym = Symbol.for("CADL_LIBRARY_URLS_LOADED");
 if ((globalThis as any)[globalLibraryUrlsLoadedSym] === undefined) {
