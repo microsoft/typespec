@@ -1457,7 +1457,7 @@ export interface CadlLibrary<
   E extends Record<string, any> = Record<string, never>
 > extends CadlLibraryDef<T, E> {
   /**
-   * JSON Schema validtor for emitter options
+   * JSON Schema validator for emitter options
    */
   readonly emitterOptionValidator?: JSONSchemaValidator;
 
