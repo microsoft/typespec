@@ -993,13 +993,13 @@ export interface ProjectionEnumSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionEnumSelector;
 }
 
-export type ProjectionStatementItem = ProjectionExpressionStatement;
+export type ProjectionStatementItem = ProjectionExpressionStatementNode;
 
 export interface ProjectionParameterDeclarationNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.ProjectionParameterDeclaration;
 }
 
-export interface ProjectionExpressionStatement extends BaseNode {
+export interface ProjectionExpressionStatementNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionExpressionStatement;
   readonly expr: ProjectionExpression;
 }
