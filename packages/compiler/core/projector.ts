@@ -1,8 +1,13 @@
 import { isNeverType } from "../lib/decorators.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
-import { isNeverIndexer, isTemplateDeclaration, ProjectedProgram } from "./index.js";
-import { Program, StateMap, StateSet } from "./program.js";
+import {
+  createStateAccessors,
+  isNeverIndexer,
+  isTemplateDeclaration,
+  ProjectedProgram,
+} from "./index.js";
+import { Program } from "./program.js";
 import {
   DecoratorApplication,
   DecoratorArgument,
@@ -64,9 +69,8 @@ export function createProjector(
   const projectedProgram = {
     ...program,
     getGlobalNamespaceType: () => projector.projectedGlobalNamespace!,
-    stateMaps: new Map<symbol, StateMap<any>>(),
-    stateSets: new Map<symbol, StateSet>(),
     projector,
+    ...createStateAccessors(program.stateMaps, program.stateSets, projector),
   };
   const targetGlobalNs = startNode
     ? startNode.projector
