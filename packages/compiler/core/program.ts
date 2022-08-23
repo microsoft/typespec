@@ -979,7 +979,6 @@ export async function createProgram(
   }
 }
 
-// (nicholg) Why do we have both compile and createProgram?
 export async function compile(
   mainFile: string,
   host: CompilerHost,
