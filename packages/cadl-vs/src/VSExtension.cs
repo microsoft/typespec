@@ -84,9 +84,9 @@ namespace Microsoft.Cadl.VisualStudio
 
             foreach (var entry in env)
             {
-                info.Environment[entry.Key] = env[entry.Value];
+                info.Environment[entry.Key] = entry.Value;
             }
-#if env
+#if DEBUG
             // Use local build of cadl-server in development (lauched from F5 in VS)
             if (InDevelopmentMode())
             {
@@ -197,9 +197,9 @@ namespace Microsoft.Cadl.VisualStudio
             // Use local build of cadl-server in development (lauched from F5 in VS)
             if (InDevelopmentMode())
             {
-                var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
-                var module = GetDevelopmentCadlServerPath();
-                return ("node.exe", new string[] { module, options }.Concat(args).ToArray(), env);
+               var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
+               var module = GetDevelopmentCadlServerPath();
+               return ("node.exe", new string[] { module, options }.Concat(args).ToArray(), env);
             }
 #endif
 
@@ -209,6 +209,11 @@ namespace Microsoft.Cadl.VisualStudio
                 return ("cadl-server.cmd", args, env);
             }
 
+            var variables = new Dictionary<string, string>();
+            variables.Add("workspaceFolder", workspaceService.CurrentWorkspace.Location);
+            var variableResolver = new VariableResolver(variables);
+
+            serverPath = variableResolver.ResolveVariables(serverPath);
             if (!serverPath.EndsWith(".js"))
             {
                 if (File.Exists(serverPath))

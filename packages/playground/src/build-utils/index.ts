@@ -8,7 +8,7 @@ export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig
     base: "./",
     build: {
       target: "esnext",
-      chunkSizeWarningLimit: 4000,
+      chunkSizeWarningLimit: 5000,
     },
     assetsInclude: [/\.cadl$/],
     optimizeDeps: {

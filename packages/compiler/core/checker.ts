@@ -77,7 +77,7 @@ import {
   ProjectionDecoratorReferenceExpressionNode,
   ProjectionEqualityExpressionNode,
   ProjectionExpression,
-  ProjectionExpressionStatement,
+  ProjectionExpressionStatementNode,
   ProjectionIfExpressionNode,
   ProjectionLambdaExpressionNode,
   ProjectionMemberExpressionNode,
@@ -3346,7 +3346,7 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function evalProjectionExpressionStatement(node: ProjectionExpressionStatement) {
+  function evalProjectionExpressionStatement(node: ProjectionExpressionStatementNode) {
     return evalProjectionNode(node.expr);
   }
 

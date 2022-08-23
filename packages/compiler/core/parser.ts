@@ -51,7 +51,7 @@ import {
   ProjectionBlockExpressionNode,
   ProjectionEnumSelectorNode,
   ProjectionExpression,
-  ProjectionExpressionStatement,
+  ProjectionExpressionStatementNode,
   ProjectionIfExpressionNode,
   ProjectionInterfaceSelectorNode,
   ProjectionLambdaExpressionNode,
@@ -1255,7 +1255,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseProjection(): ProjectionNode {
     const pos = tokenPos();
     const directionId = parseIdentifier("projectionDirection");
-    let direction: "from" | "to";
+    let direction: "to" | "from";
     if (directionId.sv !== "from" && directionId.sv !== "to") {
       error({ code: "token-expected", messageId: "projectionDirection" });
       direction = "from";
@@ -1276,6 +1276,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       kind: SyntaxKind.Projection,
       body,
       direction,
+      directionId,
       parameters,
       ...finishNode(pos),
     };
@@ -1313,7 +1314,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return stmts;
   }
 
-  function parseProjectionExpressionStatement(): ProjectionExpressionStatement {
+  function parseProjectionExpressionStatement(): ProjectionExpressionStatementNode {
     const pos = tokenPos();
     const expr = parseProjectionExpression();
     parseExpected(Token.Semicolon);
@@ -2309,7 +2310,11 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
     case SyntaxKind.Projection:
-      return visitEach(cb, node.parameters) || visitEach(cb, node.body);
+      return (
+        visitNode(cb, node.directionId) ||
+        visitEach(cb, node.parameters) ||
+        visitEach(cb, node.body)
+      );
     case SyntaxKind.ProjectionExpressionStatement:
       return visitNode(cb, node.expr);
     case SyntaxKind.ProjectionCallExpression:

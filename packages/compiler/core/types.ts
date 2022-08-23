@@ -988,13 +988,13 @@ export interface ProjectionEnumSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionEnumSelector;
 }
 
-export type ProjectionStatementItem = ProjectionExpressionStatement;
+export type ProjectionStatementItem = ProjectionExpressionStatementNode;
 
 export interface ProjectionParameterDeclarationNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.ProjectionParameterDeclaration;
 }
 
-export interface ProjectionExpressionStatement extends BaseNode {
+export interface ProjectionExpressionStatementNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionExpressionStatement;
   readonly expr: ProjectionExpression;
 }
@@ -1097,6 +1097,7 @@ export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNod
 export interface ProjectionNode extends BaseNode {
   readonly kind: SyntaxKind.Projection;
   readonly direction: "to" | "from";
+  readonly directionId: IdentifierNode;
   readonly parameters: ProjectionParameterDeclarationNode[];
   readonly body: ProjectionStatementItem[];
   readonly locals?: SymbolTable;
@@ -1169,7 +1170,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 }
 
 export type EmitterOptions = { name?: string } & Record<string, any>;
-export type Emitter = (program: Program, options: EmitterOptions) => void;
+export type Emitter = (program: Program, options: EmitterOptions) => Promise<void> | void;
 
 export interface SourceFile {
   /** The source code text. */
@@ -1464,6 +1465,12 @@ export interface CadlLibrary<
   createDiagnostic<C extends keyof T, M extends keyof T[C]>(
     diag: DiagnosticReport<T, C, M>
   ): Diagnostic;
+
+  /**
+   * Get or create a symbol with the given name unique for that library.
+   * @param name Symbol name scoped with the library name.
+   */
+  createStateSymbol(name: string): symbol;
 }
 
 /**

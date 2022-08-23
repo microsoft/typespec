@@ -9,7 +9,7 @@ import {
   JsSourceFileNode,
   ModelStatementNode,
   NodeFlags,
-  ProjectionExpressionStatement,
+  ProjectionExpressionStatementNode,
   ProjectionLambdaExpressionNode,
   ProjectionStatementNode,
   Sym,
@@ -358,7 +358,8 @@ describe("compiler: binder", () => {
     `;
     const script = bindCadl(code);
     const lambdaNode = (
-      (script.statements[0] as ProjectionStatementNode).to!.body[0] as ProjectionExpressionStatement
+      (script.statements[0] as ProjectionStatementNode).to!
+        .body[0] as ProjectionExpressionStatementNode
     ).expr as ProjectionLambdaExpressionNode;
     assertBindings("lambda", lambdaNode.locals!, {
       a: { flags: SymbolFlags.FunctionParameter },

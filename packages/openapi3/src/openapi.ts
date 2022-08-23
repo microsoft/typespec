@@ -1,5 +1,4 @@
 import {
-  checkIfServiceNamespace,
   compilerAssert,
   emitFile,
   EmitOptionsFor,
@@ -118,68 +117,6 @@ export function resolveOptions(
 // helper functions for other decorators.  The security information given here
 // will be inserted into the `security` and `securityDefinitions` sections of
 // the emitted OpenAPI document.
-
-const securityDetailsKey = Symbol("securityDetails");
-interface SecurityDetails {
-  definitions: any;
-  requirements: any[];
-}
-
-function getSecurityDetails(program: Program, serviceNamespace: Namespace): SecurityDetails {
-  const definitions = program.stateMap(securityDetailsKey);
-  if (definitions.has(serviceNamespace)) {
-    return definitions.get(serviceNamespace)!;
-  } else {
-    const details = { definitions: {}, requirements: [] };
-    definitions.set(serviceNamespace, details);
-    return details;
-  }
-}
-
-function getSecurityRequirements(program: Program, serviceNamespace: Namespace) {
-  return getSecurityDetails(program, serviceNamespace).requirements;
-}
-
-function getSecurityDefinitions(program: Program, serviceNamespace: Namespace) {
-  return getSecurityDetails(program, serviceNamespace).definitions;
-}
-
-export function addSecurityRequirement(
-  program: Program,
-  namespace: Namespace,
-  name: string,
-  scopes: string[]
-): void {
-  if (!checkIfServiceNamespace(program, namespace)) {
-    reportDiagnostic(program, {
-      code: "security-service-namespace",
-      target: namespace,
-    });
-  }
-
-  const req: any = {};
-  req[name] = scopes;
-  const requirements = getSecurityRequirements(program, namespace);
-  requirements.push(req);
-}
-
-export function addSecurityDefinition(
-  program: Program,
-  namespace: Namespace,
-  name: string,
-  details: any
-): void {
-  if (!checkIfServiceNamespace(program, namespace)) {
-    reportDiagnostic(program, {
-      code: "security-service-namespace",
-      target: namespace,
-    });
-    return;
-  }
-
-  const definitions = getSecurityDefinitions(program, namespace);
-  definitions[name] = details;
-}
 
 export interface ResolvedOpenAPI3EmitterOptions {
   outputFile: string;
