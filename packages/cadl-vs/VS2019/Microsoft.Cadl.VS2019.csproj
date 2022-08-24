@@ -7,10 +7,14 @@
     <VisualStudioMaxVersionExclusive>17.0</VisualStudioMaxVersionExclusive>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="16.3.43" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="16.3.43" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.9.1050" PrivateAssets="All" />
+    <!-- Use 16.0.x here  for compatible API -->
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.208" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="16.0.59" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="16.0.59" ExcludeAssets="Runtime" />
+    <!-- Use 16.latest for build tools -->
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.11.65" PrivateAssets="All" />
+    <!-- Align with VS 16.0 version here: https://devblogs.microsoft.com/visualstudio/using-newtonsoft-json-in-a-visual-studio-extension/-->
+    <PackageReference Include="NewtonSoft.JSON" Version="9.0.1" ExcludeAssets="Runtime" />
   </ItemGroup>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
   <Import Project="../Microsoft.Cadl.VS.targets" />

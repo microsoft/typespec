@@ -1,22 +1,26 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.Workspace;
-using Microsoft.VisualStudio.Workspace.Settings;
-using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
+using EnvDTE;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
-using Task = System.Threading.Tasks.Task;
-using System.Linq;
+using Microsoft.VisualStudio.Workspace;
+using Microsoft.VisualStudio.Workspace.Settings;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Debugger = System.Diagnostics.Debugger;
+using Process = System.Diagnostics.Process;
+using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Cadl.VisualStudio
 {
@@ -51,23 +55,24 @@ namespace Microsoft.Cadl.VisualStudio
         public event AsyncEventHandler<EventArgs>? StartAsync;
         public event AsyncEventHandler<EventArgs>? StopAsync { add { } remove { } } // unused
 
-        private readonly IVsFolderWorkspaceService workspaceService;
+        private readonly IVsFolderWorkspaceService _workspaceService;
+        private readonly SVsServiceProvider _serviceProvider;
+        private string? _workspaceFolder;
+        private string? _configuredCadlServerPath;
 
         [ImportingConstructor]
-        public LanguageClient([Import] IVsFolderWorkspaceService workspaceService)
+        public LanguageClient([Import] IVsFolderWorkspaceService workspaceService, [Import] SVsServiceProvider serviceProvider)
         {
-            this.workspaceService = workspaceService;
+            _workspaceService = workspaceService;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<Connection?> ActivateAsync(CancellationToken token)
         {
             await Task.Yield();
-
-            var workspace = workspaceService.CurrentWorkspace;
-            var settingsManager = workspace?.GetSettingsManager();
-            var settings = settingsManager?.GetAggregatedSettings(SettingsTypes.Generic);
+            await ReadSettingsAsync();
             var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
-            var (serverCommand, serverArgs, env) = resolveCadlServer(settings);
+            var (serverCommand, serverArgs, env) = resolveCadlServer();
             var info = new ProcessStartInfo
             {
                 // Use cadl-server on PATH in production
@@ -79,7 +84,7 @@ namespace Microsoft.Cadl.VisualStudio
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 Environment = { new("NODE_OPTIONS", options) },
-                WorkingDirectory = settings?.ScopePath,
+                WorkingDirectory = _workspaceFolder,
             };
 
             foreach (var entry in env)
@@ -110,7 +115,7 @@ namespace Microsoft.Cadl.VisualStudio
                 {
                     throw new CadlServerNotFoundException(info.FileName);
                 }
-                throw e;
+                throw;
             }
 
         }
@@ -140,17 +145,19 @@ namespace Microsoft.Cadl.VisualStudio
 #endif
 
 #if VS2022
-    public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState) {
-      var exception = initializationState.InitializationException;
-      var message = exception is CadlUserErrorException 
-        ? exception.Message 
-        : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception}";
-      Debug.Assert(exception is CadlUserErrorException, "Unexpected error initializing cadl-server:\r\n\r\n" + exception);
-      return Task.FromResult<InitializationFailureContext?>(
-        new InitializationFailureContext {
-          FailureMessage = "Failed to activate Cadl language server!\r\n" + message
-      });
-    }
+        public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState)
+        {
+            var exception = initializationState.InitializationException;
+            var message = exception is CadlUserErrorException
+              ? exception.Message
+              : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception}";
+            Debug.Assert(exception is CadlUserErrorException, "Unexpected error initializing cadl-server:\r\n\r\n" + exception);
+            return Task.FromResult<InitializationFailureContext?>(
+              new InitializationFailureContext
+              {
+                  FailureMessage = "Failed to activate Cadl language server!\r\n" + message
+              });
+        }
 #endif
 
         public Task OnServerInitializedAsync()
@@ -189,7 +196,7 @@ namespace Microsoft.Cadl.VisualStudio
         }
 #endif
 
-        private (string, string[], IDictionary<string, string>) resolveCadlServer(IWorkspaceSettings? settings)
+        private (string, string[], IDictionary<string, string>) resolveCadlServer()
         {
             var env = new Dictionary<string, string>();
             var args = new string[] { "--stdio" };
@@ -197,23 +204,28 @@ namespace Microsoft.Cadl.VisualStudio
             // Use local build of cadl-server in development (lauched from F5 in VS)
             if (InDevelopmentMode())
             {
-               var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
-               var module = GetDevelopmentCadlServerPath();
-               return ("node.exe", new string[] { module, options }.Concat(args).ToArray(), env);
+                var options = Environment.GetEnvironmentVariable("CADL_SERVER_NODE_OPTIONS");
+                var module = GetDevelopmentCadlServerPath();
+                return ("node.exe", new string[] { module, options }.Concat(args).ToArray(), env);
             }
 #endif
 
-            var serverPath = settings?.Property<string>("cadl.cadl-server.path");
-            if (serverPath == null)
+            var serverPath = _configuredCadlServerPath;
+            if (serverPath == null || serverPath.Length == 0)
             {
                 return ("cadl-server.cmd", args, env);
             }
 
             var variables = new Dictionary<string, string>();
-            variables.Add("workspaceFolder", workspaceService.CurrentWorkspace.Location);
-            var variableResolver = new VariableResolver(variables);
+            if (_workspaceFolder != null)
+            {
+                variables.Add("workspaceFolder", _workspaceFolder);
+            }
 
+            var variableResolver = new VariableResolver(variables);
             serverPath = variableResolver.ResolveVariables(serverPath);
+            serverPath = Path.GetFullPath(serverPath);
+
             if (!serverPath.EndsWith(".js"))
             {
                 if (File.Exists(serverPath))
@@ -223,13 +235,59 @@ namespace Microsoft.Cadl.VisualStudio
                 }
                 else
                 {
-                    serverPath = Path.Combine(serverPath, "cmd/cadl-server.js");
+                    serverPath = Path.Combine(serverPath, "cmd", "cadl-server.js");
                 }
+            }
+
+            // We need to check this as the later check when process is started would
+            // only trigger if node.exe is not found, not if the .js file passed to it
+            // is not found.
+            if (!File.Exists(serverPath))
+            {
+                throw new CadlServerNotFoundException(serverPath);
             }
 
             env["CADL_SKIP_COMPILER_RESOLVE"] = "1";
             return ("node.exe", new string[] { serverPath }.Concat(args).ToArray(), env);
+        }
 
+        private async Task ReadSettingsAsync()
+        {
+            var workspace = _workspaceService?.CurrentWorkspace;
+            if (workspace != null)
+            {
+                var settings = workspace.GetSettingsManager()?.GetAggregatedSettings(SettingsTypes.Generic);
+                _configuredCadlServerPath = settings?.Property<string>("cadl.cadl-server.path");
+                _workspaceFolder = workspace.Location;
+            }
+            else
+            {
+                // When a solution is open, there is no workspace settings manager, 
+                // so we read the settings file ourselves.
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                var dte = (DTE)_serviceProvider.GetService(typeof(DTE));
+                if (dte != null && dte.Solution != null)
+                {
+                    _workspaceFolder = Path.GetDirectoryName(dte.Solution.FullName);
+                    await Task.Run(() =>
+                    {
+                        var settingsFile = Path.Combine(_workspaceFolder, ".vs", "VSWorkspaceSettings.json");
+                        if (File.Exists(settingsFile))
+                        {
+                            try
+                            {
+                                var content = File.ReadAllText(settingsFile);
+                                var settings = JsonConvert.DeserializeObject<Dictionary<string, string>>(content);
+                                settings?.TryGetValue("cadl.cadl-server.path", out _configuredCadlServerPath);
+                            }
+                            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is JsonException)
+                            {
+                                throw new CadlUserErrorException($"Unable to read {settingsFile}: {ex.Message}", ex);
+                            }
+                        }
+                    });
+                }
+            }
         }
     }
 }

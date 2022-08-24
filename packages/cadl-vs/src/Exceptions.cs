@@ -21,6 +21,11 @@ namespace Microsoft.Cadl.VisualStudio
         {
 
         }
+
+        public CadlUserErrorException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 
 
