@@ -843,7 +843,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       schema.discriminator = discriminator;
       const mapping = getDiscriminatorMapping(
         discriminator,
-        variants.map((v) => v.type) as ModelType[]
+        variants.map((v) => v.type) as Model[]
       );
       if (mapping) {
         schema.discriminator.mapping = mapping;
