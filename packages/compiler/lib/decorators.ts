@@ -43,7 +43,7 @@ function setTemplatedStringProperty(
   program: Program,
   target: Type,
   text: string,
-  sourceObject: Type
+  sourceObject?: Type
 ) {
   // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
 
@@ -95,7 +95,7 @@ const docsKey = createStateSymbol("docs");
  *
  * @doc can be specified on any language element -- a model, an operation, a namespace, etc.
  */
-export function $doc(context: DecoratorContext, target: Type, text: string, sourceObject: Type) {
+export function $doc(context: DecoratorContext, target: Type, text: string, sourceObject?: Type) {
   setTemplatedStringProperty(docsKey, context.program, target, text, sourceObject);
 }
 
