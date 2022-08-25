@@ -1,6 +1,6 @@
 import { validateDecoratorTarget } from "../core/decorator-utils.js";
 import { createDiagnostic } from "../core/messages.js";
-import { Program, ProjectedProgram } from "../core/program.js";
+import { Program } from "../core/program.js";
 import { DecoratorContext, Namespace, Type } from "../core/types.js";
 
 interface ServiceDetails {
