@@ -10,8 +10,8 @@ export default definePlaygroundViteConfig({
     "@cadl-lang/openapi3",
   ],
   samples: {
-    "API Versioning": "samples/versioning.cadl",
-    "Discriminated Unions": "samples/unions.cadl",
+    "API versioning": "samples/versioning.cadl",
+    "Discriminated unions": "samples/unions.cadl",
     "Http service": "samples/http.cadl",
     "REST framework": "samples/rest.cadl",
   },
