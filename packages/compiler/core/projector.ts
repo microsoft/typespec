@@ -79,8 +79,10 @@ export function createProjector(
     : program.checker.getGlobalNamespaceType();
 
   projectingNamespaces = true;
-  // project all the namespaces first
-  projector.projectedGlobalNamespace = projectNamespace(targetGlobalNs) as Namespace;
+  // Project the global namespace to get a reference.
+  projector.projectedGlobalNamespace = projectNamespace(targetGlobalNs, false) as Namespace;
+  // Then project the content
+  projectSubNamespaces(targetGlobalNs, projector.projectedGlobalNamespace);
   projectingNamespaces = false;
 
   // then project all the types

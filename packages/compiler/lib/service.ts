@@ -13,7 +13,6 @@ interface ServiceDetails {
 const serviceDetailsKey = Symbol.for("ServiceDetails");
 function getServiceDetails(program: Program | ProjectedProgram): ServiceDetails {
   const programServiceDetails = program.stateMap(serviceDetailsKey);
-  // TODO do we need this now?
   const key = program.getGlobalNamespaceType();
   let serviceDetails = programServiceDetails.get(key);
   if (!serviceDetails) {
