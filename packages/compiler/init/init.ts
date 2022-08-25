@@ -6,7 +6,7 @@ import { CadlConfigFilename } from "../config/config-loader.js";
 import { logDiagnostics } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
 import { getBaseFileName, joinPaths } from "../core/path-utils.js";
-import { SchemaValidator } from "../core/schema-validator.js";
+import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, SourceFile } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
 import { InitTemplate, InitTemplateDefinitionsSchema, InitTemplateFile } from "./init-template.js";
@@ -272,7 +272,7 @@ function validateTemplateDefinitions(
   templates: unknown,
   file: SourceFile
 ): asserts templates is Record<string, InitTemplate> {
-  const validator = new SchemaValidator(InitTemplateDefinitionsSchema);
+  const validator = createJSONSchemaValidator(InitTemplateDefinitionsSchema);
   const diagnostics = validator.validate(templates, file);
   if (diagnostics.length > 0) {
     logDiagnostics(diagnostics, host.logSink);

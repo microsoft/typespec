@@ -1,6 +1,6 @@
 import jsyaml from "js-yaml";
 import { getDirectoryPath, joinPaths, resolvePath } from "../core/path-utils.js";
-import { SchemaValidator } from "../core/schema-validator.js";
+import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
 import { deepClone, deepFreeze, doIO, loadFile } from "../core/util.js";
 import { CadlConfigJsonSchema } from "./config-schema.js";
@@ -8,7 +8,7 @@ import { CadlConfig } from "./types.js";
 
 export const CadlConfigFilename = "cadl-project.yaml";
 
-const defaultConfig: CadlConfig = deepFreeze({
+export const defaultConfig: CadlConfig = deepFreeze({
   diagnostics: [],
   emitters: {},
 });
@@ -88,7 +88,7 @@ export async function loadCadlConfigFile(
   };
 }
 
-const configValidator = new SchemaValidator(CadlConfigJsonSchema);
+const configValidator = createJSONSchemaValidator(CadlConfigJsonSchema);
 
 async function loadConfigFile(
   host: CompilerHost,

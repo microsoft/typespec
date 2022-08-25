@@ -1,4 +1,3 @@
-import { createSymbolTable } from "./binder.js";
 import { codePointBefore, isIdentifierContinue } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
@@ -48,10 +47,11 @@ import {
   NumericLiteralNode,
   OperationSignature,
   OperationStatementNode,
+  ParseOptions,
   ProjectionBlockExpressionNode,
   ProjectionEnumSelectorNode,
   ProjectionExpression,
-  ProjectionExpressionStatement,
+  ProjectionExpressionStatementNode,
   ProjectionIfExpressionNode,
   ProjectionInterfaceSelectorNode,
   ProjectionLambdaExpressionNode,
@@ -80,9 +80,8 @@ import {
   UnionVariantNode,
   UsingStatementNode,
   VoidKeywordNode,
-  Writable,
 } from "./types.js";
-import { isArray } from "./util.js";
+import { isArray, mutate } from "./util.js";
 
 /**
  * Callback to parse each element in a delimited list
@@ -240,13 +239,6 @@ namespace ListKind {
   } as const;
 }
 
-export interface ParseOptions {
-  /**
-   * Include comments in resulting output.
-   */
-  comments?: boolean;
-}
-
 export function parse(code: string | SourceFile, options: ParseOptions = {}): CadlScriptNode {
   let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
@@ -276,11 +268,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       } as any,
       namespaces: [],
       usings: [],
-      locals: createSymbolTable(),
+      locals: undefined!,
       inScopeNamespaces: [],
       parseDiagnostics,
       comments,
       printable: treePrintable,
+      parseOptions: options,
       ...finishNode(0),
     };
   }
@@ -295,7 +288,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
-      let item: Writable<Statement>;
+      let item: Statement;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -340,7 +333,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           break;
       }
 
-      item.directives = directives;
+      mutate(item).directives = directives;
 
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
@@ -375,7 +368,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const decorators = parseDecoratorList();
       const tok = token();
 
-      let item: Writable<Statement>;
+      let item: Statement;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -428,7 +421,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseInvalidStatement(pos, decorators);
           break;
       }
-      item.directives = directives;
+      mutate(item).directives = directives;
       stmts.push(item);
     }
 
@@ -480,6 +473,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       kind: SyntaxKind.NamespaceStatement,
       decorators,
       id: nsSegments[0],
+      locals: undefined!,
       statements,
 
       ...finishNode(pos),
@@ -491,6 +485,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         decorators: [],
         id: nsSegments[i],
         statements: outerNs,
+        locals: undefined!,
         ...finishNode(pos),
       };
     }
@@ -1314,7 +1309,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return stmts;
   }
 
-  function parseProjectionExpressionStatement(): ProjectionExpressionStatement {
+  function parseProjectionExpressionStatement(): ProjectionExpressionStatementNode {
     const pos = tokenPos();
     const expr = parseProjectionExpression();
     parseExpected(Token.Semicolon);
@@ -1933,7 +1928,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         break;
       }
 
-      let item: Writable<T>;
+      let item: T;
       if (kind.invalidDecoratorTarget) {
         item = (parseItem as ParseListItem<UndecoratedListKind, T>)();
       } else {
@@ -1941,7 +1936,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
 
       items.push(item);
-      item.directives = directives;
+      mutate(item).directives = directives;
       const delimiter = token();
       const delimiterPos = tokenPos();
 
@@ -2484,24 +2479,24 @@ export function hasParseError(node: Node) {
   return node.flags & NodeFlags.DescendantHasError;
 }
 
-function checkForDescendantErrors(node: Writable<Node>) {
+function checkForDescendantErrors(node: Node) {
   if (node.flags & NodeFlags.DescendantErrorsExamined) {
     return;
   }
-  node.flags |= NodeFlags.DescendantErrorsExamined;
+  mutate(node).flags |= NodeFlags.DescendantErrorsExamined;
 
-  visitChildren(node, (child: Writable<Node>) => {
+  visitChildren(node, (child: Node) => {
     if (child.flags & NodeFlags.ThisNodeHasError) {
-      node.flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
+      mutate(node).flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
       return true;
     }
     checkForDescendantErrors(child);
 
     if (child.flags & NodeFlags.DescendantHasError) {
-      node.flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
+      mutate(node).flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
       return true;
     }
-    child.flags |= NodeFlags.DescendantErrorsExamined;
+    mutate(child).flags |= NodeFlags.DescendantErrorsExamined;
 
     return false;
   });

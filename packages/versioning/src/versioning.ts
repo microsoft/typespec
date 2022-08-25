@@ -423,7 +423,7 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
     } else if (t.namespace) {
       return cacheVersion(t, getVersions(p, t.namespace));
     } else {
-      return cacheVersion(t, [t, undefined as any]);
+      return cacheVersion(t, [t, undefined!]);
     }
   } else if (
     t.kind === "Operation" ||

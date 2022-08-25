@@ -1,7 +1,11 @@
-import { match, rejects, strictEqual } from "assert";
-import { getSourceLocation } from "../../core/index.js";
+import { rejects, strictEqual } from "assert";
 import { Model } from "../../core/types.js";
-import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
+import {
+  createTestHost,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: using statements", () => {
   let testHost: TestHost;
@@ -197,7 +201,7 @@ describe("compiler: using statements", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("report ambigous diagnostics when using name present in multiple using", async () => {
+  it("report ambiguous diagnostics when using name present in multiple using", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -227,13 +231,14 @@ describe("compiler: using statements", () => {
       model B extends A {}
       `
     );
-    const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "ambiguous-symbol");
-    strictEqual(
-      diagnostics[0].message,
-      '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A'
-    );
+    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "ambiguous-symbol",
+        message:
+          '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
+      },
+    ]);
   });
 
   it("ambigous use doesn't affect other files", async () => {
@@ -277,13 +282,14 @@ describe("compiler: using statements", () => {
       `
     );
     const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "ambiguous-symbol");
-    strictEqual(
-      diagnostics[0].message,
-      '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A'
-    );
-    match(getSourceLocation(diagnostics[0].target)?.file.path!, /ambiguous\.cadl$/);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "ambiguous-symbol",
+        message:
+          '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
+        file: /ambiguous\.cadl$/,
+      },
+    ]);
   });
 
   it("resolves 'local' decls over usings", async () => {
