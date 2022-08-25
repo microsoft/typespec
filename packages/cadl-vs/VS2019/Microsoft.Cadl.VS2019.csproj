@@ -14,7 +14,7 @@
     <!-- Use 16.latest for build tools -->
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.11.65" PrivateAssets="All" />
     <!-- Align with VS 16.0 version here: https://devblogs.microsoft.com/visualstudio/using-newtonsoft-json-in-a-visual-studio-extension/-->
-    <PackageReference Include="NewtonSoft.JSON" Version="9.0.1" ExcludeAssets="Runtime" />
+    <PackageReference Include="NewtonSoft.JSON" Version="13.0.1" ExcludeAssets="Runtime" />
   </ItemGroup>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
   <Import Project="../Microsoft.Cadl.VS.targets" />
