@@ -82,7 +82,6 @@ import {
   Node,
   SourceFile,
   StringLiteralNode,
-  Sym,
   SymbolFlags,
   SyntaxKind,
   TextRange,
@@ -657,55 +656,44 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getTypeDetails(
-    sym: Sym,
-    type: Type,
-    program: Program
-  ): Promise<string | undefined> {
-    const doc = getDoc(program, type);
-    const namesList: string[] = [sym.name];
-    function symparent(sym: Sym) {
-      if (sym.parent) {
-        namesList.unshift(sym.parent.name);
-        symparent(sym.parent);
-      }
-    }
-    symparent(sym);
-
-    const name = namesList.join(".");
+  /**
+   * Get the detailed documentation of a type.
+   */
+  function getTypeDetails(program: Program, type: Type): string {
     if (type.kind === "Intrinsic") {
-      return undefined;
+      return "";
     }
+
+    const name = program.checker.getTypeName(type);
     const typeKind = type.kind.toLowerCase();
-    const kindName = [typeKind, name].join(" ");
+
+    const lines = ["```cadl", `${typeKind} ${name}`, "```"];
+    const doc = getDoc(program, type);
     if (doc) {
-      return [kindName, "\n---", doc].join("\n");
+      lines.push(`_${doc}_`); // italic
     }
-    return kindName;
+    return lines.join("\n");
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
-    const typeDetails = await compile(params.textDocument, (program, document, file) => {
+    const docString = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
       const sym =
         id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
       if (sym) {
         const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-        return getTypeDetails(sym, type, program);
+        return getTypeDetails(program, type);
       }
       return undefined;
     });
-    const docString = typeDetails ?? "";
 
     const markdown: MarkupContent = {
       kind: MarkupKind.Markdown,
-      value: docString,
+      value: docString ?? "",
     };
-    const hoverSymbol = {
+    return {
       contents: markdown,
     };
-
-    return hoverSymbol;
   }
 
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
@@ -958,7 +946,7 @@ export function createServer(host: ServerHost): Server {
         kind,
         insertText: key,
       };
-      const typeDetails = await getTypeDetails(sym, type, program);
+      const typeDetails = getTypeDetails(program, type);
       if (typeDetails) {
         item.detail = typeDetails;
       }
