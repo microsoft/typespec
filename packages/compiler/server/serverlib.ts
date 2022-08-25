@@ -918,7 +918,6 @@ export function createServer(host: ServerHost): Server {
       return;
     }
     for (const [key, { sym, label }] of result) {
-      let documentation: string | undefined;
       let kind: CompletionItemKind;
       let deprecated = false;
       const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
@@ -930,20 +929,21 @@ export function createServer(host: ServerHost): Server {
       ) {
         kind = CompletionItemKind.Module;
       } else {
-        documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
         deprecated = isDeprecated(program, type);
       }
+      const documentation = getTypeDetails(program, type);
       const item: CompletionItem = {
         label: label ?? key,
-        documentation,
+        documentation: documentation
+          ? {
+              kind: MarkupKind.Markdown,
+              value: documentation,
+            }
+          : undefined,
         kind,
         insertText: key,
       };
-      const typeDetails = getTypeDetails(program, type);
-      if (typeDetails) {
-        item.detail = typeDetails;
-      }
       if (deprecated) {
         item.tags = [CompletionItemTag.Deprecated];
       }
