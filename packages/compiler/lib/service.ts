@@ -11,7 +11,7 @@ interface ServiceDetails {
 }
 
 const serviceDetailsKey = Symbol.for("ServiceDetails");
-function getServiceDetails(program: Program | ProjectedProgram): ServiceDetails {
+function getServiceDetails(program: Program): ServiceDetails {
   const programServiceDetails = program.stateMap(serviceDetailsKey);
   const key = program.getGlobalNamespaceType();
   let serviceDetails = programServiceDetails.get(key);
