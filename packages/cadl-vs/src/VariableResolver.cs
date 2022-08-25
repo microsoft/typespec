@@ -12,9 +12,9 @@ namespace Microsoft.Cadl.VisualStudio
             return Regex.Replace(value, VARIABLE_REGEXP, (match) =>
             {
                 var group = match.Groups[1];
-                if (group != null && variables.TryGetValue(group.Value, out value))
+                if (group != null && variables.TryGetValue(group.Value, out var variable))
                 {
-                    return value;
+                    return variable;
                 }
                 return match.Value;
             });
