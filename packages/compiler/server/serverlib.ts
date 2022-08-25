@@ -713,14 +713,14 @@ export function createServer(host: ServerHost): Server {
     await compile(params.textDocument, async (program, document, file) => {
       const node = getNodeAtPosition(file, document.offsetAt(params.position));
       if (node === undefined) {
-        await addKeywordCompletion("root", completions);
+        addKeywordCompletion("root", completions);
       } else {
         switch (node.kind) {
           case SyntaxKind.NamespaceStatement:
-            await addKeywordCompletion("namespace", completions);
+            addKeywordCompletion("namespace", completions);
             break;
           case SyntaxKind.Identifier:
-            await addIdentifierCompletion(program, node, completions);
+            addIdentifierCompletion(program, node, completions);
             break;
           case SyntaxKind.StringLiteral:
             if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
@@ -803,7 +803,7 @@ export function createServer(host: ServerHost): Server {
     return references;
   }
 
-  async function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
+  function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
     const filteredKeywords = keywords.filter(([_, x]) => area in x);
     for (const [keyword] of filteredKeywords) {
       completions.items.push({
@@ -914,7 +914,7 @@ export function createServer(host: ServerHost): Server {
   /**
    * Add completion options for an identifier.
    */
-  async function addIdentifierCompletion(
+  function addIdentifierCompletion(
     program: Program,
     node: IdentifierNode,
     completions: CompletionList
@@ -957,7 +957,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     if (node.parent?.kind === SyntaxKind.TypeReference) {
-      await addKeywordCompletion("identifier", completions);
+      addKeywordCompletion("identifier", completions);
     }
   }
 
