@@ -843,13 +843,11 @@ export function createServer(host: ServerHost): Server {
           program.reportDiagnostic
         );
         if (libPackageJson.cadlMain != undefined) {
-          {
-            completions.items.push({
-              label: dependency,
-              commitCharacters: [],
-              kind: CompletionItemKind.Module,
-            });
-          }
+          completions.items.push({
+            label: dependency,
+            commitCharacters: [],
+            kind: CompletionItemKind.Module,
+          });
         }
       }
     }
@@ -890,22 +888,18 @@ export function createServer(host: ServerHost): Server {
         case ".cadl":
         case ".js":
         case ".mjs":
-          {
-            completions.items.push({
-              label: file,
-              commitCharacters: [],
-              kind: CompletionItemKind.File,
-            });
-          }
+          completions.items.push({
+            label: file,
+            commitCharacters: [],
+            kind: CompletionItemKind.File,
+          });
           break;
         case "":
-          {
-            completions.items.push({
-              label: file,
-              commitCharacters: [],
-              kind: CompletionItemKind.Folder,
-            });
-          }
+          completions.items.push({
+            label: file,
+            commitCharacters: [],
+            kind: CompletionItemKind.Folder,
+          });
           break;
       }
     }
