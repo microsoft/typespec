@@ -5,7 +5,7 @@ import { CadlConfigJsonSchema } from "../../config/config-schema.js";
 import { CadlRawConfig, loadCadlConfigForPath } from "../../config/index.js";
 import { createSourceFile } from "../../core/diagnostics.js";
 import { NodeHost } from "../../core/node-host.js";
-import { SchemaValidator } from "../../core/schema-validator.js";
+import { createJSONSchemaValidator } from "../../core/schema-validator.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -69,7 +69,7 @@ describe("compiler: config file loading", () => {
   });
 
   describe("validation", () => {
-    const validator = new SchemaValidator(CadlConfigJsonSchema);
+    const validator = createJSONSchemaValidator(CadlConfigJsonSchema);
     const file = createSourceFile("<content>", "<path>");
 
     function validate(data: CadlRawConfig) {

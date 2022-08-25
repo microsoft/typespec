@@ -1,5 +1,12 @@
 import { createDiagnosticCreator } from "./diagnostics.js";
-import { CadlLibrary, CadlLibraryDef, CallableMessage, DiagnosticMessages } from "./types.js";
+import { createJSONSchemaValidator } from "./schema-validator.js";
+import {
+  CadlLibrary,
+  CadlLibraryDef,
+  CallableMessage,
+  DiagnosticMessages,
+  JSONSchemaValidator,
+} from "./types.js";
 
 const globalLibraryUrlsLoadedSym = Symbol.for("CADL_LIBRARY_URLS_LOADED");
 if ((globalThis as any)[globalLibraryUrlsLoadedSym] === undefined) {
@@ -37,6 +44,8 @@ export function createCadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any>
 >(lib: Readonly<CadlLibraryDef<T, E>>): CadlLibrary<T, E> {
+  let emitterOptionValidator: JSONSchemaValidator;
+
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
   function createStateSymbol(name: string): symbol {
     return Symbol.for(`${lib.name}.${name}`);
@@ -44,7 +53,20 @@ export function createCadlLibrary<
 
   const caller = getCaller();
   loadedUrls.add(caller);
-  return { ...lib, reportDiagnostic, createDiagnostic, createStateSymbol };
+  return {
+    ...lib,
+    reportDiagnostic,
+    createDiagnostic,
+    createStateSymbol,
+    get emitterOptionValidator() {
+      if (!emitterOptionValidator && lib.emitter?.options) {
+        emitterOptionValidator = createJSONSchemaValidator<E>(lib.emitter.options, {
+          coerceTypes: true,
+        });
+      }
+      return emitterOptionValidator;
+    },
+  };
 }
 
 export function paramMessage<T extends string[]>(

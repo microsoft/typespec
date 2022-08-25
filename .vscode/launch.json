@@ -119,8 +119,18 @@
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/cadl-vscode"],
       "env": {
-        "CADL_DEVELOPMENT_MODE": "true",
-        "CADL_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242"
+        // Log elapsed time for each call to server.
+        //"CADL_SERVER_LOG_TIMING": "true",
+
+        // Save .cpuprofile for last run of each server function here
+        // NOTE: This will add a lot of lag so don't trust logged timing if also enabled above.
+        //"CADL_SERVER_PROFILE_DIR": "${workspaceRoot}/temp",
+
+        // Use empty node options and don't debug while profiling to get the most accurate timing
+        //"CADL_SERVER_NODE_OPTIONS": "",
+
+        "CADL_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
+        "CADL_DEVELOPMENT_MODE": "true"
       },
       "presentation": {
         "hidden": true

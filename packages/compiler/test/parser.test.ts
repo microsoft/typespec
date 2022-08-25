@@ -800,11 +800,6 @@ export function dumpAST(astNode: Node, file?: SourceFile) {
       return undefined;
     }
 
-    if (key === "locals" && value.size === 0) {
-      // this will be an empty symbol table after parsing, hide it
-      return undefined;
-    }
-
     if (Array.isArray(value) && value.length === 0) {
       // hide empty arrays too
       return undefined;
