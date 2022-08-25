@@ -136,18 +136,18 @@ namespace Microsoft.Cadl.VisualStudio
         {
             var exception = initializationState.InitializationException;
             var message = exception is CadlUserErrorException
-              ? exception.Message
-              : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception}";
+                ? exception.Message
+                : $"File issue at https://github.com/microsoft/cadl\r\n\r\n{exception}";
 
             Debug.Assert(
                 exception is CadlUserErrorException,
                 "Unexpected error initializing cadl-server:\r\n\r\n" + exception);
 
             return Task.FromResult<InitializationFailureContext?>(
-              new InitializationFailureContext
-              {
-                  FailureMessage = "Failed to activate Cadl language server!\r\n" + message
-              });
+                new InitializationFailureContext
+                {
+                    FailureMessage = "Failed to activate Cadl language server!\r\n" + message
+                });
         }
 #endif
 
