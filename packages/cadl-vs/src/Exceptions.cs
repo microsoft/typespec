@@ -23,7 +23,7 @@ namespace Microsoft.Cadl.VisualStudio
     [Serializable]
     internal sealed class CadlServerNotFoundException : CadlUserErrorException
     {
-        public CadlServerNotFoundException(string fileName, Exception? innerException = null) 
+        public CadlServerNotFoundException(string fileName, Exception? innerException = null)
             : base(string.Join("\n", new string[]
             {
                 $"Cadl server exectuable was not found: '{fileName}' is not found. Make sure either:",

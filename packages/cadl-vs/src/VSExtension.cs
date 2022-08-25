@@ -273,7 +273,7 @@ namespace Microsoft.Cadl.VisualStudio
             {
                 return empty;
             }
-            
+
             var settingsPath = Path.Combine(workspaceFolder, ".vs", "VSWorkspaceSettings.json");
             if (!File.Exists(settingsPath))
             {
