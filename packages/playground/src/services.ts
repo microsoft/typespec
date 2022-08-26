@@ -1,4 +1,4 @@
-import { CadlLanguageConfiguration, ServerHost } from "@cadl-lang/compiler";
+import { CadlLanguageConfiguration, compilerAssert, ServerHost } from "@cadl-lang/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -108,6 +108,21 @@ export async function attachServices(host: BrowserHost) {
     };
   }
 
+  function monacoHoverContents(contents: lsp.MarkupContent): monaco.IMarkdownString[] {
+    return [{ value: contents.value }];
+  }
+
+  function monacoHover(hover: lsp.Hover): monaco.languages.Hover {
+    compilerAssert(
+      !Array.isArray(hover.contents) && !lsp.MarkedString.is(hover.contents),
+      "MarkedString (deprecated) not supported."
+    );
+    return {
+      contents: monacoHoverContents(hover.contents),
+      range: hover.range ? monacoRange(hover.range) : undefined,
+    };
+  }
+
   function monacoRange(range: lsp.Range): monaco.IRange {
     return {
       startColumn: range.start.character + 1,
@@ -181,6 +196,13 @@ export async function attachServices(host: BrowserHost) {
       const ranges = await serverLib.getFoldingRanges(lspDocumentArgs(model));
       const output = ranges.map(monacoFoldingRange);
       return output;
+    },
+  });
+
+  monaco.languages.registerHoverProvider("cadl", {
+    async provideHover(model, position) {
+      const hover = await serverLib.getHover(lspArgs(model, position));
+      return monacoHover(hover);
     },
   });
 

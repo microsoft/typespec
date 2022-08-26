@@ -517,6 +517,10 @@ export function createChecker(program: Program): Checker {
 
   function getTypeName(type: Type, options?: TypeNameOptions): string {
     switch (type.kind) {
+      case "Namespace":
+        return getNamespaceString(type, options);
+      case "TemplateParameter":
+        return type.node.id.sv;
       case "Model":
         return getModelName(type, options);
       case "ModelProperty":
