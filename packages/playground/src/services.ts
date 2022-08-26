@@ -1,4 +1,4 @@
-import { CadlLanguageConfiguration, ServerHost } from "@cadl-lang/compiler";
+import { CadlLanguageConfiguration, compilerAssert, ServerHost } from "@cadl-lang/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
