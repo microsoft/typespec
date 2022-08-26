@@ -112,12 +112,15 @@ export async function attachServices(host: BrowserHost) {
     return [{ value: contents.value }];
   }
 
-  function monacoHover(type: lsp.Hover): monaco.languages.Hover {
-    const typecontents = type.contents as lsp.MarkupContent;
-    if (type.range) {
-      return { contents: monacoHoverContents(typecontents), range: monacoRange(type.range) };
-    }
-    return { contents: monacoHoverContents(typecontents) };
+  function monacoHover(hover: lsp.Hover): monaco.languages.Hover {
+    compilerAssert(
+      !Array.isArray(hover.contents) && !lsp.MarkedString.is(hover.contents),
+      "MarkedString (deprecated) not supported."
+    );
+    return {
+      contents: monacoHoverContents(hover.contents),
+      range: hover.range ? monacoRange(hover.range) : undefined,
+    };
   }
 
   function monacoRange(range: lsp.Range): monaco.IRange {
