@@ -52,7 +52,9 @@ export function createCadlLibrary<
   }
 
   const caller = getCaller();
-  loadedUrls.add(caller);
+  if (caller) {
+    loadedUrls.add(caller);
+  }
   return {
     ...lib,
     reportDiagnostic,
@@ -101,7 +103,8 @@ export function setCadlNamespace(
 }
 
 function getCaller() {
-  return getCallStack()[2].getFileName();
+  const caller = getCallStack()[2];
+  return typeof caller === "object" && "getFileName" in caller ? caller.getFileName() : undefined;
 }
 
 function getCallStack() {
