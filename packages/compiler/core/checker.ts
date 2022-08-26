@@ -517,6 +517,10 @@ export function createChecker(program: Program): Checker {
 
   function getTypeName(type: Type, options?: TypeNameOptions): string {
     switch (type.kind) {
+      case "Namespace":
+        return getNamespaceString(type, options);
+      case "TemplateParameter":
+        return type.node.id.sv;
       case "Model":
         return getModelName(type, options);
       case "ModelProperty":
@@ -4300,7 +4304,13 @@ function finishTypeForProgramAndChecker<T extends Type>(
   typeDef: T,
   mapper?: TypeMapper
 ): T {
-  (typeDef as any).templateArguments = mapper?.args;
+  if (mapper) {
+    compilerAssert(
+      !(typeDef as any).templateArguments,
+      "Mapper provided but template arguments already set."
+    );
+    (typeDef as any).templateArguments = mapper.args;
+  }
 
   if ("decorators" in typeDef) {
     for (const decApp of typeDef.decorators) {
