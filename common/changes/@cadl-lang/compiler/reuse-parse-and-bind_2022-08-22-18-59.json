@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Perf: Reuse unchanged files and programs in language server.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}

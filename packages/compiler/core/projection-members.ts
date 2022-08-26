@@ -81,7 +81,7 @@ export function createProjectionMembers(checker: Checker): {
               name,
               optional: false,
               decorators: [],
-              node: undefined as any,
+              node: undefined!,
               default: defaultT,
               type,
             })
@@ -264,7 +264,7 @@ export function createProjectionMembers(checker: Checker): {
             createType({
               kind: "Operation",
               name,
-              node: undefined as any,
+              node: undefined!,
               parameters,
               returnType,
               decorators: [],
@@ -333,7 +333,7 @@ export function createProjectionMembers(checker: Checker): {
               enum: base,
               name,
               decorators: [],
-              node: undefined as any,
+              node: undefined!,
               value: type ? type.value : undefined,
             })
           );

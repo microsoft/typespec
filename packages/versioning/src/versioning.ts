@@ -11,14 +11,14 @@ import {
   validateDecoratorParamType,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./lib.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
-const addedOnKey = Symbol("addedOn");
-const removedOnKey = Symbol("removedOn");
-const versionsKey = Symbol("versions");
-const versionDependencyKey = Symbol("versionDependency");
-const renamedFromKey = Symbol("renamedFrom");
-const madeOptionalKey = Symbol("madeOptional");
+const addedOnKey = createStateSymbol("addedOn");
+const removedOnKey = createStateSymbol("removedOn");
+const versionsKey = createStateSymbol("versions");
+const versionDependencyKey = createStateSymbol("versionDependency");
+const renamedFromKey = createStateSymbol("renamedFrom");
+const madeOptionalKey = createStateSymbol("madeOptional");
 
 export const namespace = "Cadl.Versioning";
 
@@ -423,7 +423,7 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
     } else if (t.namespace) {
       return cacheVersion(t, getVersions(p, t.namespace));
     } else {
-      return cacheVersion(t, [t, undefined as any]);
+      return cacheVersion(t, [t, undefined!]);
     }
   } else if (
     t.kind === "Operation" ||

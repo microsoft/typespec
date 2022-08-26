@@ -38,7 +38,12 @@ async function resolvePackageRoot(): Promise<string> {
     const resolved = await resolveModule(host, "@cadl-lang/compiler", {
       baseDir: process.cwd(),
     });
-    return path.resolve(resolved, "../../..");
+    if (resolved.type !== "module") {
+      throw new Error(
+        `Error resolving "@cadl-lang/compiler", expected to find a node module but found a file: "${resolved.path}".`
+      );
+    }
+    return resolved.path;
   } catch (err: any) {
     if (err.code === "MODULE_NOT_FOUND") {
       // Resolution from cwd failed: use current package.

@@ -139,10 +139,24 @@ const libDefinition = {
         default: paramMessage`@useAuth ${"kind"} only accept Auth model, Tuple of auth model or union of auth model.`,
       },
     },
+    "invalid-discriminated-union": {
+      severity: "error",
+      messages: {
+        noAnonVariants: "Unions with anonymous variants cannot be discriminated",
+      },
+    },
+    "invalid-discriminated-union-variant": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Union variant ${"name"} must be a model type`,
+        noDiscriminant: paramMessage`Variant ${"name"}'s type is missing the discriminant property ${"discriminant"}`,
+        wrongDiscriminantType: paramMessage`Variant ${"name"}'s type's discriminant property ${"discriminant"} must be a string literal or string enum member`,
+      },
+    },
   },
 } as const;
 
 const restLib = createCadlLibrary(libDefinition);
-const { reportDiagnostic, createDiagnostic } = restLib;
+const { reportDiagnostic, createDiagnostic, createStateSymbol } = restLib;
 
-export { restLib, reportDiagnostic, createDiagnostic };
+export { restLib, reportDiagnostic, createDiagnostic, createStateSymbol };

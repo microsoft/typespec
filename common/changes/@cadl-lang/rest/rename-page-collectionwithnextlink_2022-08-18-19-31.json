@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "**BREAKING CHANGE** Rename `Page` to `CollectionWithNextLink`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

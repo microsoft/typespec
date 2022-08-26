@@ -6,7 +6,7 @@ const ctrlOrCmd = process.platform === "darwin" ? "Meta" : "Control";
 test("compiled http sample", async ({ page }) => {
   await page.goto(host);
   const samplesDropDown = page.locator("select.sample-dropdown");
-  await samplesDropDown.selectOption({ label: "Http" });
+  await samplesDropDown.selectOption({ label: "Http service" });
   const outputContainer = page.locator(".output-content");
   await expect(outputContainer).toContainText(`"title": "Widget Service"`);
 });

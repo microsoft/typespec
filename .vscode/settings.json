@@ -91,6 +91,7 @@
   "git.ignoreLimitWarning": true,
   "mochaExplorer.files": [
     "./packages/*/dist/test/**/*.test.js",
+    "./packages/*/dist/test/**/*.e2e.js",
     "./packages/*/dist-dev/test/**/*.test.js",
     "./packages/*/test/**/*.test.js"
   ],
@@ -106,5 +107,5 @@
   "prettier.prettierPath": "./packages/compiler/node_modules/prettier",
   "prettier.documentSelectors": ["**/*.cadl"],
   "testExplorer.errorDecoration": false,
-  "cadl.cadl-server.path": "${workspaceRoot}/packages/compiler"
+  "cadl.cadl-server.path": "${workspaceFolder}/packages/compiler"
 }

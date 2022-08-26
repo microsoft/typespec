@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vs",
+      "comment": "Fix issue with configured cadl-server location not being found when opening a solution.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vs"
+}
