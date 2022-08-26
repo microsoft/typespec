@@ -5,7 +5,7 @@ export async function importCadlCompiler(): Promise<typeof import("@cadl-lang/co
 }
 
 /**
- * Dynamic imports with importmap unfotunatelly do not work on all browsers.
+ * Dynamic imports with importmap unfotunately do not work on all browsers.
  * Safari and Firefox lack support https://caniuse.com/import-maps.
  *
  * A polyfill for importmap is loaded but required calling importShim instead of the native import https://github.com/guybedford/es-module-shims
