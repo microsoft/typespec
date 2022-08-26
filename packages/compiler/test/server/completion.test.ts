@@ -4,6 +4,7 @@ import {
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
+  MarkupKind,
 } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
 
@@ -16,19 +17,18 @@ describe("compiler: server: completion", () => {
       }
       `
     );
-
     check(completions, [
       {
         label: "int32",
         insertText: "int32",
         kind: CompletionItemKind.Keyword,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Cadl.int32\n```" },
       },
       {
-        label: "Map",
-        insertText: "Map",
+        label: "Record",
+        insertText: "Record",
         kind: CompletionItemKind.Class,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Record<T>\n```" },
       },
     ]);
   });
@@ -249,13 +249,12 @@ describe("compiler: server: completion", () => {
       }
       `
     );
-
     check(completions, [
       {
         label: "string",
         insertText: "string",
         kind: CompletionItemKind.Keyword,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Cadl.string\n```" },
       },
     ]);
   });
@@ -275,7 +274,7 @@ describe("compiler: server: completion", () => {
         label: "𐌰𐌲𐌰𐌲𐌰𐌲",
         insertText: "𐌰𐌲𐌰𐌲𐌰𐌲",
         kind: CompletionItemKind.Class,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel 𐌰𐌲𐌰𐌲𐌰𐌲\n```" },
       },
     ]);
   });
@@ -299,13 +298,13 @@ describe("compiler: server: completion", () => {
           label: "A",
           insertText: "A",
           kind: CompletionItemKind.Class,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
         },
         {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Class,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.B\n```" },
         },
       ],
       {
@@ -335,13 +334,19 @@ describe("compiler: server: completion", () => {
           label: "Orange",
           insertText: "Orange",
           kind: CompletionItemKind.EnumMember,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```cadl\nenummember Fruit.Orange\n```",
+          },
         },
         {
           label: "Banana",
           insertText: "Banana",
           kind: CompletionItemKind.EnumMember,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```cadl\nenummember Fruit.Banana\n```",
+          },
         },
       ],
       {
@@ -373,13 +378,13 @@ describe("compiler: server: completion", () => {
           label: "orange",
           insertText: "orange",
           kind: CompletionItemKind.EnumMember,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nunionvariant Orange\n```" },
         },
         {
           label: "banana",
           insertText: "banana",
           kind: CompletionItemKind.EnumMember,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nunionvariant Banana\n```" },
         },
       ],
       {
@@ -405,7 +410,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\noperation N.test\n```" },
         },
       ],
       {
@@ -432,7 +437,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Method,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\noperation test\n```" },
         },
       ],
       {
@@ -458,7 +463,7 @@ describe("compiler: server: completion", () => {
           label: "test",
           insertText: "test",
           kind: CompletionItemKind.Field,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodelproperty M.test\n```" },
         },
       ],
       {
@@ -481,7 +486,10 @@ describe("compiler: server: completion", () => {
         label: "Param",
         insertText: "Param",
         kind: CompletionItemKind.Struct,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```cadl\ntemplateparameter Param\n```",
+        },
       },
     ]);
   });
@@ -501,7 +509,7 @@ describe("compiler: server: completion", () => {
         label: "A",
         insertText: "A",
         kind: CompletionItemKind.Class,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
       },
     ]);
   });
@@ -527,7 +535,7 @@ describe("compiler: server: completion", () => {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Module,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nnamespace A.B\n```" },
         },
       ],
       {
@@ -606,13 +614,13 @@ describe("compiler: server: completion", () => {
           label: "A",
           insertText: "A",
           kind: CompletionItemKind.Class,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.A\n```" },
         },
         {
           label: "B",
           insertText: "B",
           kind: CompletionItemKind.Class,
-          documentation: undefined,
+          documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel N.B\n```" },
         },
       ],
       {
@@ -638,7 +646,7 @@ describe("compiler: server: completion", () => {
         label: "Foo",
         insertText: "Foo",
         kind: CompletionItemKind.Class,
-        documentation: undefined,
+        documentation: { kind: MarkupKind.Markdown, value: "```cadl\nmodel Foo\n```" },
         tags: [CompletionItemTag.Deprecated],
       },
     ]);
