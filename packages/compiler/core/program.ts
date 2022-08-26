@@ -1,9 +1,9 @@
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { createSourceFile } from "./diagnostics.js";
-import { compilerAssert, MANIFEST, SymbolFlags } from "./index.js";
+import { compilerAssert, createSourceFile } from "./diagnostics.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLogger } from "./logger/index.js";
+import { MANIFEST } from "./manifest.js";
 import { createDiagnostic } from "./messages.js";
 import {
   ModuleResolutionResult,
@@ -29,6 +29,7 @@ import {
   JsSourceFileNode,
   LiteralType,
   Logger,
+  Namespace,
   Node,
   NodeFlags,
   NoTarget,
@@ -36,11 +37,22 @@ import {
   Projector,
   SourceFile,
   Sym,
+  SymbolFlags,
   SymbolTable,
   SyntaxKind,
   Type,
 } from "./types.js";
 import { deepEquals, doIO, findProjectRoot, loadFile, mapEquals } from "./util.js";
+
+export interface ProjectedProgram extends Program {
+  projector: Projector;
+}
+
+export function isProjectedProgram(
+  program: Program | ProjectedProgram
+): program is ProjectedProgram {
+  return "projector" in program;
+}
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -58,16 +70,14 @@ export interface Program {
   onValidate(cb: (program: Program) => void | Promise<void>): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
-  stateSets: Map<symbol, Set<Type>>;
+  stateSets: Map<symbol, StateSet>;
   stateMap(key: symbol): Map<Type, any>;
-  stateMaps: Map<symbol, Map<Type, any>>;
+  stateMaps: Map<symbol, StateMap>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
-  enableProjections(projections: ProjectionApplication[], startNode?: Type): Projector;
-  disableProjections(): void;
-  currentProjector?: Projector;
+  getGlobalNamespaceType(): Namespace;
 }
 
 interface EmitterRef {
@@ -75,9 +85,11 @@ interface EmitterRef {
   options: EmitterOptions;
 }
 
-class StateMap<V> implements Map<Type, V> {
-  private internalState = new Map<undefined | Projector, Map<Type, V>>();
-  constructor(public program: Program, public key: symbol) {}
+class StateMap extends Map<undefined | Projector, Map<Type, unknown>> {}
+class StateSet extends Map<undefined | Projector, Set<Type>> {}
+
+class StateMapView<V> implements Map<Type, V> {
+  public constructor(private state: StateMap, private projector?: Projector) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -128,17 +140,17 @@ class StateMap<V> implements Map<Type, V> {
   [Symbol.toStringTag] = "StateMap";
 
   dispatch(keyType?: Type): Map<Type, V> {
-    const key = keyType ? keyType.projector : this.program.currentProjector;
-    if (!this.internalState.has(key)) {
-      this.internalState.set(key, new Map());
+    const key = keyType ? keyType.projector : this.projector;
+    if (!this.state.has(key)) {
+      this.state.set(key, new Map());
     }
 
-    return this.internalState.get(key)!;
+    return this.state.get(key)! as any;
   }
 }
-class StateSet implements Set<Type> {
-  private internalState = new Map<undefined | Projector, Set<Type>>();
-  constructor(public program: Program, public key: symbol) {}
+
+class StateSetView implements Set<Type> {
+  public constructor(private state: StateSet, private projector?: Projector) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -185,18 +197,26 @@ class StateSet implements Set<Type> {
   [Symbol.toStringTag] = "StateSet";
 
   dispatch(keyType?: Type): Set<Type> {
-    const key = keyType ? keyType.projector : this.program.currentProjector;
-    if (!this.internalState.has(key)) {
-      this.internalState.set(key, new Set());
+    const key = keyType ? keyType.projector : this.projector;
+    if (!this.state.has(key)) {
+      this.state.set(key, new Set());
     }
 
-    return this.internalState.get(key)!;
+    return this.state.get(key)!;
   }
 }
 
 interface CadlLibraryReference {
   path: string;
   manifest: NodePackage;
+}
+
+export function projectProgram(
+  program: Program,
+  projections: ProjectionApplication[],
+  startNode?: Type
+): ProjectedProgram {
+  return createProjector(program, projections, startNode);
 }
 
 export async function createProgram(
@@ -206,12 +226,11 @@ export async function createProgram(
   oldProgram?: Program // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ): Promise<Program> {
   const validateCbs: any = [];
-  const stateMaps = new Map<symbol, StateMap<any>>();
+  const stateMaps = new Map<symbol, StateMap>();
   const stateSets = new Map<symbol, StateSet>();
   const diagnostics: Diagnostic[] = [];
   const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
-  let currentProjector: Projector | undefined;
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const loadedLibraries = new Map<string, CadlLibraryReference>();
@@ -231,10 +250,9 @@ export async function createProgram(
     emitters,
     loadCadlScript,
     getOption,
-    stateMap,
     stateMaps,
-    stateSet,
     stateSets,
+    ...createStateAccessors(stateMaps, stateSets),
     reportDiagnostic,
     reportDiagnostics,
     reportDuplicateSymbols,
@@ -244,14 +262,7 @@ export async function createProgram(
     onValidate(cb) {
       validateCbs.push(cb);
     },
-    enableProjections,
-    disableProjections,
-    get currentProjector() {
-      return currentProjector;
-    },
-    set currentProjector(v) {
-      currentProjector = v;
-    },
+    getGlobalNamespaceType,
   };
 
   const binder = createBinder(program);
@@ -804,36 +815,6 @@ export async function createProgram(
     return (options.miscOptions || {})[key];
   }
 
-  function stateMap(key: symbol): StateMap<any> {
-    let m = stateMaps.get(key);
-
-    if (!m) {
-      m = new StateMap(program, key);
-      stateMaps.set(key, m);
-    }
-
-    return m;
-  }
-
-  function stateSet(key: symbol): StateSet {
-    let s = stateSets.get(key);
-
-    if (!s) {
-      s = new StateSet(program, key);
-      stateSets.set(key, s);
-    }
-
-    return s;
-  }
-
-  function enableProjections(projections: ProjectionApplication[], startNode?: Type) {
-    return createProjector(program, projections, startNode);
-  }
-
-  function disableProjections() {
-    currentProjector = undefined;
-  }
-
   function reportDiagnostic(diagnostic: Diagnostic): void {
     if (shouldSuppress(diagnostic)) {
       return;
@@ -977,6 +958,40 @@ export async function createProgram(
       }
     }
   }
+
+  function getGlobalNamespaceType() {
+    return program.checker!.getGlobalNamespaceType();
+  }
+}
+
+export function createStateAccessors(
+  stateMaps: Map<symbol, StateMap>,
+  stateSets: Map<symbol, StateSet>,
+  projector?: Projector
+) {
+  function stateMap<T>(key: symbol): StateMapView<T> {
+    let m = stateMaps.get(key);
+
+    if (!m) {
+      m = new StateMap();
+      stateMaps.set(key, m);
+    }
+
+    return new StateMapView(m, projector);
+  }
+
+  function stateSet(key: symbol): StateSetView {
+    let s = stateSets.get(key);
+
+    if (!s) {
+      s = new StateSet();
+      stateSets.set(key, s);
+    }
+
+    return new StateSetView(s, projector);
+  }
+
+  return { stateMap, stateSet };
 }
 
 export async function compile(

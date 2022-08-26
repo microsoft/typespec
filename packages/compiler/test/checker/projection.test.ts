@@ -1,5 +1,6 @@
 import { ok, strictEqual } from "assert";
-import { Program } from "../../core/program.js";
+import { Program, projectProgram } from "../../core/program.js";
+import { createProjector } from "../../core/projector.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
@@ -101,7 +102,8 @@ describe("cadl: projections", () => {
     strictEqual(result.namespace?.namespace?.name, "MyOrg");
     const map = testHost.program.stateMap(sym);
     const myModelProjected = testHost.program
-      .currentProjector!.projectedGlobalNamespace!.namespaces.get("Lib")
+      .getGlobalNamespaceType()
+      .namespaces.get("Lib")
       ?.namespaces.get("One")
       ?.models.get("MyModel");
     const refs = [...map.values()];
@@ -742,6 +744,44 @@ describe("cadl: projections", () => {
     });
   });
 
+  // TODO with realm move that to realm testing area.
+  it("[REALM] any program/projected program get access to every type state", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @doc("abc")
+      @test model Foo {}
+
+      #suppress "projections-are-experimental"
+      projection Foo#test {
+        to { self::rename("Bar"); }
+      }
+    `
+    );
+    const { Foo } = await testHost.compile("main.cadl");
+    const program = testHost.program;
+    strictEqual(getDoc(program, Foo), "abc");
+
+    const projectedProgram = projectProgram(program, [{ projectionName: "test", arguments: [] }]);
+    const ProjectedFoo = projectedProgram.projector.projectedTypes.get(Foo);
+    ok(ProjectedFoo);
+    strictEqual(
+      getDoc(projectedProgram, Foo),
+      "abc",
+      "Can access state from a non projected type using a projected program"
+    );
+    strictEqual(
+      getDoc(program, ProjectedFoo),
+      "abc",
+      "Can access state from a projected type using the original program"
+    );
+    strictEqual(
+      getDoc(projectedProgram, ProjectedFoo),
+      "abc",
+      "Can access state from a projected type using a projected program"
+    );
+  });
+
   const projectionCode = (body: string) => `
       #suppress "projections-are-experimental"
       projection Foo#test {
@@ -763,7 +803,7 @@ describe("cadl: projections", () => {
   ): Promise<Type> {
     testHost.addCadlFile("main.cadl", code);
     const { Foo } = await testHost.compile("main.cadl");
-    const projector = testHost.program.enableProjections(projections, startNode);
+    const projector = createProjector(testHost.program, projections, startNode).projector;
     return projector.projectedTypes.get(startNode ?? Foo)!;
   }
 });

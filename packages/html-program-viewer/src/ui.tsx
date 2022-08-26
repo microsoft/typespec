@@ -367,7 +367,7 @@ const TypeDataValue = styled.div``;
 const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   const program = useContext(ProgramContext);
   const entries = [...program.stateMaps.entries()]
-    .map(([k, v]) => [k, v.get(type)])
+    .map(([k, v]) => [k, v.get(undefined)?.get(type) as any])
     .filter(([k, v]) => !!v);
   if (entries.length === 0) {
     return null;
