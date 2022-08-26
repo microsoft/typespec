@@ -272,7 +272,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
     const commonProjections: ProjectionApplication[] = [
       {
-        projectionName: "wire",
+        projectionName: "target",
         arguments: ["json"],
       },
     ];
