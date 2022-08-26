@@ -160,7 +160,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PetPage"
+                  "$ref": "#/components/schemas/PetCollectionWithNextLink"
                 }
               }
             }
@@ -248,7 +248,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckupPage"
+                  "$ref": "#/components/schemas/CheckupCollectionWithNextLink"
                 }
               }
             }
@@ -397,7 +397,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ToyPage"
+                  "$ref": "#/components/schemas/ToyCollectionWithNextLink"
                 }
               }
             }
@@ -557,7 +557,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckupPage"
+                  "$ref": "#/components/schemas/CheckupCollectionWithNextLink"
                 }
               }
             }
@@ -729,7 +729,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OwnerPage"
+                  "$ref": "#/components/schemas/OwnerCollectionWithNextLink"
                 }
               }
             }
@@ -817,7 +817,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckupPage"
+                  "$ref": "#/components/schemas/CheckupCollectionWithNextLink"
                 }
               }
             }
@@ -1045,7 +1045,7 @@
           "ownerId"
         ]
       },
-      "PetPage": {
+      "PetCollectionWithNextLink": {
         "type": "object",
         "properties": {
           "value": {
@@ -1099,7 +1099,7 @@
           "notes"
         ]
       },
-      "CheckupPage": {
+      "CheckupCollectionWithNextLink": {
         "type": "object",
         "properties": {
           "value": {
@@ -1180,7 +1180,7 @@
           "name"
         ]
       },
-      "ToyPage": {
+      "ToyCollectionWithNextLink": {
         "type": "object",
         "properties": {
           "value": {
@@ -1253,7 +1253,7 @@
           "age"
         ]
       },
-      "OwnerPage": {
+      "OwnerCollectionWithNextLink": {
         "type": "object",
         "properties": {
           "value": {

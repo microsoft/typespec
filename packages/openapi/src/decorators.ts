@@ -3,18 +3,18 @@ import {
   CadlValue,
   createDecoratorDefinition,
   DecoratorContext,
-  ModelType,
-  OperationType,
+  Model,
+  Operation,
   Program,
   Type,
 } from "@cadl-lang/compiler";
 import { http } from "@cadl-lang/rest";
-import { reportDiagnostic } from "./lib.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { ExtensionKey } from "./types.js";
 
 export const namespace = "OpenAPI";
 
-const operationIdsKey = Symbol("operationIds");
+const operationIdsKey = createStateSymbol("operationIds");
 const operationIdDecorator = createDecoratorDefinition({
   name: "@operationId",
   target: "Operation",
@@ -26,7 +26,7 @@ const operationIdDecorator = createDecoratorDefinition({
  * @param entity Decorator target
  * @param opId Operation ID.
  */
-export function $operationId(context: DecoratorContext, entity: OperationType, opId: string) {
+export function $operationId(context: DecoratorContext, entity: Operation, opId: string) {
   if (!operationIdDecorator.validate(context, entity, [opId])) {
     return;
   }
@@ -36,11 +36,11 @@ export function $operationId(context: DecoratorContext, entity: OperationType, o
 /**
  * @returns operationId set via the @operationId decorator or `undefined`
  */
-export function getOperationId(program: Program, entity: OperationType): string | undefined {
+export function getOperationId(program: Program, entity: Operation): string | undefined {
   return program.stateMap(operationIdsKey).get(entity);
 }
 
-const openApiExtensionKey = Symbol("openApiExtension");
+const openApiExtensionKey = createStateSymbol("openApiExtension");
 const extensionDecorator = createDecoratorDefinition({
   name: "@extension",
   target: "Any",
@@ -102,8 +102,8 @@ const defaultResponseDecorator = createDecoratorDefinition({
  * as the return type of an operation, this return type will be the default response.
  *
  */
-const defaultResponseKey = Symbol("defaultResponse");
-export function $defaultResponse(context: DecoratorContext, entity: ModelType) {
+const defaultResponseKey = createStateSymbol("defaultResponse");
+export function $defaultResponse(context: DecoratorContext, entity: Model) {
   if (!defaultResponseDecorator.validate(context, entity, [])) {
     return;
   }
@@ -125,7 +125,7 @@ export interface ExternalDocs {
   url: string;
   description?: string;
 }
-const externalDocsKey = Symbol("externalDocs");
+const externalDocsKey = createStateSymbol("externalDocs");
 
 const externalDocsDecorator = createDecoratorDefinition({
   name: "@externalDocs",

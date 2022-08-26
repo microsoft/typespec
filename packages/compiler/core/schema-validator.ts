@@ -1,29 +1,24 @@
-import Ajv, { ErrorObject, JSONSchemaType } from "ajv";
+import Ajv, { ErrorObject } from "ajv";
 import { compilerAssert } from "./diagnostics.js";
-import { NoTarget } from "./index.js";
-import { Diagnostic, SourceFile } from "./types.js";
+import { Diagnostic, JSONSchemaType, JSONSchemaValidator, NoTarget, SourceFile } from "./types.js";
 
-export interface SchemaValidatorOptions {
+export interface JSONSchemaValidatorOptions {
   coerceTypes?: boolean;
 }
-export class SchemaValidator<T> {
-  private ajv: Ajv;
 
-  public constructor(private schema: JSONSchemaType<T>, options: SchemaValidatorOptions = {}) {
-    this.ajv = new Ajv({
-      strict: true,
-      coerceTypes: options.coerceTypes,
-    });
-  }
+export function createJSONSchemaValidator<T>(
+  schema: JSONSchemaType<T>,
+  options: JSONSchemaValidatorOptions = {}
+): JSONSchemaValidator {
+  const ajv = new Ajv({
+    strict: true,
+    coerceTypes: options.coerceTypes,
+  });
 
-  /**
-   * Validate the config is valid
-   * @param config Configuration
-   * @param target @optional file for errors tracing.
-   * @returns Validation
-   */
-  public validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[] {
-    const validate = this.ajv.compile(this.schema);
+  return { validate };
+
+  function validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[] {
+    const validate = ajv.compile(schema);
     const valid = validate(config);
     compilerAssert(
       !valid || !validate.errors,

@@ -1,7 +1,11 @@
-import { match, rejects, strictEqual } from "assert";
-import { DecoratorContext, getSourceLocation } from "../../core/index.js";
-import { ModelType } from "../../core/types.js";
-import { createTestHost, expectDiagnosticEmpty, TestHost } from "../../testing/index.js";
+import { rejects, strictEqual } from "assert";
+import { Model } from "../../core/types.js";
+import {
+  createTestHost,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: using statements", () => {
   let testHost: TestHost;
@@ -34,7 +38,7 @@ describe("compiler: using statements", () => {
     );
 
     const { Y } = (await testHost.compile("./")) as {
-      Y: ModelType;
+      Y: Model;
     };
 
     strictEqual(Y.properties.size, 1);
@@ -65,7 +69,7 @@ describe("compiler: using statements", () => {
     );
 
     const { Y } = (await testHost.compile("./")) as {
-      Y: ModelType;
+      Y: Model;
     };
 
     strictEqual(Y.properties.size, 1);
@@ -95,7 +99,7 @@ describe("compiler: using statements", () => {
     );
 
     const { Y } = (await testHost.compile("./")) as {
-      Y: ModelType;
+      Y: Model;
     };
 
     strictEqual(Y.properties.size, 1);
@@ -197,7 +201,7 @@ describe("compiler: using statements", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("report ambigous diagnostics when using name present in multiple using", async () => {
+  it("report ambiguous diagnostics when using name present in multiple using", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -227,13 +231,14 @@ describe("compiler: using statements", () => {
       model B extends A {}
       `
     );
-    const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "ambiguous-symbol");
-    strictEqual(
-      diagnostics[0].message,
-      '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A'
-    );
+    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "ambiguous-symbol",
+        message:
+          '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
+      },
+    ]);
   });
 
   it("ambigous use doesn't affect other files", async () => {
@@ -277,13 +282,14 @@ describe("compiler: using statements", () => {
       `
     );
     const diagnostics = await testHost.diagnose("./");
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "ambiguous-symbol");
-    strictEqual(
-      diagnostics[0].message,
-      '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A'
-    );
-    match(getSourceLocation(diagnostics[0].target)?.file.path!, /ambiguous\.cadl$/);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "ambiguous-symbol",
+        message:
+          '"A" is an ambiguous name between N.A, M.A. Try using fully qualified name instead: N.A, M.A',
+        file: /ambiguous\.cadl$/,
+      },
+    ]);
   });
 
   it("resolves 'local' decls over usings", async () => {
@@ -312,7 +318,7 @@ describe("compiler: using statements", () => {
     );
 
     const { B } = (await testHost.compile("./")) as {
-      B: ModelType;
+      B: Model;
     };
     strictEqual(B.properties.size, 1);
     strictEqual(B.properties.get("a")!.type.kind, "Union");
@@ -355,44 +361,6 @@ describe("compiler: using statements", () => {
       `
       namespace Foo;
       model test { x: int32 };
-    `
-    );
-
-    await testHost.compile("./");
-  });
-
-  it("Cadl namespace is automatically using'd in eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace Bar; model A { a: int32 };`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-
-      namespace Foo;
-      @eval model test { x: int32 };
-    `
-    );
-
-    await testHost.compile("./");
-  });
-
-  it("works with eval", async () => {
-    testHost.addJsFile("test.js", {
-      async $eval({ program }: DecoratorContext) {
-        await program.evalCadlScript(`using Foo; model A { a: X };`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-      namespace Foo;
-      model X { };
-      @eval model test { };
     `
     );
 
