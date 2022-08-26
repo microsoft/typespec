@@ -183,7 +183,7 @@ export const TokenDisplay: readonly string[] = [
 ];
 
 /** @internal */
-export const Keywords: readonly [string, Token][] = [
+export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["import", Token.ImportKeyword],
   ["model", Token.ModelKeyword],
   ["namespace", Token.NamespaceKeyword],
@@ -204,36 +204,12 @@ export const Keywords: readonly [string, Token][] = [
   ["void", Token.VoidKeyword],
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
-];
+]);
 
 /** @internal */
 export const enum KeywordLimit {
   MinLength = 2,
-  // If this ever exceeds 10, we will overflow the keyword map key, needing 11*5
-  // = 55 bits or more, exceeding the JavaScript safe integer range. We would
-  // have to change the keyword lookup algorithm in that case.
   MaxLength = 10,
-}
-const KeywordMap: ReadonlyMap<number, Token> = new Map(
-  Keywords.map((e) => [keywordKey(e[0]), e[1]])
-);
-
-// Since keywords are short and all lowercase, we can pack the whole string into
-// a single number by using 5 bits for each letter, and use that as the map key.
-// This lets us lookup keywords without making temporary substrings.
-function keywordKey(keyword: string) {
-  let key = 0;
-  for (let i = 0; i < keyword.length; i++) {
-    key = updateKeywordKey(key, keyword.charCodeAt(i));
-  }
-  return key;
-}
-
-function updateKeywordKey(key: number, ch: number) {
-  // Do not simplify this to (key << 5) | (ch - CharCode.a) as JavaScript
-  // bitwise operations truncate to 32-bits, and that will create
-  // collisions.
-  return key * 32 + (ch - CharCode.a);
 }
 
 export interface Scanner {
@@ -898,14 +874,12 @@ export function createScanner(
   }
 
   function scanIdentifierOrKeyword() {
-    let key = 0;
     let count = 0;
     let ch = input.charCodeAt(position);
 
     while (true) {
       position++;
       count++;
-      key = updateKeywordKey(key, ch);
 
       if (eof()) {
         break;
@@ -931,7 +905,7 @@ export function createScanner(
     }
 
     if (count >= KeywordLimit.MinLength && count <= KeywordLimit.MaxLength) {
-      const keyword = KeywordMap.get(key);
+      const keyword = Keywords.get(getTokenText());
       if (keyword) {
         return (token = keyword);
       }

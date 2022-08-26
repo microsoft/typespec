@@ -1,4 +1,4 @@
-import { LogLevel } from "./types";
+import { LogLevel, ParseOptions } from "./types";
 
 export interface CompilerOptions {
   miscOptions?: any;
@@ -16,4 +16,6 @@ export interface CompilerOptions {
    * analysis in the language server.
    */
   designTimeBuild?: boolean;
+
+  parseOptions?: ParseOptions;
 }

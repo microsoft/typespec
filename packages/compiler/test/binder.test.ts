@@ -9,7 +9,7 @@ import {
   JsSourceFileNode,
   ModelStatementNode,
   NodeFlags,
-  ProjectionExpressionStatement,
+  ProjectionExpressionStatementNode,
   ProjectionLambdaExpressionNode,
   ProjectionStatementNode,
   Sym,
@@ -358,7 +358,8 @@ describe("compiler: binder", () => {
     `;
     const script = bindCadl(code);
     const lambdaNode = (
-      (script.statements[0] as ProjectionStatementNode).to!.body[0] as ProjectionExpressionStatement
+      (script.statements[0] as ProjectionStatementNode).to!
+        .body[0] as ProjectionExpressionStatementNode
     ).expr as ProjectionLambdaExpressionNode;
     assertBindings("lambda", lambdaNode.locals!, {
       a: { flags: SymbolFlags.FunctionParameter },
@@ -495,13 +496,13 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
       sv: "",
       pos: 0,
       end: 0,
-      symbol: undefined as any,
+      symbol: undefined!,
       flags: NodeFlags.Synthetic,
     },
     esmExports: exports,
     file,
     namespaceSymbols: [],
-    symbol: undefined as any,
+    symbol: undefined!,
     pos: 0,
     end: 0,
     flags: NodeFlags.None,

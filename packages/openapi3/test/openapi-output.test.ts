@@ -561,30 +561,6 @@ describe("openapi3: definitions", () => {
     });
   });
 
-  it("defines enums with a nullable variant", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      model Pet {
-        type: "cat" | "dog" | null;
-      };
-    `
-    );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.Pet, {
-      type: "object",
-      properties: {
-        type: {
-          type: "string",
-          enum: ["cat", "dog"],
-          nullable: true,
-          "x-cadl-name": "cat | dog | null",
-        },
-      },
-      required: ["type"],
-    });
-  });
-
   it("throws diagnostics for empty enum definitions", async () => {
     const runner = await createOpenAPITestRunner();
 
