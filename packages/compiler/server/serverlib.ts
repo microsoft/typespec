@@ -17,10 +17,14 @@ import {
   FileEvent,
   FoldingRange,
   FoldingRangeParams,
+  Hover,
+  HoverParams,
   InitializedParams,
   InitializeParams,
   InitializeResult,
   Location,
+  MarkupContent,
+  MarkupKind,
   PrepareRenameParams,
   PublishDiagnosticsParams,
   Range,
@@ -117,6 +121,7 @@ export interface Server {
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  getHover(params: HoverParams): Promise<Hover>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
@@ -266,6 +271,7 @@ export function createServer(host: ServerHost): Server {
     buildSemanticTokens,
     checkChange,
     getFoldingRanges,
+    getHover,
     getDocumentSymbols,
     log,
   };
@@ -282,6 +288,7 @@ export function createServer(host: ServerHost): Server {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
       foldingRangeProvider: true,
+      hoverProvider: true,
       documentSymbolProvider: true,
       documentHighlightProvider: true,
       completionProvider: {
@@ -649,6 +656,46 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  /**
+   * Get the detailed documentation of a type.
+   */
+  function getTypeDetails(program: Program, type: Type): string {
+    if (type.kind === "Intrinsic") {
+      return "";
+    }
+
+    const name = program.checker.getTypeName(type);
+    const typeKind = type.kind.toLowerCase();
+
+    const lines = ["```cadl", `${typeKind} ${name}`, "```"];
+    const doc = getDoc(program, type);
+    if (doc) {
+      lines.push(`_${doc}_`); // italic
+    }
+    return lines.join("\n");
+  }
+
+  async function getHover(params: HoverParams): Promise<Hover> {
+    const docString = await compile(params.textDocument, (program, document, file) => {
+      const id = getNodeAtPosition(file, document.offsetAt(params.position));
+      const sym =
+        id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+      if (sym) {
+        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
+        return getTypeDetails(program, type);
+      }
+      return undefined;
+    });
+
+    const markdown: MarkupContent = {
+      kind: MarkupKind.Markdown,
+      value: docString ?? "",
+    };
+    return {
+      contents: markdown,
+    };
+  }
+
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
     const sym = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
@@ -871,9 +918,9 @@ export function createServer(host: ServerHost): Server {
       return;
     }
     for (const [key, { sym, label }] of result) {
-      let documentation: string | undefined;
       let kind: CompletionItemKind;
       let deprecated = false;
+      const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
       if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
       } else if (
@@ -882,14 +929,18 @@ export function createServer(host: ServerHost): Server {
       ) {
         kind = CompletionItemKind.Module;
       } else {
-        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-        documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
         deprecated = isDeprecated(program, type);
       }
+      const documentation = getTypeDetails(program, type);
       const item: CompletionItem = {
         label: label ?? key,
-        documentation,
+        documentation: documentation
+          ? {
+              kind: MarkupKind.Markdown,
+              value: documentation,
+            }
+          : undefined,
         kind,
         insertText: key,
       };

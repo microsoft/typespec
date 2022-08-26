@@ -6,6 +6,7 @@ import {
   Namespace,
   Operation,
   ProjectionApplication,
+  projectProgram,
   Type,
   Union,
 } from "@cadl-lang/compiler";
@@ -836,7 +837,7 @@ describe("cadl: versioning", () => {
       projectionName: "v",
       direction,
     };
-    const projector = runner.program.enableProjections([projection], target);
+    const projector = projectProgram(runner.program, [projection], target).projector;
     return projector.projectedTypes.get(target) as T;
   }
 });

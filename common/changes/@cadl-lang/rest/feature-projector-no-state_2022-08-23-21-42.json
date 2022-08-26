@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Uptake changes to compiler with current projection",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

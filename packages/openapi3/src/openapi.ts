@@ -7,6 +7,7 @@ import {
   EnumMember,
   getAllTags,
   getDoc,
+  getEffectiveModelType,
   getFormat,
   getIntrinsicModelName,
   getKnownValues,
@@ -40,6 +41,7 @@ import {
   Operation,
   Program,
   ProjectionApplication,
+  projectProgram,
   resolvePath,
   StringLiteral,
   Type,
@@ -276,6 +278,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         arguments: ["json"],
       },
     ];
+    const originalProgram = program;
     const versions = buildVersionProjections(program, serviceNs);
     for (const record of versions) {
       if (record.version) {
@@ -285,7 +288,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
       }
 
-      program.enableProjections([...commonProjections, ...record.projections]);
+      program = projectProgram(originalProgram, [...commonProjections, ...record.projections]);
 
       await emitOpenAPIFromVersion(serviceNs, record.version);
     }
@@ -540,7 +543,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
    */
   function getEffectiveSchemaType(type: Type): Type {
     if (type.kind === "Model" && !type.name) {
-      const effective = program.checker.getEffectiveModelType(type, isSchemaProperty);
+      const effective = getEffectiveModelType(program, type, isSchemaProperty);
       if (effective.name) {
         return effective;
       }
