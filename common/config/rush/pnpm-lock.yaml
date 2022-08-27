@@ -56,6 +56,7 @@ specifiers:
   cross-env: ~7.0.3
   debounce: ~1.2.1
   ecmarkup: ~12.0.3
+  es-module-shims: ~1.5.17
   eslint: ^8.12.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-mocha: ^10.0.5
@@ -156,6 +157,7 @@ dependencies:
   cross-env: 7.0.3
   debounce: 1.2.1
   ecmarkup: 12.0.3
+  es-module-shims: 1.5.17
   eslint: 8.22.0
   eslint-config-prettier: 8.5.0_eslint@8.22.0
   eslint-plugin-mocha: 10.1.0_eslint@8.22.0
@@ -2004,6 +2006,10 @@ packages:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}
     dependencies:
       is-arrayish: 0.2.1
+    dev: false
+
+  /es-module-shims/1.5.17:
+    resolution: {integrity: sha512-6eq7KIUkmhd6GO0dcXlX5iUlyJtPs0jiVsGx6BkBEgVXVyrsRHwWCTgX8al1PFrtPWhS04yZwv1IK5pu1mAr5w==}
     dev: false
 
   /esbuild-android-64/0.14.54:
@@ -5517,7 +5523,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz:
-    resolution: {integrity: sha512-hadqrZOjU7kgVpGnPR49Wkoj3mDaLdNAWzDAL0Kp7LgCa9sV9CM4FxLgRclK7/KMfhadqXKfQ7PLXEqyi64W4w==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-HFSc7qdLeyh3/xHJNkCtxH4ymmVOGHHLD1Aa7eEyf7UJedxQKzGQu7+o8syN9bj7rFbDZiyX8FaLX2V5Y3jLWg==, tarball: file:projects/playground.tgz}
     name: '@rush-temp/playground'
     version: 0.0.0
     dependencies:
@@ -5534,6 +5540,7 @@ packages:
       c8: 7.11.3
       cross-env: 7.0.3
       debounce: 1.2.1
+      es-module-shims: 1.5.17
       eslint: 8.22.0
       lzutf8: 0.6.2
       mocha: 9.2.2
