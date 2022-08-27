@@ -1,0 +1,20 @@
+---
+layout: "layouts/base.njk"
+isDocs: true
+navOptions:
+  allowMissing: true
+---
+
+<div class="cadl-doc-container">
+  <nav class="cadl-doc-nav">
+    <div class="cadl-doc-toc">
+      {%- if eleventyNavigation -%}
+        {%- set navKey = eleventyNavigation.key -%}
+      {%- endif -%}
+      {{ collections.all | eleventyNavigation | eleventyNavigationToHtml({ activeKey: navKey, listClass: 'cadl-list', activeListItemClass: 'cadl-toc-active' }) | safe }}
+    </div>
+  </nav>
+  <div>
+    {{ content | safe }}
+  </div>
+</div>

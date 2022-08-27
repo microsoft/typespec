@@ -1,7 +1,7 @@
 ---
 title: Cadl Playground.
 permalink: play/index.html
-layout: "layouts/container.njk"
+layout: "layouts/base.njk"
 ---
 
 <div class="playground">

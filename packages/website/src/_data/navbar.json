@@ -1,28 +1,12 @@
 {
   "items": [
     {
-      "url": "/blog/",
-      "name": "Blog"
-    },
-    {
-      "url": "/community/",
-      "name": "Community"
-    },
-    {
       "url": "/docs/",
       "name": "Docs"
     },
     {
-      "url": "/download/",
-      "name": "Download"
-    },
-    {
       "url": "/play",
       "name": "Playground"
-    },
-    {
-      "url": "/tutorial/",
-      "name": "Tutorial"
     }
   ]
 }

@@ -2,6 +2,7 @@ lockfileVersion: 5.3
 
 specifiers:
   '@11ty/eleventy': ^1.0.1
+  '@11ty/eleventy-navigation': ^0.3.5
   '@babel/code-frame': ~7.16.7
   '@playwright/test': ~1.22.2
   '@rollup/plugin-commonjs': ~22.0.0-13
@@ -104,6 +105,7 @@ specifiers:
 
 dependencies:
   '@11ty/eleventy': 1.0.2
+  '@11ty/eleventy-navigation': 0.3.5
   '@babel/code-frame': 7.16.7
   '@playwright/test': 1.22.2
   '@rollup/plugin-commonjs': 22.0.1_rollup@2.70.2
@@ -208,6 +210,12 @@ packages:
 
   /@11ty/dependency-tree/2.0.1:
     resolution: {integrity: sha512-5R+DsT9LJ9tXiSQ4y+KLFppCkQyXhzAm1AIuBWE/sbU0hSXY5pkhoqQYEcPJQFg/nglL+wD55iv2j+7O96UAvg==}
+    dev: false
+
+  /@11ty/eleventy-navigation/0.3.5:
+    resolution: {integrity: sha512-4aKW5aIQDFed8xs1G1pWcEiFPcDSwZtA4IH1eERtoJ+Xy+/fsoe0pzbDmw84bHZ9ACny5jblENhfZhcCxklqQw==}
+    dependencies:
+      dependency-graph: 0.11.0
     dev: false
 
   /@11ty/eleventy-utils/1.0.1:
@@ -7049,11 +7057,12 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-DLa0GjnvmX+H09W+dYQ3MWKzV1GPSjr+5ReuQtYeSu57EHjfm5ArJU4gDrubeVwZEWmAMQeHRqgtaSsfw68qEQ==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-qeAgqGO1VJi24U3hCrOUqlBJ1emh1e0guTbFS/GmY9NMMXEs6GiSBo1fb3Xt1KETJpibOW3PEdhR0kMkjbYBNQ==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
       '@11ty/eleventy': 1.0.2
+      '@11ty/eleventy-navigation': 0.3.5
     transitivePeerDependencies:
       - bufferutil
       - supports-color

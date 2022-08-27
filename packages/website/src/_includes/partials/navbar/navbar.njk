@@ -1,15 +1,18 @@
 <div class="navbar">
-        <div class="navbar-logo">
-          <a href="/"><h1>Cadl</h1></a>
-        </div>
-        <div class="navbar-links">
-          <ul>
-            {% for item in navbar.items%}
-            <li><a href="{{ item.url }}">{{ item.name }}</a></li>
-            {% endfor %}
-        </ul>
-        </div>
-      <div class="navbar-search_box">
-      <input type="text" placeholder="Search Here" required>
-      </div>
-    </div>
+  <div class="navbar-logo">
+    <a href="/">
+      <h1>Cadl</h1>
+    </a>
+  </div>
+  <div class="navbar-links">
+    <ul>
+      {% for item in navbar.items %}
+        <li>
+          <a href="{{ item.url }}">{{ item.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="navbar-search_box">
+    <input type="text" placeholder="Search Here" required></div>
+  </div>

@@ -1,5 +1,5 @@
 ---
-title: Hello World
+title: Cadl
 layout: "layouts/base.njk"
 ---
 

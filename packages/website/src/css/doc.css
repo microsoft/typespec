@@ -1,0 +1,31 @@
+.cadl-doc-container {
+  display: flex;
+}
+
+.cadl-doc-container > .cadl-doc-nav {
+  flex: 0 0 240px;
+}
+
+.cadl-doc-toc ul {
+  padding-left: 10px;
+}
+
+.cadl-doc-toc ul li {
+  list-style-type: none;
+  padding: 0;
+}
+
+.cadl-doc-toc ul li a {
+  border: none;
+  padding: 6px 0;
+  transition: color .3s;
+  color: #717171;
+}
+
+.cadl-doc-toc ul li a:hover {
+  color: var(--main-color)
+}
+
+.cadl-doc-toc ul li.cadl-toc-active {
+  color: var(--main-color);
+}
