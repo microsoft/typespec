@@ -1,6 +1,5 @@
 ---
-title: Cadl Docummentation.
-logoLink: /docs/
+title: Cadl Docummentation
 ---
 
-Cadl Documentations.
+# Cadl Documentation
