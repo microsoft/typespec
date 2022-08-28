@@ -7138,13 +7138,14 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-5KoYsJbzjGwZ1UiXAFOqFEJaHK25It4vpZqYMPBkWRnhjnmcSftx/fytgN7j9l6kY6R2FdP2vkyZEZygpbFziQ==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-pB1Wfwca7EsLyE/z/UFxHxzuHXXek59VSsyBH3TfYfkq4RimJOkjPQNtsA5rLhSLLEs13wZgEwca0NHEJ34WhA==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
       '@11ty/eleventy': 1.0.2
       '@11ty/eleventy-navigation': 0.3.5
       '@11ty/eleventy-plugin-syntaxhighlight': 4.1.0
+      '@types/node': 16.0.3
     transitivePeerDependencies:
       - bufferutil
       - supports-color

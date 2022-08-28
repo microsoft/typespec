@@ -6,7 +6,7 @@ const cadlPrismDefinition = require("./cadl-prism-lang.js");
 const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
 
 module.exports = (eleventyConfig) => {
-  eleventyConfig.addPassthroughCopy("src/css");
+  eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPlugin(eleventyNavigationPlugin);
   eleventyConfig.addPlugin(syntaxhighlightPlugin, {
     init: ({ Prism }) => {
