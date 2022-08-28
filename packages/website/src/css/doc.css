@@ -19,18 +19,17 @@
 .cadl-doc-toc ul li a {
   border: none;
   padding: 6px 0;
-  transition: color .3s;
+  transition: color 0.3s;
   color: #717171;
 }
 
 .cadl-doc-toc ul li a:hover {
-  color: var(--main-color)
+  color: var(--main-color);
 }
 
 .cadl-doc-toc ul li.cadl-toc-active > a {
   color: var(--main-color);
 }
-
 
 .cadl-doc-content {
   flex: 1;
