@@ -3,7 +3,8 @@
 }
 
 .cadl-doc-container > .cadl-doc-nav {
-  flex: 0 0 240px;
+  flex: 0 0 200px;
+  border-right: 1px solid #f3f3f3;
 }
 
 .cadl-doc-toc ul {
@@ -26,6 +27,12 @@
   color: var(--main-color)
 }
 
-.cadl-doc-toc ul li.cadl-toc-active {
+.cadl-doc-toc ul li.cadl-toc-active > a {
   color: var(--main-color);
+}
+
+
+.cadl-doc-content {
+  flex: 1;
+  margin: 0 24px;
 }

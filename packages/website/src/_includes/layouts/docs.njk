@@ -14,7 +14,7 @@ navOptions:
       {{ collections.all | eleventyNavigation | eleventyNavigationToHtml({ activeKey: navKey, listClass: 'cadl-list', activeListItemClass: 'cadl-toc-active' }) | safe }}
     </div>
   </nav>
-  <div>
+  <div class="cadl-doc-content">
     {{ content | safe }}
   </div>
 </div>
