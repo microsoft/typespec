@@ -26,10 +26,30 @@ a {
   text-decoration-thickness: initial;
   text-decoration-style: initial;
   text-decoration-color: initial;
+  color: #1064a8;
 }
 
 a:hover {
-  color: var(--main-color)
+  color: var(--main-color);
+}
+
+code {
+  background-color: hsl(230, 1%, 98%);
+  border-radius: 3px;
+  color: inherit;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  font-size: 85%;
+  margin: 0;
+  padding: 3.2px 6.4px;
+}
+
+pre {
+  padding: 16px;
+  border-radius: 3px;
+  background-color: hsl(230, 1%, 98%);
+}
+pre > code {
+  display: block;
 }
 
 /* Extra small devices (phones, 600px and down) */

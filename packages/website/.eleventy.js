@@ -8,6 +8,7 @@ module.exports = (eleventyConfig) => {
   eleventyConfig.addPlugin(eleventyNavigationPlugin);
   eleventyConfig.addPlugin(syntaxhighlightPlugin, {
     init: ({ Prism }) => {
+      Prism.languages.jsonc = Prism.languages.json;
       Prism.languages.cadl = cadlPrismDefinition;
     },
   });
