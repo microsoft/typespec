@@ -84,6 +84,7 @@ specifiers:
   plist: ~3.0.2
   prettier: ~2.7.1
   prettier-plugin-organize-imports: ~2.3.4
+  prism-themes: ~1.9.0
   prompts: ~2.4.1
   react: ~18.0.0
   react-dom: ~18.0.0
@@ -189,6 +190,7 @@ dependencies:
   plist: 3.0.6
   prettier: 2.7.1
   prettier-plugin-organize-imports: 2.3.4_prettier@2.7.1+typescript@4.7.4
+  prism-themes: 1.9.0
   prompts: 2.4.2
   react: 18.0.0
   react-dom: 18.0.0_react@18.0.0
@@ -4903,6 +4905,10 @@ packages:
       '@esfx/disposable': 1.0.0-pre.30
     dev: false
 
+  /prism-themes/1.9.0:
+    resolution: {integrity: sha512-tX2AYsehKDw1EORwBps+WhBFKc2kxfoFpQAjxBndbZKr4fRmMkv47XN0BghC/K1qwodB1otbe4oF23vUTFDokw==}
+    dev: false
+
   /prismjs/1.27.0:
     resolution: {integrity: sha512-t13BGPUlFDR7wRB5kQDG4jjl7XeuH6jbJGt11JHPL96qwsEHNX2+68tFXqc1/k+/jALsbSWJKUOT/hcYAZ5LkA==}
     engines: {node: '>=6'}
@@ -7138,7 +7144,7 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-pB1Wfwca7EsLyE/z/UFxHxzuHXXek59VSsyBH3TfYfkq4RimJOkjPQNtsA5rLhSLLEs13wZgEwca0NHEJ34WhA==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-ri7d/D4HeTBsSQA4x9lO/QhbqxTFrsp33hsfXQo07zGPatGi2/3zCS5rwFsGuJ/jbYQVAPBfJwILd44T5IYyvQ==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
@@ -7146,6 +7152,7 @@ packages:
       '@11ty/eleventy-navigation': 0.3.5
       '@11ty/eleventy-plugin-syntaxhighlight': 4.1.0
       '@types/node': 16.0.3
+      prism-themes: 1.9.0
     transitivePeerDependencies:
       - bufferutil
       - supports-color
