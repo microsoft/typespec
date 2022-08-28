@@ -33,7 +33,7 @@ import "@cadl-lang/rest";
 
 ```
 
-```jsonc
+```json
 // ./node_modules/@cadl-lang/rest/package.json
 {
   "cadlMain": "./lib/main.cadl"
