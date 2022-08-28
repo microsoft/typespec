@@ -58,7 +58,6 @@ enum Color {
   Blue: "blue",
   Green: "green",
 }
-
 ```
 
 Another is to use the union operation to define the enum values inline, e.g.:
@@ -94,7 +93,6 @@ namespace Pets {
   op create(@body pet: Pet): Pet; // uses path "/pets"
   op read(@path petId: int32): Pet; // uses path "/pets/{petId}"
 }
-
 ```
 
 ## Path Item Object
@@ -245,7 +243,6 @@ model Snake {
   name: string;
   // snakes have no legs
 }
-
 ```
 
 Cadl also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. For example:
@@ -262,7 +259,6 @@ model Cat extends Pet {
 model Dog extends Pet {
   bark: string;
 }
-
 ```
 
 Cadl does not current provide a means to produce an `allOf` with more than one element -- these are generally treated as "composition" in code generators and thus better represented in Cadl with the spread operator.
@@ -285,7 +281,6 @@ model PetId {
 namespace Pets {
   op read(...PetId): Pet | Error;
 }
-
 ```
 
 results in a `$ref` to the named parameter `PetId` in either `parameters` or `components.parameters`.
@@ -330,5 +325,4 @@ For example:
 namespace Pets {
   @extension("x-streaming-operation", true) op read(...PetId): Pet | Error;
 }
-
 ```
