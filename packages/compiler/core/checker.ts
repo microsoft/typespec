@@ -12,6 +12,7 @@ import {
   IntrinsicModelName,
   isIntrinsic,
   isNeverType,
+  isProjectedProgram,
   isUnknownType,
   isVoidType,
   JsSourceFileNode,
@@ -20,6 +21,7 @@ import {
   ModelSpreadPropertyNode,
   NeverIndexer,
   NeverType,
+  ProjectedProgram,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
@@ -113,6 +115,8 @@ export interface TypeNameOptions {
 }
 
 export interface Checker {
+  typePrototype: TypePrototype;
+
   getTypeForNode(node: Node): Type;
   setUsingsForFile(file: CadlScriptNode): void;
   checkProgram(): void;
@@ -173,34 +177,6 @@ export interface Checker {
    * @param stdType If provided check is that standard type
    */
   isStdType(type: Type, stdType?: IntrinsicModelName | "Array" | "Record"): boolean;
-
-  /**
-   * Applies a filter to the properties of a given type. If no properties
-   * are filtered out, then return the input unchanged. Otherwise, return
-   * a new anonymous model with only the filtered properties.
-   *
-   * @param model The input model to filter.
-   * @param filter The filter to apply. Properties are kept when this returns true.
-   */
-  filterModelProperties(model: Model, filter: (property: ModelProperty) => boolean): Model;
-
-  /**
-   * If the input is anonymous (or the provided filter removes properties)
-   * and there exists a named model with the same set of properties
-   * (ignoring filtered properties), then return that named model.
-   * Otherwise, return the input unchanged.
-   *
-   * This can be used by emitters to find a better name for a set of
-   * properties after filtering. For example, given `{ @metadata prop:
-   * string} & SomeName`, and an emitter that wishes to discard properties
-   * marked with `@metadata`, the emitter can use this to recover that the
-   * best name for the remaining properties is `SomeName`.
-   *
-   * @param model The input model
-   * @param filter An optional filter to apply to the input model's
-   * properties.
-   */
-  getEffectiveModelType(model: Model, filter?: (property: ModelProperty) => boolean): Model;
 
   errorType: ErrorType;
   voidType: VoidType;
@@ -359,6 +335,7 @@ export function createChecker(program: Program): Checker {
     errorType,
     anyType: unknownType,
     voidType,
+    typePrototype,
     createType,
     createAndFinishType,
     createFunctionType,
@@ -366,8 +343,6 @@ export function createChecker(program: Program): Checker {
     finishType,
     isTypeAssignableTo,
     isStdType,
-    getEffectiveModelType,
-    filterModelProperties,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -542,6 +517,10 @@ export function createChecker(program: Program): Checker {
 
   function getTypeName(type: Type, options?: TypeNameOptions): string {
     switch (type.kind) {
+      case "Namespace":
+        return getNamespaceString(type, options);
+      case "TemplateParameter":
+        return type.node.id.sv;
       case "Model":
         return getModelName(type, options);
       case "ModelProperty":
@@ -622,7 +601,7 @@ export function createChecker(program: Program): Checker {
     return (
       namespace.name === "Cadl" &&
       (namespace.namespace === globalNamespaceType ||
-        namespace.namespace === program.currentProjector?.projectedGlobalNamespace)
+        namespace.namespace?.projectionBase === globalNamespaceType)
     );
   }
 
@@ -2340,31 +2319,6 @@ export function createChecker(program: Program): Checker {
     return props;
   }
 
-  function* walkPropertiesInherited(model: Model) {
-    let current: Model | undefined = model;
-
-    while (current) {
-      yield* current.properties.values();
-      current = current.baseModel;
-    }
-  }
-
-  function countPropertiesInherited(model: Model, filter?: (property: ModelProperty) => boolean) {
-    let count = 0;
-    if (filter) {
-      for (const each of walkPropertiesInherited(model)) {
-        if (filter(each)) {
-          count++;
-        }
-      }
-    } else {
-      for (let m: Model | undefined = model; m; m = m.baseModel) {
-        count += m.properties.size;
-      }
-    }
-    return count;
-  }
-
   function checkModelProperty(
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined,
@@ -2810,84 +2764,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function finishType<T extends Type>(typeDef: T, mapper?: TypeMapper): T {
-    (typeDef as any).templateArguments = mapper?.args;
-
-    if ("decorators" in typeDef) {
-      for (const decApp of typeDef.decorators) {
-        applyDecoratorToType(decApp, typeDef);
-      }
-    }
-
-    Object.setPrototypeOf(typeDef, typePrototype);
-
-    return typeDef;
-  }
-
-  function applyDecoratorToType(decApp: DecoratorApplication, target: Type) {
-    compilerAssert(
-      "decorators" in target,
-      "Cannot apply decorator to non-decoratable type",
-      target
-    );
-
-    for (const arg of decApp.args) {
-      if (typeof arg.value === "object") {
-        if (isErrorType(arg.value)) {
-          // If one of the decorator argument is an error don't run it.
-          return;
-        }
-      }
-    }
-
-    // peel `fn` off to avoid setting `this`.
-    try {
-      const fn = decApp.decorator;
-      const context = createDecoratorContext(program, decApp);
-      fn(context, target, ...decApp.args.map((x) => x.value));
-    } catch (error: any) {
-      // do not fail the language server for exceptions in decorators
-      if (program.compilerOptions.designTimeBuild) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "decorator-fail",
-            format: { decoratorName: decApp.decorator.name, error: error.stack },
-            target: decApp.node ?? target,
-          })
-        );
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  function createDecoratorContext(
-    program: Program,
-    decApp: DecoratorApplication
-  ): DecoratorContext {
-    function createPassThruContext(
-      program: Program,
-      decApp: DecoratorApplication
-    ): DecoratorContext {
-      return {
-        program,
-        decoratorTarget: decApp.node!,
-        getArgumentTarget: () => decApp.node!,
-        call: (decorator, target, ...args) => {
-          return decorator(createPassThruContext(program, decApp), target, ...args);
-        },
-      };
-    }
-
-    return {
-      program,
-      decoratorTarget: decApp.node!,
-      getArgumentTarget: (index: number) => {
-        return decApp.args[index]?.node;
-      },
-      call: (decorator, target, ...args) => {
-        return decorator(createPassThruContext(program, decApp), target, ...args);
-      },
-    };
+    return finishTypeForProgramAndChecker(program, typePrototype, typeDef, mapper);
   }
 
   function getLiteralType(node: StringLiteralNode): StringLiteral;
@@ -4095,140 +3972,6 @@ export function createChecker(program: Program): Checker {
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
     return false;
   }
-
-  function getProjectedEffectiveModelType(type: Model): Model {
-    if (!program.currentProjector) {
-      return type;
-    }
-
-    const projectedType = program.currentProjector.projectType(type);
-    if (projectedType.kind !== "Model") {
-      compilerAssert(false, "Fail");
-    }
-
-    return projectedType;
-  }
-
-  function getEffectiveModelType(
-    model: Model,
-    filter?: (property: ModelProperty) => boolean
-  ): Model {
-    if (filter) {
-      model = filterModelProperties(model, filter);
-    }
-
-    if (model.name) {
-      // named model
-      return getProjectedEffectiveModelType(model);
-    }
-
-    // We would need to change the algorithm if this doesn't hold. We
-    // assume model has no inherited properties below.
-    compilerAssert(!model.baseModel, "Anonymous model with base model.");
-
-    if (model.properties.size === 0) {
-      // empty model
-      return model;
-    }
-
-    // Find the candidate set of named model types that could have been the
-    // source of every property in the model.
-    let candidates: Set<Model> | undefined;
-    for (const property of model.properties.values()) {
-      const sources = getNamedSourceModels(property);
-      if (!sources) {
-        // unsourced property: no possible match
-        return model;
-      }
-
-      if (!candidates) {
-        // first sourced property: initialize candidates to its sources
-        candidates = sources;
-        continue;
-      }
-
-      // Add any derived types we observe to both sides. A derived type can
-      // substitute for a base type in these sets because derived types have
-      // all the properties of their bases.
-      //
-      // NOTE: Once property overrides are allowed, this code will need to
-      // be updated to check that the current property is not overridden by
-      // the derived type before adding it here. An override would invalidate
-      // this substitution.
-      addDerivedModels(sources, candidates);
-      addDerivedModels(candidates, sources);
-
-      // remove candidates that are not common to this property
-      for (const element of candidates) {
-        if (!sources.has(element)) {
-          candidates.delete(element);
-        }
-      }
-    }
-
-    // Search for a candidate that has no additional properties (ignoring
-    // filtered properties). If so, it is effectively the same type as the
-    // input model. Consider a candidate that meets this test without
-    // ignoring filtering as a better match than one that requires filtering
-    // to meet this test.
-    let match: Model | undefined;
-    for (const candidate of candidates ?? []) {
-      if (model.properties.size === countPropertiesInherited(candidate)) {
-        match = candidate;
-        break; // exact match
-      }
-      if (
-        filter &&
-        !match &&
-        model.properties.size === countPropertiesInherited(candidate, filter)
-      ) {
-        match = candidate;
-        continue; // match with filter: keep searching for exact match
-      }
-    }
-
-    return match ? getProjectedEffectiveModelType(match) : model;
-  }
-
-  function filterModelProperties(
-    model: Model,
-    filter: (property: ModelProperty) => boolean
-  ): Model {
-    let filtered = false;
-    for (const property of walkPropertiesInherited(model)) {
-      if (!filter(property)) {
-        filtered = true;
-        break;
-      }
-    }
-
-    if (!filtered) {
-      return model;
-    }
-
-    const properties = new Map<string, ModelProperty>();
-    const newModel: Model = createType({
-      kind: "Model",
-      node: undefined,
-      name: "",
-      indexer: undefined,
-      properties,
-      decorators: [],
-      derivedModels: [],
-    });
-
-    for (const property of walkPropertiesInherited(model)) {
-      if (filter(property)) {
-        const newProperty = cloneType(property, {
-          sourceProperty: property,
-          model: newModel,
-        });
-        properties.set(property.name, newProperty);
-      }
-    }
-
-    return finishType(newModel);
-  }
 }
 
 function isAnonymous(type: Type) {
@@ -4362,6 +4105,277 @@ function createTypeMapper(parameters: TemplateParameter[], args: Type[]): TypeMa
     args,
     getMappedType: (type: TemplateParameter) => {
       return map.get(type) ?? type;
+    },
+  };
+}
+
+/**
+ * If the input is anonymous (or the provided filter removes properties)
+ * and there exists a named model with the same set of properties
+ * (ignoring filtered properties), then return that named model.
+ * Otherwise, return the input unchanged.
+ *
+ * This can be used by emitters to find a better name for a set of
+ * properties after filtering. For example, given `{ @metadata prop:
+ * string} & SomeName`, and an emitter that wishes to discard properties
+ * marked with `@metadata`, the emitter can use this to recover that the
+ * best name for the remaining properties is `SomeName`.
+ *
+ * @param model The input model
+ * @param filter An optional filter to apply to the input model's
+ * properties.
+ */
+export function getEffectiveModelType(
+  program: Program,
+  model: Model,
+  filter?: (property: ModelProperty) => boolean
+): Model {
+  if (filter) {
+    model = filterModelProperties(program, model, filter);
+  }
+
+  if (model.name) {
+    // named model
+    return getProjectedEffectiveModelType(program, model);
+  }
+
+  // We would need to change the algorithm if this doesn't hold. We
+  // assume model has no inherited properties below.
+  compilerAssert(!model.baseModel, "Anonymous model with base model.");
+
+  if (model.properties.size === 0) {
+    // empty model
+    return model;
+  }
+
+  // Find the candidate set of named model types that could have been the
+  // source of every property in the model.
+  let candidates: Set<Model> | undefined;
+  for (const property of model.properties.values()) {
+    const sources = getNamedSourceModels(property);
+    if (!sources) {
+      // unsourced property: no possible match
+      return model;
+    }
+
+    if (!candidates) {
+      // first sourced property: initialize candidates to its sources
+      candidates = sources;
+      continue;
+    }
+
+    // Add any derived types we observe to both sides. A derived type can
+    // substitute for a base type in these sets because derived types have
+    // all the properties of their bases.
+    //
+    // NOTE: Once property overrides are allowed, this code will need to
+    // be updated to check that the current property is not overridden by
+    // the derived type before adding it here. An override would invalidate
+    // this substitution.
+    addDerivedModels(sources, candidates);
+    addDerivedModels(candidates, sources);
+
+    // remove candidates that are not common to this property
+    for (const element of candidates) {
+      if (!sources.has(element)) {
+        candidates.delete(element);
+      }
+    }
+  }
+
+  // Search for a candidate that has no additional properties (ignoring
+  // filtered properties). If so, it is effectively the same type as the
+  // input model. Consider a candidate that meets this test without
+  // ignoring filtering as a better match than one that requires filtering
+  // to meet this test.
+  let match: Model | undefined;
+  for (const candidate of candidates ?? []) {
+    if (model.properties.size === countPropertiesInherited(candidate)) {
+      match = candidate;
+      break; // exact match
+    }
+    if (filter && !match && model.properties.size === countPropertiesInherited(candidate, filter)) {
+      match = candidate;
+      continue; // match with filter: keep searching for exact match
+    }
+  }
+
+  return match ? getProjectedEffectiveModelType(program, match) : model;
+}
+
+/**
+ * Applies a filter to the properties of a given type. If no properties
+ * are filtered out, then return the input unchanged. Otherwise, return
+ * a new anonymous model with only the filtered properties.
+ *
+ * @param model The input model to filter.
+ * @param filter The filter to apply. Properties are kept when this returns true.
+ */
+export function filterModelProperties(
+  program: Program | ProjectedProgram,
+  model: Model,
+  filter: (property: ModelProperty) => boolean
+): Model {
+  let filtered = false;
+  for (const property of walkPropertiesInherited(model)) {
+    if (!filter(property)) {
+      filtered = true;
+      break;
+    }
+  }
+
+  if (!filtered) {
+    return model;
+  }
+
+  const properties = new Map<string, ModelProperty>();
+  const newModel: Model = program.checker.createType({
+    kind: "Model",
+    node: undefined,
+    name: "",
+    indexer: undefined,
+    properties,
+    decorators: [],
+    derivedModels: [],
+  });
+
+  for (const property of walkPropertiesInherited(model)) {
+    if (filter(property)) {
+      const newProperty = program.checker.cloneType(property, {
+        sourceProperty: property,
+        model: newModel,
+      });
+      properties.set(property.name, newProperty);
+    }
+  }
+
+  return finishTypeForProgram(program, newModel);
+}
+
+function getProjectedEffectiveModelType(program: Program | ProjectedProgram, type: Model): Model {
+  if (!isProjectedProgram(program)) {
+    return type;
+  }
+
+  const projectedType = program.projector.projectType(type);
+  if (projectedType.kind !== "Model") {
+    compilerAssert(false, "Fail");
+  }
+
+  return projectedType;
+}
+
+function* walkPropertiesInherited(model: Model) {
+  let current: Model | undefined = model;
+
+  while (current) {
+    yield* current.properties.values();
+    current = current.baseModel;
+  }
+}
+
+function countPropertiesInherited(model: Model, filter?: (property: ModelProperty) => boolean) {
+  let count = 0;
+  if (filter) {
+    for (const each of walkPropertiesInherited(model)) {
+      if (filter(each)) {
+        count++;
+      }
+    }
+  } else {
+    for (let m: Model | undefined = model; m; m = m.baseModel) {
+      count += m.properties.size;
+    }
+  }
+  return count;
+}
+
+export function finishTypeForProgram<T extends Type>(
+  program: Program,
+  typeDef: T,
+  mapper?: TypeMapper
+): T {
+  return finishTypeForProgramAndChecker(program, program.checker.typePrototype, typeDef, mapper);
+}
+
+function finishTypeForProgramAndChecker<T extends Type>(
+  program: Program,
+  typePrototype: TypePrototype,
+  typeDef: T,
+  mapper?: TypeMapper
+): T {
+  if (mapper) {
+    compilerAssert(
+      !(typeDef as any).templateArguments,
+      "Mapper provided but template arguments already set."
+    );
+    (typeDef as any).templateArguments = mapper.args;
+  }
+
+  if ("decorators" in typeDef) {
+    for (const decApp of typeDef.decorators) {
+      applyDecoratorToType(program, decApp, typeDef);
+    }
+  }
+
+  Object.setPrototypeOf(typeDef, typePrototype);
+
+  return typeDef;
+}
+
+function applyDecoratorToType(program: Program, decApp: DecoratorApplication, target: Type) {
+  compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
+
+  for (const arg of decApp.args) {
+    if (typeof arg.value === "object") {
+      if (isErrorType(arg.value)) {
+        // If one of the decorator argument is an error don't run it.
+        return;
+      }
+    }
+  }
+
+  // peel `fn` off to avoid setting `this`.
+  try {
+    const fn = decApp.decorator;
+    const context = createDecoratorContext(program, decApp);
+    fn(context, target, ...decApp.args.map((x) => x.value));
+  } catch (error: any) {
+    // do not fail the language server for exceptions in decorators
+    if (program.compilerOptions.designTimeBuild) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "decorator-fail",
+          format: { decoratorName: decApp.decorator.name, error: error.stack },
+          target: decApp.node ?? target,
+        })
+      );
+    } else {
+      throw error;
+    }
+  }
+}
+
+function createDecoratorContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
+  function createPassThruContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
+    return {
+      program,
+      decoratorTarget: decApp.node!,
+      getArgumentTarget: () => decApp.node!,
+      call: (decorator, target, ...args) => {
+        return decorator(createPassThruContext(program, decApp), target, ...args);
+      },
+    };
+  }
+
+  return {
+    program,
+    decoratorTarget: decApp.node!,
+    getArgumentTarget: (index: number) => {
+      return decApp.args[index]?.node;
+    },
+    call: (decorator, target, ...args) => {
+      return decorator(createPassThruContext(program, decApp), target, ...args);
     },
   };
 }

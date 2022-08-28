@@ -87,6 +87,7 @@ function main() {
   connection.onFoldingRanges(profile(s.getFoldingRanges));
   connection.onDocumentSymbol(profile(s.getDocumentSymbols));
   connection.onDocumentHighlight(profile(s.findDocumentHighlight));
+  connection.onHover(profile(s.getHover));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
 
   documents.onDidChangeContent(profile(s.checkChange));

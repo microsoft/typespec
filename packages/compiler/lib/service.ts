@@ -1,7 +1,7 @@
 import { validateDecoratorTarget } from "../core/decorator-utils.js";
 import { createDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
-import { DecoratorContext, Namespace, Projector, Type } from "../core/types.js";
+import { DecoratorContext, Namespace, Type } from "../core/types.js";
 
 interface ServiceDetails {
   namespace?: Namespace;
@@ -10,12 +10,14 @@ interface ServiceDetails {
   host?: string;
 }
 
-const programServiceDetails = new WeakMap<Program | Projector, ServiceDetails>();
-function getServiceDetails(program: Program) {
-  let serviceDetails = programServiceDetails.get(program.currentProjector ?? program);
+const serviceDetailsKey = Symbol.for("ServiceDetails");
+function getServiceDetails(program: Program): ServiceDetails {
+  const programServiceDetails = program.stateMap(serviceDetailsKey);
+  const key = program.getGlobalNamespaceType();
+  let serviceDetails = programServiceDetails.get(key);
   if (!serviceDetails) {
     serviceDetails = {};
-    programServiceDetails.set(program.currentProjector ?? program, serviceDetails);
+    programServiceDetails.set(key, serviceDetails);
   }
 
   return serviceDetails;
