@@ -1012,7 +1012,7 @@ function skipMultiLineComment(
   return [position, false];
 }
 
-function getTokenDisplayTable(entries: [Token, string][]): string[] {
+function getTokenDisplayTable(entries: [Token, string][]): readonly string[] {
   const table = new Array<string>(entries.length);
 
   for (const [token, display] of entries) {
