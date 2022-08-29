@@ -51,6 +51,15 @@ jobs:
           containerName: "$web"
         displayName: "Update playground"
 
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "packages/website/dist/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlwebsite"
+          containerName: "$web"
+        displayName: "Update website"
+
   - job: npm_dev
     dependsOn: npm_stable
     displayName: Npm publish dev version

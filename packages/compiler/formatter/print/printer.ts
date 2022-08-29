@@ -85,7 +85,14 @@ export function printCadl(
   const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
   const printedNode = printNode(path, options, print);
   const value = needsParens(path, options) ? ["(", printedNode, ")"] : printedNode;
-  return [directives, value];
+  const parts: Doc[] = [directives, value];
+  if (node.kind === SyntaxKind.CadlScript) {
+    // For CadlScript(root of cadl document) we had a new line at the end.
+    // This must be done here so the hardline entry can be the last item of the doc array returned by the printer
+    // so the markdown(and other embeded formatter) can omit that extra line.
+    parts.push(hardline);
+  }
+  return parts;
 }
 
 function shouldPrintDirective(node: Node) {
@@ -106,7 +113,6 @@ export function printNode(
     case SyntaxKind.CadlScript:
       return [
         printStatementSequence(path as AstPath<CadlScriptNode>, options, print, "statements"),
-        line,
       ];
 
     // Statements
