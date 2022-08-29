@@ -15,7 +15,7 @@ Cadl emitters are a special kind of Cadl library and so have the same getting st
 
 ## $onEmit
 
-A Cadl emitter exports a function named `$onEmit`. It receives two arguments:
+A Cadl emitter exports a function named `$onEmit` from its main entrypoint. It receives two arguments:
 
 - _program_: The current `Program` instance being compiled
 - _options_: Custom configuration options selected for this emitter
@@ -111,29 +111,26 @@ import {
 } from "@cadl-lang/compiler";
 
 // Decorator Setup Code
+
+const emitThisKey = createStateSymbol("emitThis");
+
 const emitThisDef = createDecoratorDefinition({
   name: "@emitThis",
   target: ["Model"],
   args: [],
 } as const);
 
-const emitModels = new WeakMap<Program, Type[]>();
-
 // @emitThis decorator
 export function $emitThis(context: DecoratorContext, target: Model) {
   if (!emitThisDef.validate(context, target)) {
     return;
   }
-  let models = emitModels.get(context.program);
-  if (!models) {
-    models = [];
-    emitModels.set(context.program, models);
-  }
-  models.push(target);
+  context.program.stateSet(emitThisKey).add(target);
 }
 
 export async function $onEmit(program: Program) {
-  for (const model of emitModels.get(program)) {
+  for (const model of program.stateSet(emitThisKey)) {
+    emitModel(model);
   }
 }
 
