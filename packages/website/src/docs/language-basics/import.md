@@ -14,14 +14,12 @@ The path you import must either begin with `"./"` or `"../"` or otherwise be an 
 
 ```cadl
 import "./models/foo.cadl";
-
 ```
 
 ## Import Js file
 
 ```cadl
 import "./decorators.js";
-
 ```
 
 ## Import a library
@@ -30,7 +28,6 @@ The import value can be name one of the package dependencies. In that case cadl 
 
 ```cadl
 import "@cadl-lang/rest";
-
 ```
 
 ```json
@@ -48,10 +45,8 @@ If the import value is a directory it will lookup if that directoy is a node pac
 
 ```cadl
 import "./models"; // same as `import "./models/main.cadl";
-
 ```
 
 ```cadl
 import "./path/to/local/module"; // Assuming this path is a cadl package, it will load it using the cadlMain file.
-
 ```
