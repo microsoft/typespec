@@ -1,0 +1,39 @@
+.cadl-doc-container {
+  display: flex;
+}
+
+.cadl-doc-container > .cadl-doc-nav {
+  flex: 0 0 200px;
+  border-right: 1px solid #f3f3f3;
+}
+
+.cadl-doc-container > .cadl-doc-content {
+  flex: 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 24px;
+}
+
+.cadl-doc-toc ul {
+  padding-left: 10px;
+}
+
+.cadl-doc-toc ul li {
+  list-style-type: none;
+  padding: 0;
+}
+
+.cadl-doc-toc ul li a {
+  border: none;
+  padding: 6px 0;
+  transition: color 0.3s;
+  color: #717171;
+}
+
+.cadl-doc-toc ul li a:hover {
+  color: var(--main-color);
+}
+
+.cadl-doc-toc ul li.cadl-toc-active > a {
+  color: var(--main-color);
+}
