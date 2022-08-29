@@ -74,6 +74,12 @@ export async function $onEmit(program: Program, options: EmitterOptions) {
 }
 ```
 
+#### Emitter options vs. decorators
+
+Generally speaking, emitter options and decorators can solve the same problems: allowing the user to customize how the emit works. For example, the `outputPath` option could be passed on the command line, or we could have an `@outputPath` decorator that has the same effect. Which do you use?
+
+The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the Cadl program would use the same configuration. This is not the case for outputPath because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
+
 ## Querying the program
 
 One of the main tasks of an emitter is finding types to emit. There are two main approaches: using the Semantic Walker, which lets you easily run code for every type in the program, and doing a custom traversal, which gives you a lot more flexibility.
