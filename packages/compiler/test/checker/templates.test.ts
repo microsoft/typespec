@@ -422,4 +422,60 @@ describe("compiler: templates", () => {
       });
     });
   });
+
+  describe("doesn't run decorators on model properties when projecting template declarations", () => {
+    async function expectMarkDecoratorNotCalled(code: string) {
+      testHost.addJsFile("mark.js", {
+        $mark: () => fail("Should not have called decorator"),
+      });
+
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+      import "./mark.js";
+      ${code}
+     `
+      );
+
+      await testHost.compile("main.cadl");
+    }
+
+    it("on model", async () => {
+      await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+    });
+
+    it("on model properties", async () => {
+      await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+    });
+
+    it("on model properties (on operation)", async () => {
+      await expectMarkDecoratorNotCalled(`
+          op foo<T>(): {
+            @mark(T)
+            prop: string;
+          };
+        `);
+    });
+
+    it("on model properties (nested)", async () => {
+      await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            nested: {
+              @mark(T)
+              prop: string;
+            }
+          }
+        `);
+    });
+  });
 });
