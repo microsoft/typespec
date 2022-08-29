@@ -1018,7 +1018,7 @@ function getTokenDisplayTable(entries: [Token, string][]): string[] {
   for (const [token, display] of entries) {
     compilerAssert(
       token >= 0 && token < Token.__Count,
-      `Invalid entry in token display table, ${token},${Token[token]}, ${display}`
+      `Invalid entry in token display table, ${token}, ${Token[token]}, ${display}`
     );
     compilerAssert(
       !table[token],
