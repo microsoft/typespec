@@ -281,7 +281,7 @@ export function isPunctuation(token: Token) {
 }
 
 export function isStatementKeyword(token: Token) {
-  return token >= Token.__StartStatementKeyword && token <= Token.__EndStatementKeyword;
+  return token >= Token.__StartStatementKeyword && token < Token.__EndStatementKeyword;
 }
 
 export function createScanner(
