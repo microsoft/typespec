@@ -7,7 +7,6 @@
   border-right: 1px solid #f3f3f3;
 }
 
-
 .cadl-doc-container > .cadl-doc-content {
   flex: 1 auto;
   min-width: 0;
@@ -38,4 +37,3 @@
 .cadl-doc-toc ul li.cadl-toc-active > a {
   color: var(--main-color);
 }
-
