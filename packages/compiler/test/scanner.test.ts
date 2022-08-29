@@ -341,7 +341,12 @@ describe("compiler: scanner", () => {
 
       assert.strictEqual(TokenDisplay[token], `'${name}'`, "token display should match");
       assert(isKeyword(token), `${name} should be classified as a keyword`);
-      if (!nonStatementKeywords.includes(token)) {
+      if (nonStatementKeywords.includes(token)) {
+        assert(
+          !isStatementKeyword(token),
+          `${name} should not be classified as a statement keyword`
+        );
+      } else {
         assert(isStatementKeyword(token), `${name} should be classified as statement keyword`);
       }
     }
