@@ -8,6 +8,7 @@ import {
   Expression,
   getIndexer,
   getIntrinsicModelName,
+  getParentTemplateNode,
   IdentifierKind,
   IntrinsicModelName,
   isIntrinsic,
@@ -2340,14 +2341,8 @@ export function createChecker(program: Program): Checker {
       model: parentModel,
     });
 
-    const parentModelNode = prop.parent! as
-      | ModelStatementNode
-      | ModelExpressionNode
-      | OperationStatementNode;
-    if (
-      parentModelNode.kind !== SyntaxKind.ModelStatement ||
-      shouldCreateTypeForTemplate(parentModelNode, mapper)
-    ) {
+    const parentTemplate = getParentTemplateNode(prop);
+    if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
       finishType(type, mapper);
     }
 

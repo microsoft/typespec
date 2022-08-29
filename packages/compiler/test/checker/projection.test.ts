@@ -1,4 +1,4 @@
-import { ok, strictEqual } from "assert";
+import { fail, ok, strictEqual } from "assert";
 import { Program, projectProgram } from "../../core/program.js";
 import { createProjector } from "../../core/projector.js";
 import {
@@ -730,7 +730,7 @@ describe("cadl: projections", () => {
     });
 
     // Issue here happens when an enum member gets referenced before the enum and so gets projected before the enum creating a different projected type as the projected enum.
-    it("project enum correctly when enum memeber is referenced first", async () => {
+    it("project enum correctly when enum member is referenced first", async () => {
       const result = (await testProjection(`
         @test model Foo {
           a: Bar.a;
@@ -785,6 +785,67 @@ describe("cadl: projections", () => {
     );
   });
 
+  describe("template types", () => {
+    describe("doesn't run decorators on model properties when projecting template declarations", () => {
+      async function expectMarkDecoratorNotCalled(code: string) {
+        testHost.addJsFile("mark.js", {
+          $mark: () => fail("Should not have called decorator"),
+        });
+
+        const fullCode = `
+      import "./mark.js";
+
+      ${code}
+
+      #suppress "projections-are-experimental"
+      projection model#test {
+          to {
+            
+          }
+        }
+     `;
+        await testProjection(fullCode, [projection("test")]);
+      }
+
+      it("on model", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+      });
+
+      it("on model properties", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+      });
+
+      it("on model properties (on operation)", async () => {
+        await expectMarkDecoratorNotCalled(`
+          op foo<T>(): {
+            @mark(T)
+            prop: string;
+          };
+        `);
+      });
+
+      it("on model properties (nested)", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            nested: {
+              @mark(T)
+              prop: string;
+            }
+          }
+        `);
+      });
+    });
+  });
   const projectionCode = (body: string) => `
       #suppress "projections-are-experimental"
       projection Foo#test {
