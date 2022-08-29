@@ -7,6 +7,14 @@
   border-right: 1px solid #f3f3f3;
 }
 
+
+.cadl-doc-container > .cadl-doc-content {
+  flex: 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 24px;
+}
+
 .cadl-doc-toc ul {
   padding-left: 10px;
 }
@@ -31,7 +39,3 @@
   color: var(--main-color);
 }
 
-.cadl-doc-content {
-  flex: 1;
-  margin: 0 24px;
-}
