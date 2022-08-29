@@ -75,7 +75,6 @@ model S {
   foo: string;
   bar: int64; // int64 is NOT assignable to int32
 }
-
 ```
 
 ## Record<T>
@@ -113,7 +112,6 @@ model S {
   foo: 123;
   bar: 456;
 }
-
 ```
 
 #### Why is the last case not assignable to `Record<int32>`?
@@ -126,7 +124,6 @@ model S {
   foo: 123;
   bar: 456;
 }
-
 ```
 
 The reason is `model S` here is not assignable but the model expression `{ foo: 123; bar: 456; }` is, is that model S could be extended with additional properties that could then not be compatible.
@@ -137,7 +134,6 @@ If you for example now add a new model
 model Foo is S {
   otherProp: string;
 }
-
 ```
 
 Now here `Foo` is assignable to `S` following the [model with property logic](#model-with-properties) and if `S` was assignable to `Record<int32>`, `Foo` would be able to be passed through as well but this is now invalid as `otherProp` is not an `int32` property.

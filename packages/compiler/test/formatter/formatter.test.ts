@@ -2,16 +2,25 @@ import { strictEqual, throws } from "assert";
 import prettier from "prettier";
 import * as plugin from "../../formatter/index.js";
 
-function format(code: string): string {
+type TestParser = "cadl" | "markdown";
+function format(code: string, parser: TestParser = "cadl"): string {
   const output = prettier.format(code, {
-    parser: "cadl",
+    parser,
     plugins: [plugin],
   });
   return output;
 }
 
-function assertFormat({ code, expected }: { code: string; expected: string }) {
-  const result = format(code);
+function assertFormat({
+  code,
+  expected,
+  parser,
+}: {
+  code: string;
+  expected: string;
+  parser?: TestParser;
+}) {
+  const result = format(code, parser ?? "cadl");
   strictEqual(result.trim(), expected.trim());
 }
 
@@ -1572,6 +1581,30 @@ projection model#proj {
 }
 `,
         });
+      });
+    });
+  });
+
+  describe("when embeded", () => {
+    it("doesn't include blank line at the end (in markdown)", () => {
+      assertFormat({
+        parser: "markdown",
+        code: `
+This is markdown
+\`\`\`cadl
+
+op test(): string;
+
+
+\`\`\`
+`,
+        expected: `
+This is markdown
+
+\`\`\`cadl
+op test(): string;
+\`\`\`
+`,
       });
     });
   });

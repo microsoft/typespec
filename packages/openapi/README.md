@@ -16,7 +16,6 @@ npm install @cadl-lang/openapi
 import "@cadl-lang/openapi";
 
 using OpenAPI;
-
 ```
 
 ## References
@@ -39,7 +38,6 @@ Decorator that can be used on a response model to specify the `default` status c
 model MyNonErrorResponse {}
 
 op foo(): MyNonErrorResponse;
-
 ```
 
 ### `@extension`
@@ -66,7 +64,6 @@ model Foo {}
   }
 )
 model Foo {}
-
 ```
 
 ### `@externalDocs`
@@ -84,7 +81,6 @@ Arguments:
 ```cadl
 @externalDocs("https://example.com", "More info there")
 model Foo {}
-
 ```
 
 ### `@operationId`
@@ -100,7 +96,6 @@ Arguments:
 ```cadl
 @operationId("custom_Foo")
 op foo(): string;
-
 ```
 
 ## See also
