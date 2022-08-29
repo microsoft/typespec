@@ -883,7 +883,7 @@ export function getOverloadedOperation(
   return program.stateMap(overloadsOperationKey).get(operation);
 }
 
-const projectedNameKey = Symbol("overloadedByKey");
+const projectedNameKey = Symbol("projectedNameKey");
 const projectedNameDecorator = createDecoratorDefinition({
   name: "@projectedName",
   target: "Any",
