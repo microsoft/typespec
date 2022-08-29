@@ -157,6 +157,12 @@
       "shouldPublish": false
     },
     {
+      "packageName": "@cadl-lang/website",
+      "projectFolder": "packages/website",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
       "packageName": "@cadl-lang/bundler",
       "projectFolder": "packages/bundler",
       "reviewCategory": "production",
