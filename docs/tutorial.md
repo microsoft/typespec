@@ -39,7 +39,6 @@ model Dog {
   favoriteToy?: string;
   bestTreat?: string = "chicken";
 }
-
 ```
 
 #### Built-in Models
@@ -95,7 +94,6 @@ model Dog {
   species: string;
   name: string;
 }
-
 ```
 
 #### Extends
@@ -108,7 +106,6 @@ model Animal {
 }
 
 model Dog extends Animal {}
-
 ```
 
 #### Is
@@ -128,7 +125,6 @@ model StringThing is Thing<string>;
 model StringThing {
   property: string;
 }
-
 ```
 
 ### Enums
@@ -141,7 +137,6 @@ enum Color {
   Blue,
   Green,
 }
-
 ```
 
 In this case, we haven't specified how the constants will be represented, allowing for different choices in different scenarios. For example, the OpenAPI emitter will choose string values "Red", "Green", "Blue". Another protocol might prefer to assign incrementing numeric values 0, 1, 2.
@@ -159,7 +154,6 @@ enum Priority {
   High: 100,
   Low: 0,
 }
-
 ```
 
 #### Templates
@@ -175,7 +169,6 @@ model Page<T> {
 model DogPage {
   ...Page<Dog>;
 }
-
 ```
 
 A template parameter can be given a default value with `= <value>`.
@@ -185,7 +178,6 @@ model Page<T = string> {
   size: number;
   item: T[];
 }
-
 ```
 
 #### Type Aliases
@@ -194,7 +186,6 @@ Sometimes it's convenient to alias a model template instantiation or type produc
 
 ```cadl
 alias DogPage = Page<Dog>;
-
 ```
 
 Unlike `model`, `alias` does not create a new entity, and as such will not change generated code in any way. An alias merely describes a source code shorthand to avoid repeating the right-hand side in multiple places.
@@ -211,7 +202,6 @@ model BestDog {
   age: 14;
   best: true;
 }
-
 ```
 
 String literal types can also be created using the triple-quote syntax which enables multi-line strings:
@@ -224,7 +214,6 @@ model Dog {
     And so on
     """;
 }
-
 ```
 
 ### Type Operators
@@ -237,7 +226,6 @@ Unions describe a type that must be exactly one of the union's constituents. Cre
 
 ```cadl
 alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
-
 ```
 
 ##### Named unions
@@ -250,7 +238,6 @@ union GoodBreed {
   shepherd: GermanShepherd,
   retriever: GoldenRetriever,
 }
-
 ```
 
 The above example is equivalent to the `GoodBreed` alias above, except that emitters can actually see `GoodBreed` as a named entity and also see the `beagle`, `shepherd`, and `retriever` names for the options. It also becomes possible to apply [decorators](#Decorators) to each of the options when using this form.
@@ -261,7 +248,6 @@ Intersections describe a type that must include all the intersection's constitue
 
 ```cadl
 alias Dog = Animal & Pet;
-
 ```
 
 #### Arrays
@@ -270,7 +256,6 @@ Arrays describe lists of things. Create an Array type with the `[]` operator.
 
 ```cadl
 alias Pack = Dog[];
-
 ```
 
 ### Operations
@@ -279,14 +264,12 @@ Operations describe service endpoints and consist of an operation name, paramete
 
 ```cadl
 op getDog(name: string): Dog;
-
 ```
 
 The operation's parameters describe a model, so anything you can do in a model you can do in a parameter list as well, including using the spread operator:
 
 ```cadl
 op getDog(...commonParams, name: string): Dog;
-
 ```
 
 Often an endpoint returns one of any number of models. For example, there might be a return type for when an item is found, and a return type for when an item isn't found. Unions are used to describe this pattern:
@@ -297,7 +280,6 @@ model DogNotFound {
 }
 
 op getDog(name: string): Dog | DogNotFound;
-
 ```
 
 ### Namespaces & Usings
@@ -310,7 +292,6 @@ namespace Models {
 }
 
 op getDog(): Models.Dog;
-
 ```
 
 You can also put an entire Cadl file into a namespace by using the blockless namespace syntax:
@@ -319,14 +300,12 @@ You can also put an entire Cadl file into a namespace by using the blockless nam
 // models.cadl
 namespace Models;
 model Dog {}
-
 ```
 
 ```cadl
 // main.cadl
 import "./models.cadl";
 op getDog(): Models.Dog;
-
 ```
 
 Namespace declarations can declare multiple namespaces at once by using a dotted member expression. There's no need to declare nested namespace blocks if you don't want to.
@@ -341,7 +320,6 @@ namespace C.D.E {
 }
 
 alias M = A.B.C.D.E.M;
-
 ```
 
 It can be convenient to add references to a namespace's declarations to your local namespace, especially when namespaces can become deeply nested. The `using` statement lets us do this:
@@ -350,7 +328,6 @@ It can be convenient to add references to a namespace's declarations to your loc
 // models.cadl
 namespace Service.Models;
 model Dog {}
-
 ```
 
 ```cadl
@@ -358,7 +335,6 @@ model Dog {}
 import "./models.cadl";
 using ServiceModels;
 op getDog(): Dog; // here we can use Dog directly.
-
 ```
 
 The bindings introduced by a `using` statement are local to the namespace they are declared in. They do not become part of the namespace themselves.
@@ -375,7 +351,6 @@ namespace Test2 {
 
 alias C = Test2.A; // not ok
 alias C = Test2.B; // ok
-
 ```
 
 ### Interfaces
@@ -390,7 +365,6 @@ interface A {
 interface B {
   b(): string;
 }
-
 ```
 
 And the keyword `extends` can be used to compose operations from other interfaces into a new interface:
@@ -406,7 +380,6 @@ interface C {
   b(): string;
   c(): string;
 }
-
 ```
 
 ### Imports
@@ -419,20 +392,17 @@ The path you import must either begin with "./" or "../" or otherwise be an abso
 // main.cadl
 import "./models";
 op getDog(): Dog;
-
 ```
 
 ```cadl
 // models/main.cadl
 import "./dog.cadl";
-
 ```
 
 ```cadl
 // models/dog.cadl
 namespace Models;
 model Dog {}
-
 ```
 
 ### Decorators
@@ -463,7 +433,6 @@ model Dog {
   @logType("Name type")
   name: string;
 }
-
 ```
 
 After running this Cadl program, the following will be printed to the console:
@@ -697,7 +666,6 @@ model ReadDog {
 model WriteDog {
   ...Dog;
 }
-
 ```
 
 #### @withDefaultKeyVisibility
@@ -782,7 +750,6 @@ Lastly, you need to import the libraries into your Cadl program. By convention, 
 // in main.cadl
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
-
 ```
 
 #### Using emitter libraries
@@ -870,7 +837,6 @@ Here's an example that uses these to define a Pet Store service:
 @Cadl.Rest.produces("application/json", "image/png")
 @Cadl.Rest.consumes("application/json")
 namespace PetStore;
-
 ```
 
 The `server` keyword can take a third parameter with parameters as necessary:
@@ -893,7 +859,6 @@ using Cadl.Http;
 namespace Pets {
 
 }
-
 ```
 
 To define an operation on this resource, you need to provide the HTTP verb for the route using the `@get`, `@head` `@post`, `@put`, `@patch`, or `@delete` decorators. Alternatively, you can name your operation `list`, `create`, `read`, `update`, `delete`, or `deleteAll` and the appropriate verb will be used automatically. Lets add an operation to our `Pets` resource:
@@ -906,7 +871,6 @@ namespace Pets {
   // or you could also use
   @get op listPets(): Pet[];
 }
-
 ```
 
 ##### Automatic route generation
@@ -959,7 +923,6 @@ namespace Pets {
   op list(@query skip: int32, @query top: int32): Pet[];
   op read(@path petId: int32): Pet;
 }
-
 ```
 
 Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following Cadl. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
@@ -969,7 +932,6 @@ Path parameters are appended to the URL unless a substitution with that paramete
 namespace PetToys {
   op list(@path petId: int32): Toy[];
 }
-
 ```
 
 #### Request & response bodies
@@ -988,7 +950,6 @@ namespace Pets {
   @post
   op create(@body pet: Pet): {};
 }
-
 ```
 
 Note that in the absence of explicit `@body`:
@@ -1006,7 +967,6 @@ namespace Pets {
   @post
   op create(...Pet): {};
 }
-
 ```
 
 #### Polymorphism with discriminators
@@ -1035,7 +995,6 @@ model Dog extends Pet {
   kind: "dog";
   bark: string;
 }
-
 ```
 
 #### Headers
@@ -1055,7 +1014,6 @@ namespace Pets {
   @post
   op create(@body pet: Pet): {};
 }
-
 ```
 
 #### Status codes
@@ -1080,7 +1038,6 @@ namespace Pets {
     @statusCode statusCode: 204;
   };
 }
-
 ```
 
 #### Built-in response shapes
@@ -1104,7 +1061,6 @@ namespace Pets {
   @post
   op create(...Pet): NoContentResponse;
 }
-
 ```
 
 Note that the default status code is 200 for non-empty bodies and 204 for empty bodies. Similarly, explicit `Body<T>` is not required when T is known to be a model. So the following terser form is equivalent:
@@ -1117,7 +1073,6 @@ namespace Pets {
   @post
   op create(...Pet): {};
 }
-
 ```
 
 Finally, another common style is to make helper response types that are
@@ -1151,7 +1106,6 @@ namespace Pets {
   @post
   op create(...Pet): CreateResponse;
 }
-
 ```
 
 ### CADL Config
