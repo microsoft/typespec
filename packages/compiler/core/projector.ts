@@ -313,7 +313,7 @@ export function createProjector(
    * Returns true if we should finish a type. The only time we don't finish is when it's
    * a template type, because we don't want to run decorators for templates.
    */
-  function shouldFinishType(type: Model | Interface | Union) {
+  function shouldFinishType(type: Type) {
     const parentTemplate = getParentTemplateNode(type.node!);
     return !parentTemplate || isTemplateInstance(type);
   }
@@ -327,7 +327,7 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
-    if (!prop.model || shouldFinishType(prop.model)) {
+    if (shouldFinishType(prop)) {
       finishTypeForProgram(projectedProgram, projectedProp);
     }
     return projectedProp;
