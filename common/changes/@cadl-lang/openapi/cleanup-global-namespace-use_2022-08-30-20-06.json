@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi",
+      "comment": "Api: Operation id resolver takes projection into account",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi"
+}
