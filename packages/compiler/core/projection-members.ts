@@ -365,6 +365,8 @@ export function createProjectionMembers(checker: Checker): {
             throw new ProjectionError(`Enum doesn't have member ${name}`);
           }
           member.name = newName;
+          base.members.delete(name);
+          base.members.set(newName, member);
           return voidType;
         });
       },

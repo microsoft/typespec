@@ -719,6 +719,7 @@ describe("cadl: projections", () => {
       const result = (await testProjection(code)) as Enum;
       strictEqual(result.members.size, 1);
     });
+
     it("can rename members", async () => {
       const code = defaultCode(`self::renameMember("two", "mewtwo");`);
       const result = (await testProjection(code)) as Enum;
