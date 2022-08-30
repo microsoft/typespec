@@ -63,9 +63,15 @@ export function isTemplateDeclarationOrInstance(type: TemplatedType): boolean {
   return node.templateParameters && node.templateParameters.length > 0;
 }
 
+/**
+ * Check if the given namespace is the global namespace
+ * @param program Program
+ * @param namespace Namespace
+ * @returns {boolean}
+ */
 export function isGlobalNamespace(
   program: Program,
   namespace: Namespace
-): namespace is Namespace & { name: "" } {
-  return program.checker.getGlobalNamespaceType() === namespace;
+): namespace is Namespace & { name: ""; namespace: undefined } {
+  return program.getGlobalNamespaceType() === namespace;
 }

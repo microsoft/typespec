@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Api: Route resolution take projection into account",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
