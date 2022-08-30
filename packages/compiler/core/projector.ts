@@ -426,7 +426,7 @@ export function createProjector(
   }
 
   function projectEnum(e: Enum) {
-    const members: EnumMember[] = [];
+    const members = new Map<string, EnumMember>();
     const decorators = projectDecorators(e.decorators);
     const projectedEnum = shallowClone(e, {
       members,
@@ -435,10 +435,10 @@ export function createProjector(
 
     projectedTypes.set(e, projectedEnum);
 
-    for (const member of e.members) {
+    for (const member of e.members.values()) {
       const projectedMember = projectType(member);
       if (projectedMember.kind === "EnumMember") {
-        members.push(projectedMember);
+        members.set(projectedMember.name, projectedMember);
       }
     }
 

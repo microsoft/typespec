@@ -282,7 +282,7 @@ export interface Enum extends BaseType, DecoratedType {
   name: string;
   node: EnumStatementNode;
   namespace?: Namespace;
-  members: EnumMember[];
+  members: Map<string, EnumMember>;
 }
 
 export interface EnumMember extends BaseType, DecoratedType {

@@ -318,7 +318,7 @@ export function createProjectionMembers(checker: Checker): {
           type && assertType("enum type", type, "String", "Number");
 
           const name = nameT.value;
-          const member = base.members.find((member) => member.name === name);
+          const member = base.members.get(name);
           if (member) {
             throw new ProjectionError(`Enum already has a member named ${name}`);
           }
@@ -327,7 +327,8 @@ export function createProjectionMembers(checker: Checker): {
             throw new ProjectionError(`Enum member types must be string or number`);
           }
 
-          base.members.push(
+          base.members.set(
+            name,
             createType({
               kind: "EnumMember",
               enum: base,
@@ -347,11 +348,7 @@ export function createProjectionMembers(checker: Checker): {
 
           const name = nameT.value;
 
-          const member = base.members.findIndex((member) => member.name === name);
-          if (member === -1) return voidType;
-
-          base.members.splice(member, 1);
-
+          base.members.delete(name);
           return voidType;
         });
       },
@@ -363,7 +360,7 @@ export function createProjectionMembers(checker: Checker): {
           const name = nameT.value;
           const newName = newNameT.value;
 
-          const member = base.members.find((member) => member.name === name);
+          const member = base.members.get(name);
           if (!member) {
             throw new ProjectionError(`Enum doesn't have member ${name}`);
           }
