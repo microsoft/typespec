@@ -786,7 +786,7 @@ describe("cadl: projections", () => {
   });
 
   describe("template types", () => {
-    describe("doesn't run decorators on model properties when projecting template declarations", () => {
+    describe("does NOT run decorators when projecting template declarations", () => {
       async function expectMarkDecoratorNotCalled(code: string) {
         testHost.addJsFile("mark.js", {
           $mark: () => fail("Should not have called decorator"),
@@ -843,6 +843,82 @@ describe("cadl: projections", () => {
             }
           }
         `);
+      });
+    });
+
+    describe("run decorators when projecting template instance", () => {
+      async function expectMarkDecoratorCalledTimes(code: string, amount: number) {
+        let run = 0;
+
+        testHost.addJsFile("mark.js", {
+          $mark: () => run++,
+        });
+
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+        import "./mark.js";
+  
+        ${code}
+  
+        #suppress "projections-are-experimental"
+        projection model#test {
+            to {
+              
+            }
+          }
+       `
+        );
+        await testHost.compile("main.cadl");
+        run = 0; // reset we only intrested after projection
+        createProjector(testHost.program, [
+          {
+            arguments: [],
+            projectionName: "test",
+          },
+        ]);
+        strictEqual(run, amount);
+      }
+
+      it("on model", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+
+          model Instance is Foo<string>;
+        `,
+          1
+        );
+      });
+
+      it("on model properties", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+          model Instance is Foo<string>;
+        `,
+          1
+        );
+      });
+
+      it("on model properties (on operation)", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          op foo<T>(): {
+            @mark(T)
+            prop: string;
+          };
+
+          op instance is foo<string>;
+        `,
+          1
+        );
       });
     });
   });
