@@ -31,8 +31,7 @@ export function createProjectedNameProgram(program: Program, target: string): Pr
   };
 
   function getProjectedName(type: Type & { name: string }): string {
-    const baseType = type.projectionBase ?? type;
-    const projectedType = projectedProgram.projector.projectedTypes.get(baseType);
+    const projectedType = projectedProgram.projector.projectedTypes.get(type);
     if (projectedType === undefined || !("name" in projectedType)) {
       return type.name;
     }
