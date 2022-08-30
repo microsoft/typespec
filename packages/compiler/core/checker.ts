@@ -380,7 +380,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function mergeSourceFile(file: CadlScriptNode | JsSourceFileNode) {
-    mergeSymbolTable(file.symbol.exports!, globalNamespaceNode.symbol.exports!);
+    mergeSymbolTable(file.symbol.exports!, mutate(globalNamespaceNode.symbol.exports!));
   }
 
   function setUsingsForFile(file: CadlScriptNode) {
@@ -1885,7 +1885,8 @@ export function createChecker(program: Program): Checker {
     program.reportDuplicateSymbols(globalNamespaceNode.symbol.exports);
     for (const file of program.sourceFiles.values()) {
       for (const ns of file.namespaces) {
-        program.reportDuplicateSymbols(ns.symbol.exports);
+        const exports = mergedSymbols.get(ns.symbol)?.exports ?? ns.symbol.exports;
+        program.reportDuplicateSymbols(exports);
         initializeTypeForNamespace(ns);
       }
     }
@@ -2770,7 +2771,7 @@ export function createChecker(program: Program): Checker {
     return createLiteralType(node.value, node);
   }
 
-  function mergeSymbolTable(source: SymbolTable, target: SymbolTable) {
+  function mergeSymbolTable(source: SymbolTable, target: Mutable<SymbolTable>) {
     for (const [sym, duplicates] of source.duplicates) {
       const targetSet = target.duplicates.get(sym);
       if (targetSet === undefined) {
@@ -2784,26 +2785,24 @@ export function createChecker(program: Program): Checker {
 
     for (const [key, sourceBinding] of source) {
       if (sourceBinding.flags & SymbolFlags.Namespace) {
-        // we are merging a namespace symbol. See if is an existing namespace symbol
-        // to merge with.
-        let existingBinding = target.get(key);
-
-        if (!existingBinding) {
-          existingBinding = {
+        let targetBinding = target.get(key);
+        if (!targetBinding) {
+          targetBinding = {
             ...sourceBinding,
+            declarations: [],
+            exports: createSymbolTable(),
           };
-          mutate(target).set(key, existingBinding);
-          mergedSymbols.set(sourceBinding, existingBinding);
-        } else if (existingBinding.flags & SymbolFlags.Namespace) {
-          mutate(existingBinding.declarations).push(...sourceBinding.declarations);
-          mergedSymbols.set(sourceBinding, existingBinding);
-          mergeSymbolTable(sourceBinding.exports!, mutate(existingBinding.exports!));
+          target.set(key, targetBinding);
+        }
+        if (targetBinding.flags & SymbolFlags.Namespace) {
+          mergedSymbols.set(sourceBinding, targetBinding);
+          mutate(targetBinding.declarations).push(...sourceBinding.declarations);
+          mergeSymbolTable(sourceBinding.exports!, mutate(targetBinding.exports!));
         } else {
-          // this will set a duplicate error
-          mutate(target).set(key, sourceBinding);
+          target.set(key, sourceBinding);
         }
       } else {
-        mutate(target).set(key, sourceBinding);
+        target.set(key, sourceBinding);
       }
     }
   }
