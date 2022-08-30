@@ -354,6 +354,9 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   namespace?: Namespace;
   variants: Map<string | symbol, UnionVariant>;
   expression: boolean;
+  /**
+   * @deprecated use variants
+   */
   readonly options: Type[];
 
   /**
