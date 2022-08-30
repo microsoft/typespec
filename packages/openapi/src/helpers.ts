@@ -1,6 +1,7 @@
 import {
   getFriendlyName,
   getServiceNamespace,
+  isGlobalNamespace,
   isTemplateInstance,
   ModelProperty,
   Operation,
@@ -122,7 +123,7 @@ export function resolveOperationId(program: Program, operation: Operation) {
   const namespace = operation.namespace;
   if (
     namespace === undefined ||
-    namespace === program.checker.getGlobalNamespaceType() ||
+    isGlobalNamespace(program, namespace) ||
     namespace === getServiceNamespace(program)
   ) {
     return operation.name;
