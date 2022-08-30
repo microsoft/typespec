@@ -302,7 +302,7 @@ export function createProjectionMembers(checker: Checker): {
           properties: {
             forEach: createFunctionType((block: Type) => {
               assertType("parameter", block, "Function");
-              const props = Array.from(base.members);
+              const props = Array.from(base.members.values());
               props.forEach((p) => block.call(p));
               return voidType;
             }),

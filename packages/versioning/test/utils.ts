@@ -27,6 +27,11 @@ export function assertHasOperations(iface: Interface, operations: string[]) {
 export function assertHasMembers(enumType: Enum, members: string[]) {
   strictEqual(enumType.members.size, members.length, `Enum ${enumType.name} member count`);
   for (const member of members) {
-    ok(enumType.members.has(member), `Enum ${enumType.name} should have member ${member}`);
+    ok(
+      enumType.members.has(member),
+      `Enum ${enumType.name} should have member ${member} but only has ${[
+        ...enumType.members.keys(),
+      ]}`
+    );
   }
 }
