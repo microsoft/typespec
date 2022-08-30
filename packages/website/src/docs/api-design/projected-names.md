@@ -1,7 +1,7 @@
 ---
 eleventyNavigation:
   key: Projected names
-  parent: Api design
+  parent: Api Design
   order: 1
 ---
 
@@ -78,9 +78,19 @@ model CertificateAttributes {
 }
 ```
 
-- JSON payload
-
-When serialized to Json property use the json projected name
+<table>
+<tr>
+<td>Json</td>
+<td>Typescript</td>
+<td>CSharp</td>
+</tr>
+<tr>
+<td>When serialized to Json property use the json projected name</td>
+<td>Typescript didn't provide any projected name so it keep the model as it is.</td>
+<td>Model uses the `csharp` projected names and keeps the reference to the JSON name in JsonProperty</td>
+</tr>
+<tr>
+<td>
 
 ```json
 {
@@ -91,9 +101,8 @@ When serialized to Json property use the json projected name
 }
 ```
 
-- Model in Typescript
-
-Typescript didn't provide any projected name so it keep the model as it is.
+</td>
+<td>
 
 ```ts
 interface Attributes {
@@ -104,9 +113,9 @@ interface Attributes {
 }
 ```
 
-- Model in C#
+</td>
 
-Model uses the `csharp` projected names and keeps the reference to the JSON name in JsonProperty
+<td>
 
 ```cs
 class CertificateAttributes
@@ -122,3 +131,7 @@ class CertificateAttributes
   public int Updated {get; set;}
 }
 ```
+
+</td>
+</tr>
+</table>
