@@ -5,6 +5,7 @@ import {
   createStateAccessors,
   getParentTemplateNode,
   isNeverIndexer,
+  isProjectedProgram,
   isTemplateInstance,
   ProjectedProgram,
 } from "./index.js";
@@ -62,6 +63,7 @@ export function createProjector(
     projectedTypes,
     projections,
     projectType,
+    parentProjector: isProjectedProgram(program) ? program.projector : undefined,
   };
   const projectedNamespaces: Namespace[] = [];
   let projectingNamespaces = false;

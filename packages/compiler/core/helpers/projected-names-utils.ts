@@ -1,5 +1,5 @@
 import { Program, ProjectedProgram, projectProgram } from "../program.js";
-import { Type } from "../types.js";
+import { Projector, Type } from "../types.js";
 
 export interface ProjectedNameView {
   program: ProjectedProgram;
@@ -31,10 +31,22 @@ export function createProjectedNameProgram(program: Program, target: string): Pr
   };
 
   function getProjectedName(type: Type & { name: string }): string {
-    const projectedType = projectedProgram.projector.projectedTypes.get(type);
+    const baseType = findTypeInProjector(projectedProgram.projector.parentProjector, type);
+    const projectedType = projectedProgram.projector.projectedTypes.get(baseType);
     if (projectedType === undefined || !("name" in projectedType)) {
-      return type.name;
+      return baseType.name;
     }
     return projectedType.name as string;
+  }
+}
+
+// TODO will REALM help here?
+function findTypeInProjector<T extends Type>(projector: Projector | undefined, type: T): T {
+  if (type.projectionSource === undefined) {
+    return type;
+  } else if (type.projector === projector) {
+    return type;
+  } else {
+    return findTypeInProjector(projector, type.projectionSource) as any;
   }
 }
