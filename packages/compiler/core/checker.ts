@@ -2799,6 +2799,7 @@ export function createChecker(program: Program): Checker {
           mutate(targetBinding.declarations).push(...sourceBinding.declarations);
           mergeSymbolTable(sourceBinding.exports!, mutate(targetBinding.exports!));
         } else {
+          // this will set a duplicate error
           target.set(key, sourceBinding);
         }
       } else {
