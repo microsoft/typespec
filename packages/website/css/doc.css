@@ -7,11 +7,16 @@
   border-right: 1px solid #f3f3f3;
 }
 
-.cadl-doc-container > .cadl-doc-content {
+.cadl-doc-container > .cadl-doc-main {
   flex: 1 auto;
   min-width: 0;
   max-width: 100%;
   margin: 0 24px;
+}
+
+.cadl-doc-content {
+  max-width: 1320px;
+  margin: auto;
 }
 
 .cadl-doc-toc ul {
