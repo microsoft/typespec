@@ -96,10 +96,15 @@ async function main() {
             string: true,
             describe: "Name of the emitters",
           })
+          .option("trace", {
+            type: "array",
+            string: true,
+            describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
+          })
           .option("diagnostic-level", {
             type: "string",
-            default: "info",
-            choices: ["error", "warn", "info", "verbose", "debug"],
+            default: "trace",
+            choices: ["error", "warn", "trace"],
             describe: "Diagnostics of this level or above will be reported.",
           })
           .option("warn-as-error", {
@@ -337,6 +342,7 @@ interface CompileCliArgs {
   import?: string[];
   watch?: boolean;
   emit?: string[];
+  trace?: string[];
   debug?: boolean;
   "diagnostic-level": string;
   "warn-as-error"?: boolean;
@@ -372,6 +378,7 @@ async function getCompilerOptions(
     warningAsError: args["warn-as-error"],
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,
+    trace: args.trace,
     emitters: resolveEmitters(config, cliOptions, args),
   };
 }

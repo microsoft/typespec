@@ -355,7 +355,7 @@ export function createChecker(program: Program): Checker {
       flags: SymbolFlags.Function,
       name: "log",
       value(p: Program, str: string): Type {
-        program.logger.log({ level: "debug", message: str });
+        program.trace("projection.log", str);
         return voidType;
       },
       declarations: [],

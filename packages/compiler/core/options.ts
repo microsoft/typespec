@@ -17,5 +17,10 @@ export interface CompilerOptions {
    */
   designTimeBuild?: boolean;
 
+  /**
+   * Trace area to enable.
+   */
+  trace?: string[];
+
   parseOptions?: ParseOptions;
 }
