@@ -5,7 +5,10 @@ isDocs: true
 
 <div class="cadl-doc-container">
   <nav class="cadl-doc-nav">
-    <ul class="cadl-doc-toc">
+    <div class="small-device-header">
+      <button id="small-device-button-sidebar" for="doc-toc" title="Table of Content">TOC</button>
+    </div>
+    <ul class="cadl-doc-toc" id="doc-toc">
       {% set navCategories = collections.all | cadlNavigation(docs.toc) %}
       {%- for category in navCategories %}
         <li class="cadl-toc-category">

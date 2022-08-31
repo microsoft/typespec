@@ -1,7 +1,7 @@
 // @ts-check
 const syntaxhighlightPlugin = require("@11ty/eleventy-plugin-syntaxhighlight");
 const cadlPrismDefinition = require("./cadl-prism-lang.js");
-const { findNavigationEntries } = require("./js/navigation.js");
+const { findNavigationEntries } = require("./1tty-utils/navigation.js");
 
 const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
 
