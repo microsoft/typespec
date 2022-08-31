@@ -1,9 +1,4 @@
-import type {
-  Diagnostic,
-  DiagnosticTarget,
-  NoTarget,
-  Program,
-} from "@cadl-lang/compiler";
+import type { Diagnostic, DiagnosticTarget, NoTarget, Program } from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
