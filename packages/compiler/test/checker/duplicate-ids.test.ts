@@ -1,6 +1,5 @@
-import { match, strictEqual } from "assert";
 import { Diagnostic } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: duplicate declarations", () => {
   let testHost: TestHost;
@@ -94,11 +93,50 @@ describe("compiler: duplicate declarations", () => {
     const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
+
+  describe("reports duplicate namespace/non-namespace across multiple files", () => {
+    // NOTE: Different order of declarations triggers different code paths, so test both
+    it("with namespace first", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        import "./a.cadl";
+        import "./b.cadl";
+        `
+      );
+      testHost.addCadlFile("a.cadl", "namespace N {}");
+      testHost.addCadlFile("b.cadl", "model N {}");
+      const diagnostics = await testHost.diagnose("./");
+      assertDuplicates(diagnostics);
+    });
+    it("with non-namespace first", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        import "./a.cadl";
+        import "./b.cadl";
+        `
+      );
+      testHost.addCadlFile("a.cadl", "model MMM {}");
+      testHost.addCadlFile(
+        "b.cadl",
+        `namespace MMM {
+           // Also check that we don't drop local dupes when the namespace is discarded.
+           model QQQ {}
+           model QQQ {}
+         }`
+      );
+      const diagnostics = await testHost.diagnose("./");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-symbol", message: /MMM/ },
+        { code: "duplicate-symbol", message: /MMM/ },
+        { code: "duplicate-symbol", message: /QQQ/ },
+        { code: "duplicate-symbol", message: /QQQ/ },
+      ]);
+    });
+  });
 });
 
 function assertDuplicates(diagnostics: readonly Diagnostic[]) {
-  strictEqual(diagnostics.length, 2);
-  for (const diagnostic of diagnostics) {
-    match(diagnostic.message, /Duplicate name/);
-  }
+  expectDiagnostics(diagnostics, [{ code: "duplicate-symbol" }, { code: "duplicate-symbol" }]);
 }

@@ -76,7 +76,7 @@
     "playwright": "~1.25.1",
     "rimraf": "~3.0.2",
     "cross-env": "~7.0.3",
-    "typescript": "~4.7.2",
+    "typescript": "~4.8.2",
     "@types/debounce": "~1.2.1",
     "@types/swagger-ui": "~3.52.0"
   }
