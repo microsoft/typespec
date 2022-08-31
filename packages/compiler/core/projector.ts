@@ -3,8 +3,9 @@ import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import {
   createStateAccessors,
+  getParentTemplateNode,
   isNeverIndexer,
-  isTemplateDeclaration,
+  isTemplateInstance,
   ProjectedProgram,
 } from "./index.js";
 import { Program } from "./program.js";
@@ -20,7 +21,6 @@ import {
   Operation,
   ProjectionApplication,
   Projector,
-  SyntaxKind,
   Tuple,
   Type,
   Union,
@@ -313,14 +313,9 @@ export function createProjector(
    * Returns true if we should finish a type. The only time we don't finish is when it's
    * a template type, because we don't want to run decorators for templates.
    */
-  function shouldFinishType(type: Model | Interface | Union) {
-    if (
-      type.node?.kind !== SyntaxKind.ModelStatement &&
-      type.node?.kind !== SyntaxKind.InterfaceStatement
-    ) {
-      return true;
-    }
-    return !isTemplateDeclaration(type);
+  function shouldFinishType(type: Type) {
+    const parentTemplate = getParentTemplateNode(type.node!);
+    return !parentTemplate || isTemplateInstance(type);
   }
 
   function projectModelProperty(prop: ModelProperty): Type {
@@ -332,7 +327,9 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
-    finishTypeForProgram(projectedProgram, projectedProp);
+    if (shouldFinishType(prop)) {
+      finishTypeForProgram(projectedProgram, projectedProp);
+    }
     return projectedProp;
   }
 

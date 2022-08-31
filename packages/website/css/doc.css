@@ -1,7 +1,3 @@
-.cadl-doc-container {
-  display: flex;
-}
-
 .cadl-doc-container > .cadl-doc-nav {
   flex: 0 0 200px;
   border-right: 1px solid #f3f3f3;
@@ -19,13 +15,47 @@
   margin: auto;
 }
 
+<<<<<<< HEAD
+=======
+.cadl-doc-nav .small-device-header {
+  display: block;
+  background-color: #e5e5e5;
+  height: 50px;
+  width: 100%;
+}
+
+@media only screen and (min-width: 768px) {
+  .cadl-doc-container {
+    display: flex;
+  }
+  
+  .cadl-doc-nav .small-device-header {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .cadl-doc-toc {
+    display: none;
+  }
+}
+
+.cadl-doc-toc {
+  padding-left: 10px;
+}
+
+>>>>>>> 62b5b8a381b7e6b72e3f76c3dbb0668aea5cb4e8
 .cadl-doc-toc ul {
   padding-left: 10px;
 }
 
-.cadl-doc-toc ul li {
+.cadl-doc-toc li {
   list-style-type: none;
   padding: 0;
+}
+
+.cadl-doc-toc .cadl-toc-category-name {
+  font-weight: 400;
 }
 
 .cadl-doc-toc ul li a {
