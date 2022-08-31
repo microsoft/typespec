@@ -151,9 +151,9 @@ export const App: FunctionComponent = () => {
   );
 
   return (
-    <div id="grid">
-      <div id="editorContainer">
-        <div id="commandBar">
+    <div className="root">
+      <div className="cadl-editor-container">
+        <div className="command-bar">
           <label>
             <button onClick={saveCode as any}>Share</button>
           </label>
@@ -168,9 +168,7 @@ export const App: FunctionComponent = () => {
             <button onClick={cadlDocs as any}>Show Cadl Tutorial</button>
           </label>
         </div>
-        <div id="editor">
-          <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
-        </div>
+        <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
       </div>
       <div className="output-panel">
         <OutputView
