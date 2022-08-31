@@ -1,7 +1,6 @@
 ---
-eleventyNavigation:
-  key: Import
-  parent: Language Basics
+id: imports
+title: Imports
 ---
 
 # Import

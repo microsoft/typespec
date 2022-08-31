@@ -14,18 +14,28 @@
   margin: 0 24px;
 }
 
+<<<<<<< Updated upstream
 .cadl-doc-content {
   max-width: 1320px;
   margin: auto;
+=======
+.cadl-doc-toc {
+  padding-left: 10px;
+>>>>>>> Stashed changes
 }
 
 .cadl-doc-toc ul {
   padding-left: 10px;
 }
 
-.cadl-doc-toc ul li {
+.cadl-doc-toc li {
   list-style-type: none;
   padding: 0;
+}
+
+
+.cadl-doc-toc .cadl-toc-category-name {
+  font-weight: 400;
 }
 
 .cadl-doc-toc ul li a {
