@@ -14,7 +14,7 @@ jobs:
 
       - task: NodeTool@0
         inputs:
-          versionSpec: 16.14.2
+          versionSpec: 16.x
         displayName: Install Node.js
 
       - script: npx @microsoft/rush install
@@ -31,7 +31,17 @@ jobs:
           storage: "cadlplayground"
           blobPrefix: prs/$(System.PullRequest.PullRequestNumber)/
           containerName: "$web"
-        displayName: "Update playground"
+        displayName: "Publish playground to PR endpoint"
+
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "packages/website/dist/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlwebsite"
+          blobPrefix: prs/$(System.PullRequest.PullRequestNumber)/
+          containerName: "$web"
+        displayName: "Publish website to PR endpoint"
 
       - script: node eng/scripts/create-tryit-comment.js
         displayName: Check already commented

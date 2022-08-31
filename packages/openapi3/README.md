@@ -46,7 +46,6 @@ union MyUnion {
   cat: Cat,
   dog: Dog,
 }
-
 ```
 
 ## Decorators

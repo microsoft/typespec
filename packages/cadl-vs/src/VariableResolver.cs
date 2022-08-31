@@ -1,52 +1,22 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.Workspace;
-using Microsoft.VisualStudio.Workspace.Settings;
-using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
-using Microsoft.VisualStudio.LanguageServer.Client;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
-using Microsoft.VisualStudio.Utilities;
-using Task = System.Threading.Tasks.Task;
-using System.Linq;
-using System.ComponentModel;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.Cadl.VisualStudio
 {
-    public class VariableResolver
+    internal static class VariableResolver
     {
-        public const string VARIABLE_REGEXP = @"\$\{(.*?)\}";
-        private IDictionary<string, string> variables;
+        private const string VARIABLE_REGEXP = @"\$\{(.*?)\}";
 
-        public VariableResolver(IDictionary<string, string> variables)
-        {
-            this.variables = variables;
-        }
-        public string ResolveVariables(string value)
+        public static string ResolveVariables(string value, IDictionary<string, string> variables)
         {
             return Regex.Replace(value, VARIABLE_REGEXP, (match) =>
             {
                 var group = match.Groups[1];
-                if (group == null)
+                if (group != null && variables.TryGetValue(group.Value, out var variable))
                 {
-                    return match.Value;
+                    return variable;
                 }
-                try
-                {
-                    return variables[group.Value];
-                }
-                catch (KeyNotFoundException)
-                {
-                    return match.Value;
-                }
+                return match.Value;
             });
         }
     }

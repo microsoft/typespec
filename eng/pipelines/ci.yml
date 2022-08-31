@@ -12,7 +12,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: 16.14.2
+          versionSpec: 16.x
         displayName: Install Node.js
 
       - task: UseDotNet@2
@@ -51,6 +51,15 @@ jobs:
           containerName: "$web"
         displayName: "Update playground"
 
+      - task: AzureFileCopy@4
+        inputs:
+          sourcePath: "packages/website/dist/*"
+          azureSubscription: "Azure SDK Playground"
+          destination: "AzureBlob"
+          storage: "cadlwebsite"
+          containerName: "$web"
+        displayName: "Update website"
+
   - job: npm_dev
     dependsOn: npm_stable
     displayName: Npm publish dev version
@@ -59,7 +68,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: 16.14.2
+          versionSpec: 16.x
         displayName: Install Node.js
 
       - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'

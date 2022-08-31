@@ -3,6 +3,7 @@ import {
   DecoratorContext,
   Diagnostic,
   DiagnosticCollector,
+  filterModelProperties,
   getServiceNamespace,
   Interface,
   isGlobalNamespace,
@@ -250,7 +251,7 @@ export function getOperationParameters(
 
   if (unannotatedParams.size > 0) {
     if (result.bodyType === undefined) {
-      result.bodyType = program.checker.filterModelProperties(operation.parameters, (p) =>
+      result.bodyType = filterModelProperties(program, operation.parameters, (p) =>
         unannotatedParams.has(p)
       );
     } else {
@@ -503,7 +504,7 @@ function getExternalInterfaces(program: Program, namespace: Namespace) {
   }
   return interfaces
     .map((interfaceFQN: string) => {
-      let current: Namespace | undefined = program.checker.getGlobalNamespaceType();
+      let current: Namespace | undefined = program.getGlobalNamespaceType();
       const namespaces = interfaceFQN.split(".");
       const interfaceName = namespaces.pop()!;
       for (const namespaceName of namespaces) {
@@ -544,7 +545,7 @@ export function reportIfNoRoutes(program: Program, routes: OperationDetails[]) {
   if (routes.length === 0) {
     reportDiagnostic(program, {
       code: "no-routes",
-      target: program.checker.getGlobalNamespaceType(),
+      target: program.getGlobalNamespaceType(),
     });
   }
 }

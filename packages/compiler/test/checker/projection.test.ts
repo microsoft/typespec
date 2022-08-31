@@ -1,5 +1,6 @@
-import { ok, strictEqual } from "assert";
-import { Program } from "../../core/program.js";
+import { fail, ok, strictEqual } from "assert";
+import { Program, projectProgram } from "../../core/program.js";
+import { createProjector } from "../../core/projector.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
@@ -101,7 +102,8 @@ describe("cadl: projections", () => {
     strictEqual(result.namespace?.namespace?.name, "MyOrg");
     const map = testHost.program.stateMap(sym);
     const myModelProjected = testHost.program
-      .currentProjector!.projectedGlobalNamespace!.namespaces.get("Lib")
+      .getGlobalNamespaceType()
+      .namespaces.get("Lib")
       ?.namespaces.get("One")
       ?.models.get("MyModel");
     const refs = [...map.values()];
@@ -725,7 +727,7 @@ describe("cadl: projections", () => {
     });
 
     // Issue here happens when an enum member gets referenced before the enum and so gets projected before the enum creating a different projected type as the projected enum.
-    it("project enum correctly when enum memeber is referenced first", async () => {
+    it("project enum correctly when enum member is referenced first", async () => {
       const result = (await testProjection(`
         @test model Foo {
           a: Bar.a;
@@ -742,6 +744,181 @@ describe("cadl: projections", () => {
     });
   });
 
+  // TODO with realm move that to realm testing area.
+  it("[REALM] any program/projected program get access to every type state", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @doc("abc")
+      @test model Foo {}
+
+      #suppress "projections-are-experimental"
+      projection Foo#test {
+        to { self::rename("Bar"); }
+      }
+    `
+    );
+    const { Foo } = await testHost.compile("main.cadl");
+    const program = testHost.program;
+    strictEqual(getDoc(program, Foo), "abc");
+
+    const projectedProgram = projectProgram(program, [{ projectionName: "test", arguments: [] }]);
+    const ProjectedFoo = projectedProgram.projector.projectedTypes.get(Foo);
+    ok(ProjectedFoo);
+    strictEqual(
+      getDoc(projectedProgram, Foo),
+      "abc",
+      "Can access state from a non projected type using a projected program"
+    );
+    strictEqual(
+      getDoc(program, ProjectedFoo),
+      "abc",
+      "Can access state from a projected type using the original program"
+    );
+    strictEqual(
+      getDoc(projectedProgram, ProjectedFoo),
+      "abc",
+      "Can access state from a projected type using a projected program"
+    );
+  });
+
+  describe("template types", () => {
+    describe("does NOT run decorators when projecting template declarations", () => {
+      async function expectMarkDecoratorNotCalled(code: string) {
+        testHost.addJsFile("mark.js", {
+          $mark: () => fail("Should not have called decorator"),
+        });
+
+        const fullCode = `
+      import "./mark.js";
+
+      ${code}
+
+      #suppress "projections-are-experimental"
+      projection model#test {
+          to {
+            
+          }
+        }
+     `;
+        await testProjection(fullCode, [projection("test")]);
+      }
+
+      it("on model", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+      });
+
+      it("on model properties", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+      });
+
+      it("on model properties (on operation)", async () => {
+        await expectMarkDecoratorNotCalled(`
+          op foo<T>(): {
+            @mark(T)
+            prop: string;
+          };
+        `);
+      });
+
+      it("on model properties (nested)", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            nested: {
+              @mark(T)
+              prop: string;
+            }
+          }
+        `);
+      });
+    });
+
+    describe("run decorators when projecting template instance", () => {
+      async function expectMarkDecoratorCalledTimes(code: string, amount: number) {
+        let run = 0;
+
+        testHost.addJsFile("mark.js", {
+          $mark: () => run++,
+        });
+
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+        import "./mark.js";
+  
+        ${code}
+  
+        #suppress "projections-are-experimental"
+        projection model#test {
+            to {
+              
+            }
+          }
+       `
+        );
+        await testHost.compile("main.cadl");
+        run = 0; // reset we only intrested after projection
+        createProjector(testHost.program, [
+          {
+            arguments: [],
+            projectionName: "test",
+          },
+        ]);
+        strictEqual(run, amount);
+      }
+
+      it("on model", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+
+          model Instance is Foo<string>;
+        `,
+          1
+        );
+      });
+
+      it("on model properties", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+          model Instance is Foo<string>;
+        `,
+          1
+        );
+      });
+
+      it("on model properties (on operation)", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          op foo<T>(): {
+            @mark(T)
+            prop: string;
+          };
+
+          op instance is foo<string>;
+        `,
+          1
+        );
+      });
+    });
+  });
   const projectionCode = (body: string) => `
       #suppress "projections-are-experimental"
       projection Foo#test {
@@ -763,7 +940,7 @@ describe("cadl: projections", () => {
   ): Promise<Type> {
     testHost.addCadlFile("main.cadl", code);
     const { Foo } = await testHost.compile("main.cadl");
-    const projector = testHost.program.enableProjections(projections, startNode);
+    const projector = createProjector(testHost.program, projections, startNode).projector;
     return projector.projectedTypes.get(startNode ?? Foo)!;
   }
 });

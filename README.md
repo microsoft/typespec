@@ -146,7 +146,6 @@ namespace Example {
   @route("/message")
   op getMessage(): string;
 }
-
 ```
 
 You can compile it to OpenAPI 3.0 by using the following command:

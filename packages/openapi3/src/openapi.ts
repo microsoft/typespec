@@ -1,4 +1,5 @@
 import {
+  BooleanLiteral,
   compilerAssert,
   emitFile,
   EmitOptionsFor,
@@ -6,6 +7,7 @@ import {
   EnumMember,
   getAllTags,
   getDoc,
+  getEffectiveModelType,
   getFormat,
   getIntrinsicModelName,
   getKnownValues,
@@ -35,9 +37,12 @@ import {
   ModelProperty,
   Namespace,
   NewLine,
+  NumericLiteral,
   Operation,
   Program,
+  projectProgram,
   resolvePath,
+  StringLiteral,
   Type,
   TypeNameOptions,
   Union,
@@ -266,6 +271,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!serviceNs) {
       return;
     }
+    const originalProgram = program;
     const versions = buildVersionProjections(program, serviceNs);
     for (const record of versions) {
       if (record.version) {
@@ -276,7 +282,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
 
       if (record.projections.length > 0) {
-        program.enableProjections(record.projections);
+        program = projectProgram(originalProgram, record.projections);
       }
 
       await emitOpenAPIFromVersion(serviceNs, record.version);
@@ -476,6 +482,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return mapCadlTypeToOpenAPI(type);
     }
 
+    if (type.kind === "EnumMember") {
+      // Enum members are just the OA representation of their values.
+      if (typeof type.value === "number") {
+        return { type: "number", enum: [type.value] };
+      } else {
+        return { type: "string", enum: [type.value ?? type.name] };
+      }
+    }
+
     type = getEffectiveSchemaType(type);
     const name = getTypeName(program, type, typeNameOptions);
 
@@ -523,7 +538,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
    */
   function getEffectiveSchemaType(type: Type): Type {
     if (type.kind === "Model" && !type.name) {
-      const effective = program.checker.getEffectiveModelType(type, isSchemaProperty);
+      const effective = getEffectiveModelType(program, type, isSchemaProperty);
       if (effective.name) {
         return effective;
       }
@@ -744,90 +759,101 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  /**
+   * A Cadl union maps to a variety of OA3 structures according to the following rules:
+   *
+   * * A union containing `null` makes a `nullable` schema comprised of the remaining
+   *   union variants.
+   * * A union containing literal types are converted to OA3 enums. All literals of the
+   *   same type are combined into single enums.
+   * * A union that contains multiple items (after removing null and combining like-typed
+   *   literals into enums) is an `anyOf` union unless `oneOf` is applied to the union
+   *   declaration.
+   */
   function getSchemaForUnion(union: Union) {
-    let type: string;
-    const nonNullOptions = union.options.filter((t) => !isNullType(t));
-    const nullable = union.options.length != nonNullOptions.length;
-    if (nonNullOptions.length === 0) {
-      reportDiagnostic(program, { code: "union-null", target: union });
-      return {};
+    const variants = Array.from(union.variants.values());
+    const literalVariantEnumByType: Record<string, any> = {};
+    const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
+    const schemaMembers: { schema: any; type: Type | null }[] = [];
+    let nullable = false;
+    const discriminator = getDiscriminator(program, union);
+
+    for (const variant of variants) {
+      if (isNullType(variant.type)) {
+        nullable = true;
+        continue;
+      }
+
+      if (isLiteralType(variant.type)) {
+        if (!literalVariantEnumByType[variant.type.kind]) {
+          const enumSchema = mapCadlTypeToOpenAPI(variant.type);
+          literalVariantEnumByType[variant.type.kind] = enumSchema;
+          schemaMembers.push({ schema: enumSchema, type: null });
+        } else {
+          literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
+        }
+        continue;
+      }
+
+      schemaMembers.push({ schema: getSchemaOrRef(variant.type), type: variant.type });
     }
 
-    const kind = nonNullOptions[0].kind;
-    switch (kind) {
-      case "String":
-        type = "string";
-        break;
-      case "Number":
-        type = "number";
-        break;
-      case "Boolean":
-        type = "boolean";
-        break;
-      case "Model":
-        type = "model";
-        break;
-      case "UnionVariant":
-        type = "model";
-        break;
-      default:
-        reportUnsupportedUnionType(nonNullOptions[0]);
+    if (schemaMembers.length === 0) {
+      if (nullable) {
+        // This union is equivalent to just `null` but OA3 has no way to specify
+        // null as a value, so we throw an error.
+        reportDiagnostic(program, { code: "union-null", target: union });
         return {};
+      } else {
+        // completely empty union can maybe only happen with bugs?
+        compilerAssert(false, "Attempting to emit an empty union");
+      }
     }
 
-    if (type === "model" || type === "array") {
-      if (nonNullOptions.length === 1) {
-        // Get the schema for the model type
-        let schema: any = getSchemaOrRef(nonNullOptions[0]);
-        if (nullable && schema.$ref) {
-          schema = {
-            type: "object",
-            allOf: [schema],
-            nullable: true,
-          };
-        } else if (nullable) {
+    if (schemaMembers.length === 1) {
+      // we can just return the single schema member after applying nullable
+      const schema = schemaMembers[0].schema;
+      const type = schemaMembers[0].type;
+
+      if (nullable) {
+        if (schema.$ref) {
+          // but we can't make a ref "nullable", so wrap in an allOf (for models)
+          // or oneOf (for all other types)
+          if (type && type.kind === "Model") {
+            return { type: "object", allOf: [schema], nullable: true };
+          } else {
+            return { oneOf: [schema], nullable: true };
+          }
+        } else {
           schema.nullable = true;
         }
-        return schema;
-      } else {
-        const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
-        const schema: any = { [ofType]: nonNullOptions.map((s) => getSchemaOrRef(s)) };
-        return schema;
-      }
-    }
-
-    const values = [];
-    for (const option of nonNullOptions) {
-      if (option.kind != kind) {
-        reportUnsupportedUnion();
       }
 
-      // We already know it's not a model type
-      values.push((option as any).value);
+      return schema;
     }
 
-    const schema: any = { type };
-    if (values.length > 0) {
-      schema.enum = values;
-    }
+    const schema: any = {
+      [ofType]: schemaMembers.map((m) => m.schema),
+    };
+
     if (nullable) {
-      schema["nullable"] = true;
+      schema.nullable = true;
+    }
+
+    if (discriminator) {
+      // the decorator validates that all the variants will be a model type
+      // with the discriminator field present.
+      schema.discriminator = discriminator;
+      const mapping = getDiscriminatorMapping(
+        discriminator,
+        variants.map((v) => v.type) as Model[]
+      );
+      if (mapping) {
+        schema.discriminator.mapping = mapping;
+      }
     }
 
     return schema;
-
-    function reportUnsupportedUnionType(type: Type) {
-      reportDiagnostic(program, {
-        code: "union-unsupported",
-        messageId: "type",
-        format: { kind: type.kind },
-        target: type,
-      });
-    }
-
-    function reportUnsupportedUnion() {
-      reportDiagnostic(program, { code: "union-unsupported", target: union });
-    }
   }
 
   function getSchemaForUnionVariant(variant: UnionVariant) {
@@ -837,6 +863,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function isNullType(type: Type): boolean {
     return isIntrinsic(program, type) && getIntrinsicModelName(program, type) === "null";
+  }
+
+  function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
+    return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
   }
 
   function getDefaultValue(type: Type): any {
@@ -1090,6 +1120,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return [type.value];
     } else if (type.kind === "Union") {
       return type.options.flatMap(getStringValues).filter((v) => v);
+    } else if (type.kind === "EnumMember" && typeof type.value !== "number") {
+      return [type.value ?? type.name];
     }
     return [];
   }

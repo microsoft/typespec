@@ -1,0 +1,20 @@
+{
+  "name": "@cadl-lang/website",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx @11ty/eleventy --serve --formats=md,css,njk,js",
+    "build": "npx @11ty/eleventy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^1.0.1",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^4.1.0",
+    "@types/node": "~16.0.3",
+    "prism-themes": "~1.9.0",
+    "feather-icons": "~4.29.0"
+  }
+}

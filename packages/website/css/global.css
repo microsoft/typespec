@@ -1,0 +1,82 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  color: var(--text-color);
+  overflow: auto;
+}
+
+.app_version {
+  background: var(--version_bar-color);
+  color: var(--text-in-main-color);
+  text-align: center;
+}
+
+html {
+  height: 100%;
+}
+
+a {
+  text-decoration: none;
+  text-decoration-line: none;
+  text-decoration-thickness: initial;
+  text-decoration-style: initial;
+  text-decoration-color: initial;
+  color: #1064a8;
+}
+
+a:hover {
+  color: var(--main-color);
+}
+
+code {
+  background-color: hsl(230, 1%, 98%);
+  border-radius: 3px;
+  color: inherit;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  font-size: 85%;
+  margin: 0;
+  padding: 3.2px 6.4px;
+}
+
+pre {
+  padding: 16px;
+  border-radius: 3px;
+  background-color: hsl(230, 1%, 98%);
+}
+pre > code {
+  display: block;
+}
+
+ul {
+  margin: 0;
+}
+
+/* Extra small devices (phones, 600px and down) */
+
+@media only screen and (max-width: 600px) {
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+
+@media only screen and (min-width: 600px) {
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+
+@media only screen and (min-width: 768px) {
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+
+@media only screen and (min-width: 992px) {
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+
+@media only screen and (min-width: 1200px) {
+}

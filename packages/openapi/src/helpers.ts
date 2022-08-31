@@ -1,6 +1,7 @@
 import {
   getFriendlyName,
   getServiceNamespace,
+  isGlobalNamespace,
   isTemplateInstance,
   ModelProperty,
   Operation,
@@ -28,12 +29,7 @@ export function shouldInline(program: Program, type: Type): boolean {
   }
   switch (type.kind) {
     case "Model":
-      return (
-        !type.name ||
-        isTemplateInstance(type) ||
-        program.checker.isStdType(type, "Array") ||
-        program.checker.isStdType(type, "Record")
-      );
+      return !type.name || isTemplateInstance(type);
     case "Enum":
     case "Union":
       return !type.name;
@@ -127,7 +123,7 @@ export function resolveOperationId(program: Program, operation: Operation) {
   const namespace = operation.namespace;
   if (
     namespace === undefined ||
-    namespace === program.checker.getGlobalNamespaceType() ||
+    isGlobalNamespace(program, namespace) ||
     namespace === getServiceNamespace(program)
   ) {
     return operation.name;

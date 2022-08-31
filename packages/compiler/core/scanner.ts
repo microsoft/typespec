@@ -14,7 +14,7 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
+import { compilerAssert, createSourceFile, DiagnosticHandler } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import { DiagnosticReport, SourceFile } from "./types.js";
 
@@ -23,167 +23,179 @@ import { DiagnosticReport, SourceFile } from "./types.js";
 const mergeConflictMarkerLength = 7;
 
 export enum Token {
-  None = 0,
-  Invalid = 1,
-  EndOfFile = 2,
+  None,
+  Invalid,
+  EndOfFile,
+  Identifier,
+  NumericLiteral,
+  StringLiteral,
+  ConflictMarker,
+  // Add new tokens above if they don't fit any of the categories below
 
+  ///////////////////////////////////////////////////////////////
   // Trivia
-  SingleLineComment = 3,
-  MultiLineComment = 4,
-  NewLine = 5,
-  Whitespace = 6,
+  /**@internal */ __StartTrivia,
 
-  // We detect and provide better error recovery when we encounter a git merge marker.  This
-  // allows us to edit files with git-conflict markers in them in a much more pleasant manner.
-  ConflictMarker = 7,
+  SingleLineComment = __StartTrivia,
+  MultiLineComment,
+  NewLine,
+  Whitespace,
+  // Add new trivia above
 
-  // Literals
-  NumericLiteral = 8,
-  StringLiteral = 9,
+  /** @internal */ __EndTrivia,
+  ///////////////////////////////////////////////////////////////
 
+  ///////////////////////////////////////////////////////////////
   // Punctuation
-  OpenBrace = 10,
-  CloseBrace = 11,
-  OpenParen = 12,
-  CloseParen = 13,
-  OpenBracket = 14,
-  CloseBracket = 15,
-  Dot = 16,
-  Ellipsis = 17,
-  Semicolon = 18,
-  Comma = 19,
-  LessThan = 20,
-  GreaterThan = 21,
-  Equals = 22,
-  Ampersand = 23,
-  Bar = 24,
-  Question = 25,
-  Colon = 26,
-  ColonColon = 27,
-  At = 28,
-  Hash = 29,
-  Star = 30,
-  ForwardSlash = 31,
-  Plus = 32,
-  Hyphen = 33,
-  Exclamation = 34,
-  LessThanEquals = 35,
-  GreaterThanEquals = 36,
-  AmpsersandAmpersand = 37,
-  BarBar = 38,
-  EqualsEquals = 39,
-  ExclamationEquals = 40,
-  EqualsGreaterThan = 41,
-  // Update MaxPunctuation if anything is added right above here
+  /** @internal */ __StartPunctuation = __EndTrivia,
 
-  // Identifiers
-  Identifier = 42,
+  OpenBrace = __StartPunctuation,
+  CloseBrace,
+  OpenParen,
+  CloseParen,
+  OpenBracket,
+  CloseBracket,
+  Dot,
+  Ellipsis,
+  Semicolon,
+  Comma,
+  LessThan,
+  GreaterThan,
+  Equals,
+  Ampersand,
+  Bar,
+  Question,
+  Colon,
+  ColonColon,
+  At,
+  Hash,
+  Star,
+  ForwardSlash,
+  Plus,
+  Hyphen,
+  Exclamation,
+  LessThanEquals,
+  GreaterThanEquals,
+  AmpsersandAmpersand,
+  BarBar,
+  EqualsEquals,
+  ExclamationEquals,
+  EqualsGreaterThan,
+  // Add new punctuation above
 
-  // Statement Keywords
-  ImportKeyword = 43,
-  ModelKeyword = 44,
-  NamespaceKeyword = 45,
-  UsingKeyword = 46,
-  OpKeyword = 47,
-  EnumKeyword = 48,
-  AliasKeyword = 49,
-  IsKeyword = 50,
-  InterfaceKeyword = 51,
-  UnionKeyword = 52,
-  ProjectionKeyword = 53,
-  ElseKeyword = 54,
-  IfKeyword = 55,
-  // Update MaxStatementKeyword if anything is added right above here
+  /** @internal */ __EndPunctuation,
+  ///////////////////////////////////////////////////////////////
 
+  ///////////////////////////////////////////////////////////////
+  // Statement keywords
+  /** @internal */ __StartKeyword = __EndPunctuation,
+  /** @internal */ __StartStatementKeyword = __StartKeyword,
+
+  ImportKeyword = __StartStatementKeyword,
+  ModelKeyword,
+  NamespaceKeyword,
+  UsingKeyword,
+  OpKeyword,
+  EnumKeyword,
+  AliasKeyword,
+  IsKeyword,
+  InterfaceKeyword,
+  UnionKeyword,
+  ProjectionKeyword,
+  ElseKeyword,
+  IfKeyword,
+  // Add new statement keyword above
+
+  /** @internal */ __EndStatementKeyword,
+  ///////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////
   // Other keywords
-  ExtendsKeyword = 56,
-  TrueKeyword = 57,
-  FalseKeyword = 58,
-  ReturnKeyword = 59,
-  VoidKeyword = 60,
-  NeverKeyword = 61,
-  UnknownKeyword = 62,
-  // Update MaxKeyword if anything is added right above here
+
+  ExtendsKeyword = __EndStatementKeyword,
+  TrueKeyword,
+  FalseKeyword,
+  ReturnKeyword,
+  VoidKeyword,
+  NeverKeyword,
+  UnknownKeyword,
+  // Add new non-statement keyword above
+
+  /** @internal */ __EndKeyword,
+  ///////////////////////////////////////////////////////////////
+
+  /** @internal */ __Count = __EndKeyword,
 }
 
-const MinKeyword = Token.ImportKeyword;
-const MaxKeyword = Token.UnknownKeyword;
-
-const MinPunctuation = Token.OpenBrace;
-const MaxPunctuation = Token.EqualsGreaterThan;
-
-const MinStatementKeyword = Token.ImportKeyword;
-const MaxStatementKeyword = Token.IfKeyword;
+/** @internal */
+export const TokenDisplay = getTokenDisplayTable([
+  [Token.None, "none"],
+  [Token.Invalid, "invalid"],
+  [Token.EndOfFile, "end of file"],
+  [Token.SingleLineComment, "single-line comment"],
+  [Token.MultiLineComment, "multi-line comment"],
+  [Token.ConflictMarker, "conflict marker"],
+  [Token.NumericLiteral, "numeric literal"],
+  [Token.StringLiteral, "string literal"],
+  [Token.NewLine, "newline"],
+  [Token.Whitespace, "whitespace"],
+  [Token.OpenBrace, "'{'"],
+  [Token.CloseBrace, "'}'"],
+  [Token.OpenParen, "'('"],
+  [Token.CloseParen, "')'"],
+  [Token.OpenBracket, "'['"],
+  [Token.CloseBracket, "']'"],
+  [Token.Dot, "'.'"],
+  [Token.Ellipsis, "'...'"],
+  [Token.Semicolon, "';'"],
+  [Token.Comma, "','"],
+  [Token.LessThan, "'<'"],
+  [Token.GreaterThan, "'>'"],
+  [Token.Equals, "'='"],
+  [Token.Ampersand, "'&'"],
+  [Token.Bar, "'|'"],
+  [Token.Question, "'?'"],
+  [Token.Colon, "':'"],
+  [Token.ColonColon, "'::'"],
+  [Token.At, "'@'"],
+  [Token.Hash, "'#'"],
+  [Token.Star, "'*'"],
+  [Token.ForwardSlash, "'/'"],
+  [Token.Plus, "'+'"],
+  [Token.Hyphen, "'-'"],
+  [Token.Exclamation, "'!'"],
+  [Token.LessThanEquals, "'<='"],
+  [Token.GreaterThanEquals, "'>='"],
+  [Token.AmpsersandAmpersand, "'&&'"],
+  [Token.BarBar, "'||'"],
+  [Token.EqualsEquals, "'=='"],
+  [Token.ExclamationEquals, "'!='"],
+  [Token.EqualsGreaterThan, "'=>'"],
+  [Token.Identifier, "identifier"],
+  [Token.ImportKeyword, "'import'"],
+  [Token.ModelKeyword, "'model'"],
+  [Token.NamespaceKeyword, "'namespace'"],
+  [Token.UsingKeyword, "'using'"],
+  [Token.OpKeyword, "'op'"],
+  [Token.EnumKeyword, "'enum'"],
+  [Token.AliasKeyword, "'alias'"],
+  [Token.IsKeyword, "'is'"],
+  [Token.InterfaceKeyword, "'interface'"],
+  [Token.UnionKeyword, "'union'"],
+  [Token.ProjectionKeyword, "'projection'"],
+  [Token.ElseKeyword, "'else'"],
+  [Token.IfKeyword, "'if'"],
+  [Token.ExtendsKeyword, "'extends'"],
+  [Token.TrueKeyword, "'true'"],
+  [Token.FalseKeyword, "'false'"],
+  [Token.ReturnKeyword, "'return'"],
+  [Token.VoidKeyword, "'void'"],
+  [Token.NeverKeyword, "'never'"],
+  [Token.UnknownKeyword, "'unknown'"],
+]);
 
 /** @internal */
-export const TokenDisplay: readonly string[] = [
-  "none",
-  "invalid",
-  "end of file",
-  "single-line comment",
-  "multi-line comment",
-  "newline",
-  "whitespace",
-  "conflict marker",
-  "numeric literal",
-  "string literal",
-  "'{'", // 10
-  "'}'",
-  "'('",
-  "')'",
-  "'['",
-  "']'",
-  "'.'",
-  "'...'",
-  "';'",
-  "','",
-  "'<'", // 20
-  "'>'",
-  "'='",
-  "'&'",
-  "'|'",
-  "'?'",
-  "':'",
-  "'::'",
-  "'@'",
-  "'#'",
-  "'*'", // 30
-  "'/'",
-  "'+'",
-  "'-'",
-  "'!'",
-  "'<='",
-  "'>='",
-  "'&&'",
-  "'||'",
-  "'=='",
-  "'!='", // 40
-  "'=>'",
-  "identifier",
-  "'import'",
-  "'model'",
-  "'namespace'",
-  "'using'",
-  "'op'",
-  "'enum'",
-  "'alias'",
-  "'is'", // 50
-  "'interface'",
-  "'union'",
-  "'projection'",
-  "'else'",
-  "'if'",
-  "'extends'",
-  "'true'",
-  "'false'",
-  "'return'",
-  "'void'", // 60
-  "'never'",
-  "'unknown'",
-];
-
-/** @internal */
-export const Keywords: readonly [string, Token][] = [
+export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["import", Token.ImportKeyword],
   ["model", Token.ModelKeyword],
   ["namespace", Token.NamespaceKeyword],
@@ -204,36 +216,12 @@ export const Keywords: readonly [string, Token][] = [
   ["void", Token.VoidKeyword],
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
-];
+]);
 
 /** @internal */
 export const enum KeywordLimit {
   MinLength = 2,
-  // If this ever exceeds 10, we will overflow the keyword map key, needing 11*5
-  // = 55 bits or more, exceeding the JavaScript safe integer range. We would
-  // have to change the keyword lookup algorithm in that case.
   MaxLength = 10,
-}
-const KeywordMap: ReadonlyMap<number, Token> = new Map(
-  Keywords.map((e) => [keywordKey(e[0]), e[1]])
-);
-
-// Since keywords are short and all lowercase, we can pack the whole string into
-// a single number by using 5 bits for each letter, and use that as the map key.
-// This lets us lookup keywords without making temporary substrings.
-function keywordKey(keyword: string) {
-  let key = 0;
-  for (let i = 0; i < keyword.length; i++) {
-    key = updateKeywordKey(key, keyword.charCodeAt(i));
-  }
-  return key;
-}
-
-function updateKeywordKey(key: number, ch: number) {
-  // Do not simplify this to (key << 5) | (ch - CharCode.a) as JavaScript
-  // bitwise operations truncate to 32-bits, and that will create
-  // collisions.
-  return key * 32 + (ch - CharCode.a);
 }
 
 export interface Scanner {
@@ -276,22 +264,8 @@ const enum TokenFlags {
   NonAscii = 1 << 3,
 }
 
-export function isLiteral(token: Token) {
-  return (
-    token === Token.NumericLiteral ||
-    token === Token.StringLiteral ||
-    token === Token.TrueKeyword ||
-    token === Token.FalseKeyword
-  );
-}
-
 export function isTrivia(token: Token) {
-  return (
-    token === Token.Whitespace ||
-    token === Token.NewLine ||
-    token === Token.SingleLineComment ||
-    token === Token.MultiLineComment
-  );
+  return token >= Token.__StartTrivia && token < Token.__EndTrivia;
 }
 
 export function isComment(token: Token) {
@@ -299,15 +273,15 @@ export function isComment(token: Token) {
 }
 
 export function isKeyword(token: Token) {
-  return token >= MinKeyword && token <= MaxKeyword;
+  return token >= Token.__StartKeyword && token < Token.__EndKeyword;
 }
 
 export function isPunctuation(token: Token) {
-  return token >= MinPunctuation && token <= MaxPunctuation;
+  return token >= Token.__StartPunctuation && token < Token.__EndPunctuation;
 }
 
 export function isStatementKeyword(token: Token) {
-  return token >= MinStatementKeyword && token <= MaxStatementKeyword;
+  return token >= Token.__StartStatementKeyword && token < Token.__EndStatementKeyword;
 }
 
 export function createScanner(
@@ -898,14 +872,12 @@ export function createScanner(
   }
 
   function scanIdentifierOrKeyword() {
-    let key = 0;
     let count = 0;
     let ch = input.charCodeAt(position);
 
     while (true) {
       position++;
       count++;
-      key = updateKeywordKey(key, ch);
 
       if (eof()) {
         break;
@@ -931,7 +903,7 @@ export function createScanner(
     }
 
     if (count >= KeywordLimit.MinLength && count <= KeywordLimit.MaxLength) {
-      const keyword = KeywordMap.get(key);
+      const keyword = Keywords.get(getTokenText());
       if (keyword) {
         return (token = keyword);
       }
@@ -1038,4 +1010,26 @@ function skipMultiLineComment(
   }
 
   return [position, false];
+}
+
+function getTokenDisplayTable(entries: [Token, string][]): readonly string[] {
+  const table = new Array<string>(entries.length);
+
+  for (const [token, display] of entries) {
+    compilerAssert(
+      token >= 0 && token < Token.__Count,
+      `Invalid entry in token display table, ${token}, ${Token[token]}, ${display}`
+    );
+    compilerAssert(
+      !table[token],
+      `Duplicate entry in token display table for: ${token}, ${Token[token]}, ${display}`
+    );
+    table[token] = display;
+  }
+
+  for (let token = 0; token < Token.__Count; token++) {
+    compilerAssert(table[token], `Missing entry in token display table: ${token}, ${Token[token]}`);
+  }
+
+  return table;
 }

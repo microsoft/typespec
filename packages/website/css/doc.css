@@ -1,0 +1,84 @@
+.cadl-doc-container > .cadl-doc-nav {
+  flex: 0 0 200px;
+  border-right: 1px solid #f3f3f3;
+}
+
+.cadl-doc-container > .cadl-doc-main {
+  flex: 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 24px;
+}
+
+.cadl-doc-content {
+  max-width: 1320px;
+  margin: auto;
+}
+
+.cadl-doc-nav .small-device-header {
+  display: block;
+  background-color: #e5e5e5;
+  width: 100%;
+}
+
+#small-device-button-sidebar {
+  border: none;
+  background: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+#small-device-button-sidebar:hover {
+  background-color: #c5c5c5;
+}
+
+@media only screen and (min-width: 768px) {
+  .cadl-doc-container {
+    display: flex;
+  }
+
+  .cadl-doc-nav .small-device-header {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .cadl-doc-toc {
+    display: none;
+    background-color: #f5f5f5;
+  }
+}
+
+.cadl-doc-toc {
+  padding-left: 10px;
+  position: relative;
+}
+
+.cadl-doc-toc ul {
+  padding-left: 10px;
+}
+
+.cadl-doc-toc li {
+  list-style-type: none;
+  padding: 0;
+}
+
+.cadl-doc-toc .cadl-toc-category-name {
+  font-weight: 400;
+  margin: 5px 0;
+}
+
+.cadl-doc-toc ul li a {
+  border: none;
+  padding: 6px 0;
+  transition: color 0.3s;
+  color: #717171;
+}
+
+.cadl-doc-toc ul li a:hover {
+  color: var(--main-color);
+}
+
+.cadl-doc-toc ul li.cadl-toc-active > a {
+  color: var(--main-color);
+}
