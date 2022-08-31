@@ -510,7 +510,6 @@ model List<T> {}
 
 alias A = List<string>; // Instance friendly name would be `StringList`
 alias B = List<FooBar>; // Instance friendly name would be `FooBarList`
-
 ```
 
 ##### @pattern

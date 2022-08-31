@@ -320,7 +320,6 @@ Use `@useAuth` decorator from the `@cadl-lang/rest" library
 using Cadl.Http;
 @useAuth(OAuth2Auth<["read", "write"]>)
 namespace MyService;
-
 ```
 
 ## Specification Extensions

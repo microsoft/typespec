@@ -16,7 +16,6 @@ npm install @cadl-lang/versioning
 import "@cadl-lang/versioning";
 
 using Versioning;
-
 ```
 
 ### Enable versioning for Service or Library
@@ -32,7 +31,6 @@ enum Versions {
   v2,
   v3,
 }
-
 ```
 
 The following decorators can then be used to provide version evolution of a service.
@@ -71,7 +69,6 @@ enum Versions {
   v2,
   v3,
 }
-
 ```
 
 ### `@versionedDependency`
@@ -94,7 +91,6 @@ enum Versions {
   v1_1,
   v2,
 }
-
 ```
 
 Pick a specific version to be used for all version of the service
@@ -109,7 +105,6 @@ enum Version {
   v2,
   v3,
 }
-
 ```
 
 Service is not versioned, pick which version of `MyLib` should be used.
@@ -117,7 +112,6 @@ Service is not versioned, pick which version of `MyLib` should be used.
 ```cadl
 @versionedDependency(MyLib.Versions.v1_1)
 namespace NonVersionedService;
-
 ```
 
 Select mapping of version to use
@@ -158,7 +152,6 @@ model Foo {
   @added(Versions.v3)
   addedInV3: string;
 }
-
 ```
 
 ### `@removed`
@@ -180,7 +173,6 @@ model Foo {
   @removed(Versions.v3)
   removedInV3: string;
 }
-
 ```
 
 ### `@renamedFrom`
@@ -192,7 +184,6 @@ Version enum member **MUST** be from the version enum for the containing namespa
 ```cadl
 @renamedFrom(Versions.v2, "oldName")
 op newName(): void;
-
 ```
 
 ### `@madeOptional`
@@ -208,7 +199,6 @@ model Foo {
   @madeOptional(Versions.v2)
   nickname: string;
 }
-
 ```
 
 ## Consuming versioning library from an emitter
