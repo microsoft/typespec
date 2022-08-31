@@ -76,7 +76,7 @@ function createFilterTree(filters: string[]): AreaFilter {
       }
       current = current.children[segment];
     }
-    return false;
+    return true;
   }
 }
 
