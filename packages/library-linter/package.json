@@ -64,6 +64,6 @@
     "mocha-multi-reporters": "~1.5.1",
     "c8": "~7.11.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.7.2"
+    "typescript": "~4.8.2"
   }
 }
