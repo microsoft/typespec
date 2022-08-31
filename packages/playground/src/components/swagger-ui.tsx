@@ -7,12 +7,12 @@ export interface SwaggerUIProps {
 export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
   const uiRef = useRef(null);
   const uiInstance = useRef<any>(null);
-  const [swaggerUI, setSwaggerUILib] = useState<{createSwaggerUI: typeof import("swagger-ui")} | undefined>(
-    undefined
-  );
+  const [swaggerUI, setSwaggerUILib] = useState<
+    { createSwaggerUI: typeof import("swagger-ui") } | undefined
+  >(undefined);
   useEffect(() => {
     void import("swagger-ui").then((lib) => {
-      setSwaggerUILib({createSwaggerUI: lib.default});
+      setSwaggerUILib({ createSwaggerUI: lib.default });
     });
   }, [setSwaggerUILib]);
 
