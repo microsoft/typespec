@@ -1,6 +1,7 @@
+import { visualizer } from "rollup-plugin-visualizer";
 import { definePlaygroundViteConfig } from "./src/build-utils";
 
-export default definePlaygroundViteConfig({
+const config = definePlaygroundViteConfig({
   defaultEmitter: "@cadl-lang/openapi3",
   libraries: [
     "@cadl-lang/compiler",
@@ -17,3 +18,11 @@ export default definePlaygroundViteConfig({
   },
   enableSwaggerUI: true,
 });
+
+config.plugins!.push(
+  visualizer({
+    filename: "temp/stats.html",
+  })
+);
+
+export default config;

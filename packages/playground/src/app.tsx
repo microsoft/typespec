@@ -1,10 +1,4 @@
-import {
-  Diagnostic,
-  DiagnosticTarget,
-  getSourceLocation,
-  NoTarget,
-  Program,
-} from "@cadl-lang/compiler";
+import type { Diagnostic, DiagnosticTarget, NoTarget, Program } from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
@@ -92,16 +86,16 @@ export const App: FunctionComponent = () => {
   async function doCompile(content: string) {
     await host.writeFile("main.cadl", content);
     await emptyOutputDir();
-    const { compile } = await importCadlCompiler();
+    const cadlCompiler = await importCadlCompiler();
     try {
-      const program = await compile("main.cadl", host, {
+      const program = await cadlCompiler.compile("main.cadl", host, {
         outputPath: "cadl-output",
         emitters: { [PlaygroundManifest.defaultEmitter]: {} },
       });
       setInternalCompilerError(undefined);
       setProgram(program);
       const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
-        ...getMarkerLocation(diag.target),
+        ...getMarkerLocation(cadlCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
@@ -121,9 +115,10 @@ export const App: FunctionComponent = () => {
   }
 
   function getMarkerLocation(
+    cadlCompiler: typeof import("@cadl-lang/compiler"),
     target: DiagnosticTarget | typeof NoTarget
   ): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
-    const loc = getSourceLocation(target);
+    const loc = cadlCompiler.getSourceLocation(target);
     if (loc === undefined || loc.file.path != "/test/main.cadl") {
       return {
         startLineNumber: 1,
@@ -151,9 +146,9 @@ export const App: FunctionComponent = () => {
   );
 
   return (
-    <div id="grid">
-      <div id="editorContainer">
-        <div id="commandBar">
+    <div className="root">
+      <div className="cadl-editor-container">
+        <div className="command-bar">
           <label>
             <button onClick={saveCode as any}>Share</button>
           </label>
@@ -168,9 +163,7 @@ export const App: FunctionComponent = () => {
             <button onClick={cadlDocs as any}>Show Cadl Tutorial</button>
           </label>
         </div>
-        <div id="editor">
-          <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
-        </div>
+        <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
       </div>
       <div className="output-panel">
         <OutputView
