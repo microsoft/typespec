@@ -12,9 +12,9 @@
   "license": "ISC",
   "devDependencies": {
     "@11ty/eleventy": "^1.0.1",
-    "@11ty/eleventy-navigation": "^0.3.5",
     "@11ty/eleventy-plugin-syntaxhighlight": "^4.1.0",
     "@types/node": "~16.0.3",
-    "prism-themes": "~1.9.0"
+    "prism-themes": "~1.9.0",
+    "feather-icons": "~4.29.0"
   }
 }
