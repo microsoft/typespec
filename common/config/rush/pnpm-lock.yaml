@@ -2075,6 +2075,11 @@ packages:
     requiresBuild: true
     dev: false
 
+  /core-js/3.25.0:
+    resolution: {integrity: sha512-CVU1xvJEfJGhyCpBrzzzU1kjCfgsGUxhEvwUV2e/cOedYWHdmluamx+knDnmhqALddMG16fZvIqvs9aijsHHaA==}
+    requiresBuild: true
+    dev: false
+
   /cors/2.8.5:
     resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
     engines: {node: '>= 0.10'}
@@ -3098,6 +3103,13 @@ packages:
     resolution: {integrity: sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==}
     dependencies:
       pend: 1.2.0
+    dev: false
+
+  /feather-icons/4.29.0:
+    resolution: {integrity: sha512-Y7VqN9FYb8KdaSF0qD1081HCkm0v4Eq/fpfQYQnubpqi0hXx14k+gF9iqtRys1SIcTEi97xDi/fmsPFZ8xo0GQ==}
+    dependencies:
+      classnames: 2.3.1
+      core-js: 3.25.0
     dev: false
 
   /fetch-blob/3.2.0:
@@ -7144,7 +7156,7 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-ri7d/D4HeTBsSQA4x9lO/QhbqxTFrsp33hsfXQo07zGPatGi2/3zCS5rwFsGuJ/jbYQVAPBfJwILd44T5IYyvQ==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-LMCyR8XXa6o3oG0cYboH7pgRj2945RSJ1oqp4kE9lX6XzqHP/9jBcXpr9FIzvtiwMKYjV4wXzPZlVueBOZlcww==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
@@ -7152,6 +7164,7 @@ packages:
       '@11ty/eleventy-navigation': 0.3.5
       '@11ty/eleventy-plugin-syntaxhighlight': 4.1.0
       '@types/node': 16.0.3
+      feather-icons: 4.29.0
       prism-themes: 1.9.0
     transitivePeerDependencies:
       - bufferutil
