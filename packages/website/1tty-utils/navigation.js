@@ -2,7 +2,6 @@
 
 function findNavigationEntries(nodes, structure) {
   const data = Object.entries(structure).map(([category, docs]) => {
-    console.log("");
     const pages = docs.map((docId) => {
       const navBar = nodes.find((x) => x.data.id === docId);
       if (navBar === undefined) {
