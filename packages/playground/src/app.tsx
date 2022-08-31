@@ -1,7 +1,6 @@
-import {
+import type {
   Diagnostic,
   DiagnosticTarget,
-  getSourceLocation,
   NoTarget,
   Program,
 } from "@cadl-lang/compiler";
@@ -92,16 +91,16 @@ export const App: FunctionComponent = () => {
   async function doCompile(content: string) {
     await host.writeFile("main.cadl", content);
     await emptyOutputDir();
-    const { compile } = await importCadlCompiler();
+    const cadlCompiler = await importCadlCompiler();
     try {
-      const program = await compile("main.cadl", host, {
+      const program = await cadlCompiler.compile("main.cadl", host, {
         outputPath: "cadl-output",
         emitters: { [PlaygroundManifest.defaultEmitter]: {} },
       });
       setInternalCompilerError(undefined);
       setProgram(program);
       const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
-        ...getMarkerLocation(diag.target),
+        ...getMarkerLocation(cadlCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
@@ -121,9 +120,10 @@ export const App: FunctionComponent = () => {
   }
 
   function getMarkerLocation(
+    cadlCompiler: typeof import("@cadl-lang/compiler"),
     target: DiagnosticTarget | typeof NoTarget
   ): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
-    const loc = getSourceLocation(target);
+    const loc = cadlCompiler.getSourceLocation(target);
     if (loc === undefined || loc.file.path != "/test/main.cadl") {
       return {
         startLineNumber: 1,
