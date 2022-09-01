@@ -3532,16 +3532,7 @@ export function createChecker(program: Program): Checker {
         kind: "Function",
         call(...args: Type[]): Type {
           const retval = ref.value!(program, ...marshalProjectionArguments(args));
-          try {
-            return marshalProjectionReturn(retval);
-          } catch (e) {
-            if (e instanceof ProjectionError) {
-              throw new Error(
-                `Can't marshal value "${retval}" returned from JS function "${node.sv}" into cadl`
-              );
-            }
-            throw e;
-          }
+          return marshalProjectionReturn(retval, { functionName: node.sv });
         },
       } as const);
       return t;
@@ -3562,7 +3553,14 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function marshalProjectionReturn(value: unknown): Type {
+  interface MarshalOptions {
+    /**
+     * Name of the function in case of error.
+     */
+    functionName?: string;
+  }
+
+  function marshalProjectionReturn(value: unknown, options: MarshalOptions = {}): Type {
     if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
       return createLiteralType(value);
     }
@@ -3579,7 +3577,13 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    throw new ProjectionError("Can't marshal value returned from JS function into cadl");
+    if (options.functionName) {
+      throw new ProjectionError(
+        `Can't marshal value "${value}" returned from JS function "${options.functionName}" into cadl`
+      );
+    } else {
+      throw new ProjectionError(`Can't marshal value "${value}" into cadl`);
+    }
   }
 
   function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {

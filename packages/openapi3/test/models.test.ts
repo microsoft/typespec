@@ -26,7 +26,7 @@ describe("openapi3: models", () => {
     });
   });
 
-  it("uses json name is specified", async () => {
+  it("uses json name specified", async () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {

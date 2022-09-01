@@ -47,7 +47,7 @@ model Foo {
 
 ### With projection
 
-The decorator is just a syntax sugar for the `target` projection behind the scene. In more complex cases you might want to just implement the projection manually.
+The decorator is just a syntax sugar for the `target` projection behind the scenes. In more complex cases you might want to just implement the projection manually.
 
 ```cadl
 model Foo {
