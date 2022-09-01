@@ -22,7 +22,8 @@ const toc = {
   //     "openapi",
   // ],
   "Writing Cadl Libraries": [
-    // "decorators",
+    "basics",
+    "decorators",
     // "linters",
     "emitters",
   ],
