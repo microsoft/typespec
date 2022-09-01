@@ -1,8 +1,6 @@
 ---
-eleventyNavigation:
-  key: Projected names
-  parent: Api Design
-  order: 1
+id: projected-names
+title: Projected names
 ---
 
 # Projected Names
