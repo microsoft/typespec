@@ -1,8 +1,6 @@
 ---
-eleventyNavigation:
-  key: Writing Emitters
-  parent: Extending Cadl
-  order: 2
+id: emitters
+title: Emitters
 ---
 
 # Writing emitters

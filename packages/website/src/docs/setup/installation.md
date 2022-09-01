@@ -1,6 +1,6 @@
 ---
-eleventyNavigation:
-  key: Installation
+id: installation
+title: Installation
 ---
 
 # Installation

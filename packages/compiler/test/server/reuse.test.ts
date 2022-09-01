@@ -43,7 +43,7 @@ describe("server: reuse", () => {
   });
 
   it("does not mutate symbols when reusing unchanged files", async () => {
-    // trigger features that add symbols during checking: using statements, member references.
+    // trigger features that add symbols during checking: using statements, member references, namespace merging
     const source = `
       import "./other.cadl";
 
@@ -81,6 +81,9 @@ describe("server: reuse", () => {
     const otherSource = `
       namespace OtherNamespace {
         model OtherModel {}
+      }
+      namespace N {
+        model MergedIntoNamespace {}
       }`;
 
     const host = await createTestServerHost();
