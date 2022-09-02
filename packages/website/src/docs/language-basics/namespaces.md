@@ -59,7 +59,7 @@ model A {
 
 ## File namespace
 
-A namespace for the file can be provided at the top (After the `import` statements) using a blockless namespace statement
+A namespace for all declarations contained in a file can be provided at the top (After the `import` statements) using a blockless namespace statement
 
 ```cadl
 namespace SampleNamespace;
