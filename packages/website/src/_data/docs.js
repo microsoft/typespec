@@ -5,7 +5,7 @@ const toc = {
   ],
   "Language Basics": [
     "imports",
-    // "namespaces",
+    "namespaces",
     // "decorators",
     "models",
     // "interfaces",
