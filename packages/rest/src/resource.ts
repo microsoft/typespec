@@ -32,7 +32,7 @@ export function setResourceTypeKey(
   });
 }
 
-export function getResourceTypeKey(program: Program, resourceType: Model): ResourceKey {
+export function getResourceTypeKey(program: Program, resourceType: Model): ResourceKey | undefined {
   // Look up the key first
   let resourceKey = program.stateMap(resourceKeysKey).get(resourceType);
   if (resourceKey) {
@@ -191,21 +191,24 @@ export function $parentResource(context: DecoratorContext, entity: Type, parentT
   let currentType: Model | undefined = entity as Model;
   while (currentType) {
     const resourceKey = getResourceTypeKey(program, currentType);
-    const keyName = getKeyName(program, resourceKey.keyProperty);
-    if (keyNameSet.has(keyName)) {
-      reportDiagnostic(program, {
-        code: "duplicate-parent-key",
-        format: {
-          resourceName: (entity as Model).name,
-          parentName: currentType.name,
-          keyName,
-        },
-        target: resourceKey.keyProperty,
-      });
-      return;
+    if (resourceKey) {
+      const keyName = getKeyName(program, resourceKey!.keyProperty);
+      if (keyNameSet.has(keyName)) {
+        reportDiagnostic(program, {
+          code: "duplicate-parent-key",
+          format: {
+            resourceName: (entity as Model).name,
+            parentName: currentType.name,
+            keyName,
+          },
+          target: resourceKey!.keyProperty,
+        });
+        return;
+      }
+
+      keyNameSet.add(keyName);
     }
 
-    keyNameSet.add(keyName);
     currentType = getParentResource(program, currentType);
   }
 }
