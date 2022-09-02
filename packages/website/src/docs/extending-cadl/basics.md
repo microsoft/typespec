@@ -117,7 +117,6 @@ Open `./lib/main.cadl` and import your JS entrypoint. This ensures that when cad
 
 ```cadl
 import "../dist/index.js";
-
 ```
 
 ## Adding Cadl types to your library
@@ -132,7 +131,6 @@ model Person {
   name: string;
   age: uint8;
 }
-
 ```
 
 ## Publishing your Cadl library
@@ -156,7 +154,6 @@ using MyLibrary;
 model Employee extends Person {
   job: string;
 }
-
 ```
 
 ## Next steps
