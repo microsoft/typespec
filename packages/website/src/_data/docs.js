@@ -1,8 +1,5 @@
 const toc = {
-  Setup: [
-    "installation",
-    //  "Configuration"
-  ],
+  Setup: ["installation", "configuration"],
   "Language Basics": [
     "imports",
     "namespaces",
