@@ -15,6 +15,9 @@
     "@11ty/eleventy-plugin-syntaxhighlight": "^4.1.0",
     "@types/node": "~16.0.3",
     "prism-themes": "~1.9.0",
-    "feather-icons": "~4.29.0"
+    "feather-icons": "~4.29.0",
+    "@playwright/test": "~1.25.1",
+    "playwright": "~1.25.1",
+    "mermaid": "~9.1.6"
   }
 }
