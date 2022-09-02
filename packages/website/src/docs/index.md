@@ -1,5 +1,5 @@
 ---
-title: Cadl Docummentation
+title: Cadl Documentation
 ---
 
 # Cadl Documentation

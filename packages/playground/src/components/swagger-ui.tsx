@@ -23,12 +23,11 @@ export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
     if (uiInstance.current === null) {
       uiInstance.current = swaggerUI.createSwaggerUI({
         domNode: uiRef.current,
-        spec: props.spec as any,
+        spec: {},
       });
-    } else {
-      uiInstance.current.specActions.updateSpec(props.spec);
     }
-  }, [swaggerUI, props.spec]);
+    uiInstance.current.specActions.updateSpec(props.spec);
+  }, [uiRef.current, swaggerUI, props.spec]);
 
   return <div className="swagger-ui-container" ref={uiRef}></div>;
 };

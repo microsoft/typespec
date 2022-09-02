@@ -1,4 +1,4 @@
-import { CadlLanguageConfiguration, compilerAssert, ServerHost } from "@cadl-lang/compiler";
+import { CadlLanguageConfiguration, ServerHost } from "@cadl-lang/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -113,10 +113,10 @@ export async function attachServices(host: BrowserHost) {
   }
 
   function monacoHover(hover: lsp.Hover): monaco.languages.Hover {
-    compilerAssert(
-      !Array.isArray(hover.contents) && !lsp.MarkedString.is(hover.contents),
-      "MarkedString (deprecated) not supported."
-    );
+    if (Array.isArray(hover.contents) || lsp.MarkedString.is(hover.contents)) {
+      throw new Error("MarkedString (deprecated) not supported.");
+    }
+
     return {
       contents: monacoHoverContents(hover.contents),
       range: hover.range ? monacoRange(hover.range) : undefined,
