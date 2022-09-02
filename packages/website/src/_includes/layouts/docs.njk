@@ -16,7 +16,7 @@ isDocs: true
           <ul class="cadl-list">
             {%- for entry in category.pages %}
               <li {% if entry.url == page.url %} class="cadl-toc-active" {% endif %}>
-                <a href="{{ entry.url }}">{{ entry.title }}</a>
+                <a href="{{ entry.url | url }}">{{ entry.title }}</a>
               </li>
             {%- endfor %}
           </ul>
