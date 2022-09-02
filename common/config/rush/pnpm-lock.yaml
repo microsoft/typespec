@@ -91,6 +91,7 @@ specifiers:
   react-is: ~18.1.0
   rimraf: ~3.0.2
   rollup: ~2.70.1
+  rollup-plugin-visualizer: ~5.8.0
   source-map-support: ~0.5.19
   strip-json-comments: ~4.0.0
   styled-components: ~5.3.5
@@ -197,6 +198,7 @@ dependencies:
   react-is: 18.1.0
   rimraf: 3.0.2
   rollup: 2.70.2
+  rollup-plugin-visualizer: 5.8.0_rollup@2.70.2
   source-map-support: 0.5.21
   strip-json-comments: 4.0.0
   styled-components: 5.3.5_cc3123a60c632166f817f0cb3bc8228c
@@ -7213,7 +7215,7 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-GDMzjqA98wV698dtkIAQxHJGYofWT1cIqp8RDioZqDucZjJZfgNeipAyYw3TjgtKHJ1XA+x50R5zaocaEJAO0A==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-mAywL0lFvLeHOEjLaz+ZYzimrSV7SGU7Q0peCmov6GZgmOncs5kJE6OIloj7IHBhfSYgoDH/cJX/pVflhfraaw==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
@@ -7221,8 +7223,10 @@ packages:
       '@11ty/eleventy-navigation': 0.3.5
       '@11ty/eleventy-plugin-syntaxhighlight': 4.1.0
       '@types/node': 16.0.3
+      eslint: 8.21.0
       feather-icons: 4.29.0
       prism-themes: 1.9.0
+      rimraf: 3.0.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
