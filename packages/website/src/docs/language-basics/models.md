@@ -21,7 +21,7 @@ These are types without any fields(For example `string`, `int32`, `boolean`, etc
 
 ### Record
 
-Model records are structure with named fields called properties.
+Record models are structure with named fields called properties.
 
 - name can be an `identifier` or `string literal`.
 - type can be any type reference
