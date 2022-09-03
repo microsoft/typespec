@@ -23,6 +23,7 @@ import {
   getResourceOperation,
   getSegment,
   getSegmentSeparator,
+  isAutoRoute,
 } from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";
 import {
@@ -597,42 +598,3 @@ const resourceOperationToVerb: any = {
   delete: "delete",
   list: "get",
 };
-
-const autoRouteKey = createStateSymbol("autoRoute");
-
-/**
- * `@autoRoute` enables automatic route generation for an operation, namespace, or interface.
- *
- * When applied to an operation, it automatically generates the operation's route based on path parameter
- * metadata.  When applied to a namespace or interface, it causes all operations under that scope to have
- * auto-generated routes.
- */
-export function $autoRoute(context: DecoratorContext, entity: Type) {
-  if (
-    !validateDecoratorTarget(context, entity, "@autoRoute", ["Namespace", "Interface", "Operation"])
-  ) {
-    return;
-  }
-
-  context.program.stateSet(autoRouteKey).add(entity);
-}
-
-export function isAutoRoute(program: Program, target: Namespace | Interface | Operation): boolean {
-  // Loop up through parent scopes (interface, namespace) to see if
-  // @autoRoute was used anywhere
-  let current: Namespace | Interface | Operation | undefined = target;
-  while (current !== undefined) {
-    if (program.stateSet(autoRouteKey).has(current)) {
-      return true;
-    }
-
-    // Navigate up to the parent scope
-    if (current.kind === "Namespace" || current.kind === "Interface") {
-      current = current.namespace;
-    } else if (current.kind === "Operation") {
-      current = current.interface || current.namespace;
-    }
-  }
-
-  return false;
-}

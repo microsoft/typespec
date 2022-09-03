@@ -409,6 +409,17 @@ describe("rest: routes", () => {
     strictEqual(diagnostics[1].message, `Duplicate operation "get2" routed at "get /test".`);
   });
 
+  it("emit diagnostic if passing arguments to autoroute decorators", async () => {
+    const [_, diagnostics] = await compileOperations(`
+      @autoRoute("/test") op test(): string;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-argument-count",
+      message: "Expected 0 arguments, but got 1.",
+    });
+  });
+
   describe("operation parameters", () => {
     it("emit diagnostic for parameters with multiple http request annotations", async () => {
       const [_, diagnostics] = await compileOperations(`
