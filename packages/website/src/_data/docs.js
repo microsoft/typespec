@@ -8,6 +8,7 @@ const toc = {
     "namespaces",
     // "decorators",
     "models",
+    "templates",
     // "interfaces",
     "operations",
     // "enums",
