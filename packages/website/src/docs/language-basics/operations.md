@@ -5,7 +5,9 @@ title: Operations
 
 # Operations
 
-Operations describe service endpoints and consist of an operation name, parameters, and return type. Operations are declared using the `op` keyword:
+Operations describe service endpoints and consist of an operation name, parameters, and return type.
+
+Operations are declared using the `op` keyword:
 
 ```cadl
 op ping(): void;

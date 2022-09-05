@@ -12,7 +12,7 @@ Templates can be used on:
 - [alias]({%doc "aliases"%})
 - [models]({%doc "models"%})
 - [operations]({%doc "operations"%})
-- [interfaces]()
+- [interfaces]({%doc "interfaces"%})
 
 ```cadl
 model Page<T> {
