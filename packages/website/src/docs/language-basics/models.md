@@ -96,7 +96,7 @@ model Animal {
 model Dog extends Animal {}
 ```
 
-## Is
+### Is
 
 Sometimes you want to create a new type that is an exact copy of an existing type but with some additional properties or metadata without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It copies all the properties(like spread), but copies [decorators]({{"/docs/language-basics/decorators" | url}}) as well. One common use case is to give a better name to a [template](#Templates) instantiation:
 
