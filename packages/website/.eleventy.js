@@ -65,7 +65,6 @@ module.exports = (eleventyConfig) => {
   let docPages;
   eleventyConfig.addCollection("docPages", (collectionApi) => {
     docPages = collectionApi.getAll().filter((x) => x.data.id);
-    console.log(docPages);
     return docPages;
   });
   eleventyConfig.addShortcode("doc", (docName) => {

@@ -38,7 +38,7 @@ model Page<T = string> {
 
 ## Parameter constraints
 
-Template parameter can provide a constraint using the `extends` keyword. See [type-relations]({{"/docs/language-basics/type-relations" | url}}) documentation for details on how validation works.
+Template parameter can provide a constraint using the `extends` keyword. See [type relations]({% doc "type-relations" %}) documentation for details on how validation works.
 
 ```cadl
 alias Foo<T extends string> = T;
