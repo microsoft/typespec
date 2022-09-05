@@ -9,7 +9,7 @@ It is often useful to let the users of a model fill in certain details. Template
 
 Templates can be used on:
 
-- [alias]()
+- [alias]({%doc "aliases"%})
 - [models]({%doc "models"%})
 - [operations]({%doc "operations"%})
 - [interfaces]()
