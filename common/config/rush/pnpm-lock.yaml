@@ -7754,7 +7754,7 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-oQ+TBp2AaXRKdywXPIO74IJbP3utkW1V2L9IPd5O9aJ0pEq71YUtVoTyfnsA/3YPmn5aD+icQKXbZ4AOGgt5tg==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-BL129leaIALLrLkAWRCUHAUCvD27Fc+lS6Zu2c6XhDzU3LHHH7wkq90iqZuPF0AKr2PI5X4nzx8xo1OCYoXZOQ==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
@@ -7763,10 +7763,12 @@ packages:
       '@11ty/eleventy-plugin-syntaxhighlight': 4.1.0
       '@playwright/test': 1.25.1
       '@types/node': 16.0.3
+      eslint: 8.21.0
       feather-icons: 4.29.0
       mermaid: 9.1.6
       playwright: 1.25.1
       prism-themes: 1.9.0
+      rimraf: 3.0.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color

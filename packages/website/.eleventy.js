@@ -7,6 +7,7 @@ const feather = require("feather-icons");
 const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
 
 module.exports = (eleventyConfig) => {
+  eleventyConfig.addPassthroughCopy("js");
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy({
     "node_modules/prism-themes/themes/prism-one-light.css": "css/themes/prism-one-light.css",

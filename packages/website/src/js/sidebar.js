@@ -9,8 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const target = document.getElementById(targetId);
         if (target) {
           if (target.style.display === "block") {
-            // @ts-ignore
-            target.style.display = null;
+            target.style.display = "";
           } else {
             target.style.display = "block";
           }
