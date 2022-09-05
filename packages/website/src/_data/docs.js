@@ -5,7 +5,7 @@ const toc = {
   ],
   "Language Basics": [
     "imports",
-    // "namespaces",
+    "namespaces",
     // "decorators",
     "models",
     // "interfaces",
@@ -13,7 +13,8 @@ const toc = {
     // "enums",
     // "unions",
     // "type-literals",
-    // "alias",
+    "aliases",
+    "type-relations",
   ],
   //   "Cadl Standard Library": [
   //     "built-in-types",
