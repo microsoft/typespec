@@ -86,7 +86,7 @@ model Dog {
 
 ### Extends
 
-Sometimes you want to create an explicit relationship between two models, for example when you want to emit class definitions in languages which support inheritance. The `extends` keyword can be used to establish such a relationship. 
+Sometimes you want to create an explicit relationship between two models, for example when you want to emit class definitions in languages which support inheritance. The `extends` keyword can be used to establish such a relationship.
 
 ```cadl
 model Animal {
@@ -98,7 +98,7 @@ model Dog extends Animal {}
 
 ## Is
 
-Sometimes you want to copy all aspects of a type without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It is like spread, but also copies [decorators]({{"/docs/language-basics/decorators" | url}}) in addition to properties. One common use case is to give a better name to a [template](#Templates) instantiation:
+Sometimes you want to create a new type that is an exact copy of an existing type but with some additional properties or metadata without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It copies all the properties(like spread), but copies [decorators]({{"/docs/language-basics/decorators" | url}}) as well. One common use case is to give a better name to a [template](#Templates) instantiation:
 
 ```cadl
 @decorator
