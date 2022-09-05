@@ -1,4 +1,9 @@
-# Cadl Types
+---
+id: type-relations
+title: Type relations
+---
+
+# Types Relations
 
 ## Type hierachy
 

@@ -13,7 +13,8 @@ const toc = {
     // "enums",
     // "unions",
     // "type-literals",
-    // "alias",
+    "aliases",
+    "type-relations",
   ],
   "Cadl Standard Library": [
     "projected-names",
