@@ -55,7 +55,7 @@ model Dog {
 
 ### Array
 
-Array are models behind the scene. The `[]` syntax is just a syntactic sugar for using the `Array` model type.
+Array are models created using the `[]` syntax which is just a syntactic sugar for using the `Array<T>` model type.
 
 ## Model composition
 
