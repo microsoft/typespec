@@ -1,5 +1,5 @@
 // @ts-check
-const { webkit } = require("playwright");
+const { chromium } = require("playwright");
 const path = require("path");
 const url = require("url");
 
@@ -9,7 +9,7 @@ const url = require("url");
  * @returns
  */
 async function renderMermaid(definition) {
-  const browser = await webkit.launch();
+  const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
   const mermaidHTMLPath = path.join(__dirname, "index.html");
@@ -17,6 +17,7 @@ async function renderMermaid(definition) {
 
   const svg = await page.evaluateHandle((definition) => {
     /** @type {import("mermaid").default } */
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const mermaid = window.mermaid;
     mermaid.initialize({});
