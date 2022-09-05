@@ -10,7 +10,7 @@ const toc = {
     "models",
     // "interfaces",
     // "operations",
-    // "enums",
+    "enums",
     // "unions",
     // "type-literals",
     // "alias",
