@@ -3628,7 +3628,11 @@ export function createChecker(program: Program): Checker {
     projection: ProjectionNode,
     args: (Type | boolean | string | number)[] = []
   ) {
-    return evalProjectionStatement(projection, target, args.map(marshalProjectionReturn));
+    return evalProjectionStatement(
+      projection,
+      target,
+      args.map((x) => marshalProjectionReturn(x))
+    );
   }
 
   function memberExpressionToString(expr: IdentifierNode | MemberExpressionNode) {
