@@ -31,4 +31,10 @@ model DogNotFound {
 op getDog(name: string): Dog | DogNotFound;
 ```
 
-## Operation signatures
+## Operations templates
+
+[See templates]({%doc "templates"%}) for details on templates
+
+```cadl
+op ReadResource<T>(id: string): T;
+```
