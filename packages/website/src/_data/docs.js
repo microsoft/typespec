@@ -9,7 +9,7 @@ const toc = {
     // "decorators",
     "models",
     // "interfaces",
-    // "operations",
+    "operations",
     // "enums",
     // "unions",
     // "type-literals",
