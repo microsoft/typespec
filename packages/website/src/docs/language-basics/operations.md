@@ -31,10 +31,34 @@ model DogNotFound {
 op getDog(name: string): Dog | DogNotFound;
 ```
 
+## Reuse operations
+
+Operation signatures can be reused using the `is` keyword. Given an operation
+
+```cadl
+op Delete(id: string): void;
+```
+
+its signature can be reused like this
+
+```cadl
+op deletePet is Delete;
+```
+
+This means that `deletePet` will have the same parameters, return type and decorators as the `Delete` operation.
+
+This pattern is most commonly used in combination with [operation templates](#operations-templates)
+
 ## Operations templates
 
 [See templates]({%doc "templates"%}) for details on templates
 
 ```cadl
 op ReadResource<T>(id: string): T;
+```
+
+operation template can then be referenced via `is`
+
+```cadl
+op readPet is ReadResource<Pet>;
 ```
