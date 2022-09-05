@@ -86,7 +86,7 @@ model Dog {
 
 ### Extends
 
-Sometimes you want to create an explicit relationship between two models, for example when you want to emit class definitions in languages which support inheritance. The `extends` keyword can be used to establish such a relationship. It is also used extensively with `interface` to compose from existing interface building blocks.
+Sometimes you want to create an explicit relationship between two models, for example when you want to emit class definitions in languages which support inheritance. The `extends` keyword can be used to establish such a relationship. 
 
 ```cadl
 model Animal {
