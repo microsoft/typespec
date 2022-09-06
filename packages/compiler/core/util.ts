@@ -331,9 +331,11 @@ export class OrderedMap<V> implements Map<string, V> {
   #keys = new Map<string, OrderedMapKey>();
   #values = new Map<OrderedMapKey, V>();
 
-  constructor(entries: [string, V][]) {
-    for (const [key, value] of entries) {
-      this.set(key, value);
+  constructor(entries?: [string, V][]) {
+    if (entries) {
+      for (const [key, value] of entries) {
+        this.set(key, value);
+      }
     }
   }
 
