@@ -140,6 +140,7 @@ export interface ProjectionApplication {
 }
 
 export interface Projector {
+  parentProjector?: Projector;
   projections: ProjectionApplication[];
   projectedTypes: Map<Type, Type>;
   projectType(type: Type): Type;
