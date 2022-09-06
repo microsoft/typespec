@@ -59,7 +59,7 @@ This pattern is most commonly used in combination with [operation templates](#op
 op ReadResource<T>(id: string): T;
 ```
 
-operation template can then be referenced via `is`
+The operation template can then be referenced via `is`:
 
 ```cadl
 op readPet is ReadResource<Pet>;
