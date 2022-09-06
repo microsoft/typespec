@@ -58,7 +58,7 @@ Decorators:
 
 ### `@versioned`
 
-Mark a namespace as being versioned. It takes as an argument a `enum` of version for that namespace.
+Mark a namespace as being versioned. It takes as an argument an `enum` of versions for that namespace.
 
 ```cadl
 @versioned(Versions)
