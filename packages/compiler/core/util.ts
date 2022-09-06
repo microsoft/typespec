@@ -492,3 +492,102 @@ export class DuplicateTracker<K, V> {
     }
   }
 }
+
+interface OrderedMapKey<K> {
+  key: K;
+}
+
+export class OrderedMap<K, V> implements Map<K, V> {
+  #keys = new Map<K, OrderedMapKey<K>>();
+  #values = new Map<OrderedMapKey<K>, V>();
+
+  constructor(entries?: [K, V][]) {
+    if (entries) {
+      for (const [key, value] of entries) {
+        this.set(key, value);
+      }
+    }
+  }
+
+  clear(): void {
+    this.#keys.clear();
+    this.#values.clear();
+  }
+
+  delete(key: K): boolean {
+    const keyItem = this.#keys.get(key);
+    if (keyItem) {
+      this.#keys.delete(key);
+      return this.#values.delete(keyItem);
+    }
+    return false;
+  }
+
+  forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void {
+    this.#values.forEach((value, keyItem, map) => {
+      callbackfn(value, keyItem.key, this);
+    }, thisArg);
+  }
+  get(key: K): V | undefined {
+    const keyItem = this.#keys.get(key);
+    return keyItem ? this.#values.get(keyItem) : undefined;
+  }
+
+  has(key: K): boolean {
+    const keyItem = this.#keys.get(key);
+    return keyItem ? this.#values.has(keyItem) : false;
+  }
+
+  set(key: K, value: V): this {
+    let keyItem = this.#keys.get(key);
+    if (keyItem === undefined) {
+      keyItem = { key };
+      this.#keys.set(key, keyItem);
+    }
+
+    this.#values.set(keyItem, value);
+    return this;
+  }
+
+  get size() {
+    return this.#values.size;
+  }
+
+  *entries(): IterableIterator<[K, V]> {
+    for (const [k, v] of this.#values) {
+      yield [k.key, v];
+    }
+  }
+
+  *keys(): IterableIterator<K> {
+    for (const k of this.#values.keys()) {
+      yield k.key;
+    }
+  }
+
+  values(): IterableIterator<V> {
+    return this.#values.values();
+  }
+
+  [Symbol.iterator](): IterableIterator<[K, V]> {
+    return this.entries();
+  }
+  [Symbol.toStringTag] = "OrderedMap";
+
+  /**
+   * Update the key but keep the order.
+   * @param existingKey Existing key
+   * @param newKey New key
+   * @returns boolean if updated successfully.
+   */
+  updateKey(existingKey: K, newKey: K): boolean {
+    const keyItem = this.#keys.get(existingKey);
+    if (!keyItem) {
+      return false;
+    }
+    this.#keys.delete(existingKey);
+    keyItem.key = newKey;
+    this.#keys.set(newKey, keyItem);
+    return true;
+  }
+}
