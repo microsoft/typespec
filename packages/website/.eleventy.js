@@ -62,6 +62,24 @@ module.exports = (eleventyConfig) => {
     return feather.icons[iconName].toSvg(attributes);
   });
 
+  let docPages;
+  eleventyConfig.addCollection("docPages", (collectionApi) => {
+    docPages = collectionApi.getAll().filter((x) => x.data.id);
+    return docPages;
+  });
+  eleventyConfig.addShortcode("doc", (docName) => {
+    if (!docName) {
+      throw new Error("The docName must be specified");
+    }
+
+    const page = docPages.find((x) => x.data.id === docName);
+    if (page === undefined) {
+      throw new Error(`Cannot find page with id "${docName}"`);
+    }
+    const url = eleventyConfig.getFilter("url");
+    return url(page.url);
+  });
+
   return {
     markdownTemplateEngine: "njk",
     dataTemplateEngine: "njk",
