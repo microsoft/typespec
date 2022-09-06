@@ -322,3 +322,94 @@ class CaseInsensitiveMap<T> extends Map<string, T> {
     return super.delete(key.toUpperCase());
   }
 }
+
+interface OrderedMapKey {
+  key: string;
+}
+
+export class OrderedMap<V> implements Map<string, V> {
+  #keys = new Map<string, OrderedMapKey>();
+  #values = new Map<OrderedMapKey, V>();
+
+  constructor(entries: [string, V][]) {
+    for (const [key, value] of entries) {
+      this.set(key, value);
+    }
+  }
+
+  clear(): void {
+    this.#keys.clear();
+    this.#values.clear();
+  }
+
+  delete(key: string): boolean {
+    const keyItem = this.#keys.get(key);
+    if (keyItem) {
+      this.#keys.delete(key);
+      return this.#values.delete(keyItem);
+    }
+    return false;
+  }
+
+  forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg?: any): void {
+    this.#values.forEach((value, keyItem, map) => {
+      callbackfn(value, keyItem.key, this);
+    }, thisArg);
+  }
+  get(key: string): V | undefined {
+    const keyItem = this.#keys.get(key);
+    return keyItem ? this.#values.get(keyItem) : undefined;
+  }
+
+  has(key: string): boolean {
+    const keyItem = this.#keys.get(key);
+    return keyItem ? this.#values.has(keyItem) : false;
+  }
+
+  set(key: string, value: V): this {
+    let keyItem = this.#keys.get(key);
+    if (keyItem === undefined) {
+      keyItem = { key };
+      this.#keys.set(key, keyItem);
+    }
+
+    this.#values.set(keyItem, value);
+    return this;
+  }
+
+  get size() {
+    return this.#values.size;
+  }
+
+  entries(): IterableIterator<[string, V]> {
+    return [...this.#values.entries()].map(([k, v]) => [k.key, v])[Symbol.iterator]() as any;
+  }
+
+  keys(): IterableIterator<string> {
+    return [...this.#values.keys()].map((x) => x.key)[Symbol.iterator]();
+  }
+
+  values(): IterableIterator<V> {
+    return this.#values.values();
+  }
+  [Symbol.iterator](): IterableIterator<[string, V]> {
+    return this.entries();
+  }
+  [Symbol.toStringTag] = "OrderedMap";
+
+  /**
+   * Update the key but keep the order.
+   * @param existingKey Existing key
+   * @param newKey New key
+   * @returns boolean if updated successfully.
+   */
+  updateKey(existingKey: string, newKey: string): boolean {
+    const keyItem = this.#keys.get(existingKey);
+    if (!keyItem) {
+      return false;
+    }
+    this.#keys.delete(existingKey);
+    this.#keys.set(newKey, keyItem);
+    return true;
+  }
+}
