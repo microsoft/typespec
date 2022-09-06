@@ -5,7 +5,7 @@ title: Enums
 
 # Enums
 
-Enums allow a developer to define a set of named constants. Using enums can make it easier to document intent, or create a set of distinct cases. Enums can either be numeric or string based enums. For other types look into [union]({{"/docs/language-basics/unions" | url}})
+Enums allow a developer to define a set of named constants. Using enums can make it easier to document intent, or create a set of distinct cases. Enums can either be numeric or string-based. For other types, look into [union]({{"/docs/language-basics/unions" | url}})
 
 ## Basics
 
