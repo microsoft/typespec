@@ -19,10 +19,11 @@
     "@types/node": "~16.0.3",
     "prism-themes": "~1.9.0",
     "feather-icons": "~4.29.0",
+    "@playwright/test": "~1.25.1",
+    "playwright": "~1.25.1",
+    "mermaid": "~9.1.6",
     "@cadl-lang/eslint-config-cadl": "~0.4.0",
-    "eslint": "^8.12.0"
-  },
-  "dependencies": {
+    "eslint": "^8.12.0",
     "rimraf": "~3.0.2"
   }
 }
