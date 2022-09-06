@@ -16,12 +16,13 @@ const toc = {
     "aliases",
     "type-relations",
   ],
-  //   "Cadl Standard Library": [
-  //     "built-in-types",
-  //     "built-in-decorators",
-  //     "http",
-  //     "openapi",
-  // ],
+  "Cadl Standard Library": [
+    "projected-names",
+    // "built-in-types",
+    // "built-in-decorators",
+    // "http",
+    // "openapi",
+  ],
   "Writing Cadl Libraries": [
     // "decorators",
     // "linters",
