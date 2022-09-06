@@ -10,7 +10,7 @@ Enums allow a developer to define a set of named constants. Using enums can make
 ## Basics
 
 Enums are declared using the `enum` keyword.
-The enums members are comma `,` seperated and can be cadl `identifier` or a `string literal`.
+The enums members are comma `,` seperated and can be cadl `identifier`s or `string literal`s.
 
 ```cadl
 enum Direction {
