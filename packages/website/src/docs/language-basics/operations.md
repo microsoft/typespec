@@ -53,7 +53,7 @@ This pattern is most commonly used in combination with [operation templates](#op
 
 ## Operations templates
 
-[See templates]({%doc "templates"%}) for details on templates
+[See templates]({%doc "templates"%}) for details on templates.
 
 ```cadl
 op ReadResource<T>(id: string): T;
