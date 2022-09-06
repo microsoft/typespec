@@ -135,7 +135,7 @@ enum Version {
 
 ### `@added`
 
-Sepcify which version an entity was added. Take the enum version member.
+Specify which version an entity was added. Take the enum version member.
 
 Version enum member **MUST** be from the version enum for the containing namespace.
 
