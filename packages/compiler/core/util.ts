@@ -323,15 +323,15 @@ class CaseInsensitiveMap<T> extends Map<string, T> {
   }
 }
 
-interface OrderedMapKey {
-  key: string;
+interface OrderedMapKey<K> {
+  key: K;
 }
 
-export class OrderedMap<V> implements Map<string, V> {
-  #keys = new Map<string, OrderedMapKey>();
-  #values = new Map<OrderedMapKey, V>();
+export class OrderedMap<K, V> implements Map<K, V> {
+  #keys = new Map<K, OrderedMapKey<K>>();
+  #values = new Map<OrderedMapKey<K>, V>();
 
-  constructor(entries?: [string, V][]) {
+  constructor(entries?: [K, V][]) {
     if (entries) {
       for (const [key, value] of entries) {
         this.set(key, value);
@@ -344,7 +344,7 @@ export class OrderedMap<V> implements Map<string, V> {
     this.#values.clear();
   }
 
-  delete(key: string): boolean {
+  delete(key: K): boolean {
     const keyItem = this.#keys.get(key);
     if (keyItem) {
       this.#keys.delete(key);
@@ -353,22 +353,22 @@ export class OrderedMap<V> implements Map<string, V> {
     return false;
   }
 
-  forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg?: any): void {
+  forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void {
     this.#values.forEach((value, keyItem, map) => {
       callbackfn(value, keyItem.key, this);
     }, thisArg);
   }
-  get(key: string): V | undefined {
+  get(key: K): V | undefined {
     const keyItem = this.#keys.get(key);
     return keyItem ? this.#values.get(keyItem) : undefined;
   }
 
-  has(key: string): boolean {
+  has(key: K): boolean {
     const keyItem = this.#keys.get(key);
     return keyItem ? this.#values.has(keyItem) : false;
   }
 
-  set(key: string, value: V): this {
+  set(key: K, value: V): this {
     let keyItem = this.#keys.get(key);
     if (keyItem === undefined) {
       keyItem = { key };
@@ -383,13 +383,13 @@ export class OrderedMap<V> implements Map<string, V> {
     return this.#values.size;
   }
 
-  *entries(): IterableIterator<[string, V]> {
+  *entries(): IterableIterator<[K, V]> {
     for (const [k, v] of this.#values) {
       yield [k.key, v];
     }
   }
 
-  *keys(): IterableIterator<string> {
+  *keys(): IterableIterator<K> {
     for (const k of this.#values.keys()) {
       yield k.key;
     }
@@ -399,7 +399,7 @@ export class OrderedMap<V> implements Map<string, V> {
     return this.#values.values();
   }
 
-  [Symbol.iterator](): IterableIterator<[string, V]> {
+  [Symbol.iterator](): IterableIterator<[K, V]> {
     return this.entries();
   }
   [Symbol.toStringTag] = "OrderedMap";
@@ -410,7 +410,7 @@ export class OrderedMap<V> implements Map<string, V> {
    * @param newKey New key
    * @returns boolean if updated successfully.
    */
-  updateKey(existingKey: string, newKey: string): boolean {
+  updateKey(existingKey: K, newKey: K): boolean {
     const keyItem = this.#keys.get(existingKey);
     if (!keyItem) {
       return false;

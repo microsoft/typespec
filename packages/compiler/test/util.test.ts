@@ -21,7 +21,7 @@ describe("compiler: util", () => {
     });
 
     describe("set() should add items at the end", () => {
-      let map: OrderedMap<string>;
+      let map: OrderedMap<string, string>;
       beforeEach(() => {
         map = new OrderedMap([
           ["a", "pos 1"],
