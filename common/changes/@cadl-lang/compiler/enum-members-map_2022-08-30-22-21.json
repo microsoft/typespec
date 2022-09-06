@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "**Breaking** Update `Enum` type members type to be a `Map<string, EnumMember>` instead of `EnumMember[]`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
