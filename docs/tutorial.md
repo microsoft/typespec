@@ -508,8 +508,8 @@ Example:
 @friendlyName("{name}List", T)
 model List<T> {}
 
-alias A = List<string>; // Instance friendly name would be `StringList`
-alias B = List<FooBar>; // Instance friendly name would be `FooBarList`
+alias A = List<FooBar>; // Instance friendly name would be `FooBarList`
+alias B = List<Person>; // Instance friendly name would be `PersonList`
 ```
 
 ##### @pattern
