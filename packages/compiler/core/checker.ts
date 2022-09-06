@@ -354,8 +354,8 @@ export function createChecker(program: Program): Checker {
     mutate(cadlNamespaceBinding!.exports)!.set("log", {
       flags: SymbolFlags.Function,
       name: "log",
-      value(p: Program, str: string): Type {
-        program.logger.log({ level: "debug", message: str });
+      value(p: Program, ...strs: string[]): Type {
+        program.logger.log({ level: "debug", message: strs.join(" ") });
         return voidType;
       },
       declarations: [],
@@ -3532,7 +3532,7 @@ export function createChecker(program: Program): Checker {
         kind: "Function",
         call(...args: Type[]): Type {
           const retval = ref.value!(program, ...marshalProjectionArguments(args));
-          return marshalProjectionReturn(retval);
+          return marshalProjectionReturn(retval, { functionName: node.sv });
         },
       } as const);
       return t;
@@ -3553,7 +3553,14 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function marshalProjectionReturn(value: unknown): Type {
+  interface MarshalOptions {
+    /**
+     * Name of the function in case of error.
+     */
+    functionName?: string;
+  }
+
+  function marshalProjectionReturn(value: unknown, options: MarshalOptions = {}): Type {
     if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
       return createLiteralType(value);
     }
@@ -3570,7 +3577,13 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    throw new ProjectionError("Can't marshal value returned from JS function into cadl");
+    if (options.functionName) {
+      throw new ProjectionError(
+        `Can't marshal value "${value}" returned from JS function "${options.functionName}" into cadl`
+      );
+    } else {
+      throw new ProjectionError(`Can't marshal value "${value}" into cadl`);
+    }
   }
 
   function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {
@@ -3615,7 +3628,11 @@ export function createChecker(program: Program): Checker {
     projection: ProjectionNode,
     args: (Type | boolean | string | number)[] = []
   ) {
-    return evalProjectionStatement(projection, target, args.map(marshalProjectionReturn));
+    return evalProjectionStatement(
+      projection,
+      target,
+      args.map((x) => marshalProjectionReturn(x))
+    );
   }
 
   function memberExpressionToString(expr: IdentifierNode | MemberExpressionNode) {
