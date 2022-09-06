@@ -4,7 +4,7 @@ This package provide [Cadl](https://github.com/microsoft/cadl) decorators and pr
 
 ## Install
 
-Runt the following command in your cadl project root directory.
+Run the following command in your cadl project root directory.
 
 ```bash
 npm install @cadl-lang/versioning
