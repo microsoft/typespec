@@ -80,7 +80,7 @@ The decorator either takes:
 - a single `enum member` if using the same version or the consuming namespace is not versioned.
 - a mapping of consuming namespace version to consumed namespace version
 
-If we have a library with the following definition
+If we have a library with the following definition:
 
 ```cadl
 @versioned(Versions)
