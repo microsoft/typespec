@@ -283,7 +283,7 @@ export interface Enum extends BaseType, DecoratedType {
   name: string;
   node: EnumStatementNode;
   namespace?: Namespace;
-  members: EnumMember[];
+  members: Map<string, EnumMember>;
 }
 
 export interface EnumMember extends BaseType, DecoratedType {
@@ -355,6 +355,9 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   namespace?: Namespace;
   variants: Map<string | symbol, UnionVariant>;
   expression: boolean;
+  /**
+   * @deprecated use variants
+   */
   readonly options: Type[];
 
   /**
