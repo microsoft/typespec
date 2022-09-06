@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Guard against uninitialized parent type in `parentResource` decorator",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

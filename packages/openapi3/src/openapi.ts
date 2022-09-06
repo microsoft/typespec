@@ -40,6 +40,7 @@ import {
   NumericLiteral,
   Operation,
   Program,
+  ProjectionApplication,
   projectProgram,
   resolvePath,
   StringLiteral,
@@ -271,6 +272,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!serviceNs) {
       return;
     }
+    const commonProjections: ProjectionApplication[] = [
+      {
+        projectionName: "target",
+        arguments: ["json"],
+      },
+    ];
     const originalProgram = program;
     const versions = buildVersionProjections(program, serviceNs);
     for (const record of versions) {
@@ -281,9 +288,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
       }
 
-      if (record.projections.length > 0) {
-        program = projectProgram(originalProgram, record.projections);
-      }
+      program = projectProgram(originalProgram, [...commonProjections, ...record.projections]);
 
       await emitOpenAPIFromVersion(serviceNs, record.version);
     }

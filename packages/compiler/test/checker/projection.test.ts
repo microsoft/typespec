@@ -600,7 +600,10 @@ describe("cadl: projections", () => {
         `
       );
       const { Foo } = (await testHost.compile("main.cadl")) as { Foo: Operation };
-      const result = testHost.program.checker.project(Foo, Foo.projections[0].to!) as Model;
+      const result = testHost.program.checker.project(
+        Foo,
+        Foo.projections.find((x) => x.id.sv === "test")!.to!
+      ) as Model;
       strictEqual(result.properties.get("x")!.type.kind, "Model");
       strictEqual(result.properties.get("y")!.type.kind, "Intrinsic");
     });
