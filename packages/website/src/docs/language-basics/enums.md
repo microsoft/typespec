@@ -36,7 +36,7 @@ enum Direction {
 }
 ```
 
-values can also be integer
+Values can also be integers.
 
 ```cadl
 enum Foo {
