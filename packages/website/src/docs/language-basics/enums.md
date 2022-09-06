@@ -60,7 +60,7 @@ enum Hour {
 
 ## Composing enums
 
-Enums can be reused using the spread `...` pattern. All the members of the source enums will be copied in the target enum but doesn't create any reference from the source and target enums.
+Enums can be reused using the spread `...` pattern. All the members of the source enums will be copied in the target enum but it doesn't create any reference between the source and target enums.
 
 ```cadl
 enum DirectionExt {
