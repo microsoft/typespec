@@ -93,7 +93,7 @@ enum Versions {
 }
 ```
 
-Pick a specific version to be used for all version of the service
+Pick a specific version to be used for all version of the service.
 
 ```cadl
 @versioned(Versions)
