@@ -409,6 +409,7 @@ export class OrderedMap<V> implements Map<string, V> {
       return false;
     }
     this.#keys.delete(existingKey);
+    keyItem.key = newKey;
     this.#keys.set(newKey, keyItem);
     return true;
   }

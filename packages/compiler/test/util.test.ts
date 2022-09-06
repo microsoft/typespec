@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { deepStrictEqual, strictEqual } from "assert";
 import { OrderedMap } from "../core/util.js";
 
 describe("compiler: util", () => {
@@ -10,7 +10,7 @@ describe("compiler: util", () => {
         ["c", "pos 3"],
       ]);
 
-      strictEqual(
+      deepStrictEqual(
         [...map.entries()],
         [
           ["a", "pos 1"],
@@ -20,23 +20,35 @@ describe("compiler: util", () => {
       );
     });
 
-    it("add new items at the end", () => {
-      const map = new OrderedMap([
-        ["a", "pos 1"],
-        ["b", "pos 2"],
-        ["c", "pos 3"],
-      ]);
-
-      map.set("aa", "pos 4");
-      strictEqual(
-        [...map.entries()],
-        [
+    describe("set() should add items at the end", () => {
+      let map: OrderedMap<string>;
+      beforeEach(() => {
+        map = new OrderedMap([
           ["a", "pos 1"],
           ["b", "pos 2"],
           ["c", "pos 3"],
-          ["aa", "pos 4"],
-        ]
-      );
+        ]);
+        map.set("aa", "pos 4");
+      });
+      it("entries() return items in order", () => {
+        deepStrictEqual(
+          [...map.entries()],
+          [
+            ["a", "pos 1"],
+            ["b", "pos 2"],
+            ["c", "pos 3"],
+            ["aa", "pos 4"],
+          ]
+        );
+      });
+
+      it("keys() return keys in order", () => {
+        deepStrictEqual([...map.keys()], ["a", "b", "c", "aa"]);
+      });
+
+      it("values() return values in order", () => {
+        deepStrictEqual([...map.values()], ["pos 1", "pos 2", "pos 3", "pos 4"]);
+      });
     });
 
     it("keep order when renaming keys", () => {
@@ -49,7 +61,7 @@ describe("compiler: util", () => {
 
       map.updateKey("b", "renamed");
 
-      strictEqual(
+      deepStrictEqual(
         [...map.entries()],
         [
           ["a", "pos 1"],
