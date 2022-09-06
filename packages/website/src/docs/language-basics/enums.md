@@ -74,7 +74,7 @@ enum DirectionExt {
 
 ## Referencing enum members
 
-Enum members can be referenced using the `.` operator for identifier
+Enum members can be referenced using the `.` operator for identifiers.
 
 ```cadl
 alias North = Direction.North;
