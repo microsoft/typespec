@@ -25,7 +25,7 @@ In this case, we haven't specified how the constants will be represented. Differ
 
 ## Values
 
-Enums members can have a custom value, it can be assigned using the `:` operator.
+Enums members can have a custom value that can be assigned using the `:` operator.
 
 ```cadl
 enum Direction {
