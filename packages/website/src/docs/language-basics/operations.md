@@ -41,7 +41,7 @@ Operation signatures can be reused using the `is` keyword. Given an operation
 op Delete(id: string): void;
 ```
 
-its signature can be reused like this
+its signature can be reused like this:
 
 ```cadl
 op deletePet is Delete;
