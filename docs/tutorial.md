@@ -505,7 +505,7 @@ Syntax:
 Example:
 
 ```cadl
-@friendlyName("{name}", T)
+@friendlyName("{name}List", T)
 model List<T> {}
 
 alias A = List<string>; // Instance friendly name would be `StringList`
