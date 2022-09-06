@@ -1,4 +1,4 @@
-import { deepStrictEqual, strictEqual } from "assert";
+import { deepStrictEqual } from "assert";
 import { OrderedMap } from "../core/util.js";
 
 describe("compiler: util", () => {

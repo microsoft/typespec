@@ -383,17 +383,22 @@ export class OrderedMap<V> implements Map<string, V> {
     return this.#values.size;
   }
 
-  entries(): IterableIterator<[string, V]> {
-    return [...this.#values.entries()].map(([k, v]) => [k.key, v])[Symbol.iterator]() as any;
+  *entries(): IterableIterator<[string, V]> {
+    for (const [k, v] of this.#values) {
+      yield [k.key, v];
+    }
   }
 
-  keys(): IterableIterator<string> {
-    return [...this.#values.keys()].map((x) => x.key)[Symbol.iterator]();
+  *keys(): IterableIterator<string> {
+    for (const k of this.#values.keys()) {
+      yield k.key;
+    }
   }
 
   values(): IterableIterator<V> {
     return this.#values.values();
   }
+
   [Symbol.iterator](): IterableIterator<[string, V]> {
     return this.entries();
   }
