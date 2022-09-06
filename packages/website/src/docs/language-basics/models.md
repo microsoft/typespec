@@ -96,7 +96,7 @@ model Animal {
 model Dog extends Animal {}
 ```
 
-## Is
+### Is
 
 Sometimes you want to create a new type that is an exact copy of an existing type but with some additional properties or metadata without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It copies all the properties(like spread), but copies [decorators]({{"/docs/language-basics/decorators" | url}}) as well. One common use case is to give a better name to a [template](#Templates) instantiation:
 
@@ -117,7 +117,7 @@ model StringThing {
 
 ## Model templates
 
-It is often useful to let the users of a model fill in certain details. Model templates enable this pattern. Similar to generics found in other languages, model templates declare template parameters that users provide when referencing the model.
+[See templates]({%doc "templates"%}) for details on templates
 
 ```cadl
 model Page<T> {
@@ -128,26 +128,4 @@ model Page<T> {
 model DogPage {
   ...Page<Dog>;
 }
-```
-
-### Default values
-
-A template parameter can be given a default value with `= <value>`.
-
-```cadl
-model Page<T = string> {
-  size: number;
-  item: T[];
-}
-```
-
-### Template constraints
-
-Template parameter can provide a constraint using the `extends` keyword. See [type-relations]({{"/docs/language-basics/type-relations" | url}}) documentation for details on how validation works.
-
-```cadl
-// Expect T to be a model with property name: string
-model Foo<T extends {name: string}> {}
-// Expect T to be a string
-model Bar<T extends string = "Abc"> {}
 ```
