@@ -1,4 +1,3 @@
-import { format } from "prettier";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CompletionItem,
@@ -56,7 +55,6 @@ import {
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { formatCadl } from "../core/formatter.js";
-import { CadlPrettierPlugin } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import {
