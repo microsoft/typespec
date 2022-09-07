@@ -13,7 +13,7 @@ const toc = {
     "templates",
     "enums",
     // "unions",
-    // "type-literals",
+    "type-literals",
     "aliases",
     "type-relations",
   ],
