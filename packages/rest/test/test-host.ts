@@ -20,6 +20,15 @@ export async function createRestTestHost(): Promise<TestHost> {
     libraries: [RestTestLibrary],
   });
 }
+export async function createHttpTestRunner(): Promise<BasicTestRunner> {
+  const host = await createRestTestHost();
+  return createTestWrapper(
+    host,
+    (code) =>
+      `import "@cadl-lang/rest"; using Cadl.Http;
+      ${code}`
+  );
+}
 
 export async function createRestTestRunner(): Promise<BasicTestRunner> {
   const host = await createRestTestHost();
