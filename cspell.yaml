@@ -1,20 +1,35 @@
 version: "0.2"
 language: en
+allowCompoundWords: true
 dictionaries:
   - node
   - typescript
 words:
-  - cadl
-  - msbuild
-  - openapi
-  - onigasm
-  - onig
-  - MSRC
-  - safeint
+  - autorest
+  - azsdkengsys
+  - azurecr
   - blockless
+  - cadl
+  - CRUDL
+  - dogfood
+  - msbuild
+  - MSRC
+  - nostdlib
+  - oneof
+  - onig
+  - onigasm
+  - openapi
+  - openapiv
   - proto
   - protobuf
+  - protoc
+  - regen
+  - rushx
+  - safeint
+  - vsix
+  - westus
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
   - "**/dist-dev/**"
+  - "**/CHANGELOG.md"

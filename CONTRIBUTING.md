@@ -112,7 +112,7 @@ Rush change will ask for the following questions for each modified packages:
 - message: This should be a good description of what the changes are to this package
 - type:
   - `major`: For a breaking change. **DO NOT USE All versions remain in 0.x stage until GA.**
-  - `minor`: A new funtionality.
+  - `minor`: A new functionality.
   - `patch`: A bug fix.
   - `none`: Not relevant to the consumer of the packages. For example some added tests.
 
@@ -163,10 +163,10 @@ at a time in the IDE.
 This will setup a an incremental watching build for the whole
 repo. From there on, your changes will be built whenever you save.
 
-Problems will be reported in the Problems pane auotomatically and the
+Problems will be reported in the Problems pane automatically and the
 Terminal pane will have three parallel watch tasks running:
 
-- `watch-source`: tsc process that recompiles on TypeScript changes
+- `watch-source`: tsc process that recompile on TypeScript changes
 - `watch-spec`: process that regenerates spec.html when
   spec.emu.html changes
 - `watch-tmlanguage`: process that regenerates cadl.tmlanguage when
@@ -194,7 +194,7 @@ debug the last one you chose.
 
 1. **VS Code Extension**: This will run and debug an experimental
    instance of VS Code with the Cadl extension for VS Code and Cadl
-   language serever running live with any of your changes. It will
+   language server running live with any of your changes. It will
    attach to both the VS Code client process and the language server
    process automatically.
 2. **Compile Scratch**: Use this to debug compiling
@@ -250,7 +250,7 @@ of the Cadl extension for VS Code running live with any of your changes
 to the extension or the Cadl language server.
 
 The VS debugger will attach only to the VS client process. Use "Attach
-to Lanugage Server" described above to debug the language server in
+to Language Server" described above to debug the language server in
 VS Code.
 
 # Installing your build

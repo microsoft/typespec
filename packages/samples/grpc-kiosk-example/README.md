@@ -111,7 +111,7 @@ model GetKioskRequest {
 op GetKiosk(... GetKioskRequest): Kiosk | RpcStatus;
 ```
 
-This produces slightly different, but functionality equivalent swagger in that the gRPC generator inlines the parameter id, while Cadl create a `"$ref": "#/parameters/GetKioskRequest"` which points to a single parameter, `id`.
+This produces slightly different, but functionality equivalent swagger in that the gRPC generator inline the parameter id, while Cadl create a `"$ref": "#/parameters/GetKioskRequest"` which points to a single parameter, `id`.
 
 If we wrote the Cadl directly with the id specified in the `op` parameters we get equivalent to the gRPC version:
 
@@ -122,4 +122,4 @@ If we wrote the Cadl directly with the id specified in the `op` parameters we ge
 op GetKiosk(@path id: int32): Kiosk | RpcStatus;
 ```
 
-the downside with this approach is that it's not as convinient to add documentation inside the parameter. Could we perhaps add a new decorator @parameter_doc("id","This is a unique identified") that we add to the `op` ?
+the downside with this approach is that it's not as convenient to add documentation inside the parameter. Could we perhaps add a new decorator @parameter_doc("id","This is a unique identified") that we add to the `op` ?
