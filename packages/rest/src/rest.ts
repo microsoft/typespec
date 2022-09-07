@@ -9,6 +9,7 @@ import {
   Namespace,
   Operation,
   Program,
+  reportDeprecated,
   setCadlNamespace,
   Type,
   Union,
@@ -28,6 +29,11 @@ const producesDecorator = createDecoratorDefinition({
 } as const);
 
 export function $produces(context: DecoratorContext, entity: Namespace, ...contentTypes: string[]) {
+  reportDeprecated(
+    context.program,
+    "@produces is deprecated. It has no effect. Use @header contentType: <ContentType> instead in operation return type.",
+    context.decoratorTarget
+  );
   if (!producesDecorator.validate(context, entity, contentTypes)) {
     return;
   }
@@ -50,6 +56,11 @@ const consumeDefinition = createDecoratorDefinition({
   },
 } as const);
 export function $consumes(context: DecoratorContext, entity: Namespace, ...contentTypes: string[]) {
+  reportDeprecated(
+    context.program,
+    "@produces is deprecated. It has no effect. Use @header contentType: <ContentType> instead in operation parameters.",
+    context.decoratorTarget
+  );
   if (!consumeDefinition.validate(context, entity, contentTypes)) {
     return;
   }
