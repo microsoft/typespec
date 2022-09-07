@@ -34,7 +34,7 @@ a:hover {
 }
 
 code {
-  background-color: hsl(230, 1%, 98%);
+  background-color: rgba(27, 27, 27, 0.05);
   border-radius: 3px;
   color: inherit;
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
@@ -46,7 +46,7 @@ code {
 pre {
   padding: 16px;
   border-radius: 3px;
-  background-color: hsl(230, 1%, 98%);
+  background-color: rgba(27, 27, 27, 0.05);
 }
 pre > code {
   display: block;
@@ -56,6 +56,24 @@ ul {
   margin: 0;
 }
 
+table {
+  border-collapse: collapse;
+}
+
+table tr:nth-child(2n) {
+  background-color: var(--color-canvas-subtle);
+}
+
+table td,
+table th {
+  padding: 6px 13px;
+  border: 1px solid var(--color-border-default);
+  padding: 6px 13px;
+}
+
+table th {
+  background-color: var(--color-canvas-subtle);
+}
 /* Extra small devices (phones, 600px and down) */
 
 @media only screen and (max-width: 600px) {

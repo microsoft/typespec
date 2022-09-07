@@ -17,13 +17,13 @@ import {
   isQueryParam,
   isStatusCode,
 } from "../src/http/decorators.js";
-import { createRestTestRunner } from "./test-host.js";
+import { createHttpTestRunner } from "./test-host.js";
 
 describe("rest: http decorators", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    runner = await createRestTestRunner();
+    runner = await createHttpTestRunner();
   });
 
   describe("emit diagnostic if passing arguments to verb decorators", () => {
