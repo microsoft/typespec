@@ -513,7 +513,7 @@
             "comment": "Uptake changes in @cadl-lang/rest library improving operation parameter handling"
           },
           {
-            "comment": "Update cadl depdendencies to peerDependencies"
+            "comment": "Update cadl dependencies to peerDependencies"
           },
           {
             "comment": "Add support for versioned services"

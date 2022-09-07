@@ -12,6 +12,7 @@ words:
   - cadl
   - CRUDL
   - dogfood
+  - intrinsics
   - msbuild
   - MSRC
   - nostdlib
@@ -24,10 +25,13 @@ words:
   - protobuf
   - protoc
   - regen
+  - rpaas
   - rushx
   - safeint
+  - unversioned
   - vsix
   - westus
+  - xplat
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
