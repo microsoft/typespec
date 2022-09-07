@@ -10,6 +10,7 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  DocumentFormattingParams,
   DocumentHighlight,
   DocumentHighlightKind,
   DocumentHighlightParams,
@@ -53,6 +54,7 @@ import {
   formatDiagnostic,
   getSourceLocation,
 } from "../core/diagnostics.js";
+import { formatCadl } from "../core/formatter.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import {
@@ -112,6 +114,7 @@ export interface Server {
   initialized(params: InitializedParams): void;
   workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
   watchedFilesChanged(params: DidChangeWatchedFilesParams): void;
+  formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]>;
   gotoDefinition(params: DefinitionParams): Promise<Location[]>;
   complete(params: CompletionParams): Promise<CompletionList>;
   findReferences(params: ReferenceParams): Promise<Location[]>;
@@ -260,6 +263,7 @@ export function createServer(host: ServerHost): Server {
     initialized,
     workspaceFoldersChanged,
     watchedFilesChanged,
+    formatDocument,
     gotoDefinition,
     documentClosed,
     complete,
@@ -304,6 +308,7 @@ export function createServer(host: ServerHost): Server {
       renameProvider: {
         prepareProvider: true,
       },
+      documentFormattingProvider: true,
     };
 
     if (params.capabilities.workspace?.workspaceFolders) {
@@ -694,6 +699,38 @@ export function createServer(host: ServerHost): Server {
     return {
       contents: markdown,
     };
+  }
+
+  async function formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]> {
+    const document = host.getOpenDocumentByURL(params.textDocument.uri);
+    if (document === undefined) {
+      return [];
+    }
+    const formattedText = formatCadl(document.getText());
+    return [minimalEdit(document, formattedText)];
+  }
+
+  function minimalEdit(document: TextDocument, string1: string): TextEdit {
+    const string0 = document.getText();
+    // length of common prefix
+    let i = 0;
+    while (i < string0.length && i < string1.length && string0[i] === string1[i]) {
+      ++i;
+    }
+    // length of common suffix
+    let j = 0;
+    while (
+      i + j < string0.length &&
+      i + j < string1.length &&
+      string0[string0.length - j - 1] === string1[string1.length - j - 1]
+    ) {
+      ++j;
+    }
+    const newText = string1.substring(i, string1.length - j);
+    const pos0 = document.positionAt(i);
+    const pos1 = document.positionAt(string0.length - j);
+
+    return TextEdit.replace(Range.create(pos0, pos1), newText);
   }
 
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {

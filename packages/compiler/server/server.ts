@@ -78,6 +78,7 @@ function main() {
     s.initialized(params);
   });
 
+  connection.onDocumentFormatting(profile(s.formatDocument));
   connection.onDidChangeWatchedFiles(profile(s.watchedFilesChanged));
   connection.onDefinition(profile(s.gotoDefinition));
   connection.onCompletion(profile(s.complete));

@@ -246,7 +246,7 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const lines = [...config.libraries.map((x) => `import "${x}";`), ""];
   const content = lines.join("\n");
 
-  return host.writeFile(joinPaths(config.directory, "main.cadl"), await formatCadl(content));
+  return host.writeFile(joinPaths(config.directory, "main.cadl"), formatCadl(content));
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
