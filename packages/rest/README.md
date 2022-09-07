@@ -172,6 +172,27 @@ interface WidgetService
 | ExtensionResourceCollectionOperations&lt;TExtension, TResource, TError> | Combines extension resource POST + LIST operations.                                                                  |
 | ExtensionResourceOperations&lt;TExtension, TResource, TError>           | Combines extension resource instance and collection operations. Includes GET + PATCH + DEL + POST + LIST operations. |
 
+## How to
+
+### Specify content type
+
+To specify the content type you can add a `@header contentType: <value>` in the operation parameter(For request content type) or return type(For response content type)
+
+Example: return `application/png` byte body
+
+```cadl
+op getPng(): {
+  @header contentType: "application/png";
+  @body _: bytes;
+};
+```
+
+Example: expect `application/png` byte body
+
+```cadl
+op getPng(@header contentType: "application/png", @body _: bytes): void;
+```
+
 ## See also
 
 - [HTTP example](https://cadlplayground.z22.web.core.windows.net/?c=aW1wb3J0ICJAY2FkbC1sYW5nL3Jlc3QiOwoKQHNlcnZpY2VUaXRsZSgiV2lkZ2V0IFPGFSIpCm5hbWVzcGFjZSBEZW1vxxg7CnVzaW5nIENhZGwuSHR0cDsKCm1vZGVsIMdAewogIEBrZXkgaWQ6IHN0cmluZzsKICB3ZWlnaHQ6IGludDMyxBFjb2xvcjogInJlZCIgfCAiYmx1ZSI7Cn0KCkBlcnJvcsdWRcQMxVVjb2Rly0BtZXNzYWdlymR9CgppbnRlcmbkALLmAI3nALTFP0DkAJ1saXN0KCk6xx9bXSB8xmHEUUByb3V0ZSgid8Uccy97aWR9IinGOHJlYWQoQHBhdGjrANfJSM1GcG9zdCBjcmVhdGUoQGJvZHkgxAXIK9Y0x3pjdXN0b21HZXTId8kR6gC0yjh9Cg%3D%3D):
