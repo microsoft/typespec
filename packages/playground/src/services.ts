@@ -1,6 +1,7 @@
 import { CadlLanguageConfiguration, ServerHost } from "@cadl-lang/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
+import { FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { BrowserHost } from "./browser-host";
 import { importCadlCompiler } from "./core";
@@ -92,6 +93,10 @@ export async function attachServices(host: BrowserHost) {
     };
   }
 
+  function lspFormattingOptions(options: monaco.languages.FormattingOptions) {
+    return FormattingOptions.create(options.tabSize, options.insertSpaces);
+  }
+
   function monacoLocation(loc: lsp.Location): monaco.languages.Location {
     return {
       uri: monaco.Uri.parse(loc.uri),
@@ -138,6 +143,10 @@ export async function attachServices(host: BrowserHost) {
       end: range.endLine + 1,
       kind: range.kind ? new monaco.languages.FoldingRangeKind(range.kind) : undefined,
     };
+  }
+
+  function monacoTextEdits(edit: lsp.TextEdit[]): monaco.languages.TextEdit[] {
+    return edit.map(monacoTextEdit);
   }
 
   function monacoTextEdit(edit: lsp.TextEdit): monaco.languages.TextEdit {
@@ -203,6 +212,16 @@ export async function attachServices(host: BrowserHost) {
     async provideHover(model, position) {
       const hover = await serverLib.getHover(lspArgs(model, position));
       return monacoHover(hover);
+    },
+  });
+
+  monaco.languages.registerDocumentFormattingEditProvider("cadl", {
+    async provideDocumentFormattingEdits(model, options, token) {
+      const edits = await serverLib.formatDocument({
+        ...lspDocumentArgs(model),
+        options: lspFormattingOptions(options),
+      });
+      return monacoTextEdits(edits);
     },
   });
 
