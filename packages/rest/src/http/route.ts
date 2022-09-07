@@ -104,12 +104,14 @@ export function resolvePathAndParameters(
   operation: Operation,
   options: RouteResolutionOptions
 ): [{ path: string; parameters: HttpOperationParameters }, readonly Diagnostic[]] {
+  let segments = [];
+  let parameters: HttpOperationParameters;
   const diagnostics = createDiagnosticCollector();
-  const parameters = diagnostics.pipe(getOperationParameters(program, operation));
-  let segments: string[];
   if (isAutoRoute(program, operation)) {
     let parentOptions;
     [segments, parentOptions] = getParentSegments(program, operation);
+    parameters = diagnostics.pipe(getOperationParameters(program, operation));
+
     // The operation exists within an @autoRoute scope, generate the path.  This
     // mutates the pathFragments and parameters lists that are passed in!
     generatePathFromParameters(program, operation, segments, parameters, {
@@ -118,6 +120,8 @@ export function resolvePathAndParameters(
     });
   } else {
     [segments] = getRouteSegments(program, operation);
+    const declaredPathParams = segments.flatMap(extractParamsFromPath);
+    parameters = diagnostics.pipe(getOperationParameters(program, operation, declaredPathParams));
 
     // Pull out path parameters to verify what's in the path string
     const paramByName = new Map(
@@ -125,9 +129,6 @@ export function resolvePathAndParameters(
         .filter(({ type }) => type === "path")
         .map(({ param }) => [param.name, param])
     );
-
-    // Find path parameter names used in all route fragments
-    const declaredPathParams = segments.flatMap(extractParamsFromPath);
 
     // For each param in the declared path parameters (e.g. /foo/{id} has one, id),
     // delete it because it doesn't need to be added to the path.
@@ -184,7 +185,7 @@ function getRouteSegments(
 
 const externalInterfaces = createStateSymbol("externalInterfaces");
 /**
- * @depreacted DO NOT USE. For internal use only as a workaround.
+ * @deprecated DO NOT USE. For internal use only as a workaround.
  * @param program Program
  * @param target Target namespace
  * @param sourceInterface Interface that should be included in namespace.

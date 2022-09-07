@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Detect unannotated path parameters that are specified in route path",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
