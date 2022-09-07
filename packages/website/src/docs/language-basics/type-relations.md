@@ -5,7 +5,7 @@ title: Type relations
 
 # Types Relations
 
-## Type hierachy
+## Type hierarchy
 
 ```mermaid
 graph RL

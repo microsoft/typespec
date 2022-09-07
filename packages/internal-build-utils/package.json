@@ -40,7 +40,8 @@
   ],
   "dependencies": {
     "yargs": "~17.3.1",
-    "strip-json-comments": "~4.0.0"
+    "strip-json-comments": "~4.0.0",
+    "cspell": "~6.8.1"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",

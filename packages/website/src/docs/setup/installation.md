@@ -42,7 +42,7 @@ cadl install
 You should now have a basic Cadl project setup with a structure looking like
 
 ```
-package.json      # Package manfifest defining your cadl project as a node package.
+package.json      # Package manifest defining your cadl project as a node package.
 cadl-project.yaml # Cadl project configuration letting you configure emitters, emitter options, compiler options, etc.
 main.cadl         # Cadl entrypoint
 ```

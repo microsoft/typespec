@@ -1,0 +1,20 @@
+version: "0.2"
+language: en
+dictionaries:
+  - node
+  - typescript
+words:
+  - cadl
+  - msbuild
+  - openapi
+  - onigasm
+  - onig
+  - MSRC
+  - safeint
+  - blockless
+  - proto
+  - protobuf
+ignorePaths:
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/dist-dev/**"
