@@ -8,19 +8,32 @@ words:
   - autorest
   - azsdkengsys
   - azurecr
+  - blockful
   - blockless
   - cadl
+  - Contoso
   - CRUDL
   - dogfood
+  - eastus
+  - esbuild
+  - globby
+  - inmemory
+  - instanceid
   - intrinsics
+  - jsyaml
   - msbuild
   - MSRC
+  - munge
+  - mylib
   - nostdlib
+  - oapi
   - oneof
   - onig
   - onigasm
+  - onwarn
   - openapi
   - openapiv
+  - picocolors
   - proto
   - protobuf
   - protoc
@@ -28,12 +41,30 @@ words:
   - rpaas
   - rushx
   - safeint
+  - strs
+  - TSES
+  - Uhoh
+  - unassignable
+  - Uncapitalize
+  - uninstantiated
+  - unioned
+  - unprojected
+  - unsourced
   - unversioned
   - vsix
+  - vswhere
+  - Vtbzpw
   - westus
   - xplat
+  - 𐌰𐌲
+  - 𐌰𐌲𐌰𐌲𐌰𐌲
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
   - "**/dist-dev/**"
   - "**/CHANGELOG.md"
+patterns:
+  - name: cursortest
+    pattern: /(.*)┆(.*)/g
+ignoreRegExpList:
+  - cursortest

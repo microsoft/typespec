@@ -54,7 +54,7 @@ describe("cadl: versioning", () => {
       const v1 = project(Test, "1");
       ok(v1.properties.has("a"), "v1 has a");
       ok(!v1.properties.has("b"), "v1 doesn't have b");
-      ok(!v1.properties.has("c"), "v1 desn't have c");
+      ok(!v1.properties.has("c"), "v1 doesn't have c");
       const v2 = project(Test, "version two");
       ok(v2.properties.has("a"), "v2 has a");
       ok(v2.properties.has("b"), "v2 has b");

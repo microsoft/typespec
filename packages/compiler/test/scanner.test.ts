@@ -423,12 +423,13 @@ describe("compiler: scanner", () => {
         `U+${codePoint.toString(16)} should be allowed to continue identifier.`
       );
     }
-
+    // cspell:disable-next-line
     assert(isIdentifierContinue(0x200c), "U+200C (ZWNJ) should be allowed to continue identifier.");
     assert(isIdentifierContinue(0x200d), "U+200D (ZWJ) should be allowed to continue identifier.");
   });
 
   describe("keyword collision", () => {
+    // cspell:disable-next-line
     for (const identifier of ["outerface", "famespace", "notanamespace", "notaninterface"]) {
       it(`does not think ${identifier} is a keyword`, () => {
         const [[token]] = tokens(identifier);

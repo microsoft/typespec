@@ -486,7 +486,7 @@ export function getVersionForEnumMember(program: Program, member: EnumMember): V
 }
 
 /**
- * returns either null, which means unversioned, or true or false dependnig
+ * returns either null, which means unversioned, or true or false depending
  * on whether the change is active or not at that particular version
  */
 function appliesAtVersion(

@@ -482,7 +482,7 @@ const externalInterfaces = createStateSymbol("externalInterfaces");
  * @depreacted DO NOT USE. For internal use only as a workaround.
  * @param program Program
  * @param target Target namespace
- * @param interf Interface that should be included in namespace.
+ * @param sourceInterface Interface that should be included in namespace.
  */
 export function includeInterfaceRoutesInNamespace(
   program: Program,

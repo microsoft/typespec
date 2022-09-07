@@ -145,7 +145,7 @@ function validateReference(program: Program, source: Type, target: Type) {
 }
 
 /**
- * Validate the target versioning is compatible with the versioning of the soruce.
+ * Validate the target versioning is compatible with the versioning of the source.
  * e.g. The target cannot be added after the source was added.
  * @param source Source type referencing the target type.
  * @param target Type being referenced from the source

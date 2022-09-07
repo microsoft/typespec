@@ -8,7 +8,7 @@ import {
 } from "../../testing/index.js";
 
 describe("server: reuse", () => {
-  it("reuses uchanged programs", async () => {
+  it("reuses unchanged programs", async () => {
     const host = await createTestServerHost();
     const document = host.addOrUpdateDocument("main.cadl", "model M  {}");
     const oldProgram = await host.server.compile(document);

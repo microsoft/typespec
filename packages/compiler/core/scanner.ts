@@ -775,7 +775,7 @@ export function createScanner(
       if (pos < end) {
         if (isCrlf(pos, start, end)) {
           // CRLF in multi-line string is normalized to LF in string value.
-          // This keeps program behavior unchanged by line-eding conversion.
+          // This keeps program behavior unchanged by line-ending conversion.
           result += input.substring(start, pos);
           result += "\n";
           pos += 2;
