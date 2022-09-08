@@ -9,6 +9,7 @@ import {
   Namespace,
   Operation,
   Program,
+  reportDeprecated,
   setCadlNamespace,
   Type,
   Union,
@@ -27,7 +28,15 @@ const producesDecorator = createDecoratorDefinition({
   },
 } as const);
 
+/**
+ * @deprecated Use return type `@header contentType` property instead
+ */
 export function $produces(context: DecoratorContext, entity: Namespace, ...contentTypes: string[]) {
+  reportDeprecated(
+    context.program,
+    "@produces is deprecated. It has no effect. Use @header contentType: <ContentType> instead in operation return type.",
+    context.decoratorTarget
+  );
   if (!producesDecorator.validate(context, entity, contentTypes)) {
     return;
   }
@@ -36,6 +45,9 @@ export function $produces(context: DecoratorContext, entity: Namespace, ...conte
   context.program.stateMap(producesTypesKey).set(entity, values.concat(contentTypes));
 }
 
+/**
+ * @deprecated Check return type `@header contentType` property instead
+ */
 export function getProduces(program: Program, entity: Type): string[] {
   return program.stateMap(producesTypesKey).get(entity) || [];
 }
@@ -49,7 +61,16 @@ const consumeDefinition = createDecoratorDefinition({
     kind: "String",
   },
 } as const);
+
+/**
+ * @deprecated Use parameters `@header contentType` instead
+ */
 export function $consumes(context: DecoratorContext, entity: Namespace, ...contentTypes: string[]) {
+  reportDeprecated(
+    context.program,
+    "@produces is deprecated. It has no effect. Use @header contentType: <ContentType> instead in operation parameters.",
+    context.decoratorTarget
+  );
   if (!consumeDefinition.validate(context, entity, contentTypes)) {
     return;
   }
@@ -58,6 +79,9 @@ export function $consumes(context: DecoratorContext, entity: Namespace, ...conte
   context.program.stateMap(consumesTypesKey).set(entity, values.concat(contentTypes));
 }
 
+/**
+ * @deprecated Check parameters `@header contentType` instead
+ */
 export function getConsumes(program: Program, entity: Type): string[] {
   return program.stateMap(consumesTypesKey).get(entity) || [];
 }

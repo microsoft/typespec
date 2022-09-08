@@ -824,8 +824,6 @@ A definition for a service is the namespace that contains all the operations for
 - @serviceTitle - the title of the service
 - @serviceVersion - the version of the service. Can be any string, but later version should lexicographically sort after earlier versions
 - @server - the host of the service. Can accept parameters.
-- @produces - the content types the service may produce
-- @consumes - the content types that may be sent to the service
 
 Here's an example that uses these to define a Pet Store service:
 
@@ -834,8 +832,6 @@ Here's an example that uses these to define a Pet Store service:
 @serviceVersion("2021-03-25")
 @server("https://example.com", "Single server endpoint")
 @doc("This is a sample server Petstore server.")
-@Cadl.Rest.produces("application/json", "image/png")
-@Cadl.Rest.consumes("application/json")
 namespace PetStore;
 ```
 
