@@ -6,12 +6,7 @@ export const cspell = resolve(repoRoot, "packages/internal-build-utils/node_modu
 
 await run(
   cspell,
-  [
-    "**/*.md",
-    "**/*.ts",
-    "**/changelog.json",
-    // "common/changes/**/*.json",
-  ],
+  ["**/*.md", "**/*.ts", "**/*.js", "**/changelog.json", "common/changes/**/*.json"],
   {
     cwd: repoRoot,
   }

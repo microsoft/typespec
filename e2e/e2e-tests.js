@@ -7,12 +7,28 @@ const e2eTestDir = join(repoRoot, "e2e");
 const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
 
 function main() {
+  printInfo();
   cleanE2EDirectory();
   const packages = packPackages();
+
+  console.log("Check packages exists");
+  run("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
+
+  console.log("Check cli is working");
+  runCadl(packages["@cadl-lang/compiler"], ["--help"], { cwd: e2eTestDir });
+  console.log("Cli is working");
+
   testBasicLatest(packages);
   testBasicCurrentTgz(packages);
 }
 main();
+
+function printInfo() {
+  console.log("-".repeat(100));
+  console.log("Npm Version: ");
+  run("npm", ["-v"]);
+  console.log("-".repeat(100));
+}
 
 function cleanE2EDirectory() {
   run("git", ["clean", "-xfd"], { cwd: e2eTestDir });
@@ -27,6 +43,7 @@ function packPackages() {
   function resolvePackage(start) {
     return join(
       outputFolder,
+      // @ts-ignore
       files.find((x) => x.startsWith(start))
     );
   }

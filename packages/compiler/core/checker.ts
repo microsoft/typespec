@@ -2191,6 +2191,14 @@ export function createChecker(program: Program): Checker {
     heritageRef: Expression,
     mapper: TypeMapper | undefined
   ): Model | undefined {
+    if (heritageRef.kind === SyntaxKind.ModelExpression) {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        messageId: "modelExpression",
+        target: heritageRef,
+      });
+      return undefined;
+    }
     if (heritageRef.kind !== SyntaxKind.TypeReference) {
       reportDiagnostic(program, {
         code: "extend-model",
@@ -2228,6 +2236,14 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
+    if (heritageType.name === "") {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        messageId: "modelExpression",
+        target: heritageRef,
+      });
+    }
+
     if (isIntrinsic(program, heritageType)) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -2254,7 +2270,14 @@ export function createChecker(program: Program): Checker {
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
     let isType;
-    if (isExpr.kind === SyntaxKind.ArrayExpression) {
+    if (isExpr.kind === SyntaxKind.ModelExpression) {
+      reportDiagnostic(program, {
+        code: "is-model",
+        messageId: "modelExpression",
+        target: isExpr,
+      });
+      return undefined;
+    } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(isExpr, mapper);
     } else if (isExpr.kind === SyntaxKind.TypeReference) {
       const target = resolveTypeReference(isExpr, mapper);
@@ -2282,6 +2305,10 @@ export function createChecker(program: Program): Checker {
     if (isType.kind !== "Model") {
       program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return;
+    }
+
+    if (isType.name === "") {
+      reportDiagnostic(program, { code: "is-model", messageId: "modelExpression", target: isExpr });
     }
 
     return isType;

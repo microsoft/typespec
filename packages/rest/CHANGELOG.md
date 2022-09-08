@@ -1,6 +1,25 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Thu, 11 Aug 2022 19:05:23 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+
+## 0.17.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- **Deprecation**: Mark `@produces` and `@consumes` as deprecated
+- Uptake changes to compiler with current projection
+- Update decororator state key to allow multiple instance of library to work together.
+- React to Type suffix removal
+- **BREAKING CHANGE** Rename `Page` to `CollectionWithNextLink`
+- Fix doc for route and move autoRoute to rest library
+- Api: Service Authentication oauth2 flow scopes is now an object with value and description
+
+### Patches
+
+- Api: Route resolution take projection into account
+- Guard against uninitialized parent type in `parentResource` decorator
+- Support more kinds of unions, fix various union bugs, and add support for @discriminator on unions
 
 ## 0.16.0
 Thu, 11 Aug 2022 19:05:23 GMT

@@ -1,6 +1,38 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Thu, 11 Aug 2022 19:05:23 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+
+## 0.35.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- implementation of documentHighlight
+- **Breaking** Update `Enum` type members type to be a `Map<string, EnumMember>` instead of `EnumMember[]`
+- Add `@projectedName` decorator and projection for projected names
+- Add auto formatting support for projections
+- Add syntax highlighting for projections
+- **API BREAKING** Replace `enableProjections` and `disableProjections` with a new function `projectProgram` removing the state of the program around the current projection.
+- Api: Add helper method to resolve model usages
+- Formatter: Comments in between decorators will stay between the decorators when formatting.
+- Hovering over a symbol gives the fully-qualified name and documentation
+- Enable loading multiple installation of the same library as long as the versions are the same
+- Internal: Remove `evalCadlScript` from `Program`
+- Remove Type suffix from most Types and deprecate old names
+- Perf: Reuse unchanged files and programs in language server.
+
+### Patches
+
+- Api: `isGlobalNamespace` takes projection into account
+- Internal: Facilitate adding new tokens to scanner."
+- Formatter: Cadl doesn't include blank line at the end of embeded markdown codeblock
+- Fix issue with ever-increasing duplicate symbol errors in IDE
+- Formatter: Directive on model property with decorators will hug decorator.
+- Fix additional issues for decorators not running in projections in templated type instance
+- Internal: Fix some functionatliy not compatible in the browser
+- Fix issue where decorators would get called on uninstantiated template declarations
+- Internal: Don't clear template arguments on clone
+- Internal: Make scanner capable of scanning future keywords that are longer than 10 characters.
 
 ## 0.34.0
 Thu, 11 Aug 2022 19:05:23 GMT

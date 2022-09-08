@@ -10,21 +10,39 @@ steps:
       versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
 
+  - task: Npm@1
+    inputs:
+      command: custom
+      customCommand: "install -g npm@latest"
+    displayName: "Upgrade npm to latest version"
+
   - task: UseDotNet@2
     inputs:
       version: 6.0.x
 
-  - script: node common/scripts/install-run-rush.js install
+  - script: npm install -g @microsoft/rush
+    displayName: "Install rush"
+
+  - script: |
+      echo "Node:"
+      node -v
+      echo "Npm:"
+      npm -v
+      echo "Dotnet:"
+      dotnet --version
+    displayName: "Log tool versions used"
+
+  - script: rush install
     displayName: Install JavaScript Dependencies
 
   - script: dotnet restore
     displayName: Restore .NET Dependencies
     workingDirectory: packages/cadl-vs
 
-  - script: node common/scripts/install-run-rush.js rebuild --verbose
+  - script: rush rebuild --verbose
     displayName: Build
 
-  - script: node common/scripts/install-run-rush.js test-official
+  - script: rush test-official
     displayName: Test
 
   - task: PublishTestResults@2
@@ -44,10 +62,10 @@ steps:
 
   - template: ./upload-coverage.yml
 
-  - script: node common/scripts/install-run-rush.js check-format
+  - script: rush check-format
     displayName: Check Formatting
 
-  - script: node common/scripts/install-run-rush.js lint --verbose
+  - script: rush lint --verbose
     displayName: Lint
 
   - script: cd packages/samples && npm run regen-samples
@@ -56,8 +74,10 @@ steps:
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
-  - script: node common/scripts/install-run-rush.js cspell
+  - script: rush cspell
     displayName: Spell check
 
-  - script: node common/scripts/install-run-rush.js e2e
+  - script: rush e2e
     displayName: E2E Tests
+    # Skipping e2e test on windows node 16.x as there is a bug with npm and it doesn't seem to want to update correctly.
+    condition: ne(variables['Agent.OS'], 'Windows_NT')

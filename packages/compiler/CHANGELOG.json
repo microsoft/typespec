@@ -2,6 +2,91 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.35.0",
+      "tag": "@cadl-lang/compiler_v0.35.0",
+      "date": "Thu, 08 Sep 2022 01:04:53 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Api: `isGlobalNamespace` takes projection into account"
+          },
+          {
+            "comment": "Internal: Facilitate adding new tokens to scanner.\""
+          },
+          {
+            "comment": "Formatter: Cadl doesn't include blank line at the end of embeded markdown codeblock"
+          },
+          {
+            "comment": "Fix issue with ever-increasing duplicate symbol errors in IDE"
+          },
+          {
+            "comment": "Formatter: Directive on model property with decorators will hug decorator."
+          },
+          {
+            "comment": "Fix additional issues for decorators not running in projections in templated type instance"
+          },
+          {
+            "comment": "Internal: Fix some functionatliy not compatible in the browser"
+          },
+          {
+            "comment": "Fix issue where decorators would get called on uninstantiated template declarations"
+          },
+          {
+            "comment": "Internal: Don't clear template arguments on clone"
+          },
+          {
+            "comment": "Internal: Make scanner capable of scanning future keywords that are longer than 10 characters."
+          }
+        ],
+        "minor": [
+          {
+            "comment": "implementation of documentHighlight"
+          },
+          {
+            "comment": "**Breaking** Update `Enum` type members type to be a `Map<string, EnumMember>` instead of `EnumMember[]`"
+          },
+          {
+            "comment": "Add `@projectedName` decorator and projection for projected names"
+          },
+          {
+            "comment": "Add auto formatting support for projections"
+          },
+          {
+            "comment": "Add syntax highlighting for projections"
+          },
+          {
+            "comment": "**API BREAKING** Replace `enableProjections` and `disableProjections` with a new function `projectProgram` removing the state of the program around the current projection."
+          },
+          {
+            "comment": "Api: Add helper method to resolve model usages"
+          },
+          {
+            "comment": "Formatter: Comments in between decorators will stay between the decorators when formatting."
+          },
+          {
+            "comment": "Hovering over a symbol gives the fully-qualified name and documentation"
+          },
+          {
+            "comment": "Enable loading multiple installation of the same library as long as the versions are the same"
+          },
+          {
+            "comment": "Internal: Remove `evalCadlScript` from `Program`"
+          },
+          {
+            "comment": "Remove Type suffix from most Types and deprecate old names"
+          },
+          {
+            "comment": "Perf: Reuse unchanged files and programs in language server."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.0` to `~0.4.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.34.0",
       "tag": "@cadl-lang/compiler_v0.34.0",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",

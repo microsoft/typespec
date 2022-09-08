@@ -63,6 +63,8 @@ ignorePaths:
   - "**/dist/**"
   - "**/dist-dev/**"
   - "**/CHANGELOG.md"
+enableFiletypes:
+  - cadl
 patterns:
   - name: cursortest
     pattern: /(.*)┆(.*)/g
