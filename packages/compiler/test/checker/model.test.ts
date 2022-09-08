@@ -514,7 +514,7 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.cadl");
       expectDiagnostics(diagnostics, {
         code: "is-model",
-        message: "Model `is` cannot be a model expression.",
+        message: "Model `is` cannot specify a model expression.",
       });
     });
 
@@ -529,7 +529,7 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.cadl");
       expectDiagnostics(diagnostics, {
         code: "is-model",
-        message: "Model `is` cannot be a model expression.",
+        message: "Model `is` cannot specify a model expression.",
       });
     });
 
