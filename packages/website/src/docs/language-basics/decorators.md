@@ -100,10 +100,8 @@ Decorator context provide the `decoratorTarget` and `getArgumentTarget` helpers
 
 ```ts
 import type { DecoratorContext, Type } from "@cadl-lang/compiler";
-import type { createStateSymbol } from "./lib.js";
+import type { reportDiagnostic } from "./lib.js";
 
-// Create a unique key
-const key = createStateSymbol("customName");
 export function $customName(context: DecoratorContext, target: Type, name: string) {
   reportDiagnostic({
     code: "custom-name-invalid",
