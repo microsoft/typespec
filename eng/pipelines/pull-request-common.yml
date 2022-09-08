@@ -74,9 +74,6 @@ steps:
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
-  - script: rush cspell
-    displayName: Spell check
-
   - script: rush e2e
     displayName: E2E Tests
     # Skipping e2e test on windows node 16.x as there is a bug with npm and it doesn't seem to want to update correctly.
