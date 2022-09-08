@@ -16,6 +16,10 @@ steps:
       customCommand: "install -g npm@latest"
     displayName: "Upgrade npm to latest version"
 
+  - script: |
+      npm -v
+    displayName: "Log npm version"
+
   - task: UseDotNet@2
     inputs:
       version: 6.0.x
