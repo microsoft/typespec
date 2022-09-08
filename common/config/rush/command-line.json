@@ -57,7 +57,7 @@
     {
       "commandKind": "global",
       "name": "cspell",
-      "summary": "(CUSTOM) Regenerate samples.",
+      "summary": "(CUSTOM) Check spelling.",
       "shellCommand": "node eng/scripts/cspell.js"
     },
     {
