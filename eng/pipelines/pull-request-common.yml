@@ -77,4 +77,4 @@ steps:
   - script: rush e2e
     displayName: E2E Tests
     # Skipping e2e test on windows node 16.x as there is a bug with npm and it doesn't seem to want to update correctly.
-    condition: or(ne(parameters.nodeVersion, '16.x'), ne(variables['Agent.OS'], 'Windows_NT'))
+    condition: or(ne('${{ parameters.nodeVersion }}', '16.x'), ne(variables['Agent.OS'], 'Windows_NT'))
