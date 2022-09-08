@@ -318,6 +318,35 @@ describe("compiler: models", () => {
       });
     });
 
+    it("emit error when extend model expression", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A extends {name: string} {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "extend-model",
+        message: "Models cannot extend model expressions.",
+      });
+    });
+
+    it("emit error when extend model expression via alias", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        alias B = {name: string};
+        model A extends B {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "extend-model",
+        message: "Models cannot extend model expressions.",
+      });
+    });
+
     it("emit error when extends itself", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -472,6 +501,35 @@ describe("compiler: models", () => {
       expectDiagnostics(diagnostics, {
         code: "is-model",
         message: "Model `is` must specify another model.",
+      });
+    });
+
+    it("emit error when is model expression", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A is {name: string} {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` cannot specify a model expression.",
+      });
+    });
+
+    it("emit error when is model expression via alias", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        alias B = {name: string};
+        model A is B {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` cannot specify a model expression.",
       });
     });
 
