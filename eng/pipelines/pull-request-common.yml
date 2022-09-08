@@ -10,6 +10,9 @@ steps:
       versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
 
+  - script: npm install -g npm
+    displayName: Update npm
+
   - task: UseDotNet@2
     inputs:
       version: 6.0.x
