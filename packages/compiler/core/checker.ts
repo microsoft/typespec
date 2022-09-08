@@ -2191,7 +2191,7 @@ export function createChecker(program: Program): Checker {
     heritageRef: Expression,
     mapper: TypeMapper | undefined
   ): Model | undefined {
-    if (heritageRef.kind == SyntaxKind.ModelExpression) {
+    if (heritageRef.kind === SyntaxKind.ModelExpression) {
       reportDiagnostic(program, {
         code: "extend-model",
         messageId: "modelExpression",
