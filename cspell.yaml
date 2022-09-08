@@ -15,6 +15,7 @@ words:
   - CRUDL
   - dogfood
   - eastus
+  - ecmarkup
   - esbuild
   - globby
   - inmemory
@@ -42,6 +43,7 @@ words:
   - rushx
   - safeint
   - strs
+  - TRYIT
   - TSES
   - Uhoh
   - unassignable
@@ -63,6 +65,7 @@ ignorePaths:
   - "**/dist/**"
   - "**/dist-dev/**"
   - "**/CHANGELOG.md"
+  - "common/scripts/*"
 enableFiletypes:
   - cadl
 patterns:

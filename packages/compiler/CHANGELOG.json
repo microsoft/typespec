@@ -14,7 +14,7 @@
             "comment": "Internal: Facilitate adding new tokens to scanner.\""
           },
           {
-            "comment": "Formatter: Cadl doesn't include blank line at the end of embeded markdown codeblock"
+            "comment": "Formatter: Cadl doesn't include blank line at the end of embedded markdown codeblock"
           },
           {
             "comment": "Fix issue with ever-increasing duplicate symbol errors in IDE"
@@ -26,7 +26,7 @@
             "comment": "Fix additional issues for decorators not running in projections in templated type instance"
           },
           {
-            "comment": "Internal: Fix some functionatliy not compatible in the browser"
+            "comment": "Internal: Fix some functionally not compatible in the browser"
           },
           {
             "comment": "Fix issue where decorators would get called on uninstantiated template declarations"
