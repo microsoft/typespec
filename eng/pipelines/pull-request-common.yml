@@ -16,13 +16,15 @@ steps:
       customCommand: "install -g npm@latest"
     displayName: "Upgrade npm to latest version"
 
-  - script: |
-      npm -v
-    displayName: "Log npm version"
-
   - task: UseDotNet@2
     inputs:
       version: 6.0.x
+
+  - script: |
+      node -v
+      npm -v
+      dotnet --version
+    displayName: "Log tool versions used"
 
   - script: node common/scripts/install-run-rush.js install
     displayName: Install JavaScript Dependencies
@@ -66,5 +68,5 @@ steps:
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
-  - script: node common/scripts/install-run-rush.js e2e
+  - script: npx @microsoft/rush e2e
     displayName: E2E Tests
