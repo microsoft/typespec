@@ -12,7 +12,7 @@ function main() {
   const packages = packPackages();
 
   console.log("Check packages exists");
-  run("ls", `${repoRoot}/common/temp/artifacts/packages`);
+  run("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
 
   console.log("Check cli is working");
   runCadl(packages["@cadl-lang/compiler"], ["--help"], { cwd: e2eTestDir });
