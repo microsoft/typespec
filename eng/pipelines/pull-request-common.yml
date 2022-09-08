@@ -10,8 +10,11 @@ steps:
       versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
 
-  - script: npm install -g npm@8.19.1
-    displayName: Update npm
+  - task: Npm@1
+    inputs:
+      command: custom
+      customCommand: "install -g npm@latest"
+    displayName: "Upgrade npm to latest version"
 
   - task: UseDotNet@2
     inputs:
