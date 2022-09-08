@@ -51,6 +51,10 @@ function testBasicLatest(packages) {
   rmSync(outputDir, { recursive: true, force: true });
   console.log("Cleared basic-latest output");
 
+  console.log("Check cli is working");
+  runCadl(packages["@cadl-lang/compiler"], ["--help"], { cwd: basicLatestDir });
+  console.log("Cli is working");
+
   console.log("Installing basic-latest dependencies");
   runCadl(packages["@cadl-lang/compiler"], ["install"], { cwd: basicLatestDir });
   console.log("Installed basic-latest dependencies");
