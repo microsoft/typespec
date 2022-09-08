@@ -77,12 +77,14 @@ model CertificateAttributes {
 ```
 
 <table>
+<thead>
 <tr>
-<td>Json</td>
-<td>Typescript</td>
-<td>CSharp</td>
+<th>Json</th>
+<th>Typescript</th>
+<th>CSharp</th>
 </tr>
 <tr>
+</thead>
 <td>When serialized to Json property use the json projected name</td>
 <td>Typescript didn't provide any projected name so it keep the model as it is.</td>
 <td>Model uses the `csharp` projected names and keeps the reference to the JSON name in JsonProperty</td>

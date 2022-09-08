@@ -2155,7 +2155,7 @@ export function createChecker(program: Program): Checker {
         }
         break;
       case "Enum":
-        for (const member of type.members) {
+        for (const member of type.members.values()) {
           lateBindMember(member, SymbolFlags.EnumMember);
         }
         break;
@@ -2468,7 +2468,7 @@ export function createChecker(program: Program): Checker {
         kind: "Enum",
         name: node.id.sv,
         node,
-        members: [],
+        members: new Map(),
         decorators: [],
       }));
 
@@ -2478,12 +2478,12 @@ export function createChecker(program: Program): Checker {
         if (member.kind === SyntaxKind.EnumMember) {
           const memberType = checkEnumMember(enumType, member, mapper, memberNames);
           if (memberType) {
-            enumType.members.push(memberType);
+            enumType.members.set(memberType.name, memberType);
           }
         } else {
           const members = checkEnumSpreadMember(enumType, member.target, mapper, memberNames);
           for (const memberType of members) {
-            enumType.members.push(memberType);
+            enumType.members.set(memberType.name, memberType);
           }
         }
       }
@@ -2715,7 +2715,7 @@ export function createChecker(program: Program): Checker {
         return members;
       }
 
-      for (const member of targetType.members) {
+      for (const member of targetType.members.values()) {
         if (existingMemberNames.has(member.name)) {
           program.reportDiagnostic(
             createDiagnostic({
@@ -2915,7 +2915,9 @@ export function createChecker(program: Program): Checker {
         clone = finishType({
           ...type,
           decorators,
-          members: type.members.map((v) => cloneType(v)),
+          members: new Map(
+            Array.from(type.members.entries()).map(([key, prop]) => [key, cloneType(prop)])
+          ),
           ...additionalProps,
         });
         break;
@@ -3400,7 +3402,7 @@ export function createChecker(program: Program): Checker {
           }
           return prop;
         case "Enum":
-          const enumMember = base.members.find((v) => v.name === member);
+          const enumMember = base.members.get(member);
           if (!enumMember) {
             throw new ProjectionError(`Enum doesn't have member ${member}`);
           }

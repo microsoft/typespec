@@ -812,12 +812,9 @@ describe("cadl: versioning", () => {
   function assertEnumProjectsTo(types: [Enum, string][], target: Enum) {
     types.forEach(([m, version]) => {
       const projection = project(m, version, "from");
-      strictEqual(projection.members.length, target.members.length);
-      for (const member of projection.members) {
-        ok(
-          target.members.findIndex((m) => m.name === member.name) > -1,
-          "enum should have operation " + member.name
-        );
+      strictEqual(projection.members.size, target.members.size);
+      for (const member of projection.members.values()) {
+        ok(target.members.has(member.name), "enum should have operation " + member.name);
       }
     });
   }

@@ -666,7 +666,7 @@ export function $knownValues(context: DecoratorContext, target: Type, knownValue
     return;
   }
 
-  for (const member of knownValues.members) {
+  for (const member of knownValues.members.values()) {
     const intrinsicType = getIntrinsicModelName(context.program, getPropertyType(target));
     if (!isEnumMemberAssignableToType(intrinsicType, member)) {
       reportDiagnostic(context.program, {

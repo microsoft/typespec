@@ -3,11 +3,13 @@ import {
   createDecoratorDefinition,
   DecoratorContext,
   DecoratorValidator,
+  Interface,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
+  reportDeprecated,
   setCadlNamespace,
   Type,
   Union,
@@ -26,7 +28,15 @@ const producesDecorator = createDecoratorDefinition({
   },
 } as const);
 
+/**
+ * @deprecated Use return type `@header contentType` property instead
+ */
 export function $produces(context: DecoratorContext, entity: Namespace, ...contentTypes: string[]) {
+  reportDeprecated(
+    context.program,
+    "@produces is deprecated. It has no effect. Use @header contentType: <ContentType> instead in operation return type.",
+    context.decoratorTarget
+  );
   if (!producesDecorator.validate(context, entity, contentTypes)) {
     return;
   }
@@ -35,6 +45,9 @@ export function $produces(context: DecoratorContext, entity: Namespace, ...conte
   context.program.stateMap(producesTypesKey).set(entity, values.concat(contentTypes));
 }
 
+/**
+ * @deprecated Check return type `@header contentType` property instead
+ */
 export function getProduces(program: Program, entity: Type): string[] {
   return program.stateMap(producesTypesKey).get(entity) || [];
 }
@@ -48,7 +61,16 @@ const consumeDefinition = createDecoratorDefinition({
     kind: "String",
   },
 } as const);
+
+/**
+ * @deprecated Use parameters `@header contentType` instead
+ */
 export function $consumes(context: DecoratorContext, entity: Namespace, ...contentTypes: string[]) {
+  reportDeprecated(
+    context.program,
+    "@produces is deprecated. It has no effect. Use @header contentType: <ContentType> instead in operation parameters.",
+    context.decoratorTarget
+  );
   if (!consumeDefinition.validate(context, entity, contentTypes)) {
     return;
   }
@@ -57,6 +79,9 @@ export function $consumes(context: DecoratorContext, entity: Namespace, ...conte
   context.program.stateMap(consumesTypesKey).set(entity, values.concat(contentTypes));
 }
 
+/**
+ * @deprecated Check parameters `@header contentType` instead
+ */
 export function getConsumes(program: Program, entity: Type): string[] {
   return program.stateMap(consumesTypesKey).get(entity) || [];
 }
@@ -157,6 +182,58 @@ export function getDiscriminator(program: Program, entity: Type): Discriminator 
   }
   return undefined;
 }
+
+// ----------------- @autoRoute -----------------
+
+const autoRouteDecorator = createDecoratorDefinition({
+  name: "@autoRoute",
+  target: ["Namespace", "Interface", "Operation"],
+  args: [],
+} as const);
+
+const autoRouteKey = createStateSymbol("autoRoute");
+
+/**
+ * `@autoRoute` enables automatic route generation for an operation, namespace, or interface.
+ *
+ * When applied to an operation, it automatically generates the operation's route based on path parameter
+ * metadata.  When applied to a namespace or interface, it causes all operations under that scope to have
+ * auto-generated routes.
+ */
+
+export function $autoRoute(
+  context: DecoratorContext,
+  entity: Namespace | Interface | Operation,
+  ...args: readonly []
+) {
+  if (!autoRouteDecorator.validate(context, entity, args)) {
+    return;
+  }
+
+  context.program.stateSet(autoRouteKey).add(entity);
+}
+
+export function isAutoRoute(program: Program, target: Namespace | Interface | Operation): boolean {
+  // Loop up through parent scopes (interface, namespace) to see if
+  // @autoRoute was used anywhere
+  let current: Namespace | Interface | Operation | undefined = target;
+  while (current !== undefined) {
+    if (program.stateSet(autoRouteKey).has(current)) {
+      return true;
+    }
+
+    // Navigate up to the parent scope
+    if (current.kind === "Namespace" || current.kind === "Interface") {
+      current = current.namespace;
+    } else if (current.kind === "Operation") {
+      current = current.interface || current.namespace;
+    }
+  }
+
+  return false;
+}
+
+// ------------------ @segment ------------------
 
 const segmentDecorator = createDecoratorDefinition({
   name: "@segment",

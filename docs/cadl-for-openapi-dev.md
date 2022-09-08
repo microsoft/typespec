@@ -296,9 +296,9 @@ In Cadl this information is specified with [decorators on the namespace][cadl-se
 
 | OpenAPI `info` field | Cadl decorator    | Notes                    |
 | -------------------- | ----------------- | ------------------------ |
-| `title`              | `@serviceTitle`   |                          |
-| `version`            | `@serviceVersion` |                          |
-| `description`        |                   | Not currently supported. |
+| `title`              | `@serviceTitle`   | Cadl built-in decorator  |
+| `version`            | `@serviceVersion` | Cadl built-in decorator  |
+| `description`        | `@doc`            | Cadl built-in decorator  |
 | `license`            |                   | Not currently supported. |
 | `contact`            |                   | Not currently supported. |
 
