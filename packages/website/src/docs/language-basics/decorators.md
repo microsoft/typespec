@@ -9,7 +9,7 @@ Decorators enable a developer to attach metadata to types in a Cadl program. The
 
 Many Cadl constructs can be decorated, including [namespaces]({%doc "namespaces"%}), [operations]({%doc "operations"%}) and their parameters, and [models]({%doc "models"%}) and their members.
 
-Decorators are defined using JavaScript functions that are exported from a standard ECMAScript module. When you import a JavaScript file, Cadl will look for any exported functions, and make them available as decorators inside the Cadl syntax. When a decorated declaration is evaluated by Cadl, it will invoke the decorator function, passing along a reference to the current compilation, an object representing the type it is attached to, and any arguments the user provided to the decorator.
+Decorators are defined using JavaScript functions that are exported from a standard ECMAScript module. When you import a JavaScript file, Cadl will look for any exported functions prefixed with `$`, and make them available as decorators inside the Cadl syntax. When a decorated declaration is evaluated by Cadl, it will invoke the decorator function, passing along a reference to the current compilation, an object representing the type it is attached to, and any arguments the user provided to the decorator.
 
 ## Using decorators
 
@@ -18,9 +18,9 @@ Decorators are referenced using the `@` prefix and must be specified before the 
 The following shows an example of declaring and then using a decorator:
 
 ```cadl
-@foo("Sample")
+@tag("Sample")
 model Dog {
-  @bar(false)
+  @validate(false)
   name: string;
 }
 ```
@@ -28,7 +28,7 @@ model Dog {
 The parentheses can be omitted when no arguments are provided.
 
 ```cadl
-@bar
+@mark
 model Dog {}
 ```
 
@@ -71,13 +71,32 @@ model Dog {
 }
 ```
 
+### Decorator parameters marshalling
+
+For certain Cadl types(Literal types) the decorator do not receive the actual type but a marshalled value. This is to simplify the most common cases.
+
+| Cadl Type        | Marshalled value in JS |
+| ---------------- | ---------------------- |
+| `StringLiteral`  | `string`               |
+| `NumericLiteral` | `number`               |
+| `BooleanLiteral` | `boolean`              |
+
+for all the other types they are not transformed.
+
+```ts
+export function $tag(
+  context: DecoratorContext,
+  target: Type,
+  stringArg: string, // Here instead of receiving a `StringLiteral` the string value is being sent.
+  modelArg: Model // Model has no special handling so we receive the Model type
+) {}
+```
+
 ### Adding metadata with decorators
 
 Decorators can be used to register some metadata. For this you can use the `context.program.stateMap` or `context.program.stateSet` to insert data that will be tied to the current execution.
 
-Bad patterns:
-
-- ❌ Do not save the data in a global variable.
+❌ Do not save the data in a global variable.
 
 ```ts
 import type { DecoratorContext, Type } from "@cadl-lang/compiler";
