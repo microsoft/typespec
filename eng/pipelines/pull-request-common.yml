@@ -20,23 +20,29 @@ steps:
     inputs:
       version: 6.0.x
 
+  - script: npm install -g @microsoft/rush
+    displayName: "Install rush"
+
   - script: |
+      echo "Node:"
       node -v
+      echo "Npm:"
       npm -v
+      echo "Dotnet:"
       dotnet --version
     displayName: "Log tool versions used"
 
-  - script: node common/scripts/install-run-rush.js install
+  - script: rush install
     displayName: Install JavaScript Dependencies
 
   - script: dotnet restore
     displayName: Restore .NET Dependencies
     workingDirectory: packages/cadl-vs
 
-  - script: node common/scripts/install-run-rush.js rebuild --verbose
+  - script: rush rebuild --verbose
     displayName: Build
 
-  - script: node common/scripts/install-run-rush.js test-official
+  - script: rush test-official
     displayName: Test
 
   - task: PublishTestResults@2
@@ -56,10 +62,10 @@ steps:
 
   - template: ./upload-coverage.yml
 
-  - script: node common/scripts/install-run-rush.js check-format
+  - script: rush check-format
     displayName: Check Formatting
 
-  - script: node common/scripts/install-run-rush.js lint --verbose
+  - script: rush lint --verbose
     displayName: Lint
 
   - script: cd packages/samples && npm run regen-samples
@@ -68,5 +74,5 @@ steps:
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
-  - script: npx @microsoft/rush e2e
+  - script: rush e2e
     displayName: E2E Tests
