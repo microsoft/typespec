@@ -295,7 +295,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Model `is` must specify another model.",
-      modelExpression: "Model `is` cannot be a model expression.",
+      modelExpression: "Model `is` cannot specify a model expression.",
     },
   },
   "is-operation": {
