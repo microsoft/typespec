@@ -2270,7 +2270,7 @@ export function createChecker(program: Program): Checker {
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
     let isType;
-    if (isExpr.kind == SyntaxKind.ModelExpression) {
+    if (isExpr.kind === SyntaxKind.ModelExpression) {
       reportDiagnostic(program, {
         code: "is-model",
         messageId: "modelExpression",
