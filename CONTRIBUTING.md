@@ -140,11 +140,14 @@ your PR. Carefully review whether the changes are intentional.
 
 ## Recommended extensions
 
-1. [Mocha Test
-   Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter):
+1. [Mocha Test Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter):
    Run tests from the IDE.
 2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode):
    Automatically keep code formatted correctly on save.
+3. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint):
+   Show eslint errors in warnings in UI.
+4. [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker):
+   Show spell check errors in document.
 
 ## Opening the repo as workspace
 
