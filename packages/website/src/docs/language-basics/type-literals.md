@@ -30,6 +30,38 @@ This is a multi line string
 - Opening `"""` must be followed by a new line.
 - Closing `"""` must be preceded by a new line.
 
+### Multi line string indentation trimming
+
+Multi lines automatically remove leading whitespaces of each line aligned with the closing `"""`. This is particularly useful to keep multi line string indented with the code and not have to worry about unwanted indentation.
+
+All those options will produce the exact same string value `"one\ntwo"`
+
+```cadl
+model MultiLineContainer {
+  prop1: """
+one
+two
+""")
+
+  // Lines are indented at the same level as closing """"
+  prop2: """
+  one
+  two
+  """
+
+  prop3: """
+      one
+      two
+      """
+
+  // lines are less indented as the closing """"
+  prop4: """
+    one
+    two
+      """
+}
+```
+
 ## Numeric literal
 
 Numeric literals can be declare by using the raw number (`interger` or `float`)

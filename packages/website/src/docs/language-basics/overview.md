@@ -126,14 +126,15 @@ _Details [Intersections]()_
 
 <!-- ADD with https://github.com/microsoft/cadl/pull/992 -->
 
-_Details [Type literals]()_
+_Details [Type literals]({%doc "type-literals"%})_
 
-| Feature | Example          |
-| ------- | ---------------- |
-| String  | `"Hello world!"` |
-| Int     | `10`             |
-| Float   | `10.0`           |
-| Boolean | `false`          |
+| Feature           | Example                                                  |
+| ----------------- | -------------------------------------------------------- |
+| String            | `"Hello world!"`                                         |
+| Multi line String | `"""\nHello world!\n"""` (\n) represent actual new lines |
+| Int               | `10`                                                     |
+| Float             | `10.0`                                                   |
+| Boolean           | `false`                                                  |
 
 ## Aliases
 
