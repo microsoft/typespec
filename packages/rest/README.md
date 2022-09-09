@@ -98,8 +98,6 @@ The `@cadl-lang/rest` library defines the following decorators in `Cadl.Rest` na
 
 | Declarator                | Scope                                                 | Syntax                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| @produces                 | namespace, operations                                 | Syntax:<br> `@produces(mimetypeString)` <br><br>Note:<br> The `@produces` decorator is used to specify the MIME media types or representations a resource can produce and send back to the client.                                                                                                                                                                                                                                                           |
-| @consumes                 | namespace, operations                                 | Syntax:<br> `@consumes(mimetypeString)` <br><br>Note:<br> The `@consumes` decorator is used to specify which MIME media types of representations a resource can accept, or consume, from the client.                                                                                                                                                                                                                                                         |
 | @discriminator            | models                                                | Syntax:<br> `@discriminator(kindString)` <br><br>Note:<br> `@discriminator` allows defining polymorphic models to be used by API as parameters and return types. In many strongly typed languages, they are expressed as inheritance.                                                                                                                                                                                                                        |
 | @resource                 | Model                                                 | Syntax:<br> `@resource(collectionName)` <br><br>Note:<br> This decorator is to used to mark a model as a resource type with a name for the type's collection.                                                                                                                                                                                                                                                                                                |
 | @readsResource            | operations                                            | Syntax:<br> `@readsResource(modelType)` <br><br>Note:<br> This decorator is to used to signal the operation that is the Read operation for a particular resource.                                                                                                                                                                                                                                                                                            |
@@ -173,6 +171,27 @@ interface WidgetService
 | ExtensionResourceInstanceOperations&lt;TExtension, TResource, TError>   | Combines extension resource GET + PATCH + DEL operations.                                                            |
 | ExtensionResourceCollectionOperations&lt;TExtension, TResource, TError> | Combines extension resource POST + LIST operations.                                                                  |
 | ExtensionResourceOperations&lt;TExtension, TResource, TError>           | Combines extension resource instance and collection operations. Includes GET + PATCH + DEL + POST + LIST operations. |
+
+## How to
+
+### Specify content type
+
+To specify the content type you can add a `@header contentType: <value>` in the operation parameter(For request content type) or return type(For response content type)
+
+Example: return `application/png` byte body
+
+```cadl
+op getPng(): {
+  @header contentType: "application/png";
+  @body _: bytes;
+};
+```
+
+Example: expect `application/png` byte body
+
+```cadl
+op getPng(@header contentType: "application/png", @body _: bytes): void;
+```
 
 ## See also
 
