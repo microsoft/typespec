@@ -107,9 +107,9 @@ _Details [Enums]({%doc "enums"%})_
 
 _Details [Unions]()_
 
-| Feature                 | Example                            |
-| ----------------------- | ---------------------------------- |
-| Union declaration       | `"cat" \| "dog"`                   |
+| Feature                 | Example                          |
+| ----------------------- | -------------------------------- |
+| Union declaration       | `"cat" \| "dog"`                 |
 | Named union declaration | `union Pet {cat: Cat, dog: Dog}` |
 
 ## Intersections
