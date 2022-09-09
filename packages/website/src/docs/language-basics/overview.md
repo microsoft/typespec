@@ -110,7 +110,7 @@ _Details [Unions]()_
 | Feature                 | Example                            |
 | ----------------------- | ---------------------------------- |
 | Union declaration       | `"cat" \| "dog"`                   |
-| Named union declaration | `union Pet {cat: "Cat", dog: Dog}` |
+| Named union declaration | `union Pet {cat: Cat, dog: Dog}` |
 
 ## Intersections
 
