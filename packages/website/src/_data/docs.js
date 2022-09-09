@@ -4,12 +4,13 @@ const toc = {
     //  "Configuration"
   ],
   "Language Basics": [
+    "overview",
     "imports",
     "namespaces",
     "decorators",
     "models",
-    "interfaces",
     "operations",
+    "interfaces",
     "templates",
     "enums",
     // "unions",
