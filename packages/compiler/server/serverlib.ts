@@ -13,6 +13,7 @@ import {
   DocumentHighlight,
   DocumentHighlightKind,
   DocumentHighlightParams,
+  DocumentSymbol,
   DocumentSymbolParams,
   FileEvent,
   FoldingRange,
@@ -123,7 +124,7 @@ export interface Server {
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
   getHover(params: HoverParams): Promise<Hover>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
-  getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
+  getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -551,27 +552,36 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]> {
+  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
     const ast = await getScript(params.textDocument);
     if (!ast) {
       return [];
     }
-    const file = ast.file;
-    const symbols: SymbolInformation[] = [];
-    visitChildren(ast, addSymbolsForNode);
+    const symbols: DocumentSymbol[] = [];
 
-    function addSymbolsForNode(node: Node) {
+    const file = ast.file;
+    visitChildren(ast, (node) => addSymbolsForNode(node, symbols));
+
+    function addSymbolsForNode(node: Node, symbols: DocumentSymbol[]) {
       const symbolNode = getSymbolNameAndKind(node);
       if (symbolNode !== undefined) {
+        const children: DocumentSymbol[] = [];
+
+        visitChildren(node, (node) => addSymbolsForNode(node, children));
+
         const start = file.getLineAndCharacterOfPosition(node.pos);
         const end = file.getLineAndCharacterOfPosition(node.end);
-        symbols.push({
-          name: symbolNode.name,
-          kind: symbolNode.kind,
-          location: Location.create(params.textDocument.uri, Range.create(start, end)),
-        });
+        symbols.push(
+          DocumentSymbol.create(
+            symbolNode.name,
+            "",
+            symbolNode.kind,
+            Range.create(start, end),
+            Range.create(start, end),
+            children
+          )
+        );
       }
-      visitChildren(node, addSymbolsForNode);
     }
     return symbols;
   }
