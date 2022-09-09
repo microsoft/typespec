@@ -144,7 +144,7 @@ export function createProjectionMembers(checker: Checker): {
       renameVariant(base) {
         return createFunctionType((oldNameT: Type, newNameT: Type) => {
           assertType("old variant name", oldNameT, "String");
-          assertType("new vaariant name", newNameT, "String");
+          assertType("new variant name", newNameT, "String");
           const oldName = oldNameT.value;
           const newName = newNameT.value;
 

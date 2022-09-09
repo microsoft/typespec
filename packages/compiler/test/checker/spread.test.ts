@@ -38,7 +38,7 @@ describe("compiler: spread", () => {
     }
   });
 
-  it("doesn't emit additional diagnostic if spread reference is unknown-identitfier", async () => {
+  it("doesn't emit additional diagnostic if spread reference is unknown-identifier", async () => {
     const diagnostics = await runner.diagnose(`
       model Foo {
         ...NotDefined

@@ -705,7 +705,7 @@ export async function createProgram(
 
   /**
    * Resolve the path to the main file
-   * @param path path to the entrypoint of the program. Can be the main.cadl, folder containg main.cadl or a project/library root.
+   * @param path path to the entrypoint of the program. Can be the main.cadl, folder containing main.cadl or a project/library root.
    * @returns Absolute path to the entrypoint.
    */
   async function resolveCadlEntrypoint(path: string): Promise<string | undefined> {

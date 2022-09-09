@@ -8,7 +8,7 @@ Support libraries that enable the demo features are in the `packages/` directory
 
 ### Running the website
 
-To get started with the webiste, run the following npm commands
+To get started with the website, run the following npm commands
 
 To build for production:
 
@@ -38,7 +38,7 @@ There are some basic layout already developed in this repo. Check out some layou
 
 > The "container.njk" layout has the exact same content as the base layout, except that it designed for the container files that are not already included in the template folder `(/_include)`
 
-> The `continer.njk` layout uses the container layout and create the layout for tutorial page/ container of the website.
+> The `container.njk` layout uses the container layout and create the layout for tutorial page/ container of the website.
 
 To create a new layout, add a new file in the \_include folder, and build from existing layouts or create whole new layout.
 

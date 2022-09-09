@@ -469,7 +469,7 @@ describe("rest: http decorators", () => {
       });
     });
 
-    it("can specify OAauth2", async () => {
+    it("can specify OAuth2", async () => {
       const { Foo } = (await runner.compile(`
         model MyFlow {
           type: OAuth2FlowType.implicit;

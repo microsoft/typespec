@@ -49,7 +49,7 @@ namespace Foo.Bar.Baz {
 }
 ```
 
-The subnamespace can then be used from other places using the fully qualified name.
+The sub-namespace can then be used from other places using the fully qualified name.
 
 ```cadl
 model A {
