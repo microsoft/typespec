@@ -17,6 +17,3 @@ steps:
   - script: node common/scripts/install-run-rush.js publish --apply && node eng/scripts/check-for-changed-files.js publish
     condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), true))
     displayName: Check that publish PR isn't missing changes
-
-  - script: node common/scripts/install-run-rush.js cspell
-    displayName: Spell check
