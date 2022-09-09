@@ -23,6 +23,17 @@ First step is to install the cadl compiler/cli
 npm install -g @cadl-lang/compiler
 ```
 
+## Install the VS and VSCode extensions
+
+The cli comes bundled with extensions for VS and VSCode. Install them via:
+
+```bash
+cadl code install
+cadl vs install
+```
+
+If you are using the VSCode insiders build, pass the `--insiders` option to the `cadl code install` command.
+
 ## Create first Cadl Project
 
 To get your first Cadl project started run in a fresh directory
