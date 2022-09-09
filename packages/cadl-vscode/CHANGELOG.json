@@ -2,6 +2,31 @@
   "name": "cadl-vscode",
   "entries": [
     {
+      "version": "0.16.0",
+      "tag": "cadl-vscode_v0.16.0",
+      "date": "Thu, 08 Sep 2022 01:04:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add support for `${workspaceFolder}` interpolation in configuration. As `workspaceRoot` is deprecated by VSCode"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Allow cadl.restartServer command to work when no .cadl file has been opened"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.34.0` to `~0.35.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.0` to `~0.4.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.2",
       "tag": "cadl-vscode_v0.15.2",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",
