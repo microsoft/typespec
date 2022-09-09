@@ -163,7 +163,7 @@ export interface Checker {
    * Check if the source type can be assigned to the target type.
    * @param source Source type, should be assignable to the target.
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    * @returns [related, list of diagnostics]
    */
   isTypeAssignableTo(
@@ -2191,6 +2191,14 @@ export function createChecker(program: Program): Checker {
     heritageRef: Expression,
     mapper: TypeMapper | undefined
   ): Model | undefined {
+    if (heritageRef.kind === SyntaxKind.ModelExpression) {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        messageId: "modelExpression",
+        target: heritageRef,
+      });
+      return undefined;
+    }
     if (heritageRef.kind !== SyntaxKind.TypeReference) {
       reportDiagnostic(program, {
         code: "extend-model",
@@ -2228,6 +2236,14 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
+    if (heritageType.name === "") {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        messageId: "modelExpression",
+        target: heritageRef,
+      });
+    }
+
     if (isIntrinsic(program, heritageType)) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -2254,7 +2270,14 @@ export function createChecker(program: Program): Checker {
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
     let isType;
-    if (isExpr.kind === SyntaxKind.ArrayExpression) {
+    if (isExpr.kind === SyntaxKind.ModelExpression) {
+      reportDiagnostic(program, {
+        code: "is-model",
+        messageId: "modelExpression",
+        target: isExpr,
+      });
+      return undefined;
+    } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(isExpr, mapper);
     } else if (isExpr.kind === SyntaxKind.TypeReference) {
       const target = resolveTypeReference(isExpr, mapper);
@@ -2282,6 +2305,10 @@ export function createChecker(program: Program): Checker {
     if (isType.kind !== "Model") {
       program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return;
+    }
+
+    if (isType.name === "") {
+      reportDiagnostic(program, { code: "is-model", messageId: "modelExpression", target: isExpr });
     }
 
     return isType;
@@ -3655,7 +3682,7 @@ export function createChecker(program: Program): Checker {
    * Check if the source type can be assigned to the target type and emit diagnostics
    * @param source Source type
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function checkTypeAssignable(
     source: Type,
@@ -3673,7 +3700,7 @@ export function createChecker(program: Program): Checker {
    * Check if the source type can be assigned to the target type.
    * @param source Source type
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function isTypeAssignableTo(
     source: Type,
@@ -3763,7 +3790,7 @@ export function createChecker(program: Program): Checker {
 
   function isNumericLiteralRelatedTo(
     source: NumericLiteral,
-    targetInstrinsicType:
+    targetIntrinsicType:
       | "int64"
       | "int32"
       | "int16"
@@ -3779,12 +3806,12 @@ export function createChecker(program: Program): Checker {
       | "integer"
       | "float"
   ) {
-    if (targetInstrinsicType === "numeric") return true;
+    if (targetIntrinsicType === "numeric") return true;
     const isInt = Number.isInteger(source.value);
-    if (targetInstrinsicType === "integer") return isInt;
-    if (targetInstrinsicType === "float") return true;
+    if (targetIntrinsicType === "integer") return isInt;
+    if (targetIntrinsicType === "float") return true;
 
-    const [low, high, options] = numericRanges[targetInstrinsicType];
+    const [low, high, options] = numericRanges[targetIntrinsicType];
     return source.value >= low && source.value <= high && (!options.int || isInt);
   }
 
@@ -3866,7 +3893,7 @@ export function createChecker(program: Program): Checker {
   /**
    * @param constraintType Type of the constraints(All properties must have this type).
    * @param type Type of the model that should be respecting the constraint.
-   * @param diagnosticTarget Diagnostic target unless something better can be inffered.
+   * @param diagnosticTarget Diagnostic target unless something better can be inferred.
    */
   function isIndexConstraintValid(
     constraintType: Type,

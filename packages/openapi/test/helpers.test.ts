@@ -30,7 +30,7 @@ describe("OpenAPI3 Helpers", () => {
       strictEqual(id, "foo");
     });
 
-    it("return group name and operaiton name if operation is defined under interface", async () => {
+    it("return group name and operation name if operation is defined under interface", async () => {
       const id = await testResolveOperationId(`
         interface Bar {
           @test op foo(): string;

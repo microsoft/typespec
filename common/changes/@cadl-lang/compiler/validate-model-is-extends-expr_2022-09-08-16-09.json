@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Add syntax highlighting for projections",
+      "comment": "**Breaking** Model `extends` or `is` cannot reference a model expression.",
       "type": "minor"
     }
   ],

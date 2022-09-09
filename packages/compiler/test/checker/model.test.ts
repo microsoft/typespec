@@ -149,7 +149,7 @@ describe("compiler: models", () => {
     }
   });
 
-  it(`doesn't emit unsuported-default diagnostic when type is an error`, async () => {
+  it(`doesn't emit unsupported-default diagnostic when type is an error`, async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -237,7 +237,7 @@ describe("compiler: models", () => {
       match(diagnostics[0].message, /Model has an inherited property/);
     });
 
-    it("keeps reference of childrens", async () => {
+    it("keeps reference of children", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
@@ -265,7 +265,7 @@ describe("compiler: models", () => {
       strictEqual(Pet.derivedModels[1], Dog);
     });
 
-    it("keeps reference of childrens with templates", async () => {
+    it("keeps reference of children with templates", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
@@ -318,6 +318,35 @@ describe("compiler: models", () => {
       });
     });
 
+    it("emit error when extend model expression", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A extends {name: string} {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "extend-model",
+        message: "Models cannot extend model expressions.",
+      });
+    });
+
+    it("emit error when extend model expression via alias", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        alias B = {name: string};
+        model A extends B {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "extend-model",
+        message: "Models cannot extend model expressions.",
+      });
+    });
+
     it("emit error when extends itself", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -333,7 +362,7 @@ describe("compiler: models", () => {
       );
     });
 
-    it("emit error when extends ciruclar reference", async () => {
+    it("emit error when extends circular reference", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
@@ -475,6 +504,35 @@ describe("compiler: models", () => {
       });
     });
 
+    it("emit error when is model expression", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A is {name: string} {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` cannot specify a model expression.",
+      });
+    });
+
+    it("emit error when is model expression via alias", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        alias B = {name: string};
+        model A is B {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` cannot specify a model expression.",
+      });
+    });
+
     it("emit error when is itself", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -490,7 +548,7 @@ describe("compiler: models", () => {
       );
     });
 
-    it("emit single error when is itself as a templated with mutliple instantiations", async () => {
+    it("emit single error when is itself as a templated with multiple instantiations", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `

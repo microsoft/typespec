@@ -663,136 +663,136 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
     });
-  });
 
-  describe("projections", () => {
-    it("simple projection", async () => {
-      const tokens = await tokenize(`
+    describe("projections", () => {
+      it("simple projection", async () => {
+        const tokens = await tokenize(`
       projection op#foo {
         to(arg1) {
           calling(arg1);
         }
       }
       `);
-      deepStrictEqual(tokens, [
-        Token.keywords.projection,
-        Token.keywords.operation,
-        Token.operators.selector,
-        Token.identifiers.variable("foo"),
-        Token.punctuation.openBrace,
-        Token.keywords.to,
-        Token.punctuation.openParen,
-        Token.identifiers.variable("arg1"),
-        Token.punctuation.closeParen,
-        Token.punctuation.openBrace,
-        Token.identifiers.functionName("calling"),
-        Token.punctuation.openParen,
-        Token.identifiers.type("arg1"),
-        Token.punctuation.closeParen,
-        Token.punctuation.semicolon,
-        Token.punctuation.closeBrace,
-        Token.punctuation.closeBrace,
-      ]);
-    });
+        deepStrictEqual(tokens, [
+          Token.keywords.projection,
+          Token.keywords.operation,
+          Token.operators.selector,
+          Token.identifiers.variable("foo"),
+          Token.punctuation.openBrace,
+          Token.keywords.to,
+          Token.punctuation.openParen,
+          Token.identifiers.variable("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          Token.identifiers.functionName("calling"),
+          Token.punctuation.openParen,
+          Token.identifiers.type("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
 
-    async function testProjectionBody(body: string, expectedTokens: Token[]) {
-      const tokens = await tokenize(`
+      async function testProjectionBody(body: string, expectedTokens: Token[]) {
+        const tokens = await tokenize(`
       projection op#foo {
         to(arg1) {
           ${body}
         }
       }
       `);
-      deepStrictEqual(tokens, [
-        Token.keywords.projection,
-        Token.keywords.operation,
-        Token.operators.selector,
-        Token.identifiers.variable("foo"),
-        Token.punctuation.openBrace,
-        Token.keywords.to,
-        Token.punctuation.openParen,
-        Token.identifiers.variable("arg1"),
-        Token.punctuation.closeParen,
-        Token.punctuation.openBrace,
-        ...expectedTokens,
-        Token.punctuation.closeBrace,
-        Token.punctuation.closeBrace,
-      ]);
-    }
+        deepStrictEqual(tokens, [
+          Token.keywords.projection,
+          Token.keywords.operation,
+          Token.operators.selector,
+          Token.identifiers.variable("foo"),
+          Token.punctuation.openBrace,
+          Token.keywords.to,
+          Token.punctuation.openParen,
+          Token.identifiers.variable("arg1"),
+          Token.punctuation.closeParen,
+          Token.punctuation.openBrace,
+          ...expectedTokens,
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      }
 
-    it("if expression with body", async () => {
-      await testProjectionBody(
-        `
+      it("if expression with body", async () => {
+        await testProjectionBody(
+          `
         if hasFoo(arg1) {
           doFoo(arg1);
         };
       `,
-        [
-          Token.keywords.if,
-          Token.identifiers.functionName("hasFoo"),
-          Token.punctuation.openParen,
-          Token.identifiers.type("arg1"),
-          Token.punctuation.closeParen,
-          Token.punctuation.openBrace,
-          Token.identifiers.functionName("doFoo"),
-          Token.punctuation.openParen,
-          Token.identifiers.type("arg1"),
-          Token.punctuation.closeParen,
-          Token.punctuation.semicolon,
-          Token.punctuation.closeBrace,
-          Token.punctuation.semicolon,
-        ]
-      );
-    });
+          [
+            Token.keywords.if,
+            Token.identifiers.functionName("hasFoo"),
+            Token.punctuation.openParen,
+            Token.identifiers.type("arg1"),
+            Token.punctuation.closeParen,
+            Token.punctuation.openBrace,
+            Token.identifiers.functionName("doFoo"),
+            Token.punctuation.openParen,
+            Token.identifiers.type("arg1"),
+            Token.punctuation.closeParen,
+            Token.punctuation.semicolon,
+            Token.punctuation.closeBrace,
+            Token.punctuation.semicolon,
+          ]
+        );
+      });
 
-    it("if, else if, else expression", async () => {
-      await testProjectionBody(
-        `
+      it("if, else if, else expression", async () => {
+        await testProjectionBody(
+          `
         if hasFoo() {
         } else if hasBar() {
         } else {
         };
       `,
-        [
-          Token.keywords.if,
-          Token.identifiers.functionName("hasFoo"),
-          Token.punctuation.openParen,
-          Token.punctuation.closeParen,
-          Token.punctuation.openBrace,
-          Token.punctuation.closeBrace,
+          [
+            Token.keywords.if,
+            Token.identifiers.functionName("hasFoo"),
+            Token.punctuation.openParen,
+            Token.punctuation.closeParen,
+            Token.punctuation.openBrace,
+            Token.punctuation.closeBrace,
 
-          Token.keywords.else,
-          Token.keywords.if,
-          Token.identifiers.functionName("hasBar"),
-          Token.punctuation.openParen,
-          Token.punctuation.closeParen,
-          Token.punctuation.openBrace,
-          Token.punctuation.closeBrace,
+            Token.keywords.else,
+            Token.keywords.if,
+            Token.identifiers.functionName("hasBar"),
+            Token.punctuation.openParen,
+            Token.punctuation.closeParen,
+            Token.punctuation.openBrace,
+            Token.punctuation.closeBrace,
 
-          Token.keywords.else,
-          Token.punctuation.openBrace,
-          Token.punctuation.closeBrace,
+            Token.keywords.else,
+            Token.punctuation.openBrace,
+            Token.punctuation.closeBrace,
 
-          Token.punctuation.semicolon,
-        ]
-      );
-    });
+            Token.punctuation.semicolon,
+          ]
+        );
+      });
 
-    it("property accessor", async () => {
-      await testProjectionBody(
-        `
+      it("property accessor", async () => {
+        await testProjectionBody(
+          `
         doFoo(self::name);
         `,
-        [
-          Token.identifiers.functionName("doFoo"),
-          Token.punctuation.openParen,
-          Token.identifiers.type("self"),
-          ...(tokenize === tokenizeSemantic ? [Token.punctuation.valueAccessor] : []),
-          Token.identifiers.type("name"),
-          Token.punctuation.closeParen,
-          Token.punctuation.semicolon,
-        ]
-      );
+          [
+            Token.identifiers.functionName("doFoo"),
+            Token.punctuation.openParen,
+            Token.identifiers.type("self"),
+            ...(tokenize === tokenizeSemantic ? [Token.punctuation.valueAccessor] : []),
+            Token.identifiers.type("name"),
+            Token.punctuation.closeParen,
+            Token.punctuation.semicolon,
+          ]
+        );
+      });
     });
   });
 }

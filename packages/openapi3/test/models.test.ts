@@ -260,7 +260,7 @@ describe("openapi3: models", () => {
     );
     ok(
       !("TParent_string" in res.components.schemas),
-      "Parent instantiated templated type shouldn't be includd in OpenAPI"
+      "Parent instantiated templated type shouldn't be included in OpenAPI"
     );
   });
 

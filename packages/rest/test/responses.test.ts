@@ -105,7 +105,7 @@ describe("cadl: rest: responses", () => {
   });
 
   // Regression test for https://github.com/microsoft/cadl/issues/328
-  it("empty response model becomes body if it has childrens", async () => {
+  it("empty response model becomes body if it has children", async () => {
     const [routes, diagnostics] = await getOperationsWithServiceNamespace(
       `
       @route("/") op read(): A;
