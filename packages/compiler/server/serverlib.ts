@@ -96,6 +96,7 @@ import {
   loadFile,
 } from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
+import { getSymbolStructure } from "./symbol-structure.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -526,64 +527,13 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function getSymbolNameAndKind(node: Node): { name: string; kind: SymbolKind } | undefined {
-    switch (node.kind) {
-      case SyntaxKind.NamespaceStatement:
-        return { name: node.id.sv, kind: SymbolKind.Namespace };
-      case SyntaxKind.CadlScript:
-        return { name: node.id.sv, kind: SymbolKind.File };
-      case SyntaxKind.EnumStatement:
-        return { name: node.id.sv, kind: SymbolKind.Enum };
-      case SyntaxKind.InterfaceStatement:
-        return { name: node.id.sv, kind: SymbolKind.Interface };
-      case SyntaxKind.OperationStatement:
-        return { name: node.id.sv, kind: SymbolKind.Function };
-      case SyntaxKind.ModelStatement:
-        return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.ModelProperty:
-        if (node.id.kind === SyntaxKind.StringLiteral) {
-          return { name: node.id.value, kind: SymbolKind.Struct };
-        }
-        return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.UnionStatement:
-        return { name: node.id.sv, kind: SymbolKind.Enum };
-      default:
-        return undefined;
-    }
-  }
-
   async function getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
     const ast = await getScript(params.textDocument);
     if (!ast) {
       return [];
     }
-    const symbols: DocumentSymbol[] = [];
 
-    const file = ast.file;
-    visitChildren(ast, (node) => addSymbolsForNode(node, symbols));
-
-    function addSymbolsForNode(node: Node, symbols: DocumentSymbol[]) {
-      const symbolNode = getSymbolNameAndKind(node);
-      if (symbolNode !== undefined) {
-        const children: DocumentSymbol[] = [];
-
-        visitChildren(node, (node) => addSymbolsForNode(node, children));
-
-        const start = file.getLineAndCharacterOfPosition(node.pos);
-        const end = file.getLineAndCharacterOfPosition(node.end);
-        symbols.push(
-          DocumentSymbol.create(
-            symbolNode.name,
-            "",
-            symbolNode.kind,
-            Range.create(start, end),
-            Range.create(start, end),
-            children
-          )
-        );
-      }
-    }
-    return symbols;
+    return getSymbolStructure(ast);
   }
 
   async function findDocumentHighlight(
