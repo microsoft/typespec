@@ -70,6 +70,8 @@ export function getSymbolStructure(ast: CadlScriptNode): DocumentSymbol[] {
         return getForInterface(node);
       case SyntaxKind.OperationStatement:
         return createDocumentSymbol(node, node.id.sv, SymbolKind.Function);
+      case SyntaxKind.AliasStatement:
+        return createDocumentSymbol(node, node.id.sv, SymbolKind.Variable);
       default:
         return undefined;
     }
