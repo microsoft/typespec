@@ -13,6 +13,7 @@ import {
   DocumentHighlight,
   DocumentHighlightKind,
   DocumentHighlightParams,
+  DocumentSymbol,
   DocumentSymbolParams,
   FileEvent,
   FoldingRange,
@@ -35,8 +36,6 @@ import {
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
-  SymbolInformation,
-  SymbolKind,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
@@ -95,6 +94,7 @@ import {
   loadFile,
 } from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
+import { getSymbolStructure } from "./symbol-structure.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -123,7 +123,7 @@ export interface Server {
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
   getHover(params: HoverParams): Promise<Hover>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
-  getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
+  getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -525,55 +525,13 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function getSymbolNameAndKind(node: Node): { name: string; kind: SymbolKind } | undefined {
-    switch (node.kind) {
-      case SyntaxKind.NamespaceStatement:
-        return { name: node.id.sv, kind: SymbolKind.Namespace };
-      case SyntaxKind.CadlScript:
-        return { name: node.id.sv, kind: SymbolKind.File };
-      case SyntaxKind.EnumStatement:
-        return { name: node.id.sv, kind: SymbolKind.Enum };
-      case SyntaxKind.InterfaceStatement:
-        return { name: node.id.sv, kind: SymbolKind.Interface };
-      case SyntaxKind.OperationStatement:
-        return { name: node.id.sv, kind: SymbolKind.Function };
-      case SyntaxKind.ModelStatement:
-        return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.ModelProperty:
-        if (node.id.kind === SyntaxKind.StringLiteral) {
-          return { name: node.id.value, kind: SymbolKind.Struct };
-        }
-        return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.UnionStatement:
-        return { name: node.id.sv, kind: SymbolKind.Enum };
-      default:
-        return undefined;
-    }
-  }
-
-  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]> {
+  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
     const ast = await getScript(params.textDocument);
     if (!ast) {
       return [];
     }
-    const file = ast.file;
-    const symbols: SymbolInformation[] = [];
-    visitChildren(ast, addSymbolsForNode);
 
-    function addSymbolsForNode(node: Node) {
-      const symbolNode = getSymbolNameAndKind(node);
-      if (symbolNode !== undefined) {
-        const start = file.getLineAndCharacterOfPosition(node.pos);
-        const end = file.getLineAndCharacterOfPosition(node.end);
-        symbols.push({
-          name: symbolNode.name,
-          kind: symbolNode.kind,
-          location: Location.create(params.textDocument.uri, Range.create(start, end)),
-        });
-      }
-      visitChildren(node, addSymbolsForNode);
-    }
-    return symbols;
+    return getSymbolStructure(ast);
   }
 
   async function findDocumentHighlight(
