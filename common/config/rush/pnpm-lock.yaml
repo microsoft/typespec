@@ -57,6 +57,7 @@ specifiers:
   c8: ~7.11.0
   change-case: ~4.1.2
   cross-env: ~7.0.3
+  cspell: ~6.8.1
   debounce: ~1.2.1
   ecmarkup: ~12.0.3
   es-module-shims: ~1.5.17
@@ -84,7 +85,7 @@ specifiers:
   playwright: ~1.25.1
   plist: ~3.0.2
   prettier: ~2.7.1
-  prettier-plugin-organize-imports: ~2.3.4
+  prettier-plugin-organize-imports: ~3.1.1
   prism-themes: ~1.9.0
   prompts: ~2.4.1
   react: ~18.2.0
@@ -165,6 +166,7 @@ dependencies:
   c8: 7.11.3
   change-case: 4.1.2
   cross-env: 7.0.3
+  cspell: 6.8.1
   debounce: 1.2.1
   ecmarkup: 12.0.3
   es-module-shims: 1.5.17
@@ -192,7 +194,7 @@ dependencies:
   playwright: 1.25.1
   plist: 3.0.6
   prettier: 2.7.1
-  prettier-plugin-organize-imports: 2.3.4_prettier@2.7.1+typescript@4.8.2
+  prettier-plugin-organize-imports: 3.1.1_prettier@2.7.1+typescript@4.8.2
   prism-themes: 1.9.0
   prompts: 2.4.2
   react: 18.2.0
@@ -5895,11 +5897,15 @@ packages:
       fast-diff: 1.2.0
     dev: false
 
-  /prettier-plugin-organize-imports/2.3.4_prettier@2.7.1+typescript@4.8.2:
-    resolution: {integrity: sha512-R8o23sf5iVL/U71h9SFUdhdOEPsi3nm42FD/oDYIZ2PQa4TNWWuWecxln6jlIQzpZTDMUeO1NicJP6lLn2TtRw==}
+  /prettier-plugin-organize-imports/3.1.1_prettier@2.7.1+typescript@4.8.2:
+    resolution: {integrity: sha512-6bHIQzybqA644h0WGUW3gpWEVbMBvzui5wCMRBi7qA++d5ov2xjjfDk8pxJJ/ardfZrGAwizKMq/fQMFdJ+0Zw==}
     peerDependencies:
+      '@volar/vue-typescript': '>=0.40.2'
       prettier: '>=2.0'
       typescript: '>=2.9'
+    peerDependenciesMeta:
+      '@volar/vue-typescript':
+        optional: true
     dependencies:
       prettier: 2.7.1
       typescript: 4.8.2
@@ -7874,7 +7880,7 @@ packages:
     dev: false
 
   file:projects/bundler.tgz:
-    resolution: {integrity: sha512-uh9ZOzw1gC01mQVX3SyqqbvAbr7+YOMTpkinCzVKNRWiVOB+9cDHKgfUktWZSX5PB0gZoZFFP117ZPoi5Z/zhQ==, tarball: file:projects/bundler.tgz}
+    resolution: {integrity: sha512-9wl045ZPdw1mttHGUNS4SQ2OtEwDn4e1YoUypf3RySN/hZt+xjkgPdQO2TERbQSKLIbpcHlxbkXv8QlhAyLGwA==, tarball: file:projects/bundler.tgz}
     name: '@rush-temp/bundler'
     version: 0.0.0
     dependencies:
@@ -7903,13 +7909,13 @@ packages:
     dev: false
 
   file:projects/cadl-vs.tgz:
-    resolution: {integrity: sha512-JA4FTKRLQzAwl9d2XxP0WuEGMVH+V8UT/6FqTWIN+rHcrCucII5Yf5UaHekgpcbbU55VLt5DzmyH+M8o+iRgkw==, tarball: file:projects/cadl-vs.tgz}
+    resolution: {integrity: sha512-hIpMo5WHOlGJcymDtiPyRX3Ogmx4wtmV7IVnTWspLrX5nFUi7WySNheJ+/AUcVwU5auoEiPGd82lVBMa02c5LQ==, tarball: file:projects/cadl-vs.tgz}
     name: '@rush-temp/cadl-vs'
     version: 0.0.0
     dev: false
 
   file:projects/cadl-vscode.tgz:
-    resolution: {integrity: sha512-LqGT9cjS2IDA7xnuwoq4h3gGIyXUhJ2tM0aFgVmV6PqbX5wuDvU5LJPGKlConJ0Ry0OpIu910HpKTkWimFOmag==, tarball: file:projects/cadl-vscode.tgz}
+    resolution: {integrity: sha512-OuZnxeBUSZOJr5tpAnGi1zNUT888IFzfosX4Pybmeg5+C78KdvMwe4XoGWSrI0lrNWqq/8CkTHmrjC4/ZWnxPA==, tarball: file:projects/cadl-vscode.tgz}
     name: '@rush-temp/cadl-vscode'
     version: 0.0.0
     dependencies:
@@ -7935,7 +7941,7 @@ packages:
     dev: false
 
   file:projects/compiler.tgz:
-    resolution: {integrity: sha512-u7TqNM0b3/ucByBqCksvREcwlu96g4xRwlHGTwN9YhAgYh02p4Dl2LsDhhj5i/RGxtvmO3syQi/Ty0Vzt1pPUQ==, tarball: file:projects/compiler.tgz}
+    resolution: {integrity: sha512-2+LM56S3UxkTwiHSJDqnFUfaUs8WHzI6yDlpNjfHC9icgYdYWoNI7e6PNJw7g5XL3b9XXavth1S+REgLkoUCMw==, tarball: file:projects/compiler.tgz}
     name: '@rush-temp/compiler'
     version: 0.0.0
     dependencies:
@@ -7965,7 +7971,7 @@ packages:
       node-watch: 0.7.3
       picocolors: 1.0.0
       prettier: 2.7.1
-      prettier-plugin-organize-imports: 2.3.4_prettier@2.7.1+typescript@4.8.2
+      prettier-plugin-organize-imports: 3.1.1_prettier@2.7.1+typescript@4.8.2
       prompts: 2.4.2
       rimraf: 3.0.2
       source-map-support: 0.5.21
@@ -7976,6 +7982,7 @@ packages:
       vscode-textmate: 6.0.0
       yargs: 17.3.1
     transitivePeerDependencies:
+      - '@volar/vue-typescript'
       - supports-color
     dev: false
 
@@ -8000,7 +8007,7 @@ packages:
     dev: false
 
   file:projects/eslint-plugin.tgz:
-    resolution: {integrity: sha512-u7YQKs+dGeFqmrS/+KWM/lmydneC1awdyzaQXU6IL1/in+JMjW/kmGWppgIEfnNTbXZChmRDdb7+3xPo1rs/8w==, tarball: file:projects/eslint-plugin.tgz}
+    resolution: {integrity: sha512-7EF2nsGDHm4ZF1dssRi2o7szG1KSjYF0PZcq9wvUHduwmp9vgz/lV547GwJoz+MOQEYVKPO+4GwR9bLOGK1Daw==, tarball: file:projects/eslint-plugin.tgz}
     name: '@rush-temp/eslint-plugin'
     version: 0.0.0
     dependencies:
@@ -8020,7 +8027,7 @@ packages:
     dev: false
 
   file:projects/html-program-viewer.tgz:
-    resolution: {integrity: sha512-Fd+Zb1l7qJYhJ8qsCJAv2RhIOxfiYC3pnqOyQ0/om9nN/mWkrhzmTFdAhVsm3BfRp5nRFrBlz9nwFomq3uS/0w==, tarball: file:projects/html-program-viewer.tgz}
+    resolution: {integrity: sha512-A4uDkt7Ac0J1kpc4JJH0hDaWz6mfOMOjutBDu2HXliNeEC5+xMek+8gCE9l4oYGHwHc9cG1fghjkKn+nfAj5Qw==, tarball: file:projects/html-program-viewer.tgz}
     name: '@rush-temp/html-program-viewer'
     version: 0.0.0
     dependencies:
@@ -8047,7 +8054,7 @@ packages:
     dev: false
 
   file:projects/internal-build-utils.tgz:
-    resolution: {integrity: sha512-CTTuoXt20viB4UCT3CU0IApsfXRvxhyuSjBEA/lYk+hO4qzjUjT411p3GXux3RTh3tkf0zgglGBQ1a4ZPf0F1w==, tarball: file:projects/internal-build-utils.tgz}
+    resolution: {integrity: sha512-yK1ePpEEoGjxq+dlFkGZlyhhLUT/aB0W4iGvnt+eigT2Vh89QOx6vDR2sifM4723Hj2vTDxycSWZYhWV3ZwwFg==, tarball: file:projects/internal-build-utils.tgz}
     name: '@rush-temp/internal-build-utils'
     version: 0.0.0
     dependencies:
@@ -8072,7 +8079,7 @@ packages:
     dev: false
 
   file:projects/library-linter.tgz:
-    resolution: {integrity: sha512-kj7NTAvgAVM0UJBoMzv3CKJKEeB3TeIFimJ7lg0YOlBCM+h3QSuYfRfFJvLhgnby/8FCSFMbiT/RYuluj0UBag==, tarball: file:projects/library-linter.tgz}
+    resolution: {integrity: sha512-EZrr68+1hOAMizGWbXOvKT8TgK6cEKF3Gm80LmGzXx9OOv6m0NIvfYCrTtUcjFK6QNwwxokHrHbTP8HKawsT2Q==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
     version: 0.0.0
     dependencies:
@@ -8090,7 +8097,7 @@ packages:
     dev: false
 
   file:projects/openapi.tgz:
-    resolution: {integrity: sha512-89K8pQ9Htrp1S4kNdqj5vz2gaH6abf0pWHNragqaTL0BEOoKdR6COIAE7CKjGP0QwFHfCEYNkrzWZ+PGwOOZyA==, tarball: file:projects/openapi.tgz}
+    resolution: {integrity: sha512-j4GPDoklnVPOaMhNkg/8z7se0azTxvpwAvGkgULQmXjVUm+mLtfRtm/MYMojpRCmuVsKUHYB2Bghy4j1Y0JeXA==, tarball: file:projects/openapi.tgz}
     name: '@rush-temp/openapi'
     version: 0.0.0
     dependencies:
@@ -8108,7 +8115,7 @@ packages:
     dev: false
 
   file:projects/openapi3.tgz:
-    resolution: {integrity: sha512-6aCgL8zk5N8c1BKfi0F7BlCaIWJQBJxQ5yCjcWp1aBFmYzyG/ySoFyv29+s0HVBqn3WYiFvIKAosjS30Epr6cQ==, tarball: file:projects/openapi3.tgz}
+    resolution: {integrity: sha512-v8mjzCDLrtDr8ktKGBVPnULtgrnHEweGDeM12J6icOZVk4JCovWUY6KS5I9KgyTPa2nXCou19bpKkOdY9agX/A==, tarball: file:projects/openapi3.tgz}
     name: '@rush-temp/openapi3'
     version: 0.0.0
     dependencies:
@@ -8126,7 +8133,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@2.70.2:
-    resolution: {integrity: sha512-xxFxC4ZkJFbUlWRSc+yebeIJN6gYyk3NIyTInz0TSL824rsbLJ++yn+dCIgN6Dmr0bV7+meXBQC4sqf7FgsPdg==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-BIfEm7XzbBAVwgXM1zxdWLHA9hX7JEG6CrIrWvRuvpGezXR3Jpb5abDt02i8XkgvlXGgO7UDhufeD1m95eI5Nw==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -8172,7 +8179,7 @@ packages:
     dev: false
 
   file:projects/prettier-plugin-cadl.tgz:
-    resolution: {integrity: sha512-oivSVG0LuzXdb7PTvN0mDtHHTZuiru2spYdu1FtAwiWWU9xg7j/MNSeq2Wnf79ianF2ccigM9nY4FYKgQPiz2A==, tarball: file:projects/prettier-plugin-cadl.tgz}
+    resolution: {integrity: sha512-FKVUChDSIuFtcSWgoKfKCEHyl9zWks1ZwQCC8qZ4Nk3On8gyNH0ASaywqTSqyGkhevrKlfEghnmTanka5yJFGg==, tarball: file:projects/prettier-plugin-cadl.tgz}
     name: '@rush-temp/prettier-plugin-cadl'
     version: 0.0.0
     dependencies:
@@ -8190,7 +8197,7 @@ packages:
     dev: false
 
   file:projects/rest.tgz:
-    resolution: {integrity: sha512-V+poHQYpnIlR+GEjvnoPqDirOidaNek/1X1zZiFU2hGv0u5FnMwue1uRnxP4QyQOKZYH3cWT3JADXmKECEuQFQ==, tarball: file:projects/rest.tgz}
+    resolution: {integrity: sha512-p/PvOyCgwMeTxmoIcx54kvLLjs31GYhnJZ+lZJ1/HOlS4hiWK62wwyhoXQ7THa6dwtW4CrQIAeYovWOa79jQGw==, tarball: file:projects/rest.tgz}
     name: '@rush-temp/rest'
     version: 0.0.0
     dependencies:
@@ -8208,7 +8215,7 @@ packages:
     dev: false
 
   file:projects/samples.tgz:
-    resolution: {integrity: sha512-V7e27dv0NtR2sH/fjlnkHQ7yKWifBI65fu0PjhvfQZJBVWo5H2UrB8CO9jQvwFe9+HrtlZ4zzFvvQzFeJEDglw==, tarball: file:projects/samples.tgz}
+    resolution: {integrity: sha512-LP9dgamUGk7QQoI72/LoKqLlD8ZOBcHouedIZw06dTbatMNMnJMpxvdiJrbvX1usdk3CCGzWkw+VyVqMzoF/Gg==, tarball: file:projects/samples.tgz}
     name: '@rush-temp/samples'
     version: 0.0.0
     dependencies:
@@ -8233,7 +8240,7 @@ packages:
     dev: false
 
   file:projects/tmlanguage-generator.tgz:
-    resolution: {integrity: sha512-rfkRvN2ilO6svYFU2o3Oq0UYcD9luaBW1TriUrV7vvqYBp8KUAhJU1B1LxKWg7cI//H2o5XcJNngs6UPrwdxEg==, tarball: file:projects/tmlanguage-generator.tgz}
+    resolution: {integrity: sha512-Sf3ITuYZGCOJVT+hAXreqcVUPL3UcV5BhdcxC8cgEudqHpPB+1HU5smmtt/NWrWrbVYYFnlaL1fEKIqx+TThnA==, tarball: file:projects/tmlanguage-generator.tgz}
     name: '@rush-temp/tmlanguage-generator'
     version: 0.0.0
     dependencies:
@@ -8249,7 +8256,7 @@ packages:
     dev: false
 
   file:projects/versioning.tgz:
-    resolution: {integrity: sha512-iYZ3PkDUkI3uFXj4ZS8xvZMJ7gokAjChfWT/NUgqEHQSWVUscSpZaT9vurdhngNY5ljizyO16jXYVRpqPrgFLA==, tarball: file:projects/versioning.tgz}
+    resolution: {integrity: sha512-EexrWmH+z54oZ51djTi5BbivmSd6XJ8jMWnpiPaWJ9ZllWAMmCNdMVWaf7XuIotIhJFftHO+VGy7hIDX6/pTSw==, tarball: file:projects/versioning.tgz}
     name: '@rush-temp/versioning'
     version: 0.0.0
     dependencies:
@@ -8267,7 +8274,7 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-BL129leaIALLrLkAWRCUHAUCvD27Fc+lS6Zu2c6XhDzU3LHHH7wkq90iqZuPF0AKr2PI5X4nzx8xo1OCYoXZOQ==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-mCfD5/O3/obmj/rS5k2BlAqZUXj3SVSXRYW3Sq3fY5kexXviKzJFHRqKZ8UpQyMUYsgyjQ35umWhDu63iDNlPA==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
