@@ -6,9 +6,11 @@ import {
   Diagnostic,
   DiagnosticTarget,
   getDoc,
+  Interface,
   Model,
   ModelProperty,
   Namespace,
+  Operation,
   Program,
   setCadlNamespace,
   Tuple,
@@ -19,7 +21,14 @@ import {
 } from "@cadl-lang/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
 import { extractParamsFromPath } from "../utils.js";
-import { AuthenticationOption, HttpAuth, ServiceAuthentication } from "./types.js";
+import {
+  AuthenticationOption,
+  HttpAuth,
+  HttpVerb,
+  RouteOptions,
+  RoutePath,
+  ServiceAuthentication,
+} from "./types.js";
 
 export const namespace = "Cadl.Http";
 
@@ -235,8 +244,6 @@ export function getStatusCodeDescription(statusCode: string) {
   // Any valid HTTP status code is covered above.
   return undefined;
 }
-
-export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
 const operationVerbsKey = createStateSymbol("verbs");
 
@@ -545,4 +552,82 @@ export function getAuthentication(
   namespace: Namespace
 ): ServiceAuthentication | undefined {
   return program.stateMap(authenticationKey).get(namespace);
+}
+
+/**
+ * `@route` defines the relative route URI for the target operation
+ *
+ * The first argument should be a URI fragment that may contain one or more path parameter fields.
+ * If the namespace or interface that contains the operation is also marked with a `@route` decorator,
+ * it will be used as a prefix to the route URI of the operation.
+ *
+ * `@route` can only be applied to operations, namespaces, and interfaces.
+ */
+export function $route(context: DecoratorContext, entity: Type, path: string) {
+  setRoute(context, entity, {
+    path,
+    isReset: false,
+  });
+}
+
+export function $routeReset(context: DecoratorContext, entity: Type, path: string) {
+  setRoute(context, entity, {
+    path,
+    isReset: true,
+  });
+}
+
+const routeOptionsKey = createStateSymbol("routeOptions");
+export function setRouteOptionsForNamespace(
+  program: Program,
+  namespace: Namespace,
+  options: RouteOptions
+) {
+  program.stateMap(routeOptionsKey).set(namespace, options);
+}
+
+export function getRouteOptionsForNamespace(
+  program: Program,
+  namespace: Namespace
+): RouteOptions | undefined {
+  return program.stateMap(routeOptionsKey).get(namespace);
+}
+
+const routesKey = createStateSymbol("routes");
+function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
+  if (
+    !validateDecoratorTarget(context, entity, "@route", ["Namespace", "Interface", "Operation"])
+  ) {
+    return;
+  }
+
+  const state = context.program.stateMap(routesKey);
+
+  if (state.has(entity)) {
+    if (entity.kind === "Operation" || entity.kind === "Interface") {
+      reportDiagnostic(context.program, {
+        code: "duplicate-route-decorator",
+        messageId: entity.kind === "Operation" ? "operation" : "interface",
+        target: entity,
+      });
+    } else {
+      const existingValue: RoutePath = state.get(entity);
+      if (existingValue.path !== details.path) {
+        reportDiagnostic(context.program, {
+          code: "duplicate-route-decorator",
+          messageId: "namespace",
+          target: entity,
+        });
+      }
+    }
+  } else {
+    state.set(entity, details);
+  }
+}
+
+export function getRoutePath(
+  program: Program,
+  entity: Namespace | Interface | Operation
+): RoutePath | undefined {
+  return program.stateMap(routesKey).get(entity);
 }

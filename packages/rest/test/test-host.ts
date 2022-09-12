@@ -6,13 +6,13 @@ import {
   expectDiagnosticEmpty,
   TestHost,
 } from "@cadl-lang/compiler/testing";
-import { HttpVerb } from "../src/http/decorators.js";
 import {
-  getAllRoutes,
+  getAllHttpServices,
+  HttpOperation,
   HttpOperationParameter,
-  OperationDetails,
+  HttpVerb,
   RouteOptions,
-} from "../src/http/route.js";
+} from "../src/http/index.js";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
@@ -99,7 +99,7 @@ export async function compileOperations(
 export async function getOperationsWithServiceNamespace(
   code: string,
   routeOptions?: RouteOptions
-): Promise<[OperationDetails[], readonly Diagnostic[]]> {
+): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
   await runner.compileAndDiagnose(
     `@serviceTitle("Test Service") namespace TestService;
@@ -108,14 +108,15 @@ export async function getOperationsWithServiceNamespace(
       noEmit: true,
     }
   );
-  const [routes] = getAllRoutes(runner.program, routeOptions);
-  return [routes, runner.program.diagnostics];
+  const [services] = getAllHttpServices(runner.program, routeOptions);
+  return [services[0].operations, runner.program.diagnostics];
 }
 
-export async function getOperations(code: string): Promise<OperationDetails[]> {
+export async function getOperations(code: string): Promise<HttpOperation[]> {
   const runner = await createRestTestRunner();
   await runner.compile(code);
-  const [routes, diagnostics] = getAllRoutes(runner.program);
+  const [services, diagnostics] = getAllHttpServices(runner.program);
+
   expectDiagnosticEmpty(diagnostics);
-  return routes;
+  return services[0].operations;
 }
