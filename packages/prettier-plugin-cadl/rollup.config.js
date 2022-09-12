@@ -18,7 +18,7 @@ export default defineConfig({
   external: ["fs/promises", "prettier"],
   treeshake: {
     // Ignore those 2 modules are they aren't used in the code needed for the formatter.
-    // Otherwise rollup think they have side effect and to include a lot of unncessary code in the bundle.
+    // Otherwise rollup think they have side effect and to include a lot of unnecessary code in the bundle.
     moduleSideEffects: ["ajv", "js-yaml"],
   },
   plugins: [

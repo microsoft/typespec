@@ -244,6 +244,13 @@ export function isArray<T>(
 }
 
 /**
+ * Check if argument is not undefined.
+ */
+export function isDefined<T>(arg: T | undefined): arg is T {
+  return arg !== undefined;
+}
+
+/**
  * Look for the project root by looking up until a `package.json` is found.
  * @param path Path to start looking
  * @param lookIn

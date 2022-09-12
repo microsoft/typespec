@@ -1968,9 +1968,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         // reach the close token.
         break;
       } else if (atEndOfListWithError(kind)) {
-        // Error recovery: If a list *is* surrounded by punctionation, then
+        // Error recovery: If a list *is* surrounded by punctuation, then
         // the list ends at statement keyword or end-of-file under the
-        // assumption that the closing delimter is missing. This check is
+        // assumption that the closing delimiter is missing. This check is
         // duplicated from above to preempt the parseExpected(delimeter)
         // below.
         parseExpected(kind.close);

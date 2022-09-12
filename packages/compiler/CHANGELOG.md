@@ -62,7 +62,7 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Fix: Allow omiting optional properties
 - Improve `cloneType` implementation to duplicate decorator lists correctly
 - Add DefaultKeyVisibility<T, Visibility> and @withDefaultKeyVisibility to assign a default visibility value to model @key properties in specific operation signatures
-- Fix: Referencing previous template parameter in template parameter defaul
+- Fix: Referencing previous template parameter in template parameter default
 - Fix bug in finding effective type
 - Fix issue with required parentheses being dropped with union, intersection and array expressions
 - Fix issue with formatting multi line tuple adding trailing comma.
@@ -72,7 +72,7 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Fix issue with projection of nested namespace passing partial projected element to decorators
 - Fix: Operation signature with circular reference causing crash and updated message+code to be relevant to operations.
 - Fix: Couldn't use operation defined inside interfaces as signature.
-- Fix uninitialzed parent namespaces in projections
+- Fix uninitialized parent namespaces in projections
 - Run projections on types returned from getEffectiveType
 - Fix: Issue with Nested namespace in projection causing versioning library to fail when Service is using nested namespace
 - Internal: union variant type has reference to parent union.
@@ -106,7 +106,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 ### Minor changes
 
 - Improve error message when loading library with invalid `main` file
-- Added new decorator signatgure validation helper
+- Added new decorator signature validation helper
 - Allow empty tuples
 - Add helper functions to work with diagnostics in accessor functions
 - Add diagnostics target to decorator context
@@ -182,7 +182,7 @@ Thu, 31 Mar 2022 17:10:49 GMT
 - Add new helper `cadlTypeToJson` to convert cadl type to a Json serializable type
 - Add helper methods to detect `void` and `never` types
 - Prevent decorators from running if arguments are errors.
-- Handle unknown identfier/error types used in spread operator.
+- Handle unknown identifier/error types used in spread operator.
 - Add parent .model to ModelTypeProperty
 - Add validation that template params cannot use latter params as default
 
@@ -193,7 +193,7 @@ Thu, 31 Mar 2022 17:10:49 GMT
 - Fix formatting of comment between decorator and statement
 - Fix resolving location for diagnostic in js files
 - Fix formatting of comment between decorator and property
-- Fix using `&` with tempalte parameters
+- Fix using `&` with template parameters
 - Support browser builds
 - Fix issues with mishandled promises
 - Fix cascade of error when having unexpected token in directive
@@ -258,7 +258,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 
 - Validate for `@doc` decorator argument is a string
 - Add @error decorator in core
-- **Added** --emit flag to configure the emitter(s) to use and seperate library imports from emitters
+- **Added** --emit flag to configure the emitter(s) to use and separate library imports from emitters
 - Add directory manipulation to CompilerHost
 - Update to syntax tree to be readonly
 - Formatter: Separate Enum members with decorator with new lines
@@ -274,7 +274,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - **Fix** Diagnostic location for invalid use of templated models
 - Fix path normalization issue that caused diagnostics from language server to be dropped.
 - Fix error with file ending with mutline comment
-- **Fix** issue when loading cadl using a different casing than the actual casing in a case insenstivie file system
+- **Fix** issue when loading cadl using a different casing than the actual casing in a case insensitive file system
 - Add @friendlyName decorator to customize model names for emitters
 - Fix issue where identifiers could be confused with keywords when they had common endings.
 - Renaming @format decorator to @pattern.
@@ -299,10 +299,10 @@ Thu, 16 Dec 2021 08:02:20 GMT
 - **Fix** Circular reference in `alias` now emit a diagnostic instead of crashing
 - **Fix** Circular reference between template model and non template model causing unresolved types issues.
 - **Formatter** fix issues with empty model and interface with comments being moved outside.
-- **Formatter** fix crash when having a comment in anynoymous empty model.
+- **Formatter** fix crash when having a comment in anonymous empty model.
 - **Formatter** fix crash when using multi-line comment without each line starting with `*`.
 - **Formatter** Tweak formatting of interface mixes that overflow.
-- **Formatter** Keep single value decroator inline.
+- **Formatter** Keep single value decorator inline.
 - **Formatter** Keep empty line seperation in interface similar to namespace (Only keeps 1 max between operation).
 - Add support for `interface` as a `@tag` decorator target
 - Reintroduce @list decorator to assist with collection operations
@@ -437,7 +437,7 @@ Fri, 13 Aug 2021 19:10:21 GMT
 
 ### Patches
 
-- Add support for discovering updatabale properties using visibility
+- Add support for discovering updatable properties using visibility
 - Fix error in `cadl vs uninstall` command
 
 ## 0.17.0
@@ -558,7 +558,7 @@ Tue, 20 Apr 2021 15:23:29 GMT
 ### Patches
 
 - Fix issue where dynamic namespaces were not evaluated
-- Virtualize writting to filesytem to enable programtic usage of adl
+- Virtualize writting to filesystem to enable programtic usage of adl
 
 ## 0.8.0
 Tue, 06 Apr 2021 01:23:07 GMT

@@ -8,7 +8,7 @@
       "comments": {
         "patch": [
           {
-            "comment": "Add warning when using `.only` to remmeber to remove before pushing"
+            "comment": "Add warning when using `.only` to remember to remove before pushing"
           }
         ]
       }

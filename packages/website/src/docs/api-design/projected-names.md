@@ -5,7 +5,7 @@ title: Projected names
 
 # Projected Names
 
-There is some cases where the name you have in Cadl might difer from the name over the wire or for a certain language.
+There is some cases where the name you have in Cadl might differ from the name over the wire or for a certain language.
 
 ## Known targets
 
@@ -31,7 +31,7 @@ List of known targets.
 To update the name of a Cadl entity you can use the `@projectedName` decorator. This decorator takes 2 parameters:
 
 - `string` target name. See [known targets](#known-targets)
-- `string` projected name. Watever the name should be in the given target.
+- `string` projected name. Whatever the name should be in the given target.
 
 Example:
 

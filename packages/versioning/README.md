@@ -177,7 +177,7 @@ model Foo {
 
 ### `@renamedFrom`
 
-Sepcify which version an entity was renamed and what is is old name.
+Specify which version an entity was renamed and what is is old name.
 
 Version enum member **MUST** be from the version enum for the containing namespace.
 
@@ -188,7 +188,7 @@ op newName(): void;
 
 ### `@madeOptional`
 
-Sepcify which version a property was made optional
+Specify which version a property was made optional
 
 Version enum member **MUST** be from the version enum for the containing namespace.
 
@@ -203,7 +203,7 @@ model Foo {
 
 ## Consuming versioning library from an emitter
 
-### Get the service represenation at a given version
+### Get the service representation at a given version
 
 Versioning library works with projection to project the service at a given version.
 

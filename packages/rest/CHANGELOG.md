@@ -138,15 +138,15 @@ Fri, 04 Feb 2022 18:00:18 GMT
 ### Minor changes
 
 - Add support for discriminator decorator
-- Internals: switch to internal path manipulatio
+- Internals: switch to internal path manipulation
 - Added shared logic to resolve http operation parameters and validate compatibility(duplicate bodies)
-- **Added** Validation for uniquness of operation by verb and path
+- **Added** Validation for uniqueness of operation by verb and path
 - **Added** `@head` decorator to describe `head` http verb operation
-- Validate http verb decorators(`@get`, `@post`, etc.) do not recieve any argument
+- Validate http verb decorators(`@get`, `@post`, etc.) do not receive any argument
 - Expose response template in Http library and refactor
 - Add statusCode decorator for http status code
 - **Validate `@route` decorator is used only once
-- Update cadl depdendencies to peerDependencies
+- Update cadl dependencies to peerDependencies
 
 ### Patches
 
@@ -223,7 +223,7 @@ Fri, 13 Aug 2021 19:10:21 GMT
 
 ### Patches
 
-- Add isHeader functionality to discover if a proprty is a header property
+- Add isHeader functionality to discover if a property is a header property
 
 ## 0.5.0
 Tue, 10 Aug 2021 20:23:04 GMT

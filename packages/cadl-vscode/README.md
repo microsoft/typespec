@@ -21,6 +21,6 @@ This setting provides the ability to configure where the cadl compiler is locate
 
 ```json
 {
-  "cadl.cadl-server.path": "${workspaceFolder}/mynestedproject/node_modules/@cadl-lang/compiler"
+  "cadl.cadl-server.path": "${workspaceFolder}/my-nested-project/node_modules/@cadl-lang/compiler"
 }
 ```
