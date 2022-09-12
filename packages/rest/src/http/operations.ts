@@ -18,7 +18,7 @@ import {
   HttpService,
   HttpVerb,
   OperationContainer,
-  RouteOptions,
+  RouteResolutionOptions,
 } from "./types.js";
 
 /**
@@ -29,7 +29,7 @@ import {
 export function getHttpOperation(
   program: Program,
   operation: Operation,
-  options?: RouteOptions
+  options?: RouteResolutionOptions
 ): [HttpOperation, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const route = diagnostics.pipe(resolvePathAndParameters(program, operation, options ?? {}));
@@ -47,10 +47,17 @@ export function getHttpOperation(
   });
 }
 
-export function resolveHttpOperations(
+/**
+ * Get all the Http Operation in the given container.
+ * @param program Program
+ * @param container Namespace or interface containing operations
+ * @param options Resolution options
+ * @returns
+ */
+export function getHttpOperations(
   program: Program,
   container: OperationContainer,
-  options?: RouteOptions
+  options?: RouteResolutionOptions
 ): [HttpOperation[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const operations = listOperations(container, options?.listOptions);
@@ -65,12 +72,17 @@ export function resolveHttpOperations(
  */
 export function getAllHttpServices(
   program: Program,
-  options?: RouteOptions
+  options?: RouteResolutionOptions
 ): [HttpService[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const serviceNamespace = getServiceNamespace(program);
   const httpOperations = diagnostics.pipe(
-    resolveHttpOperations(program, serviceNamespace, options)
+    getHttpOperations(program, serviceNamespace, {
+      ...options,
+      listOptions: {
+        recursive: serviceNamespace !== program.getGlobalNamespaceType(),
+      },
+    })
   );
 
   validateRouteUnique(diagnostics, httpOperations);
@@ -86,7 +98,7 @@ export function getAllHttpServices(
  */
 export function getAllRoutes(
   program: Program,
-  options?: RouteOptions
+  options?: RouteResolutionOptions
 ): [HttpOperation[], readonly Diagnostic[]] {
   const [services, diagnostics] = getAllHttpServices(program, options);
   return [services[0].operations, diagnostics];

@@ -25,8 +25,8 @@ import {
   AuthenticationOption,
   HttpAuth,
   HttpVerb,
-  RouteOptions,
   RoutePath,
+  RouteResolutionOptions,
   ServiceAuthentication,
 } from "./types.js";
 
@@ -581,7 +581,7 @@ const routeOptionsKey = createStateSymbol("routeOptions");
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
-  options: RouteOptions
+  options: RouteResolutionOptions
 ) {
   program.stateMap(routeOptionsKey).set(namespace, options);
 }
@@ -589,7 +589,7 @@ export function setRouteOptionsForNamespace(
 export function getRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace
-): RouteOptions | undefined {
+): RouteResolutionOptions | undefined {
   return program.stateMap(routeOptionsKey).get(namespace);
 }
 

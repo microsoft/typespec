@@ -1,9 +1,8 @@
-import { getServiceNamespace, Program } from "@cadl-lang/compiler";
-import { resolveHttpOperations } from "./http/operations.js";
+import { Program } from "@cadl-lang/compiler";
+import { getAllHttpServices } from "./http/operations.js";
 
 export function $onValidate(program: Program) {
-  const serviceNamespace = getServiceNamespace(program);
-  const [, diagnostics] = resolveHttpOperations(program, serviceNamespace);
+  const [, diagnostics] = getAllHttpServices(program);
 
   if (diagnostics.length > 0) {
     program.reportDiagnostics(diagnostics);

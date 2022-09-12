@@ -18,30 +18,27 @@ export function listOperations(
   container: Namespace | Interface,
   options: ListOperationOptions = {}
 ): Operation[] {
-  if (container.kind === "Interface" && isTemplateDeclaration(container)) {
-    // Skip template interface operations
-    return [];
-  }
-
-  // TODO: Allow overriding the existing resource operation of the same kind
-
   const operations: Operation[] = [];
 
   function addOperations(current: Namespace | Interface) {
-    for (const op of current.operations.values()) {
-      // Skip templated operations
-      if (isTemplateDeclarationOrInstance(op)) {
-        continue;
-      }
-      operations.push(op);
+    if (current.kind === "Interface" && isTemplateDeclaration(current)) {
+      // Skip template interface operations
+      return;
     }
 
-    if (container.kind === "Namespace") {
+    for (const op of current.operations.values()) {
+      // Skip templated operations
+      if (!isTemplateDeclarationOrInstance(op)) {
+        operations.push(op);
+      }
+    }
+
+    if (current.kind === "Namespace") {
       const recursive = options.recursive ?? true;
 
       const children = [
-        ...(recursive ? [] : container.namespaces.values()),
-        ...container.interfaces.values(),
+        ...(recursive ? current.namespaces.values() : []),
+        ...current.interfaces.values(),
       ];
 
       for (const child of children) {

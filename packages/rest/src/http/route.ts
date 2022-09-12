@@ -19,7 +19,11 @@ import {
   getRoutePath,
   isBody,
 } from "./decorators.js";
-import { HttpOperationParameter, HttpOperationParameters, RouteOptions } from "./types.js";
+import {
+  HttpOperationParameter,
+  HttpOperationParameters,
+  RouteResolutionOptions,
+} from "./types.js";
 
 // The set of allowed segment separator characters
 const AllowedSegmentSeparators = ["/", ":"];
@@ -138,7 +142,7 @@ function generatePathFromParameters(
   operation: Operation,
   pathFragments: string[],
   parameters: HttpOperationParameters,
-  options: RouteOptions
+  options: RouteResolutionOptions
 ) {
   const filteredParameters: HttpOperationParameter[] = [];
   for (const httpParam of parameters.parameters) {
@@ -179,12 +183,13 @@ function generatePathFromParameters(
 export function resolvePathAndParameters(
   program: Program,
   operation: Operation,
-  options: RouteOptions
+  options: RouteResolutionOptions
 ): [{ path: string; parameters: HttpOperationParameters }, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const parameters = diagnostics.pipe(getOperationParameters(program, operation));
-  let segments: string[] = [];
+  let segments: string[];
   if (isAutoRoute(program, operation)) {
+    segments = getParentSegments(program, operation);
     // The operation exists within an @autoRoute scope, generate the path.  This
     // mutates the pathFragments and parameters lists that are passed in!
     generatePathFromParameters(program, operation, segments, parameters, options);
@@ -231,22 +236,18 @@ export function resolvePathAndParameters(
   });
 }
 
+function getParentSegments(program: Program, target: Operation | Interface | Namespace): string[] {
+  return "interface" in target && target.interface
+    ? getRouteSegments(program, target.interface)
+    : target.namespace
+    ? getRouteSegments(program, target.namespace)
+    : [];
+}
+
 function getRouteSegments(program: Program, target: Operation | Interface | Namespace): string[] {
   const route = getRoutePath(program, target)?.path;
   const seg = route ? [route] : [];
-  switch (target.kind) {
-    case "Namespace":
-      return target.namespace ? [...getRouteSegments(program, target.namespace), ...seg] : seg;
-    case "Interface":
-      return target.namespace ? [...getRouteSegments(program, target.namespace), ...seg] : seg;
-
-    case "Operation":
-      return target.interface
-        ? [...getRouteSegments(program, target.interface), ...seg]
-        : target.namespace
-        ? [...getRouteSegments(program, target.namespace), ...seg]
-        : seg;
-  }
+  return [...getParentSegments(program, target), ...seg];
 }
 
 const externalInterfaces = createStateSymbol("externalInterfaces");
