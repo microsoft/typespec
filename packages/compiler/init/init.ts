@@ -13,7 +13,7 @@ import { InitTemplate, InitTemplateDefinitionsSchema, InitTemplateFile } from ".
 
 interface ScaffoldingConfig extends InitTemplate {
   /**
-   * Path where this template was laoded from.
+   * Path where this template was loaded from.
    */
   templateUri: string;
 

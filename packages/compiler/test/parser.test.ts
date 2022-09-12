@@ -33,7 +33,7 @@ describe("compiler: syntax", () => {
 
       `model Car {
          optional?: number;
-         withDefault?: string = "mydefault";
+         withDefault?: string = "my-default";
        };`,
 
       `model Car {
@@ -311,11 +311,14 @@ describe("compiler: syntax", () => {
   });
 
   describe("BOM", () => {
+    // cspell:disable-next-line
     parseEach(["\u{FEFF}/*<--BOM*/ model M {}"]);
+    // cspell:disable-next-line
     parseErrorEach([["model\u{FEFF}/*<--BOM*/ M {}", [/Statement expected/]]]);
   });
 
   describe("unterminated tokens", () => {
+    // cspell:disable-next-line
     parseErrorEach([["/* Yada yada yada", [/Unterminated multi-line comment/]]]);
 
     const strings = [
@@ -416,6 +419,7 @@ describe("compiler: syntax", () => {
   });
 
   describe("identifiers", () => {
+    // cspell:disable
     const good = [
       "short",
       "short42",
@@ -461,6 +465,7 @@ describe("compiler: syntax", () => {
       ["42", /Identifier expected/],
       ["true", /Keyword cannot be used as identifier/],
     ];
+    // cspell:enable
 
     parseEach(
       good.map((entry) => {

@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "**Breaking** Model `extends` or `is` canot reference a model expression.",
+      "comment": "**Breaking** Model `extends` or `is` cannot reference a model expression.",
       "type": "minor"
     }
   ],

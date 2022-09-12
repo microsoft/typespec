@@ -193,7 +193,7 @@ export function $numeric(context: DecoratorContext, target: Type) {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        format: { decorator: "@numeric", to: "non-instrinsic type" },
+        format: { decorator: "@numeric", to: "non-intrinsic type" },
         target,
       })
     );

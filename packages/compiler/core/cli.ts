@@ -414,7 +414,7 @@ function resolveEmitters(
   options: Record<string | "miscOptions", Record<string, unknown>>,
   args: CompileCliArgs
 ): Record<string, Record<string, unknown> | boolean> {
-  const emitters = resovleSelectedEmittersFromConfig(config, args.emit);
+  const emitters = resolveSelectedEmittersFromConfig(config, args.emit);
 
   const configuredEmitters: Record<string, Record<string, unknown> | boolean> = {};
 
@@ -434,7 +434,7 @@ function resolveEmitters(
   return configuredEmitters;
 }
 
-function resovleSelectedEmittersFromConfig(
+function resolveSelectedEmittersFromConfig(
   config: CadlConfig,
   selectedEmitters: string[] | undefined
 ): Record<string, Record<string, unknown> | boolean> {

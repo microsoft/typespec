@@ -121,7 +121,7 @@ describe("compiler: enums", () => {
   });
 
   // Issue here was the same EnumType was create twice for each decorator on different namespaces causing equality issues when comparing the enum or enum member
-  it("enums can be refernced from decorator on namespace", async () => {
+  it("enums can be referenced from decorator on namespace", async () => {
     let refViaMyService: Enum | undefined;
     let refViaMyLib: Enum | undefined;
     testHost.addJsFile("lib.js", {

@@ -394,19 +394,19 @@
             "comment": "Add support for discriminator decorator"
           },
           {
-            "comment": "Internals: switch to internal path manipulatio"
+            "comment": "Internals: switch to internal path manipulation"
           },
           {
             "comment": "Added shared logic to resolve http operation parameters and validate compatibility(duplicate bodies)"
           },
           {
-            "comment": "**Added** Validation for uniquness of operation by verb and path"
+            "comment": "**Added** Validation for uniqueness of operation by verb and path"
           },
           {
             "comment": "**Added** `@head` decorator to describe `head` http verb operation"
           },
           {
-            "comment": "Validate http verb decorators(`@get`, `@post`, etc.) do not recieve any argument"
+            "comment": "Validate http verb decorators(`@get`, `@post`, etc.) do not receive any argument"
           },
           {
             "comment": "Expose response template in Http library and refactor"
@@ -418,7 +418,7 @@
             "comment": "**Validate `@route` decorator is used only once"
           },
           {
-            "comment": "Update cadl depdendencies to peerDependencies"
+            "comment": "Update cadl dependencies to peerDependencies"
           }
         ],
         "dependency": [
@@ -588,7 +588,7 @@
       "comments": {
         "patch": [
           {
-            "comment": "Add isHeader functionality to discover if a proprty is a header property"
+            "comment": "Add isHeader functionality to discover if a property is a header property"
           }
         ],
         "dependency": [

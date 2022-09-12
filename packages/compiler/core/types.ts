@@ -1190,7 +1190,7 @@ export interface SourceFile {
    *
    * This is used only for diagnostics. The command line compiler will populate
    * it with the actual path from which the file was read, but it can actually
-   * be an aribitrary name for other scenarios.
+   * be an arbitrary name for other scenarios.
    */
   readonly path: string;
 
@@ -1505,7 +1505,7 @@ export interface DecoratorContext {
   /**
    * Helper to call out to another decorator
    * @param decorator Other decorator function
-   * @param args Args to pass to other decorator funciton
+   * @param args Args to pass to other decorator function
    */
   call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,

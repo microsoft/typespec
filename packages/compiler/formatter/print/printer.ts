@@ -89,7 +89,7 @@ export function printCadl(
   if (node.kind === SyntaxKind.CadlScript) {
     // For CadlScript(root of cadl document) we had a new line at the end.
     // This must be done here so the hardline entry can be the last item of the doc array returned by the printer
-    // so the markdown(and other embeded formatter) can omit that extra line.
+    // so the markdown(and other embedded formatter) can omit that extra line.
     parts.push(hardline);
   }
   return parts;
