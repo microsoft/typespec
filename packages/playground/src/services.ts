@@ -157,11 +157,11 @@ export async function attachServices(host: BrowserHost) {
   }
 
   function monacoWorkspaceEdit(edit: lsp.WorkspaceEdit): monaco.languages.WorkspaceEdit {
-    const edits: monaco.languages.WorkspaceTextEdit[] = [];
+    const edits: monaco.languages.IWorkspaceTextEdit[] = [];
     for (const [uri, changes] of Object.entries(edit.changes ?? {})) {
       const resource = monaco.Uri.parse(uri);
       for (const change of changes) {
-        edits.push({ resource, edit: monacoTextEdit(change) });
+        edits.push({ resource, textEdit: monacoTextEdit(change), versionId: undefined });
       }
     }
     return { edits };
