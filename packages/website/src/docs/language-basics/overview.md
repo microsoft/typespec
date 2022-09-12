@@ -9,7 +9,7 @@ This is an overview of the language concept in Cadl. It doesn't go in detail but
 
 ## Imports
 
-_Details [Imports]({%doc "imports"%})_
+_Details: [Imports]({%doc "imports"%})_
 
 | Feature          | Example                    |
 | ---------------- | -------------------------- |
@@ -19,7 +19,7 @@ _Details [Imports]({%doc "imports"%})_
 
 ## Namespaces
 
-_Details [Namespaces]({%doc "namespaces"%})_
+_Details: [Namespaces]({%doc "namespaces"%})_
 
 | Feature           | Example                      |
 | ----------------- | ---------------------------- |
@@ -30,7 +30,7 @@ _Details [Namespaces]({%doc "namespaces"%})_
 
 ## Decorators
 
-_Details [Decorators]({%doc "decorators"%})_
+_Details: [Decorators]({%doc "decorators"%})_
 
 | Feature                      | Example                                                                             |
 | ---------------------------- | ----------------------------------------------------------------------------------- |
@@ -41,7 +41,7 @@ _Details [Decorators]({%doc "decorators"%})_
 
 ## Models
 
-_Details [Models]({%doc "models"%})_
+_Details: [Models]({%doc "models"%})_
 
 | Feature                        | Example                               |
 | ------------------------------ | ------------------------------------- |
@@ -56,20 +56,20 @@ _Details [Models]({%doc "models"%})_
 
 ## Operations
 
-_Details [Operations]({%doc "operations"%})_
+_Details: [Operations]({%doc "operations"%})_
 
 | Feature                             | Example                                          |
 | ----------------------------------- | ------------------------------------------------ |
 | Operation declaration               | `op ping(): void`                                |
 | Operation with parameters           | `op upload(filename: string, data: bytes): void` |
-| Operation with return type          | `op health(): HealthStatus \| ErrorResponse`     |
-| Operation with return multiple type | `op health(): HealthStatus \| ErrorResponse`     |
+| Operation with return type          | `op health(): HealthStatus`                      |
+| Operation with multiple types       | `op health(): HealthStatus \| ErrorResponse`     |
 | Operation template                  | `op getter<T>(id: string): T`                    |
 | Operation is                        | `op getPet is getter<Pet>;`                      |
 
 ## Interfaces
 
-_Details [Interfaces]({%doc "interfaces"%})_
+_Details: [Interfaces]({%doc "interfaces"%})_
 
 | Feature               | Example                                |
 | --------------------- | -------------------------------------- |
@@ -79,7 +79,7 @@ _Details [Interfaces]({%doc "interfaces"%})_
 
 ## Templates
 
-_Details [Templates]({%doc "templates"%})_
+_Details: [Templates]({%doc "templates"%})_
 
 | Feature                           | Example                                             |
 | --------------------------------- | --------------------------------------------------- |
@@ -91,7 +91,7 @@ _Details [Templates]({%doc "templates"%})_
 
 ## Enums
 
-_Details [Enums]({%doc "enums"%})_
+_Details: [Enums]({%doc "enums"%})_
 
 | Feature            | Example                                        |
 | ------------------ | ---------------------------------------------- |
@@ -105,7 +105,7 @@ _Details [Enums]({%doc "enums"%})_
 
 <!-- ADD with https://github.com/microsoft/cadl/pull/992 -->
 
-_Details [Unions]()_
+_Details: [Unions]()_
 
 | Feature                 | Example                          |
 | ----------------------- | -------------------------------- |
@@ -116,7 +116,7 @@ _Details [Unions]()_
 
 <!-- ADD with https://github.com/microsoft/cadl/pull/992 -->
 
-_Details [Intersections]()_
+_Details: [Intersections]()_
 
 | Feature                  | Example        |
 | ------------------------ | -------------- |
@@ -126,7 +126,7 @@ _Details [Intersections]()_
 
 <!-- ADD with https://github.com/microsoft/cadl/pull/992 -->
 
-_Details [Type literals]({%doc "type-literals"%})_
+_Details: [Type literals]({%doc "type-literals"%})_
 
 | Feature           | Example                                                  |
 | ----------------- | -------------------------------------------------------- |
@@ -138,8 +138,8 @@ _Details [Type literals]({%doc "type-literals"%})_
 
 ## Aliases
 
-_Details [Aliases]({%doc "aliases"%})_
+_Details: [Aliases]({%doc "aliases"%})_
 
-| Feature           | Example                |
+| Feature           | Example                |         |
 | ----------------- | ---------------------- | ------- |
 | Alias declaration | `alias Options = "one" | "two";` |
