@@ -9,7 +9,7 @@ describe("compiler: projected-names", () => {
     runner = await createTestRunner();
   });
 
-  it("@projectName updates the name when runnning projection", async () => {
+  it("@projectName updates the name when running projection", async () => {
     const { expireAt } = (await runner.compile(`
       model Foo {
         @projectedName("json", "exp")

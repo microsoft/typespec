@@ -2,8 +2,8 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Internal: Facilitate adding new tokens to scanner.\"",
-      "type": "patch"
+      "comment": "Language Server: Improvement to outline, symbols correctly structured.",
+      "type": "minor"
     }
   ],
   "packageName": "@cadl-lang/compiler"
