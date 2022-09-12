@@ -76,7 +76,7 @@ specifiers:
   mocha: ~9.2.0
   mocha-junit-reporter: ~2.0.2
   mocha-multi-reporters: ~1.5.1
-  monaco-editor: ~0.32.1
+  monaco-editor: ~0.34.0
   mustache: ~4.2.0
   node-fetch: 3.2.8
   node-watch: ~0.7.1
@@ -185,7 +185,7 @@ dependencies:
   mocha: 9.2.2
   mocha-junit-reporter: 2.0.2_mocha@9.2.2
   mocha-multi-reporters: 1.5.1_mocha@9.2.2
-  monaco-editor: 0.32.1
+  monaco-editor: 0.34.0
   mustache: 4.2.0
   node-fetch: 3.2.8
   node-watch: 0.7.3
@@ -5401,8 +5401,8 @@ packages:
     resolution: {integrity: sha512-9ARkWHBs+6YJIvrIp0Ik5tyTTtP9PoV0Ssu2Ocq5y9v8+NOOpWiRshAp8c4rZVWTOe+157on/5G+zj5pwIQFEQ==}
     dev: false
 
-  /monaco-editor/0.32.1:
-    resolution: {integrity: sha512-LUt2wsUvQmEi2tfTOK+tjAPvt7eQ+K5C4rZPr6SeuyzjAuAHrIvlUloTcOiGjZW3fn3a/jFQCONrEJbNOaCqbA==}
+  /monaco-editor/0.34.0:
+    resolution: {integrity: sha512-VF+S5zG8wxfinLKLrWcl4WUizMx+LeJrG4PM/M78OhcwocpV0jiyhX/pG6Q9jIOhrb/ckYi6nHnaR5OojlOZCQ==}
     dev: false
 
   /moo/0.5.1:
@@ -7981,7 +7981,7 @@ packages:
       source-map-support: 0.5.21
       typescript: 4.8.2
       vscode-languageserver: 7.0.0
-      vscode-languageserver-textdocument: 1.0.5
+      vscode-languageserver-textdocument: 1.0.7
       vscode-oniguruma: 1.6.2
       vscode-textmate: 6.0.0
       yargs: 17.3.1
@@ -8137,7 +8137,7 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@2.79.0:
-    resolution: {integrity: sha512-BIfEm7XzbBAVwgXM1zxdWLHA9hX7JEG6CrIrWvRuvpGezXR3Jpb5abDt02i8XkgvlXGgO7UDhufeD1m95eI5Nw==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-4nph/CKxKeN106ld9SYa0joDmFaIWWbLOhpvcuv6BIUiUcfXWSpnnYdA+j9EL0RnHUPhI69+BWNsiZTEQ1Gt7w==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
@@ -8160,7 +8160,7 @@ packages:
       mocha: 9.2.2
       mocha-junit-reporter: 2.0.2_mocha@9.2.2
       mocha-multi-reporters: 1.5.1_mocha@9.2.2
-      monaco-editor: 0.32.1
+      monaco-editor: 0.34.0
       playwright: 1.25.1
       prettier: 2.7.1
       react: 18.2.0
@@ -8171,7 +8171,7 @@ packages:
       typescript: 4.8.2
       vite: 2.9.14
       vscode-languageserver: 7.0.0
-      vscode-languageserver-textdocument: 1.0.5
+      vscode-languageserver-textdocument: 1.0.7
     transitivePeerDependencies:
       - encoding
       - less
