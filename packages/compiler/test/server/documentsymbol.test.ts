@@ -1,5 +1,4 @@
 import { deepStrictEqual } from "assert";
-import { doc } from "prettier";
 import { DocumentSymbol, SymbolKind } from "vscode-languageserver/node.js";
 import { createTestServerHost } from "../../testing/test-server-host.js";
 
