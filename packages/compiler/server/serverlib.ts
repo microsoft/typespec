@@ -36,8 +36,6 @@ import {
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
-  SymbolInformation,
-  SymbolKind,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
