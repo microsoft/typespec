@@ -140,6 +140,6 @@ _Details: [Type literals]({%doc "type-literals"%})_
 
 _Details: [Aliases]({%doc "aliases"%})_
 
-| Feature           | Example                |         |
-| ----------------- | ---------------------- | ------- |
-| Alias declaration | `alias Options = "one" | "two";` |
+| Feature           | Example                           |
+| ----------------- | --------------------------------- |
+| Alias declaration | `alias Options = "one" \| "two";` |
