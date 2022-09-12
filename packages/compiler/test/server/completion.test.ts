@@ -8,6 +8,8 @@ import {
 } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../testing/test-server-host.js";
 
+// cspell:ignore 𐌰𐌲
+
 describe("compiler: server: completion", () => {
   it("completes globals", async () => {
     const completions = await complete(
@@ -38,7 +40,7 @@ describe("compiler: server: completion", () => {
       "test/package.json": JSON.stringify({
         dependencies: {
           "@cadl-lang/library1": "~0.1.0",
-          noncadllibrary: "~0.1.0",
+          "non-cadl-library": "~0.1.0",
         },
         peerDependencies: {
           "@cadl-lang/library2": "~0.1.0",
@@ -47,7 +49,7 @@ describe("compiler: server: completion", () => {
       "test/node_modules/@cadl-lang/library1/package.json": JSON.stringify({
         cadlMain: "./foo.js",
       }),
-      "test/node_modules/noncadllibrary/package.json": JSON.stringify({}),
+      "test/node_modules/non-cadl-library/package.json": JSON.stringify({}),
       "test/node_modules/@cadl-lang/library2/package.json": JSON.stringify({
         cadlMain: "./foo.js",
       }),

@@ -171,8 +171,8 @@ cadl format <patterns...>
 cadl format **/*.cadl
 
 # Exclude certain patterns. Either use `!` prefix or pass it via the `--exclude` or `-x` option.
-cadl format **/*.cadl "!mytestfolder/**/*"
-cadl format **/*.cadl --exclude "mytestfolder/**/*"
+cadl format **/*.cadl "!my-test-folder/**/*"
+cadl format **/*.cadl --exclude "my-test-folder/**/*"
 ```
 
 ### Installing VS Code Extension

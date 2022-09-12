@@ -1031,7 +1031,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     childModels: readonly Model[]
   ): boolean {
     const { propertyName } = discriminator;
-    const retVals = childModels.map((t) => {
+    const retValues = childModels.map((t) => {
       const prop = getProperty(t, propertyName);
       if (!prop) {
         reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
@@ -1062,8 +1062,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
       }
       if (prop) {
-        const vals = getStringValues(prop.type);
-        vals.forEach((val) => {
+        const values = getStringValues(prop.type);
+        values.forEach((val) => {
           if (discriminatorValues.has(val)) {
             reportDiagnostic(program, {
               code: "discriminator",
@@ -1071,14 +1071,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
               format: { val: val, model1: discriminatorValues.get(val)!, model2: t.name },
               target: prop,
             });
-            retVals.push(false);
+            retValues.push(false);
           } else {
             discriminatorValues.set(val, t.name);
           }
         });
       }
     }
-    return retVals.every((v) => v);
+    return retValues.every((v) => v);
   }
 
   function getDiscriminatorMapping(

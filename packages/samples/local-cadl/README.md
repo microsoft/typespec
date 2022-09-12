@@ -22,6 +22,6 @@ npm install --save-dev @cadl-lang/compiler
 - Set `cadl.cadl-server.path` to `${workspaceFolder}/node_modules/.bin/cadl-server`
 
   (NOTE: If the Cadl project is not at the root of the workspace, adjust the path accordingly.
-  For example, `${workspaceFolder}/path/from/workspace/to/project/node_modulues/.bin/cadl-server`)
+  For example, `${workspaceFolder}/path/from/workspace/to/project/node_modules/.bin/cadl-server`)
 
 ### 3. Commit settings.json and package.json changes

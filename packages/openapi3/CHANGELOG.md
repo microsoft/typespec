@@ -153,7 +153,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - Internals: switch to internal path manipulation
 - Extracted decorators into own library `@cadl-lang/openapi`
 - Uptake changes in @cadl-lang/rest library improving operation parameter handling
-- Update cadl depdendencies to peerDependencies
+- Update cadl dependencies to peerDependencies
 - Add support for versioned services
 - Add statusCode decorator for http status code
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/internal-build-utils",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@cadl-lang/internal-build-utils"
+}

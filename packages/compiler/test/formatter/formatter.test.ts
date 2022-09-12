@@ -288,7 +288,7 @@ model Foo {
       });
     });
 
-    it("remove unncessary quotes", () => {
+    it("remove unnecessary quotes", () => {
       assertFormat({
         code: `
 model Foo {
@@ -406,7 +406,7 @@ model Foo {
       });
     });
 
-    it("format empty anynymous model with comment inside", () => {
+    it("format empty anonymous model with comment inside", () => {
       assertFormat({
         code: `
 model Foo {
@@ -524,7 +524,7 @@ model Bar {}
       });
     });
 
-    it("comment preceeding decorators hug decorators", () => {
+    it("comment preceding decorators hug decorators", () => {
       assertFormat({
         code: `
         // comment
@@ -665,7 +665,7 @@ alias Bar = One & Two;
       });
     });
 
-    it("format intersection of anoymous models", () => {
+    it("format intersection of anonymous models", () => {
       assertFormat({
         code: `
 alias     Foo   = { foo: string }       &   {bar: string};
@@ -745,7 +745,7 @@ enum Bar {
       });
     });
 
-    it("seperate members if there is decorators", () => {
+    it("separate members if there is decorators", () => {
       assertFormat({
         code: `
 enum      Foo       {   
@@ -1209,7 +1209,7 @@ model Foo<T extends string, K extends {foo: int32}> {}`,
       });
     });
 
-    it("format parameter declarations with constraints and defauls", () => {
+    it("format parameter declarations with constraints and defaults", () => {
       assertFormat({
         code: `
 model Foo<T       extends    string =      
@@ -1585,7 +1585,7 @@ projection model#proj {
     });
   });
 
-  describe("when embeded", () => {
+  describe("when embedded", () => {
     it("doesn't include blank line at the end (in markdown)", () => {
       assertFormat({
         parser: "markdown",

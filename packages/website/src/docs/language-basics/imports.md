@@ -40,7 +40,7 @@ which result in `./node_modules/@cadl-lang/rest/lib/main.cadl` to be imported
 
 ## Import a directory
 
-If the import value is a directory it will lookup if that directoy is a node package and follow the npm package [lookup logic](#import-a-library) or if the directory contains a `main.cadl`.
+If the import value is a directory it will lookup if that directory is a node package and follow the npm package [lookup logic](#import-a-library) or if the directory contains a `main.cadl`.
 
 ```cadl
 import "./models"; // same as `import "./models/main.cadl";

@@ -169,7 +169,7 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
     });
 
-    it("emit diagnostic when assigning numericl literal", async () => {
+    it("emit diagnostic when assigning numeric literal", async () => {
       await expectTypeNotAssignable(
         { source: "123", target: "string" },
         {
@@ -452,7 +452,7 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: "{}", target: "object" });
     });
 
-    it("can assign object with proprety", async () => {
+    it("can assign object with property", async () => {
       await expectTypeAssignable({ source: "{foo: string}", target: "object" });
     });
 
@@ -577,7 +577,7 @@ describe("compiler: checker: type relations", () => {
         target: "Aging",
         commonCode: `
           model Pet { name: string; age: int32 }
-          model Cat extends Pet { moew: boolean }
+          model Cat extends Pet { meow: boolean }
 
           model Aging { age: int32 }
         `,
@@ -700,7 +700,7 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
-    it("can a memeber of the enum", async () => {
+    it("can a member of the enum", async () => {
       await expectTypeAssignable({
         source: "Foo.a",
         target: "Foo",
