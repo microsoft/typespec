@@ -162,7 +162,6 @@ async function createRollupConfig(definition: CadlBundleDefinition): Promise<Rol
       json(),
       nodeResolve({ preferBuiltins: true, browser: true }),
     ],
-    shimMissingExports: true,
     external: (id) => {
       return (
         !!id.match(/^@cadl-lang\/[a-z-]+$/) ||

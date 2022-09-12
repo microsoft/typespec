@@ -21,7 +21,7 @@ import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
 import { compilerAssert, logDiagnostics } from "./diagnostics.js";
-import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
+import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter-fs.js";
 import { CompilerHost } from "./index.js";
 import { installCadlDependencies } from "./install.js";
 import { createConsoleSink } from "./logger/index.js";
