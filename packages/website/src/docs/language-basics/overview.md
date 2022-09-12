@@ -58,14 +58,14 @@ _Details: [Models]({%doc "models"%})_
 
 _Details: [Operations]({%doc "operations"%})_
 
-| Feature                             | Example                                          |
-| ----------------------------------- | ------------------------------------------------ |
-| Operation declaration               | `op ping(): void`                                |
-| Operation with parameters           | `op upload(filename: string, data: bytes): void` |
-| Operation with return type          | `op health(): HealthStatus`                      |
-| Operation with multiple types       | `op health(): HealthStatus \| ErrorResponse`     |
-| Operation template                  | `op getter<T>(id: string): T`                    |
-| Operation is                        | `op getPet is getter<Pet>;`                      |
+| Feature                       | Example                                          |
+| ----------------------------- | ------------------------------------------------ |
+| Operation declaration         | `op ping(): void`                                |
+| Operation with parameters     | `op upload(filename: string, data: bytes): void` |
+| Operation with return type    | `op health(): HealthStatus`                      |
+| Operation with multiple types | `op health(): HealthStatus \| ErrorResponse`     |
+| Operation template            | `op getter<T>(id: string): T`                    |
+| Operation is                  | `op getPet is getter<Pet>;`                      |
 
 ## Interfaces
 
