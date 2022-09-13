@@ -26,18 +26,23 @@ function getLinterSingleton(): Linter {
 function getLinterForLibrary(linter: Linter, library: CadlLibrary<any, any>): Linter {
   return {
     ...linter,
-    registerRule(rule: LintRule) {
-      linter.registerRule({
-        ...rule,
-        name: `${library.name}/${rule.name}`,
-      });
-    },
-    registerRules(rules: LintRule[]) {
+    registerRule,
+    registerRules(rules: LintRule[], options?: RegisterRuleOptions) {
       for (const rule of rules) {
-        linter.registerRule(rule);
+        registerRule(rule, options);
       }
     },
   };
+
+  function registerRule(rule: LintRule, options?: RegisterRuleOptions) {
+    linter.registerRule(
+      {
+        ...rule,
+        name: `${library.name}/${rule.name}`,
+      },
+      options
+    );
+  }
 }
 
 function createLinter(): Linter {
@@ -74,6 +79,11 @@ function createLinter(): Linter {
   }
 
   function registerRule(rule: LintRule, options?: RegisterRuleOptions) {
+    compilerAssert(
+      !ruleMap.has(rule.name),
+      `Rule "${rule.name}" is already registered. Make sure to give unique names.`
+    );
+
     ruleMap.set(rule.name, rule);
     if (options?.enable) {
       enabledRules.add(rule.name);
