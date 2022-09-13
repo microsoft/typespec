@@ -59,6 +59,9 @@ function createLinter(): Linter {
   ``;
 
   function lintOnValidate(program: Program) {
+    if (program.compilerOptions.miscOptions?.["disable-linter"]) {
+      return;
+    }
     if (!programRegistered.has(program)) {
       program.onValidate(lintProgram);
       programRegistered.add(program);
