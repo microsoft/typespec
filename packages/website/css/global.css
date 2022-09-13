@@ -52,6 +52,10 @@ pre > code {
   display: block;
 }
 
+code[class="language-mermaid"] {
+  line-height: normal !important;
+}
+
 ul {
   margin: 0;
 }
