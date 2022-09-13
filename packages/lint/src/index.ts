@@ -1,3 +1,2 @@
-export * from "./decorators.js";
-export * from "./helpers.js";
+export * from "./linter.js";
 export * from "./types.js";
