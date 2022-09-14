@@ -2,6 +2,7 @@ import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
+  AugmentDecoratorStatementNode,
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
@@ -248,6 +249,7 @@ export function createChecker(program: Program): Checker {
   const stdTypes: Partial<Record<StdTypeName, Model>> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
+  const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
 
   const typePrototype: TypePrototype = {
@@ -299,6 +301,10 @@ export function createChecker(program: Program): Checker {
 
   for (const file of program.sourceFiles.values()) {
     setUsingsForFile(file);
+  }
+
+  for (const file of program.sourceFiles.values()) {
+    applyAugmentDecorators(file);
   }
 
   const cadlNamespaceBinding = globalNamespaceNode.symbol.exports!.get("Cadl");
@@ -413,6 +419,24 @@ export function createChecker(program: Program): Checker {
 
     if (cadlNamespaceNode) {
       addUsingSymbols(cadlNamespaceBinding!.exports!, file.locals);
+    }
+  }
+
+  function applyAugmentDecorators(file: CadlScriptNode) {
+    const augmentDecorators = file.statements.filter(
+      (x): x is AugmentDecoratorStatementNode => x.kind === SyntaxKind.AugmentDecoratorStatement
+    );
+
+    for (const decorator of augmentDecorators) {
+      const ref = resolveTypeReference(decorator.targetEntity, undefined);
+      if (ref) {
+        let list = augmentDecoratorsForSym.get(ref);
+        if (list === undefined) {
+          list = [];
+          augmentDecoratorsForSym.set(ref, list);
+        }
+        list.push(decorator);
+      }
     }
   }
 
@@ -2407,11 +2431,15 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDecorators(
-    node: { decorators: readonly DecoratorExpressionNode[] },
+    node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
     const decorators: DecoratorApplication[] = [];
-    for (const decNode of node.decorators) {
+    const decoratorNodes = [
+      ...node.decorators,
+      ...(augmentDecoratorsForSym.get(node.symbol) ?? []),
+    ];
+    for (const decNode of decoratorNodes) {
       const sym = resolveTypeReference(decNode.target, undefined, true);
       if (!sym) {
         program.reportDiagnostic(
@@ -2444,7 +2472,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDecoratorArguments(
-    decorator: DecoratorExpressionNode,
+    decorator: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     mapper: TypeMapper | undefined
   ): DecoratorArgument[] {
     return decorator.arguments.map((argNode) => {

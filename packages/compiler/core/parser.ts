@@ -15,6 +15,7 @@ import {
 import {
   AliasStatementNode,
   AnyKeywordNode,
+  AugmentDecoratorStatementNode,
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
@@ -290,6 +291,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const tok = token();
       let item: Statement;
       switch (tok) {
+        case Token.AtAt:
+          reportInvalidDecorators(decorators, "augment decorator statement");
+          item = parseAugmentDecorator();
+          break;
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
           item = parseImportStatement();
@@ -945,6 +950,37 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
+  function parseAugmentDecorator(): AugmentDecoratorStatementNode {
+    const pos = tokenPos();
+    parseExpected(Token.AtAt);
+
+    // Error recovery: false arg here means don't treat a keyword as an
+    // identifier. We want to parse `@ model Foo` as invalid decorator
+    // `@<missing identifier>` applied to `model Foo`, and not as `@model`
+    // applied to invalid statement `Foo`.
+    const target = parseIdentifierOrMemberExpression(undefined, false);
+    const args = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
+    if (args.length === 0) {
+      error({ code: "augment-decorator-target" });
+    }
+    let [targetEntity, ...decoratorArgs] = args;
+    if (targetEntity.kind !== SyntaxKind.TypeReference) {
+      error({ code: "augment-decorator-target", target: targetEntity });
+      targetEntity = {
+        kind: SyntaxKind.TypeReference,
+        target: createMissingIdentifier(),
+        arguments: [],
+        ...finishNode(pos),
+      };
+    }
+    return {
+      kind: SyntaxKind.AugmentDecoratorStatement,
+      target,
+      targetEntity,
+      arguments: decoratorArgs,
+      ...finishNode(pos),
+    };
+  }
   function parseImportStatement(): ImportStatementNode {
     const pos = tokenPos();
 
@@ -2218,6 +2254,12 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.id) || visitEach(cb, node.statements);
     case SyntaxKind.ArrayExpression:
       return visitNode(cb, node.elementType);
+    case SyntaxKind.AugmentDecoratorStatement:
+      return (
+        visitNode(cb, node.target) ||
+        visitNode(cb, node.targetEntity) ||
+        visitEach(cb, node.arguments)
+      );
     case SyntaxKind.DecoratorExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.DirectiveExpression:

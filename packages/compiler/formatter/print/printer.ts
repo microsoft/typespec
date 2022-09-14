@@ -160,6 +160,7 @@ export function printNode(
     case SyntaxKind.ModelProperty:
       return printModelProperty(path as AstPath<ModelPropertyNode>, options, print);
     case SyntaxKind.DecoratorExpression:
+    case SyntaxKind.AugmentDecoratorStatement:
       return printDecorator(path as AstPath<DecoratorExpressionNode>, options, print);
     case SyntaxKind.DirectiveExpression:
       return printDirective(path as AstPath<DirectiveExpressionNode>, options, print);
