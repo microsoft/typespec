@@ -23,7 +23,7 @@ Using `--trace *` will log everything. This might be a bit overwhelming but you 
 
 ## Trace selection
 
-The tracing system in the cadl compiler works by having each trace under an area. The area name is a dot `.` separate string of area segments.
+The tracing system in the cadl compiler works by having each trace under an area. The area name is a dot `.` separated string of area segments.
 
 When filtering which area to select you can use this area path to select which area is going to be revealed.
 The filter follow the same naming style, except the last segment could be a wildcard `*`. This is however the same result as omitting the last segment all together. In other words, those filter have the exact same behavior:
