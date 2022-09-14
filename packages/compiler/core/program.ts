@@ -238,7 +238,7 @@ export async function createProgram(
   const loadedLibraries = new Map<string, CadlLibraryReference>();
   let error = false;
 
-  const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
+  const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
 
   const program: Program = {

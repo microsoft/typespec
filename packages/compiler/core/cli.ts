@@ -101,12 +101,6 @@ async function main() {
             string: true,
             describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
           })
-          .option("diagnostic-level", {
-            type: "string",
-            default: "trace",
-            choices: ["error", "warn", "trace"],
-            describe: "Diagnostics of this level or above will be reported.",
-          })
           .option("warn-as-error", {
             type: "boolean",
             default: false,
@@ -344,7 +338,6 @@ interface CompileCliArgs {
   emit?: string[];
   trace?: string[];
   debug?: boolean;
-  "diagnostic-level": string;
   "warn-as-error"?: boolean;
   "no-emit"?: boolean;
 }
@@ -374,7 +367,6 @@ async function getCompilerOptions(
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
     watchForChanges: args["watch"],
-    diagnosticLevel: args.debug ? "debug" : (args["diagnostic-level"] as any),
     warningAsError: args["warn-as-error"],
     noEmit: args["no-emit"],
     miscOptions: cliOptions.miscOptions,

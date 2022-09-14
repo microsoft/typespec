@@ -354,13 +354,8 @@ export function createChecker(program: Program): Checker {
     mutate(cadlNamespaceBinding!.exports)!.set("log", {
       flags: SymbolFlags.Function,
       name: "log",
-<<<<<<< HEAD
-      value(p: Program, str: string): Type {
-        program.trace("projection.log", str);
-=======
       value(p: Program, ...strs: string[]): Type {
-        program.logger.log({ level: "debug", message: strs.join(" ") });
->>>>>>> e9a708a7eec99bba87b4c82437d8b0233a00292e
+        program.trace("projection.log", strs.join(" "));
         return voidType;
       },
       declarations: [],

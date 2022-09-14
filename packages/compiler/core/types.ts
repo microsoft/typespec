@@ -1478,6 +1478,12 @@ export interface CadlLibrary<
    * @param name Symbol name scoped with the library name.
    */
   createStateSymbol(name: string): symbol;
+
+  /**
+   * Returns a tracer scopped to the current library.
+   * All trace area logged via this tracer will be prefixed with the library name.
+   */
+  getTracer(program: Program): Tracer;
 }
 
 /**
