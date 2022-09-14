@@ -1478,6 +1478,12 @@ export interface CadlLibrary<
    * @param name Symbol name scoped with the library name.
    */
   createStateSymbol(name: string): symbol;
+
+  /**
+   * Returns a tracer scopped to the current library.
+   * All trace area logged via this tracer will be prefixed with the library name.
+   */
+  getTracer(program: Program): Tracer;
 }
 
 /**
@@ -1514,7 +1520,7 @@ export interface DecoratorContext {
   ): R;
 }
 
-export type LogLevel = "debug" | "verbose" | "info" | "warning" | "error";
+export type LogLevel = "trace" | "warning" | "error";
 
 export interface LogInfo {
   level: LogLevel;
@@ -1535,10 +1541,25 @@ export interface LogSink {
 }
 
 export interface Logger {
-  debug(message: string): void;
-  verbose(message: string): void;
-  info(message: string): void;
+  trace(message: string): void;
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
+}
+
+export interface TracerOptions {
+  filter?: string[];
+}
+export interface Tracer {
+  /**
+   * Trace
+   * @param area
+   * @param message
+   */
+  trace(area: string, message: string, target?: DiagnosticTarget): void;
+
+  /**
+   * @param area
+   */
+  sub(subarea: string): Tracer;
 }

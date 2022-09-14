@@ -1,4 +1,4 @@
-import { LogLevel, ParseOptions } from "./types";
+import { ParseOptions } from "./types";
 
 export interface CompilerOptions {
   miscOptions?: any;
@@ -8,7 +8,6 @@ export interface CompilerOptions {
   noEmit?: boolean;
   additionalImports?: string[];
   watchForChanges?: boolean;
-  diagnosticLevel?: LogLevel;
   warningAsError?: boolean;
 
   /**
@@ -16,6 +15,11 @@ export interface CompilerOptions {
    * analysis in the language server.
    */
   designTimeBuild?: boolean;
+
+  /**
+   * Trace area to enable.
+   */
+  trace?: string[];
 
   parseOptions?: ParseOptions;
 }

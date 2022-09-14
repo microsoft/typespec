@@ -1,4 +1,5 @@
 import { createDiagnosticCreator } from "./diagnostics.js";
+import { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
   CadlLibrary,
@@ -68,7 +69,12 @@ export function createCadlLibrary<
       }
       return emitterOptionValidator;
     },
+    getTracer,
   };
+
+  function getTracer(program: Program) {
+    return program.tracer.sub(lib.name);
+  }
 }
 
 export function paramMessage<T extends string[]>(

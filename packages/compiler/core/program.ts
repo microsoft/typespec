@@ -3,6 +3,7 @@ import { Checker, createChecker } from "./checker.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLogger } from "./logger/index.js";
+import { createTracer } from "./logger/tracer.js";
 import { MANIFEST } from "./manifest.js";
 import { createDiagnostic } from "./messages.js";
 import {
@@ -28,7 +29,6 @@ import {
   EmitterOptions,
   JsSourceFileNode,
   LiteralType,
-  Logger,
   Namespace,
   Node,
   NodeFlags,
@@ -40,6 +40,7 @@ import {
   SymbolFlags,
   SymbolTable,
   SyntaxKind,
+  Tracer,
   Type,
 } from "./types.js";
 import { deepEquals, doIO, findProjectRoot, loadFile, mapEquals } from "./util.js";
@@ -62,7 +63,8 @@ export interface Program {
   jsSourceFiles: Map<string, JsSourceFileNode>;
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
-  logger: Logger;
+  tracer: Tracer;
+  trace(area: string, message: string): void;
   checker: Checker;
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
@@ -236,7 +238,8 @@ export async function createProgram(
   const loadedLibraries = new Map<string, CadlLibraryReference>();
   let error = false;
 
-  const logger = createLogger({ sink: host.logSink, level: options.diagnosticLevel });
+  const logger = createLogger({ sink: host.logSink });
+  const tracer = createTracer(logger, { filter: options.trace });
 
   const program: Program = {
     checker: undefined!,
@@ -246,12 +249,13 @@ export async function createProgram(
     literalTypes: new Map(),
     host,
     diagnostics,
-    logger,
     emitters,
     loadCadlScript,
     getOption,
     stateMaps,
     stateSets,
+    tracer,
+    trace,
     ...createStateAccessors(stateMaps, stateSets),
     reportDiagnostic,
     reportDiagnostics,
@@ -265,6 +269,9 @@ export async function createProgram(
     getGlobalNamespaceType,
   };
 
+  function trace(area: string, message: string) {
+    tracer.trace(area, message);
+  }
   const binder = createBinder(program);
 
   if (!options?.nostdlib) {
@@ -535,7 +542,7 @@ export async function createProgram(
         path: library.path,
         manifest: library.manifest,
       });
-      logger.debug(`Loading library "${path}" from "${library.mainFile}"`);
+      trace("import-resolution.library", `Loading library "${path}" from "${library.mainFile}"`);
     }
     const importFilePath = library.type === "module" ? library.mainFile : library.path;
 
