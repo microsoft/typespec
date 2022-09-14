@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "`API` Replaced logger (now internal) with new tracer module. Where trace have to be explcility enabled with `--trace`.",
+      "comment": "`API` Replaced logger (now internal) with new tracer module. Where trace have to be explicity enabled with `--trace`.",
       "type": "minor"
     }
   ],
