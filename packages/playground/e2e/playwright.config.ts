@@ -1,4 +1,4 @@
-import { devices, type PlaywrightTestConfig } from "@playwright/test";
+import { type PlaywrightTestConfig } from "@playwright/test";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 
@@ -21,11 +21,11 @@ const config: PlaywrightTestConfig = {
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: { browserName: "chromium" },
     },
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: { browserName: "firefox" },
     },
   ],
   testMatch: "*.e2e.ts",

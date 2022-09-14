@@ -129,7 +129,8 @@ export class VersionMap {
   private map = new Map<EnumMember, Version>();
 
   constructor(namespace: Namespace, enumType: Enum) {
-    for (const [index, member] of enumType.members.entries()) {
+    let index = 0;
+    for (const member of enumType.members.values()) {
       this.map.set(member, {
         name: member.name,
         value: member.value?.toString() ?? member.name,
@@ -137,6 +138,7 @@ export class VersionMap {
         index,
         namespace,
       });
+      index++;
     }
   }
 
@@ -484,7 +486,7 @@ export function getVersionForEnumMember(program: Program, member: EnumMember): V
 }
 
 /**
- * returns either null, which means unversioned, or true or false dependnig
+ * returns either null, which means unversioned, or true or false depending
  * on whether the change is active or not at that particular version
  */
 function appliesAtVersion(

@@ -21,7 +21,7 @@ const operationIdDecorator = createDecoratorDefinition({
   args: [{ kind: "String" }],
 } as const);
 /**
- * Set a sepecific operation ID.
+ * Set a specific operation ID.
  * @param context Decorator Context
  * @param entity Decorator target
  * @param opId Operation ID.

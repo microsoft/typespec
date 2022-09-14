@@ -241,7 +241,7 @@ describe("compiler: using statements", () => {
     ]);
   });
 
-  it("ambigous use doesn't affect other files", async () => {
+  it("ambiguous use doesn't affect other files", async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -278,7 +278,7 @@ describe("compiler: using statements", () => {
       `
       using N;
 
-      model NotAmiguous extends A {}
+      model NotAmbiguous extends A {}
       `
     );
     const diagnostics = await testHost.diagnose("./");

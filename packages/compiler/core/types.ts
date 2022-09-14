@@ -140,6 +140,7 @@ export interface ProjectionApplication {
 }
 
 export interface Projector {
+  parentProjector?: Projector;
   projections: ProjectionApplication[];
   projectedTypes: Map<Type, Type>;
   projectType(type: Type): Type;
@@ -282,7 +283,7 @@ export interface Enum extends BaseType, DecoratedType {
   name: string;
   node: EnumStatementNode;
   namespace?: Namespace;
-  members: EnumMember[];
+  members: Map<string, EnumMember>;
 }
 
 export interface EnumMember extends BaseType, DecoratedType {
@@ -354,6 +355,9 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   namespace?: Namespace;
   variants: Map<string | symbol, UnionVariant>;
   expression: boolean;
+  /**
+   * @deprecated use variants
+   */
   readonly options: Type[];
 
   /**
@@ -1186,7 +1190,7 @@ export interface SourceFile {
    *
    * This is used only for diagnostics. The command line compiler will populate
    * it with the actual path from which the file was read, but it can actually
-   * be an aribitrary name for other scenarios.
+   * be an arbitrary name for other scenarios.
    */
   readonly path: string;
 
@@ -1501,7 +1505,7 @@ export interface DecoratorContext {
   /**
    * Helper to call out to another decorator
    * @param decorator Other decorator function
-   * @param args Args to pass to other decorator funciton
+   * @param args Args to pass to other decorator function
    */
   call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,

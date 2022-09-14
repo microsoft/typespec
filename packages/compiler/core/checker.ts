@@ -163,7 +163,7 @@ export interface Checker {
    * Check if the source type can be assigned to the target type.
    * @param source Source type, should be assignable to the target.
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    * @returns [related, list of diagnostics]
    */
   isTypeAssignableTo(
@@ -354,8 +354,13 @@ export function createChecker(program: Program): Checker {
     mutate(cadlNamespaceBinding!.exports)!.set("log", {
       flags: SymbolFlags.Function,
       name: "log",
+<<<<<<< HEAD
       value(p: Program, str: string): Type {
         program.trace("projection.log", str);
+=======
+      value(p: Program, ...strs: string[]): Type {
+        program.logger.log({ level: "debug", message: strs.join(" ") });
+>>>>>>> e9a708a7eec99bba87b4c82437d8b0233a00292e
         return voidType;
       },
       declarations: [],
@@ -2155,7 +2160,7 @@ export function createChecker(program: Program): Checker {
         }
         break;
       case "Enum":
-        for (const member of type.members) {
+        for (const member of type.members.values()) {
           lateBindMember(member, SymbolFlags.EnumMember);
         }
         break;
@@ -2191,6 +2196,14 @@ export function createChecker(program: Program): Checker {
     heritageRef: Expression,
     mapper: TypeMapper | undefined
   ): Model | undefined {
+    if (heritageRef.kind === SyntaxKind.ModelExpression) {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        messageId: "modelExpression",
+        target: heritageRef,
+      });
+      return undefined;
+    }
     if (heritageRef.kind !== SyntaxKind.TypeReference) {
       reportDiagnostic(program, {
         code: "extend-model",
@@ -2228,6 +2241,14 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
+    if (heritageType.name === "") {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        messageId: "modelExpression",
+        target: heritageRef,
+      });
+    }
+
     if (isIntrinsic(program, heritageType)) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -2254,7 +2275,14 @@ export function createChecker(program: Program): Checker {
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
     let isType;
-    if (isExpr.kind === SyntaxKind.ArrayExpression) {
+    if (isExpr.kind === SyntaxKind.ModelExpression) {
+      reportDiagnostic(program, {
+        code: "is-model",
+        messageId: "modelExpression",
+        target: isExpr,
+      });
+      return undefined;
+    } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(isExpr, mapper);
     } else if (isExpr.kind === SyntaxKind.TypeReference) {
       const target = resolveTypeReference(isExpr, mapper);
@@ -2282,6 +2310,10 @@ export function createChecker(program: Program): Checker {
     if (isType.kind !== "Model") {
       program.reportDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return;
+    }
+
+    if (isType.name === "") {
+      reportDiagnostic(program, { code: "is-model", messageId: "modelExpression", target: isExpr });
     }
 
     return isType;
@@ -2468,7 +2500,7 @@ export function createChecker(program: Program): Checker {
         kind: "Enum",
         name: node.id.sv,
         node,
-        members: [],
+        members: new Map(),
         decorators: [],
       }));
 
@@ -2478,12 +2510,12 @@ export function createChecker(program: Program): Checker {
         if (member.kind === SyntaxKind.EnumMember) {
           const memberType = checkEnumMember(enumType, member, mapper, memberNames);
           if (memberType) {
-            enumType.members.push(memberType);
+            enumType.members.set(memberType.name, memberType);
           }
         } else {
           const members = checkEnumSpreadMember(enumType, member.target, mapper, memberNames);
           for (const memberType of members) {
-            enumType.members.push(memberType);
+            enumType.members.set(memberType.name, memberType);
           }
         }
       }
@@ -2715,7 +2747,7 @@ export function createChecker(program: Program): Checker {
         return members;
       }
 
-      for (const member of targetType.members) {
+      for (const member of targetType.members.values()) {
         if (existingMemberNames.has(member.name)) {
           program.reportDiagnostic(
             createDiagnostic({
@@ -2915,7 +2947,9 @@ export function createChecker(program: Program): Checker {
         clone = finishType({
           ...type,
           decorators,
-          members: type.members.map((v) => cloneType(v)),
+          members: new Map(
+            Array.from(type.members.entries()).map(([key, prop]) => [key, cloneType(prop)])
+          ),
           ...additionalProps,
         });
         break;
@@ -3400,7 +3434,7 @@ export function createChecker(program: Program): Checker {
           }
           return prop;
         case "Enum":
-          const enumMember = base.members.find((v) => v.name === member);
+          const enumMember = base.members.get(member);
           if (!enumMember) {
             throw new ProjectionError(`Enum doesn't have member ${member}`);
           }
@@ -3532,7 +3566,7 @@ export function createChecker(program: Program): Checker {
         kind: "Function",
         call(...args: Type[]): Type {
           const retval = ref.value!(program, ...marshalProjectionArguments(args));
-          return marshalProjectionReturn(retval);
+          return marshalProjectionReturn(retval, { functionName: node.sv });
         },
       } as const);
       return t;
@@ -3553,7 +3587,14 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function marshalProjectionReturn(value: unknown): Type {
+  interface MarshalOptions {
+    /**
+     * Name of the function in case of error.
+     */
+    functionName?: string;
+  }
+
+  function marshalProjectionReturn(value: unknown, options: MarshalOptions = {}): Type {
     if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
       return createLiteralType(value);
     }
@@ -3570,7 +3611,13 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    throw new ProjectionError("Can't marshal value returned from JS function into cadl");
+    if (options.functionName) {
+      throw new ProjectionError(
+        `Can't marshal value "${value}" returned from JS function "${options.functionName}" into cadl`
+      );
+    } else {
+      throw new ProjectionError(`Can't marshal value "${value}" into cadl`);
+    }
   }
 
   function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {
@@ -3615,7 +3662,11 @@ export function createChecker(program: Program): Checker {
     projection: ProjectionNode,
     args: (Type | boolean | string | number)[] = []
   ) {
-    return evalProjectionStatement(projection, target, args.map(marshalProjectionReturn));
+    return evalProjectionStatement(
+      projection,
+      target,
+      args.map((x) => marshalProjectionReturn(x))
+    );
   }
 
   function memberExpressionToString(expr: IdentifierNode | MemberExpressionNode) {
@@ -3636,7 +3687,7 @@ export function createChecker(program: Program): Checker {
    * Check if the source type can be assigned to the target type and emit diagnostics
    * @param source Source type
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function checkTypeAssignable(
     source: Type,
@@ -3654,7 +3705,7 @@ export function createChecker(program: Program): Checker {
    * Check if the source type can be assigned to the target type.
    * @param source Source type
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function isTypeAssignableTo(
     source: Type,
@@ -3744,7 +3795,7 @@ export function createChecker(program: Program): Checker {
 
   function isNumericLiteralRelatedTo(
     source: NumericLiteral,
-    targetInstrinsicType:
+    targetIntrinsicType:
       | "int64"
       | "int32"
       | "int16"
@@ -3760,12 +3811,12 @@ export function createChecker(program: Program): Checker {
       | "integer"
       | "float"
   ) {
-    if (targetInstrinsicType === "numeric") return true;
+    if (targetIntrinsicType === "numeric") return true;
     const isInt = Number.isInteger(source.value);
-    if (targetInstrinsicType === "integer") return isInt;
-    if (targetInstrinsicType === "float") return true;
+    if (targetIntrinsicType === "integer") return isInt;
+    if (targetIntrinsicType === "float") return true;
 
-    const [low, high, options] = numericRanges[targetInstrinsicType];
+    const [low, high, options] = numericRanges[targetIntrinsicType];
     return source.value >= low && source.value <= high && (!options.int || isInt);
   }
 
@@ -3847,7 +3898,7 @@ export function createChecker(program: Program): Checker {
   /**
    * @param constraintType Type of the constraints(All properties must have this type).
    * @param type Type of the model that should be respecting the constraint.
-   * @param diagnosticTarget Diagnostic target unless something better can be inffered.
+   * @param diagnosticTarget Diagnostic target unless something better can be inferred.
    */
   function isIndexConstraintValid(
     constraintType: Type,

@@ -24,9 +24,9 @@ describe("compiler: enums", () => {
     };
 
     ok(E);
-    ok(!E.members[0].value);
-    ok(!E.members[1].value);
-    ok(!E.members[2].value);
+    ok(!E.members.get("A")!.value);
+    ok(!E.members.get("B")!.value);
+    ok(!E.members.get("C")!.value);
   });
 
   it("can have values", async () => {
@@ -110,18 +110,18 @@ describe("compiler: enums", () => {
     ok(Foo);
     ok(Bar);
 
-    strictEqual(Foo.members.length, 3);
-    strictEqual(Foo.members[0].name, "One");
-    strictEqual(Foo.members[0].enum, Foo);
-    strictEqual(Foo.members[0].sourceMember, Bar.members[0]);
+    strictEqual(Foo.members.size, 3);
+    strictEqual(Foo.members.get("One")!.name, "One");
+    strictEqual(Foo.members.get("One")!.enum, Foo);
+    strictEqual(Foo.members.get("One")!.sourceMember, Bar.members.get("One"));
 
-    strictEqual(Bar.members.length, 2);
-    strictEqual(Bar.members[0].name, "One");
-    strictEqual(Bar.members[0].enum, Bar);
+    strictEqual(Bar.members.size, 2);
+    strictEqual(Bar.members.get("One")!.name, "One");
+    strictEqual(Bar.members.get("One")!.enum, Bar);
   });
 
   // Issue here was the same EnumType was create twice for each decorator on different namespaces causing equality issues when comparing the enum or enum member
-  it("enums can be refernced from decorator on namespace", async () => {
+  it("enums can be referenced from decorator on namespace", async () => {
     let refViaMyService: Enum | undefined;
     let refViaMyLib: Enum | undefined;
     testHost.addJsFile("lib.js", {

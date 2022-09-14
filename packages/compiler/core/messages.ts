@@ -282,6 +282,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Models must extend other models.",
+      modelExpression: "Models cannot extend model expressions.",
     },
   },
   "extend-primitive": {
@@ -294,6 +295,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Model `is` must specify another model.",
+      modelExpression: "Model `is` cannot specify a model expression.",
     },
   },
   "is-operation": {

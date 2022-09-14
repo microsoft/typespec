@@ -43,7 +43,7 @@ model Dog {
 
 #### Built-in Models
 
-[Type relations](./type-relations.md)
+[Type relations](../packages/website/src/docs/language-basics/type-relations.md)
 
 Cadl comes with built-in models for common data types:
 
@@ -198,7 +198,7 @@ API authors often need to describe API shapes in terms of specific literal value
 
 ```cadl
 model BestDog {
-  name: "Suki";
+  name: "Max";
   age: 14;
   best: true;
 }
@@ -209,7 +209,7 @@ String literal types can also be created using the triple-quote syntax which ena
 ```cadl
 model Dog {
   favoriteFoods: """
-    McDonalds
+    McDonald's
     Chipotle
     And so on
     """;
@@ -496,11 +496,21 @@ Syntax:
 
 Syntax:
 
-```
+```cadl
 @friendlyName(string)
 ```
 
-`@friendlyName` specifies an alternate model name to be used instead of declared model name. It can be specified on a model.
+`@friendlyName` specifies how a templated type should name their instances. It takes a string literal coresponding the the name. `{name}` can be used to interpolate the value of the template parameter which can be passed as a 2nd parameter.
+
+Example:
+
+```cadl
+@friendlyName("{name}List", T)
+model List<T> {}
+
+alias A = List<FooBar>; // Instance friendly name would be `FooBarList`
+alias B = List<Person>; // Instance friendly name would be `PersonList`
+```
 
 ##### @pattern
 
@@ -645,7 +655,7 @@ Consider the following example:
 
 ```cadl
 model Dog {
-  // the service will generate an ID, so you dont need to send it.
+  // the service will generate an ID, so you don't need to send it.
   @visibility("read") id: int32;
   // the service will store this secret name, but won't ever return it
   @visibility("write") secretName: string;
@@ -824,8 +834,6 @@ A definition for a service is the namespace that contains all the operations for
 - @serviceTitle - the title of the service
 - @serviceVersion - the version of the service. Can be any string, but later version should lexicographically sort after earlier versions
 - @server - the host of the service. Can accept parameters.
-- @produces - the content types the service may produce
-- @consumes - the content types that may be sent to the service
 
 Here's an example that uses these to define a Pet Store service:
 
@@ -834,8 +842,6 @@ Here's an example that uses these to define a Pet Store service:
 @serviceVersion("2021-03-25")
 @server("https://example.com", "Single server endpoint")
 @doc("This is a sample server Petstore server.")
-@Cadl.Rest.produces("application/json", "image/png")
-@Cadl.Rest.consumes("application/json")
 namespace PetStore;
 ```
 
@@ -936,7 +942,7 @@ namespace PetToys {
 
 #### Request & response bodies
 
-Request and response bodies can be declared explictly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
+Request and response bodies can be declared explicitly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
 
 ```cadl
 @route("/pets")
@@ -975,7 +981,7 @@ A pattern often used in REST APIs is to define a request or response body as hav
 "discriminator" indicating which actual shape is used for a particular instance.
 Cadl supports this pattern with the `@discriminator` decorator of the Rest library.
 
-The `@discrminator` decorator takes one argument, the name of the discriminator property, and should be placed on the
+The `@discriminator` decorator takes one argument, the name of the discriminator property, and should be placed on the
 model for the request or response body. The different shapes are then defined by separate models that `extend` this request or response model.
 The discriminator property is defined in the "child" models with the value or values that indicate an instance that conforms to its shape.
 

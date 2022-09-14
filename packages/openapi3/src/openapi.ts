@@ -40,6 +40,7 @@ import {
   NumericLiteral,
   Operation,
   Program,
+  ProjectionApplication,
   projectProgram,
   resolvePath,
   StringLiteral,
@@ -204,7 +205,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         const name = getIntrinsicModelName(program, type);
         return name === "string";
       case "Enum":
-        for (const member of type.members) {
+        for (const member of type.members.values()) {
           if (member.value && typeof member.value !== "string") {
             return false;
           }
@@ -271,6 +272,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!serviceNs) {
       return;
     }
+    const commonProjections: ProjectionApplication[] = [
+      {
+        projectionName: "target",
+        arguments: ["json"],
+      },
+    ];
     const originalProgram = program;
     const versions = buildVersionProjections(program, serviceNs);
     for (const record of versions) {
@@ -281,9 +288,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
       }
 
-      if (record.projections.length > 0) {
-        program = projectProgram(originalProgram, record.projections);
-      }
+      program = projectProgram(originalProgram, [...commonProjections, ...record.projections]);
 
       await emitOpenAPIFromVersion(serviceNs, record.version);
     }
@@ -727,12 +732,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getSchemaForEnum(e: Enum) {
     const values = [];
-    if (e.members.length == 0) {
+    if (e.members.size == 0) {
       reportUnsupportedUnion("empty");
       return undefined;
     }
-    const type = enumMemberType(e.members[0]);
-    for (const option of e.members) {
+    const type = enumMemberType(e.members.values().next().value);
+    for (const option of e.members.values()) {
       if (type !== enumMemberType(option)) {
         reportUnsupportedUnion();
         continue;
@@ -1026,7 +1031,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     childModels: readonly Model[]
   ): boolean {
     const { propertyName } = discriminator;
-    const retVals = childModels.map((t) => {
+    const retValues = childModels.map((t) => {
       const prop = getProperty(t, propertyName);
       if (!prop) {
         reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
@@ -1057,8 +1062,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
       }
       if (prop) {
-        const vals = getStringValues(prop.type);
-        vals.forEach((val) => {
+        const values = getStringValues(prop.type);
+        values.forEach((val) => {
           if (discriminatorValues.has(val)) {
             reportDiagnostic(program, {
               code: "discriminator",
@@ -1066,14 +1071,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
               format: { val: val, model1: discriminatorValues.get(val)!, model2: t.name },
               target: prop,
             });
-            retVals.push(false);
+            retValues.push(false);
           } else {
             discriminatorValues.set(val, t.name);
           }
         });
       }
     }
-    return retVals.every((v) => v);
+    return retValues.every((v) => v);
   }
 
   function getDiscriminatorMapping(

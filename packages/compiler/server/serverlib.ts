@@ -10,9 +10,11 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  DocumentFormattingParams,
   DocumentHighlight,
   DocumentHighlightKind,
   DocumentHighlightParams,
+  DocumentSymbol,
   DocumentSymbolParams,
   FileEvent,
   FoldingRange,
@@ -35,8 +37,6 @@ import {
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
-  SymbolInformation,
-  SymbolKind,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
@@ -53,6 +53,7 @@ import {
   formatDiagnostic,
   getSourceLocation,
 } from "../core/diagnostics.js";
+import { formatCadl } from "../core/formatter.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import {
@@ -95,6 +96,7 @@ import {
   loadFile,
 } from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
+import { getSymbolStructure } from "./symbol-structure.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -112,6 +114,7 @@ export interface Server {
   initialized(params: InitializedParams): void;
   workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
   watchedFilesChanged(params: DidChangeWatchedFilesParams): void;
+  formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]>;
   gotoDefinition(params: DefinitionParams): Promise<Location[]>;
   complete(params: CompletionParams): Promise<CompletionList>;
   findReferences(params: ReferenceParams): Promise<Location[]>;
@@ -123,7 +126,7 @@ export interface Server {
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
   getHover(params: HoverParams): Promise<Hover>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
-  getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
+  getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
@@ -260,6 +263,7 @@ export function createServer(host: ServerHost): Server {
     initialized,
     workspaceFoldersChanged,
     watchedFilesChanged,
+    formatDocument,
     gotoDefinition,
     documentClosed,
     complete,
@@ -304,6 +308,7 @@ export function createServer(host: ServerHost): Server {
       renameProvider: {
         prepareProvider: true,
       },
+      documentFormattingProvider: true,
     };
 
     if (params.capabilities.workspace?.workspaceFolders) {
@@ -525,55 +530,13 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function getSymbolNameAndKind(node: Node): { name: string; kind: SymbolKind } | undefined {
-    switch (node.kind) {
-      case SyntaxKind.NamespaceStatement:
-        return { name: node.id.sv, kind: SymbolKind.Namespace };
-      case SyntaxKind.CadlScript:
-        return { name: node.id.sv, kind: SymbolKind.File };
-      case SyntaxKind.EnumStatement:
-        return { name: node.id.sv, kind: SymbolKind.Enum };
-      case SyntaxKind.InterfaceStatement:
-        return { name: node.id.sv, kind: SymbolKind.Interface };
-      case SyntaxKind.OperationStatement:
-        return { name: node.id.sv, kind: SymbolKind.Function };
-      case SyntaxKind.ModelStatement:
-        return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.ModelProperty:
-        if (node.id.kind === SyntaxKind.StringLiteral) {
-          return { name: node.id.value, kind: SymbolKind.Struct };
-        }
-        return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.UnionStatement:
-        return { name: node.id.sv, kind: SymbolKind.Enum };
-      default:
-        return undefined;
-    }
-  }
-
-  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]> {
+  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
     const ast = await getScript(params.textDocument);
     if (!ast) {
       return [];
     }
-    const file = ast.file;
-    const symbols: SymbolInformation[] = [];
-    visitChildren(ast, addSymbolsForNode);
 
-    function addSymbolsForNode(node: Node) {
-      const symbolNode = getSymbolNameAndKind(node);
-      if (symbolNode !== undefined) {
-        const start = file.getLineAndCharacterOfPosition(node.pos);
-        const end = file.getLineAndCharacterOfPosition(node.end);
-        symbols.push({
-          name: symbolNode.name,
-          kind: symbolNode.kind,
-          location: Location.create(params.textDocument.uri, Range.create(start, end)),
-        });
-      }
-      visitChildren(node, addSymbolsForNode);
-    }
-    return symbols;
+    return getSymbolStructure(ast);
   }
 
   async function findDocumentHighlight(
@@ -694,6 +657,41 @@ export function createServer(host: ServerHost): Server {
     return {
       contents: markdown,
     };
+  }
+
+  async function formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]> {
+    const document = host.getOpenDocumentByURL(params.textDocument.uri);
+    if (document === undefined) {
+      return [];
+    }
+    const formattedText = formatCadl(document.getText(), {
+      tabWidth: params.options.tabSize,
+      useTabs: !params.options.insertSpaces,
+    });
+    return [minimalEdit(document, formattedText)];
+  }
+
+  function minimalEdit(document: TextDocument, string1: string): TextEdit {
+    const string0 = document.getText();
+    // length of common prefix
+    let i = 0;
+    while (i < string0.length && i < string1.length && string0[i] === string1[i]) {
+      ++i;
+    }
+    // length of common suffix
+    let j = 0;
+    while (
+      i + j < string0.length &&
+      i + j < string1.length &&
+      string0[string0.length - j - 1] === string1[string1.length - j - 1]
+    ) {
+      ++j;
+    }
+    const newText = string1.substring(i, string1.length - j);
+    const pos0 = document.positionAt(i);
+    const pos1 = document.positionAt(string0.length - j);
+
+    return TextEdit.replace(Range.create(pos0, pos1), newText);
   }
 
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {

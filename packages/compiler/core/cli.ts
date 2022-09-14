@@ -21,7 +21,7 @@ import { CompilerOptions } from "../core/options.js";
 import { compile, Program } from "../core/program.js";
 import { initCadlProject } from "../init/index.js";
 import { compilerAssert, logDiagnostics } from "./diagnostics.js";
-import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter.js";
+import { findUnformattedCadlFiles, formatCadlFiles } from "./formatter-fs.js";
 import { CompilerHost } from "./index.js";
 import { installCadlDependencies } from "./install.js";
 import { createConsoleSink } from "./logger/index.js";
@@ -421,7 +421,7 @@ function resolveEmitters(
   options: Record<string | "miscOptions", Record<string, unknown>>,
   args: CompileCliArgs
 ): Record<string, Record<string, unknown> | boolean> {
-  const emitters = resovleSelectedEmittersFromConfig(config, args.emit);
+  const emitters = resolveSelectedEmittersFromConfig(config, args.emit);
 
   const configuredEmitters: Record<string, Record<string, unknown> | boolean> = {};
 
@@ -441,7 +441,7 @@ function resolveEmitters(
   return configuredEmitters;
 }
 
-function resovleSelectedEmittersFromConfig(
+function resolveSelectedEmittersFromConfig(
   config: CadlConfig,
   selectedEmitters: string[] | undefined
 ): Record<string, Record<string, unknown> | boolean> {

@@ -143,7 +143,7 @@ describe("compiler: references", () => {
       Bar: Operation;
     };
 
-    strictEqual(Foo.members[0], Bar.parameters.properties.get("arg")!.type);
+    strictEqual(Foo.members.get("x"), Bar.parameters.properties.get("arg")!.type);
   });
 
   it("can reference aliased enum members", async () => {
@@ -164,7 +164,7 @@ describe("compiler: references", () => {
       Bar: Operation;
     };
 
-    strictEqual(Foo.members[0], Bar.parameters.properties.get("arg")!.type);
+    strictEqual(Foo.members.get("x"), Bar.parameters.properties.get("arg")!.type);
   });
   it("can reference union variants", async () => {
     testHost.addCadlFile(

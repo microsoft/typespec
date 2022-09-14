@@ -42,7 +42,7 @@ op foo(): MyNonErrorResponse;
 
 ### `@extension`
 
-This decorator lets you sepecify custom key(starting with `x-`) value pair that will be added to the OpenAPI document.
+This decorator lets you specify custom key(starting with `x-`) value pair that will be added to the OpenAPI document.
 [OpenAPI reference on extensions](https://swagger.io/docs/specification/openapi-extensions/)
 
 Arguments:
@@ -69,7 +69,7 @@ model Foo {}
 ### `@externalDocs`
 
 Decorator that can be used to provide the `externalDocs` property on OpenAPI elements.
-[OpenAPI spec for extenalDocs](https://swagger.io/specification/#external-documentation-object)
+[OpenAPI spec for externalDocs](https://swagger.io/specification/#external-documentation-object)
 
 Arguments:
 

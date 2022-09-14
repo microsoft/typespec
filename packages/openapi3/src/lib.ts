@@ -10,7 +10,7 @@ export interface OpenAPI3EmitterOptions {
   "new-line"?: "crlf" | "lf";
 }
 
-const EmiterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
+const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -111,7 +111,7 @@ export const libDef = {
     },
   },
   emitter: {
-    options: EmiterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
+    options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
 } as const;
 

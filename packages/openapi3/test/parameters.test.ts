@@ -18,10 +18,10 @@ describe("openapi3: parameters", () => {
   it("@doc set the description on the parameter not its schema", async () => {
     const res = await openApiFor(
       `
-      op test(@query @doc("mydoc") arg1: string): void;
+      op test(@query @doc("my-doc") arg1: string): void;
       `
     );
-    strictEqual(res.paths["/"].get.parameters[0].description, "mydoc");
+    strictEqual(res.paths["/"].get.parameters[0].description, "my-doc");
     strictEqual(res.paths["/"].get.parameters[0].schema.description, undefined);
   });
 
@@ -76,7 +76,7 @@ describe("openapi3: parameters", () => {
     strictEqual(oapi.components.parameters["Pet$Id"].name, "petId");
   });
 
-  it("inlines spread of parameters from anonymous model", async () => {
+  it("inline spread of parameters from anonymous model", async () => {
     const oapi = await openApiFor(
       `
       op template<TParameters, TReturn>(...TParameters): TReturn;

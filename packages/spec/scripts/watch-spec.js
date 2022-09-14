@@ -5,12 +5,12 @@ import { readFile, writeFile } from "fs/promises";
 import { resolve } from "path";
 
 async function build() {
-  const infile = resolve("src/spec.emu.html");
+  const inFile = resolve("src/spec.emu.html");
   const outfile = resolve("../../docs/spec.html");
   const fetch = (path) => readFile(path, "utf-8");
 
   try {
-    const spec = await ecmarkup.build(infile, fetch, {
+    const spec = await ecmarkup.build(inFile, fetch, {
       outfile,
       warn,
     });
@@ -18,12 +18,12 @@ async function build() {
       await writeFile(file, contents);
     }
   } catch (err) {
-    console.log(`${infile}(1,1): error EMU0001: Error generating spec: ${err.message}`);
+    console.log(`${inFile}(1,1): error EMU0001: Error generating spec: ${err.message}`);
     throw err;
   }
 
   function warn(warning) {
-    const file = warning.file ?? infile;
+    const file = warning.file ?? inFile;
     const line = warning.line ?? 1;
     const col = warning.column ?? 1;
     const id = "EMU0002" + (warning.ruleId ? `: ${warning.ruleId}` : "");
