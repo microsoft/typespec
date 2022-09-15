@@ -4,6 +4,7 @@ import { readFile } from "fs/promises";
 import { globby } from "globby";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile, logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
+import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
@@ -308,7 +309,9 @@ async function createTestHostInternal(): Promise<TestHost> {
     }
     const p = await createProgram(fileSystem.compilerHost, mainFile, options);
     program = p;
-    logVerboseTestOutput((log) => logDiagnostics(p.diagnostics, p.logger));
+    logVerboseTestOutput((log) =>
+      logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink }))
+    );
     return [testTypes, p.diagnostics];
   }
 }
