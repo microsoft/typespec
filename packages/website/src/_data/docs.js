@@ -3,6 +3,10 @@ const toc = {
     "installation",
     //  "Configuration"
   ],
+  Configuration: [
+    // "cadl-project.yaml",
+    "tracing",
+  ],
   "Language Basics": [
     "overview",
     "imports",
