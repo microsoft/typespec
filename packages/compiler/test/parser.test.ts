@@ -540,6 +540,17 @@ describe("compiler: syntax", () => {
     });
   });
 
+  describe("augment decorator statements", () => {
+    parseEach(["@@tag(Foo);", `@@doc(Foo, "x");`, `@@doc(Foo.prop1, "x");`]);
+
+    parseErrorEach([
+      [
+        "namespace Foo { @@tag(Foo); }",
+        [{ code: "augment-top-level", message: "Augment decorators must be top-level.", pos: 16 }],
+      ],
+    ]);
+  });
+
   describe("projections", () => {
     describe("selectors", () => {
       const selectors = ["model", "op", "interface", "union", "someId"];

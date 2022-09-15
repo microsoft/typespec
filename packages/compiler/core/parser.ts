@@ -375,6 +375,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
       let item: Statement;
       switch (tok) {
+        case Token.AtAt:
+          reportInvalidDecorators(decorators, "augment decorator statement");
+          item = parseAugmentDecorator();
+          error({ code: "augment-top-level", target: item });
+          break;
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
           item = parseImportStatement();
