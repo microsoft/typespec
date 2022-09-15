@@ -6,13 +6,13 @@ import {
   expectDiagnosticEmpty,
   TestHost,
 } from "@cadl-lang/compiler/testing";
-import { HttpVerb } from "../src/http/decorators.js";
 import {
-  getAllRoutes,
+  getAllHttpServices,
+  HttpOperation,
   HttpOperationParameter,
-  OperationDetails,
-  RouteOptions,
-} from "../src/http/route.js";
+  HttpVerb,
+  RouteResolutionOptions,
+} from "../src/http/index.js";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
@@ -48,7 +48,7 @@ export interface RouteDetails {
 
 export async function getRoutesFor(
   code: string,
-  routeOptions?: RouteOptions
+  routeOptions?: RouteResolutionOptions
 ): Promise<RouteDetails[]> {
   const [routes, diagnostics] = await compileOperations(code, routeOptions);
   expectDiagnosticEmpty(diagnostics);
@@ -74,7 +74,7 @@ export interface SimpleOperationDetails {
 
 export async function compileOperations(
   code: string,
-  routeOptions?: RouteOptions
+  routeOptions?: RouteResolutionOptions
 ): Promise<[SimpleOperationDetails[], readonly Diagnostic[]]> {
   const [routes, diagnostics] = await getOperationsWithServiceNamespace(code, routeOptions);
 
@@ -98,8 +98,8 @@ export async function compileOperations(
 
 export async function getOperationsWithServiceNamespace(
   code: string,
-  routeOptions?: RouteOptions
-): Promise<[OperationDetails[], readonly Diagnostic[]]> {
+  routeOptions?: RouteResolutionOptions
+): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
   await runner.compileAndDiagnose(
     `@serviceTitle("Test Service") namespace TestService;
@@ -108,14 +108,15 @@ export async function getOperationsWithServiceNamespace(
       noEmit: true,
     }
   );
-  const [routes] = getAllRoutes(runner.program, routeOptions);
-  return [routes, runner.program.diagnostics];
+  const [services] = getAllHttpServices(runner.program, routeOptions);
+  return [services[0].operations, runner.program.diagnostics];
 }
 
-export async function getOperations(code: string): Promise<OperationDetails[]> {
+export async function getOperations(code: string): Promise<HttpOperation[]> {
   const runner = await createRestTestRunner();
   await runner.compile(code);
-  const [routes, diagnostics] = getAllRoutes(runner.program);
+  const [services, diagnostics] = getAllHttpServices(runner.program);
+
   expectDiagnosticEmpty(diagnostics);
-  return routes;
+  return services[0].operations;
 }
