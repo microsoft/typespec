@@ -725,17 +725,21 @@ describe("openapi3: models", () => {
   it("recovers logical type name", async () => {
     const oapi = await openApiFor(
       `
-      model Thing {
+      model Input {
         name?: string;
+      }
+
+      model Output {
+        text?: string;
       }
 
       @route("/things/{id}")
       @get
-      op get(@path id: string, @query test: string, ...Thing): Thing & { @header test: string; };
+      op get(@path id: string, @query test: string, ...Input): Output & { @header test: string; };
       `
     );
 
-    deepStrictEqual(oapi.components.schemas.Thing, {
+    deepStrictEqual(oapi.components.schemas.Input, {
       type: "object",
       properties: {
         name: {
@@ -744,14 +748,23 @@ describe("openapi3: models", () => {
       },
     });
 
+    deepStrictEqual(oapi.components.schemas.Output, {
+      type: "object",
+      properties: {
+        text: {
+          type: "string",
+        },
+      },
+    });
+
     deepStrictEqual(oapi.paths["/things/{id}"].get.requestBody.content["application/json"].schema, {
-      $ref: "#/components/schemas/Thing",
+      $ref: "#/components/schemas/Input",
     });
 
     deepStrictEqual(
       oapi.paths["/things/{id}"].get.responses["200"].content["application/json"].schema,
       {
-        $ref: "#/components/schemas/Thing",
+        $ref: "#/components/schemas/Output",
       }
     );
   });

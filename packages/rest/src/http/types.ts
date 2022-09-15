@@ -195,6 +195,15 @@ export interface HttpOperationParameters {
   parameters: HttpOperationParameter[];
   bodyType?: Type;
   bodyParameter?: ModelProperty;
+
+  /**
+   * @internal
+   * NOTE: The verb is determined when processing parameters as it can
+   * depend on whether there is a request body if not explicitly specified.
+   * Marked internal to keep from polluting the public API with the verb at
+   * two levels.
+   */
+  verb: HttpVerb;
 }
 
 export interface HttpService {

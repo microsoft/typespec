@@ -278,6 +278,61 @@ export async function findProjectRoot(
   }
 }
 
+export class TwoLevelMap<K1, K2, V> extends Map<K1, Map<K2, V>> {
+  getOrAdd(key1: K1, key2: K2, create: (map: Map<K2, V>) => V) {
+    let map = this.get(key1);
+    if (map === undefined) {
+      map = new Map();
+      this.set(key1, map);
+    }
+    let entry = map.get(key2);
+    if (entry === undefined) {
+      entry = create(map);
+      map.set(key2, entry);
+    }
+    return entry;
+  }
+}
+
+// Adapted from https://github.com/microsoft/TypeScript/blob/bc52ff6f4be9347981de415a35da90497eae84ac/src/compiler/core.ts#L1507
+export class Queue<T> {
+  #elements: T[];
+  #headIndex = 0;
+
+  constructor(elements?: T[]) {
+    this.#elements = elements?.slice() ?? [];
+  }
+
+  isEmpty(): boolean {
+    return this.#headIndex === this.#elements.length;
+  }
+
+  enqueue(...items: T[]): void {
+    this.#elements.push(...items);
+  }
+
+  dequeue(): T {
+    if (this.isEmpty()) {
+      throw new Error("Queue is empty.");
+    }
+
+    const result = this.#elements[this.#headIndex] as T;
+    this.#elements[this.#headIndex] = undefined!; // Don't keep referencing dequeued item
+    this.#headIndex++;
+
+    // If more than half of the queue is empty, copy the remaining elements to the
+    // front and shrink the array (unless we'd be saving fewer than 100 slots)
+    if (this.#headIndex > 100 && this.#headIndex > this.#elements.length >> 1) {
+      const newLength = this.#elements.length - this.#headIndex;
+      this.#elements.copyWithin(0, this.#headIndex);
+      this.#elements.length = newLength;
+      this.#headIndex = 0;
+    }
+
+    return result;
+  }
+}
+
 /**
  * The mutable equivalent of a type.
  */
