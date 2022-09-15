@@ -10,11 +10,12 @@ import {
 import { createDiagnostic, createStateSymbol } from "../lib.js";
 import { getSegment, getSegmentSeparator, isAutoRoute } from "../rest.js";
 import { extractParamsFromPath } from "../utils.js";
-import { getRoutePath } from "./decorators.js";
+import { getRouteOptionsForNamespace, getRoutePath } from "./decorators.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperationParameter,
   HttpOperationParameters,
+  RouteOptions,
   RouteResolutionOptions,
 } from "./types.js";
 
@@ -107,12 +108,16 @@ export function resolvePathAndParameters(
   const parameters = diagnostics.pipe(getOperationParameters(program, operation));
   let segments: string[];
   if (isAutoRoute(program, operation)) {
-    segments = getParentSegments(program, operation);
+    let parentOptions;
+    [segments, parentOptions] = getParentSegments(program, operation);
     // The operation exists within an @autoRoute scope, generate the path.  This
     // mutates the pathFragments and parameters lists that are passed in!
-    generatePathFromParameters(program, operation, segments, parameters, options);
+    generatePathFromParameters(program, operation, segments, parameters, {
+      ...parentOptions,
+      ...options,
+    });
   } else {
-    segments = getRouteSegments(program, operation);
+    [segments] = getRouteSegments(program, operation);
 
     // Pull out path parameters to verify what's in the path string
     const paramByName = new Map(
@@ -154,18 +159,27 @@ export function resolvePathAndParameters(
   });
 }
 
-function getParentSegments(program: Program, target: Operation | Interface | Namespace): string[] {
+function getParentSegments(
+  program: Program,
+  target: Operation | Interface | Namespace
+): [string[], RouteOptions | undefined] {
   return "interface" in target && target.interface
     ? getRouteSegments(program, target.interface)
     : target.namespace
     ? getRouteSegments(program, target.namespace)
-    : [];
+    : [[], undefined];
 }
 
-function getRouteSegments(program: Program, target: Operation | Interface | Namespace): string[] {
+function getRouteSegments(
+  program: Program,
+  target: Operation | Interface | Namespace
+): [string[], RouteOptions | undefined] {
   const route = getRoutePath(program, target)?.path;
   const seg = route ? [route] : [];
-  return [...getParentSegments(program, target), ...seg];
+  const [parentSegments, parentOptions] = getParentSegments(program, target);
+  const options =
+    target.kind === "Namespace" ? getRouteOptionsForNamespace(program, target) : undefined;
+  return [[...parentSegments, ...seg], options ?? parentOptions];
 }
 
 const externalInterfaces = createStateSymbol("externalInterfaces");

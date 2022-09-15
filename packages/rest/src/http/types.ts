@@ -172,9 +172,12 @@ export interface AutoRouteOptions {
   routeParamFilter?: (op: Operation, param: ModelProperty) => FilteredRouteParam | undefined;
 }
 
-export interface RouteResolutionOptions {
-  listOptions?: ListOperationOptions;
+export interface RouteOptions {
   autoRouteOptions?: AutoRouteOptions;
+}
+
+export interface RouteResolutionOptions extends RouteOptions {
+  listOptions?: ListOperationOptions;
 }
 
 export interface HttpOperationParameter {
