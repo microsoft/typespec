@@ -1,12 +1,12 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { OperationDetails } from "../src/http/route.js";
+import { HttpOperation } from "../src/http/types.js";
 import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   // Describe how routes should be included.
   describe("route inclusion", () => {
-    function expectRouteIncluded(routes: OperationDetails[], expectedRoutePaths: string[]) {
+    function expectRouteIncluded(routes: HttpOperation[], expectedRoutePaths: string[]) {
       const includedRoutes = routes.map((x) => x.path);
       deepStrictEqual(includedRoutes, expectedRoutePaths);
     }
