@@ -14,7 +14,7 @@ export interface ListOperationOptions {
  * @param container Container.
  * @param options Options.
  */
-export function listOperations(
+export function listOperationsIn(
   container: Namespace | Interface,
   options: ListOperationOptions = {}
 ): Operation[] {

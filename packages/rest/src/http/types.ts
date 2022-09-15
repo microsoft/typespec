@@ -7,6 +7,11 @@ import {
   Type,
 } from "@cadl-lang/compiler";
 
+/**
+ * @deprecated use `HttpOperation`. To remove in November 2022 release.
+ */
+export type OperationDetails = HttpOperation;
+
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
 export interface ServiceAuthentication {

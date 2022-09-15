@@ -3,7 +3,7 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getServiceNamespace,
-  listOperations,
+  listOperationsIn,
   Operation,
   Program,
 } from "@cadl-lang/compiler";
@@ -54,13 +54,13 @@ export function getHttpOperation(
  * @param options Resolution options
  * @returns
  */
-export function getHttpOperations(
+export function listHttpOperationsIn(
   program: Program,
   container: OperationContainer,
   options?: RouteResolutionOptions
 ): [HttpOperation[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const operations = listOperations(container, options?.listOptions);
+  const operations = listOperationsIn(container, options?.listOptions);
   const httpOperations = operations.map((x) =>
     diagnostics.pipe(getHttpOperation(program, x, options))
   );
@@ -77,7 +77,7 @@ export function getAllHttpServices(
   const diagnostics = createDiagnosticCollector();
   const serviceNamespace = getServiceNamespace(program);
   const httpOperations = diagnostics.pipe(
-    getHttpOperations(program, serviceNamespace, {
+    listHttpOperationsIn(program, serviceNamespace, {
       ...options,
       listOptions: {
         recursive: serviceNamespace !== program.getGlobalNamespaceType(),

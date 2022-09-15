@@ -1,5 +1,5 @@
 import { deepStrictEqual } from "assert";
-import { Interface, ListOperationOptions, listOperations, Namespace } from "../../core/index.js";
+import { Interface, ListOperationOptions, listOperationsIn, Namespace } from "../../core/index.js";
 import { BasicTestRunner, createTestRunner } from "../../testing/index.js";
 
 describe("compiler: operation-utils", () => {
@@ -12,7 +12,7 @@ describe("compiler: operation-utils", () => {
     container: Namespace | Interface,
     options?: ListOperationOptions
   ): Promise<string[]> {
-    return listOperations(container, options).map((x) => x.name);
+    return listOperationsIn(container, options).map((x) => x.name);
   }
 
   it("list all operations when using global namespace", async () => {
