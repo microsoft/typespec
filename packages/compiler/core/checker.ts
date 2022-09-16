@@ -3,6 +3,7 @@ import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   AugmentDecoratorStatementNode,
+  DecoratedType,
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
@@ -303,10 +304,6 @@ export function createChecker(program: Program): Checker {
     setUsingsForFile(file);
   }
 
-  for (const file of program.sourceFiles.values()) {
-    applyAugmentDecorators(file);
-  }
-
   const cadlNamespaceBinding = globalNamespaceNode.symbol.exports!.get("Cadl");
   if (cadlNamespaceBinding) {
     // the cadl namespace binding will be absent if we've passed
@@ -427,15 +424,24 @@ export function createChecker(program: Program): Checker {
       (x): x is AugmentDecoratorStatementNode => x.kind === SyntaxKind.AugmentDecoratorStatement
     );
 
-    for (const decorator of augmentDecorators) {
-      const ref = resolveTypeReference(decorator.targetEntity, undefined);
+    for (const decNode of augmentDecorators) {
+      const ref = resolveTypeReference(decNode.targetEntity, undefined);
       if (ref) {
-        let list = augmentDecoratorsForSym.get(ref);
-        if (list === undefined) {
-          list = [];
-          augmentDecoratorsForSym.set(ref, list);
+        if (ref.flags & SymbolFlags.LateBound) {
+          const decApp = checkDecorator(decNode, undefined);
+          if (decApp) {
+            const type: Type & DecoratedType = ref.type! as any;
+            type.decorators.push(decApp);
+            applyDecoratorToType(program, decApp, type);
+          }
+        } else {
+          let list = augmentDecoratorsForSym.get(ref);
+          if (list === undefined) {
+            list = [];
+            augmentDecoratorsForSym.set(ref, list);
+          }
+          list.push(decNode);
         }
-        list.push(decorator);
       }
     }
   }
@@ -1916,6 +1922,7 @@ export function createChecker(program: Program): Checker {
     }
 
     for (const file of program.sourceFiles.values()) {
+      applyAugmentDecorators(file);
       checkSourceFile(file);
     }
   }
@@ -2430,6 +2437,38 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  function checkDecorator(
+    decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
+    mapper: TypeMapper | undefined
+  ): DecoratorApplication | undefined {
+    const sym = resolveTypeReference(decNode.target, undefined, true);
+    if (!sym) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "unknown-decorator",
+          target: decNode,
+        })
+      );
+      return undefined;
+    }
+    if (!(sym.flags & SymbolFlags.Decorator)) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-decorator",
+          format: { id: sym.name },
+          target: decNode,
+        })
+      );
+      return undefined;
+    }
+
+    return {
+      decorator: sym.value!,
+      node: decNode,
+      args: checkDecoratorArguments(decNode, mapper),
+    };
+  }
+
   function checkDecorators(
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
@@ -2440,32 +2479,10 @@ export function createChecker(program: Program): Checker {
       ...(augmentDecoratorsForSym.get(node.symbol) ?? []),
     ];
     for (const decNode of decoratorNodes) {
-      const sym = resolveTypeReference(decNode.target, undefined, true);
-      if (!sym) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "unknown-decorator",
-            target: decNode,
-          })
-        );
-        continue;
+      const decorator = checkDecorator(decNode, mapper);
+      if (decorator) {
+        decorators.unshift(decorator);
       }
-      if (!(sym.flags & SymbolFlags.Decorator)) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "invalid-decorator",
-            format: { id: sym.name },
-            target: decNode,
-          })
-        );
-        continue;
-      }
-
-      decorators.unshift({
-        decorator: sym.value!,
-        node: decNode,
-        args: checkDecoratorArguments(decNode, mapper),
-      });
     }
 
     return decorators;
