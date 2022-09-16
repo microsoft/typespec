@@ -39,13 +39,13 @@ Decorators can also be used from a different location by refering the the type b
 ```cadl
 model Dog {}
 
-@@tag(Dog,"Sample")
+@@tag(Dog, "Sample");
 ```
 
 Which is equivalent to
 
 ```cadl
-@@tag(Dog, "Sample")
+@@tag(Dog, "Sample");
 model Dog {}
 ```
 
@@ -56,7 +56,7 @@ model Dog {
   name: string;
 }
 
-@@readOnly(Dog.name)
+@@readOnly(Dog.name);
 ```
 
 ## Declaring decorators
