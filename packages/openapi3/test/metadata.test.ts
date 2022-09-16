@@ -257,7 +257,7 @@ describe("openapi3: metadata", () => {
       `
       model Parameters {
        @query q: string;
-       @path p: string = "default";
+       @path p: string;
        @header h: string;
       }
       @route("/single") @get op single(...Parameters): string;
@@ -317,7 +317,7 @@ describe("openapi3: metadata", () => {
           name: "p",
           in: "path",
           required: true,
-          schema: { type: "string", default: "default" },
+          schema: { type: "string" },
         },
         "Parameters.h": {
           name: "h",
@@ -331,10 +331,10 @@ describe("openapi3: metadata", () => {
           type: "object",
           properties: {
             q: { type: "string" },
-            p: { type: "string", default: "default" },
+            p: { type: "string" },
             h: { type: "string" },
           },
-          required: ["p", "q", "h"],
+          required: ["q", "p", "h"],
         },
       },
     });
