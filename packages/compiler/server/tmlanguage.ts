@@ -200,6 +200,17 @@ const decorator: BeginEndRule = {
   patterns: [token, parenthesizedExpression],
 };
 
+const augmentDecoratorStatement: BeginEndRule = {
+  key: "augment-decorator-statement",
+  scope: meta,
+  begin: `(@@${qualifiedIdentifier})`,
+  beginCaptures: {
+    "1": { scope: "entity.name.tag.cadl" },
+  },
+  end: `${beforeIdentifier}|${universalEnd}`,
+  patterns: [token, parenthesizedExpression],
+};
+
 const identifierExpression: MatchRule = {
   key: "identifier-expression",
   scope: "entity.name.type.cadl",
@@ -721,6 +732,7 @@ expression.patterns = [
 statement.patterns = [
   token,
   directive,
+  augmentDecoratorStatement,
   decorator,
   modelStatement,
   unionStatement,
