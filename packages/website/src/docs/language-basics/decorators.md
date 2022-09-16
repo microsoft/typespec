@@ -32,6 +32,33 @@ The parentheses can be omitted when no arguments are provided.
 model Dog {}
 ```
 
+## Augment decorators
+
+Decorators can also be used from a different location by refering the the type being decoratorated. For this you can declare an augment decorator using the `@@` prefix. The first argument of an augment decorator is the type reference that should be decorated.
+
+```cadl
+model Dog {}
+
+@@tag(Dog,"Sample")
+```
+
+Which is equivalent to
+
+```cadl
+@@tag(Dog, "Sample")
+model Dog {}
+```
+
+Example: Decorate a model property
+
+```cadl
+model Dog {
+  name: string;
+}
+
+@@readOnly(Dog.name)
+```
+
 ## Declaring decorators
 
 Decorators can be declared in JavaScript by prefixing the function name with `$`. A decorator function must have the following parameters:
