@@ -737,7 +737,7 @@ export interface DecoratorExpressionNode extends BaseNode {
 export interface AugmentDecoratorStatementNode extends BaseNode {
   readonly kind: SyntaxKind.AugmentDecoratorStatement;
   readonly target: IdentifierNode | MemberExpressionNode;
-  readonly targetEntity: TypeReferenceNode;
+  readonly targetType: TypeReferenceNode;
   readonly arguments: readonly Expression[];
 }
 

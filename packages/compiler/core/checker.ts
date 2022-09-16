@@ -425,7 +425,7 @@ export function createChecker(program: Program): Checker {
     );
 
     for (const decNode of augmentDecorators) {
-      const ref = resolveTypeReference(decNode.targetEntity, undefined);
+      const ref = resolveTypeReference(decNode.targetType, undefined);
       if (ref) {
         if (ref.flags & SymbolFlags.LateBound) {
           const decApp = checkDecorator(decNode, undefined);

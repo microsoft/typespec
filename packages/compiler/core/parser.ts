@@ -981,7 +981,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return {
       kind: SyntaxKind.AugmentDecoratorStatement,
       target,
-      targetEntity,
+      targetType: targetEntity,
       arguments: decoratorArgs,
       ...finishNode(pos),
     };
@@ -2262,7 +2262,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.AugmentDecoratorStatement:
       return (
         visitNode(cb, node.target) ||
-        visitNode(cb, node.targetEntity) ||
+        visitNode(cb, node.targetType) ||
         visitEach(cb, node.arguments)
       );
     case SyntaxKind.DecoratorExpression:

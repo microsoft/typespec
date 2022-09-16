@@ -3,6 +3,7 @@ import { createScanner, Token } from "../../core/scanner.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  AugmentDecoratorStatementNode,
   BlockComment,
   BooleanLiteralNode,
   CadlScriptNode,
@@ -160,8 +161,9 @@ export function printNode(
     case SyntaxKind.ModelProperty:
       return printModelProperty(path as AstPath<ModelPropertyNode>, options, print);
     case SyntaxKind.DecoratorExpression:
-    case SyntaxKind.AugmentDecoratorStatement:
       return printDecorator(path as AstPath<DecoratorExpressionNode>, options, print);
+    case SyntaxKind.AugmentDecoratorStatement:
+      return printAugmentDecorator(path as AstPath<AugmentDecoratorStatementNode>, options, print);
     case SyntaxKind.DirectiveExpression:
       return printDirective(path as AstPath<DirectiveExpressionNode>, options, print);
     case SyntaxKind.UnionExpression:
@@ -433,6 +435,35 @@ export function printDecorator(
 ) {
   const args = printDecoratorArgs(path, options, print);
   return ["@", path.call(print, "target"), args];
+}
+
+export function printAugmentDecorator(
+  path: AstPath<AugmentDecoratorStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const args = printAugmentDecoratorArgs(path, options, print);
+  return ["@@", path.call(print, "target"), args, ";"];
+}
+
+function printAugmentDecoratorArgs(
+  path: AstPath<AugmentDecoratorStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return [
+    "(",
+    group([
+      indent(
+        join(", ", [
+          path.call(print, "targetType"),
+          ...path.map((arg) => [softline, print(arg)], "arguments"),
+        ])
+      ),
+      softline,
+    ]),
+    ")",
+  ];
 }
 
 export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
