@@ -74,11 +74,11 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
  * pascal-case with `Or`. And `Item` is if `Visibility.Item` is produced.
  *
  * Examples:
- *  - Visibility.All =>""
+ *  - Visibility.All => ""
  *  - Visibility.Read => "Read"
  *  - Visibility.Create | Visibility.Update => "CreateOrUpdate"
  *  - Visibility.Create | Visibility.Item => "CreateItem"
- *  - Visibility.Create | Visibiliy.Update | Visibility.Item =>  "CreateOrUpdateItem"
+ *  - Visibility.Create | Visibility.Update | Visibility.Item =>  "CreateOrUpdateItem"
  *  */
 export function getVisibilitySuffix(visibility: Visibility) {
   let suffix = "";
@@ -100,8 +100,8 @@ export function getVisibilitySuffix(visibility: Visibility) {
  *
  * - GET | HEAD => Visibility.Query
  * - POST => Visibility.Update
- * - PUT => Visibillity.Create | Update
- * - DELETE => Visibiliyt.Delete
+ * - PUT => Visibility.Create | Update
+ * - DELETE => Visibility.Delete
  */
 export function getRequestVisibility(verb: HttpVerb): Visibility {
   switch (verb) {
