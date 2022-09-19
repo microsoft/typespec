@@ -88,7 +88,7 @@ export const App: FunctionComponent = () => {
     await emptyOutputDir();
     const cadlCompiler = await importCadlCompiler();
     try {
-      const program = await cadlCompiler.compile("main.cadl", host, {
+      const program = await cadlCompiler.compile(host, "main.cadl", {
         outputPath: "cadl-output",
         emitters: { [PlaygroundManifest.defaultEmitter]: {} },
       });

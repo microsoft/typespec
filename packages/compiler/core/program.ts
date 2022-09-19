@@ -221,7 +221,7 @@ export function projectProgram(
   return createProjector(program, projections, startNode);
 }
 
-export async function createProgram(
+export async function compile(
   host: CompilerHost,
   mainFile: string,
   options: CompilerOptions = {},
@@ -1001,14 +1001,10 @@ export function createStateAccessors(
   return { stateMap, stateSet };
 }
 
-export async function compile(
-  mainFile: string,
-  host: CompilerHost,
-  options?: CompilerOptions,
-  oldProgram?: Program
-): Promise<Program> {
-  return await createProgram(host, mainFile, options, oldProgram);
-}
+/**
+ * @deprecated use compile instead.
+ */
+export const createProgram = compile;
 
 function computeEmitters(
   emitters: Record<string, Record<string, unknown> | boolean>
