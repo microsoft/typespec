@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/compiler",
-      "comment": "Deprecate `createProgram` and change `compile` parameter order to match `createProgram`",
+      "comment": "Remove `createProgram` and change `compile` parameter order to match old `createProgram`.",
       "type": "minor"
     }
   ],
