@@ -101,7 +101,7 @@ export function getVisibilitySuffix(visibility: Visibility) {
  * - GET | HEAD => Visibility.Query
  * - POST => Visibility.Update
  * - PUT => Visibility.Create | Update
- * - DELETE => Visibility.Delete
+ * - DELETE => Visibiliyt.Delete
  */
 export function getRequestVisibility(verb: HttpVerb): Visibility {
   switch (verb) {
@@ -130,14 +130,15 @@ export function gatherMetadata(
   program: Program,
   diagnostics: DiagnosticCollector, // currently unused, but reserved for future diagnostics
   type: Type,
-  visibility: Visibility
+  visibility: Visibility,
+  isMetadataCallback = isMetadata
 ): Set<ModelProperty> {
+  const metadata = new Map<string, ModelProperty>();
   if (type.kind !== "Model" || type.indexer || type.properties.size === 0) {
     return new Set();
   }
 
   const visited = new Set();
-  const metadata = new Map<string, ModelProperty>();
   const queue = new Queue([type]);
 
   while (!queue.isEmpty()) {
@@ -159,7 +160,7 @@ export function gatherMetadata(
         continue;
       }
 
-      if (isApplicableMetadataOrBody(program, property, visibility)) {
+      if (isApplicableMetadataOrBody(program, property, visibility, isMetadataCallback)) {
         metadata.set(property.name, property);
       }
 
@@ -210,9 +211,10 @@ export function isVisible(program: Program, property: ModelProperty, visibility:
 export function isApplicableMetadata(
   program: Program,
   property: ModelProperty,
-  visibility: Visibility
+  visibility: Visibility,
+  isMetadataCallback = isMetadata
 ) {
-  return isApplicableMetadataCore(program, property, visibility, false);
+  return isApplicableMetadataCore(program, property, visibility, false, isMetadataCallback);
 }
 
 /**
@@ -222,16 +224,18 @@ export function isApplicableMetadata(
 export function isApplicableMetadataOrBody(
   program: Program,
   property: ModelProperty,
-  visibility: Visibility
+  visibility: Visibility,
+  isMetadataCallback = isMetadata
 ) {
-  return isApplicableMetadataCore(program, property, visibility, true);
+  return isApplicableMetadataCore(program, property, visibility, true, isMetadataCallback);
 }
 
 function isApplicableMetadataCore(
   program: Program,
   property: ModelProperty,
   visibility: Visibility,
-  treatBodyAsMetadata: boolean
+  treatBodyAsMetadata: boolean,
+  isMetadataCallback: (program: Program, property: ModelProperty) => boolean
 ) {
   if (visibility & Visibility.Item) {
     return false; // no metadata is applicable to collection items
@@ -241,7 +245,7 @@ function isApplicableMetadataCore(
     return true;
   }
 
-  if (!isMetadata(program, property)) {
+  if (!isMetadataCallback(program, property)) {
     return false;
   }
 

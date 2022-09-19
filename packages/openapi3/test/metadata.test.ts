@@ -506,11 +506,13 @@ describe("openapi3: metadata", () => {
               description: "The request has succeeded.",
               headers: {
                 h1: {
+                  required: true,
                   schema: {
                     type: "string",
                   },
                 },
                 h2: {
+                  required: true,
                   schema: {
                     type: "string",
                   },

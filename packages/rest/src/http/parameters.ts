@@ -2,6 +2,7 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   filterModelProperties,
+  ModelProperty,
   Operation,
   Program,
 } from "@cadl-lang/compiler";
@@ -14,34 +15,48 @@ import {
   getQueryParamName,
   isBody,
 } from "./decorators.js";
-import { gatherMetadata, getRequestVisibility } from "./metadata.js";
+import { gatherMetadata, getRequestVisibility, isMetadata } from "./metadata.js";
 import { HttpOperationParameters, HttpVerb } from "./types.js";
 
 export function getOperationParameters(
   program: Program,
-  operation: Operation
+  operation: Operation,
+  knownPathParamNames: string[] = []
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const verb = getExplicitVerbForOperation(program, operation);
   if (verb) {
-    return getOperationParametersForVerb(program, operation, verb);
+    return getOperationParametersForVerb(program, operation, verb, knownPathParamNames);
   }
 
   // If no verb is explicitly specified, it is POST if there is a body and
   // GET otherwise. Theoretically, it is possible to use @visibility
   // strangely such that there is no body if the verb is POST and there is a
   // body if the verb is GET. In that rare case, GET is chosen arbitrarily.
-  const post = getOperationParametersForVerb(program, operation, "post");
-  return post[0].bodyType ? post : getOperationParametersForVerb(program, operation, "get");
+  const post = getOperationParametersForVerb(program, operation, "post", knownPathParamNames);
+  return post[0].bodyType
+    ? post
+    : getOperationParametersForVerb(program, operation, "get", knownPathParamNames);
 }
 
 function getOperationParametersForVerb(
   program: Program,
   operation: Operation,
-  verb: HttpVerb
+  verb: HttpVerb,
+  knownPathParamNames: string[]
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const visibility = getRequestVisibility(verb);
-  const metadata = gatherMetadata(program, diagnostics, operation.parameters, visibility);
+  const metadata = gatherMetadata(
+    program,
+    diagnostics,
+    operation.parameters,
+    visibility,
+    (_, param) => isMetadata(program, param) || isImplicitPathParam(param)
+  );
+
+  function isImplicitPathParam(param: ModelProperty) {
+    return param.model === operation.parameters && knownPathParamNames.includes(param.name);
+  }
 
   const result: HttpOperationParameters = {
     parameters: [],
@@ -50,7 +65,8 @@ function getOperationParametersForVerb(
 
   for (const param of metadata) {
     const queryParam = getQueryParamName(program, param);
-    const pathParam = getPathParamName(program, param);
+    const pathParam =
+      getPathParamName(program, param) ?? (isImplicitPathParam(param) && param.name);
     const headerParam = getHeaderFieldName(program, param);
     const bodyParam = isBody(program, param);
 
