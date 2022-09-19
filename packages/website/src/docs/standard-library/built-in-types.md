@@ -7,7 +7,7 @@ title: Built-in types
 
 Cadl Standard Library provide some built-in types that can be used to build more complex types.
 
-See [type relations]({%doc "type-relations"%}) for details on how those types are structred.
+Built in types are related to each other according to the rules described in [type relations]({%doc "type-relations"%}).
 
 ## Numeric types
 
