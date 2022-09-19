@@ -1001,11 +1001,6 @@ export function createStateAccessors(
   return { stateMap, stateSet };
 }
 
-/**
- * @deprecated use compile instead.
- */
-export const createProgram = compile;
-
 function computeEmitters(
   emitters: Record<string, Record<string, unknown> | boolean>
 ): Record<string, Record<string, unknown>> {
