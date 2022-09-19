@@ -278,7 +278,49 @@ export async function findProjectRoot(
   }
 }
 
+/**
+ * A map keyed by a set of objects.
+ *
+ * This is likely non-optimal.
+ */
+export class MultiKeyMap<K extends object[], V> {
+  #currentId = 0;
+  #idMap = new WeakMap<object, number>();
+  #items = new Map<string, V>();
+
+  get(items: K): V | undefined {
+    return this.#items.get(this.compositeKeyFor(items));
+  }
+
+  set(items: K, value: V): void {
+    const key = this.compositeKeyFor(items);
+    this.#items.set(key, value);
+  }
+
+  private compositeKeyFor(items: K) {
+    return items.map((i) => this.keyFor(i)).join(",");
+  }
+
+  private keyFor(item: object) {
+    if (this.#idMap.has(item)) {
+      return this.#idMap.get(item);
+    }
+
+    const id = this.#currentId++;
+    this.#idMap.set(item, id);
+    return id;
+  }
+}
+
+/**
+ * A map with exactly two keys per value.
+ *
+ * Functionally the same as `MultiKeyMap<[K1, K2], V>`, but more efficient.
+ */
 export class TwoLevelMap<K1, K2, V> extends Map<K1, Map<K2, V>> {
+  /**
+   * Get an existing entry in the map or add a new one if not found.
+   */
   getOrAdd(key1: K1, key2: K2, create: (map: Map<K2, V>) => V) {
     let map = this.get(key1);
     if (map === undefined) {
