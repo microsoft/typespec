@@ -55,6 +55,7 @@ function createLinter(): Linter {
     enableRule,
     enableRules,
     lintOnValidate,
+    lintProgram,
   };
   ``;
 

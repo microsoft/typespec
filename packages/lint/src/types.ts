@@ -32,6 +32,13 @@ export interface Linter {
    * @param program Program.
    */
   lintOnValidate(program: Program): void;
+
+  /**
+   * @internal
+   * Lint the given program, adding diagnostics.
+   * @param program Program to lint
+   */
+  lintProgram(program: Program): void;
 }
 
 export interface LintRule {
