@@ -72,7 +72,7 @@ function createLinter(): Linter {
     const eventEmitter = new EventEmitter<SemanticNodeListener>();
     for (const ruleName of enabledRules) {
       const rule = ruleMap.get(ruleName);
-      compilerAssert(rule, `Rule with name ${ruleName} should exists.`);
+      compilerAssert(rule, `Rule with name ${ruleName} was requested but was not found.`);
       const listener = rule.create({ program });
       for (const [name, cb] of Object.entries(listener)) {
         eventEmitter.on(name as any, cb as any);
