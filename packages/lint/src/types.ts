@@ -22,7 +22,7 @@ export interface Linter {
   enableRule(name: string): void;
 
   /**
-   * Enable the rules with the given name.
+   * Enable the rules with the given names.
    */
   enableRules(names: string[]): void;
 
