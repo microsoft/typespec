@@ -98,3 +98,50 @@ table th {
 
 @media only screen and (min-width: 1200px) {
 }
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  position: relative;
+}
+
+@media screen and (min-width: 700px) {
+  .header-anchor {
+    left: -0.8em;
+    position: absolute;
+    width: 0.8em;
+  }
+}
+
+@media screen and (min-width: 700px) and (hover: hover) {
+  .header-anchor__symbol {
+    visibility: hidden;
+  }
+
+  .header-anchor__symbol svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  h2:hover .header-anchor__symbol,
+  h3:hover .header-anchor__symbol,
+  h4:hover .header-anchor__symbol,
+  h5:hover .header-anchor__symbol,
+  h6:hover .header-anchor__symbol,
+  .header-anchor:focus .header-anchor__symbol {
+    visibility: visible;
+  }
+}
+
+.screen-reader-only {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
