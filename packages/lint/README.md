@@ -36,7 +36,7 @@ linter.registerRules([rule1, rule2], { enable: true });
 linter.enableRule("<packagename>/<rulename>"); // Rule name must be the full qualified name composed of the library name and rule name.
 
 // That way you can enable the rule another library provided but didn't enable
-rule.enableRule("<otherpackage>/<rulename>");
+linter.enableRule("<otherpackage>/<rulename>");
 ```
 
 ## Testing
