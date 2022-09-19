@@ -118,11 +118,6 @@ module.exports = (eleventyConfig) => {
     if (!docName) {
       throw new Error("The docName must be specified");
     }
-    if (anchor) {
-      if (anchor[0] !== "#") {
-        throw new Error("Anchor must start with #");
-      }
-    }
 
     const page = docPages.find((x) => x.data.id === docName);
     if (page === undefined) {
@@ -130,7 +125,7 @@ module.exports = (eleventyConfig) => {
     }
     const url = eleventyConfig.getFilter("url");
     const resolvedUrl = url(page.url);
-    return anchor ? `${resolvedUrl}${anchor}` : resolvedUrl;
+    return anchor ? `${resolvedUrl}#${anchor}` : resolvedUrl;
   });
 
   return {
