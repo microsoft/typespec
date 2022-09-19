@@ -12,7 +12,8 @@ import { HttpOperationParameters } from "./types.js";
 
 export function getOperationParameters(
   program: Program,
-  operation: Operation
+  operation: Operation,
+  knownPathParamNames: string[] = []
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const result: HttpOperationParameters = {
@@ -22,7 +23,9 @@ export function getOperationParameters(
 
   for (const param of operation.parameters.properties.values()) {
     const queryParam = getQueryParamName(program, param);
-    const pathParam = getPathParamName(program, param);
+    const pathParam =
+      getPathParamName(program, param) ??
+      (knownPathParamNames.indexOf(param.name) > -1 && param.name);
     const headerParam = getHeaderFieldName(program, param);
     const bodyParam = isBody(program, param);
 
