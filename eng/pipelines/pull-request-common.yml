@@ -10,12 +10,6 @@ steps:
       versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
 
-  - task: Npm@1
-    inputs:
-      command: custom
-      customCommand: "install -g npm@latest"
-    displayName: "Upgrade npm to latest version"
-
   - task: UseDotNet@2
     inputs:
       version: 6.0.x
@@ -32,17 +26,17 @@ steps:
       dotnet --version
     displayName: "Log tool versions used"
 
-  - script: rush install
+  - script: node common/scripts/install-run-rush.js install
     displayName: Install JavaScript Dependencies
 
   - script: dotnet restore
     displayName: Restore .NET Dependencies
     workingDirectory: packages/cadl-vs
 
-  - script: rush rebuild --verbose
+  - script: node common/scripts/install-run-rush.js rebuild --verbose
     displayName: Build
 
-  - script: rush test-official
+  - script: node common/scripts/install-run-rush.js test-official
     displayName: Test
 
   - task: PublishTestResults@2
@@ -62,10 +56,10 @@ steps:
 
   - template: ./upload-coverage.yml
 
-  - script: rush check-format
+  - script: node common/scripts/install-run-rush.js check-format
     displayName: Check Formatting
 
-  - script: rush lint --verbose
+  - script: node common/scripts/install-run-rush.js lint --verbose
     displayName: Lint
 
   - script: cd packages/samples && npm run regen-samples
@@ -74,11 +68,12 @@ steps:
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
-  - script: rush cspell
+  - script: node common/scripts/install-run-rush.js cspell
     displayName: Spell check
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: rush e2e
+  - script: node common/scripts/install-run-rush.js e2e
     displayName: E2E Tests
-    # Skipping e2e test on windows node 16.x as there is a bug with npm and it doesn't seem to want to update correctly.
-    condition: ne(variables['Agent.OS'], 'Windows_NT')
+    # Skipping the e2e test on the prepare publish branch as there is a bug in the npm version installed on node 16
+    # causing npx to try to download the unpublished version of the cli.
+    condition: not(startsWith(variables['Build.SourceBranch'], 'refs/publish'))
