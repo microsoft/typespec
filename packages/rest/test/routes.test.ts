@@ -514,6 +514,54 @@ describe("rest: routes", () => {
         },
       ]);
     });
+
+    it("resolves unannotated path parameters that are included in the route path", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test/{name}/sub/{foo}")
+        @get op get(
+          name: string,
+          foo: string
+        ): string;
+
+        @route("/nested/{name}")
+        namespace A {
+          @route("sub")
+          namespace B {
+            @route("{bar}")
+            @get op get(
+              name: string,
+              bar: string
+            ): string;
+          }
+        }
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test/{name}/sub/{foo}",
+          params: {
+            params: [
+              { type: "path", name: "name" },
+              { type: "path", name: "foo" },
+            ],
+            body: undefined,
+          },
+        },
+        {
+          verb: "get",
+          path: "/nested/{name}/sub/{bar}",
+          params: {
+            params: [
+              { type: "path", name: "name" },
+              { type: "path", name: "bar" },
+            ],
+            body: undefined,
+          },
+        },
+      ]);
+    });
   });
 
   describe("double @route", () => {
