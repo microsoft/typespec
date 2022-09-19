@@ -14,9 +14,6 @@ steps:
     inputs:
       version: 6.0.x
 
-  - script: npm install -g @microsoft/rush
-    displayName: "Install rush"
-
   - script: |
       echo "Node:"
       node -v
