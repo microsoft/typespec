@@ -77,7 +77,7 @@ export async function checkFor(code: string) {
 export async function oapiForModel(name: string, modelDef: string) {
   const oapi = await openApiFor(`
     ${modelDef};
-    @serviceTitle("Testing model")
+    @service({title: "Testing model"})
     @route("/")
     namespace root {
       op read(): { @body body: ${name} };

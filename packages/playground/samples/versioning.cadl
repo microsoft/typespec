@@ -4,7 +4,9 @@ import "@cadl-lang/versioning";
 using Cadl.Versioning;
 
 @versioned(Versions)
-@serviceTitle("Widget Service")
+@service({
+  title: "Widget Service",
+})
 namespace DemoService;
 
 enum Versions {
