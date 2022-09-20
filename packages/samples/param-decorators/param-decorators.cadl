@@ -1,6 +1,8 @@
 import "@cadl-lang/rest";
 
-@serviceTitle("Parameter Decorators")
+@service({
+  title: "Parameter Decorators",
+})
 namespace Cadl.Samples;
 
 using Cadl.Http;

@@ -2,7 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
-@serviceTitle("Visibility sample")
+@service({
+  title: "Visibility sample",
+})
 namespace VisibilitySample;
 
 model Person {

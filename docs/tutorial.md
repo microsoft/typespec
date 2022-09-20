@@ -842,15 +842,15 @@ The following examples assume you have imported both `@cadl-lang/openapi3` and `
 
 A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. Cadl offers the following decorators for providing this metadata, and all are optional.
 
-- @serviceTitle - the title of the service
-- @serviceVersion - the version of the service. Can be any string, but later version should lexicographically sort after earlier versions
-- @server - the host of the service. Can accept parameters.
+- @service - Mark a namespace as a service namespace. Takes in the following options:
+  - `title`: Name of the service
+  - `version`: Version of the service
+- @server - (In `Cadl.Http`) the host of the service. Can accept parameters.
 
 Here's an example that uses these to define a Pet Store service:
 
 ```cadl
-@serviceTitle("Pet Store Service")
-@serviceVersion("2021-03-25")
+@service({title: "Pet Store Service", version: "2021-03-25")
 @server("https://example.com", "Single server endpoint")
 @doc("This is a sample server Petstore server.")
 namespace PetStore;

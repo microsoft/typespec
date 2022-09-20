@@ -2,7 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
-@serviceTitle("Sample showcasing projected names")
+@service({
+  title: "Sample showcasing projected names",
+})
 namespace ProjectedNames;
 
 model WithProjectedNames {

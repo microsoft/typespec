@@ -6,7 +6,9 @@ using Cadl.Versioning;
 using Cadl.Rest;
 
 @versionedDependency([[Versions.v1, Library.Versions.v1_0], [Versions.v2, Library.Versions.v1_1]])
-@serviceTitle("Pet Store Service")
+@service({
+  title: "Pet Store Service",
+})
 @versioned(Versions)
 namespace VersionedApi;
 using Cadl.Http;
