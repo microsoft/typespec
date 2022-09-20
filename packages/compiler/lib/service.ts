@@ -51,7 +51,7 @@ export function $service(context: DecoratorContext, target: Namespace, options: 
   }
   const serviceDetails = getServiceDetails(context.program);
 
-  if (getServiceNamespace(context.program)) {
+  if (getServiceNamespace(context.program) !== context.program.getGlobalNamespaceType()) {
     reportDiagnostic(context.program, {
       code: "service-decorator-duplicate",
       target,
@@ -125,7 +125,7 @@ export function $serviceVersion(context: DecoratorContext, target: Type, version
   const serviceDetails = getServiceDetails(context.program);
   reportDeprecated(
     context.program,
-    "@serviceTitle decorator has been deprecated use @service({title: _}) instead.",
+    "@serviceVersion decorator has been deprecated use @service({title: _}) instead.",
     context.decoratorTarget
   );
   if (serviceDetails.version) {

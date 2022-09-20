@@ -9,8 +9,7 @@ describe("openapi3: versioning", () => {
       `
       @versioned(Versions)
       @versionedDependency([[Versions.v1, MyLibrary.Versions.A], [Versions.v2, MyLibrary.Versions.B], [Versions.v3, MyLibrary.Versions.C]])
-      @service({title: "My Service"})
-      @serviceVersion("hi")
+      @service({title: "My Service", version: "hi"})
       namespace MyService {
         enum Versions {"v1", "v2", "v3"}
         model Test {

@@ -571,9 +571,10 @@ describe("rest: routes", () => {
         @route("/test")
         op get(): string;
     `);
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(diagnostics[0].message, "@route was defined twice on this operation.");
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/duplicate-route-decorator",
+        message: "@route was defined twice on this operation.",
+      });
     });
 
     it("emit diagnostic if specifying route twice on interface", async () => {
@@ -584,9 +585,10 @@ describe("rest: routes", () => {
           get(): string
         }
     `);
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(diagnostics[0].message, "@route was defined twice on this interface.");
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/duplicate-route-decorator",
+        message: "@route was defined twice on this interface.",
+      });
     });
 
     it("emit diagnostic if namespace have route but different values", async () => {
@@ -604,12 +606,10 @@ describe("rest: routes", () => {
         }
     `);
 
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(
-        diagnostics[0].message,
-        "@route was defined twice on this namespace and has different values."
-      );
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/duplicate-route-decorator",
+        message: "@route was defined twice on this namespace and has different values.",
+      });
     });
 
     it("merge namespace if @route value is the same", async () => {
