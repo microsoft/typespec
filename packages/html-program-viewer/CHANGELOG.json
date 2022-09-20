@@ -2,6 +2,37 @@
   "name": "@cadl-lang/html-program-viewer",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.3.0",
+      "date": "Thu, 08 Sep 2022 01:04:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake changes to compiler with current projection"
+          },
+          {
+            "comment": "React to Type suffix removal"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.34.0` to `~0.35.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/eslint-config-cadl\" from `~0.4.0` to `~0.4.1`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.34.0` to `~0.35.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.2",
       "tag": "@cadl-lang/html-program-viewer_v0.2.2",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",

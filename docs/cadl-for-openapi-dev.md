@@ -296,9 +296,9 @@ In Cadl this information is specified with [decorators on the namespace][cadl-se
 
 | OpenAPI `info` field | Cadl decorator    | Notes                    |
 | -------------------- | ----------------- | ------------------------ |
-| `title`              | `@serviceTitle`   |                          |
-| `version`            | `@serviceVersion` |                          |
-| `description`        |                   | Not currently supported. |
+| `title`              | `@serviceTitle`   | Cadl built-in decorator  |
+| `version`            | `@serviceVersion` | Cadl built-in decorator  |
+| `description`        | `@doc`            | Cadl built-in decorator  |
 | `license`            |                   | Not currently supported. |
 | `contact`            |                   | Not currently supported. |
 
@@ -314,7 +314,13 @@ in favor of explicit `content-type` and `accept` header properties in request an
 
 ## securityDefinitions / securitySchemes Object
 
-In Cadl, these fields are currently set using javascript that is imported into the Cadl definition. In the near future there will likely be decorators that allow some of these elements to be set directly from Cadl.
+Use `@useAuth` decorator from the `@cadl-lang/rest" library
+
+```cadl
+using Cadl.Http;
+@useAuth(OAuth2Auth<["read", "write"]>)
+namespace MyService;
+```
 
 ## Specification Extensions
 

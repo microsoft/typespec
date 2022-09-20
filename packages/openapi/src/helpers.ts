@@ -74,16 +74,16 @@ export function getTypeName(
  */
 export function getParameterKey(
   program: Program,
-  propery: ModelProperty,
+  property: ModelProperty,
   newParam: unknown,
   existingParams: Record<string, unknown>,
   options: TypeNameOptions
 ): string {
-  const parent = propery.model!;
+  const parent = property.model!;
   let key = getTypeName(program, parent, options);
 
   if (parent.properties.size > 1) {
-    key += `.${propery.name}`;
+    key += `.${property.name}`;
   }
 
   // JSON check is workaround for https://github.com/microsoft/cadl/issues/462
@@ -94,7 +94,7 @@ export function getParameterKey(
       format: {
         value: key,
       },
-      target: propery,
+      target: property,
     });
   }
 
@@ -105,7 +105,7 @@ export function getParameterKey(
  * Resolve the OpenAPI operation ID for the given operation using the following logic:
  * - If @operationId was specified use that value
  * - If operation is defined at the root or under the service namespace return <operation.name>
- * - Otherwise(operation is under another namespace or interface) return <namespace/interface.name>_<opration.name>
+ * - Otherwise(operation is under another namespace or interface) return <namespace/interface.name>_<operation.name>
  *
  * @param program Cadl Program
  * @param operation Operation

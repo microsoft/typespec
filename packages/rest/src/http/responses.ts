@@ -23,24 +23,7 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
-
-export type StatusCode = `${number}` | "*";
-export interface HttpOperationResponse {
-  statusCode: StatusCode;
-  type: Type;
-  description?: string;
-  responses: HttpOperationResponseContent[];
-}
-
-export interface HttpOperationResponseContent {
-  headers?: Record<string, ModelProperty>;
-  body?: HttpOperationBody;
-}
-
-export interface HttpOperationBody {
-  contentTypes: string[];
-  type: Type;
-}
+import { HttpOperationResponse } from "./types.js";
 
 /**
  * Get the responses for a given operation.

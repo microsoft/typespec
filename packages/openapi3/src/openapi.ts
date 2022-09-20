@@ -40,6 +40,7 @@ import {
   NumericLiteral,
   Operation,
   Program,
+  ProjectionApplication,
   projectProgram,
   resolvePath,
   StringLiteral,
@@ -58,7 +59,7 @@ import {
 } from "@cadl-lang/openapi";
 import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
 import {
-  getAllRoutes,
+  getAllHttpServices,
   getAuthentication,
   getContentTypes,
   getHeaderFieldName,
@@ -66,11 +67,11 @@ import {
   getQueryParamName,
   getStatusCodeDescription,
   HttpAuth,
+  HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationResponse,
   isStatusCode,
-  OperationDetails,
   reportIfNoRoutes,
   ServiceAuthentication,
 } from "@cadl-lang/rest/http";
@@ -80,9 +81,11 @@ import { OpenAPI3EmitterOptions, OpenAPILibrary, reportDiagnostic } from "./lib.
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
+  OpenAPI3Header,
   OpenAPI3OAuthFlows,
   OpenAPI3Operation,
   OpenAPI3Parameter,
+  OpenAPI3ParameterBase,
   OpenAPI3ParameterType,
   OpenAPI3Schema,
   OpenAPI3SchemaProperty,
@@ -204,7 +207,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         const name = getIntrinsicModelName(program, type);
         return name === "string";
       case "Enum":
-        for (const member of type.members) {
+        for (const member of type.members.values()) {
           if (member.value && typeof member.value !== "string") {
             return false;
           }
@@ -271,6 +274,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (!serviceNs) {
       return;
     }
+    const commonProjections: ProjectionApplication[] = [
+      {
+        projectionName: "target",
+        arguments: ["json"],
+      },
+    ];
     const originalProgram = program;
     const versions = buildVersionProjections(program, serviceNs);
     for (const record of versions) {
@@ -281,9 +290,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
       }
 
-      if (record.projections.length > 0) {
-        program = projectProgram(originalProgram, record.projections);
-      }
+      program = projectProgram(originalProgram, [...commonProjections, ...record.projections]);
 
       await emitOpenAPIFromVersion(serviceNs, record.version);
     }
@@ -292,10 +299,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   async function emitOpenAPIFromVersion(serviceNamespace: Namespace, version?: string) {
     initializeEmitter(serviceNamespace, version);
     try {
-      const [routes] = getAllRoutes(program);
-      reportIfNoRoutes(program, routes);
+      const [services] = getAllHttpServices(program);
+      const service = services[0];
+      reportIfNoRoutes(program, service.operations);
 
-      for (const operation of routes) {
+      for (const operation of service.operations) {
         emitOperation(operation);
       }
       emitReferences();
@@ -333,7 +341,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function emitOperation(operation: OperationDetails): void {
+  function emitOperation(operation: HttpOperation): void {
     const { path: fullPath, operation: op, verb, parameters } = operation;
 
     // If path contains a query string, issue msg and don't emit this endpoint
@@ -449,13 +457,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
-  function getResponseHeader(prop: ModelProperty) {
-    const header: any = {};
-    populateParameter(header, prop, "header");
-    delete header.in;
-    delete header.name;
-    delete header.required;
-    return header;
+  function getResponseHeader(prop: ModelProperty): OpenAPI3Header {
+    return getOpenAPIParameterBase(prop);
   }
 
   function getSchemaOrRef(type: Type): any {
@@ -649,6 +652,25 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  function getOpenAPIParameterBase(param: ModelProperty): OpenAPI3ParameterBase {
+    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
+    if (param.default) {
+      schema.default = getDefaultValue(param.default);
+    }
+    // Description is already provided in the parameter itself.
+    delete schema.description;
+
+    const oaiParam: OpenAPI3ParameterBase = {
+      required: !param.optional,
+      description: getDoc(program, param),
+      schema,
+    };
+
+    attachExtensions(program, param, oaiParam);
+
+    return oaiParam;
+  }
+
   function populateParameter(
     ph: OpenAPI3Parameter,
     param: ModelProperty,
@@ -656,18 +678,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ) {
     ph.name = param.name;
     ph.in = kind;
-    ph.required = !param.optional;
-    ph.description = getDoc(program, param);
-
-    // Apply decorators to the schema for the parameter.
-    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
-    if (param.default) {
-      schema.default = getDefaultValue(param.default);
-    }
-    attachExtensions(program, param, ph);
-    // Description is already provided in the parameter itself.
-    delete schema.description;
-    ph.schema = schema;
+    Object.assign(ph, getOpenAPIParameterBase(param));
   }
 
   function emitReferences() {
@@ -727,12 +738,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   function getSchemaForEnum(e: Enum) {
     const values = [];
-    if (e.members.length == 0) {
+    if (e.members.size == 0) {
       reportUnsupportedUnion("empty");
       return undefined;
     }
-    const type = enumMemberType(e.members[0]);
-    for (const option of e.members) {
+    const type = enumMemberType(e.members.values().next().value);
+    for (const option of e.members.values()) {
       if (type !== enumMemberType(option)) {
         reportUnsupportedUnion();
         continue;
@@ -1026,7 +1037,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     childModels: readonly Model[]
   ): boolean {
     const { propertyName } = discriminator;
-    const retVals = childModels.map((t) => {
+    const retValues = childModels.map((t) => {
       const prop = getProperty(t, propertyName);
       if (!prop) {
         reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
@@ -1057,8 +1068,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         });
       }
       if (prop) {
-        const vals = getStringValues(prop.type);
-        vals.forEach((val) => {
+        const values = getStringValues(prop.type);
+        values.forEach((val) => {
           if (discriminatorValues.has(val)) {
             reportDiagnostic(program, {
               code: "discriminator",
@@ -1066,14 +1077,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
               format: { val: val, model1: discriminatorValues.get(val)!, model2: t.name },
               target: prop,
             });
-            retVals.push(false);
+            retValues.push(false);
           } else {
             discriminatorValues.set(val, t.name);
           }
         });
       }
     }
-    return retVals.every((v) => v);
+    return retValues.every((v) => v);
   }
 
   function getDiscriminatorMapping(

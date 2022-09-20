@@ -600,7 +600,10 @@ describe("cadl: projections", () => {
         `
       );
       const { Foo } = (await testHost.compile("main.cadl")) as { Foo: Operation };
-      const result = testHost.program.checker.project(Foo, Foo.projections[0].to!) as Model;
+      const result = testHost.program.checker.project(
+        Foo,
+        Foo.projections.find((x) => x.id.sv === "test")!.to!
+      ) as Model;
       strictEqual(result.properties.get("x")!.type.kind, "Model");
       strictEqual(result.properties.get("y")!.type.kind, "Intrinsic");
     });
@@ -709,20 +712,21 @@ describe("cadl: projections", () => {
     it("can add members", async () => {
       const code = defaultCode(`self::addMember("three", 3);`);
       const result = (await testProjection(code)) as Enum;
-      strictEqual(result.members.length, 3);
-      const newMember = result.members[2];
+      strictEqual(result.members.size, 3);
+      const newMember = result.members.get("three")!;
       strictEqual(newMember.name, "three");
       strictEqual(newMember.value, 3);
     });
     it("can delete members", async () => {
       const code = defaultCode(`self::deleteMember("two");`);
       const result = (await testProjection(code)) as Enum;
-      strictEqual(result.members.length, 1);
+      strictEqual(result.members.size, 1);
     });
+
     it("can rename members", async () => {
       const code = defaultCode(`self::renameMember("two", "mewtwo");`);
       const result = (await testProjection(code)) as Enum;
-      const newMember = result.members[1];
+      const newMember = result.members.get("mewtwo")!;
       strictEqual(newMember.name, "mewtwo");
     });
 

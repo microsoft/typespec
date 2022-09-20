@@ -1,5 +1,7 @@
 # Cadl
 
+[Try Cadl Online](https://aka.ms/trycadl)
+
 Cadl is a language for describing cloud service APIs and generating other API
 description languages, client and service code, documentation, and other assets.
 Cadl provides highly extensible core language primitives that can describe API
@@ -169,8 +171,8 @@ cadl format <patterns...>
 cadl format **/*.cadl
 
 # Exclude certain patterns. Either use `!` prefix or pass it via the `--exclude` or `-x` option.
-cadl format **/*.cadl "!mytestfolder/**/*"
-cadl format **/*.cadl --exclude "mytestfolder/**/*"
+cadl format **/*.cadl "!my-test-folder/**/*"
+cadl format **/*.cadl --exclude "my-test-folder/**/*"
 ```
 
 ### Installing VS Code Extension

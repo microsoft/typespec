@@ -1,12 +1,12 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { OperationDetails } from "../src/http/route.js";
+import { HttpOperation } from "../src/http/types.js";
 import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   // Describe how routes should be included.
   describe("route inclusion", () => {
-    function expectRouteIncluded(routes: OperationDetails[], expectedRoutePaths: string[]) {
+    function expectRouteIncluded(routes: HttpOperation[], expectedRoutePaths: string[]) {
       const includedRoutes = routes.map((x) => x.path);
       deepStrictEqual(includedRoutes, expectedRoutePaths);
     }
@@ -409,6 +409,17 @@ describe("rest: routes", () => {
     strictEqual(diagnostics[1].message, `Duplicate operation "get2" routed at "get /test".`);
   });
 
+  it("emit diagnostic if passing arguments to autoroute decorators", async () => {
+    const [_, diagnostics] = await compileOperations(`
+      @autoRoute("/test") op test(): string;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-argument-count",
+      message: "Expected 0 arguments, but got 1.",
+    });
+  });
+
   describe("operation parameters", () => {
     it("emit diagnostic for parameters with multiple http request annotations", async () => {
       const [_, diagnostics] = await compileOperations(`
@@ -499,6 +510,54 @@ describe("rest: routes", () => {
           params: {
             params: [{ type: "query", name: "select" }],
             body: ["unannotatedBodyParam1", "unannotatedBodyParam2"],
+          },
+        },
+      ]);
+    });
+
+    it("resolves unannotated path parameters that are included in the route path", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test/{name}/sub/{foo}")
+        @get op get(
+          name: string,
+          foo: string
+        ): string;
+
+        @route("/nested/{name}")
+        namespace A {
+          @route("sub")
+          namespace B {
+            @route("{bar}")
+            @get op get(
+              name: string,
+              bar: string
+            ): string;
+          }
+        }
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test/{name}/sub/{foo}",
+          params: {
+            params: [
+              { type: "path", name: "name" },
+              { type: "path", name: "foo" },
+            ],
+            body: undefined,
+          },
+        },
+        {
+          verb: "get",
+          path: "/nested/{name}/sub/{bar}",
+          params: {
+            params: [
+              { type: "path", name: "name" },
+              { type: "path", name: "bar" },
+            ],
+            body: undefined,
           },
         },
       ]);

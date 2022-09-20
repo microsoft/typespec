@@ -1,4 +1,5 @@
 import { createDiagnosticCreator } from "./diagnostics.js";
+import { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
   CadlLibrary,
@@ -16,7 +17,7 @@ if ((globalThis as any)[globalLibraryUrlsLoadedSym] === undefined) {
 const loadedUrls = (globalThis as any)[globalLibraryUrlsLoadedSym];
 
 /**
- * @internal List of urls that used `createCadlLibary`. Used to keep track of the loaded version of library and make sure they are compatible.
+ * @internal List of urls that used `createCadlLibrary`. Used to keep track of the loaded version of library and make sure they are compatible.
  */
 export function getLibraryUrlsLoaded(): Set<string> {
   return loadedUrls;
@@ -68,7 +69,12 @@ export function createCadlLibrary<
       }
       return emitterOptionValidator;
     },
+    getTracer,
   };
+
+  function getTracer(program: Program) {
+    return program.tracer.sub(lib.name);
+  }
 }
 
 export function paramMessage<T extends string[]>(

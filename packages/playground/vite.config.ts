@@ -22,7 +22,7 @@ const config = definePlaygroundViteConfig({
 config.plugins!.push(
   visualizer({
     filename: "temp/stats.html",
-  })
+  }) as any
 );
 
 export default config;

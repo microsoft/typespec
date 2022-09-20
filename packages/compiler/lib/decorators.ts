@@ -193,7 +193,7 @@ export function $numeric(context: DecoratorContext, target: Type) {
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        format: { decorator: "@numeric", to: "non-instrinsic type" },
+        format: { decorator: "@numeric", to: "non-intrinsic type" },
         target,
       })
     );
@@ -222,14 +222,25 @@ export function isNumericType(program: Program, target: Type): boolean {
 
 // -- @error decorator ----------------------
 
+const errorDecorator = createDecoratorDefinition({
+  name: "@error",
+  target: ["Model"],
+  args: [],
+} as const);
+
 const errorKey = createStateSymbol("error");
 
-export function $error(context: DecoratorContext, target: Type) {
-  if (!validateDecoratorTarget(context, target, "@error", "Model")) {
+/**
+ * `@error` decorator marks a model as an error type.
+ *
+ * `@error` can only be specified on a model.
+ */
+export function $error(context: DecoratorContext, entity: Model, args: readonly []) {
+  if (!errorDecorator.validate(context, entity, args || [])) {
     return;
   }
 
-  context.program.stateSet(errorKey).add(target);
+  context.program.stateSet(errorKey).add(entity);
 }
 
 export function isErrorModel(program: Program, target: Type): boolean {
@@ -249,7 +260,7 @@ const formatValuesKey = createStateSymbol("formatValues");
  * For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
  * valid values for a string type's format:
  *
- * https://swagger.io/specification/#data-types
+ * https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes
  *
  * `@format` can be specified on a type that extends from `string` or a `string`-typed model property.
  */
@@ -561,8 +572,8 @@ export function isListOperation(program: Program, target: Operation): boolean {
 // -- @tag decorator ---------------------
 const tagPropertiesKey = createStateSymbol("tagProperties");
 
-// Set a tag on an operation or namespace.  There can be multiple tags on either an
-// operation or namespace.
+// Set a tag on an operation, interface, or namespace.  There can be multiple tags on an
+// operation, interface, or namespace.
 export function $tag(context: DecoratorContext, target: Type, tag: string) {
   if (!validateDecoratorTarget(context, target, "@tag", ["Operation", "Namespace", "Interface"])) {
     return;
@@ -666,7 +677,7 @@ export function $knownValues(context: DecoratorContext, target: Type, knownValue
     return;
   }
 
-  for (const member of knownValues.members) {
+  for (const member of knownValues.members.values()) {
     const intrinsicType = getIntrinsicModelName(context.program, getPropertyType(target));
     if (!isEnumMemberAssignableToType(intrinsicType, member)) {
       reportDiagnostic(context.program, {
@@ -881,4 +892,72 @@ export function getOverloadedOperation(
   operation: Operation
 ): Operation | undefined {
   return program.stateMap(overloadsOperationKey).get(operation);
+}
+
+const projectedNameKey = Symbol("projectedNameKey");
+const projectedNameDecorator = createDecoratorDefinition({
+  name: "@projectedName",
+  target: "Any",
+  args: [{ kind: "String" }, { kind: "String" }],
+} as const);
+
+/**
+ * `@projectedName` - Indicate that this entity should be renamed according to the given projection.
+ * @param context DecoratorContext
+ * @param target The that should have a different name.
+ * @param projectionName Name of the projection (e.g. "toJson", "toCSharp")
+ * @param projectedName Name of the type should have in the scope of the projection specified.
+ */
+export function $projectedName(
+  context: DecoratorContext,
+  target: Type,
+  projectionName: string,
+  projectedName: string
+) {
+  if (!projectedNameDecorator.validate(context, target, [projectionName, projectedName])) {
+    return;
+  }
+
+  let map: Map<string, string> = context.program.stateMap(projectedNameKey).get(target);
+  if (map === undefined) {
+    map = new Map();
+    context.program.stateMap(projectedNameKey).set(target, map);
+  }
+  map.set(projectionName, projectedName);
+}
+
+/**
+ * @param program Program
+ * @param target Target
+ * @returns Map of the projected names for the given entity.
+ */
+export function getProjectedNames(
+  program: Program,
+  target: Type
+): ReadonlyMap<string, string> | undefined {
+  return program.stateMap(projectedNameKey).get(target);
+}
+
+/**
+ * Get the projected name of the given entity for the given projection.
+ * @param program Program
+ * @param target Target
+ * @returns Projected name for the given projection
+ */
+export function getProjectedName(
+  program: Program,
+  target: Type,
+  projectionName: string
+): string | undefined {
+  return getProjectedNames(program, target)?.get(projectionName);
+}
+
+/**
+ * Get the projected name of the given entity for the given projection.
+ * @param program Program
+ * @param target Target
+ * @returns Projected name for the given projection
+ */
+export function hasProjectedName(program: Program, target: Type, projectionName: string): boolean {
+  return getProjectedNames(program, target)?.has(projectionName) ?? false;
 }

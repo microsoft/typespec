@@ -5,6 +5,7 @@ import {
   createStateAccessors,
   getParentTemplateNode,
   isNeverIndexer,
+  isProjectedProgram,
   isTemplateInstance,
   ProjectedProgram,
 } from "./index.js";
@@ -62,6 +63,7 @@ export function createProjector(
     projectedTypes,
     projections,
     projectType,
+    parentProjector: isProjectedProgram(program) ? program.projector : undefined,
   };
   const projectedNamespaces: Namespace[] = [];
   let projectingNamespaces = false;
@@ -426,7 +428,7 @@ export function createProjector(
   }
 
   function projectEnum(e: Enum) {
-    const members: EnumMember[] = [];
+    const members = new Map<string, EnumMember>();
     const decorators = projectDecorators(e.decorators);
     const projectedEnum = shallowClone(e, {
       members,
@@ -435,10 +437,10 @@ export function createProjector(
 
     projectedTypes.set(e, projectedEnum);
 
-    for (const member of e.members) {
+    for (const member of e.members.values()) {
       const projectedMember = projectType(member);
       if (projectedMember.kind === "EnumMember") {
-        members.push(projectedMember);
+        members.set(projectedMember.name, projectedMember);
       }
     }
 

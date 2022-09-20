@@ -140,6 +140,7 @@ export interface ProjectionApplication {
 }
 
 export interface Projector {
+  parentProjector?: Projector;
   projections: ProjectionApplication[];
   projectedTypes: Map<Type, Type>;
   projectType(type: Type): Type;
@@ -282,7 +283,7 @@ export interface Enum extends BaseType, DecoratedType {
   name: string;
   node: EnumStatementNode;
   namespace?: Namespace;
-  members: EnumMember[];
+  members: Map<string, EnumMember>;
 }
 
 export interface EnumMember extends BaseType, DecoratedType {
@@ -354,6 +355,9 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   namespace?: Namespace;
   variants: Map<string | symbol, UnionVariant>;
   expression: boolean;
+  /**
+   * @deprecated use variants
+   */
   readonly options: Type[];
 
   /**
@@ -1186,7 +1190,7 @@ export interface SourceFile {
    *
    * This is used only for diagnostics. The command line compiler will populate
    * it with the actual path from which the file was read, but it can actually
-   * be an aribitrary name for other scenarios.
+   * be an arbitrary name for other scenarios.
    */
   readonly path: string;
 
@@ -1474,6 +1478,12 @@ export interface CadlLibrary<
    * @param name Symbol name scoped with the library name.
    */
   createStateSymbol(name: string): symbol;
+
+  /**
+   * Returns a tracer scopped to the current library.
+   * All trace area logged via this tracer will be prefixed with the library name.
+   */
+  getTracer(program: Program): Tracer;
 }
 
 /**
@@ -1501,7 +1511,7 @@ export interface DecoratorContext {
   /**
    * Helper to call out to another decorator
    * @param decorator Other decorator function
-   * @param args Args to pass to other decorator funciton
+   * @param args Args to pass to other decorator function
    */
   call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,
@@ -1510,7 +1520,7 @@ export interface DecoratorContext {
   ): R;
 }
 
-export type LogLevel = "debug" | "verbose" | "info" | "warning" | "error";
+export type LogLevel = "trace" | "warning" | "error";
 
 export interface LogInfo {
   level: LogLevel;
@@ -1531,10 +1541,25 @@ export interface LogSink {
 }
 
 export interface Logger {
-  debug(message: string): void;
-  verbose(message: string): void;
-  info(message: string): void;
+  trace(message: string): void;
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
+}
+
+export interface TracerOptions {
+  filter?: string[];
+}
+export interface Tracer {
+  /**
+   * Trace
+   * @param area
+   * @param message
+   */
+  trace(area: string, message: string, target?: DiagnosticTarget): void;
+
+  /**
+   * @param area
+   */
+  sub(subarea: string): Tracer;
 }

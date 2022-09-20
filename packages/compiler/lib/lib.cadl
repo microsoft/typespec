@@ -88,6 +88,12 @@ model boolean {}
 @intrinsic("null")
 model null {}
 
+/**
+ * Represent a URI string.
+ */
+@format("uri")
+model uri is string;
+
 @deprecated("Map is deprecated, use Record<T> instead")
 model Map<K, V> is Record<V>;
 

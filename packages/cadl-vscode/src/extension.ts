@@ -56,14 +56,14 @@ async function launchLanguageClient(context: ExtensionContext) {
     if (typeof e === "string" && e.startsWith("Launching server using command")) {
       client?.error(
         [
-          `Cadl server exectuable was not found: '${exe.command}' is not found. Make sure either:`,
+          `Cadl server executable was not found: '${exe.command}' is not found. Make sure either:`,
           " - cadl is installed globally with `npm install -g @cadl-lang/compiler'.",
           " - cadl server path is configured with https://github.com/microsoft/cadl#installing-vs-code-extension.",
         ].join("\n"),
         undefined,
         false
       );
-      throw `Cadl server exectuable was not found: '${exe.command}' is not found.`;
+      throw `Cadl server executable was not found: '${exe.command}' is not found.`;
     } else {
       throw e;
     }
