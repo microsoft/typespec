@@ -1,7 +1,9 @@
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
 
-@serviceTitle("Widget Service")
+@service({
+  title: "Widget Service",
+})
 namespace DemoService;
 using Cadl.Rest;
 using Cadl.Http;
