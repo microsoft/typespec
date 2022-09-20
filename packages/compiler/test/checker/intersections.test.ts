@@ -30,6 +30,27 @@ describe("compiler: intersections", () => {
     ok(prop.properties.has("b"));
   });
 
+  it("intersection type belong to namespace it is declared in", async () => {
+    const { Foo } = (await runner.compile(`
+      namespace A {
+        model ModelA {name: string}
+      }
+      namespace B {
+        model ModelB {age: int32}
+      }
+      namespace C {
+        @test model Foo {
+          prop: A.ModelA & B.ModelB;
+        }
+      }
+    `)) as { Foo: Model };
+
+    const prop = Foo.properties.get("prop")!.type as Model;
+    strictEqual(prop.kind, "Model");
+    ok(prop.namespace);
+    strictEqual(prop.namespace.name, "C");
+  });
+
   it("allow intersections of template params", async () => {
     const { Foo } = (await runner.compile(`
       model Bar<A, B> {
