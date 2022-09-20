@@ -537,7 +537,7 @@ const diagnostics = {
   "service-decorator-duplicate": {
     severity: "error",
     messages: {
-      default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
+      default: `@service can only be set once per Cadl document.`,
     },
   },
   "service-namespace-duplicate": {

@@ -294,13 +294,13 @@ In OpenAPI, the `info` object [[v2][v2-info], [v3][v3-info]] contains metadata a
 
 In Cadl this information is specified with [decorators on the namespace][cadl-service-metadata].
 
-| OpenAPI `info` field | Cadl decorator    | Notes                    |
-| -------------------- | ----------------- | ------------------------ |
-| `title`              | `@serviceTitle`   | Cadl built-in decorator  |
-| `version`            | `@serviceVersion` | Cadl built-in decorator  |
-| `description`        | `@doc`            | Cadl built-in decorator  |
-| `license`            |                   | Not currently supported. |
-| `contact`            |                   | Not currently supported. |
+| OpenAPI `info` field | Cadl decorator         | Notes                    |
+| -------------------- | ---------------------- | ------------------------ |
+| `title`              | `@service({title: }`   | Cadl built-in decorator  |
+| `version`            | `@service({version: }` | Cadl built-in decorator  |
+| `description`        | `@doc`                 | Cadl built-in decorator  |
+| `license`            |                        | Not currently supported. |
+| `contact`            |                        | Not currently supported. |
 
 [cadl-service-metadata]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#service-definition-and-metadata
 

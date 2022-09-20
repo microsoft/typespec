@@ -369,7 +369,7 @@ describe("versioning: dependencies", () => {
   // Test for https://github.com/microsoft/cadl/issues/760
   it("have a nested service namespace", async () => {
     const { MyService } = (await runner.compile(`
-        @serviceTitle("Test")
+        @service({title: "Test"})
         @versionedDependency(Lib.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
@@ -391,7 +391,7 @@ describe("versioning: dependencies", () => {
   // Test for https://github.com/microsoft/cadl/issues/786
   it("have a nested service namespace and libraries sharing common parent namespace", async () => {
     const { MyService } = (await runner.compile(`
-        @serviceTitle("Test")
+        @service({title: "Test"})
         @versionedDependency(Lib.One.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {

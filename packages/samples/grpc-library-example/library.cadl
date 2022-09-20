@@ -8,7 +8,9 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
-@serviceTitle("Grpc Library sample")
+@service({
+  title: "Grpc Library sample",
+})
 namespace GrpcLibrarySample;
 
 @doc("""

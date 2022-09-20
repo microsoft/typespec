@@ -2,7 +2,9 @@ import "@cadl-lang/rest";
 import "@cadl-lang/openapi";
 
 @autoRoute
-@serviceTitle("Pet Store Service")
+@service({
+  title: "Pet Store Service",
+})
 @serviceVersion("2021-03-25")
 namespace PetStore;
 
