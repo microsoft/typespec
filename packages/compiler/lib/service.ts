@@ -51,12 +51,6 @@ export function $service(context: DecoratorContext, target: Namespace, options: 
   }
   const serviceDetails = getServiceDetails(context.program);
 
-  if (getServiceNamespace(context.program) !== context.program.getGlobalNamespaceType()) {
-    reportDiagnostic(context.program, {
-      code: "service-decorator-duplicate",
-      target,
-    });
-  }
   setServiceNamespace(context.program, target);
 
   const title = options.properties.get("title")?.type;
@@ -95,16 +89,6 @@ export function $serviceTitle(context: DecoratorContext, target: Type, title: st
     context.decoratorTarget
   );
   const serviceDetails = getServiceDetails(context.program);
-  if (serviceDetails.title) {
-    context.program.reportDiagnostic(
-      createDiagnostic({
-        code: "service-decorator-duplicate",
-        format: { name: "title" },
-        target,
-      })
-    );
-  }
-
   if (!validateDecoratorTarget(context, target, "@serviceTitle", "Namespace")) {
     return;
   }
@@ -128,16 +112,6 @@ export function $serviceVersion(context: DecoratorContext, target: Type, version
     "@serviceVersion decorator has been deprecated use @service({title: _}) instead.",
     context.decoratorTarget
   );
-  if (serviceDetails.version) {
-    context.program.reportDiagnostic(
-      createDiagnostic({
-        code: "service-decorator-duplicate",
-        format: { name: "version" },
-        target,
-      })
-    );
-  }
-
   if (!validateDecoratorTarget(context, target, "@serviceVersion", "Namespace")) {
     return;
   }
