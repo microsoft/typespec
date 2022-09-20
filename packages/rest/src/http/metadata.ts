@@ -347,17 +347,21 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   }
 
   function getState(type: Type, visibility: Visibility): State {
-    return stateMap.getOrAdd(type, visibility, (map) => {
-      map.set(visibility, State.ComputationInProgress);
-      switch (type.kind) {
-        case "Model":
-          return computeStateForModel(type, visibility);
-        case "Union":
-          return computeStateForUnion(type, visibility);
-        default:
-          return State.NotTransformed;
-      }
-    });
+    return stateMap.getOrAdd(
+      type,
+      visibility,
+      () => {
+        switch (type.kind) {
+          case "Model":
+            return computeStateForModel(type, visibility);
+          case "Union":
+            return computeStateForUnion(type, visibility);
+          default:
+            return State.NotTransformed;
+        }
+      },
+      State.ComputationInProgress
+    );
   }
 
   function computeStateForModel(model: Model, visibility: Visibility) {

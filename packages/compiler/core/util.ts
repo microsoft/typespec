@@ -320,8 +320,14 @@ export class MultiKeyMap<K extends readonly object[], V> {
 export class TwoLevelMap<K1, K2, V> extends Map<K1, Map<K2, V>> {
   /**
    * Get an existing entry in the map or add a new one if not found.
+   *
+   * @param key1 The first key
+   * @param key2 The second key
+   * @param create A callback to create the new entry when not found.
+   * @param sentinel An optional sentinel value to use to indicate that the
+   *                 entry is being created.
    */
-  getOrAdd(key1: K1, key2: K2, create: (map: Map<K2, V>) => V) {
+  getOrAdd(key1: K1, key2: K2, create: () => V, sentinel?: V): V {
     let map = this.get(key1);
     if (map === undefined) {
       map = new Map();
@@ -329,7 +335,10 @@ export class TwoLevelMap<K1, K2, V> extends Map<K1, Map<K2, V>> {
     }
     let entry = map.get(key2);
     if (entry === undefined) {
-      entry = create(map);
+      if (sentinel !== undefined) {
+        map.set(key2, sentinel);
+      }
+      entry = create();
       map.set(key2, entry);
     }
     return entry;

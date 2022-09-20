@@ -142,7 +142,8 @@ class Ref {
 }
 
 /**
- * Represents a schema that will be emitted. This is created when a non-inlined
+ * Represents a non-inlined schema that will be emitted as a definition.
+ * Computation of the OpenAPI schema object is deferred.
  */
 interface PendingSchema {
   /** The CADL type for the schema */
