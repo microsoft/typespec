@@ -98,7 +98,7 @@ cadl compile . --emit emitter1
 
 ### `--no-emit`
 
-Disable emitting. If emitters are still specified it will still run the emitter but emitters shouldn't be writting anything to disk.
+Disable emitting. If emitters are still specified it will still run the emitter but emitters shouldn't be writing anything to disk.
 
 Can also be used to hide the "There is no emitters warning".
 
