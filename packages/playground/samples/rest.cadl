@@ -1,6 +1,8 @@
 import "@cadl-lang/rest";
 
-@serviceTitle("Widget Service")
+@service({
+  title: "Widget Service",
+})
 namespace DemoService;
 
 using Cadl.Http;

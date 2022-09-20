@@ -24,11 +24,11 @@ const toc = {
     "type-relations",
   ],
   "Cadl Standard Library": [
+    "built-in-types",
     "projected-names",
-    // "built-in-types",
     // "built-in-decorators",
     // "http",
-    // "openapi",
+    "openapi",
   ],
   "Writing Cadl Libraries": [
     "basics",
