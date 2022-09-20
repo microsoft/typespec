@@ -2,7 +2,9 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
-@serviceTitle("Authenticated service")
+@service({
+  title: "Authenticated service",
+})
 @useAuth(
   // Here authentication can either be a
   // - ApiKey AND Basic Auth together

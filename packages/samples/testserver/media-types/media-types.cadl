@@ -4,7 +4,9 @@ import "@cadl-lang/openapi";
 using Cadl.Http;
 using OpenAPI;
 
-@serviceTitle("sample")
+@service({
+  title: "sample",
+})
 namespace Sample;
 
 @doc("Uri or local path to source data.")
