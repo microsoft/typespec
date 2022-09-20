@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from "url";
 import { MANIFEST } from "../../core/manifest.js";
 import { NodeHost } from "../../core/node-host.js";
-import { createProgram } from "../../core/program.js";
+import { compile } from "../../core/program.js";
 import { createTestHost, expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
 
 const libs = [
@@ -16,7 +16,7 @@ describe("compiler: libraries", () => {
         const mainFile = fileURLToPath(
           new URL(`../../../test/libraries/${lib}/main.cadl`, import.meta.url)
         );
-        const program = await createProgram(NodeHost, mainFile, { noEmit: true });
+        const program = await compile(NodeHost, mainFile, { noEmit: true });
         expectDiagnosticEmpty(program.diagnostics);
       });
     });
