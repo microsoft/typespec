@@ -350,18 +350,20 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     return stateMap.getOrAdd(
       type,
       visibility,
-      () => {
-        switch (type.kind) {
-          case "Model":
-            return computeStateForModel(type, visibility);
-          case "Union":
-            return computeStateForUnion(type, visibility);
-          default:
-            return State.NotTransformed;
-        }
-      },
+      () => computeState(type, visibility),
       State.ComputationInProgress
     );
+  }
+
+  function computeState(type: Type, visibility: Visibility): State {
+    switch (type.kind) {
+      case "Model":
+        return computeStateForModel(type, visibility);
+      case "Union":
+        return computeStateForUnion(type, visibility);
+      default:
+        return State.NotTransformed;
+    }
   }
 
   function computeStateForModel(model: Model, visibility: Visibility) {

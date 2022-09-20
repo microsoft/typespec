@@ -367,7 +367,7 @@ export class Queue<T> {
       throw new Error("Queue is empty.");
     }
 
-    const result = this.#elements[this.#headIndex] as T;
+    const result = this.#elements[this.#headIndex];
     this.#elements[this.#headIndex] = undefined!; // Don't keep referencing dequeued item
     this.#headIndex++;
 
