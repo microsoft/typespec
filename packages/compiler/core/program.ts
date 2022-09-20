@@ -819,7 +819,7 @@ export async function createProgram(
   }
 
   function getOption(key: string): string | undefined {
-    return (options.miscOptions || {})[key];
+    return (options.miscOptions || {})[key] as any;
   }
 
   function reportDiagnostic(diagnostic: Diagnostic): void {
