@@ -15,7 +15,7 @@ Cadl configuration can be provided via the `cadl-project.yaml` configuration fil
 
 Cadl compiler will look for the closest `cadl-project.yaml` file located in the same directory or closest parent directory
 
-For example if runnning `cadl compile /dev/foo/bar/main.cadl`, the compiler will lookup the file at the folllowing paths(In this order):
+For example if running `cadl compile /dev/foo/bar/main.cadl`, the compiler will lookup the file at the folllowing paths(In this order):
 
 - `/dev/foo/bar/cadl-project.yaml`
 - `/dev/foo/cadl-project.yaml`
@@ -37,14 +37,14 @@ There is cases where you might want to build different folders with different op
 
 For that you can use the `extends` property of the configuration file
 
-in `<mypkg>/cadl-project.yaml`
+in `<my-pkg>/cadl-project.yaml`
 
 ```yaml
 emitters:
   emitter1: true
 ```
 
-in `<mypkg>/proj2/cadl-project.yaml`, enable `emitter1` and `emitter2`
+in `<my-pkg>/proj2/cadl-project.yaml`, enable `emitter1` and `emitter2`
 
 ```yaml
 extends: ../cadl-project.yaml
@@ -52,7 +52,7 @@ emitters:
   emitter2: true
 ```
 
-in `<mypkg>/cadl-project.yaml`, enable `emitter1` and `emitter3`
+in `<my-pkg>/cadl-project.yaml`, enable `emitter1` and `emitter3`
 
 ```yaml
 extends: ../cadl-project.yaml
