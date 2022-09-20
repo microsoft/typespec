@@ -4,7 +4,7 @@ name: Deploy Jekyll with GitHub Pages dependencies preinstalled
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["main"]
+    branches: ["website-publish-gh-pages"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,18 +27,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      
+
       - name: Install dependencies
         run: npx @microsoft/rush update
-        
+
       - name: Build
         run: npx @microsoft/rush build --to @cadl-lang/website
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
