@@ -283,7 +283,7 @@ export async function findProjectRoot(
  *
  * This is likely non-optimal.
  */
-export class MultiKeyMap<K extends object[], V> {
+export class MultiKeyMap<K extends readonly object[], V> {
   #currentId = 0;
   #idMap = new WeakMap<object, number>();
   #items = new Map<string, V>();
