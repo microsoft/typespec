@@ -1,4 +1,4 @@
-import { Diagnostic, EventEmitter, SemanticNodeListener } from "@cadl-lang/compiler";
+import { Diagnostic, navigateProgram } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   DiagnosticMatch,
@@ -42,12 +42,8 @@ export function createRuleTester(runner: BasicTestRunner, rule: LintRule): RuleT
     await runner.diagnose(code, {
       miscOptions: { "disable-linter": true },
     });
-    const eventEmitter = new EventEmitter<SemanticNodeListener>();
     const listener = rule.create({ program: runner.program });
-    for (const [name, cb] of Object.entries(listener)) {
-      eventEmitter.on(name as any, cb as any);
-    }
-
+    navigateProgram(runner.program, listener);
     return runner.program.diagnostics;
   }
 }
