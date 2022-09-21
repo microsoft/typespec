@@ -1,5 +1,5 @@
 import {
-  createProgram,
+  compile,
   getNormalizedAbsolutePath,
   joinPaths,
   NodeHost,
@@ -119,7 +119,7 @@ async function resolveCadlBundleDefinition(libraryPath: string): Promise<CadlBun
 
 async function createRollupConfig(definition: CadlBundleDefinition): Promise<RollupOptions> {
   const libraryPath = definition.path;
-  const program = await createProgram(NodeHost, libraryPath, {
+  const program = await compile(NodeHost, libraryPath, {
     noEmit: true,
   });
   const jsFiles: string[] = [];

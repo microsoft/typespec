@@ -6,7 +6,8 @@ const cadlPrismDefinition = require("./cadl-prism-lang.js");
 const { findNavigationEntries } = require("./1tty-utils/navigation.js");
 const { renderMermaid } = require("./1tty-utils/mermaid.js");
 const feather = require("feather-icons");
-const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
+
+const basePath = process.env["CADL_WEBSITE_BASE_PATH"];
 
 module.exports = (eleventyConfig) => {
   eleventyConfig.addPassthroughCopy("js");
@@ -136,6 +137,6 @@ module.exports = (eleventyConfig) => {
       input: "src",
       output: "dist",
     },
-    pathPrefix: prNumber ? `/prs/${prNumber}/` : "/",
+    pathPrefix: basePath ?? "/",
   };
 };

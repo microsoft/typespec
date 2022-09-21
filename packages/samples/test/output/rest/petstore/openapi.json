@@ -1059,6 +1059,7 @@
           "nextLink": {
             "type": "string",
             "description": "The link to the next page of items",
+            "format": "uri",
             "x-cadl-name": "Rest.ResourceLocation<Pet>"
           }
         },
@@ -1113,6 +1114,7 @@
           "nextLink": {
             "type": "string",
             "description": "The link to the next page of items",
+            "format": "uri",
             "x-cadl-name": "Rest.ResourceLocation<Checkup>"
           }
         },
@@ -1194,6 +1196,7 @@
           "nextLink": {
             "type": "string",
             "description": "The link to the next page of items",
+            "format": "uri",
             "x-cadl-name": "Rest.ResourceLocation<Toy>"
           }
         },
@@ -1267,6 +1270,7 @@
           "nextLink": {
             "type": "string",
             "description": "The link to the next page of items",
+            "format": "uri",
             "x-cadl-name": "Rest.ResourceLocation<Owner>"
           }
         },

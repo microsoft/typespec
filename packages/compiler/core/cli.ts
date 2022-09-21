@@ -252,7 +252,7 @@ function compileInput(
         console.clear();
       }
 
-      currentCompilePromise = compile(resolve(path), host, compilerOptions)
+      currentCompilePromise = compile(host, resolve(path), compilerOptions)
         .then(onCompileFinished)
         .catch(internalCompilerError);
     } else {

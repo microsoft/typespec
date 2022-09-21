@@ -1076,6 +1076,7 @@ export function createChecker(program: Program): Checker {
       kind: "Model",
       node,
       name: "",
+      namespace: getParentNamespaceType(node),
       properties: properties,
       decorators: [],
       derivedModels: [],
@@ -1216,12 +1217,17 @@ export function createChecker(program: Program): Checker {
       | OperationStatementNode
       | EnumStatementNode
       | InterfaceStatementNode
+      | IntersectionExpressionNode
       | UnionStatementNode
       | ModelExpressionNode
+      | ProjectionModelExpressionNode
   ): Namespace | undefined {
     if (node === globalNamespaceType.node) return undefined;
 
-    if (node.kind === SyntaxKind.ModelExpression) {
+    if (
+      node.kind === SyntaxKind.ModelExpression ||
+      node.kind === SyntaxKind.IntersectionExpression
+    ) {
       let parent: Node | undefined = node.parent;
       while (parent !== undefined) {
         if (
@@ -1230,7 +1236,8 @@ export function createChecker(program: Program): Checker {
           parent.kind === SyntaxKind.EnumStatement ||
           parent.kind === SyntaxKind.InterfaceStatement ||
           parent.kind === SyntaxKind.UnionStatement ||
-          parent.kind === SyntaxKind.ModelExpression
+          parent.kind === SyntaxKind.ModelExpression ||
+          parent.kind === SyntaxKind.IntersectionExpression
         ) {
           return getParentNamespaceType(parent);
         } else {
@@ -2845,7 +2852,7 @@ export function createChecker(program: Program): Checker {
       kind: SyntaxKind.Identifier,
       pos: 0,
       end: 0,
-      sv: "__GLOBAL_NS",
+      sv: "global",
       symbol: undefined!,
       flags: NodeFlags.Synthetic,
     };
@@ -2860,7 +2867,9 @@ export function createChecker(program: Program): Checker {
       locals: createSymbolTable(),
       flags: NodeFlags.Synthetic,
     };
-    mutate(nsNode).symbol = createSymbol(nsNode, "__GLOBAL_NS", SymbolFlags.Namespace);
+
+    mutate(nsNode).symbol = createSymbol(nsNode, nsId.sv, SymbolFlags.Namespace);
+    mutate(nsNode.symbol.exports).set(nsId.sv, nsNode.symbol);
     return nsNode;
   }
 
