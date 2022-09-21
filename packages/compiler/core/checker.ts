@@ -2869,7 +2869,7 @@ export function createChecker(program: Program): Checker {
     };
 
     mutate(nsNode).symbol = createSymbol(nsNode, nsId.sv, SymbolFlags.Namespace);
-    mutate(nsNode.symbol.exports).set(nsNode.id.sv, nsNode.symbol);
+    mutate(nsNode.symbol.exports).set(nsId.sv, nsNode.symbol);
     return nsNode;
   }
 
