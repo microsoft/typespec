@@ -1,12 +1,12 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { OperationDetails } from "../src/http/route.js";
+import { HttpOperation } from "../src/http/types.js";
 import { compileOperations, getOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
   // Describe how routes should be included.
   describe("route inclusion", () => {
-    function expectRouteIncluded(routes: OperationDetails[], expectedRoutePaths: string[]) {
+    function expectRouteIncluded(routes: HttpOperation[], expectedRoutePaths: string[]) {
       const includedRoutes = routes.map((x) => x.path);
       deepStrictEqual(includedRoutes, expectedRoutePaths);
     }
@@ -70,7 +70,7 @@ describe("rest: routes", () => {
       it("operation in the service namespace are included", async () => {
         const routes = await getOperations(
           `
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService;
           @get op index(): void;
           `
@@ -85,7 +85,7 @@ describe("rest: routes", () => {
           @route("/not-included")
           @get op notIncluded(): void;
 
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService {
             @route("/included")
             @get op included(): void;
@@ -98,7 +98,7 @@ describe("rest: routes", () => {
       it("interface in the service namespace are included", async () => {
         const routes = await getOperations(
           `
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService;
           interface Foo {
             @get index(): void;
@@ -111,7 +111,7 @@ describe("rest: routes", () => {
       it("operation in namespace in the service namespace are be included", async () => {
         const routes = await getOperations(
           `
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService;
 
           namespace MyArea{ 
@@ -126,7 +126,7 @@ describe("rest: routes", () => {
       it("operation in a different namespace are not included", async () => {
         const routes = await getOperations(
           `
-          @serviceTitle("My Service")
+          @service({title: "My Service"})
           namespace MyService {
             @route("/included")
             @get op test(): string;
@@ -409,6 +409,17 @@ describe("rest: routes", () => {
     strictEqual(diagnostics[1].message, `Duplicate operation "get2" routed at "get /test".`);
   });
 
+  it("emit diagnostic if passing arguments to autoroute decorators", async () => {
+    const [_, diagnostics] = await compileOperations(`
+      @autoRoute("/test") op test(): string;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-argument-count",
+      message: "Expected 0 arguments, but got 1.",
+    });
+  });
+
   describe("operation parameters", () => {
     it("emit diagnostic for parameters with multiple http request annotations", async () => {
       const [_, diagnostics] = await compileOperations(`
@@ -503,6 +514,54 @@ describe("rest: routes", () => {
         },
       ]);
     });
+
+    it("resolves unannotated path parameters that are included in the route path", async () => {
+      const [routes, diagnostics] = await compileOperations(`
+        @route("/test/{name}/sub/{foo}")
+        @get op get(
+          name: string,
+          foo: string
+        ): string;
+
+        @route("/nested/{name}")
+        namespace A {
+          @route("sub")
+          namespace B {
+            @route("{bar}")
+            @get op get(
+              name: string,
+              bar: string
+            ): string;
+          }
+        }
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(routes, [
+        {
+          verb: "get",
+          path: "/test/{name}/sub/{foo}",
+          params: {
+            params: [
+              { type: "path", name: "name" },
+              { type: "path", name: "foo" },
+            ],
+            body: undefined,
+          },
+        },
+        {
+          verb: "get",
+          path: "/nested/{name}/sub/{bar}",
+          params: {
+            params: [
+              { type: "path", name: "name" },
+              { type: "path", name: "bar" },
+            ],
+            body: undefined,
+          },
+        },
+      ]);
+    });
   });
 
   describe("double @route", () => {
@@ -512,9 +571,10 @@ describe("rest: routes", () => {
         @route("/test")
         op get(): string;
     `);
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(diagnostics[0].message, "@route was defined twice on this operation.");
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/duplicate-route-decorator",
+        message: "@route was defined twice on this operation.",
+      });
     });
 
     it("emit diagnostic if specifying route twice on interface", async () => {
@@ -525,9 +585,10 @@ describe("rest: routes", () => {
           get(): string
         }
     `);
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(diagnostics[0].message, "@route was defined twice on this interface.");
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/duplicate-route-decorator",
+        message: "@route was defined twice on this interface.",
+      });
     });
 
     it("emit diagnostic if namespace have route but different values", async () => {
@@ -545,12 +606,10 @@ describe("rest: routes", () => {
         }
     `);
 
-      strictEqual(diagnostics.length, 1);
-      strictEqual(diagnostics[0].code, "@cadl-lang/rest/duplicate-route-decorator");
-      strictEqual(
-        diagnostics[0].message,
-        "@route was defined twice on this namespace and has different values."
-      );
+      expectDiagnostics(diagnostics, {
+        code: "@cadl-lang/rest/duplicate-route-decorator",
+        message: "@route was defined twice on this namespace and has different values.",
+      });
     });
 
     it("merge namespace if @route value is the same", async () => {

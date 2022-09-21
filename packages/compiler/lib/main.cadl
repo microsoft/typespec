@@ -1,2 +1,3 @@
 import "../dist/lib/decorators.js";
 import "./lib.cadl";
+import "./projected-names.cadl";

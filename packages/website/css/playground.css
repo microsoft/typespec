@@ -1,0 +1,16 @@
+.play-iframe iframe {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 0.1px solid;
+  left: 0;
+  top: 0;
+}
+
+.play-iframe {
+  display: flex;
+  flex: 1 0 auto;
+  margin: 1.5rem;
+  overflow: hidden;
+  height: 70vh;
+}

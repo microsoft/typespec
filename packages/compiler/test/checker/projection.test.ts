@@ -1,19 +1,20 @@
-import { ok, strictEqual } from "assert";
-import { Program } from "../../core/program.js";
+import { fail, ok, strictEqual } from "assert";
+import { Program, projectProgram } from "../../core/program.js";
+import { createProjector } from "../../core/projector.js";
 import {
   DecoratorArgumentValue,
   DecoratorContext,
-  EnumMemberType,
-  EnumType,
-  InterfaceType,
-  ModelType,
-  NamespaceType,
-  NumericLiteralType,
-  OperationType,
+  Enum,
+  EnumMember,
+  Interface,
+  Model,
+  Namespace,
+  NumericLiteral,
+  Operation,
   ProjectionApplication,
-  StringLiteralType,
+  StringLiteral,
   Type,
-  UnionType,
+  Union,
 } from "../../core/types.js";
 import { getDoc } from "../../lib/decorators.js";
 import { createTestHost, TestHost } from "../../testing/index.js";
@@ -46,7 +47,7 @@ describe("cadl: projections", () => {
         }
       }
      `;
-    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as Model;
     strictEqual(
       result.namespace?.namespace?.name,
       "Bar",
@@ -69,7 +70,7 @@ describe("cadl: projections", () => {
       model MyModel {}
      }
      `;
-    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as Model;
     strictEqual(result.namespace?.namespace?.name, "MyOrg");
   });
 
@@ -77,7 +78,7 @@ describe("cadl: projections", () => {
   it("projects nested namespaces with common parent and decorator referencing each others content", async () => {
     const sym = Symbol("test-ref");
     testHost.addJsFile("./ref.js", {
-      $ref: (context: DecoratorContext, target: NamespaceType, value: Type) =>
+      $ref: (context: DecoratorContext, target: Namespace, value: Type) =>
         context.program.stateMap(sym).set(target, value),
     });
     const code = `
@@ -97,11 +98,12 @@ describe("cadl: projections", () => {
 
      }
      `;
-    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as Model;
     strictEqual(result.namespace?.namespace?.name, "MyOrg");
     const map = testHost.program.stateMap(sym);
     const myModelProjected = testHost.program
-      .currentProjector!.projectedGlobalNamespace!.namespaces.get("Lib")
+      .getGlobalNamespaceType()
+      .namespaces.get("Lib")
       ?.namespaces.get("One")
       ?.models.get("MyModel");
     const refs = [...map.values()];
@@ -131,10 +133,10 @@ describe("cadl: projections", () => {
       }
     `;
 
-    const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+    const result = (await testProjection(code, [projection("v", 1)])) as Model;
     strictEqual(result.properties.size, 1);
 
-    const result2 = (await testProjection(code, [projection("v", 2)])) as ModelType;
+    const result2 = (await testProjection(code, [projection("v", 2)])) as Model;
     strictEqual(result2.properties.size, 2);
   });
 
@@ -152,7 +154,7 @@ describe("cadl: projections", () => {
         }
       }
     `;
-    const result = (await testProjection(code)) as ModelType;
+    const result = (await testProjection(code)) as Model;
     strictEqual(getDoc(testHost.program, result), "This is a model Foo");
     strictEqual(getDoc(testHost.program, result.properties.get("a")!), "Prop");
   });
@@ -160,7 +162,7 @@ describe("cadl: projections", () => {
   it("projects decorated types before projecting", async () => {
     let props;
     testHost.addJsFile("test.js", {
-      $checkPropCount(_: Program, t: ModelType) {
+      $checkPropCount(_: Program, t: Model) {
         props = t.properties.size;
       },
     });
@@ -203,7 +205,7 @@ describe("cadl: projections", () => {
         }
       `;
 
-    const result = (await testProjection(code)) as ModelType;
+    const result = (await testProjection(code)) as Model;
     const value = result.properties.get("value");
     ok(value);
     strictEqual(value.type.kind, "Number");
@@ -215,17 +217,17 @@ describe("cadl: projections", () => {
       const removedOnKey = Symbol("removedOn");
       const renamedFromKey = Symbol("renamedFrom");
       testHost.addJsFile("versioning.js", {
-        $added({ program }: DecoratorContext, t: Type, v: NumericLiteralType) {
+        $added({ program }: DecoratorContext, t: Type, v: NumericLiteral) {
           program.stateMap(addedOnKey).set(t, v);
         },
-        $removed({ program }: DecoratorContext, t: Type, v: NumericLiteralType) {
+        $removed({ program }: DecoratorContext, t: Type, v: NumericLiteral) {
           program.stateMap(removedOnKey).set(t, v);
         },
         $renamedFrom(
           { program }: DecoratorContext,
           t: Type,
-          v: NumericLiteralType,
-          oldName: StringLiteralType
+          v: NumericLiteral,
+          oldName: StringLiteral
         ) {
           const record = { v, oldName };
           program.stateMap(renamedFromKey).set(t, record);
@@ -284,14 +286,14 @@ describe("cadl: projections", () => {
         }
       `;
 
-      const result = (await testProjection(code, [projection("v", 1)])) as ModelType;
+      const result = (await testProjection(code, [projection("v", 1)])) as Model;
       strictEqual(result.properties.size, 4);
-      const resultNested = result.properties.get("e")!.type as ModelType;
+      const resultNested = result.properties.get("e")!.type as Model;
       strictEqual(resultNested.properties.size, 1);
 
-      const result2 = (await testProjection(code, [projection("v", 2)])) as ModelType;
+      const result2 = (await testProjection(code, [projection("v", 2)])) as Model;
       strictEqual(result2.properties.size, 4);
-      const resultNested2 = result2.properties.get("e")!.type as ModelType;
+      const resultNested2 = result2.properties.get("e")!.type as Model;
       strictEqual(resultNested2.properties.size, 2);
     });
 
@@ -318,21 +320,21 @@ describe("cadl: projections", () => {
         }
         `;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       const propOne = result.properties.get("propOne")!;
       ok(propOne, "has propOne");
-      const nestedProp = (propOne.type as ModelType).properties.get("nestedProp")!;
+      const nestedProp = (propOne.type as Model).properties.get("nestedProp")!;
       ok(nestedProp, "has nestedProp");
 
       const backResult = (await testProjection(
         code,
         [projection("test", [], "from")],
         result
-      )) as ModelType;
+      )) as Model;
 
       const prop_one = backResult.properties.get("prop_one")!;
       ok(prop_one, "has prop_one");
-      const nested_prop = (prop_one.type as ModelType).properties.get("nested_prop")!;
+      const nested_prop = (prop_one.type as Model).properties.get("nested_prop")!;
       ok(nested_prop, "has nested_prop");
     });
 
@@ -349,7 +351,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Model");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.models.get("Bar"), result);
@@ -373,13 +375,13 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Intrinsic");
       strictEqual(result.name, "void");
     });
 
     describe("renaming properties", () => {
-      async function testRenameProjection(verb: string, modelCode?: string): Promise<ModelType> {
+      async function testRenameProjection(verb: string, modelCode?: string): Promise<Model> {
         const defaultModelCode = `
           @test model Foo {
             foo_prop: string;
@@ -397,7 +399,7 @@ describe("cadl: projections", () => {
             }
           }
         `;
-        return (await testProjection(code)) as ModelType;
+        return (await testProjection(code)) as Model;
       }
 
       it("can round trip", async () => {
@@ -421,14 +423,14 @@ describe("cadl: projections", () => {
             }
           }
           `;
-        const cased = (await testProjection(code, [projection("toCamelCase")])) as ModelType;
+        const cased = (await testProjection(code, [projection("toCamelCase")])) as Model;
         ok(cased.properties.has("fooProp"));
         ok(cased.properties.has("barProp"));
         const uncased = (await testProjection(
           code,
           [projection("toCamelCase", [], "from")],
           cased
-        )) as ModelType;
+        )) as Model;
         ok(uncased.properties.has("foo_prop"));
         ok(uncased.properties.has("bar_prop"));
       });
@@ -498,16 +500,16 @@ describe("cadl: projections", () => {
       ${projectionCode(body)}
     `;
 
-    function assertHasVariant(union: UnionType, name: string) {
+    function assertHasVariant(union: Union, name: string) {
       const variant = union.variants.get(name);
       ok(variant, `Union ${union.name ?? "anonymous"} should have variant named ${name}`);
       strictEqual(variant.name, name);
     }
 
-    function assertVariantType(union: UnionType, variantName: string, typeName: string) {
+    function assertVariantType(union: Union, variantName: string, typeName: string) {
       assertHasVariant(union, variantName);
       const variant = union.variants.get(variantName)!;
-      strictEqual((variant.type as ModelType).name, typeName);
+      strictEqual((variant.type as Model).name, typeName);
     }
 
     it("can rename itself", async () => {
@@ -521,7 +523,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Union");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.unions.get("Bar"), result);
@@ -533,7 +535,7 @@ describe("cadl: projections", () => {
         });
       `);
 
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       assertHasVariant(result, "barProp");
       assertHasVariant(result, "bazProp");
     });
@@ -542,21 +544,21 @@ describe("cadl: projections", () => {
       const code = defaultCode(`
         self.bar_prop::setType(int16);
       `);
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       assertVariantType(result, "bar_prop", "int16");
     });
     it("can add variant types", async () => {
       const code = defaultCode(`
         self::addVariant("new", int16);
       `);
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       assertVariantType(result, "new", "int16");
     });
     it("can remove variant types", async () => {
       const code = defaultCode(`
         self::deleteVariant("bar_prop");
       `);
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       ok(!result.variants.has("bar_prop"));
     });
 
@@ -575,7 +577,7 @@ describe("cadl: projections", () => {
         }
       `;
 
-      const result = (await testProjection(code)) as UnionType;
+      const result = (await testProjection(code)) as Union;
       strictEqual(result.variants.size, 1);
       ok(result.variants.has("a"));
       ok(!result.variants.has("b"));
@@ -597,8 +599,11 @@ describe("cadl: projections", () => {
         }
         `
       );
-      const { Foo } = (await testHost.compile("main.cadl")) as { Foo: OperationType };
-      const result = testHost.program.checker.project(Foo, Foo.projections[0].to!) as ModelType;
+      const { Foo } = (await testHost.compile("main.cadl")) as { Foo: Operation };
+      const result = testHost.program.checker.project(
+        Foo,
+        Foo.projections.find((x) => x.id.sv === "test")!.to!
+      ) as Model;
       strictEqual(result.properties.get("x")!.type.kind, "Model");
       strictEqual(result.properties.get("y")!.type.kind, "Intrinsic");
     });
@@ -614,7 +619,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Operation");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.operations.get("Bar"), result);
@@ -644,7 +649,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Interface");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.interfaces.get("Bar"), result);
@@ -652,7 +657,7 @@ describe("cadl: projections", () => {
 
     it("can add members", async () => {
       const code = defaultCode(`self::addOperation("bar", {param: string}, void);`);
-      const FooProj = (await testProjection(code)) as InterfaceType;
+      const FooProj = (await testProjection(code)) as Interface;
       const newOp = FooProj.operations.get("bar");
       ok(newOp);
       strictEqual(newOp.parameters.properties.size, 1);
@@ -661,14 +666,14 @@ describe("cadl: projections", () => {
 
     it("can remove members", async () => {
       const code = defaultCode(`self::deleteOperation("op1");`);
-      const FooProj = (await testProjection(code)) as InterfaceType;
+      const FooProj = (await testProjection(code)) as Interface;
 
       strictEqual(FooProj.operations.size, 0);
     });
 
     it("can rename members", async () => {
       const code = defaultCode(`self::renameOperation("op1", "op2");`);
-      const FooProj = (await testProjection(code)) as InterfaceType;
+      const FooProj = (await testProjection(code)) as Interface;
 
       ok(FooProj.operations.get("op2"));
     });
@@ -698,7 +703,7 @@ describe("cadl: projections", () => {
           }
         }`;
 
-      const result = (await testProjection(code)) as ModelType;
+      const result = (await testProjection(code)) as Model;
       strictEqual(result.kind, "Enum");
       strictEqual(result.name, "Bar");
       strictEqual(result.namespace!.enums.get("Bar"), result);
@@ -706,26 +711,27 @@ describe("cadl: projections", () => {
 
     it("can add members", async () => {
       const code = defaultCode(`self::addMember("three", 3);`);
-      const result = (await testProjection(code)) as EnumType;
-      strictEqual(result.members.length, 3);
-      const newMember = result.members[2];
+      const result = (await testProjection(code)) as Enum;
+      strictEqual(result.members.size, 3);
+      const newMember = result.members.get("three")!;
       strictEqual(newMember.name, "three");
       strictEqual(newMember.value, 3);
     });
     it("can delete members", async () => {
       const code = defaultCode(`self::deleteMember("two");`);
-      const result = (await testProjection(code)) as EnumType;
-      strictEqual(result.members.length, 1);
+      const result = (await testProjection(code)) as Enum;
+      strictEqual(result.members.size, 1);
     });
+
     it("can rename members", async () => {
       const code = defaultCode(`self::renameMember("two", "mewtwo");`);
-      const result = (await testProjection(code)) as EnumType;
-      const newMember = result.members[1];
+      const result = (await testProjection(code)) as Enum;
+      const newMember = result.members.get("mewtwo")!;
       strictEqual(newMember.name, "mewtwo");
     });
 
     // Issue here happens when an enum member gets referenced before the enum and so gets projected before the enum creating a different projected type as the projected enum.
-    it("project enum correctly when enum memeber is referenced first", async () => {
+    it("project enum correctly when enum member is referenced first", async () => {
       const result = (await testProjection(`
         @test model Foo {
           a: Bar.a;
@@ -734,14 +740,189 @@ describe("cadl: projections", () => {
         
         enum Bar {a, b}
       
-      `)) as ModelType;
+      `)) as Model;
 
-      const a = result.properties.get("a")!.type as EnumMemberType;
+      const a = result.properties.get("a")!.type as EnumMember;
       const Bar = result.properties.get("bar")!.type;
       strictEqual(a.enum, Bar);
     });
   });
 
+  // TODO with realm move that to realm testing area.
+  it("[REALM] any program/projected program get access to every type state", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      @doc("abc")
+      @test model Foo {}
+
+      #suppress "projections-are-experimental"
+      projection Foo#test {
+        to { self::rename("Bar"); }
+      }
+    `
+    );
+    const { Foo } = await testHost.compile("main.cadl");
+    const program = testHost.program;
+    strictEqual(getDoc(program, Foo), "abc");
+
+    const projectedProgram = projectProgram(program, [{ projectionName: "test", arguments: [] }]);
+    const ProjectedFoo = projectedProgram.projector.projectedTypes.get(Foo);
+    ok(ProjectedFoo);
+    strictEqual(
+      getDoc(projectedProgram, Foo),
+      "abc",
+      "Can access state from a non projected type using a projected program"
+    );
+    strictEqual(
+      getDoc(program, ProjectedFoo),
+      "abc",
+      "Can access state from a projected type using the original program"
+    );
+    strictEqual(
+      getDoc(projectedProgram, ProjectedFoo),
+      "abc",
+      "Can access state from a projected type using a projected program"
+    );
+  });
+
+  describe("template types", () => {
+    describe("does NOT run decorators when projecting template declarations", () => {
+      async function expectMarkDecoratorNotCalled(code: string) {
+        testHost.addJsFile("mark.js", {
+          $mark: () => fail("Should not have called decorator"),
+        });
+
+        const fullCode = `
+      import "./mark.js";
+
+      ${code}
+
+      #suppress "projections-are-experimental"
+      projection model#test {
+          to {
+            
+          }
+        }
+     `;
+        await testProjection(fullCode, [projection("test")]);
+      }
+
+      it("on model", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+      });
+
+      it("on model properties", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+        `);
+      });
+
+      it("on model properties (on operation)", async () => {
+        await expectMarkDecoratorNotCalled(`
+          op foo<T>(): {
+            @mark(T)
+            prop: string;
+          };
+        `);
+      });
+
+      it("on model properties (nested)", async () => {
+        await expectMarkDecoratorNotCalled(`
+          model Foo<T> {
+            nested: {
+              @mark(T)
+              prop: string;
+            }
+          }
+        `);
+      });
+    });
+
+    describe("run decorators when projecting template instance", () => {
+      async function expectMarkDecoratorCalledTimes(code: string, amount: number) {
+        let run = 0;
+
+        testHost.addJsFile("mark.js", {
+          $mark: () => run++,
+        });
+
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+        import "./mark.js";
+  
+        ${code}
+  
+        #suppress "projections-are-experimental"
+        projection model#test {
+            to {
+              
+            }
+          }
+       `
+        );
+        await testHost.compile("main.cadl");
+        run = 0; // reset we only intrested after projection
+        createProjector(testHost.program, [
+          {
+            arguments: [],
+            projectionName: "test",
+          },
+        ]);
+        strictEqual(run, amount);
+      }
+
+      it("on model", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+
+          model Instance is Foo<string>;
+        `,
+          1
+        );
+      });
+
+      it("on model properties", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          model Foo<T> {
+            @mark(T)
+            prop: string;
+          }
+          model Instance is Foo<string>;
+        `,
+          1
+        );
+      });
+
+      it("on model properties (on operation)", async () => {
+        await expectMarkDecoratorCalledTimes(
+          `
+          op foo<T>(): {
+            @mark(T)
+            prop: string;
+          };
+
+          op instance is foo<string>;
+        `,
+          1
+        );
+      });
+    });
+  });
   const projectionCode = (body: string) => `
       #suppress "projections-are-experimental"
       projection Foo#test {
@@ -763,7 +944,7 @@ describe("cadl: projections", () => {
   ): Promise<Type> {
     testHost.addCadlFile("main.cadl", code);
     const { Foo } = await testHost.compile("main.cadl");
-    const projector = testHost.program.enableProjections(projections, startNode);
+    const projector = createProjector(testHost.program, projections, startNode).projector;
     return projector.projectedTypes.get(startNode ?? Foo)!;
   }
 });

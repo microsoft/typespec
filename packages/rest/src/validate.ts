@@ -1,8 +1,9 @@
 import { Program } from "@cadl-lang/compiler";
-import { getAllRoutes } from "./http/route.js";
+import { getAllHttpServices } from "./http/operations.js";
 
 export function $onValidate(program: Program) {
-  const [, diagnostics] = getAllRoutes(program);
+  const [, diagnostics] = getAllHttpServices(program);
+
   if (diagnostics.length > 0) {
     program.reportDiagnostics(diagnostics);
   }

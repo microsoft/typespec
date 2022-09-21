@@ -10,14 +10,23 @@ import {
   DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
+  DocumentFormattingParams,
+  DocumentHighlight,
+  DocumentHighlightKind,
+  DocumentHighlightParams,
+  DocumentSymbol,
   DocumentSymbolParams,
   FileEvent,
   FoldingRange,
   FoldingRangeParams,
+  Hover,
+  HoverParams,
   InitializedParams,
   InitializeParams,
   InitializeResult,
   Location,
+  MarkupContent,
+  MarkupKind,
   PrepareRenameParams,
   PublishDiagnosticsParams,
   Range,
@@ -28,8 +37,6 @@ import {
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
-  SymbolInformation,
-  SymbolKind,
   TextDocumentChangeEvent,
   TextDocumentIdentifier,
   TextDocumentSyncKind,
@@ -38,15 +45,17 @@ import {
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import { loadCadlConfigForPath } from "../config/config-loader.js";
+import { defaultConfig, findCadlConfigPath, loadCadlConfigFile } from "../config/config-loader.js";
+import { CadlConfig } from "../config/types.js";
 import {
   compilerAssert,
   createSourceFile,
   formatDiagnostic,
   getSourceLocation,
 } from "../core/diagnostics.js";
+import { formatCadl } from "../core/formatter.js";
 import { CompilerOptions } from "../core/options.js";
-import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
+import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
   getAnyExtensionFromPath,
@@ -56,7 +65,7 @@ import {
   joinPaths,
   resolvePath,
 } from "../core/path-utils.js";
-import { createProgram, Program } from "../core/program.js";
+import { compile as compileProgram, Program } from "../core/program.js";
 import {
   createScanner,
   isKeyword,
@@ -76,6 +85,7 @@ import {
   StringLiteralNode,
   SymbolFlags,
   SyntaxKind,
+  TextRange,
   Type,
 } from "../core/types.js";
 import {
@@ -86,9 +96,11 @@ import {
   loadFile,
 } from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
+import { getSymbolStructure } from "./symbol-structure.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
+  throwInternalErrors?: boolean;
   getOpenDocumentByURL(url: string): TextDocument | undefined;
   sendDiagnostics(params: PublishDiagnosticsParams): void;
   log(message: string): void;
@@ -97,26 +109,30 @@ export interface ServerHost {
 export interface Server {
   readonly pendingMessages: readonly string[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
+  compile(document: TextDocument | TextDocumentIdentifier): Promise<Program | undefined>;
   initialize(params: InitializeParams): Promise<InitializeResult>;
   initialized(params: InitializedParams): void;
   workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
   watchedFilesChanged(params: DidChangeWatchedFilesParams): void;
+  formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]>;
   gotoDefinition(params: DefinitionParams): Promise<Location[]>;
   complete(params: CompletionParams): Promise<CompletionList>;
   findReferences(params: ReferenceParams): Promise<Location[]>;
+  findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  getHover(params: HoverParams): Promise<Hover>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
-  getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]>;
+  getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   log(message: string, details?: any): void;
 }
 
 export interface ServerSourceFile extends SourceFile {
-  // Keep track of the open doucment (if any) associated with a source file.
+  // Keep track of the open document (if any) associated with a source file.
   readonly document?: TextDocument;
 }
 
@@ -162,6 +178,7 @@ export interface SemanticToken {
 interface CachedFile {
   type: "file";
   file: SourceFile;
+  version?: number;
 
   // Cache additional data beyond the raw text of the source file. Currently
   // used only for JSON.parse result of package.json.
@@ -172,6 +189,7 @@ interface CachedError {
   type: "error";
   error: unknown;
   data?: any;
+  version?: undefined;
 }
 
 interface KeywordArea {
@@ -184,6 +202,9 @@ interface KeywordArea {
 const serverOptions: CompilerOptions = {
   noEmit: true,
   designTimeBuild: true,
+  parseOptions: {
+    comments: true,
+  },
 };
 
 const keywords = [
@@ -215,7 +236,7 @@ export function createServer(host: ServerHost): Server {
   // could give us back an equivalent but non-identical URL but the original
   // URL is used as a key into the opened documents and so we must reproduce
   // it exactly.
-  const pathToURLMap: Map<string, string> = new Map();
+  const pathToURLMap = new Map<string, string>();
 
   // Cache all file I/O. Only open documents are sent over the LSP pipe. When
   // the compiler reads a file that isn't open, we use this cache to avoid
@@ -223,6 +244,8 @@ export function createServer(host: ServerHost): Server {
   // a file change.
   const fileSystemCache = createFileSystemCache();
   const compilerHost = createCompilerHost();
+
+  const oldPrograms = new Map<string, Program>();
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
@@ -235,20 +258,24 @@ export function createServer(host: ServerHost): Server {
     get workspaceFolders() {
       return workspaceFolders;
     },
+    compile,
     initialize,
     initialized,
     workspaceFoldersChanged,
     watchedFilesChanged,
+    formatDocument,
     gotoDefinition,
     documentClosed,
     complete,
     findReferences,
+    findDocumentHighlight,
     prepareRename,
     rename,
     getSemanticTokens,
     buildSemanticTokens,
     checkChange,
     getFoldingRanges,
+    getHover,
     getDocumentSymbols,
     log,
   };
@@ -265,7 +292,9 @@ export function createServer(host: ServerHost): Server {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       definitionProvider: true,
       foldingRangeProvider: true,
+      hoverProvider: true,
       documentSymbolProvider: true,
+      documentHighlightProvider: true,
       completionProvider: {
         resolveProvider: false,
         triggerCharacters: [".", "@", "/"],
@@ -279,6 +308,7 @@ export function createServer(host: ServerHost): Server {
       renameProvider: {
         prepareProvider: true,
       },
+      documentFormattingProvider: true,
     };
 
     if (params.capabilities.workspace?.workspaceFolders) {
@@ -364,7 +394,7 @@ export function createServer(host: ServerHost): Server {
   ): Promise<T | Program | undefined> {
     const path = await getPath(document);
     const mainFile = await getMainFileForDocument(path);
-    const config = await loadCadlConfigForPath(compilerHost, mainFile);
+    const config = await getConfig(mainFile, path);
 
     const options = {
       ...serverOptions,
@@ -377,7 +407,8 @@ export function createServer(host: ServerHost): Server {
 
     let program: Program;
     try {
-      program = await createProgram(compilerHost, mainFile, options);
+      program = await compileProgram(compilerHost, mainFile, options, oldPrograms.get(mainFile));
+      oldPrograms.set(mainFile, program);
       if (!upToDate(document)) {
         return undefined;
       }
@@ -385,7 +416,8 @@ export function createServer(host: ServerHost): Server {
       if (mainFile !== path && !program.sourceFiles.has(path)) {
         // If the file that changed wasn't imported by anything from the main
         // file, retry using the file itself as the main file.
-        program = await createProgram(compilerHost, path, options);
+        program = await compileProgram(compilerHost, path, options, oldPrograms.get(path));
+        oldPrograms.set(path, program);
       }
 
       if (!upToDate(document)) {
@@ -403,6 +435,9 @@ export function createServer(host: ServerHost): Server {
 
       return program;
     } catch (err: any) {
+      if (host.throwInternalErrors) {
+        throw err;
+      }
       host.sendDiagnostics({
         uri: document.uri,
         diagnostics: [
@@ -420,9 +455,34 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  async function getConfig(mainFile: string, path: string): Promise<CadlConfig> {
+    const configPath = await findCadlConfigPath(compilerHost, mainFile);
+    if (!configPath) {
+      return defaultConfig;
+    }
+
+    const cached = await fileSystemCache.get(configPath);
+    if (cached?.data) {
+      return cached.data;
+    }
+
+    const config = await loadCadlConfigFile(compilerHost, configPath);
+    await fileSystemCache.setData(configPath, config);
+    return config;
+  }
+
+  async function getScript(document: TextDocument | TextDocumentIdentifier) {
+    const file = await compilerHost.readFile(await getPath(document));
+    const cached = compilerHost.parseCache?.get(file);
+    return cached ?? (await compile<CadlScriptNode>(document, (_, __, script) => script));
+  }
+
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
-    const file = await compilerHost.readFile(await getPath(params.textDocument));
-    const ast = parse(file, { comments: true });
+    const ast = await getScript(params.textDocument);
+    if (!ast) {
+      return [];
+    }
+    const file = ast.file;
     const ranges: FoldingRange[] = [];
     let rangeStartSingleLines = -1;
     for (let i = 0; i < ast.comments.length; i++) {
@@ -470,52 +530,32 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function getSymbolNameAndKind(node: Node): { name: string; kind: SymbolKind } | undefined {
-    switch (node.kind) {
-      case SyntaxKind.NamespaceStatement:
-        return { name: node.id.sv, kind: SymbolKind.Namespace };
-      case SyntaxKind.CadlScript:
-        return { name: node.id.sv, kind: SymbolKind.File };
-      case SyntaxKind.EnumStatement:
-        return { name: node.id.sv, kind: SymbolKind.Enum };
-      case SyntaxKind.InterfaceStatement:
-        return { name: node.id.sv, kind: SymbolKind.Interface };
-      case SyntaxKind.OperationStatement:
-        return { name: node.id.sv, kind: SymbolKind.Function };
-      case SyntaxKind.ModelStatement:
-        return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.ModelProperty:
-        if (node.id.kind === SyntaxKind.StringLiteral) {
-          return { name: node.id.value, kind: SymbolKind.Struct };
-        }
-        return { name: node.id.sv, kind: SymbolKind.Struct };
-      case SyntaxKind.UnionStatement:
-        return { name: node.id.sv, kind: SymbolKind.Enum };
-      default:
-        return undefined;
+  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
+    const ast = await getScript(params.textDocument);
+    if (!ast) {
+      return [];
     }
+
+    return getSymbolStructure(ast);
   }
 
-  async function getDocumentSymbols(params: DocumentSymbolParams): Promise<SymbolInformation[]> {
-    const file = await compilerHost.readFile(await getPath(params.textDocument));
-    const ast = parse(file);
-    const symbols: SymbolInformation[] = [];
-    visitChildren(ast, addSymbolsForNode);
-
-    function addSymbolsForNode(node: Node) {
-      const symbolNode = getSymbolNameAndKind(node);
-      if (symbolNode !== undefined) {
-        const start = file.getLineAndCharacterOfPosition(node.pos);
-        const end = file.getLineAndCharacterOfPosition(node.end);
-        symbols.push({
-          name: symbolNode.name,
-          kind: symbolNode.kind,
-          location: Location.create(params.textDocument.uri, Range.create(start, end)),
-        });
-      }
-      visitChildren(node, addSymbolsForNode);
-    }
-    return symbols;
+  async function findDocumentHighlight(
+    params: DocumentHighlightParams
+  ): Promise<DocumentHighlight[]> {
+    let highlights: DocumentHighlight[] = [];
+    await compile(params.textDocument, (program, document, file) => {
+      const identifiers = findReferenceIdentifiers(
+        program,
+        file,
+        document.offsetAt(params.position),
+        [file]
+      );
+      highlights = identifiers.map((identifier) => ({
+        range: getRange(identifier, file.file),
+        kind: DocumentHighlightKind.Read,
+      }));
+    });
+    return highlights;
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
@@ -579,11 +619,87 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  /**
+   * Get the detailed documentation of a type.
+   */
+  function getTypeDetails(program: Program, type: Type): string {
+    if (type.kind === "Intrinsic") {
+      return "";
+    }
+
+    const name = program.checker.getTypeName(type);
+    const typeKind = type.kind.toLowerCase();
+
+    const lines = ["```cadl", `${typeKind} ${name}`, "```"];
+    const doc = getDoc(program, type);
+    if (doc) {
+      lines.push(`_${doc}_`); // italic
+    }
+    return lines.join("\n");
+  }
+
+  async function getHover(params: HoverParams): Promise<Hover> {
+    const docString = await compile(params.textDocument, (program, document, file) => {
+      const id = getNodeAtPosition(file, document.offsetAt(params.position));
+      const sym =
+        id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+      if (sym) {
+        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
+        return getTypeDetails(program, type);
+      }
+      return undefined;
+    });
+
+    const markdown: MarkupContent = {
+      kind: MarkupKind.Markdown,
+      value: docString ?? "",
+    };
+    return {
+      contents: markdown,
+    };
+  }
+
+  async function formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]> {
+    const document = host.getOpenDocumentByURL(params.textDocument.uri);
+    if (document === undefined) {
+      return [];
+    }
+    const formattedText = formatCadl(document.getText(), {
+      tabWidth: params.options.tabSize,
+      useTabs: !params.options.insertSpaces,
+    });
+    return [minimalEdit(document, formattedText)];
+  }
+
+  function minimalEdit(document: TextDocument, string1: string): TextEdit {
+    const string0 = document.getText();
+    // length of common prefix
+    let i = 0;
+    while (i < string0.length && i < string1.length && string0[i] === string1[i]) {
+      ++i;
+    }
+    // length of common suffix
+    let j = 0;
+    while (
+      i + j < string0.length &&
+      i + j < string1.length &&
+      string0[string0.length - j - 1] === string1[string1.length - j - 1]
+    ) {
+      ++j;
+    }
+    const newText = string1.substring(i, string1.length - j);
+    const pos0 = document.positionAt(i);
+    const pos1 = document.positionAt(string0.length - j);
+
+    return TextEdit.replace(Range.create(pos0, pos1), newText);
+  }
+
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
     const sym = await compile(params.textDocument, (program, document, file) => {
       const id = getNodeAtPosition(file, document.offsetAt(params.position));
       return id?.kind == SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
     });
+
     return getLocations(sym?.declarations);
   }
 
@@ -657,7 +773,8 @@ export function createServer(host: ServerHost): Server {
   function findReferenceIdentifiers(
     program: Program,
     file: CadlScriptNode,
-    pos: number
+    pos: number,
+    searchFiles: Iterable<CadlScriptNode> = program.sourceFiles.values()
   ): IdentifierNode[] {
     const id = getNodeAtPosition(file, pos);
     if (id?.kind !== SyntaxKind.Identifier) {
@@ -670,8 +787,8 @@ export function createServer(host: ServerHost): Server {
     }
 
     const references: IdentifierNode[] = [];
-    for (const script of program.sourceFiles.values() ?? []) {
-      visitChildren(script, function visit(node) {
+    for (const searchFile of searchFiles) {
+      visitChildren(searchFile, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
           const s = program.checker.resolveIdentifier(node);
           if (s === sym || (sym.type && s?.type === sym.type)) {
@@ -681,7 +798,6 @@ export function createServer(host: ServerHost): Server {
         visitChildren(node, visit);
       });
     }
-
     return references;
   }
 
@@ -800,9 +916,9 @@ export function createServer(host: ServerHost): Server {
       return;
     }
     for (const [key, { sym, label }] of result) {
-      let documentation: string | undefined;
       let kind: CompletionItemKind;
       let deprecated = false;
+      const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
       if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
         kind = CompletionItemKind.Function;
       } else if (
@@ -811,14 +927,18 @@ export function createServer(host: ServerHost): Server {
       ) {
         kind = CompletionItemKind.Module;
       } else {
-        const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
-        documentation = getDoc(program, type);
         kind = getCompletionItemKind(program, type);
         deprecated = isDeprecated(program, type);
       }
+      const documentation = getTypeDetails(program, type);
       const item: CompletionItem = {
         label: label ?? key,
-        documentation,
+        documentation: documentation
+          ? {
+              kind: MarkupKind.Markdown,
+              value: documentation,
+            }
+          : undefined,
         kind,
         insertText: key,
       };
@@ -859,9 +979,13 @@ export function createServer(host: ServerHost): Server {
   async function getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]> {
     const ignore = -1;
     const defer = -2;
-    const file = await compilerHost.readFile(await getPath(params.textDocument));
+
+    const ast = await getScript(params.textDocument);
+    if (!ast) {
+      return [];
+    }
+    const file = ast.file;
     const tokens = mapTokens();
-    const ast = parse(file);
     classifyNode(ast);
     return Array.from(tokens.values()).filter((t) => t.kind !== undefined);
 
@@ -947,11 +1071,30 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.MemberExpression:
           classifyReference(node);
           break;
+        case SyntaxKind.ProjectionStatement:
+          classifyReference(node.selector);
+          classify(node.id, SemanticTokenKind.Variable);
+          break;
+        case SyntaxKind.Projection:
+          classify(node.directionId, SemanticTokenKind.Keyword);
+          break;
+        case SyntaxKind.ProjectionParameterDeclaration:
+          classifyReference(node.id, SemanticTokenKind.Parameter);
+          break;
+        case SyntaxKind.ProjectionCallExpression:
+          classifyReference(node.target, SemanticTokenKind.Function);
+          for (const arg of node.arguments) {
+            classifyReference(arg);
+          }
+          break;
+        case SyntaxKind.ProjectionMemberExpression:
+          classifyReference(node.id);
+          break;
       }
       visitChildren(node, classifyNode);
     }
 
-    function classify(node: Node, kind: SemanticTokenKind) {
+    function classify(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
       const token = tokens.get(node.pos);
       if (token && token.kind === undefined) {
         token.kind = kind;
@@ -962,6 +1105,10 @@ export function createServer(host: ServerHost): Server {
       switch (node.kind) {
         case SyntaxKind.MemberExpression:
           classifyIdentifier(node.base, SemanticTokenKind.Namespace);
+          classifyIdentifier(node.id, kind);
+          break;
+        case SyntaxKind.ProjectionMemberExpression:
+          classifyReference(node.base, SemanticTokenKind.Namespace);
           classifyIdentifier(node.id, kind);
           break;
         case SyntaxKind.TypeReference:
@@ -1006,7 +1153,7 @@ export function createServer(host: ServerHost): Server {
     sendDiagnostics(change.document, []);
   }
 
-  function getLocations(targets: DiagnosticTarget[] | undefined): Location[] {
+  function getLocations(targets: readonly DiagnosticTarget[] | undefined): Location[] {
     return targets?.map(getLocation).filter((x): x is Location => !!x) ?? [];
   }
 
@@ -1016,12 +1163,16 @@ export function createServer(host: ServerHost): Server {
       return undefined;
     }
 
-    const start = location.file.getLineAndCharacterOfPosition(location.pos);
-    const end = location.file.getLineAndCharacterOfPosition(location.end);
     return {
       uri: getURL(location.file.path),
-      range: Range.create(start, end),
+      range: getRange(location, location.file),
     };
+  }
+
+  function getRange(location: TextRange, file: SourceFile): Range {
+    const start = file.getLineAndCharacterOfPosition(location.pos);
+    const end = file.getLineAndCharacterOfPosition(location.end);
+    return Range.create(start, end);
   }
 
   function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
@@ -1100,10 +1251,10 @@ export function createServer(host: ServerHost): Server {
       let mainFile = "main.cadl";
       let pkg: any;
       const pkgPath = joinPaths(dir, "package.json");
-      const cached = (await fileSystemCache.get(pkgPath))?.data;
+      const cached = await fileSystemCache.get(pkgPath);
 
       if (cached) {
-        pkg = cached;
+        pkg = cached.data;
       } else {
         [pkg] = await loadFile(
           compilerHost,
@@ -1112,7 +1263,7 @@ export function createServer(host: ServerHost): Server {
           logMainFileSearchDiagnostic,
           options
         );
-        (await fileSystemCache.get(pkgPath))!.data = pkg ?? {};
+        await fileSystemCache.setData(pkgPath, pkg ?? {});
       }
 
       if (typeof pkg?.cadlMain === "string") {
@@ -1193,6 +1344,12 @@ export function createServer(host: ServerHost): Server {
       set(path: string, entry: CachedFile | CachedError) {
         cache.set(path, entry);
       },
+      async setData(path: string, data: any) {
+        const entry = await this.get(path);
+        if (entry) {
+          entry.data = data;
+        }
+      },
       notify(changes: FileEvent[]) {
         changes.push(...changes);
       },
@@ -1203,28 +1360,33 @@ export function createServer(host: ServerHost): Server {
     const base = host.compilerHost;
     return {
       ...base,
+      parseCache: new WeakMap(),
       readFile,
       stat,
       getSourceFileKind,
     };
 
     async function readFile(path: string): Promise<ServerSourceFile> {
-      // Try open files sent from client over LSP
       const document = getOpenDocument(path);
-      if (document) {
-        return {
-          document,
-          ...createSourceFile(document.getText(), path),
-        };
-      }
-
-      // Try file system cache
       const cached = await fileSystemCache.get(path);
-      if (cached) {
+
+      // Try cache
+      if (cached && (!document || document.version === cached.version)) {
         if (cached.type === "error") {
           throw cached.error;
         }
         return cached.file;
+      }
+
+      // Try open document, although this is cheap, the instance still needs
+      // to be cached so that the compiler can reuse parse and bind results.
+      if (document) {
+        const file = {
+          document,
+          ...createSourceFile(document.getText(), path),
+        };
+        fileSystemCache.set(path, { type: "file", file, version: document.version });
+        return file;
       }
 
       // Hit the disk and cache

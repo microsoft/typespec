@@ -14,6 +14,15 @@ steps:
     inputs:
       version: 6.0.x
 
+  - script: |
+      echo "Node:"
+      node -v
+      echo "Npm:"
+      npm -v
+      echo "Dotnet:"
+      dotnet --version
+    displayName: "Log tool versions used"
+
   - script: node common/scripts/install-run-rush.js install
     displayName: Install JavaScript Dependencies
 
@@ -56,5 +65,12 @@ steps:
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
+  - script: node common/scripts/install-run-rush.js cspell
+    displayName: Spell check
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
+
   - script: node common/scripts/install-run-rush.js e2e
     displayName: E2E Tests
+    # Skipping the e2e test on the prepare publish branch as there is a bug in the npm version installed on node 16
+    # causing npx to try to download the unpublished version of the cli.
+    condition: and(not(startsWith(variables['Build.SourceBranch'], 'refs/publish/')), not(eq('${{ parameters.nodeVersion }}', '16.x')))

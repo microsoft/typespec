@@ -1,6 +1,28 @@
 # Change Log - @cadl-lang/versioning
 
-This log was last generated on Fri, 08 Jul 2022 23:22:57 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+
+## 0.8.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- Uptake change to enum members map type
+- Uptake changes to compiler with current projection
+- Update decororator state key to allow multiple instance of library to work together.
+- React to Type suffix removal
+
+## 0.7.0
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Minor changes
+
+- Internal: Uptake new compiler helpers to work with template types
+
+### Patches
+
+- Fix: Versioning when non-versioned library has template with spread.
+- Fix: Versioning when multiple service versions consume the same library version.
 
 ## 0.6.1
 Fri, 08 Jul 2022 23:22:57 GMT

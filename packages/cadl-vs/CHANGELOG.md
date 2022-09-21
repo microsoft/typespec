@@ -1,6 +1,24 @@
 # Change Log - cadl-vs
 
-This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+
+## 0.8.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- Add support for `${workspaceFolder}` interpolation in configuration
+
+### Patches
+
+- Fix issue with configured cadl-server location not being found when opening a solution.
+
+## 0.7.2
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Patches
+
+- Providing `cadl.cadl-server.path` option will force the specified compiler to be used
 
 ## 0.7.1
 Mon, 13 Jun 2022 23:42:28 GMT

@@ -8,13 +8,13 @@ import {
   isErrorModel,
   isIntrinsic,
   isVoidType,
-  ModelType,
-  ModelTypeProperty,
-  OperationType,
+  Model,
+  ModelProperty,
+  Operation,
   Program,
   Type,
 } from "@cadl-lang/compiler";
-import { createDiagnostic } from "../diagnostics.js";
+import { createDiagnostic } from "../lib.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
@@ -23,31 +23,14 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
-
-export type StatusCode = `${number}` | "*";
-export interface HttpOperationResponse {
-  statusCode: StatusCode;
-  type: Type;
-  description?: string;
-  responses: HttpOperationResponseContent[];
-}
-
-export interface HttpOperationResponseContent {
-  headers?: Record<string, ModelTypeProperty>;
-  body?: HttpOperationBody;
-}
-
-export interface HttpOperationBody {
-  contentTypes: string[];
-  type: Type;
-}
+import { HttpOperationResponse } from "./types.js";
 
 /**
  * Get the responses for a given operation.
  */
 export function getResponsesForOperation(
   program: Program,
-  operation: OperationType
+  operation: Operation
 ): [HttpOperationResponse[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
@@ -95,9 +78,9 @@ function processResponseType(
       if (isIntrinsic(program, responseModel) || isArrayModelType(program, responseModel)) {
         bodyModel = responseModel;
       } else {
-        const isResponseMetadata = (p: ModelTypeProperty) =>
+        const isResponseMetadata = (p: ModelProperty) =>
           isHeader(program, p) || isStatusCode(program, p);
-        const allProperties = (p: ModelType): ModelTypeProperty[] => {
+        const allProperties = (p: Model): ModelProperty[] => {
           return [...p.properties.values(), ...(p.baseModel ? allProperties(p.baseModel) : [])];
         };
         if (
@@ -223,7 +206,7 @@ function getResponseContentTypes(
  * @property property Model property
  * @returns List of contnet types and any diagnostics if there was an issue.
  */
-export function getContentTypes(property: ModelTypeProperty): [string[], readonly Diagnostic[]] {
+export function getContentTypes(property: ModelProperty): [string[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   if (property.type.kind === "String") {
     return [[property.type.value], []];
@@ -252,10 +235,7 @@ export function getContentTypes(property: ModelTypeProperty): [string[], readonl
 /**
  * Get response headers from response Model
  */
-function getResponseHeaders(
-  program: Program,
-  responseModel: Type
-): Record<string, ModelTypeProperty> {
+function getResponseHeaders(program: Program, responseModel: Type): Record<string, ModelProperty> {
   if (responseModel.kind === "Model") {
     const responseHeaders: any = responseModel.baseModel
       ? getResponseHeaders(program, responseModel.baseModel)
@@ -280,7 +260,7 @@ function getResponseBody(
     if (isArrayModelType(program, responseModel)) {
       return undefined;
     }
-    const getAllBodyProps = (m: ModelType): ModelTypeProperty[] => {
+    const getAllBodyProps = (m: Model): ModelProperty[] => {
       const bodyProps = [...m.properties.values()].filter((t) => isBody(program, t));
       if (m.baseModel) {
         bodyProps.push(...getAllBodyProps(m.baseModel));

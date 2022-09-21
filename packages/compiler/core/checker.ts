@@ -8,10 +8,12 @@ import {
   Expression,
   getIndexer,
   getIntrinsicModelName,
+  getParentTemplateNode,
   IdentifierKind,
   IntrinsicModelName,
   isIntrinsic,
   isNeverType,
+  isProjectedProgram,
   isUnknownType,
   isVoidType,
   JsSourceFileNode,
@@ -20,12 +22,13 @@ import {
   ModelSpreadPropertyNode,
   NeverIndexer,
   NeverType,
+  ProjectedProgram,
   ProjectionModelExpressionNode,
   ProjectionModelPropertyNode,
   ProjectionModelSpreadPropertyNode,
   reportDeprecated,
   SymbolFlags,
-  TemplateParameterType,
+  TemplateParameter,
   UnknownType,
   VoidType,
 } from "./index.js";
@@ -36,45 +39,46 @@ import { createProjectionMembers } from "./projection-members.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  BooleanLiteral,
   BooleanLiteralNode,
-  BooleanLiteralType,
   CadlScriptNode,
   DecoratorApplication,
   DecoratorArgument,
   DecoratorExpressionNode,
+  Enum,
+  EnumMember,
   EnumMemberNode,
-  EnumMemberType,
   EnumStatementNode,
-  EnumType,
   ErrorType,
   FunctionType,
   IdentifierNode,
+  Interface,
   InterfaceStatementNode,
-  InterfaceType,
   IntersectionExpressionNode,
   LiteralNode,
   LiteralType,
   MemberExpressionNode,
+  Model,
   ModelExpressionNode,
+  ModelProperty,
   ModelPropertyNode,
   ModelStatementNode,
-  ModelType,
-  ModelTypeProperty,
+  Namespace,
   NamespaceStatementNode,
-  NamespaceType,
   Node,
   NodeFlags,
+  NumericLiteral,
   NumericLiteralNode,
-  NumericLiteralType,
+  Operation,
   OperationStatementNode,
-  OperationType,
+  Projection,
   ProjectionArithmeticExpressionNode,
   ProjectionBlockExpressionNode,
   ProjectionCallExpressionNode,
   ProjectionDecoratorReferenceExpressionNode,
   ProjectionEqualityExpressionNode,
   ProjectionExpression,
-  ProjectionExpressionStatement,
+  ProjectionExpressionStatementNode,
   ProjectionIfExpressionNode,
   ProjectionLambdaExpressionNode,
   ProjectionMemberExpressionNode,
@@ -82,52 +86,52 @@ import {
   ProjectionRelationalExpressionNode,
   ProjectionStatementItem,
   ProjectionStatementNode,
-  ProjectionType,
   ProjectionUnaryExpressionNode,
   ReturnExpressionNode,
   ReturnRecord,
+  StringLiteral,
   StringLiteralNode,
-  StringLiteralType,
   Sym,
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
   TemplateDeclarationNode,
   TemplateParameterDeclarationNode,
+  Tuple,
   TupleExpressionNode,
-  TupleType,
   Type,
   TypeInstantiationMap,
   TypeOrReturnRecord,
   TypeReferenceNode,
+  Union,
   UnionExpressionNode,
   UnionStatementNode,
-  UnionType,
-  UnionTypeVariant,
+  UnionVariant,
   UnionVariantNode,
-  Writable,
 } from "./types.js";
-import { isArray } from "./util.js";
+import { isArray, Mutable, mutate } from "./util.js";
 
 export interface TypeNameOptions {
-  namespaceFilter: (ns: NamespaceType) => boolean;
+  namespaceFilter: (ns: Namespace) => boolean;
 }
 
 export interface Checker {
+  typePrototype: TypePrototype;
+
   getTypeForNode(node: Node): Type;
   setUsingsForFile(file: CadlScriptNode): void;
   checkProgram(): void;
   checkSourceFile(file: CadlScriptNode): void;
-  getGlobalNamespaceType(): NamespaceType;
+  getGlobalNamespaceType(): Namespace;
   getGlobalNamespaceNode(): NamespaceStatementNode;
   getMergedSymbol(sym: Sym | undefined): Sym | undefined;
   mergeSourceFile(file: CadlScriptNode | JsSourceFileNode): void;
-  getLiteralType(node: StringLiteralNode): StringLiteralType;
-  getLiteralType(node: NumericLiteralNode): NumericLiteralType;
-  getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
+  getLiteralType(node: StringLiteralNode): StringLiteral;
+  getLiteralType(node: NumericLiteralNode): NumericLiteral;
+  getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   getLiteralType(node: LiteralNode): LiteralType;
   getTypeName(type: Type, options?: TypeNameOptions): string;
-  getNamespaceString(type: NamespaceType | undefined, options?: TypeNameOptions): string;
+  getNamespaceString(type: Namespace | undefined, options?: TypeNameOptions): string;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
   project(
@@ -143,23 +147,23 @@ export interface Checker {
   ): U & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
   createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
-  createLiteralType(value: string, node?: StringLiteralNode): StringLiteralType;
-  createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteralType;
-  createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteralType;
+  createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
+  createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
-  ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+  ): StringLiteral | NumericLiteral | BooleanLiteral;
   createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
-  ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+  ): StringLiteral | NumericLiteral | BooleanLiteral;
 
   /**
    * Check if the source type can be assigned to the target type.
    * @param source Source type, should be assignable to the target.
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    * @returns [related, list of diagnostics]
    */
   isTypeAssignableTo(
@@ -174,40 +178,6 @@ export interface Checker {
    * @param stdType If provided check is that standard type
    */
   isStdType(type: Type, stdType?: IntrinsicModelName | "Array" | "Record"): boolean;
-
-  /**
-   * Applies a filter to the properties of a given type. If no properties
-   * are filtered out, then return the input unchanged. Otherwise, return
-   * a new anonymous model with only the filtered properties.
-   *
-   * @param model The input model to filter.
-   * @param filter The filter to apply. Properties are kept when this returns true.
-   */
-  filterModelProperties(
-    model: ModelType,
-    filter: (property: ModelTypeProperty) => boolean
-  ): ModelType;
-
-  /**
-   * If the input is anonymous (or the provided filter removes properties)
-   * and there exists a named model with the same set of properties
-   * (ignoring filtered properties), then return that named model.
-   * Otherwise, return the input unchanged.
-   *
-   * This can be used by emitters to find a better name for a set of
-   * properties after filtering. For example, given `{ @metadata prop:
-   * string} & SomeName`, and an emitter that wishes to discard properties
-   * marked with `@metadata`, the emitter can use this to recover that the
-   * best name for the remaining properties is `SomeName`.
-   *
-   * @param model The input model
-   * @param filter An optional filter to apply to the input model's
-   * properties.
-   */
-  getEffectiveModelType(
-    model: ModelType,
-    filter?: (property: ModelTypeProperty) => boolean
-  ): ModelType;
 
   errorType: ErrorType;
   voidType: VoidType;
@@ -272,11 +242,14 @@ const TypeInstantiationMap = class
 
 type StdTypeName = IntrinsicModelName | "Array" | "Record";
 
+let currentSymbolId = 0;
+
 export function createChecker(program: Program): Checker {
-  let currentSymbolId = 0;
-  const stdTypes: Partial<Record<StdTypeName, ModelType>> = {};
+  const stdTypes: Partial<Record<StdTypeName, Model>> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
+  const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
+
   const typePrototype: TypePrototype = {
     get projections(): ProjectionStatementNode[] {
       return (projectionsByTypeKind.get((this as Type).kind) || []).concat(
@@ -336,10 +309,7 @@ export function createChecker(program: Program): Checker {
     cadlNamespaceNode = cadlNamespaceBinding.declarations[1] as NamespaceStatementNode;
     initializeCadlIntrinsics();
     for (const file of program.sourceFiles.values()) {
-      for (const [name, binding] of cadlNamespaceBinding.exports!) {
-        const usedSym = createUsingSymbol(binding);
-        file.locals!.set(name, usedSym);
-      }
+      addUsingSymbols(cadlNamespaceBinding.exports!, file.locals);
     }
   }
 
@@ -366,6 +336,7 @@ export function createChecker(program: Program): Checker {
     errorType,
     anyType: unknownType,
     voidType,
+    typePrototype,
     createType,
     createAndFinishType,
     createFunctionType,
@@ -373,8 +344,6 @@ export function createChecker(program: Program): Checker {
     finishType,
     isTypeAssignableTo,
     isStdType,
-    getEffectiveModelType,
-    filterModelProperties,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -382,18 +351,18 @@ export function createChecker(program: Program): Checker {
 
   function initializeCadlIntrinsics() {
     // a utility function to log strings or numbers
-    cadlNamespaceBinding!.exports!.set("log", {
+    mutate(cadlNamespaceBinding!.exports)!.set("log", {
       flags: SymbolFlags.Function,
       name: "log",
-      value(p: Program, str: string): Type {
-        program.logger.log({ level: "debug", message: str });
+      value(p: Program, ...strs: string[]): Type {
+        program.trace("projection.log", strs.join(" "));
         return voidType;
       },
       declarations: [],
     });
   }
 
-  function getStdType<T extends StdTypeName>(name: T): ModelType & { name: T } {
+  function getStdType<T extends StdTypeName>(name: T): Model & { name: T } {
     const type = stdTypes[name];
     if (type !== undefined) {
       return type as any;
@@ -411,7 +380,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function mergeSourceFile(file: CadlScriptNode | JsSourceFileNode) {
-    mergeSymbolTable(file.symbol.exports!, globalNamespaceNode.symbol.exports!);
+    mergeSymbolTable(file.symbol.exports!, mutate(globalNamespaceNode.symbol.exports!));
   }
 
   function setUsingsForFile(file: CadlScriptNode) {
@@ -439,17 +408,40 @@ export function createChecker(program: Program): Checker {
         continue;
       }
       usedUsing.add(namespaceSym);
-
-      for (const [name, binding] of sym.exports!) {
-        parentNs.locals!.set(name, createUsingSymbol(binding));
-      }
+      addUsingSymbols(sym.exports!, parentNs.locals!);
     }
 
     if (cadlNamespaceNode) {
-      for (const [name, binding] of cadlNamespaceBinding!.exports!) {
-        file.locals!.set(name, createUsingSymbol(binding));
-      }
+      addUsingSymbols(cadlNamespaceBinding!.exports!, file.locals);
     }
+  }
+
+  function addUsingSymbols(source: SymbolTable, destination: SymbolTable): void {
+    const augmented = getOrCreateAugmentedSymbolTable(destination);
+    for (const symbolSource of source.values()) {
+      const sym: Sym = {
+        flags: SymbolFlags.Using,
+        declarations: [],
+        name: symbolSource.name,
+        symbolSource: symbolSource,
+      };
+      augmented.set(sym.name, sym);
+    }
+  }
+
+  /**
+   * We cannot inject symbols into the symbol tables hanging off syntax tree nodes as
+   * syntax tree nodes can be shared by other programs. This is called as a copy-on-write
+   * to inject using and late-bound symbols, and then we use the copy when resolving
+   * in the table.
+   */
+  function getOrCreateAugmentedSymbolTable(table: SymbolTable): Mutable<SymbolTable> {
+    let augmented = augmentedSymbolTables.get(table);
+    if (!augmented) {
+      augmented = createSymbolTable(table);
+      augmentedSymbolTables.set(table, augmented);
+    }
+    return mutate(augmented);
   }
 
   /**
@@ -526,6 +518,10 @@ export function createChecker(program: Program): Checker {
 
   function getTypeName(type: Type, options?: TypeNameOptions): string {
     switch (type.kind) {
+      case "Namespace":
+        return getNamespaceString(type, options);
+      case "TemplateParameter":
+        return type.node.id.sv;
       case "Model":
         return getModelName(type, options);
       case "ModelProperty":
@@ -555,7 +551,7 @@ export function createChecker(program: Program): Checker {
     return "(unnamed type)";
   }
 
-  function getNamespaceString(type: NamespaceType | undefined, options?: TypeNameOptions): string {
+  function getNamespaceString(type: Namespace | undefined, options?: TypeNameOptions): string {
     if (!type || !type.name) {
       return "";
     }
@@ -577,7 +573,7 @@ export function createChecker(program: Program): Checker {
       : sym.name;
   }
 
-  function getEnumName(e: EnumType, options: TypeNameOptions | undefined): string {
+  function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
     const nsName = getNamespaceString(e.namespace, options);
     return nsName ? `${nsName}.${e.name}` : e.name;
   }
@@ -601,23 +597,23 @@ export function createChecker(program: Program): Checker {
    * Check if the given namespace is the standard library `Cadl` namespace.
    */
   function isCadlNamespace(
-    namespace: NamespaceType
-  ): namespace is NamespaceType & { name: "Cadl"; namespace: NamespaceType } {
+    namespace: Namespace
+  ): namespace is Namespace & { name: "Cadl"; namespace: Namespace } {
     return (
       namespace.name === "Cadl" &&
       (namespace.namespace === globalNamespaceType ||
-        namespace.namespace === program.currentProjector?.projectedGlobalNamespace)
+        namespace.namespace?.projectionBase === globalNamespaceType)
     );
   }
 
   /**
    * Check if the given type is defined right in the Cadl namespace.
    */
-  function isInCadlNamespace(type: Type & { namespace?: NamespaceType }): boolean {
+  function isInCadlNamespace(type: Type & { namespace?: Namespace }): boolean {
     return Boolean(type.namespace && isCadlNamespace(type.namespace));
   }
 
-  function getModelName(model: ModelType, options: TypeNameOptions | undefined) {
+  function getModelName(model: Model, options: TypeNameOptions | undefined) {
     const nsName = getNamespaceString(model.namespace, options);
     if (model.name === "" && model.properties.size === 0) {
       return "{}";
@@ -646,18 +642,18 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function getModelPropertyName(prop: ModelTypeProperty, options: TypeNameOptions | undefined) {
+  function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | undefined) {
     const modelName = prop.model ? getModelName(prop.model, options) : undefined;
 
     return `${modelName ?? "(anonymous model)"}.${prop.name}`;
   }
 
-  function getInterfaceName(iface: InterfaceType, options: TypeNameOptions | undefined) {
+  function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined) {
     const nsName = getNamespaceString(iface.namespace, options);
     return (nsName ? nsName + "." : "") + iface.name;
   }
 
-  function getOperationName(op: OperationType, options: TypeNameOptions | undefined) {
+  function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
     const nsName = getNamespaceString(op.namespace, options);
     return (nsName ? nsName + "." : "") + op.name;
   }
@@ -674,7 +670,7 @@ export function createChecker(program: Program): Checker {
       | AliasStatementNode;
     const links = getSymbolLinks(node.symbol);
 
-    let type: TemplateParameterType | undefined = links.declaredType as TemplateParameterType;
+    let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
     if (type === undefined) {
       const index = parentNode.templateParameters.findIndex((v) => v === node);
       type = links.declaredType = createAndFinishType({
@@ -699,7 +695,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function getResolvedTypeParameterDefault(
-    declaredType: TemplateParameterType,
+    declaredType: TemplateParameter,
     node: TemplateParameterDeclarationNode,
     mapper: TypeMapper
   ): Type | undefined {
@@ -793,7 +789,7 @@ export function createChecker(program: Program): Checker {
     node: Node,
     args: [Node, Type][],
     declarations: readonly TemplateParameterDeclarationNode[]
-  ): [TemplateParameterType[], Type[]] {
+  ): [TemplateParameter[], Type[]] {
     if (args.length > declarations.length) {
       program.reportDiagnostic(
         createDiagnostic({ code: "invalid-template-args", messageId: "tooMany", target: node })
@@ -801,12 +797,12 @@ export function createChecker(program: Program): Checker {
     }
 
     const values: Type[] = [];
-    const params: TemplateParameterType[] = [];
+    const params: TemplateParameter[] = [];
     let tooFew = false;
 
     for (let i = 0; i < declarations.length; i++) {
       const declaration = declarations[i];
-      const declaredType = getTypeForNode(declaration)! as TemplateParameterType;
+      const declaredType = getTypeForNode(declaration)! as TemplateParameter;
       params.push(declaredType);
 
       if (i < args.length) {
@@ -979,7 +975,7 @@ export function createChecker(program: Program): Checker {
       | InterfaceStatementNode
       | OperationStatementNode
       | UnionStatementNode,
-    params: TemplateParameterType[],
+    params: TemplateParameter[],
     args: Type[]
   ): Type {
     const symbolLinks = getSymbolLinks(templateNode.symbol);
@@ -1012,43 +1008,44 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function checkUnionExpression(
-    node: UnionExpressionNode,
-    mapper: TypeMapper | undefined
-  ): UnionType {
-    const variants: [string | symbol, UnionTypeVariant][] = node.options.flatMap((o) => {
-      const type = getTypeForNode(o, mapper);
-
-      // The type `A | never` is just `A`
-      if (type === neverType) {
-        return [];
-      }
-      if (type.kind === "Union" && type.expression) {
-        return Array.from(type.variants.entries());
-      }
-      const variant: UnionTypeVariant = createType({
-        kind: "UnionVariant",
-        type,
-        name: Symbol("name"),
-        decorators: [],
-        node: undefined,
-      });
-
-      return [[variant.name, variant]];
-    });
-
-    const type: UnionType = createAndFinishType({
+  function checkUnionExpression(node: UnionExpressionNode, mapper: TypeMapper | undefined): Union {
+    const unionType: Union = createAndFinishType({
       kind: "Union",
       node,
       get options() {
         return Array.from(this.variants.values()).map((v) => v.type);
       },
       expression: true,
-      variants: new Map(variants),
+      variants: new Map(),
       decorators: [],
     });
 
-    return type;
+    for (const o of node.options) {
+      const type = getTypeForNode(o, mapper);
+
+      // The type `A | never` is just `A`
+      if (type === neverType) {
+        continue;
+      }
+      if (type.kind === "Union" && type.expression) {
+        for (const [name, variant] of type.variants) {
+          unionType.variants.set(name, variant);
+        }
+      } else {
+        const variant: UnionVariant = createType({
+          kind: "UnionVariant",
+          type,
+          name: Symbol("name"),
+          decorators: [],
+          node: undefined,
+          union: unionType,
+        });
+
+        unionType.variants.set(variant.name, variant);
+      }
+    }
+
+    return unionType;
   }
 
   /**
@@ -1073,12 +1070,13 @@ export function createChecker(program: Program): Checker {
     options: [Node, Type][],
     mapper: TypeMapper | undefined
   ) {
-    const properties = new Map<string, ModelTypeProperty>();
+    const properties = new Map<string, ModelProperty>();
 
-    const intersection: ModelType = createType({
+    const intersection: Model = createType({
       kind: "Model",
       node,
       name: "",
+      namespace: getParentNamespaceType(node),
       properties: properties,
       decorators: [],
       derivedModels: [],
@@ -1152,20 +1150,17 @@ export function createChecker(program: Program): Checker {
     return finishType(intersection, mapper);
   }
 
-  function checkArrayExpression(
-    node: ArrayExpressionNode,
-    mapper: TypeMapper | undefined
-  ): ModelType {
+  function checkArrayExpression(node: ArrayExpressionNode, mapper: TypeMapper | undefined): Model {
     const elementType = getTypeForNode(node.elementType, mapper);
     const arrayType = getStdType("Array");
     const arrayNode: ModelStatementNode = arrayType.node as any;
-    const param: TemplateParameterType = getTypeForNode(arrayNode.templateParameters[0]) as any;
-    return instantiateTemplate(arrayNode, [param], [elementType]) as ModelType;
+    const param: TemplateParameter = getTypeForNode(arrayNode.templateParameters[0]) as any;
+    return instantiateTemplate(arrayNode, [param], [elementType]) as Model;
   }
 
   function checkNamespace(node: NamespaceStatementNode) {
     const links = getSymbolLinks(getMergedSymbol(node.symbol));
-    let type = links.type as NamespaceType;
+    let type = links.type as Namespace;
     if (!type) {
       type = initializeTypeForNamespace(node);
     }
@@ -1187,7 +1182,7 @@ export function createChecker(program: Program): Checker {
       // haven't seen this namespace before
       const namespace = getParentNamespaceType(node);
       const name = node.id.sv;
-      const type: NamespaceType = createType({
+      const type: Namespace = createType({
         kind: "Namespace",
         name,
         namespace,
@@ -1212,7 +1207,7 @@ export function createChecker(program: Program): Checker {
       namespace?.namespaces.set(name, type);
     }
 
-    return symbolLinks.type as NamespaceType;
+    return symbolLinks.type as Namespace;
   }
 
   function getParentNamespaceType(
@@ -1222,12 +1217,17 @@ export function createChecker(program: Program): Checker {
       | OperationStatementNode
       | EnumStatementNode
       | InterfaceStatementNode
+      | IntersectionExpressionNode
       | UnionStatementNode
       | ModelExpressionNode
-  ): NamespaceType | undefined {
+      | ProjectionModelExpressionNode
+  ): Namespace | undefined {
     if (node === globalNamespaceType.node) return undefined;
 
-    if (node.kind === SyntaxKind.ModelExpression) {
+    if (
+      node.kind === SyntaxKind.ModelExpression ||
+      node.kind === SyntaxKind.IntersectionExpression
+    ) {
       let parent: Node | undefined = node.parent;
       while (parent !== undefined) {
         if (
@@ -1236,7 +1236,8 @@ export function createChecker(program: Program): Checker {
           parent.kind === SyntaxKind.EnumStatement ||
           parent.kind === SyntaxKind.InterfaceStatement ||
           parent.kind === SyntaxKind.UnionStatement ||
-          parent.kind === SyntaxKind.ModelExpression
+          parent.kind === SyntaxKind.ModelExpression ||
+          parent.kind === SyntaxKind.IntersectionExpression
         ) {
           return getParentNamespaceType(parent);
         } else {
@@ -1279,20 +1280,20 @@ export function createChecker(program: Program): Checker {
       symbolLinks.type = initializeTypeForNamespace(namespaceNode);
     }
 
-    return symbolLinks.type as NamespaceType;
+    return symbolLinks.type as Namespace;
   }
 
   function checkOperation(
     node: OperationStatementNode,
     mapper: TypeMapper | undefined,
-    parentInterface?: InterfaceType
-  ): OperationType | ErrorType {
+    parentInterface?: Interface
+  ): Operation | ErrorType {
     // Operations defined in interfaces aren't bound to symbols
     const links = !parentInterface ? getSymbolLinks(node.symbol) : undefined;
     if (links) {
       if (links.declaredType && mapper === undefined) {
         // we're not instantiating this operation and we've already checked it
-        return links.declaredType as OperationType;
+        return links.declaredType as Operation;
       }
     }
 
@@ -1301,7 +1302,7 @@ export function createChecker(program: Program): Checker {
     let decorators = checkDecorators(node, mapper);
 
     // Is this a definition or reference?
-    let parameters: ModelType, returnType: Type;
+    let parameters: Model, returnType: Type;
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
       // Attempt to resolve the operation
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
@@ -1317,11 +1318,11 @@ export function createChecker(program: Program): Checker {
       // Copy decorators from the base operation, inserting the base decorators first
       decorators = [...baseOperation.decorators, ...decorators];
     } else {
-      parameters = getTypeForNode(node.signature.parameters, mapper) as ModelType;
+      parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
       returnType = getTypeForNode(node.signature.returnType, mapper);
     }
 
-    const operationType: OperationType = createType({
+    const operationType: Operation = createType({
       kind: "Operation",
       name,
       namespace,
@@ -1360,7 +1361,7 @@ export function createChecker(program: Program): Checker {
     operation: OperationStatementNode,
     opReference: TypeReferenceNode | undefined,
     mapper: TypeMapper | undefined
-  ): OperationType | undefined {
+  ): Operation | undefined {
     if (!opReference) return undefined;
     // Ensure that we don't end up with a circular reference to the same operation
     const opSymId = getNodeSymId(operation);
@@ -1413,10 +1414,7 @@ export function createChecker(program: Program): Checker {
     return globalNamespaceNode;
   }
 
-  function checkTupleExpression(
-    node: TupleExpressionNode,
-    mapper: TypeMapper | undefined
-  ): TupleType {
+  function checkTupleExpression(node: TupleExpressionNode, mapper: TypeMapper | undefined): Tuple {
     return createAndFinishType({
       kind: "Tuple",
       node: node,
@@ -1439,10 +1437,9 @@ export function createChecker(program: Program): Checker {
 
   function getSymbolId(s: Sym) {
     if (s.id === undefined) {
-      s.id = currentSymbolId++;
+      mutate(s).id = currentSymbolId++;
     }
-
-    return s.id;
+    return s.id!;
   }
 
   function resolveIdentifierInTable(
@@ -1453,6 +1450,8 @@ export function createChecker(program: Program): Checker {
     if (!table) {
       return undefined;
     }
+
+    table = augmentedSymbolTables.get(table) ?? table;
     let sym;
     if (resolveDecorator) {
       sym = table.get("@" + node.sv);
@@ -1610,6 +1609,7 @@ export function createChecker(program: Program): Checker {
       if (!table) {
         return;
       }
+      table = augmentedSymbolTables.get(table) ?? table;
       for (const [key, sym] of table) {
         if (sym.flags & SymbolFlags.DuplicateUsing) {
           const duplicates = table.duplicates.get(sym)!;
@@ -1674,23 +1674,17 @@ export function createChecker(program: Program): Checker {
     }
 
     let scope: Node | undefined = node.parent;
-    let binding;
+    let binding: Sym | undefined;
 
     while (scope && scope.kind !== SyntaxKind.CadlScript) {
       if (scope.symbol && "exports" in scope.symbol) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
         binding = resolveIdentifierInTable(node, mergedSymbol.exports, resolveDecorator);
-
         if (binding) return binding;
       }
 
       if ("locals" in scope) {
-        if ("duplicates" in scope.locals!) {
-          binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-        } else {
-          binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
-        }
-
+        binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
         if (binding) return binding;
       }
 
@@ -1882,15 +1876,15 @@ export function createChecker(program: Program): Checker {
         return aliasType.node!.symbol ?? aliasSymbol;
     }
   }
-  function checkStringLiteral(str: StringLiteralNode): StringLiteralType {
+  function checkStringLiteral(str: StringLiteralNode): StringLiteral {
     return getLiteralType(str);
   }
 
-  function checkNumericLiteral(num: NumericLiteralNode): NumericLiteralType {
+  function checkNumericLiteral(num: NumericLiteralNode): NumericLiteral {
     return getLiteralType(num);
   }
 
-  function checkBooleanLiteral(bool: BooleanLiteralNode): BooleanLiteralType {
+  function checkBooleanLiteral(bool: BooleanLiteralNode): BooleanLiteral {
     return getLiteralType(bool);
   }
 
@@ -1898,7 +1892,8 @@ export function createChecker(program: Program): Checker {
     program.reportDuplicateSymbols(globalNamespaceNode.symbol.exports);
     for (const file of program.sourceFiles.values()) {
       for (const ns of file.namespaces) {
-        program.reportDuplicateSymbols(ns.symbol.exports);
+        const exports = mergedSymbols.get(ns.symbol)?.exports ?? ns.symbol.exports;
+        program.reportDuplicateSymbols(exports);
         initializeTypeForNamespace(ns);
       }
     }
@@ -1934,11 +1929,11 @@ export function createChecker(program: Program): Checker {
     }
     const decorators: DecoratorApplication[] = [];
 
-    const type: ModelType = createType({
+    const type: Model = createType({
       kind: "Model",
       name: node.id.sv,
       node: node,
-      properties: new Map<string, ModelTypeProperty>(),
+      properties: new Map<string, ModelProperty>(),
       namespace: getParentNamespaceType(node),
       decorators,
       derivedModels: [],
@@ -2033,7 +2028,7 @@ export function createChecker(program: Program): Checker {
 
   function checkModelExpression(node: ModelExpressionNode, mapper: TypeMapper | undefined) {
     const properties = new Map();
-    const type: ModelType = createType({
+    const type: Model = createType({
       kind: "Model",
       name: "",
       node: node,
@@ -2048,8 +2043,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkPropertyCompatibleWithIndexer(
-    parentModel: ModelType,
-    property: ModelTypeProperty,
+    parentModel: Model,
+    property: ModelProperty,
     diagnosticTarget: ModelPropertyNode | ModelSpreadPropertyNode
   ) {
     if (parentModel.indexer === undefined) {
@@ -2076,8 +2071,8 @@ export function createChecker(program: Program): Checker {
 
   function checkModelProperties(
     node: ModelExpressionNode | ModelStatementNode,
-    properties: Map<string, ModelTypeProperty>,
-    parentModel: ModelType,
+    properties: Map<string, ModelProperty>,
+    parentModel: Model,
     mapper: TypeMapper | undefined,
     inheritedPropertyNames?: Set<string>
   ) {
@@ -2099,8 +2094,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function defineProperty(
-    properties: Map<string, ModelTypeProperty>,
-    newProp: ModelTypeProperty,
+    properties: Map<string, ModelProperty>,
+    newProp: ModelProperty,
     inheritedPropertyNames?: Set<string>,
     diagnosticTarget?: DiagnosticTarget
   ) {
@@ -2139,7 +2134,7 @@ export function createChecker(program: Program): Checker {
     switch (type.kind) {
       case "Model":
         type.symbol = createSymbol(type.node, type.name, SymbolFlags.Model | SymbolFlags.LateBound);
-        type.symbol.type = type;
+        mutate(type.symbol).type = type;
         break;
       case "Interface":
         type.symbol = createSymbol(
@@ -2147,64 +2142,54 @@ export function createChecker(program: Program): Checker {
           type.name,
           SymbolFlags.Interface | SymbolFlags.LateBound
         );
-        type.symbol.type = type;
+        mutate(type.symbol).type = type;
         break;
       case "Union":
         if (!type.name) return; // don't make a symbol for anonymous unions
         type.symbol = createSymbol(type.node, type.name, SymbolFlags.Union | SymbolFlags.LateBound);
-        type.symbol.type = type;
+        mutate(type.symbol).type = type;
         break;
     }
   }
 
   function lateBindMembers(type: Type, containerSym: Sym) {
+    let containerMembers: Mutable<SymbolTable> | undefined;
+
     switch (type.kind) {
       case "Model":
         for (const prop of walkPropertiesInherited(type)) {
-          const sym = createSymbol(
-            prop.node,
-            prop.name,
-            SymbolFlags.ModelProperty | SymbolFlags.LateBound
-          );
-          sym.type = prop;
-          containerSym.members!.set(prop.name, sym);
+          lateBindMember(prop, SymbolFlags.ModelProperty);
         }
         break;
       case "Enum":
-        for (const member of type.members) {
-          const sym = createSymbol(
-            member.node,
-            member.name,
-            SymbolFlags.EnumMember | SymbolFlags.LateBound
-          );
-          sym.type = member;
-          containerSym.members!.set(member.name, sym);
+        for (const member of type.members.values()) {
+          lateBindMember(member, SymbolFlags.EnumMember);
         }
-
         break;
       case "Interface":
         for (const member of type.operations.values()) {
-          const sym = createSymbol(
-            member.node,
-            member.name,
-            SymbolFlags.InterfaceMember | SymbolFlags.LateBound
-          );
-          sym.type = member;
-          containerSym.members!.set(member.name, sym);
+          lateBindMember(member, SymbolFlags.InterfaceMember);
         }
         break;
       case "Union":
         for (const variant of type.variants.values()) {
-          // don't bind anything for union expressions
-          if (!variant.node || typeof variant.name === "symbol") continue;
-          const sym = createSymbol(
-            variant.node,
-            variant.name,
-            SymbolFlags.UnionVariant | SymbolFlags.LateBound
-          );
-          sym.type = variant;
-          containerSym.members!.set(variant.name, sym);
+          lateBindMember(variant, SymbolFlags.UnionVariant);
         }
+        break;
+    }
+
+    function lateBindMember(
+      member: Type & { node?: Node; name: string | symbol },
+      kind: SymbolFlags
+    ) {
+      if (!member.node || typeof member.name !== "string") {
+        // don't bind anything for union expressions
+        return;
+      }
+      const sym = createSymbol(member.node, member.name, kind | SymbolFlags.LateBound);
+      mutate(sym).type = member;
+      containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members!);
+      containerMembers.set(member.name, sym);
     }
   }
 
@@ -2212,7 +2197,15 @@ export function createChecker(program: Program): Checker {
     model: ModelStatementNode,
     heritageRef: Expression,
     mapper: TypeMapper | undefined
-  ): ModelType | undefined {
+  ): Model | undefined {
+    if (heritageRef.kind === SyntaxKind.ModelExpression) {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        messageId: "modelExpression",
+        target: heritageRef,
+      });
+      return undefined;
+    }
     if (heritageRef.kind !== SyntaxKind.TypeReference) {
       reportDiagnostic(program, {
         code: "extend-model",
@@ -2250,6 +2243,14 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
+    if (heritageType.name === "") {
+      reportDiagnostic(program, {
+        code: "extend-model",
+        messageId: "modelExpression",
+        target: heritageRef,
+      });
+    }
+
     if (isIntrinsic(program, heritageType)) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -2270,13 +2271,20 @@ export function createChecker(program: Program): Checker {
     model: ModelStatementNode,
     isExpr: Expression | undefined,
     mapper: TypeMapper | undefined
-  ): ModelType | undefined {
+  ): Model | undefined {
     if (!isExpr) return undefined;
 
     const modelSymId = getNodeSymId(model);
     pendingResolutions.add(modelSymId);
     let isType;
-    if (isExpr.kind === SyntaxKind.ArrayExpression) {
+    if (isExpr.kind === SyntaxKind.ModelExpression) {
+      reportDiagnostic(program, {
+        code: "is-model",
+        messageId: "modelExpression",
+        target: isExpr,
+      });
+      return undefined;
+    } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(isExpr, mapper);
     } else if (isExpr.kind === SyntaxKind.TypeReference) {
       const target = resolveTypeReference(isExpr, mapper);
@@ -2306,14 +2314,18 @@ export function createChecker(program: Program): Checker {
       return;
     }
 
+    if (isType.name === "") {
+      reportDiagnostic(program, { code: "is-model", messageId: "modelExpression", target: isExpr });
+    }
+
     return isType;
   }
 
   function checkSpreadProperty(
     targetNode: TypeReferenceNode,
-    parentModel: ModelType,
+    parentModel: Model,
     mapper: TypeMapper | undefined
-  ): ModelTypeProperty[] {
+  ): ModelProperty[] {
     const targetType = getTypeForNode(targetNode, mapper);
 
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
@@ -2331,7 +2343,7 @@ export function createChecker(program: Program): Checker {
       return [];
     }
 
-    const props: ModelTypeProperty[] = [];
+    const props: ModelProperty[] = [];
     // copy each property
     for (const prop of walkPropertiesInherited(targetType)) {
       const newProp = cloneType(prop, {
@@ -2343,45 +2355,17 @@ export function createChecker(program: Program): Checker {
     return props;
   }
 
-  function* walkPropertiesInherited(model: ModelType) {
-    let current: ModelType | undefined = model;
-
-    while (current) {
-      yield* current.properties.values();
-      current = current.baseModel;
-    }
-  }
-
-  function countPropertiesInherited(
-    model: ModelType,
-    filter?: (property: ModelTypeProperty) => boolean
-  ) {
-    let count = 0;
-    if (filter) {
-      for (const each of walkPropertiesInherited(model)) {
-        if (filter(each)) {
-          count++;
-        }
-      }
-    } else {
-      for (let m: ModelType | undefined = model; m; m = m.baseModel) {
-        count += m.properties.size;
-      }
-    }
-    return count;
-  }
-
   function checkModelProperty(
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined,
-    parentModel?: ModelType
-  ): ModelTypeProperty {
+    parentModel?: Model
+  ): ModelProperty {
     const decorators = checkDecorators(prop, mapper);
     const valueType = getTypeForNode(prop.value, mapper);
     const defaultValue = prop.default && checkDefault(prop.default, valueType);
     const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
 
-    const type: ModelTypeProperty = createType({
+    const type: ModelProperty = createType({
       kind: "ModelProperty",
       name,
       node: prop,
@@ -2392,14 +2376,8 @@ export function createChecker(program: Program): Checker {
       model: parentModel,
     });
 
-    const parentModelNode = prop.parent! as
-      | ModelStatementNode
-      | ModelExpressionNode
-      | OperationStatementNode;
-    if (
-      parentModelNode.kind !== SyntaxKind.ModelStatement ||
-      shouldCreateTypeForTemplate(parentModelNode, mapper)
-    ) {
+    const parentTemplate = getParentTemplateNode(prop);
+    if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
       finishType(type, mapper);
     }
 
@@ -2520,11 +2498,11 @@ export function createChecker(program: Program): Checker {
   function checkEnum(node: EnumStatementNode, mapper: TypeMapper | undefined): Type {
     const links = getSymbolLinks(node.symbol);
     if (!links.type) {
-      const enumType: EnumType = (links.type = createType({
+      const enumType: Enum = (links.type = createType({
         kind: "Enum",
         name: node.id.sv,
         node,
-        members: [],
+        members: new Map(),
         decorators: [],
       }));
 
@@ -2534,12 +2512,12 @@ export function createChecker(program: Program): Checker {
         if (member.kind === SyntaxKind.EnumMember) {
           const memberType = checkEnumMember(enumType, member, mapper, memberNames);
           if (memberType) {
-            enumType.members.push(memberType);
+            enumType.members.set(memberType.name, memberType);
           }
         } else {
           const members = checkEnumSpreadMember(enumType, member.target, mapper, memberNames);
           for (const memberType of members) {
-            enumType.members.push(memberType);
+            enumType.members.set(memberType.name, memberType);
           }
         }
       }
@@ -2555,20 +2533,17 @@ export function createChecker(program: Program): Checker {
     return links.type;
   }
 
-  function checkInterface(
-    node: InterfaceStatementNode,
-    mapper: TypeMapper | undefined
-  ): InterfaceType {
+  function checkInterface(node: InterfaceStatementNode, mapper: TypeMapper | undefined): Interface {
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this interface and we've already checked it
-      return links.declaredType as InterfaceType;
+      return links.declaredType as Interface;
     }
 
     const decorators = checkDecorators(node, mapper);
 
-    const interfaceType: InterfaceType = createType({
+    const interfaceType: Interface = createType({
       kind: "Interface",
       decorators,
       node,
@@ -2622,9 +2597,9 @@ export function createChecker(program: Program): Checker {
   function checkInterfaceMembers(
     node: InterfaceStatementNode,
     mapper: TypeMapper | undefined,
-    interfaceType: InterfaceType
+    interfaceType: Interface
   ) {
-    const ownMembers = new Map<string, OperationType>();
+    const ownMembers = new Map<string, Operation>();
 
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, mapper, interfaceType);
@@ -2650,13 +2625,12 @@ export function createChecker(program: Program): Checker {
 
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this union and we've already checked it
-      return links.declaredType as UnionType;
+      return links.declaredType as Union;
     }
 
     const decorators = checkDecorators(node, mapper);
-    const variants = new Map<string, UnionTypeVariant>();
-    checkUnionVariants(node, variants, mapper);
-    const unionType: UnionType = createType({
+    const variants = new Map<string, UnionVariant>();
+    const unionType: Union = createType({
       kind: "Union",
       decorators,
       node,
@@ -2668,6 +2642,7 @@ export function createChecker(program: Program): Checker {
       },
       expression: false,
     });
+    checkUnionVariants(unionType, node, variants, mapper);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(unionType, mapper);
@@ -2682,12 +2657,13 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkUnionVariants(
-    union: UnionStatementNode,
-    variants: Map<string, UnionTypeVariant>,
+    parentUnion: Union,
+    node: UnionStatementNode,
+    variants: Map<string, UnionVariant>,
     mapper: TypeMapper | undefined
   ) {
-    for (const variantNode of union.options) {
-      const variantType = checkUnionVariant(union, variantNode, mapper);
+    for (const variantNode of node.options) {
+      const variantType = checkUnionVariant(parentUnion, node, variantNode, mapper);
       if (variants.has(variantType.name as string)) {
         program.reportDiagnostic(
           createDiagnostic({
@@ -2703,23 +2679,25 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkUnionVariant(
-    union: UnionStatementNode,
+    parentUnion: Union,
+    node: UnionStatementNode,
     variantNode: UnionVariantNode,
     mapper: TypeMapper | undefined
-  ): UnionTypeVariant {
+  ): UnionVariant {
     const name =
       variantNode.id.kind === SyntaxKind.Identifier ? variantNode.id.sv : variantNode.id.value;
     const decorators = checkDecorators(variantNode, mapper);
     const type = getTypeForNode(variantNode.value, mapper);
-    const variantType: UnionTypeVariant = createType({
+    const variantType: UnionVariant = createType({
       kind: "UnionVariant",
       name,
       node: variantNode,
       decorators,
       type,
+      union: parentUnion,
     });
 
-    if (shouldCreateTypeForTemplate(union, mapper)) {
+    if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(variantType, mapper);
     }
 
@@ -2727,11 +2705,11 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkEnumMember(
-    parentEnum: EnumType,
+    parentEnum: Enum,
     node: EnumMemberNode,
     mapper: TypeMapper | undefined,
     existingMemberNames: Set<string>
-  ): EnumMemberType | undefined {
+  ): EnumMember | undefined {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const value = node.value ? node.value.value : undefined;
     const decorators = checkDecorators(node, mapper);
@@ -2757,12 +2735,12 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkEnumSpreadMember(
-    parentEnum: EnumType,
+    parentEnum: Enum,
     targetNode: TypeReferenceNode,
     mapper: TypeMapper | undefined,
     existingMemberNames: Set<string>
-  ): EnumMemberType[] {
-    const members: EnumMemberType[] = [];
+  ): EnumMember[] {
+    const members: EnumMember[] = [];
     const targetType = getTypeForNode(targetNode, mapper);
 
     if (!isErrorType(targetType)) {
@@ -2771,7 +2749,7 @@ export function createChecker(program: Program): Checker {
         return members;
       }
 
-      for (const member of targetType.members) {
+      for (const member of targetType.members.values()) {
         if (existingMemberNames.has(member.name)) {
           program.reportDiagnostic(
             createDiagnostic({
@@ -2816,122 +2794,44 @@ export function createChecker(program: Program): Checker {
   }
 
   function finishType<T extends Type>(typeDef: T, mapper?: TypeMapper): T {
-    (typeDef as any).templateArguments = mapper?.args;
-
-    if ("decorators" in typeDef) {
-      for (const decApp of typeDef.decorators) {
-        applyDecoratorToType(decApp, typeDef);
-      }
-    }
-
-    Object.setPrototypeOf(typeDef, typePrototype);
-
-    return typeDef;
+    return finishTypeForProgramAndChecker(program, typePrototype, typeDef, mapper);
   }
 
-  function applyDecoratorToType(decApp: DecoratorApplication, target: Type) {
-    compilerAssert(
-      "decorators" in target,
-      "Cannot apply decorator to non-decoratable type",
-      target
-    );
-
-    for (const arg of decApp.args) {
-      if (typeof arg.value === "object") {
-        if (isErrorType(arg.value)) {
-          // If one of the decorator argument is an error don't run it.
-          return;
-        }
-      }
-    }
-
-    // peel `fn` off to avoid setting `this`.
-    try {
-      const fn = decApp.decorator;
-      const context = createDecoratorContext(program, decApp);
-      fn(context, target, ...decApp.args.map((x) => x.value));
-    } catch (error: any) {
-      // do not fail the language server for exceptions in decorators
-      if (program.compilerOptions.designTimeBuild) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "decorator-fail",
-            format: { decoratorName: decApp.decorator.name, error: error.stack },
-            target: decApp.node ?? target,
-          })
-        );
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  function createDecoratorContext(
-    program: Program,
-    decApp: DecoratorApplication
-  ): DecoratorContext {
-    function createPassThruContext(
-      program: Program,
-      decApp: DecoratorApplication
-    ): DecoratorContext {
-      return {
-        program,
-        decoratorTarget: decApp.node!,
-        getArgumentTarget: () => decApp.node!,
-        call: (decorator, target, ...args) => {
-          return decorator(createPassThruContext(program, decApp), target, ...args);
-        },
-      };
-    }
-
-    return {
-      program,
-      decoratorTarget: decApp.node!,
-      getArgumentTarget: (index: number) => {
-        return decApp.args[index]?.node;
-      },
-      call: (decorator, target, ...args) => {
-        return decorator(createPassThruContext(program, decApp), target, ...args);
-      },
-    };
-  }
-
-  function getLiteralType(node: StringLiteralNode): StringLiteralType;
-  function getLiteralType(node: NumericLiteralNode): NumericLiteralType;
-  function getLiteralType(node: BooleanLiteralNode): BooleanLiteralType;
+  function getLiteralType(node: StringLiteralNode): StringLiteral;
+  function getLiteralType(node: NumericLiteralNode): NumericLiteral;
+  function getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   function getLiteralType(node: LiteralNode): LiteralType;
   function getLiteralType(node: LiteralNode): LiteralType {
     return createLiteralType(node.value, node);
   }
 
-  function mergeSymbolTable(source: SymbolTable, target: SymbolTable) {
+  function mergeSymbolTable(source: SymbolTable, target: Mutable<SymbolTable>) {
     for (const [sym, duplicates] of source.duplicates) {
       const targetSet = target.duplicates.get(sym);
       if (targetSet === undefined) {
-        target.duplicates.set(sym, new Set([...duplicates]));
+        mutate(target.duplicates).set(sym, new Set([...duplicates]));
       } else {
         for (const duplicate of duplicates) {
-          targetSet.add(duplicate);
+          mutate(targetSet).add(duplicate);
         }
       }
     }
 
     for (const [key, sourceBinding] of source) {
       if (sourceBinding.flags & SymbolFlags.Namespace) {
-        // we are merging a namespace symbol. See if is an existing namespace symbol
-        // to merge with.
-        let existingBinding = target.get(key);
-
-        if (!existingBinding) {
-          existingBinding = {
+        let targetBinding = target.get(key);
+        if (!targetBinding) {
+          targetBinding = {
             ...sourceBinding,
+            declarations: [],
+            exports: createSymbolTable(),
           };
-          target.set(key, existingBinding);
-          mergedSymbols.set(sourceBinding, existingBinding);
-        } else if (existingBinding.flags & SymbolFlags.Namespace) {
-          existingBinding.declarations.push(...sourceBinding.declarations);
-          mergedSymbols.set(sourceBinding, existingBinding);
-          mergeSymbolTable(sourceBinding.exports!, existingBinding.exports!);
+          target.set(key, targetBinding);
+        }
+        if (targetBinding.flags & SymbolFlags.Namespace) {
+          mergedSymbols.set(sourceBinding, targetBinding);
+          mutate(targetBinding.declarations).push(...sourceBinding.declarations);
+          mergeSymbolTable(sourceBinding.exports!, mutate(targetBinding.exports!));
         } else {
           // this will set a duplicate error
           target.set(key, sourceBinding);
@@ -2952,22 +2852,24 @@ export function createChecker(program: Program): Checker {
       kind: SyntaxKind.Identifier,
       pos: 0,
       end: 0,
-      sv: "__GLOBAL_NS",
-      symbol: undefined as any,
+      sv: "global",
+      symbol: undefined!,
       flags: NodeFlags.Synthetic,
     };
 
-    const nsNode: Writable<NamespaceStatementNode> = {
+    const nsNode: NamespaceStatementNode = {
       kind: SyntaxKind.NamespaceStatement,
       decorators: [],
       pos: 0,
       end: 0,
       id: nsId,
-      symbol: undefined as any,
+      symbol: undefined!,
       locals: createSymbolTable(),
       flags: NodeFlags.Synthetic,
     };
-    nsNode.symbol = createSymbol(nsNode, "__GLOBAL_NS", SymbolFlags.Namespace);
+
+    mutate(nsNode).symbol = createSymbol(nsNode, nsId.sv, SymbolFlags.Namespace);
+    mutate(nsNode.symbol.exports).set(nsId.sv, nsNode.symbol);
     return nsNode;
   }
 
@@ -3025,7 +2927,7 @@ export function createChecker(program: Program): Checker {
         clone = finishType({
           ...type,
           decorators,
-          variants: new Map<string | symbol, UnionTypeVariant>(
+          variants: new Map<string | symbol, UnionVariant>(
             Array.from(type.variants.entries()).map(([key, prop]) => [
               key,
               prop.kind === "UnionVariant" ? cloneType(prop) : prop,
@@ -3049,7 +2951,9 @@ export function createChecker(program: Program): Checker {
         clone = finishType({
           ...type,
           decorators,
-          members: type.members.map((v) => cloneType(v)),
+          members: new Map(
+            Array.from(type.members.entries()).map(([key, prop]) => [key, cloneType(prop)])
+          ),
           ...additionalProps,
         });
         break;
@@ -3086,7 +2990,7 @@ export function createChecker(program: Program): Checker {
     let type;
 
     if (links.declaredType) {
-      type = links.declaredType as ProjectionType;
+      type = links.declaredType as Projection;
     } else {
       type = links.declaredType = createType({
         kind: "Projection",
@@ -3200,7 +3104,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function evalProjectionModelExpression(node: ProjectionModelExpressionNode): TypeOrReturnRecord {
-    const modelType: ModelType = createType({
+    const modelType: Model = createType({
       kind: "Model",
       name: "",
       node: node,
@@ -3234,8 +3138,8 @@ export function createChecker(program: Program): Checker {
 
   function evalProjectionModelProperty(
     node: ProjectionModelPropertyNode,
-    model: ModelType
-  ): ModelTypeProperty | ReturnRecord {
+    model: Model
+  ): ModelProperty | ReturnRecord {
     const type = evalProjectionNode(node.value);
     if (type.kind === "Return") {
       return type;
@@ -3254,7 +3158,7 @@ export function createChecker(program: Program): Checker {
 
   function evalProjectionModelSpreadProperty(
     node: ProjectionModelSpreadPropertyNode
-  ): ModelTypeProperty[] | ReturnRecord {
+  ): ModelProperty[] | ReturnRecord {
     const target = evalProjectionNode(node.target);
     if (target.kind === "Return") {
       return target;
@@ -3405,7 +3309,7 @@ export function createChecker(program: Program): Checker {
 
   function evalProjectionArithmeticExpression(
     node: ProjectionArithmeticExpressionNode
-  ): StringLiteralType | NumericLiteralType | ReturnRecord {
+  ): StringLiteral | NumericLiteral | ReturnRecord {
     const lhs = evalProjectionNode(node.left);
     if (lhs.kind === "Return") {
       return lhs;
@@ -3427,11 +3331,9 @@ export function createChecker(program: Program): Checker {
     }
 
     if (lhs.kind === "String") {
-      return createLiteralType((lhs as StringLiteralType).value + (rhs as StringLiteralType).value);
+      return createLiteralType((lhs as StringLiteral).value + (rhs as StringLiteral).value);
     } else {
-      return createLiteralType(
-        (lhs as NumericLiteralType).value + (rhs as NumericLiteralType).value
-      );
+      return createLiteralType((lhs as NumericLiteral).value + (rhs as NumericLiteral).value);
     }
   }
 
@@ -3489,7 +3391,7 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function evalProjectionExpressionStatement(node: ProjectionExpressionStatement) {
+  function evalProjectionExpressionStatement(node: ProjectionExpressionStatementNode) {
     return evalProjectionNode(node.expr);
   }
 
@@ -3536,7 +3438,7 @@ export function createChecker(program: Program): Checker {
           }
           return prop;
         case "Enum":
-          const enumMember = base.members.find((v) => v.name === member);
+          const enumMember = base.members.get(member);
           if (!enumMember) {
             throw new ProjectionError(`Enum doesn't have member ${member}`);
           }
@@ -3584,33 +3486,31 @@ export function createChecker(program: Program): Checker {
     } as const);
   }
 
-  function literalTypeToValue(type: StringLiteralType): string;
-  function literalTypeToValue(type: NumericLiteralType): number;
-  function literalTypeToValue(type: BooleanLiteralType): boolean;
+  function literalTypeToValue(type: StringLiteral): string;
+  function literalTypeToValue(type: NumericLiteral): number;
+  function literalTypeToValue(type: BooleanLiteral): boolean;
+  function literalTypeToValue(type: StringLiteral | NumericLiteral | BooleanLiteral): boolean;
   function literalTypeToValue(
-    type: StringLiteralType | NumericLiteralType | BooleanLiteralType
-  ): boolean;
-  function literalTypeToValue(
-    type: StringLiteralType | NumericLiteralType | BooleanLiteralType
+    type: StringLiteral | NumericLiteral | BooleanLiteral
   ): string | number | boolean {
     return type.value;
   }
 
-  function createLiteralType(value: string, node?: StringLiteralNode): StringLiteralType;
-  function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteralType;
-  function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteralType;
+  function createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
+  function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
-  ): StringLiteralType | NumericLiteralType | BooleanLiteralType;
+  ): StringLiteral | NumericLiteral | BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
-  ): StringLiteralType | NumericLiteralType | BooleanLiteralType {
+  ): StringLiteral | NumericLiteral | BooleanLiteral {
     if (program.literalTypes.has(value)) {
       return program.literalTypes.get(value)!;
     }
-    let type: StringLiteralType | NumericLiteralType | BooleanLiteralType;
+    let type: StringLiteral | NumericLiteral | BooleanLiteral;
 
     switch (typeof value) {
       case "string":
@@ -3670,7 +3570,7 @@ export function createChecker(program: Program): Checker {
         kind: "Function",
         call(...args: Type[]): Type {
           const retval = ref.value!(program, ...marshalProjectionArguments(args));
-          return marshalProjectionReturn(retval);
+          return marshalProjectionReturn(retval, { functionName: node.sv });
         },
       } as const);
       return t;
@@ -3691,7 +3591,14 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function marshalProjectionReturn(value: unknown): Type {
+  interface MarshalOptions {
+    /**
+     * Name of the function in case of error.
+     */
+    functionName?: string;
+  }
+
+  function marshalProjectionReturn(value: unknown, options: MarshalOptions = {}): Type {
     if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
       return createLiteralType(value);
     }
@@ -3708,7 +3615,13 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    throw new ProjectionError("Can't marshal value returned from JS function into cadl");
+    if (options.functionName) {
+      throw new ProjectionError(
+        `Can't marshal value "${value}" returned from JS function "${options.functionName}" into cadl`
+      );
+    } else {
+      throw new ProjectionError(`Can't marshal value "${value}" into cadl`);
+    }
   }
 
   function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {
@@ -3736,15 +3649,15 @@ export function createChecker(program: Program): Checker {
     return retval;
   }
 
-  function evalStringLiteral(node: StringLiteralNode): StringLiteralType {
+  function evalStringLiteral(node: StringLiteralNode): StringLiteral {
     return createLiteralType(node.value, node);
   }
 
-  function evalNumericLiteral(node: NumericLiteralNode): NumericLiteralType {
+  function evalNumericLiteral(node: NumericLiteralNode): NumericLiteral {
     return createLiteralType(node.value, node);
   }
 
-  function evalBooleanLiteral(node: BooleanLiteralNode): BooleanLiteralType {
+  function evalBooleanLiteral(node: BooleanLiteralNode): BooleanLiteral {
     return createLiteralType(node.value, node);
   }
 
@@ -3753,7 +3666,11 @@ export function createChecker(program: Program): Checker {
     projection: ProjectionNode,
     args: (Type | boolean | string | number)[] = []
   ) {
-    return evalProjectionStatement(projection, target, args.map(marshalProjectionReturn));
+    return evalProjectionStatement(
+      projection,
+      target,
+      args.map((x) => marshalProjectionReturn(x))
+    );
   }
 
   function memberExpressionToString(expr: IdentifierNode | MemberExpressionNode) {
@@ -3774,7 +3691,7 @@ export function createChecker(program: Program): Checker {
    * Check if the source type can be assigned to the target type and emit diagnostics
    * @param source Source type
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function checkTypeAssignable(
     source: Type,
@@ -3792,7 +3709,7 @@ export function createChecker(program: Program): Checker {
    * Check if the source type can be assigned to the target type.
    * @param source Source type
    * @param target Target type
-   * @param diagnosticTarget Target for the diagnostic, unless something better can be inffered.
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function isTypeAssignableTo(
     source: Type,
@@ -3814,11 +3731,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
-      return isIndexerValid(
-        source,
-        target as ModelType & { indexer: ModelIndexer },
-        diagnosticTarget
-      );
+      return isIndexerValid(source, target as Model & { indexer: ModelIndexer }, diagnosticTarget);
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target, diagnosticTarget);
     } else if (target.kind === "Model" && target.indexer && source.kind === "Tuple") {
@@ -3885,8 +3798,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function isNumericLiteralRelatedTo(
-    source: NumericLiteralType,
-    targetInstrinsicType:
+    source: NumericLiteral,
+    targetIntrinsicType:
       | "int64"
       | "int32"
       | "int16"
@@ -3902,18 +3815,18 @@ export function createChecker(program: Program): Checker {
       | "integer"
       | "float"
   ) {
-    if (targetInstrinsicType === "numeric") return true;
+    if (targetIntrinsicType === "numeric") return true;
     const isInt = Number.isInteger(source.value);
-    if (targetInstrinsicType === "integer") return isInt;
-    if (targetInstrinsicType === "float") return true;
+    if (targetIntrinsicType === "integer") return isInt;
+    if (targetIntrinsicType === "float") return true;
 
-    const [low, high, options] = numericRanges[targetInstrinsicType];
+    const [low, high, options] = numericRanges[targetIntrinsicType];
     return source.value >= low && source.value <= high && (!options.int || isInt);
   }
 
   function isModelRelatedTo(
-    source: ModelType,
-    target: ModelType,
+    source: Model,
+    target: Model,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     const diagnostics: Diagnostic[] = [];
@@ -3947,7 +3860,7 @@ export function createChecker(program: Program): Checker {
     return [diagnostics.length === 0, diagnostics];
   }
 
-  function getProperty(model: ModelType, name: string): ModelTypeProperty | undefined {
+  function getProperty(model: Model, name: string): ModelProperty | undefined {
     return (
       model.properties.get(name) ??
       (model.baseModel !== undefined ? getProperty(model.baseModel, name) : undefined)
@@ -3955,8 +3868,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function isIndexerValid(
-    source: ModelType,
-    target: ModelType & { indexer: ModelIndexer },
+    source: Model,
+    target: Model & { indexer: ModelIndexer },
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     if (isNeverIndexer(target.indexer)) {
@@ -3989,11 +3902,11 @@ export function createChecker(program: Program): Checker {
   /**
    * @param constraintType Type of the constraints(All properties must have this type).
    * @param type Type of the model that should be respecting the constraint.
-   * @param diagnosticTarget Diagnostic target unless something better can be inffered.
+   * @param diagnosticTarget Diagnostic target unless something better can be inferred.
    */
   function isIndexConstraintValid(
     constraintType: Type,
-    type: ModelType,
+    type: Model,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     for (const prop of type.properties.values()) {
@@ -4021,8 +3934,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function isTupleAssignableToTuple(
-    source: TupleType,
-    target: TupleType,
+    source: Tuple,
+    target: Tuple,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     if (source.values.length !== target.values.length) {
@@ -4054,7 +3967,7 @@ export function createChecker(program: Program): Checker {
 
   function isAssignableToUnion(
     source: Type,
-    target: UnionType,
+    target: Union,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     for (const option of target.options) {
@@ -4068,7 +3981,7 @@ export function createChecker(program: Program): Checker {
 
   function isAssignableToEnum(
     source: Type,
-    target: EnumType,
+    target: Enum,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, Diagnostic[]] {
     switch (source.kind) {
@@ -4109,140 +4022,6 @@ export function createChecker(program: Program): Checker {
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
     return false;
   }
-
-  function getProjectedEffectiveModelType(type: ModelType): ModelType {
-    if (!program.currentProjector) {
-      return type;
-    }
-
-    const projectedType = program.currentProjector.projectType(type);
-    if (projectedType.kind !== "Model") {
-      compilerAssert(false, "Fail");
-    }
-
-    return projectedType;
-  }
-
-  function getEffectiveModelType(
-    model: ModelType,
-    filter?: (property: ModelTypeProperty) => boolean
-  ): ModelType {
-    if (filter) {
-      model = filterModelProperties(model, filter);
-    }
-
-    if (model.name) {
-      // named model
-      return getProjectedEffectiveModelType(model);
-    }
-
-    // We would need to change the algorithm if this doesn't hold. We
-    // assume model has no inherited properties below.
-    compilerAssert(!model.baseModel, "Anonymous model with base model.");
-
-    if (model.properties.size === 0) {
-      // empty model
-      return model;
-    }
-
-    // Find the candidate set of named model types that could have been the
-    // source of every property in the model.
-    let candidates: Set<ModelType> | undefined;
-    for (const property of model.properties.values()) {
-      const sources = getNamedSourceModels(property);
-      if (!sources) {
-        // unsourced property: no possible match
-        return model;
-      }
-
-      if (!candidates) {
-        // first sourced property: initialize candidates to its sources
-        candidates = sources;
-        continue;
-      }
-
-      // Add any derived types we observe to both sides. A derived type can
-      // substitute for a base type in these sets because derived types have
-      // all the properties of their bases.
-      //
-      // NOTE: Once property overrides are allowed, this code will need to
-      // be updated to check that the current property is not overridden by
-      // the derived type before adding it here. An override would invalidate
-      // this substitution.
-      addDerivedModels(sources, candidates);
-      addDerivedModels(candidates, sources);
-
-      // remove candidates that are not common to this property
-      for (const element of candidates) {
-        if (!sources.has(element)) {
-          candidates.delete(element);
-        }
-      }
-    }
-
-    // Search for a candidate that has no additional properties (ignoring
-    // filtered properties). If so, it is effectively the same type as the
-    // input model. Consider a candidate that meets this test without
-    // ignoring filtering as a better match than one that requires filtering
-    // to meet this test.
-    let match: ModelType | undefined;
-    for (const candidate of candidates ?? []) {
-      if (model.properties.size === countPropertiesInherited(candidate)) {
-        match = candidate;
-        break; // exact match
-      }
-      if (
-        filter &&
-        !match &&
-        model.properties.size === countPropertiesInherited(candidate, filter)
-      ) {
-        match = candidate;
-        continue; // match with filter: keep searching for exact match
-      }
-    }
-
-    return match ? getProjectedEffectiveModelType(match) : model;
-  }
-
-  function filterModelProperties(
-    model: ModelType,
-    filter: (property: ModelTypeProperty) => boolean
-  ): ModelType {
-    let filtered = false;
-    for (const property of walkPropertiesInherited(model)) {
-      if (!filter(property)) {
-        filtered = true;
-        break;
-      }
-    }
-
-    if (!filtered) {
-      return model;
-    }
-
-    const properties = new Map<string, ModelTypeProperty>();
-    const newModel: ModelType = createType({
-      kind: "Model",
-      node: undefined,
-      name: "",
-      indexer: undefined,
-      properties,
-      decorators: [],
-      derivedModels: [],
-    });
-
-    for (const property of walkPropertiesInherited(model)) {
-      if (filter(property)) {
-        const newProperty = cloneType(property, {
-          sourceProperty: property,
-          model: newModel,
-        });
-        properties.set(property.name, newProperty);
-      }
-    }
-
-    return finishType(newModel);
-  }
 }
 
 function isAnonymous(type: Type) {
@@ -4251,10 +4030,6 @@ function isAnonymous(type: Type) {
 
 function isErrorType(type: Type): type is ErrorType {
   return type.kind === "Intrinsic" && type.name === "ErrorType";
-}
-
-function createUsingSymbol(symbolSource: Sym): Sym {
-  return { flags: SymbolFlags.Using, declarations: [], name: symbolSource.name, symbolSource };
 }
 
 const numericRanges = {
@@ -4328,13 +4103,13 @@ const IntrinsicTypeRelations = new IntrinsicTypeRelationTree({
  * property. This includes the named parents of all property sources in a
  * chain.
  */
-function getNamedSourceModels(property: ModelTypeProperty): Set<ModelType> | undefined {
+function getNamedSourceModels(property: ModelProperty): Set<Model> | undefined {
   if (!property.sourceProperty) {
     return undefined;
   }
 
-  const set = new Set<ModelType>();
-  for (let p: ModelTypeProperty | undefined = property; p; p = p.sourceProperty) {
+  const set = new Set<Model>();
+  for (let p: ModelProperty | undefined = property; p; p = p.sourceProperty) {
     if (p.model?.name) {
       set.add(p.model);
     }
@@ -4347,7 +4122,7 @@ function getNamedSourceModels(property: ModelTypeProperty): Set<ModelType> | und
  * Find derived types of `models` in `possiblyDerivedModels` and add them to
  * `models`.
  */
-function addDerivedModels(models: Set<ModelType>, possiblyDerivedModels: ReadonlySet<ModelType>) {
+function addDerivedModels(models: Set<Model>, possiblyDerivedModels: ReadonlySet<Model>) {
   for (const element of possiblyDerivedModels) {
     if (!models.has(element)) {
       for (let t = element.baseModel; t; t = t.baseModel) {
@@ -4365,12 +4140,12 @@ export function isNeverIndexer(indexer: ModelIndexer): indexer is NeverIndexer {
 }
 
 interface TypeMapper {
-  getMappedType(type: TemplateParameterType): Type;
+  getMappedType(type: TemplateParameter): Type;
   args: readonly Type[];
 }
 
-function createTypeMapper(parameters: TemplateParameterType[], args: Type[]): TypeMapper {
-  const map = new Map<TemplateParameterType, Type>();
+function createTypeMapper(parameters: TemplateParameter[], args: Type[]): TypeMapper {
+  const map = new Map<TemplateParameter, Type>();
 
   for (const [index, param] of parameters.entries()) {
     map.set(param, args[index]);
@@ -4378,8 +4153,279 @@ function createTypeMapper(parameters: TemplateParameterType[], args: Type[]): Ty
 
   return {
     args,
-    getMappedType: (type: TemplateParameterType) => {
+    getMappedType: (type: TemplateParameter) => {
       return map.get(type) ?? type;
+    },
+  };
+}
+
+/**
+ * If the input is anonymous (or the provided filter removes properties)
+ * and there exists a named model with the same set of properties
+ * (ignoring filtered properties), then return that named model.
+ * Otherwise, return the input unchanged.
+ *
+ * This can be used by emitters to find a better name for a set of
+ * properties after filtering. For example, given `{ @metadata prop:
+ * string} & SomeName`, and an emitter that wishes to discard properties
+ * marked with `@metadata`, the emitter can use this to recover that the
+ * best name for the remaining properties is `SomeName`.
+ *
+ * @param model The input model
+ * @param filter An optional filter to apply to the input model's
+ * properties.
+ */
+export function getEffectiveModelType(
+  program: Program,
+  model: Model,
+  filter?: (property: ModelProperty) => boolean
+): Model {
+  if (filter) {
+    model = filterModelProperties(program, model, filter);
+  }
+
+  if (model.name) {
+    // named model
+    return getProjectedEffectiveModelType(program, model);
+  }
+
+  // We would need to change the algorithm if this doesn't hold. We
+  // assume model has no inherited properties below.
+  compilerAssert(!model.baseModel, "Anonymous model with base model.");
+
+  if (model.properties.size === 0) {
+    // empty model
+    return model;
+  }
+
+  // Find the candidate set of named model types that could have been the
+  // source of every property in the model.
+  let candidates: Set<Model> | undefined;
+  for (const property of model.properties.values()) {
+    const sources = getNamedSourceModels(property);
+    if (!sources) {
+      // unsourced property: no possible match
+      return model;
+    }
+
+    if (!candidates) {
+      // first sourced property: initialize candidates to its sources
+      candidates = sources;
+      continue;
+    }
+
+    // Add any derived types we observe to both sides. A derived type can
+    // substitute for a base type in these sets because derived types have
+    // all the properties of their bases.
+    //
+    // NOTE: Once property overrides are allowed, this code will need to
+    // be updated to check that the current property is not overridden by
+    // the derived type before adding it here. An override would invalidate
+    // this substitution.
+    addDerivedModels(sources, candidates);
+    addDerivedModels(candidates, sources);
+
+    // remove candidates that are not common to this property
+    for (const element of candidates) {
+      if (!sources.has(element)) {
+        candidates.delete(element);
+      }
+    }
+  }
+
+  // Search for a candidate that has no additional properties (ignoring
+  // filtered properties). If so, it is effectively the same type as the
+  // input model. Consider a candidate that meets this test without
+  // ignoring filtering as a better match than one that requires filtering
+  // to meet this test.
+  let match: Model | undefined;
+  for (const candidate of candidates ?? []) {
+    if (model.properties.size === countPropertiesInherited(candidate)) {
+      match = candidate;
+      break; // exact match
+    }
+    if (filter && !match && model.properties.size === countPropertiesInherited(candidate, filter)) {
+      match = candidate;
+      continue; // match with filter: keep searching for exact match
+    }
+  }
+
+  return match ? getProjectedEffectiveModelType(program, match) : model;
+}
+
+/**
+ * Applies a filter to the properties of a given type. If no properties
+ * are filtered out, then return the input unchanged. Otherwise, return
+ * a new anonymous model with only the filtered properties.
+ *
+ * @param model The input model to filter.
+ * @param filter The filter to apply. Properties are kept when this returns true.
+ */
+export function filterModelProperties(
+  program: Program | ProjectedProgram,
+  model: Model,
+  filter: (property: ModelProperty) => boolean
+): Model {
+  let filtered = false;
+  for (const property of walkPropertiesInherited(model)) {
+    if (!filter(property)) {
+      filtered = true;
+      break;
+    }
+  }
+
+  if (!filtered) {
+    return model;
+  }
+
+  const properties = new Map<string, ModelProperty>();
+  const newModel: Model = program.checker.createType({
+    kind: "Model",
+    node: undefined,
+    name: "",
+    indexer: undefined,
+    properties,
+    decorators: [],
+    derivedModels: [],
+  });
+
+  for (const property of walkPropertiesInherited(model)) {
+    if (filter(property)) {
+      const newProperty = program.checker.cloneType(property, {
+        sourceProperty: property,
+        model: newModel,
+      });
+      properties.set(property.name, newProperty);
+    }
+  }
+
+  return finishTypeForProgram(program, newModel);
+}
+
+function getProjectedEffectiveModelType(program: Program | ProjectedProgram, type: Model): Model {
+  if (!isProjectedProgram(program)) {
+    return type;
+  }
+
+  const projectedType = program.projector.projectType(type);
+  if (projectedType.kind !== "Model") {
+    compilerAssert(false, "Fail");
+  }
+
+  return projectedType;
+}
+
+function* walkPropertiesInherited(model: Model) {
+  let current: Model | undefined = model;
+
+  while (current) {
+    yield* current.properties.values();
+    current = current.baseModel;
+  }
+}
+
+function countPropertiesInherited(model: Model, filter?: (property: ModelProperty) => boolean) {
+  let count = 0;
+  if (filter) {
+    for (const each of walkPropertiesInherited(model)) {
+      if (filter(each)) {
+        count++;
+      }
+    }
+  } else {
+    for (let m: Model | undefined = model; m; m = m.baseModel) {
+      count += m.properties.size;
+    }
+  }
+  return count;
+}
+
+export function finishTypeForProgram<T extends Type>(
+  program: Program,
+  typeDef: T,
+  mapper?: TypeMapper
+): T {
+  return finishTypeForProgramAndChecker(program, program.checker.typePrototype, typeDef, mapper);
+}
+
+function finishTypeForProgramAndChecker<T extends Type>(
+  program: Program,
+  typePrototype: TypePrototype,
+  typeDef: T,
+  mapper?: TypeMapper
+): T {
+  if (mapper) {
+    compilerAssert(
+      !(typeDef as any).templateArguments,
+      "Mapper provided but template arguments already set."
+    );
+    (typeDef as any).templateArguments = mapper.args;
+  }
+
+  if ("decorators" in typeDef) {
+    for (const decApp of typeDef.decorators) {
+      applyDecoratorToType(program, decApp, typeDef);
+    }
+  }
+
+  Object.setPrototypeOf(typeDef, typePrototype);
+
+  return typeDef;
+}
+
+function applyDecoratorToType(program: Program, decApp: DecoratorApplication, target: Type) {
+  compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
+
+  for (const arg of decApp.args) {
+    if (typeof arg.value === "object") {
+      if (isErrorType(arg.value)) {
+        // If one of the decorator argument is an error don't run it.
+        return;
+      }
+    }
+  }
+
+  // peel `fn` off to avoid setting `this`.
+  try {
+    const fn = decApp.decorator;
+    const context = createDecoratorContext(program, decApp);
+    fn(context, target, ...decApp.args.map((x) => x.value));
+  } catch (error: any) {
+    // do not fail the language server for exceptions in decorators
+    if (program.compilerOptions.designTimeBuild) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "decorator-fail",
+          format: { decoratorName: decApp.decorator.name, error: error.stack },
+          target: decApp.node ?? target,
+        })
+      );
+    } else {
+      throw error;
+    }
+  }
+}
+
+function createDecoratorContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
+  function createPassThruContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
+    return {
+      program,
+      decoratorTarget: decApp.node!,
+      getArgumentTarget: () => decApp.node!,
+      call: (decorator, target, ...args) => {
+        return decorator(createPassThruContext(program, decApp), target, ...args);
+      },
+    };
+  }
+
+  return {
+    program,
+    decoratorTarget: decApp.node!,
+    getArgumentTarget: (index: number) => {
+      return decApp.args[index]?.node;
+    },
+    call: (decorator, target, ...args) => {
+      return decorator(createPassThruContext(program, decApp), target, ...args);
     },
   };
 }

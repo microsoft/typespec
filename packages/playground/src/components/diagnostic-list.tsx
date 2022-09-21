@@ -1,4 +1,4 @@
-import { Diagnostic } from "@cadl-lang/compiler";
+import type { Diagnostic } from "@cadl-lang/compiler";
 import { FunctionComponent } from "react";
 
 export interface DiagnosticListProps {

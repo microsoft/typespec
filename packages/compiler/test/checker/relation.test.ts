@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { isNeverIndexer, ModelType } from "../../core/index.js";
+import { isNeverIndexer, Model } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -28,7 +28,7 @@ describe("compiler: checker: type relations", () => {
     @test model Test {
       source: ${source};
       target: ${target};
-    }`)) as { Test: ModelType };
+    }`)) as { Test: Model };
     const sourceProp = Test.properties.get("source")!.type;
     const targetProp = Test.properties.get("target")!.type;
     return runner.program.checker.isTypeAssignableTo(sourceProp, targetProp, targetProp);
@@ -85,8 +85,8 @@ describe("compiler: checker: type relations", () => {
       const { Bar } = (await runner.compile(`
         alias Foo = Record<{foo: string}> & Record<{bar: string}>;
         @test model Bar {foo: Foo}
-      `)) as { Bar: ModelType };
-      const Foo = Bar.properties.get("foo")!.type as ModelType;
+      `)) as { Bar: Model };
+      const Foo = Bar.properties.get("foo")!.type as Model;
       ok(Foo.indexer);
       ok(!isNeverIndexer(Foo.indexer));
       const indexValue = Foo.indexer.value;
@@ -169,7 +169,7 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
     });
 
-    it("emit diagnostic when assigning numericl literal", async () => {
+    it("emit diagnostic when assigning numeric literal", async () => {
       await expectTypeNotAssignable(
         { source: "123", target: "string" },
         {
@@ -452,7 +452,7 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: "{}", target: "object" });
     });
 
-    it("can assign object with proprety", async () => {
+    it("can assign object with property", async () => {
       await expectTypeAssignable({ source: "{foo: string}", target: "object" });
     });
 
@@ -577,7 +577,7 @@ describe("compiler: checker: type relations", () => {
         target: "Aging",
         commonCode: `
           model Pet { name: string; age: int32 }
-          model Cat extends Pet { moew: boolean }
+          model Cat extends Pet { meow: boolean }
 
           model Aging { age: int32 }
         `,
@@ -700,7 +700,7 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
-    it("can a memeber of the enum", async () => {
+    it("can a member of the enum", async () => {
       await expectTypeAssignable({
         source: "Foo.a",
         target: "Foo",

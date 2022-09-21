@@ -1,6 +1,24 @@
 # Change Log - cadl-vscode
 
-This log was last generated on Fri, 08 Jul 2022 23:22:58 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+
+## 0.16.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- Add support for `${workspaceFolder}` interpolation in configuration. As `workspaceRoot` is deprecated by VSCode
+
+### Patches
+
+- Allow cadl.restartServer command to work when no .cadl file has been opened
+
+## 0.15.2
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Patches
+
+- Providing `cadl.cadl-server.path` option will force the specified compiler to be used
 
 ## 0.15.1
 Fri, 08 Jul 2022 23:22:58 GMT

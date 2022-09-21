@@ -41,7 +41,7 @@ export interface DecoratedType {
 /**
  * Union of all the types that implement TemplatedTypeBase
  */
-export type TemplatedType = ModelType | OperationType | InterfaceType | UnionType;
+export type TemplatedType = Model | Operation | Interface | Union;
 
 export interface TemplatedTypeBase {
   templateArguments?: Type[];
@@ -49,24 +49,69 @@ export interface TemplatedTypeBase {
 }
 
 export type Type =
-  | ModelType
-  | ModelTypeProperty
-  | InterfaceType
-  | EnumType
-  | EnumMemberType
-  | TemplateParameterType
-  | NamespaceType
-  | OperationType
-  | StringLiteralType
-  | NumericLiteralType
-  | BooleanLiteralType
-  | TupleType
-  | UnionType
-  | UnionTypeVariant
+  | Model
+  | ModelProperty
+  | Interface
+  | Enum
+  | EnumMember
+  | TemplateParameter
+  | Namespace
+  | Operation
+  | StringLiteral
+  | NumericLiteral
+  | BooleanLiteral
+  | Tuple
+  | Union
+  | UnionVariant
   | IntrinsicType
   | FunctionType
   | ObjectType
-  | ProjectionType;
+  | Projection;
+
+/** @deprecated Use `Model` instead. */
+export type ModelType = Model;
+
+/** @deprecated Use `ModelProperty` instead. */
+export type ModelTypeProperty = ModelProperty;
+
+/** @deprecated Use `Interface` instead. */
+export type InterfaceType = Interface;
+
+/** @deprecated Use `Enum` instead. */
+export type EnumType = Enum;
+
+/** @deprecated Use `EnumMember` instead. */
+export type EnumMemberType = EnumMember;
+
+/** @deprecated Use `TemplateParameter` instead.` */
+export type TemplateParameterType = TemplateParameter;
+
+/** @deprecated Use `Namespace` instead. */
+export type NamespaceType = Namespace;
+
+/** @deprecated Use `Operation` instead. */
+export type OperationType = Operation;
+
+/** @deprecated Use `StringLiteral` instead. */
+export type StringLiteralType = StringLiteral;
+
+/** @deprecated Use `BooleanLiteral` instead. */
+export type BooleanLiteralType = BooleanLiteral;
+
+/** @deprecated Use `NumericLiteral` instead. */
+export type NumericLiteralType = NumericLiteral;
+
+/** @deprecated Use `Tuple` instead. */
+export type TupleType = Tuple;
+
+/** @deprecated Use `Union` instead. */
+export type UnionType = Union;
+
+/** @deprecated Use `UnionVariant` instead. */
+export type UnionTypeVariant = UnionVariant;
+
+/** @deprecated Use `Projection` instead. */
+export type ProjectionType = Projection;
 
 export type TypeOrReturnRecord = Type | ReturnRecord;
 
@@ -80,7 +125,7 @@ export interface ObjectType extends BaseType {
   properties: Record<string, Type>;
 }
 
-export interface ProjectionType extends BaseType {
+export interface Projection extends BaseType {
   kind: "Projection";
   node: undefined;
   nodeByKind: Map<string, ProjectionStatementNode>;
@@ -95,11 +140,12 @@ export interface ProjectionApplication {
 }
 
 export interface Projector {
+  parentProjector?: Projector;
   projections: ProjectionApplication[];
   projectedTypes: Map<Type, Type>;
   projectType(type: Type): Type;
   projectedStartNode?: Type;
-  projectedGlobalNamespace?: NamespaceType;
+  projectedGlobalNamespace?: Namespace;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -154,26 +200,26 @@ export type IntrinsicModelName =
   | "boolean"
   | "null";
 
-export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = ModelType & {
+export type IntrinsicModel<T extends IntrinsicModelName = IntrinsicModelName> = Model & {
   name: T;
 };
 
 export type NeverIndexer = { key: NeverType; value: undefined };
 export type ModelKeyIndexer = {
-  key: ModelType;
+  key: Model;
   value: Type;
 };
 export type ModelIndexer = ModelKeyIndexer | NeverIndexer;
 
-export interface ArrayModelType extends ModelType {
-  indexer: { key: ModelType; value: Type };
+export interface ArrayModelType extends Model {
+  indexer: { key: Model; value: Type };
 }
 
-export interface RecordModelType extends ModelType {
-  indexer: { key: ModelType; value: Type };
+export interface RecordModelType extends Model {
+  indexer: { key: Model; value: Type };
 }
 
-export interface ModelType extends BaseType, DecoratedType, TemplatedTypeBase {
+export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Model";
   name: IntrinsicModelName | string;
   node?:
@@ -181,19 +227,19 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedTypeBase {
     | ModelExpressionNode
     | IntersectionExpressionNode
     | ProjectionModelExpressionNode;
-  namespace?: NamespaceType;
+  namespace?: Namespace;
   indexer?: ModelIndexer;
-  properties: Map<string, ModelTypeProperty>;
+  properties: Map<string, ModelProperty>;
 
   /**
    * Model this model extends. This represent inheritance.
    */
-  baseModel?: ModelType;
+  baseModel?: Model;
 
   /**
    * Direct children. This is the reverse relation of @see baseModel
    */
-  derivedModels: ModelType[];
+  derivedModels: Model[];
 
   /**
    * Late-bound symbol of this model type.
@@ -202,7 +248,7 @@ export interface ModelType extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
-export interface ModelTypeProperty extends BaseType, DecoratedType {
+export interface ModelProperty extends BaseType, DecoratedType {
   kind: "ModelProperty";
   node:
     | ModelPropertyNode
@@ -213,18 +259,18 @@ export interface ModelTypeProperty extends BaseType, DecoratedType {
   type: Type;
   // when spread or intersection operators make new property types,
   // this tracks the property we copied from.
-  sourceProperty?: ModelTypeProperty;
+  sourceProperty?: ModelProperty;
   optional: boolean;
   default?: Type;
-  model?: ModelType;
+  model?: Model;
 }
 
-export interface InterfaceType extends BaseType, DecoratedType, TemplatedTypeBase {
+export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Interface";
   name: string;
   node: InterfaceStatementNode;
-  namespace?: NamespaceType;
-  operations: Map<string, OperationType>;
+  namespace?: Namespace;
+  operations: Map<string, Operation>;
   /**
    * Late-bound symbol of this interface type.
    * @internal
@@ -232,83 +278,86 @@ export interface InterfaceType extends BaseType, DecoratedType, TemplatedTypeBas
   symbol?: Sym;
 }
 
-export interface EnumType extends BaseType, DecoratedType {
+export interface Enum extends BaseType, DecoratedType {
   kind: "Enum";
   name: string;
   node: EnumStatementNode;
-  namespace?: NamespaceType;
-  members: EnumMemberType[];
+  namespace?: Namespace;
+  members: Map<string, EnumMember>;
 }
 
-export interface EnumMemberType extends BaseType, DecoratedType {
+export interface EnumMember extends BaseType, DecoratedType {
   kind: "EnumMember";
   name: string;
-  enum: EnumType;
+  enum: Enum;
   node: EnumMemberNode;
   value?: string | number;
   /**
    * when spread operators make new enum members,
    * this tracks the enum member we copied from.
    */
-  sourceMember?: EnumMemberType;
+  sourceMember?: EnumMember;
 }
 
-export interface OperationType extends BaseType, DecoratedType, TemplatedTypeBase {
+export interface Operation extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Operation";
   node: OperationStatementNode;
   name: string;
-  namespace?: NamespaceType;
-  interface?: InterfaceType;
-  parameters: ModelType;
+  namespace?: Namespace;
+  interface?: Interface;
+  parameters: Model;
   returnType: Type;
 }
 
-export interface NamespaceType extends BaseType, DecoratedType {
+export interface Namespace extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
-  namespace?: NamespaceType;
+  namespace?: Namespace;
   node: NamespaceStatementNode;
-  models: Map<string, ModelType>;
-  operations: Map<string, OperationType>;
-  namespaces: Map<string, NamespaceType>;
-  interfaces: Map<string, InterfaceType>;
-  enums: Map<string, EnumType>;
-  unions: Map<string, UnionType>;
+  models: Map<string, Model>;
+  operations: Map<string, Operation>;
+  namespaces: Map<string, Namespace>;
+  interfaces: Map<string, Interface>;
+  enums: Map<string, Enum>;
+  unions: Map<string, Union>;
 }
 
-export type LiteralType = StringLiteralType | NumericLiteralType | BooleanLiteralType;
+export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
 
-export interface StringLiteralType extends BaseType {
+export interface StringLiteral extends BaseType {
   kind: "String";
   node?: StringLiteralNode;
   value: string;
 }
 
-export interface NumericLiteralType extends BaseType {
+export interface NumericLiteral extends BaseType {
   kind: "Number";
   node?: NumericLiteralNode;
   value: number;
 }
 
-export interface BooleanLiteralType extends BaseType {
+export interface BooleanLiteral extends BaseType {
   kind: "Boolean";
   node?: BooleanLiteralNode;
   value: boolean;
 }
 
-export interface TupleType extends BaseType {
+export interface Tuple extends BaseType {
   kind: "Tuple";
   node: TupleExpressionNode;
   values: Type[];
 }
 
-export interface UnionType extends BaseType, DecoratedType, TemplatedTypeBase {
+export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
   node: UnionExpressionNode | UnionStatementNode;
-  namespace?: NamespaceType;
-  variants: Map<string | symbol, UnionTypeVariant>;
+  namespace?: Namespace;
+  variants: Map<string | symbol, UnionVariant>;
   expression: boolean;
+  /**
+   * @deprecated use variants
+   */
   readonly options: Type[];
 
   /**
@@ -318,14 +367,15 @@ export interface UnionType extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
-export interface UnionTypeVariant extends BaseType, DecoratedType {
+export interface UnionVariant extends BaseType, DecoratedType {
   kind: "UnionVariant";
   name: string | symbol;
   node: UnionVariantNode | undefined;
   type: Type;
+  union: Union;
 }
 
-export interface TemplateParameterType extends BaseType {
+export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
   constraint?: Type;
@@ -333,56 +383,56 @@ export interface TemplateParameterType extends BaseType {
 }
 
 export interface Sym {
-  flags: SymbolFlags;
+  readonly flags: SymbolFlags;
 
   /**
    * Nodes which contribute to this declaration
    */
-  declarations: Node[];
+  readonly declarations: readonly Node[];
 
   /**
    * The name of the symbol
    */
-  name: string;
+  readonly name: string;
 
   /**
    * A unique identifier for this symbol. Used to look up the symbol links.
    */
-  id?: number;
+  readonly id?: number;
 
   /**
    * The symbol containing this symbol, if any. E.g. for things declared in
    * a namespace, this refers to the namespace.
    */
-  parent?: Sym;
+  readonly parent?: Sym;
 
   /**
    * Externally visible symbols contained inside this symbol. E.g. all declarations
    * in a namespace, or members of an enum.
    */
-  exports?: SymbolTable;
+  readonly exports?: SymbolTable;
 
   /**
    * Symbols for members of this symbol which must be referenced off the parent symbol
    * and cannot be referenced by other means (i.e. by unqualified lookup of the symbol
    * name).
    */
-  members?: SymbolTable;
+  readonly members?: SymbolTable;
 
   /**
    * For using symbols, this is the used symbol.
    */
-  symbolSource?: Sym;
+  readonly symbolSource?: Sym;
 
   /**
    * For late-bound symbols, this is the type referenced by the symbol.
    */
-  type?: Type;
+  readonly type?: Type;
 
   /**
    * For decorator and function symbols, this is the JS function implementation.
    */
-  value?: (...args: any[]) => any;
+  readonly value?: (...args: any[]) => any;
 }
 
 export interface SymbolLinks {
@@ -394,11 +444,11 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
-export interface SymbolTable extends Map<string, Sym> {
+export interface SymbolTable extends ReadonlyMap<string, Sym> {
   /**
    * Duplicate
    */
-  readonly duplicates: Map<Sym, Set<Sym>>;
+  readonly duplicates: ReadonlyMap<Sym, ReadonlySet<Sym>>;
 }
 
 // prettier-ignore
@@ -553,7 +603,7 @@ export const enum NodeFlags {
 
 export interface BaseNode extends TextRange {
   readonly kind: SyntaxKind;
-  parent?: Node;
+  readonly parent?: Node;
   readonly directives?: readonly DirectiveExpressionNode[];
   readonly flags: NodeFlags;
   /**
@@ -565,7 +615,7 @@ export interface BaseNode extends TextRange {
 
 export interface TemplateDeclarationNode {
   readonly templateParameters: readonly TemplateParameterDeclarationNode[];
-  locals?: SymbolTable;
+  readonly locals?: SymbolTable;
 }
 
 export type Node =
@@ -601,10 +651,14 @@ export type Node =
 export type Comment = LineComment | BlockComment;
 
 export interface LineComment extends TextRange {
-  kind: SyntaxKind.LineComment;
+  readonly kind: SyntaxKind.LineComment;
 }
 export interface BlockComment extends TextRange {
-  kind: SyntaxKind.BlockComment;
+  readonly kind: SyntaxKind.BlockComment;
+}
+
+export interface ParseOptions {
+  readonly comments?: boolean;
 }
 
 export interface CadlScriptNode extends DeclarationNode, BaseNode {
@@ -618,6 +672,7 @@ export interface CadlScriptNode extends DeclarationNode, BaseNode {
   readonly parseDiagnostics: readonly Diagnostic[];
   readonly printable: boolean; // If this ast tree can safely be printed/formatted.
   readonly locals: SymbolTable;
+  readonly parseOptions: ParseOptions; // Options used to parse this file
 }
 
 export type Statement =
@@ -635,7 +690,7 @@ export type Statement =
   | ProjectionStatementNode;
 
 export interface DeclarationNode {
-  id: IdentifierNode;
+  readonly id: IdentifierNode;
 }
 
 export type Declaration =
@@ -740,7 +795,7 @@ export interface MemberExpressionNode extends BaseNode {
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.NamespaceStatement;
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
-  readonly decorators: DecoratorExpressionNode[];
+  readonly decorators: readonly DecoratorExpressionNode[];
   readonly locals?: SymbolTable;
 }
 
@@ -775,7 +830,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
   readonly extends?: Expression;
   readonly is?: Expression;
-  readonly decorators: DecoratorExpressionNode[];
+  readonly decorators: readonly DecoratorExpressionNode[];
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -942,13 +997,13 @@ export interface ProjectionEnumSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionEnumSelector;
 }
 
-export type ProjectionStatementItem = ProjectionExpressionStatement;
+export type ProjectionStatementItem = ProjectionExpressionStatementNode;
 
 export interface ProjectionParameterDeclarationNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.ProjectionParameterDeclaration;
 }
 
-export interface ProjectionExpressionStatement extends BaseNode {
+export interface ProjectionExpressionStatementNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionExpressionStatement;
   readonly expr: ProjectionExpression;
 }
@@ -1015,7 +1070,7 @@ export interface ProjectionModelPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionModelProperty;
   readonly id: IdentifierNode | StringLiteralNode;
   readonly value: ProjectionExpression;
-  readonly decorators: DecoratorExpressionNode[];
+  readonly decorators: readonly DecoratorExpressionNode[];
   readonly optional: boolean;
   readonly default?: ProjectionExpression;
 }
@@ -1051,6 +1106,7 @@ export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNod
 export interface ProjectionNode extends BaseNode {
   readonly kind: SyntaxKind.Projection;
   readonly direction: "to" | "from";
+  readonly directionId: IdentifierNode;
   readonly parameters: ProjectionParameterDeclarationNode[];
   readonly body: ProjectionStatementItem[];
   readonly locals?: SymbolTable;
@@ -1123,7 +1179,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 }
 
 export type EmitterOptions = { name?: string } & Record<string, any>;
-export type Emitter = (program: Program, options: EmitterOptions) => void;
+export type Emitter = (program: Program, options: EmitterOptions) => Promise<void> | void;
 
 export interface SourceFile {
   /** The source code text. */
@@ -1134,7 +1190,7 @@ export interface SourceFile {
    *
    * This is used only for diagnostics. The command line compiler will populate
    * it with the actual path from which the file was read, but it can actually
-   * be an aribitrary name for other scenarios.
+   * be an arbitrary name for other scenarios.
    */
   readonly path: string;
 
@@ -1157,13 +1213,13 @@ export interface TextRange {
    * The starting position of the ranger measured in UTF-16 code units from the
    * start of the full string. Inclusive.
    */
-  pos: number;
+  readonly pos: number;
 
   /**
    * The ending position measured in UTF-16 code units from the start of the
    * full string. Exclusive.
    */
-  end: number;
+  readonly end: number;
 }
 
 export interface SourceLocation extends TextRange {
@@ -1226,6 +1282,11 @@ export interface CompilerHost {
 
   // read a utf-8 encoded file
   readFile(path: string): Promise<SourceFile>;
+
+  /**
+   * Optional cache to reuse the results of parsing and binding across programs.
+   */
+  parseCache?: WeakMap<SourceFile, CadlScriptNode>;
 
   /**
    * Write the file.
@@ -1384,32 +1445,25 @@ export interface CadlLibraryDef<
 
 export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
 
+export interface JSONSchemaValidator {
+  /**
+   * Validate the configuration against its JSON Schema.
+   *
+   * @param config Configuration to validate.
+   * @param target Source file target to use for diagnostics.
+   * @returns Diagnostics produced by schema validation of the configuration.
+   */
+  validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
+}
+
 export interface CadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>
-> {
+> extends CadlLibraryDef<T, E> {
   /**
-   * Name of the library. Must match the package.json name.
+   * JSON Schema validator for emitter options
    */
-  readonly name: string;
-
-  /**
-   * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
-   */
-  readonly diagnostics: DiagnosticMap<T>;
-
-  /**
-   * List of other library that should be imported when this is used as an emitter.
-   * Compiler will emit an error if the libraryes are not explicitly imported.
-   */
-  readonly requireImports?: readonly string[];
-
-  /**
-   * Emitter configuration if library is an emitter.
-   */
-  readonly emitter?: {
-    options?: JSONSchemaType<E>;
-  };
+  readonly emitterOptionValidator?: JSONSchemaValidator;
 
   reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
     program: Program,
@@ -1418,6 +1472,18 @@ export interface CadlLibrary<
   createDiagnostic<C extends keyof T, M extends keyof T[C]>(
     diag: DiagnosticReport<T, C, M>
   ): Diagnostic;
+
+  /**
+   * Get or create a symbol with the given name unique for that library.
+   * @param name Symbol name scoped with the library name.
+   */
+  createStateSymbol(name: string): symbol;
+
+  /**
+   * Returns a tracer scopped to the current library.
+   * All trace area logged via this tracer will be prefixed with the library name.
+   */
+  getTracer(program: Program): Tracer;
 }
 
 /**
@@ -1445,7 +1511,7 @@ export interface DecoratorContext {
   /**
    * Helper to call out to another decorator
    * @param decorator Other decorator function
-   * @param args Args to pass to other decorator funciton
+   * @param args Args to pass to other decorator function
    */
   call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,
@@ -1454,7 +1520,7 @@ export interface DecoratorContext {
   ): R;
 }
 
-export type LogLevel = "debug" | "verbose" | "info" | "warning" | "error";
+export type LogLevel = "trace" | "warning" | "error";
 
 export interface LogInfo {
   level: LogLevel;
@@ -1475,15 +1541,25 @@ export interface LogSink {
 }
 
 export interface Logger {
-  debug(message: string): void;
-  verbose(message: string): void;
-  info(message: string): void;
+  trace(message: string): void;
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
 }
 
-/**
- * Remove the readonly properties on an object.
- */
-export type Writable<T> = { -readonly [P in keyof T]: T[P] };
+export interface TracerOptions {
+  filter?: string[];
+}
+export interface Tracer {
+  /**
+   * Trace
+   * @param area
+   * @param message
+   */
+  trace(area: string, message: string, target?: DiagnosticTarget): void;
+
+  /**
+   * @param area
+   */
+  sub(subarea: string): Tracer;
+}
