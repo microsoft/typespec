@@ -45,7 +45,7 @@ model Dog {}
 Which is equivalent to
 
 ```cadl
-@@tag(Dog, "Sample");
+@tag("Sample")
 model Dog {}
 ```
 
