@@ -36,7 +36,7 @@ export interface ResolveModuleHost {
 /**
  * Type for package.json
  */
-interface NodePackage {
+export interface NodePackage {
   name: string;
   main: string;
   version: string;
