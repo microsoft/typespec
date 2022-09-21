@@ -1,12 +1,6 @@
 const toc = {
-  Setup: [
-    "installation",
-    //  "Configuration"
-  ],
-  Configuration: [
-    // "cadl-project.yaml",
-    "tracing",
-  ],
+  Setup: ["installation"],
+  Configuration: ["configuration", "tracing"],
   "Language Basics": [
     "overview",
     "imports",
@@ -28,7 +22,7 @@ const toc = {
     "projected-names",
     // "built-in-decorators",
     // "http",
-    // "openapi",
+    "openapi",
   ],
   "Writing Cadl Libraries": [
     "basics",

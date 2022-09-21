@@ -222,14 +222,25 @@ export function isNumericType(program: Program, target: Type): boolean {
 
 // -- @error decorator ----------------------
 
+const errorDecorator = createDecoratorDefinition({
+  name: "@error",
+  target: ["Model"],
+  args: [],
+} as const);
+
 const errorKey = createStateSymbol("error");
 
-export function $error(context: DecoratorContext, target: Type) {
-  if (!validateDecoratorTarget(context, target, "@error", "Model")) {
+/**
+ * `@error` decorator marks a model as an error type.
+ *
+ * `@error` can only be specified on a model.
+ */
+export function $error(context: DecoratorContext, entity: Model, args: readonly []) {
+  if (!errorDecorator.validate(context, entity, args || [])) {
     return;
   }
 
-  context.program.stateSet(errorKey).add(target);
+  context.program.stateSet(errorKey).add(entity);
 }
 
 export function isErrorModel(program: Program, target: Type): boolean {
@@ -249,7 +260,7 @@ const formatValuesKey = createStateSymbol("formatValues");
  * For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
  * valid values for a string type's format:
  *
- * https://swagger.io/specification/#data-types
+ * https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes
  *
  * `@format` can be specified on a type that extends from `string` or a `string`-typed model property.
  */
@@ -558,8 +569,8 @@ export function isListOperation(program: Program, target: Operation): boolean {
 // -- @tag decorator ---------------------
 const tagPropertiesKey = createStateSymbol("tagProperties");
 
-// Set a tag on an operation or namespace.  There can be multiple tags on either an
-// operation or namespace.
+// Set a tag on an operation, interface, or namespace.  There can be multiple tags on an
+// operation, interface, or namespace.
 export function $tag(context: DecoratorContext, target: Type, tag: string) {
   if (!validateDecoratorTarget(context, target, "@tag", ["Operation", "Namespace", "Interface"])) {
     return;

@@ -37,7 +37,7 @@ Built in types are related to each other according to the rules described in [ty
 | `zonedDateTime` | A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST" |
 | `duration`      | A duration/time period. e.g 5s, 10h                                           |
 
-## Others
+## Other core types
 
 | Type        | Description                                                                                |
 | ----------- | ------------------------------------------------------------------------------------------ |
@@ -51,3 +51,11 @@ Built in types are related to each other according to the rules described in [ty
 | `unknown`   | A top type in Cadl that all types can be assigned to.                                      |
 | `void`      | A function/operation return type indicating the function/operation doesn't return a value. |
 | `never`     | The never type indicates the values that will never occur.                                 |
+
+## String types
+
+Built-in types that are known string formats
+
+| Type  | Description  |
+| ----- | ------------ |
+| `uri` | A uri String |
