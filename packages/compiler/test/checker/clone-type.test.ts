@@ -16,12 +16,14 @@ describe("compiler: type cloning", () => {
     });
   });
 
-  testClone("models", "@test @blue model test { }");
+  testClone("models", "@test @blue model test { p: string; }");
   testClone("model properties", "model Foo { @test @blue test: string }");
   testClone("operations", "@test @blue op test(): string;");
   testClone("parameters", "op test(@test @blue test: string): string;");
-  testClone("enums", "@test @blue enum test { }");
+  testClone("enums", "@test @blue enum test { e }");
   testClone("enum members", "enum Foo { @test @blue test: 1 }");
+  testClone("interfaces", "@test @blue interface test { o(): void; }");
+  testClone("unions", "@test @blue union test { s: string; n: int32; }");
 
   function testClone(description: string, code: string) {
     it(`clones ${description}`, async () => {
@@ -51,6 +53,30 @@ describe("compiler: type cloning", () => {
 
         strictEqual(test.decorators.length, 2);
         strictEqual(clone.decorators.length, 3);
+      }
+
+      // Ensure that cloned members are re-parented
+      switch (clone.kind) {
+        case "Model":
+          for (const each of clone.properties.values()) {
+            strictEqual(each.model, clone, "model property not re-parented");
+          }
+          break;
+        case "Enum":
+          for (const each of clone.members.values()) {
+            strictEqual(each.enum, clone, "enum member not re-parented");
+          }
+          break;
+        case "Interface":
+          for (const each of clone.operations.values()) {
+            strictEqual(each.interface, clone, "interface operation not re-parented");
+          }
+          break;
+        case "Union":
+          for (const each of clone.variants.values()) {
+            strictEqual(each.union, clone, "union variant not re-parented");
+          }
+          break;
       }
     });
   }
