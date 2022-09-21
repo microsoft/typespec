@@ -291,3 +291,14 @@ As a contributor you can run the following command to trigger the build and crea
 ```
 /azp run Cadl Pull Request Try It
 ```
+
+# Cadl website
+
+## Publish website to github.io
+
+The website on github.io should be published when releasing new packages.
+
+To release:
+
+- Go to https://github.com/microsoft/cadl/actions/workflows/website-gh-pages.yml
+- Click the `Run workflow` dropdown and select the `main` branch.
