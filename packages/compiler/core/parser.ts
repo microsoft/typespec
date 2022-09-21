@@ -974,7 +974,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       targetEntity = {
         kind: SyntaxKind.TypeReference,
         target: createMissingIdentifier(),
-        arguments: [],
+        arguments: decoratorArgs,
         ...finishNode(pos),
       };
     }
