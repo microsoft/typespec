@@ -2852,7 +2852,7 @@ export function createChecker(program: Program): Checker {
       kind: SyntaxKind.Identifier,
       pos: 0,
       end: 0,
-      sv: "__GLOBAL_NS",
+      sv: "global",
       symbol: undefined!,
       flags: NodeFlags.Synthetic,
     };
@@ -2867,7 +2867,9 @@ export function createChecker(program: Program): Checker {
       locals: createSymbolTable(),
       flags: NodeFlags.Synthetic,
     };
-    mutate(nsNode).symbol = createSymbol(nsNode, "__GLOBAL_NS", SymbolFlags.Namespace);
+
+    mutate(nsNode).symbol = createSymbol(nsNode, nsId.sv, SymbolFlags.Namespace);
+    mutate(nsNode.symbol.exports).set(nsId.sv, nsNode.symbol);
     return nsNode;
   }
 

@@ -1,7 +1,12 @@
 import { ok, strictEqual } from "assert";
 import { Program } from "../../core/program.js";
 import { Model, Namespace, Type } from "../../core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
+import {
+  createTestHost,
+  expectDiagnostics,
+  expectIdenticalTypes,
+  TestHost,
+} from "../../testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
   const blues = new WeakSet();
@@ -697,5 +702,28 @@ describe("compiler: decorators in namespaces", () => {
         message: /A\.B\.A\.B/,
       },
     ]);
+  });
+
+  it("can reference global namespace using `global` for disambiguation", async () => {
+    testHost.addCadlFile(
+      "main.cadl",
+      `
+      namespace A {
+       @test namespace B {
+          @test model Y extends global.B.X {}
+        }
+      }
+      namespace B {
+        @test model X {}
+      }
+    `
+    );
+
+    const { B, X, Y } = await testHost.compile("./main.cadl");
+    strictEqual(B.kind, "Namespace" as const);
+    strictEqual(X.kind, "Model" as const);
+    strictEqual(Y.kind, "Model" as const);
+    ok(Y.baseModel);
+    expectIdenticalTypes(Y.baseModel, X);
   });
 });
