@@ -73,6 +73,28 @@ describe("openapi3: return types", () => {
     });
   });
 
+  it("response header are marked required", async () => {
+    const res = await openApiFor(
+      `
+      @put op create(): {@header eTag: string};
+      `
+    );
+    ok(res.paths["/"].put.responses["204"]);
+    ok(res.paths["/"].put.responses["204"].headers["e-tag"]);
+    strictEqual(res.paths["/"].put.responses["204"].headers["e-tag"].required, true);
+  });
+
+  it("optional response header are marked required: false", async () => {
+    const res = await openApiFor(
+      `
+      @put op create(): {@header eTag?: string};
+      `
+    );
+    ok(res.paths["/"].put.responses["204"]);
+    ok(res.paths["/"].put.responses["204"].headers["e-tag"]);
+    strictEqual(res.paths["/"].put.responses["204"].headers["e-tag"].required, false);
+  });
+
   it("defines responses with headers and status codes in base model", async () => {
     const res = await openApiFor(
       `

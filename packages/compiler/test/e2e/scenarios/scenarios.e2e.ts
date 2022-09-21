@@ -1,6 +1,6 @@
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { createProgram, NodeHost, Program, resolvePath } from "../../../core/index.js";
+import { compile, NodeHost, Program, resolvePath } from "../../../core/index.js";
 import { CompilerOptions } from "../../../core/options.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../testing/expect.js";
 
@@ -9,7 +9,7 @@ const scenarioRoot = resolvePath(__dirname, "../../../../test/e2e/scenarios");
 
 describe("compiler: entrypoints", () => {
   async function compileScenario(name: string, options: CompilerOptions = {}): Promise<Program> {
-    return createProgram(NodeHost, resolve(scenarioRoot, name), { ...options });
+    return compile(NodeHost, resolve(scenarioRoot, name), { ...options });
   }
 
   describe("compile library", () => {

@@ -2,10 +2,10 @@ import { deepStrictEqual, strictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: info", () => {
-  it("set the service title with @serviceTitle", async () => {
+  it("set the service title with @service", async () => {
     const res = await openApiFor(
       `
-      @serviceTitle("My Service")
+      @service({title: "My Service"})
       namespace Foo {
         op test(): string;
       }
@@ -14,10 +14,10 @@ describe("openapi3: info", () => {
     strictEqual(res.info.title, "My Service");
   });
 
-  it("set the service version with @serviceVersion", async () => {
+  it("set the service version with @service", async () => {
     const res = await openApiFor(
       `
-      @serviceVersion("1.2.3-test")
+      @service({version: "1.2.3-test"})
       namespace Foo {
         op test(): string;
       }
@@ -30,7 +30,7 @@ describe("openapi3: info", () => {
     const res = await openApiFor(
       `
       @doc("My service description")
-      @serviceTitle("My Service")
+      @service({title: "My Service"})
       namespace Foo {
         op test(): string;
       }
@@ -42,7 +42,7 @@ describe("openapi3: info", () => {
     const res = await openApiFor(
       `
       @externalDocs("https://example.com", "more info")
-      @serviceTitle("My Service")
+      @service({title: "My Service"})
       namespace Foo {
         op test(): string;
       }

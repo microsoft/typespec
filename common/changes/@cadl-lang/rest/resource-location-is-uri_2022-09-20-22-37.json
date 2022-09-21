@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "`ResourceLocation<T>` is `uri`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

@@ -1,10 +1,13 @@
 // @ts-check
 const syntaxhighlightPlugin = require("@11ty/eleventy-plugin-syntaxhighlight");
+const markdownIt = require("markdown-it");
+const markdownItAnchor = require("markdown-it-anchor");
 const cadlPrismDefinition = require("./cadl-prism-lang.js");
 const { findNavigationEntries } = require("./1tty-utils/navigation.js");
 const { renderMermaid } = require("./1tty-utils/mermaid.js");
 const feather = require("feather-icons");
-const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
+
+const basePath = process.env["CADL_WEBSITE_BASE_PATH"];
 
 module.exports = (eleventyConfig) => {
   eleventyConfig.addPassthroughCopy("js");
@@ -13,6 +16,51 @@ module.exports = (eleventyConfig) => {
     "node_modules/prism-themes/themes/prism-one-light.css": "css/themes/prism-one-light.css",
   });
 
+  const position = {
+    false: "push",
+    true: "unshift",
+  };
+
+  const linkIcon = feather.icons["link"].toSvg({});
+  const renderPermalink = (slug, opts, state, idx) => {
+    const space = () =>
+      Object.assign(new state.Token("text", "", 0), {
+        content: " ",
+      });
+
+    const linkTokens = [
+      Object.assign(new state.Token("link_open", "a", 1), {
+        attrs: [
+          ["class", opts.permalinkClass],
+          ["href", opts.permalinkHref(slug, state)],
+        ],
+      }),
+      Object.assign(new state.Token("html_block", "", 0), {
+        content: `<span aria-hidden="true" class="header-anchor__symbol">${linkIcon}</span>
+        <span class="screen-reader-only">Direct link to this section</span>`,
+      }),
+      new state.Token("link_close", "a", -1),
+    ];
+
+    if (opts.permalinkSpace) {
+      linkTokens[position[!opts.permalinkBefore]](space());
+    }
+    state.tokens[idx + 1].children[position[opts.permalinkBefore]](...linkTokens);
+  };
+
+  const markdownItOptions = {
+    html: true,
+  };
+
+  const markdownItAnchorOptions = {
+    permalink: true,
+    renderPermalink,
+  };
+
+  // @ts-ignore
+  const markdownLib = markdownIt(markdownItOptions).use(markdownItAnchor, markdownItAnchorOptions);
+
+  eleventyConfig.setLibrary("md", markdownLib);
   eleventyConfig.addPlugin(syntaxhighlightPlugin, {
     init: ({ Prism }) => {
       Prism.languages.cadl = cadlPrismDefinition;
@@ -20,13 +68,13 @@ module.exports = (eleventyConfig) => {
   });
 
   eleventyConfig.addPlugin((config) => {
-    const syntaxHighligher = config.markdownHighlighter;
+    const syntaxHighlighter = config.markdownHighlighter;
     config.addMarkdownHighlighter((str, language) => {
       if (language === "mermaid") {
         return `{MERMAID}${str}{ENDMERMAID}`;
       }
-      if (syntaxHighligher) {
-        return syntaxHighligher(str, language);
+      if (syntaxHighlighter) {
+        return syntaxHighlighter(str, language);
       }
       return `<pre class="${language}">${str}</a>`;
     });
@@ -67,7 +115,7 @@ module.exports = (eleventyConfig) => {
     docPages = collectionApi.getAll().filter((x) => x.data.id);
     return docPages;
   });
-  eleventyConfig.addShortcode("doc", (docName) => {
+  eleventyConfig.addShortcode("doc", (docName, anchor) => {
     if (!docName) {
       throw new Error("The docName must be specified");
     }
@@ -77,7 +125,8 @@ module.exports = (eleventyConfig) => {
       throw new Error(`Cannot find page with id "${docName}"`);
     }
     const url = eleventyConfig.getFilter("url");
-    return url(page.url);
+    const resolvedUrl = url(page.url);
+    return anchor ? `${resolvedUrl}#${anchor}` : resolvedUrl;
   });
 
   return {
@@ -88,6 +137,6 @@ module.exports = (eleventyConfig) => {
       input: "src",
       output: "dist",
     },
-    pathPrefix: prNumber ? `/prs/${prNumber}/` : "/",
+    pathPrefix: basePath ?? "/",
   };
 };

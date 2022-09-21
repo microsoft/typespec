@@ -9,8 +9,7 @@ describe("openapi3: versioning", () => {
       `
       @versioned(Versions)
       @versionedDependency([[Versions.v1, MyLibrary.Versions.A], [Versions.v2, MyLibrary.Versions.B], [Versions.v3, MyLibrary.Versions.C]])
-      @serviceTitle("My Service")
-      @serviceVersion("hi")
+      @service({title: "My Service", version: "hi"})
       namespace MyService {
         enum Versions {"v1", "v2", "v3"}
         model Test {
@@ -129,7 +128,7 @@ describe("openapi3: versioning", () => {
       enum Versions { v1 };
     }
     @armNamespace
-    @serviceTitle("Widgets 'r' Us")
+    @service({title: "Widgets 'r' Us"})
     @versionedDependency(Contoso.Library.Versions.v1)
     namespace Contoso.WidgetService {
       model Widget {
@@ -161,7 +160,7 @@ describe("openapi3: versioning", () => {
         }
       }
       
-      @serviceTitle("Service")
+      @service({title: "Service"})
       @versionedDependency(Library.Versions.v1)
       namespace Service {
         model Widget {

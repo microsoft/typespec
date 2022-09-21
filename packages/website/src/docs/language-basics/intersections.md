@@ -11,7 +11,7 @@ Intersections describe a type that must include all the intersection's constitue
 alias Dog = Animal & Pet;
 ```
 
-An intersection is equivalent to [spreading]({%doc "models"%}#spread) both types.
+An intersection is equivalent to [spreading]({%doc "models", "spread"%}) both types.
 
 ```cadl
 alias Dog = {

@@ -65,7 +65,7 @@ import {
   joinPaths,
   resolvePath,
 } from "../core/path-utils.js";
-import { createProgram, Program } from "../core/program.js";
+import { compile as compileProgram, Program } from "../core/program.js";
 import {
   createScanner,
   isKeyword,
@@ -407,7 +407,7 @@ export function createServer(host: ServerHost): Server {
 
     let program: Program;
     try {
-      program = await createProgram(compilerHost, mainFile, options, oldPrograms.get(mainFile));
+      program = await compileProgram(compilerHost, mainFile, options, oldPrograms.get(mainFile));
       oldPrograms.set(mainFile, program);
       if (!upToDate(document)) {
         return undefined;
@@ -416,7 +416,7 @@ export function createServer(host: ServerHost): Server {
       if (mainFile !== path && !program.sourceFiles.has(path)) {
         // If the file that changed wasn't imported by anything from the main
         // file, retry using the file itself as the main file.
-        program = await createProgram(compilerHost, path, options, oldPrograms.get(path));
+        program = await compileProgram(compilerHost, path, options, oldPrograms.get(path));
         oldPrograms.set(path, program);
       }
 

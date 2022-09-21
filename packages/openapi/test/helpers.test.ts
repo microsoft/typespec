@@ -22,7 +22,7 @@ describe("OpenAPI3 Helpers", () => {
 
     it("return operation name if operation is defined under service namespace", async () => {
       const id = await testResolveOperationId(`
-        @serviceTitle("Abc")
+        @service({title: "Abc"})
         namespace MyService;
 
         @test op foo(): string;
@@ -41,7 +41,7 @@ describe("OpenAPI3 Helpers", () => {
 
     it("return group name and operation name if operation is defined under namespace that is not the service namespace", async () => {
       const id = await testResolveOperationId(`
-        @serviceTitle("Abc")
+        @service({title: "Abc"})
         namespace MyService;
 
         namespace Bar {

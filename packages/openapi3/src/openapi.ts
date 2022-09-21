@@ -81,9 +81,11 @@ import { OpenAPI3EmitterOptions, OpenAPILibrary, reportDiagnostic } from "./lib.
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
+  OpenAPI3Header,
   OpenAPI3OAuthFlows,
   OpenAPI3Operation,
   OpenAPI3Parameter,
+  OpenAPI3ParameterBase,
   OpenAPI3ParameterType,
   OpenAPI3Schema,
   OpenAPI3SchemaProperty,
@@ -455,13 +457,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getStatusCodeDescription(statusCode) ?? "unknown";
   }
 
-  function getResponseHeader(prop: ModelProperty) {
-    const header: any = {};
-    populateParameter(header, prop, "header");
-    delete header.in;
-    delete header.name;
-    delete header.required;
-    return header;
+  function getResponseHeader(prop: ModelProperty): OpenAPI3Header {
+    return getOpenAPIParameterBase(prop);
   }
 
   function getSchemaOrRef(type: Type): any {
@@ -655,6 +652,25 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  function getOpenAPIParameterBase(param: ModelProperty): OpenAPI3ParameterBase {
+    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
+    if (param.default) {
+      schema.default = getDefaultValue(param.default);
+    }
+    // Description is already provided in the parameter itself.
+    delete schema.description;
+
+    const oaiParam: OpenAPI3ParameterBase = {
+      required: !param.optional,
+      description: getDoc(program, param),
+      schema,
+    };
+
+    attachExtensions(program, param, oaiParam);
+
+    return oaiParam;
+  }
+
   function populateParameter(
     ph: OpenAPI3Parameter,
     param: ModelProperty,
@@ -662,18 +678,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   ) {
     ph.name = param.name;
     ph.in = kind;
-    ph.required = !param.optional;
-    ph.description = getDoc(program, param);
-
-    // Apply decorators to the schema for the parameter.
-    const schema = applyIntrinsicDecorators(param, getSchemaForType(param.type));
-    if (param.default) {
-      schema.default = getDefaultValue(param.default);
-    }
-    attachExtensions(program, param, ph);
-    // Description is already provided in the parameter itself.
-    delete schema.description;
-    ph.schema = schema;
+    Object.assign(ph, getOpenAPIParameterBase(param));
   }
 
   function emitReferences() {
