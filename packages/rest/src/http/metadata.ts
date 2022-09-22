@@ -101,7 +101,7 @@ export function getVisibilitySuffix(visibility: Visibility) {
  * - GET | HEAD => Visibility.Query
  * - POST => Visibility.Update
  * - PUT => Visibility.Create | Update
- * - DELETE => Visibiliyt.Delete
+ * - DELETE => Visibility.Delete
  */
 export function getRequestVisibility(verb: HttpVerb): Visibility {
   switch (verb) {
