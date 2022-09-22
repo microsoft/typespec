@@ -279,6 +279,112 @@ export async function findProjectRoot(
 }
 
 /**
+ * A map keyed by a set of objects.
+ *
+ * This is likely non-optimal.
+ */
+export class MultiKeyMap<K extends readonly object[], V> {
+  #currentId = 0;
+  #idMap = new WeakMap<object, number>();
+  #items = new Map<string, V>();
+
+  get(items: K): V | undefined {
+    return this.#items.get(this.compositeKeyFor(items));
+  }
+
+  set(items: K, value: V): void {
+    const key = this.compositeKeyFor(items);
+    this.#items.set(key, value);
+  }
+
+  private compositeKeyFor(items: K) {
+    return items.map((i) => this.keyFor(i)).join(",");
+  }
+
+  private keyFor(item: object) {
+    if (this.#idMap.has(item)) {
+      return this.#idMap.get(item);
+    }
+
+    const id = this.#currentId++;
+    this.#idMap.set(item, id);
+    return id;
+  }
+}
+
+/**
+ * A map with exactly two keys per value.
+ *
+ * Functionally the same as `MultiKeyMap<[K1, K2], V>`, but more efficient.
+ */
+export class TwoLevelMap<K1, K2, V> extends Map<K1, Map<K2, V>> {
+  /**
+   * Get an existing entry in the map or add a new one if not found.
+   *
+   * @param key1 The first key
+   * @param key2 The second key
+   * @param create A callback to create the new entry when not found.
+   * @param sentinel An optional sentinel value to use to indicate that the
+   *                 entry is being created.
+   */
+  getOrAdd(key1: K1, key2: K2, create: () => V, sentinel?: V): V {
+    let map = this.get(key1);
+    if (map === undefined) {
+      map = new Map();
+      this.set(key1, map);
+    }
+    let entry = map.get(key2);
+    if (entry === undefined) {
+      if (sentinel !== undefined) {
+        map.set(key2, sentinel);
+      }
+      entry = create();
+      map.set(key2, entry);
+    }
+    return entry;
+  }
+}
+
+// Adapted from https://github.com/microsoft/TypeScript/blob/bc52ff6f4be9347981de415a35da90497eae84ac/src/compiler/core.ts#L1507
+export class Queue<T> {
+  #elements: T[];
+  #headIndex = 0;
+
+  constructor(elements?: T[]) {
+    this.#elements = elements?.slice() ?? [];
+  }
+
+  isEmpty(): boolean {
+    return this.#headIndex === this.#elements.length;
+  }
+
+  enqueue(...items: T[]): void {
+    this.#elements.push(...items);
+  }
+
+  dequeue(): T {
+    if (this.isEmpty()) {
+      throw new Error("Queue is empty.");
+    }
+
+    const result = this.#elements[this.#headIndex];
+    this.#elements[this.#headIndex] = undefined!; // Don't keep referencing dequeued item
+    this.#headIndex++;
+
+    // If more than half of the queue is empty, copy the remaining elements to the
+    // front and shrink the array (unless we'd be saving fewer than 100 slots)
+    if (this.#headIndex > 100 && this.#headIndex > this.#elements.length >> 1) {
+      const newLength = this.#elements.length - this.#headIndex;
+      this.#elements.copyWithin(0, this.#headIndex);
+      this.#elements.length = newLength;
+      this.#headIndex = 0;
+    }
+
+    return result;
+  }
+}
+
+/**
  * The mutable equivalent of a type.
  */
 //prettier-ignore

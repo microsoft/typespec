@@ -109,7 +109,7 @@ import {
   UnionVariant,
   UnionVariantNode,
 } from "./types.js";
-import { isArray, Mutable, mutate } from "./util.js";
+import { isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
 
 export interface TypeNameOptions {
   namespaceFilter: (ns: Namespace) => boolean;
@@ -200,44 +200,10 @@ export interface CadlCompletionItem {
 }
 
 /**
- * A map keyed by a set of objects.
- *
- * This is likely non-optimal.
- */
-class MultiKeyMap<K extends object[], V> {
-  #currentId = 0;
-  #idMap = new WeakMap<object, number>();
-  #items = new Map<string, V>();
-
-  get(items: K): V | undefined {
-    return this.#items.get(this.compositeKeyFor(items));
-  }
-
-  set(items: K, value: V): void {
-    const key = this.compositeKeyFor(items);
-    this.#items.set(key, value);
-  }
-
-  private compositeKeyFor(items: K) {
-    return items.map((i) => this.keyFor(i)).join(",");
-  }
-
-  private keyFor(item: object) {
-    if (this.#idMap.has(item)) {
-      return this.#idMap.get(item);
-    }
-
-    const id = this.#currentId++;
-    this.#idMap.set(item, id);
-    return id;
-  }
-}
-
-/**
  * Maps type arguments to type instantiation.
  */
 const TypeInstantiationMap = class
-  extends MultiKeyMap<Type[], Type>
+  extends MultiKeyMap<readonly Type[], Type>
   implements TypeInstantiationMap {};
 
 type StdTypeName = IntrinsicModelName | "Array" | "Record";
@@ -2873,7 +2839,7 @@ export function createChecker(program: Program): Checker {
     return nsNode;
   }
 
-  function createGlobalNamespaceType() {
+  function createGlobalNamespaceType(): Namespace {
     return createAndFinishType({
       kind: "Namespace",
       name: "",
@@ -4315,7 +4281,7 @@ function getProjectedEffectiveModelType(program: Program | ProjectedProgram, typ
   return projectedType;
 }
 
-function* walkPropertiesInherited(model: Model) {
+export function* walkPropertiesInherited(model: Model) {
   let current: Model | undefined = model;
 
   while (current) {
