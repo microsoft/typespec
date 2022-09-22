@@ -2903,7 +2903,7 @@ export function createChecker(program: Program): Checker {
    * If the entire type graph needs to be cloned, then cloneType must be called
    * recursively by the caller.
    */
-  function cloneType<T extends Type>(type: T, additionalProps: { [P in keyof T]?: T[P] } = {}): T {
+  function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
     // TODO: this needs to handle other types
     let clone: Type;
     switch (type.kind) {
@@ -2914,12 +2914,14 @@ export function createChecker(program: Program): Checker {
           properties: undefined!,
           ...additionalProps,
         });
-        newModel.properties = new Map(
-          Array.from(type.properties.entries()).map(([key, prop]) => [
-            key,
-            cloneType(prop, { model: newModel }),
-          ])
-        );
+        if (!("properties" in additionalProps)) {
+          newModel.properties = new Map(
+            Array.from(type.properties.entries()).map(([key, prop]) => [
+              key,
+              cloneType(prop, { model: newModel }),
+            ])
+          );
+        }
         clone = finishType(newModel);
         break;
 
@@ -2933,12 +2935,14 @@ export function createChecker(program: Program): Checker {
           },
           ...additionalProps,
         });
-        newUnion.variants = new Map(
-          Array.from(type.variants.entries()).map(([key, prop]) => [
-            key,
-            cloneType(prop, { union: newUnion }),
-          ])
-        );
+        if (!("variants" in additionalProps)) {
+          newUnion.variants = new Map(
+            Array.from(type.variants.entries()).map(([key, prop]) => [
+              key,
+              cloneType(prop, { union: newUnion }),
+            ])
+          );
+        }
         clone = finishType(newUnion);
         break;
 
@@ -2949,12 +2953,14 @@ export function createChecker(program: Program): Checker {
           operations: undefined!,
           ...additionalProps,
         });
-        newInterface.operations = new Map(
-          Array.from(type.operations.entries()).map(([key, prop]) => [
-            key,
-            cloneType(prop, { interface: newInterface }),
-          ])
-        );
+        if (!("operations" in additionalProps)) {
+          newInterface.operations = new Map(
+            Array.from(type.operations.entries()).map(([key, prop]) => [
+              key,
+              cloneType(prop, { interface: newInterface }),
+            ])
+          );
+        }
         clone = finishType(newInterface);
         break;
 
@@ -2965,12 +2971,14 @@ export function createChecker(program: Program): Checker {
           members: undefined!,
           ...additionalProps,
         });
-        newEnum.members = new Map(
-          Array.from(type.members.entries()).map(([key, prop]) => [
-            key,
-            cloneType(prop, { enum: newEnum }),
-          ])
-        );
+        if (!("members" in additionalProps)) {
+          newEnum.members = new Map(
+            Array.from(type.members.entries()).map(([key, prop]) => [
+              key,
+              cloneType(prop, { enum: newEnum }),
+            ])
+          );
+        }
         clone = finishType(newEnum);
         break;
 

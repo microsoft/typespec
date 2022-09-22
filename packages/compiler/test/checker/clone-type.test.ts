@@ -78,6 +78,30 @@ describe("compiler: type cloning", () => {
           }
           break;
       }
+
+      // Ensure that you can set your own member list
+      switch (test.kind) {
+        case "Model":
+          const newModel = testHost.program.checker.cloneType(test, { properties: new Map() });
+          ok(test.properties.size > 0, "no properties to change");
+          strictEqual(newModel.properties.size, 0, "properties not set.");
+          break;
+        case "Enum":
+          const newEnum = testHost.program.checker.cloneType(test, { members: new Map() });
+          ok(test.members.size > 0, "no members to change");
+          strictEqual(newEnum.members.size, 0, "members not set");
+          break;
+        case "Interface":
+          const newInterface = testHost.program.checker.cloneType(test, { operations: new Map() });
+          ok(test.operations.size > 0, "no operations to change");
+          strictEqual(newInterface.operations.size, 0, "operations not set");
+          break;
+        case "Union":
+          const newUnion = testHost.program.checker.cloneType(test, { variants: new Map() });
+          ok(test.variants.size > 0, "no variants to change");
+          strictEqual(newUnion.variants.size, 0, "variants not set");
+          break;
+      }
     });
   }
 
