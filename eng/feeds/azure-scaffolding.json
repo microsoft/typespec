@@ -11,7 +11,7 @@
     "config": [
       "@azure-tools/cadl-autorest",
     ]
-  }
+  },
   "azure-arm": {
     "title": "Azure Resource Manager Service",
     "description": "Create a project representing an Azure service ARM API",
