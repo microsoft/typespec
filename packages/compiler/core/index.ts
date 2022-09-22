@@ -8,6 +8,7 @@ export * from "./emitter-utils.js";
 export * from "./helpers/index.js";
 export { createCadlLibrary, paramMessage, setCadlNamespace } from "./library.js";
 export * from "./manifest.js";
+export * from "./module-resolver.js";
 export * from "./node-host.js";
 export * from "./parser.js";
 export * from "./path-utils.js";
