@@ -40,21 +40,22 @@
   ],
   "dependencies": {
     "yargs": "~17.3.1",
-    "strip-json-comments": "~4.0.0"
+    "strip-json-comments": "~4.0.0",
+    "cspell": "~6.8.1"
   },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
     "@types/watch": "~1.0.3",
     "@types/yargs": "~17.0.2",
-    "@cadl-lang/eslint-config-cadl": "~0.4.0",
+    "@cadl-lang/eslint-config-cadl": "~0.4.1",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
     "mocha-junit-reporter": "~2.0.2",
     "mocha-multi-reporters": "~1.5.1",
     "c8": "~7.11.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.7.2",
+    "typescript": "~4.8.2",
     "watch": "~1.0.2"
   }
 }

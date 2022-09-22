@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from "url";
+import { MANIFEST } from "../../core/manifest.js";
 import { NodeHost } from "../../core/node-host.js";
-import { createProgram } from "../../core/program.js";
+import { compile } from "../../core/program.js";
 import { createTestHost, expectDiagnosticEmpty, expectDiagnostics } from "../../testing/index.js";
 
 const libs = [
@@ -15,7 +16,7 @@ describe("compiler: libraries", () => {
         const mainFile = fileURLToPath(
           new URL(`../../../test/libraries/${lib}/main.cadl`, import.meta.url)
         );
-        const program = await createProgram(NodeHost, mainFile, { noEmit: true });
+        const program = await compile(NodeHost, mainFile, { noEmit: true });
         expectDiagnosticEmpty(program.diagnostics);
       });
     });
@@ -24,13 +25,33 @@ describe("compiler: libraries", () => {
   it("detects compiler version mismatches", async () => {
     const testHost = await createTestHost();
     testHost.addCadlFile("main.cadl", "");
+    testHost.addCadlFile(
+      "./node_modules/@cadl-lang/compiler/package.json",
+      JSON.stringify({
+        name: "@cadl-lang/compiler",
+        main: "index.js",
+        version: "0.1.0-notthesame.1",
+      })
+    );
     testHost.addJsFile("./node_modules/@cadl-lang/compiler/index.js", {});
     const diagnostics = await testHost.diagnose("main.cadl");
     expectDiagnostics(diagnostics, {
       code: "compiler-version-mismatch",
-      severity: "error",
+      severity: "warning",
       message: /Current Cadl compiler conflicts with local version/,
     });
+  });
+
+  it("allows compiler install to mismatch if the version are the same", async () => {
+    const testHost = await createTestHost();
+    testHost.addCadlFile("main.cadl", "");
+    testHost.addCadlFile(
+      "./node_modules/@cadl-lang/compiler/package.json",
+      JSON.stringify({ name: "@cadl-lang/compiler", main: "index.js", version: MANIFEST.version })
+    );
+    testHost.addJsFile("./node_modules/@cadl-lang/compiler/index.js", {});
+    const diagnostics = await testHost.diagnose("main.cadl");
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("report errors in js files", async () => {

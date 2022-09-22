@@ -1,0 +1,32 @@
+{
+  "name": "@cadl-lang/website",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx @11ty/eleventy --serve --formats=md,css,njk,js",
+    "build": "npx @11ty/eleventy",
+    "clean": "rimraf ./dist ./temp",
+    "lint": "eslint . --ext .ts,.js --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts,.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^1.0.1",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^4.1.0",
+    "@types/node": "~16.0.3",
+    "@types/markdown-it": "~12.2.3",
+    "prism-themes": "~1.9.0",
+    "feather-icons": "~4.29.0",
+    "@playwright/test": "~1.25.1",
+    "playwright": "~1.25.1",
+    "mermaid": "~9.1.6",
+    "@cadl-lang/eslint-config-cadl": "~0.4.1",
+    "eslint": "^8.12.0",
+    "rimraf": "~3.0.2",
+    "markdown-it": "~13.0.1",
+    "markdown-it-anchor": "~8.6.5"
+  }
+}

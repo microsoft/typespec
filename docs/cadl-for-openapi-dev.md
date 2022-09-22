@@ -58,7 +58,6 @@ enum Color {
   Blue: "blue",
   Green: "green",
 }
-
 ```
 
 Another is to use the union operation to define the enum values inline, e.g.:
@@ -94,7 +93,6 @@ namespace Pets {
   op create(@body pet: Pet): Pet; // uses path "/pets"
   op read(@path petId: int32): Pet; // uses path "/pets/{petId}"
 }
-
 ```
 
 ## Path Item Object
@@ -245,7 +243,6 @@ model Snake {
   name: string;
   // snakes have no legs
 }
-
 ```
 
 Cadl also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. For example:
@@ -262,7 +259,6 @@ model Cat extends Pet {
 model Dog extends Pet {
   bark: string;
 }
-
 ```
 
 Cadl does not current provide a means to produce an `allOf` with more than one element -- these are generally treated as "composition" in code generators and thus better represented in Cadl with the spread operator.
@@ -285,7 +281,6 @@ model PetId {
 namespace Pets {
   op read(...PetId): Pet | Error;
 }
-
 ```
 
 results in a `$ref` to the named parameter `PetId` in either `parameters` or `components.parameters`.
@@ -299,13 +294,13 @@ In OpenAPI, the `info` object [[v2][v2-info], [v3][v3-info]] contains metadata a
 
 In Cadl this information is specified with [decorators on the namespace][cadl-service-metadata].
 
-| OpenAPI `info` field | Cadl decorator    | Notes                    |
-| -------------------- | ----------------- | ------------------------ |
-| `title`              | `@serviceTitle`   |                          |
-| `version`            | `@serviceVersion` |                          |
-| `description`        |                   | Not currently supported. |
-| `license`            |                   | Not currently supported. |
-| `contact`            |                   | Not currently supported. |
+| OpenAPI `info` field | Cadl decorator         | Notes                    |
+| -------------------- | ---------------------- | ------------------------ |
+| `title`              | `@service({title: }`   | Cadl built-in decorator  |
+| `version`            | `@service({version: }` | Cadl built-in decorator  |
+| `description`        | `@doc`                 | Cadl built-in decorator  |
+| `license`            |                        | Not currently supported. |
+| `contact`            |                        | Not currently supported. |
 
 [cadl-service-metadata]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#service-definition-and-metadata
 
@@ -319,7 +314,13 @@ in favor of explicit `content-type` and `accept` header properties in request an
 
 ## securityDefinitions / securitySchemes Object
 
-In Cadl, these fields are currently set using javascript that is imported into the Cadl definition. In the near future there will likely be decorators that allow some of these elements to be set directly from Cadl.
+Use `@useAuth` decorator from the `@cadl-lang/rest" library
+
+```cadl
+using Cadl.Http;
+@useAuth(OAuth2Auth<["read", "write"]>)
+namespace MyService;
+```
 
 ## Specification Extensions
 
@@ -330,5 +331,4 @@ For example:
 namespace Pets {
   @extension("x-streaming-operation", true) op read(...PetId): Pet | Error;
 }
-
 ```

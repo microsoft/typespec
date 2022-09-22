@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
-    "@cadl-lang/eslint-config-cadl": "~0.4.0",
+    "@cadl-lang/eslint-config-cadl": "~0.4.1",
     "@typescript-eslint/parser": "^5.30.7",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
@@ -49,7 +49,7 @@
     "mocha-multi-reporters": "~1.5.1",
     "c8": "~7.11.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.7.2"
+    "typescript": "~4.8.2"
   },
   "dependencies": {
     "@typescript-eslint/utils": "~5.26.0"

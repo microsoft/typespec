@@ -282,6 +282,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Models must extend other models.",
+      modelExpression: "Models cannot extend model expressions.",
     },
   },
   "extend-primitive": {
@@ -294,6 +295,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Model `is` must specify another model.",
+      modelExpression: "Model `is` cannot specify a model expression.",
     },
   },
   "is-operation": {
@@ -417,10 +419,16 @@ const diagnostics = {
       default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },
-  "compiler-version-mismatch": {
-    severity: "error",
+  "incompatible-library": {
+    severity: "warning",
     messages: {
-      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this error occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this error occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
+      default: paramMessage`Multiple versions of "${"name"}" library were loaded:\n${"versionMap"}`,
+    },
+  },
+  "compiler-version-mismatch": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this warning occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this warning occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
     },
   },
   "duplicate-symbol": {
@@ -529,7 +537,7 @@ const diagnostics = {
   "service-decorator-duplicate": {
     severity: "error",
     messages: {
-      default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
+      default: `@service can only be set once per Cadl document.`,
     },
   },
   "service-namespace-duplicate": {

@@ -16,7 +16,6 @@ npm install @cadl-lang/openapi
 import "@cadl-lang/openapi";
 
 using OpenAPI;
-
 ```
 
 ## References
@@ -39,13 +38,12 @@ Decorator that can be used on a response model to specify the `default` status c
 model MyNonErrorResponse {}
 
 op foo(): MyNonErrorResponse;
-
 ```
 
 ### `@extension`
 
-This decorator lets you sepecify custom key(starting with `x-`) value pair that will be added to the OpenAPI document.
-[OpenAPI reference on extensions](https://swagger.io/docs/specification/openapi-extensions/)
+This decorator lets you specify custom key(starting with `x-`) value pair that will be added to the OpenAPI document.
+[OpenAPI reference on extensions](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#specificationExtensions)
 
 Arguments:
 
@@ -66,13 +64,12 @@ model Foo {}
   }
 )
 model Foo {}
-
 ```
 
 ### `@externalDocs`
 
 Decorator that can be used to provide the `externalDocs` property on OpenAPI elements.
-[OpenAPI spec for extenalDocs](https://swagger.io/specification/#external-documentation-object)
+[OpenAPI spec for externalDocs](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#externalDocumentationObject)
 
 Arguments:
 
@@ -84,7 +81,6 @@ Arguments:
 ```cadl
 @externalDocs("https://example.com", "More info there")
 model Foo {}
-
 ```
 
 ### `@operationId`
@@ -100,7 +96,6 @@ Arguments:
 ```cadl
 @operationId("custom_Foo")
 op foo(): string;
-
 ```
 
 ## See also

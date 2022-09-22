@@ -34,19 +34,18 @@ For configuration [see options](#emitter-options)
 ```cadl
 import "@cadl-lang/openapi3";
 
-using OpenAPI.V3;
+using OpenAPI;
 
 // Using `using`
 @useRef("common.json#/components/schemas/Foo")
 model Foo {}
 
 // Using fully qualified names
-@OpenAPI.V3.oneOf
+@OpenAPI.oneOf
 union MyUnion {
   cat: Cat,
   dog: Dog,
 }
-
 ```
 
 ## Decorators

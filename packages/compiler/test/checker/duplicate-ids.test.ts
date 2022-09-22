@@ -1,6 +1,5 @@
-import { match, strictEqual } from "assert";
-import { DecoratorContext, Diagnostic } from "../../core/types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
+import { Diagnostic } from "../../core/types.js";
+import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
 describe("compiler: duplicate declarations", () => {
   let testHost: TestHost;
@@ -34,26 +33,6 @@ describe("compiler: duplicate declarations", () => {
     assertDuplicates(diagnostics);
   });
 
-  it("reports duplicate model declarations in global scope using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`model A { }`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-      @eval
-      model A { }
-    `
-    );
-
-    const diagnostics = await testHost.diagnose("./");
-
-    assertDuplicates(diagnostics);
-  });
-
   it("reports duplicate model declarations in a single namespace", async () => {
     testHost.addCadlFile(
       "main.cadl",
@@ -61,24 +40,6 @@ describe("compiler: duplicate declarations", () => {
       namespace Foo;
       model A { }
       model A { }
-    `
-    );
-
-    const diagnostics = await testHost.diagnose("./");
-    assertDuplicates(diagnostics);
-  });
-
-  it("reports duplicate model declarations in a single namespace using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace Foo; model A { }; model A { };`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-      @eval model test { }
     `
     );
 
@@ -97,25 +58,6 @@ describe("compiler: duplicate declarations", () => {
       namespace N {
         model A { };
       }
-    `
-    );
-
-    const diagnostics = await testHost.diagnose("./");
-    assertDuplicates(diagnostics);
-  });
-
-  it("reports duplicate model declarations across multiple namespaces using eval", async () => {
-    testHost.addJsFile("test.js", {
-      $eval({ program }: DecoratorContext) {
-        program.evalCadlScript(`namespace Foo; model A { }`);
-      },
-    });
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      import "./test.js";
-      namespace Foo;
-      @eval model A { }
     `
     );
 
@@ -151,11 +93,50 @@ describe("compiler: duplicate declarations", () => {
     const diagnostics = await testHost.diagnose("./");
     assertDuplicates(diagnostics);
   });
+
+  describe("reports duplicate namespace/non-namespace across multiple files", () => {
+    // NOTE: Different order of declarations triggers different code paths, so test both
+    it("with namespace first", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        import "./a.cadl";
+        import "./b.cadl";
+        `
+      );
+      testHost.addCadlFile("a.cadl", "namespace N {}");
+      testHost.addCadlFile("b.cadl", "model N {}");
+      const diagnostics = await testHost.diagnose("./");
+      assertDuplicates(diagnostics);
+    });
+    it("with non-namespace first", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        import "./a.cadl";
+        import "./b.cadl";
+        `
+      );
+      testHost.addCadlFile("a.cadl", "model MMM {}");
+      testHost.addCadlFile(
+        "b.cadl",
+        `namespace MMM {
+           // Also check that we don't drop local dupes when the namespace is discarded.
+           model QQQ {}
+           model QQQ {}
+         }`
+      );
+      const diagnostics = await testHost.diagnose("./");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-symbol", message: /MMM/ },
+        { code: "duplicate-symbol", message: /MMM/ },
+        { code: "duplicate-symbol", message: /QQQ/ },
+        { code: "duplicate-symbol", message: /QQQ/ },
+      ]);
+    });
+  });
 });
 
 function assertDuplicates(diagnostics: readonly Diagnostic[]) {
-  strictEqual(diagnostics.length, 2);
-  for (const diagnostic of diagnostics) {
-    match(diagnostic.message, /Duplicate name/);
-  }
+  expectDiagnostics(diagnostics, [{ code: "duplicate-symbol" }, { code: "duplicate-symbol" }]);
 }

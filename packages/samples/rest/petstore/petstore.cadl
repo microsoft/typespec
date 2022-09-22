@@ -2,8 +2,10 @@ import "@cadl-lang/rest";
 import "@cadl-lang/openapi";
 
 @autoRoute
-@serviceTitle("Pet Store Service")
-@serviceVersion("2021-03-25")
+@service({
+  title: "Pet Store Service",
+  version: "2021-03-25",
+})
 namespace PetStore;
 
 using Cadl.Http;
@@ -71,7 +73,10 @@ interface PetInsurance extends SingletonResourceOperations<Insurance, Pet, PetSt
 
 interface Toys extends ResourceRead<Toy, PetStoreError> {
   @listsResource(Toy)
-  list(...ParentKeysOf<Toy>, @query nameFilter: string): Page<Toy> | PetStoreError;
+  list(
+    ...ParentKeysOf<Toy>,
+    @query nameFilter: string
+  ): CollectionWithNextLink<Toy> | PetStoreError;
 }
 interface ToyInsurance extends SingletonResourceOperations<Insurance, Toy, PetStoreError> {}
 

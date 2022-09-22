@@ -1,7 +1,7 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { isArrayModelType } from "../../core/index.js";
 import { isTemplateDeclaration } from "../../core/type-utils.js";
-import { ModelType, ModelTypeProperty, Type } from "../../core/types.js";
+import { Model, ModelProperty, Type } from "../../core/types.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
@@ -20,7 +20,7 @@ describe("compiler: models", () => {
     let t1, t2;
 
     testHost.addJsFile("dec.js", {
-      $dec(p: any, t: any, _t1: ModelType, _t2: ModelType) {
+      $dec(p: any, t: any, _t1: Model, _t2: Model) {
         t1 = _t1;
         t2 = _t2;
       },
@@ -40,8 +40,8 @@ describe("compiler: models", () => {
     );
 
     const { B, C } = (await testHost.compile("./")) as {
-      B: ModelType;
-      C: ModelType;
+      B: Model;
+      C: Model;
     };
 
     strictEqual(t1, B);
@@ -117,7 +117,7 @@ describe("compiler: models", () => {
           model A { @test foo?: ${type} = ${defaultValue} }
           `
         );
-        const { foo } = (await testHost.compile("main.cadl")) as { foo: ModelTypeProperty };
+        const { foo } = (await testHost.compile("main.cadl")) as { foo: ModelProperty };
         deepStrictEqual({ ...foo.default }, expectedValue);
       });
     }
@@ -149,7 +149,7 @@ describe("compiler: models", () => {
     }
   });
 
-  it(`doesn't emit unsuported-default diagnostic when type is an error`, async () => {
+  it(`doesn't emit unsupported-default diagnostic when type is an error`, async () => {
     testHost.addCadlFile(
       "main.cadl",
       `
@@ -237,7 +237,7 @@ describe("compiler: models", () => {
       match(diagnostics[0].message, /Model has an inherited property/);
     });
 
-    it("keeps reference of childrens", async () => {
+    it("keeps reference of children", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
@@ -255,9 +255,9 @@ describe("compiler: models", () => {
         `
       );
       const { Pet, Dog, Cat } = (await testHost.compile("main.cadl")) as {
-        Pet: ModelType;
-        Dog: ModelType;
-        Cat: ModelType;
+        Pet: Model;
+        Dog: Model;
+        Cat: Model;
       };
       ok(Pet.derivedModels);
       strictEqual(Pet.derivedModels.length, 2);
@@ -265,7 +265,7 @@ describe("compiler: models", () => {
       strictEqual(Pet.derivedModels[1], Dog);
     });
 
-    it("keeps reference of childrens with templates", async () => {
+    it("keeps reference of children with templates", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
@@ -287,9 +287,9 @@ describe("compiler: models", () => {
         `
       );
       const { Pet, Dog, Cat } = (await testHost.compile("main.cadl")) as {
-        Pet: ModelType;
-        Dog: ModelType;
-        Cat: ModelType;
+        Pet: Model;
+        Dog: Model;
+        Cat: Model;
       };
       strictEqual(Pet.derivedModels.length, 4);
       strictEqual(Pet.derivedModels[0].name, "TPet");
@@ -298,7 +298,7 @@ describe("compiler: models", () => {
       strictEqual(Pet.derivedModels[1].name, "TPet");
       ok(Pet.derivedModels[1].templateArguments);
       strictEqual(Pet.derivedModels[1].templateArguments[0].kind, "Model");
-      strictEqual((Pet.derivedModels[1].templateArguments[0] as ModelType).name, "string");
+      strictEqual((Pet.derivedModels[1].templateArguments[0] as Model).name, "string");
 
       strictEqual(Pet.derivedModels[2], Cat);
       strictEqual(Pet.derivedModels[3], Dog);
@@ -318,6 +318,35 @@ describe("compiler: models", () => {
       });
     });
 
+    it("emit error when extend model expression", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A extends {name: string} {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "extend-model",
+        message: "Models cannot extend model expressions.",
+      });
+    });
+
+    it("emit error when extend model expression via alias", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        alias B = {name: string};
+        model A extends B {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "extend-model",
+        message: "Models cannot extend model expressions.",
+      });
+    });
+
     it("emit error when extends itself", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -333,7 +362,7 @@ describe("compiler: models", () => {
       );
     });
 
-    it("emit error when extends ciruclar reference", async () => {
+    it("emit error when extends circular reference", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
@@ -389,7 +418,7 @@ describe("compiler: models", () => {
         @test @red model B is A { };
         `
       );
-      const { B } = (await testHost.compile("main.cadl")) as { B: ModelType };
+      const { B } = (await testHost.compile("main.cadl")) as { B: Model };
       ok(blues.has(B));
       ok(reds.has(B));
     });
@@ -402,7 +431,7 @@ describe("compiler: models", () => {
         @test model B is A { y: string };
         `
       );
-      const { B } = (await testHost.compile("main.cadl")) as { B: ModelType };
+      const { B } = (await testHost.compile("main.cadl")) as { B: Model };
       ok(B.properties.has("x"));
       ok(B.properties.has("y"));
     });
@@ -417,7 +446,7 @@ describe("compiler: models", () => {
         @test model C is B { }
         `
       );
-      const { A, C } = (await testHost.compile("main.cadl")) as { A: ModelType; C: ModelType };
+      const { A, C } = (await testHost.compile("main.cadl")) as { A: Model; C: Model };
       strictEqual(C.baseModel, A);
       strictEqual(A.derivedModels[1], C);
     });
@@ -430,7 +459,7 @@ describe("compiler: models", () => {
         @test model A is string[];
         `
       );
-      const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+      const { A } = (await testHost.compile("main.cadl")) as { A: Model };
       ok(isArrayModelType(testHost.program, A));
     });
 
@@ -442,7 +471,7 @@ describe("compiler: models", () => {
         @test model A is (string | int32)[];
         `
       );
-      const { A } = (await testHost.compile("main.cadl")) as { A: ModelType };
+      const { A } = (await testHost.compile("main.cadl")) as { A: Model };
       ok(isArrayModelType(testHost.program, A));
       strictEqual(A.indexer.value.kind, "Union");
     });
@@ -475,6 +504,35 @@ describe("compiler: models", () => {
       });
     });
 
+    it("emit error when is model expression", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        model A is {name: string} {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` cannot specify a model expression.",
+      });
+    });
+
+    it("emit error when is model expression via alias", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        alias B = {name: string};
+        model A is B {}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.cadl");
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` cannot specify a model expression.",
+      });
+    });
+
     it("emit error when is itself", async () => {
       testHost.addCadlFile(
         "main.cadl",
@@ -490,7 +548,7 @@ describe("compiler: models", () => {
       );
     });
 
-    it("emit single error when is itself as a templated with mutliple instantiations", async () => {
+    it("emit single error when is itself as a templated with multiple instantiations", async () => {
       testHost.addCadlFile(
         "main.cadl",
         `
@@ -572,13 +630,13 @@ describe("compiler: models", () => {
         `
       );
       const { B, C } = await testHost.compile("main.cadl");
-      strictEqual((B as ModelType).properties.size, 2);
-      strictEqual(((B as ModelType).properties.get("c")?.type as any).name, "string");
-      strictEqual(((B as ModelType).properties.get("b")?.type as any).name, "B");
+      strictEqual((B as Model).properties.size, 2);
+      strictEqual(((B as Model).properties.get("c")?.type as any).name, "string");
+      strictEqual(((B as Model).properties.get("b")?.type as any).name, "B");
 
-      strictEqual((C as ModelType).properties.size, 2);
-      strictEqual(((C as ModelType).properties.get("c")?.type as any).name, "int32");
-      strictEqual(((C as ModelType).properties.get("b")?.type as any).name, "B");
+      strictEqual((C as Model).properties.size, 2);
+      strictEqual(((C as Model).properties.get("c")?.type as any).name, "int32");
+      strictEqual(((C as Model).properties.get("b")?.type as any).name, "B");
     });
   });
 });

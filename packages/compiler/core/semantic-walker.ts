@@ -1,17 +1,17 @@
 import { Program } from "./program.js";
 import {
-  EnumType,
-  InterfaceType,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
+  Enum,
+  Interface,
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
   SemanticNodeListener,
-  TemplateParameterType,
-  TupleType,
+  TemplateParameter,
+  Tuple,
   Type,
-  UnionType,
-  UnionTypeVariant,
+  Union,
+  UnionVariant,
 } from "./types.js";
 
 export function navigateProgram(
@@ -27,19 +27,11 @@ export function navigateProgram(
     return;
   }
 
-  if (program.currentProjector) {
-    navigateNamespaceType(
-      program.currentProjector.projectedGlobalNamespace!,
-      eventEmitter,
-      visited
-    );
-  } else {
-    navigateNamespaceType(program.checker.getGlobalNamespaceType(), eventEmitter, visited);
-  }
+  navigateNamespaceType(program.getGlobalNamespaceType(), eventEmitter, visited);
 }
 
 function navigateNamespaceType(
-  namespace: NamespaceType,
+  namespace: Namespace,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -72,7 +64,7 @@ function checkVisited(visited: Set<any>, item: any) {
 }
 
 function navigateOperationType(
-  operation: OperationType,
+  operation: Operation,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -87,7 +79,7 @@ function navigateOperationType(
 }
 
 function navigateModelType(
-  model: ModelType,
+  model: Model,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -108,7 +100,7 @@ function navigateModelType(
 }
 
 function navigateModelTypeProperty(
-  property: ModelTypeProperty,
+  property: ModelProperty,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -120,7 +112,7 @@ function navigateModelTypeProperty(
 }
 
 function navigateInterfaceType(
-  type: InterfaceType,
+  type: Interface,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -135,7 +127,7 @@ function navigateInterfaceType(
 }
 
 function navigateEnumType(
-  type: EnumType,
+  type: Enum,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -147,7 +139,7 @@ function navigateEnumType(
 }
 
 function navigateUnionType(
-  type: UnionType,
+  type: Union,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -161,7 +153,7 @@ function navigateUnionType(
 }
 
 function navigateUnionTypeVariant(
-  type: UnionTypeVariant,
+  type: UnionVariant,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -173,7 +165,7 @@ function navigateUnionTypeVariant(
 }
 
 function navigateTupleType(
-  type: TupleType,
+  type: Tuple,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -187,7 +179,7 @@ function navigateTupleType(
 }
 
 function navigateTemplateParameter(
-  type: TemplateParameterType,
+  type: TemplateParameter,
   eventEmitter: EventEmitter<SemanticNodeListener>,
   visited: Set<any>
 ) {
@@ -241,7 +233,7 @@ function navigateType(
 }
 
 // Return property from type, nesting into baseTypes as needed.
-export function getProperty(type: ModelType, propertyName: string): ModelTypeProperty | undefined {
+export function getProperty(type: Model, propertyName: string): ModelProperty | undefined {
   while (type.baseModel) {
     if (type.properties.has(propertyName)) {
       return type.properties.get(propertyName);

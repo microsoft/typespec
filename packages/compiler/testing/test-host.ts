@@ -4,10 +4,11 @@ import { readFile } from "fs/promises";
 import { globby } from "globby";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile, logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
+import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
-import { createProgram, Program } from "../core/program.js";
+import { compile as compileProgram, Program } from "../core/program.js";
 import { CompilerHost, Diagnostic, Type } from "../core/types.js";
 import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
@@ -306,9 +307,11 @@ async function createTestHostInternal(): Promise<TestHost> {
       // default for tests is noEmit
       options = { ...options, noEmit: true };
     }
-    const p = await createProgram(fileSystem.compilerHost, mainFile, options);
+    const p = await compileProgram(fileSystem.compilerHost, mainFile, options);
     program = p;
-    logVerboseTestOutput((log) => logDiagnostics(p.diagnostics, p.logger));
+    logVerboseTestOutput((log) =>
+      logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink }))
+    );
     return [testTypes, p.diagnostics];
   }
 }

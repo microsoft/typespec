@@ -2,6 +2,18 @@
   "name": "@cadl-lang/eslint-config-cadl",
   "entries": [
     {
+      "version": "0.4.1",
+      "tag": "@cadl-lang/eslint-config-cadl_v0.4.1",
+      "date": "Thu, 08 Sep 2022 01:04:53 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add warning when using `.only` to remember to remove before pushing"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "@cadl-lang/eslint-config-cadl_v0.4.0",
       "date": "Thu, 11 Aug 2022 19:05:23 GMT",

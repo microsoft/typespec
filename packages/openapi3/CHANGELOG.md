@@ -1,6 +1,23 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Thu, 11 Aug 2022 19:05:23 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+
+## 0.15.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- Uptake change to enum members map type 
+- Use projectedName projection for `json` to get the real over the wire properties.
+- Uptake changes to compiler with current projection
+- Update decororator state key to allow multiple instance of library to work together.
+- React to Type suffix removal
+- Support more kinds of unions, fix various union bugs, and add support for @discriminator on unions
+- Uptake changes to http service authentication oauth2 scopes
+
+### Patches
+
+- Add support for `@extension` on Server variables
 
 ## 0.14.0
 Thu, 11 Aug 2022 19:05:23 GMT
@@ -136,7 +153,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - Internals: switch to internal path manipulation
 - Extracted decorators into own library `@cadl-lang/openapi`
 - Uptake changes in @cadl-lang/rest library improving operation parameter handling
-- Update cadl depdendencies to peerDependencies
+- Update cadl dependencies to peerDependencies
 - Add support for versioned services
 - Add statusCode decorator for http status code
 

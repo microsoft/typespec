@@ -1,9 +1,11 @@
 import {
   getFriendlyName,
   getServiceNamespace,
+  getVisibility,
+  isGlobalNamespace,
   isTemplateInstance,
-  ModelTypeProperty,
-  OperationType,
+  ModelProperty,
+  Operation,
   Program,
   Type,
   TypeNameOptions,
@@ -28,12 +30,7 @@ export function shouldInline(program: Program, type: Type): boolean {
   }
   switch (type.kind) {
     case "Model":
-      return (
-        !type.name ||
-        isTemplateInstance(type) ||
-        program.checker.isStdType(type, "Array") ||
-        program.checker.isStdType(type, "Record")
-      );
+      return !type.name || isTemplateInstance(type);
     case "Enum":
     case "Union":
       return !type.name;
@@ -60,6 +57,16 @@ export function getTypeName(
 ): string {
   const name = getFriendlyName(program, type) ?? program.checker.getTypeName(type, options);
 
+  checkDuplicateTypeName(program, type, name, existing);
+  return name;
+}
+
+export function checkDuplicateTypeName(
+  program: Program,
+  type: Type,
+  name: string,
+  existing: Record<string, unknown> | undefined
+) {
   if (existing && existing[name]) {
     reportDiagnostic(program, {
       code: "duplicate-type-name",
@@ -69,8 +76,6 @@ export function getTypeName(
       target: type,
     });
   }
-
-  return name;
 }
 
 /**
@@ -78,16 +83,16 @@ export function getTypeName(
  */
 export function getParameterKey(
   program: Program,
-  propery: ModelTypeProperty,
+  property: ModelProperty,
   newParam: unknown,
   existingParams: Record<string, unknown>,
   options: TypeNameOptions
 ): string {
-  const parent = propery.model!;
+  const parent = property.model!;
   let key = getTypeName(program, parent, options);
 
   if (parent.properties.size > 1) {
-    key += `.${propery.name}`;
+    key += `.${property.name}`;
   }
 
   // JSON check is workaround for https://github.com/microsoft/cadl/issues/462
@@ -98,7 +103,7 @@ export function getParameterKey(
       format: {
         value: key,
       },
-      target: propery,
+      target: property,
     });
   }
 
@@ -109,13 +114,13 @@ export function getParameterKey(
  * Resolve the OpenAPI operation ID for the given operation using the following logic:
  * - If @operationId was specified use that value
  * - If operation is defined at the root or under the service namespace return <operation.name>
- * - Otherwise(operation is under another namespace or interface) return <namespace/interface.name>_<opration.name>
+ * - Otherwise(operation is under another namespace or interface) return <namespace/interface.name>_<operation.name>
  *
  * @param program Cadl Program
  * @param operation Operation
  * @returns Operation ID in this format <name> or <group>_<name>
  */
-export function resolveOperationId(program: Program, operation: OperationType) {
+export function resolveOperationId(program: Program, operation: Operation) {
   const explicitOperationId = getOperationId(program, operation);
   if (explicitOperationId) {
     return explicitOperationId;
@@ -127,11 +132,26 @@ export function resolveOperationId(program: Program, operation: OperationType) {
   const namespace = operation.namespace;
   if (
     namespace === undefined ||
-    namespace === program.checker.getGlobalNamespaceType() ||
+    isGlobalNamespace(program, namespace) ||
     namespace === getServiceNamespace(program)
   ) {
     return operation.name;
   }
 
   return `${namespace.name}_${operation.name}`;
+}
+
+/**
+ * Determines if a property is read-only, which is defined as being
+ * decorated `@visibility("read")`.
+ *
+ * If there is more than 1 `@visibility` argument, then the property is not
+ * read-only. For example, `@visibility("read", "update")` does not
+ * designate a read-only property.
+ */
+export function isReadonlyProperty(program: Program, property: ModelProperty) {
+  const visibility = getVisibility(program, property);
+  // note: multiple visibilities that include read are not handled using
+  // readonly: true, but using separate schemas.
+  return visibility?.length === 1 && visibility[0] === "read";
 }

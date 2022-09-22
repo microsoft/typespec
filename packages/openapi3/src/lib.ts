@@ -10,7 +10,7 @@ export interface OpenAPI3EmitterOptions {
   "new-line"?: "crlf" | "lf";
 }
 
-const EmiterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
+const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -27,12 +27,6 @@ export const libDef = {
       severity: "error",
       messages: {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
-      },
-    },
-    "security-service-namespace": {
-      severity: "error",
-      messages: {
-        default: "Cannot add security details to a namespace other than the service namespace.",
       },
     },
     "resource-namespace": {
@@ -117,11 +111,11 @@ export const libDef = {
     },
   },
   emitter: {
-    options: EmiterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
+    options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
 } as const;
 
 export const $lib = createCadlLibrary(libDef);
-export const { reportDiagnostic } = $lib;
+export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

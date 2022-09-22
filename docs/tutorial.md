@@ -1,5 +1,7 @@
 # Introduction to API Definition Language (Cadl)
 
+<!-- cspell:ignore cadl, etag, openapi -->
+
 Cadl is a language for describing cloud service APIs and generating other API description languages, client and service code, documentation, and other assets. Cadl provides highly extensible core language primitives that can describe API shapes common among REST, GraphQL, gRPC, and other protocols.
 
 Cadl is an object oriented dynamic language whose evaluation results in an object model describing service APIs. Unlike typical programming languages, Cadl consists primarily of declarations, however these declarations can be decorated to provide highly dynamic behavior.
@@ -15,15 +17,15 @@ Cadl's primary benefits include:
 
 Cadl consists of the following language features:
 
-- [Models](#Models): data shapes or schemas
-- [Type Literals](#Type-Literals): strings and numbers with specific values
-- [Type Operators](#Type-Operators): syntax for composing model types into other types
-- [Operations](#Operations): service endpoints with parameters and return values
+- [Models](#models): data shapes or schemas
+- [Type Literals](#type-literals): strings and numbers with specific values
+- [Type Operators](#type-operators): syntax for composing model types into other types
+- [Operations](#operations): service endpoints with parameters and return values
 - [Namespaces & Usings](#namespaces--usings): groups models and operations together into hierarchical groups with friendly names
-- [Interfaces](#Interfaces): groups operations
-- [Imports](#Imports): links declarations across multiple files and libraries together into a single program
-- [Decorators](#Decorators): bits of TypeScript code that add metadata or sometimes mutate declarations
-- [Libraries](#Libraries): encapsulate Cadl definitions into reusable components
+- [Interfaces](#interfaces): groups operations
+- [Imports](#imports): links declarations across multiple files and libraries together into a single program
+- [Decorators](#decorators): bits of TypeScript code that add metadata or sometimes mutate declarations
+- [Libraries](#libraries): encapsulate Cadl definitions into reusable components
 
 In addition, Cadl comes with a standard library for describing REST APIs and generating OpenAPI. Other protocol bindings are a work in progress!
 
@@ -39,12 +41,11 @@ model Dog {
   favoriteToy?: string;
   bestTreat?: string = "chicken";
 }
-
 ```
 
 #### Built-in Models
 
-[Type relations](./type-relations.md)
+[Type relations](../packages/website/src/docs/language-basics/type-relations.md)
 
 Cadl comes with built-in models for common data types:
 
@@ -95,7 +96,6 @@ model Dog {
   species: string;
   name: string;
 }
-
 ```
 
 #### Extends
@@ -108,12 +108,11 @@ model Animal {
 }
 
 model Dog extends Animal {}
-
 ```
 
 #### Is
 
-Sometimes you want to copy all aspects of a type without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It is like spread, but also copies [decorators](#Decorators) in addition to properties. One common use case is to give a better name to a [template](#Templates) instantiation:
+Sometimes you want to copy all aspects of a type without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It is like spread, but also copies [decorators](#decorators) in addition to properties. One common use case is to give a better name to a [template](#templates) instantiation:
 
 ```cadl
 @decorator
@@ -128,7 +127,6 @@ model StringThing is Thing<string>;
 model StringThing {
   property: string;
 }
-
 ```
 
 ### Enums
@@ -141,7 +139,6 @@ enum Color {
   Blue,
   Green,
 }
-
 ```
 
 In this case, we haven't specified how the constants will be represented, allowing for different choices in different scenarios. For example, the OpenAPI emitter will choose string values "Red", "Green", "Blue". Another protocol might prefer to assign incrementing numeric values 0, 1, 2.
@@ -159,7 +156,6 @@ enum Priority {
   High: 100,
   Low: 0,
 }
-
 ```
 
 #### Templates
@@ -175,7 +171,6 @@ model Page<T> {
 model DogPage {
   ...Page<Dog>;
 }
-
 ```
 
 A template parameter can be given a default value with `= <value>`.
@@ -185,7 +180,6 @@ model Page<T = string> {
   size: number;
   item: T[];
 }
-
 ```
 
 #### Type Aliases
@@ -194,7 +188,6 @@ Sometimes it's convenient to alias a model template instantiation or type produc
 
 ```cadl
 alias DogPage = Page<Dog>;
-
 ```
 
 Unlike `model`, `alias` does not create a new entity, and as such will not change generated code in any way. An alias merely describes a source code shorthand to avoid repeating the right-hand side in multiple places.
@@ -207,11 +200,10 @@ API authors often need to describe API shapes in terms of specific literal value
 
 ```cadl
 model BestDog {
-  name: "Suki";
+  name: "Max";
   age: 14;
   best: true;
 }
-
 ```
 
 String literal types can also be created using the triple-quote syntax which enables multi-line strings:
@@ -219,12 +211,11 @@ String literal types can also be created using the triple-quote syntax which ena
 ```cadl
 model Dog {
   favoriteFoods: """
-    McDonalds
+    McDonald's
     Chipotle
     And so on
     """;
 }
-
 ```
 
 ### Type Operators
@@ -237,7 +228,6 @@ Unions describe a type that must be exactly one of the union's constituents. Cre
 
 ```cadl
 alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
-
 ```
 
 ##### Named unions
@@ -250,10 +240,9 @@ union GoodBreed {
   shepherd: GermanShepherd,
   retriever: GoldenRetriever,
 }
-
 ```
 
-The above example is equivalent to the `GoodBreed` alias above, except that emitters can actually see `GoodBreed` as a named entity and also see the `beagle`, `shepherd`, and `retriever` names for the options. It also becomes possible to apply [decorators](#Decorators) to each of the options when using this form.
+The above example is equivalent to the `GoodBreed` alias above, except that emitters can actually see `GoodBreed` as a named entity and also see the `beagle`, `shepherd`, and `retriever` names for the options. It also becomes possible to apply [decorators](#decorators) to each of the options when using this form.
 
 #### Intersections
 
@@ -261,7 +250,6 @@ Intersections describe a type that must include all the intersection's constitue
 
 ```cadl
 alias Dog = Animal & Pet;
-
 ```
 
 #### Arrays
@@ -270,7 +258,6 @@ Arrays describe lists of things. Create an Array type with the `[]` operator.
 
 ```cadl
 alias Pack = Dog[];
-
 ```
 
 ### Operations
@@ -279,14 +266,12 @@ Operations describe service endpoints and consist of an operation name, paramete
 
 ```cadl
 op getDog(name: string): Dog;
-
 ```
 
 The operation's parameters describe a model, so anything you can do in a model you can do in a parameter list as well, including using the spread operator:
 
 ```cadl
 op getDog(...commonParams, name: string): Dog;
-
 ```
 
 Often an endpoint returns one of any number of models. For example, there might be a return type for when an item is found, and a return type for when an item isn't found. Unions are used to describe this pattern:
@@ -297,7 +282,6 @@ model DogNotFound {
 }
 
 op getDog(name: string): Dog | DogNotFound;
-
 ```
 
 ### Namespaces & Usings
@@ -310,7 +294,6 @@ namespace Models {
 }
 
 op getDog(): Models.Dog;
-
 ```
 
 You can also put an entire Cadl file into a namespace by using the blockless namespace syntax:
@@ -319,14 +302,12 @@ You can also put an entire Cadl file into a namespace by using the blockless nam
 // models.cadl
 namespace Models;
 model Dog {}
-
 ```
 
 ```cadl
 // main.cadl
 import "./models.cadl";
 op getDog(): Models.Dog;
-
 ```
 
 Namespace declarations can declare multiple namespaces at once by using a dotted member expression. There's no need to declare nested namespace blocks if you don't want to.
@@ -341,7 +322,6 @@ namespace C.D.E {
 }
 
 alias M = A.B.C.D.E.M;
-
 ```
 
 It can be convenient to add references to a namespace's declarations to your local namespace, especially when namespaces can become deeply nested. The `using` statement lets us do this:
@@ -350,7 +330,6 @@ It can be convenient to add references to a namespace's declarations to your loc
 // models.cadl
 namespace Service.Models;
 model Dog {}
-
 ```
 
 ```cadl
@@ -358,7 +337,6 @@ model Dog {}
 import "./models.cadl";
 using ServiceModels;
 op getDog(): Dog; // here we can use Dog directly.
-
 ```
 
 The bindings introduced by a `using` statement are local to the namespace they are declared in. They do not become part of the namespace themselves.
@@ -375,7 +353,6 @@ namespace Test2 {
 
 alias C = Test2.A; // not ok
 alias C = Test2.B; // ok
-
 ```
 
 ### Interfaces
@@ -390,7 +367,6 @@ interface A {
 interface B {
   b(): string;
 }
-
 ```
 
 And the keyword `extends` can be used to compose operations from other interfaces into a new interface:
@@ -406,7 +382,6 @@ interface C {
   b(): string;
   c(): string;
 }
-
 ```
 
 ### Imports
@@ -419,20 +394,17 @@ The path you import must either begin with "./" or "../" or otherwise be an abso
 // main.cadl
 import "./models";
 op getDog(): Dog;
-
 ```
 
 ```cadl
 // models/main.cadl
 import "./dog.cadl";
-
 ```
 
 ```cadl
 // models/dog.cadl
 namespace Models;
 model Dog {}
-
 ```
 
 ### Decorators
@@ -463,12 +435,11 @@ model Dog {
   @logType("Name type")
   name: string;
 }
-
 ```
 
 After running this Cadl program, the following will be printed to the console:
 
-```
+```text
 Name type: ModelProperty
 Dog type: Model
 ```
@@ -494,7 +465,7 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 - [@summary](#summary) - attach a documentation string, typically a short, single-line description.
 - [@tag](#tag) - attach a simple tag to a declaration
 - [@visibility/@withVisibility](#visibility-decorators)
-- [@withDefaultKeyVisibility](#withefaultkeyvisibility) - set the visibility of key properties in a model if not already set.
+- [@withDefaultKeyVisibility](#withdefaultkeyvisibility) - set the visibility of key properties in a model if not already set.
 - [@withOptionalProperties](#withoptionalproperties) - makes all properties of the target type optional.
 - [@withoutDefaultValues](#withoutdefaultvalues) - removes all read-only properties from the target type.
 - [@withoutOmittedProperties](#withoutomittedproperties) - removes all model properties that match a type.
@@ -504,7 +475,7 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 
 Syntax:
 
-```
+```cadl
 @inspectType(message)
 @inspectTypeName(message)
 ```
@@ -517,7 +488,7 @@ They can be specified on any language element -- a model, an operation, a namesp
 
 Syntax:
 
-```
+```cadl
 @deprecated(message)
 ```
 
@@ -527,17 +498,27 @@ Syntax:
 
 Syntax:
 
-```
+```cadl
 @friendlyName(string)
 ```
 
-`@friendlyName` specifies an alternate model name to be used instead of declared model name. It can be specified on a model.
+`@friendlyName` specifies how a templated type should name their instances. It takes a string literal coresponding the the name. `{name}` can be used to interpolate the value of the template parameter which can be passed as a 2nd parameter.
+
+Example:
+
+```cadl
+@friendlyName("{name}List", T)
+model List<T> {}
+
+alias A = List<FooBar>; // Instance friendly name would be `FooBarList`
+alias B = List<Person>; // Instance friendly name would be `PersonList`
+```
 
 ##### @pattern
 
 Syntax:
 
-```
+```cadl
 @pattern(regularExpressionText)
 ```
 
@@ -547,7 +528,7 @@ Syntax:
 
 Syntax:
 
-```
+```cadl
 @summary(text [, object])
 ```
 
@@ -559,11 +540,24 @@ which are replaced with an attribute for the type (commonly "name") passed as th
 
 `@summary` can be specified on any language element -- a model, an operation, a namespace, etc.
 
+##### @tag
+
+Syntax:
+
+```cadl
+@tag(text)
+```
+
+`@tag` attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified
+to attach multiple tags to a Cadl element.
+
+The argument to `@tag` is a string tag value.
+
 ##### @doc
 
 Syntax:
 
-```
+```cadl
 @doc(text [, object])
 ```
 
@@ -578,7 +572,7 @@ which are replaced with an attribute for the type (commonly "name") passed as th
 
 Syntax:
 
-```
+```cadl
 @knownValues(enumTypeReference)
 ```
 
@@ -591,23 +585,22 @@ type accepts.
 
 Example:
 
-```
+```cadl
 enum OperationStateValues {
   Running,
   Completed,
-  Failed
+  Failed,
 }
 
 @knownValues(OperationStateValues)
-model OperationState extends string {
-}
+model OperationState extends string {}
 ```
 
 ##### @key
 
 Syntax:
 
-```
+```cadl
 @key([keyName])
 ```
 
@@ -622,16 +615,15 @@ Otherwise, the name of the target property will be used.
 
 Syntax:
 
-```
+```cadl
 @secret
 ```
 
 `@secret` mark a string as a secret value that should be treated carefully to avoid exposure
 
-```
+```cadl
 @secret
 model Password is string;
-
 ```
 
 `@secret` can only be applied to string model;
@@ -640,7 +632,7 @@ model Password is string;
 
 Syntax:
 
-```
+```cadl
 @format(formatName)
 ```
 
@@ -649,10 +641,8 @@ Syntax:
 The first argument is a string that identifies the format that the string type expects. Any string
 can be entered here, but a Cadl emitter must know how to interpret
 
-For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes possible
-valid values for a string type's format:
-
-https://swagger.io/specification/#data-types
+For Cadl specs that will be used with an OpenAPI emitter, the OpenAPI specification describes
+possible valid values for a [string type's format](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes).
 
 `@format` can be applied to a type that extends from `string` or a `string`-typed model property.
 
@@ -660,11 +650,11 @@ https://swagger.io/specification/#data-types
 
 Syntax:
 
-```
+```cadl
 @error
 ```
 
-`@format` - specify that this model is an error type
+`@error` - specify that this model is an error type
 
 For HTTP API this can be used to represent a failure.
 
@@ -676,7 +666,7 @@ Consider the following example:
 
 ```cadl
 model Dog {
-  // the service will generate an ID, so you dont need to send it.
+  // the service will generate an ID, so you don't need to send it.
   @visibility("read") id: int32;
   // the service will store this secret name, but won't ever return it
   @visibility("write") secretName: string;
@@ -697,14 +687,13 @@ model ReadDog {
 model WriteDog {
   ...Dog;
 }
-
 ```
 
 #### @withDefaultKeyVisibility
 
 Syntax:
 
-```
+```cadl
 @withDefaultKeyVisibility(string)
 ```
 
@@ -718,7 +707,7 @@ If a key property already has a `visibility` decorator then the default visibili
 
 Syntax:
 
-```
+```cadl
 @withOptionalProperties()
 ```
 
@@ -730,7 +719,7 @@ Syntax:
 
 Syntax:
 
-```
+```cadl
 @withoutDefaultValues()
 ```
 
@@ -742,7 +731,7 @@ Syntax:
 
 Syntax:
 
-```
+```cadl
 @withoutOmittedProperties(type)
 ```
 
@@ -754,7 +743,7 @@ Syntax:
 
 Syntax:
 
-```
+```cadl
 @withUpdateableProperties()
 ```
 
@@ -782,7 +771,6 @@ Lastly, you need to import the libraries into your Cadl program. By convention, 
 // in main.cadl
 import "@cadl-lang/rest";
 import "@cadl-lang/openapi3";
-
 ```
 
 #### Using emitter libraries
@@ -854,23 +842,18 @@ The following examples assume you have imported both `@cadl-lang/openapi3` and `
 
 A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. Cadl offers the following decorators for providing this metadata, and all are optional.
 
-- @serviceTitle - the title of the service
-- @serviceVersion - the version of the service. Can be any string, but later version should lexicographically sort after earlier versions
-- @server - the host of the service. Can accept parameters.
-- @produces - the content types the service may produce
-- @consumes - the content types that may be sent to the service
+- @service - Mark a namespace as a service namespace. Takes in the following options:
+  - `title`: Name of the service
+  - `version`: Version of the service
+- @server - (In `Cadl.Http`) the host of the service. Can accept parameters.
 
 Here's an example that uses these to define a Pet Store service:
 
 ```cadl
-@serviceTitle("Pet Store Service")
-@serviceVersion("2021-03-25")
+@service({title: "Pet Store Service", version: "2021-03-25")
 @server("https://example.com", "Single server endpoint")
 @doc("This is a sample server Petstore server.")
-@Cadl.Rest.produces("application/json", "image/png")
-@Cadl.Rest.consumes("application/json")
 namespace PetStore;
-
 ```
 
 The `server` keyword can take a third parameter with parameters as necessary:
@@ -893,7 +876,6 @@ using Cadl.Http;
 namespace Pets {
 
 }
-
 ```
 
 To define an operation on this resource, you need to provide the HTTP verb for the route using the `@get`, `@head` `@post`, `@put`, `@patch`, or `@delete` decorators. Alternatively, you can name your operation `list`, `create`, `read`, `update`, `delete`, or `deleteAll` and the appropriate verb will be used automatically. Lets add an operation to our `Pets` resource:
@@ -906,7 +888,6 @@ namespace Pets {
   // or you could also use
   @get op listPets(): Pet[];
 }
-
 ```
 
 ##### Automatic route generation
@@ -922,7 +903,7 @@ This is especially useful when reusing common parameter sets defined as model ty
 
 For example:
 
-```
+```cadl
 model CommonParameters {
   @path
   @segment("tenants")
@@ -945,7 +926,7 @@ interface UserOperations {
 
 This will result in the following route for both operations
 
-```
+```text
 /tenants/{tenantId}/users/{userName}
 ```
 
@@ -959,7 +940,6 @@ namespace Pets {
   op list(@query skip: int32, @query top: int32): Pet[];
   op read(@path petId: int32): Pet;
 }
-
 ```
 
 Path parameters are appended to the URL unless a substitution with that parameter name exists on the resource path. For example, we might define a sub-resource using the following Cadl. Note how the path parameter for our sub-resource's list operation corresponds to the substitution in the URL.
@@ -969,12 +949,11 @@ Path parameters are appended to the URL unless a substitution with that paramete
 namespace PetToys {
   op list(@path petId: int32): Toy[];
 }
-
 ```
 
 #### Request & response bodies
 
-Request and response bodies can be declared explictly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
+Request and response bodies can be declared explicitly using the `@body` decorator. Let's add an endpoint to create a pet. Let's also use this decorator for the responses, although this doesn't change anything about the API.
 
 ```cadl
 @route("/pets")
@@ -988,7 +967,6 @@ namespace Pets {
   @post
   op create(@body pet: Pet): {};
 }
-
 ```
 
 Note that in the absence of explicit `@body`:
@@ -1006,7 +984,6 @@ namespace Pets {
   @post
   op create(...Pet): {};
 }
-
 ```
 
 #### Polymorphism with discriminators
@@ -1015,7 +992,7 @@ A pattern often used in REST APIs is to define a request or response body as hav
 "discriminator" indicating which actual shape is used for a particular instance.
 Cadl supports this pattern with the `@discriminator` decorator of the Rest library.
 
-The `@discrminator` decorator takes one argument, the name of the discriminator property, and should be placed on the
+The `@discriminator` decorator takes one argument, the name of the discriminator property, and should be placed on the
 model for the request or response body. The different shapes are then defined by separate models that `extend` this request or response model.
 The discriminator property is defined in the "child" models with the value or values that indicate an instance that conforms to its shape.
 
@@ -1035,7 +1012,6 @@ model Dog extends Pet {
   kind: "dog";
   bark: string;
 }
-
 ```
 
 #### Headers
@@ -1055,7 +1031,6 @@ namespace Pets {
   @post
   op create(@body pet: Pet): {};
 }
-
 ```
 
 #### Status codes
@@ -1080,14 +1055,13 @@ namespace Pets {
     @statusCode statusCode: 204;
   };
 }
-
 ```
 
 #### Built-in response shapes
 
 Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently.
 
-There is also a Body<T> type, which can be used as a shorthand for { @body body: T } when an explicit body is required.
+There is also a `Body<T>` type, which can be used as a shorthand for { @body body: T } when an explicit body is required.
 
 Lets update our sample one last time to use these built-in types:
 
@@ -1104,7 +1078,6 @@ namespace Pets {
   @post
   op create(...Pet): NoContentResponse;
 }
-
 ```
 
 Note that the default status code is 200 for non-empty bodies and 204 for empty bodies. Similarly, explicit `Body<T>` is not required when T is known to be a model. So the following terser form is equivalent:
@@ -1117,7 +1090,6 @@ namespace Pets {
   @post
   op create(...Pet): {};
 }
-
 ```
 
 Finally, another common style is to make helper response types that are
@@ -1151,7 +1123,6 @@ namespace Pets {
   @post
   op create(...Pet): CreateResponse;
 }
-
 ```
 
 ### CADL Config

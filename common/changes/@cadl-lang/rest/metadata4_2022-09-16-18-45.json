@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Implement automatic visibility transformations",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

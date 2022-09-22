@@ -1,4 +1,4 @@
-import { ModelType, NamespaceType, Program } from "@cadl-lang/compiler";
+import { Model, Namespace, Program, projectProgram } from "@cadl-lang/compiler";
 import {
   BasicTestRunner,
   createTestWrapper,
@@ -34,12 +34,12 @@ describe("versioning: reference versioned library", () => {
     );
   });
 
-  function assertFooV1(foo: ModelType) {
+  function assertFooV1(foo: Model) {
     ok(foo.properties.has("name"));
     ok(!foo.properties.has("age"), "Age was added in version 2 and version 1 was selected.");
   }
 
-  function assertFooV2(Foo: ModelType) {
+  function assertFooV2(Foo: Model) {
     ok(Foo.properties.has("name"));
     ok(Foo.properties.has("age"), "Age was added in version 2 and version 1 was selected.");
   }
@@ -51,13 +51,13 @@ describe("versioning: reference versioned library", () => {
         @test namespace MyService {
           @test model Test extends VersionedLib.Foo {}
         } 
-    `)) as { MyService: NamespaceType; Test: ModelType };
+    `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
       strictEqual(versions.length, 1);
       strictEqual(versions[0].version, undefined);
       strictEqual(versions[0].projections.length, 1);
 
-      const projector = runner.program.enableProjections(versions[0].projections, Test);
+      const projector = projectProgram(runner.program, versions[0].projections, Test).projector;
       const Foo = (projector.projectedTypes.get(Test) as any).baseModel;
 
       assertFooV1(Foo);
@@ -87,18 +87,18 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           @test model Test extends VersionedLib.Foo {}
         } 
-    `)) as { MyService: NamespaceType; Test: ModelType };
+    `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
       strictEqual(versions.length, 2);
       strictEqual(versions[0].version, "v1");
       strictEqual(versions[1].version, "v2");
 
-      const projectorV1 = runner.program.enableProjections(versions[0].projections, Test);
+      const projectorV1 = projectProgram(runner.program, versions[0].projections, Test).projector;
       const FooV1 = (projectorV1.projectedTypes.get(Test) as any).baseModel;
 
       assertFooV1(FooV1);
 
-      const projectorV2 = runner.program.enableProjections(versions[1].projections, Test);
+      const projectorV2 = projectProgram(runner.program, versions[1].projections, Test).projector;
       const FooV2 = (projectorV2.projectedTypes.get(Test) as any).baseModel;
       assertFooV2(FooV2);
     });
@@ -111,18 +111,18 @@ describe("versioning: reference versioned library", () => {
           enum Versions {v1, v2}
           @test model Test extends VersionedLib.Foo {}
         } 
-    `)) as { MyService: NamespaceType; Test: ModelType };
+    `)) as { MyService: Namespace; Test: Model };
       const versions = buildVersionProjections(runner.program, MyService);
       strictEqual(versions.length, 2);
       strictEqual(versions[0].version, "v1");
       strictEqual(versions[1].version, "v2");
 
-      const projectorV1 = runner.program.enableProjections(versions[0].projections, Test);
+      const projectorV1 = projectProgram(runner.program, versions[0].projections, Test).projector;
       const FooV1 = (projectorV1.projectedTypes.get(Test) as any).baseModel;
 
       assertFooV1(FooV1);
 
-      const projectorV2 = runner.program.enableProjections(versions[1].projections, Test);
+      const projectorV2 = projectProgram(runner.program, versions[1].projections, Test).projector;
       const FooV2 = (projectorV2.projectedTypes.get(Test) as any).baseModel;
       assertFooV1(FooV2);
     });
@@ -292,7 +292,7 @@ describe("versioning: dependencies", () => {
         }
         @test model Test extends NonVersionedLib.Spread<Spreadable> {}
       }
-      `)) as { MyService: NamespaceType; Test: ModelType };
+      `)) as { MyService: Namespace; Test: Model };
 
     const [v1, v2] = runProjections(runner.program, MyService);
 
@@ -324,7 +324,7 @@ describe("versioning: dependencies", () => {
         }
         @test model Test extends VersionedLib.Spread<Spreadable> {}
       }
-      `)) as { MyService: NamespaceType; Test: ModelType };
+      `)) as { MyService: Namespace; Test: Model };
 
     const [v1, v2] = runProjections(runner.program, MyService);
 
@@ -356,7 +356,7 @@ describe("versioning: dependencies", () => {
         }
         @test model Test extends VersionedLib.Spread<Spreadable> {}
       }
-      `)) as { MyService: NamespaceType; Test: ModelType };
+      `)) as { MyService: Namespace; Test: Model };
 
     const [v1, v2] = runProjections(runner.program, MyService);
 
@@ -369,7 +369,7 @@ describe("versioning: dependencies", () => {
   // Test for https://github.com/microsoft/cadl/issues/760
   it("have a nested service namespace", async () => {
     const { MyService } = (await runner.compile(`
-        @serviceTitle("Test")
+        @service({title: "Test"})
         @versionedDependency(Lib.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
@@ -382,7 +382,7 @@ describe("versioning: dependencies", () => {
             v1: "v1",
           }
         }
-      `)) as { MyService: NamespaceType };
+      `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
@@ -391,7 +391,7 @@ describe("versioning: dependencies", () => {
   // Test for https://github.com/microsoft/cadl/issues/786
   it("have a nested service namespace and libraries sharing common parent namespace", async () => {
     const { MyService } = (await runner.compile(`
-        @serviceTitle("Test")
+        @service({title: "Test"})
         @versionedDependency(Lib.One.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
@@ -406,14 +406,14 @@ describe("versioning: dependencies", () => {
         @versionedDependency(Lib.One.Versions.v1)
         namespace Lib.Two { }
 
-      `)) as { MyService: NamespaceType };
+      `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
   });
 });
 
-function runProjections(program: Program, rootNs: NamespaceType) {
+function runProjections(program: Program, rootNs: Namespace) {
   const versions = buildVersionProjections(program, rootNs);
-  return versions.map((x) => program.enableProjections(x.projections, rootNs));
+  return versions.map((x) => projectProgram(program, x.projections).projector);
 }
