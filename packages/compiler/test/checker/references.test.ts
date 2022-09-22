@@ -2,7 +2,7 @@ import { strictEqual } from "assert";
 import { Enum, Model, Operation, UnionVariant } from "../../core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../testing/index.js";
 
-describe("compiler: references", () => {
+describe.only("compiler: references", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {

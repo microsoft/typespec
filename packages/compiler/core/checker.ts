@@ -434,7 +434,7 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ModelStatement:
         return checkModel(node, mapper);
       case SyntaxKind.ModelProperty:
-        return checkModelProperty(node, mapper);
+        throw new Error("Cannot get type for model property. Check through model first");
       case SyntaxKind.AliasStatement:
         return checkAlias(node, mapper);
       case SyntaxKind.EnumStatement:
@@ -823,7 +823,10 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
-    if (sym.flags & SymbolFlags.LateBound) {
+    if (sym.flags & SymbolFlags.LateBound && !(sym.flags & SymbolFlags.MemberContainer)) {
+      if (sym.type === undefined && sym.parent !== undefined) {
+        checkTypeReferenceSymbol(sym.parent, sym.parent.declarations[0] as any, mapper);
+      }
       compilerAssert(sym.type, "Expected late bound symbol to have type");
       return sym.type;
     }
@@ -1466,24 +1469,25 @@ export function createChecker(program: Program): Checker {
           break;
         }
 
-        compilerAssert(node.parent, "Parent expected.");
-        const containerType = getTypeForNode(node.parent, mapper);
-        if (isAnonymous(containerType)) {
-          return undefined; // member of anonymous type cannot be referenced.
-        }
+        return undefined;
+        // compilerAssert(node.parent, "Parent expected.");
+        // // const containerType = getTypeForNode(node.parent, mapper);
+        // if (isAnonymous(containerType)) {
+        //   return undefined; // member of anonymous type cannot be referenced.
+        // }
 
-        lateBindMemberContainer(containerType);
-        let container = node.parent.symbol;
-        if (!container && "symbol" in containerType && containerType.symbol) {
-          container = containerType.symbol;
-        }
+        // lateBindMemberContainer(containerType);
+        // let container = node.parent.symbol;
+        // if (!container && "symbol" in containerType && containerType.symbol) {
+        //   container = containerType.symbol;
+        // }
 
-        if (!container) {
-          return undefined;
-        }
+        // if (!container) {
+        //   return undefined;
+        // }
 
-        lateBindMembers(containerType, container);
-        sym = resolveIdentifierInTable(id, container.exports ?? container.members);
+        // // lateBindMembers(containerType, container);
+        // sym = resolveIdentifierInTable(id, container.exports ?? container.members);
         break;
 
       case IdentifierKind.Other:
@@ -1536,9 +1540,9 @@ export function createChecker(program: Program): Checker {
     if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       const base = resolveTypeReference(identifier.parent.base, undefined, false);
       if (base) {
-        const type = getTypeForNode(base.declarations[0], undefined);
-        lateBindMemberContainer(type);
-        lateBindMembers(type, base);
+        // const type = getTypeForNode(base.declarations[0], undefined);
+        // lateBindMemberContainer(type);
+        lateBindMembers(base.declarations[0], base);
         addCompletions(base.exports ?? base.members);
       }
     } else {
@@ -1754,35 +1758,35 @@ export function createChecker(program: Program): Checker {
 
         return undefined;
       } else if (base.flags & SymbolFlags.MemberContainer) {
-        const type =
-          base.flags & SymbolFlags.LateBound
-            ? base.type!
-            : getTypeForNode(base.declarations[0], mapper);
-        if (
-          type.kind !== "Model" &&
-          type.kind !== "Enum" &&
-          type.kind !== "Interface" &&
-          type.kind !== "Union"
-        ) {
-          program.reportDiagnostic(
-            createDiagnostic({
-              code: "invalid-ref",
-              messageId: "underContainer",
-              format: { kind: type.kind, id: node.id.sv },
-              target: node,
-            })
-          );
-          return undefined;
-        }
+        // const type =
+        //   base.flags & SymbolFlags.LateBound
+        //     ? base.type!
+        //     : getTypeForNode(base.declarations[0], mapper);
+        // if (
+        //   type.kind !== "Model" &&
+        //   type.kind !== "Enum" &&
+        //   type.kind !== "Interface" &&
+        //   type.kind !== "Union"
+        // ) {
+        //   program.reportDiagnostic(
+        //     createDiagnostic({
+        //       code: "invalid-ref",
+        //       messageId: "underContainer",
+        //       format: { kind: type.kind, id: node.id.sv },
+        //       target: node,
+        //     })
+        //   );
+        //   return undefined;
+        // }
 
-        lateBindMembers(type, base);
+        // lateBindMembers(type, base);
         const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
         if (!sym) {
           program.reportDiagnostic(
             createDiagnostic({
               code: "invalid-ref",
               messageId: "underContainer",
-              format: { kind: type.kind, id: node.id.sv },
+              format: { kind: SyntaxKind[base.declarations[0].kind], id: node.id.sv },
               target: node,
             })
           );
@@ -1812,7 +1816,12 @@ export function createChecker(program: Program): Checker {
       const sym = resolveIdentifierInScope(node, mapper, resolveDecorator);
       if (!sym) return undefined;
 
-      return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
+      const result = sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
+
+      if (result !== undefined && result.flags & SymbolFlags.MemberContainer) {
+        lateBindMembers(result.declarations[0], result);
+      }
+      return result;
     }
 
     compilerAssert(false, "Unknown type reference kind", node);
@@ -1832,7 +1841,6 @@ export function createChecker(program: Program): Checker {
       case "Union":
         if (aliasType.templateArguments) {
           // this is an alias for some instantiation, so late-bind the instantiation
-          lateBindMemberContainer(aliasType);
           return aliasType.symbol!;
         }
       // fallthrough
@@ -1878,7 +1886,7 @@ export function createChecker(program: Program): Checker {
   function checkModel(
     node: ModelExpressionNode | ModelStatementNode,
     mapper: TypeMapper | undefined
-  ) {
+  ): Model {
     if (node.kind === SyntaxKind.ModelStatement) {
       return checkModelStatement(node, mapper);
     } else {
@@ -1886,13 +1894,16 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkModelStatement(node: ModelStatementNode, mapper: TypeMapper | undefined) {
+  function checkModelStatement(node: ModelStatementNode, mapper: TypeMapper | undefined): Model {
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this model and we've already checked it
-      return links.declaredType;
+      return links.declaredType as any;
     }
+
+    lateBindMembers(node, node.symbol);
+
     const decorators: DecoratorApplication[] = [];
 
     const type: Model = createType({
@@ -1954,6 +1965,13 @@ export function createChecker(program: Program): Checker {
     // Evaluate the properties after
     checkModelProperties(node, type.properties, type, mapper, inheritedPropNames);
 
+    for (const prop of walkPropertiesInherited(type)) {
+      const table = augmentedSymbolTables.get(node.symbol.members!) ?? node.symbol.members!;
+      const sym = table.get(prop.name);
+      if (sym) {
+        mutate(sym).type = prop;
+      }
+    }
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(type, mapper);
     }
@@ -2095,7 +2113,7 @@ export function createChecker(program: Program): Checker {
    * Initializes a late bound symbol for the type. This is generally necessary when attempting to
    * access a symbol for a type that is created during the check phase.
    */
-  function lateBindMemberContainer(type: Type) {
+  function lateBindMemberContainer2(type: Type) {
     if ((type as any).symbol) return;
     switch (type.kind) {
       case "Model":
@@ -2118,44 +2136,71 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function lateBindMembers(type: Type, containerSym: Sym) {
-    let containerMembers: Mutable<SymbolTable> | undefined;
+  function lateBindMembers(node: Node, containerSym: Sym) {
+    let containerMembers: Mutable<SymbolTable>;
+    if (containerSym.flags & SymbolFlags.LateBound) {
+      return;
+    }
 
-    switch (type.kind) {
-      case "Model":
-        for (const prop of walkPropertiesInherited(type)) {
-          lateBindMember(prop, SymbolFlags.ModelProperty);
+    mutate(containerSym).flags |= SymbolFlags.LateBound;
+
+    switch (node.kind) {
+      case SyntaxKind.ModelStatement:
+        if (node.extends && node.extends.kind === SyntaxKind.TypeReference) {
+          resolveAndCopyMembers(node.extends);
+        }
+        if (node.is && node.is.kind === SyntaxKind.TypeReference) {
+          resolveAndCopyMembers(node.is);
+        }
+        for (const prop of node.properties) {
+          if (prop.kind === SyntaxKind.ModelSpreadProperty) {
+            resolveAndCopyMembers(prop.target);
+          } else {
+            const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
+            lateBindMember(name, prop, SymbolFlags.ModelProperty);
+          }
         }
         break;
-      case "Enum":
-        for (const member of type.members.values()) {
-          lateBindMember(member, SymbolFlags.EnumMember);
+      case SyntaxKind.EnumStatement:
+        for (const member of node.members.values()) {
+          if (member.kind === SyntaxKind.EnumSpreadMember) {
+            resolveAndCopyMembers(member.target);
+          } else {
+            const name = member.id.kind === SyntaxKind.Identifier ? member.id.sv : member.id.value;
+            lateBindMember(name, member, SymbolFlags.EnumMember);
+          }
         }
         break;
-      case "Interface":
-        for (const member of type.operations.values()) {
-          lateBindMember(member, SymbolFlags.InterfaceMember);
+      case SyntaxKind.InterfaceStatement:
+        for (const member of node.operations.values()) {
+          lateBindMember(member.id.sv, member, SymbolFlags.InterfaceMember);
         }
         break;
-      case "Union":
-        for (const variant of type.variants.values()) {
-          lateBindMember(variant, SymbolFlags.UnionVariant);
+      case SyntaxKind.UnionStatement:
+        for (const variant of node.options.values()) {
+          const name = variant.id.kind === SyntaxKind.Identifier ? variant.id.sv : variant.id.value;
+          lateBindMember(name, variant, SymbolFlags.UnionVariant);
         }
         break;
     }
 
-    function lateBindMember(
-      member: Type & { node?: Node; name: string | symbol },
-      kind: SymbolFlags
-    ) {
-      if (!member.node || typeof member.name !== "string") {
-        // don't bind anything for union expressions
-        return;
+    function resolveAndCopyMembers(node: TypeReferenceNode) {
+      const ref = resolveTypeReference(node, undefined);
+      if (ref && ref.members) {
+        copyMembers(ref.members);
       }
-      const sym = createSymbol(member.node, member.name, kind | SymbolFlags.LateBound);
-      mutate(sym).type = member;
+    }
+    function copyMembers(table: SymbolTable) {
+      const members = augmentedSymbolTables.get(table) ?? table;
+      for (const member of members.values()) {
+        lateBindMember(member.name, member.declarations[0], member.flags);
+      }
+    }
+
+    function lateBindMember(name: string, node: Node, kind: SymbolFlags) {
+      const sym = createSymbol(node, name, kind | SymbolFlags.LateBound, containerSym);
       containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members!);
-      containerMembers.set(member.name, sym);
+      containerMembers.set(name, sym);
     }
   }
 
