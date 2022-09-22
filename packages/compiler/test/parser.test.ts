@@ -545,7 +545,7 @@ describe("compiler: syntax", () => {
 
     parseErrorEach([
       [
-        "namespace Foo { @@tag(Foo); }",
+        "@@tag }",
         [{ code: "augment-top-level", message: "Augment decorators must be top-level.", pos: 16 }],
       ],
     ]);

@@ -57,6 +57,70 @@ describe("compiler: checker: augment decorators", () => {
     strictEqual(customName, "FooCustom");
   });
 
+  describe.only("declaration scope", () => {
+    let blueThing: Type | undefined;
+
+    beforeEach(() => {
+      blueThing = undefined;
+      testHost.addJsFile("test.js", {
+        $blue(_: any, t: Type) {
+          blueThing = t;
+        },
+      });
+    });
+    it("can be defined at the root of document", async () => {
+      testHost.addCadlFile(
+        "test.cadl",
+        `
+        import "./test.js";
+  
+        @test model Foo { };
+  
+        @@blue(Foo);
+        `
+      );
+
+      const { Foo } = await testHost.compile("test.cadl");
+      strictEqual(Foo, blueThing);
+    });
+
+    it("can be defined in blockless namespace", async () => {
+      testHost.addCadlFile(
+        "test.cadl",
+        `
+        import "./test.js";
+  
+        namespace MyLibrary;
+
+        @test model Foo { };
+  
+        @@blue(Foo);
+        `
+      );
+
+      const { Foo } = await testHost.compile("test.cadl");
+      strictEqual(Foo, blueThing);
+    });
+
+    it("can be defined in namespace", async () => {
+      testHost.addCadlFile(
+        "test.cadl",
+        `
+        import "./test.js";
+  
+        namespace MyLibrary {
+          @test model Foo { };
+          
+          @@blue(Foo);
+        }
+        `
+      );
+
+      const { Foo } = await testHost.compile("test.cadl");
+      strictEqual(Foo, blueThing);
+    });
+  });
+
   describe("augment types", () => {
     async function expectTarget(code: string, reference: string) {
       let customName: string | undefined;

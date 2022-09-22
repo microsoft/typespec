@@ -117,12 +117,6 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
-  "augment-top-level": {
-    severity: "error",
-    messages: {
-      default: "Augment decorators must be top-level.",
-    },
-  },
   "default-optional": {
     severity: "error",
     messages: {
