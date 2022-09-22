@@ -2996,7 +2996,7 @@ export function createChecker(program: Program): Checker {
       projectionsByType.set(clone, projection);
     }
 
-    compilerAssert(clone.kind === type.kind, "cloneType: clone.kind === type.kind");
+    compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
     return clone as T;
   }
 
