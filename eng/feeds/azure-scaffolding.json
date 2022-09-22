@@ -8,7 +8,11 @@
       "@azure-tools/cadl-autorest",
       "@azure-tools/cadl-azure-core"
     ],
-    "config": ["@azure-tools/cadl-autorest"]
+    "config": {
+      "emitters": {
+        "@azure-tools/cadl-autorest": true
+      }
+    }
   },
   "azure-arm": {
     "title": "Azure Resource Manager Service",
@@ -20,6 +24,10 @@
       "@azure-tools/cadl-azure-core",
       "@azure-tools/cadl-azure-resource-manager"
     ],
-    "config": ["@azure-tools/cadl-autorest"]
+    "config": {
+      "emitters": {
+        "@azure-tools/cadl-autorest": true
+      }
+    }
   }
 }
