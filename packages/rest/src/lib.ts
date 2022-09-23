@@ -60,7 +60,7 @@ const libDefinition = {
     "optional-path-param": {
       severity: "error",
       messages: {
-        default: paramMessage`Path parameter '${"paramName"}' cannot be optional without a default value.`,
+        default: paramMessage`Path parameter '${"paramName"}' cannot be optional.`,
       },
     },
     "missing-server-param": {

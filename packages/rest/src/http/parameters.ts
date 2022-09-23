@@ -95,7 +95,7 @@ function getOperationParametersForVerb(
     if (queryParam) {
       result.parameters.push({ type: "query", name: queryParam, param });
     } else if (pathParam) {
-      if (param.optional && param.default === undefined) {
+      if (param.optional) {
         diagnostics.add(
           createDiagnostic({
             code: "optional-path-param",
