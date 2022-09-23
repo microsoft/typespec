@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert";
 import { resolveUsages, UsageFlags } from "../../core/helpers/usage-resolver.js";
 import { BasicTestRunner, createTestRunner } from "../../testing/index.js";
 
-describe.only("compiler: helpers: usage resolver", () => {
+describe("compiler: helpers: usage resolver", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
     runner = await createTestRunner();
