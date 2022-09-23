@@ -1,6 +1,7 @@
 import {
   getFriendlyName,
   getServiceNamespace,
+  getVisibility,
   isGlobalNamespace,
   isTemplateInstance,
   ModelProperty,
@@ -56,6 +57,16 @@ export function getTypeName(
 ): string {
   const name = getFriendlyName(program, type) ?? program.checker.getTypeName(type, options);
 
+  checkDuplicateTypeName(program, type, name, existing);
+  return name;
+}
+
+export function checkDuplicateTypeName(
+  program: Program,
+  type: Type,
+  name: string,
+  existing: Record<string, unknown> | undefined
+) {
   if (existing && existing[name]) {
     reportDiagnostic(program, {
       code: "duplicate-type-name",
@@ -65,8 +76,6 @@ export function getTypeName(
       target: type,
     });
   }
-
-  return name;
 }
 
 /**
@@ -130,4 +139,19 @@ export function resolveOperationId(program: Program, operation: Operation) {
   }
 
   return `${namespace.name}_${operation.name}`;
+}
+
+/**
+ * Determines if a property is read-only, which is defined as being
+ * decorated `@visibility("read")`.
+ *
+ * If there is more than 1 `@visibility` argument, then the property is not
+ * read-only. For example, `@visibility("read", "update")` does not
+ * designate a read-only property.
+ */
+export function isReadonlyProperty(program: Program, property: ModelProperty) {
+  const visibility = getVisibility(program, property);
+  // note: multiple visibilities that include read are not handled using
+  // readonly: true, but using separate schemas.
+  return visibility?.length === 1 && visibility[0] === "read";
 }
