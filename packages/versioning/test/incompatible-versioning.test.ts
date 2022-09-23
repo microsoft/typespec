@@ -6,7 +6,7 @@ import {
 } from "@cadl-lang/compiler/testing";
 import { createVersioningTestHost } from "./test-host.js";
 
-describe("versioning: validate incompatible references", () => {
+describe("compiler: versioning: validate incompatible references", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {

@@ -21,7 +21,7 @@ import {
   assertHasVariants,
 } from "./utils.js";
 
-describe("cadl: versioning", () => {
+describe("compiler: versioning", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {

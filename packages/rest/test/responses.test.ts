@@ -3,7 +3,7 @@ import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/te
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
-describe("cadl: rest: responses", () => {
+describe("rest: responses", () => {
   it("issues diagnostics for duplicate body decorator", async () => {
     const [_, diagnostics] = await compileOperations(
       `
