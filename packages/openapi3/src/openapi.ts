@@ -645,7 +645,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitEndpointParameters(parameters: HttpOperationParameter[], visibility: Visibility) {
-    for (const { type, name, param } of parameters) {
+    for (const { type, param } of parameters) {
       if (params.has(param)) {
         currentEndpoint.parameters.push(params.get(param));
         continue;
@@ -659,7 +659,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           emitParameter(param, "query", visibility);
           break;
         case "header":
-          if (name !== "content-type") {
+          if (!isContentTypeProperty(program, param)) {
             emitParameter(param, "header", visibility);
           }
           break;
