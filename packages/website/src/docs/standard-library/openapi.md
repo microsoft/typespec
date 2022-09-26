@@ -221,6 +221,13 @@ For any element defined as a `string` or a type that extends from `string`:
 | `@pattern(regex)`   | `pattern: regex`            |                                                            |
 | `@secret`           | `format: password`          |                                                            |
 
+For an array type:
+
+| Cadl decorator     | OpenAPI/JSON Schema keyword | Notes |
+| ------------------ | --------------------------- | ----- |
+| `@minItems(value)` | `minItems: value`           |       |
+| `@minItems(value)` | `maxItems: value`           |       |
+
 Enums can be defined in Cadl with the [`enum` statement](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#enums), e.g.:
 
 ```cadl

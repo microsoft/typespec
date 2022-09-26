@@ -459,6 +459,7 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 - [@knownValues](#knownvalues) - mark a string type with an enum that contains all known values
 - @list -
 - @minLength/@maxLength - set the min and max lengths for strings
+- @minItems/@maxItems - set the min and max number of items in an array
 - @minValue/@maxValue - set the min and max values of number types
 - [@pattern](#pattern) - set the pattern for a string using regular expression syntax
 - [@secret](#secret) - mark a string as a secret value that should be treated carefully to avoid exposure

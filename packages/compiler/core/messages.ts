@@ -552,6 +552,12 @@ const diagnostics = {
       default: "@list decorator's parameter must be a model type.",
     },
   },
+  "invalid-range": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Range "${"start"}..${"end"}" is invalid.`,
+    },
+  },
 
   /**
    * Mutator
