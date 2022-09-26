@@ -57,7 +57,7 @@ describe("compiler: checker: augment decorators", () => {
     strictEqual(customName, "FooCustom");
   });
 
-  describe.only("declaration scope", () => {
+  describe("declaration scope", () => {
     let blueThing: Type | undefined;
 
     beforeEach(() => {
