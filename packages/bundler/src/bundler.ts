@@ -164,9 +164,8 @@ async function createRollupConfig(definition: CadlBundleDefinition): Promise<Rol
     ],
     external: (id) => {
       return (
-        !!id.match(/^@cadl-lang\/[a-z-]+$/) ||
-        (definition.packageJson.peerDependencies &&
-          !!Object.keys(definition.packageJson.peerDependencies).find((x) => id.startsWith(x)))
+        definition.packageJson.peerDependencies &&
+        !!Object.keys(definition.packageJson.peerDependencies).find((x) => id.startsWith(x))
       );
     },
     onwarn: (warning, warn) => {
