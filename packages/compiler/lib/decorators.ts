@@ -340,7 +340,7 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 
 // -- @minItems decorator ---------------------
 
-const minItemsValuesKey = createStateSymbol("minItemsValues");
+const minItemsValuesKey = createStateSymbol("minItems");
 
 export function $minItems(context: DecoratorContext, target: Type, minItems: number) {
   if (!validateDecoratorTarget(context, target, "@minItems", ["Model", "ModelProperty"])) {
@@ -371,7 +371,7 @@ export function getMinItems(program: Program, target: Type): number | undefined 
 
 // -- @maxLength decorator ---------------------
 
-const maxItemsValuesKey = createStateSymbol("maxLengthValues");
+const maxItemsValuesKey = createStateSymbol("maxItems");
 
 export function $maxItems(context: DecoratorContext, target: Type, maxItems: number) {
   if (!validateDecoratorTarget(context, target, "@maxItems", ["Model", "ModelProperty"])) {
