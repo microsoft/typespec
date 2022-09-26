@@ -11,8 +11,10 @@ import {
   getFormat,
   getIntrinsicModelName,
   getKnownValues,
+  getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMinItems,
   getMinLength,
   getMinValue,
   getPattern,
@@ -1271,6 +1273,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const maxValue = getMaxValue(program, cadlType);
     if (isNumeric && !target.maximum && maxValue !== undefined) {
       newTarget.maximum = maxValue;
+    }
+
+    const minItems = getMinItems(program, cadlType);
+    if (!target.minItems && minItems !== undefined) {
+      newTarget.minItems = minItems;
+    }
+
+    const maxItems = getMaxItems(program, cadlType);
+    if (!target.maxItems && maxItems !== undefined) {
+      newTarget.maxItems = maxItems;
     }
 
     if (isSecret(program, cadlType)) {
