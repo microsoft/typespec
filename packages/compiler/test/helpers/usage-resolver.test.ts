@@ -10,13 +10,13 @@ describe("compiler: helpers: usage resolver", () => {
 
   async function getUsages(
     code: string,
-    targetName?: string
+    targetNames?: string | string[]
   ): Promise<{ inputs: string[]; outputs: string[] }> {
-    const targets = await runner.compile(code);
-
-    const usages = resolveUsages(
-      targetName ? (targets[targetName] as any) : runner.program.checker.getGlobalNamespaceType()
-    );
+    const testTypes = await runner.compile(code);
+    const targetNames2 = typeof targetNames === "string" ? [targetNames] : targetNames;
+    const targetTypes =
+      targetNames2?.map((x) => testTypes[x]) ?? runner.program.checker.getGlobalNamespaceType();
+    const usages = resolveUsages(targetTypes as any);
 
     const result: { inputs: string[]; outputs: string[] } = { inputs: [], outputs: [] };
     for (const type of usages.types) {
@@ -121,6 +121,24 @@ describe("compiler: helpers: usage resolver", () => {
     deepStrictEqual(usages, { inputs: [], outputs: ["Foo", "Bar"] });
   });
 
+  it("track type used in array", async () => {
+    const usages = await getUsages(`
+      model Bar {}
+      op test(): Bar[];
+    `);
+
+    deepStrictEqual(usages, { inputs: [], outputs: ["Bar[]", "Bar"] });
+  });
+
+  it("track type used in Record", async () => {
+    const usages = await getUsages(`
+      model Bar {}
+      op test(): Record<Bar>;
+    `);
+
+    deepStrictEqual(usages, { inputs: [], outputs: ["Cadl.Record<Bar>", "Bar"] });
+  });
+
   it("track enum referenced in returnType", async () => {
     const usages = await getUsages(`
       enum MyEnum {}
@@ -130,39 +148,40 @@ describe("compiler: helpers: usage resolver", () => {
     deepStrictEqual(usages, { inputs: [], outputs: ["MyEnum"] });
   });
 
-  describe("resolving usage of specific operation", () => {
-    it("only collect types used in that operation", async () => {
-      const usages = await getUsages(
-        `
+  describe("scope", () => {
+    describe("resolving usage of specific operation", () => {
+      it("only collect types used in that operation", async () => {
+        const usages = await getUsages(
+          `
           model Foo {}
           model Bar {}
           op set(): Bar;
           @test op get(): Foo; 
         `,
-        "get"
-      );
+          "get"
+        );
 
-      deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
-    });
+        deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
+      });
 
-    it("only collect specific usage(input/output) for that operation", async () => {
-      const usages = await getUsages(
-        `
+      it("only collect specific usage(input/output) for that operation", async () => {
+        const usages = await getUsages(
+          `
           model Foo {}
           op set(input: Foo): void;
           @test op get(): Foo; 
         `,
-        "get"
-      );
+          "get"
+        );
 
-      deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
+        deepStrictEqual(usages, { inputs: [], outputs: ["Foo"] });
+      });
     });
-  });
 
-  describe("resolving usage of specific interface", () => {
-    it("only find usage in that interface", async () => {
-      const usages = await getUsages(
-        `
+    describe("resolving usage of specific interface", () => {
+      it("only find usage in that interface", async () => {
+        const usages = await getUsages(
+          `
           model Foo {}
           model Bar {}
           interface One {
@@ -173,10 +192,32 @@ describe("compiler: helpers: usage resolver", () => {
             other(input: Bar): void;
           }
         `,
-        "Two"
-      );
+          "Two"
+        );
 
-      deepStrictEqual(usages, { inputs: ["Bar"], outputs: ["Foo"] });
+        deepStrictEqual(usages, { inputs: ["Bar"], outputs: ["Foo"] });
+      });
+    });
+
+    describe("resolving usage for a list of operations", () => {
+      it("only find usage in those operations", async () => {
+        const usages = await getUsages(
+          `
+          model Foo {}
+          model Bar {}
+          interface One {
+            @test set(input: Foo): void;
+          }
+          interface Two {
+            get(): Foo;
+            @test  other(input: Bar): void;
+          }
+        `,
+          ["set", "other"]
+        );
+
+        deepStrictEqual(usages, { inputs: ["Foo", "Bar"], outputs: [] });
+      });
     });
   });
 });
