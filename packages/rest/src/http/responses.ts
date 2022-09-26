@@ -25,7 +25,7 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
-import { isContentTypeProperty } from "./parameters.js";
+import { isContentTypeHeader } from "./parameters.js";
 import { HttpOperationResponse } from "./types.js";
 
 /**
@@ -173,7 +173,7 @@ function getResponseContentTypes(
 ): string[] {
   const contentTypes: string[] = [];
   for (const prop of metadata) {
-    if (isHeader(program, prop) && isContentTypeProperty(program, prop)) {
+    if (isHeader(program, prop) && isContentTypeHeader(program, prop)) {
       contentTypes.push(...diagnostics.pipe(getContentTypes(prop)));
     }
   }

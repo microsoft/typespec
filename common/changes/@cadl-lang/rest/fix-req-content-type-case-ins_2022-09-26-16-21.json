@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/rest",
-      "comment": "Feature: Add `isContentTypeProperty` helper.",
+      "comment": "Feature: Add `isContentTypeHeader` helper.",
       "type": "minor"
     }
   ],

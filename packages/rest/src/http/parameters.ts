@@ -145,7 +145,7 @@ function getOperationParametersForVerb(
  * @param property Model property.
  * @returns True if the model property is marked as a header and has the name `content-type`(case insensitive.)
  */
-export function isContentTypeProperty(program: Program, property: ModelProperty): boolean {
+export function isContentTypeHeader(program: Program, property: ModelProperty): boolean {
   const headerName = getHeaderFieldName(program, property);
   return Boolean(headerName && headerName.toLowerCase() === "content-type");
 }

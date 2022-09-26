@@ -73,7 +73,7 @@ import {
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationResponse,
-  isContentTypeProperty,
+  isContentTypeHeader,
   MetadataInfo,
   reportIfNoRoutes,
   ServiceAuthentication,
@@ -659,7 +659,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           emitParameter(param, "query", visibility);
           break;
         case "header":
-          if (!isContentTypeProperty(program, param)) {
+          if (!isContentTypeHeader(program, param)) {
             emitParameter(param, "header", visibility);
           }
           break;
@@ -681,7 +681,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     };
 
     const contentTypeParam = parameters.parameters.find((p) =>
-      isContentTypeProperty(program, p.param)
+      isContentTypeHeader(program, p.param)
     );
     const contentTypes = contentTypeParam
       ? ignoreDiagnostics(getContentTypes(contentTypeParam.param))
