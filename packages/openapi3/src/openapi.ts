@@ -73,6 +73,7 @@ import {
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationResponse,
+  isContentTypeProperty,
   MetadataInfo,
   reportIfNoRoutes,
   ServiceAuthentication,
@@ -679,8 +680,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       content: {},
     };
 
-    const contentTypeParam = parameters.parameters.find(
-      (p) => p.type === "header" && p.name === "content-type"
+    const contentTypeParam = parameters.parameters.find((p) =>
+      isContentTypeProperty(program, p.param)
     );
     const contentTypes = contentTypeParam
       ? ignoreDiagnostics(getContentTypes(contentTypeParam.param))

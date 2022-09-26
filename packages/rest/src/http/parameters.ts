@@ -139,6 +139,17 @@ function getOperationParametersForVerb(
   return diagnostics.wrap(result);
 }
 
+/**
+ * Check if the given model property is the content type header.
+ * @param program Program
+ * @param property Model property.
+ * @returns True if the model property is marked as a header and has the name `content-type`(case insensitive.)
+ */
+export function isContentTypeProperty(program: Program, property: ModelProperty): boolean {
+  const headerName = getHeaderFieldName(program, property);
+  return Boolean(headerName && headerName.toLowerCase() === "content-type");
+}
+
 function getExplicitVerbForOperation(program: Program, operation: Operation): HttpVerb | undefined {
   const resourceOperation = getResourceOperation(program, operation);
   const verb =
