@@ -71,6 +71,13 @@ function createLinter(): Linter {
 
   function lintProgram(program: Program) {
     const eventEmitter = new EventEmitter<SemanticNodeListener>();
+    const tracer = getTracer(program);
+    tracer.trace(
+      "run",
+      [`Running linter with following rules:`, ...[...enabledRules].map((x) => ` - ${x}`)].join(
+        "\n"
+      )
+    );
     for (const ruleName of enabledRules) {
       const rule = ruleMap.get(ruleName);
       compilerAssert(rule, `Rule with name ${ruleName} was requested but was not found.`);
@@ -115,4 +122,8 @@ function createLinter(): Linter {
 
 export function createRule(rule: LintRule): LintRule {
   return rule;
+}
+
+function getTracer(program: Program) {
+  return program.tracer.sub("@cadl-lang/lint");
 }
