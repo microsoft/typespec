@@ -109,7 +109,7 @@ import {
   UnionVariant,
   UnionVariantNode,
 } from "./types.js";
-import { isArray, Mutable, mutate } from "./util.js";
+import { isArray, MultiKeyMap, Mutable, mutate } from "./util.js";
 
 export interface TypeNameOptions {
   namespaceFilter: (ns: Namespace) => boolean;
@@ -200,44 +200,10 @@ export interface CadlCompletionItem {
 }
 
 /**
- * A map keyed by a set of objects.
- *
- * This is likely non-optimal.
- */
-class MultiKeyMap<K extends object[], V> {
-  #currentId = 0;
-  #idMap = new WeakMap<object, number>();
-  #items = new Map<string, V>();
-
-  get(items: K): V | undefined {
-    return this.#items.get(this.compositeKeyFor(items));
-  }
-
-  set(items: K, value: V): void {
-    const key = this.compositeKeyFor(items);
-    this.#items.set(key, value);
-  }
-
-  private compositeKeyFor(items: K) {
-    return items.map((i) => this.keyFor(i)).join(",");
-  }
-
-  private keyFor(item: object) {
-    if (this.#idMap.has(item)) {
-      return this.#idMap.get(item);
-    }
-
-    const id = this.#currentId++;
-    this.#idMap.set(item, id);
-    return id;
-  }
-}
-
-/**
  * Maps type arguments to type instantiation.
  */
 const TypeInstantiationMap = class
-  extends MultiKeyMap<Type[], Type>
+  extends MultiKeyMap<readonly Type[], Type>
   implements TypeInstantiationMap {};
 
 type StdTypeName = IntrinsicModelName | "Array" | "Record";
@@ -2873,7 +2839,7 @@ export function createChecker(program: Program): Checker {
     return nsNode;
   }
 
-  function createGlobalNamespaceType() {
+  function createGlobalNamespaceType(): Namespace {
     return createAndFinishType({
       kind: "Namespace",
       name: "",
@@ -2903,66 +2869,92 @@ export function createChecker(program: Program): Checker {
    * If the entire type graph needs to be cloned, then cloneType must be called
    * recursively by the caller.
    */
-  function cloneType<T extends Type>(type: T, additionalProps: { [P in keyof T]?: T[P] } = {}): T {
-    // Create a new decorator list with the same decorators so that edits to the
-    // new decorators list doesn't affect the cloned type
-    const decorators = "decorators" in type ? [...type.decorators] : undefined;
-
+  function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
     // TODO: this needs to handle other types
-    let clone;
+    let clone: Type;
     switch (type.kind) {
       case "Model":
-        clone = finishType({
+        const newModel = createType<Model>({
           ...type,
-          decorators,
-          properties: Object.prototype.hasOwnProperty.call(additionalProps, "properties")
-            ? undefined
-            : new Map(
-                Array.from(type.properties.entries()).map(([key, prop]) => [key, cloneType(prop)])
-              ),
+          decorators: [...type.decorators],
+          properties: undefined!,
           ...additionalProps,
         });
-        break;
-      case "Union":
-        clone = finishType({
-          ...type,
-          decorators,
-          variants: new Map<string | symbol, UnionVariant>(
-            Array.from(type.variants.entries()).map(([key, prop]) => [
+        if (!("properties" in additionalProps)) {
+          newModel.properties = new Map(
+            Array.from(type.properties.entries()).map(([key, prop]) => [
               key,
-              prop.kind === "UnionVariant" ? cloneType(prop) : prop,
+              cloneType(prop, { model: newModel }),
             ])
-          ),
+          );
+        }
+        clone = finishType(newModel);
+        break;
+
+      case "Union":
+        const newUnion = createType<Union>({
+          ...type,
+          decorators: [...type.decorators],
+          variants: undefined!,
           get options() {
             return Array.from(this.variants.values()).map((v: any) => v.type);
           },
           ...additionalProps,
         });
+        if (!("variants" in additionalProps)) {
+          newUnion.variants = new Map(
+            Array.from(type.variants.entries()).map(([key, prop]) => [
+              key,
+              cloneType(prop, { union: newUnion }),
+            ])
+          );
+        }
+        clone = finishType(newUnion);
         break;
+
       case "Interface":
-        clone = finishType({
+        const newInterface = createType<Interface>({
           ...type,
-          decorators,
-          operations: new Map(type.operations.entries()),
+          decorators: [...type.decorators],
+          operations: undefined!,
           ...additionalProps,
         });
+        if (!("operations" in additionalProps)) {
+          newInterface.operations = new Map(
+            Array.from(type.operations.entries()).map(([key, prop]) => [
+              key,
+              cloneType(prop, { interface: newInterface }),
+            ])
+          );
+        }
+        clone = finishType(newInterface);
         break;
+
       case "Enum":
-        clone = finishType({
+        const newEnum = createType<Enum>({
           ...type,
-          decorators,
-          members: new Map(
-            Array.from(type.members.entries()).map(([key, prop]) => [key, cloneType(prop)])
-          ),
+          decorators: [...type.decorators],
+          members: undefined!,
+          ...additionalProps,
+        });
+        if (!("members" in additionalProps)) {
+          newEnum.members = new Map(
+            Array.from(type.members.entries()).map(([key, prop]) => [
+              key,
+              cloneType(prop, { enum: newEnum }),
+            ])
+          );
+        }
+        clone = finishType(newEnum);
+        break;
+
+      default:
+        clone = createAndFinishType({
+          ...type,
+          ...("decorators" in type ? { decorators: [...type.decorators] } : {}),
           ...additionalProps,
         });
         break;
-      default:
-        clone = finishType({
-          ...type,
-          ...(decorators ? { decorators } : {}),
-          ...additionalProps,
-        });
     }
 
     const projection = projectionsByType.get(type);
@@ -2970,7 +2962,8 @@ export function createChecker(program: Program): Checker {
       projectionsByType.set(clone, projection);
     }
 
-    return clone;
+    compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
+    return clone as T;
   }
 
   function checkProjectionDeclaration(node: ProjectionStatementNode): Type {
@@ -4315,7 +4308,7 @@ function getProjectedEffectiveModelType(program: Program | ProjectedProgram, typ
   return projectedType;
 }
 
-function* walkPropertiesInherited(model: Model) {
+export function* walkPropertiesInherited(model: Model) {
   let current: Model | undefined = model;
 
   while (current) {

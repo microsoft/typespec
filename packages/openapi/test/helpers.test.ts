@@ -3,7 +3,7 @@ import { BasicTestRunner, createTestRunner } from "@cadl-lang/compiler/testing";
 import { strictEqual } from "assert";
 import { resolveOperationId } from "../src/helpers.js";
 
-describe("OpenAPI3 Helpers", () => {
+describe("openapi: helpers", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {

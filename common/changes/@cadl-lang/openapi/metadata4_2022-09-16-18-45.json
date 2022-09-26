@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/openapi",
+      "comment": "Implement automatic visibility transformations",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/openapi"
+}

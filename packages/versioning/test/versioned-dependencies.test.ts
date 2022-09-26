@@ -10,7 +10,7 @@ import { buildVersionProjections } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import { assertHasProperties } from "./utils.js";
 
-describe("versioning: reference versioned library", () => {
+describe("compiler: versioning: reference versioned library", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
@@ -258,7 +258,7 @@ describe("versioning: reference versioned library", () => {
   });
 });
 
-describe("versioning: dependencies", () => {
+describe("compiler: versioning: dependencies", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {

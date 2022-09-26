@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Disallow optional path params even if they have a default value",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
