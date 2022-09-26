@@ -166,16 +166,8 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "@cadl-lang/rest/optional-path-param",
-        message: "Path parameter 'myPath' cannot be optional without a default value.",
+        message: "Path parameter 'myPath' cannot be optional.",
       });
-    });
-
-    it("accept optional property with default values", async () => {
-      const diagnostics = await runner.diagnose(`
-        @route("/") op test(@path myPath?: string = "my-default"): string;
-      `);
-
-      expectDiagnosticEmpty(diagnostics);
     });
 
     it("accept optional path when not used as operation parameter", async () => {

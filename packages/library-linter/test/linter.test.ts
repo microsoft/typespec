@@ -6,7 +6,7 @@ import {
 } from "@cadl-lang/compiler/testing";
 import { createLibraryLinterTestHost } from "./test-host.js";
 
-describe("cadl: library-linter", () => {
+describe("library-linter", () => {
   let runner: BasicTestRunner;
   let host: TestHost;
 
