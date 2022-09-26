@@ -545,8 +545,14 @@ describe("compiler: syntax", () => {
 
     parseErrorEach([
       [
-        "@@tag }",
-        [{ code: "augment-top-level", message: "Augment decorators must be top-level.", pos: 16 }],
+        "@@tag",
+        [
+          {
+            code: "augment-decorator-target",
+            message: "Augment decorator first argument must be a type reference.",
+            pos: 5,
+          },
+        ],
       ],
     ]);
   });

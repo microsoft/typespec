@@ -966,6 +966,18 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const args = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
     if (args.length === 0) {
       error({ code: "augment-decorator-target" });
+      return {
+        kind: SyntaxKind.AugmentDecoratorStatement,
+        target,
+        targetType: {
+          kind: SyntaxKind.TypeReference,
+          target: createMissingIdentifier(),
+          arguments: [],
+          ...finishNode(pos),
+        },
+        arguments: [],
+        ...finishNode(pos),
+      };
     }
     let [targetEntity, ...decoratorArgs] = args;
     if (targetEntity.kind !== SyntaxKind.TypeReference) {
@@ -973,7 +985,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       targetEntity = {
         kind: SyntaxKind.TypeReference,
         target: createMissingIdentifier(),
-        arguments: decoratorArgs,
+        arguments: [],
         ...finishNode(pos),
       };
     }
