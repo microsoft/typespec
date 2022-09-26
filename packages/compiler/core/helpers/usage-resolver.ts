@@ -1,13 +1,5 @@
-import {
-  EnumType,
-  InterfaceType,
-  ModelType,
-  NamespaceType,
-  OperationType,
-  TupleType,
-  Type,
-  UnionType,
-} from "../types.js";
+import { Enum, Interface, Model, Namespace, Operation, Tuple, Type, Union } from "../types.js";
+import { isArray } from "../util.js";
 
 // prettier-ignore
 export enum UsageFlags {
@@ -16,32 +8,30 @@ export enum UsageFlags {
   Output = 1 << 2,
 }
 
-export type TrackableType = ModelType | EnumType | UnionType | TupleType;
+export type TrackableType = Model | Enum | Union | Tuple;
 
 export interface UsageTracker {
   readonly types: readonly TrackableType[];
   isUsedAs(type: TrackableType, usage: UsageFlags): boolean;
 }
 
+export type OperationContainer = Namespace | Interface | Operation;
 /**
  * Resolve usage(input, output or both) of various types in the given namespace.
  * Will recursively scan all namespace, interfaces and operations contained inside the namespace.
- * @param namespace Entrypoint namespace to get usage from.
+ * @param types Entrypoint(s) namespace, interface or operations to get usage from.
  * @returns Map of types to usage.
  */
-export function resolveUsages(type: NamespaceType | InterfaceType | OperationType): UsageTracker {
+export function resolveUsages(types: OperationContainer | OperationContainer[]): UsageTracker {
   const usages = new Map<TrackableType, UsageFlags>();
-  switch (type.kind) {
-    case "Namespace":
-      addUsagesInNamespace(type, usages);
-      break;
-    case "Interface":
-      addUsagesInInterface(type, usages);
-      break;
-    case "Operation":
-      addUsagesInOperation(type, usages);
-      break;
+  if (isArray(types)) {
+    for (const item of types) {
+      addUsagesInContainer(item, usages);
+    }
+  } else {
+    addUsagesInContainer(types, usages);
   }
+
   return {
     types: [...usages.keys()],
     isUsedAs: (type: TrackableType, usage) => {
@@ -54,6 +44,20 @@ export function resolveUsages(type: NamespaceType | InterfaceType | OperationTyp
   };
 }
 
+function addUsagesInContainer(type: OperationContainer, usages: Map<TrackableType, UsageFlags>) {
+  switch (type.kind) {
+    case "Namespace":
+      addUsagesInNamespace(type, usages);
+      break;
+    case "Interface":
+      addUsagesInInterface(type, usages);
+      break;
+    case "Operation":
+      addUsagesInOperation(type, usages);
+      break;
+  }
+}
+
 function trackUsage(
   usages: Map<TrackableType, UsageFlags>,
   type: TrackableType,
@@ -63,34 +67,25 @@ function trackUsage(
   usages.set(type, existingFlag | usage);
 }
 
-function addUsagesInNamespace(
-  namespace: NamespaceType,
-  usages: Map<TrackableType, UsageFlags>
-): void {
+function addUsagesInNamespace(namespace: Namespace, usages: Map<TrackableType, UsageFlags>): void {
   for (const subNamespace of namespace.namespaces.values()) {
     addUsagesInNamespace(subNamespace, usages);
   }
-  for (const interfaceType of namespace.interfaces.values()) {
-    addUsagesInInterface(interfaceType, usages);
+  for (const Interface of namespace.interfaces.values()) {
+    addUsagesInInterface(Interface, usages);
   }
   for (const operation of namespace.operations.values()) {
     addUsagesInOperation(operation, usages);
   }
 }
 
-function addUsagesInInterface(
-  interfaceType: InterfaceType,
-  usages: Map<TrackableType, UsageFlags>
-): void {
-  for (const operation of interfaceType.operations.values()) {
+function addUsagesInInterface(Interface: Interface, usages: Map<TrackableType, UsageFlags>): void {
+  for (const operation of Interface.operations.values()) {
     addUsagesInOperation(operation, usages);
   }
 }
 
-function addUsagesInOperation(
-  operation: OperationType,
-  usages: Map<TrackableType, UsageFlags>
-): void {
+function addUsagesInOperation(operation: Operation, usages: Map<TrackableType, UsageFlags>): void {
   navigateReferencedTypes(operation.parameters, (type) =>
     trackUsage(usages, type, UsageFlags.Input)
   );
@@ -114,13 +109,17 @@ function navigateReferencedTypes(
       navigateIterable(type.properties, callback, visited);
       navigateIterable(type.derivedModels, callback, visited);
       type.baseModel && navigateReferencedTypes(type.baseModel, callback, visited);
+      type.indexer?.value && navigateReferencedTypes(type.indexer.value, callback, visited);
       break;
     case "ModelProperty":
       navigateReferencedTypes(type.type, callback, visited);
       break;
     case "Union":
       callback(type);
-      navigateIterable(type.options, callback, visited);
+      navigateIterable(type.variants, callback, visited);
+      break;
+    case "UnionVariant":
+      navigateReferencedTypes(type.type, callback, visited);
       break;
     case "Enum":
     case "Tuple":
@@ -130,7 +129,7 @@ function navigateReferencedTypes(
 }
 
 function navigateIterable<T extends Type>(
-  map: Map<string, T> | T[],
+  map: Map<string | symbol, T> | T[],
   callback: (type: TrackableType) => void,
   visited: Set<Type> = new Set()
 ) {
