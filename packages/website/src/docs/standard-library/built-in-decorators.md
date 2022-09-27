@@ -112,6 +112,12 @@ Mark a namespace as service namespace.
 @service(serviceConfig?: {title?: string, version?: string})
 ```
 
+**Parameter:**
+
+- `serviceConfig`:
+  - `title`: Service title. By default it would assume the namespace name is the service title.
+  - `version`: Service version
+
 **Examples:**
 
 ```ts

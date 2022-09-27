@@ -15,9 +15,6 @@ The following examples assume you have imported both `@cadl-lang/openapi3` and `
 
 A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. Cadl offers the following decorators for providing this metadata, and all are optional.
 
-- @service - Mark a namespace as a service namespace. Takes in the following options:
-  - `title`: Name of the service
-  - `version`: Version of the service
 - @server - (In `Cadl.Http`) the host of the service. Can accept parameters.
 
 Here's an example that uses these to define a Pet Store service:
