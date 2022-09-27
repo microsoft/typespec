@@ -1,0 +1,31 @@
+---
+title: Cadl
+layout: "layouts/main.njk"
+---
+
+<h1>
+  Cadl
+</h1>
+<p>
+  Cadl is a language for describing cloud service APIs and generating other API description languages, client and service
+  code, documentation, and other assets. Cadl provides highly extensible core language primitives that can describe API
+  shapes common among REST, GraphQL, gRPC, and other protocols.
+</p>
+{% highlight "cadl" %}
+{% include './intro-sample.cadl' %}
+{% endhighlight %}
+<h2>Get started</h2>
+<ul class="get-started-options">
+  <li>
+    <a href="{{ "/docs"| url }}">
+      <div class="icon">{% icon "file-text" %}</div>
+      <div class="label">Documentation</div>
+    </a>
+  </li>
+  <li>
+    <a href="{{ "/play"| url }}">
+      <div class="icon">{% icon "play-circle" %}</div>
+      <div class="label">Playground</div>
+    </a>
+  </li>
+</ul>
