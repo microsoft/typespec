@@ -228,7 +228,7 @@ For an array type:
 | `@minItems(value)` | `minItems: value`           |       |
 | `@minItems(value)` | `maxItems: value`           |       |
 
-Enums can be defined in Cadl with the [`enum` statement](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#enums), e.g.:
+Enums can be defined in Cadl with the [`enum` statement]({%doc "enums"%}), e.g.:
 
 ```cadl
 enum Color {
