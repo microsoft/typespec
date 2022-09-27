@@ -19,17 +19,12 @@ const toc = {
   ],
   "Cadl Standard Library": [
     "built-in-types",
+    "built-in-decorators",
     "projected-names",
-    // "built-in-decorators",
     // "http",
     "openapi",
   ],
-  "Writing Cadl Libraries": [
-    "basics",
-    "decorators",
-    // "linters",
-    "emitters",
-  ],
+  "Writing Cadl Libraries": ["basics", "create-decorators", "linters", "emitters"],
 };
 
 module.exports = { toc };
