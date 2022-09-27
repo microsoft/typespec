@@ -25,6 +25,10 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 
 - [@minValue/@maxValue](#minvalue-and-maxvalue) - set the min and max values of number types
 
+[Array](#array-decorators)
+
+- [@minItems/@maxItems](#minitems-and-maxitems) - set the min and max number of items an array type can have
+
 [Models](#model-decorators)
 
 - [@error](#error) - specify a model is representing an error
@@ -39,6 +43,7 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 - [@friendlyName](#friendlyname) - specify a friendly name to be used instead of declared model name
 - [@tag](#tag) - attach a simple tag to a declaration
 - [@visibility/@withVisibility](#visibility-decorators)
+- [@projectedNames]({%doc "projected-names"%})
 
 [Advanced](#advanced-decorators) _Those decorators shouldn't be need to be used directly, there is a template providing the functionality._
 
@@ -183,6 +188,16 @@ Specify the min and max length of the string.
 model Name is string;
 ```
 
+The decorators can also be used on model properties
+
+```cadl
+model Dog {
+  @minLength(2)
+  @maxLength(20)
+  name: string;
+}
+```
+
 ## Numeric decorators
 
 ### `@minValue` and `@maxValue`
@@ -200,6 +215,45 @@ Specify the min and max value for an integer or float.
 @minValue(1)
 @maxValue(100)
 model Floor is int32;
+```
+
+The decorators can also be used on model properties
+
+```cadl
+model Building {
+  @minValue(1)
+  @maxValue(100)
+  floors: int32;
+}
+```
+
+## Array decorators
+
+### `@minItems` and `@maxItems`
+
+```cadl
+@minItems(<number>)
+@maxItems(<number>)
+model Names is string[];
+```
+
+Specify the min and max number of items in an array type.
+
+```cadl
+// Say that the the Names array type can have have between 1 and 3 items.
+@minItems(1)
+@maxItems(3)
+model Names is string[];
+```
+
+The decorators can also be used on model properties
+
+```cadl
+model Person {
+  @minItems(1)
+  @maxItems(3)
+  names: string[];
+}
 ```
 
 ## Model decorators
