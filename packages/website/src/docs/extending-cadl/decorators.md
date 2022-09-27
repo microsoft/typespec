@@ -1,5 +1,5 @@
 ---
-id: decorators
+id: create-decorators
 title: Creating Cadl Decorators
 ---
 

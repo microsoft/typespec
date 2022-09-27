@@ -20,6 +20,7 @@ specifiers:
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
   '@rush-temp/library-linter': file:./projects/library-linter.tgz
+  '@rush-temp/lint': file:./projects/lint.tgz
   '@rush-temp/openapi': file:./projects/openapi.tgz
   '@rush-temp/openapi3': file:./projects/openapi3.tgz
   '@rush-temp/playground': file:./projects/playground.tgz
@@ -68,6 +69,7 @@ specifiers:
   eslint-plugin-prettier: ^4.0.0
   eslint-plugin-unicorn: ^42.0.0
   feather-icons: ~4.29.0
+  github-slugger: ~1.4.0
   globby: ~13.1.1
   grammarkdown: ~3.1.2
   js-yaml: ~4.1.0
@@ -132,6 +134,7 @@ dependencies:
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
   '@rush-temp/library-linter': file:projects/library-linter.tgz
+  '@rush-temp/lint': file:projects/lint.tgz
   '@rush-temp/openapi': file:projects/openapi.tgz
   '@rush-temp/openapi3': file:projects/openapi3.tgz
   '@rush-temp/playground': file:projects/playground.tgz_rollup@2.79.0
@@ -180,6 +183,7 @@ dependencies:
   eslint-plugin-prettier: 4.2.1_3fb4ba81a229f81fc7d96e86670e27e9
   eslint-plugin-unicorn: 42.0.0_eslint@8.21.0
   feather-icons: 4.29.0
+  github-slugger: 1.4.0
   globby: 13.1.2
   grammarkdown: 3.1.2
   js-yaml: 4.1.0
@@ -4247,6 +4251,10 @@ packages:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
     dev: false
 
+  /github-slugger/1.4.0:
+    resolution: {integrity: sha512-w0dzqw/nt51xMVmlaV1+JRzN+oCa1KfcgGEWhxUG16wbdA+Xnt/yoFO8Z8x/V82ZcZ0wy6ln9QDup5avbhiDhQ==}
+    dev: false
+
   /glob-parent/5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -8148,6 +8156,24 @@ packages:
       - supports-color
     dev: false
 
+  file:projects/lint.tgz:
+    resolution: {integrity: sha512-JLnb09DY1RbSLQf+n9+z/+D8OxL8lkweZps3cq3T6fSW8lK16EU8iJX4WZYutUqSO2WzDDJgm+s46tzPufbmYw==, tarball: file:projects/lint.tgz}
+    name: '@rush-temp/lint'
+    version: 0.0.0
+    dependencies:
+      '@types/mocha': 9.1.1
+      '@types/node': 16.0.3
+      c8: 7.11.3
+      eslint: 8.21.0
+      mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
+      rimraf: 3.0.2
+      typescript: 4.8.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   file:projects/openapi.tgz:
     resolution: {integrity: sha512-j4GPDoklnVPOaMhNkg/8z7se0azTxvpwAvGkgULQmXjVUm+mLtfRtm/MYMojpRCmuVsKUHYB2Bghy4j1Y0JeXA==, tarball: file:projects/openapi.tgz}
     name: '@rush-temp/openapi'
@@ -8326,7 +8352,7 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-buJlFT1LT1SAaVZvKzANnXDRW5Kvc6SaQUti8hVnldFK1Uh0I2v+NZPL+kds7M5f+rHPj57XP2UwbU3qhPdXlw==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-PRWfSX0cv4I7mTeFD8gHMv8jTJX7keUFUxuwu+bx9VoJVzTcz/sttrIqaMdihmAuxcd4gl3f5HPSm+w6+9C3lg==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
@@ -8338,6 +8364,7 @@ packages:
       '@types/node': 16.0.3
       eslint: 8.21.0
       feather-icons: 4.29.0
+      github-slugger: 1.4.0
       markdown-it: 13.0.1
       markdown-it-anchor: 8.6.5_203ea4fed94a963ea5da6bb0985d1ff7
       mermaid: 9.1.6
