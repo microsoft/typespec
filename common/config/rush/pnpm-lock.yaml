@@ -20,6 +20,7 @@ specifiers:
   '@rush-temp/html-program-viewer': file:./projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:./projects/internal-build-utils.tgz
   '@rush-temp/library-linter': file:./projects/library-linter.tgz
+  '@rush-temp/lint': file:./projects/lint.tgz
   '@rush-temp/openapi': file:./projects/openapi.tgz
   '@rush-temp/openapi3': file:./projects/openapi3.tgz
   '@rush-temp/playground': file:./projects/playground.tgz
@@ -132,6 +133,7 @@ dependencies:
   '@rush-temp/html-program-viewer': file:projects/html-program-viewer.tgz
   '@rush-temp/internal-build-utils': file:projects/internal-build-utils.tgz
   '@rush-temp/library-linter': file:projects/library-linter.tgz
+  '@rush-temp/lint': file:projects/lint.tgz
   '@rush-temp/openapi': file:projects/openapi.tgz
   '@rush-temp/openapi3': file:projects/openapi3.tgz
   '@rush-temp/playground': file:projects/playground.tgz_rollup@2.79.0
@@ -8133,6 +8135,24 @@ packages:
   file:projects/library-linter.tgz:
     resolution: {integrity: sha512-EZrr68+1hOAMizGWbXOvKT8TgK6cEKF3Gm80LmGzXx9OOv6m0NIvfYCrTtUcjFK6QNwwxokHrHbTP8HKawsT2Q==, tarball: file:projects/library-linter.tgz}
     name: '@rush-temp/library-linter'
+    version: 0.0.0
+    dependencies:
+      '@types/mocha': 9.1.1
+      '@types/node': 16.0.3
+      c8: 7.11.3
+      eslint: 8.21.0
+      mocha: 9.2.2
+      mocha-junit-reporter: 2.0.2_mocha@9.2.2
+      mocha-multi-reporters: 1.5.1_mocha@9.2.2
+      rimraf: 3.0.2
+      typescript: 4.8.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  file:projects/lint.tgz:
+    resolution: {integrity: sha512-JLnb09DY1RbSLQf+n9+z/+D8OxL8lkweZps3cq3T6fSW8lK16EU8iJX4WZYutUqSO2WzDDJgm+s46tzPufbmYw==, tarball: file:projects/lint.tgz}
+    name: '@rush-temp/lint'
     version: 0.0.0
     dependencies:
       '@types/mocha': 9.1.1
