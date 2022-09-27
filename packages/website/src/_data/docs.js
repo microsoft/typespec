@@ -21,7 +21,7 @@ const toc = {
     "built-in-types",
     "built-in-decorators",
     "projected-names",
-    // "http",
+    "http",
     "openapi",
   ],
   "Writing Cadl Libraries": ["basics", "create-decorators", "linters", "emitters"],

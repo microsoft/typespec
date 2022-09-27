@@ -13,6 +13,10 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 - [@doc](#doc) - attach a documentation string. Works great with multi-line string literals.
 - [@summary](#summary) - attach a documentation string, typically a short, single-line description.
 
+[Service](#service-decorators)
+
+- [@service](#service)
+
 [String](#string-decorators)
 
 - [@format](#format) - specify the data format hint for a string type
@@ -57,7 +61,7 @@ Cadl comes built-in with a number of decorators that are useful for defining ser
 
 ### `@doc`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @doc(text [, object])
@@ -72,7 +76,7 @@ which are replaced with an attribute for the type (commonly "name") passed as th
 
 ### `@summary`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @summary(text [, object])
@@ -88,7 +92,7 @@ which are replaced with an attribute for the type (commonly "name") passed as th
 
 ### `@deprecated`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @deprecated("<message>")
@@ -96,11 +100,50 @@ Syntax:
 
 `@deprecated` marks a type as deprecated. It can be specified on any language element -- a model, an operation, a namespace, etc.
 
+## Service decorators
+
+### `@service`
+
+Mark a namespace as service namespace.
+
+**Syntax:**
+
+```cadl
+@service(serviceConfig?: {title?: string, version?: string})
+```
+
+**Parameter:**
+
+- `serviceConfig`:
+  - `title`: Service title. By default it would assume the namespace name is the service title.
+  - `version`: Service version
+
+**Examples:**
+
+```ts
+@service
+namespace MyService
+```
+
+Optionally you can specify the title
+
+```ts
+@service({title: "My custom service"})
+namespace MyService
+```
+
+And/Or the version of the service
+
+```ts
+@service({version: "1.2.3"})
+namespace MyService
+```
+
 ## String decorators
 
-### @format
+### `@format`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @format(formatName)
@@ -118,7 +161,7 @@ possible valid values for a [string type's format](https://github.com/OAI/OpenAP
 
 ### `@pattern`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @pattern(regularExpressionText)
@@ -128,7 +171,7 @@ Syntax:
 
 ### `@knownValues`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @knownValues(enumTypeReference)
@@ -156,7 +199,7 @@ model OperationState extends string {}
 
 ### `@secret`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @secret
@@ -260,7 +303,7 @@ model Person {
 
 ### @error
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @error
@@ -272,7 +315,7 @@ For HTTP API this can be used to represent a failure.
 
 ### `@key`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @key([keyName])
@@ -289,7 +332,7 @@ Otherwise, the name of the target property will be used.
 
 ### `@inspectType`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @inspectType(message)
@@ -304,7 +347,7 @@ They can be specified on any language element -- a model, an operation, a namesp
 
 ### `@friendlyName`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @friendlyName(string)
@@ -324,7 +367,7 @@ alias B = List<Person>; // Instance friendly name would be `PersonList`
 
 ### `@tag`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @tag(text)
@@ -372,7 +415,7 @@ Those decorators shouldn't be need to be used directly, there is a template prov
 
 ### `@withDefaultKeyVisibility`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @withDefaultKeyVisibility(string)
@@ -386,7 +429,7 @@ If a key property already has a `visibility` decorator then the default visibili
 
 ### `@withOptionalProperties`
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @withOptionalProperties()
@@ -398,7 +441,7 @@ Syntax:
 
 ### @withoutDefaultValues
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @withoutDefaultValues()
@@ -410,7 +453,7 @@ Syntax:
 
 ### @withoutOmittedProperties
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @withoutOmittedProperties(type)
@@ -422,7 +465,7 @@ Syntax:
 
 ### @withUpdateableProperties
 
-Syntax:
+**Syntax:**
 
 ```cadl
 @withUpdateableProperties()
