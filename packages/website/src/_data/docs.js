@@ -24,12 +24,7 @@ const toc = {
     // "http",
     "openapi",
   ],
-  "Writing Cadl Libraries": [
-    "basics",
-    "decorators",
-    // "linters",
-    "emitters",
-  ],
+  "Writing Cadl Libraries": ["basics", "decorators", "linters", "emitters"],
 };
 
 module.exports = { toc };
