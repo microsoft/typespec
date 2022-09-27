@@ -19,6 +19,7 @@ const toc = {
   ],
   "Cadl Standard Library": [
     "built-in-types",
+    "built-in-decorators",
     "projected-names",
     // "built-in-decorators",
     // "http",

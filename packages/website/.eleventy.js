@@ -6,7 +6,7 @@ const cadlPrismDefinition = require("./cadl-prism-lang.js");
 const { findNavigationEntries } = require("./1tty-utils/navigation.js");
 const { renderMermaid } = require("./1tty-utils/mermaid.js");
 const feather = require("feather-icons");
-
+const GithubSlugger = require("github-slugger");
 const basePath = process.env["CADL_WEBSITE_BASE_PATH"];
 
 module.exports = (eleventyConfig) => {
@@ -55,6 +55,7 @@ module.exports = (eleventyConfig) => {
   const markdownItAnchorOptions = {
     permalink: true,
     renderPermalink,
+    slugify: (x) => new GithubSlugger().slug(x),
   };
 
   // @ts-ignore
