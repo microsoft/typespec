@@ -69,6 +69,7 @@ specifiers:
   eslint-plugin-prettier: ^4.0.0
   eslint-plugin-unicorn: ^42.0.0
   feather-icons: ~4.29.0
+  github-slugger: ~1.4.0
   globby: ~13.1.1
   grammarkdown: ~3.1.2
   js-yaml: ~4.1.0
@@ -182,6 +183,7 @@ dependencies:
   eslint-plugin-prettier: 4.2.1_3fb4ba81a229f81fc7d96e86670e27e9
   eslint-plugin-unicorn: 42.0.0_eslint@8.21.0
   feather-icons: 4.29.0
+  github-slugger: 1.4.0
   globby: 13.1.2
   grammarkdown: 3.1.2
   js-yaml: 4.1.0
@@ -4247,6 +4249,10 @@ packages:
 
   /github-from-package/0.0.0:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
+    dev: false
+
+  /github-slugger/1.4.0:
+    resolution: {integrity: sha512-w0dzqw/nt51xMVmlaV1+JRzN+oCa1KfcgGEWhxUG16wbdA+Xnt/yoFO8Z8x/V82ZcZ0wy6ln9QDup5avbhiDhQ==}
     dev: false
 
   /glob-parent/5.1.2:
@@ -8346,7 +8352,7 @@ packages:
     dev: false
 
   file:projects/website.tgz:
-    resolution: {integrity: sha512-buJlFT1LT1SAaVZvKzANnXDRW5Kvc6SaQUti8hVnldFK1Uh0I2v+NZPL+kds7M5f+rHPj57XP2UwbU3qhPdXlw==, tarball: file:projects/website.tgz}
+    resolution: {integrity: sha512-PRWfSX0cv4I7mTeFD8gHMv8jTJX7keUFUxuwu+bx9VoJVzTcz/sttrIqaMdihmAuxcd4gl3f5HPSm+w6+9C3lg==, tarball: file:projects/website.tgz}
     name: '@rush-temp/website'
     version: 0.0.0
     dependencies:
@@ -8358,6 +8364,7 @@ packages:
       '@types/node': 16.0.3
       eslint: 8.21.0
       feather-icons: 4.29.0
+      github-slugger: 1.4.0
       markdown-it: 13.0.1
       markdown-it-anchor: 8.6.5_203ea4fed94a963ea5da6bb0985d1ff7
       mermaid: 9.1.6

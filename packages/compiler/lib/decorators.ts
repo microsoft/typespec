@@ -305,7 +305,8 @@ const minLengthValuesKey = createStateSymbol("minLengthValues");
 export function $minLength(context: DecoratorContext, target: Type, minLength: number) {
   if (
     !validateDecoratorTarget(context, target, "@minLength", ["Model", "ModelProperty"]) ||
-    !validateDecoratorTargetIntrinsic(context, target, "@minLength", "string")
+    !validateDecoratorTargetIntrinsic(context, target, "@minLength", "string") ||
+    !validateRange(context, minLength, getMaxLength(context.program, target))
   ) {
     return;
   }
@@ -324,7 +325,8 @@ const maxLengthValuesKey = createStateSymbol("maxLengthValues");
 export function $maxLength(context: DecoratorContext, target: Type, maxLength: number) {
   if (
     !validateDecoratorTarget(context, target, "@maxLength", ["Model", "ModelProperty"]) ||
-    !validateDecoratorTargetIntrinsic(context, target, "@maxLength", "string")
+    !validateDecoratorTargetIntrinsic(context, target, "@maxLength", "string") ||
+    !validateRange(context, getMinLength(context.program, target), maxLength)
   ) {
     return;
   }
@@ -334,6 +336,67 @@ export function $maxLength(context: DecoratorContext, target: Type, maxLength: n
 
 export function getMaxLength(program: Program, target: Type): number | undefined {
   return program.stateMap(maxLengthValuesKey).get(target);
+}
+
+// -- @minItems decorator ---------------------
+
+const minItemsValuesKey = createStateSymbol("minItems");
+
+export function $minItems(context: DecoratorContext, target: Type, minItems: number) {
+  if (!validateDecoratorTarget(context, target, "@minItems", ["Model", "ModelProperty"])) {
+    return;
+  }
+
+  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: "@minItems",
+        to: `non Array type`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+
+  if (!validateRange(context, minItems, getMaxItems(context.program, target))) {
+    return;
+  }
+
+  context.program.stateMap(minItemsValuesKey).set(target, minItems);
+}
+
+export function getMinItems(program: Program, target: Type): number | undefined {
+  return program.stateMap(minItemsValuesKey).get(target);
+}
+
+// -- @maxLength decorator ---------------------
+
+const maxItemsValuesKey = createStateSymbol("maxItems");
+
+export function $maxItems(context: DecoratorContext, target: Type, maxItems: number) {
+  if (!validateDecoratorTarget(context, target, "@maxItems", ["Model", "ModelProperty"])) {
+    return;
+  }
+
+  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: "@maxItems",
+        to: `non Array type`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  if (!validateRange(context, getMinItems(context.program, target), maxItems)) {
+    return;
+  }
+
+  context.program.stateMap(maxItemsValuesKey).set(target, maxItems);
+}
+
+export function getMaxItems(program: Program, target: Type): number | undefined {
+  return program.stateMap(maxItemsValuesKey).get(target);
 }
 
 // -- @minValue decorator ---------------------
@@ -354,6 +417,10 @@ export function $minValue(context: DecoratorContext, target: Type, minValue: num
         target,
       })
     );
+    return;
+  }
+
+  if (!validateRange(context, minValue, getMaxValue(context.program, target))) {
     return;
   }
   program.stateMap(minValuesKey).set(target, minValue);
@@ -377,10 +444,14 @@ export function $maxValue(context: DecoratorContext, target: Type, maxValue: num
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        format: { decorator: "@minValue", to: "non-numeric type" },
+        format: { decorator: "@maxValue", to: "non-numeric type" },
         target,
       })
     );
+    return;
+  }
+
+  if (!validateRange(context, getMinValue(context.program, target), maxValue)) {
     return;
   }
   program.stateMap(maxValuesKey).set(target, maxValue);
@@ -957,4 +1028,24 @@ export function getProjectedName(
  */
 export function hasProjectedName(program: Program, target: Type, projectionName: string): boolean {
   return getProjectedNames(program, target)?.has(projectionName) ?? false;
+}
+
+function validateRange(
+  context: DecoratorContext,
+  min: number | undefined,
+  max: number | undefined
+): boolean {
+  if (min === undefined || max === undefined) {
+    return true;
+  }
+
+  if (min > max) {
+    reportDiagnostic(context.program, {
+      code: "invalid-range",
+      format: { start: min.toString(), end: max.toString() },
+      target: context.decoratorTarget,
+    });
+    return false;
+  }
+  return true;
 }
