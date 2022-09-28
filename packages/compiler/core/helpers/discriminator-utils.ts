@@ -29,22 +29,42 @@ function getDiscriminatedUnionForUnion(
 
   for (const variant of type.variants.values()) {
     if (variant.type.kind !== "Model") {
-      continue;
-    }
-    const keys = getDiscriminatorValues(variant.type, discriminator, diagnostics);
-    if (keys === undefined) {
       diagnostics.push(
         createDiagnostic({
-          code: "missing-discriminator-value",
-          format: { discriminator: discriminator.propertyName },
+          code: "invalid-discriminated-union-variant",
+          format: { name: variant.name.toString() },
+          target: variant,
+        })
+      );
+      continue;
+    }
+
+    const prop = getDiscriminatorProperty(variant.type, discriminator, diagnostics);
+    if (prop === undefined) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "invalid-discriminated-union-variant",
+          messageId: "noDiscriminant",
+          format: { name: variant.name.toString(), discriminant: discriminator.propertyName },
+          target: variant,
+        })
+      );
+      continue;
+    }
+
+    const key = getStringValue(prop.type);
+    if (key) {
+      duplicates.track(key, variant.type);
+      variants.set(key, variant.type);
+    } else {
+      diagnostics.push(
+        createDiagnostic({
+          code: "invalid-discriminated-union-variant",
+          messageId: "wrongDiscriminantType",
+          format: { name: variant.name.toString(), discriminant: discriminator.propertyName },
           target: variant.type,
         })
       );
-    } else {
-      for (const key of keys) {
-        duplicates.track(key, variant.type);
-        variants.set(key, variant.type);
-      }
     }
   }
   reportDuplicateDiscriminatorValues(duplicates, diagnostics);
@@ -71,7 +91,7 @@ function getDiscriminatedUnionForModel(
         if (derivedModel.derivedModels.length === 0) {
           diagnostics.push(
             createDiagnostic({
-              code: "missing-discriminator-value",
+              code: "missing-discriminator-property",
               format: { discriminator: discriminator.propertyName },
               target: derivedModel,
             })
@@ -116,36 +136,45 @@ function reportDuplicateDiscriminatorValues(
   }
 }
 
+function getDiscriminatorProperty(
+  model: Model,
+  discriminator: Discriminator,
+  diagnostics: Diagnostic[]
+) {
+  const prop = model.properties.get(discriminator.propertyName);
+  if (prop && prop.optional) {
+    diagnostics.push(
+      createDiagnostic({
+        code: "invalid-discriminator-value",
+        messageId: "required",
+        target: prop,
+      })
+    );
+  }
+  return prop;
+}
+
 function getDiscriminatorValues(
   model: Model,
   discriminator: Discriminator,
   diagnostics: Diagnostic[]
 ): string[] | undefined {
-  const prop = model.properties.get(discriminator.propertyName);
-  if (prop) {
-    if (prop.optional) {
-      diagnostics.push(
-        createDiagnostic({
-          code: "invalid-discriminator-value",
-          messageId: "required",
-          target: prop,
-        })
-      );
-    }
-    const keys = getStringValues(prop.type);
-    if (keys.length === 0) {
-      diagnostics.push(
-        createDiagnostic({
-          code: "invalid-discriminator-value",
-          format: { kind: prop.type.kind },
-          target: prop,
-        })
-      );
-    }
-    return keys;
+  const prop = getDiscriminatorProperty(model, discriminator, diagnostics);
+  if (!prop) return undefined;
+
+  const keys = getStringValues(prop.type);
+  if (keys.length === 0) {
+    diagnostics.push(
+      createDiagnostic({
+        code: "invalid-discriminator-value",
+        format: { kind: prop.type.kind },
+        target: prop,
+      })
+    );
   }
-  return undefined;
+  return keys;
 }
+
 function getStringValues(type: Type): string[] {
   switch (type.kind) {
     case "String":
@@ -159,6 +188,16 @@ function getStringValues(type: Type): string[] {
   }
 }
 
+function getStringValue(type: Type): string | undefined {
+  switch (type.kind) {
+    case "String":
+      return type.value;
+    case "EnumMember":
+      return typeof type.value !== "number" ? type.value ?? type.name : undefined;
+    default:
+      return undefined;
+  }
+}
 /**
  * Helper class to track duplicate instance
  */

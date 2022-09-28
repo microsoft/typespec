@@ -950,8 +950,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       // the decorator validates that all the variants will be a model type
       // with the discriminator field present.
       schema.discriminator = discriminator;
-      const [discriminatedUnion, diagnostics] = getDiscriminatedUnion(union, discriminator);
-      program.reportDiagnostics(diagnostics);
+      // Diagnostic already reported in compiler for unions
+      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
       if (discriminatedUnion.variants.size > 0) {
         schema.discriminator.mapping = getDiscriminatorMapping(discriminatedUnion, visibility);
       }

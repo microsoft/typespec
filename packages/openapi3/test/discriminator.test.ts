@@ -239,51 +239,6 @@ describe("openapi3: discriminated unions", () => {
     ]);
   });
 
-  it("adds mapping entries to the discriminator when appropriate", async () => {
-    const openApi = await openApiFor(`
-      @discriminator("kind")
-      model Pet { }
-      model Cat extends Pet {
-        kind: "cat" | "feline";
-        meow: int32;
-      }
-      model Dog extends Pet {
-        kind: "dog";
-        bark: string;
-      }
-      #suppress "invalid-discriminator-value" "need to do this"
-      model Lizard extends Pet {
-        kind: string;
-      }
-
-      op read(): { @body body: Pet };
-      `);
-    ok(openApi.components.schemas.Pet, "expected definition named Pet");
-    ok(openApi.components.schemas.Cat, "expected definition named Cat");
-    ok(openApi.components.schemas.Dog, "expected definition named Dog");
-    ok(openApi.components.schemas.Lizard, "expected definition named Lizard");
-    deepStrictEqual(openApi.paths["/"].get.responses["200"].content["application/json"].schema, {
-      $ref: "#/components/schemas/Pet",
-    });
-    deepStrictEqual(openApi.components.schemas.Pet, {
-      type: "object",
-      properties: {
-        kind: {
-          type: "string",
-          description: "Discriminator property for Pet.",
-        },
-      },
-      discriminator: {
-        propertyName: "kind",
-        mapping: {
-          cat: "#/components/schemas/Cat",
-          dog: "#/components/schemas/Dog",
-          feline: "#/components/schemas/Cat",
-        },
-      },
-    });
-  });
-
   it("issues diagnostics for errors in a discriminated union", async () => {
     const diagnostics = await checkFor(`
       @discriminator("kind")
@@ -317,7 +272,7 @@ describe("openapi3: discriminated unions", () => {
 
     expectDiagnostics(diagnostics, [
       {
-        code: "missing-discriminator-value",
+        code: "missing-discriminator-property",
         message:
           /Each derived model of a discriminated model type should have set the discriminator property/,
       },
