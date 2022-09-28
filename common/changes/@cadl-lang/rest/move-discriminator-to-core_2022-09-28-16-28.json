@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "**BREAKING** Remove `@discriminator` decorator. (Moved to @cadl-lang/compiler)",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}

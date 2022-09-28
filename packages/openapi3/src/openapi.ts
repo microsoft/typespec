@@ -1,11 +1,13 @@
 import {
   BooleanLiteral,
   compilerAssert,
+  Discriminator,
   emitFile,
   EmitOptionsFor,
   Enum,
   EnumMember,
   getAllTags,
+  getDiscriminator,
   getDoc,
   getEffectiveModelType,
   getFormat,
@@ -61,7 +63,7 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@cadl-lang/openapi";
-import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
+import { http } from "@cadl-lang/rest";
 import {
   createMetadataInfo,
   getAllHttpServices,
