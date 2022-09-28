@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "cadl-vscode",
+      "comment": "Fix preference documentation for cadl-server path configuration",
+      "type": "patch"
+    }
+  ],
+  "packageName": "cadl-vscode"
+}
