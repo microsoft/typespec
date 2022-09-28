@@ -150,35 +150,8 @@ h6 {
   width: 1px;
 }
 
-.get-started-options {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.get-started-options li {
-  list-style: none;
-  margin: 0 20px;
-}
-.get-started-options li a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border: 1px solid var(--color-border-default);
-  border-radius: 3px;
-  padding: 20px;
-  cursor: pointer;
-}
-
-.get-started-options .icon {
-  padding-bottom: 10px;
-}
-
-.get-started-options .icon > svg {
-  width: 100px;
-  height: 100px;
-}
-.get-started-options .label {
-  border-top: 1px solid var(--color-border-default);
-  padding-top: 10px;
+.center-content {
+  margin: 0 auto;
+  max-width: 1024px;
+  padding: 0 1.5rem;
 }

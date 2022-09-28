@@ -1,31 +1,48 @@
 ---
 title: Cadl
-layout: "layouts/main.njk"
+layout: "layouts/base.njk"
 ---
 
-<h1>
-  Cadl
-</h1>
-<p>
-  Cadl is a language for describing cloud service APIs and generating other API description languages, client and service
-  code, documentation, and other assets. Cadl provides highly extensible core language primitives that can describe API
-  shapes common among REST, GraphQL, gRPC, and other protocols.
-</p>
-{% highlight "cadl" %}
-{% include './intro-sample.cadl' %}
-{% endhighlight %}
-<h2>Get started</h2>
-<ul class="get-started-options">
-  <li>
-    <a href="{{ "/docs"| url }}">
-      <div class="icon">{% icon "file-text" %}</div>
-      <div class="label">Documentation</div>
-    </a>
-  </li>
-  <li>
-    <a href="{{ "/play"| url }}">
-      <div class="icon">{% icon "play-circle" %}</div>
-      <div class="label">Playground</div>
-    </a>
-  </li>
-</ul>
+<div class="intro">
+  <div class="center-content">
+    <h1>
+      Cadl
+    </h1>
+    <p>
+      Cadl is a language for describing cloud service APIs and generating other API description languages, client and service
+      code, documentation, and other assets. Cadl provides highly extensible core language primitives that can describe API
+      shapes common among REST, GraphQL, gRPC, and other protocols.
+    </p>
+    {% highlight "cadl" %}
+    {% include './intro-sample.cadl' %}
+    {% endhighlight %}
+    <ul class="get-started-options">
+      <li>
+        <a href="{{ "/play"| url }}" class="play">
+          <div class="icon">{% icon "play-circle" %}</div>
+          <div class="label">Try online</div>
+        </a>
+      </li>
+      <li>
+        <a href="{{ "/docs"| url }}">
+          <div class="icon">{% icon "file-text" %}</div>
+          <div class="label">Documentation</div>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<div class="center-content major-points">
+  <section>
+    <h2>Protocol agnostic</h2>
+    <p>Cadl is protocol agnostic.</p>
+  </section>
+  <section>
+    <h2>Extensible</h2>
+    <p>Cadl is design with extensibility in mind using decorators and emitters.</p>
+  </section>
+  <section>
+    <h2>IDE support</h2>
+    <p>Cadl comes with built-in IDE support for Visual Studio Code and Visual Studio.</p>
+  </section>
+</div>
