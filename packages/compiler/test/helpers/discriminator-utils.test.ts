@@ -8,7 +8,7 @@ import {
   extractCursor,
 } from "../../testing/index.js";
 
-describe.only("compiler: discriminator", () => {
+describe("compiler: discriminator", () => {
   let runner: BasicTestRunner;
   beforeEach(async () => {
     runner = await createTestRunner();
@@ -28,7 +28,7 @@ describe.only("compiler: discriminator", () => {
     return union;
   }
   function diagnoseDiscriminatedUnion(model: Model) {
-    const [union, diagnostics] = resolveDiscriminatedUnion(model);
+    const [, diagnostics] = resolveDiscriminatedUnion(model);
     return diagnostics;
   }
 
