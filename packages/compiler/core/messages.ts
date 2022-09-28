@@ -545,6 +545,20 @@ const diagnostics = {
       wrongDiscriminantType: paramMessage`Variant ${"name"}'s type's discriminant property ${"discriminant"} must be a string literal or string enum member`,
     },
   },
+  "missing-discriminator-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Each derived model of a discriminated model type should have set the discriminator property("${"discriminator"}") or have a derived model which has. Add \`${"discriminator"}: "<discriminator-value>"\``,
+    },
+  },
+  "invalid-discriminator-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Discriminator value should be a string, union of string or string enum but was ${"kind"}.`,
+      required: "The discriminator property must be a required property.",
+      duplicate: paramMessage`Discriminator value "${"discriminator"}" is already used in another variant.`,
+    },
+  },
 
   /**
    * Service

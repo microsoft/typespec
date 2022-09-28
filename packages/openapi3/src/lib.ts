@@ -81,22 +81,6 @@ export const libDef = {
         null: "Unions containing multiple model types cannot be emitted to OpenAPI v2 unless the union is between one model type and 'null'.",
       },
     },
-    discriminator: {
-      severity: "error",
-      messages: {
-        duplicate: paramMessage`Discriminator value "${"val"}" defined in two different variants: ${"model1"} and ${"model2"}`,
-        missing: "The discriminator property is not defined in a variant of a discriminated union.",
-        required: "The discriminator property must be a required property.",
-        type: "The discriminator property must be type 'string'.",
-      },
-    },
-    "discriminator-value": {
-      severity: "warning",
-      messages: {
-        literal:
-          "Each variant of a discriminated union should define the discriminator property with a string literal value.",
-      },
-    },
     "invalid-default": {
       severity: "error",
       messages: {

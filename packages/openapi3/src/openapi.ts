@@ -1,12 +1,13 @@
 import {
   BooleanLiteral,
   compilerAssert,
-  Discriminator,
+  DiscriminatedUnion,
   emitFile,
   EmitOptionsFor,
   Enum,
   EnumMember,
   getAllTags,
+  getDiscriminatedUnion,
   getDiscriminator,
   getDoc,
   getEffectiveModelType,
@@ -20,7 +21,6 @@ import {
   getMinLength,
   getMinValue,
   getPattern,
-  getProperty,
   getPropertyType,
   getServiceNamespace,
   getServiceNamespaceString,
@@ -950,13 +950,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       // the decorator validates that all the variants will be a model type
       // with the discriminator field present.
       schema.discriminator = discriminator;
-      const mapping = getDiscriminatorMapping(
-        discriminator,
-        variants.map((v) => v.type) as Model[],
-        visibility
-      );
-      if (mapping) {
-        schema.discriminator.mapping = mapping;
+      const [discriminatedUnion, diagnostics] = getDiscriminatedUnion(union, discriminator);
+      program.reportDiagnostics(diagnostics);
+      if (discriminatedUnion.variants.size > 0) {
+        schema.discriminator.mapping = getDiscriminatorMapping(discriminatedUnion, visibility);
       }
     }
 
@@ -1021,15 +1018,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator) {
-      if (!validateDiscriminator(discriminator, derivedModels)) {
-        // appropriate diagnostic is generated with the validate function
-        return {};
-      }
+      const [union, diagnostics] = getDiscriminatedUnion(model, discriminator);
+      program.reportDiagnostics(diagnostics);
 
       const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
-      const mapping = getDiscriminatorMapping(discriminator, derivedModels, visibility);
-      if (mapping) {
-        openApiDiscriminator.mapping = mapping;
+      if (union.variants.size > 0) {
+        openApiDiscriminator.mapping = getDiscriminatorMapping(union, visibility);
       }
 
       modelSchema.discriminator = openApiDiscriminator;
@@ -1126,113 +1120,12 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
-  function validateDiscriminator(
-    discriminator: Discriminator,
-    childModels: readonly Model[]
-  ): boolean {
-    const { propertyName } = discriminator;
-    const retValues = childModels.map((t) => {
-      const prop = getProperty(t, propertyName);
-      if (!prop) {
-        reportDiagnostic(program, { code: "discriminator", messageId: "missing", target: t });
-        return false;
-      }
-      let retval = true;
-      if (!isOasString(prop.type)) {
-        reportDiagnostic(program, { code: "discriminator", messageId: "type", target: prop });
-        retval = false;
-      }
-      if (prop.optional) {
-        reportDiagnostic(program, { code: "discriminator", messageId: "required", target: prop });
-        retval = false;
-      }
-      return retval;
-    });
-    // Map of discriminator value to the model in which it is declared
-    const discriminatorValues = new Map<string, string>();
-    for (const t of childModels) {
-      // Get the discriminator property directly in the child model
-      const prop = t.properties?.get(propertyName);
-      // Issue warning diagnostic if discriminator property missing or is not a string literal
-      if (!prop || !isStringLiteral(prop.type)) {
-        reportDiagnostic(program, {
-          code: "discriminator-value",
-          messageId: "literal",
-          target: prop || t,
-        });
-      }
-      if (prop) {
-        const values = getStringValues(prop.type);
-        values.forEach((val) => {
-          if (discriminatorValues.has(val)) {
-            reportDiagnostic(program, {
-              code: "discriminator",
-              messageId: "duplicate",
-              format: { val: val, model1: discriminatorValues.get(val)!, model2: t.name },
-              target: prop,
-            });
-            retValues.push(false);
-          } else {
-            discriminatorValues.set(val, t.name);
-          }
-        });
-      }
-    }
-    return retValues.every((v) => v);
-  }
-
-  function getDiscriminatorMapping(
-    { propertyName }: Discriminator,
-    derivedModels: readonly Model[],
-    visibility: Visibility
-  ) {
-    let mapping: Record<string, string> | undefined = undefined;
-
-    for (const model of derivedModels) {
-      const prop = model.properties?.get(propertyName);
-      if (!prop) {
-        continue;
-      }
-      for (const key of getStringValues(prop.type)) {
-        mapping ??= {};
-        mapping[key] = getSchemaOrRef(model, visibility).$ref;
-      }
+  function getDiscriminatorMapping(union: DiscriminatedUnion, visibility: Visibility) {
+    const mapping: Record<string, string> | undefined = {};
+    for (const [key, model] of union.variants.entries()) {
+      mapping[key] = getSchemaOrRef(model, visibility).$ref;
     }
     return mapping;
-  }
-
-  // An openapi "string" can be defined in several different ways in Cadl
-  function isOasString(type: Type): boolean {
-    if (type.kind === "String") {
-      // A string literal
-      return true;
-    } else if (type.kind === "Model" && type.name === "string") {
-      // string type
-      return true;
-    } else if (type.kind === "Union") {
-      // A union where all variants are an OasString
-      return type.options.every((o) => isOasString(o));
-    }
-    return false;
-  }
-
-  function isStringLiteral(type: Type): boolean {
-    return (
-      type.kind === "String" ||
-      (type.kind === "Union" && type.options.every((o) => o.kind === "String"))
-    );
-  }
-
-  // Return any string literal values for type
-  function getStringValues(type: Type): string[] {
-    if (type.kind === "String") {
-      return [type.value];
-    } else if (type.kind === "Union") {
-      return type.options.flatMap(getStringValues).filter((v) => v);
-    } else if (type.kind === "EnumMember" && typeof type.value !== "number") {
-      return [type.value ?? type.name];
-    }
-    return [];
   }
 
   function applyIntrinsicDecorators(
