@@ -194,7 +194,7 @@ enum OperationStateValues {
 }
 
 @knownValues(OperationStateValues)
-model OperationState extends string {}
+model OperationState is string;
 ```
 
 ### `@secret`
