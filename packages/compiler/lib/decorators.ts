@@ -20,6 +20,7 @@ import {
   NeverType,
   Operation,
   Type,
+  Union,
   UnknownType,
   VoidType,
 } from "../core/types.js";
@@ -1048,4 +1049,101 @@ function validateRange(
     return false;
   }
   return true;
+}
+
+export interface Discriminator {
+  propertyName: string;
+}
+
+const discriminatorKey = createStateSymbol("discriminator");
+
+const discriminatorDecorator = createDecoratorDefinition({
+  name: "@discriminator",
+  target: ["Model", "Union"],
+  args: [{ kind: "String" }],
+} as const);
+
+export function $discriminator(
+  context: DecoratorContext,
+  entity: Model | Union,
+  propertyName: string
+) {
+  if (!discriminatorDecorator.validate(context, entity, [propertyName])) {
+    return;
+  }
+
+  let hasErrors = false;
+  if (entity.kind === "Union") {
+    // we can validate discriminator up front for unions. Models are validated
+    // in emitters.
+    for (const variant of entity.variants.values()) {
+      if (typeof variant.name === "symbol") {
+        // likely not possible to hit this without applying the decorator programmatically
+        reportDiagnostic(context.program, {
+          code: "invalid-discriminated-union",
+          target: entity,
+        });
+
+        return;
+      }
+
+      if (variant.type.kind !== "Model") {
+        reportDiagnostic(context.program, {
+          code: "invalid-discriminated-union-variant",
+          messageId: "default",
+          format: {
+            name: variant.name,
+          },
+          target: variant,
+        });
+        hasErrors = true;
+        continue;
+      }
+
+      const prop = variant.type.properties.get(propertyName);
+      if (!prop) {
+        reportDiagnostic(context.program, {
+          code: "invalid-discriminated-union-variant",
+          messageId: "noDiscriminant",
+          format: {
+            name: variant.name,
+            discriminant: propertyName,
+          },
+          target: variant,
+        });
+        hasErrors = true;
+        continue;
+      }
+
+      if (
+        prop.type.kind !== "String" &&
+        (prop.type.kind !== "EnumMember" ||
+          (prop.type.value !== undefined && typeof prop.type.value !== "string"))
+      ) {
+        reportDiagnostic(context.program, {
+          code: "invalid-discriminated-union-variant",
+          messageId: "wrongDiscriminantType",
+          format: {
+            name: variant.name,
+            discriminant: propertyName,
+          },
+          target: variant,
+        });
+        hasErrors = true;
+        continue;
+      }
+    }
+  }
+
+  if (hasErrors) return;
+
+  context.program.stateMap(discriminatorKey).set(entity, propertyName);
+}
+
+export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
+  const propertyName = program.stateMap(discriminatorKey).get(entity);
+  if (propertyName) {
+    return { propertyName };
+  }
+  return undefined;
 }

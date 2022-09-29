@@ -725,4 +725,61 @@ describe("compiler: built-in decorators", () => {
       });
     });
   });
+
+  describe("@discriminator on unions", () => {
+    it("requires variants to be models", async () => {
+      const diagnostics = await runner.diagnose(`
+        @discriminator("kind")
+        union Foo {
+          a: "hi"
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-discriminated-union-variant",
+          message: "Union variant a must be a model type",
+        },
+      ]);
+    });
+    it("requires variants to have the discriminator property", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+
+        }
+        @discriminator("kind")
+        union Foo {
+          a: A
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-discriminated-union-variant",
+          message: "Variant a's type is missing the discriminant property kind",
+        },
+      ]);
+    });
+
+    it("requires variant discriminator properties to be string literals or string enum values", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          kind: string,
+        }
+
+        @discriminator("kind")
+        union Foo {
+          a: A
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-discriminated-union-variant",
+          message:
+            "Variant a's type's discriminant property kind must be a string literal or string enum member",
+        },
+      ]);
+    });
+  });
 });
