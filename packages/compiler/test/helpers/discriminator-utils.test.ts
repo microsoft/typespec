@@ -73,6 +73,28 @@ describe("compiler: discriminator", () => {
       strictEqual(union.variants.get("aligator"), undefined);
     });
 
+    it("can use a templated type for derived types", async () => {
+      const { Pet, Cat, Dog } = (await runner.compile(`
+        @discriminator("kind")
+        @test model Pet {}
+
+        model PetT<T> extends Pet {
+          kind: T;
+        }
+
+        @test model Cat is PetT<"cat"> {
+        }
+
+        @test model Dog is PetT<"dog">  {
+        }
+      `)) as { Pet: Model; Cat: Model; Dog: Model };
+
+      const union = checkValidDiscriminatedUnion(Pet);
+      strictEqual(union.variants.size, 2);
+      strictEqual(union.variants.get("cat"), Cat);
+      strictEqual(union.variants.get("dog"), Dog);
+    });
+
     describe("discriminator value", () => {
       it("can be a string", async () => {
         const { Pet, Cat } = (await runner.compile(`

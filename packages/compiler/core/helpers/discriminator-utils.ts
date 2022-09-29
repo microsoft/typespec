@@ -1,5 +1,6 @@
 import { Discriminator } from "../../lib/decorators.js";
 import { createDiagnostic } from "../messages.js";
+import { isTemplateDeclarationOrInstance } from "../type-utils.js";
 import { Diagnostic, Model, Type, Union } from "../types.js";
 import { isDefined } from "../util.js";
 
@@ -19,6 +20,7 @@ export function getDiscriminatedUnion(
       return getDiscriminatedUnionForUnion(type, discriminator);
   }
 }
+
 function getDiscriminatedUnionForUnion(
   type: Union,
   discriminator: Discriminator
@@ -86,6 +88,9 @@ function getDiscriminatedUnionForModel(
 
   function checkForVariantsIn(current: Model) {
     for (const derivedModel of current.derivedModels) {
+      if (isTemplateDeclarationOrInstance(derivedModel)) {
+        continue; // Skip template instances as they should be used with `model is`
+      }
       const keys = getDiscriminatorValues(derivedModel, discriminator, diagnostics);
       if (keys === undefined) {
         if (derivedModel.derivedModels.length === 0) {
