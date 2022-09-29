@@ -37,21 +37,15 @@
   float: inline-start;
 }
 
-.navbar-links p,
-.navbar-sign p {
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 25px;
-  text-transform: capitalize;
-  margin: 0 1rem;
-  cursor: pointer;
+.navbar-links ul {
+  display: flex;
+  align-items: center;
 }
 
 .navbar-links ul li {
   list-style: none;
   font-weight: 500;
   font-size: 18px;
-  line-height: 25px;
   text-transform: capitalize;
   display: inline;
   margin: 0 1rem;
@@ -61,4 +55,9 @@
 .navbar-links a {
   text-decoration: none;
   color: white;
+}
+
+.navbar-links a.icon {
+  display: block;
+  height: 24px;
 }
