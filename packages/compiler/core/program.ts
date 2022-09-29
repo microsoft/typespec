@@ -674,7 +674,7 @@ export async function compile(
   async function runEmitter(emitter: EmitterRef) {
     try {
       await emitter.emitFunction(program, emitter.options);
-    } catch (error) {
+    } catch (error: any) {
       const msg = [`Emitter "${emitter.metadata.name ?? emitter.main}" failed!`];
       if (emitter.metadata.bugs?.url) {
         msg.push(`File issue at ${emitter.metadata.bugs?.url}`);
@@ -682,7 +682,11 @@ export async function compile(
         msg.push(`Please contact emitter author to report this issue.`);
       }
       msg.push("");
-      msg.push(String(error));
+      if ("stack" in error) {
+        msg.push(error.stack);
+      } else {
+        msg.push(String(error));
+      }
 
       reportDiagnostic(
         createDiagnostic({

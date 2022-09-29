@@ -76,12 +76,15 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "emitter-uncaught-error",
-        message: [
-          `Emitter "@cadl-lang/my-lib" failed!`,
-          `File issue at https://github.com/microsoft/my-emitter/issues`,
-          ``,
-          `Error: This is bad`,
-        ].join("\n"),
+        message: new RegExp(
+          [
+            `Emitter "@cadl-lang/my-lib" failed!`,
+            `File issue at https://github.com/microsoft/my-emitter/issues`,
+            ``,
+            `Error: This is bad`,
+          ].join("\n"),
+          "m"
+        ),
       });
     });
 
