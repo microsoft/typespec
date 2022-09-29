@@ -6,6 +6,6 @@
   "author": "Sample",
   "license": "MIT",
   "devDependencies": {
-    "@cadl-lang/compiler": "^0.6.0"
+    "@cadl-lang/compiler": "latest"
   }
 }
