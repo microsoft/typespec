@@ -70,6 +70,21 @@ describe("compiler: entrypoints", () => {
       });
     });
 
+    it("emit diagnostic if emitter fail unexpectedly", async () => {
+      const program = await compileScenario("emitter-throw-error", {
+        emitters: { "@cadl-lang/my-emitter": {} },
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "emitter-uncaught-error",
+        message: [
+          `Emitter "@cadl-lang/my-lib" failed!`,
+          `File issue at https://github.com/microsoft/my-emitter/issues`,
+          ``,
+          `Error: This is bad`,
+        ].join("\n"),
+      });
+    });
+
     it("succeed if required import from an emitter is imported", async () => {
       const program = await compileScenario("emitter-require-import", {
         emitters: { "@cadl-lang/my-emitter": {} },

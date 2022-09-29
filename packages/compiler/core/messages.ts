@@ -444,6 +444,12 @@ const diagnostics = {
         "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
+  "emitter-uncaught-error": {
+    severity: "error",
+    messages: {
+      default: paramMessage`${"message"}`,
+    },
+  },
 
   /**
    * Binder
