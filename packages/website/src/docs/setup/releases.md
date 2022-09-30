@@ -9,7 +9,7 @@ title: Releases
 
 Cadl is not stable yet, all packages are released with `0.` major version. Each minor version might have some breaking changes to the cadl language, library API or both. Those are documented [here](https://github.com/microsoft/cadl/tree/main/docs/release).
 
-Every changes to the `main` branch are automatically published under the npm `@next` tag.
+Every change to the `main` branch is automatically published under the npm `@next` tag.
 
 ## Current packages
 
