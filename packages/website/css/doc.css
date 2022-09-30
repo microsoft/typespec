@@ -50,9 +50,43 @@
 }
 
 .cadl-doc-toc {
-  padding-left: 10px;
+  padding-left: 0.5rem;
+  padding-top: 0.5rem;
+  width: 300px;
   position: relative;
+  user-select: none;
 }
+
+.cadl-doc-toc .menu-item {
+  display: flex;
+  height: 32px;
+  padding: 6px;
+}
+
+.cadl-doc-toc .menu-item:hover {
+  background: var(--color-canvas-subtle);
+  border-radius: 3px 0 0 3px;
+}
+
+.cadl-doc-toc .menu-item-collapsible {
+  display: flex;
+  cursor: pointer;
+  color: var(--text-color)
+}
+
+.cadl-doc-toc .menu-item-collapsible .icon {
+  margin-left: auto;
+  transition: transform 0.2s linear;
+}
+
+.cadl-doc-toc li.collapsed .menu-item-collapsible .icon {
+  transform: rotate(90deg);
+}
+
+.cadl-doc-toc li.collapsed > ul {
+  display: none;
+}
+
 
 .cadl-doc-toc ul {
   padding-left: 10px;
@@ -81,4 +115,6 @@
 
 .cadl-doc-toc ul li.cadl-toc-active > a {
   color: var(--main-color);
+  background: var(--color-canvas-subtle);
+  border-radius: 3px 0 0 3px;
 }

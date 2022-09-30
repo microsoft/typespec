@@ -1,8 +1,9 @@
 // @ts-check
 
 function findNavigationEntries(nodes, structure) {
-  const data = Object.entries(structure).map(([category, docs]) => {
-    const pages = docs.map((docId) => {
+  const data = structure.map((item) => {
+    if (typeof item === "string") {
+      const docId = item;
       const navBar = nodes.find((x) => x.data.id === docId);
       if (navBar === undefined) {
         throw new Error(
@@ -16,16 +17,21 @@ function findNavigationEntries(nodes, structure) {
         );
       }
       return {
+        type: "doc",
         id: docId,
-        title,
+        label: title,
         url: navBar.data.page.url,
       };
-    });
+    } else {
+      const { label, items, collapsed } = item;
 
-    return {
-      label: category,
-      pages,
-    };
+      return {
+        type: "group",
+        label,
+        collapsed,
+        items: findNavigationEntries(nodes, items),
+      };
+    }
   });
   return data;
 }

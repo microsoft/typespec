@@ -3,24 +3,32 @@ layout: "layouts/base.njk"
 isDocs: true
 ---
 
+{% macro menuItem(item) %}
+  <li class="{% if item.url == page.url %}cadl-toc-active{% endif %} {% if item.collapsed %}collapsed{% endif %}">
+    {% if item.type === "doc" %}
+      <a class="menu-item" href="{{ item.url | url }}">{{ item.label }}</a>
+    {% endif %}
+    {% if item.type === "group" %}
+      <a class="menu-item menu-item-collapsible">{{ item.label }}
+        <span class="icon">{% icon "chevron-right" %}</span>
+      </a>
+      <ul>
+        {% for item in item.items %}
+          {{ menuItem(item) }}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </li>
+{% endmacro %}
 <div class="cadl-doc-container">
   <nav class="cadl-doc-nav">
     <div class="small-device-header">
       <button id="small-device-button-sidebar" for="doc-toc" title="Table of Content">{% icon "menu" %}</button>
     </div>
     <ul class="cadl-doc-toc" id="doc-toc">
-      {% set navCategories = collections.all | cadlNavigation(docs.toc) %}
-      {%- for category in navCategories %}
-        <li class="cadl-toc-category">
-          <h3 class="cadl-toc-category-name">{{ category.label }}</h3>
-          <ul class="cadl-list">
-            {%- for entry in category.pages %}
-              <li {% if entry.url == page.url %} class="cadl-toc-active" {% endif %}>
-                <a href="{{ entry.url | url }}">{{ entry.title }}</a>
-              </li>
-            {%- endfor %}
-          </ul>
-        </li>
+      {% set navItems = collections.all | cadlNavigation(docs.toc) %}
+      {%- for item in navItems %}
+        {{ menuItem(item) }}
       {%- endfor %}
     </ul>
   </nav>
