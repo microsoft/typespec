@@ -71,7 +71,7 @@
 .cadl-doc-toc .menu-item-collapsible {
   display: flex;
   cursor: pointer;
-  color: var(--text-color)
+  color: var(--text-color);
 }
 
 .cadl-doc-toc .menu-item-collapsible .icon {
@@ -86,7 +86,6 @@
 .cadl-doc-toc li.collapsed > ul {
   display: none;
 }
-
 
 .cadl-doc-toc ul {
   padding-left: 10px;
