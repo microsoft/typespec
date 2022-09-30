@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/rest",
-      "comment": "mpty object as a response will no",
+      "comment": "Empty object as a response will not produce a 204 response anymore",
       "type": "minor"
     }
   ],
