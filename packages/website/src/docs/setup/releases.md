@@ -51,7 +51,7 @@ Every changes to the `main` branch are automatically published under the npm `@n
 
 We release changes from all packages the first week of every month.
 
-You can look at the millestones https://github.com/microsoft/cadl/milestones to see upcoming changes. Millestone are named after the target release month (i.e `[2022] October` is the sprint running in september targetting a release in the first week of october.)
+You can look at the millestones https://github.com/microsoft/cadl/milestones to see upcoming changes. Millestones are named after the target release month (i.e `[2022] October` is the sprint running in september targeting a release in the first week of October.)
 
 ## Breaking changes migration guides
 
