@@ -29,9 +29,10 @@ const toc = [
     items: ["basics", "create-decorators", "linters", "emitters"],
   },
   {
+    id: "release-notes",
     label: "Release notes",
     collapsed: true,
-    items: ["september-2022", "august-2022", "july-2022"],
+    items: ["release-notes/september-2022", "release-notes/august-2022", "release-notes/july-2022"],
   },
 ];
 

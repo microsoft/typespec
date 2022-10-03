@@ -1,6 +1,23 @@
 // @ts-check
-
-function findNavigationEntries(nodes, structure) {
+/**
+ *
+ * @param {*} nodes
+ * @param {*} structure
+ * @param  {...string} path
+ * @returns
+ */
+function findNavigationEntries(nodes, structure, ...path) {
+  for (const segment of path) {
+    const sub = structure.find((x) => x.id === segment);
+    if (sub === undefined) {
+      throw new Error(
+        `Cannot find ${segment} in [${Object.values(structure)
+          .map((x) => x.id)
+          .join(",")}].`
+      );
+    }
+    structure = sub.items;
+  }
   const data = structure.map((item) => {
     if (typeof item === "string") {
       const docId = item;
@@ -23,10 +40,11 @@ function findNavigationEntries(nodes, structure) {
         url: navBar.data.page.url,
       };
     } else {
-      const { label, items, collapsed } = item;
+      const { id, label, items, collapsed } = item;
 
       return {
         type: "group",
+        id,
         label,
         collapsed,
         items: findNavigationEntries(nodes, items),
