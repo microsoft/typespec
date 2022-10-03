@@ -6,7 +6,6 @@ import {
   getParentTemplateNode,
   isNeverIndexer,
   isProjectedProgram,
-  isTemplateDeclaration,
   isTemplateInstance,
   ProjectedProgram,
 } from "./index.js";
@@ -256,10 +255,6 @@ export function createProjector(
   }
 
   function projectModel(model: Model): Type {
-    if (model.name === "Foo") {
-      console.log("Project model", model.name, isTemplateDeclaration(model));
-      console.log("");
-    }
     const properties = new Map<string, ModelProperty>();
     let templateArguments: Type[] | undefined;
 

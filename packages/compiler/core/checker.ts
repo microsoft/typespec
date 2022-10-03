@@ -13,7 +13,6 @@ import {
   IntrinsicModelName,
   isIntrinsic,
   isNeverType,
-  isProjectedProgram,
   isUnknownType,
   isVoidType,
   JsSourceFileNode,
@@ -4180,7 +4179,7 @@ export function getEffectiveModelType(
 
   if (model.name) {
     // named model
-    return getProjectedEffectiveModelType(program, model);
+    return model;
   }
 
   // We would need to change the algorithm if this doesn't hold. We
@@ -4244,7 +4243,7 @@ export function getEffectiveModelType(
     }
   }
 
-  return match ? getProjectedEffectiveModelType(program, match) : model;
+  return match ? match : model;
 }
 
 /**
@@ -4294,19 +4293,6 @@ export function filterModelProperties(
   }
 
   return finishTypeForProgram(program, newModel);
-}
-
-function getProjectedEffectiveModelType(program: Program | ProjectedProgram, type: Model): Model {
-  if (!isProjectedProgram(program)) {
-    return type;
-  }
-
-  const projectedType = program.projector.projectType(type);
-  if (projectedType.kind !== "Model") {
-    compilerAssert(false, "Fail");
-  }
-
-  return projectedType;
 }
 
 export function* walkPropertiesInherited(model: Model) {
