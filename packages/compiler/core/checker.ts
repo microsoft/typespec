@@ -1921,8 +1921,9 @@ export function createChecker(program: Program): Checker {
       for (const prop of isBase.properties.values()) {
         type.properties.set(
           prop.name,
-          finishType({
-            ...prop,
+          cloneType(prop, {
+            sourceProperty: prop,
+            model: type,
           })
         );
       }

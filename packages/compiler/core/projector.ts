@@ -6,6 +6,7 @@ import {
   getParentTemplateNode,
   isNeverIndexer,
   isProjectedProgram,
+  isTemplateDeclaration,
   isTemplateInstance,
   ProjectedProgram,
 } from "./index.js";
@@ -163,7 +164,7 @@ export function createProjector(
       }
     }
   }
-  function projectNamespace(ns: Namespace, projectSubNamespace: boolean = true): Type {
+  function projectNamespace(ns: Namespace, projectSubNamespace: boolean = true): Namespace {
     const alreadyProjected = projectedTypes.get(ns) as Namespace;
     if (alreadyProjected) {
       if (projectSubNamespace) {
@@ -201,7 +202,7 @@ export function createProjector(
     }
 
     projectedNamespaces.push(ns);
-    return applyProjection(ns, projectedNs);
+    return applyProjection(ns, projectedNs) as Namespace;
   }
 
   /**
@@ -255,6 +256,10 @@ export function createProjector(
   }
 
   function projectModel(model: Model): Type {
+    if (model.name === "Foo") {
+      console.log("Project model", model.name, isTemplateDeclaration(model));
+      console.log("");
+    }
     const properties = new Map<string, ModelProperty>();
     let templateArguments: Type[] | undefined;
 
@@ -279,7 +284,7 @@ export function createProjector(
         projectedModel.indexer = { key: neverType, value: undefined };
       } else {
         projectedModel.indexer = {
-          key: projectModel(model.indexer.key),
+          key: projectModel(model.indexer.key) as Model,
           value: projectType(model.indexer.value),
         };
       }
@@ -324,10 +329,20 @@ export function createProjector(
     const projectedType = projectType(prop.type);
     const projectedDecs = projectDecorators(prop.decorators);
 
-    const projectedProp = shallowClone(prop, {
+    const projectedProp: ModelProperty = shallowClone(prop, {
       type: projectedType,
       decorators: projectedDecs,
     });
+
+    if (prop.model) {
+      const parentModel = projectType(prop.model) as Model;
+      projectedProp.model = parentModel;
+    }
+
+    if (prop.sourceProperty) {
+      const sourceProperty = projectType(prop.sourceProperty) as ModelProperty;
+      projectedProp.sourceProperty = sourceProperty;
+    }
 
     if (shouldFinishType(prop)) {
       finishTypeForProgram(projectedProgram, projectedProp);
@@ -410,6 +425,8 @@ export function createProjector(
       decorators: projectedDecs,
     });
 
+    const parentUnion = projectType(variant.union) as Union;
+    projectedVariant.union = parentUnion;
     finishTypeForProgram(projectedProgram, projectedVariant);
     return projectedVariant;
   }
@@ -557,7 +574,7 @@ export function createProjector(
     return projectedType;
   }
 
-  function shallowClone<T extends Type>(type: T, additionalProps: Partial<T>) {
+  function shallowClone<T extends Type>(type: T, additionalProps: Partial<T>): T {
     const scopeProps: any = {};
     if ("namespace" in type && type.namespace !== undefined) {
       scopeProps.namespace = projectedNamespaceScope();
