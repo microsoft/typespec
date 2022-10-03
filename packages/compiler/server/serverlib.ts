@@ -1062,9 +1062,14 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.OperationStatement:
           classify(node.id, SemanticTokenKind.Function);
           break;
+        case SyntaxKind.AugmentDecoratorStatement:
+          classifyReference(node.targetType, SemanticTokenKind.Type);
+          classifyReference(node.target, SemanticTokenKind.Macro);
+          break;
         case SyntaxKind.DecoratorExpression:
           classifyReference(node.target, SemanticTokenKind.Macro);
           break;
+
         case SyntaxKind.TypeReference:
           classifyReference(node.target);
           break;
