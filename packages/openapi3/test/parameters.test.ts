@@ -97,4 +97,49 @@ describe("openapi3: parameters", () => {
       },
     ]);
   });
+
+  describe("content type parameter", () => {
+    it("header named with 'Content-Type' gets resolved as content type for operation.", async () => {
+      const res = await openApiFor(
+        `
+        op test(
+          @header("Content-Type") explicitContentType: "application/octet-stream",
+          @body foo: string
+        ): void;
+        `
+      );
+      ok(res.paths["/"].post.requestBody.content["application/octet-stream"]);
+      deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
+        type: "string",
+      });
+    });
+
+    it("header named contentType gets resolved as content type for operation.", async () => {
+      const res = await openApiFor(
+        `
+        op test(
+          @header contentType: "application/octet-stream",
+          @body foo: string
+        ): void;
+        `
+      );
+      ok(res.paths["/"].post.requestBody.content["application/octet-stream"]);
+      deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
+        type: "string",
+      });
+    });
+
+    it("query named contentType doesn't get resolved as the content type parmaeter.", async () => {
+      const res = await openApiFor(
+        `
+        op test(
+          @query contentType: "application/octet-stream",
+          @body foo: string
+        ): void;
+        `
+      );
+      strictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"], undefined);
+      ok(res.paths["/"].post.requestBody.content["application/json"]);
+    });
+  });
 });

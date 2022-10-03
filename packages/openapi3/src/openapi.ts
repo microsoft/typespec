@@ -1,18 +1,22 @@
 import {
   BooleanLiteral,
   compilerAssert,
+  Discriminator,
   emitFile,
   EmitOptionsFor,
   Enum,
   EnumMember,
   getAllTags,
+  getDiscriminator,
   getDoc,
   getEffectiveModelType,
   getFormat,
   getIntrinsicModelName,
   getKnownValues,
+  getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMinItems,
   getMinLength,
   getMinValue,
   getPattern,
@@ -59,7 +63,7 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@cadl-lang/openapi";
-import { Discriminator, getDiscriminator, http } from "@cadl-lang/rest";
+import { http } from "@cadl-lang/rest";
 import {
   createMetadataInfo,
   getAllHttpServices,
@@ -73,6 +77,7 @@ import {
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationResponse,
+  isContentTypeHeader,
   MetadataInfo,
   reportIfNoRoutes,
   ServiceAuthentication,
@@ -644,7 +649,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitEndpointParameters(parameters: HttpOperationParameter[], visibility: Visibility) {
-    for (const { type, name, param } of parameters) {
+    for (const { type, param } of parameters) {
       if (params.has(param)) {
         currentEndpoint.parameters.push(params.get(param));
         continue;
@@ -658,7 +663,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           emitParameter(param, "query", visibility);
           break;
         case "header":
-          if (name !== "content-type") {
+          if (!isContentTypeHeader(program, param)) {
             emitParameter(param, "header", visibility);
           }
           break;
@@ -679,8 +684,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       content: {},
     };
 
-    const contentTypeParam = parameters.parameters.find(
-      (p) => p.type === "header" && p.name === "content-type"
+    const contentTypeParam = parameters.parameters.find((p) =>
+      isContentTypeHeader(program, p.param)
     );
     const contentTypes = contentTypeParam
       ? ignoreDiagnostics(getContentTypes(contentTypeParam.param))
@@ -1270,6 +1275,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const maxValue = getMaxValue(program, cadlType);
     if (isNumeric && !target.maximum && maxValue !== undefined) {
       newTarget.maximum = maxValue;
+    }
+
+    const minItems = getMinItems(program, cadlType);
+    if (!target.minItems && minItems !== undefined) {
+      newTarget.minItems = minItems;
+    }
+
+    const maxItems = getMaxItems(program, cadlType);
+    if (!target.maxItems && maxItems !== undefined) {
+      newTarget.maxItems = maxItems;
     }
 
     if (isSecret(program, cadlType)) {

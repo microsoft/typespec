@@ -20,6 +20,7 @@ import {
   NeverType,
   Operation,
   Type,
+  Union,
   UnknownType,
   VoidType,
 } from "../core/types.js";
@@ -305,7 +306,8 @@ const minLengthValuesKey = createStateSymbol("minLengthValues");
 export function $minLength(context: DecoratorContext, target: Type, minLength: number) {
   if (
     !validateDecoratorTarget(context, target, "@minLength", ["Model", "ModelProperty"]) ||
-    !validateDecoratorTargetIntrinsic(context, target, "@minLength", "string")
+    !validateDecoratorTargetIntrinsic(context, target, "@minLength", "string") ||
+    !validateRange(context, minLength, getMaxLength(context.program, target))
   ) {
     return;
   }
@@ -324,7 +326,8 @@ const maxLengthValuesKey = createStateSymbol("maxLengthValues");
 export function $maxLength(context: DecoratorContext, target: Type, maxLength: number) {
   if (
     !validateDecoratorTarget(context, target, "@maxLength", ["Model", "ModelProperty"]) ||
-    !validateDecoratorTargetIntrinsic(context, target, "@maxLength", "string")
+    !validateDecoratorTargetIntrinsic(context, target, "@maxLength", "string") ||
+    !validateRange(context, getMinLength(context.program, target), maxLength)
   ) {
     return;
   }
@@ -334,6 +337,67 @@ export function $maxLength(context: DecoratorContext, target: Type, maxLength: n
 
 export function getMaxLength(program: Program, target: Type): number | undefined {
   return program.stateMap(maxLengthValuesKey).get(target);
+}
+
+// -- @minItems decorator ---------------------
+
+const minItemsValuesKey = createStateSymbol("minItems");
+
+export function $minItems(context: DecoratorContext, target: Type, minItems: number) {
+  if (!validateDecoratorTarget(context, target, "@minItems", ["Model", "ModelProperty"])) {
+    return;
+  }
+
+  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: "@minItems",
+        to: `non Array type`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+
+  if (!validateRange(context, minItems, getMaxItems(context.program, target))) {
+    return;
+  }
+
+  context.program.stateMap(minItemsValuesKey).set(target, minItems);
+}
+
+export function getMinItems(program: Program, target: Type): number | undefined {
+  return program.stateMap(minItemsValuesKey).get(target);
+}
+
+// -- @maxLength decorator ---------------------
+
+const maxItemsValuesKey = createStateSymbol("maxItems");
+
+export function $maxItems(context: DecoratorContext, target: Type, maxItems: number) {
+  if (!validateDecoratorTarget(context, target, "@maxItems", ["Model", "ModelProperty"])) {
+    return;
+  }
+
+  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: "@maxItems",
+        to: `non Array type`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  if (!validateRange(context, getMinItems(context.program, target), maxItems)) {
+    return;
+  }
+
+  context.program.stateMap(maxItemsValuesKey).set(target, maxItems);
+}
+
+export function getMaxItems(program: Program, target: Type): number | undefined {
+  return program.stateMap(maxItemsValuesKey).get(target);
 }
 
 // -- @minValue decorator ---------------------
@@ -354,6 +418,10 @@ export function $minValue(context: DecoratorContext, target: Type, minValue: num
         target,
       })
     );
+    return;
+  }
+
+  if (!validateRange(context, minValue, getMaxValue(context.program, target))) {
     return;
   }
   program.stateMap(minValuesKey).set(target, minValue);
@@ -377,10 +445,14 @@ export function $maxValue(context: DecoratorContext, target: Type, maxValue: num
     program.reportDiagnostic(
       createDiagnostic({
         code: "decorator-wrong-target",
-        format: { decorator: "@minValue", to: "non-numeric type" },
+        format: { decorator: "@maxValue", to: "non-numeric type" },
         target,
       })
     );
+    return;
+  }
+
+  if (!validateRange(context, getMinValue(context.program, target), maxValue)) {
     return;
   }
   program.stateMap(maxValuesKey).set(target, maxValue);
@@ -957,4 +1029,121 @@ export function getProjectedName(
  */
 export function hasProjectedName(program: Program, target: Type, projectionName: string): boolean {
   return getProjectedNames(program, target)?.has(projectionName) ?? false;
+}
+
+function validateRange(
+  context: DecoratorContext,
+  min: number | undefined,
+  max: number | undefined
+): boolean {
+  if (min === undefined || max === undefined) {
+    return true;
+  }
+
+  if (min > max) {
+    reportDiagnostic(context.program, {
+      code: "invalid-range",
+      format: { start: min.toString(), end: max.toString() },
+      target: context.decoratorTarget,
+    });
+    return false;
+  }
+  return true;
+}
+
+export interface Discriminator {
+  propertyName: string;
+}
+
+const discriminatorKey = createStateSymbol("discriminator");
+
+const discriminatorDecorator = createDecoratorDefinition({
+  name: "@discriminator",
+  target: ["Model", "Union"],
+  args: [{ kind: "String" }],
+} as const);
+
+export function $discriminator(
+  context: DecoratorContext,
+  entity: Model | Union,
+  propertyName: string
+) {
+  if (!discriminatorDecorator.validate(context, entity, [propertyName])) {
+    return;
+  }
+
+  let hasErrors = false;
+  if (entity.kind === "Union") {
+    // we can validate discriminator up front for unions. Models are validated
+    // in emitters.
+    for (const variant of entity.variants.values()) {
+      if (typeof variant.name === "symbol") {
+        // likely not possible to hit this without applying the decorator programmatically
+        reportDiagnostic(context.program, {
+          code: "invalid-discriminated-union",
+          target: entity,
+        });
+
+        return;
+      }
+
+      if (variant.type.kind !== "Model") {
+        reportDiagnostic(context.program, {
+          code: "invalid-discriminated-union-variant",
+          messageId: "default",
+          format: {
+            name: variant.name,
+          },
+          target: variant,
+        });
+        hasErrors = true;
+        continue;
+      }
+
+      const prop = variant.type.properties.get(propertyName);
+      if (!prop) {
+        reportDiagnostic(context.program, {
+          code: "invalid-discriminated-union-variant",
+          messageId: "noDiscriminant",
+          format: {
+            name: variant.name,
+            discriminant: propertyName,
+          },
+          target: variant,
+        });
+        hasErrors = true;
+        continue;
+      }
+
+      if (
+        prop.type.kind !== "String" &&
+        (prop.type.kind !== "EnumMember" ||
+          (prop.type.value !== undefined && typeof prop.type.value !== "string"))
+      ) {
+        reportDiagnostic(context.program, {
+          code: "invalid-discriminated-union-variant",
+          messageId: "wrongDiscriminantType",
+          format: {
+            name: variant.name,
+            discriminant: propertyName,
+          },
+          target: variant,
+        });
+        hasErrors = true;
+        continue;
+      }
+    }
+  }
+
+  if (hasErrors) return;
+
+  context.program.stateMap(discriminatorKey).set(entity, propertyName);
+}
+
+export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
+  const propertyName = program.stateMap(discriminatorKey).get(entity);
+  if (propertyName) {
+    return { propertyName };
+  }
+  return undefined;
 }
