@@ -8,6 +8,7 @@ import {
   EnumMember,
   Interface,
   Model,
+  ModelProperty,
   Namespace,
   NumericLiteral,
   Operation,
@@ -226,21 +227,54 @@ describe("compiler: projections", () => {
 
     it("link projected property with sourceProperty", async () => {
       const code = `
-      model Bar {
-        name: string;
-      }
       @test model Foo {
         ...Bar
       }
+
+      model Bar {
+        name: string;
+      }
+
       #suppress "projections-are-experimental"
-      projection model#test {to {}}`;
+      projection Foo#test {to {}}`;
       const Foo = (await testProjection(code)) as Model;
       ok(Foo.projectionBase);
-      ok(Foo.properties.get("name")?.sourceProperty);
-      strictEqual(
-        Foo.properties.get("name")?.sourceProperty,
-        Foo.namespace!.models.get("Bar")?.properties.get("name")
-      );
+      const sourceProperty = Foo.properties.get("name")?.sourceProperty;
+      ok(sourceProperty);
+      strictEqual(sourceProperty, Foo.namespace!.models.get("Bar")?.properties.get("name"));
+      strictEqual(sourceProperty.model, Foo.namespace!.models.get("Bar"));
+    });
+
+    it("project all properties first", async () => {
+      const keySym = Symbol("key");
+      testHost.addJsFile("lib.js", {
+        $tagProp({ program }: DecoratorContext, t: ModelProperty) {
+          program.stateSet(keySym).add(t);
+        },
+        $tagModel({ program }: DecoratorContext, t: Model) {
+          for (const prop of t.properties.values()) {
+            ok(
+              program.stateSet(keySym).has(prop),
+              `Prop ${prop.name} should have run @key decorator by this time.`
+            );
+          }
+        },
+      });
+
+      const code = `
+      import "./lib.js";
+
+      @test @tagModel model Foo {
+        ...Bar;
+      }
+
+      model Bar {
+        @tagProp name: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#test {to {}}`;
+      await testProjection(code);
     });
 
     it("works for versioning", async () => {
