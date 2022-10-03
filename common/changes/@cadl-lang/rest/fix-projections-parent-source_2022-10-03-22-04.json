@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Remove workaround for issue https://github.com/microsoft/cadl/issues/1069",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
