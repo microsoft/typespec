@@ -102,20 +102,20 @@ The fields of the [Operation object](https://github.com/OAI/OpenAPI-Specificatio
 
 The description field is set from the [(built-in) `@doc` decorator][doc-decorator] on the Cadl operation, and omitted when `@doc` is not present.
 
-[doc-decorator]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#doc
+[doc-decorator]: {%doc "built-in-decorators"%}#doc
 
 #### summary
 
 The summary field is set from the [(built-in) `@summary` decorator][summary-decorator] on the Cadl operation, and omitted when `@summary` is not present.
 
-[summary-decorator]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#summary
+[summary-decorator]: {%doc "built-in-decorators"%}#summary
 
 #### operationId
 
 The operationId can be explicitly specified with the [(OpenAPI) `@operationId` decorator][openapi-operationid-decorator],
 and otherwise is simple the operation name, prefixed with "<interface*name>*" when the operation is within an interface.
 
-[openapi-operationid-decorator]: https://github.com/microsoft/cadl/blob/main/packages/openapi/README.md#operationid
+[openapi-operationid-decorator]: {%doc "built-in-decorators"%}#operationId
 
 #### parameters and requestBody
 
@@ -152,21 +152,22 @@ is taken as the response body.
 In the absence of explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the request body.
 
 [http-statuscode-decorator]: https://github.com/microsoft/cadl/blob/main/packages/rest/README.md#decorators
-[error-decorator]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#error
+
+[error-decorator]: {%doc "built-in-decorators"%}#error
 
 #### tags
 
 Any tags specified with the [(built-in) `@tag` decorator][tag-decorator] on the operation, interface, or
 enclosing namespace(s) are included in the OpenAPI operation's tags array.
 
-[tag-decorator]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#tag
+[tag-decorator]: {%doc "built-in-decorators"%}#tag
 
 #### deprecated
 
 If the [(built-in) `@deprecated` decorator][deprecated-decorator] is specified on the operation, then the operation's
 deprecated field is set to true.
 
-[deprecated-decorator]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#deprecated
+[deprecated-decorator]: {%doc "built-in-decorators"%}#deprecated
 
 #### externalDocs
 
@@ -283,13 +284,13 @@ all the same properties as the model named by the `is` keyword, plus any propert
 Unions are another form of model composition.
 
 Unions can be defined in two different ways in Cadl. One way is with
-[the union type operator](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#unions), `|`:
+[the union type operator]({%doc "built-in-decorators"%}#unions), `|`:
 
 ```cadl
 alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
 ```
 
-The second way is with [the `union` statement](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#unions)
+The second way is with [the `union` statement]({%doc "built-in-decorators"%}#unions)
 which not only declares the variant models but also assigns a name for each.
 
 ```cadl
@@ -309,5 +310,5 @@ that a union should be emitted as a `oneOf` rather than `anyOf`.
 ## See also
 
 - [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)
-- [Cadl Tutorial](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md)
+- [Cadl Website](https://microsoft.github.io/cadl)
 - [Cadl for the OpenAPI Developer](https://github.com/microsoft/cadl/blob/main/docs/cadl-for-openapi-dev.md)
