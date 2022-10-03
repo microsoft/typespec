@@ -1,5 +1,5 @@
 const toc = {
-  Setup: ["installation"],
+  Setup: ["installation", "releases"],
   Configuration: ["configuration", "tracing"],
   "Language Basics": [
     "overview",
@@ -21,7 +21,7 @@ const toc = {
     "built-in-types",
     "built-in-decorators",
     "projected-names",
-    // "http",
+    "http",
     "openapi",
   ],
   "Writing Cadl Libraries": ["basics", "create-decorators", "linters", "emitters"],

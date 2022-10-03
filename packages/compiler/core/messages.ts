@@ -149,6 +149,12 @@ const diagnostics = {
       default: paramMessage`Unknown directive '#${"id"}'`,
     },
   },
+  "augment-decorator-target": {
+    severity: "error",
+    messages: {
+      default: `Augment decorator first argument must be a type reference.`,
+    },
+  },
   "reserved-identifier": {
     severity: "error",
     messages: {
@@ -528,6 +534,21 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Property '${"propertyName"}' marked as key cannot be optional.`,
+    },
+  },
+  "invalid-discriminated-union": {
+    severity: "error",
+    messages: {
+      default: "",
+      noAnonVariants: "Unions with anonymous variants cannot be discriminated",
+    },
+  },
+  "invalid-discriminated-union-variant": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Union variant ${"name"} must be a model type`,
+      noDiscriminant: paramMessage`Variant ${"name"}'s type is missing the discriminant property ${"discriminant"}`,
+      wrongDiscriminantType: paramMessage`Variant ${"name"}'s type's discriminant property ${"discriminant"} must be a string literal or string enum member`,
     },
   },
 

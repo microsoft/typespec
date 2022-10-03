@@ -1,0 +1,19 @@
+@service
+namespace BlogService;
+
+model Blog {
+  id: int32;
+  title: string;
+  content: string;
+}
+
+@error
+model Error {
+  message: string;
+}
+
+interface BlogOperations {
+  list(): Blog[] | Error;
+  read(id: string): Blog | Error;
+  create(blog: Blog): Blog | Error;
+}

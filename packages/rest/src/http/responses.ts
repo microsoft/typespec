@@ -259,9 +259,9 @@ function getResponseBody(
   }
 
   // Without an explicit body, response type is response model itself if
-  // there it has at least one non-metadata property, or if it has derived
+  // there it has at least one non-metadata property, if it is an empty object or if it has derived
   // models
-  if (responseType.derivedModels.length > 0) {
+  if (responseType.derivedModels.length > 0 || responseType.properties.size === 0) {
     return responseType;
   }
   for (const property of walkPropertiesInherited(responseType)) {

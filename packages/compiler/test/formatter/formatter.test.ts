@@ -1159,6 +1159,38 @@ namespace Foo {
     });
   });
 
+  describe("augment decorators", () => {
+    it("format into a single line if possible", () => {
+      assertFormat({
+        code: `
+@@doc(Foo, 
+  
+        "This is some post doc"
+        
+        )
+      `,
+        expected: `
+@@doc(Foo, "This is some post doc");
+      `,
+      });
+    });
+
+    it("break arguments per lines if the decorator is too long", () => {
+      assertFormat({
+        code: `
+@@doc(Foo,  "This is getting very very very long 1", "This is getting very very very long 2", "This is getting very very very long 3");
+      `,
+        expected: `
+@@doc(Foo,
+  "This is getting very very very long 1",
+  "This is getting very very very long 2",
+  "This is getting very very very long 3"
+);
+      `,
+      });
+    });
+  });
+
   describe("interfaces", () => {
     it("removes op prefix", () => {
       assertFormat({
