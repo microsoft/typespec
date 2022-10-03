@@ -12,7 +12,7 @@
         "description": "Gets an instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           }
         ],
         "responses": {
@@ -43,7 +43,7 @@
         "description": "Updates an existing instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           }
         ],
         "responses": {
@@ -83,7 +83,7 @@
         "description": "Deletes an existing instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           }
         ],
         "responses": {
@@ -184,10 +184,10 @@
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           },
           {
-            "$ref": "#/components/parameters/Checkup.checkupId"
+            "$ref": "#/components/parameters/Checkup.id"
           }
         ],
         "responses": {
@@ -239,7 +239,7 @@
         "description": "Lists all instances of the extension resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           }
         ],
         "responses": {
@@ -272,7 +272,7 @@
         "description": "Gets the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           }
         ],
         "responses": {
@@ -303,7 +303,7 @@
         "description": "Updates the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           }
         ],
         "responses": {
@@ -345,10 +345,10 @@
         "description": "Gets an instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           },
           {
-            "$ref": "#/components/parameters/Toy.toyId"
+            "$ref": "#/components/parameters/Toy.id"
           }
         ],
         "responses": {
@@ -380,7 +380,7 @@
         "operationId": "Toys_list",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           },
           {
             "name": "nameFilter",
@@ -421,10 +421,10 @@
         "description": "Gets the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           },
           {
-            "$ref": "#/components/parameters/Toy.toyId"
+            "$ref": "#/components/parameters/Toy.id"
           }
         ],
         "responses": {
@@ -455,10 +455,10 @@
         "description": "Updates the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Pet.petId"
+            "$ref": "#/components/parameters/Pet.id"
           },
           {
-            "$ref": "#/components/parameters/Toy.toyId"
+            "$ref": "#/components/parameters/Toy.id"
           }
         ],
         "responses": {
@@ -500,7 +500,7 @@
         "description": "Creates or update a instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Checkup.checkupId"
+            "$ref": "#/components/parameters/Checkup.id"
           }
         ],
         "responses": {
@@ -581,7 +581,7 @@
         "description": "Gets an instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "$ref": "#/components/parameters/Owner.id"
           }
         ],
         "responses": {
@@ -612,7 +612,7 @@
         "description": "Updates an existing instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "$ref": "#/components/parameters/Owner.id"
           }
         ],
         "responses": {
@@ -652,7 +652,7 @@
         "description": "Deletes an existing instance of the resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "$ref": "#/components/parameters/Owner.id"
           }
         ],
         "responses": {
@@ -753,10 +753,10 @@
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "$ref": "#/components/parameters/Owner.id"
           },
           {
-            "$ref": "#/components/parameters/Checkup.checkupId"
+            "$ref": "#/components/parameters/Checkup.id"
           }
         ],
         "responses": {
@@ -808,7 +808,7 @@
         "description": "Lists all instances of the extension resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "$ref": "#/components/parameters/Owner.id"
           }
         ],
         "responses": {
@@ -841,7 +841,7 @@
         "description": "Gets the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "$ref": "#/components/parameters/Owner.id"
           }
         ],
         "responses": {
@@ -872,7 +872,7 @@
         "description": "Updates the singleton resource.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Owner.ownerId"
+            "$ref": "#/components/parameters/Owner.id"
           }
         ],
         "responses": {
@@ -911,7 +911,7 @@
   },
   "components": {
     "parameters": {
-      "Pet.petId": {
+      "Pet.id": {
         "name": "petId",
         "in": "path",
         "required": true,
@@ -920,7 +920,7 @@
           "format": "int32"
         }
       },
-      "Checkup.checkupId": {
+      "Checkup.id": {
         "name": "checkupId",
         "in": "path",
         "required": true,
@@ -929,7 +929,7 @@
           "format": "int32"
         }
       },
-      "Toy.toyId": {
+      "Toy.id": {
         "name": "toyId",
         "in": "path",
         "required": true,
@@ -938,7 +938,7 @@
           "format": "int64"
         }
       },
-      "Owner.ownerId": {
+      "Owner.id": {
         "name": "ownerId",
         "in": "path",
         "required": true,
