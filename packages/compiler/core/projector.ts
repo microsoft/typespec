@@ -456,7 +456,7 @@ export function createProjector(
     projectedTypes.set(e, projectedEnum);
 
     for (const member of e.members.values()) {
-      const projectedMember = projectType(member);
+      const projectedMember = projectEnumMember(member, projectedEnum);
       if (projectedMember.kind === "EnumMember") {
         members.set(projectedMember.name, projectedMember);
       }
@@ -466,7 +466,10 @@ export function createProjector(
     return applyProjection(e, projectedEnum);
   }
 
-  function projectEnumMember(e: EnumMember) {
+  function projectEnumMember(e: EnumMember, projectingEnum?: Enum) {
+    if (projectingEnum === undefined) {
+      return projectViaParent(e, e.enum);
+    }
     const decorators = projectDecorators(e.decorators);
     const projectedMember = shallowClone(e, {
       decorators,
