@@ -43,7 +43,7 @@ import {
   Tracer,
   Type,
 } from "./types.js";
-import { deepEquals, doIO, findProjectRoot, loadFile, mapEquals } from "./util.js";
+import { deepEquals, doIO, ExternalError, findProjectRoot, loadFile, mapEquals } from "./util.js";
 
 export interface ProjectedProgram extends Program {
   projector: Projector;
@@ -688,13 +688,7 @@ export async function compile(
         msg.push(String(error));
       }
 
-      reportDiagnostic(
-        createDiagnostic({
-          code: "emitter-uncaught-error",
-          format: { message: msg.join("\n") },
-          target: NoTarget,
-        })
-      );
+      throw new ExternalError(msg.join("\n"));
     }
   }
 

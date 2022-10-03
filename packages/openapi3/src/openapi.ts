@@ -108,6 +108,7 @@ const defaultOptions = {
 } as const;
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
+  throw new Error("Throw from openapi3 emitter.");
   const options = resolveOptions(p, emitterOptions ?? {});
   const emitter = createOAPIEmitter(p, options);
   await emitter.emitOpenAPI();
