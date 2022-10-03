@@ -1,6 +1,5 @@
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   height: var(--header-height);
   background: var(--main-color);
@@ -18,17 +17,11 @@
 .navbar-logo {
   margin-right: 2rem;
   margin-left: 10px;
-  float: left;
 }
 
 .navbar-logo a {
   color: white;
   text-decoration: none;
-}
-
-.navbar-links {
-  display: flex;
-  flex-direction: row;
 }
 
 .navbar-sign {
@@ -40,6 +33,7 @@
 .navbar-links ul {
   display: flex;
   align-items: center;
+  padding: 0;
 }
 
 .navbar-links ul li {
