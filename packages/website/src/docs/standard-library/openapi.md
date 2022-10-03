@@ -284,13 +284,13 @@ all the same properties as the model named by the `is` keyword, plus any propert
 Unions are another form of model composition.
 
 Unions can be defined in two different ways in Cadl. One way is with
-[the union type operator]({%doc "built-in-decorators"%}#unions), `|`:
+[the union type operator]({%doc "unions"%}#union-expressions), `|`:
 
 ```cadl
 alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
 ```
 
-The second way is with [the `union` statement]({%doc "built-in-decorators"%}#unions)
+The second way is with [the `union` statement]({%doc "unions"%}#named-unions)
 which not only declares the variant models but also assigns a name for each.
 
 ```cadl
