@@ -115,6 +115,7 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
     // become an optional path parameter
     const newProp = program.checker.cloneType(keyProperty, {
       name: keyName,
+      model: target,
       decorators,
       optional: false,
     });
