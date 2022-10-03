@@ -15,7 +15,7 @@ export interface DecoratorArgument {
 export interface DecoratorApplication {
   decorator: DecoratorFunction;
   args: DecoratorArgument[];
-  node?: DecoratorExpressionNode;
+  node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
 }
 
 export interface DecoratorFunction {
@@ -504,6 +504,7 @@ export enum SyntaxKind {
   JsSourceFile,
   ImportStatement,
   Identifier,
+  AugmentDecoratorStatement,
   DecoratorExpression,
   DirectiveExpression,
   MemberExpression,
@@ -685,6 +686,7 @@ export type Statement =
   | EnumStatementNode
   | AliasStatementNode
   | OperationStatementNode
+  | AugmentDecoratorStatementNode
   | EmptyStatementNode
   | InvalidStatementNode
   | ProjectionStatementNode;
@@ -729,6 +731,13 @@ export interface IdentifierNode extends BaseNode {
 export interface DecoratorExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.DecoratorExpression;
   readonly target: IdentifierNode | MemberExpressionNode;
+  readonly arguments: readonly Expression[];
+}
+
+export interface AugmentDecoratorStatementNode extends BaseNode {
+  readonly kind: SyntaxKind.AugmentDecoratorStatement;
+  readonly target: IdentifierNode | MemberExpressionNode;
+  readonly targetType: TypeReferenceNode;
   readonly arguments: readonly Expression[];
 }
 
