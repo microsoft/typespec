@@ -177,6 +177,47 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("augment decorators", () => {
+      const params = [
+        Token.punctuation.openParen,
+        Token.identifiers.type("MyModel"),
+        Token.punctuation.comma,
+        Token.literals.string("param1"),
+        Token.punctuation.comma,
+        Token.literals.numeric("123"),
+        Token.punctuation.closeParen,
+      ];
+
+      it("decorator", async () => {
+        const tokens = await tokenize(`@@foo(MyModel, "param1", 123)`);
+        if (tokenize === tokenizeTMLanguage) {
+          deepStrictEqual(tokens, [Token.identifiers.tag("@@foo"), ...params]);
+        } else {
+          deepStrictEqual(tokens, [
+            Token.identifiers.tag("@@"),
+            Token.identifiers.tag("foo"),
+            ...params,
+          ]);
+        }
+      });
+
+      it("fully qualified decorator name", async () => {
+        const tokens = await tokenize(`@@Foo.bar(MyModel, "param1", 123)`);
+
+        if (tokenize === tokenizeTMLanguage) {
+          deepStrictEqual(tokens, [Token.identifiers.tag("@@Foo.bar"), ...params]);
+        } else {
+          deepStrictEqual(tokens, [
+            Token.identifiers.tag("@@"),
+            Token.identifiers.type("Foo"),
+            Token.punctuation.accessor,
+            Token.identifiers.tag("bar"),
+            ...params,
+          ]);
+        }
+      });
+    });
+
     describe("interfaces", () => {
       it("empty interface", async () => {
         const tokens = await tokenize("interface Foo {}");
@@ -856,6 +897,7 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
         return Token.literals.numeric(text);
       case SemanticTokenKind.Operator:
         if (text === "@") return Token.identifiers.tag("@");
+        if (text === "@@") return Token.identifiers.tag("@@");
         const punctuation = punctuationMap.get(text);
         ok(punctuation, `No tmlanguage equivalent for punctuation: "${text}".`);
         return punctuation;

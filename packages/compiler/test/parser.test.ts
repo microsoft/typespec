@@ -540,6 +540,23 @@ describe("compiler: syntax", () => {
     });
   });
 
+  describe("augment decorator statements", () => {
+    parseEach(["@@tag(Foo);", `@@doc(Foo, "x");`, `@@doc(Foo.prop1, "x");`]);
+
+    parseErrorEach([
+      [
+        "@@tag",
+        [
+          {
+            code: "augment-decorator-target",
+            message: "Augment decorator first argument must be a type reference.",
+            pos: 5,
+          },
+        ],
+      ],
+    ]);
+  });
+
   describe("projections", () => {
     describe("selectors", () => {
       const selectors = ["model", "op", "interface", "union", "someId"];

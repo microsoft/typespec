@@ -17,7 +17,7 @@ module.exports = {
   directives: { pattern: /#.*/g, greedy: true, alias: "comment" },
 
   decorator: {
-    pattern: /@[$\w\xA0-\uFFFF]+/,
+    pattern: /@@?[$\w\xA0-\uFFFF]+/,
     inside: {
       at: {
         pattern: /^@/,
