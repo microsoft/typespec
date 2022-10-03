@@ -149,6 +149,12 @@ const diagnostics = {
       default: paramMessage`Unknown directive '#${"id"}'`,
     },
   },
+  "augment-decorator-target": {
+    severity: "error",
+    messages: {
+      default: `Augment decorator first argument must be a type reference.`,
+    },
+  },
   "reserved-identifier": {
     severity: "error",
     messages: {

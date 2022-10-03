@@ -24,3 +24,5 @@ packages/compiler/test/formatter/**/*.cadl
 
 # That is an example with error and can't be formatted
 packages/samples/local-cadl/test.cadl
+
+spec.emu.html

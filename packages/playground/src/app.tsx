@@ -65,7 +65,7 @@ export const App: FunctionComponent = () => {
   }, [saveCode, cadlModel]);
 
   const cadlDocs = useCallback(async () => {
-    const url = `https://github.com/microsoft/cadl/blob/main/docs/tutorial.md`;
+    const url = `https://microsoft.github.io/cadl/docs`;
     window.open(url, "_blank");
   }, [cadlModel]);
 
@@ -160,7 +160,7 @@ export const App: FunctionComponent = () => {
             <button onClick={newIssue as any}>Open Issue</button>
           </label>
           <label>
-            <button onClick={cadlDocs as any}>Show Cadl Tutorial</button>
+            <button onClick={cadlDocs as any}>Show Cadl Docs</button>
           </label>
         </div>
         <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
