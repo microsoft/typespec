@@ -80,7 +80,7 @@
 }
 
 .cadl-doc-toc li.collapsed .menu-item-collapsible .icon {
-  transform: rotate(90deg);
+  transform: rotate(-90deg);
 }
 
 .cadl-doc-toc li.collapsed > ul {
