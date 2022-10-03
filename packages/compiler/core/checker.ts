@@ -4243,7 +4243,7 @@ export function getEffectiveModelType(
     }
   }
 
-  return match ? match : model;
+  return match ?? model;
 }
 
 /**
