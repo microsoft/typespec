@@ -115,7 +115,7 @@ Set the newline character for emitting files. Can be either:
 
 ### `omit-unreachable-types`
 
-Only include types references via an operation.
+Only include types referenced via an operation.
 
 ## See also
 
