@@ -1,4 +1,5 @@
 import { Program } from "./program.js";
+import { isTemplateDeclaration } from "./type-utils.js";
 import {
   Enum,
   Interface,
@@ -20,6 +21,11 @@ export interface NavigationOptions {
    * @default true
    */
   recursive?: boolean;
+
+  /**
+   * Skip non instantiated templates.
+   */
+  includeTemplateDeclaration?: boolean;
 }
 
 const defaultOptions = {
@@ -107,6 +113,9 @@ function navigateOperationType(operation: Operation, context: NavigationContext)
   if (checkVisited(context.visited, operation)) {
     return;
   }
+  if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(operation)) {
+    return;
+  }
   context.emitter.emit("operation", operation);
   for (const parameter of operation.parameters.properties.values()) {
     navigateType(parameter, context);
@@ -116,6 +125,9 @@ function navigateOperationType(operation: Operation, context: NavigationContext)
 
 function navigateModelType(model: Model, context: NavigationContext) {
   if (checkVisited(context.visited, model)) {
+    return;
+  }
+  if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(model)) {
     return;
   }
   context.emitter.emit("model", model);
@@ -143,6 +155,9 @@ function navigateInterfaceType(type: Interface, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
+  if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(type)) {
+    return;
+  }
 
   context.emitter.emit("interface", type);
   for (const op of type.operations.values()) {
@@ -160,6 +175,9 @@ function navigateEnumType(type: Enum, context: NavigationContext) {
 
 function navigateUnionType(type: Union, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(type)) {
     return;
   }
   context.emitter.emit("union", type);

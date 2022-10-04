@@ -79,6 +79,10 @@ Set the newline character for emitting files. Can be either:
 - `lf`(Default)
 - `crlf`
 
+### `omit-unreachable-types`
+
+Only include types references via an operation.
+
 ## How the OpenAPI emitter interprets Cadl
 
 The OpenAPI emitter converts Cadl language elements into their natural OpenAPI expression as described below.

@@ -107,6 +107,7 @@ import {
 const defaultOptions = {
   "output-file": "openapi.json",
   "new-line": "lf",
+  "omit-unreachable-types": false,
 } as const;
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
@@ -123,6 +124,7 @@ export function resolveOptions(
 
   return {
     newLine: resolvedOptions["new-line"],
+    omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     outputFile: resolvePath(
       program.compilerOptions.outputPath ?? "./cadl-output",
       resolvedOptions["output-file"]
@@ -133,6 +135,7 @@ export function resolveOptions(
 export interface ResolvedOpenAPI3EmitterOptions {
   outputFile: string;
   newLine: NewLine;
+  omitUnreachableTypes: boolean;
 }
 
 /**
@@ -775,14 +778,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitUnreferencedSchemas(namespace: Namespace) {
+    if (options.omitUnreachableTypes) {
+      return;
+    }
     const computeSchema = (x: Type) => getSchemaOrRef(x, Visibility.All);
 
     const recursive = !isGlobalNamespace(program, namespace);
-    console.log("Rec", namespace, program.getGlobalNamespaceType(), recursive);
     navigateNamespace(
       namespace,
       {
-        model: computeSchema,
+        model: (x) => x.name !== "" && computeSchema(x),
         enum: computeSchema,
         union: computeSchema,
       },
@@ -841,6 +846,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return getSchemaForUnionVariant(type, visibility);
     } else if (type.kind === "Enum") {
       return getSchemaForEnum(type);
+    } else if (type.kind === "Tuple") {
+      return { type: "array", items: {} };
     }
 
     reportDiagnostic(program, {

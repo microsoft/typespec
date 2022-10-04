@@ -439,6 +439,16 @@ describe("openapi3: metadata", () => {
     deepStrictEqual(response, { $ref: "#/components/schemas/ThingRead" });
 
     deepStrictEqual(res.components.schemas, {
+      Thing: {
+        type: "object",
+        properties: {
+          c: { type: "string" },
+          inner: { $ref: "#/components/schemas/Thing" },
+          u: {
+            type: "string",
+          },
+        },
+      },
       ThingRead: {
         type: "object",
         properties: {
