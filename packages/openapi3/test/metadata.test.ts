@@ -350,15 +350,6 @@ describe("openapi3: metadata", () => {
           type: "object",
           properties: {},
         },
-        ParametersItem: {
-          type: "object",
-          properties: {
-            q: { type: "string" },
-            p: { type: "string" },
-            h: { type: "string" },
-          },
-          required: ["q", "p", "h"],
-        },
         ParametersQueryItem: {
           properties: {
             h: {
