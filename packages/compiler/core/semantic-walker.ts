@@ -98,6 +98,10 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   for (const iface of namespace.interfaces.values()) {
     navigateInterfaceType(iface, context);
   }
+
+  for (const enumType of namespace.enums.values()) {
+    navigateEnumType(enumType, context);
+  }
 }
 
 function checkVisited(visited: Set<any>, item: any) {
@@ -181,7 +185,7 @@ function navigateUnionType(type: Union, context: NavigationContext) {
   }
   context.emitter.emit("union", type);
   for (const variant of type.variants.values()) {
-    navigateReferencedType(variant, context);
+    navigateUnionTypeVariant(variant, context);
   }
 }
 
@@ -203,13 +207,6 @@ function navigateTupleType(type: Tuple, context: NavigationContext) {
   }
 }
 
-// function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
-//   if (checkVisited(context.visited, type)) {
-//     return;
-//   }
-//   context.emitter.emit("templateParameter", type);
-// }
-
 function navigateReferencedType(type: Type, context: NavigationContext) {
   switch (type.kind) {
     case "Model":
@@ -217,6 +214,8 @@ function navigateReferencedType(type: Type, context: NavigationContext) {
         return navigateModelType(type, context);
       }
       return;
+    case "Tuple":
+      return navigateTupleType(type, context);
     case "Union":
       if (type.name === undefined) {
         return navigateUnionType(type, context);
