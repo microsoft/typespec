@@ -789,7 +789,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       {
         model: (x) => x.name !== "" && computeSchema(x),
         enum: computeSchema,
-        union: computeSchema,
+        union: (x) => x.name !== undefined && computeSchema(x),
       },
       { recursive }
     );
@@ -852,7 +852,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     reportDiagnostic(program, {
       code: "invalid-schema",
-      format: { type: type.kind },
+      format: { type: type.kind === "Intrinsic" ? type.name : type.kind },
       target: type,
     });
     return undefined;

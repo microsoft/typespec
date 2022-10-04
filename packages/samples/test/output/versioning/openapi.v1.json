@@ -89,6 +89,10 @@
           "favoriteToys"
         ]
       },
+      "ApiVersionParam": {
+        "type": "object",
+        "properties": {}
+      },
       "Dog": {
         "type": "object",
         "properties": {

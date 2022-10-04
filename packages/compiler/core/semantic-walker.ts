@@ -8,7 +8,6 @@ import {
   Namespace,
   Operation,
   SemanticNodeListener,
-  TemplateParameter,
   Tuple,
   Type,
   Union,
@@ -118,9 +117,9 @@ function navigateOperationType(operation: Operation, context: NavigationContext)
   }
   context.emitter.emit("operation", operation);
   for (const parameter of operation.parameters.properties.values()) {
-    navigateType(parameter, context);
+    navigateReferencedType(parameter, context);
   }
-  navigateType(operation.returnType, context);
+  navigateReferencedType(operation.returnType, context);
 }
 
 function navigateModelType(model: Model, context: NavigationContext) {
@@ -138,7 +137,7 @@ function navigateModelType(model: Model, context: NavigationContext) {
     navigateModelType(model.baseModel, context);
   }
   if (model.indexer && model.indexer.value) {
-    navigateType(model.indexer.value, context);
+    navigateReferencedType(model.indexer.value, context);
   }
   context.emitter.emit("exitModel", model);
 }
@@ -148,7 +147,7 @@ function navigateModelTypeProperty(property: ModelProperty, context: NavigationC
     return;
   }
   context.emitter.emit("modelProperty", property);
-  navigateType(property.type, context);
+  navigateReferencedType(property.type, context);
 }
 
 function navigateInterfaceType(type: Interface, context: NavigationContext) {
@@ -161,7 +160,7 @@ function navigateInterfaceType(type: Interface, context: NavigationContext) {
 
   context.emitter.emit("interface", type);
   for (const op of type.operations.values()) {
-    navigateType(op, context);
+    navigateOperationType(op, context);
   }
 }
 
@@ -182,7 +181,7 @@ function navigateUnionType(type: Union, context: NavigationContext) {
   }
   context.emitter.emit("union", type);
   for (const variant of type.variants.values()) {
-    navigateType(variant, context);
+    navigateReferencedType(variant, context);
   }
 }
 
@@ -191,7 +190,7 @@ function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext
     return;
   }
   context.emitter.emit("unionVariant", type);
-  navigateType(type.type, context);
+  navigateReferencedType(type.type, context);
 }
 
 function navigateTupleType(type: Tuple, context: NavigationContext) {
@@ -200,52 +199,30 @@ function navigateTupleType(type: Tuple, context: NavigationContext) {
   }
   context.emitter.emit("tuple", type);
   for (const value of type.values) {
-    navigateType(value, context);
+    navigateReferencedType(value, context);
   }
 }
 
-function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
-  if (checkVisited(context.visited, type)) {
-    return;
-  }
-  context.emitter.emit("templateParameter", type);
-}
+// function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
+//   if (checkVisited(context.visited, type)) {
+//     return;
+//   }
+//   context.emitter.emit("templateParameter", type);
+// }
 
-function navigateType(type: Type, context: NavigationContext) {
+function navigateReferencedType(type: Type, context: NavigationContext) {
   switch (type.kind) {
     case "Model":
-      return navigateModelType(type, context);
-    case "ModelProperty":
-      return navigateModelTypeProperty(type, context);
-    case "Namespace":
-      return navigateNamespaceType(type, context);
-    case "Interface":
-      return navigateInterfaceType(type, context);
-    case "Enum":
-      return navigateEnumType(type, context);
-    case "Operation":
-      return navigateOperationType(type, context);
+      if (type.name === "") {
+        return navigateModelType(type, context);
+      }
+      return;
     case "Union":
-      return navigateUnionType(type, context);
-    case "UnionVariant":
-      return navigateUnionTypeVariant(type, context);
-    case "Tuple":
-      return navigateTupleType(type, context);
-    case "TemplateParameter":
-      return navigateTemplateParameter(type, context);
-    case "Object":
-    case "Projection":
-    case "Function":
-    case "Boolean":
-    case "EnumMember":
-    case "Intrinsic":
-    case "Number":
-    case "String":
+      if (type.name === undefined) {
+        return navigateUnionType(type, context);
+      }
       return;
     default:
-      // Dummy const to ensure we handle all types.
-      // If you get an error here, add a case for the new type you added
-      const _assertNever: never = type;
       return;
   }
 }
