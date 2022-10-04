@@ -95,8 +95,7 @@ export function getParameterKey(
     key += `.${property.name}`;
   }
 
-  // JSON check is workaround for https://github.com/microsoft/cadl/issues/462
-  if (existingParams[key] && JSON.stringify(newParam) !== JSON.stringify(existingParams[key])) {
+  if (existingParams[key]) {
     reportDiagnostic(program, {
       code: "duplicate-type-name",
       messageId: "parameter",
