@@ -17,4 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  const collapsibleMenuItems = document.getElementsByClassName("menu-item-collapsible");
+  for (const item of collapsibleMenuItems) {
+    item.addEventListener("click", (evt) => {
+      /** @type any */
+      const target = evt.target;
+      const container = target.parentElement;
+      if (container) {
+        const collapsed = container.classList.toggle("collapsed");
+        target.ariaExpanded = !collapsed;
+      }
+    });
+  }
 });

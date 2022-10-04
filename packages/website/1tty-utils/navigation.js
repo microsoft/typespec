@@ -1,8 +1,26 @@
 // @ts-check
-
-function findNavigationEntries(nodes, structure) {
-  const data = Object.entries(structure).map(([category, docs]) => {
-    const pages = docs.map((docId) => {
+/**
+ *
+ * @param {*} nodes
+ * @param {*} structure
+ * @param  {...string} path
+ * @returns
+ */
+function findNavigationEntries(nodes, structure, ...path) {
+  for (const segment of path) {
+    const sub = structure.find((x) => x.id === segment);
+    if (sub === undefined) {
+      throw new Error(
+        `Cannot find ${segment} in [${Object.values(structure)
+          .map((x) => x.id)
+          .join(",")}].`
+      );
+    }
+    structure = sub.items;
+  }
+  const data = structure.map((item) => {
+    if (typeof item === "string") {
+      const docId = item;
       const navBar = nodes.find((x) => x.data.id === docId);
       if (navBar === undefined) {
         throw new Error(
@@ -16,16 +34,22 @@ function findNavigationEntries(nodes, structure) {
         );
       }
       return {
+        type: "doc",
         id: docId,
-        title,
+        label: title,
         url: navBar.data.page.url,
       };
-    });
+    } else {
+      const { id, label, items, collapsed } = item;
 
-    return {
-      label: category,
-      pages,
-    };
+      return {
+        type: "group",
+        id,
+        label,
+        collapsed,
+        items: findNavigationEntries(nodes, items),
+      };
+    }
   });
   return data;
 }

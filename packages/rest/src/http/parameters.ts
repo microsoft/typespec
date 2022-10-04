@@ -55,12 +55,7 @@ function getOperationParametersForVerb(
   );
 
   function isImplicitPathParam(param: ModelProperty) {
-    // Only top-level parameters can be implicit path parameters.
-    //
-    // This check should be simpler: `param.model === operation.parameters`,
-    // but that is blocked by https://github.com/microsoft/cadl/issues/1069
-    const isTopLevel = param === operation.parameters.properties.get(param.name);
-
+    const isTopLevel = param.model === operation.parameters;
     return isTopLevel && knownPathParamNames.includes(param.name);
   }
 
