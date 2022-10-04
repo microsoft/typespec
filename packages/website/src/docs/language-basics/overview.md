@@ -103,9 +103,7 @@ _Details: [Enums]({%doc "enums"%})_
 
 ## Unions
 
-<!-- ADD with https://github.com/microsoft/cadl/pull/992 -->
-
-_Details: [Unions]()_
+_Details: [Unions]({%doc "unions"%})_
 
 | Feature                 | Example                          |
 | ----------------------- | -------------------------------- |
@@ -114,17 +112,13 @@ _Details: [Unions]()_
 
 ## Intersections
 
-<!-- ADD with https://github.com/microsoft/cadl/pull/992 -->
-
-_Details: [Intersections]()_
+_Details: [Intersections]({%doc "intersections"%})_
 
 | Feature                  | Example        |
 | ------------------------ | -------------- |
 | Intersection declaration | `Pet & Animal` |
 
 ## Type literals
-
-<!-- ADD with https://github.com/microsoft/cadl/pull/992 -->
 
 _Details: [Type literals]({%doc "type-literals"%})_
 

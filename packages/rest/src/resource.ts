@@ -117,6 +117,8 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
       name: keyName,
       decorators,
       optional: false,
+      model: target,
+      sourceProperty: undefined,
     });
 
     // Add the key property to the target type
