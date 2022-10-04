@@ -5,9 +5,6 @@ pr:
 
 jobs:
   - job: Build_And_Test
-    pool:
-      name: $(pool)
-      vmImage: $(imageName)
 
     strategy:
       matrix:
@@ -21,13 +18,17 @@ jobs:
           nodeVersion: "16.x"
 
         "Linux - Node 18.x":
-          pool: azsdk-pool-mms-win-2019-general
+          pool: azsdk-pool-mms-ubuntu-2004-general
           nodeVersion: "18.x"
 
         "Windows - Node 18.x":
           imageName: windows-2022
           pool: "Azure Pipelines"
           nodeVersion: "18.x"
+
+    pool:
+      name: $(pool)
+      vmImage: $(imageName)
 
     steps:
       - script: echo '##vso[task.setvariable variable=CADL_VS_CI_BUILD;]true'
