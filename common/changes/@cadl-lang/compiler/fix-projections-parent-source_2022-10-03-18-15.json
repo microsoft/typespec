@@ -1,0 +1,20 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix: Property included via `model is` were not referencing the right model parent.",
+      "type": "patch"
+    },
+    {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix: Projected types point to projected parent type for Model properties, Union variants.",
+      "type": "patch"
+    },
+     {
+      "packageName": "@cadl-lang/compiler",
+      "comment": "Fix: Projected model property sourceProperty point to projected property",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@cadl-lang/compiler"
+}
