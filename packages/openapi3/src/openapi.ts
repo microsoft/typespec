@@ -29,6 +29,7 @@ import {
   getSummary,
   ignoreDiagnostics,
   isErrorType,
+  isGlobalNamespace,
   isIntrinsic,
   isNeverType,
   isNumericType,
@@ -39,6 +40,7 @@ import {
   Model,
   ModelProperty,
   Namespace,
+  navigateNamespace,
   NewLine,
   NumericLiteral,
   Program,
@@ -347,8 +349,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
 
       program = projectProgram(originalProgram, [...commonProjections, ...record.projections]);
+      const projectedServiceNs = getServiceNamespace(program);
 
-      await emitOpenAPIFromVersion(serviceNs, record.version);
+      await emitOpenAPIFromVersion(projectedServiceNs, record.version);
     }
   }
 
@@ -363,6 +366,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         emitOperation(operation);
       }
       emitParameters();
+      emitUnreferencedSchemas(serviceNamespace);
       emitSchemas();
       emitTags();
 
@@ -768,6 +772,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
       param.$ref = "#/components/parameters/" + encodeURIComponent(key);
     }
+  }
+
+  function emitUnreferencedSchemas(namespace: Namespace) {
+    const computeSchema = (x: Type) => getSchemaOrRef(x, Visibility.All);
+
+    const recursive = !isGlobalNamespace(program, namespace);
+    console.log("Rec", namespace, program.getGlobalNamespaceType(), recursive);
+    navigateNamespace(
+      namespace,
+      {
+        model: computeSchema,
+        enum: computeSchema,
+        union: computeSchema,
+      },
+      { recursive }
+    );
   }
 
   function emitSchemas() {

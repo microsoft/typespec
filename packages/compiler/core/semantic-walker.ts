@@ -14,44 +14,84 @@ import {
   UnionVariant,
 } from "./types.js";
 
-export function navigateProgram(
-  program: Program,
-  listeners: EventEmitter<SemanticNodeListener> | SemanticNodeListener
-) {
-  const eventEmitter =
-    listeners instanceof EventEmitter ? listeners : createEventEmitter(listeners);
-  const visited = new Set();
-
-  eventEmitter.emit("root", program);
-  if (!program.checker) {
-    return;
-  }
-
-  navigateNamespaceType(program.getGlobalNamespaceType(), eventEmitter, visited);
+export interface NavigationOptions {
+  /**
+   * Recursively lookup in sub namespaces.
+   * @default true
+   */
+  recursive?: boolean;
 }
 
-function navigateNamespaceType(
-  namespace: Namespace,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
+const defaultOptions = {
+  recursive: true,
+};
+
+export function navigateProgram(
+  program: Program,
+  listeners: EventEmitter<SemanticNodeListener> | SemanticNodeListener,
+  options: NavigationOptions = {}
 ) {
-  eventEmitter.emit("namespace", namespace);
+  const context = createNavigationContext(listeners, options);
+  context.emitter.emit("root", program);
+
+  navigateNamespaceType(program.getGlobalNamespaceType(), context);
+}
+
+function createNavigationContext(
+  listeners: EventEmitter<SemanticNodeListener> | SemanticNodeListener,
+  options: NavigationOptions = {}
+): NavigationContext {
+  const emitter = listeners instanceof EventEmitter ? listeners : createEventEmitter(listeners);
+
+  return {
+    visited: new Set(),
+    emitter,
+    options: computeOptions(options),
+  };
+}
+
+export function navigateNamespace(
+  namespace: Namespace,
+  listeners: EventEmitter<Omit<SemanticNodeListener, "root">> | Omit<SemanticNodeListener, "root">,
+  options: NavigationOptions = {}
+) {
+  const context = createNavigationContext(listeners, options);
+  navigateNamespaceType(namespace, context);
+}
+
+type ResolvedNavigationOptions = NavigationOptions & typeof defaultOptions;
+
+function computeOptions(options: NavigationOptions): ResolvedNavigationOptions {
+  return { ...defaultOptions, ...options };
+}
+
+interface NavigationContext {
+  options: ResolvedNavigationOptions;
+  visited: Set<Type>;
+  emitter: EventEmitter<SemanticNodeListener>;
+}
+
+function navigateNamespaceType(namespace: Namespace, context: NavigationContext) {
+  context.emitter.emit("namespace", namespace);
   for (const model of namespace.models.values()) {
-    navigateModelType(model, eventEmitter, visited);
+    navigateModelType(model, context);
   }
   for (const operation of namespace.operations.values()) {
-    navigateOperationType(operation, eventEmitter, visited);
+    navigateOperationType(operation, context);
   }
-  for (const subNamespace of namespace.namespaces.values()) {
-    navigateNamespaceType(subNamespace, eventEmitter, visited);
+
+  if (context.options.recursive) {
+    for (const subNamespace of namespace.namespaces.values()) {
+      navigateNamespaceType(subNamespace, context);
+    }
   }
 
   for (const union of namespace.unions.values()) {
-    navigateUnionType(union, eventEmitter, visited);
+    navigateUnionType(union, context);
   }
 
   for (const iface of namespace.interfaces.values()) {
-    navigateInterfaceType(iface, eventEmitter, visited);
+    navigateInterfaceType(iface, context);
   }
 }
 
@@ -63,158 +103,118 @@ function checkVisited(visited: Set<any>, item: any) {
   return false;
 }
 
-function navigateOperationType(
-  operation: Operation,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, operation)) {
+function navigateOperationType(operation: Operation, context: NavigationContext) {
+  if (checkVisited(context.visited, operation)) {
     return;
   }
-  eventEmitter.emit("operation", operation);
+  context.emitter.emit("operation", operation);
   for (const parameter of operation.parameters.properties.values()) {
-    navigateType(parameter, eventEmitter, visited);
+    navigateType(parameter, context);
   }
-  navigateType(operation.returnType, eventEmitter, visited);
+  navigateType(operation.returnType, context);
 }
 
-function navigateModelType(
-  model: Model,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, model)) {
+function navigateModelType(model: Model, context: NavigationContext) {
+  if (checkVisited(context.visited, model)) {
     return;
   }
-  eventEmitter.emit("model", model);
+  context.emitter.emit("model", model);
   for (const property of model.properties.values()) {
-    navigateModelTypeProperty(property, eventEmitter, visited);
+    navigateModelTypeProperty(property, context);
   }
   if (model.baseModel) {
-    navigateModelType(model.baseModel, eventEmitter, visited);
+    navigateModelType(model.baseModel, context);
   }
   if (model.indexer && model.indexer.value) {
-    navigateType(model.indexer.value, eventEmitter, visited);
+    navigateType(model.indexer.value, context);
   }
-  eventEmitter.emit("exitModel", model);
+  context.emitter.emit("exitModel", model);
 }
 
-function navigateModelTypeProperty(
-  property: ModelProperty,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, property)) {
+function navigateModelTypeProperty(property: ModelProperty, context: NavigationContext) {
+  if (checkVisited(context.visited, property)) {
     return;
   }
-  eventEmitter.emit("modelProperty", property);
-  navigateType(property.type, eventEmitter, visited);
+  context.emitter.emit("modelProperty", property);
+  navigateType(property.type, context);
 }
 
-function navigateInterfaceType(
-  type: Interface,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, type)) {
+function navigateInterfaceType(type: Interface, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
     return;
   }
 
-  eventEmitter.emit("interface", type);
+  context.emitter.emit("interface", type);
   for (const op of type.operations.values()) {
-    navigateType(op, eventEmitter, visited);
+    navigateType(op, context);
   }
 }
 
-function navigateEnumType(
-  type: Enum,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, type)) {
+function navigateEnumType(type: Enum, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
     return;
   }
 
-  eventEmitter.emit("enum", type);
+  context.emitter.emit("enum", type);
 }
 
-function navigateUnionType(
-  type: Union,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, type)) {
+function navigateUnionType(type: Union, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
     return;
   }
-  eventEmitter.emit("union", type);
+  context.emitter.emit("union", type);
   for (const variant of type.variants.values()) {
-    navigateType(variant, eventEmitter, visited);
+    navigateType(variant, context);
   }
 }
 
-function navigateUnionTypeVariant(
-  type: UnionVariant,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, type)) {
+function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
     return;
   }
-  eventEmitter.emit("unionVariant", type);
-  navigateType(type.type, eventEmitter, visited);
+  context.emitter.emit("unionVariant", type);
+  navigateType(type.type, context);
 }
 
-function navigateTupleType(
-  type: Tuple,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, type)) {
+function navigateTupleType(type: Tuple, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
     return;
   }
-  eventEmitter.emit("tuple", type);
+  context.emitter.emit("tuple", type);
   for (const value of type.values) {
-    navigateType(value, eventEmitter, visited);
+    navigateType(value, context);
   }
 }
 
-function navigateTemplateParameter(
-  type: TemplateParameter,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
-  if (checkVisited(visited, type)) {
+function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
     return;
   }
-  eventEmitter.emit("templateParameter", type);
+  context.emitter.emit("templateParameter", type);
 }
 
-function navigateType(
-  type: Type,
-  eventEmitter: EventEmitter<SemanticNodeListener>,
-  visited: Set<any>
-) {
+function navigateType(type: Type, context: NavigationContext) {
   switch (type.kind) {
     case "Model":
-      return navigateModelType(type, eventEmitter, visited);
+      return navigateModelType(type, context);
     case "ModelProperty":
-      return navigateModelTypeProperty(type, eventEmitter, visited);
+      return navigateModelTypeProperty(type, context);
     case "Namespace":
-      return navigateNamespaceType(type, eventEmitter, visited);
+      return navigateNamespaceType(type, context);
     case "Interface":
-      return navigateInterfaceType(type, eventEmitter, visited);
+      return navigateInterfaceType(type, context);
     case "Enum":
-      return navigateEnumType(type, eventEmitter, visited);
+      return navigateEnumType(type, context);
     case "Operation":
-      return navigateOperationType(type, eventEmitter, visited);
+      return navigateOperationType(type, context);
     case "Union":
-      return navigateUnionType(type, eventEmitter, visited);
+      return navigateUnionType(type, context);
     case "UnionVariant":
-      return navigateUnionTypeVariant(type, eventEmitter, visited);
+      return navigateUnionTypeVariant(type, context);
     case "Tuple":
-      return navigateTupleType(type, eventEmitter, visited);
+      return navigateTupleType(type, context);
     case "TemplateParameter":
-      return navigateTemplateParameter(type, eventEmitter, visited);
+      return navigateTemplateParameter(type, context);
     case "Object":
     case "Projection":
     case "Function":
