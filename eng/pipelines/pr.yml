@@ -16,7 +16,8 @@ jobs:
           nodeVersion: "16.x"
 
         "Windows - Node 16.x":
-          imageName: windows-latest
+          imageName: windows-2022
+          pool: "Azure Pipelines"
           nodeVersion: "16.x"
 
         "Linux - Node 18.x":
@@ -24,7 +25,8 @@ jobs:
           nodeVersion: "18.x"
 
         "Windows - Node 18.x":
-          imageName: windows-latest
+          imageName: windows-2022
+          pool: "Azure Pipelines"
           nodeVersion: "18.x"
 
     steps:
