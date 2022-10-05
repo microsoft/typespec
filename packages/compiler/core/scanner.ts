@@ -68,6 +68,7 @@ export enum Token {
   Colon,
   ColonColon,
   At,
+  AtAt,
   Hash,
   Star,
   ForwardSlash,
@@ -158,6 +159,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.Colon, "':'"],
   [Token.ColonColon, "'::'"],
   [Token.At, "'@'"],
+  [Token.AtAt, "'@@'"],
   [Token.Hash, "'#'"],
   [Token.Star, "'*'"],
   [Token.ForwardSlash, "'/'"],
@@ -389,7 +391,7 @@ export function createScanner(
           return next(Token.CloseBrace);
 
         case CharCode.At:
-          return next(Token.At);
+          return lookAhead(1) === CharCode.At ? next(Token.AtAt, 2) : next(Token.At);
 
         case CharCode.Hash:
           return next(Token.Hash);

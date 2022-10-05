@@ -277,6 +277,7 @@ Statement :
     UsingStatement
     EnumStatement
     AliasStatement
+    AugmentDecoratorStatement
     `;`
 
 UsingStatement :
@@ -473,6 +474,11 @@ Decorator :
 DecoratorArguments :
     `(` ExpressionList? `)`
 
+AugmentDecoratorStatement :
+    `@@` IdentifierOrMemberExpression DecoratorArguments?
+
+AugmentDecoratorArguments :
+  `(` ExpressionList `)`
 
 ProjectionStatement :
     `projection` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`

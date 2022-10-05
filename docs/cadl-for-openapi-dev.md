@@ -14,7 +14,7 @@ to the section of this document for that feature.
 
 In OpenAPI [v2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#data-types)/[v3](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTypes), data types are specified using the `type` and `format` fields in a schema.
 
-The Cadl equivalent of OpenAPI data types are the Cadl primitive types or [built-in models](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#built-in-models).
+The Cadl equivalent of OpenAPI data types are the Cadl primitive types or [built-in models](https://microsoft.github.io/cadl/docs/standard-library/built-in-types).
 
 The following table shows how common OpenAPI types map to Cadl types:
 
@@ -50,7 +50,7 @@ For `type: string` data types:
 | `maxLength: value`          | `@maxLength(value)` decorator |       |
 | `pattern: regex`            | `@pattern(regex)` decorator   |       |
 
-There are two ways to define an `enum` data type. One is with the [Cadl `enum` statement](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#enums), e.g.:
+There are two ways to define an `enum` data type. One is with the [Cadl `enum` statement](https://microsoft.github.io/cadl/docs/language-basics/enums), e.g.:
 
 ```cadl
 enum Color {
@@ -214,12 +214,12 @@ The fields in an OpenAPI response object are specified with the following Cadl c
 
 ## Schema Object
 
-OpenAPI schemas are represented in Cadl by [models](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#models).
+OpenAPI schemas are represented in Cadl by [models](https://microsoft.github.io/cadl/docs/language-basics/models/).
 Models have any number of members and can extend and be composed with other models.
 
 Models can be defined with the `model` statement and then referenced by name, which generally results in a `$ref` to a schema for the model in the `definitions` or `components.schemas` section of the OpenAPI document.
 
-Cadl supports the ["spread" operator](https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#spread) (`...`), which copies the members of the source model into the target model.
+Cadl supports the ["spread" operator](https://microsoft.github.io/cadl/docs/language-basics/models/#spread) (`...`), which copies the members of the source model into the target model.
 But Cadl processes all spread transformations before emitters are invoked, so this form of reuse is not represented in the emitted OpenAPI.
 
 The spread operation is useful if you want one or more properties to be present in several different models but in a standard fashion. For example:
@@ -302,7 +302,7 @@ In Cadl this information is specified with [decorators on the namespace][cadl-se
 | `license`            |                        | Not currently supported. |
 | `contact`            |                        | Not currently supported. |
 
-[cadl-service-metadata]: https://github.com/microsoft/cadl/blob/main/docs/tutorial.md#service-definition-and-metadata
+[cadl-service-metadata]: https://microsoft.github.io/cadl/docs/standard-library/http/#service-definition-and-metadata
 
 ## Consumes / Produces (OAS2)
 

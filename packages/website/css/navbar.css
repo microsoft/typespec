@@ -1,8 +1,7 @@
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  height: 3rem;
+  height: var(--header-height);
   background: var(--main-color);
 }
 
@@ -18,17 +17,11 @@
 .navbar-logo {
   margin-right: 2rem;
   margin-left: 10px;
-  float: left;
 }
 
 .navbar-logo a {
   color: white;
   text-decoration: none;
-}
-
-.navbar-links {
-  display: flex;
-  flex-direction: row;
 }
 
 .navbar-sign {
@@ -37,21 +30,16 @@
   float: inline-start;
 }
 
-.navbar-links p,
-.navbar-sign p {
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 25px;
-  text-transform: capitalize;
-  margin: 0 1rem;
-  cursor: pointer;
+.navbar-links ul {
+  display: flex;
+  align-items: center;
+  padding: 0;
 }
 
 .navbar-links ul li {
   list-style: none;
   font-weight: 500;
   font-size: 18px;
-  line-height: 25px;
   text-transform: capitalize;
   display: inline;
   margin: 0 1rem;
@@ -61,4 +49,9 @@
 .navbar-links a {
   text-decoration: none;
   color: white;
+}
+
+.navbar-links a.icon {
+  display: block;
+  height: 24px;
 }
