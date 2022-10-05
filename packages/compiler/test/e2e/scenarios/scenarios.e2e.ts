@@ -1,3 +1,4 @@
+import { rejects } from "assert";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { compile, NodeHost, Program, resolvePath } from "../../../core/index.js";
@@ -68,6 +69,23 @@ describe("compiler: entrypoints", () => {
         code: "missing-import",
         message: `Emitter '@cadl-lang/my-emitter' requires '@cadl-lang/my-lib' to be imported. Add 'import "@cadl-lang/my-lib".`,
       });
+    });
+
+    it("emit diagnostic if emitter fail unexpectedly", async () => {
+      await rejects(
+        () =>
+          compileScenario("emitter-throw-error", {
+            emitters: { "@cadl-lang/my-emitter": {} },
+          }),
+        new RegExp(
+          [
+            `Emitter "@cadl-lang/my-lib" failed!`,
+            `File issue at https://github.com/microsoft/my-emitter/issues`,
+            ``,
+            `Error: This is bad`,
+          ].join("\n")
+        )
+      );
     });
 
     it("succeed if required import from an emitter is imported", async () => {
