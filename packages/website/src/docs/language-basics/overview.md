@@ -7,6 +7,15 @@ title: Overview
 
 This is an overview of the language concept in Cadl. It doesn't go in detail but can be used as a cheat sheet.
 
+## Declarations
+
+- Declaration names must be unique across types within the same scope. For example this is not allowed
+  <!-- prettier-ignore -->
+    ```cadl
+  model Dog {}
+  namespace Dog {}
+  ```
+
 ## Imports
 
 _Details: [Imports]({%doc "imports"%})_
@@ -38,6 +47,7 @@ _Details: [Decorators]({%doc "decorators"%})_
 | Use decorator with arguments | `@tag("abc")`                                                                       |
 | Declare a decorator in JS    | `export function $tag(context: DecoratorContext, target: Type, name: string) {...}` |
 | Save state in decorator      | `context.program.stateMap(key).set(target, <value>)`                                |
+| Augment decorator            | `@@tag(MyType, "abc")`                                                              |
 
 ## Models
 
