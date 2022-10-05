@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/lint",
+      "comment": "Uptake change to navigateProgram",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/lint"
+}
