@@ -102,7 +102,7 @@ export function navigateTypesInNamespace(
   listeners: TypeListeners,
   options: NamespaceNavigationOptions & NavigationOptions = {}
 ) {
-  navigateType(namespace, scopeNavigationToNamespace(namespace, listeners), options);
+  navigateType(namespace, scopeNavigationToNamespace(namespace, listeners, options), options);
 }
 
 /**
@@ -110,7 +110,7 @@ export function navigateTypesInNamespace(
  * @param eventEmitter Event emitter.
  * @returns Semantic node listener.
  */
-export function connectEventEmitter(
+export function mapEventEmitterToNodeListener(
   eventEmitter: EventEmitter<SemanticNodeListener>
 ): SemanticNodeListener {
   const listener: SemanticNodeListener = {};
