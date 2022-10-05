@@ -780,4 +780,34 @@ describe("openapi3: models", () => {
 
     expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/inline-cycle" }]);
   });
+
+  it("excludes properties with type 'never'", async () => {
+    const res = await oapiForModel(
+      "Bar",
+      `
+      model Foo {
+        y: int32;
+        nope: never;
+      };
+      model Bar extends Foo {
+        x: int32;
+      }`
+    );
+
+    ok(res.isRef);
+    ok(res.schemas.Foo, "expected definition named Foo");
+    ok(res.schemas.Bar, "expected definition named Bar");
+    deepStrictEqual(res.schemas.Bar, {
+      type: "object",
+      properties: { x: { type: "integer", format: "int32" } },
+      allOf: [{ $ref: "#/components/schemas/Foo" }],
+      required: ["x"],
+    });
+
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: { y: { type: "integer", format: "int32" } },
+      required: ["y"],
+    });
+  });
 });
