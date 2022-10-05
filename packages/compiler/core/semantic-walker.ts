@@ -24,7 +24,7 @@ export interface NavigationOptions {
   includeTemplateDeclaration?: boolean;
 }
 
-export interface NamespaceNavigationOptions extends NavigationOptions {
+export interface NamespaceNavigationOptions {
   /**
    * Recursively navigate sub namespaces.
    * @default false
@@ -68,11 +68,18 @@ export function navigateType(
   navigateTypeInternal(type, context);
 }
 
-export function navigateTypesInNamespace(
+/**
+ * Scope the current navigation to the given namespace.
+ * @param namespace Namespace the traversal shouldn't leave.
+ * @param listeners Type listeners.
+ * @param options Scope options
+ * @returns wrapped listeners that that can be used with `navigateType`
+ */
+export function scopeNavigationToNamespace<T extends TypeListeners>(
   namespace: Namespace,
-  listeners: TypeListeners,
+  listeners: T,
   options: NamespaceNavigationOptions = {}
-) {
+): T {
   const wrappedListeners: TypeListeners = {};
   for (const [name, callback] of Object.entries(listeners)) {
     wrappedListeners[name as any as keyof TypeListeners] = (x) => {
@@ -87,7 +94,15 @@ export function navigateTypesInNamespace(
       return callback(x as any);
     };
   }
-  navigateType(namespace, wrappedListeners, options);
+  return wrappedListeners as any;
+}
+
+export function navigateTypesInNamespace(
+  namespace: Namespace,
+  listeners: TypeListeners,
+  options: NamespaceNavigationOptions & NavigationOptions = {}
+) {
+  navigateType(namespace, scopeNavigationToNamespace(namespace, listeners), options);
 }
 
 /**
