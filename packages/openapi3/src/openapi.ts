@@ -1046,6 +1046,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         continue;
       }
 
+      if (isNeverType(prop.type)) {
+        // If the property has a type of 'never', don't include it in the schema
+        continue;
+      }
+
       if (!prop.optional) {
         if (!modelSchema.required) {
           modelSchema.required = [];
