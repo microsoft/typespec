@@ -1,14 +1,15 @@
-import assert from "assert";
+import assert, { ok } from "assert";
 import {
   Interface,
   Model,
   ModelProperty,
   Namespace,
   Operation,
+  SemanticNodeListener,
   Union,
   UnionVariant,
 } from "../core/index.js";
-import { getProperty, navigateProgram } from "../core/semantic-walker.js";
+import { getProperty, navigateProgram, navigateTypesInNamespace } from "../core/semantic-walker.js";
 import { createTestHost, TestHost } from "../testing/index.js";
 
 describe("compiler: semantic walker", () => {
@@ -18,11 +19,7 @@ describe("compiler: semantic walker", () => {
     host = await createTestHost();
   });
 
-  async function runNavigator(cadl: string) {
-    host.addCadlFile("main.cadl", cadl);
-
-    await host.compile("main.cadl", { nostdlib: true });
-
+  function createCollector() {
     const result = {
       models: [] as Model[],
       modelProperties: [] as ModelProperty[],
@@ -33,15 +30,39 @@ describe("compiler: semantic walker", () => {
       unionVariants: [] as UnionVariant[],
     };
 
-    navigateProgram(host.program, {
-      namespace: (x) => result.namespaces.push(x),
-      operation: (x) => result.operations.push(x),
-      model: (x) => result.models.push(x),
-      modelProperty: (x) => result.modelProperties.push(x),
-      union: (x) => result.unions.push(x),
-      interface: (x) => result.interfaces.push(x),
-      unionVariant: (x) => result.unionVariants.push(x),
-    });
+    const listener: SemanticNodeListener = {
+      namespace: (x) => {
+        result.namespaces.push(x);
+      },
+      operation: (x) => {
+        result.operations.push(x);
+      },
+      model: (x) => {
+        result.models.push(x);
+      },
+      modelProperty: (x) => {
+        result.modelProperties.push(x);
+      },
+      union: (x) => {
+        result.unions.push(x);
+      },
+      interface: (x) => {
+        result.interfaces.push(x);
+      },
+      unionVariant: (x) => {
+        result.unionVariants.push(x);
+      },
+    };
+    return [result, listener] as const;
+  }
+
+  async function runNavigator(cadl: string) {
+    host.addCadlFile("main.cadl", cadl);
+
+    await host.compile("main.cadl", { nostdlib: true });
+
+    const [result, listener] = createCollector();
+    navigateProgram(host.program, listener);
 
     return result;
   }
@@ -159,5 +180,50 @@ describe("compiler: semantic walker", () => {
     assert.ok(getProperty(result.models[1], "meow"));
     assert.ok(getProperty(result.models[1], "name"));
     assert.strictEqual(getProperty(result.models[1], "bark"), undefined);
+  });
+
+  describe("findInNamespace", () => {
+    async function runFindInNamespace(code: string) {
+      host.addCadlFile("main.cadl", code);
+      await host.compile("main.cadl", { nostdlib: true });
+
+      const TargetNs = host.program.getGlobalNamespaceType().namespaces.get("TargetNs");
+      ok(TargetNs, "Should have a namespace called TargetNs");
+      const [result, listener] = createCollector();
+      navigateTypesInNamespace(TargetNs, listener);
+
+      return result;
+    }
+
+    it("find models only in given namespace", async () => {
+      const results = await runFindInNamespace(`
+        namespace TargetNs {
+          model A {}
+        }
+
+        model B {}
+
+        namespace Other {
+          model C {}
+        }
+      `);
+      assert.strictEqual(results.models.length, 1);
+      assert.strictEqual(results.models[0].name, "A");
+    });
+
+    it("find models in sub namespace", async () => {
+      const results = await runFindInNamespace(`
+        namespace TargetNs {
+          model A {}
+
+          namespace Sub {
+            model B {}
+          }
+        }
+      `);
+      assert.strictEqual(results.models.length, 2);
+      assert.strictEqual(results.models[0].name, "A");
+      assert.strictEqual(results.models[1].name, "B");
+    });
   });
 });

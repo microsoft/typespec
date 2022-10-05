@@ -40,7 +40,7 @@ import {
   Model,
   ModelProperty,
   Namespace,
-  navigateNamespace,
+  navigateTypesInNamespace,
   NewLine,
   NumericLiteral,
   Program,
@@ -783,15 +783,15 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
     const computeSchema = (x: Type) => getSchemaOrRef(x, Visibility.All);
 
-    const recursive = !isGlobalNamespace(program, namespace);
-    navigateNamespace(
+    const skipSubNamespaces = isGlobalNamespace(program, namespace);
+    navigateTypesInNamespace(
       namespace,
       {
         model: (x) => x.name !== "" && computeSchema(x),
         enum: computeSchema,
         union: (x) => x.name !== undefined && computeSchema(x),
       },
-      { recursive }
+      { skipSubNamespaces }
     );
   }
 

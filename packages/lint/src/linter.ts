@@ -1,6 +1,7 @@
 import {
   CadlLibrary,
   compilerAssert,
+  connectEventEmitter,
   EventEmitter,
   navigateProgram,
   Program,
@@ -86,7 +87,7 @@ function createLinter(): Linter {
         eventEmitter.on(name as any, cb as any);
       }
     }
-    navigateProgram(program, eventEmitter);
+    navigateProgram(program, connectEventEmitter(eventEmitter));
   }
 
   function registerRule(rule: LintRule, options?: RegisterRuleOptions) {

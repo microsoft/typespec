@@ -3,65 +3,130 @@ import { isTemplateDeclaration } from "./type-utils.js";
 import {
   Enum,
   Interface,
+  ListenerFlow,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   SemanticNodeListener,
+  TemplateParameter,
   Tuple,
   Type,
+  TypeListeners,
   Union,
   UnionVariant,
 } from "./types.js";
 
 export interface NavigationOptions {
   /**
-   * Recursively lookup in sub namespaces.
-   * @default true
-   */
-  recursive?: boolean;
-
-  /**
    * Skip non instantiated templates.
    */
   includeTemplateDeclaration?: boolean;
 }
 
+export interface NamespaceNavigationOptions extends NavigationOptions {
+  /**
+   * Recursively navigate sub namespaces.
+   * @default false
+   */
+  skipSubNamespaces?: boolean;
+}
+
 const defaultOptions = {
-  recursive: true,
+  includeTemplateDeclaration: false,
 };
 
+/**
+ * Navigate all types in the program.
+ * @param program Program to navigate.
+ * @param listeners Listener called when visiting types.
+ * @param options Navigation options.
+ */
 export function navigateProgram(
   program: Program,
-  listeners: EventEmitter<SemanticNodeListener> | SemanticNodeListener,
+  listeners: SemanticNodeListener,
   options: NavigationOptions = {}
 ) {
   const context = createNavigationContext(listeners, options);
-  context.emitter.emit("root", program);
+  context.emit("root", program);
 
   navigateNamespaceType(program.getGlobalNamespaceType(), context);
 }
 
-function createNavigationContext(
-  listeners: EventEmitter<SemanticNodeListener> | SemanticNodeListener,
-  options: NavigationOptions = {}
-): NavigationContext {
-  const emitter = listeners instanceof EventEmitter ? listeners : createEventEmitter(listeners);
-
-  return {
-    visited: new Set(),
-    emitter,
-    options: computeOptions(options),
-  };
-}
-
-export function navigateNamespace(
-  namespace: Namespace,
-  listeners: EventEmitter<Omit<SemanticNodeListener, "root">> | Omit<SemanticNodeListener, "root">,
-  options: NavigationOptions = {}
+/**
+ * Navigate the given type and all the types that are used in it.
+ * @param type Type to navigate.
+ * @param listeners Listener for the types found.
+ * @param options Navigation options
+ */
+export function navigateType(
+  type: Type,
+  listeners: SemanticNodeListener,
+  options: NavigationOptions
 ) {
   const context = createNavigationContext(listeners, options);
-  navigateNamespaceType(namespace, context);
+  navigateTypeInternal(type, context);
+}
+
+export function navigateTypesInNamespace(
+  namespace: Namespace,
+  listeners: TypeListeners,
+  options: NamespaceNavigationOptions = {}
+) {
+  const wrappedListeners: TypeListeners = {};
+  for (const [name, callback] of Object.entries(listeners)) {
+    wrappedListeners[name as any as keyof TypeListeners] = (x) => {
+      if (x !== namespace && "namespace" in x) {
+        if (options.skipSubNamespaces && x.namespace !== namespace) {
+          return ListenerFlow.NoRecursion;
+        }
+        if (x.namespace && !isSubNamespace(x.namespace, namespace)) {
+          return ListenerFlow.NoRecursion;
+        }
+      }
+      return callback(x as any);
+    };
+  }
+  navigateType(namespace, wrappedListeners, options);
+}
+
+/**
+ * Create a Semantic node listener from an event emitter.
+ * @param eventEmitter Event emitter.
+ * @returns Semantic node listener.
+ */
+export function connectEventEmitter(
+  eventEmitter: EventEmitter<SemanticNodeListener>
+): SemanticNodeListener {
+  const listener: SemanticNodeListener = {};
+  for (const eventName of eventNames) {
+    listener[eventName] = (...args) => {
+      eventEmitter.emit(eventName, ...(args as [any]));
+    };
+  }
+
+  return listener;
+}
+
+function isSubNamespace(subNamespace: Namespace, namespace: Namespace): boolean {
+  let current: Namespace | undefined = subNamespace;
+  while (current !== undefined) {
+    if (current === namespace) {
+      return true;
+    }
+    current = current.namespace;
+  }
+  return false;
+}
+function createNavigationContext(
+  listeners: SemanticNodeListener,
+  options: NavigationOptions = {}
+): NavigationContext {
+  return {
+    visited: new Set(),
+    emit: (key, ...args) => listeners[key]?.(...(args as [any])),
+    options: computeOptions(options),
+  };
 }
 
 type ResolvedNavigationOptions = NavigationOptions & typeof defaultOptions;
@@ -70,14 +135,16 @@ function computeOptions(options: NavigationOptions): ResolvedNavigationOptions {
   return { ...defaultOptions, ...options };
 }
 
-interface NavigationContext {
+interface NavigationContext<
+  T extends { [key: string]: (...args: any) => any } = SemanticNodeListener
+> {
   options: ResolvedNavigationOptions;
   visited: Set<Type>;
-  emitter: EventEmitter<SemanticNodeListener>;
+  emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>): ListenerFlow | undefined | void;
 }
 
 function navigateNamespaceType(namespace: Namespace, context: NavigationContext) {
-  context.emitter.emit("namespace", namespace);
+  if (context.emit("namespace", namespace) === ListenerFlow.NoRecursion) return;
   for (const model of namespace.models.values()) {
     navigateModelType(model, context);
   }
@@ -85,10 +152,8 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
     navigateOperationType(operation, context);
   }
 
-  if (context.options.recursive) {
-    for (const subNamespace of namespace.namespaces.values()) {
-      navigateNamespaceType(subNamespace, context);
-    }
+  for (const subNamespace of namespace.namespaces.values()) {
+    navigateNamespaceType(subNamespace, context);
   }
 
   for (const union of namespace.unions.values()) {
@@ -119,11 +184,11 @@ function navigateOperationType(operation: Operation, context: NavigationContext)
   if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(operation)) {
     return;
   }
-  context.emitter.emit("operation", operation);
+  if (context.emit("operation", operation) === ListenerFlow.NoRecursion) return;
   for (const parameter of operation.parameters.properties.values()) {
-    navigateReferencedType(parameter, context);
+    navigateTypeInternal(parameter, context);
   }
-  navigateReferencedType(operation.returnType, context);
+  navigateTypeInternal(operation.returnType, context);
 }
 
 function navigateModelType(model: Model, context: NavigationContext) {
@@ -133,7 +198,7 @@ function navigateModelType(model: Model, context: NavigationContext) {
   if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(model)) {
     return;
   }
-  context.emitter.emit("model", model);
+  if (context.emit("model", model) === ListenerFlow.NoRecursion) return;
   for (const property of model.properties.values()) {
     navigateModelTypeProperty(property, context);
   }
@@ -141,17 +206,17 @@ function navigateModelType(model: Model, context: NavigationContext) {
     navigateModelType(model.baseModel, context);
   }
   if (model.indexer && model.indexer.value) {
-    navigateReferencedType(model.indexer.value, context);
+    navigateTypeInternal(model.indexer.value, context);
   }
-  context.emitter.emit("exitModel", model);
+  context.emit("exitModel", model);
 }
 
 function navigateModelTypeProperty(property: ModelProperty, context: NavigationContext) {
   if (checkVisited(context.visited, property)) {
     return;
   }
-  context.emitter.emit("modelProperty", property);
-  navigateReferencedType(property.type, context);
+  if (context.emit("modelProperty", property) === ListenerFlow.NoRecursion) return;
+  navigateTypeInternal(property.type, context);
 }
 
 function navigateInterfaceType(type: Interface, context: NavigationContext) {
@@ -162,7 +227,7 @@ function navigateInterfaceType(type: Interface, context: NavigationContext) {
     return;
   }
 
-  context.emitter.emit("interface", type);
+  context.emit("interface", type);
   for (const op of type.operations.values()) {
     navigateOperationType(op, context);
   }
@@ -173,7 +238,7 @@ function navigateEnumType(type: Enum, context: NavigationContext) {
     return;
   }
 
-  context.emitter.emit("enum", type);
+  context.emit("enum", type);
 }
 
 function navigateUnionType(type: Union, context: NavigationContext) {
@@ -183,7 +248,7 @@ function navigateUnionType(type: Union, context: NavigationContext) {
   if (!context.options.includeTemplateDeclaration && isTemplateDeclaration(type)) {
     return;
   }
-  context.emitter.emit("union", type);
+  if (context.emit("union", type) === ListenerFlow.NoRecursion) return;
   for (const variant of type.variants.values()) {
     navigateUnionTypeVariant(variant, context);
   }
@@ -193,35 +258,62 @@ function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext
   if (checkVisited(context.visited, type)) {
     return;
   }
-  context.emitter.emit("unionVariant", type);
-  navigateReferencedType(type.type, context);
+  if (context.emit("unionVariant", type) === ListenerFlow.NoRecursion) return;
+  navigateTypeInternal(type.type, context);
 }
 
 function navigateTupleType(type: Tuple, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  context.emitter.emit("tuple", type);
+  if (context.emit("tuple", type) === ListenerFlow.NoRecursion) return;
   for (const value of type.values) {
-    navigateReferencedType(value, context);
+    navigateTypeInternal(value, context);
   }
 }
 
-function navigateReferencedType(type: Type, context: NavigationContext) {
+function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
+}
+
+function navigateTypeInternal(type: Type, context: NavigationContext) {
   switch (type.kind) {
     case "Model":
-      if (type.name === "") {
-        return navigateModelType(type, context);
-      }
-      return;
+      return navigateModelType(type, context);
+    case "ModelProperty":
+      return navigateModelTypeProperty(type, context);
+    case "Namespace":
+      return navigateNamespaceType(type, context);
+    case "Interface":
+      return navigateInterfaceType(type, context);
+    case "Enum":
+      return navigateEnumType(type, context);
+    case "Operation":
+      return navigateOperationType(type, context);
+    case "Union":
+      return navigateUnionType(type, context);
+    case "UnionVariant":
+      return navigateUnionTypeVariant(type, context);
     case "Tuple":
       return navigateTupleType(type, context);
-    case "Union":
-      if (type.name === undefined) {
-        return navigateUnionType(type, context);
-      }
+    case "TemplateParameter":
+      return navigateTemplateParameter(type, context);
+    case "Object":
+    case "Projection":
+    case "Function":
+    case "Boolean":
+    case "EnumMember":
+    case "Intrinsic":
+    case "Number":
+    case "String":
       return;
     default:
+      // Dummy const to ensure we handle all types.
+      // If you get an error here, add a case for the new type you added
+      const _assertNever: never = type;
       return;
   }
 }
@@ -259,11 +351,42 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
   }
 }
 
-function createEventEmitter(listeners: SemanticNodeListener) {
-  const eventEmitter = new EventEmitter<SemanticNodeListener>();
-  for (const [name, listener] of Object.entries(listeners)) {
-    eventEmitter.on(name as any, listener as any);
-  }
-
-  return eventEmitter;
-}
+const eventNames: Array<keyof SemanticNodeListener> = [
+  "root",
+  "templateParameter",
+  "exitTemplateParameter",
+  "model",
+  "exitModel",
+  "modelProperty",
+  "exitModelProperty",
+  "interface",
+  "exitInterface",
+  "enum",
+  "exitEnum",
+  "enumMember",
+  "exitEnumMember",
+  "namespace",
+  "exitNamespace",
+  "operation",
+  "exitOperation",
+  "string",
+  "exitString",
+  "number",
+  "exitNumber",
+  "boolean",
+  "exitBoolean",
+  "tuple",
+  "exitTuple",
+  "union",
+  "exitUnion",
+  "unionVariant",
+  "exitUnionVariant",
+  "intrinsic",
+  "exitIntrinsic",
+  "function",
+  "exitFunction",
+  "object",
+  "exitObject",
+  "projection",
+  "exitProjection",
+];
