@@ -1188,7 +1188,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 }
 
 export type EmitterOptions = { name?: string } & Record<string, any>;
-export type Emitter = (program: Program, options: EmitterOptions) => Promise<void> | void;
+export type EmitterFunc = (program: Program, options: EmitterOptions) => Promise<void> | void;
 
 export interface SourceFile {
   /** The source code text. */
