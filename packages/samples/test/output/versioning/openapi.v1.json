@@ -93,6 +93,13 @@
         "type": "object",
         "properties": {}
       },
+      "Versions": {
+        "type": "string",
+        "enum": [
+          "v1",
+          "v2"
+        ]
+      },
       "Dog": {
         "type": "object",
         "properties": {

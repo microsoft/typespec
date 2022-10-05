@@ -991,6 +991,15 @@
           "field"
         ]
       },
+      "CMYKColors": {
+        "type": "string",
+        "enum": [
+          "cyan",
+          "Magenta",
+          "YELLOW",
+          "blacK"
+        ]
+      },
       "Pet": {
         "type": "object",
         "properties": {
@@ -1024,15 +1033,6 @@
         "required": [
           "id",
           "size"
-        ]
-      },
-      "CMYKColors": {
-        "type": "string",
-        "enum": [
-          "cyan",
-          "Magenta",
-          "YELLOW",
-          "blacK"
         ]
       }
     }
