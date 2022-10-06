@@ -409,7 +409,7 @@ model WriteDog {
 }
 ```
 
-Note that the OpenAPI v3 emitter applies visibilty automatically without needing explicit `@withVisibility`. See [metadata]({%doc "http"%}#advanced-metadata) for more information.
+Note that the OpenAPI v3 emitter applies visibility automatically without needing explicit `@withVisibility`. See [metadata]({%doc "http"%}#metadata) for more information.
 
 ## Advanced decorators
 
