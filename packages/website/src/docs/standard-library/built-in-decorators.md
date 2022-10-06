@@ -409,6 +409,8 @@ model WriteDog {
 }
 ```
 
+Note that the OpenAPI v3 emitter applies visibility automatically without needing explicit `@withVisibility`. See [metadata]({%doc "http"%}#metadata) for more information.
+
 ## Advanced decorators
 
 Those decorators shouldn't be need to be used directly, there is a template providing the functionality.

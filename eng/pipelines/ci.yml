@@ -8,7 +8,7 @@ jobs:
   - job: npm_stable
     displayName: Npm publish
     pool:
-      vmImage: windows-latest
+      name: azsdk-pool-mms-win-2019-general
     steps:
       - task: NodeTool@0
         inputs:
@@ -64,7 +64,7 @@ jobs:
     dependsOn: npm_stable
     displayName: Npm publish dev version
     pool:
-      vmImage: windows-latest
+      name: azsdk-pool-mms-win-2019-general
     steps:
       - task: NodeTool@0
         inputs:
@@ -97,7 +97,7 @@ jobs:
     variables:
       imageName: "azsdkengsys.azurecr.io/cadl"
     pool:
-      vmImage: ubuntu-latest
+      name: azsdk-pool-mms-ubuntu-2004-general
     steps:
       - task: Docker@1
         displayName: login

@@ -138,6 +138,8 @@ Likewise, the type of the body parameter(s) will be translated into an appropria
 The request body will use the "application/json" media type unless the body model includes an explicit `content-type`
 header.
 
+See also [metadata]({%doc "http"%}#metadata) for more advanced details.
+
 #### responses
 
 The return type(s) of the Cadl operation are translated into responses for the OpenAPI operation.
@@ -149,11 +151,13 @@ Models with different status codes and/or media types can be unioned together to
 
 When a return type model has a property explicitly decorated with an [(Http) `@body` decorator][http-body-decorator], this
 is taken as the response body.
-In the absence of explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the request body.
+In the absence of explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the response body.
 
 [http-statuscode-decorator]: https://github.com/microsoft/cadl/blob/main/packages/rest/README.md#decorators
 
 [error-decorator]: {%doc "built-in-decorators"%}#error
+
+See also [metadata]({%doc "http"%}#metadata) for more advanced details.
 
 #### tags
 
