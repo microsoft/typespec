@@ -30,13 +30,11 @@ import { mutate } from "./util.js";
 // Use a regular expression to define the prefix for Cadl-exposed functions
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
-
 const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   duplicates = new Map<Sym, Set<Sym>>();
 
   constructor(source?: SymbolTable) {
     super();
-
     if (source) {
       for (const [key, value] of source) {
         // Note: shallow copy of value here so we can mutate flags on set.
@@ -457,7 +455,7 @@ export function createBinder(program: Program): Binder {
   function mergeNamespaceDeclarations(node: NamespaceStatementNode, scope: ScopeNode) {
     // we are declaring a namespace in either global scope, or a blockless namespace.
     const existingBinding = scope.symbol.exports!.get(node.id.sv);
-    if (existingBinding) {
+    if (existingBinding && existingBinding.flags & SymbolFlags.Namespace) {
       // we have an existing binding, so just push this node to its declarations
       mutate(existingBinding!.declarations).push(node);
       mutate(node).symbol = existingBinding;

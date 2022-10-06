@@ -810,4 +810,86 @@ describe("openapi3: models", () => {
       required: ["y"],
     });
   });
+
+  describe("referencing another property as type", () => {
+    it("use the type of the other property", async () => {
+      const res = await oapiForModel(
+        "Bar",
+        `
+        model Foo {
+          name: string;
+        }
+        model Bar {
+          x: Foo.name
+        }`
+      );
+
+      ok(res.schemas.Bar, "expected definition named Bar");
+      deepStrictEqual(res.schemas.Bar.properties.x, {
+        type: "string",
+      });
+    });
+
+    it("use the type of the other property with ref", async () => {
+      const res = await oapiForModel(
+        "Bar",
+        `
+        model Name {first: string}
+        model Foo {
+          name: Name;
+        }
+        model Bar {
+          x: Foo.name
+        }`
+      );
+
+      ok(res.schemas.Bar, "expected definition named Bar");
+      deepStrictEqual(res.schemas.Bar.properties.x, {
+        $ref: "#/components/schemas/Name",
+      });
+    });
+
+    it("should include decorators on both referenced property and source property itself", async () => {
+      const res = await oapiForModel(
+        "Bar",
+        `
+        model Foo {
+          @format("uri")
+          name: string;
+        }
+        model Bar {
+          @doc("My doc")
+          x: Foo.name
+        }`
+      );
+
+      ok(res.schemas.Bar, "expected definition named Bar");
+      deepStrictEqual(res.schemas.Bar.properties.x, {
+        type: "string",
+        format: "uri",
+        description: "My doc",
+      });
+    });
+
+    it("decorators on the property should override the value of referenced property", async () => {
+      const res = await oapiForModel(
+        "Bar",
+        `
+        model Foo {
+          @doc("Default doc")
+          name: string;
+        }
+        model Bar {
+          @doc("My doc override")
+          x: Foo.name
+        }`
+      );
+
+      ok(res.schemas.Bar, "expected definition named Bar");
+      deepStrictEqual(res.schemas.Bar.properties.x, {
+        type: "string",
+        description: "My doc override",
+      });
+    });
+  });
 });
