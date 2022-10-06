@@ -559,6 +559,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
     }
 
+    if (type.kind === "ModelProperty") {
+      return resolveProperty(type, visibility);
+    }
+
     type = getEffectiveSchemaType(type, visibility);
 
     const name = getTypeName(program, type, typeNameOptions);
