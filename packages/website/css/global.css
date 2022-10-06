@@ -47,9 +47,15 @@ pre {
   padding: 16px;
   border-radius: 3px;
   background-color: rgba(27, 27, 27, 0.05);
+  overflow: auto;
 }
+
 pre > code {
   display: block;
+}
+
+pre, code {
+  background: hsl(230, 1%, 98%);
 }
 
 code[class="language-mermaid"] {
