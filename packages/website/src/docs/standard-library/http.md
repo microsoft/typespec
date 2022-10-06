@@ -142,11 +142,15 @@ namespace Pets {
 Note that in the absence of explicit `@body`:
 
 1. The set of parameters that are not marked @header, @query, or @path form the request body.
-2. The set of properties of the return model that are not marked @header, @query, or @path form the response body.
+2. The set of properties of the return model that are not marked @header or @statusCode form the response body.
 3. If the return type is not a model, then it defines the response body.
 
 This is how we were able to return Pet and Pet[] bodies without using @body for list and read. We can actually write
 create in the same terse style by spreading the Pet object into the parameter list like this:
+
+See also [Advanced Metadata](#advanced-metadata) for more details.
+
+````cadl
 
 ```cadl
 @route("/pets")
@@ -154,7 +158,7 @@ namespace Pets {
   @post
   op create(...Pet): {};
 }
-```
+````
 
 ## Polymorphism with discriminators
 
@@ -292,5 +296,136 @@ namespace Pets {
   op read(@path petId: int32, @header ifMatch?: string): ReadResponse<Pet>;
   @post
   op create(...Pet): CreateResponse;
+}
+```
+
+### Automatic visibility
+
+The `@cadl-lang/rest` library understands the following well-known [visibilities]({%doc "built-in-decorators"%}#visibility-decorators) and provides functionality for emitters to apply them based on whether on request vs. response and HTTP method usage as detailed in the table below. Currently, only the `@cadl-lang/openapi3` emitter uses this, but it is expected that other REST-based emitters will do so as well in the near future.
+
+| Name     | Visible in           |
+| -------- | -------------------- |
+| "read"   | Any response         |
+| "write"  | Any request          |
+| "query"  | GET or HEAD request  |
+| "create" | POST or PUT request  |
+| "update" | PATCH or PUT request |
+| "delete" | DELETE request       |
+
+This allows a single logical Cadl model to be used as in the following example:
+
+```cadl
+model User {
+  name: string;
+  @visibility("read") id: string;
+  @visibility("create") password: string;
+}
+
+@route("/users")
+interface Users {
+  @post create(@path id: string, ...User): User;
+  @get get(@path id: string): User;
+}
+```
+
+There is a single logical user entity represented by the single Cadl type `User`, but the HTTP payload for this entity varies based on context. When returned in a response, the `id` property is included, but when sent in a request, it is not. Similarly, the `password` property is only included in create requests, but not present in responses.
+
+The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas as necessary. However, another emitter such as one generating client code can see and preserve a single logical type and deal with these HTTP payload differences by means other than type proliferation.
+
+Modeling with logical entities rather than HTTP-specific shapes also keeps the Cadl spec decoupled from HTTP and REST and can allow the same spec to be used with multiple protocols.
+
+## Metadata
+
+The properties that designate content for the HTTP envelope (`@header`, `@path`, `@query`, `@statusCode`) rather than the content in an HTTP payload are often called "metadata".
+
+Metadata is determined to be applicable or inapplicable based on the context that it is used:
+
+| Context       | Applicability       |
+| ------------- | ------------------- |
+| `@query`      | request only        |
+| `@path`       | request only        |
+| `@statusCode` | response only       |
+| `@header`     | request or response |
+
+Additionally metadata that appears in an array element type always inapplicable.
+
+When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead.
+
+The handling of metadata applicability furthers the goal of keeping a single logical model in Cadl. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatically visibility as before, we further indicate that the password is only present in create requests.
+
+```cadl
+model User {
+  name: string;
+  @path id: string;
+  @visibility("create") password: string;
+}
+```
+
+Then, we can write operations in terms of the logical entity:
+
+```cadl
+@route("/users")
+interface Users {
+  @post create(...User): User;
+}
+```
+
+Abstractly, this expresses that a create operation that takes and returns a user. But concretely, at the HTTP protocol level, a create request and response look like this:
+
+```
+POST /Users/CadlFan42 HTTP/1.1
+Content-Type: application/json
+{
+  "name": "Cadl Fan",
+  "password": "Y0uW1llN3v3rGu3ss!"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+{
+  name: "Cadl Fan",
+  id: "CadlFan42
+}
+```
+
+### Visibility vs. Metadata applicability
+
+Metadata properties are filtered based on visibility as [described above](#automatic-visibility). This is done independently before applicability is considered. If a a metadata property is not visible then it is neither part of the envelope nor the HTTP payload, irrespective of its applicability.
+
+### Nested metadata
+
+Metadata properties are not required to be top-level. They can also be nested deeper in a parameter or response model type. For example:
+
+```cadl
+model Thing {
+  headers: {
+    @header example: string;
+  };
+  name: string;
+}
+```
+
+Note that nesting in this sense does not require the use of anonymous models. This is equivalent:
+
+```cadl
+model Thing {
+  headers: Headers;
+  name: string;
+}
+model Headers {
+  @header example: string;
+}
+```
+
+In the event that this nesting introduces duplication, then the least nested property with a given name is preferred and the duplicate metadata properties are ignored.
+
+```cadl
+model Thing {
+  headers: {
+    @header example: string; // preferred
+    more: {
+      @header example: string; // ignored
+    };
+  };
 }
 ```
