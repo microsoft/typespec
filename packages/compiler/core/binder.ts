@@ -30,14 +30,11 @@ import { mutate } from "./util.js";
 // Use a regular expression to define the prefix for Cadl-exposed functions
 // defined in JavaScript modules
 const DecoratorFunctionPattern = /^\$/;
-let idCounter = 0;
 const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
   duplicates = new Map<Sym, Set<Sym>>();
-  id: number;
 
   constructor(source?: SymbolTable) {
     super();
-    this.id = idCounter++;
     if (source) {
       for (const [key, value] of source) {
         // Note: shallow copy of value here so we can mutate flags on set.
