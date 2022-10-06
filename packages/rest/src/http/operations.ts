@@ -2,6 +2,8 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
+  getOverloadedOperation,
+  getOverloads,
   getServiceNamespace,
   listOperationsIn,
   Operation,
@@ -28,18 +30,7 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions
 ): [HttpOperation, readonly Diagnostic[]] {
-  const diagnostics = createDiagnosticCollector();
-  const route = diagnostics.pipe(resolvePathAndParameters(program, operation, options ?? {}));
-  const responses = diagnostics.pipe(getResponsesForOperation(program, operation));
-
-  return diagnostics.wrap({
-    path: route.path,
-    verb: route.parameters.verb,
-    container: operation.interface ?? operation.namespace ?? program.getGlobalNamespaceType(),
-    parameters: route.parameters,
-    operation,
-    responses,
-  });
+  return getHttpOperationInternal(program, operation, options, new Map());
 }
 
 /**
@@ -112,6 +103,9 @@ export function validateRouteUnique(diagnostics: DiagnosticCollector, operations
   const grouped = new Map<string, Map<HttpVerb, HttpOperation[]>>();
 
   for (const operation of operations) {
+    if (operation.overloading) {
+      continue;
+    }
     const { verb, path } = operation;
     let map = grouped.get(path);
     if (map === undefined) {
@@ -143,4 +137,52 @@ export function validateRouteUnique(diagnostics: DiagnosticCollector, operations
       }
     }
   }
+}
+
+function getHttpOperationInternal(
+  program: Program,
+  operation: Operation,
+  options: RouteResolutionOptions | undefined,
+  cache: Map<Operation, HttpOperation>
+): [HttpOperation, readonly Diagnostic[]] {
+  const existing = cache.get(operation);
+  if (existing) {
+    return [existing, []];
+  }
+  const diagnostics = createDiagnosticCollector();
+  const httpOperationRef: HttpOperation = { operation } as any;
+  cache.set(operation, httpOperationRef);
+
+  const overloadBase = getOverloadedOperation(program, operation);
+  let overloading;
+  if (overloadBase) {
+    overloading = httpOperationRef.overloading = diagnostics.pipe(
+      getHttpOperationInternal(program, overloadBase, options, cache)
+    );
+  }
+
+  const route = diagnostics.pipe(
+    resolvePathAndParameters(program, operation, overloading, options ?? {})
+  );
+  const responses = diagnostics.pipe(getResponsesForOperation(program, operation));
+
+  const httpOperation: HttpOperation = {
+    path: route.path,
+    pathSegments: route.pathSegments,
+    verb: route.parameters.verb,
+    container: operation.interface ?? operation.namespace ?? program.getGlobalNamespaceType(),
+    parameters: route.parameters,
+    operation,
+    responses,
+  };
+  Object.assign(httpOperationRef, httpOperation);
+
+  const overloads = getOverloads(program, operation);
+  if (overloads) {
+    httpOperationRef.overloads = overloads.map((x) =>
+      diagnostics.pipe(getHttpOperationInternal(program, x, options, cache))
+    );
+  }
+
+  return diagnostics.wrap(httpOperationRef);
 }

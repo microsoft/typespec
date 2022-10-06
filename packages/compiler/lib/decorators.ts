@@ -919,32 +919,42 @@ const overloadDecorator = createDecoratorDefinition({
  * `@overload` - Indicate that the target overloads (specializes) the overloads type.
  * @param context DecoratorContext
  * @param target The specializing operation declaration
- * @param overloads The operation to be overloaded.
+ * @param overloadBase The operation to be overloaded.
  */
-export function $overload(context: DecoratorContext, target: Operation, overloads: Operation) {
-  if (!overloadDecorator.validate(context, target, [overloads])) {
+export function $overload(context: DecoratorContext, target: Operation, overloadBase: Operation) {
+  if (!overloadDecorator.validate(context, target, [overloadBase])) {
     return;
   }
 
   // Ensure that the overloaded method arguments are a subtype of the original operation.
   const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
     target.parameters,
-    overloads.parameters,
+    overloadBase.parameters,
     target
   );
   if (!paramValid) context.program.reportDiagnostics(paramDiagnostics);
 
   const [returnTypeValid, returnTypeDiagnostics] = context.program.checker.isTypeAssignableTo(
     target.returnType,
-    overloads.returnType,
+    overloadBase.returnType,
     target
   );
   if (!returnTypeValid) context.program.reportDiagnostics(returnTypeDiagnostics);
 
+  if (!areOperationParentSame(target, overloadBase)) {
+    reportDiagnostic(context.program, {
+      code: "overload-same-parent",
+      target: context.decoratorTarget,
+    });
+  }
   // Save the information about the overloaded operation
-  context.program.stateMap(overloadsOperationKey).set(target, overloads);
-  const existingOverloads = getOverloads(context.program, overloads) || new Array<Operation>();
-  context.program.stateMap(overloadedByKey).set(overloads, existingOverloads.concat(target));
+  context.program.stateMap(overloadsOperationKey).set(target, overloadBase);
+  const existingOverloads = getOverloads(context.program, overloadBase) || new Array<Operation>();
+  context.program.stateMap(overloadedByKey).set(overloadBase, existingOverloads.concat(target));
+}
+
+function areOperationParentSame(op1: Operation, op2: Operation): boolean {
+  return op1.interface ? op1.interface === op2.interface : op1.namespace === op2.namespace;
 }
 
 /**

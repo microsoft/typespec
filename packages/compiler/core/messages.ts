@@ -390,6 +390,12 @@ const diagnostics = {
       default: paramMessage`Decorator ${"decoratorName"} failed!\n\n${"error"}`,
     },
   },
+  "overload-same-parent": {
+    severity: "error",
+    messages: {
+      default: `Overload must be in the same interface or namespace.`,
+    },
+  },
 
   /**
    * Program

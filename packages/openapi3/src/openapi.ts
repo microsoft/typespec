@@ -366,7 +366,22 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       reportIfNoRoutes(program, service.operations);
 
       for (const operation of service.operations) {
-        emitOperation(operation);
+        if (!operation.overloading) {
+          if (operation.overloads) {
+            const routeDiffer = operation.overloads.some(
+              (x) => x.path !== operation.path || x.verb !== operation.verb
+            );
+            if (routeDiffer) {
+              for (const overload of operation.overloads) {
+                emitOperation(overload);
+              }
+            } else {
+              emitOperation(operation);
+            }
+          } else {
+            emitOperation(operation);
+          }
+        }
       }
       emitParameters();
       emitUnreferencedSchemas(serviceNamespace);
