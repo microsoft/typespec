@@ -148,9 +148,7 @@ Note that in the absence of explicit `@body`:
 This is how we were able to return Pet and Pet[] bodies without using @body for list and read. We can actually write
 create in the same terse style by spreading the Pet object into the parameter list like this:
 
-See also [Advanced Metadata](#advanced-metadata) for more details.
-
-````cadl
+See also [metadata]({%doc "http"%}#metadata) for more advanced details.
 
 ```cadl
 @route("/pets")
@@ -158,7 +156,7 @@ namespace Pets {
   @post
   op create(...Pet): {};
 }
-````
+```
 
 ## Polymorphism with discriminators
 
