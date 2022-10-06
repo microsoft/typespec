@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@cadl-lang/openapi3",
-      "comment": "Add support for referencing model properites",
+      "comment": "Add support for referencing model properties.",
       "type": "minor"
     }
   ],
