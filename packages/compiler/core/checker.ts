@@ -1,6 +1,7 @@
 import { getDeprecated } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { compilerAssert, ProjectionError } from "./diagnostics.js";
+import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import {
   AugmentDecoratorStatementNode,
   DecoratedType,
@@ -1902,6 +1903,15 @@ export function createChecker(program: Program): Checker {
     for (const file of program.sourceFiles.values()) {
       checkSourceFile(file);
     }
+
+    internalDecoratorValidation();
+  }
+
+  /**
+   * Post checking validation for internal decorators.
+   */
+  function internalDecoratorValidation() {
+    validateInheritanceDiscriminatedUnions(program);
   }
 
   function checkSourceFile(file: CadlScriptNode) {

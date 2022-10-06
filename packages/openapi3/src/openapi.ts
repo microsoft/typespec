@@ -1045,8 +1045,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator) {
-      const [union, diagnostics] = getDiscriminatedUnion(model, discriminator);
-      program.reportDiagnostics(diagnostics);
+      const [union] = getDiscriminatedUnion(model, discriminator);
 
       const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
       if (union.variants.size > 0) {

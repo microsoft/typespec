@@ -1,4 +1,5 @@
 import { Discriminator } from "../../lib/decorators.js";
+import { getDiscriminatedTypes, Program } from "../index.js";
 import { createDiagnostic } from "../messages.js";
 import { isTemplateDeclarationOrInstance } from "../type-utils.js";
 import { Diagnostic, Model, Type, Union } from "../types.js";
@@ -18,6 +19,20 @@ export function getDiscriminatedUnion(
       return getDiscriminatedUnionForModel(type, discriminator);
     case "Union":
       return getDiscriminatedUnionForUnion(type, discriminator);
+  }
+}
+
+/**
+ * Run the validation on all discriminated models to make sure the discriminator are valid.
+ * This has to be done after the checker so we can have the full picture of all the dervied models.
+ */
+export function validateInheritanceDiscriminatedUnions(program: Program) {
+  for (const [type, discriminator] of getDiscriminatedTypes(program)) {
+    // Union would have already reported the issue.
+    if (type.kind === "Model") {
+      const [_, diagnostics] = getDiscriminatedUnionForModel(type, discriminator);
+      program.reportDiagnostics(diagnostics);
+    }
   }
 }
 

@@ -14,22 +14,14 @@ describe("compiler: discriminator", () => {
     runner = await createTestRunner();
   });
 
-  function resolveDiscriminatedUnion(model: Model) {
+  function checkValidDiscriminatedUnion(model: Model) {
     const discriminator = getDiscriminator(runner.program, model);
     if (discriminator === undefined) {
       throw new Error("Discriminator shouldn't be undefined.");
     }
-    return getDiscriminatedUnion(model, discriminator);
-  }
-
-  function checkValidDiscriminatedUnion(model: Model) {
-    const [union, diagnostics] = resolveDiscriminatedUnion(model);
+    const [union, diagnostics] = getDiscriminatedUnion(model, discriminator);
     expectDiagnosticEmpty(diagnostics);
     return union;
-  }
-  function diagnoseDiscriminatedUnion(model: Model) {
-    const [, diagnostics] = resolveDiscriminatedUnion(model);
-    return diagnostics;
   }
 
   describe("inheritance based", () => {
@@ -218,16 +210,15 @@ describe("compiler: discriminator", () => {
     });
 
     it("errors if discriminator property is not a string-like type", async () => {
-      const { Pet } = (await runner.compile(`
+      const diagnostics = await runner.diagnose(`
         @discriminator("kind")
         @test model Pet {}
 
         model Cat extends Pet {
           kind: int32;
         }
-      `)) as { Pet: Model };
+      `);
 
-      const diagnostics = diagnoseDiscriminatedUnion(Pet);
       expectDiagnostics(diagnostics, {
         code: "invalid-discriminator-value",
         message:
@@ -236,16 +227,15 @@ describe("compiler: discriminator", () => {
     });
 
     it("errors if discriminator property is optional", async () => {
-      const { Pet } = (await runner.compile(`
+      const diagnostics = await runner.diagnose(`
         @discriminator("kind")
         @test model Pet {}
 
         model Cat extends Pet {
           kind?: "cat";
         }
-      `)) as { Pet: Model };
+      `);
 
-      const diagnostics = diagnoseDiscriminatedUnion(Pet);
       expectDiagnostics(diagnostics, {
         code: "invalid-discriminator-value",
         message: "The discriminator property must be a required property.",
@@ -253,7 +243,7 @@ describe("compiler: discriminator", () => {
     });
 
     it("errors if discriminator value are duplicated", async () => {
-      const { Pet } = (await runner.compile(`
+      const diagnostics = await runner.diagnose(`
         @discriminator("kind")
         @test model Pet {}
 
@@ -264,9 +254,8 @@ describe("compiler: discriminator", () => {
         model Lion extends Pet {
           kind: "cat";
         }
-      `)) as { Pet: Model };
+      `);
 
-      const diagnostics = diagnoseDiscriminatedUnion(Pet);
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-discriminator-value",
@@ -295,9 +284,8 @@ describe("compiler: discriminator", () => {
       ┆model Dog extends Pet{}
     `));
       ({ pos: dogPos, source } = extractCursor(source));
-      const { Pet } = (await runner.compile(source)) as { Pet: Model };
+      const diagnostics = await runner.diagnose(source);
 
-      const diagnostics = diagnoseDiscriminatedUnion(Pet);
       expectDiagnostics(diagnostics, [
         {
           code: "missing-discriminator-property",

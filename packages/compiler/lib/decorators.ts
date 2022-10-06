@@ -1072,22 +1072,23 @@ export function $discriminator(
   if (!discriminatorDecorator.validate(context, entity, [propertyName])) {
     return;
   }
+  const discriminator: Discriminator = { propertyName };
 
   if (entity.kind === "Union") {
     // we can validate discriminator up front for unions. Models are validated in the accessor as we might not have the reference to all derived types at this time.
-    const [, diagnostics] = getDiscriminatedUnion(entity, { propertyName });
+    const [, diagnostics] = getDiscriminatedUnion(entity, discriminator);
     if (diagnostics.length > 0) {
       context.program.reportDiagnostics(diagnostics);
       return;
     }
   }
-  context.program.stateMap(discriminatorKey).set(entity, propertyName);
+  context.program.stateMap(discriminatorKey).set(entity, discriminator);
 }
 
 export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
-  const propertyName = program.stateMap(discriminatorKey).get(entity);
-  if (propertyName) {
-    return { propertyName };
-  }
-  return undefined;
+  return program.stateMap(discriminatorKey).get(entity);
+}
+
+export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
+  return [...program.stateMap(discriminatorKey).entries()] as any;
 }
