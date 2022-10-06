@@ -94,45 +94,75 @@ describe("compiler: duplicate declarations", () => {
     assertDuplicates(diagnostics);
   });
 
-  describe("reports duplicate namespace/non-namespace across multiple files", () => {
-    // NOTE: Different order of declarations triggers different code paths, so test both
-    it("with namespace first", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-        import "./a.cadl";
-        import "./b.cadl";
-        `
-      );
-      testHost.addCadlFile("a.cadl", "namespace N {}");
-      testHost.addCadlFile("b.cadl", "model N {}");
-      const diagnostics = await testHost.diagnose("./");
-      assertDuplicates(diagnostics);
+  describe("reports duplicate namespace/non-namespace", () => {
+    context("in same file", () => {
+      it("with namespace first", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+          namespace N {}
+          model N {}
+          `
+        );
+        const diagnostics = await testHost.diagnose("./");
+        assertDuplicates(diagnostics);
+      });
+
+      it("with non-namespace first", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+          model N {}
+          namespace N {}
+          `
+        );
+        testHost.addCadlFile("a.cadl", "namespace N {}");
+        testHost.addCadlFile("b.cadl", "model N {}");
+        const diagnostics = await testHost.diagnose("./");
+        assertDuplicates(diagnostics);
+      });
     });
-    it("with non-namespace first", async () => {
-      testHost.addCadlFile(
-        "main.cadl",
-        `
-        import "./a.cadl";
-        import "./b.cadl";
-        `
-      );
-      testHost.addCadlFile("a.cadl", "model MMM {}");
-      testHost.addCadlFile(
-        "b.cadl",
-        `namespace MMM {
-           // Also check that we don't drop local dupes when the namespace is discarded.
-           model QQQ {}
-           model QQQ {}
-         }`
-      );
-      const diagnostics = await testHost.diagnose("./");
-      expectDiagnostics(diagnostics, [
-        { code: "duplicate-symbol", message: /MMM/ },
-        { code: "duplicate-symbol", message: /MMM/ },
-        { code: "duplicate-symbol", message: /QQQ/ },
-        { code: "duplicate-symbol", message: /QQQ/ },
-      ]);
+
+    context("across multiple files", () => {
+      // NOTE: Different order of declarations triggers different code paths, so test both
+      it("with namespace first", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+          import "./a.cadl";
+          import "./b.cadl";
+          `
+        );
+        testHost.addCadlFile("a.cadl", "namespace N {}");
+        testHost.addCadlFile("b.cadl", "model N {}");
+        const diagnostics = await testHost.diagnose("./");
+        assertDuplicates(diagnostics);
+      });
+      it("with non-namespace first", async () => {
+        testHost.addCadlFile(
+          "main.cadl",
+          `
+          import "./a.cadl";
+          import "./b.cadl";
+          `
+        );
+        testHost.addCadlFile("a.cadl", "model MMM {}");
+        testHost.addCadlFile(
+          "b.cadl",
+          `namespace MMM {
+             // Also check that we don't drop local dupes when the namespace is discarded.
+             model QQQ {}
+             model QQQ {}
+           }`
+        );
+        const diagnostics = await testHost.diagnose("./");
+        expectDiagnostics(diagnostics, [
+          { code: "duplicate-symbol", message: /MMM/ },
+          { code: "duplicate-symbol", message: /MMM/ },
+          { code: "duplicate-symbol", message: /QQQ/ },
+          { code: "duplicate-symbol", message: /QQQ/ },
+        ]);
+      });
     });
   });
 });
