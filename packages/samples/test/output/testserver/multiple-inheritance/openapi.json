@@ -412,6 +412,18 @@
             "$ref": "#/components/schemas/Cat"
           }
         ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string"
+          }
+        },
+        "description": "Unexpected error",
+        "required": [
+          "body"
+        ]
       }
     }
   }
