@@ -54,7 +54,8 @@ pre > code {
   display: block;
 }
 
-pre, code {
+pre,
+code {
   background: hsl(230, 1%, 98%);
 }
 
