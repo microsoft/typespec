@@ -29,6 +29,7 @@ import {
   getSummary,
   ignoreDiagnostics,
   isErrorType,
+  isGlobalNamespace,
   isIntrinsic,
   isNeverType,
   isNumericType,
@@ -39,6 +40,7 @@ import {
   Model,
   ModelProperty,
   Namespace,
+  navigateTypesInNamespace,
   NewLine,
   NumericLiteral,
   Program,
@@ -105,6 +107,7 @@ import {
 const defaultOptions = {
   "output-file": "openapi.json",
   "new-line": "lf",
+  "omit-unreachable-types": false,
 } as const;
 
 export async function $onEmit(p: Program, emitterOptions?: EmitOptionsFor<OpenAPILibrary>) {
@@ -121,6 +124,7 @@ export function resolveOptions(
 
   return {
     newLine: resolvedOptions["new-line"],
+    omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     outputFile: resolvePath(
       program.compilerOptions.outputPath ?? "./cadl-output",
       resolvedOptions["output-file"]
@@ -131,6 +135,7 @@ export function resolveOptions(
 export interface ResolvedOpenAPI3EmitterOptions {
   outputFile: string;
   newLine: NewLine;
+  omitUnreachableTypes: boolean;
 }
 
 /**
@@ -347,8 +352,9 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
 
       program = projectProgram(originalProgram, [...commonProjections, ...record.projections]);
+      const projectedServiceNs = getServiceNamespace(program);
 
-      await emitOpenAPIFromVersion(serviceNs, record.version);
+      await emitOpenAPIFromVersion(projectedServiceNs, record.version);
     }
   }
 
@@ -363,6 +369,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         emitOperation(operation);
       }
       emitParameters();
+      emitUnreferencedSchemas(serviceNamespace);
       emitSchemas();
       emitTags();
 
@@ -770,6 +777,24 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
   }
 
+  function emitUnreferencedSchemas(namespace: Namespace) {
+    if (options.omitUnreachableTypes) {
+      return;
+    }
+    const computeSchema = (x: Type) => getSchemaOrRef(x, Visibility.All);
+
+    const skipSubNamespaces = isGlobalNamespace(program, namespace);
+    navigateTypesInNamespace(
+      namespace,
+      {
+        model: (x) => x.name !== "" && computeSchema(x),
+        enum: computeSchema,
+        union: (x) => x.name !== undefined && computeSchema(x),
+      },
+      { skipSubNamespaces }
+    );
+  }
+
   function emitSchemas() {
     // Process pending schemas. Note that getSchemaForType may pull in new
     // pending schemas so we iterate until there are no pending schemas
@@ -821,11 +846,13 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return getSchemaForUnionVariant(type, visibility);
     } else if (type.kind === "Enum") {
       return getSchemaForEnum(type);
+    } else if (type.kind === "Tuple") {
+      return { type: "array", items: {} };
     }
 
     reportDiagnostic(program, {
       code: "invalid-schema",
-      format: { type: type.kind },
+      format: { type: type.kind === "Intrinsic" ? type.name : type.kind },
       target: type,
     });
     return undefined;
@@ -1037,6 +1064,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     for (const [name, prop] of model.properties) {
       if (!metadataInfo.isPayloadProperty(prop, visibility)) {
+        continue;
+      }
+
+      if (isNeverType(prop.type)) {
+        // If the property has a type of 'never', don't include it in the schema
         continue;
       }
 

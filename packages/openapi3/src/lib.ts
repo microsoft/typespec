@@ -8,6 +8,12 @@ export interface OpenAPI3EmitterOptions {
    * @default lf
    */
   "new-line"?: "crlf" | "lf";
+
+  /**
+   * Omit unreachable types.
+   * By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
+   */
+  "omit-unreachable-types"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -16,6 +22,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   properties: {
     "output-file": { type: "string", nullable: true },
     "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
+    "omit-unreachable-types": { type: "boolean", nullable: true },
   },
   required: [],
 };

@@ -113,6 +113,10 @@ Set the newline character for emitting files. Can be either:
 - `lf`(Default)
 - `crlf`
 
+### `omit-unreachable-types`
+
+Only include types referenced via an operation.
+
 ## See also
 
 - [Cadl Getting Started](https://github.com/microsoft/cadl#getting-started)

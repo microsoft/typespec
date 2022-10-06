@@ -124,7 +124,7 @@
       "packageName": "@cadl-lang/lint",
       "projectFolder": "packages/lint",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "shouldPublish": true
     },
     {
       "packageName": "@cadl-lang/library-linter",

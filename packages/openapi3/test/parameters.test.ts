@@ -42,7 +42,8 @@ describe("openapi3: parameters", () => {
 
       @route("/test2")
       op test2(...Q): void;
-      `
+      `,
+      { "omit-unreachable-types": true }
     );
 
     expectDiagnostics(diagnostics, [
