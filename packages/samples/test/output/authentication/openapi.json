@@ -41,6 +41,42 @@
     }
   ],
   "components": {
+    "schemas": {
+      "MyFlow": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "implicit"
+            ]
+          },
+          "authorizationUrl": {
+            "type": "string",
+            "enum": [
+              "https://api.example.com/oauth2/authorize"
+            ]
+          },
+          "refreshUrl": {
+            "type": "string",
+            "enum": [
+              "https://api.example.com/oauth2/refresh"
+            ]
+          },
+          "scopes": {
+            "type": "array",
+            "items": {},
+            "x-cadl-name": "[read, write]"
+          }
+        },
+        "required": [
+          "type",
+          "authorizationUrl",
+          "refreshUrl",
+          "scopes"
+        ]
+      }
+    },
     "securitySchemes": {
       "BearerAuth": {
         "type": "http",

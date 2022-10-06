@@ -774,7 +774,8 @@ describe("openapi3: models", () => {
       `
       model Thing<T> { inner?: Thing<T>; }
       op get(): Thing<string>;
-      `
+      `,
+      { "omit-unreachable-types": true }
     );
 
     expectDiagnostics(diagnostics, [{ code: "@cadl-lang/openapi3/inline-cycle" }]);

@@ -101,6 +101,22 @@
         "required": [
           "source"
         ]
+      },
+      "Input": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SourcePath"
+              }
+            ],
+            "description": "Input parameter."
+          }
+        },
+        "required": [
+          "input"
+        ]
       }
     }
   }

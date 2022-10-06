@@ -300,6 +300,10 @@
           "petId",
           "name"
         ]
+      },
+      "PetId": {
+        "type": "object",
+        "properties": {}
       }
     }
   }
