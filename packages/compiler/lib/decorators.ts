@@ -927,12 +927,19 @@ export function $overload(context: DecoratorContext, target: Operation, overload
   }
 
   // Ensure that the overloaded method arguments are a subtype of the original operation.
-  const [valid, diagnostics] = context.program.checker.isTypeAssignableTo(
+  const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
     target.parameters,
     overloads.parameters,
     target
   );
-  if (!valid) context.program.reportDiagnostics(diagnostics);
+  if (!paramValid) context.program.reportDiagnostics(paramDiagnostics);
+
+  const [returnTypeValid, returnTypeDiagnostics] = context.program.checker.isTypeAssignableTo(
+    target.returnType,
+    overloads.returnType,
+    target
+  );
+  if (!returnTypeValid) context.program.reportDiagnostics(returnTypeDiagnostics);
 
   // Save the information about the overloaded operation
   context.program.stateMap(overloadsOperationKey).set(target, overloads);
@@ -942,11 +949,11 @@ export function $overload(context: DecoratorContext, target: Operation, overload
 
 /**
  * Get all operations that are marked as overloads of the given operation
- * @param context
- * @param operation
+ * @param program Program
+ * @param operation Operation
  * @returns An array of operations that overload the given operation.
  */
-export function getOverloads(program: Program, operation: Operation): Array<Operation> | undefined {
+export function getOverloads(program: Program, operation: Operation): Operation[] | undefined {
   return program.stateMap(overloadedByKey).get(operation);
 }
 
