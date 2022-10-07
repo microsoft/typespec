@@ -103,10 +103,11 @@ export function validateRouteUnique(diagnostics: DiagnosticCollector, operations
   const grouped = new Map<string, Map<HttpVerb, HttpOperation[]>>();
 
   for (const operation of operations) {
-    if (operation.overloading) {
+    const { verb, path } = operation;
+
+    if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
       continue;
     }
-    const { verb, path } = operation;
     let map = grouped.get(path);
     if (map === undefined) {
       map = new Map<HttpVerb, HttpOperation[]>();
@@ -137,6 +138,10 @@ export function validateRouteUnique(diagnostics: DiagnosticCollector, operations
       }
     }
   }
+}
+
+export function isOverloadSameEndpoint(overload: HttpOperation & { overloading: HttpOperation }) {
+  return overload.path === overload.overloading.path && overload.verb === overload.overloading.verb;
 }
 
 function getHttpOperationInternal(
