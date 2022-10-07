@@ -941,7 +941,7 @@ export function $overload(context: DecoratorContext, target: Operation, overload
   );
   if (!returnTypeValid) context.program.reportDiagnostics(returnTypeDiagnostics);
 
-  if (!areOperationParentSame(target, overloadBase)) {
+  if (!areOperationsInSameContainer(target, overloadBase)) {
     reportDiagnostic(context.program, {
       code: "overload-same-parent",
       target: context.decoratorTarget,
@@ -953,8 +953,10 @@ export function $overload(context: DecoratorContext, target: Operation, overload
   context.program.stateMap(overloadedByKey).set(overloadBase, existingOverloads.concat(target));
 }
 
-function areOperationParentSame(op1: Operation, op2: Operation): boolean {
-  return op1.interface ? op1.interface === op2.interface : op1.namespace === op2.namespace;
+function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
+  return op1.interface || op2.interface
+    ? op1.interface === op2.interface
+    : op1.namespace === op2.namespace;
 }
 
 /**
