@@ -2,7 +2,7 @@ import { ParseOptions } from "./types";
 
 export interface CompilerOptions {
   miscOptions?: Record<string, unknown>;
-  outputPath?: string;
+  outputDir?: string;
   emitters?: Record<string, Record<string, unknown> | boolean>;
   nostdlib?: boolean;
   noEmit?: boolean;
