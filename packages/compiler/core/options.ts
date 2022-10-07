@@ -2,7 +2,17 @@ import { ParseOptions } from "./types";
 
 export interface CompilerOptions {
   miscOptions?: Record<string, unknown>;
+  /**
+   * Default output directory used by emitters.
+   *
+   * @default ./cadl-output
+   */
   outputDir?: string;
+
+  /**
+   * @deprecated use outputDir.
+   */
+  outputPath?: string;
   emitters?: Record<string, Record<string, unknown> | boolean>;
   nostdlib?: boolean;
   noEmit?: boolean;
