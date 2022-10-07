@@ -1,5 +1,5 @@
 import { Operation } from "@cadl-lang/compiler";
-import { BasicTestRunner } from "@cadl-lang/compiler/testing";
+import { BasicTestRunner, expectDiagnostics } from "@cadl-lang/compiler/testing";
 import { strictEqual } from "assert";
 import { getHttpOperation, listHttpOperationsIn } from "../src/http/index.js";
 import { createHttpTestRunner } from "./test-host.js";
@@ -80,5 +80,54 @@ describe("rest: overloads", () => {
     strictEqual(uploadBytes.overloading, overload);
     strictEqual(overload.overloads?.[0], uploadString);
     strictEqual(overload.overloads?.[1], uploadBytes);
+  });
+
+  it("overload base route should still be unique with other operations", async () => {
+    const diagnostics = await runner.diagnose(`
+      @route("/upload")
+      op otherUpload(data: bytes): void;
+
+      @route("/upload")
+      op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+      @overload(upload)
+      op uploadString(data: string, @header contentType: "text/plain" ): void;
+      @overload(upload)
+      op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@cadl-lang/rest/duplicate-operation",
+        message: `Duplicate operation "otherUpload" routed at "post /upload".`,
+      },
+      {
+        code: "@cadl-lang/rest/duplicate-operation",
+        message: `Duplicate operation "upload" routed at "post /upload".`,
+      },
+    ]);
+  });
+
+  it("overloads route should still be unique with other operations", async () => {
+    const diagnostics = await runner.diagnose(`
+      @route("/uploadString")
+      op otherUploadString(data: string): void;
+
+      @route("/upload")
+      op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+      @overload(upload)
+      @route("/uploadString")
+      op uploadString(data: string, @header contentType: "text/plain" ): void;
+      @overload(upload)
+      op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@cadl-lang/rest/duplicate-operation",
+        message: `Duplicate operation "otherUploadString" routed at "post /uploadString".`,
+      },
+      {
+        code: "@cadl-lang/rest/duplicate-operation",
+        message: `Duplicate operation "uploadString" routed at "post /uploadString".`,
+      },
+    ]);
   });
 });
