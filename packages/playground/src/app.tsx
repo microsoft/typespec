@@ -1,5 +1,6 @@
 import type { Diagnostic, DiagnosticTarget, NoTarget, Program } from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
+import { css } from "@emotion/react";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
@@ -9,11 +10,11 @@ import { CompletionItemTag } from "vscode-languageserver";
 import { createBrowserHost } from "./browser-host";
 import { CadlEditor } from "./components/cadl-editor";
 import { useMonacoModel } from "./components/editor";
+import { EditorCommandBar } from "./components/editor-command-bar";
 import { ErrorTab } from "./components/error-tab";
 import { Footer } from "./components/footer";
 import { OpenAPIOutput } from "./components/openapi-output";
 import { OutputTabs, Tab } from "./components/output-tabs";
-import { SamplesDropdown } from "./components/samples-dropdown";
 import { importCadlCompiler } from "./core";
 import { PlaygroundManifest } from "./manifest";
 import { attachServices } from "./services";
@@ -63,11 +64,6 @@ export const App: FunctionComponent = () => {
     const url = `https://github.com/microsoft/cadl/issues/new?body=${bodyPayload}`;
     window.open(url, "_blank");
   }, [saveCode, cadlModel]);
-
-  const cadlDocs = useCallback(async () => {
-    const url = `https://microsoft.github.io/cadl/docs`;
-    window.open(url, "_blank");
-  }, [cadlModel]);
 
   async function emptyOutputDir() {
     // empty output directory
@@ -146,26 +142,31 @@ export const App: FunctionComponent = () => {
   );
 
   return (
-    <div className="root">
-      <div className="cadl-editor-container">
-        <div className="command-bar">
-          <label>
-            <button onClick={saveCode as any}>Share</button>
-          </label>
-          <label>
-            {"Load a sample: "}
-            <SamplesDropdown onSelectSample={updateCadl as any} />
-          </label>
-          <label>
-            <button onClick={newIssue as any}>Open Issue</button>
-          </label>
-          <label>
-            <button onClick={cadlDocs as any}>Show Cadl Docs</button>
-          </label>
-        </div>
+    <div
+      css={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gridTemplateRows: "1fr auto",
+        gridTemplateAreas: '"cadleditor output"\n    "footer footer"',
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+        fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
+      }}
+    >
+      <div css={{ gridArea: "cadleditor", width: "100%", height: "100%", overflow: "hidden" }}>
+        <EditorCommandBar saveCode={saveCode} newIssue={newIssue} updateCadl={updateCadl} />
         <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
       </div>
-      <div className="output-panel">
+      <div
+        css={{
+          gridArea: "output",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          borderLeft: "1px solid #c5c5c5",
+        }}
+      >
         <OutputView
           program={program}
           outputFiles={outputFiles}
@@ -243,7 +244,12 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
     ) : viewSelection.type === "errors" ? (
       <ErrorTab internalCompilerError={props.internalCompilerError} diagnostics={diagnostics} />
     ) : (
-      <div className="type-graph-container">
+      <div
+        css={{
+          height: "100%",
+          overflow: "scroll",
+        }}
+      >
         {props.program && <CadlProgramViewer program={props.program} />}
       </div>
     );
@@ -254,7 +260,9 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
         selected={viewSelection.type === "file" ? viewSelection.filename : viewSelection.type}
         onSelect={handleTabSelection}
       />
-      <div className="output-content">{content}</div>
+      <div className="output-content" css={{ width: "100%", height: "100%", overflow: "hidden" }}>
+        {content}
+      </div>
     </>
   );
 };
@@ -270,6 +278,13 @@ const ErrorTabLabel: FunctionComponent<{
 }> = ({ internalCompilerError, diagnostics }) => {
   const errorCount = (internalCompilerError ? 1 : 0) + (diagnostics ? diagnostics.length : 0);
   return (
-    <div>Errors {errorCount > 0 ? <span className="error-tab-count">{errorCount}</span> : ""}</div>
+    <div>Errors {errorCount > 0 ? <span css={ErrorTabCountStyles}>{errorCount}</span> : ""}</div>
   );
 };
+
+const ErrorTabCountStyles = css({
+  backgroundColor: "#cc2222",
+  color: "#f5f5f5",
+  padding: "0 5px",
+  borderRadius: "20px",
+});
