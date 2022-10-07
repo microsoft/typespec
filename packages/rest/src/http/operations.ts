@@ -47,8 +47,9 @@ export function listHttpOperationsIn(
 ): [HttpOperation[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const operations = listOperationsIn(container, options?.listOptions);
+  const cache = new Map();
   const httpOperations = operations.map((x) =>
-    diagnostics.pipe(getHttpOperation(program, x, options))
+    diagnostics.pipe(getHttpOperationInternal(program, x, options, cache))
   );
   return diagnostics.wrap(httpOperations);
 }
