@@ -1,3 +1,4 @@
+import { css } from "@emotion/react";
 import { FunctionComponent } from "react";
 import { SamplesDropdown } from "./samples-dropdown";
 
@@ -13,17 +14,17 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
 }) => {
   return (
     <div css={{ borderBottom: "1px solid #f5f5f5" }}>
-      <label>
+      <label css={CommandItemStyles}>
         <button onClick={saveCode as any}>Share</button>
       </label>
-      <label>
+      <label css={CommandItemStyles}>
         {"Load a sample: "}
         <SamplesDropdown onSelectSample={updateCadl as any} />
       </label>
-      <label>
+      <label css={CommandItemStyles}>
         <button onClick={newIssue as any}>Open Issue</button>
       </label>
-      <label>
+      <label >
         <a href="https://microsoft.github.io/cadl" target="_blank">
           Show Cadl Docs
         </a>
@@ -31,3 +32,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
     </div>
   );
 };
+
+const CommandItemStyles = css({
+  padding: "0 2px",
+});
