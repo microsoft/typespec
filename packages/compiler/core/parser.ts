@@ -20,6 +20,7 @@ import {
   CadlScriptNode,
   Comment,
   DeclarationNode,
+  DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   Diagnostic,
   DiagnosticReport,
@@ -30,6 +31,8 @@ import {
   EnumSpreadMemberNode,
   EnumStatementNode,
   Expression,
+  ExternKeywordNode,
+  FunctionDeclarationStatementNode,
   IdentifierContext,
   IdentifierKind,
   IdentifierNode,
@@ -41,6 +44,8 @@ import {
   ModelPropertyNode,
   ModelSpreadPropertyNode,
   ModelStatementNode,
+  Modifier,
+  ModifierFlags,
   NamespaceStatementNode,
   NeverKeywordNode,
   Node,
@@ -332,6 +337,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
           item = parseEmptyStatement();
+          break;
+        // Start of declaration with modifiers
+        case Token.ExternKeyword:
+        case Token.FnKeyword:
+        case Token.DecKeyword:
+          item = parseDeclaration();
           break;
         default:
           item = parseInvalidStatement(pos, decorators);
@@ -1148,6 +1159,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
   }
 
+  function parseExternKeyword(): ExternKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.ExternKeyword);
+    return {
+      kind: SyntaxKind.ExternKeyword,
+      ...finishNode(pos),
+    };
+  }
+
   function parseVoidKeyword(): VoidKeywordNode {
     const pos = tokenPos();
     parseExpected(Token.VoidKeyword);
@@ -1260,6 +1280,92 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       sv,
       ...finishNode(pos),
     };
+  }
+
+  function parseDeclaration():
+    | DecoratorDeclarationStatementNode
+    | FunctionDeclarationStatementNode
+    | InvalidStatementNode {
+    const modifiers = parseModifiers();
+    const pos = tokenPos();
+    switch (token()) {
+      case Token.DecKeyword:
+        return parseDecoratorDeclrationStatement(modifiers);
+      case Token.FnKeyword:
+        return parseFunctionDeclarationStatement(modifiers);
+    }
+    return parseInvalidStatement(pos, []);
+  }
+
+  function parseModifiers(): Modifier[] {
+    const modifiers: Modifier[] = [];
+    let modifier;
+    while ((modifier = parseModifier())) {
+      modifiers.push(modifier);
+    }
+    return modifiers;
+  }
+
+  function parseModifier(): Modifier | undefined {
+    switch (token()) {
+      case Token.ExternKeyword:
+        return parseExternKeyword();
+      default:
+        return undefined;
+    }
+  }
+
+  function parseDecoratorDeclrationStatement(
+    modifiers: Modifier[]
+  ): DecoratorDeclarationStatementNode {
+    const pos = tokenPos();
+    const modifierFlags = modifiersToFlags(modifiers);
+    parseExpected(Token.DecKeyword);
+    const id = parseIdentifier();
+    const parameters = parseOperationParameters();
+
+    return {
+      kind: SyntaxKind.DecoratorDeclarationStatement,
+      modifiers,
+      modifierFlags,
+      id,
+      parameters,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseFunctionDeclarationStatement(
+    modifiers: Modifier[]
+  ): FunctionDeclarationStatementNode {
+    const pos = tokenPos();
+    const modifierFlags = modifiersToFlags(modifiers);
+    parseExpected(Token.FnKeyword);
+    const id = parseIdentifier();
+    const parameters = parseOperationParameters();
+    parseExpected(Token.Colon);
+    const returnType = parseExpression();
+
+    return {
+      kind: SyntaxKind.FunctionDeclarationStatement,
+      modifiers,
+      modifierFlags,
+      id,
+      parameters,
+      returnType,
+      ...finishNode(pos),
+    };
+  }
+
+  function modifiersToFlags(modifiers: Modifier[]): ModifierFlags {
+    let flags = ModifierFlags.None;
+    for (const modifier of modifiers) {
+      switch (modifier.kind) {
+        case SyntaxKind.ExternKeyword:
+          flags &= ModifierFlags.Extern;
+          break;
+      }
+    }
+    return flags;
   }
 
   function parseProjectionStatement(): ProjectionStatementNode {
@@ -2356,12 +2462,24 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.templateParameters) ||
         visitNode(cb, node.value)
       );
+    case SyntaxKind.DecoratorDeclarationStatement:
+      return (
+        visitEach(cb, node.modifiers) || visitNode(cb, node.id) || visitNode(cb, node.parameters)
+      );
+    case SyntaxKind.FunctionDeclarationStatement:
+      return (
+        visitEach(cb, node.modifiers) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.parameters) ||
+        visitNode(cb, node.returnType)
+      );
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
+
     case SyntaxKind.Projection:
       return (
         visitNode(cb, node.directionId) ||
@@ -2437,6 +2555,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ProjectionEnumSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
+    case SyntaxKind.ExternKeyword:
     case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
       return;

@@ -152,7 +152,7 @@ describe("compiler: syntax", () => {
       ["interface X {", [/'}' expected/]],
       ["interface X { foo(): string; interface Y", [/'}' expected/]],
       ["interface X { foo(a: string", [/'\)' expected/]],
-      ["interface X { foo(@dec", [/Property expected/]],
+      ["interface X { foo(@myDec", [/Property expected/]],
       ["interface X { foo(#suppress x", [/Property expected/]],
     ]);
   });
@@ -180,14 +180,14 @@ describe("compiler: syntax", () => {
   describe("union declarations", () => {
     parseEach([
       "union A { x: number, y: number } ",
-      "@dec union A { @dec a: string }",
+      "@myDec union A { @myDec a: string }",
       "union A<T, V> { a: T; none: {} }",
       `union A { "hi there": string }`,
     ]);
 
     parseErrorEach([
       [
-        'union A { @dec "x" x: number, y: string }',
+        'union A { @myDec "x" x: number, y: string }',
         [/':' expected/],
         (n) => assert(!n.printable, "should not be printable"),
       ],
@@ -212,7 +212,7 @@ describe("compiler: syntax", () => {
       "namespace Store { op read(): int32; }",
       "namespace Store { op read(): int32; op write(v: int32): {}; }",
       "namespace Store.Read { op read(): int32; }",
-      "@foo namespace Store { @dec op read(): number; @dec op write(n: number): {}; }",
+      "@foo namespace Store { @myDec op read(): number; @myDec op write(n: number): {}; }",
       "@foo @bar namespace Store { @foo @bar op read(): number; }",
       "namespace Store { namespace Read { op read(): int32; } namespace Write { op write(v: int32): {}; } }",
       "namespace Store.Read { }",
@@ -306,7 +306,7 @@ describe("compiler: syntax", () => {
         ],
       ],
       ["model M {}; This is not a valid statement", [/Statement expected/]],
-      ["model M {}; @dec ;", [/Cannot decorate empty statement/]],
+      ["model M {}; @myDec ;", [/Cannot decorate empty statement/]],
     ]);
   });
 
@@ -638,7 +638,7 @@ describe("compiler: syntax", () => {
   });
 
   describe("invalid statement", () => {
-    parseErrorEach([["@dec(N.)", [/Identifier expected/]]]);
+    parseErrorEach([["@myDecN.)", [/Identifier expected/]]]);
   });
 });
 

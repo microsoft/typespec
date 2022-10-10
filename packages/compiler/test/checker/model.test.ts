@@ -20,7 +20,7 @@ describe("compiler: models", () => {
     let t1, t2;
 
     testHost.addJsFile("dec.js", {
-      $dec(p: any, t: any, _t1: Model, _t2: Model) {
+      $myDec(p: any, t: any, _t1: Model, _t2: Model) {
         t1 = _t1;
         t2 = _t2;
       },
@@ -32,7 +32,7 @@ describe("compiler: models", () => {
       import "./dec.js";
       model B { }
       model C { }
-      @dec(T1, T2)
+      @myDec(T1, T2)
       model A<T1,T2> {
 
       }

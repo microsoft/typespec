@@ -8,11 +8,13 @@ import {
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
+  DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
+  FunctionDeclarationStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   LineComment,
@@ -192,6 +194,20 @@ export function printNode(
       );
     case SyntaxKind.ModelSpreadProperty:
       return printModelSpread(path as AstPath<ModelSpreadPropertyNode>, options, print);
+    case SyntaxKind.DecoratorDeclarationStatement:
+      return printDecoratorDeclarationStatement(
+        path as AstPath<DecoratorDeclarationStatementNode>,
+        options,
+        print
+      );
+    case SyntaxKind.FunctionDeclarationStatement:
+      return printFunctionDeclarationStatement(
+        path as AstPath<FunctionDeclarationStatementNode>,
+        options,
+        print
+      );
+    case SyntaxKind.ExternKeyword:
+      return "void";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:
@@ -1169,6 +1185,40 @@ function printModelSpread(
   print: PrettierChildPrint
 ): prettier.Doc {
   return ["...", path.call(print, "target")];
+}
+
+function printDecoratorDeclarationStatement(
+  path: prettier.AstPath<DecoratorDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const id = path.call(print, "id");
+  const parameters = path.call(print, "parameters");
+  return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")"];
+}
+
+function printFunctionDeclarationStatement(
+  path: prettier.AstPath<FunctionDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const id = path.call(print, "id");
+  const parameters = path.call(print, "parameters");
+  const returnType = path.call(print, "returnType");
+  return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")", ":", returnType];
+}
+
+export function printModifiers(
+  path: AstPath<DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  if (node.modifiers.length === 0) {
+    return "";
+  }
+
+  return path.map((x) => [print(x as any), " "], "modifiers");
 }
 
 function printStringLiteral(

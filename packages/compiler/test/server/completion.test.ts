@@ -401,7 +401,7 @@ describe("compiler: server: completion", () => {
        namespace N {
         op test(): void;
        }
-       @dec(N.┆)
+       @myDec(N.┆)
       `
     );
 
@@ -428,7 +428,7 @@ describe("compiler: server: completion", () => {
         test(): void;
        }
       
-       @dec(I.┆
+       @myDec(I.┆
       `
     );
 
@@ -454,7 +454,7 @@ describe("compiler: server: completion", () => {
        model M {
         test: string;
        }
-       @dec(M.┆
+       @myDec(M.┆
       `
     );
 

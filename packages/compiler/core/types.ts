@@ -524,6 +524,8 @@ export enum SyntaxKind {
   EnumMember,
   EnumSpreadMember,
   AliasStatement,
+  DecoratorDeclarationStatement,
+  FunctionDeclarationStatement,
   UnionExpression,
   IntersectionExpression,
   TupleExpression,
@@ -531,6 +533,7 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
+  ExternKeyword,
   VoidKeyword,
   NeverKeyword,
   UnknownKeyword,
@@ -637,6 +640,7 @@ export type Node =
   | DirectiveExpressionNode
   | Statement
   | Expression
+  | Modifier
   | ProjectionStatementItem
   | ProjectionExpression
   | ProjectionModelSelectorNode
@@ -686,6 +690,8 @@ export type Statement =
   | EnumStatementNode
   | AliasStatementNode
   | OperationStatementNode
+  | DecoratorDeclarationStatementNode
+  | FunctionDeclarationStatementNode
   | AugmentDecoratorStatementNode
   | EmptyStatementNode
   | InvalidStatementNode
@@ -939,6 +945,10 @@ export interface BooleanLiteralNode extends BaseNode {
   readonly value: boolean;
 }
 
+export interface ExternKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.ExternKeyword;
+}
+
 export interface VoidKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.VoidKeyword;
 }
@@ -982,6 +992,42 @@ export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseN
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly constraint?: Expression;
   readonly default?: Expression;
+}
+
+export const enum ModifierFlags {
+  None,
+  Extern = 1 << 1,
+}
+
+export type Modifier = ExternKeywordNode;
+
+/**
+ * Represent a decorator declaration
+ * @example
+ * ```cadl
+ * extern dec camelCase(value: StringLiteral);
+ * ```
+ */
+export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {
+  readonly kind: SyntaxKind.DecoratorDeclarationStatement;
+  readonly modifiers: readonly Modifier[];
+  readonly modifierFlags: ModifierFlags;
+  readonly parameters: ModelExpressionNode;
+}
+
+/**
+ * Represent a function declaration
+ * @example
+ * ```cadl
+ * extern fn camelCase(value: StringLiteral): StringLiteral;
+ * ```
+ */
+export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationNode {
+  readonly kind: SyntaxKind.FunctionDeclarationStatement;
+  readonly modifiers: readonly Modifier[];
+  readonly modifierFlags: ModifierFlags;
+  readonly parameters: ModelExpressionNode;
+  readonly returnType: Expression;
 }
 
 // Projection-related Syntax

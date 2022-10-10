@@ -69,7 +69,7 @@ describe("compiler: parser utils", () => {
 
     it("return missing identifier between dot and close paren", async () => {
       const { node } = await getNodeAtCursor(`
-        @dec(N.┆)
+        @myDecN.┆)
       `);
       ok(node);
       strictEqual(node.kind, SyntaxKind.Identifier as const);

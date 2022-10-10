@@ -13,7 +13,7 @@ Decorators are defined using JavaScript functions that are exported from a stand
 
 ## Using decorators
 
-Decorators are referenced using the `@` prefix and must be specified before the entity they are decorating. Arguments can be provided by using parentheses in a manner similar to many programming languages, e.g. `@dec(1, "hi", { a: string })`.
+Decorators are referenced using the `@` prefix and must be specified before the entity they are decorating. Arguments can be provided by using parentheses in a manner similar to many programming languages, e.g. `@myDec1, "hi", { a: string })`.
 
 The following shows an example of declaring and then using a decorator:
 
