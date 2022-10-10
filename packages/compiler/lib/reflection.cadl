@@ -1,0 +1,21 @@
+namespace Cadl.Reflection;
+
+model Type {}
+model Model {}
+model ModelProperty {}
+model Interface {}
+model Enum {}
+model EnumMember {}
+model TemplateParameter {}
+model Namespace {}
+model Operation {}
+model StringLiteral {}
+model NumericLiteral {}
+model BooleanLiteral {}
+model Tuple {}
+model Union {}
+model UnionVariant {}
+model IntrinsicType {}
+model FunctionType {}
+model ObjectType {}
+model Projection {}
