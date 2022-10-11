@@ -41,7 +41,7 @@ async function main() {
       "../../packages/compiler/dist/core/cli.js",
       "compile",
       inputPath,
-      `--output-path=${outputPath}`,
+      `--output-dir=${outputPath}`,
       `--emit=@cadl-lang/openapi3`,
       `--warn-as-error`,
       `--debug`,
