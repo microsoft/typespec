@@ -6,4 +6,4 @@ export interface PlaygroundConfig {
 }
 
 export { createBrowserHost } from "./browser-host.js";
-export { Playground, PlaygroundProps } from "./components/cadl-playground.js";
+export { Playground, PlaygroundProps } from "./components/playground.js";

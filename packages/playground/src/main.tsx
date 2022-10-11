@@ -2,9 +2,9 @@ import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
 import { createRoot } from "react-dom/client";
 import { FunctionComponent } from "react";
-import { createBrowserHost } from "./browser-host";
-import { Playground } from "./components/cadl-playground";
-import { attachServices } from "./services";
+import { createBrowserHost } from "./browser-host.js";
+import { Playground } from "./components/playground.js";
+import { attachServices } from "./services.js";
 
 import "./style.css";
 
