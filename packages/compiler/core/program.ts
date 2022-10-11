@@ -264,7 +264,7 @@ export async function compile(
 
   const program: Program = {
     checker: undefined!,
-    compilerOptions: options,
+    compilerOptions: resolveOptions(options),
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
     literalTypes: new Map(),
@@ -1083,4 +1083,16 @@ function computeEmitters(
   }
 
   return processedEmitters;
+}
+
+/**
+ * Resolve compiler options from input options.
+ */
+function resolveOptions(options: CompilerOptions): CompilerOptions {
+  const outputDir = options.outputDir ?? options.outputPath;
+  return {
+    ...options,
+    outputDir,
+    outputPath: outputDir,
+  };
 }
