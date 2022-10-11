@@ -1188,7 +1188,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 }
 
 export type EmitterOptions = { name?: string } & Record<string, any>;
-export type Emitter = (program: Program, options: EmitterOptions) => Promise<void> | void;
+export type EmitterFunc = (program: Program, options: EmitterOptions) => Promise<void> | void;
 
 export interface SourceFile {
   /** The source code text. */
@@ -1358,15 +1358,26 @@ type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (
   ? I
   : never;
 
+export enum ListenerFlow {
+  /**
+   * Do not navigate any containing or referenced type.
+   */
+  NoRecursion = 1,
+}
+
+/**
+ * Listener function. Can return false to stop recursion.
+ */
+type TypeListener<T> = (context: T) => ListenerFlow | undefined | void;
 type exitListener<T extends string | number | symbol> = T extends string ? `exit${T}` : T;
 type ListenerForType<T extends Type> = T extends Type
-  ? { [k in Uncapitalize<T["kind"]> | exitListener<T["kind"]>]?: (context: T) => void }
+  ? { [k in Uncapitalize<T["kind"]> | exitListener<T["kind"]>]?: TypeListener<T> }
   : never;
 
-type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
+export type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
 export type SemanticNodeListener = {
-  root?: (context: Program) => void;
+  root?: (context: Program) => void | undefined;
 } & TypeListeners;
 
 export type DiagnosticReport<

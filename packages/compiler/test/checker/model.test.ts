@@ -162,65 +162,81 @@ describe("compiler: models", () => {
     ]);
   });
 
-  it("provides parent model of properties", async () => {
-    testHost.addCadlFile(
-      "main.cadl",
-      `
-      @test
+  describe("link model with its properties", () => {
+    it("provides parent model of properties", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+        @test
+        model A {
+          pA: int32;
+        }
+  
+        @test
+        model B {
+          pB: int32;
+  
+        }
+        `
+      );
+
+      const { A, B } = (await testHost.compile("./")) as { A: Model; B: Model };
+
+      strictEqual(A.properties.get("pA")?.model, A);
+      strictEqual(B.properties.get("pB")?.model, B);
+    });
+
+    it("property merged via intersection", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
       model A {
-        pA: int32;
+        a: string;
       }
-
-      @test
       model B {
-        pB: int32;
-
+        b: string;
       }
 
-      @test
-      model C {
-        pC: int32;
-      }
-
-      @test
-      model D {
-        ...A,
-        pD: B & C;
-      }
+      @test model Test {prop: A & B}
       `
-    );
+      );
+      const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
+      const AB = Test.properties.get("prop")?.type;
 
-    const { A, B, C, D } = await testHost.compile("./");
+      strictEqual(AB?.kind, "Model" as const);
+      strictEqual(AB.properties.get("a")?.model, AB);
+      strictEqual(AB.properties.get("b")?.model, AB);
+    });
 
-    strictEqual(A.kind, "Model" as const);
-    strictEqual(A.properties.size, 1);
-    const pA = A.properties.get("pA");
-    strictEqual(pA?.model, A);
+    it("property copied via spread", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+      model Foo {
+        prop: string;
+      }
 
-    strictEqual(B.kind, "Model" as const);
-    strictEqual(B.properties.size, 1);
-    const pB = B.properties.get("pB");
-    strictEqual(pB?.model, B);
+      @test model Test {...Foo}
+      `
+      );
+      const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
+      strictEqual(Test.properties.get("prop")?.model, Test);
+    });
 
-    strictEqual(C.kind, "Model" as const);
-    strictEqual(C.properties.size, 1);
-    const pC = C.properties.get("pC");
-    strictEqual(pC?.model, C);
+    it("property copied via `is`", async () => {
+      testHost.addCadlFile(
+        "main.cadl",
+        `
+      model Foo {
+        prop: string;
+      }
 
-    strictEqual(D.kind, "Model" as const);
-    strictEqual(D.properties.size, 2);
-    const pA_of_D = D.properties.get("pA");
-    const pD = D.properties.get("pD");
-    strictEqual(pA_of_D?.model, D);
-    strictEqual(pD?.model, D);
-
-    const BC = pD.type;
-    strictEqual(BC.kind, "Model" as const);
-    strictEqual(BC.properties.size, 2);
-    const pB_of_BC = BC.properties.get("pB");
-    const pC_of_BC = BC.properties.get("pC");
-    strictEqual(pB_of_BC?.model, BC);
-    strictEqual(pC_of_BC?.model, BC);
+      @test model Test is Foo;
+      `
+      );
+      const { Test } = (await testHost.compile("main.cadl")) as { Test: Model };
+      strictEqual(Test.properties.get("prop")?.model, Test);
+    });
   });
 
   describe("with extends", () => {

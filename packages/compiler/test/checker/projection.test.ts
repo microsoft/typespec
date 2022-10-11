@@ -8,6 +8,7 @@ import {
   EnumMember,
   Interface,
   Model,
+  ModelProperty,
   Namespace,
   NumericLiteral,
   Operation,
@@ -212,6 +213,70 @@ describe("compiler: projections", () => {
   });
 
   describe("models", () => {
+    it("link projected model to projected properties", async () => {
+      const code = `
+      @test model Foo {
+        name: string;
+      }
+      #suppress "projections-are-experimental"
+      projection model#test {to {}}`;
+      const result = (await testProjection(code)) as Model;
+      ok(result.projectionBase);
+      strictEqual(result.properties.get("name")?.model, result);
+    });
+
+    it("link projected property with sourceProperty", async () => {
+      const code = `
+      @test model Foo {
+        ...Bar
+      }
+
+      model Bar {
+        name: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#test {to {}}`;
+      const Foo = (await testProjection(code)) as Model;
+      ok(Foo.projectionBase);
+      const sourceProperty = Foo.properties.get("name")?.sourceProperty;
+      ok(sourceProperty);
+      strictEqual(sourceProperty, Foo.namespace!.models.get("Bar")?.properties.get("name"));
+      strictEqual(sourceProperty.model, Foo.namespace!.models.get("Bar"));
+    });
+
+    it("project all properties first", async () => {
+      const keySym = Symbol("key");
+      testHost.addJsFile("lib.js", {
+        $tagProp({ program }: DecoratorContext, t: ModelProperty) {
+          program.stateSet(keySym).add(t);
+        },
+        $tagModel({ program }: DecoratorContext, t: Model) {
+          for (const prop of t.properties.values()) {
+            ok(
+              program.stateSet(keySym).has(prop),
+              `Prop ${prop.name} should have run @key decorator by this time.`
+            );
+          }
+        },
+      });
+
+      const code = `
+      import "./lib.js";
+
+      @test @tagModel model Foo {
+        ...Bar;
+      }
+
+      model Bar {
+        @tagProp name: string;
+      }
+
+      #suppress "projections-are-experimental"
+      projection Foo#test {to {}}`;
+      await testProjection(code);
+    });
+
     it("works for versioning", async () => {
       const addedOnKey = Symbol("addedOn");
       const removedOnKey = Symbol("removedOn");
@@ -512,6 +577,18 @@ describe("compiler: projections", () => {
       strictEqual((variant.type as Model).name, typeName);
     }
 
+    it("link projected model to projected properties", async () => {
+      const code = `
+      @test union Foo {
+        one: {};
+      }
+      #suppress "projections-are-experimental"
+      projection model#test {to {}}`;
+      const result = (await testProjection(code)) as Union;
+      ok(result.projectionBase);
+      strictEqual(result.variants.get("one")?.union, result);
+    });
+
     it("can rename itself", async () => {
       const code = `
        ${unionCode}
@@ -638,6 +715,18 @@ describe("compiler: projections", () => {
       ${projectionCode(body)}
     `;
 
+    it("link projected interfaces to its projected operations", async () => {
+      const code = `
+      @test interface Foo {
+        op test(): string;
+      }
+      #suppress "projections-are-experimental"
+      projection interface#test {to {}}`;
+      const result = (await testProjection(code)) as Interface;
+      ok(result.projectionBase);
+      strictEqual(result.operations.get("test")?.interface, result);
+    });
+
     it("can rename itself", async () => {
       const code = `
         ${interfaceCode}
@@ -691,6 +780,14 @@ describe("compiler: projections", () => {
       ${enumCode}
       ${projectionCode(body)}
     `;
+
+    it("link projected enum to projected members", async () => {
+      const code = defaultCode("");
+      const result = (await testProjection(code)) as Enum;
+      ok(result.projectionBase);
+      strictEqual(result.members.get("one")?.enum, result);
+      strictEqual(result.members.get("two")?.enum, result);
+    });
 
     it("can rename itself", async () => {
       const code = `
@@ -852,7 +949,9 @@ describe("compiler: projections", () => {
         let run = 0;
 
         testHost.addJsFile("mark.js", {
-          $mark: () => run++,
+          $mark: () => {
+            run++;
+          },
         });
 
         testHost.addCadlFile(
@@ -889,7 +988,7 @@ describe("compiler: projections", () => {
             prop: string;
           }
 
-          model Instance is Foo<string>;
+          model Instance {prop: Foo<string>};
         `,
           1
         );
@@ -902,7 +1001,7 @@ describe("compiler: projections", () => {
             @mark(T)
             prop: string;
           }
-          model Instance is Foo<string>;
+          model Instance {prop: Foo<string>};
         `,
           1
         );

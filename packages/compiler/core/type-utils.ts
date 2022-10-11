@@ -49,7 +49,7 @@ export function isTemplateDeclaration(type: TemplatedType): boolean {
     return false;
   }
   const node = type.node as TemplateDeclarationNode;
-  return node.templateParameters.length > 0 && !isTemplateInstance(type);
+  return node.templateParameters && node.templateParameters.length > 0 && !isTemplateInstance(type);
 }
 
 /**
