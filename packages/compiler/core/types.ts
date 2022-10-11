@@ -528,6 +528,7 @@ export enum SyntaxKind {
   AliasStatement,
   DecoratorDeclarationStatement,
   FunctionDeclarationStatement,
+  FunctionParameterDeclaration,
   UnionExpression,
   IntersectionExpression,
   TupleExpression,
@@ -642,6 +643,7 @@ export type Node =
   | DirectiveExpressionNode
   | Statement
   | Expression
+  | FunctionParameterDeclarationNode
   | Modifier
   | ProjectionStatementItem
   | ProjectionExpression
@@ -1009,14 +1011,29 @@ export type Modifier = ExternKeywordNode;
  * Represent a decorator declaration
  * @example
  * ```cadl
- * extern dec camelCase(value: StringLiteral);
+ * extern dec doc(target: Type, value: StringLiteral);
  * ```
  */
 export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.DecoratorDeclarationStatement;
   readonly modifiers: readonly Modifier[];
   readonly modifierFlags: ModifierFlags;
-  readonly parameters: ModelExpressionNode;
+  /**
+   * Decorator target. First parameter.
+   */
+  readonly target: FunctionParameterDeclarationNode;
+
+  /**
+   * Additional parameters
+   */
+  readonly parameters: FunctionParameterDeclarationNode[];
+}
+
+export interface FunctionParameterDeclarationNode extends BaseNode {
+  readonly kind: SyntaxKind.FunctionParameterDeclaration;
+  readonly id: IdentifierNode;
+  readonly value: Expression;
+  readonly optional: boolean;
 }
 
 /**
@@ -1030,7 +1047,7 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly kind: SyntaxKind.FunctionDeclarationStatement;
   readonly modifiers: readonly Modifier[];
   readonly modifierFlags: ModifierFlags;
-  readonly parameters: ModelExpressionNode;
+  readonly parameters: FunctionParameterDeclarationNode[];
   readonly returnType: Expression;
 }
 

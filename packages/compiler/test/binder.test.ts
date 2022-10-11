@@ -394,21 +394,21 @@ describe("compiler: binder", () => {
             declarations: [SyntaxKind.JsSourceFile],
             exports: {
               "@myDec2": {
-                flags: SymbolFlags.Decorator,
+                flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
               fn2: {
-                flags: SymbolFlags.Function,
+                flags: SymbolFlags.Function | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
             },
           },
           "@myDec": {
-            flags: SymbolFlags.Decorator,
+            flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
           fn: {
-            flags: SymbolFlags.Function,
+            flags: SymbolFlags.Function | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
         },

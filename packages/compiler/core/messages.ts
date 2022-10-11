@@ -443,6 +443,12 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
+  "decorator-decl-target": {
+    severity: "warning",
+    messages: {
+      default: "dec must have at least one parameter.",
+    },
+  },
   "projections-are-experimental": {
     severity: "warning",
     messages: {

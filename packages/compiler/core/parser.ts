@@ -33,6 +33,7 @@ import {
   Expression,
   ExternKeywordNode,
   FunctionDeclarationStatementNode,
+  FunctionParameterDeclarationNode,
   IdentifierContext,
   IdentifierKind,
   IdentifierNode,
@@ -228,6 +229,14 @@ namespace ListKind {
     allowEmpty: true,
     open: Token.OpenBracket,
     close: Token.CloseBracket,
+  } as const;
+
+  export const FunctionParameters = {
+    ...ExpresionsBase,
+    allowEmpty: true,
+    open: Token.OpenParen,
+    close: Token.CloseParen,
+    invalidDecoratorTarget: "expression",
   } as const;
 
   export const ProjectionExpression = {
@@ -1290,7 +1299,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const pos = tokenPos();
     switch (token()) {
       case Token.DecKeyword:
-        return parseDecoratorDeclrationStatement(modifiers);
+        return parseDecoratorDeclarationStatement(modifiers);
       case Token.FnKeyword:
         return parseFunctionDeclarationStatement(modifiers);
     }
@@ -1315,20 +1324,30 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     }
   }
 
-  function parseDecoratorDeclrationStatement(
+  function parseDecoratorDeclarationStatement(
     modifiers: Modifier[]
   ): DecoratorDeclarationStatementNode {
     const pos = tokenPos();
     const modifierFlags = modifiersToFlags(modifiers);
     parseExpected(Token.DecKeyword);
     const id = parseIdentifier();
-    const parameters = parseOperationParameters();
-
+    let [target, ...parameters] = parseFunctionParameters();
+    if (target === undefined) {
+      error({ code: "decorator-decl-target" });
+      target = {
+        kind: SyntaxKind.FunctionParameterDeclaration,
+        id: createMissingIdentifier(),
+        value: createMissingIdentifier(),
+        optional: false,
+        ...finishNode(pos),
+      };
+    }
     return {
       kind: SyntaxKind.DecoratorDeclarationStatement,
       modifiers,
       modifierFlags,
       id,
+      target,
       parameters,
       ...finishNode(pos),
     };
@@ -1341,7 +1360,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const modifierFlags = modifiersToFlags(modifiers);
     parseExpected(Token.FnKeyword);
     const id = parseIdentifier();
-    const parameters = parseOperationParameters();
+    const parameters = parseFunctionParameters();
     parseExpected(Token.Colon);
     const returnType = parseExpression();
 
@@ -1352,6 +1371,29 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       id,
       parameters,
       returnType,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseFunctionParameters(): FunctionParameterDeclarationNode[] {
+    return parseList<typeof ListKind.FunctionParameters, FunctionParameterDeclarationNode>(
+      ListKind.FunctionParameters,
+      parseFunctionParameter
+    );
+  }
+
+  function parseFunctionParameter(): FunctionParameterDeclarationNode {
+    const pos = tokenPos();
+    const id = parseIdentifier("property");
+
+    const optional = parseOptional(Token.Question);
+    parseExpected(Token.Colon);
+    const value = parseExpression();
+    return {
+      kind: SyntaxKind.FunctionParameterDeclaration,
+      id,
+      value,
+      optional,
       ...finishNode(pos),
     };
   }
@@ -2464,15 +2506,17 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.DecoratorDeclarationStatement:
       return (
-        visitEach(cb, node.modifiers) || visitNode(cb, node.id) || visitNode(cb, node.parameters)
+        visitEach(cb, node.modifiers) || visitNode(cb, node.id) || visitEach(cb, node.parameters)
       );
     case SyntaxKind.FunctionDeclarationStatement:
       return (
         visitEach(cb, node.modifiers) ||
         visitNode(cb, node.id) ||
-        visitNode(cb, node.parameters) ||
+        visitEach(cb, node.parameters) ||
         visitNode(cb, node.returnType)
       );
+    case SyntaxKind.FunctionParameterDeclaration:
+      return visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.TupleExpression:

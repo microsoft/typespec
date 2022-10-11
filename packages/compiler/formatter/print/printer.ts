@@ -15,6 +15,7 @@ import {
   EnumSpreadMemberNode,
   EnumStatementNode,
   FunctionDeclarationStatementNode,
+  FunctionParameterDeclarationNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   LineComment,
@@ -206,8 +207,14 @@ export function printNode(
         options,
         print
       );
+    case SyntaxKind.FunctionParameterDeclaration:
+      return printFunctionParameterDeclaration(
+        path as AstPath<FunctionParameterDeclarationNode>,
+        options,
+        print
+      );
     case SyntaxKind.ExternKeyword:
-      return "void";
+      return "extern";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:
@@ -1193,7 +1200,17 @@ function printDecoratorDeclarationStatement(
   print: PrettierChildPrint
 ): prettier.Doc {
   const id = path.call(print, "id");
-  const parameters = path.call(print, "parameters");
+  const parameters = [
+    group([
+      indent(
+        join(", ", [
+          path.call(print, "target"),
+          ...path.map((arg) => [softline, print(arg)], "parameters"),
+        ])
+      ),
+      softline,
+    ]),
+  ];
   return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")"];
 }
 
@@ -1203,9 +1220,34 @@ function printFunctionDeclarationStatement(
   print: PrettierChildPrint
 ): prettier.Doc {
   const id = path.call(print, "id");
-  const parameters = path.call(print, "parameters");
+  const parameters = [
+    group([
+      indent(
+        join(
+          ", ",
+          path.map((arg) => [softline, print(arg)], "parameters")
+        )
+      ),
+      softline,
+    ]),
+  ];
   const returnType = path.call(print, "returnType");
   return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")", ":", returnType];
+}
+
+function printFunctionParameterDeclaration(
+  path: prettier.AstPath<FunctionParameterDeclarationNode>,
+  options: CadlPrettierOptions,
+  print: PrettierChildPrint
+): prettier.Doc {
+  const node = path.getValue();
+  const id = path.call(print, "id");
+  return [
+    printDirectives(path, options, print),
+    id,
+    node.optional ? "?: " : ": ",
+    path.call(print, "value"),
+  ];
 }
 
 export function printModifiers(
