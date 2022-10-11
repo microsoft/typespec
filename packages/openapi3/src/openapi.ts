@@ -80,6 +80,7 @@ import {
   HttpOperationParameters,
   HttpOperationResponse,
   isContentTypeHeader,
+  isOverloadSameEndpoint,
   MetadataInfo,
   reportIfNoRoutes,
   ServiceAuthentication,
@@ -366,7 +367,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       reportIfNoRoutes(program, service.operations);
 
       for (const operation of service.operations) {
-        emitOperation(operation);
+        if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
+          continue;
+        } else {
+          emitOperation(operation);
+        }
       }
       emitParameters();
       emitUnreferencedSchemas(serviceNamespace);
