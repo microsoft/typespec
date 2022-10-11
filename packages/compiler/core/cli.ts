@@ -64,13 +64,11 @@ async function main() {
           })
           .option("output-path", {
             type: "string",
-            default: "./cadl-output",
             deprecated: "Use `output-dir` instead.",
             hidden: true,
           })
           .option("output-dir", {
             type: "string",
-            default: "./cadl-output",
             describe:
               "The output path for generated artifacts.  If it does not exist, it will be created.",
           })
@@ -336,8 +334,8 @@ function createCLICompilerHost(args: { pretty?: boolean }): CompilerHost {
 }
 
 interface CompileCliArgs {
-  "output-dir": string;
-  "output-path": string;
+  "output-dir"?: string;
+  "output-path"?: string;
   nostdlib?: boolean;
   options?: string[];
   import?: string[];
@@ -353,8 +351,7 @@ async function getCompilerOptions(
   host: CompilerHost,
   args: CompileCliArgs
 ): Promise<CompilerOptions> {
-  // Workaround for https://github.com/npm/cli/issues/3680
-  const pathArg = args["output-dir"] ?? args["output-path"];
+  const pathArg = args["output-dir"] ?? args["output-path"] ?? "./cadl-output";
   const outputPath = resolvePath(process.cwd(), pathArg);
   await mkdirp(outputPath);
 
