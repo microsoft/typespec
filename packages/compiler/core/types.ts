@@ -474,12 +474,14 @@ export const enum SymbolFlags {
   Using                 = 1 << 18,
   DuplicateUsing        = 1 << 19,
   SourceFile            = 1 << 20,
-
+  Declaration           = 1 << 21,
+  Implementation        = 1 << 22,
+  
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 21,
+  LateBound = 1 << 23,
 
   ExportContainer = Namespace | SourceFile,
   /**
@@ -712,7 +714,9 @@ export type Declaration =
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
   | EnumStatementNode
-  | AliasStatementNode;
+  | AliasStatementNode
+  | DecoratorDeclarationStatementNode
+  | FunctionDeclarationStatementNode;
 
 export type ScopeNode =
   | NamespaceStatementNode

@@ -5,6 +5,7 @@ import {
   AugmentDecoratorStatementNode,
   DecoratedType,
   DecoratorContext,
+  DecoratorDeclarationStatementNode,
   Diagnostic,
   DiagnosticTarget,
   Expression,
@@ -494,6 +495,8 @@ export function createChecker(program: Program): Checker {
         return checkUnionExpression(node, mapper);
       case SyntaxKind.IntersectionExpression:
         return checkIntersectionExpression(node, mapper);
+      case SyntaxKind.DecoratorDeclarationStatement:
+        return checkDecoratorDeclaration(node, mapper);
       case SyntaxKind.TypeReference:
         return checkTypeReference(node, mapper);
       case SyntaxKind.TemplateParameterDeclaration:
@@ -1058,6 +1061,13 @@ export function createChecker(program: Program): Checker {
   ) {
     const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o, mapper)]);
     return mergeModelTypes(node, options, mapper);
+  }
+
+  function checkDecoratorDeclaration(
+    node: DecoratorDeclarationStatementNode,
+    mapper: TypeMapper | undefined
+  ) {
+    return errorType;
   }
 
   function mergeModelTypes(
@@ -2849,6 +2859,35 @@ export function createChecker(program: Program): Checker {
           mergedSymbols.set(sourceBinding, targetBinding);
           mutate(targetBinding.declarations).push(...sourceBinding.declarations);
           mergeSymbolTable(sourceBinding.exports!, mutate(targetBinding.exports!));
+        } else {
+          // this will set a duplicate error
+          target.set(key, sourceBinding);
+        }
+      } else if (
+        sourceBinding.flags & SymbolFlags.Declaration ||
+        sourceBinding.flags & SymbolFlags.Implementation
+      ) {
+        const targetBinding = target.get(key);
+        if (
+          !targetBinding ||
+          (targetBinding.flags & SymbolFlags.Declaration &&
+            targetBinding.flags & SymbolFlags.Implementation)
+        ) {
+          target.set(key, sourceBinding);
+        } else if (
+          targetBinding.flags & SymbolFlags.Declaration &&
+          sourceBinding.flags & SymbolFlags.Implementation
+        ) {
+          mergedSymbols.set(sourceBinding, targetBinding);
+          mutate(targetBinding).value = sourceBinding.value;
+          mutate(targetBinding).flags |= sourceBinding.flags;
+        } else if (
+          targetBinding.flags & SymbolFlags.Implementation &&
+          sourceBinding.flags & SymbolFlags.Declaration
+        ) {
+          mergedSymbols.set(sourceBinding, targetBinding);
+          mutate(targetBinding).flags |= sourceBinding.flags;
+          mutate(targetBinding.declarations).push(...sourceBinding.declarations);
         } else {
           // this will set a duplicate error
           target.set(key, sourceBinding);

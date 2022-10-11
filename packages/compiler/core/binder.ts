@@ -4,7 +4,9 @@ import {
   AliasStatementNode,
   CadlScriptNode,
   Declaration,
+  DecoratorDeclarationStatementNode,
   EnumStatementNode,
+  FunctionDeclarationStatementNode,
   InterfaceStatementNode,
   JsSourceFileNode,
   ModelStatementNode,
@@ -168,9 +170,19 @@ export function createBinder(program: Program): Binder {
         }
         let sym;
         if (kind === "decorator") {
-          sym = createSymbol(sourceFile, "@" + name, SymbolFlags.Decorator, containerSymbol);
+          sym = createSymbol(
+            sourceFile,
+            "@" + name,
+            SymbolFlags.Decorator | SymbolFlags.Implementation,
+            containerSymbol
+          );
         } else {
-          sym = createSymbol(sourceFile, name, SymbolFlags.Function, containerSymbol);
+          sym = createSymbol(
+            sourceFile,
+            name,
+            SymbolFlags.Function | SymbolFlags.Implementation,
+            containerSymbol
+          );
         }
         mutate(sym).value = member as any;
         mutate(containerSymbol.exports)!.set(sym.name, sym);
@@ -224,6 +236,12 @@ export function createBinder(program: Program): Binder {
         break;
       case SyntaxKind.UsingStatement:
         bindUsingStatement(node);
+        break;
+      case SyntaxKind.DecoratorDeclarationStatement:
+        bindDecoratorDeclarationStatement(node);
+        break;
+      case SyntaxKind.FunctionDeclarationStatement:
+        bindFunctionDeclarationStatement(node);
         break;
       case SyntaxKind.Projection:
         bindProjection(node);
@@ -410,35 +428,43 @@ export function createBinder(program: Program): Binder {
     }
   }
 
-  function declareSymbol(node: Declaration, flags: SymbolFlags) {
+  function bindDecoratorDeclarationStatement(node: DecoratorDeclarationStatementNode) {
+    declareSymbol(node, SymbolFlags.Decorator | SymbolFlags.Declaration, `@${node.id.sv}`);
+  }
+
+  function bindFunctionDeclarationStatement(node: FunctionDeclarationStatementNode) {
+    declareSymbol(node, SymbolFlags.Function | SymbolFlags.Declaration);
+  }
+
+  function declareSymbol(node: Declaration, flags: SymbolFlags, name?: string) {
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
-        return declareNamespaceMember(node, flags);
+        return declareNamespaceMember(node, flags, name);
       case SyntaxKind.CadlScript:
       case SyntaxKind.JsSourceFile:
-        return declareScriptMember(node, flags);
+        return declareScriptMember(node, flags, name);
       default:
-        const symbol = createSymbol(node, node.id.sv, flags, scope.symbol);
+        const symbol = createSymbol(node, name ?? node.id.sv, flags, scope.symbol);
         mutate(node).symbol = symbol;
         mutate(scope.locals!).set(node.id.sv, symbol);
         return symbol;
     }
   }
 
-  function declareNamespaceMember(node: Declaration, flags: SymbolFlags) {
+  function declareNamespaceMember(node: Declaration, flags: SymbolFlags, name?: string) {
     if (
       flags & SymbolFlags.Namespace &&
       mergeNamespaceDeclarations(node as NamespaceStatementNode, scope)
     ) {
       return;
     }
-    const symbol = createSymbol(node, node.id.sv, flags, scope.symbol);
+    const symbol = createSymbol(node, name ?? node.id.sv, flags, scope.symbol);
     mutate(node).symbol = symbol;
     mutate(scope.symbol.exports)!.set(node.id.sv, symbol);
     return symbol;
   }
 
-  function declareScriptMember(node: Declaration, flags: SymbolFlags) {
+  function declareScriptMember(node: Declaration, flags: SymbolFlags, name?: string) {
     const effectiveScope = fileNamespace ?? scope;
     if (
       flags & SymbolFlags.Namespace &&
@@ -446,7 +472,7 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const symbol = createSymbol(node, node.id.sv, flags, fileNamespace?.symbol);
+    const symbol = createSymbol(node, name ?? node.id.sv, flags, fileNamespace?.symbol);
     mutate(node).symbol = symbol;
     mutate(effectiveScope.symbol.exports!).set(node.id.sv, symbol);
     return symbol;
