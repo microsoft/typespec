@@ -25,8 +25,8 @@ import { Program } from "@cadl-lang/compiler";
 import Path from "path";
 
 export async function $onEmit(program: Program) {
-  const outputPath = Path.join(program.compilerOptions.outputPath!, "hello.txt");
-  await program.host.writeFile(outputPath, "hello world!");
+  const outputDir = Path.join(program.compilerOptions.outputDir!, "hello.txt");
+  await program.host.writeFile(outputDir, "hello world!");
 }
 ```
 
@@ -45,14 +45,14 @@ import { Program, createCadlLibrary, EmitOptionsFor, JSONSchemaType } from "@cad
 import Path from "path";
 
 export interface EmitterOptions {
-  targetName: string;
+  "target-name": string;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    targetName: { type: "string", nullable: true },
+    "target-name": { type: "string", nullable: true },
   },
   required: [],
 };
@@ -66,17 +66,22 @@ export const $lib = createCadlLibrary({
 });
 
 export async function $onEmit(program: Program, options: EmitterOptions) {
-  const outputPath = Path.join(program.compilerOptions.outputPath!, "hello.txt");
+  const outputDir = Path.join(program.compilerOptions.outputDir!, "hello.txt");
   const name = options.targetName;
-  await program.host.writeFile(outputPath, `hello ${name}!`);
+  await program.host.writeFile(outputDir, `hello ${name}!`);
 }
 ```
 
+### Configuration options convention
+
+- Name options `kebab-case`. So it can be inline with the rest of the cli
+- An option called `output-dir` can be created and should override the compiler `output-dir`
+
 #### Emitter options vs. decorators
 
-Generally speaking, emitter options and decorators can solve the same problems: allowing the user to customize how the emit works. For example, the `outputPath` option could be passed on the command line, or we could have an `@outputPath` decorator that has the same effect. Which do you use?
+Generally speaking, emitter options and decorators can solve the same problems: allowing the user to customize how the emit works. For example, the `outputDir` option could be passed on the command line, or we could have an `@outputPath` decorator that has the same effect. Which do you use?
 
-The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the Cadl program would use the same configuration. This is not the case for outputPath because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
+The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the Cadl program would use the same configuration. This is not the case for `outputDir` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
 
 ## Querying the program
 

@@ -569,25 +569,26 @@ describe("compiler: built-in decorators", () => {
       ok(!getOverloadedOperation(runner.program, compiled.someUnrelatedThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
       ok(overloadedBy?.length == 2);
-      ok(overloadedBy?.indexOf("someStringThing") !== -1);
-      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+      ok(overloadedBy?.includes("someStringThing"));
+      ok(overloadedBy?.includes("someNumberThing"));
       ok(getOverloads(runner.program, compiled.someUnrelatedThing) === undefined);
     });
 
     it("can overload operations defined in a namespace", async () => {
       const compiled = (await runner.compile(`
-        namespace ADifferentNS {
+        namespace MyArea {
           @test
           op someThing(param: string | int32): string | int32;
 
           @test
           @overload(someThing)
           op someStringThing(param: string): string;
+
+          @test
+          @overload(MyArea.someThing)
+          op someNumberThing(param: int32): int32;
         }
 
-        @test
-        @overload(ADifferentNS.someThing)
-        op someNumberThing(param: int32): int32;
       `)) as {
         someThing: Operation;
         someStringThing: Operation;
@@ -600,8 +601,8 @@ describe("compiler: built-in decorators", () => {
       ok(!getOverloadedOperation(runner.program, compiled.someThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
       ok(overloadedBy?.length == 2);
-      ok(overloadedBy?.indexOf("someStringThing") !== -1);
-      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+      ok(overloadedBy?.includes("someStringThing"));
+      ok(overloadedBy?.includes("someNumberThing"));
     });
 
     it("can overload operations defined in an interface", async () => {
@@ -630,8 +631,89 @@ describe("compiler: built-in decorators", () => {
       ok(!getOverloadedOperation(runner.program, compiled.someThing));
       const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
       ok(overloadedBy?.length == 2);
-      ok(overloadedBy?.indexOf("someStringThing") !== -1);
-      ok(overloadedBy?.indexOf("someNumberThing") !== -1);
+      ok(overloadedBy?.includes("someStringThing"));
+      ok(overloadedBy?.includes("someNumberThing"));
+    });
+
+    describe("overloads must have the same parent as the overload base", () => {
+      it("emit diagnostic if outside of interface", async () => {
+        const diagnostics = await runner.diagnose(`
+          interface SomeInterface {
+            someThing(param: string | int32): string | int32;
+          }
+  
+          @overload(SomeInterface.someThing)
+          op someStringThing(param: string): string;
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+
+      it("emit diagnostic if outside of namespace", async () => {
+        const diagnostics = await runner.diagnose(`
+          namespace SomeNamespace {
+            op someThing(param: string | int32): string | int32;
+          }
+  
+          @overload(SomeNamespace.someThing)
+          op someStringThing(param: string): string;
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+
+      it("emit diagnostic if different interface", async () => {
+        const diagnostics = await runner.diagnose(`
+          interface SomeInterface {
+            someThing(param: string | int32): string | int32;
+          }
+  
+          interface OtherInterface {
+            @overload(SomeInterface.someThing)
+            someStringThing(param: string): string;
+          }
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+
+      it("emit diagnostic if different namespace", async () => {
+        const diagnostics = await runner.diagnose(`
+          namespace SomeNamespace {
+            op someThing(param: string | int32): string | int32;
+          }
+  
+          namespace OtherNamespace {
+            @overload(SomeNamespace.someThing)
+            op someStringThing(param: string): string;
+          }
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
+
+      it("emit diagnostic if in an interface but base isn't", async () => {
+        const diagnostics = await runner.diagnose(`
+          op someThing(param: string | int32): string | int32;
+  
+          interface OtherInterface {
+            @overload(someThing)
+            someStringThing(param: string): string;
+          }
+        `);
+        expectDiagnostics(diagnostics, {
+          code: "overload-same-parent",
+          message: "Overload must be in the same interface or namespace.",
+        });
+      });
     });
   });
 

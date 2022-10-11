@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/html-program-viewer",
+      "comment": "Uptake deprecation change to `output-dir`",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/html-program-viewer"
+}

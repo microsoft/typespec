@@ -13,6 +13,7 @@ import { extractParamsFromPath } from "../utils.js";
 import { getRouteOptionsForNamespace, getRoutePath } from "./decorators.js";
 import { getOperationParameters } from "./parameters.js";
 import {
+  HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
   RouteOptions,
@@ -102,9 +103,13 @@ function generatePathFromParameters(
 export function resolvePathAndParameters(
   program: Program,
   operation: Operation,
+  overloadBase: HttpOperation | undefined,
   options: RouteResolutionOptions
-): [{ path: string; parameters: HttpOperationParameters }, readonly Diagnostic[]] {
-  let segments = [];
+): [
+  { path: string; pathSegments: string[]; parameters: HttpOperationParameters },
+  readonly Diagnostic[]
+] {
+  let segments: string[] = [];
   let parameters: HttpOperationParameters;
   const diagnostics = createDiagnosticCollector();
   if (isAutoRoute(program, operation)) {
@@ -119,9 +124,11 @@ export function resolvePathAndParameters(
       ...options,
     });
   } else {
-    [segments] = getRouteSegments(program, operation);
+    segments = getOperationRouteSegments(program, operation, overloadBase);
     const declaredPathParams = segments.flatMap(extractParamsFromPath);
-    parameters = diagnostics.pipe(getOperationParameters(program, operation, declaredPathParams));
+    parameters = diagnostics.pipe(
+      getOperationParameters(program, operation, overloadBase, declaredPathParams)
+    );
 
     // Pull out path parameters to verify what's in the path string
     const paramByName = new Map(
@@ -156,8 +163,21 @@ export function resolvePathAndParameters(
 
   return diagnostics.wrap({
     path: buildPath(segments),
+    pathSegments: segments,
     parameters,
   });
+}
+
+function getOperationRouteSegments(
+  program: Program,
+  operation: Operation,
+  overloadBase: HttpOperation | undefined
+): string[] {
+  if (overloadBase !== undefined && getRoutePath(program, operation) === undefined) {
+    return overloadBase.pathSegments;
+  } else {
+    return getRouteSegments(program, operation)[0];
+  }
 }
 
 function getParentSegments(

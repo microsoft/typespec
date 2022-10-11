@@ -1,6 +1,11 @@
 import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
 
 export interface OpenAPI3EmitterOptions {
+  /**
+   * Override compiler output-dir
+   */
+  "output-dir"?: string;
+
   "output-file"?: string;
 
   /**
@@ -20,6 +25,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
+    "output-dir": { type: "string", nullable: true },
     "output-file": { type: "string", nullable: true },
     "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
     "omit-unreachable-types": { type: "boolean", nullable: true },
