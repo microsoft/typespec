@@ -218,6 +218,11 @@ export interface HttpOperation {
   path: string;
 
   /**
+   * Path segments
+   */
+  pathSegments: string[];
+
+  /**
    * Route verb.
    */
   verb: HttpVerb;
@@ -241,6 +246,16 @@ export interface HttpOperation {
    * Operation type reference.
    */
   operation: Operation;
+
+  /**
+   * Overload this operation
+   */
+  overloading?: HttpOperation;
+
+  /**
+   * List of operations that overloads this one.
+   */
+  overloads?: HttpOperation[];
 }
 
 export interface RoutePath {

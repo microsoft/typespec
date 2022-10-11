@@ -16,16 +16,25 @@ import {
   isBody,
 } from "./decorators.js";
 import { gatherMetadata, getRequestVisibility, isMetadata } from "./metadata.js";
-import { HttpOperationParameters, HttpVerb } from "./types.js";
+import { HttpOperation, HttpOperationParameters, HttpVerb } from "./types.js";
 
 export function getOperationParameters(
   program: Program,
   operation: Operation,
+  overloadBase?: HttpOperation,
   knownPathParamNames: string[] = []
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const verb = getExplicitVerbForOperation(program, operation);
   if (verb) {
     return getOperationParametersForVerb(program, operation, verb, knownPathParamNames);
+  }
+  if (overloadBase) {
+    return getOperationParametersForVerb(
+      program,
+      operation,
+      overloadBase.verb,
+      knownPathParamNames
+    );
   }
 
   // If no verb is explicitly specified, it is POST if there is a body and
