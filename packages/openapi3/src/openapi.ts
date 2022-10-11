@@ -127,7 +127,7 @@ export function resolveOptions(
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     outputFile: resolvePath(
-      program.compilerOptions.outputPath ?? "./cadl-output",
+      resolvedOptions["output-dir"] ?? program.compilerOptions.outputDir ?? "./cadl-output",
       resolvedOptions["output-file"]
     ),
   };

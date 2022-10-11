@@ -65,6 +65,12 @@ async function main() {
           .option("output-path", {
             type: "string",
             default: "./cadl-output",
+            deprecated: "Use `output-dir` instead.",
+            hidden: true,
+          })
+          .option("output-dir", {
+            type: "string",
+            default: "./cadl-output",
             describe:
               "The output path for generated artifacts.  If it does not exist, it will be created.",
           })
@@ -272,7 +278,7 @@ function compileInput(
     } else {
       if (printSuccess) {
         log(
-          `Compilation completed successfully, output files are in ${compilerOptions.outputPath}.`
+          `Compilation completed successfully, output files are in ${compilerOptions.outputDir}.`
         );
       }
     }
@@ -330,6 +336,7 @@ function createCLICompilerHost(args: { pretty?: boolean }): CompilerHost {
 }
 
 interface CompileCliArgs {
+  "output-dir": string;
   "output-path": string;
   nostdlib?: boolean;
   options?: string[];
@@ -347,7 +354,7 @@ async function getCompilerOptions(
   args: CompileCliArgs
 ): Promise<CompilerOptions> {
   // Workaround for https://github.com/npm/cli/issues/3680
-  const pathArg = args["output-path"].replace(/\\\\/g, "\\");
+  const pathArg = args["output-dir"] ?? args["output-path"];
   const outputPath = resolvePath(process.cwd(), pathArg);
   await mkdirp(outputPath);
 
@@ -363,7 +370,7 @@ async function getCompilerOptions(
 
   const cliOptions = resolveOptions(args);
   return {
-    outputPath,
+    outputDir: outputPath,
     nostdlib: args["nostdlib"],
     additionalImports: args["import"],
     watchForChanges: args["watch"],

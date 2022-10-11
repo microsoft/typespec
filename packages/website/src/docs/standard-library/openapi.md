@@ -70,7 +70,7 @@ emitters:
 
 #### `output-file`
 
-Configure the name of the swagger output file relative to the compiler `output-path`.
+Configure the name of the swagger output file relative to the compiler `output-dir`.
 
 #### `new-line`
 
