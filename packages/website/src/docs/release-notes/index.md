@@ -8,5 +8,5 @@ title: Release notes
 {% set navItems = collections.all | cadlNavigation(docs.toc, "release-notes") %}
 {%- for item in navItems %}
 
-- [{{ item.label }}]({{ item.url }})
+- [{{ item.label }}]({{ item.url | url }})
   {%- endfor %}
