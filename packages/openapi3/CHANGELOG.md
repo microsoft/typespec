@@ -1,6 +1,28 @@
 # Change Log - @cadl-lang/openapi3
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Wed, 12 Oct 2022 21:12:35 GMT and should not be manually modified.
+
+## 0.16.0
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Minor changes
+
+- Use new `getDiscriminatedUnion` helper from compiler
+- Empty object as a response will not produce a 204 response anymore
+- Implement automatic visibility transformations
+- Add support for `@minItems` and `@maxItems` decorators
+- Add support for referencing model properties.
+- Emitted openapi3 document include all types under the service namespace
+- Uptake move of  `@discriminator` into compiler
+- Add `output-dir` emitter option
+- Add support for overloads(Using `@overload` decorator)
+- Uptake changes to rest library
+
+### Patches
+
+- Fix: Response headers are marked as required unless optional
+- Fix: `Content-Type` request header lookup is case insensitive
+- Exclude properties of type `never` when emitting model schemas
 
 ## 0.15.0
 Thu, 08 Sep 2022 01:04:53 GMT

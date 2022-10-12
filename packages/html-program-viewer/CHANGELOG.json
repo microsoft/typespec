@@ -2,6 +2,26 @@
   "name": "@cadl-lang/html-program-viewer",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@cadl-lang/html-program-viewer_v0.4.0",
+      "date": "Wed, 12 Oct 2022 21:12:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake deprecation change to `output-dir`"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@cadl-lang/html-program-viewer_v0.3.0",
       "date": "Thu, 08 Sep 2022 01:04:53 GMT",

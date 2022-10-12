@@ -1,6 +1,6 @@
 {
   "name": "cadl-vscode",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "author": "Microsoft Corporation",
   "description": "Cadl Language Support for VS Code",
   "homepage": "https://github.com/Microsoft/cadl",
@@ -122,7 +122,7 @@
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
     "@types/vscode": "~1.53.0",
-    "@cadl-lang/compiler": "~0.35.0",
+    "@cadl-lang/compiler": "~0.36.0",
     "@cadl-lang/eslint-config-cadl": "~0.4.1",
     "@cadl-lang/internal-build-utils": "~0.3.1",
     "eslint": "^8.12.0",

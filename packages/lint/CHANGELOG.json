@@ -1,0 +1,25 @@
+{
+  "name": "@cadl-lang/lint",
+  "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@cadl-lang/lint_v0.2.0",
+      "date": "Wed, 12 Oct 2022 21:12:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Uptake change to navigateProgram"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          },
+          {
+            "comment": "Updating dependency \"@cadl-lang/compiler\" from `~0.35.0` to `~0.36.0`"
+          }
+        ]
+      }
+    }
+  ]
+}
