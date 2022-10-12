@@ -65,6 +65,8 @@ export type Type =
   | UnionVariant
   | IntrinsicType
   | FunctionType
+  | Decorator
+  | FunctionParameter
   | ObjectType
   | Projection;
 
@@ -320,6 +322,9 @@ export interface Namespace extends BaseType, DecoratedType {
   interfaces: Map<string, Interface>;
   enums: Map<string, Enum>;
   unions: Map<string, Union>;
+
+  decoratorDeclarations: Map<string, Decorator>;
+  functionDeclarations: Map<string, FunctionType>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -380,6 +385,24 @@ export interface TemplateParameter extends BaseType {
   node: TemplateParameterDeclarationNode;
   constraint?: Type;
   default?: Type;
+}
+
+export interface Decorator extends BaseType {
+  kind: "Decorator";
+  node: DecoratorDeclarationStatementNode;
+  name: `@${string}`;
+  namespace: Namespace;
+  target: FunctionParameter;
+  parameters: FunctionParameter[];
+  implementation: (...args: unknown[]) => void;
+}
+
+export interface FunctionParameter extends BaseType {
+  kind: "FunctionParameter";
+  node: FunctionParameterNode;
+  name: string;
+  type: Type;
+  optional: boolean;
 }
 
 export interface Sym {
@@ -528,7 +551,7 @@ export enum SyntaxKind {
   AliasStatement,
   DecoratorDeclarationStatement,
   FunctionDeclarationStatement,
-  FunctionParameterDeclaration,
+  FunctionParameter,
   UnionExpression,
   IntersectionExpression,
   TupleExpression,
@@ -643,7 +666,7 @@ export type Node =
   | DirectiveExpressionNode
   | Statement
   | Expression
-  | FunctionParameterDeclarationNode
+  | FunctionParameterNode
   | Modifier
   | ProjectionStatementItem
   | ProjectionExpression
@@ -1021,16 +1044,16 @@ export interface DecoratorDeclarationStatementNode extends BaseNode, Declaration
   /**
    * Decorator target. First parameter.
    */
-  readonly target: FunctionParameterDeclarationNode;
+  readonly target: FunctionParameterNode;
 
   /**
    * Additional parameters
    */
-  readonly parameters: FunctionParameterDeclarationNode[];
+  readonly parameters: FunctionParameterNode[];
 }
 
-export interface FunctionParameterDeclarationNode extends BaseNode {
-  readonly kind: SyntaxKind.FunctionParameterDeclaration;
+export interface FunctionParameterNode extends BaseNode {
+  readonly kind: SyntaxKind.FunctionParameter;
   readonly id: IdentifierNode;
   readonly value: Expression;
   readonly optional: boolean;
@@ -1047,7 +1070,7 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly kind: SyntaxKind.FunctionDeclarationStatement;
   readonly modifiers: readonly Modifier[];
   readonly modifierFlags: ModifierFlags;
-  readonly parameters: FunctionParameterDeclarationNode[];
+  readonly parameters: FunctionParameterNode[];
   readonly returnType: Expression;
 }
 

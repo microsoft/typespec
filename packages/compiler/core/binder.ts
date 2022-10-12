@@ -7,6 +7,7 @@ import {
   DecoratorDeclarationStatementNode,
   EnumStatementNode,
   FunctionDeclarationStatementNode,
+  FunctionParameterNode,
   InterfaceStatementNode,
   JsSourceFileNode,
   ModelStatementNode,
@@ -243,6 +244,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.FunctionDeclarationStatement:
         bindFunctionDeclarationStatement(node);
         break;
+      case SyntaxKind.FunctionParameter:
+        bindFunctionParameter(node);
+        break;
       case SyntaxKind.Projection:
         bindProjection(node);
         break;
@@ -434,6 +438,11 @@ export function createBinder(program: Program): Binder {
 
   function bindFunctionDeclarationStatement(node: FunctionDeclarationStatementNode) {
     declareSymbol(node, SymbolFlags.Function | SymbolFlags.Declaration);
+  }
+
+  function bindFunctionParameter(node: FunctionParameterNode) {
+    const symbol = createSymbol(node, node.id.sv, SymbolFlags.FunctionParameter, scope.symbol);
+    mutate(node).symbol = symbol;
   }
 
   function declareSymbol(node: Declaration, flags: SymbolFlags, name?: string) {

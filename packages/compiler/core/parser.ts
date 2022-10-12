@@ -33,7 +33,7 @@ import {
   Expression,
   ExternKeywordNode,
   FunctionDeclarationStatementNode,
-  FunctionParameterDeclarationNode,
+  FunctionParameterNode,
   IdentifierContext,
   IdentifierKind,
   IdentifierNode,
@@ -1335,12 +1335,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     if (target === undefined) {
       error({ code: "decorator-decl-target" });
       target = {
-        kind: SyntaxKind.FunctionParameterDeclaration,
+        kind: SyntaxKind.FunctionParameter,
         id: createMissingIdentifier(),
         value: createMissingIdentifier(),
         optional: false,
         ...finishNode(pos),
       };
+    }
+    if (target.optional) {
+      error({ code: "decorator-decl-target", messageId: "required" });
     }
     return {
       kind: SyntaxKind.DecoratorDeclarationStatement,
@@ -1375,14 +1378,27 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     };
   }
 
-  function parseFunctionParameters(): FunctionParameterDeclarationNode[] {
-    return parseList<typeof ListKind.FunctionParameters, FunctionParameterDeclarationNode>(
+  function parseFunctionParameters(): FunctionParameterNode[] {
+    const parameters = parseList<typeof ListKind.FunctionParameters, FunctionParameterNode>(
       ListKind.FunctionParameters,
       parseFunctionParameter
     );
+
+    let foundOptional = false;
+    for (const item of parameters) {
+      if (!item.optional && foundOptional) {
+        error({ code: "required-parameter-first", target: item });
+        continue;
+      }
+
+      if (item.optional) {
+        foundOptional = true;
+      }
+    }
+    return parameters;
   }
 
-  function parseFunctionParameter(): FunctionParameterDeclarationNode {
+  function parseFunctionParameter(): FunctionParameterNode {
     const pos = tokenPos();
     const id = parseIdentifier("property");
 
@@ -1390,7 +1406,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.Colon);
     const value = parseExpression();
     return {
-      kind: SyntaxKind.FunctionParameterDeclaration,
+      kind: SyntaxKind.FunctionParameter,
       id,
       value,
       optional,
@@ -2506,7 +2522,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.DecoratorDeclarationStatement:
       return (
-        visitEach(cb, node.modifiers) || visitNode(cb, node.id) || visitEach(cb, node.parameters)
+        visitEach(cb, node.modifiers) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.target) ||
+        visitEach(cb, node.parameters)
       );
     case SyntaxKind.FunctionDeclarationStatement:
       return (
@@ -2515,7 +2534,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.parameters) ||
         visitNode(cb, node.returnType)
       );
-    case SyntaxKind.FunctionParameterDeclaration:
+    case SyntaxKind.FunctionParameter:
       return visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);

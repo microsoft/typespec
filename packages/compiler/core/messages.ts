@@ -195,6 +195,12 @@ const diagnostics = {
         "Template parameter defaults can only reference previously declared type parameters.",
     },
   },
+  "required-parameter-first": {
+    severity: "error",
+    messages: {
+      default: "A required parameter cannot follow an optional parameter.",
+    },
+  },
   /**
    * Checker
    */
@@ -447,6 +453,7 @@ const diagnostics = {
     severity: "warning",
     messages: {
       default: "dec must have at least one parameter.",
+      required: "dec first parameter must be required.",
     },
   },
   "projections-are-experimental": {

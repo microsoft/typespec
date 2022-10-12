@@ -4,11 +4,15 @@ import { compilerAssert, ProjectionError } from "./diagnostics.js";
 import {
   AugmentDecoratorStatementNode,
   DecoratedType,
+  Decorator,
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   Diagnostic,
   DiagnosticTarget,
   Expression,
+  FunctionDeclarationStatementNode,
+  FunctionParameter,
+  FunctionParameterNode,
   getIndexer,
   getIntrinsicModelName,
   getParentTemplateNode,
@@ -1066,8 +1070,60 @@ export function createChecker(program: Program): Checker {
   function checkDecoratorDeclaration(
     node: DecoratorDeclarationStatementNode,
     mapper: TypeMapper | undefined
-  ) {
-    return errorType;
+  ): Decorator {
+    // Operations defined in interfaces aren't bound to symbols
+    const links = getSymbolLinks(node.symbol);
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this operation and we've already checked it
+      return links.declaredType as Decorator;
+    }
+
+    const namespace = getParentNamespaceType(node);
+    compilerAssert(
+      namespace,
+      `Decorator ${node.id.sv} should have resolved a namespace or found the global namespace.`
+    );
+    const name = node.id.sv;
+
+    const decoratorType: Decorator = createType({
+      kind: "Decorator",
+      name: `@${name}`,
+      namespace,
+      node,
+      target: checkFunctionParameter(node.target, mapper),
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
+      implementation: node.symbol.value!,
+    });
+
+    namespace.decoratorDeclarations.set(name, decoratorType);
+
+    linkType(links, decoratorType, mapper);
+
+    return decoratorType;
+  }
+
+  function checkFunctionParameter(
+    node: FunctionParameterNode,
+    mapper: TypeMapper | undefined
+  ): FunctionParameter {
+    const links = getSymbolLinks(node.symbol);
+
+    if (links.declaredType) {
+      return links.declaredType as FunctionParameter;
+    }
+
+    const type = getTypeForNode(node.value);
+    const parameterType: FunctionParameter = createType({
+      kind: "FunctionParameter",
+      node,
+      name: node.id.sv,
+      optional: node.optional,
+      type,
+      implementation: node.symbol.value!,
+    });
+    linkType(links, parameterType, mapper);
+
+    return parameterType;
   }
 
   function mergeModelTypes(
@@ -1204,6 +1260,8 @@ export function createChecker(program: Program): Checker {
         interfaces: new Map(),
         unions: new Map(),
         enums: new Map(),
+        decoratorDeclarations: new Map(),
+        functionDeclarations: new Map(),
         decorators: [],
       });
 
@@ -1231,6 +1289,8 @@ export function createChecker(program: Program): Checker {
       | IntersectionExpressionNode
       | UnionStatementNode
       | ModelExpressionNode
+      | DecoratorDeclarationStatementNode
+      | FunctionDeclarationStatementNode
       | ProjectionModelExpressionNode
   ): Namespace | undefined {
     if (node === globalNamespaceType.node) return undefined;
@@ -2451,6 +2511,8 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
+    // const symbolLinks = getSymbolLinks(sym);
+
     return {
       decorator: sym.value!,
       node: decNode,
@@ -2940,6 +3002,8 @@ export function createChecker(program: Program): Checker {
       interfaces: new Map(),
       unions: new Map(),
       enums: new Map(),
+      decoratorDeclarations: new Map(),
+      functionDeclarations: new Map(),
       decorators: [],
     });
   }

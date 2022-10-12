@@ -15,7 +15,7 @@ import {
   EnumSpreadMemberNode,
   EnumStatementNode,
   FunctionDeclarationStatementNode,
-  FunctionParameterDeclarationNode,
+  FunctionParameterNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   LineComment,
@@ -207,9 +207,9 @@ export function printNode(
         options,
         print
       );
-    case SyntaxKind.FunctionParameterDeclaration:
+    case SyntaxKind.FunctionParameter:
       return printFunctionParameterDeclaration(
-        path as AstPath<FunctionParameterDeclarationNode>,
+        path as AstPath<FunctionParameterNode>,
         options,
         print
       );
@@ -1236,7 +1236,7 @@ function printFunctionDeclarationStatement(
 }
 
 function printFunctionParameterDeclaration(
-  path: prettier.AstPath<FunctionParameterDeclarationNode>,
+  path: prettier.AstPath<FunctionParameterNode>,
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
