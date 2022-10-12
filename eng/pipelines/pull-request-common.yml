@@ -15,6 +15,14 @@ steps:
       version: 6.0.x
 
   - script: |
+      echo "Source"
+      echo "$(variables['Build.SourceBranch'])"
+
+      echo "NOde version"
+      echo '${{ parameters.nodeVersion }}'
+    displayName: "Souirce"
+
+  - script: |
       echo "Node:"
       node -v
       echo "Npm:"
