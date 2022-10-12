@@ -5,17 +5,6 @@ parameters:
     type: string
 
 steps:
-  - script: |
-      echo "Source"
-      echo "${{ variables['Build.SourceBranch'] }}"
-
-      echo "SB"
-      echo "$(System.PullRequest.SourceBranch)"
-
-      echo "NOde version"
-      echo '${{ parameters.nodeVersion }}'
-    displayName: "Souirce"
-
   - task: NodeTool@0
     inputs:
       versionSpec: ${{ parameters.nodeVersion }}
@@ -84,4 +73,4 @@ steps:
     displayName: E2E Tests
     # Skipping the e2e test on the prepare publish branch as there is a bug in the npm version installed on node 16
     # causing npx to try to download the unpublished version of the cli.
-    condition: and(not(startsWith(variables['Build.SourceBranch'], 'refs/publish/')), not(eq('${{ parameters.nodeVersion }}', '16.x')))
+    condition: and(not(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/')), not(eq('${{ parameters.nodeVersion }}', '16.x')))
