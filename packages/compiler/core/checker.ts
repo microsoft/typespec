@@ -213,11 +213,13 @@ const TypeInstantiationMap = class
   implements TypeInstantiationMap {};
 
 type StdTypeName = IntrinsicModelName | "Array" | "Record";
+type ReflectionTypeName = keyof typeof ReflectionNameToKind | "Type";
 
 let currentSymbolId = 0;
 
 export function createChecker(program: Program): Checker {
   const stdTypes: Partial<Record<StdTypeName, Model>> = {};
+  const reflectionTypes: Partial<Record<ReflectionTypeName, Model>> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
@@ -345,6 +347,23 @@ export function createChecker(program: Program): Checker {
     checkModelStatement(sym!.declarations[0] as any, undefined);
 
     const loadedType = stdTypes[name];
+    compilerAssert(
+      loadedType,
+      "Cadl built-in array type should have been initalized before using array syntax."
+    );
+    return loadedType as any;
+  }
+
+  function getRefelectionType<T extends ReflectionTypeName>(name: T): Model & { name: T } {
+    const type = reflectionTypes[name];
+    if (type !== undefined) {
+      return type as any;
+    }
+
+    const sym = cadlNamespaceBinding?.exports?.get("Reflection")?.exports?.get("name");
+    checkModelStatement(sym!.declarations[0] as any, undefined);
+
+    const loadedType = reflectionTypes[name];
     compilerAssert(
       loadedType,
       "Cadl built-in array type should have been initalized before using array syntax."
@@ -3938,9 +3957,24 @@ export function createChecker(program: Program): Checker {
     return [false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
   }
 
+  function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {
+    return (
+      type.kind === "Model" &&
+      type.namespace?.name === "Reflection" &&
+      type.namespace?.namespace?.name === "Cadl"
+    );
+  }
+
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
     if (isVoidType(target) || isNeverType(target)) return false;
     if (isUnknownType(target)) return true;
+    if (isReflectionType(target)) {
+      if (target.name === "Type") {
+        return true;
+      }
+      return source.kind === ReflectionNameToKind[target.name];
+    }
+
     const sourceIntrinsicName = getIntrinsicModelName(program, source);
     const targetIntrinsicName = getIntrinsicModelName(program, target);
     if (targetIntrinsicName) {
@@ -4597,3 +4631,24 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
     },
   };
 }
+
+const ReflectionNameToKind = {
+  Model: "Model",
+  ModelProperty: "ModelProperty",
+  Interface: "Interface",
+  Enum: "Enum",
+  EnumMember: "EnumMember",
+  TemplateParameter: "TemplateParameter",
+  Namespace: "Namespace",
+  Operation: "Operation",
+  StringLiteral: "String",
+  NumericLiteral: "Numeric",
+  BooleanLiteral: "Boolean",
+  Tuple: "Tuple",
+  Union: "Union",
+  UnionVariant: "UnionVariant",
+  IntrinsicType: "IntrinsicType",
+  FunctionType: "FunctionType",
+  ObjectType: "ObjectType",
+  Projection: "Projection",
+};
