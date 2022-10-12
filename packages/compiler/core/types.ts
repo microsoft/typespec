@@ -9,6 +9,7 @@ export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
   value: DecoratorArgumentValue;
+  realValue?: Type;
   node?: Node;
 }
 

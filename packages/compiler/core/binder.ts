@@ -453,9 +453,10 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.JsSourceFile:
         return declareScriptMember(node, flags, name);
       default:
-        const symbol = createSymbol(node, name ?? node.id.sv, flags, scope.symbol);
+        const key = name ?? node.id.sv;
+        const symbol = createSymbol(node, key, flags, scope.symbol);
         mutate(node).symbol = symbol;
-        mutate(scope.locals!).set(node.id.sv, symbol);
+        mutate(scope.locals!).set(key, symbol);
         return symbol;
     }
   }
@@ -467,9 +468,10 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const symbol = createSymbol(node, name ?? node.id.sv, flags, scope.symbol);
+    const key = name ?? node.id.sv;
+    const symbol = createSymbol(node, key, flags, scope.symbol);
     mutate(node).symbol = symbol;
-    mutate(scope.symbol.exports)!.set(node.id.sv, symbol);
+    mutate(scope.symbol.exports)!.set(key, symbol);
     return symbol;
   }
 
@@ -481,9 +483,10 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const symbol = createSymbol(node, name ?? node.id.sv, flags, fileNamespace?.symbol);
+    const key = name ?? node.id.sv;
+    const symbol = createSymbol(node, key, flags, fileNamespace?.symbol);
     mutate(node).symbol = symbol;
-    mutate(effectiveScope.symbol.exports!).set(node.id.sv, symbol);
+    mutate(effectiveScope.symbol.exports!).set(key, symbol);
     return symbol;
   }
 

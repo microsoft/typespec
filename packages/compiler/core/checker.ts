@@ -1072,7 +1072,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): Decorator {
     // Operations defined in interfaces aren't bound to symbols
-    const links = getSymbolLinks(node.symbol);
+    const links = getSymbolLinks(getMergedSymbol(node.symbol));
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as Decorator;
@@ -2511,13 +2511,45 @@ export function createChecker(program: Program): Checker {
       return undefined;
     }
 
-    // const symbolLinks = getSymbolLinks(sym);
+    const symbolLinks = getSymbolLinks(sym);
 
+    const args = checkDecoratorArguments(decNode, mapper);
+    if (symbolLinks.declaredType) {
+      compilerAssert(
+        symbolLinks.declaredType.kind === ("Decorator" as const),
+        "Expected to find a decorator type."
+      );
+      // Means we have a decorator declaration.
+      checkDecoratorUsage(symbolLinks.declaredType, args, decNode);
+    }
     return {
       decorator: sym.value!,
       node: decNode,
-      args: checkDecoratorArguments(decNode, mapper),
+      args,
     };
+  }
+
+  function checkDecoratorUsage(
+    declaration: Decorator,
+    args: DecoratorArgument[],
+    decoratorNode: Node
+  ) {
+    const minArgs = declaration.parameters.filter((x) => !x.optional).length;
+    const maxArgs = declaration.parameters.length;
+    if (args.length < minArgs || args.length > maxArgs) {
+      const expected = minArgs === maxArgs ? minArgs.toString() : `${minArgs}-${maxArgs}`;
+      reportDiagnostic(program, {
+        code: "invalid-argument-count",
+        format: { actual: args.length.toString(), expected },
+        target: decoratorNode,
+      });
+    }
+    for (const [index, parameter] of declaration.parameters.entries()) {
+      const arg = args[index];
+      if (arg && arg.realValue) {
+        checkTypeAssignable(arg.realValue, parameter.type, arg.node!);
+      }
+    }
   }
 
   function checkDecorators(
@@ -2543,13 +2575,14 @@ export function createChecker(program: Program): Checker {
     decorator: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     mapper: TypeMapper | undefined
   ): DecoratorArgument[] {
-    return decorator.arguments.map((argNode) => {
+    return decorator.arguments.map((argNode): DecoratorArgument => {
       const type = getTypeForNode(argNode, mapper);
       const value =
         type.kind === "Number" || type.kind === "String" || type.kind === "Boolean"
           ? type.value
           : type;
       return {
+        realValue: type,
         value,
         node: argNode,
       };
@@ -2943,6 +2976,7 @@ export function createChecker(program: Program): Checker {
           mergedSymbols.set(sourceBinding, targetBinding);
           mutate(targetBinding).value = sourceBinding.value;
           mutate(targetBinding).flags |= sourceBinding.flags;
+          mutate(targetBinding.declarations).push(...sourceBinding.declarations);
         } else if (
           targetBinding.flags & SymbolFlags.Implementation &&
           sourceBinding.flags & SymbolFlags.Declaration

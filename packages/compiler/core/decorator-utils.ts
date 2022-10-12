@@ -308,11 +308,9 @@ export function validateDecoratorParamCount(
     } else {
       reportDiagnostic(context.program, {
         code: "invalid-argument-count",
-        messageId: "between",
         format: {
           actual: parameterCount.toString(),
-          min: min.toString(),
-          max: max === undefined ? "infinity" : max.toString(),
+          expected: `${min}-${max === undefined ? "infinity" : max.toString()}`,
         },
         target: context.decoratorTarget,
       });
