@@ -9,6 +9,9 @@ steps:
       echo "Source"
       echo "${{ variables['Build.SourceBranch'] }}"
 
+      echo "SB"
+      echo "$(System.PullRequest.SourceBranch)"
+
       echo "NOde version"
       echo '${{ parameters.nodeVersion }}'
     displayName: "Souirce"
