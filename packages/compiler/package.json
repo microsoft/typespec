@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/compiler",
-  "version": "0.35.0",
+  "version": "0.36.0",
   "description": "Cadl Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
