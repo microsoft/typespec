@@ -4,6 +4,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
+import { getDiscriminatedUnion } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
@@ -919,34 +920,53 @@ const overloadDecorator = createDecoratorDefinition({
  * `@overload` - Indicate that the target overloads (specializes) the overloads type.
  * @param context DecoratorContext
  * @param target The specializing operation declaration
- * @param overloads The operation to be overloaded.
+ * @param overloadBase The operation to be overloaded.
  */
-export function $overload(context: DecoratorContext, target: Operation, overloads: Operation) {
-  if (!overloadDecorator.validate(context, target, [overloads])) {
+export function $overload(context: DecoratorContext, target: Operation, overloadBase: Operation) {
+  if (!overloadDecorator.validate(context, target, [overloadBase])) {
     return;
   }
 
   // Ensure that the overloaded method arguments are a subtype of the original operation.
-  const [valid, diagnostics] = context.program.checker.isTypeAssignableTo(
+  const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
     target.parameters,
-    overloads.parameters,
+    overloadBase.parameters,
     target
   );
-  if (!valid) context.program.reportDiagnostics(diagnostics);
+  if (!paramValid) context.program.reportDiagnostics(paramDiagnostics);
 
+  const [returnTypeValid, returnTypeDiagnostics] = context.program.checker.isTypeAssignableTo(
+    target.returnType,
+    overloadBase.returnType,
+    target
+  );
+  if (!returnTypeValid) context.program.reportDiagnostics(returnTypeDiagnostics);
+
+  if (!areOperationsInSameContainer(target, overloadBase)) {
+    reportDiagnostic(context.program, {
+      code: "overload-same-parent",
+      target: context.decoratorTarget,
+    });
+  }
   // Save the information about the overloaded operation
-  context.program.stateMap(overloadsOperationKey).set(target, overloads);
-  const existingOverloads = getOverloads(context.program, overloads) || new Array<Operation>();
-  context.program.stateMap(overloadedByKey).set(overloads, existingOverloads.concat(target));
+  context.program.stateMap(overloadsOperationKey).set(target, overloadBase);
+  const existingOverloads = getOverloads(context.program, overloadBase) || new Array<Operation>();
+  context.program.stateMap(overloadedByKey).set(overloadBase, existingOverloads.concat(target));
+}
+
+function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
+  return op1.interface || op2.interface
+    ? op1.interface === op2.interface
+    : op1.namespace === op2.namespace;
 }
 
 /**
  * Get all operations that are marked as overloads of the given operation
- * @param context
- * @param operation
+ * @param program Program
+ * @param operation Operation
  * @returns An array of operations that overload the given operation.
  */
-export function getOverloads(program: Program, operation: Operation): Array<Operation> | undefined {
+export function getOverloads(program: Program, operation: Operation): Operation[] | undefined {
   return program.stateMap(overloadedByKey).get(operation);
 }
 
@@ -1071,79 +1091,23 @@ export function $discriminator(
   if (!discriminatorDecorator.validate(context, entity, [propertyName])) {
     return;
   }
+  const discriminator: Discriminator = { propertyName };
 
-  let hasErrors = false;
   if (entity.kind === "Union") {
-    // we can validate discriminator up front for unions. Models are validated
-    // in emitters.
-    for (const variant of entity.variants.values()) {
-      if (typeof variant.name === "symbol") {
-        // likely not possible to hit this without applying the decorator programmatically
-        reportDiagnostic(context.program, {
-          code: "invalid-discriminated-union",
-          target: entity,
-        });
-
-        return;
-      }
-
-      if (variant.type.kind !== "Model") {
-        reportDiagnostic(context.program, {
-          code: "invalid-discriminated-union-variant",
-          messageId: "default",
-          format: {
-            name: variant.name,
-          },
-          target: variant,
-        });
-        hasErrors = true;
-        continue;
-      }
-
-      const prop = variant.type.properties.get(propertyName);
-      if (!prop) {
-        reportDiagnostic(context.program, {
-          code: "invalid-discriminated-union-variant",
-          messageId: "noDiscriminant",
-          format: {
-            name: variant.name,
-            discriminant: propertyName,
-          },
-          target: variant,
-        });
-        hasErrors = true;
-        continue;
-      }
-
-      if (
-        prop.type.kind !== "String" &&
-        (prop.type.kind !== "EnumMember" ||
-          (prop.type.value !== undefined && typeof prop.type.value !== "string"))
-      ) {
-        reportDiagnostic(context.program, {
-          code: "invalid-discriminated-union-variant",
-          messageId: "wrongDiscriminantType",
-          format: {
-            name: variant.name,
-            discriminant: propertyName,
-          },
-          target: variant,
-        });
-        hasErrors = true;
-        continue;
-      }
+    // we can validate discriminator up front for unions. Models are validated in the accessor as we might not have the reference to all derived types at this time.
+    const [, diagnostics] = getDiscriminatedUnion(entity, discriminator);
+    if (diagnostics.length > 0) {
+      context.program.reportDiagnostics(diagnostics);
+      return;
     }
   }
-
-  if (hasErrors) return;
-
-  context.program.stateMap(discriminatorKey).set(entity, propertyName);
+  context.program.stateMap(discriminatorKey).set(entity, discriminator);
 }
 
 export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
-  const propertyName = program.stateMap(discriminatorKey).get(entity);
-  if (propertyName) {
-    return { propertyName };
-  }
-  return undefined;
+  return program.stateMap(discriminatorKey).get(entity);
+}
+
+export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
+  return [...program.stateMap(discriminatorKey).entries()] as any;
 }

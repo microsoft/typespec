@@ -433,6 +433,12 @@ const diagnostics = {
       default: "Extern declaration must have an implementation in JS file.",
     },
   },
+  "overload-same-parent": {
+    severity: "error",
+    messages: {
+      default: `Overload must be in the same interface or namespace.`,
+    },
+  },
 
   /**
    * Program
@@ -596,9 +602,23 @@ const diagnostics = {
   "invalid-discriminated-union-variant": {
     severity: "error",
     messages: {
-      default: paramMessage`Union variant ${"name"} must be a model type`,
-      noDiscriminant: paramMessage`Variant ${"name"}'s type is missing the discriminant property ${"discriminant"}`,
-      wrongDiscriminantType: paramMessage`Variant ${"name"}'s type's discriminant property ${"discriminant"} must be a string literal or string enum member`,
+      default: paramMessage`Union variant "${"name"}" must be a model type.`,
+      noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
+      wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
+    },
+  },
+  "missing-discriminator-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Each derived model of a discriminated model type should have set the discriminator property("${"discriminator"}") or have a derived model which has. Add \`${"discriminator"}: "<discriminator-value>"\``,
+    },
+  },
+  "invalid-discriminator-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Discriminator value should be a string, union of string or string enum but was ${"kind"}.`,
+      required: "The discriminator property must be a required property.",
+      duplicate: paramMessage`Discriminator value "${"discriminator"}" is already used in another variant.`,
     },
   },
 

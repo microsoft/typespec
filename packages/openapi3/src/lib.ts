@@ -1,6 +1,11 @@
 import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
 
 export interface OpenAPI3EmitterOptions {
+  /**
+   * Override compiler output-dir
+   */
+  "output-dir"?: string;
+
   "output-file"?: string;
 
   /**
@@ -20,6 +25,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
+    "output-dir": { type: "string", nullable: true },
     "output-file": { type: "string", nullable: true },
     "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
     "omit-unreachable-types": { type: "boolean", nullable: true },
@@ -86,22 +92,6 @@ export const libDef = {
         empty:
           "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
         null: "Unions containing multiple model types cannot be emitted to OpenAPI v2 unless the union is between one model type and 'null'.",
-      },
-    },
-    discriminator: {
-      severity: "error",
-      messages: {
-        duplicate: paramMessage`Discriminator value "${"val"}" defined in two different variants: ${"model1"} and ${"model2"}`,
-        missing: "The discriminator property is not defined in a variant of a discriminated union.",
-        required: "The discriminator property must be a required property.",
-        type: "The discriminator property must be type 'string'.",
-      },
-    },
-    "discriminator-value": {
-      severity: "warning",
-      messages: {
-        literal:
-          "Each variant of a discriminated union should define the discriminator property with a string literal value.",
       },
     },
     "invalid-default": {
