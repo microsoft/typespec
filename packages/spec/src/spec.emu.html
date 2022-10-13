@@ -278,6 +278,8 @@ Statement :
     EnumStatement
     AliasStatement
     AugmentDecoratorStatement
+    DecoratorDeclarationStatement
+    FunctionDeclarationStatement
     `;`
 
 UsingStatement :
@@ -479,6 +481,26 @@ AugmentDecoratorStatement :
 
 AugmentDecoratorArguments :
   `(` ExpressionList `)`
+
+
+DecoratorDeclarationStatement :
+  DecoratorModifiers? `dec` `(` FunctionParameterList? `)`
+
+DecoratorModifiers:
+  `extern`
+
+FunctionDeclarationStatement :
+  FunctionModifiers? `fn` `(` FunctionParameterList? `)` `:` Expression
+
+FunctionModifiers:
+  `extern`
+
+FunctionParameterList : 
+  FunctionParameter
+  FunctionParameterList `,` FunctionParameter
+
+FunctionParameter :
+  `...`? Identifier `?`? `:` Expression
 
 ProjectionStatement :
     `projection` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`
