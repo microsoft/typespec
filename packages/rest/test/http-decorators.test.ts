@@ -319,7 +319,7 @@ describe("rest: http decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument-count",
-        message: "Expected between 2 and 3 arguments, but got 1.",
+        message: "Expected 2-3 arguments, but got 1.",
       });
     });
 

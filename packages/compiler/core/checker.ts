@@ -2943,7 +2943,7 @@ export function createChecker(program: Program): Checker {
       return;
     }
     existingMemberNames.add(name);
-    const member: EnumMember = createAndFinishType({
+    const member: EnumMember = createType({
       kind: "EnumMember",
       enum: parentEnum,
       name,
@@ -2953,7 +2953,7 @@ export function createChecker(program: Program): Checker {
     });
 
     member.decorators = checkDecorators(member, node, mapper);
-    return member;
+    return finishType(member);
   }
 
   function checkEnumSpreadMember(
