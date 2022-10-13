@@ -118,11 +118,6 @@ export type ProjectionType = Projection;
 
 export type TypeOrReturnRecord = Type | ReturnRecord;
 
-export interface FunctionType extends BaseType {
-  kind: "Function";
-  call(...args: any[]): Type;
-}
-
 export interface ObjectType extends BaseType {
   kind: "Object";
   properties: Record<string, Type>;
@@ -396,6 +391,16 @@ export interface Decorator extends BaseType {
   target: FunctionParameter;
   parameters: FunctionParameter[];
   implementation: (...args: unknown[]) => void;
+}
+
+export interface FunctionType extends BaseType {
+  kind: "Function";
+  node?: FunctionDeclarationStatementNode;
+  namespace?: Namespace;
+  name: string;
+  parameters: FunctionParameter[];
+  returnType: Type;
+  implementation: (...args: unknown[]) => unknown;
 }
 
 export interface FunctionParameter extends BaseType {

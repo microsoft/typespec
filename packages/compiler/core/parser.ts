@@ -1430,7 +1430,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     for (const modifier of modifiers) {
       switch (modifier.kind) {
         case SyntaxKind.ExternKeyword:
-          flags &= ModifierFlags.Extern;
+          flags |= ModifierFlags.Extern;
           break;
       }
     }

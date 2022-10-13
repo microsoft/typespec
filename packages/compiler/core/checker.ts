@@ -26,6 +26,7 @@ import {
   ModelIndexer,
   ModelKeyIndexer,
   ModelSpreadPropertyNode,
+  ModifierFlags,
   NeverIndexer,
   NeverType,
   ProjectedProgram,
@@ -403,9 +404,9 @@ export function createChecker(program: Program): Checker {
       const ref = resolveTypeReference(decNode.targetType, undefined);
       if (ref) {
         if (ref.flags & SymbolFlags.LateBound) {
-          const decApp = checkDecorator(decNode, undefined);
+          const type: Type & DecoratedType = ref.type! as any;
+          const decApp = checkDecorator(type, decNode, undefined);
           if (decApp) {
-            const type: Type & DecoratedType = ref.type! as any;
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
           }
@@ -502,6 +503,8 @@ export function createChecker(program: Program): Checker {
         return checkIntersectionExpression(node, mapper);
       case SyntaxKind.DecoratorDeclarationStatement:
         return checkDecoratorDeclaration(node, mapper);
+      case SyntaxKind.FunctionDeclarationStatement:
+        return checkFunctionDeclaration(node, mapper);
       case SyntaxKind.TypeReference:
         return checkTypeReference(node, mapper);
       case SyntaxKind.TemplateParameterDeclaration:
@@ -1072,8 +1075,8 @@ export function createChecker(program: Program): Checker {
     node: DecoratorDeclarationStatementNode,
     mapper: TypeMapper | undefined
   ): Decorator {
-    // Operations defined in interfaces aren't bound to symbols
-    const links = getSymbolLinks(getMergedSymbol(node.symbol));
+    const symbol = getMergedSymbol(node.symbol);
+    const links = getSymbolLinks(symbol);
     if (links.declaredType && mapper === undefined) {
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as Decorator;
@@ -1086,6 +1089,14 @@ export function createChecker(program: Program): Checker {
     );
     const name = node.id.sv;
 
+    if (!(node.modifierFlags & ModifierFlags.Extern)) {
+      reportDiagnostic(program, { code: "decorator-extern", target: node });
+    }
+
+    const implementation = symbol.value;
+    if (implementation === undefined) {
+      reportDiagnostic(program, { code: "missing-implementation", target: node });
+    }
     const decoratorType: Decorator = createType({
       kind: "Decorator",
       name: `@${name}`,
@@ -1093,7 +1104,7 @@ export function createChecker(program: Program): Checker {
       node,
       target: checkFunctionParameter(node.target, mapper),
       parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
-      implementation: node.symbol.value!,
+      implementation: implementation ?? (() => {}),
     });
 
     namespace.decoratorDeclarations.set(name, decoratorType);
@@ -1101,6 +1112,49 @@ export function createChecker(program: Program): Checker {
     linkType(links, decoratorType, mapper);
 
     return decoratorType;
+  }
+
+  function checkFunctionDeclaration(
+    node: FunctionDeclarationStatementNode,
+    mapper: TypeMapper | undefined
+  ): FunctionType {
+    const symbol = getMergedSymbol(node.symbol);
+    const links = getSymbolLinks(symbol);
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this operation and we've already checked it
+      return links.declaredType as FunctionType;
+    }
+
+    const namespace = getParentNamespaceType(node);
+    compilerAssert(
+      namespace,
+      `Decorator ${node.id.sv} should have resolved a namespace or found the global namespace.`
+    );
+    const name = node.id.sv;
+
+    if (!(node.modifierFlags & ModifierFlags.Extern)) {
+      reportDiagnostic(program, { code: "function-extern", target: node });
+    }
+
+    const implementation = symbol.value;
+    if (implementation === undefined) {
+      reportDiagnostic(program, { code: "missing-implementation", target: node });
+    }
+    const functionType: FunctionType = createType({
+      kind: "Function",
+      name,
+      namespace,
+      node,
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
+      returnType: getTypeForNode(node.returnType, mapper),
+      implementation: implementation ?? (() => {}),
+    });
+
+    namespace.functionDeclarations.set(name, functionType);
+
+    linkType(links, functionType, mapper);
+
+    return functionType;
   }
 
   function checkFunctionParameter(
@@ -1274,7 +1328,7 @@ export function createChecker(program: Program): Checker {
       for (const sourceNode of mergedSymbol.declarations) {
         // namespaces created from cadl scripts don't have decorators
         if (sourceNode.kind !== SyntaxKind.NamespaceStatement) continue;
-        type.decorators = type.decorators.concat(checkDecorators(sourceNode, undefined));
+        type.decorators = type.decorators.concat(checkDecorators(type, sourceNode, undefined));
       }
       finishType(type);
 
@@ -1375,7 +1429,7 @@ export function createChecker(program: Program): Checker {
 
     const namespace = getParentNamespaceType(node);
     const name = node.id.sv;
-    let decorators = checkDecorators(node, mapper);
+    let decorators: DecoratorApplication[] = [];
 
     // Is this a definition or reference?
     let parameters: Model, returnType: Type;
@@ -1392,7 +1446,7 @@ export function createChecker(program: Program): Checker {
       returnType = baseOperation.returnType;
 
       // Copy decorators from the base operation, inserting the base decorators first
-      decorators = [...baseOperation.decorators, ...decorators];
+      decorators = baseOperation.decorators;
     } else {
       parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
       returnType = getTypeForNode(node.signature.returnType, mapper);
@@ -1408,6 +1462,8 @@ export function createChecker(program: Program): Checker {
       decorators,
       interface: parentInterface,
     });
+
+    decorators.push(...checkDecorators(operationType, node, mapper));
 
     operationType.parameters.namespace = namespace;
 
@@ -2026,7 +2082,7 @@ export function createChecker(program: Program): Checker {
         type.indexer = isBase.indexer;
       }
     }
-    decorators.push(...checkDecorators(node, mapper));
+    decorators.push(...checkDecorators(type, node, mapper));
 
     if (isBase) {
       for (const prop of isBase.properties.values()) {
@@ -2438,7 +2494,6 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     parentModel?: Model
   ): ModelProperty {
-    const decorators = checkDecorators(prop, mapper);
     const valueType = getTypeForNode(prop.value, mapper);
     const defaultValue = prop.default && checkDefault(prop.default, valueType);
     const name = prop.id.kind === SyntaxKind.Identifier ? prop.id.sv : prop.id.value;
@@ -2449,11 +2504,12 @@ export function createChecker(program: Program): Checker {
       node: prop,
       optional: prop.optional,
       type: valueType,
-      decorators,
+      decorators: [],
       default: defaultValue,
       model: parentModel,
     });
 
+    type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
       finishType(type, mapper);
@@ -2492,6 +2548,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDecorator(
+    targetType: Type,
     decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     mapper: TypeMapper | undefined
   ): DecoratorApplication | undefined {
@@ -2525,7 +2582,7 @@ export function createChecker(program: Program): Checker {
         "Expected to find a decorator type."
       );
       // Means we have a decorator declaration.
-      checkDecoratorUsage(symbolLinks.declaredType, args, decNode);
+      checkDecoratorUsage(targetType, symbolLinks.declaredType, args, decNode);
     }
     return {
       decorator: sym.value ?? ((...args: any[]) => {}),
@@ -2535,12 +2592,21 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDecoratorUsage(
+    targetType: Type,
     declaration: Decorator,
     args: DecoratorArgument[],
     decoratorNode: Node
   ) {
+    const [targetValid] = isTypeAssignableTo(targetType, declaration.target.type, decoratorNode);
+    if (!targetValid) {
+      reportDiagnostic(program, {
+        code: "decorator-wrong-target",
+        format: { decorator: declaration.name, to: declaration.target.type.kind },
+        target: decoratorNode,
+      });
+    }
     const minArgs = declaration.parameters.filter((x) => !x.optional && !x.rest).length;
-    const maxArgs = declaration.parameters[declaration.parameters.length - 1].rest
+    const maxArgs = declaration.parameters[declaration.parameters.length - 1]?.rest
       ? undefined
       : declaration.parameters.length;
 
@@ -2583,6 +2649,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDecorators(
+    targetType: Type,
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
@@ -2592,7 +2659,7 @@ export function createChecker(program: Program): Checker {
       ...(augmentDecoratorsForSym.get(node.symbol) ?? []),
     ];
     for (const decNode of decoratorNodes) {
-      const decorator = checkDecorator(decNode, mapper);
+      const decorator = checkDecorator(targetType, decNode, mapper);
       if (decorator) {
         decorators.unshift(decorator);
       }
@@ -2677,7 +2744,7 @@ export function createChecker(program: Program): Checker {
       const namespace = getParentNamespaceType(node);
       enumType.namespace = namespace;
       enumType.namespace?.enums.set(enumType.name!, enumType);
-      enumType.decorators = checkDecorators(node, mapper);
+      enumType.decorators = checkDecorators(enumType, node, mapper);
 
       finishType(enumType, mapper);
     }
@@ -2693,16 +2760,16 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as Interface;
     }
 
-    const decorators = checkDecorators(node, mapper);
-
     const interfaceType: Interface = createType({
       kind: "Interface",
-      decorators,
+      decorators: [],
       node,
       namespace: getParentNamespaceType(node),
       operations: new Map(),
       name: node.id.sv,
     });
+
+    interfaceType.decorators = checkDecorators(interfaceType, node, mapper);
 
     linkType(links, interfaceType, mapper);
 
@@ -2780,11 +2847,10 @@ export function createChecker(program: Program): Checker {
       return links.declaredType as Union;
     }
 
-    const decorators = checkDecorators(node, mapper);
     const variants = new Map<string, UnionVariant>();
     const unionType: Union = createType({
       kind: "Union",
-      decorators,
+      decorators: [],
       node,
       namespace: getParentNamespaceType(node),
       name: node.id.sv,
@@ -2794,6 +2860,8 @@ export function createChecker(program: Program): Checker {
       },
       expression: false,
     });
+    unionType.decorators = checkDecorators(unionType, node, mapper);
+
     checkUnionVariants(unionType, node, variants, mapper);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
@@ -2838,16 +2906,16 @@ export function createChecker(program: Program): Checker {
   ): UnionVariant {
     const name =
       variantNode.id.kind === SyntaxKind.Identifier ? variantNode.id.sv : variantNode.id.value;
-    const decorators = checkDecorators(variantNode, mapper);
     const type = getTypeForNode(variantNode.value, mapper);
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",
       name,
       node: variantNode,
-      decorators,
+      decorators: [],
       type,
       union: parentUnion,
     });
+    variantType.decorators = checkDecorators(variantType, variantNode, mapper);
 
     if (shouldCreateTypeForTemplate(node, mapper)) {
       finishType(variantType, mapper);
@@ -2864,7 +2932,6 @@ export function createChecker(program: Program): Checker {
   ): EnumMember | undefined {
     const name = node.id.kind === SyntaxKind.Identifier ? node.id.sv : node.id.value;
     const value = node.value ? node.value.value : undefined;
-    const decorators = checkDecorators(node, mapper);
     if (existingMemberNames.has(name)) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -2876,14 +2943,17 @@ export function createChecker(program: Program): Checker {
       return;
     }
     existingMemberNames.add(name);
-    return createAndFinishType({
+    const member: EnumMember = createAndFinishType({
       kind: "EnumMember",
       enum: parentEnum,
       name,
       node,
       value,
-      decorators,
+      decorators: [],
     });
+
+    member.decorators = checkDecorators(member, node, mapper);
+    return member;
   }
 
   function checkEnumSpreadMember(
@@ -3606,7 +3676,7 @@ export function createChecker(program: Program): Checker {
     return evalProjectionNode(node.expr);
   }
 
-  function evalProjectionCallExpression(node: ProjectionCallExpressionNode) {
+  function evalProjectionCallExpression(node: ProjectionCallExpressionNode): any {
     const target = evalProjectionNode(node.target);
 
     if (!target) throw new ProjectionError("target undefined");
@@ -3619,7 +3689,7 @@ export function createChecker(program: Program): Checker {
       throw new ProjectionError("Can't call non-function, got type " + target.kind);
     }
 
-    return target.call(...args);
+    return target.implementation(...args);
   }
 
   function evalProjectionMemberExpression(
@@ -3691,9 +3761,13 @@ export function createChecker(program: Program): Checker {
   }
 
   function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
+    const parameters: FunctionParameter[] = [];
     return createType({
       kind: "Function",
-      call: fn,
+      name: "",
+      parameters,
+      returnType: unknownType,
+      implementation: fn as any,
     } as const);
   }
 
@@ -3747,13 +3821,10 @@ export function createChecker(program: Program): Checker {
     const ref = resolveTypeReference(node.target, undefined, true);
     if (!ref) throw new ProjectionError("Can't find decorator.");
     compilerAssert(ref.flags & SymbolFlags.Decorator, "should only resolve decorator symbols");
-    return createType({
-      kind: "Function",
-      call(...args: Type[]): Type {
-        ref.value!({ program }, ...marshalProjectionArguments(args));
-        return voidType;
-      },
-    } as const);
+    return createFunctionType((...args: Type[]): Type => {
+      ref.value!({ program }, ...marshalProjectionArguments(args));
+      return voidType;
+    });
   }
 
   function evalProjectionIdentifier(node: IdentifierNode): Type {
@@ -3777,13 +3848,10 @@ export function createChecker(program: Program): Checker {
       return errorType;
     } else if (ref.flags & SymbolFlags.Function) {
       // TODO: store this in a symbol link probably?
-      const t: FunctionType = createType({
-        kind: "Function",
-        call(...args: Type[]): Type {
-          const retval = ref.value!(program, ...marshalProjectionArguments(args));
-          return marshalProjectionReturn(retval, { functionName: node.sv });
-        },
-      } as const);
+      const t: FunctionType = createFunctionType((...args: Type[]): Type => {
+        const retval = ref.value!(program, ...marshalProjectionArguments(args));
+        return marshalProjectionReturn(retval, { functionName: node.sv });
+      });
       return t;
     } else {
       const links = getSymbolLinks(ref);
@@ -3836,14 +3904,9 @@ export function createChecker(program: Program): Checker {
   }
 
   function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {
-    const type = createType({
-      kind: "Function",
-      call(...args: Type[]): Type {
-        return callLambdaExpression(node, args);
-      },
-    } as const);
-
-    return type;
+    return createFunctionType((...args: Type[]): Type => {
+      return callLambdaExpression(node, args);
+    });
   }
 
   function callLambdaExpression(node: ProjectionLambdaExpressionNode, args: Type[]): Type {

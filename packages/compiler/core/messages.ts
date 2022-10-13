@@ -415,6 +415,24 @@ const diagnostics = {
       default: "A rest parameter must be of an array type.",
     },
   },
+  "decorator-extern": {
+    severity: "error",
+    messages: {
+      default: "A decorator declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "function-extern": {
+    severity: "error",
+    messages: {
+      default: "A function declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "missing-implementation": {
+    severity: "error",
+    messages: {
+      default: "Extern declaration must have an implementation in JS file.",
+    },
+  },
 
   /**
    * Program
