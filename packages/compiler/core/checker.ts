@@ -24,6 +24,7 @@ import {
   isUnknownType,
   isVoidType,
   JsSourceFileNode,
+  MarshalledValue,
   ModelIndexer,
   ModelKeyIndexer,
   ModelSpreadPropertyNode,
@@ -2644,16 +2645,16 @@ export function createChecker(program: Program): Checker {
         if (restType) {
           for (let i = index; i < args.length; i++) {
             const arg = args[i];
-            if (arg && arg.realValue) {
-              checkTypeAssignable(arg.realValue, restType, arg.node!);
+            if (arg && arg.value) {
+              checkTypeAssignable(arg.value, restType, arg.node!);
             }
           }
         }
         break;
       }
       const arg = args[index];
-      if (arg && arg.realValue) {
-        checkTypeAssignable(arg.realValue, parameter.type, arg.node!);
+      if (arg && arg.value) {
+        checkTypeAssignable(arg.value, parameter.type, arg.node!);
       }
     }
   }
@@ -2684,13 +2685,8 @@ export function createChecker(program: Program): Checker {
   ): DecoratorArgument[] {
     return decorator.arguments.map((argNode): DecoratorArgument => {
       const type = getTypeForNode(argNode, mapper);
-      const value =
-        type.kind === "Number" || type.kind === "String" || type.kind === "Boolean"
-          ? type.value
-          : type;
       return {
-        realValue: type,
-        value,
+        value: type,
         node: argNode,
       };
     });
@@ -3781,16 +3777,6 @@ export function createChecker(program: Program): Checker {
     } as const);
   }
 
-  function literalTypeToValue(type: StringLiteral): string;
-  function literalTypeToValue(type: NumericLiteral): number;
-  function literalTypeToValue(type: BooleanLiteral): boolean;
-  function literalTypeToValue(type: StringLiteral | NumericLiteral | BooleanLiteral): boolean;
-  function literalTypeToValue(
-    type: StringLiteral | NumericLiteral | BooleanLiteral
-  ): string | number | boolean {
-    return type.value;
-  }
-
   function createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
   function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
   function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
@@ -3832,7 +3818,7 @@ export function createChecker(program: Program): Checker {
     if (!ref) throw new ProjectionError("Can't find decorator.");
     compilerAssert(ref.flags & SymbolFlags.Decorator, "should only resolve decorator symbols");
     return createFunctionType((...args: Type[]): Type => {
-      ref.value!({ program }, ...marshalProjectionArguments(args));
+      ref.value!({ program }, ...marshalArgumentsForJS(args));
       return voidType;
     });
   }
@@ -3859,7 +3845,7 @@ export function createChecker(program: Program): Checker {
     } else if (ref.flags & SymbolFlags.Function) {
       // TODO: store this in a symbol link probably?
       const t: FunctionType = createFunctionType((...args: Type[]): Type => {
-        const retval = ref.value!(program, ...marshalProjectionArguments(args));
+        const retval = ref.value!(program, ...marshalArgumentsForJS(args));
         return marshalProjectionReturn(retval, { functionName: node.sv });
       });
       return t;
@@ -3869,15 +3855,6 @@ export function createChecker(program: Program): Checker {
 
       return links.declaredType;
     }
-  }
-
-  function marshalProjectionArguments(args: Type[]): (Type | number | boolean | string | object)[] {
-    return args.map((arg) => {
-      if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
-        return literalTypeToValue(arg);
-      }
-      return arg;
-    });
   }
 
   interface MarshalOptions {
@@ -4663,19 +4640,18 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
   for (const arg of decApp.args) {
-    if (typeof arg.value === "object") {
-      if (isErrorType(arg.value)) {
-        // If one of the decorator argument is an error don't run it.
-        return;
-      }
+    if (isErrorType(arg.value)) {
+      // If one of the decorator argument is an error don't run it.
+      return;
     }
   }
 
   // peel `fn` off to avoid setting `this`.
   try {
+    const args = marshalArgumentsForJS(decApp.args.map((x) => x.value));
     const fn = decApp.decorator;
     const context = createDecoratorContext(program, decApp);
-    fn(context, target, ...decApp.args.map((x) => x.value));
+    fn(context, target, ...args);
   } catch (error: any) {
     // do not fail the language server for exceptions in decorators
     if (program.compilerOptions.designTimeBuild) {
@@ -4714,6 +4690,24 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
       return decorator(createPassThruContext(program, decApp), target, ...args);
     },
   };
+}
+
+/**
+ * Convert cadl argument to JS argument.
+ */
+function marshalArgumentsForJS<T extends Type>(args: T[]): MarshalledValue<T>[] {
+  return args.map((arg) => {
+    if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
+      return literalTypeToValue(arg);
+    }
+    return arg as any;
+  });
+}
+
+function literalTypeToValue<T extends StringLiteral | NumericLiteral | BooleanLiteral>(
+  type: T
+): MarshalledValue<T> {
+  return type.value as any;
 }
 
 /**

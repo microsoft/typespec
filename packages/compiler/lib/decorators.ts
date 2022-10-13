@@ -866,7 +866,10 @@ export function $withDefaultKeyVisibility(
       context.program.checker.cloneType(keyProp, {
         decorators: [
           ...keyProp.decorators,
-          { decorator: $visibility, args: [{ value: visibility }] },
+          {
+            decorator: $visibility,
+            args: [{ value: context.program.checker.createLiteralType(visibility) }],
+          },
         ],
       })
     );

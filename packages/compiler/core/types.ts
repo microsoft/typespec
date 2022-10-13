@@ -1,6 +1,13 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { Program } from "./program";
 
+// prettier-ignore
+export type MarshalledValue<Type>  = 
+  Type extends StringLiteral ? string
+  : Type extends NumericLiteral ? number
+  : Type extends BooleanLiteral ? boolean
+  : Type
+
 /**
  * Type System types
  */
@@ -8,8 +15,7 @@ import { Program } from "./program";
 export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
-  value: DecoratorArgumentValue;
-  realValue?: Type;
+  value: Type;
   node?: Node;
 }
 
