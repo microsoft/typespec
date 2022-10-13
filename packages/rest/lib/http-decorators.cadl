@@ -1,0 +1,25 @@
+namespace Cadl.Http;
+
+using Cadl.Reflection;
+
+extern dec header(target: ModelProperty, headerName?: StringLiteral);
+extern dec query(target: ModelProperty, queryKey?: StringLiteral);
+extern dec path(target: ModelProperty, paramName?: StringLiteral);
+extern dec body(target: ModelProperty);
+extern dec statusCode(target: ModelProperty);
+
+extern dec get(target: Operation);
+extern dec put(target: Operation);
+extern dec post(target: Operation);
+extern dec patch(target: Operation);
+extern dec delete(target: Operation);
+extern dec head(target: Operation);
+
+extern dec server(
+  target: Namespace,
+  url: StringLiteral,
+  description: StringLiteral,
+  parameters?: object
+);
+
+extern dec useAuth(target: Namespace, auth: object | Union | Tuple);

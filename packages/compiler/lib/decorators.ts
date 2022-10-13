@@ -1,6 +1,5 @@
 import {
   createDecoratorDefinition,
-  validateDecoratorParamType,
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
@@ -47,12 +46,6 @@ function setTemplatedStringProperty(
   text: string,
   sourceObject?: Type
 ) {
-  // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
-
-  if (!validateDecoratorParamType(program, target, text, "String")) {
-    return;
-  }
-
   // If an object was passed in, use it to format the documentation string
   if (sourceObject) {
     text = replaceTemplatedStringFromProperties(text, sourceObject);
@@ -224,12 +217,6 @@ export function isNumericType(program: Program, target: Type): boolean {
 
 // -- @error decorator ----------------------
 
-const errorDecorator = createDecoratorDefinition({
-  name: "@error",
-  target: ["Model"],
-  args: [],
-} as const);
-
 const errorKey = createStateSymbol("error");
 
 /**
@@ -237,11 +224,7 @@ const errorKey = createStateSymbol("error");
  *
  * `@error` can only be specified on a model.
  */
-export function $error(context: DecoratorContext, entity: Model, args: readonly []) {
-  if (!errorDecorator.validate(context, entity, args || [])) {
-    return;
-  }
-
+export function $error(context: DecoratorContext, entity: Model) {
   context.program.stateSet(errorKey).add(entity);
 }
 
@@ -266,11 +249,8 @@ const formatValuesKey = createStateSymbol("formatValues");
  *
  * `@format` can be specified on a type that extends from `string` or a `string`-typed model property.
  */
-export function $format(context: DecoratorContext, target: Type, format: string) {
-  if (
-    !validateDecoratorTarget(context, target, "@format", ["Model", "ModelProperty"]) ||
-    !validateDecoratorTargetIntrinsic(context, target, "@format", ["string", "bytes"])
-  ) {
+export function $format(context: DecoratorContext, target: Model | ModelProperty, format: string) {
+  if (!validateDecoratorTargetIntrinsic(context, target, "@format", ["string", "bytes"])) {
     return;
   }
 
@@ -285,11 +265,12 @@ export function getFormat(program: Program, target: Type): string | undefined {
 
 const patternValuesKey = createStateSymbol("patternValues");
 
-export function $pattern(context: DecoratorContext, target: Type, pattern: string) {
-  if (
-    !validateDecoratorTarget(context, target, "@pattern", ["Model", "ModelProperty"]) ||
-    !validateDecoratorTargetIntrinsic(context, target, "@pattern", "string")
-  ) {
+export function $pattern(
+  context: DecoratorContext,
+  target: Model | ModelProperty,
+  pattern: string
+) {
+  if (!validateDecoratorTargetIntrinsic(context, target, "@pattern", "string")) {
     return;
   }
 
@@ -304,9 +285,12 @@ export function getPattern(program: Program, target: Type): string | undefined {
 
 const minLengthValuesKey = createStateSymbol("minLengthValues");
 
-export function $minLength(context: DecoratorContext, target: Type, minLength: number) {
+export function $minLength(
+  context: DecoratorContext,
+  target: Model | ModelProperty,
+  minLength: number
+) {
   if (
-    !validateDecoratorTarget(context, target, "@minLength", ["Model", "ModelProperty"]) ||
     !validateDecoratorTargetIntrinsic(context, target, "@minLength", "string") ||
     !validateRange(context, minLength, getMaxLength(context.program, target))
   ) {
@@ -324,9 +308,12 @@ export function getMinLength(program: Program, target: Type): number | undefined
 
 const maxLengthValuesKey = createStateSymbol("maxLengthValues");
 
-export function $maxLength(context: DecoratorContext, target: Type, maxLength: number) {
+export function $maxLength(
+  context: DecoratorContext,
+  target: Model | ModelProperty,
+  maxLength: number
+) {
   if (
-    !validateDecoratorTarget(context, target, "@maxLength", ["Model", "ModelProperty"]) ||
     !validateDecoratorTargetIntrinsic(context, target, "@maxLength", "string") ||
     !validateRange(context, getMinLength(context.program, target), maxLength)
   ) {
@@ -344,11 +331,11 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 
 const minItemsValuesKey = createStateSymbol("minItems");
 
-export function $minItems(context: DecoratorContext, target: Type, minItems: number) {
-  if (!validateDecoratorTarget(context, target, "@minItems", ["Model", "ModelProperty"])) {
-    return;
-  }
-
+export function $minItems(
+  context: DecoratorContext,
+  target: Model | ModelProperty,
+  minItems: number
+) {
   if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
@@ -375,11 +362,11 @@ export function getMinItems(program: Program, target: Type): number | undefined 
 
 const maxItemsValuesKey = createStateSymbol("maxItems");
 
-export function $maxItems(context: DecoratorContext, target: Type, maxItems: number) {
-  if (!validateDecoratorTarget(context, target, "@maxItems", ["Model", "ModelProperty"])) {
-    return;
-  }
-
+export function $maxItems(
+  context: DecoratorContext,
+  target: Model | ModelProperty,
+  maxItems: number
+) {
   if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
@@ -405,10 +392,11 @@ export function getMaxItems(program: Program, target: Type): number | undefined 
 
 const minValuesKey = createStateSymbol("minValues");
 
-export function $minValue(context: DecoratorContext, target: Type, minValue: number) {
-  if (!validateDecoratorTarget(context, target, "@minValue", ["Model", "ModelProperty"])) {
-    return;
-  }
+export function $minValue(
+  context: DecoratorContext,
+  target: Model | ModelProperty,
+  minValue: number
+) {
   const { program } = context;
 
   if (!isNumericType(program, getPropertyType(target))) {
@@ -436,11 +424,11 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 
 const maxValuesKey = createStateSymbol("maxValues");
 
-export function $maxValue(context: DecoratorContext, target: Type, maxValue: number) {
-  if (!validateDecoratorTarget(context, target, "@maxValue", ["Model", "ModelProperty"])) {
-    return;
-  }
-
+export function $maxValue(
+  context: DecoratorContext,
+  target: Model | ModelProperty,
+  maxValue: number
+) {
   const { program } = context;
   if (!isNumericType(program, getPropertyType(target))) {
     program.reportDiagnostic(
@@ -496,11 +484,11 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 
 const visibilitySettingsKey = createStateSymbol("visibilitySettings");
 
-export function $visibility(context: DecoratorContext, target: Type, ...visibilities: string[]) {
-  if (!validateDecoratorTarget(context, target, "@visibility", ["ModelProperty"])) {
-    return;
-  }
-
+export function $visibility(
+  context: DecoratorContext,
+  target: ModelProperty,
+  ...visibilities: string[]
+) {
   context.program.stateMap(visibilitySettingsKey).set(target, visibilities);
 }
 
@@ -510,13 +498,9 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
 
 export function $withVisibility(
   context: DecoratorContext,
-  target: Type,
+  target: Model,
   ...visibilities: string[]
 ) {
-  if (!validateDecoratorTarget(context, target, "@withVisibility", "Model")) {
-    return;
-  }
-
   filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, visibilities));
 }
 
@@ -539,11 +523,7 @@ function filterModelPropertiesInPlace(model: Model, filter: (prop: ModelProperty
 
 // -- @withOptionalProperties decorator ---------------------
 
-export function $withOptionalProperties(context: DecoratorContext, target: Type) {
-  if (!validateDecoratorTarget(context, target, "@withOptionalProperties", "Model")) {
-    return;
-  }
-
+export function $withOptionalProperties(context: DecoratorContext, target: Model) {
   // Make all properties of the target type optional
   target.properties.forEach((p) => (p.optional = true));
 }
@@ -562,32 +542,19 @@ export function $withUpdateableProperties(context: DecoratorContext, target: Typ
 
 export function $withoutOmittedProperties(
   context: DecoratorContext,
-  target: Type,
-  omitProperties: Type
+  target: Model,
+  omitProperties: string | Union
 ) {
-  if (omitProperties.kind == "TemplateParameter") {
-    // Silently return because this is a templated type
-    return;
-  }
-
-  if (!validateDecoratorTarget(context, target, "@withoutOmittedProperties", "Model")) {
-    return;
-  }
-
-  if (!validateDecoratorParamType(context.program, target, omitProperties, ["String", "Union"])) {
-    return;
-  }
-
   // Get the property or properties to omit
   const omitNames = new Set<string>();
-  if (omitProperties.kind === "Union") {
+  if (typeof omitProperties === "string") {
+    omitNames.add(omitProperties);
+  } else {
     for (const value of omitProperties.options) {
       if (value.kind === "String") {
         omitNames.add(value.value);
       }
     }
-  } else {
-    omitNames.add(omitProperties);
   }
 
   // Remove all properties to be omitted
@@ -596,11 +563,7 @@ export function $withoutOmittedProperties(
 
 // -- @withoutDefaultValues decorator ----------------------
 
-export function $withoutDefaultValues(context: DecoratorContext, target: Type) {
-  if (!validateDecoratorTarget(context, target, "@withoutDefaultValues", "Model")) {
-    return;
-  }
-
+export function $withoutDefaultValues(context: DecoratorContext, target: Model) {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => delete p.default);
 }
@@ -609,16 +572,11 @@ export function $withoutDefaultValues(context: DecoratorContext, target: Type) {
 
 const listPropertiesKey = createStateSymbol("listProperties");
 
-export function $list(context: DecoratorContext, target: Type, listedType?: Type) {
-  if (!validateDecoratorTarget(context, target, "@list", "Operation")) {
-    return;
-  }
-
+export function $list(context: DecoratorContext, target: Operation, listedType?: Type) {
   if (listedType && listedType.kind == "TemplateParameter") {
     // Silently return because this is probably being used in a templated interface
     return;
   }
-
   if (listedType && listedType.kind !== "Model") {
     reportDiagnostic(context.program, {
       code: "list-type-not-model",
@@ -644,10 +602,11 @@ const tagPropertiesKey = createStateSymbol("tagProperties");
 
 // Set a tag on an operation, interface, or namespace.  There can be multiple tags on an
 // operation, interface, or namespace.
-export function $tag(context: DecoratorContext, target: Type, tag: string) {
-  if (!validateDecoratorTarget(context, target, "@tag", ["Operation", "Namespace", "Interface"])) {
-    return;
-  }
+export function $tag(
+  context: DecoratorContext,
+  target: Operation | Namespace | Interface,
+  tag: string
+) {
   const tags = context.program.stateMap(tagPropertiesKey).get(target);
   if (tags) {
     tags.push(tag);
@@ -697,15 +656,6 @@ export function $friendlyName(
   friendlyName: string,
   sourceObject: Type | undefined
 ) {
-  // TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
-  if (!validateDecoratorParamType(context.program, target, friendlyName, "String")) {
-    return;
-  }
-
-  if (!validateDecoratorTarget(context, target, "@friendlyName", "Model")) {
-    return;
-  }
-
   // If an object was passed in, use it to format the friendly name
   if (sourceObject) {
     friendlyName = replaceTemplatedStringFromProperties(friendlyName, sourceObject);
@@ -730,9 +680,12 @@ const knownValuesKey = createStateSymbol("knownValues");
  * @param target Decorator target. Must be a string. (model Foo extends string)
  * @param knownValues Must be an enum.
  */
-export function $knownValues(context: DecoratorContext, target: Type, knownValues: Type) {
+export function $knownValues(
+  context: DecoratorContext,
+  target: Model | ModelProperty,
+  knownValues: Enum
+) {
   if (
-    !validateDecoratorTarget(context, target, "@format", ["Model", "ModelProperty"]) ||
     !validateDecoratorTargetIntrinsic(context, target, "@knownValues", [
       "string",
       "int8",
@@ -741,8 +694,7 @@ export function $knownValues(context: DecoratorContext, target: Type, knownValue
       "int64",
       "float32",
       "float64",
-    ]) ||
-    !validateDecoratorParamType(context.program, target, knownValues, "Enum")
+    ])
   ) {
     return;
   }
@@ -800,15 +752,7 @@ const keyKey = createStateSymbol("key");
  *
  * `@key` can only be applied to model properties.
  */
-export function $key(context: DecoratorContext, entity: Type, altName?: string): void {
-  if (!validateDecoratorTarget(context, entity, "@key", "ModelProperty")) {
-    return;
-  }
-
-  if (altName && !validateDecoratorParamType(context.program, entity, altName, "String")) {
-    return;
-  }
-
+export function $key(context: DecoratorContext, entity: ModelProperty, altName?: string): void {
   // Ensure that the key property is not marked as optional
   if (entity.optional) {
     reportDiagnostic(context.program, {
@@ -843,13 +787,9 @@ export function getKeyName(program: Program, property: ModelProperty): string {
  */
 export function $withDefaultKeyVisibility(
   context: DecoratorContext,
-  entity: Type,
+  entity: Model,
   visibility: string
 ): void {
-  if (!validateDecoratorTarget(context, entity, "@withDefaultKeyVisibility", "Model")) {
-    return;
-  }
-
   const keyProperties: ModelProperty[] = [];
   entity.properties.forEach((prop: ModelProperty) => {
     // Keep track of any key property without a visibility
@@ -913,12 +853,6 @@ export function getDeprecated(program: Program, type: Type): string | undefined 
 const overloadedByKey = createStateSymbol("overloadedByKey");
 const overloadsOperationKey = createStateSymbol("overloadsOperation");
 
-const overloadDecorator = createDecoratorDefinition({
-  name: "@overload",
-  target: "Operation",
-  args: [{ kind: "Operation" }],
-} as const);
-
 /**
  * `@overload` - Indicate that the target overloads (specializes) the overloads type.
  * @param context DecoratorContext
@@ -926,10 +860,6 @@ const overloadDecorator = createDecoratorDefinition({
  * @param overloadBase The operation to be overloaded.
  */
 export function $overload(context: DecoratorContext, target: Operation, overloadBase: Operation) {
-  if (!overloadDecorator.validate(context, target, [overloadBase])) {
-    return;
-  }
-
   // Ensure that the overloaded method arguments are a subtype of the original operation.
   const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
     target.parameters,
@@ -987,11 +917,6 @@ export function getOverloadedOperation(
 }
 
 const projectedNameKey = Symbol("projectedNameKey");
-const projectedNameDecorator = createDecoratorDefinition({
-  name: "@projectedName",
-  target: "Any",
-  args: [{ kind: "String" }, { kind: "String" }],
-} as const);
 
 /**
  * `@projectedName` - Indicate that this entity should be renamed according to the given projection.
@@ -1006,10 +931,6 @@ export function $projectedName(
   projectionName: string,
   projectedName: string
 ) {
-  if (!projectedNameDecorator.validate(context, target, [projectionName, projectedName])) {
-    return;
-  }
-
   let map: Map<string, string> = context.program.stateMap(projectedNameKey).get(target);
   if (map === undefined) {
     map = new Map();

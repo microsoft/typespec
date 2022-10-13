@@ -552,12 +552,13 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
+      withExpected: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"} it is not assignable to ${"expected"}`,
     },
   },
   "invalid-argument": {
     severity: "error",
     messages: {
-      default: paramMessage`Argument '${"value"}' of type '${"actual"}' is not assignable to parameter of type '${"expected"}'`,
+      default: paramMessage`Argument '${"value"}' is not assignable to parameter of type '${"expected"}'`,
     },
   },
   "invalid-argument-count": {

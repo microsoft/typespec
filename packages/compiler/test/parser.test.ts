@@ -561,6 +561,7 @@ describe("compiler: parser", () => {
     parseEach([
       "dec myDec(target: Type);",
       "extern dec myDec(target: Type);",
+      "namespace Lib { extern dec myDec(target: Type);}",
       "extern dec myDec(target: Type, arg1: StringLiteral);",
       "extern dec myDec(target: Type, optional?: StringLiteral);",
       "extern dec myDec(target: Type, ...rest: StringLiteral[]);",
@@ -607,6 +608,7 @@ describe("compiler: parser", () => {
     parseEach([
       "fn myDec(): void;",
       "extern fn myDec(): StringLiteral;",
+      "namespace Lib { extern fn myDec(): StringLiteral;}",
       "extern fn myDec(arg1: StringLiteral): void;",
       "extern fn myDec(optional?: StringLiteral): void;",
       "extern fn myDec(...rest: StringLiteral[]): void;",

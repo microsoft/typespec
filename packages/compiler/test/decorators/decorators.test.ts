@@ -40,7 +40,7 @@ describe("compiler: built-in decorators", () => {
       const { A, B } = await runner.compile(
         `
         @doc("Templated {name}", T)
-        model Template<T>  {
+        model Template<T extends Cadl.Reflection.Model>  {
         }
 
         @test
@@ -138,7 +138,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument 'foo | bar' of type 'Union' is not assignable to parameter of type 'String'`,
+        message: `Argument 'foo | bar' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'`,
       });
     });
   });
@@ -155,7 +155,7 @@ describe("compiler: built-in decorators", () => {
         model B { }
 
         @friendlyName("Templated{name}", T)
-        model Templated<T> {
+        model Templated<T extends Cadl.Reflection.Model> {
           prop: T;
         }
 
@@ -186,7 +186,10 @@ describe("compiler: built-in decorators", () => {
 
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].code, "decorator-wrong-target");
-      strictEqual(diagnostics[0].message, `Cannot apply @error decorator to Enum`);
+      strictEqual(
+        diagnostics[0].message,
+        `Cannot apply @error decorator to A it is not assignable to Cadl.Reflection.Model`
+      );
     });
   });
 
@@ -231,7 +234,8 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @format decorator to Enum",
+        message:
+          "Cannot apply @knownValues decorator to Bar it is not assignable to Cadl.Reflection.Model | Cadl.Reflection.ModelProperty",
       });
     });
 
@@ -274,7 +278,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'Foo' of type 'Model' is not assignable to parameter of type 'Enum'",
+        message: "Argument 'Foo' is not assignable to parameter of type 'Cadl.Reflection.Enum'",
       });
     });
   });
@@ -291,7 +295,8 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' of type 'Number' is not assignable to parameter of type 'String'",
+          message:
+            "Argument '4' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
         },
       ]);
     });
@@ -305,7 +310,8 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @key decorator to Model",
+          message:
+            "Cannot apply @key decorator to M it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -505,7 +511,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:
-          "Argument 'foo' of type 'String' is not assignable to parameter of type 'Operation'",
+          "Argument 'foo' is not assignable to parameter of type 'Cadl.Reflection.Operation'",
         severity: "error",
       });
     });

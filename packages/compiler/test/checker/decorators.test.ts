@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { Type } from "../../core/index.js";
+import { setCadlNamespace, Type } from "../../core/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -18,11 +18,13 @@ describe("compiler: checker: decorators", () => {
   describe("declaration", () => {
     let runner: BasicTestRunner;
     let $testDec: any;
+    let testJs: Record<string, any>;
     beforeEach(() => {
       $testDec = () => {};
-      testHost.addJsFile("test.js", {
+      testJs = {
         $testDec,
-      });
+      };
+      testHost.addJsFile("test.js", testJs);
       runner = createTestWrapper(testHost, (code) =>
         [`import "./test.js";`, "using Cadl.Reflection;", code].join("\n")
       );
@@ -39,6 +41,31 @@ describe("compiler: checker: decorators", () => {
       ok(testDecDecorator);
 
       strictEqual(testDecDecorator.implementation, $testDec);
+    });
+
+    it("bind implementation to declaration when in a namespace", async () => {
+      const $otherDec = () => {};
+      testJs.$otherDec = $otherDec;
+      setCadlNamespace("MyLib", $otherDec);
+
+      await runner.compile(`
+        extern dec testDec(target: Type);
+        namespace MyLib {
+          extern dec otherDec(target: Type);
+        }
+      `);
+
+      const testDecDecorator = runner.program
+        .getGlobalNamespaceType()
+        .decoratorDeclarations.get("testDec");
+      ok(testDecDecorator);
+
+      const myLib = runner.program.getGlobalNamespaceType().namespaces.get("MyLib");
+      ok(myLib);
+      const otherDecDecorator = myLib.decoratorDeclarations.get("otherDec");
+      ok(otherDecDecorator);
+
+      strictEqual(otherDecDecorator.implementation, $otherDec);
     });
 
     it("errors if decorator is missing extern modifier", async () => {
@@ -169,6 +196,20 @@ describe("compiler: checker: decorators", () => {
       });
     });
 
+    it("errors if not calling with argument and decorator expect none", async () => {
+      const diagnostics = await runner.diagnose(`
+        extern dec testDec(target: Type);
+
+        @testDec("one")
+        model Foo {}
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument-count",
+        message: "Expected 0 arguments, but got 1.",
+      });
+    });
+
     it("errors if not calling with too few arguments with rest", async () => {
       const diagnostics = await runner.diagnose(`
         extern dec testDec(target: Type, arg1: StringLiteral, ...args: StringLiteral[]);
@@ -193,7 +234,8 @@ describe("compiler: checker: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @testDec decorator to Model",
+        message:
+          "Cannot apply @testDec decorator to Foo it is not assignable to Cadl.Reflection.Union",
       });
     });
 
@@ -206,8 +248,9 @@ describe("compiler: checker: decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type '123' is not assignable to type 'Cadl.Reflection.StringLiteral'",
+        code: "invalid-argument",
+        message:
+          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
       });
     });
 
@@ -221,12 +264,14 @@ describe("compiler: checker: decorators", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "unassignable",
-          message: "Type '123' is not assignable to type 'Cadl.Reflection.StringLiteral'",
+          code: "invalid-argument",
+          message:
+            "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
         },
         {
-          code: "unassignable",
-          message: "Type '456' is not assignable to type 'Cadl.Reflection.StringLiteral'",
+          code: "invalid-argument",
+          message:
+            "Argument '456' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
         },
       ]);
     });

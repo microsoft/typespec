@@ -19,7 +19,8 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @operationId decorator to Model",
+        message:
+          "Cannot apply @operationId decorator to Foo it is not assignable to Cadl.Reflection.Operation",
       });
     });
 
@@ -31,7 +32,8 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message:
+          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
       });
     });
   });
@@ -76,7 +78,8 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message:
+          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
       });
     });
 
@@ -105,7 +108,8 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message:
+          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
       });
     });
 
@@ -118,7 +122,8 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' of type 'Number' is not assignable to parameter of type 'String'",
+        message:
+          "Argument '123' is not assignable to parameter of type 'Cadl.Reflection.StringLiteral'",
       });
     });
 

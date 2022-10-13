@@ -2587,13 +2587,27 @@ export function createChecker(program: Program): Checker {
     const symbolLinks = getSymbolLinks(sym);
 
     const args = checkDecoratorArguments(decNode, mapper);
+    let hasError = false;
+    if (symbolLinks.declaredType === undefined) {
+      const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
+        sym.declarations.find(
+          (x): x is DecoratorDeclarationStatementNode =>
+            x.kind === SyntaxKind.DecoratorDeclarationStatement
+        );
+      if (decoratorDeclNode) {
+        checkDecoratorDeclaration(decoratorDeclNode, mapper);
+      }
+    }
     if (symbolLinks.declaredType) {
       compilerAssert(
         symbolLinks.declaredType.kind === ("Decorator" as const),
         "Expected to find a decorator type."
       );
       // Means we have a decorator declaration.
-      checkDecoratorUsage(targetType, symbolLinks.declaredType, args, decNode);
+      hasError = checkDecoratorUsage(targetType, symbolLinks.declaredType, args, decNode);
+    }
+    if (hasError) {
+      return undefined;
     }
     return {
       decorator: sym.value ?? ((...args: any[]) => {}),
@@ -2607,12 +2621,19 @@ export function createChecker(program: Program): Checker {
     declaration: Decorator,
     args: DecoratorArgument[],
     decoratorNode: Node
-  ) {
+  ): boolean {
+    let hasError = false;
     const [targetValid] = isTypeAssignableTo(targetType, declaration.target.type, decoratorNode);
     if (!targetValid) {
+      hasError = true;
       reportDiagnostic(program, {
         code: "decorator-wrong-target",
-        format: { decorator: declaration.name, to: declaration.target.type.kind },
+        messageId: "withExpected",
+        format: {
+          decorator: declaration.name,
+          to: getTypeName(targetType),
+          expected: getTypeName(declaration.target.type),
+        },
         target: decoratorNode,
       });
     }
@@ -2621,7 +2642,7 @@ export function createChecker(program: Program): Checker {
       ? undefined
       : declaration.parameters.length;
 
-    if (args.length < minArgs || (maxArgs && args.length > maxArgs)) {
+    if (args.length < minArgs || (maxArgs !== undefined && args.length > maxArgs)) {
       if (maxArgs === undefined) {
         reportDiagnostic(program, {
           code: "invalid-argument-count",
@@ -2646,7 +2667,9 @@ export function createChecker(program: Program): Checker {
           for (let i = index; i < args.length; i++) {
             const arg = args[i];
             if (arg && arg.value) {
-              checkTypeAssignable(arg.value, restType, arg.node!);
+              if (!checkArgumentAssignable(arg.value, restType, arg.node!)) {
+                hasError = true;
+              }
             }
           }
         }
@@ -2654,9 +2677,31 @@ export function createChecker(program: Program): Checker {
       }
       const arg = args[index];
       if (arg && arg.value) {
-        checkTypeAssignable(arg.value, parameter.type, arg.node!);
+        if (!checkArgumentAssignable(arg.value, parameter.type, arg.node!)) {
+          hasError = true;
+        }
       }
     }
+    return hasError;
+  }
+
+  function checkArgumentAssignable(
+    argumentType: Type,
+    parameterType: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): boolean {
+    const [valid] = isTypeAssignableTo(argumentType, parameterType, diagnosticTarget);
+    if (!valid) {
+      reportDiagnostic(program, {
+        code: "invalid-argument",
+        format: {
+          value: getTypeName(argumentType),
+          expected: getTypeName(parameterType),
+        },
+        target: diagnosticTarget,
+      });
+    }
+    return valid;
   }
 
   function checkDecorators(

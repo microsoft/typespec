@@ -111,7 +111,10 @@ model UpdateableProperties<T> {
 
 @doc("The template for omitting properties.")
 @withoutOmittedProperties(TStringOrTuple)
-model OmitProperties<T, TStringOrTuple> {
+model OmitProperties<
+  T,
+  TStringOrTuple extends Cadl.Reflection.StringLiteral | Cadl.Reflection.Tuple
+> {
   ...T;
 }
 
@@ -122,6 +125,6 @@ model OmitDefaults<T> {
 
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
-model DefaultKeyVisibility<T, Visibility> {
+model DefaultKeyVisibility<T, Visibility extends Cadl.Reflection.StringLiteral> {
   ...T;
 }

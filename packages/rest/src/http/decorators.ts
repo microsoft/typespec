@@ -1,6 +1,5 @@
 import {
   cadlTypeToJson,
-  createDecoratorDefinition,
   createDiagnosticCollector,
   DecoratorContext,
   Diagnostic,
@@ -16,7 +15,6 @@ import {
   Tuple,
   Type,
   Union,
-  validateDecoratorParamCount,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, createStateSymbol, reportDiagnostic } from "../lib.js";
@@ -32,17 +30,8 @@ import {
 
 export const namespace = "Cadl.Http";
 
-const headerDecorator = createDecoratorDefinition({
-  name: "@header",
-  target: "ModelProperty",
-  args: [{ kind: "String", optional: true }],
-} as const);
 const headerFieldsKey = createStateSymbol("header");
 export function $header(context: DecoratorContext, entity: ModelProperty, headerName?: string) {
-  if (!headerDecorator.validate(context, entity, [headerName])) {
-    return;
-  }
-
   if (!headerName) {
     headerName = entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
   }
@@ -57,17 +46,8 @@ export function isHeader(program: Program, entity: Type) {
   return program.stateMap(headerFieldsKey).has(entity);
 }
 
-const queryDecorator = createDecoratorDefinition({
-  name: "@query",
-  target: "ModelProperty",
-  args: [{ kind: "String", optional: true }],
-} as const);
 const queryFieldsKey = createStateSymbol("query");
 export function $query(context: DecoratorContext, entity: ModelProperty, queryKey?: string) {
-  if (!queryDecorator.validate(context, entity, [queryKey])) {
-    return;
-  }
-
   if (!queryKey && entity.kind === "ModelProperty") {
     queryKey = entity.name;
   }
@@ -81,18 +61,8 @@ export function getQueryParamName(program: Program, entity: Type): string {
 export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(queryFieldsKey).has(entity);
 }
-
-const pathDecorator = createDecoratorDefinition({
-  name: "@path",
-  target: "ModelProperty",
-  args: [{ kind: "String", optional: true }],
-} as const);
 const pathFieldsKey = createStateSymbol("path");
 export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
-  if (!pathDecorator.validate(context, entity, [paramName])) {
-    return;
-  }
-
   context.program.stateMap(pathFieldsKey).set(entity, paramName ?? entity.name);
 }
 
@@ -104,16 +74,8 @@ export function isPathParam(program: Program, entity: Type) {
   return program.stateMap(pathFieldsKey).has(entity);
 }
 
-const bodyDecorator = createDecoratorDefinition({
-  name: "@body",
-  target: "ModelProperty",
-  args: [],
-} as const);
 const bodyFieldsKey = createStateSymbol("body");
 export function $body(context: DecoratorContext, entity: ModelProperty) {
-  if (!bodyDecorator.validate(context, entity, [])) {
-    return;
-  }
   context.program.stateSet(bodyFieldsKey).add(entity);
 }
 
@@ -121,16 +83,8 @@ export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(bodyFieldsKey).has(entity);
 }
 
-const statusCodeDecorator = createDecoratorDefinition({
-  name: "@statusCode",
-  target: "ModelProperty",
-  args: [],
-} as const);
 const statusCodeKey = createStateSymbol("statusCode");
 export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
-  if (!statusCodeDecorator.validate(context, entity, [])) {
-    return;
-  }
   context.program.stateSet(statusCodeKey).add(entity);
 
   const codes: string[] = [];
@@ -271,39 +225,28 @@ export function getOperationVerb(program: Program, entity: Type): HttpVerb | und
   return program.stateMap(operationVerbsKey).get(entity);
 }
 
-export function $get(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context, args);
+export function $get(context: DecoratorContext, entity: Operation) {
   setOperationVerb(context.program, entity, "get");
 }
 
-export function $put(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context, args);
+export function $put(context: DecoratorContext, entity: Operation) {
   setOperationVerb(context.program, entity, "put");
 }
 
-export function $post(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context, args);
+export function $post(context: DecoratorContext, entity: Operation) {
   setOperationVerb(context.program, entity, "post");
 }
 
-export function $patch(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context, args);
+export function $patch(context: DecoratorContext, entity: Operation) {
   setOperationVerb(context.program, entity, "patch");
 }
 
-export function $delete(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context, args);
+export function $delete(context: DecoratorContext, entity: Operation) {
   setOperationVerb(context.program, entity, "delete");
 }
 
-export function $head(context: DecoratorContext, entity: Type, ...args: unknown[]) {
-  validateVerbNoArgs(context, args);
+export function $head(context: DecoratorContext, entity: Operation) {
   setOperationVerb(context.program, entity, "head");
-}
-
-// TODO: replace with built-in decorator validation https://github.com/Azure/cadl-azure/issues/1022
-function validateVerbNoArgs(context: DecoratorContext, args: unknown[]) {
-  validateDecoratorParamCount(context, 0, 0, args);
 }
 
 export interface HttpServer {
@@ -312,11 +255,6 @@ export interface HttpServer {
   parameters: Map<string, ModelProperty>;
 }
 
-const serverDecoratorDefinition = createDecoratorDefinition({
-  name: "@server",
-  target: "Namespace",
-  args: [{ kind: "String" }, { kind: "String" }, { kind: "Model", optional: true }],
-} as const);
 const serversKey = createStateSymbol("servers");
 /**
  * Configure the server url for the service.
@@ -332,10 +270,6 @@ export function $server(
   description: string,
   parameters?: Model
 ): void {
-  if (!serverDecoratorDefinition.validate(context, target, [url, description, parameters])) {
-    return;
-  }
-
   const params = extractParamsFromPath(url);
   const parameterMap = new Map(parameters?.properties ?? []);
   for (const declaredParam of params) {
@@ -399,21 +333,12 @@ export function $plainData(context: DecoratorContext, entity: Type) {
 
 setCadlNamespace("Private", $plainData);
 
-const useAuthDecorator = createDecoratorDefinition({
-  name: "@useAuth",
-  target: "Namespace",
-  args: [{ kind: ["Model", "Union", "Tuple"] }],
-} as const);
 const authenticationKey = createStateSymbol("authentication");
 export function $useAuth(
   context: DecoratorContext,
   serviceNamespace: Namespace,
   authConfig: Model | Union | Tuple
 ) {
-  if (!useAuthDecorator.validate(context, serviceNamespace, [authConfig])) {
-    return;
-  }
-
   const [auth, diagnostics] = extractServiceAuthentication(context.program, authConfig);
   if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
   if (auth !== undefined) {

@@ -435,6 +435,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement();
           break;
+        case Token.ExternKeyword:
+        case Token.FnKeyword:
+        case Token.DecKeyword:
+          item = parseDeclaration();
+          break;
         case Token.ProjectionKeyword:
           reportInvalidDecorators(decorators, "project statement");
           item = parseProjectionStatement();

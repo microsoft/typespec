@@ -213,7 +213,7 @@ describe("openapi3: models", () => {
         x?: int32;
       };
       @friendlyName("TParent_{name}", T)
-      model TParent<T> extends Parent {
+      model TParent<T extends Cadl.Reflection.Model> extends Parent {
         t: T;
       }
       model Child extends TParent<string> {
@@ -318,7 +318,7 @@ describe("openapi3: models", () => {
       "Bar",
       `
       @friendlyName("Foo_{name}", T)
-      model Foo<T> {
+      model Foo<T extends Cadl.Reflection.Model> {
         y: T;
       };
       model Bar extends Foo<int32> {
