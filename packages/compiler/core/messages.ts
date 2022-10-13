@@ -469,7 +469,7 @@ const diagnostics = {
     },
   },
   "decorator-decl-target": {
-    severity: "warning",
+    severity: "error",
     messages: {
       default: "dec must have at least one parameter.",
       required: "dec first parameter must be required.",

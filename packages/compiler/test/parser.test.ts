@@ -5,7 +5,7 @@ import { hasParseError, parse, visitChildren } from "../core/parser.js";
 import { CadlScriptNode, Node, NodeFlags, SourceFile, SyntaxKind } from "../core/types.js";
 import { DiagnosticMatch, expectDiagnostics } from "../testing/expect.js";
 
-describe("compiler: syntax", () => {
+describe("compiler: parser", () => {
   describe("import statements", () => {
     parseEach(['import "x";']);
 
@@ -551,6 +551,95 @@ describe("compiler: syntax", () => {
             code: "augment-decorator-target",
             message: "Augment decorator first argument must be a type reference.",
             pos: 5,
+          },
+        ],
+      ],
+    ]);
+  });
+
+  describe("decorator declarations", () => {
+    parseEach([
+      "dec myDec(target: Type);",
+      "extern dec myDec(target: Type);",
+      "extern dec myDec(target: Type, arg1: StringLiteral);",
+      "extern dec myDec(target: Type, optional?: StringLiteral);",
+      "extern dec myDec(target: Type, ...rest: StringLiteral[]);",
+    ]);
+
+    parseErrorEach([
+      ["dec myDec(target: Type)", [{ code: "token-expected", message: "';' expected." }]],
+      [
+        "dec myDec();",
+        [{ code: "decorator-decl-target", message: "dec must have at least one parameter." }],
+      ],
+      ["dec myDec(target);", [{ code: "token-expected", message: "':' expected." }]],
+      [
+        "dec myDec(target: Type, optionalFirst?: StringLiteral, requiredAfter: StringLiteral);",
+        [
+          {
+            code: "required-parameter-first",
+            message: "A required parameter cannot follow an optional parameter.",
+          },
+        ],
+      ],
+      [
+        "dec myDec(target: Type, ...optionalRest?: StringLiteral[]);",
+        [
+          {
+            code: "rest-parameter-required",
+            message: "A rest parameter cannot be optional.",
+          },
+        ],
+      ],
+      [
+        "dec myDec(target: Type, ...restFirst: StringLiteral[], paramAfter: StringLiteral);",
+        [
+          {
+            code: "rest-parameter-last",
+            message: "A rest parameter must be last in a parameter list.",
+          },
+        ],
+      ],
+    ]);
+  });
+
+  describe("function declarations", () => {
+    parseEach([
+      "fn myDec(): void;",
+      "extern fn myDec(): StringLiteral;",
+      "extern fn myDec(arg1: StringLiteral): void;",
+      "extern fn myDec(optional?: StringLiteral): void;",
+      "extern fn myDec(...rest: StringLiteral[]): void;",
+    ]);
+
+    parseErrorEach([
+      ["fn myDec(target: Type): void", [{ code: "token-expected", message: "';' expected." }]],
+      ["fn myDec(target): void;", [{ code: "token-expected", message: "':' expected." }]],
+      ["fn myDec(target);", [{ code: "token-expected", message: "':' expected." }]],
+      [
+        "fn myDec(target: Type, optionalFirst?: StringLiteral, requiredAfter: StringLiteral): void;",
+        [
+          {
+            code: "required-parameter-first",
+            message: "A required parameter cannot follow an optional parameter.",
+          },
+        ],
+      ],
+      [
+        "fn myDec(target: Type, ...optionalRest?: StringLiteral[]): void;",
+        [
+          {
+            code: "rest-parameter-required",
+            message: "A rest parameter cannot be optional.",
+          },
+        ],
+      ],
+      [
+        "fn myDec(target: Type, ...restFirst: StringLiteral[], paramAfter: StringLiteral): void;",
+        [
+          {
+            code: "rest-parameter-last",
+            message: "A rest parameter must be last in a parameter list.",
           },
         ],
       ],

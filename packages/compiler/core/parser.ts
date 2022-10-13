@@ -1295,13 +1295,13 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     | DecoratorDeclarationStatementNode
     | FunctionDeclarationStatementNode
     | InvalidStatementNode {
-    const modifiers = parseModifiers();
     const pos = tokenPos();
+    const modifiers = parseModifiers();
     switch (token()) {
       case Token.DecKeyword:
-        return parseDecoratorDeclarationStatement(modifiers);
+        return parseDecoratorDeclarationStatement(pos, modifiers);
       case Token.FnKeyword:
-        return parseFunctionDeclarationStatement(modifiers);
+        return parseFunctionDeclarationStatement(pos, modifiers);
     }
     return parseInvalidStatement(pos, []);
   }
@@ -1325,15 +1325,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseDecoratorDeclarationStatement(
+    pos: number,
     modifiers: Modifier[]
   ): DecoratorDeclarationStatementNode {
-    const pos = tokenPos();
     const modifierFlags = modifiersToFlags(modifiers);
     parseExpected(Token.DecKeyword);
     const id = parseIdentifier();
     let [target, ...parameters] = parseFunctionParameters();
     if (target === undefined) {
-      error({ code: "decorator-decl-target" });
+      error({ code: "decorator-decl-target", target: { pos, end: previousTokenEnd } });
       target = {
         kind: SyntaxKind.FunctionParameter,
         id: createMissingIdentifier(),
@@ -1346,6 +1346,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     if (target.optional) {
       error({ code: "decorator-decl-target", messageId: "required" });
     }
+    parseExpected(Token.Semicolon);
     return {
       kind: SyntaxKind.DecoratorDeclarationStatement,
       modifiers,
@@ -1358,16 +1359,16 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   }
 
   function parseFunctionDeclarationStatement(
+    pos: number,
     modifiers: Modifier[]
   ): FunctionDeclarationStatementNode {
-    const pos = tokenPos();
     const modifierFlags = modifiersToFlags(modifiers);
     parseExpected(Token.FnKeyword);
     const id = parseIdentifier();
     const parameters = parseFunctionParameters();
     parseExpected(Token.Colon);
     const returnType = parseExpression();
-
+    parseExpected(Token.Semicolon);
     return {
       kind: SyntaxKind.FunctionDeclarationStatement,
       modifiers,
@@ -1396,6 +1397,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         foundOptional = true;
       }
 
+      if (item.rest && item.optional) {
+        error({ code: "rest-parameter-required", target: item });
+      }
       if (item.rest && index !== parameters.length - 1) {
         error({ code: "rest-parameter-last", target: item });
       }

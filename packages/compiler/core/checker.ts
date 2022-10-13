@@ -219,7 +219,6 @@ let currentSymbolId = 0;
 
 export function createChecker(program: Program): Checker {
   const stdTypes: Partial<Record<StdTypeName, Model>> = {};
-  const reflectionTypes: Partial<Record<ReflectionTypeName, Model>> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
@@ -347,23 +346,6 @@ export function createChecker(program: Program): Checker {
     checkModelStatement(sym!.declarations[0] as any, undefined);
 
     const loadedType = stdTypes[name];
-    compilerAssert(
-      loadedType,
-      "Cadl built-in array type should have been initalized before using array syntax."
-    );
-    return loadedType as any;
-  }
-
-  function getRefelectionType<T extends ReflectionTypeName>(name: T): Model & { name: T } {
-    const type = reflectionTypes[name];
-    if (type !== undefined) {
-      return type as any;
-    }
-
-    const sym = cadlNamespaceBinding?.exports?.get("Reflection")?.exports?.get("name");
-    checkModelStatement(sym!.declarations[0] as any, undefined);
-
-    const loadedType = reflectionTypes[name];
     compilerAssert(
       loadedType,
       "Cadl built-in array type should have been initalized before using array syntax."
