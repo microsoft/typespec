@@ -1204,14 +1204,14 @@ function printDecoratorDeclarationStatement(
     group([
       indent(
         join(", ", [
-          path.call(print, "target"),
+          [softline, path.call(print, "target")],
           ...path.map((arg) => [softline, print(arg)], "parameters"),
         ])
       ),
       softline,
     ]),
   ];
-  return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")"];
+  return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")", ";"];
 }
 
 function printFunctionDeclarationStatement(
@@ -1232,7 +1232,17 @@ function printFunctionDeclarationStatement(
     ]),
   ];
   const returnType = path.call(print, "returnType");
-  return [printModifiers(path, options, print), "dec ", id, "(", parameters, ")", ":", returnType];
+  return [
+    printModifiers(path, options, print),
+    "fn ",
+    id,
+    "(",
+    parameters,
+    ")",
+    ": ",
+    returnType,
+    ";",
+  ];
 }
 
 function printFunctionParameterDeclaration(
@@ -1243,6 +1253,7 @@ function printFunctionParameterDeclaration(
   const node = path.getValue();
   const id = path.call(print, "id");
   return [
+    node.rest ? "..." : "",
     printDirectives(path, options, print),
     id,
     node.optional ? "?: " : ": ",
