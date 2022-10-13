@@ -5,4 +5,4 @@ namespace OpenAPI;
 extern dec operationId(target: Operation, operationId: StringLiteral);
 extern dec extension(target: Type, key: StringLiteral, value: unknown);
 extern dec defaultResponse(target: Model);
-extern dec externalDocs(target: Model, url: StringLiteral, description?: StringLiteral);
+extern dec externalDocs(target: Type, url: StringLiteral, description?: StringLiteral);

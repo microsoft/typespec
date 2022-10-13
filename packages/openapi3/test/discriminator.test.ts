@@ -11,7 +11,8 @@ describe("openapi3: discriminated unions", () => {
     `);
     expectDiagnostics(diagnostics, {
       code: "decorator-wrong-target",
-      message: "Cannot apply @discriminator decorator to Namespace",
+      message:
+        "Cannot apply @discriminator decorator to Foo it is not assignable to Cadl.Reflection.Model | Cadl.Reflection.Union",
     });
   });
 

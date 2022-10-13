@@ -110,11 +110,8 @@ model UpdateableProperties<T> {
 }
 
 @doc("The template for omitting properties.")
-@withoutOmittedProperties(TStringOrTuple)
-model OmitProperties<
-  T,
-  TStringOrTuple extends Cadl.Reflection.StringLiteral | Cadl.Reflection.Tuple
-> {
+@withoutOmittedProperties(TKeys)
+model OmitProperties<T, TKeys extends Cadl.Reflection.StringLiteral | Cadl.Reflection.Union> {
   ...T;
 }
 
