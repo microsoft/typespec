@@ -201,6 +201,19 @@ const diagnostics = {
       default: "A required parameter cannot follow an optional parameter.",
     },
   },
+  "rest-parameter-last": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter must be last in a parameter list.",
+    },
+  },
+  "rest-parameter-required": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter cannot be optional.",
+    },
+  },
+
   /**
    * Checker
    */
@@ -396,6 +409,12 @@ const diagnostics = {
       default: paramMessage`Decorator ${"decoratorName"} failed!\n\n${"error"}`,
     },
   },
+  "rest-parameter-array": {
+    severity: "error",
+    messages: {
+      default: "A rest parameter must be of an array type.",
+    },
+  },
 
   /**
    * Program
@@ -521,6 +540,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Expected ${"expected"} arguments, but got ${"actual"}.`,
+      atLeast: paramMessage`Expected at least ${"expected"} arguments, but got ${"actual"}.`,
     },
   },
   "known-values-invalid-enum": {

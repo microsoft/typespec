@@ -1339,6 +1339,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         id: createMissingIdentifier(),
         value: createMissingIdentifier(),
         optional: false,
+        rest: false,
         ...finishNode(pos),
       };
     }
@@ -1385,7 +1386,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     );
 
     let foundOptional = false;
-    for (const item of parameters) {
+    for (const [index, item] of parameters.entries()) {
       if (!item.optional && foundOptional) {
         error({ code: "required-parameter-first", target: item });
         continue;
@@ -1394,12 +1395,17 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       if (item.optional) {
         foundOptional = true;
       }
+
+      if (item.rest && index !== parameters.length - 1) {
+        error({ code: "rest-parameter-last", target: item });
+      }
     }
     return parameters;
   }
 
   function parseFunctionParameter(): FunctionParameterNode {
     const pos = tokenPos();
+    const rest = parseOptional(Token.Ellipsis);
     const id = parseIdentifier("property");
 
     const optional = parseOptional(Token.Question);
@@ -1410,6 +1416,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       id,
       value,
       optional,
+      rest,
       ...finishNode(pos),
     };
   }

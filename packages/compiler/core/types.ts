@@ -404,6 +404,7 @@ export interface FunctionParameter extends BaseType {
   name: string;
   type: Type;
   optional: boolean;
+  rest: boolean;
 }
 
 export interface Sym {
@@ -1057,7 +1058,16 @@ export interface FunctionParameterNode extends BaseNode {
   readonly kind: SyntaxKind.FunctionParameter;
   readonly id: IdentifierNode;
   readonly value: Expression;
+
+  /**
+   * Parameter defined with `?`
+   */
   readonly optional: boolean;
+
+  /**
+   * Parameter defined with `...` notation.
+   */
+  readonly rest: boolean;
 }
 
 /**

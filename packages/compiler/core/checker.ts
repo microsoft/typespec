@@ -1130,13 +1130,17 @@ export function createChecker(program: Program): Checker {
     if (links.declaredType) {
       return links.declaredType as FunctionParameter;
     }
-
+    if (node.rest && node.value.kind !== SyntaxKind.ArrayExpression) {
+      reportDiagnostic(program, { code: "rest-parameter-array", target: node.value });
+    }
     const type = getTypeForNode(node.value);
+
     const parameterType: FunctionParameter = createType({
       kind: "FunctionParameter",
       node,
       name: node.id.sv,
       optional: node.optional,
+      rest: node.rest,
       type,
       implementation: node.symbol.value!,
     });
@@ -2542,7 +2546,7 @@ export function createChecker(program: Program): Checker {
       checkDecoratorUsage(symbolLinks.declaredType, args, decNode);
     }
     return {
-      decorator: sym.value!,
+      decorator: sym.value ?? ((...args: any[]) => {}),
       node: decNode,
       args,
     };
@@ -2553,17 +2557,42 @@ export function createChecker(program: Program): Checker {
     args: DecoratorArgument[],
     decoratorNode: Node
   ) {
-    const minArgs = declaration.parameters.filter((x) => !x.optional).length;
-    const maxArgs = declaration.parameters.length;
-    if (args.length < minArgs || args.length > maxArgs) {
-      const expected = minArgs === maxArgs ? minArgs.toString() : `${minArgs}-${maxArgs}`;
-      reportDiagnostic(program, {
-        code: "invalid-argument-count",
-        format: { actual: args.length.toString(), expected },
-        target: decoratorNode,
-      });
+    const minArgs = declaration.parameters.filter((x) => !x.optional && !x.rest).length;
+    const maxArgs = declaration.parameters[declaration.parameters.length - 1].rest
+      ? undefined
+      : declaration.parameters.length;
+
+    if (args.length < minArgs || (maxArgs && args.length > maxArgs)) {
+      if (maxArgs === undefined) {
+        reportDiagnostic(program, {
+          code: "invalid-argument-count",
+          messageId: "atLeast",
+          format: { actual: args.length.toString(), expected: minArgs.toString() },
+          target: decoratorNode,
+        });
+      } else {
+        const expected = minArgs === maxArgs ? minArgs.toString() : `${minArgs}-${maxArgs}`;
+        reportDiagnostic(program, {
+          code: "invalid-argument-count",
+          format: { actual: args.length.toString(), expected },
+          target: decoratorNode,
+        });
+      }
     }
     for (const [index, parameter] of declaration.parameters.entries()) {
+      if (parameter.rest) {
+        const restType =
+          parameter.type.kind === "Model" ? parameter.type.indexer?.value : undefined;
+        if (restType) {
+          for (let i = index; i < args.length; i++) {
+            const arg = args[i];
+            if (arg && arg.realValue) {
+              checkTypeAssignable(arg.realValue, restType, arg.node!);
+            }
+          }
+        }
+        break;
+      }
       const arg = args[index];
       if (arg && arg.realValue) {
         checkTypeAssignable(arg.realValue, parameter.type, arg.node!);
@@ -4632,6 +4661,9 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
   };
 }
 
+/**
+ * Mapping from the reflection models to Type["kind"] value
+ */
 const ReflectionNameToKind = {
   Model: "Model",
   ModelProperty: "ModelProperty",
@@ -4642,13 +4674,11 @@ const ReflectionNameToKind = {
   Namespace: "Namespace",
   Operation: "Operation",
   StringLiteral: "String",
-  NumericLiteral: "Numeric",
+  NumericLiteral: "Number",
   BooleanLiteral: "Boolean",
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",
-  IntrinsicType: "IntrinsicType",
-  FunctionType: "FunctionType",
-  ObjectType: "ObjectType",
-  Projection: "Projection",
-};
+} as const;
+
+const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionNameToKind;
