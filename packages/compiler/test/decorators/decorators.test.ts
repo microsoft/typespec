@@ -155,7 +155,7 @@ describe("compiler: built-in decorators", () => {
         model B { }
 
         @friendlyName("Templated{name}", T)
-        model Templated<Tå> {
+        model Templated<T> {
           prop: T;
         }
 
