@@ -1658,6 +1658,7 @@ export function createChecker(program: Program): Checker {
         return undefined;
 
       case IdentifierKind.Decorator:
+      case IdentifierKind.Function:
       case IdentifierKind.Using:
       case IdentifierKind.TypeReference:
         let ref: MemberExpressionNode | IdentifierNode = id;
@@ -1690,6 +1691,7 @@ export function createChecker(program: Program): Checker {
     switch (kind) {
       case IdentifierKind.Using:
       case IdentifierKind.Decorator:
+      case IdentifierKind.Function:
       case IdentifierKind.TypeReference:
         break; // supported
       case IdentifierKind.Other:

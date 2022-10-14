@@ -15,11 +15,10 @@ export function getTypeSignature(program: Program, type: Type) {
 }
 
 function getDecoratorSignature(program: Program, type: Decorator) {
-  const name = type.name.slice(1);
   const parameters = [type.target, ...type.parameters].map((x) =>
     getFunctionParameterSignature(program, x)
   );
-  return `dec ${name}(${parameters.join(", ")})`;
+  return `dec ${type.name}(${parameters.join(", ")})`;
 }
 
 function getFunctionSignature(program: Program, type: FunctionType) {

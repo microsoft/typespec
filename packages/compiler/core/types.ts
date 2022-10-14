@@ -1260,6 +1260,7 @@ export interface IdentifierContext {
 export enum IdentifierKind {
   TypeReference,
   Decorator,
+  Function,
   Using,
   Declaration,
   Other,
