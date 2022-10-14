@@ -203,7 +203,11 @@ describe("compiler: server: completion", () => {
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec doc(target: Cadl.Reflection.Type, doc: Cadl.Reflection.StringLiteral, formatArgs?: Cadl.Reflection.Model)\n```",
+        },
       },
     ]);
   });
@@ -238,7 +242,11 @@ describe("compiler: server: completion", () => {
         label: "doc",
         insertText: "doc",
         kind: CompletionItemKind.Function,
-        documentation: undefined,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value:
+            "```cadl\ndec doc(target: Cadl.Reflection.Type, doc: Cadl.Reflection.StringLiteral, formatArgs?: Cadl.Reflection.Model)\n```",
+        },
       },
     ]);
   });
