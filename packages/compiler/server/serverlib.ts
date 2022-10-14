@@ -97,6 +97,7 @@ import {
 } from "../core/util.js";
 import { getDoc, isDeprecated, isIntrinsic } from "../lib/decorators.js";
 import { getSymbolStructure } from "./symbol-structure.js";
+import { getTypeSignature } from "./type-signature.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -631,10 +632,7 @@ export function createServer(host: ServerHost): Server {
       return "";
     }
 
-    const name = program.checker.getTypeName(type);
-    const typeKind = type.kind.toLowerCase();
-
-    const lines = ["```cadl", `${typeKind} ${name}`, "```"];
+    const lines = ["```cadl", getTypeSignature(program, type), "```"];
     const doc = getDoc(program, type);
     if (doc) {
       lines.push(`_${doc}_`); // italic

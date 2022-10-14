@@ -3134,7 +3134,7 @@ export function createChecker(program: Program): Checker {
         ) {
           mergedSymbols.set(sourceBinding, targetBinding);
           mutate(targetBinding).flags |= sourceBinding.flags;
-          mutate(targetBinding.declarations).push(...sourceBinding.declarations);
+          mutate(targetBinding.declarations).unshift(...sourceBinding.declarations);
         } else {
           // this will set a duplicate error
           target.set(key, sourceBinding);
