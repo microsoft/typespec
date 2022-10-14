@@ -3115,35 +3115,49 @@ export function createChecker(program: Program): Checker {
         sourceBinding.flags & SymbolFlags.Declaration ||
         sourceBinding.flags & SymbolFlags.Implementation
       ) {
-        const targetBinding = target.get(key);
-        if (
-          !targetBinding ||
-          (targetBinding.flags & SymbolFlags.Declaration &&
-            targetBinding.flags & SymbolFlags.Implementation)
-        ) {
-          target.set(key, sourceBinding);
-        } else if (
-          targetBinding.flags & SymbolFlags.Declaration &&
-          sourceBinding.flags & SymbolFlags.Implementation
-        ) {
-          mergedSymbols.set(sourceBinding, targetBinding);
-          mutate(targetBinding).value = sourceBinding.value;
-          mutate(targetBinding).flags |= sourceBinding.flags;
-          mutate(targetBinding.declarations).push(...sourceBinding.declarations);
-        } else if (
-          targetBinding.flags & SymbolFlags.Implementation &&
-          sourceBinding.flags & SymbolFlags.Declaration
-        ) {
-          mergedSymbols.set(sourceBinding, targetBinding);
-          mutate(targetBinding).flags |= sourceBinding.flags;
-          mutate(targetBinding.declarations).unshift(...sourceBinding.declarations);
+        if (sourceBinding.flags & SymbolFlags.Decorator) {
+          mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Decorator);
+        } else if (sourceBinding.flags & SymbolFlags.Function) {
+          mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Function);
         } else {
-          // this will set a duplicate error
           target.set(key, sourceBinding);
         }
       } else {
         target.set(key, sourceBinding);
       }
+    }
+  }
+
+  function mergeDeclarationOrImplementation(
+    key: string,
+    sourceBinding: Sym,
+    target: Mutable<SymbolTable>,
+    expectTargetFlags: SymbolFlags
+  ) {
+    const targetBinding = target.get(key);
+    if (!targetBinding || !(targetBinding.flags & expectTargetFlags)) {
+      target.set(key, sourceBinding);
+      return;
+    }
+    const isSourceDeclaration = sourceBinding.flags & SymbolFlags.Declaration;
+    const isSourceImplementation = sourceBinding.flags & SymbolFlags.Implementation;
+    const isTargetDeclaration = targetBinding.flags & SymbolFlags.Declaration;
+    const isTargetImplementation = targetBinding.flags & SymbolFlags.Implementation;
+    if (isTargetDeclaration && isTargetImplementation) {
+      // If the target already has both a declration and implementation set the symbol which will mark it as duplicate
+      target.set(key, sourceBinding);
+    } else if (isTargetDeclaration && isSourceImplementation) {
+      mergedSymbols.set(sourceBinding, targetBinding);
+      mutate(targetBinding).value = sourceBinding.value;
+      mutate(targetBinding).flags |= sourceBinding.flags;
+      mutate(targetBinding.declarations).push(...sourceBinding.declarations);
+    } else if (isTargetImplementation && isSourceDeclaration) {
+      mergedSymbols.set(sourceBinding, targetBinding);
+      mutate(targetBinding).flags |= sourceBinding.flags;
+      mutate(targetBinding.declarations).unshift(...sourceBinding.declarations);
+    } else {
+      // this will set a duplicate error
+      target.set(key, sourceBinding);
     }
   }
 
