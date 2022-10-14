@@ -24,7 +24,7 @@ extern dec maxValue(target: Model | ModelProperty, value: NumericLiteral);
 
 extern dec secret(target: Model | ModelProperty);
 extern dec tag(target: Namespace | Interface | Operation, tag: StringLiteral);
-extern dec friendlyName(target: Type, name: StringLiteral, formatArgs?: Model);
+extern dec friendlyName(target: Type, name: StringLiteral, formatArgs?: Type);
 extern dec knownValues(target: Model | ModelProperty, values: Enum);
 extern dec key(target: ModelProperty, altName?: StringLiteral);
 extern dec overload(target: Operation, overloadbase: Operation);

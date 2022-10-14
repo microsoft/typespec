@@ -155,7 +155,7 @@ describe("compiler: built-in decorators", () => {
         model B { }
 
         @friendlyName("Templated{name}", T)
-        model Templated<T extends Cadl.Reflection.Model> {
+        model Templated<Tå> {
           prop: T;
         }
 
