@@ -17,7 +17,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -27,7 +27,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -48,7 +48,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -58,7 +58,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -72,27 +72,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "tag": {
-                    "type": "string"
-                  },
-                  "age": {
-                    "type": "integer",
-                    "format": "int32",
-                    "minimum": 0,
-                    "maximum": 20
-                  },
-                  "ownerId": {
-                    "type": "integer",
-                    "format": "int64"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Pet>>"
+                "$ref": "#/components/schemas/PetUpdate"
               }
             }
           }
@@ -111,7 +91,7 @@
             "description": "Resource deleted successfully."
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -130,7 +110,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -150,7 +130,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -164,7 +144,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Pet"
+                "$ref": "#/components/schemas/PetCreate"
               }
             }
           }
@@ -176,17 +156,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Pet"
+                  "$ref": "#/components/schemas/PetCollectionWithNextLink"
                 }
               }
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -199,7 +179,7 @@
       }
     },
     "/pets/{petId}/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "PetCheckups_CreateOrUpdate",
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
@@ -212,7 +192,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -232,7 +212,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -246,7 +226,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Checkup"
+                "$ref": "#/components/schemas/CheckupUpdate"
               }
             }
           }
@@ -264,17 +244,17 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/CheckupCollectionWithNextLink"
                 }
               }
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -297,7 +277,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -307,7 +287,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -328,7 +308,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -338,7 +318,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -352,22 +332,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string"
-                  },
-                  "premium": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "deductible": {
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Insurance>>"
+                "$ref": "#/components/schemas/InsuranceUpdate"
               }
             }
           }
@@ -388,7 +353,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -398,7 +363,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -428,17 +393,17 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Toy"
+                  "$ref": "#/components/schemas/ToyCollectionWithNextLink"
                 }
               }
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -464,7 +429,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -474,7 +439,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -498,7 +463,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -508,7 +473,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -522,22 +487,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string"
-                  },
-                  "premium": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "deductible": {
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Insurance>>"
+                "$ref": "#/components/schemas/InsuranceUpdate"
               }
             }
           }
@@ -545,7 +495,7 @@
       }
     },
     "/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "Checkups_createOrUpdate",
         "description": "Creates or update a instance of the resource.",
         "parameters": [
@@ -555,7 +505,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -575,7 +525,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -589,7 +539,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Checkup"
+                "$ref": "#/components/schemas/CheckupUpdate"
               }
             }
           }
@@ -603,17 +553,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/CheckupCollectionWithNextLink"
                 }
               }
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -636,7 +586,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -646,7 +596,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -667,7 +617,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -677,7 +627,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -691,18 +641,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "age": {
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Owner>>"
+                "$ref": "#/components/schemas/OwnerUpdate"
               }
             }
           }
@@ -721,7 +660,7 @@
             "description": "Resource deleted successfully."
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -740,7 +679,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -760,7 +699,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -774,7 +713,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Owner"
+                "$ref": "#/components/schemas/OwnerCreate"
               }
             }
           }
@@ -786,17 +725,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Owner"
+                  "$ref": "#/components/schemas/OwnerCollectionWithNextLink"
                 }
               }
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -809,7 +748,7 @@
       }
     },
     "/owners/{ownerId}/checkups/{checkupId}": {
-      "put": {
+      "patch": {
         "operationId": "OwnerCheckups_CreateOrUpdate",
         "description": "Creates or update a instance of the extension resource.",
         "parameters": [
@@ -822,7 +761,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -842,7 +781,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -856,7 +795,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Checkup"
+                "$ref": "#/components/schemas/CheckupUpdate"
               }
             }
           }
@@ -874,17 +813,17 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Rest.Resource.Page_Checkup"
+                  "$ref": "#/components/schemas/CheckupCollectionWithNextLink"
                 }
               }
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -907,7 +846,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -917,7 +856,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -938,7 +877,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Ok",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -948,7 +887,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -962,22 +901,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string"
-                  },
-                  "premium": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "deductible": {
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                },
-                "description": "The template for adding optional properties.",
-                "x-cadl-name": "OptionalProperties<UpdateableProperties<Insurance>>"
+                "$ref": "#/components/schemas/InsuranceUpdate"
               }
             }
           }
@@ -1072,7 +996,56 @@
           "message"
         ]
       },
-      "Rest.Resource.Page_Pet": {
+      "PetUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "The template for adding optional properties."
+      },
+      "PetCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "The template for adding updateable properties.",
+        "required": [
+          "name",
+          "age",
+          "ownerId"
+        ]
+      },
+      "PetCollectionWithNextLink": {
         "type": "object",
         "properties": {
           "value": {
@@ -1085,13 +1058,27 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items"
+            "description": "The link to the next page of items",
+            "format": "uri",
+            "x-cadl-name": "Rest.ResourceLocation<Pet>"
           }
         },
-        "description": "Paged response",
+        "description": "Paged response of Pet items",
         "required": [
           "value"
         ]
+      },
+      "CheckupUpdate": {
+        "type": "object",
+        "properties": {
+          "vetName": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "description": "The template for adding optional properties."
       },
       "Checkup": {
         "type": "object",
@@ -1113,7 +1100,7 @@
           "notes"
         ]
       },
-      "Rest.Resource.Page_Checkup": {
+      "CheckupCollectionWithNextLink": {
         "type": "object",
         "properties": {
           "value": {
@@ -1126,10 +1113,12 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items"
+            "description": "The link to the next page of items",
+            "format": "uri",
+            "x-cadl-name": "Rest.ResourceLocation<Checkup>"
           }
         },
-        "description": "Paged response",
+        "description": "Paged response of Checkup items",
         "required": [
           "value"
         ]
@@ -1155,6 +1144,23 @@
           "deductible"
         ]
       },
+      "InsuranceUpdate": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "premium": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deductible": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "The template for adding optional properties."
+      },
       "Toy": {
         "type": "object",
         "properties": {
@@ -1176,7 +1182,7 @@
           "name"
         ]
       },
-      "Rest.Resource.Page_Toy": {
+      "ToyCollectionWithNextLink": {
         "type": "object",
         "properties": {
           "value": {
@@ -1189,10 +1195,12 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items"
+            "description": "The link to the next page of items",
+            "format": "uri",
+            "x-cadl-name": "Rest.ResourceLocation<Toy>"
           }
         },
-        "description": "Paged response",
+        "description": "Paged response of Toy items",
         "required": [
           "value"
         ]
@@ -1218,7 +1226,37 @@
           "age"
         ]
       },
-      "Rest.Resource.Page_Owner": {
+      "OwnerUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "The template for adding optional properties."
+      },
+      "OwnerCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "The template for adding updateable properties.",
+        "required": [
+          "name",
+          "age"
+        ]
+      },
+      "OwnerCollectionWithNextLink": {
         "type": "object",
         "properties": {
           "value": {
@@ -1231,10 +1269,12 @@
           },
           "nextLink": {
             "type": "string",
-            "description": "The link to the next page of items"
+            "description": "The link to the next page of items",
+            "format": "uri",
+            "x-cadl-name": "Rest.ResourceLocation<Owner>"
           }
         },
-        "description": "Paged response",
+        "description": "Paged response of Owner items",
         "required": [
           "value"
         ]

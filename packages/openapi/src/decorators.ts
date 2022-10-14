@@ -1,43 +1,58 @@
 import {
   cadlTypeToJson,
   CadlValue,
+  createDecoratorDefinition,
   DecoratorContext,
+  Model,
+  Operation,
   Program,
   Type,
-  validateDecoratorParamType,
-  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 import { http } from "@cadl-lang/rest";
-import { reportDiagnostic } from "./lib.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
+import { ExtensionKey } from "./types.js";
 
 export const namespace = "OpenAPI";
 
-export function $notinnamespace(context: DecoratorContext, entity: Type, opId: string) {}
-
-const operationIdsKey = Symbol("operationIds");
-export function $operationId(context: DecoratorContext, entity: Type, opId: string) {
-  if (
-    !validateDecoratorTarget(context, entity, "@operationId", "Operation") ||
-    !validateDecoratorParamType(context.program, entity, opId, "String")
-  ) {
+const operationIdsKey = createStateSymbol("operationIds");
+const operationIdDecorator = createDecoratorDefinition({
+  name: "@operationId",
+  target: "Operation",
+  args: [{ kind: "String" }],
+} as const);
+/**
+ * Set a specific operation ID.
+ * @param context Decorator Context
+ * @param entity Decorator target
+ * @param opId Operation ID.
+ */
+export function $operationId(context: DecoratorContext, entity: Operation, opId: string) {
+  if (!operationIdDecorator.validate(context, entity, [opId])) {
     return;
   }
   context.program.stateMap(operationIdsKey).set(entity, opId);
 }
 
-export function getOperationId(program: Program, entity: Type): string | undefined {
+/**
+ * @returns operationId set via the @operationId decorator or `undefined`
+ */
+export function getOperationId(program: Program, entity: Operation): string | undefined {
   return program.stateMap(operationIdsKey).get(entity);
 }
 
-export type ExtensionKey = `x-${string}`;
-const openApiExtensionKey = Symbol("openApiExtension");
+const openApiExtensionKey = createStateSymbol("openApiExtension");
+const extensionDecorator = createDecoratorDefinition({
+  name: "@extension",
+  target: "Any",
+  args: [{ kind: "String" }, { kind: "Any" }],
+} as const);
 export function $extension(
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
   value: CadlValue
 ) {
-  if (!validateDecoratorParamType(context.program, entity, extensionName, "String")) {
+  if (!extensionDecorator.validate(context, entity, [extensionName, value])) {
     return;
   }
 
@@ -77,17 +92,31 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
   return key.startsWith("x-");
 }
 
-// The @defaultResponse decorator can be applied to a model. When that model is used
-// as the return type of an operation, this return type will be the default response.
-const defaultResponseKey = Symbol("defaultResponse");
-export function $defaultResponse(context: DecoratorContext, entity: Type) {
-  if (!validateDecoratorTarget(context, entity, "@defaultResponse", "Model")) {
+const defaultResponseDecorator = createDecoratorDefinition({
+  name: "@defaultResponse",
+  target: "Model",
+  args: [],
+} as const);
+/**
+ * The @defaultResponse decorator can be applied to a model. When that model is used
+ * as the return type of an operation, this return type will be the default response.
+ *
+ */
+const defaultResponseKey = createStateSymbol("defaultResponse");
+export function $defaultResponse(context: DecoratorContext, entity: Model) {
+  if (!defaultResponseDecorator.validate(context, entity, [])) {
     return;
   }
   http.setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 }
 
+/**
+ * Check if the given model has been mark as a default response.
+ * @param program Cadl Program
+ * @param entity Model to check.
+ * @returns boolean.
+ */
 export function isDefaultResponse(program: Program, entity: Type): boolean {
   return program.stateSet(defaultResponseKey).has(entity);
 }
@@ -96,8 +125,13 @@ export interface ExternalDocs {
   url: string;
   description?: string;
 }
-const externalDocsKey = Symbol("externalDocs");
+const externalDocsKey = createStateSymbol("externalDocs");
 
+const externalDocsDecorator = createDecoratorDefinition({
+  name: "@externalDocs",
+  target: "Any",
+  args: [{ kind: "String" }, { kind: "String", optional: true }],
+} as const);
 /**
  * Allows referencing an external resource for extended documentation.
  * @param url The URL for the target documentation. Value MUST be in the format of a URL.
@@ -109,10 +143,7 @@ export function $externalDocs(
   url: string,
   description?: string
 ) {
-  if (!validateDecoratorParamType(context.program, target, url, "String")) {
-    return;
-  }
-  if (description && !validateDecoratorParamType(context.program, target, description, "String")) {
+  if (!externalDocsDecorator.validate(context, target, [url, description])) {
     return;
   }
   const doc: ExternalDocs = { url };

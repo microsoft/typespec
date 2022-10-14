@@ -34,20 +34,48 @@ For configuration [see options](#emitter-options)
 ```cadl
 import "@cadl-lang/openapi3";
 
-using OpenAPI.V3;
+using OpenAPI;
 
 // Using `using`
 @useRef("common.json#/components/schemas/Foo")
 model Foo {}
 
 // Using fully qualified names
-@OpenAPI.V3.oneOf
+@OpenAPI.oneOf
 union MyUnion {
   cat: Cat,
   dog: Dog,
 }
+```
+
+## Decorators
+
+- [@useRef](#useref)
+- [@oneOf](#oneof)
+
+### @useRef
+
+Syntax:
 
 ```
+@useRef(urlString)
+```
+
+`@useRef`
+
+`@useRef` is used to replace the Cadl model type in emitter output with a pre-existing named OpenAPI schema.
+
+### @oneOf
+
+Syntax:
+
+```
+@oneOf()
+```
+
+`@oneOf`emits `oneOf` keyword for a union type in the resulting OpenAPI 3.0 specification. It indicates that the value of union type can only contain exactly one of the subschemas.
+
+`@oneOf` can only be applied to a union types.
 
 ## Emitter options:
 
@@ -71,12 +99,19 @@ or via the command line with
 --option "@cadl-lang/openapi3.<optionName>=<value>"
 
 # For example
---option "@cadl-lang/openapi3.outputFile=my-custom-openapi.json"
+--option "@cadl-lang/openapi3.output-file=my-custom-openapi.json"
 ```
 
-### `outputFile`
+### `output-file`
 
 Configure the name of the swagger output file relative to the compiler `output-path`.
+
+### `new-line`
+
+Set the newline character for emitting files. Can be either:
+
+- `lf`(Default)
+- `crlf`
 
 ## See also
 

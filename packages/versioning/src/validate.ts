@@ -1,4 +1,11 @@
-import { NamespaceType, navigateProgram, NoTarget, Program, Type } from "@cadl-lang/compiler";
+import {
+  isTemplateInstance,
+  Namespace,
+  navigateProgram,
+  NoTarget,
+  Program,
+  Type,
+} from "@cadl-lang/compiler";
 import { reportDiagnostic } from "./lib.js";
 import {
   getAddedOn,
@@ -12,7 +19,7 @@ import {
 
 export function $onValidate(program: Program) {
   const namespaceDependencies = new Map();
-  function addDependency(source: NamespaceType | undefined, target: Type | undefined) {
+  function addDependency(source: Namespace | undefined, target: Type | undefined) {
     if (target === undefined || !("namespace" in target) || target.namespace === undefined) {
       return;
     }
@@ -29,7 +36,7 @@ export function $onValidate(program: Program) {
   navigateProgram(program, {
     model: (model) => {
       // If this is an instantiated type we don't want to keep the mapping.
-      if (model.templateArguments && model.templateArguments.length > 0) {
+      if (isTemplateInstance(model)) {
         return;
       }
       addDependency(model.namespace, model.baseModel);
@@ -95,7 +102,7 @@ export function $onValidate(program: Program) {
 
 function validateVersionedNamespaceUsage(
   program: Program,
-  namespaceDependencies: Map<NamespaceType | undefined, Set<NamespaceType>>
+  namespaceDependencies: Map<Namespace | undefined, Set<Namespace>>
 ) {
   for (const [source, targets] of namespaceDependencies.entries()) {
     const dependencies = source && getVersionDependencies(program, source);
@@ -138,7 +145,7 @@ function validateReference(program: Program, source: Type, target: Type) {
 }
 
 /**
- * Validate the target versioning is compatible with the versioning of the soruce.
+ * Validate the target versioning is compatible with the versioning of the source.
  * e.g. The target cannot be added after the source was added.
  * @param source Source type referencing the target type.
  * @param target Type being referenced from the source

@@ -18,6 +18,16 @@ const config: PlaywrightTestConfig = {
     baseURL: resolve(root, "dist"),
     trace: "retain-on-failure",
   },
+  projects: [
+    {
+      name: "chromium",
+      use: { browserName: "chromium" },
+    },
+    {
+      name: "firefox",
+      use: { browserName: "firefox" },
+    },
+  ],
   testMatch: "*.e2e.ts",
 };
 export default config;

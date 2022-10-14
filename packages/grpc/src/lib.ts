@@ -68,6 +68,25 @@ export const CadlGrpcLibrary = createCadlLibrary({
         default: paramMessage`the package name ${"name"} has already been used`,
       },
     },
+    "unconvertible-enum": {
+      severity: "error",
+      messages: {
+        default:
+          "enums must explicitly assign exactly one integer to each member to be used in a gRPC message",
+      },
+    },
+    "nested-array": {
+      severity: "error",
+      messages: {
+        default: "nested arrays are not supported by the gRPC emitter",
+      },
+    },
+    "invalid-package-name": {
+      severity: "error",
+      messages: {
+        default: paramMessage`${"name"} is not a valid package name (must consist of letters and numbers separated by ".")`,
+      },
+    },
   },
   emitter: { options: EmitterOptionsSchema },
 });
@@ -76,7 +95,8 @@ export const { reportDiagnostic } = CadlGrpcLibrary;
 
 export type CadlGrpcLibrary = typeof CadlGrpcLibrary;
 
-// Decorator state keys
-export const fieldIndexKey = Symbol("cadl-grpc::fields");
-export const serviceKey = Symbol("cadl-grpc::service");
-export const packageKey = Symbol("cadl-grpc::package");
+const keys = ["fieldIndex", "service", "package"] as const;
+
+export const state = Object.fromEntries(keys.map((k) => [k, Symbol(`cadl-grpc::${k}`)])) as {
+  [K in typeof keys[number]]: symbol;
+};

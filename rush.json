@@ -121,6 +121,12 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@cadl-lang/lint",
+      "projectFolder": "packages/lint",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
       "packageName": "@cadl-lang/library-linter",
       "projectFolder": "packages/library-linter",
       "reviewCategory": "production",
@@ -153,6 +159,12 @@
     {
       "packageName": "@cadl-lang/playground",
       "projectFolder": "packages/playground",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@cadl-lang/website",
+      "projectFolder": "packages/website",
       "reviewCategory": "production",
       "shouldPublish": false
     },

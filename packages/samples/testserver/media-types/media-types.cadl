@@ -4,6 +4,11 @@ import "@cadl-lang/openapi";
 using Cadl.Http;
 using OpenAPI;
 
+@service({
+  title: "sample",
+})
+namespace Sample;
+
 @doc("Uri or local path to source data.")
 model SourcePath {
   @minLength(0)
@@ -32,11 +37,11 @@ namespace MediaTypes {
       | "image/jpeg"
       | "image/png"
       | "image/tiff"
-  ): OkResponse<string>;
+  ): string;
 
   @doc("Pass in contentType 'text/plain; encoding=UTF-8' to pass test. Value for input does not matter")
   @route("contentTypeWithEncoding")
   @operationId("contentTypeWithEncoding")
   @post
-  op contentTypeWithEncoding(...Input, @header contentType: "text/plain"): OkResponse<string>;
+  op contentTypeWithEncoding(...Input, @header contentType: "text/plain"): string;
 }

@@ -3,6 +3,11 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
+@service({
+  title: "sample",
+})
+namespace Sample;
+
 @doc("Error")
 @error
 model Error {
@@ -84,7 +89,7 @@ model ArrayWrapper {
 }
 
 model DictionaryWrapper {
-  field: Map<string, string>;
+  field: Record<string>;
 }
 
 model ReadonlyObj {
@@ -98,7 +103,7 @@ namespace Complex {
   @doc("Get complex type {id: 2, name: 'abc', color: 'YELLOW'}")
   @route("/basic/valid")
   @get
-  op getValid(): OkResponse<Basic> | Error;
+  op getValid(): Basic | Error;
 
   @doc("Please put {id: 2, name: 'abc', color: 'Magenta'}")
   @route("/basic/valid")
@@ -109,7 +114,7 @@ namespace Complex {
 
   @doc("Get complex types with integer properties")
   @route("/primitive/integer")
-  op getInt(): OkResponse<IntWrapper> | Error;
+  op getInt(): IntWrapper | Error;
 
   @doc("Put complex types with integer properties")
   @route("/primitive/integer")
@@ -121,7 +126,7 @@ namespace Complex {
   @doc("Get complex types with long properties")
   @route("/primitive/long")
   @get
-  op getLong(): OkResponse<LongWrapper> | Error;
+  op getLong(): LongWrapper | Error;
 
   @doc("Put complex types with long properties")
   @route("/primitive/long")
@@ -133,7 +138,7 @@ namespace Complex {
   @doc("Get complex types with float properties")
   @route("/primitive/float")
   @get
-  op getFloat(): OkResponse<FloatWrapper> | Error;
+  op getFloat(): FloatWrapper | Error;
 
   @doc("Put complex types with float properties")
   @route("/primitive/float")
@@ -145,7 +150,7 @@ namespace Complex {
   @doc("Get complex types with double properties")
   @route("/primitive/double")
   @get
-  op getDouble(): OkResponse<DoubleWrapper> | Error;
+  op getDouble(): DoubleWrapper | Error;
 
   @doc("Put complex types with double properties")
   @route("/primitive/double")
@@ -157,7 +162,7 @@ namespace Complex {
   @doc("Get complex types with bool properties")
   @route("/primitive/bool")
   @get
-  op getBool(): OkResponse<BooleanWrapper> | Error;
+  op getBool(): BooleanWrapper | Error;
 
   @doc("Put complex types with bool properties")
   @route("/primitive/bool")
@@ -169,7 +174,7 @@ namespace Complex {
   @doc("Get complex types with string properties")
   @route("/primitive/string")
   @get
-  op getString(): OkResponse<StringWrapper> | Error;
+  op getString(): StringWrapper | Error;
 
   @doc("Put complex types with string properties")
   @route("/primitive/string")
@@ -181,7 +186,7 @@ namespace Complex {
   @doc("Get complex types with date properties")
   @route("/primitive/date")
   @get
-  op getPlainDate(): OkResponse<PlainDateWrapper> | Error;
+  op getPlainDate(): PlainDateWrapper | Error;
 
   @doc("Put complex types with date properties")
   @route("/primitive/date")
@@ -193,7 +198,7 @@ namespace Complex {
   @doc("Get complex types with DateTime properties")
   @route("/primitive/datetime")
   @get
-  op getZonedDateTime(): OkResponse<DateTimeWrapper> | Error;
+  op getZonedDateTime(): DateTimeWrapper | Error;
 
   @doc("Put complex types with DateTime properties")
   @route("/primitive/datetime")
@@ -205,7 +210,7 @@ namespace Complex {
   @doc("Get complex types with Duration properties")
   @route("/primitive/duration")
   @get
-  op getZonedDuration(): OkResponse<DurationWrapper> | Error;
+  op getZonedDuration(): DurationWrapper | Error;
 
   @doc("Put complex types with Duration properties")
   @route("/primitive/duration")
@@ -217,7 +222,7 @@ namespace Complex {
   @doc("Get complex types with bytes properties")
   @route("/primitive/bytes")
   @get
-  op getBytes(): OkResponse<BytesWrapper> | Error;
+  op getBytes(): BytesWrapper | Error;
 
   @doc("Put complex types with bytes properties")
   @route("/primitive/bytes")
@@ -228,7 +233,7 @@ namespace Complex {
 
   @doc("Get complex types with array properties")
   @route("/array/valid")
-  op getArray(): OkResponse<ArrayWrapper> | Error;
+  op getArray(): ArrayWrapper | Error;
 
   @doc("Put complex types with array properties")
   @route("/array/valid")
@@ -242,7 +247,7 @@ namespace Complex {
     @doc("Get complex types with dictionary property")
     @route("/typed/valid")
     @get
-    op getDictionary(): OkResponse<DictionaryWrapper> | Error;
+    op getDictionary(): DictionaryWrapper | Error;
 
     @doc("Put complex types with dictionary property")
     @route("/typed/valid")

@@ -9,59 +9,70 @@ body {
   box-sizing: content-box;
 }
 
-#grid {
+.root {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "cadleditor output"
+    "footer footer";
   width: 100vw;
   height: 100vh;
   overflow: hidden;
 }
 
-#grid > .footer {
-  grid-column-start: 1;
-  grid-column-end: 3;
+.root > .footer {
+  grid-area: footer;
+
   grid-row: 3;
   background-color: #007acc;
   display: flex;
   font-size: 14px;
 }
 
-#grid > .footer.in-pr {
+.root > .footer.in-pr {
   background-color: #ce662a;
 }
 
-#grid > .footer > .item {
+.root > .footer > .item {
   text-decoration: none;
   color: #fefefe;
   border-right: 1px solid #d5d5d5;
   padding: 0 5px;
 }
-#grid > .footer > a.item:hover {
+
+.root > .footer > a.item:hover {
   background-color: #063a5c;
 }
-#grid > .footer.in-pr > a.item:hover {
+
+.root > .footer.in-pr > a.item:hover {
   background-color: #b46e45;
 }
 
-#commandBar > * {
+.command-bar {
+  grid-area: commandbar;
+}
+
+.command-bar > * {
   padding: 2px 2px;
 }
 
-#editorContainer {
-  grid-column: 1;
-  grid-row: 2;
-  overflow: hidden;
-}
+.cadl-editor-container {
+  grid-area: cadleditor;
 
-#editor {
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
 
-.output-panel {
-  grid-column: 2;
+.editorContainer {
+  grid-column: 1;
   grid-row: 2;
+  overflow: hidden;
+}
+
+.output-panel {
+  grid-area: output;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -104,6 +115,12 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+.swagger-ui-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
 }
 
 .type-graph-container {
@@ -154,4 +171,11 @@ body {
   border: 1px solid #cc2222;
   padding: 10px;
   margin: 20px;
+}
+
+.output-dropdown {
+  margin: 0.5rem 1.5rem;
+  position: absolute;
+  z-index: 1;
+  right: 0;
 }

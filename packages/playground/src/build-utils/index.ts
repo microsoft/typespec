@@ -1,15 +1,23 @@
 import { cadlBundlePlugin } from "@cadl-lang/bundler";
 import react from "@vitejs/plugin-react";
-import { Plugin, ResolvedConfig, UserConfigExport } from "vite";
+import { Plugin, ResolvedConfig, UserConfig } from "vite";
 import { PlaygroundConfig } from "../index.js";
 
-export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfigExport {
+export function definePlaygroundViteConfig(config: PlaygroundConfig): UserConfig {
   return {
     base: "./",
     build: {
       target: "esnext",
-      chunkSizeWarningLimit: 4000,
+      chunkSizeWarningLimit: 3000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            monaco: ["monaco-editor"],
+          },
+        },
+      },
     },
+    esbuild: {},
     assetsInclude: [/\.cadl$/],
     optimizeDeps: {
       exclude: ["node-fetch"],

@@ -1,21 +1,17 @@
-import {
-  Diagnostic,
-  DiagnosticTarget,
-  getSourceLocation,
-  NoTarget,
-  Program,
-} from "@cadl-lang/compiler";
+import type { Diagnostic, DiagnosticTarget, NoTarget, Program } from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import debounce from "debounce";
 import lzutf8 from "lzutf8";
 import { editor, KeyCode, KeyMod, MarkerSeverity, Uri } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import "swagger-ui/dist/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
 import { createBrowserHost } from "./browser-host";
-import { CadlEditor, OutputEditor } from "./components/cadl-editor";
+import { CadlEditor } from "./components/cadl-editor";
 import { useMonacoModel } from "./components/editor";
 import { ErrorTab } from "./components/error-tab";
 import { Footer } from "./components/footer";
+import { OpenAPIOutput } from "./components/openapi-output";
 import { OutputTabs, Tab } from "./components/output-tabs";
 import { SamplesDropdown } from "./components/samples-dropdown";
 import { importCadlCompiler } from "./core";
@@ -68,6 +64,11 @@ export const App: FunctionComponent = () => {
     window.open(url, "_blank");
   }, [saveCode, cadlModel]);
 
+  const cadlDocs = useCallback(async () => {
+    const url = `https://github.com/microsoft/cadl/blob/main/docs/tutorial.md`;
+    window.open(url, "_blank");
+  }, [cadlModel]);
+
   async function emptyOutputDir() {
     // empty output directory
     const dirs = await host.readDir("./cadl-output");
@@ -85,16 +86,16 @@ export const App: FunctionComponent = () => {
   async function doCompile(content: string) {
     await host.writeFile("main.cadl", content);
     await emptyOutputDir();
-    const { compile } = await importCadlCompiler();
+    const cadlCompiler = await importCadlCompiler();
     try {
-      const program = await compile("main.cadl", host, {
+      const program = await cadlCompiler.compile(host, "main.cadl", {
         outputPath: "cadl-output",
         emitters: { [PlaygroundManifest.defaultEmitter]: {} },
       });
       setInternalCompilerError(undefined);
       setProgram(program);
       const markers: editor.IMarkerData[] = program.diagnostics.map((diag) => ({
-        ...getMarkerLocation(diag.target),
+        ...getMarkerLocation(cadlCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
@@ -114,9 +115,10 @@ export const App: FunctionComponent = () => {
   }
 
   function getMarkerLocation(
+    cadlCompiler: typeof import("@cadl-lang/compiler"),
     target: DiagnosticTarget | typeof NoTarget
   ): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
-    const loc = getSourceLocation(target);
+    const loc = cadlCompiler.getSourceLocation(target);
     if (loc === undefined || loc.file.path != "/test/main.cadl") {
       return {
         startLineNumber: 1,
@@ -144,9 +146,9 @@ export const App: FunctionComponent = () => {
   );
 
   return (
-    <div id="grid">
-      <div id="editorContainer">
-        <div id="commandBar">
+    <div className="root">
+      <div className="cadl-editor-container">
+        <div className="command-bar">
           <label>
             <button onClick={saveCode as any}>Share</button>
           </label>
@@ -157,10 +159,11 @@ export const App: FunctionComponent = () => {
           <label>
             <button onClick={newIssue as any}>Open Issue</button>
           </label>
+          <label>
+            <button onClick={cadlDocs as any}>Show Cadl Tutorial</button>
+          </label>
         </div>
-        <div id="editor">
-          <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
-        </div>
+        <CadlEditor model={cadlModel} commands={cadlEditorCommands} />
       </div>
       <div className="output-panel">
         <OutputView
@@ -236,7 +239,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = (props) => {
   }, []);
   const content =
     viewSelection.type === "file" ? (
-      <OutputEditor value={viewSelection.content} />
+      <OpenAPIOutput content={viewSelection.content} />
     ) : viewSelection.type === "errors" ? (
       <ErrorTab internalCompilerError={props.internalCompilerError} diagnostics={diagnostics} />
     ) : (

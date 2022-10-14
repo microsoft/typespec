@@ -6,7 +6,7 @@ import {
 } from "@cadl-lang/compiler/testing";
 import { createVersioningTestHost } from "./test-host.js";
 
-describe("versioning: validate incompatible references", () => {
+describe("compiler: versioning: validate incompatible references", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
@@ -134,7 +134,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when nodel property was removed after return type", async () => {
+    it("emit diagnostic when model property was removed after return type", async () => {
       const diagnostics = await runner.diagnose(`
         @removed(Versions.v2)
         model Foo {}

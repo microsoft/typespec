@@ -1,4 +1,3 @@
-import { createSymbolTable } from "./binder.js";
 import { codePointBefore, isIdentifierContinue } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
@@ -15,6 +14,7 @@ import {
 } from "./scanner.js";
 import {
   AliasStatementNode,
+  AnyKeywordNode,
   BooleanLiteralNode,
   CadlScriptNode,
   Comment,
@@ -26,6 +26,7 @@ import {
   DirectiveExpressionNode,
   EmptyStatementNode,
   EnumMemberNode,
+  EnumSpreadMemberNode,
   EnumStatementNode,
   Expression,
   IdentifierContext,
@@ -46,10 +47,11 @@ import {
   NumericLiteralNode,
   OperationSignature,
   OperationStatementNode,
+  ParseOptions,
   ProjectionBlockExpressionNode,
   ProjectionEnumSelectorNode,
   ProjectionExpression,
-  ProjectionExpressionStatement,
+  ProjectionExpressionStatementNode,
   ProjectionIfExpressionNode,
   ProjectionInterfaceSelectorNode,
   ProjectionLambdaExpressionNode,
@@ -78,9 +80,8 @@ import {
   UnionVariantNode,
   UsingStatementNode,
   VoidKeywordNode,
-  Writable,
 } from "./types.js";
-import { isArray } from "./util.js";
+import { isArray, mutate } from "./util.js";
 
 /**
  * Callback to parse each element in a delimited list
@@ -238,13 +239,6 @@ namespace ListKind {
   } as const;
 }
 
-export interface ParseOptions {
-  /**
-   * Include comments in resulting output.
-   */
-  comments?: boolean;
-}
-
 export function parse(code: string | SourceFile, options: ParseOptions = {}): CadlScriptNode {
   let parseErrorInNextFinishedNode = false;
   let previousTokenEnd = -1;
@@ -274,11 +268,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       } as any,
       namespaces: [],
       usings: [],
-      locals: createSymbolTable(),
+      locals: undefined!,
       inScopeNamespaces: [],
       parseDiagnostics,
       comments,
       printable: treePrintable,
+      parseOptions: options,
       ...finishNode(0),
     };
   }
@@ -293,7 +288,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const directives = parseDirectiveList();
       const decorators = parseDecoratorList();
       const tok = token();
-      let item: Writable<Statement>;
+      let item: Statement;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
@@ -338,19 +333,19 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           break;
       }
 
-      item.directives = directives;
+      mutate(item).directives = directives;
 
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
-          error({ code: "multiple-blockless-namespace" });
+          error({ code: "multiple-blockless-namespace", target: item });
         }
         if (seenDecl) {
-          error({ code: "blockless-namespace-first" });
+          error({ code: "blockless-namespace-first", target: item });
         }
         seenBlocklessNs = true;
       } else if (item.kind === SyntaxKind.ImportStatement) {
         if (seenDecl || seenBlocklessNs || seenUsing) {
-          error({ code: "import-first" });
+          error({ code: "import-first", target: item });
         }
       } else if (item.kind === SyntaxKind.UsingStatement) {
         seenUsing = true;
@@ -373,12 +368,12 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       const decorators = parseDecoratorList();
       const tok = token();
 
-      let item: Writable<Statement>;
+      let item: Statement;
       switch (tok) {
         case Token.ImportKeyword:
           reportInvalidDecorators(decorators, "import statement");
-          error({ code: "import-first", messageId: "topLevel" });
           item = parseImportStatement();
+          error({ code: "import-first", messageId: "topLevel", target: item });
           break;
         case Token.ModelKeyword:
           item = parseModelStatement(pos, decorators);
@@ -387,7 +382,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           const ns = parseNamespaceStatement(pos, decorators);
 
           if (!Array.isArray(ns.statements)) {
-            error({ code: "blockless-namespace-first", messageId: "topLevel" });
+            error({ code: "blockless-namespace-first", messageId: "topLevel", target: ns });
           }
           item = ns;
           break;
@@ -426,7 +421,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           item = parseInvalidStatement(pos, decorators);
           break;
       }
-      item.directives = directives;
+      mutate(item).directives = directives;
       stmts.push(item);
     }
 
@@ -478,6 +473,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       kind: SyntaxKind.NamespaceStatement,
       decorators,
       id: nsSegments[0],
+      locals: undefined!,
       statements,
 
       ...finishNode(pos),
@@ -489,6 +485,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         decorators: [],
         id: nsSegments[i],
         statements: outerNs,
+        locals: undefined!,
         ...finishNode(pos),
       };
     }
@@ -672,9 +669,20 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
-    const optionalExtends: TypeReferenceNode | undefined = parseOptionalModelExtends();
+    const optionalExtends = parseOptionalModelExtends();
     const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
-    const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+
+    let properties: (ModelPropertyNode | ModelSpreadPropertyNode)[] = [];
+    if (optionalIs) {
+      const tok = expectTokenIsOneOf(Token.Semicolon, Token.OpenBrace);
+      if (tok === Token.Semicolon) {
+        nextToken();
+      } else {
+        properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+      }
+    } else {
+      properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+    }
 
     return {
       kind: SyntaxKind.ModelStatement,
@@ -690,14 +698,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
   function parseOptionalModelExtends() {
     if (parseOptional(Token.ExtendsKeyword)) {
-      return parseReferenceExpression();
+      return parseExpression();
     }
     return undefined;
   }
 
   function parseOptionalModelIs() {
     if (parseOptional(Token.IsKeyword)) {
-      return parseReferenceExpression();
+      return parseExpression();
     }
     return;
   }
@@ -705,6 +713,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseTemplateParameter(): TemplateParameterDeclarationNode {
     const pos = tokenPos();
     const id = parseIdentifier();
+    let constraint: Expression | undefined;
+    if (parseOptional(Token.ExtendsKeyword)) {
+      constraint = parseExpression();
+    }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
       def = parseExpression();
@@ -712,13 +724,14 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return {
       kind: SyntaxKind.TemplateParameterDeclaration,
       id,
+      constraint,
       default: def,
       ...finishNode(pos),
     };
   }
 
   function parseModelPropertyOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
-    return token() === Token.Elipsis
+    return token() === Token.Ellipsis
       ? parseModelSpreadProperty(pos, decorators)
       : parseModelProperty(pos, decorators);
   }
@@ -727,7 +740,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ModelSpreadPropertyNode {
-    parseExpected(Token.Elipsis);
+    parseExpected(Token.Ellipsis);
 
     reportInvalidDecorators(decorators, "spread property");
 
@@ -773,12 +786,35 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
-    const members = parseList(ListKind.EnumMembers, parseEnumMember);
+    const members = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
       members,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumMemberOrSpread(pos: number, decorators: DecoratorExpressionNode[]) {
+    return token() === Token.Ellipsis
+      ? parseEnumSpreadMember(pos, decorators)
+      : parseEnumMember(pos, decorators);
+  }
+
+  function parseEnumSpreadMember(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): EnumSpreadMemberNode {
+    parseExpected(Token.Ellipsis);
+
+    reportInvalidDecorators(decorators, "spread enum");
+
+    const target = parseReferenceExpression();
+
+    return {
+      kind: SyntaxKind.EnumSpreadMember,
+      target,
       ...finishNode(pos),
     };
   }
@@ -1052,6 +1088,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
           return parseVoidKeyword();
         case Token.NeverKeyword:
           return parseNeverKeyword();
+        case Token.UnknownKeyword:
+          return parseUnknownKeyword();
         default:
           return parseReferenceExpression("expression");
       }
@@ -1072,6 +1110,15 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.NeverKeyword);
     return {
       kind: SyntaxKind.NeverKeyword,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseUnknownKeyword(): AnyKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.UnknownKeyword);
+    return {
+      kind: SyntaxKind.UnknownKeyword,
       ...finishNode(pos),
     };
   }
@@ -1203,7 +1250,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
   function parseProjection(): ProjectionNode {
     const pos = tokenPos();
     const directionId = parseIdentifier("projectionDirection");
-    let direction: "from" | "to";
+    let direction: "to" | "from";
     if (directionId.sv !== "from" && directionId.sv !== "to") {
       error({ code: "token-expected", messageId: "projectionDirection" });
       direction = "from";
@@ -1224,6 +1271,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       kind: SyntaxKind.Projection,
       body,
       direction,
+      directionId,
       parameters,
       ...finishNode(pos),
     };
@@ -1261,7 +1309,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     return stmts;
   }
 
-  function parseProjectionExpressionStatement(): ProjectionExpressionStatement {
+  function parseProjectionExpressionStatement(): ProjectionExpressionStatementNode {
     const pos = tokenPos();
     const expr = parseProjectionExpression();
     parseExpected(Token.Semicolon);
@@ -1536,6 +1584,8 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         return parseVoidKeyword();
       case Token.NeverKeyword:
         return parseNeverKeyword();
+      case Token.UnknownKeyword:
+        return parseUnknownKeyword();
       default:
         return parseIdentifier("expression");
     }
@@ -1613,7 +1663,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ) {
-    return token() === Token.Elipsis
+    return token() === Token.Ellipsis
       ? parseProjectionModelSpreadProperty(pos, decorators)
       : parseProjectionModelProperty(pos, decorators);
   }
@@ -1622,7 +1672,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ProjectionModelSpreadPropertyNode {
-    parseExpected(Token.Elipsis);
+    parseExpected(Token.Ellipsis);
 
     reportInvalidDecorators(decorators, "spread property");
 
@@ -1878,7 +1928,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         break;
       }
 
-      let item: Writable<T>;
+      let item: T;
       if (kind.invalidDecoratorTarget) {
         item = (parseItem as ParseListItem<UndecoratedListKind, T>)();
       } else {
@@ -1886,7 +1936,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       }
 
       items.push(item);
-      item.directives = directives;
+      mutate(item).directives = directives;
       const delimiter = token();
       const delimiterPos = tokenPos();
 
@@ -1918,9 +1968,9 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
         // reach the close token.
         break;
       } else if (atEndOfListWithError(kind)) {
-        // Error recovery: If a list *is* surrounded by punctionation, then
+        // Error recovery: If a list *is* surrounded by punctuation, then
         // the list ends at statement keyword or end-of-file under the
-        // assumption that the closing delimter is missing. This check is
+        // assumption that the closing delimiter is missing. This check is
         // duplicated from above to preempt the parseExpected(delimeter)
         // below.
         parseExpected(kind.close);
@@ -2240,6 +2290,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.EnumMember:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.EnumSpreadMember:
+      return visitNode(cb, node.target);
     case SyntaxKind.AliasStatement:
       return (
         visitNode(cb, node.id) ||
@@ -2253,7 +2305,11 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
     case SyntaxKind.Projection:
-      return visitEach(cb, node.parameters) || visitEach(cb, node.body);
+      return (
+        visitNode(cb, node.directionId) ||
+        visitEach(cb, node.parameters) ||
+        visitEach(cb, node.body)
+      );
     case SyntaxKind.ProjectionExpressionStatement:
       return visitNode(cb, node.expr);
     case SyntaxKind.ProjectionCallExpression:
@@ -2304,7 +2360,9 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
-      return visitNode(cb, node.id) || visitNode(cb, node.default);
+      return (
+        visitNode(cb, node.id) || visitNode(cb, node.constraint) || visitNode(cb, node.default)
+      );
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
       return visitNode(cb, node.id);
     case SyntaxKind.ProjectionParameterDeclaration:
@@ -2321,6 +2379,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ProjectionEnumSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
+    case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
       return;
     default:
@@ -2420,24 +2479,24 @@ export function hasParseError(node: Node) {
   return node.flags & NodeFlags.DescendantHasError;
 }
 
-function checkForDescendantErrors(node: Writable<Node>) {
+function checkForDescendantErrors(node: Node) {
   if (node.flags & NodeFlags.DescendantErrorsExamined) {
     return;
   }
-  node.flags |= NodeFlags.DescendantErrorsExamined;
+  mutate(node).flags |= NodeFlags.DescendantErrorsExamined;
 
-  visitChildren(node, (child: Writable<Node>) => {
+  visitChildren(node, (child: Node) => {
     if (child.flags & NodeFlags.ThisNodeHasError) {
-      node.flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
+      mutate(node).flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
       return true;
     }
     checkForDescendantErrors(child);
 
     if (child.flags & NodeFlags.DescendantHasError) {
-      node.flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
+      mutate(node).flags |= NodeFlags.DescendantHasError | NodeFlags.DescendantErrorsExamined;
       return true;
     }
-    child.flags |= NodeFlags.DescendantErrorsExamined;
+    mutate(child).flags |= NodeFlags.DescendantErrorsExamined;
 
     return false;
   });

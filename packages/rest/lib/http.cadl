@@ -1,62 +1,55 @@
 import "../dist/src/http/index.js";
+import "./auth.cadl";
 
 namespace Cadl.Http;
 
 using Private;
 
-@doc("Http response with status code")
 model Response<Status> {
   @doc("The status code.")
   @statusCode
-  _: Status;
+  statusCode: Status;
 }
 
-@doc("The request has succeeded.")
-model OkResponse<Body> is Response<200> {
-  @doc("The reponse body.")
+/**
+ * Defines a model with a single property of the given type, marked with `@body`.
+ *
+ * This can be useful in situations where you cannot use a bare T as the body
+ * and it is awkward to add a property.
+ */
+model Body<T> {
   @body
-  body: Body;
+  body: T;
 }
 
-@doc("The Location header.")
 model LocationHeader {
   @doc("The Location header contains the URL where the status of the long running operation can be checked.")
   @header
   location: string;
 }
 
-@doc("The request has succeeded and a new resource has been created as a result.")
-model CreatedResponse is Response<201> {}
-
-@doc("The request has been received but not yet acted upon.")
-model AcceptedResponse is Response<202> {}
-
-@doc("There is no content to send for this request, but the headers may be useful. ")
-model NoContentResponse is Response<204> {}
-
-@doc("The URL of the requested resource has been changed permanently. The new URL is given in the response.")
+// Don't put @doc on these, change `getStatusCodeDescription` implementation
+// to update the default descriptions for these status codes. This ensures
+// that we get consistent emit between different ways to spell the same
+// responses in Cadl.
+model OkResponse is Response<200>;
+model CreatedResponse is Response<201>;
+model AcceptedResponse is Response<202>;
+model NoContentResponse is Response<204>;
 model MovedResponse is Response<301> {
   ...LocationHeader;
 }
+model NotModifiedResponse is Response<304>;
+model BadRequestResponse is Response<400>;
+model UnauthorizedResponse is Response<401>;
+model ForbiddenResponse is Response<403>;
+model NotFoundResponse is Response<404>;
+model ConflictResponse is Response<409>;
 
-@doc("This is used for caching purposes.")
-model NotModifiedResponse is Response<304> {}
-
-@doc("The server could not understand the request due to invalid syntax.")
-model UnauthorizedResponse is Response<401> {}
-
-@doc("The server can not find the requested resource.")
-model NotFoundResponse is Response<404> {}
-
-@doc("This response is sent when a request conflicts with the current state of the server.")
-model ConflictResponse is Response<409> {}
-
-// Produces a new model with the same properties as T, but with @query,
-// @header, @body, and @path decorators removed from all properties.
-//
-// ISSUE: Can't use @doc to document this as it leaks into OpenAPI output.
-// We probably need a way to do Cadl-developer-only docs that show in the
-// IDE but do not leak into output. https://github.com/microsoft/cadl/issues/131
+/**
+ * Produces a new model with the same properties as T, but with `@query`,
+ *`@header`, `@body`, and `@path` decorators removed from all properties.
+ */
 @plainData
 model PlainData<T> {
   ...T;

@@ -203,29 +203,7 @@ export function getDirectoryPath(path: string): string {
  * getBaseFileName("file://") === ""
  * ```
  */
-export function getBaseFileName(path: string): string;
-/**
- * Gets the portion of a path following the last (non-terminal) separator (`/`).
- * Semantics align with NodeJS's `path.basename` except that we support URL's as well.
- * If the base name has any one of the provided extensions, it is removed.
- *
- * ```ts
- * getBaseFileName("/path/to/file.ext", ".ext", true) === "file"
- * getBaseFileName("/path/to/file.js", ".ext", true) === "file.js"
- * getBaseFileName("/path/to/file.js", [".ext", ".js"], true) === "file"
- * getBaseFileName("/path/to/file.ext", ".EXT", false) === "file.ext"
- * ```
- */
-export function getBaseFileName(
-  path: string,
-  extensions: string | readonly string[],
-  ignoreCase: boolean
-): string;
-export function getBaseFileName(
-  path: string,
-  extensions?: string | readonly string[],
-  ignoreCase?: boolean
-) {
+export function getBaseFileName(path: string): string {
   path = normalizeSlashes(path);
 
   // if the path provided is itself the root, then it has not file name.
@@ -235,49 +213,12 @@ export function getBaseFileName(
   // return the trailing portion of the path starting after the last (non-terminal) directory
   // separator but not including any trailing directory separator.
   path = removeTrailingDirectorySeparator(path);
-  const name = path.slice(Math.max(getRootLength(path), path.lastIndexOf(directorySeparator) + 1));
-  const extension =
-    extensions !== undefined && ignoreCase !== undefined
-      ? getAnyExtensionFromPath(name, extensions, ignoreCase)
-      : undefined;
-  return extension ? name.slice(0, name.length - extension.length) : name;
-}
-
-function tryGetExtensionFromPath(
-  path: string,
-  extension: string,
-  stringEqualityComparer: (a: string, b: string) => boolean
-): string | undefined {
-  if (!extension.startsWith(".")) extension = "." + extension;
-  if (
-    path.length >= extension.length &&
-    path.charCodeAt(path.length - extension.length) === CharacterCodes.dot
-  ) {
-    const pathExtension = path.slice(path.length - extension.length);
-    if (stringEqualityComparer(pathExtension, extension)) {
-      return pathExtension;
-    }
-  }
-  return undefined;
-}
-
-function getAnyExtensionFromPathWorker(
-  path: string,
-  extensions: string | readonly string[],
-  stringEqualityComparer: (a: string, b: string) => boolean
-) {
-  if (typeof extensions === "string") {
-    return tryGetExtensionFromPath(path, extensions, stringEqualityComparer) || "";
-  }
-  for (const extension of extensions) {
-    const result = tryGetExtensionFromPath(path, extension, stringEqualityComparer);
-    if (result) return result;
-  }
-  return "";
+  return path.slice(Math.max(getRootLength(path), path.lastIndexOf(directorySeparator) + 1));
 }
 
 /**
  * Gets the file extension for a path.
+ * Normalizes it to lower case.
  *
  * ```ts
  * getAnyExtensionFromPath("/path/to/file.ext") === ".ext"
@@ -286,39 +227,13 @@ function getAnyExtensionFromPathWorker(
  * getAnyExtensionFromPath("/path/to.ext/file") === ""
  * ```
  */
-export function getAnyExtensionFromPath(path: string): string;
-/**
- * Gets the file extension for a path, provided it is one of the provided extensions.
- *
- * ```ts
- * getAnyExtensionFromPath("/path/to/file.ext", ".ext", true) === ".ext"
- * getAnyExtensionFromPath("/path/to/file.js", ".ext", true) === ""
- * getAnyExtensionFromPath("/path/to/file.js", [".ext", ".js"], true) === ".js"
- * getAnyExtensionFromPath("/path/to/file.ext", ".EXT", false) === ""
- */
-export function getAnyExtensionFromPath(
-  path: string,
-  extensions: string | readonly string[],
-  ignoreCase: boolean
-): string;
-export function getAnyExtensionFromPath(
-  path: string,
-  extensions?: string | readonly string[],
-  ignoreCase?: boolean
-): string {
+export function getAnyExtensionFromPath(path: string): string {
   // Retrieves any string from the final "." onwards from a base file name.
   // Unlike extensionFromPath, which throws an exception on unrecognized extensions.
-  if (extensions) {
-    return getAnyExtensionFromPathWorker(
-      removeTrailingDirectorySeparator(path),
-      extensions,
-      ignoreCase ? equateStringsCaseInsensitive : equateStringsCaseSensitive
-    );
-  }
   const baseFileName = getBaseFileName(path);
   const extensionIndex = baseFileName.lastIndexOf(".");
   if (extensionIndex >= 0) {
-    return baseFileName.substring(extensionIndex);
+    return baseFileName.substring(extensionIndex).toLowerCase();
   }
   return "";
 }
@@ -554,28 +469,6 @@ export function normalizeSlashes(path: string): string {
 }
 
 //#endregion
-
-/**
- * Compare the equality of two strings using a case-sensitive ordinal comparison.
- *
- * Case-sensitive comparisons compare both strings one code-point at a time using the integer
- * value of each code-point after applying `toUpperCase` to each string. We always map both
- * strings to their upper-case form as some unicode characters do not properly round-trip to
- * lowercase (such as `ẞ` (German sharp capital s)).
- */
-function equateStringsCaseInsensitive(a: string, b: string) {
-  return a === b || (a !== undefined && b !== undefined && a.toUpperCase() === b.toUpperCase());
-}
-
-/**
- * Compare the equality of two strings using a case-sensitive ordinal comparison.
- *
- * Case-sensitive comparisons compare both strings one code-point at a time using the
- * integer value of each code-point.
- */
-function equateStringsCaseSensitive(a: string, b: string) {
-  return a === b;
-}
 
 const enum CharacterCodes {
   nullCharacter = 0,

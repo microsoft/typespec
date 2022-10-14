@@ -1,14 +1,13 @@
-import { LogLevel } from "./types";
+import { ParseOptions } from "./types";
 
 export interface CompilerOptions {
-  miscOptions?: any;
+  miscOptions?: Record<string, unknown>;
   outputPath?: string;
   emitters?: Record<string, Record<string, unknown> | boolean>;
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];
   watchForChanges?: boolean;
-  diagnosticLevel?: LogLevel;
   warningAsError?: boolean;
 
   /**
@@ -16,4 +15,11 @@ export interface CompilerOptions {
    * analysis in the language server.
    */
   designTimeBuild?: boolean;
+
+  /**
+   * Trace area to enable.
+   */
+  trace?: string[];
+
+  parseOptions?: ParseOptions;
 }

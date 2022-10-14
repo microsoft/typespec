@@ -1,6 +1,28 @@
 # Change Log - @cadl-lang/html-program-viewer
 
-This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+
+## 0.3.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- Uptake changes to compiler with current projection
+- React to Type suffix removal
+
+### Patches
+
+- Update dependencies
+
+## 0.2.2
+Thu, 11 Aug 2022 19:05:23 GMT
+
+_Version update only_
+
+## 0.2.1
+Fri, 08 Jul 2022 23:22:57 GMT
+
+_Version update only_
 
 ## 0.2.0
 Mon, 13 Jun 2022 23:42:28 GMT

@@ -3,6 +3,11 @@ import "@cadl-lang/openapi";
 
 using Cadl.Http;
 
+@service({
+  title: "sample",
+})
+namespace Sample;
+
 @doc("Error")
 @error
 model Error {
@@ -17,7 +22,7 @@ namespace String {
   @doc("Get null string value")
   @route("null")
   @get
-  op getNull(): OkResponse<string | null> | Error;
+  op getNull(): Body<string | null> | Error;
 
   @doc("Put null string value")
   @route("null")
@@ -29,7 +34,7 @@ namespace String {
   @doc("Get empty string value")
   @route("empty")
   @get
-  op getEmpty(): OkResponse<""> | Error;
+  op getEmpty(): Body<""> | Error;
 
   @doc("Put empty string value")
   @route("empty")
@@ -42,7 +47,7 @@ namespace String {
   @route("mbcs")
   @get
   op getMbcs(
-  ): OkResponse<"啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€"> | Error;
+  ): Body<"啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€"> | Error;
 
   @doc("Put mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'")
   @route("mbcs")
@@ -58,7 +63,7 @@ namespace String {
   @route("whitespace")
   @get
   op getWhitespace(
-  ): OkResponse<"   Now is the time for all good men to come to the aid of their country    "> | Error;
+  ): Body<"   Now is the time for all good men to come to the aid of their country    "> | Error;
 
   @doc("Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'")
   @route("whitespace")
@@ -72,7 +77,7 @@ namespace String {
   @doc("Get value that is base64 encoded")
   @route("base64Encoding")
   @get
-  op getBase64Encoding(): OkResponse<bytes> | Error;
+  op getBase64Encoding(): Body<bytes> | Error;
 
   @doc("Put value that is base64 encoded")
   @route("base64Encoding")
@@ -86,7 +91,7 @@ namespace String {
     @doc("Get non expandable string enum value")
     @route("empty")
     @get
-    op getNotExpandable(): OkResponse<Colors> | Error;
+    op getNotExpandable(): Body<Colors> | Error;
 
     @doc("Put non expandable string enum value")
     @route("empty")
@@ -98,7 +103,7 @@ namespace String {
     @doc("Gets value 'green-color' from a constant")
     @route("constant")
     @get
-    op getConstant(): OkResponse<Colors> | Error;
+    op getConstant(): Body<Colors> | Error;
 
     @doc("Sends value 'green-color' from a constant")
     @route("constant")

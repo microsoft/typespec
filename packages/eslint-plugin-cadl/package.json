@@ -1,6 +1,6 @@
 {
   "name": "@cadl-lang/eslint-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of Cadl libraries",
   "homepage": "https://github.com/Microsoft/cadl",
@@ -26,7 +26,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "mocha",
-    "test-official": "c8 mocha --forbid-only",
+    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
@@ -41,12 +41,15 @@
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
-    "@cadl-lang/eslint-config-cadl": "~0.3.0",
+    "@cadl-lang/eslint-config-cadl": "~0.4.1",
+    "@typescript-eslint/parser": "^5.30.7",
     "eslint": "^8.12.0",
     "mocha": "~9.2.0",
+    "mocha-junit-reporter": "~2.0.2",
+    "mocha-multi-reporters": "~1.5.1",
     "c8": "~7.11.0",
     "rimraf": "~3.0.2",
-    "typescript": "~4.7.2"
+    "typescript": "~4.8.2"
   },
   "dependencies": {
     "@typescript-eslint/utils": "~5.26.0"

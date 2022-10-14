@@ -283,12 +283,19 @@ UsingStatement :
     `using` IdentifierOrMemberExpression `;`
 
 ModelStatement :
+    DecoratorList? `model` Identifier TemplateParameters? IsModelHeritage `;`
     DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
-ModelHeritage :
-    `extends` ReferenceExpression
-    `is` ReferenceExpression
+IsModelHeritage :
+    `is` Expression
 
+ExtendsModelHeritage :
+    `extends` Expression
+
+ModelHeritage :
+    IsModelHeritage
+    ExtendsModelHeritage
+    
 ModelBody :
     ModelPropertyList `,`?
     ModelPropertyList `;`?
@@ -350,8 +357,12 @@ EnumMemberList :
     EnumMemberList `;` EnumMember
 
 EnumMember :
+    EnumSpreadMember
     DecoratorList? Identifier EnumMemberValue?
     DecoratorList? StringLiteral EnumMemberValue?
+
+EnumSpreadMember :
+    `...` ReferenceExpression
 
 EnumMemberValue :
     `:` StringLiteral
@@ -368,8 +379,11 @@ TemplateParameterList :
     TemplateParameterList `,` TemplateParameter
 
 TemplateParameter :
-    Identifier TemplateParameterDefault?
+    Identifier TemplateParameterConstraint? TemplateParameterDefault?
 
+TemplateParameterConstraint :
+    `extends` Expression
+    
 TemplateParameterDefault :
     `=` Expression
 

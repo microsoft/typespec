@@ -1,0 +1,77 @@
+version: "0.2"
+language: en
+allowCompoundWords: true
+dictionaries:
+  - node
+  - typescript
+words:
+  - autorest
+  - azsdkengsys
+  - azurecr
+  - blockful
+  - blockless
+  - cadl
+  - Contoso
+  - CRUDL
+  - dogfood
+  - eastus
+  - ecmarkup
+  - esbuild
+  - globby
+  - inmemory
+  - instanceid
+  - intrinsics
+  - jsyaml
+  - msbuild
+  - MSRC
+  - munge
+  - mylib
+  - nostdlib
+  - oapi
+  - oneof
+  - onig
+  - onigasm
+  - onwarn
+  - openapi
+  - openapiv
+  - picocolors
+  - proto
+  - protobuf
+  - protoc
+  - regen
+  - rpaas
+  - rushx
+  - safeint
+  - strs
+  - TRYIT
+  - TSES
+  - Uhoh
+  - unassignable
+  - Uncapitalize
+  - uninstantiated
+  - unioned
+  - unprojected
+  - unsourced
+  - unversioned
+  - vsix
+  - vswhere
+  - westus
+  - xplat
+ignorePaths:
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/dist-dev/**"
+  - "**/CHANGELOG.md"
+  - "common/scripts/*"
+enableFiletypes:
+  - cadl
+patterns:
+  - name: cursortest
+    pattern: /(.*)┆(.*)/g
+  - name: Authorization_Basic
+    description: Ignore Base64 authorization tokens
+    pattern: >-
+      /Authorization: Basic\s+\S+/g
+ignoreRegExpList:
+  - cursortest
+  - Authorization_Basic

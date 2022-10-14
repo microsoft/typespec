@@ -6,16 +6,17 @@ import {
   Diagnostic,
   DiagnosticTarget,
   IntrinsicModelName,
-  ModelType,
-  ModelTypeProperty,
+  Model,
+  ModelProperty,
   Type,
 } from "./types.js";
 
 export type CadlValue = Type | string | number | boolean;
 
 // prettier-ignore
-export type InferredCadlValue<K extends Type["kind"]> = 
-  K extends (infer T extends Type["kind"])[] ? InferredCadlValue<T>
+export type InferredCadlValue<K extends TypeKind> = 
+  K extends "Any" ? CadlValue
+  : K extends (infer T extends Type["kind"])[] ? InferredCadlValue<T>
   : K extends "String" ? string 
   : K extends "Number" ? number 
   : K extends "Boolean" ? boolean 
@@ -29,12 +30,12 @@ export type InferredCadlValue<K extends Type["kind"]> =
  * @param decoratorName
  * @returns
  */
-export function validateDecoratorTarget<K extends Type["kind"]>(
+export function validateDecoratorTarget<K extends TypeKind>(
   context: DecoratorContext,
   target: Type,
   decoratorName: string,
   expectedType: K | readonly K[]
-): target is Type & { kind: K } {
+): target is K extends "Any" ? Type : Type & { kind: K } {
   const isCorrectType = isCadlValueTypeOf(target, expectedType);
   if (!isCorrectType) {
     reportDiagnostic(context.program, {
@@ -53,7 +54,7 @@ export function validateDecoratorTarget<K extends Type["kind"]>(
 
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
-  target: ModelType | ModelTypeProperty,
+  target: Model | ModelProperty,
   decoratorName: string,
   expectedType: IntrinsicModelName | IntrinsicModelName[]
 ): boolean {
@@ -86,7 +87,7 @@ export function validateDecoratorTargetIntrinsic(
  * @param expectedType One or multiple allowed cadl types.
  * @returns boolean if the target is of one of the allowed types.
  */
-export function isCadlValueTypeOf<K extends Type["kind"]>(
+export function isCadlValueTypeOf<K extends TypeKind>(
   target: CadlValue,
   expectedType: K | readonly K[]
 ): target is InferredCadlValue<K> {
@@ -96,8 +97,8 @@ export function isCadlValueTypeOf<K extends Type["kind"]>(
   }
 
   return typeof expectedType === "string"
-    ? kind === expectedType
-    : expectedType.includes(kind as any);
+    ? expectedType === "Any" || kind === expectedType
+    : expectedType.includes("Any" as any) || expectedType.includes(kind as any);
 }
 
 function getTypeKind(target: CadlValue): Type["kind"] | undefined {
@@ -146,9 +147,9 @@ export function validateDecoratorParamType<K extends Type["kind"]>(
 }
 
 export interface DecoratorDefinition<
-  T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<Type["kind"]>[],
-  S extends DecoratorParamDefinition<Type["kind"]> | undefined = undefined
+  T extends TypeKind,
+  P extends readonly DecoratorParamDefinition<TypeKind>[],
+  S extends DecoratorParamDefinition<TypeKind> | undefined = undefined
 > {
   /**
    * Name of the decorator.
@@ -171,7 +172,7 @@ export interface DecoratorDefinition<
   readonly spreadArgs?: S;
 }
 
-export interface DecoratorParamDefinition<K extends Type["kind"]> {
+export interface DecoratorParamDefinition<K extends TypeKind> {
   /**
    * Kind of the parameter
    */
@@ -184,32 +185,32 @@ export interface DecoratorParamDefinition<K extends Type["kind"]> {
 }
 
 type InferParameters<
-  P extends readonly DecoratorParamDefinition<Type["kind"]>[],
-  S extends DecoratorParamDefinition<Type["kind"]> | undefined
+  P extends readonly DecoratorParamDefinition<TypeKind>[],
+  S extends DecoratorParamDefinition<TypeKind> | undefined
 > = S extends undefined
   ? InferPosParameters<P>
   : [...InferPosParameters<P>, ...InferSpreadParameter<S>];
 
-type InferSpreadParameter<S extends DecoratorParamDefinition<Type["kind"]> | undefined> =
+type InferSpreadParameter<S extends DecoratorParamDefinition<TypeKind> | undefined> =
   S extends DecoratorParamDefinition<Type["kind"]> ? InferParameter<S>[] : never;
 
-type InferPosParameters<P extends readonly DecoratorParamDefinition<Type["kind"]>[]> = {
+type InferPosParameters<P extends readonly DecoratorParamDefinition<TypeKind>[]> = {
   [K in keyof P]: InferParameter<P[K]>;
 };
 
-type InferParameter<P extends DecoratorParamDefinition<Type["kind"]>> = P["optional"] extends true
+type InferParameter<P extends DecoratorParamDefinition<TypeKind>> = P["optional"] extends true
   ? InferParameterKind<P["kind"]> | undefined
   : InferParameterKind<P["kind"]>;
 
 // prettier-ignore
-type InferParameterKind<P extends Type["kind"] | readonly Type["kind"][]> =
-  P extends readonly (infer T extends Type["kind"])[] ? InferredCadlValue<T> 
-  : P extends Type["kind"] ? InferredCadlValue<P> : never
+type InferParameterKind<P extends TypeKind | readonly TypeKind[]> =
+  P extends readonly (infer T extends TypeKind)[] ? InferredCadlValue<T> 
+  : P extends TypeKind ? InferredCadlValue<P> : never
 
 export interface DecoratorValidator<
-  T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<Type["kind"]>[],
-  S extends DecoratorParamDefinition<Type["kind"]> | undefined = undefined
+  T extends TypeKind,
+  P extends readonly DecoratorParamDefinition<TypeKind>[],
+  S extends DecoratorParamDefinition<TypeKind> | undefined = undefined
 > {
   validate(
     context: DecoratorContext,
@@ -218,10 +219,12 @@ export interface DecoratorValidator<
   ): boolean;
 }
 
+export type TypeKind = Type["kind"] | "Any";
+
 export function createDecoratorDefinition<
-  T extends Type["kind"],
-  P extends readonly DecoratorParamDefinition<Type["kind"]>[],
-  S extends DecoratorParamDefinition<Type["kind"]> | undefined
+  T extends TypeKind,
+  P extends readonly DecoratorParamDefinition<TypeKind>[],
+  S extends DecoratorParamDefinition<TypeKind> | undefined
 >(definition: DecoratorDefinition<T, P, S>): DecoratorValidator<T, P, S> {
   const minParams = definition.args.filter((x) => !x.optional).length;
   const maxParams = definition.spreadArgs ? undefined : definition.args.length;
@@ -352,6 +355,8 @@ function cadlTypeToJsonInternal(
     case "Boolean":
     case "Number":
       return [cadlType.value, []];
+    case "EnumMember":
+      return [cadlType.value ?? cadlType.name, []];
     case "Tuple": {
       const result = [];
       for (const [index, type] of cadlType.values.entries()) {

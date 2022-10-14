@@ -224,6 +224,14 @@ const diagnostics = {
       default: "Cannot intersect non-model types (including union types).",
     },
   },
+  "intersect-invalid-index": {
+    severity: "error",
+    messages: {
+      default: "Cannot intersect incompatible models.",
+      never: "Cannot intersect a model that cannot hold properties.",
+      array: "Cannot intersect an array model.",
+    },
+  },
   "intersect-duplicate-property": {
     severity: "error",
     messages: {
@@ -274,6 +282,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Models must extend other models.",
+      modelExpression: "Models cannot extend model expressions.",
     },
   },
   "extend-primitive": {
@@ -286,6 +295,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Model `is` must specify another model.",
+      modelExpression: "Model `is` cannot specify a model expression.",
     },
   },
   "is-operation": {
@@ -298,30 +308,44 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Cannot spread properties of non-model type.",
+      neverIndex: "Cannot spread type because it cannot hold properties.",
     },
   },
   "unsupported-default": {
     severity: "error",
     messages: {
-      default: paramMessage`Default values are not supported for '${"type"}' type`,
-    },
-  },
-  "invalid-default-type": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Default must be a ${"type"}`,
+      default: paramMessage`Default must be have a value type but has type '${"type"}'.`,
     },
   },
   unassignable: {
     severity: "error",
     messages: {
       default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
+      withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
+    },
+  },
+  "no-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propName"}' cannot be defined because model cannot hold properties.`,
+    },
+  },
+  "missing-index": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Index signature for type '${"indexType"}' is missing in type '${"sourceType"}'.`,
+    },
+  },
+  "missing-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propertyName"}' is missing on type '${"sourceType"}' but required in '${"targetType"}'`,
     },
   },
   "extends-interface": {
     severity: "error",
     messages: {
-      default: "Interfaces can only mix other interfaces",
+      default: "Interfaces can only extend other interfaces",
     },
   },
   "extends-interface-duplicate": {
@@ -346,6 +370,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Enum already has a member named ${"name"}`,
+    },
+  },
+  "spread-enum": {
+    severity: "error",
+    messages: {
+      default: "Cannot spread members of non-enum type.",
     },
   },
   "decorator-fail": {
@@ -389,10 +419,16 @@ const diagnostics = {
       default: paramMessage`Library "${"path"}" has an invalid main file.`,
     },
   },
-  "compiler-version-mismatch": {
-    severity: "error",
+  "incompatible-library": {
+    severity: "warning",
     messages: {
-      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this error occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this error occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
+      default: paramMessage`Multiple versions of "${"name"}" library were loaded:\n${"versionMap"}`,
+    },
+  },
+  "compiler-version-mismatch": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Current Cadl compiler conflicts with local version of @cadl-lang/compiler referenced in ${"basedir"}. \nIf this warning occurs on the command line, try running \`cadl\` with a working directory of ${"basedir"}. \nIf this warning occurs in the IDE, try configuring the \`cadl-server\` path to ${"betterCadlServerPath"}.\n  Expected: ${"expected"}\n  Resolved: ${"actual"}`,
     },
   },
   "duplicate-symbol": {
@@ -426,7 +462,7 @@ const diagnostics = {
   },
 
   /**
-   * Binder
+   * Library
    */
   "on-validate-fail": {
     severity: "error",
@@ -437,7 +473,13 @@ const diagnostics = {
   "emitter-not-found": {
     severity: "error",
     messages: {
-      default: paramMessage`Cannot find emitter ${"emitterPackage"}`,
+      default: paramMessage`Requested emitter package ${"emitterPackage"} does not provide an "onEmit" function.`,
+    },
+  },
+  "missing-import": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter '${"emitterName"}' requires '${"requiredImport"}' to be imported. Add 'import "${"requiredImport"}".`,
     },
   },
 
@@ -482,6 +524,27 @@ const diagnostics = {
       default: paramMessage`Deprecated: ${"message"}`,
     },
   },
+  "no-optional-key": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propertyName"}' marked as key cannot be optional.`,
+    },
+  },
+  "invalid-discriminated-union": {
+    severity: "error",
+    messages: {
+      default: "",
+      noAnonVariants: "Unions with anonymous variants cannot be discriminated",
+    },
+  },
+  "invalid-discriminated-union-variant": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Union variant ${"name"} must be a model type`,
+      noDiscriminant: paramMessage`Variant ${"name"}'s type is missing the discriminant property ${"discriminant"}`,
+      wrongDiscriminantType: paramMessage`Variant ${"name"}'s type's discriminant property ${"discriminant"} must be a string literal or string enum member`,
+    },
+  },
 
   /**
    * Service
@@ -489,7 +552,7 @@ const diagnostics = {
   "service-decorator-duplicate": {
     severity: "error",
     messages: {
-      default: paramMessage`Service ${"name"} can only be set once per Cadl document.`,
+      default: `@service can only be set once per Cadl document.`,
     },
   },
   "service-namespace-duplicate": {
@@ -502,6 +565,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "@list decorator's parameter must be a model type.",
+    },
+  },
+  "invalid-range": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Range "${"start"}..${"end"}" is invalid.`,
     },
   },
 
@@ -542,6 +611,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model type '${"typeName"}' recursively references itself as a base type.`,
+    },
+  },
+  "circular-op-signature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Operation '${"typeName"}' recursively references itself.`,
     },
   },
   "circular-alias-type": {

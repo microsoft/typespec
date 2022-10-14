@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
 
-import { NamespaceType } from "@cadl-lang/compiler";
+import { Namespace } from "@cadl-lang/compiler";
 
 /**
  * This module describes an AST for Protobuf.
@@ -18,25 +17,25 @@ export interface ProtoFile {
   /**
    * The `option` specifiers to include in the file.
    */
-  options: Partial<DefaultFileOptions>;
+  options: Partial<WellKnownFileOptions>;
 
   /**
    * The declarations in the file.
    *
    * Only `service` and `message` declarations may exist at the root of the file.
    */
-  declarations: Array<ProtoServiceDeclaration | ProtoMessageDeclaration>;
+  declarations: Iterable<ProtoTopLevelDeclaration>;
 
   /**
    * The original namespace node from which this ProtoFile originated.
    */
-  source: NamespaceType;
+  source: Namespace;
 }
 
 /**
  * The built-in options that are defined by Protobuf.
  */
-export interface DefaultFileOptions {
+export interface WellKnownFileOptions {
   java_package: string;
   java_outer_classname: string;
 
@@ -44,6 +43,14 @@ export interface DefaultFileOptions {
 
   cc_enable_arenas: boolean;
 }
+
+/**
+ * A top-level declaration.
+ */
+export type ProtoTopLevelDeclaration =
+  | ProtoServiceDeclaration
+  | ProtoMessageDeclaration
+  | ProtoEnumDeclaration;
 
 /**
  * A declaration. One of `service`, `message`, a field within a message, `one_of`, `enum`, or an `rpc` method.
@@ -80,7 +87,6 @@ export type ScalarFixedName = `${"s" | ""}fixed${"32" | "64"}`;
 const $scalar = Symbol("$scalar");
 const $ref = Symbol("$ref");
 const $map = Symbol("$map");
-const $unreachable = Symbol("$unreachable");
 
 /**
  * A map type. Map keys can be any integral or string type (any scalar except float, double, and bytes).
@@ -125,8 +131,18 @@ export function map(k: ScalarIntegralName | "string", v: Exclude<ProtoType, Prot
   return [$map, k, v];
 }
 
-export function unreachable(message: string) {
-  return [$unreachable, message] as never;
+/**
+ * Creates a type that will throw an internal error if the system attempts to emit it.
+ *
+ * @param message - optional message that should be printed
+ */
+export function unreachable(message: string = "tried to emit unreachable type") {
+  // This little "array-like" object will throw an internal error as soon as the "tag" is inspected.
+  return Object.freeze({
+    get [0]() {
+      throw new Error("Internal Error: " + message);
+    },
+  }) as ProtoScalar & ProtoRef & ProtoMap;
 }
 
 /**
@@ -155,11 +171,7 @@ export function matchType<Result>(type: ProtoType, pattern: ProtoTypeMatchPatter
       return pattern.map(type[1], type[2] as Exclude<ProtoType, ProtoMap>);
     default:
       const __exhaust: never = type[0];
-      if (type[0] === $unreachable) {
-        // This might happen if we produce an `$unreachable`-tagged type without preventing emit.
-        throw new Error(`Unreachable: ${type[1]}`);
-      }
-      throw new Error(`Unreachable: matchType variant ${__exhaust}`);
+      throw new Error(`Internal Error: unreachable matchType variant ${__exhaust}`);
   }
 }
 

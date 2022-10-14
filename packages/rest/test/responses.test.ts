@@ -1,9 +1,9 @@
-import { ModelType } from "@cadl-lang/compiler";
+import { Model } from "@cadl-lang/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@cadl-lang/compiler/testing";
-import { ok, strictEqual } from "assert";
-import { compileOperations, getOperations } from "./test-host.js";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
-describe("cadl: rest: responses", () => {
+describe("rest: responses", () => {
   it("issues diagnostics for duplicate body decorator", async () => {
     const [_, diagnostics] = await compileOperations(
       `
@@ -76,9 +76,37 @@ describe("cadl: rest: responses", () => {
     ]);
   });
 
+  it("supports any casing for string literal 'Content-Type' header properties.", async () => {
+    const [routes, diagnostics] = await getOperationsWithServiceNamespace(
+      `
+      model Foo {}
+
+      @test
+      namespace Test {
+        @route("/test1")
+        @get
+        op test1(): { @header "content-Type": "text/html", @body body: Foo };
+
+        @route("/test2")
+        @get
+        op test2(): { @header "CONTENT-type": "text/plain", @body body: Foo };
+
+        @route("/test3")
+        @get
+        op test3(): { @header "content-type": "application/json", @body body: Foo };
+      }
+    `
+    );
+    expectDiagnosticEmpty(diagnostics);
+    strictEqual(routes.length, 3);
+    deepStrictEqual(routes[0].responses[0].responses[0].body?.contentTypes, ["text/html"]);
+    deepStrictEqual(routes[1].responses[0].responses[0].body?.contentTypes, ["text/plain"]);
+    deepStrictEqual(routes[2].responses[0].responses[0].body?.contentTypes, ["application/json"]);
+  });
+
   // Regression test for https://github.com/microsoft/cadl/issues/328
-  it("empty response model becomes body if it has childrens", async () => {
-    const [routes, diagnostics] = await getOperations(
+  it("empty response model becomes body if it has children", async () => {
+    const [routes, diagnostics] = await getOperationsWithServiceNamespace(
       `
       @route("/") op read(): A;
 
@@ -103,6 +131,6 @@ describe("cadl: rest: responses", () => {
     const response = responses[0];
     const body = response.responses[0].body;
     ok(body);
-    strictEqual((body.type as ModelType).name, "A");
+    strictEqual((body.type as Model).name, "A");
   });
 });

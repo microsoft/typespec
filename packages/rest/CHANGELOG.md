@@ -1,6 +1,60 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Mon, 13 Jun 2022 23:42:28 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+
+## 0.17.0
+Thu, 08 Sep 2022 01:04:53 GMT
+
+### Minor changes
+
+- **Deprecation**: Mark `@produces` and `@consumes` as deprecated
+- Uptake changes to compiler with current projection
+- Update decororator state key to allow multiple instance of library to work together.
+- React to Type suffix removal
+- **BREAKING CHANGE** Rename `Page` to `CollectionWithNextLink`
+- Fix doc for route and move autoRoute to rest library
+- Api: Service Authentication oauth2 flow scopes is now an object with value and description
+
+### Patches
+
+- Api: Route resolution take projection into account
+- Guard against uninitialized parent type in `parentResource` decorator
+- Support more kinds of unions, fix various union bugs, and add support for @discriminator on unions
+
+## 0.16.0
+Thu, 11 Aug 2022 19:05:23 GMT
+
+### Minor changes
+
+- Add new `@useAuth` decorator providing support to define service authentication
+- Uptake changes to type relations
+- Update resource operation interfaces to configure Create and Update model properties correctly
+- Support set of unannotated parameters as request body
+- Add friendly name for Page<T> as TPage
+- Make OkResponse non-generic
+- Remove `groupName` from `OperationDetails`
+- Emit diagnostic when defining @path property that is optional without a default value
+- Update route resolution logic to be more consistent. If service namespace is provided use routes under otherwise use routes directly at the global namespace level(do not go into the nested namespaces)
+- Internal: Uptake new compiler helpers to work with template types
+
+### Patches
+
+- Add a @resource decorator to simplify how one defines resource types and specifies the collection (segment) name
+- Add `ResourceCreateOrReplace` type and `createsOrReplaces` decorator to model an "upsert" operation
+- Improve `cloneKeyProperties` implementation so that original model type is not affected
+- Ensure that all @key properties turned into @path parameters by KeysOf<T> are required even if the original is optional
+- Operations with a body and no verb will default route to POST
+- Add `ResourceLocation<T>` to mark a property as containing a link to a specific resource type
+- Make response descriptions more consistent
+
+## 0.15.1
+Fri, 08 Jul 2022 23:22:57 GMT
+
+### Patches
+
+- $consumes decorator better validation
+- Add `@collectionAction` decorator for defining collection-level resource actions
+- Make string literal "Content-Type" header check case-insensitive
 
 ## 0.15.0
 Mon, 13 Jun 2022 23:42:28 GMT
@@ -84,15 +138,15 @@ Fri, 04 Feb 2022 18:00:18 GMT
 ### Minor changes
 
 - Add support for discriminator decorator
-- Internals: switch to internal path manipulatio
+- Internals: switch to internal path manipulation
 - Added shared logic to resolve http operation parameters and validate compatibility(duplicate bodies)
-- **Added** Validation for uniquness of operation by verb and path
+- **Added** Validation for uniqueness of operation by verb and path
 - **Added** `@head` decorator to describe `head` http verb operation
-- Validate http verb decorators(`@get`, `@post`, etc.) do not recieve any argument
+- Validate http verb decorators(`@get`, `@post`, etc.) do not receive any argument
 - Expose response template in Http library and refactor
 - Add statusCode decorator for http status code
 - **Validate `@route` decorator is used only once
-- Update cadl depdendencies to peerDependencies
+- Update cadl dependencies to peerDependencies
 
 ### Patches
 
@@ -169,7 +223,7 @@ Fri, 13 Aug 2021 19:10:21 GMT
 
 ### Patches
 
-- Add isHeader functionality to discover if a proprty is a header property
+- Add isHeader functionality to discover if a property is a header property
 
 ## 0.5.0
 Tue, 10 Aug 2021 20:23:04 GMT

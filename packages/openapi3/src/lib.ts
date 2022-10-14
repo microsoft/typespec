@@ -1,14 +1,21 @@
 import { createCadlLibrary, JSONSchemaType, paramMessage } from "@cadl-lang/compiler";
 
-export interface OpenAPIEmitterOptions {
-  outputFile?: string;
+export interface OpenAPI3EmitterOptions {
+  "output-file"?: string;
+
+  /**
+   * Set the newline character for emitting files.
+   * @default lf
+   */
+  "new-line"?: "crlf" | "lf";
 }
 
-const EmiterOptionsSchema: JSONSchemaType<OpenAPIEmitterOptions> = {
+const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    outputFile: { type: "string", nullable: true },
+    "output-file": { type: "string", nullable: true },
+    "new-line": { type: "string", enum: ["crlf", "lf"], nullable: true },
   },
   required: [],
 };
@@ -20,12 +27,6 @@ export const libDef = {
       severity: "error",
       messages: {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
-      },
-    },
-    "security-service-namespace": {
-      severity: "error",
-      messages: {
-        default: "Cannot add security details to a namespace other than the service namespace.",
       },
     },
     "resource-namespace": {
@@ -102,13 +103,19 @@ export const libDef = {
         default: paramMessage`Invalid type '${"type"}' for a default value`,
       },
     },
+    "inline-cycle": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Cycle detected in '${"type"}'. Use @friendlyName decorator to assign an OpenAPI definition name and make it non-inline.`,
+      },
+    },
   },
   emitter: {
-    options: EmiterOptionsSchema as JSONSchemaType<OpenAPIEmitterOptions>,
+    options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
 } as const;
 
 export const $lib = createCadlLibrary(libDef);
-export const { reportDiagnostic } = $lib;
+export const { reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

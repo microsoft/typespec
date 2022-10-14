@@ -6,7 +6,9 @@ using Cadl.Versioning;
 using Cadl.Rest;
 
 @versionedDependency([[Versions.v1, Library.Versions.v1_0], [Versions.v2, Library.Versions.v1_1]])
-@serviceTitle("Pet Store Service")
+@service({
+  title: "Pet Store Service",
+})
 @versioned(Versions)
 namespace VersionedApi;
 using Cadl.Http;
@@ -45,15 +47,15 @@ model Cat extends PetBase {
 
 @route("/")
 interface MyService {
-  getPet(...ApiVersionParam): OkResponse<PetBase>;
+  getPet(...ApiVersionParam): PetBase;
 
   @added(Versions.v2)
   @post
   @route("/walkDog")
-  walkDog(...ApiVersionParam): OkResponse<{}>;
+  walkDog(...ApiVersionParam): OkResponse;
 
   @removed(Versions.v2)
   @post
   @route("/walkCat")
-  walkCat(...ApiVersionParam): OkResponse<{}>;
+  walkCat(...ApiVersionParam): OkResponse;
 }

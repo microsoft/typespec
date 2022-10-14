@@ -1,5 +1,5 @@
 import {
-  createProgram,
+  compile,
   getNormalizedAbsolutePath,
   joinPaths,
   NodeHost,
@@ -119,8 +119,7 @@ async function resolveCadlBundleDefinition(libraryPath: string): Promise<CadlBun
 
 async function createRollupConfig(definition: CadlBundleDefinition): Promise<RollupOptions> {
   const libraryPath = definition.path;
-  const program = await createProgram(NodeHost, libraryPath, {
-    nostdlib: true,
+  const program = await compile(NodeHost, libraryPath, {
     noEmit: true,
   });
   const jsFiles: string[] = [];
@@ -163,12 +162,10 @@ async function createRollupConfig(definition: CadlBundleDefinition): Promise<Rol
       json(),
       nodeResolve({ preferBuiltins: true, browser: true }),
     ],
-    shimMissingExports: true,
     external: (id) => {
       return (
-        !!id.match(/^@cadl-lang\/[a-z-]+$/) ||
-        (definition.packageJson.peerDependencies &&
-          !!Object.keys(definition.packageJson.peerDependencies).find((x) => id.startsWith(x)))
+        definition.packageJson.peerDependencies &&
+        !!Object.keys(definition.packageJson.peerDependencies).find((x) => id.startsWith(x))
       );
     },
     onwarn: (warning, warn) => {

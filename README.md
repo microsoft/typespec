@@ -1,5 +1,7 @@
 # Cadl
 
+[Try Cadl Online](https://aka.ms/trycadl)
+
 Cadl is a language for describing cloud service APIs and generating other API
 description languages, client and service code, documentation, and other assets.
 Cadl provides highly extensible core language primitives that can describe API
@@ -47,6 +49,13 @@ using the preview.
 [tmlanguage_chg]: packages/tmlanguage-generator/CHANGELOG.md
 
 `@next` version of the package are the latest versions available on the `main` branch.
+
+## Try Cadl without installing anything
+
+You can try Cadl on the web without installing anything.
+
+- [Cadl playground](https://cadlplayground.z22.web.core.windows.net)
+- [Cadl playground for Azure services](https://cadlplayground.z22.web.core.windows.net/cadl-azure/)
 
 ## Getting Started
 
@@ -130,13 +139,13 @@ import "@cadl-lang/rest";
 
 using Cadl.Http;
 
+@server("https://example.com", "Single server endpoint")
 @route("/example")
 namespace Example {
   @get
   @route("/message")
   op getMessage(): string;
 }
-
 ```
 
 You can compile it to OpenAPI 3.0 by using the following command:
@@ -162,8 +171,8 @@ cadl format <patterns...>
 cadl format **/*.cadl
 
 # Exclude certain patterns. Either use `!` prefix or pass it via the `--exclude` or `-x` option.
-cadl format **/*.cadl "!mytestfolder/**/*"
-cadl format **/*.cadl --exclude "mytestfolder/**/*"
+cadl format **/*.cadl "!my-test-folder/**/*"
+cadl format **/*.cadl --exclude "my-test-folder/**/*"
 ```
 
 ### Installing VS Code Extension

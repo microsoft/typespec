@@ -6,13 +6,13 @@ import {
   expectDiagnosticEmpty,
   TestHost,
 } from "@cadl-lang/compiler/testing";
-import { HttpVerb } from "../src/http/decorators.js";
 import {
-  getAllRoutes,
+  getAllHttpServices,
+  HttpOperation,
   HttpOperationParameter,
-  OperationDetails,
-  RouteOptions,
-} from "../src/http/route.js";
+  HttpVerb,
+  RouteResolutionOptions,
+} from "../src/http/index.js";
 import { RestTestLibrary } from "../src/testing/index.js";
 
 export async function createRestTestHost(): Promise<TestHost> {
@@ -20,13 +20,23 @@ export async function createRestTestHost(): Promise<TestHost> {
     libraries: [RestTestLibrary],
   });
 }
+export async function createHttpTestRunner(): Promise<BasicTestRunner> {
+  const host = await createRestTestHost();
+  return createTestWrapper(
+    host,
+    (code) =>
+      `import "@cadl-lang/rest"; using Cadl.Http;
+      ${code}`
+  );
+}
 
 export async function createRestTestRunner(): Promise<BasicTestRunner> {
   const host = await createRestTestHost();
   return createTestWrapper(
     host,
     (code) =>
-      `import "@cadl-lang/rest"; namespace TestNamespace; using Cadl.Rest; using Cadl.Http; ${code}`
+      `import "@cadl-lang/rest"; using Cadl.Rest; using Cadl.Http;
+      ${code}`
   );
 }
 
@@ -38,7 +48,7 @@ export interface RouteDetails {
 
 export async function getRoutesFor(
   code: string,
-  routeOptions?: RouteOptions
+  routeOptions?: RouteResolutionOptions
 ): Promise<RouteDetails[]> {
   const [routes, diagnostics] = await compileOperations(code, routeOptions);
   expectDiagnosticEmpty(diagnostics);
@@ -55,15 +65,18 @@ export interface SimpleOperationDetails {
   path: string;
   params: {
     params: Array<{ name: string; type: HttpOperationParameter["type"] }>;
-    body?: string;
+    /**
+     * name of explicit `@body` parameter or array of unannotated parameter names that make up the body.
+     */
+    body?: string | string[];
   };
 }
 
 export async function compileOperations(
   code: string,
-  routeOptions?: RouteOptions
+  routeOptions?: RouteResolutionOptions
 ): Promise<[SimpleOperationDetails[], readonly Diagnostic[]]> {
-  const [routes, diagnostics] = await getOperations(code, routeOptions);
+  const [routes, diagnostics] = await getOperationsWithServiceNamespace(code, routeOptions);
 
   const details = routes.map((r) => {
     return {
@@ -71,7 +84,11 @@ export async function compileOperations(
       path: r.path,
       params: {
         params: r.parameters.parameters.map(({ type, name }) => ({ type, name })),
-        body: r.parameters.body?.name,
+        body:
+          r.parameters.bodyParameter?.name ??
+          (r.parameters.bodyType?.kind === "Model"
+            ? Array.from(r.parameters.bodyType.properties.keys())
+            : undefined),
       },
     };
   });
@@ -79,12 +96,27 @@ export async function compileOperations(
   return [details, diagnostics];
 }
 
-export async function getOperations(
+export async function getOperationsWithServiceNamespace(
   code: string,
-  routeOptions?: RouteOptions
-): Promise<[OperationDetails[], readonly Diagnostic[]]> {
+  routeOptions?: RouteResolutionOptions
+): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
-  await runner.compileAndDiagnose(code, { noEmit: true });
-  const [routes] = getAllRoutes(runner.program, routeOptions);
-  return [routes, runner.program.diagnostics];
+  await runner.compileAndDiagnose(
+    `@service({title: "Test Service"}) namespace TestService;
+    ${code}`,
+    {
+      noEmit: true,
+    }
+  );
+  const [services] = getAllHttpServices(runner.program, routeOptions);
+  return [services[0].operations, runner.program.diagnostics];
+}
+
+export async function getOperations(code: string): Promise<HttpOperation[]> {
+  const runner = await createRestTestRunner();
+  await runner.compile(code);
+  const [services, diagnostics] = getAllHttpServices(runner.program);
+
+  expectDiagnosticEmpty(diagnostics);
+  return services[0].operations;
 }

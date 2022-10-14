@@ -5,7 +5,7 @@ using Cadl.Grpc;
 @package("com.azure.test")
 namespace Test;
 
-@service
+@Cadl.Grpc.service
 interface Service {
   foo(...Input): Output;
 }

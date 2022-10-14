@@ -5,14 +5,13 @@ import {
   createDecoratorDefinition,
   DecoratorContext,
   EmitOptionsFor,
-  ModelTypeProperty,
-  NamespaceType,
+  Interface,
+  ModelProperty,
+  Namespace,
   Program,
-  Type,
-  validateDecoratorTarget,
 } from "@cadl-lang/compiler";
 
-import { CadlGrpcLibrary, fieldIndexKey, packageKey, reportDiagnostic, serviceKey } from "./lib.js";
+import { CadlGrpcLibrary, reportDiagnostic, state } from "./lib.js";
 import { createGrpcEmitter } from "./transform.js";
 
 /**
@@ -39,6 +38,14 @@ const packageDecorator = createDecoratorDefinition({
 } as const);
 
 /**
+ * Defined in the [ProtoBuf Language Spec](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec#identifiers).
+ *
+ * ident = letter { letter | decimalDigit | "_" }
+ * fullIdent = ident { "." ident }
+ */
+export const PROTO_FULL_IDENT = /([a-zA-Z][a-zA-Z0-9_]*)+/;
+
+/**
  * Decorate a namespace as a package, indicating that it represents a single Protobuf unit (a single file with a
  * `package` declaration).
  *
@@ -46,15 +53,29 @@ const packageDecorator = createDecoratorDefinition({
  * @param target - the decorated namespace
  * @param name - the package's name (not optional)
  */
-export function $package(ctx: DecoratorContext, target: NamespaceType, name: string) {
+export function $package(ctx: DecoratorContext, target: Namespace, name?: string) {
   if (!packageDecorator.validate(ctx, target, [name])) {
     return;
   }
 
-  // TODO: validate package name is acceptable
+  if (name && !PROTO_FULL_IDENT.test(name)) {
+    reportDiagnostic(ctx.program, {
+      code: "invalid-package-name",
+      target: ctx.getArgumentTarget(0)!,
+      format: {
+        name,
+      },
+    });
+  }
 
-  ctx.program.stateMap(packageKey).set(target, name);
+  ctx.program.stateMap(state.package).set(target, name);
 }
+
+const serviceDecorator = createDecoratorDefinition({
+  name: "@service",
+  args: [],
+  target: "Interface",
+} as const);
 
 /**
  * Decorate an interface as a service, indicating that it represents a gRPC `service` declaration.
@@ -62,18 +83,14 @@ export function $package(ctx: DecoratorContext, target: NamespaceType, name: str
  * @param ctx - decorator context
  * @param target - the decorated interface
  */
-export function $service(ctx: DecoratorContext, target: Type) {
-  if (!validateDecoratorTarget(ctx, target, "@service", "Interface")) {
+export function $service(ctx: DecoratorContext, target: Interface) {
+  if (!serviceDecorator.validate(ctx, target, [])) {
     return;
   }
 
-  // TODO: do we allow service interfaces to extend/compose other interfaces?
+  // TODO/DESIGN: do we allow service interfaces to extend/compose other interfaces?
 
-  for (const _operation of target.operations.values()) {
-    // TODO: validate operations here, don't defer to $onEmit, so that we have a good editor experience.
-  }
-
-  ctx.program.stateSet(serviceKey).add(target);
+  ctx.program.stateSet(state.service).add(target);
 }
 
 const fieldDecorator = createDecoratorDefinition({
@@ -90,7 +107,7 @@ const fieldDecorator = createDecoratorDefinition({
  * @param fieldIndex
  * @returns
  */
-export function $field(ctx: DecoratorContext, target: ModelTypeProperty, fieldIndex: number) {
+export function $field(ctx: DecoratorContext, target: ModelProperty, fieldIndex: number) {
   if (!fieldDecorator.validate(ctx, target, [fieldIndex])) {
     return;
   }
@@ -130,7 +147,7 @@ export function $field(ctx: DecoratorContext, target: ModelTypeProperty, fieldIn
     });
   }
 
-  ctx.program.stateMap(fieldIndexKey).set(target, fieldIndex);
+  ctx.program.stateMap(state.fieldIndex).set(target, fieldIndex);
 }
 
 /**

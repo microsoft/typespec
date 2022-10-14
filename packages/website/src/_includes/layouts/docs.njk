@@ -1,0 +1,32 @@
+---
+layout: "layouts/base.njk"
+isDocs: true
+---
+
+<div class="cadl-doc-container">
+  <nav class="cadl-doc-nav">
+    <div class="small-device-header">
+      <button id="small-device-button-sidebar" for="doc-toc" title="Table of Content">{% icon "menu" %}</button>
+    </div>
+    <ul class="cadl-doc-toc" id="doc-toc">
+      {% set navCategories = collections.all | cadlNavigation(docs.toc) %}
+      {%- for category in navCategories %}
+        <li class="cadl-toc-category">
+          <h3 class="cadl-toc-category-name">{{ category.label }}</h3>
+          <ul class="cadl-list">
+            {%- for entry in category.pages %}
+              <li {% if entry.url == page.url %} class="cadl-toc-active" {% endif %}>
+                <a href="{{ entry.url | url }}">{{ entry.title }}</a>
+              </li>
+            {%- endfor %}
+          </ul>
+        </li>
+      {%- endfor %}
+    </ul>
+  </nav>
+  <div class="cadl-doc-main">
+    <div class="cadl-doc-content">
+      {{ content | safe }}
+    </div>
+  </div>
+</div>

@@ -2,32 +2,30 @@
 // Licensed under the MIT license.
 
 import {
+  Enum,
+  getEffectiveModelType,
   getIntrinsicModelName,
-  InterfaceType,
+  Interface,
   isIntrinsic,
-  ModelType,
-  ModelTypeProperty,
-  NamespaceType,
-  OperationType,
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
   Program,
   resolvePath,
   Type,
 } from "@cadl-lang/compiler";
-import {
-  fieldIndexKey,
-  GrpcEmitterOptions,
-  packageKey,
-  reportDiagnostic,
-  serviceKey,
-} from "./lib.js";
+import { GrpcEmitterOptions, reportDiagnostic, state } from "./lib.js";
 import {
   map,
+  ProtoEnumDeclaration,
   ProtoFieldDeclaration,
   ProtoFile,
   ProtoMessageDeclaration,
   ProtoMethodDeclaration,
   ProtoRef,
   ProtoScalar,
+  ProtoTopLevelDeclaration,
   ProtoType,
   ref,
   scalar,
@@ -79,7 +77,7 @@ export function createGrpcEmitter(
  * This is the meat of the emitter.
  */
 function cadlToProto(program: Program): ProtoFile[] {
-  const packages = program.stateMap(packageKey) as Map<NamespaceType, string>;
+  const packages = program.stateMap(state.package) as Map<Namespace, string>;
 
   // Emit a file per package.
   const files = [...packages].map(
@@ -102,13 +100,13 @@ function cadlToProto(program: Program): ProtoFile[] {
    * @param namespace - the namespace to analyze
    * @returns an array of declarations
    */
-  function declarationsFromNamespace(namespace: NamespaceType): ProtoFile["declarations"] {
-    const serviceInterfaces = new Set<InterfaceType>();
+  function declarationsFromNamespace(namespace: Namespace): ProtoFile["declarations"] {
+    const serviceInterfaces = new Set<Interface>();
 
     // This IIFE adds all interfaces decorated with `service` that are reachable from `namespace`
-    (function recursiveAddInterfaces(namespace: NamespaceType) {
+    (function recursiveAddInterfaces(namespace: Namespace) {
       for (const memberInterface of namespace.interfaces.values()) {
-        if (program.stateSet(serviceKey).has(memberInterface)) {
+        if (program.stateSet(state.service).has(memberInterface)) {
           serviceInterfaces.add(memberInterface);
         }
       }
@@ -119,21 +117,44 @@ function cadlToProto(program: Program): ProtoFile[] {
       }
     })(namespace);
 
-    const declarations: ProtoFile["declarations"] = [];
-    const visitedTypes = new Set<ModelType>();
+    const declarations: ProtoTopLevelDeclaration[] = [];
+    const visitedTypes = new Set<Type>();
 
     /**
      * Visits a model type, converting it into a message definition and adding it if it has not already been visited.
      * @param model - the model type to consider
      */
-    function visitType(model: ModelType) {
+    function visitModel(model: Model) {
       if (!visitedTypes.has(model)) {
         visitedTypes.add(model);
         declarations.push(toMessage(model));
       }
     }
 
-    const effectiveModelTypeCache = new Map<ModelType, ModelType | undefined>();
+    /**
+     * Visits an enum type, converting it into a Protobuf enum definition and adding it if it has not already been visited.
+     */
+    function visitEnum(e: Enum) {
+      if (!visitedTypes.has(e)) {
+        visitedTypes.add(e);
+
+        // We only support enums where every variant is explicitly assigned an integer value
+        if (
+          [...e.members.values()].some(
+            ({ value: v }) => !v || typeof v !== "number" || !Number.isInteger(v)
+          )
+        ) {
+          reportDiagnostic(program, {
+            target: e,
+            code: "unconvertible-enum",
+          });
+        }
+
+        declarations.push(toEnum(e));
+      }
+    }
+
+    const effectiveModelCache = new Map<Model, Model | undefined>();
 
     // Each interface will be reified as a `service` declaration.
     for (const iface of serviceInterfaces) {
@@ -153,7 +174,7 @@ function cadlToProto(program: Program): ProtoFile[] {
      * @param operation - the operation to convert
      * @returns a corresponding method declaration
      */
-    function toMethodFromOperation(operation: OperationType): ProtoMethodDeclaration {
+    function toMethodFromOperation(operation: Operation): ProtoMethodDeclaration {
       // TODO: add support for cross-package type references
       // https://github.com/microsoft/cadl/issues/632
 
@@ -173,8 +194,8 @@ function cadlToProto(program: Program): ProtoFile[] {
      * @param model - the model to add
      * @returns a reference to the model's message
      */
-    function addInputParams(paramsModel: ModelType, operationName: string): ProtoRef {
-      const effectiveModel = getEffectiveModelType(
+    function addInputParams(paramsModel: Model, operationName: string): ProtoRef {
+      const effectiveModel = computeEffectiveModel(
         paramsModel,
         capitalize(operationName) + "Request"
       );
@@ -212,7 +233,7 @@ function cadlToProto(program: Program): ProtoFile[] {
 
       switch (t.kind) {
         case "Model":
-          const effectiveModel = getEffectiveModelType(t, capitalize(operationName) + "Response");
+          const effectiveModel = computeEffectiveModel(t, capitalize(operationName) + "Response");
           if (effectiveModel) {
             return ref(effectiveModel.name);
           }
@@ -237,6 +258,23 @@ function cadlToProto(program: Program): ProtoFile[] {
       // We will handle all intrinsics separately, including maps.
       if (isIntrinsic(program, t)) return intrinsicToProto(getIntrinsicModelName(program, t), t);
 
+      // Arrays transform into repeated fields, so we'll silently replace `t` with the array's member if this is an array.
+      // The `repeated` keyword will be added when the field is composed.
+      if (isArray(t)) {
+        const valueType = (t as Model).templateArguments![0];
+
+        // Nested arrays are not supported.
+        if (isArray(valueType)) {
+          reportDiagnostic(program, {
+            code: "nested-array",
+            target: t,
+          });
+          return ref("<unreachable>");
+        }
+
+        return addType(valueType);
+      }
+
       // TODO: streams
       // https://github.com/microsoft/cadl/issues/633
 
@@ -244,14 +282,11 @@ function cadlToProto(program: Program): ProtoFile[] {
 
       switch (t.kind) {
         case "Model":
-          visitType(t);
+          visitModel(t);
           return ref(t.name);
-        case "Array":
-          if (t.elementType.kind === "Model") {
-            visitType(t.elementType);
-            return ref(t.elementType.name);
-          }
-        // eslint-disable-next-line no-fallthrough
+        case "Enum":
+          visitEnum(t);
+          return ref(t.name);
         default:
           reportDiagnostic(program, {
             code: "unsupported-field-type",
@@ -266,10 +301,10 @@ function cadlToProto(program: Program): ProtoFile[] {
     }
 
     function intrinsicToProto(name: string, t: Type): ProtoType {
-      // Maps are considered intrinsics, so we check if the type is an instance of Cadl.Map
+      // Check if the type is an instance of Cadl.Map
       if (isMap(t)) {
         // Intrinsic map.
-        const [keyType, valueType] = (t as ModelType).templateArguments ?? [];
+        const [keyType, valueType] = (t as Model).templateArguments ?? [];
 
         // A map's value cannot be another map.
         if (isMap(valueType)) {
@@ -323,7 +358,7 @@ function cadlToProto(program: Program): ProtoFile[] {
      * @param model - the Model to convert
      * @returns a corresponding message declaration
      */
-    function toMessage(model: ModelType): ProtoMessageDeclaration {
+    function toMessage(model: Model): ProtoMessageDeclaration {
       return {
         kind: "message",
         name: model.name,
@@ -332,29 +367,41 @@ function cadlToProto(program: Program): ProtoFile[] {
     }
 
     /**
+     * @param e - the Enum to convert
+     * @returns a corresponding protobuf enum declaration
+     *
+     * INVARIANT: the enum's members must be integer values
+     */
+    function toEnum(e: Enum): ProtoEnumDeclaration {
+      return {
+        kind: "enum",
+        name: e.name,
+        variants: [...e.members.values()].map(({ name, value }) => [name, value as number]),
+      };
+    }
+
+    /**
      * @param property - the ModelProperty to convert
      * @returns a corresponding field declaration
      */
-    function toField(property: ModelTypeProperty): ProtoFieldDeclaration {
+    function toField(property: ModelProperty): ProtoFieldDeclaration {
       const field: ProtoFieldDeclaration = {
         kind: "field",
         name: property.name,
         type: addType(property.type),
-        index: program.stateMap(fieldIndexKey).get(property),
+        index: program.stateMap(state.fieldIndex).get(property),
       };
 
-      if (property.type.kind === "Array") field.repeated = true;
+      // Determine if the property type is an array
+      if (isArray(property.type)) field.repeated = true;
 
       return field;
     }
 
-    function getEffectiveModelType(
-      model: ModelType,
-      anonymousModelName: string
-    ): ModelType | undefined {
-      if (effectiveModelTypeCache.has(model)) return effectiveModelTypeCache.get(model);
+    function computeEffectiveModel(model: Model, anonymousModelName: string): Model | undefined {
+      if (effectiveModelCache.has(model)) return effectiveModelCache.get(model);
 
-      let effectiveModel = program.checker.getEffectiveModelType(model);
+      let effectiveModel = getEffectiveModelType(program, model);
 
       if (effectiveModel.name === "") {
         // Name the model automatically if it is anonymous
@@ -364,9 +411,9 @@ function cadlToProto(program: Program): ProtoFile[] {
         });
       }
 
-      visitType(effectiveModel);
+      visitModel(effectiveModel);
 
-      effectiveModelTypeCache.set(model, effectiveModel);
+      effectiveModelCache.set(model, effectiveModel);
 
       return effectiveModel;
     }
@@ -386,12 +433,18 @@ function cadlToProto(program: Program): ProtoFile[] {
           target: file.source,
         });
       }
+
+      namespaces.add(file.package);
     }
   }
 }
 
 function isMap(t: Type) {
   return t.kind === "Model" && t.name === "Map" && t.namespace?.name === "Cadl";
+}
+
+function isArray(t: Type) {
+  return t.kind === "Model" && t.name === "Array" && t.namespace?.name === "Cadl";
 }
 
 /**

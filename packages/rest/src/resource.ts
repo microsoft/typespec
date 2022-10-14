@@ -1,29 +1,30 @@
 import {
+  $visibility,
   DecoratorContext,
   getKeyName,
   isErrorType,
   isKey,
-  ModelType,
-  ModelTypeProperty,
+  Model,
+  ModelProperty,
   Program,
   Type,
   validateDecoratorTarget,
 } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./diagnostics.js";
 import { $path } from "./http/decorators.js";
+import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 export interface ResourceKey {
-  resourceType: ModelType;
-  keyProperty: ModelTypeProperty;
+  resourceType: Model;
+  keyProperty: ModelProperty;
 }
 
-const resourceKeysKey = Symbol("resourceKeys");
-const resourceTypeForKeyParamKey = Symbol("resourceTypeForKeyParam");
+const resourceKeysKey = createStateSymbol("resourceKeys");
+const resourceTypeForKeyParamKey = createStateSymbol("resourceTypeForKeyParam");
 
 export function setResourceTypeKey(
   program: Program,
-  resourceType: ModelType,
-  keyProperty: ModelTypeProperty
+  resourceType: Model,
+  keyProperty: ModelProperty
 ): void {
   program.stateMap(resourceKeysKey).set(resourceType, {
     resourceType,
@@ -31,7 +32,7 @@ export function setResourceTypeKey(
   });
 }
 
-export function getResourceTypeKey(program: Program, resourceType: ModelType): ResourceKey {
+export function getResourceTypeKey(program: Program, resourceType: Model): ResourceKey | undefined {
   // Look up the key first
   let resourceKey = program.stateMap(resourceKeysKey).get(resourceType);
   if (resourceKey) {
@@ -39,7 +40,7 @@ export function getResourceTypeKey(program: Program, resourceType: ModelType): R
   }
 
   // Try to find it in the resource type
-  resourceType.properties.forEach((p: ModelTypeProperty) => {
+  resourceType.properties.forEach((p: ModelProperty) => {
     if (isKey(program, p)) {
       if (resourceKey) {
         reportDiagnostic(program, {
@@ -78,12 +79,12 @@ export function $resourceTypeForKeyParam(
 
 export function getResourceTypeForKeyParam(
   program: Program,
-  param: ModelTypeProperty
-): ModelType | undefined {
+  param: ModelProperty
+): Model | undefined {
   return program.stateMap(resourceTypeForKeyParamKey).get(param);
 }
 
-function cloneKeyProperties(context: DecoratorContext, target: ModelType, resourceType: ModelType) {
+function cloneKeyProperties(context: DecoratorContext, target: Model, resourceType: Model) {
   const { program } = context;
   // Add parent keys first
   const parentType = getParentResource(program, resourceType);
@@ -96,9 +97,10 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
     const { keyProperty } = resourceKey;
     const keyName = getKeyName(program, keyProperty);
 
-    const newProp = program.checker.cloneType(keyProperty);
-    newProp.name = keyName;
-    newProp.decorators.push(
+    // Filter out the @visibility decorator because it might affect metadata
+    // filtering
+    const decorators = [
+      ...keyProperty.decorators.filter((d) => d.decorator !== $visibility),
       {
         decorator: $path,
         args: [],
@@ -106,10 +108,18 @@ function cloneKeyProperties(context: DecoratorContext, target: ModelType, resour
       {
         decorator: $resourceTypeForKeyParam,
         args: [{ node: target.node, value: resourceType }],
-      }
-    );
-    context.call($path, newProp, undefined as any);
+      },
+    ];
 
+    // Clone the key property and ensure that an optional key property doesn't
+    // become an optional path parameter
+    const newProp = program.checker.cloneType(keyProperty, {
+      name: keyName,
+      decorators,
+      optional: false,
+    });
+
+    // Add the key property to the target type
     target.properties.set(keyName, newProp);
   }
 }
@@ -140,7 +150,7 @@ export function $copyResourceKeyParameters(
     return reportNoKeyError();
   }
 
-  const resourceType = templateArguments[0] as ModelType;
+  const resourceType = templateArguments[0] as Model;
 
   if (filter === "parent") {
     // Only copy keys of the parent type if there is one
@@ -154,16 +164,13 @@ export function $copyResourceKeyParameters(
   }
 }
 
-const parentResourceTypesKey = Symbol("parentResourceTypes");
-export function getParentResource(
-  program: Program,
-  resourceType: ModelType
-): ModelType | undefined {
+const parentResourceTypesKey = createStateSymbol("parentResourceTypes");
+export function getParentResource(program: Program, resourceType: Model): Model | undefined {
   return program.stateMap(parentResourceTypesKey).get(resourceType);
 }
 
 /**
- * `@parentResource` marks a model property with a reference to its parent resource type
+ * `@parentResource` marks a model with a reference to its parent resource type
  *
  * The first argument should be a reference to a model type which will be treated as the parent
  * type of the target model type.  This will cause the `@key` properties of all parent types of
@@ -181,24 +188,27 @@ export function $parentResource(context: DecoratorContext, entity: Type, parentT
 
   // Ensure that the parent resource type(s) don't have key name conflicts
   const keyNameSet = new Set<string>();
-  let currentType: ModelType | undefined = entity as ModelType;
+  let currentType: Model | undefined = entity as Model;
   while (currentType) {
     const resourceKey = getResourceTypeKey(program, currentType);
-    const keyName = getKeyName(program, resourceKey.keyProperty);
-    if (keyNameSet.has(keyName)) {
-      reportDiagnostic(program, {
-        code: "duplicate-parent-key",
-        format: {
-          resourceName: (entity as ModelType).name,
-          parentName: currentType.name,
-          keyName,
-        },
-        target: resourceKey.keyProperty,
-      });
-      return;
+    if (resourceKey) {
+      const keyName = getKeyName(program, resourceKey!.keyProperty);
+      if (keyNameSet.has(keyName)) {
+        reportDiagnostic(program, {
+          code: "duplicate-parent-key",
+          format: {
+            resourceName: (entity as Model).name,
+            parentName: currentType.name,
+            keyName,
+          },
+          target: resourceKey!.keyProperty,
+        });
+        return;
+      }
+
+      keyNameSet.add(keyName);
     }
 
-    keyNameSet.add(keyName);
     currentType = getParentResource(program, currentType);
   }
 }
