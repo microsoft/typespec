@@ -25,7 +25,8 @@ describe("rest: http decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "decorator-wrong-target",
-          message: "Cannot apply @resourceLocation decorator to Operation",
+          message:
+            "Cannot apply @resourceLocation decorator to test it is not assignable to Cadl.Reflection.Model",
         },
       ]);
     });
