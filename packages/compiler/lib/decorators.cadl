@@ -8,6 +8,12 @@ extern dec summary(target: Type, summary: StringLiteral);
 extern dec doc(target: Type, doc: StringLiteral, formatArgs?: Model);
 extern dec deprecated(target: Type, message: StringLiteral);
 
+model ServiceOptions {
+  title?: string;
+  version?: string;
+}
+extern dec service(target: Type, options?: ServiceOptions);
+
 extern dec error(target: Model);
 
 extern dec format(target: Model | ModelProperty, format: StringLiteral);
