@@ -22,7 +22,23 @@ const toc = [
   },
   {
     label: "Cadl Standard Library",
-    items: ["built-in-types", "built-in-decorators", "projected-names", "http", "openapi"],
+    items: [
+      "built-in-types",
+      "built-in-decorators",
+      "projected-names",
+      {
+        id: "http-and-rest",
+        label: "Http And Rest",
+        items: [
+          "http/overview",
+          "http/decorators",
+          "http/operations",
+          "http/authentication",
+          "http/resource-routing",
+        ],
+      },
+      "openapi",
+    ],
   },
   {
     label: "Writing Cadl Libraries",
