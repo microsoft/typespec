@@ -45,7 +45,7 @@ extern dec track(target: Model | Enum, name?: StringLiteral);
 
 ### Rest parameters
 
-A decorators last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
+A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
 
 ```cadl
 extern dec track(target: Model | Enum, ...names: StringLiteral[]);
