@@ -19,7 +19,7 @@ Format all cadl files:
 cadl format **/*.cadl
 ```
 
-Validate the files are formatted but don't format them. Useful for enforcing in the CI.
+Validate that the files are formatted but don't format them. Useful for enforcing in CI.
 
 ```bash
 cadl format --check **/*.cadl
