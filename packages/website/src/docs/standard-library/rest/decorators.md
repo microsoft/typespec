@@ -28,7 +28,7 @@ title: Decorators
   - [Routing](#rest-routing)
     - [@autoRoute](#autoroute)
     - [@segment](#segment)
-    - [@segmentOf](#segmentof)
+    - [@segmentOf](#segmentOf)
     - [@segmentSeperator](#segmentseparator)
   - [Resource](#resource-decorators)
     - [@resource](#resource)
