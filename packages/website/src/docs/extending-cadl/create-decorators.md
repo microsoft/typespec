@@ -25,7 +25,7 @@ extern dec logType(target: Cadl.Reflection.Type, name: Cadl.Reflection.StringLit
 
 ## Decorator target
 
-The first parameter of the decorator is the cadl type(s) the decorator can be applied one.
+The first parameter of the decorator represents the cadl type(s) that the decorator can be applied on.
 
 You can specify multiple potential target type using an `union expression`
 
