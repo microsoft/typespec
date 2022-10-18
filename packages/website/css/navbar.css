@@ -5,15 +5,6 @@
   background: var(--main-color);
 }
 
-.navbar-search_box {
-  background: var(--main-color);
-}
-
-.navbar-search_box {
-  display: block;
-  float: right;
-}
-
 .navbar-logo {
   margin-right: 2rem;
   margin-left: 10px;
@@ -28,6 +19,12 @@
   display: flex;
   justify-content: flex-end;
   float: inline-start;
+}
+
+.navbar-links {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
 }
 
 .navbar-links ul {
@@ -54,4 +51,8 @@
 .navbar-links a.icon {
   display: block;
   height: 24px;
+}
+
+.search-container {
+  padding: 0 10px;
 }
