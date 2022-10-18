@@ -27,7 +27,7 @@ cadl format --check **/*.cadl
 
 ## Via the VSCode or VS extension
 
-When using the VSCode or Visual Studio extension the cadl formatter is automatically available.
+When using the VS Code or Visual Studio extensions, the cadl formatter is automatically available.
 
 Using the keyboard shortcut for formatting the document (`alt+shift+F` by default) when inside a Cadl file will format the document.
 
