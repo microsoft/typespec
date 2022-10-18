@@ -2,7 +2,6 @@ import {
   $list,
   createDecoratorDefinition,
   DecoratorContext,
-  DecoratorValidator,
   Interface,
   Model,
   ModelProperty,
@@ -240,8 +239,6 @@ export interface ResourceOperation {
 }
 
 const resourceOperationsKey = createStateSymbol("resourceOperations");
-
-interface ResourceOperationValidator extends DecoratorValidator<"Operation", [{ kind: "Model" }]> {}
 
 export function setResourceOperation(
   context: DecoratorContext,
