@@ -1,7 +1,7 @@
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
-import { createRoot } from "react-dom/client";
 import { FunctionComponent } from "react";
+import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "./browser-host.js";
 import { Playground } from "./components/playground.js";
 import { attachServices } from "./services.js";
@@ -17,11 +17,10 @@ import "./style.css";
   },
 };
 
-
 const host = await createBrowserHost();
 await attachServices(host);
 
- const App: FunctionComponent = () => {
+const App: FunctionComponent = () => {
   return <Playground host={host} />;
 };
 

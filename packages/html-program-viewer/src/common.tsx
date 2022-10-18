@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import React, { FunctionComponent, PropsWithChildren } from "react";
+import { FunctionComponent, PropsWithChildren } from "react";
 
 export interface SectionProps {
   title: string;

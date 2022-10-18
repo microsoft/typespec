@@ -24,7 +24,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
       <label css={CommandItemStyles}>
         <button onClick={newIssue as any}>Open Issue</button>
       </label>
-      <label >
+      <label>
         <a href="https://microsoft.github.io/cadl" target="_blank">
           Show Cadl Docs
         </a>

@@ -1,12 +1,12 @@
 import { Diagnostic, Program } from "@cadl-lang/compiler";
 import { CadlProgramViewer } from "@cadl-lang/html-program-viewer";
 import { css } from "@emotion/react";
-import { FunctionComponent, useState, useEffect, useMemo, useCallback } from "react";
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import "swagger-ui/dist/swagger-ui.css";
 import { BrowserHost } from "../browser-host";
 import { ErrorTab } from "./error-tab";
 import { OpenAPIOutput } from "./openapi-output";
-import { Tab, OutputTabs } from "./output-tabs";
-import "swagger-ui/dist/swagger-ui.css";
+import { OutputTabs, Tab } from "./output-tabs";
 
 export interface OutputViewProps {
   host: BrowserHost;
