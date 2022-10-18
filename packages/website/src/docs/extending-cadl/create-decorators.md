@@ -90,7 +90,7 @@ model Dog {
 }
 ```
 
-### Decorator parameters marshalling
+### Decorator parameter marshalling
 
 For certain Cadl types(Literal types) the decorator do not receive the actual type but a marshalled value. This is to simplify the most common cases.
 
