@@ -17,7 +17,7 @@ An operation route can be specified using the `@route` decorator.
 @route("/pets") op list(): Pet[];
 ```
 
-Route path parameter are declared using `{}`. Providing `@path` on the model property with the matching name is optional.
+Route path parameters are declared using `{}`. Providing `@path` on the model property with the matching name is optional.
 
 ```cadl
 @route("/pets/{petId}") op get(petId: string): Pet;
