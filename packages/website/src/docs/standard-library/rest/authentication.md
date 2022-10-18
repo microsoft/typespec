@@ -1,3 +1,8 @@
+---
+id: http/authentication
+title: Authentication
+---
+
 # Configure Http Authentication
 
 Notes:
@@ -49,6 +54,10 @@ For example, to authorize as demo / p@55w0rd the client would send
  Authorization: Basic ZGVtbzpwQDU1dzByZA==
 ```
 
+```cadl
+@useAuth(BasicAuth)
+```
+
 ### `BearerAuth`
 
 Bearer authentication (also called token authentication) is an HTTP authentication scheme that involves security tokens called bearer tokens.
@@ -59,12 +68,20 @@ The client must send this token in the Authorization header when making requests
   Authorization: Bearer <token>
 ```
 
+```cadl
+@useAuth(BearerAuth)
+```
+
 ### `ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string>`
 
 An API key is a token that a client provides when making API calls. The key can be sent in the query string:
 
 ```
 GET /something?api_key=abcdef12345
+```
+
+```cadl
+@useAuth(ApiKeyAuth<"query", "api_key">)
 ```
 
 or as a request header
@@ -74,11 +91,19 @@ GET /something HTTP/1.1
 X-API-Key: abcdef12345
 ```
 
+```cadl
+@useAuth(ApiKeyAuth<"header", "X-API-KEY">)
+```
+
 or as a cookie
 
 ```
 GET /something HTTP/1.1
 Cookie: X-API-KEY=abcdef12345
+```
+
+```cadl
+@useAuth(ApiKeyAuth<"cookie", "X-API-KEY">)
 ```
 
 ### `OAuth2Auth<TFlows extends OAuth2Flow[]>`
