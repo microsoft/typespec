@@ -17,7 +17,7 @@ This part is optional but provide great value:
 - Type checking for the parameters
 - IDE IntelliSense
 
-A decorator signature can be declared using the `dec` keyword. As we are implementing the decorator in JS(only choice right now) we must apply the `extern` modifier as well.
+A decorator signature can be declared using the `dec` keyword. As we are implementing the decorator in JS (only choice right now), we must apply the `extern` modifier as well.
 
 ```cadl
 extern dec logType(target: Cadl.Reflection.Type, name: Cadl.Reflection.StringLiteral);
