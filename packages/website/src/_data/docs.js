@@ -1,5 +1,5 @@
 const toc = [
-  { label: "Setup", items: ["installation", "releases"] },
+  { label: "Setup", items: ["installation", "formatter", "releases"] },
   { label: "Configuration", items: ["configuration", "tracing"] },
   {
     label: "Language Basics",
