@@ -35,7 +35,7 @@ Using the keyboard shortcut for formatting the document (`alt+shift+F` by defaul
 
 Underneath the cadl formatter is a prettier pluging. If you already have a prettier configuration for formatting other languages it can be convenient to just have cadl plug in into this existing pipeline.
 
-In your prettier config file add:
+In your prettier config file, add:
 
 ```yaml
 plugins:
