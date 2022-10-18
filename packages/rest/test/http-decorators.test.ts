@@ -53,12 +53,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @header decorator to test it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @header decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @header decorator to Foo it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @header decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -105,12 +105,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @query decorator to test it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @query decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @query decorator to Foo it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @query decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -157,12 +157,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @path decorator to test it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @path decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @path decorator to Foo it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @path decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -228,12 +228,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @body decorator to test it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @body decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @body decorator to Foo it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @body decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -259,12 +259,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @statusCode decorator to test it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @statusCode decorator to test since it is not assignable to Cadl.Reflection.ModelProperty",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @statusCode decorator to Foo it is not assignable to Cadl.Reflection.ModelProperty",
+            "Cannot apply @statusCode decorator to Foo since it is not assignable to Cadl.Reflection.ModelProperty",
         },
       ]);
     });
@@ -292,12 +292,12 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @server decorator to test it is not assignable to Cadl.Reflection.Namespace",
+            "Cannot apply @server decorator to test since it is not assignable to Cadl.Reflection.Namespace",
         },
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @server decorator to Foo it is not assignable to Cadl.Reflection.Namespace",
+            "Cannot apply @server decorator to Foo since it is not assignable to Cadl.Reflection.Namespace",
         },
       ]);
     });
@@ -407,7 +407,7 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @useAuth decorator to test it is not assignable to Cadl.Reflection.Namespace",
+            "Cannot apply @useAuth decorator to test since it is not assignable to Cadl.Reflection.Namespace",
         },
       ]);
     });

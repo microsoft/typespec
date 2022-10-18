@@ -26,7 +26,7 @@ describe("rest: http decorators", () => {
         {
           code: "decorator-wrong-target",
           message:
-            "Cannot apply @resourceLocation decorator to test it is not assignable to Cadl.Reflection.Model",
+            "Cannot apply @resourceLocation decorator to test since it is not assignable to Cadl.Reflection.Model",
         },
       ]);
     });

@@ -1257,7 +1257,7 @@ function printFunctionParameterDeclaration(
     printDirectives(path, options, print),
     id,
     node.optional ? "?: " : ": ",
-    path.call(print, "value"),
+    path.call(print, "type"),
   ];
 }
 
