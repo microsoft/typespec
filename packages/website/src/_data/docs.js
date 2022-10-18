@@ -32,7 +32,12 @@ const toc = [
     id: "release-notes",
     label: "Release notes",
     collapsed: true,
-    items: ["release-notes/september-2022", "release-notes/august-2022", "release-notes/july-2022"],
+    items: [
+      "release-notes/october-2022",
+      "release-notes/september-2022",
+      "release-notes/august-2022",
+      "release-notes/july-2022",
+    ],
   },
 ];
 

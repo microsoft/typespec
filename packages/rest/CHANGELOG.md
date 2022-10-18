@@ -1,6 +1,25 @@
 # Change Log - @cadl-lang/rest
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Wed, 12 Oct 2022 21:12:35 GMT and should not be manually modified.
+
+## 0.18.0
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Minor changes
+
+- Empty object as a response will not produce a 204 response anymore
+- Feature: Add `isContentTypeHeader` helper.
+- Implement automatic visibility transformations
+- **BREAKING** Remove `@discriminator` decorator. (Moved to @cadl-lang/compiler)
+- Disallow optional path params even if they have a default value
+- Add support for overloads(Using `@overload` decorator)
+- Reorganization of http data accessor. `getAllRoutes` is now deprecated and replaced with `getAllHttpServices`
+- `ResourceLocation<T>` is `uri`
+
+### Patches
+
+- Remove workaround for issue https://github.com/microsoft/cadl/issues/1069
+- Detect unannotated path parameters that are specified in route path
 
 ## 0.17.0
 Thu, 08 Sep 2022 01:04:53 GMT

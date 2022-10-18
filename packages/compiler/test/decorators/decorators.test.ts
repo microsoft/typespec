@@ -820,7 +820,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-discriminated-union-variant",
-          message: "Union variant a must be a model type",
+          message: `Union variant "a" must be a model type.`,
         },
       ]);
     });
@@ -838,7 +838,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-discriminated-union-variant",
-          message: "Variant a's type is missing the discriminant property kind",
+          message: `Variant "a" type is missing the discriminant property "kind".`,
         },
       ]);
     });
@@ -858,8 +858,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-discriminated-union-variant",
-          message:
-            "Variant a's type's discriminant property kind must be a string literal or string enum member",
+          message: `Variant "a" type's discriminant property "kind" must be a string literal or string enum member.`,
         },
       ]);
     });

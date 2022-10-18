@@ -4,6 +4,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
+import { getDiscriminatedUnion } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
 import {
@@ -1090,79 +1091,23 @@ export function $discriminator(
   if (!discriminatorDecorator.validate(context, entity, [propertyName])) {
     return;
   }
+  const discriminator: Discriminator = { propertyName };
 
-  let hasErrors = false;
   if (entity.kind === "Union") {
-    // we can validate discriminator up front for unions. Models are validated
-    // in emitters.
-    for (const variant of entity.variants.values()) {
-      if (typeof variant.name === "symbol") {
-        // likely not possible to hit this without applying the decorator programmatically
-        reportDiagnostic(context.program, {
-          code: "invalid-discriminated-union",
-          target: entity,
-        });
-
-        return;
-      }
-
-      if (variant.type.kind !== "Model") {
-        reportDiagnostic(context.program, {
-          code: "invalid-discriminated-union-variant",
-          messageId: "default",
-          format: {
-            name: variant.name,
-          },
-          target: variant,
-        });
-        hasErrors = true;
-        continue;
-      }
-
-      const prop = variant.type.properties.get(propertyName);
-      if (!prop) {
-        reportDiagnostic(context.program, {
-          code: "invalid-discriminated-union-variant",
-          messageId: "noDiscriminant",
-          format: {
-            name: variant.name,
-            discriminant: propertyName,
-          },
-          target: variant,
-        });
-        hasErrors = true;
-        continue;
-      }
-
-      if (
-        prop.type.kind !== "String" &&
-        (prop.type.kind !== "EnumMember" ||
-          (prop.type.value !== undefined && typeof prop.type.value !== "string"))
-      ) {
-        reportDiagnostic(context.program, {
-          code: "invalid-discriminated-union-variant",
-          messageId: "wrongDiscriminantType",
-          format: {
-            name: variant.name,
-            discriminant: propertyName,
-          },
-          target: variant,
-        });
-        hasErrors = true;
-        continue;
-      }
+    // we can validate discriminator up front for unions. Models are validated in the accessor as we might not have the reference to all derived types at this time.
+    const [, diagnostics] = getDiscriminatedUnion(entity, discriminator);
+    if (diagnostics.length > 0) {
+      context.program.reportDiagnostics(diagnostics);
+      return;
     }
   }
-
-  if (hasErrors) return;
-
-  context.program.stateMap(discriminatorKey).set(entity, propertyName);
+  context.program.stateMap(discriminatorKey).set(entity, discriminator);
 }
 
 export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
-  const propertyName = program.stateMap(discriminatorKey).get(entity);
-  if (propertyName) {
-    return { propertyName };
-  }
-  return undefined;
+  return program.stateMap(discriminatorKey).get(entity);
+}
+
+export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
+  return [...program.stateMap(discriminatorKey).entries()] as any;
 }

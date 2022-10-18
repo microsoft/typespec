@@ -1,6 +1,18 @@
 # Change Log - @cadl-lang/openapi
 
-This log was last generated on Thu, 08 Sep 2022 01:04:53 GMT and should not be manually modified.
+This log was last generated on Wed, 12 Oct 2022 21:12:35 GMT and should not be manually modified.
+
+## 0.13.0
+Wed, 12 Oct 2022 21:12:35 GMT
+
+### Minor changes
+
+- Implement automatic visibility transformations
+
+### Patches
+
+- Remove workaround for issue with `KeysOf` https://github.com/microsoft/cadl/issues/462
+- Add/update docs for openapi3 emitter
 
 ## 0.12.0
 Thu, 08 Sep 2022 01:04:53 GMT
