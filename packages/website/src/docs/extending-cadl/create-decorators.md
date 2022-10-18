@@ -12,7 +12,7 @@ Cadl decorator are implemented as JavaScript function. Declarating a decorator c
 
 ## Declaring a decorator signature
 
-This part is optional but provide great value:
+This part is optional but provides great value:
 
 - Type checking for the parameters
 - IDE IntelliSense
