@@ -1342,7 +1342,7 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
       target = {
         kind: SyntaxKind.FunctionParameter,
         id: createMissingIdentifier(),
-        value: createMissingIdentifier(),
+        type: createMissingIdentifier(),
         optional: false,
         rest: false,
         ...finishNode(pos),
@@ -1419,11 +1419,11 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
 
     const optional = parseOptional(Token.Question);
     parseExpected(Token.Colon);
-    const value = parseExpression();
+    const type = parseExpression();
     return {
       kind: SyntaxKind.FunctionParameter,
       id,
-      value,
+      type,
       optional,
       rest,
       ...finishNode(pos),
@@ -2551,7 +2551,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitNode(cb, node.returnType)
       );
     case SyntaxKind.FunctionParameter:
-      return visitNode(cb, node.id) || visitNode(cb, node.value);
+      return visitNode(cb, node.id) || visitNode(cb, node.type);
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.TupleExpression:

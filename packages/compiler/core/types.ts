@@ -1068,7 +1068,7 @@ export interface DecoratorDeclarationStatementNode extends BaseNode, Declaration
 export interface FunctionParameterNode extends BaseNode {
   readonly kind: SyntaxKind.FunctionParameter;
   readonly id: IdentifierNode;
-  readonly value: Expression;
+  readonly type: Expression;
 
   /**
    * Parameter defined with `?`

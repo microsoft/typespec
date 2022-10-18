@@ -235,7 +235,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @knownValues decorator to Bar it is not assignable to Cadl.Reflection.Model | Cadl.Reflection.ModelProperty",
+          "Cannot apply @knownValues decorator to Bar since it is not assignable to Cadl.Reflection.Model | Cadl.Reflection.ModelProperty",
       });
     });
 

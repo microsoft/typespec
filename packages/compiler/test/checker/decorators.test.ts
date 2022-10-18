@@ -235,7 +235,7 @@ describe("compiler: checker: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
         message:
-          "Cannot apply @testDec decorator to Foo it is not assignable to Cadl.Reflection.Union",
+          "Cannot apply @testDec decorator to Foo since it is not assignable to Cadl.Reflection.Union",
       });
     });
 
