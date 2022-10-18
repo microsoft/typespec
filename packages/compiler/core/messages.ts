@@ -552,7 +552,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"}`,
-      withExpected: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"} it is not assignable to ${"expected"}`,
+      withExpected: paramMessage`Cannot apply ${"decorator"} decorator to ${"to"} since it is not assignable to ${"expected"}`,
     },
   },
   "invalid-argument": {
