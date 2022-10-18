@@ -25,7 +25,7 @@ Route path parameters are declared using `{}`. Providing `@path` on the model pr
 @route("/pets/{petId}") op get(@path petId: string): Pet;
 ```
 
-Route can be specified on a parent namespace or interface. In that case all the operation, interface or namespace underneath will be prefixed with it.
+Route can be specified on a parent namespace or interface. In that case all the operations, interfaces and namespaces underneath will be prefixed with it.
 
 ```cadl
 @route("/store")
