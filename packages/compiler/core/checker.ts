@@ -397,7 +397,15 @@ export function createChecker(program: Program): Checker {
     for (const decNode of augmentDecorators) {
       const ref = resolveTypeReference(decNode.targetType, undefined);
       if (ref) {
-        if (ref.flags & SymbolFlags.LateBound) {
+        if (ref.flags & SymbolFlags.Namespace) {
+          const decApp = checkDecorator(decNode, undefined);
+          if (decApp) {
+            const links = getSymbolLinks(getMergedSymbol(ref));
+            const type: Type & DecoratedType = links.type! as any;
+            type.decorators.push(decApp);
+            applyDecoratorToType(program, decApp, type);
+          }
+        } else if (ref.flags & SymbolFlags.LateBound) {
           const decApp = checkDecorator(decNode, undefined);
           if (decApp) {
             const type: Type & DecoratedType = ref.type! as any;
