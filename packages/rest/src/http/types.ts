@@ -224,7 +224,7 @@ export interface HttpOperation {
   pathSegments: string[];
 
   /**
-   * Whether the route path is shared
+   * Whether the route path is shared with other operations
    */
   pathShared: boolean;
 
