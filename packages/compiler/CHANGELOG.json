@@ -2,6 +2,18 @@
   "name": "@cadl-lang/compiler",
   "entries": [
     {
+      "version": "0.36.1",
+      "tag": "@cadl-lang/compiler_v0.36.1",
+      "date": "Wed, 19 Oct 2022 19:36:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Fix** augment decorators can be applied on namespace"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.36.0",
       "tag": "@cadl-lang/compiler_v0.36.0",
       "date": "Wed, 12 Oct 2022 21:12:35 GMT",

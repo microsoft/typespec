@@ -15,7 +15,7 @@
     "prettier": "~2.7.1"
   },
   "devDependencies": {
-    "@cadl-lang/compiler": "~0.36.0",
+    "@cadl-lang/compiler": "~0.36.1",
     "@cadl-lang/internal-build-utils": "~0.3.1",
     "@rollup/plugin-commonjs": "~22.0.2",
     "@rollup/plugin-json": "~4.1.0",
