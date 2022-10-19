@@ -1,6 +1,7 @@
 import {
   Interface,
   ListOperationOptions,
+  Model,
   ModelProperty,
   Namespace,
   Operation,
@@ -223,6 +224,11 @@ export interface HttpOperation {
   pathSegments: string[];
 
   /**
+   * Whether the route path is shared
+   */
+  pathShared: boolean;
+
+  /**
    * Route verb.
    */
   verb: HttpVerb;
@@ -261,6 +267,7 @@ export interface HttpOperation {
 export interface RoutePath {
   path: string;
   isReset: boolean;
+  parameters?: Model;
 }
 
 export type StatusCode = `${number}` | "*";

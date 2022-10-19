@@ -109,6 +109,9 @@ export function validateRouteUnique(diagnostics: DiagnosticCollector, operations
     if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
       continue;
     }
+    if (operation.pathShared) {
+      continue;
+    }
     let map = grouped.get(path);
     if (map === undefined) {
       map = new Map<HttpVerb, HttpOperation[]>();
@@ -175,6 +178,7 @@ function getHttpOperationInternal(
   const httpOperation: HttpOperation = {
     path: route.path,
     pathSegments: route.pathSegments,
+    pathShared: route.shared,
     verb: route.parameters.verb,
     container: operation.interface ?? operation.namespace ?? program.getGlobalNamespaceType(),
     parameters: route.parameters,

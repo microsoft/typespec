@@ -563,17 +563,24 @@ export function getAuthentication(
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  */
-export function $route(context: DecoratorContext, entity: Type, path: string) {
+export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
   setRoute(context, entity, {
     path,
     isReset: false,
+    parameters,
   });
 }
 
-export function $routeReset(context: DecoratorContext, entity: Type, path: string) {
+export function $routeReset(
+  context: DecoratorContext,
+  entity: Type,
+  path: string,
+  parameters?: Model
+) {
   setRoute(context, entity, {
     path,
     isReset: true,
+    parameters,
   });
 }
 
@@ -594,7 +601,7 @@ export function getRouteOptionsForNamespace(
 }
 
 const routesKey = createStateSymbol("routes");
-function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
+function setRoute(context: DecoratorContext, entity: Type, details: RoutePath, parameters?: Model) {
   if (
     !validateDecoratorTarget(context, entity, "@route", ["Namespace", "Interface", "Operation"])
   ) {

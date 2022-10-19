@@ -1,4 +1,5 @@
 import {
+  BooleanLiteral,
   createDiagnosticCollector,
   Diagnostic,
   Interface,
@@ -106,7 +107,7 @@ export function resolvePathAndParameters(
   overloadBase: HttpOperation | undefined,
   options: RouteResolutionOptions
 ): [
-  { path: string; pathSegments: string[]; parameters: HttpOperationParameters },
+  { path: string; pathSegments: string[]; parameters: HttpOperationParameters; shared: boolean },
   readonly Diagnostic[]
 ] {
   let segments: string[] = [];
@@ -161,10 +162,14 @@ export function resolvePathAndParameters(
     }
   }
 
+  const shared =
+    (getRoutePath(program, operation)?.parameters?.properties.get("shared")?.type as BooleanLiteral)
+      ?.value ?? false;
   return diagnostics.wrap({
     path: buildPath(segments),
     pathSegments: segments,
     parameters,
+    shared,
   });
 }
 
@@ -195,7 +200,10 @@ function getRouteSegments(
   program: Program,
   target: Operation | Interface | Namespace
 ): [string[], RouteOptions | undefined] {
-  const route = getRoutePath(program, target)?.path;
+  const routePath = getRoutePath(program, target);
+  const route = routePath?.path;
+  const shared = (routePath?.parameters?.properties.get("shared")?.type as BooleanLiteral)?.value;
+  // FIXME: Plumb this through...
   const seg = route ? [route] : [];
   const [parentSegments, parentOptions] = getParentSegments(program, target);
   const options =

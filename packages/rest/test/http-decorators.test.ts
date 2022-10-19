@@ -139,6 +139,35 @@ describe("rest: http decorators", () => {
     });
   });
 
+  describe("@route", () => {
+    it("emit diagnostics when duplicated unshared routes are applied", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") op test(): string;
+        @route("/test") op test2(): string;
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@cadl-lang/rest/duplicate-operation",
+          message: `Duplicate operation "test" routed at "get /test".`,
+        },
+        {
+          code: "@cadl-lang/rest/duplicate-operation",
+          message: `Duplicate operation "test2" routed at "get /test".`,
+        },
+      ]);
+    });
+
+    it("do not emit diagnostics when duplicated shared routes are applied", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test", {shared: true}) op test(): string;
+        @route("/test", {shared: true}) op test2(): string;
+      `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
   describe("@path", () => {
     it("emit diagnostics when @path is not used on model property", async () => {
       const diagnostics = await runner.diagnose(`
