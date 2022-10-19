@@ -14,13 +14,13 @@ export interface OutputTabsProps {
 export const OutputTabs: FunctionComponent<OutputTabsProps> = ({ tabs, selected, onSelect }) => {
   const [leftTabs, rightTabs] = chunk(tabs, (x) => x.align === "left");
   return (
-    <div className="output-tabs">
+    <div css={{ display: "flex", borderBottom: "1px solid #c5c5c5" }}>
       {leftTabs.map((tab) => {
         return (
           <OutputTab key={tab.id} tab={tab} selected={selected === tab.id} onSelect={onSelect} />
         );
       })}
-      <span className="middle-spacer"></span>
+      <span css={{ flex: 1, borderRight: "1px solid #ccc" }}></span>
       {rightTabs.map((tab) => {
         return (
           <OutputTab key={tab.id} tab={tab} selected={selected === tab.id} onSelect={onSelect} />
@@ -36,7 +36,22 @@ export interface OutputTabProps {
 }
 export const OutputTab: FunctionComponent<OutputTabProps> = ({ tab, selected, onSelect }) => {
   return (
-    <a className={selected ? "active" : ""} onClick={() => onSelect(tab.id)}>
+    <a
+      css={[
+        {
+          height: "26px",
+          padding: "0 5px",
+          borderRight: "1px solid #ccc",
+          borderTop: "none",
+          borderBottom: "none",
+          color: "#000",
+          textDecoration: "none",
+          cursor: "pointer",
+        },
+        selected ? { fontWeight: "bold", backgroundColor: "#eee" } : {},
+      ]}
+      onClick={() => onSelect(tab.id)}
+    >
       {tab.name}
     </a>
   );

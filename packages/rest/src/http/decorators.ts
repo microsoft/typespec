@@ -554,6 +554,23 @@ export function getAuthentication(
   return program.stateMap(authenticationKey).get(namespace);
 }
 
+function extractSharedValue(context: DecoratorContext, parameters?: Model): boolean {
+  const sharedType = parameters?.properties.get("shared")?.type;
+  if (sharedType == undefined) {
+    return false;
+  }
+  switch (sharedType.kind) {
+    case "Boolean":
+      return sharedType.value;
+    default:
+      reportDiagnostic(context.program, {
+        code: "shared-boolean",
+        target: sharedType,
+      });
+      return false;
+  }
+}
+
 /**
  * `@route` defines the relative route URI for the target operation
  *
@@ -563,17 +580,24 @@ export function getAuthentication(
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  */
-export function $route(context: DecoratorContext, entity: Type, path: string) {
+export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
   setRoute(context, entity, {
     path,
     isReset: false,
+    shared: extractSharedValue(context, parameters),
   });
 }
 
-export function $routeReset(context: DecoratorContext, entity: Type, path: string) {
+export function $routeReset(
+  context: DecoratorContext,
+  entity: Type,
+  path: string,
+  parameters?: Model
+) {
   setRoute(context, entity, {
     path,
     isReset: true,
+    shared: extractSharedValue(context, parameters),
   });
 }
 

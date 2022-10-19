@@ -139,6 +139,13 @@ const libDefinition = {
         default: paramMessage`@useAuth ${"kind"} only accept Auth model, Tuple of auth model or union of auth model.`,
       },
     },
+
+    "shared-boolean": {
+      severity: "error",
+      messages: {
+        default: "shared parameter must be a boolean.",
+      },
+    },
   },
 } as const;
 
