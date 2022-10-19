@@ -10,6 +10,7 @@ import {
   Program,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, reportDiagnostic } from "../lib.js";
+import { getRoutePath } from "./decorators.js";
 import { getResponsesForOperation } from "./responses.js";
 import { resolvePathAndParameters } from "./route.js";
 import {
@@ -72,7 +73,7 @@ export function getAllHttpServices(
     })
   );
 
-  validateRouteUnique(diagnostics, httpOperations);
+  validateRouteUnique(program, diagnostics, httpOperations);
   const service: HttpService = {
     namespace: serviceNamespace,
     operations: httpOperations,
@@ -100,13 +101,21 @@ export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   }
 }
 
-export function validateRouteUnique(diagnostics: DiagnosticCollector, operations: HttpOperation[]) {
+export function validateRouteUnique(
+  program: Program,
+  diagnostics: DiagnosticCollector,
+  operations: HttpOperation[]
+) {
   const grouped = new Map<string, Map<HttpVerb, HttpOperation[]>>();
 
   for (const operation of operations) {
     const { verb, path } = operation;
 
     if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
+      continue;
+    }
+    const pathShared = getRoutePath(program, operation.operation)?.shared ?? false;
+    if (pathShared) {
       continue;
     }
     let map = grouped.get(path);

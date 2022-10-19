@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@cadl-lang/rest",
+      "comment": "Allow `@route` and `@resetRoute` to accept a `shared` property to suppress route uniqueness validation.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@cadl-lang/rest"
+}
