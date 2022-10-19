@@ -170,6 +170,41 @@ model Dog extends Pet {
 }
 ```
 
+## Content type
+
+### Defaults
+
+Depending on the body of the operation http library will assume different content types:
+
+- `bytes`: `application/octet-stream`
+- `string`: `text/plain`
+- an `object` or anything else: `application/json`
+
+### Specify content type
+
+The content type for an operation can be specified using specifying an header property called `contentType`
+
+#### Request content type
+
+```cadl
+op uploadImage(@header contentType: "image/png", @body image: bytes): void;
+```
+
+#### Response content type:
+
+```cadl
+op downloadImage(): {
+  @header contentType: "image/png";
+  @body image: bytes;
+};
+```
+
+#### Multiple content types
+
+```cadl
+op uploadImage(@header contentType: "image/png" | "image/jpeg", @body image: bytes): void;
+```
+
 ## Built-in response shapes
 
 Since status codes are so common for REST APIs, Cadl comes with some built-in types for common status codes so you don't need to declare status codes so frequently.
