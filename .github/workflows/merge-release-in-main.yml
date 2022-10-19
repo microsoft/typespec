@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - "release/*"
-      - "release-gh-action" # for testing
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
