@@ -10,6 +10,7 @@ import {
   Program,
 } from "@cadl-lang/compiler";
 import { createDiagnostic, reportDiagnostic } from "../lib.js";
+import { getRoutePath } from "./decorators.js";
 import { getResponsesForOperation } from "./responses.js";
 import { resolvePathAndParameters } from "./route.js";
 import {
@@ -72,7 +73,7 @@ export function getAllHttpServices(
     })
   );
 
-  validateRouteUnique(diagnostics, httpOperations);
+  validateRouteUnique(program, diagnostics, httpOperations);
   const service: HttpService = {
     namespace: serviceNamespace,
     operations: httpOperations,
@@ -100,7 +101,11 @@ export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   }
 }
 
-export function validateRouteUnique(diagnostics: DiagnosticCollector, operations: HttpOperation[]) {
+export function validateRouteUnique(
+  program: Program,
+  diagnostics: DiagnosticCollector,
+  operations: HttpOperation[]
+) {
   const grouped = new Map<string, Map<HttpVerb, HttpOperation[]>>();
 
   for (const operation of operations) {
@@ -109,7 +114,8 @@ export function validateRouteUnique(diagnostics: DiagnosticCollector, operations
     if (operation.overloading !== undefined && isOverloadSameEndpoint(operation as any)) {
       continue;
     }
-    if (operation.pathShared) {
+    const pathShared = getRoutePath(program, operation.operation)?.shared ?? false;
+    if (pathShared) {
       continue;
     }
     let map = grouped.get(path);
@@ -178,7 +184,6 @@ function getHttpOperationInternal(
   const httpOperation: HttpOperation = {
     path: route.path,
     pathSegments: route.pathSegments,
-    pathShared: route.shared,
     verb: route.parameters.verb,
     container: operation.interface ?? operation.namespace ?? program.getGlobalNamespaceType(),
     parameters: route.parameters,

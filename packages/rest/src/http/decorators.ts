@@ -1,4 +1,5 @@
 import {
+  BooleanLiteral,
   cadlTypeToJson,
   createDecoratorDefinition,
   createDiagnosticCollector,
@@ -567,7 +568,7 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
   setRoute(context, entity, {
     path,
     isReset: false,
-    parameters,
+    shared: (parameters?.properties.get("shared")?.type as BooleanLiteral)?.value ?? false,
   });
 }
 
@@ -580,7 +581,7 @@ export function $routeReset(
   setRoute(context, entity, {
     path,
     isReset: true,
-    parameters,
+    shared: (parameters?.properties.get("shared")?.type as BooleanLiteral)?.value ?? false,
   });
 }
 
@@ -601,7 +602,7 @@ export function getRouteOptionsForNamespace(
 }
 
 const routesKey = createStateSymbol("routes");
-function setRoute(context: DecoratorContext, entity: Type, details: RoutePath, parameters?: Model) {
+function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   if (
     !validateDecoratorTarget(context, entity, "@route", ["Namespace", "Interface", "Operation"])
   ) {
