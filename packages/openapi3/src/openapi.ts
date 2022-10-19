@@ -1233,6 +1233,8 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       }
     }
 
+    attachExtensions(program, cadlType, newTarget);
+
     return newTarget;
   }
 
