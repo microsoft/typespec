@@ -1,4 +1,5 @@
 import type { Diagnostic } from "@cadl-lang/compiler";
+import { css } from "@emotion/react";
 import { FunctionComponent } from "react";
 
 export interface DiagnosticListProps {
@@ -10,7 +11,7 @@ export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({ diagnos
     return <div className="center">No errors</div>;
   }
   return (
-    <div className="diagnostic-list">
+    <div css={{ height: "100%", overflow: "auto" }}>
       {diagnostics.map((x, i) => {
         return <DiagnosticItem key={i} diagnostic={x} />;
       })}
@@ -24,10 +25,17 @@ export interface DiagnosticItemProps {
 
 export const DiagnosticItem: FunctionComponent<DiagnosticItemProps> = ({ diagnostic }) => {
   return (
-    <div className="diagnostic-item">
-      <div className={`diagnostic-item-severity ${diagnostic.severity}`}>{diagnostic.severity}</div>
-      <div className="diagnostic-item-code">{diagnostic.code}</div>
-      <div className="diagnostic-item-message">{diagnostic.message}</div>
+    <div css={{ display: "flex" }}>
+      <div
+        css={[{ padding: "0 5px" }, diagnostic.severity === "error" ? errorColor : warningColor]}
+      >
+        {diagnostic.severity}
+      </div>
+      <div css={{ padding: "0 5px", color: "#333333" }}>{diagnostic.code}</div>
+      <div css={{ padding: "0 5px" }}>{diagnostic.message}</div>
     </div>
   );
 };
+
+const errorColor = css({ color: "#cc2222" });
+const warningColor = css({ color: "orange" });
