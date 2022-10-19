@@ -27,8 +27,7 @@ jobs:
       - name: Generate branch name
         id: branchname
         run: |
-          branch="backmerge/${{ github.ref_name }}-$(date +'%Y-%m-%d')"
-          echo "::set-output name=branchname::$(branch)"
+          echo "::set-output name=branchname::backmerge/${{ github.ref_name }}-$(date +'%Y-%m-%d')"
       - name: Create branch
         run: |
           branch="${{ steps.branchname.outputs.branchname }}"
