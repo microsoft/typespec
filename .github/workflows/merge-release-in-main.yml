@@ -22,8 +22,9 @@ jobs:
 
       - name: Create branch
         run: |
-          git checkout -b backmerge/${{ github.ref }}-$(date +'%Y-%m-%d')
-          git push -u
+          branch="backmerge/${{ github.ref_name }}-$(date +'%Y-%m-%d')"
+          git checkout -b $branch
+          git push --set-upstream origin $branch
 
       - name: create pull request
         id: open-pr
@@ -32,4 +33,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           destination_branch: ${{ github.event.repository.default_branch }}
           pr_title: "[Automated] Merge ${{ github.ref_name }} into ${{ github.event.repository.default_branch }}"
-          pr_body: "Merge ${{github.ref}} "
+          pr_body: "Merge ${{github.ref}} back into ${{ github.event.repository.default_branch }}"
