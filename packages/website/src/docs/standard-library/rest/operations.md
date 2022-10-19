@@ -180,6 +180,18 @@ Depending on the body of the operation http library will assume different conten
 - `string`: `text/plain`
 - an `object` or anything else: `application/json`
 
+Examples:
+
+```cadl
+op download(): bytes; // response content type is application/octet-stream
+op upload(@body file: bytes): void; // request content type is application/octet-stream
+op getContent(): string; // response content type is text/plain
+op getPet(): {
+  // response content type is application/json
+  name: string;
+};
+```
+
 ### Specify content type
 
 The content type for an operation can be specified using specifying an header property called `contentType`
