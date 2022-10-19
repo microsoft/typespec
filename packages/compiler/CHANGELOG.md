@@ -1,6 +1,13 @@
 # Change Log - @cadl-lang/compiler
 
-This log was last generated on Wed, 12 Oct 2022 21:12:35 GMT and should not be manually modified.
+This log was last generated on Wed, 19 Oct 2022 19:36:13 GMT and should not be manually modified.
+
+## 0.36.1
+Wed, 19 Oct 2022 19:36:13 GMT
+
+### Patches
+
+- **Fix** augment decorators can be applied on namespace
 
 ## 0.36.0
 Wed, 12 Oct 2022 21:12:35 GMT
