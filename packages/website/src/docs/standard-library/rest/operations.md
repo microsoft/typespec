@@ -1,103 +1,44 @@
 ---
-id: http
-title: Http And Rest
+id: http/operations
+title: Operations
 ---
 
-# Http and rest
+# Http Operations
 
-With the language building blocks we've covered so far we're ready to author our first REST API. Cadl has an official REST API "binding" called `@cadl-lang/rest`. It's a set of Cadl declarations and decorators that describe REST APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
+## Operation verb
 
-Cadl also has an official OpenAPI emitter called `@cadl-lang/openapi3` that consumes the REST API bindings and emits standard OpenAPI descriptions. This can then be fed in to any OpenAPI code generation pipeline.
+You can use one of the [verb decorators]({% doc "http/decorators", "verb-decorators" %}): `@get`, `@put`, etc.
 
-The following examples assume you have imported both `@cadl-lang/openapi3` and `@cadl-lang/rest` somewhere in your Cadl program (though importing them in `main.cadl` is the standard convention). For detailed library reference, please see rest library's [Readme.md](https://github.com/microsoft/cadl/blob/main/packages/rest/README.md).
+## Route
 
-## Service definition and metadata
-
-A definition for a service is the namespace that contains all the operations for the service and carries top-level metadata like service name and version. Cadl offers the following decorators for providing this metadata, and all are optional.
-
-- @server - (In `Cadl.Http`) the host of the service. Can accept parameters.
-
-Here's an example that uses these to define a Pet Store service:
+An operation route can be specified using the `@route` decorator.
 
 ```cadl
-@service({title: "Pet Store Service", version: "2021-03-25")
-@server("https://example.com", "Single server endpoint")
-@doc("This is a sample server Petstore server.")
-namespace PetStore;
+@route("/pets") op list(): Pet[];
 ```
 
-The `server` keyword can take a third parameter with parameters as necessary:
+Route path parameters are declared using `{}`. Providing `@path` on the model property with the matching name is optional.
 
 ```cadl
-@server("https://{region}.foo.com", "Regional endpoint", {
-  @doc("Region name")
-  region?: string = "westus",
-})
+@route("/pets/{petId}") op get(petId: string): Pet;
+// or explicit @path
+@route("/pets/{petId}") op get(@path petId: string): Pet;
 ```
 
-## Resources & routes
-
-Resources are operations that are grouped in a namespace. You declare such a namespace by adding the `@route` decorator to provide the path to that resource:
+Route can be specified on a parent namespace or interface. In that case all the operations, interfaces and namespaces underneath will be prefixed with it.
 
 ```cadl
-using Cadl.Http;
+@route("/store")
+namespace PetStore {
+  op hello(): void; // `/store`
+  @route("ping") op ping(): void; // `/store/ping`
 
-@route("/pets")
-namespace Pets {
-
+  @route("/pets")
+  interface Pets {
+    list(): Pet[]; // `/store/pets`
+    @route("{petId}") read(petId: string): Pet; // `/store/pets/{petId}`
+  }
 }
-```
-
-To define an operation on this resource, you need to provide the HTTP verb for the route using the `@get`, `@head` `@post`, `@put`, `@patch`, or `@delete` decorators. Alternatively, you can name your operation `list`, `create`, `read`, `update`, `delete`, or `deleteAll` and the appropriate verb will be used automatically. Lets add an operation to our `Pets` resource:
-
-```cadl
-@route("/pets")
-namespace Pets {
-  op list(): Pet[];
-
-  // or you could also use
-  @get op listPets(): Pet[];
-}
-```
-
-### Automatic route generation
-
-Instead of manually specifying routes using the `@route` decorator, you automatically generate
-routes from operation parameters by applying the `@autoRoute` decorator to an operation, namespace,
-or interface containing operations.
-
-For this to work, an operation's path parameters (those marked with `@path`) must also be marked with
-the `@segment` decorator to define the preceding path segment.
-
-This is especially useful when reusing common parameter sets defined as model types.
-
-For example:
-
-```cadl
-model CommonParameters {
-  @path
-  @segment("tenants")
-  tenantId: string;
-
-  @path
-  @segment("users")
-  userName: string;
-}
-
-@autoRoute
-interface UserOperations {
-  @get
-  getUser(...CommonParameters): User | Error;
-
-  @put
-  updateUser(...CommonParameters, user: User): User | Error;
-}
-```
-
-This will result in the following route for both operations
-
-```text
-/tenants/{tenantId}/users/{userName}
 ```
 
 ## Path and query parameters
@@ -148,41 +89,13 @@ Note that in the absence of explicit `@body`:
 This is how we were able to return Pet and Pet[] bodies without using @body for list and read. We can actually write
 create in the same terse style by spreading the Pet object into the parameter list like this:
 
-See also [metadata]({%doc "http"%}#metadata) for more advanced details.
+See also [metadata]({%doc "http/operations"%}#metadata) for more advanced details.
 
 ```cadl
 @route("/pets")
 namespace Pets {
   @post
   op create(...Pet): {};
-}
-```
-
-## Polymorphism with discriminators
-
-A pattern often used in REST APIs is to define a request or response body as having one of several different shapes, with a property called the
-"discriminator" indicating which actual shape is used for a particular instance.
-Cadl supports this pattern with the `@discriminator` decorator of the Rest library.
-
-The `@discriminator` decorator takes one argument, the name of the discriminator property, and should be placed on the
-model for the request or response body. The different shapes are then defined by separate models that `extend` this request or response model.
-The discriminator property is defined in the "child" models with the value or values that indicate an instance that conforms to its shape.
-
-As an example, a `Pet` model that allows instances that are either a `Cat` or a `Dog` can be defined with
-
-```cadl
-@discriminator("kind")
-model Pet {
-  name: string;
-  weight?: float32;
-}
-model Cat extends Pet {
-  kind: "cat";
-  meow: int32;
-}
-model Dog extends Pet {
-  kind: "dog";
-  bark: string;
 }
 ```
 
@@ -226,6 +139,34 @@ namespace Pets {
   op create(@body pet: Pet): {
     @statusCode statusCode: 204;
   };
+}
+```
+
+## Polymorphism with discriminators
+
+A pattern often used in REST APIs is to define a request or response body as having one of several different shapes, with a property called the
+"discriminator" indicating which actual shape is used for a particular instance.
+Cadl supports this pattern with the `@discriminator` decorator of the Rest library.
+
+The `@discriminator` decorator takes one argument, the name of the discriminator property, and should be placed on the
+model for the request or response body. The different shapes are then defined by separate models that `extend` this request or response model.
+The discriminator property is defined in the "child" models with the value or values that indicate an instance that conforms to its shape.
+
+As an example, a `Pet` model that allows instances that are either a `Cat` or a `Dog` can be defined with
+
+```cadl
+@discriminator("kind")
+model Pet {
+  name: string;
+  weight?: float32;
+}
+model Cat extends Pet {
+  kind: "cat";
+  meow: int32;
+}
+model Dog extends Pet {
+  kind: "dog";
+  bark: string;
 }
 ```
 
