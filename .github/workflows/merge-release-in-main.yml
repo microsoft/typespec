@@ -43,3 +43,11 @@ jobs:
           destination_branch: ${{ github.event.repository.default_branch }}
           pr_title: "[Automated] Merge ${{ github.ref_name }} into ${{ github.event.repository.default_branch }}"
           pr_body: "Merge ${{github.ref}} back into ${{ github.event.repository.default_branch }}"
+
+      - name: enable automerge
+        if: steps.open-pr.outputs.pr_number != ''
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.open-pr.outputs.pr_number }}
+          merge-method: rebase
