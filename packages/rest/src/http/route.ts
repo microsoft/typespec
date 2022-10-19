@@ -200,10 +200,7 @@ function getRouteSegments(
   program: Program,
   target: Operation | Interface | Namespace
 ): [string[], RouteOptions | undefined] {
-  const routePath = getRoutePath(program, target);
-  const route = routePath?.path;
-  const shared = (routePath?.parameters?.properties.get("shared")?.type as BooleanLiteral)?.value;
-  // FIXME: Plumb this through...
+  const route = getRoutePath(program, target)?.path;
   const seg = route ? [route] : [];
   const [parentSegments, parentOptions] = getParentSegments(program, target);
   const options =
