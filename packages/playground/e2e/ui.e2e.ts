@@ -21,9 +21,7 @@ test("shared link works", async ({ page }) => {
 
 test("save code with ctrl/cmd+S", async ({ page }) => {
   await page.goto(host);
-  const cadlEditorContainer = page.locator(
-    ".cadl-editor-container .monaco-editor-container > .monaco-editor"
-  );
+  const cadlEditorContainer = page.locator("_react=CadlEditor");
   await cadlEditorContainer.click();
   await cadlEditorContainer.type("op sharedCode(): string;");
   await Promise.all([
