@@ -1,5 +1,4 @@
 import {
-  BooleanLiteral,
   cadlTypeToJson,
   createDecoratorDefinition,
   createDiagnosticCollector,
@@ -555,6 +554,23 @@ export function getAuthentication(
   return program.stateMap(authenticationKey).get(namespace);
 }
 
+function extractSharedValue(context: DecoratorContext, parameters?: Model): boolean {
+  const sharedType = parameters?.properties.get("shared")?.type;
+  if (sharedType == undefined) {
+    return false;
+  }
+  switch (sharedType.kind) {
+    case "Boolean":
+      return sharedType.value;
+    default:
+      reportDiagnostic(context.program, {
+        code: "shared-boolean",
+        target: sharedType,
+      });
+      return false;
+  }
+}
+
 /**
  * `@route` defines the relative route URI for the target operation
  *
@@ -568,7 +584,7 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
   setRoute(context, entity, {
     path,
     isReset: false,
-    shared: (parameters?.properties.get("shared")?.type as BooleanLiteral)?.value ?? false,
+    shared: extractSharedValue(context, parameters),
   });
 }
 
@@ -581,7 +597,7 @@ export function $routeReset(
   setRoute(context, entity, {
     path,
     isReset: true,
-    shared: (parameters?.properties.get("shared")?.type as BooleanLiteral)?.value ?? false,
+    shared: extractSharedValue(context, parameters),
   });
 }
 

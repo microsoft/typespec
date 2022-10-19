@@ -166,6 +166,18 @@ describe("rest: http decorators", () => {
 
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("emit diagnostic when wrong type for shared is provided", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test", {shared: "yes"}) op test(): string;
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@cadl-lang/rest/shared-boolean",
+          message: `shared parameter must be a boolean.`,
+        },
+      ]);
+    });
   });
 
   describe("@path", () => {
