@@ -261,6 +261,7 @@ export interface HttpOperation {
 export interface RoutePath {
   path: string;
   isReset: boolean;
+  shared: boolean;
 }
 
 export type StatusCode = `${number}` | "*";
