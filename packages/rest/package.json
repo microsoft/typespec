@@ -58,6 +58,9 @@
   "peerDependencies": {
     "@cadl-lang/compiler": "~0.36.1"
   },
+  "dependencies": {
+    "@cadl-lang/lint": "~0.2.0"
+  },
   "devDependencies": {
     "@types/mocha": "~9.1.0",
     "@types/node": "~16.0.3",
