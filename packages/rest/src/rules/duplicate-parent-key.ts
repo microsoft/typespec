@@ -26,7 +26,7 @@ export const duplicateParentKey = createRule({
                     parentName: currentType.name,
                     keyName,
                   },
-                  target: resourceKey!.keyProperty,
+                  target: resourceKey.keyProperty,
                 });
                 return;
               }
