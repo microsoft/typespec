@@ -490,7 +490,10 @@ DecoratorModifiers:
   `extern`
 
 FunctionDeclarationStatement :
-  FunctionModifiers? `fn` `(` FunctionParameterList? `)` `:` Expression
+  FunctionModifiers? `fn` `(` FunctionParameterList? `)` TypeAnnotation?
+
+TypeAnnotation:
+  `:` Expression
 
 FunctionModifiers:
   `extern`
@@ -500,7 +503,7 @@ FunctionParameterList :
   FunctionParameterList `,` FunctionParameter
 
 FunctionParameter :
-  `...`? Identifier `?`? `:` Expression
+  `...`? Identifier `?`? TypeAnnotation?
 
 ProjectionStatement :
     `projection` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`
