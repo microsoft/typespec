@@ -580,3 +580,61 @@ export function getRoutePath(
 ): RoutePath | undefined {
   return program.stateMap(routesKey).get(entity);
 }
+
+const includeInapplicableMetadataInPayloadKey = createStateSymbol(
+  "includeInapplicableMetadataInPayload"
+);
+
+/**
+ * Specifies if inapplicable metadata should be included in the payload for
+ * the given entity. This is true by default unless changed by this
+ * decorator.
+ *
+ * @param entity Target model, namespace, or model property. If applied to a
+ *               model or namespace, applies recursively to child models,
+ *               namespaces, and model properties unless overridden by
+ *               applying this decorator to a child.
+ *
+ * @param value `true` to include inapplicable metadata in payload, false to
+ *               exclude it.
+ *
+ * @see isApplicableMetadata
+ */
+export function $includeInapplicableMetadataInPayload(
+  context: DecoratorContext,
+  entity: Type,
+  value: boolean
+) {
+  if (
+    !validateDecoratorTarget(context, entity, "@includeInapplicableMetadataInPayload", [
+      "Namespace",
+      "Model",
+      "ModelProperty",
+    ])
+  ) {
+    return;
+  }
+  const state = context.program.stateMap(includeInapplicableMetadataInPayloadKey);
+  state.set(entity, value);
+}
+
+/**
+ * Determines if the given model property should be included in the payload if it is
+ * inapplicable metadata.
+ *
+ * @see isApplicableMetadata
+ * @see $includeInapplicableMetadataInPayload
+ */
+export function includeInapplicableMetadataInPayload(
+  program: Program,
+  property: ModelProperty
+): boolean {
+  let e: ModelProperty | Namespace | Model | undefined;
+  for (e = property; e; e = e.kind === "ModelProperty" ? e.model : e.namespace) {
+    const value = program.stateMap(includeInapplicableMetadataInPayloadKey).get(e);
+    if (value !== undefined) {
+      return value;
+    }
+  }
+  return true;
+}

@@ -18,3 +18,5 @@ extern dec head(target: Operation);
 extern dec server(target: Namespace, url: string, description: string, parameters?: object);
 
 extern dec useAuth(target: Namespace, auth: object | Union | object[]);
+
+extern dec includeInapplicableMetadataInPayload(target: unknown, value: boolean);

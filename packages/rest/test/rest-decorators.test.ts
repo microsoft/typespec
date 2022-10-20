@@ -4,7 +4,7 @@ import { ok, strictEqual } from "assert";
 import { getResourceLocationType } from "../src/rest.js";
 import { createRestTestRunner } from "./test-host.js";
 
-describe("rest: http decorators", () => {
+describe("rest: rest decorators", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {

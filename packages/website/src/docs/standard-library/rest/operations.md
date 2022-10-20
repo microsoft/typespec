@@ -285,7 +285,7 @@ namespace Pets {
 }
 ```
 
-### Automatic visibility
+## Automatic visibility
 
 The `@cadl-lang/rest` library understands the following well-known [visibilities]({%doc "built-in-decorators"%}#visibility-decorators) and provides functionality for emitters to apply them based on whether on request vs. response and HTTP method usage as detailed in the table below. Currently, only the `@cadl-lang/openapi3` emitter uses this, but it is expected that other REST-based emitters will do so as well in the near future.
 
@@ -316,7 +316,9 @@ interface Users {
 
 There is a single logical user entity represented by the single Cadl type `User`, but the HTTP payload for this entity varies based on context. When returned in a response, the `id` property is included, but when sent in a request, it is not. Similarly, the `password` property is only included in create requests, but not present in responses.
 
-The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas as necessary. However, another emitter such as one generating client code can see and preserve a single logical type and deal with these HTTP payload differences by means other than type proliferation.
+The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas suffixed by visibility when necessary. `@visibility("read")` can be expressed in OpenAPI without generating additional schema by specifying `readOnly: true` and the OpenAPI v3 emitter will leverage this a an optimization, but other visibilities will generate additional schemas. For example, `@visibility("create")` applied to a model property of a type named Widget will generate a WidgetCreate schema.
+
+Another emitter such as one generating client code can see and preserve a single logical type and deal with these HTTP payload differences by means other than type proliferation.
 
 Modeling with logical entities rather than HTTP-specific shapes also keeps the Cadl spec decoupled from HTTP and REST and can allow the same spec to be used with multiple protocols.
 
@@ -335,7 +337,7 @@ Metadata is determined to be applicable or inapplicable based on the context tha
 
 Additionally metadata that appears in an array element type always inapplicable.
 
-When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead.
+When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead unless the [@includeInapplicableMetadataInPayload][metadata]({%doc "http/decorators"%}#includeinapplicablemetadatainpayload) decorator is used and given a value of `false`.
 
 The handling of metadata applicability furthers the goal of keeping a single logical model in Cadl. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatically visibility as before, we further indicate that the password is only present in create requests.
 

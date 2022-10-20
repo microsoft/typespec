@@ -11,6 +11,7 @@ import {
   getPathParamName,
   getQueryParamName,
   getServers,
+  includeInapplicableMetadataInPayload,
   isBody,
   isHeader,
   isPathParam,
@@ -602,6 +603,89 @@ describe("rest: http decorators", () => {
           },
         ],
       });
+    });
+  });
+
+  describe("@visiblity", () => {
+    it("warns on unsupported write visibility", async () => {
+      const diagnostics = await runner.diagnose(`
+        @test model M {
+          @visibility("write") w: string;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          severity: "warning",
+          code: "@cadl-lang/rest/write-visibility-not-supported",
+        },
+      ]);
+    });
+  });
+
+  describe("@includeInapplicableMetadataInPayload", () => {
+    it("defaults to true", async () => {
+      const { M } = await runner.compile(`
+        namespace Foo;
+        @test model M {p: string; }
+      `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        true
+      );
+    });
+    it("can specify at namespace level", async () => {
+      const { M } = await runner.compile(`
+        @includeInapplicableMetadataInPayload(false)
+        namespace Foo;
+        @test model M {p: string; }
+      `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        false
+      );
+    });
+    it("can specify at model level", async () => {
+      const { M } = await runner.compile(`
+      namespace Foo;
+      @includeInapplicableMetadataInPayload(false) @test model M { p: string; }
+    `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        false
+      );
+    });
+    it("can specify at property level", async () => {
+      const { M } = await runner.compile(`
+      namespace Foo;
+      @test model M { @includeInapplicableMetadataInPayload(false) p: string; }
+    `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        false
+      );
+    });
+
+    it("can be overridden", async () => {
+      const { M } = await runner.compile(`
+      @includeInapplicableMetadataInPayload(false)
+      namespace Foo;
+      @includeInapplicableMetadataInPayload(true) @test model M { p: string; }
+    `);
+
+      strictEqual(M.kind, "Model" as const);
+      strictEqual(
+        includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
+        true
+      );
     });
   });
 });
