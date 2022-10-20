@@ -1219,6 +1219,7 @@ function printFunctionDeclarationStatement(
   options: CadlPrettierOptions,
   print: PrettierChildPrint
 ): prettier.Doc {
+  const node = path.getValue();
   const id = path.call(print, "id");
   const parameters = [
     group([
@@ -1231,18 +1232,8 @@ function printFunctionDeclarationStatement(
       softline,
     ]),
   ];
-  const returnType = path.call(print, "returnType");
-  return [
-    printModifiers(path, options, print),
-    "fn ",
-    id,
-    "(",
-    parameters,
-    ")",
-    ": ",
-    returnType,
-    ";",
-  ];
+  const returnType = node.returnType ? [": ", path.call(print, "returnType")] : "";
+  return [printModifiers(path, options, print), "fn ", id, "(", parameters, ")", returnType, ";"];
 }
 
 function printFunctionParameterDeclaration(
@@ -1252,12 +1243,15 @@ function printFunctionParameterDeclaration(
 ): prettier.Doc {
   const node = path.getValue();
   const id = path.call(print, "id");
+
+  const type = node.type ? [": ", path.call(print, "type")] : "";
+
   return [
     node.rest ? "..." : "",
     printDirectives(path, options, print),
     id,
-    node.optional ? "?: " : ": ",
-    path.call(print, "type"),
+    node.optional ? "?" : "",
+    type,
   ];
 }
 

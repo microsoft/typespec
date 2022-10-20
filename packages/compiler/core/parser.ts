@@ -1371,8 +1371,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     parseExpected(Token.FnKeyword);
     const id = parseIdentifier();
     const parameters = parseFunctionParameters();
-    parseExpected(Token.Colon);
-    const returnType = parseExpression();
+    let returnType;
+    if (parseOptional(Token.Colon)) {
+      returnType = parseExpression();
+    }
     parseExpected(Token.Semicolon);
     return {
       kind: SyntaxKind.FunctionDeclarationStatement,
@@ -1418,8 +1420,10 @@ export function parse(code: string | SourceFile, options: ParseOptions = {}): Ca
     const id = parseIdentifier("property");
 
     const optional = parseOptional(Token.Question);
-    parseExpected(Token.Colon);
-    const type = parseExpression();
+    let type;
+    if (parseOptional(Token.Colon)) {
+      type = parseExpression();
+    }
     return {
       kind: SyntaxKind.FunctionParameter,
       id,

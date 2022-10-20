@@ -1106,6 +1106,20 @@ extern dec foo(target: Type, arg1: StringLiteral);
       });
     });
 
+    it("format decorator without parameter types", () => {
+      assertFormat({
+        code: `
+extern 
+  dec 
+    foo(target, 
+      arg1);
+      `,
+        expected: `
+extern dec foo(target, arg1);
+`,
+      });
+    });
+
     it("format decorator with optional parameters", () => {
       assertFormat({
         code: `
@@ -1163,6 +1177,20 @@ extern
       `,
         expected: `
 extern fn foo(arg1: StringLiteral): void;
+`,
+      });
+    });
+
+    it("format function without parameter types and return type", () => {
+      assertFormat({
+        code: `
+extern 
+  fn 
+    foo(target, 
+      arg1);
+      `,
+        expected: `
+extern fn foo(target, arg1);
 `,
       });
     });

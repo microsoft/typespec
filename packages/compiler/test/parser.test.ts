@@ -565,6 +565,7 @@ describe("compiler: parser", () => {
       "extern dec myDec(target: Type, arg1: StringLiteral);",
       "extern dec myDec(target: Type, optional?: StringLiteral);",
       "extern dec myDec(target: Type, ...rest: StringLiteral[]);",
+      "extern dec myDec(target, arg1, ...rest);",
     ]);
 
     parseErrorEach([
@@ -573,7 +574,6 @@ describe("compiler: parser", () => {
         "dec myDec();",
         [{ code: "decorator-decl-target", message: "dec must have at least one parameter." }],
       ],
-      ["dec myDec(target);", [{ code: "token-expected", message: "':' expected." }]],
       [
         "dec myDec(target: Type, optionalFirst?: StringLiteral, requiredAfter: StringLiteral);",
         [
@@ -612,12 +612,11 @@ describe("compiler: parser", () => {
       "extern fn myDec(arg1: StringLiteral): void;",
       "extern fn myDec(optional?: StringLiteral): void;",
       "extern fn myDec(...rest: StringLiteral[]): void;",
+      "extern fn myDec(arg1, ...rest): void;",
     ]);
 
     parseErrorEach([
       ["fn myDec(target: Type): void", [{ code: "token-expected", message: "';' expected." }]],
-      ["fn myDec(target): void;", [{ code: "token-expected", message: "':' expected." }]],
-      ["fn myDec(target);", [{ code: "token-expected", message: "':' expected." }]],
       [
         "fn myDec(target: Type, optionalFirst?: StringLiteral, requiredAfter: StringLiteral): void;",
         [

@@ -1156,7 +1156,7 @@ export function createChecker(program: Program): Checker {
       namespace,
       node,
       parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
-      returnType: getTypeForNode(node.returnType, mapper),
+      returnType: node.returnType ? getTypeForNode(node.returnType, mapper) : unknownType,
       implementation: implementation ?? (() => {}),
     });
 
@@ -1176,10 +1176,10 @@ export function createChecker(program: Program): Checker {
     if (links.declaredType) {
       return links.declaredType as FunctionParameter;
     }
-    if (node.rest && node.type.kind !== SyntaxKind.ArrayExpression) {
+    if (node.rest && node.type && node.type.kind !== SyntaxKind.ArrayExpression) {
       reportDiagnostic(program, { code: "rest-parameter-array", target: node.type });
     }
-    const type = getTypeForNode(node.type);
+    const type = node.type ? getTypeForNode(node.type) : unknownType;
 
     const parameterType: FunctionParameter = createType({
       kind: "FunctionParameter",

@@ -1068,7 +1068,7 @@ export interface DecoratorDeclarationStatementNode extends BaseNode, Declaration
 export interface FunctionParameterNode extends BaseNode {
   readonly kind: SyntaxKind.FunctionParameter;
   readonly id: IdentifierNode;
-  readonly type: Expression;
+  readonly type?: Expression;
 
   /**
    * Parameter defined with `?`
@@ -1093,7 +1093,7 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly modifiers: readonly Modifier[];
   readonly modifierFlags: ModifierFlags;
   readonly parameters: FunctionParameterNode[];
-  readonly returnType: Expression;
+  readonly returnType?: Expression;
 }
 
 // Projection-related Syntax
