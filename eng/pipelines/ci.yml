@@ -2,6 +2,9 @@
 
 trigger:
   - main
+  # For patch releases
+  - release/*
+
 pr: none
 
 jobs:
