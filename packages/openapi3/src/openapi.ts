@@ -556,6 +556,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       return mapCadlTypeToOpenAPI(type, visibility);
     }
 
+    if (type.kind === "Intrinsic" && type.name === "unknown") {
+      return getSchemaForIntrinsicType(type);
+    }
+
     if (type.kind === "EnumMember") {
       // Enum members are just the OA representation of their values.
       if (typeof type.value === "number") {
