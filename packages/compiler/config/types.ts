@@ -19,7 +19,29 @@ export interface CadlConfig {
    */
   extends?: string;
 
-  emitters: Record<string, Record<string, unknown> | boolean>;
+  /**
+   * Treat warning as error.
+   */
+  warnAsError?: boolean;
+  /**
+   * Output directory
+   */
+  outputDir?: string;
+
+  /**
+   * Trace options.
+   */
+  trace?: string[];
+
+  /**
+   * Additional imports.
+   */
+  imports?: string[];
+
+  /**
+   * Emitter configuration
+   */
+  emitters: Record<string, boolean | Record<string, unknown>>;
 }
 
 export type RuleValue = "on" | "off" | Record<string, unknown>;
@@ -29,5 +51,9 @@ export type RuleValue = "on" | "off" | Record<string, unknown>;
  */
 export interface CadlRawConfig {
   extends?: string;
+  "warn-as-error"?: boolean;
+  "output-dir"?: string;
+  trace?: string | string[];
+  imports?: string[];
   emitters?: Record<string, boolean | Record<string, unknown>>;
 }

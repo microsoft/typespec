@@ -9,6 +9,29 @@ export const CadlConfigJsonSchema: JSONSchemaType<CadlRawConfig> = {
       type: "string",
       nullable: true,
     },
+    "output-dir": {
+      type: "string",
+      nullable: true,
+    },
+    "warn-as-error": {
+      type: "boolean",
+      nullable: true,
+    },
+    trace: {
+      nullable: true,
+      oneOf: [
+        { type: "string" },
+        {
+          type: "array",
+          items: { type: "string" },
+        },
+      ],
+    },
+    imports: {
+      type: "array",
+      nullable: true,
+      items: { type: "string" },
+    },
     emitters: {
       type: "object",
       nullable: true,
