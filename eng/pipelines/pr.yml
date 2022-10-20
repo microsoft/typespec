@@ -2,6 +2,7 @@ trigger:
   - main
 pr:
   - main
+  - release/*
 
 jobs:
   - job: Build_And_Test

@@ -4,6 +4,8 @@ specifiers:
   '@11ty/eleventy': ^1.0.1
   '@11ty/eleventy-plugin-syntaxhighlight': ^4.1.0
   '@babel/code-frame': ~7.16.7
+  '@babel/core': ^7.0.0
+  '@emotion/react': ^11.10.4
   '@playwright/test': ~1.25.1
   '@rollup/plugin-commonjs': ~22.0.2
   '@rollup/plugin-json': ~4.1.0
@@ -45,7 +47,6 @@ specifiers:
   '@types/prompts': ~2.0.14
   '@types/react': ~18.0.5
   '@types/react-dom': ~18.0.1
-  '@types/styled-components': ~5.1.25
   '@types/swagger-ui': ~3.52.0
   '@types/vscode': ~1.53.0
   '@types/watch': ~1.0.3
@@ -101,7 +102,6 @@ specifiers:
   rollup-plugin-visualizer: ~5.8.0
   source-map-support: ~0.5.19
   strip-json-comments: ~4.0.0
-  styled-components: ~5.3.5
   swagger-ui: ~4.14.0
   typescript: ~4.8.2
   vite: ^2.9.9
@@ -118,6 +118,8 @@ dependencies:
   '@11ty/eleventy': 1.0.2
   '@11ty/eleventy-plugin-syntaxhighlight': 4.1.0
   '@babel/code-frame': 7.16.7
+  '@babel/core': 7.18.10
+  '@emotion/react': 11.10.4_19143dc0f0d75d2d658fd4ae9f380e75
   '@playwright/test': 1.25.1
   '@rollup/plugin-commonjs': 22.0.2_rollup@2.79.0
   '@rollup/plugin-json': 4.1.0_rollup@2.79.0
@@ -159,7 +161,6 @@ dependencies:
   '@types/prompts': 2.0.14
   '@types/react': 18.0.15
   '@types/react-dom': 18.0.6
-  '@types/styled-components': 5.1.25
   '@types/swagger-ui': 3.52.0
   '@types/vscode': 1.53.0
   '@types/watch': 1.0.3
@@ -215,7 +216,6 @@ dependencies:
   rollup-plugin-visualizer: 5.8.0_rollup@2.79.0
   source-map-support: 0.5.21
   strip-json-comments: 4.0.0
-  styled-components: 5.3.5_cc3123a60c632166f817f0cb3bc8228c
   swagger-ui: 4.14.0
   typescript: 4.8.2
   vite: 2.9.14
@@ -849,6 +849,40 @@ packages:
     resolution: {integrity: sha512-/MB0RS0Gn01s4pgmjy0FvsLfr3RRMrRphEuvTRserNcM8XVtoIVAtrjig/Gg0DPwDrN8Clm0L1j7iQay6S8D0g==}
     dev: false
 
+  /@emotion/babel-plugin/11.10.2_@babel+core@7.18.10:
+    resolution: {integrity: sha512-xNQ57njWTFVfPAc3cjfuaPdsgLp5QOSuRsj9MA6ndEhH/AzuZM86qIQzt6rq+aGBwj3n5/TkLmU5lhAfdRmogA==}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+    dependencies:
+      '@babel/core': 7.18.10
+      '@babel/helper-module-imports': 7.18.6
+      '@babel/plugin-syntax-jsx': 7.18.6_@babel+core@7.18.10
+      '@babel/runtime': 7.18.9
+      '@emotion/hash': 0.9.0
+      '@emotion/memoize': 0.8.0
+      '@emotion/serialize': 1.1.0
+      babel-plugin-macros: 3.1.0
+      convert-source-map: 1.8.0
+      escape-string-regexp: 4.0.0
+      find-root: 1.1.0
+      source-map: 0.5.7
+      stylis: 4.0.13
+    dev: false
+
+  /@emotion/cache/11.10.3:
+    resolution: {integrity: sha512-Psmp/7ovAa8appWh3g51goxu/z3iVms7JXOreq136D8Bbn6dYraPnmL6mdM8GThEx9vwSn92Fz+mGSjBzN8UPQ==}
+    dependencies:
+      '@emotion/memoize': 0.8.0
+      '@emotion/sheet': 1.2.0
+      '@emotion/utils': 1.2.0
+      '@emotion/weak-memoize': 0.3.0
+      stylis: 4.0.13
+    dev: false
+
+  /@emotion/hash/0.9.0:
+    resolution: {integrity: sha512-14FtKiHhy2QoPIzdTcvh//8OyBlknNs2nXRwIhG904opCby3l+9Xaf/wuPvICBF0rc1ZCNBd3nKe9cd2mecVkQ==}
+    dev: false
+
   /@emotion/is-prop-valid/1.2.0:
     resolution: {integrity: sha512-3aDpDprjM0AwaxGE09bOPkNxHpBd+kA6jty3RnaEXdweX1DF1U3VQpPYb0g1IStAuK7SVQ1cy+bNBBKp4W3Fjg==}
     dependencies:
@@ -859,12 +893,71 @@ packages:
     resolution: {integrity: sha512-G/YwXTkv7Den9mXDO7AhLWkE3q+I92B+VqAE+dYG4NGPaHZGvt3G8Q0p9vmE+sq7rTGphUbAvmQ9YpbfMQGGlA==}
     dev: false
 
+  /@emotion/react/11.10.4_19143dc0f0d75d2d658fd4ae9f380e75:
+    resolution: {integrity: sha512-j0AkMpr6BL8gldJZ6XQsQ8DnS9TxEQu1R+OGmDZiWjBAJtCcbt0tS3I/YffoqHXxH6MjgI7KdMbYKw3MEiU9eA==}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/core': 7.18.10
+      '@babel/runtime': 7.18.9
+      '@emotion/babel-plugin': 11.10.2_@babel+core@7.18.10
+      '@emotion/cache': 11.10.3
+      '@emotion/serialize': 1.1.0
+      '@emotion/use-insertion-effect-with-fallbacks': 1.0.0_react@18.2.0
+      '@emotion/utils': 1.2.0
+      '@emotion/weak-memoize': 0.3.0
+      '@types/react': 18.0.15
+      hoist-non-react-statics: 3.3.2
+      react: 18.2.0
+    dev: false
+
+  /@emotion/serialize/1.1.0:
+    resolution: {integrity: sha512-F1ZZZW51T/fx+wKbVlwsfchr5q97iW8brAnXmsskz4d0hVB4O3M/SiA3SaeH06x02lSNzkkQv+n3AX3kCXKSFA==}
+    dependencies:
+      '@emotion/hash': 0.9.0
+      '@emotion/memoize': 0.8.0
+      '@emotion/unitless': 0.8.0
+      '@emotion/utils': 1.2.0
+      csstype: 3.1.0
+    dev: false
+
+  /@emotion/sheet/1.2.0:
+    resolution: {integrity: sha512-OiTkRgpxescko+M51tZsMq7Puu/KP55wMT8BgpcXVG2hqXc0Vo0mfymJ/Uj24Hp0i083ji/o0aLddh08UEjq8w==}
+    dev: false
+
   /@emotion/stylis/0.8.5:
     resolution: {integrity: sha512-h6KtPihKFn3T9fuIrwvXXUOwlx3rfUvfZIcP5a6rh8Y7zjE3O06hT5Ss4S/YI1AYhuZ1kjaE/5EaOOI2NqSylQ==}
     dev: false
 
   /@emotion/unitless/0.7.5:
     resolution: {integrity: sha512-OWORNpfjMsSSUBVrRBVGECkhWcULOAJz9ZW8uK9qgxD+87M7jHRcvh/A96XXNhXTLmKcoYSQtBEX7lHMO7YRwg==}
+    dev: false
+
+  /@emotion/unitless/0.8.0:
+    resolution: {integrity: sha512-VINS5vEYAscRl2ZUDiT3uMPlrFQupiKgHz5AA4bCH1miKBg4qtwkim1qPmJj/4WG6TreYMY111rEFsjupcOKHw==}
+    dev: false
+
+  /@emotion/use-insertion-effect-with-fallbacks/1.0.0_react@18.2.0:
+    resolution: {integrity: sha512-1eEgUGmkaljiBnRMTdksDV1W4kUnmwgp7X9G8B++9GYwl1lUdqSndSriIrTJ0N7LQaoauY9JJ2yhiOYK5+NI4A==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /@emotion/utils/1.2.0:
+    resolution: {integrity: sha512-sn3WH53Kzpw8oQ5mgMmIzzyAaH2ZqFEbozVVBSYp538E06OSE6ytOp7pRAjNQR+Q/orwqdQYJSe2m3hCOeznkw==}
+    dev: false
+
+  /@emotion/weak-memoize/0.3.0:
+    resolution: {integrity: sha512-AHPmaAx+RYfZz0eYu6Gviiagpmiyw98ySSlQvCUhVGDRtDFe4DBS0x1bSjdF3gqUDYOczB+yYvBTtEylYSdRhg==}
     dev: false
 
   /@esbuild/linux-loong64/0.14.53:
@@ -1798,6 +1891,15 @@ packages:
     dependencies:
       tunnel: 0.0.6
       typed-rest-client: 1.8.9
+    dev: false
+
+  /babel-plugin-macros/3.1.0:
+    resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
+    engines: {node: '>=10', npm: '>=6'}
+    dependencies:
+      '@babel/runtime': 7.18.9
+      cosmiconfig: 7.0.1
+      resolve: 1.22.1
     dev: false
 
   /babel-plugin-styled-components/2.0.7_styled-components@5.3.5:
@@ -4085,6 +4187,10 @@ packages:
     engines: {node: '>=4.0.0'}
     dependencies:
       array-back: 3.1.0
+    dev: false
+
+  /find-root/1.1.0:
+    resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}
     dev: false
 
   /find-up/4.1.0:
@@ -6898,6 +7004,11 @@ packages:
       source-map: 0.6.1
     dev: false
 
+  /source-map/0.5.7:
+    resolution: {integrity: sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==}
+    engines: {node: '>=0.10.0'}
+    dev: false
+
   /source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
@@ -7049,6 +7160,10 @@ packages:
       react-is: 18.1.0
       shallowequal: 1.1.0
       supports-color: 5.5.0
+    dev: false
+
+  /stylis/4.0.13:
+    resolution: {integrity: sha512-xGPXiFVl4YED9Jh7Euv2V220mriG9u4B2TA6Ybjc1catrstKD2PpIdU3U0RKpkVBC2EhmL/F0sPCr9vrFTNRag==}
     dev: false
 
   /stylis/4.1.1:
@@ -8087,10 +8202,12 @@ packages:
     dev: false
 
   file:projects/html-program-viewer.tgz:
-    resolution: {integrity: sha512-A4uDkt7Ac0J1kpc4JJH0hDaWz6mfOMOjutBDu2HXliNeEC5+xMek+8gCE9l4oYGHwHc9cG1fghjkKn+nfAj5Qw==, tarball: file:projects/html-program-viewer.tgz}
+    resolution: {integrity: sha512-0uJl1IKnRHN3ocBkLnFAm+o6P9m2oqOxJ1fz26hX3wxZZi1H1S8piAb3V6EzTtjwoNuvSP4nOSIl62qKbD9IAw==, tarball: file:projects/html-program-viewer.tgz}
     name: '@rush-temp/html-program-viewer'
     version: 0.0.0
     dependencies:
+      '@babel/core': 7.18.10
+      '@emotion/react': 11.10.4_19143dc0f0d75d2d658fd4ae9f380e75
       '@types/mocha': 9.1.1
       '@types/node': 16.0.3
       '@types/prettier': 2.6.0
@@ -8211,11 +8328,13 @@ packages:
     dev: false
 
   file:projects/playground.tgz_rollup@2.79.0:
-    resolution: {integrity: sha512-4nph/CKxKeN106ld9SYa0joDmFaIWWbLOhpvcuv6BIUiUcfXWSpnnYdA+j9EL0RnHUPhI69+BWNsiZTEQ1Gt7w==, tarball: file:projects/playground.tgz}
+    resolution: {integrity: sha512-Qk9S4134vqNB/V69Do8eqc4WJQ+QDkQTXemvkootcfzGPyRhR2jHpdAvncOP2r+fCYxsgLX5XcEgWBwLH7xjEQ==, tarball: file:projects/playground.tgz}
     id: file:projects/playground.tgz
     name: '@rush-temp/playground'
     version: 0.0.0
     dependencies:
+      '@babel/core': 7.18.10
+      '@emotion/react': 11.10.4_19143dc0f0d75d2d658fd4ae9f380e75
       '@playwright/test': 1.25.1
       '@types/debounce': 1.2.1
       '@types/mocha': 9.1.1

@@ -103,6 +103,22 @@ describe("openapi3: primitives", () => {
         maxLength: 10,
       });
     });
+
+    it("includes extensions passed on the model", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+      @extension("x-custom", "my-value")
+      model Pet is string;
+      `
+      );
+
+      ok(res.schemas.Pet, "expected definition named Pet");
+      deepStrictEqual(res.schemas.Pet, {
+        type: "string",
+        "x-custom": "my-value",
+      });
+    });
   });
 
   describe("using @doc decorator", () => {

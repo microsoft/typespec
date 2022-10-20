@@ -150,6 +150,8 @@ describe("compiler: checker: augment decorators", () => {
       strictEqual(customName, "FooCustom");
     }
 
+    it("namespace", () => expectTarget(`@test("target") namespace Foo {}`, "Foo"));
+
     it("model", () => expectTarget(`@test("target") model Foo {}`, "Foo"));
     it("model property", () =>
       expectTarget(

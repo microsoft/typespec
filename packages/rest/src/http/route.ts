@@ -106,7 +106,11 @@ export function resolvePathAndParameters(
   overloadBase: HttpOperation | undefined,
   options: RouteResolutionOptions
 ): [
-  { path: string; pathSegments: string[]; parameters: HttpOperationParameters },
+  {
+    path: string;
+    pathSegments: string[];
+    parameters: HttpOperationParameters;
+  },
   readonly Diagnostic[]
 ] {
   let segments: string[] = [];
