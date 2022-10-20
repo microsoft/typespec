@@ -194,7 +194,7 @@ op getPet(): {
 
 ### Specify content type
 
-The content type for an operation can be specified using specifying an header property called `contentType`
+The content type for an operation can be specified by including a header parameter named `contentType`.
 
 #### Request content type
 
